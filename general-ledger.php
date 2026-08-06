@@ -164,163 +164,212 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             color: #0f172a !important;
         }
 
-        /* Table Themes */
-        table.table-theme-blue th { background: linear-gradient(135deg, #1e3a8a, #1d4ed8) !important; color: #ffffff !important; }
-        table.table-theme-blue td { border-color: rgba(59, 130, 246, 0.2) !important; }
-
-        table.table-theme-black th { background: linear-gradient(135deg, #0f172a, #1e293b) !important; color: #f8fafc !important; }
-        table.table-theme-black td { border-color: rgba(255, 255, 255, 0.08) !important; }
-
-        table.table-theme-emerald th { background: linear-gradient(135deg, #065f46, #047857) !important; color: #ffffff !important; }
-        table.table-theme-emerald td { border-color: rgba(16, 185, 129, 0.2) !important; }
-
-        /* Number Fonts */
-        .num-font-jetbrains { font-family: 'JetBrains Mono', monospace !important; }
-        .num-font-roboto { font-family: 'Roboto Mono', monospace !important; }
-        .num-font-firacode { font-family: 'Fira Code', monospace !important; }
-        .num-font-inter { font-family: 'Inter', sans-serif !important; }
-        .num-font-poppins { font-family: 'Poppins', sans-serif !important; }
-
-        /* Cumulative Cell Magnification on Click */
-        td.focused-num {
-            transform: scale(1.45) translateY(-2px) !important;
-            color: #38bdf8 !important;
+        /* ── Magnified Number Audit Effect ── */
+        .pos-grid td.num-magnified {
+            font-size: 1.85rem !important;
             font-weight: 900 !important;
-            background: rgba(15, 23, 42, 0.96) !important;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.4), rgba(217, 119, 6, 0.5)) !important;
+            color: #ffffff !important;
+            border: 2px solid #fbbf24 !important;
             border-radius: 8px !important;
-            box-shadow: 0 0 30px rgba(56, 189, 248, 0.7), inset 0 0 0 2px #38bdf8 !important;
-            z-index: 1000 !important;
-            position: relative !important;
-            display: inline-block !important;
-            padding: 4px 12px !important;
+            box-shadow: 0 0 25px rgba(245, 158, 11, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.4) !important;
+            transform: scale(1.15) !important;
             transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-            text-shadow: 0 0 10px rgba(56, 189, 248, 0.8) !important;
+            z-index: 50 !important;
+            position: relative !important;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.6) !important;
+            padding: 8px 12px !important;
+            display: table-cell !important;
         }
-        :root.light-theme td.focused-num {
-            color: #0284c7 !important;
-            background: #ffffff !important;
-            box-shadow: 0 10px 30px rgba(2, 132, 199, 0.35), inset 0 0 0 2px #0284c7 !important;
-            text-shadow: none !important;
+        :root.light-theme .pos-grid td.num-magnified {
+            background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+            color: #ffffff !important;
         }
 
-        /* Col Config Item in Context Menu */
-        .col-config-item {
+        /* ── Custom Context Menu Styling ── */
+        .gl-ctx-menu {
+            position: fixed;
+            z-index: 99999;
+            background: rgba(15, 23, 42, 0.96);
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            border-radius: 14px;
+            padding: 8px 0;
+            width: 260px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), 0 0 20px rgba(168, 85, 247, 0.25);
+            backdrop-filter: blur(16px);
+            display: none;
+            direction: rtl;
+            font-family: 'Tajawal', sans-serif;
+            user-select: none;
+        }
+        .gl-ctx-item {
+            padding: 10px 18px;
+            color: #f8fafc;
+            font-size: 0.88rem;
+            font-weight: 800;
+            cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            background: rgba(255, 255, 255, 0.04);
-            border: 1px solid rgba(255, 255, 255, 0.08);
-            border-radius: 10px;
-            padding: 8px 12px;
+            gap: 10px;
             transition: all 0.2s;
         }
-        .col-config-item:hover {
-            background: rgba(56, 189, 248, 0.1);
-            border-color: rgba(56, 189, 248, 0.3);
+        .gl-ctx-item:hover {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(56, 189, 248, 0.3));
+            color: #38bdf8;
+            padding-right: 22px;
         }
+        .gl-ctx-item.disabled {
+            opacity: 0.4;
+            cursor: not-allowed;
+            pointer-events: none;
+        }
+        .gl-ctx-divider {
+            height: 1px;
+            background: rgba(255, 255, 255, 0.1);
+            margin: 6px 0;
+        }
+        .gl-ctx-submenu {
+            position: relative;
+        }
+        .gl-ctx-submenu-content {
+            position: absolute;
+            right: 100%;
+            top: -4px;
+            background: rgba(15, 23, 42, 0.96);
+            border: 1px solid rgba(168, 85, 247, 0.4);
+            border-radius: 14px;
+            padding: 8px 0;
+            width: 220px;
+            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7);
+            display: none;
+            backdrop-filter: blur(16px);
+        }
+        .gl-ctx-submenu:hover .gl-ctx-submenu-content {
+            display: block;
+        }
+
+        /* ── Draggable Luxury Master Column Customizer ── */
+        .gl-modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(15, 23, 42, 0.25); backdrop-filter: blur(3px);
+            z-index: 100000; display: none;
+            direction: rtl; font-family: 'Tajawal', sans-serif;
+            pointer-events: auto;
+        }
+        .gl-modal-content {
+            position: fixed;
+            top: 50%; left: 50%;
+            transform: translate(-50%, -50%);
+            background: linear-gradient(145deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.98));
+            border: 1px solid rgba(168, 85, 247, 0.5);
+            border-radius: 20px; padding: 14px 18px; width: 94%; max-width: 620px;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(168, 85, 247, 0.3);
+            color: #f8fafc;
+            backdrop-filter: blur(16px);
+            z-index: 100001;
+            user-select: none;
+            max-height: 90vh;
+            overflow-y: auto;
+            transition: width 0.3s, height 0.3s, max-width 0.3s;
+        }
+
+        .gl-col-chip {
+            display: inline-flex; align-items: center; gap: 6px;
+            background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.15);
+            padding: 4px 10px; border-radius: 8px; font-size: 0.78rem; font-weight: 700;
+            color: #cbd5e1; cursor: pointer; transition: all 0.2s;
+        }
+        .gl-col-chip:hover {
+            background: rgba(168, 85, 247, 0.2); border-color: rgba(168, 85, 247, 0.5); color: #fff;
+        }
+        .gl-col-chip.active {
+            background: rgba(56, 189, 248, 0.25); border-color: #38bdf8; color: #38bdf8;
+            box-shadow: 0 0 10px rgba(56, 189, 248, 0.3);
+        }
+        .gl-col-chip input[type="checkbox"] {
+            cursor: pointer; width: 14px; height: 14px; accent-color: #38bdf8; margin: 0;
+        }
+
+        /* Minimize & Maximize States */
+        .gl-modal-content.minimized {
+            height: 52px !important;
+            overflow: hidden !important;
+            padding-bottom: 0 !important;
+            max-width: 440px !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6) !important;
+        }
+        .gl-modal-content.minimized .gl-preview-box,
+        .gl-modal-content.minimized .gl-form-row,
+        .gl-modal-content.minimized .gl-btn-group,
+        .gl-modal-content.minimized #gl-quick-actions-bar {
+            display: none !important;
+        }
+
+        .gl-modal-content.maximized {
+            width: 95vw !important;
+            max-width: 95vw !important;
+            height: 92vh !important;
+            top: 50% !important; left: 50% !important;
+            transform: translate(-50%, -50%) !important;
+            overflow-y: auto !important;
+        }
+
+        .gl-modal-ctrl-btn {
+            background: rgba(255, 255, 255, 0.08); border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #cbd5e1; border-radius: 8px; width: 28px; height: 28px;
+            display: inline-flex; align-items: center; justify-content: center;
+            font-size: 0.8rem; cursor: pointer; transition: all 0.2s;
+        }
+        .gl-modal-ctrl-btn:hover {
+            background: rgba(56, 189, 248, 0.25); color: #38bdf8; border-color: #38bdf8; transform: scale(1.08);
+        }
+
+        .gl-modal-header {
+            display: flex; justify-content: space-between; align-items: center;
+            border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 8px; margin-bottom: 10px;
+            cursor: grab;
+            background: rgba(255,255,255,0.03);
+            padding: 6px 10px;
+            border-radius: 12px;
+        }
+        .gl-modal-header:active { cursor: grabbing; }
+        .gl-modal-title { font-size: 1.05rem; font-weight: 900; color: #c084fc; display: flex; align-items: center; gap: 6px; }
+        
+        .gl-modal-close-btn {
+            background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #f87171; border-radius: 50%; width: 30px; height: 30px;
+            display: flex; align-items: center; justify-content: center;
+            font-size: 1.05rem; cursor: pointer; transition: all 0.25s; font-weight: bold;
+        }
+        .gl-modal-close-btn:hover {
+            background: #ef4444; color: #fff; transform: scale(1.1) rotate(90deg);
+        }
+
+        .gl-preview-box {
+            background: rgba(0,0,0,0.4); border: 1px dashed rgba(168,85,247,0.4);
+            border-radius: 12px; padding: 6px 10px; margin-bottom: 10px; text-align: center;
+        }
+        .gl-preview-table {
+            width: 100%; border-collapse: collapse; margin-top: 4px;
+        }
+        .gl-preview-table th, .gl-preview-table td {
+            padding: 6px 10px; border: 1px solid rgba(255,255,255,0.15); text-align: center; font-size: 0.85rem;
+        }
+
+        .gl-form-row { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 8px; }
+        .gl-form-group { display: flex; flex-direction: column; gap: 4px; }
+        .gl-form-group label { font-size: 0.78rem; font-weight: 800; color: #94a3b8; }
+        .gl-input {
+            background: rgba(0,0,0,0.35); border: 1px solid rgba(255,255,255,0.15);
+            color: #fff; padding: 6px 10px; border-radius: 8px; font-family: inherit; font-size: 0.84rem; font-weight: 700;
+        }
+        .gl-input:focus { border-color: #c084fc; outline: none; box-shadow: 0 0 0 3px rgba(168,85,247,0.2); }
+        .gl-input-color { height: 32px; padding: 2px; cursor: pointer; width: 100%; border-radius: 8px; border: 1px solid rgba(255,255,255,0.2); background: rgba(0,0,0,0.35); }
+        .gl-btn-group { display: flex; justify-content: space-between; align-items: center; gap: 10px; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.12); padding-top: 10px; }
     </style>
 </head>
 <body class="has-sidebar">
-<!-- Unified Context Menu for Columns & Data Formatting in General Ledger -->
-<div id="columnContextMenu" style="display:none; position:fixed; z-index:1000000; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(15, 23, 42, 0.98); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:2px solid rgba(56, 189, 248, 0.5); border-radius:18px; box-shadow:0 25px 70px rgba(0,0,0,0.85), 0 0 35px rgba(56, 189, 248, 0.3); padding:16px 20px 20px 20px; width:600px; color:#f8fafc; font-family:'Tajawal', 'Inter', sans-serif; max-height:88vh; overflow:auto; resize:both; min-width:340px; min-height:200px; direction:rtl; text-align:right;">
-    <!-- Draggable Header -->
-    <div id="columnContextMenuHeader" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.15); cursor:move; user-select:none; background:rgba(255,255,255,0.05); margin:-16px -20px 14px -20px; padding:14px 20px; border-top-left-radius:16px; border-top-right-radius:16px;">
-        <div style="font-weight:900; font-size:1.1rem; color:#38bdf8; display:flex; align-items:center; gap:8px;">
-            <span style="font-size:1.2rem; color:#fbbf24;" title="اضغط واسحب للتحريك في أي مكان">⠿</span>
-            <span>⚙️</span> تخصيص وإعدادات الأعمدة (إسحب للتحريك)
-        </div>
-        <div style="display:flex; align-items:center; gap:8px;">
-            <!-- High Visibility Red Close Button -->
-            <button type="button" title="إغلاق النافذة" onclick="document.getElementById('columnContextMenu').style.display='none'" style="cursor:pointer; font-weight:900; font-size:1.15rem; color:#ffffff !important; border:1px solid rgba(255,255,255,0.4); padding:4px 14px; border-radius:8px; background:linear-gradient(135deg, #ef4444, #dc2626) !important; box-shadow:0 4px 15px rgba(239,68,68,0.5); transition:all 0.2s; display:flex; align-items:center; gap:4px;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
-                <span>✕</span> <span>إغلاق</span>
-            </button>
-        </div>
-    </div>
-
-    <!-- Menu Content Container -->
-    <div id="columnContextMenuBody">
-        <!-- Navigation Tabs inside Context Menu -->
-        <div style="display:flex; gap:6px; margin-bottom:14px; background:rgba(0,0,0,0.25); padding:4px; border-radius:10px; border:1px solid rgba(255,255,255,0.08);">
-            <button type="button" id="tab-btn-cols" onclick="switchCtxTab('cols')" style="flex:1; padding:8px; border:none; border-radius:8px; background:#38bdf8; color:#0f172a; font-weight:900; font-family:inherit; cursor:pointer; font-size:0.85rem; transition:all 0.2s;">
-                📊 ترتيب الأعمدة والإظهار
-            </button>
-            <button type="button" id="tab-btn-formatting" onclick="switchCtxTab('formatting')" style="flex:1; padding:8px; border:none; border-radius:8px; background:transparent; color:#94a3b8; font-weight:700; font-family:inherit; cursor:pointer; font-size:0.85rem; transition:all 0.2s;">
-                🎨 الثيمات والخطوط والألوان
-            </button>
-        </div>
-
-        <!-- Tab 1: Columns & Visibility -->
-        <div id="ctx-tab-cols">
-            <!-- Info Banner -->
-            <div style="background:rgba(56, 189, 248, 0.1); border:1px solid rgba(56, 189, 248, 0.2); border-radius:10px; padding:10px 12px; margin-bottom:14px; font-size:0.8rem; color:#7dd3fc; line-height:1.5; display:flex; align-items:center; gap:8px;">
-                <span style="font-size:1.1rem;">💡</span>
-                <span>اسحب مقبض (<b>⣿</b>) أو استخدم أزرار ⬆️ ⬇️ لترتيب الأعمدة، وافتح ⚙️ لتخصيص خط ولون وكسور وحدود كل عمود بشكل مستقل!</span>
-            </div>
-
-            <!-- Dynamic Column Items -->
-            <div id="columnToggles" style="display:flex; flex-direction:column; gap:10px;"></div>
-        </div>
-
-        <!-- Tab 2: Formatting, Themes & Number Fonts -->
-        <div id="ctx-tab-formatting" style="display:none;">
-            <!-- Crystal Themes Selector -->
-            <div style="margin-bottom:16px; background:rgba(0,0,0,0.2); padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
-                <label style="display:block; margin-bottom:10px; font-weight:800; color:#fbbf24;">✨ أنماط العرض الفاخرة (Crystal Themes):</label>
-                <div class="crystal-theme-container" style="display:grid; grid-template-columns:repeat(2, 1fr); gap:8px;">
-                    <button type="button" class="crystal-btn c-std active" onclick="changeTableTheme('')" style="padding:8px; border-radius:8px; cursor:pointer;">⚪ الأساسي (Default)</button>
-                    <button type="button" class="crystal-btn c-blue" onclick="changeTableTheme('table-theme-blue')" style="padding:8px; border-radius:8px; cursor:pointer;">🔵 الأزرق العميق</button>
-                    <button type="button" class="crystal-btn c-black" onclick="changeTableTheme('table-theme-black')" style="padding:8px; border-radius:8px; cursor:pointer;">⚫ الأسود الفاخر</button>
-                    <button type="button" class="crystal-btn c-emerald" onclick="changeTableTheme('table-theme-emerald')" style="padding:8px; border-radius:8px; cursor:pointer;">🟢 الزمردي المالي</button>
-                </div>
-            </div>
-
-            <!-- Global Number Colors Customizer -->
-            <div style="margin-bottom:16px; background:rgba(0,0,0,0.25); padding:14px; border-radius:12px; border:1px solid rgba(56,189,248,0.2);">
-                <label style="display:block; margin-bottom:10px; font-weight:800; color:#38bdf8;">🎨 تخصيص ألوان وحجم خط الأرقام والحسابات:</label>
-                <div style="display:flex; flex-direction:column; gap:10px;">
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:0.85rem; font-weight:bold; color:#34d399;">🟢 لون أرقام المدين:</span>
-                        <input type="color" value="#34d399" onchange="updateColField(7, 'color', this.value); updateColField(11, 'color', this.value);" style="border:none; width:45px; height:30px; border-radius:6px; cursor:pointer; background:transparent;">
-                    </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:0.85rem; font-weight:bold; color:#f87171;">🔴 لون أرقام الدائن:</span>
-                        <input type="color" value="#f87171" onchange="updateColField(8, 'color', this.value); updateColField(12, 'color', this.value);" style="border:none; width:45px; height:30px; border-radius:6px; cursor:pointer; background:transparent;">
-                    </div>
-                    <div style="display:flex; justify-content:space-between; align-items:center;">
-                        <span style="font-size:0.85rem; font-weight:bold; color:#fbbf24;">👤 لون اسم الحساب:</span>
-                        <input type="color" value="#fbbf24" onchange="updateColField(3, 'color', this.value);" style="border:none; width:45px; height:30px; border-radius:6px; cursor:pointer; background:transparent;">
-                    </div>
-                </div>
-            </div>
-
-            <!-- Number Fonts Selector -->
-            <div style="margin-bottom:16px; background:rgba(0,0,0,0.2); padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
-                <label style="display:block; margin-bottom:10px; font-weight:800; color:#38bdf8;">📝 خطوط الأرقام الفائقة الوضوح:</label>
-                <div style="display:flex; flex-direction:column; gap:6px;">
-                    <button type="button" class="font-chip" onclick="changeNumberFont('num-font-jetbrains')" style="font-family: 'JetBrains Mono', monospace; padding:8px 12px; border-radius:8px; text-align:right; color:#fff;">1. JetBrains Mono (مونوسبيس عالي الدقة)</button>
-                    <button type="button" class="font-chip" onclick="changeNumberFont('num-font-roboto')" style="font-family: 'Roboto Mono', monospace; padding:8px 12px; border-radius:8px; text-align:right; color:#fff;">2. Roboto Mono (روبوتو المالي)</button>
-                    <button type="button" class="font-chip" onclick="changeNumberFont('num-font-firacode')" style="font-family: 'Fira Code', monospace; padding:8px 12px; border-radius:8px; text-align:right; color:#fff;">3. Fira Code (فيرا كود الحسابي)</button>
-                    <button type="button" class="font-chip" onclick="changeNumberFont('num-font-inter')" style="font-family: 'Inter', sans-serif; padding:8px 12px; border-radius:8px; text-align:right; color:#fff;">4. Inter Font (إنتر المريح للعين)</button>
-                    <button type="button" class="font-chip" onclick="changeNumberFont('num-font-poppins')" style="font-family: 'Poppins', sans-serif; padding:8px 12px; border-radius:8px; text-align:right; color:#fff;">5. Poppins Font (بوبينز الفاخر)</button>
-                </div>
-            </div>
-        </div>
-
-        <!-- Common Footer Buttons -->
-        <div style="border-top:1px solid rgba(255,255,255,0.1); padding-top:15px; margin-top:16px; display:flex; gap:10px;">
-            <button type="button" onclick="saveLayoutAndStyles()" style="flex:1.5; padding:11px; background:linear-gradient(135deg, #10b981, #059669); color:white; border:none; border-radius:8px; font-weight:bold; font-family:inherit; cursor:pointer; box-shadow:0 4px 14px rgba(16, 185, 129, 0.35); display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">
-                💾 حفظ الترتيب والتخصيص
-            </button>
-            <button type="button" onclick="resetLayoutAndStyles()" style="flex:1; padding:11px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#ef4444; border-radius:8px; font-weight:bold; font-family:inherit; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.25)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'">
-                🔄 إعادة الضبط
-            </button>
-            <button type="button" onclick="document.getElementById('columnContextMenu').style.display='none'" style="flex:1; padding:11px; background:linear-gradient(135deg, #ef4444, #dc2626); color:white; border:none; border-radius:8px; font-weight:900; font-family:inherit; cursor:pointer; box-shadow:0 4px 14px rgba(239,68,68,0.35); display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">
-                ✕ إغلاق
-            </button>
-        </div>
-    </div>
-</div>
-
 <div class="sgl-master-container" style="padding: 10px 20px;">
     <?php $header_theme_class = 'header-theme-reports'; ?>
     <?php if(file_exists(__DIR__ . '/includes/header.php')) include __DIR__ . '/includes/header.php'; ?>
@@ -412,10 +461,11 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
     <!-- Presets & Action Buttons -->
     <div class="filter-row" style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
         <div class="preset-slots-container no-print" id="presets-container" style="flex:1; display:flex; gap:6px; align-items:center; flex-wrap:wrap; padding:2px 10px; border-radius:8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); min-width: 250px;">
-            <!-- Column & Colors Control Button -->
-            <button type="button" class="preset-ribbon-btn" onclick="openColumnContextMenu(event)" style="background: linear-gradient(135deg, #f59e0b, #d97706) !important; color: #ffffff !important; border: 1px solid rgba(251, 191, 36, 0.8) !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4) !important;">⚙️ التحكم</button>
             <!-- Dynamic preset buttons rendered via JS -->
         </div>
+        <button class="btn-action-secondary" onclick="resetMagnifiedNumbers()" title="إلغاء تكبير جميع الأرقام المكبرة للمراجعة">
+            🔍 إلغاء تكبير الأرقام
+        </button>
         <button class="btn-action-secondary" onclick="shareViaWhatsApp()" title="مشاركة ملخص التقرير عبر واتساب">
             💬 واتساب
         </button>
@@ -448,7 +498,10 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
 
     <!-- Recent Transactions Table -->
     <div class="grid-scroll-wrap">
-        <h4 style="padding: 15px; margin:0; color:#c084fc; font-family:'Tajawal'; border-bottom:1px solid rgba(255,255,255,0.05);">🕒 أحدث العمليات (آخر 50 عملية)</h4>
+        <h4 style="padding: 15px; margin:0; color:#c084fc; font-family:'Tajawal'; border-bottom:1px solid rgba(255,255,255,0.05); display:flex; justify-content:space-between; align-items:center;">
+            <span>🕒 أحدث العمليات (اضغط كليك يمين لتخصيص الأعمدة أو الذهاب للسند)</span>
+            <span style="font-size:0.8rem; font-weight:normal; opacity:0.8; color:#38bdf8;">💡 انقر على أي رقم لتكبيره للمراجعة</span>
+        </h4>
         <table class="pos-grid" id="recent-table">
             <thead>
                 <tr>
@@ -477,6 +530,219 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
 
 </div>
 
+<!-- Context Menu HTML -->
+<div id="gl-context-menu" class="gl-ctx-menu">
+    <div class="gl-ctx-item" id="gl-ctx-drilldown">
+        <span>🔗 الذهاب إلى أصل السند</span>
+        <span style="font-size:0.75rem; color:#38bdf8;">◀</span>
+    </div>
+    <div class="gl-ctx-item" id="gl-ctx-toggle-zoom">
+        <span>🔍 تكبير/تصغير الرقم للمراجعة</span>
+        <span style="font-size:0.75rem; color:#fbbf24;">🔍</span>
+    </div>
+    <div class="gl-ctx-divider"></div>
+    <div class="gl-ctx-item" id="gl-ctx-custom-col">
+        <span>🎨 تخصيص العمود الحالي (ألوان وخطوط)</span>
+        <span style="font-size:0.75rem; color:#c084fc;">⚙️</span>
+    </div>
+    <div class="gl-ctx-item" id="gl-ctx-hide-col">
+        <span>👁️ إخفاء هذا العمود</span>
+        <span style="font-size:0.75rem; color:#f87171;">✕</span>
+    </div>
+    <div class="gl-ctx-submenu gl-ctx-item">
+        <span>👁️‍🗨️ إظهار الأعمدة المخفية</span>
+        <span style="font-size:0.75rem; color:#34d399;">◀</span>
+        <div class="gl-ctx-submenu-content" id="gl-ctx-hidden-list">
+            <!-- Populated via JS -->
+        </div>
+    </div>
+    <div class="gl-ctx-divider"></div>
+    <div class="gl-ctx-item" id="gl-ctx-move-left">
+        <span>➡️ تحريك العمود لليستار / لليمين</span>
+        <span style="font-size:0.75rem; color:#38bdf8;">➡️</span>
+    </div>
+    <div class="gl-ctx-item" id="gl-ctx-move-right">
+        <span>⬅️ تحريك العمود لليمين / لليسار</span>
+        <span style="font-size:0.75rem; color:#38bdf8;">⬅️</span>
+    </div>
+    <div class="gl-ctx-divider"></div>
+    <div class="gl-ctx-item" onclick="resetMagnifiedNumbers()">
+        <span>✨ تصغير جميع الأرقام المكبرة</span>
+        <span style="font-size:0.75rem; color:#38bdf8;">🔄</span>
+    </div>
+    <div class="gl-ctx-item" onclick="resetGLColumnsToDefault()">
+        <span>🔄 إعادة ضبط كافة الأعمدة للافتراضي</span>
+        <span style="font-size:0.75rem; color:#f87171;">🔄</span>
+    </div>
+</div>
+
+<!-- Modal Customizer Container -->
+<div id="gl-column-modal" class="gl-modal-overlay" onclick="if(event.target === this) closeGLColumnModal()">
+    <div class="gl-modal-content" id="gl-modal-window">
+        <div class="gl-modal-header" id="gl-draggable-header" title="انقر واسحب لتحريك النافذة في أرجاء الشاشة">
+            <div class="gl-modal-title">
+                <span style="font-size:1.1rem; color:#c084fc;">⋮⋮</span>
+                <span>🎨 تخصيص العمود:</span>
+                <span id="gl-modal-col-name" style="color:#38bdf8; font-weight:900;"></span>
+            </div>
+            <div style="display:flex; align-items:center; gap:5px;" onclick="event.stopPropagation()">
+                <button type="button" class="gl-modal-ctrl-btn" onclick="positionGLModal('right')" title="تحريك إلى أقصى اليمين">↗️</button>
+                <button type="button" class="gl-modal-ctrl-btn" onclick="positionGLModal('center')" title="تمركز في المنتصف">🎯</button>
+                <button type="button" class="gl-modal-ctrl-btn" onclick="positionGLModal('left')" title="تحريك إلى أقصى اليسار">↖️</button>
+                <button type="button" class="gl-modal-ctrl-btn" onclick="toggleMinimizeGLModal()" title="تصغير / طي النافذة">🗕</button>
+                <button type="button" class="gl-modal-ctrl-btn" onclick="toggleMaximizeGLModal()" title="تكبير / استعادة">🗖</button>
+                <button type="button" onclick="closeGLColumnModal()" class="gl-modal-close-btn" title="إغلاق النافذة العلوي (Esc)">✕</button>
+            </div>
+        </div>
+
+        <input type="hidden" id="gl-modal-col-id">
+
+        <!-- All Columns Selector Bar -->
+        <div style="margin-bottom: 10px; background: rgba(0,0,0,0.35); border-radius: 12px; padding: 10px; border: 1px solid rgba(255,255,255,0.1);">
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                <span style="font-size:0.8rem; font-weight:bold; color:#38bdf8;">📋 الأعمدة المتاحة (تحديد لإظهار/إخفاء أو انقر للتنسيق):</span>
+                <span style="font-size:0.75rem; color:#94a3b8;">انقر اسم العمود لتنسيقه ⚙️</span>
+            </div>
+            <div id="gl-modal-columns-list" style="display:flex; gap:6px; flex-wrap:wrap; max-height:100px; overflow-y:auto; padding:2px;">
+                <!-- Populated via JS -->
+            </div>
+        </div>
+
+        <!-- Quick Action Buttons Bar inside Modal -->
+        <div id="gl-quick-actions-bar" style="margin-bottom: 10px; display: flex; gap: 6px; flex-wrap: wrap;">
+            <button type="button" id="gl-modal-action-zoom" class="btn-action-secondary" style="font-size:0.75rem; height:30px; padding:0 10px; background:rgba(245,158,11,0.15); border-color:rgba(245,158,11,0.4); color:#fbbf24;">
+                🔍 تكبير الرقم للمراجعة
+            </button>
+            <button type="button" id="gl-modal-action-hide" class="btn-action-secondary" style="font-size:0.75rem; height:30px; padding:0 10px; color:#f87171; border-color:rgba(239,68,68,0.4);">
+                👁️ إخفاء العمود الحالي
+            </button>
+            <button type="button" id="gl-modal-action-move-left" class="btn-action-secondary" style="font-size:0.75rem; height:30px; padding:0 10px;">
+                ➡️ تحريك يسار
+            </button>
+            <button type="button" id="gl-modal-action-move-right" class="btn-action-secondary" style="font-size:0.75rem; height:30px; padding:0 10px;">
+                ⬅️ تحريك يمين
+            </button>
+        </div>
+
+        <!-- Live Preview Box -->
+        <div class="gl-preview-box" id="gl-preview-box">
+            <div style="font-size:0.75rem; color:#c084fc; font-weight:bold; margin-bottom:4px;">👁️ المعاينة الحية المباشرة (Live Preview)</div>
+            <table class="gl-preview-table">
+                <thead>
+                    <tr>
+                        <th id="gl-prev-th" style="background:#0f172a; color:#c084fc; font-family:'Tajawal';">اسم العمود</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td id="gl-prev-td" style="background:#0f172a; color:#f87171; font-family:'Tajawal';">12,500.00</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="gl-form-row">
+            <div class="gl-form-group">
+                <label>خلفية ترويسة العمود</label>
+                <input type="color" id="gl-cfg-header-bg" class="gl-input-color" value="#0f172a" oninput="updateGLModalLivePreview()">
+            </div>
+            <div class="gl-form-group">
+                <label>لون نص ترويسة العمود</label>
+                <input type="color" id="gl-cfg-header-color" class="gl-input-color" value="#c084fc" oninput="updateGLModalLivePreview()">
+            </div>
+        </div>
+        <div class="gl-form-row">
+            <div class="gl-form-group">
+                <label>خلفية خلايا العمود</label>
+                <input type="color" id="gl-cfg-cell-bg" class="gl-input-color" value="#0f172a" oninput="updateGLModalLivePreview()">
+            </div>
+            <div class="gl-form-group">
+                <label>لون نص خلايا العمود</label>
+                <input type="color" id="gl-cfg-cell-color" class="gl-input-color" value="#f8fafc" oninput="updateGLModalLivePreview()">
+            </div>
+        </div>
+        <div class="gl-form-row">
+            <div class="gl-form-group">
+                <label>نوع الخط (Font Family)</label>
+                <select id="gl-cfg-font" class="gl-input" onchange="updateGLModalLivePreview()">
+                    <option value="Tajawal">Tajawal (تاواجل)</option>
+                    <option value="Cairo">Cairo (القاهرة)</option>
+                    <option value="Inter">Inter</option>
+                    <option value="JetBrains Mono">JetBrains Mono</option>
+                    <option value="Fira Code">Fira Code</option>
+                    <option value="Alexandria">Alexandria</option>
+                    <option value="Almarai">Almarai</option>
+                </select>
+            </div>
+            <div class="gl-form-group">
+                <label>سمك الخط (Font Weight)</label>
+                <select id="gl-cfg-weight" class="gl-input" onchange="updateGLModalLivePreview()">
+                    <option value="400">عادي (Normal)</option>
+                    <option value="600">متوسط (Semi Bold)</option>
+                    <option value="700">عريض (Bold)</option>
+                    <option value="800">عريض جداً (Extra Bold)</option>
+                    <option value="900">سماكة فائقة (Black)</option>
+                </select>
+            </div>
+        </div>
+        <div class="gl-form-row">
+            <div class="gl-form-group">
+                <label>مقاس الخط (Font Size)</label>
+                <select id="gl-cfg-size-select" class="gl-input" onchange="document.getElementById('gl-cfg-size').value=this.value; updateGLModalLivePreview();">
+                    <option value="0.85rem">0.85rem (قياسي - 14px)</option>
+                    <option value="0.75rem">0.75rem (صغير - 12px)</option>
+                    <option value="0.95rem">0.95rem (متوسط - 15px)</option>
+                    <option value="1.1rem">1.1rem (كبير - 17px)</option>
+                    <option value="1.25rem">1.25rem (كبير جداً - 20px)</option>
+                </select>
+                <input type="hidden" id="gl-cfg-size" value="0.85rem">
+            </div>
+            <div class="gl-form-group">
+                <label>محاذاة النص</label>
+                <select id="gl-cfg-align" class="gl-input" onchange="updateGLModalLivePreview()">
+                    <option value="right">يمين (Right)</option>
+                    <option value="center">وسط (Center)</option>
+                    <option value="left">يسار (Left)</option>
+                </select>
+            </div>
+        </div>
+        <div class="gl-form-row">
+            <div class="gl-form-group">
+                <label>الفاصلة العشرية (Decimal Places)</label>
+                <select id="gl-cfg-decimals" class="gl-input" onchange="updateGLModalLivePreview()">
+                    <option value="2">خانتين عشرية (0.00)</option>
+                    <option value="0">بدون أعداد عشرية (0)</option>
+                    <option value="1">خانة واحدة (0.0)</option>
+                    <option value="3">ثلاث خانات (0.000)</option>
+                    <option value="4">أربع خانات (0.0000)</option>
+                </select>
+            </div>
+            <div class="gl-form-group">
+                <label>الفاصلة الألفية (Thousands Separator)</label>
+                <select id="gl-cfg-thousands" class="gl-input" onchange="updateGLModalLivePreview()">
+                    <option value="comma">كومة (1,234.56)</option>
+                    <option value="space">مسافة (1 234.56)</option>
+                    <option value="none">بدون فاصلة (1234.56)</option>
+                </select>
+            </div>
+        </div>
+        <div class="gl-form-row">
+            <div class="gl-form-group" style="grid-column: span 2;">
+                <label>لون الأرقام الخاص بالعمود</label>
+                <input type="color" id="gl-cfg-num-color" class="gl-input-color" value="#34d399" oninput="updateGLModalLivePreview()">
+            </div>
+        </div>
+        <div class="gl-btn-group">
+            <button type="button" onclick="closeGLColumnModal()" class="btn-action-secondary" style="background:rgba(239,68,68,0.18); border-color:rgba(239,68,68,0.5); color:#f87171; font-weight:bold;">
+                ✕ إغلاق النافذة
+            </button>
+            <button type="button" onclick="saveGLColumnCustomization()" class="btn-run">
+                💾 حفظ التخصيص
+            </button>
+        </div>
+    </div>
+</div>
+
 <!-- Core JS -->
 <script src="js/localforage.min.js"></script>
 <script src="js/app.js?v=<?php echo time(); ?>"></script>
@@ -490,3 +756,4 @@ document.addEventListener('DOMContentLoaded', function() {
 </script>
 </body>
 </html>
+

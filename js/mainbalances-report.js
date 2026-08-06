@@ -2865,120 +2865,118 @@ window.renderBalancesPresets = function() {
         btn.className = 'preset-ribbon-btn preset-slot-' + idx;
 
         const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
-        btn.innerHTML = p.name + (p.isLocked ? ' 🔒' : ' 🔄');
-        btn.title = p.isLocked 
-            ? `🔒 ${p.name} مقفول كضبط مصنع ثابت (اضغط للمعاينة)`
-            : `اضغط مطولاً (8 ثوانٍ) لحفظ وتثبيت ${p.name} كضبط مصنع نهائي 🔒`;
 
-        // 8-second Long Press Handler for ALL Presets (Defaults & Models)
-        let pressStartTime = 0;
-        let mainInterval = null;
-        let isTriggered = false;
+        if (isDefaultGroup) {
+            btn.innerHTML = p.name + ' 🔒';
+            btn.title = '🔒 معاينة وتعديل التنسيق بهذا النموذج الافتراضي';
+            
+            // Direct Click Handler to open modal directly (Same as General Ledger)
+            btn.onclick = (e) => {
+                if (e) e.preventDefault();
+                window.openPresetModal(idx, p.name);
+            };
+        } else {
+            btn.innerHTML = p.name + ' 🔄';
+            btn.title = 'اضغط مطولاً (8 ثوانٍ) لحفظ وتحديث نموذج التنسيق 🔄';
 
-        const startPress = (e) => {
-            if (e.type === 'mousedown' && e.button !== 0) return;
-            pressStartTime = Date.now();
-            isTriggered = false;
-            ensureLongPressHudExists();
+            // 8-second Long Press Handler for Custom User Templates Only
+            let pressStartTime = 0;
+            let mainInterval = null;
+            let isTriggered = false;
 
-            const hud = document.getElementById('long-press-hud');
-            const hudTitle = document.getElementById('hud-title');
-            const hudDesc = document.getElementById('hud-desc');
-            const hudProgress = document.getElementById('hud-progress-bar');
-            const hudTimer = document.getElementById('hud-timer');
-            const hudIcon = document.getElementById('hud-icon');
+            const startPress = (e) => {
+                if (e.type === 'mousedown' && e.button !== 0) return;
+                pressStartTime = Date.now();
+                isTriggered = false;
+                ensureLongPressHudExists();
 
-            if (p.isLocked) {
+                const hud = document.getElementById('long-press-hud');
+                const hudTitle = document.getElementById('hud-title');
+                const hudDesc = document.getElementById('hud-desc');
+                const hudProgress = document.getElementById('hud-progress-bar');
+                const hudTimer = document.getElementById('hud-timer');
+                const hudIcon = document.getElementById('hud-icon');
+
                 if (hud) {
                     hud.style.display = 'block';
-                    hudIcon.innerText = '🔒';
-                    hudTitle.innerText = `تقرير مقفول (${p.name})`;
-                    hudDesc.innerText = 'هذا التقرير مقفول نهائياً كضبط مصنع ثابت لجميع الشركات والمناطق ولا يمكن إعادة الكتابة عليه.';
-                    if (hudProgress) { hudProgress.style.width = '100%'; hudProgress.style.background = '#ef4444'; }
-                    if (hudTimer) hudTimer.innerText = '🔒 مقفول كضبط مصنع';
+                    hudIcon.innerText = '✨';
+                    hudTitle.innerText = `حفظ وتحديث (${p.name})`;
+                    hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) حتى يمتلئ الشريط، وسيطلب منك النظام تأكيد الحفظ والتحديث.';
+                    if (hudProgress) { hudProgress.style.width = '0%'; hudProgress.style.background = 'linear-gradient(90deg, #3b82f6, #10b981)'; }
+                    if (hudTimer) hudTimer.innerText = '8.0 ثانية متبقية';
                 }
-                return;
-            }
 
-            if (hud) {
-                hud.style.display = 'block';
-                hudIcon.innerText = '🔒';
-                hudTitle.innerText = `حفظ وتثبيت ضبط مصنع (${p.name})`;
-                hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) لقفل وحفظ التقرير بتنسيقه وألوانه وخطوطك الحالية كضبط مصنع نهائي ثابت لجميع الشركات.';
-                if (hudProgress) { hudProgress.style.width = '0%'; hudProgress.style.background = 'linear-gradient(90deg, #3b82f6, #10b981)'; }
-                if (hudTimer) hudTimer.innerText = '8.0 ثانية متبقية';
-            }
+                const duration = 8000;
+                const startTime = Date.now();
 
-            const duration = 8000;
-            const startTime = Date.now();
+                mainInterval = setInterval(() => {
+                    const elapsed = Date.now() - startTime;
+                    const remainingMs = Math.max(0, duration - elapsed);
+                    const remainingSec = (remainingMs / 1000).toFixed(1);
+                    const percent = Math.min(100, (elapsed / duration) * 100);
 
-            mainInterval = setInterval(() => {
-                const elapsed = Date.now() - startTime;
-                const remainingMs = Math.max(0, duration - elapsed);
-                const remainingSec = (remainingMs / 1000).toFixed(1);
-                const percent = Math.min(100, (elapsed / duration) * 100);
+                    if (hudProgress) hudProgress.style.width = percent + '%';
+                    if (hudTimer) hudTimer.innerText = remainingSec + ' ثانية متبقية';
 
-                if (hudProgress) hudProgress.style.width = percent + '%';
-                if (hudTimer) hudTimer.innerText = remainingSec + ' ثانية متبقية';
+                    btn.style.boxShadow = `0 0 15px rgba(16,185,129,0.8)`;
+                    btn.style.borderColor = '#10b981';
+                    btn.style.background = `linear-gradient(90deg, rgba(16,185,129,0.45) ${percent}%, rgba(255,255,255,0.08) ${percent}%)`;
 
-                btn.style.boxShadow = `0 0 15px rgba(16,185,129,0.8)`;
-                btn.style.borderColor = '#10b981';
-                btn.style.background = `linear-gradient(90deg, rgba(16,185,129,0.45) ${percent}%, rgba(255,255,255,0.08) ${percent}%)`;
+                    if (elapsed >= duration) {
+                        clearInterval(mainInterval);
+                        mainInterval = null;
+                        isTriggered = true;
+                        if (hud) hud.style.display = 'none';
+                        btn.style.boxShadow = ''; btn.style.borderColor = ''; btn.style.background = '';
 
-                if (elapsed >= duration) {
+                        setTimeout(() => {
+                            const confirmSave = confirm(`✨ اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وتحديث تصميم التقرير الحالي في (${p.name})؟\n\n(ملاحظة: يمكنك إعادة تعديله وتجديده لاحقاً في أي وقت بالضغط المطول 8 ثوانٍ مجدداً).`);
+                            if (confirmSave) {
+                                p.isLocked = false;
+                                p.updatedAt = new Date().toISOString();
+                                localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
+                                const token = localStorage.getItem('erp_token') || '';
+                                const headers = { 'Content-Type': 'application/json' };
+                                if (token) headers['Authorization'] = 'Bearer ' + token;
+                                fetch('api_index.php/report-layout', {
+                                    method: 'POST',
+                                    headers: headers,
+                                    body: JSON.stringify({ reportKey: PRESETS_STORAGE_KEY, layout: presets })
+                                }).catch(e => {});
+                                alert(`✨ تم حفظ وتحديث تصميم التقرير في "${p.name}" بنجاح!`);
+                                window.renderBalancesPresets();
+                            }
+                        }, 50);
+                    }
+                }, 50);
+            };
+
+            const endPress = (e) => {
+                const duration = Date.now() - pressStartTime;
+                if (mainInterval) {
                     clearInterval(mainInterval);
+                    clearTimeout(mainInterval);
                     mainInterval = null;
-                    isTriggered = true;
-                    if (hud) hud.style.display = 'none';
-                    btn.style.boxShadow = ''; btn.style.borderColor = ''; btn.style.background = '';
-
-                    setTimeout(() => {
-                        const confirmSave = confirm(`🔒 اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وقفل تصميم التقرير الحالي نهائياً كضبط مصنع ثابت في (${p.name})؟\n\n(ملاحظة: هذا الحفظ نهائي وسيحفظ في قاعدة البيانات لكل الشركات ولن يتغير لاحقاً).`);
-                        if (confirmSave) {
-                            const presetIdStr = isDefaultGroup ? ('default' + (idx + 1)) : ('m' + (idx + 1));
-                            
-                            // Save preset data via API
-                            savePresetData('balances_preset_' + presetIdStr, p.name, presetIdStr);
-                            
-                            p.isLocked = true;
-                            p.isFactoryDefault = true;
-                            p.updatedAt = new Date().toISOString();
-                            localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
-                            
-                            alert(`🔒 تم حفظ وقفل "${p.name}" كضبط مصنع نهائي بنجاح! يسري هذا التنسيق في كافة الأجهزة والشركات.`);
-                            window.renderBalancesPresets();
-                        }
-                    }, 50);
                 }
-            }, 50);
-        };
+                const hud = document.getElementById('long-press-hud');
+                if (hud) hud.style.display = 'none';
+                btn.style.boxShadow = ''; btn.style.borderColor = ''; btn.style.background = '';
 
-        const endPress = (e) => {
-            const duration = Date.now() - pressStartTime;
-            if (mainInterval) {
-                clearInterval(mainInterval);
-                clearTimeout(mainInterval);
-                mainInterval = null;
-            }
-            const hud = document.getElementById('long-press-hud');
-            if (hud) hud.style.display = 'none';
-            btn.style.boxShadow = ''; btn.style.borderColor = ''; btn.style.background = '';
+                if (isTriggered) {
+                    if (e) { e.preventDefault(); e.stopPropagation(); }
+                    return false;
+                }
 
-            if (isTriggered) {
-                if (e) { e.preventDefault(); e.stopPropagation(); }
-                return false;
-            }
+                if (pressStartTime > 0 && duration < 1000) {
+                    window.openPresetModal(idx, p.name);
+                }
+            };
 
-            if (pressStartTime > 0 && duration < 1000) {
-                window.openPresetModal(idx, p.name);
-            }
-        };
-
-        btn.addEventListener('mousedown', startPress);
-        btn.addEventListener('mouseup', endPress);
-        btn.addEventListener('mouseleave', endPress);
-        btn.addEventListener('touchstart', startPress, { passive: true });
-        btn.addEventListener('touchend', endPress);
+            btn.addEventListener('mousedown', startPress);
+            btn.addEventListener('mouseup', endPress);
+            btn.addEventListener('touchstart', startPress, { passive: true });
+            btn.addEventListener('touchend', endPress);
+        }
 
         btn.oncontextmenu = (e) => { e.preventDefault(); return false; };
         container.appendChild(btn);

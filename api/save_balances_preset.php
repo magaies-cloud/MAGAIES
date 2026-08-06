@@ -22,8 +22,8 @@ try {
     $stmt->execute([$presetId . '_locked']);
     $isLocked = $stmt->fetchColumn();
 
-    if ($isLocked === 'true' && !$isModel && empty($input['force'])) {
-        echo json_encode(['error' => '🔒 هذا التقرير مقفول نهائياً كضبط مصنع ثابت لجميع الشركات ولا يمكن تعديله أو تغييره.', 'isLocked' => true]);
+    if ($isLocked === 'true' && !$isModel) {
+        echo json_encode(['error' => 'This preset is permanently locked and cannot be modified.']);
         exit;
     }
 
@@ -36,7 +36,7 @@ try {
         $stmt->execute([$presetId . '_locked', 'true', 'true']);
     }
 
-    echo json_encode(['success' => true, 'isLocked' => true]);
+    echo json_encode(['success' => true]);
 
 } catch (Exception $e) {
     error_log("Error saving balances preset: " . $e->getMessage());

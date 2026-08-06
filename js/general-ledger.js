@@ -1922,329 +1922,145 @@ function runReport() {
             let credLoc = parseNum(t.credit || t.cr || 0);
             let rate = parseNum(t.exchangeRate || t.exRate || t.rate || entityExRate || 1);
             if (!rate || rate <= 0) rate = entityExRate || 1;
-            /* ═══════════════════════════════════════════════════════
-   Column Customization & Context Menu Engine for General Ledger
+            t.exchangeRate = rate;
+
+            let df = parseNum(t.debitForeign || t.dr_foreign || 0);
+            let cf = parseNum(t.creditForeign || t.cr_foreign || 0);
+
+            if (debLoc > 0 && (df === 0 || df === debLoc) && rate > 1) {
+                df = debLoc / rate;
+            }
+            if (credLoc > 0 && (cf === 0 || cf === credLoc) && rate > 1) {
+                cf = credLoc / rate;
+            }
+
+            t.debitForeign = df;
+            t.creditForeign = cf;
+
+            if (accVal !== 'ALL') {
+                if (t.isOpening) {
+                    t.balance = t.balance !== undefined ? t.balance : runningBal;
+                    t.balanceForeign = t.balanceForeign !== undefined ? t.balanceForeign : runningBalFc;
+                } else {
+                    runningBal += (debLoc - credLoc);
+                    runningBalFc += (df - cf);
+                    t.balance = runningBal;
+                    t.balanceForeign = runningBalFc;
+                }
+            } else {
+                t.balance = undefined;
+                t.balanceForeign = undefined;
+            }
+        });
+
+        // Set display order to Chronological (Oldest first at top, newest created at bottom)
+        currentTxns = chronological;
+
+        let totalDebit = 0;
+        let totalCredit = 0;
+        currentTxns.forEach(t => {
+            if (!t || t.isOpening) return;
+            totalDebit += (t.debit || 0);
+            totalCredit += (t.credit || 0);
+        });
+
+        const tdDebit = document.getElementById('launcher-total-debit');
+        const tdCredit = document.getElementById('launcher-total-credit');
+        const tdBalance = document.getElementById('launcher-total-balance');
+
+        if (tdDebit) tdDebit.innerText = typeof fmtNum === 'function' ? fmtNum(totalDebit) : totalDebit.toLocaleString();
+        if (tdCredit) tdCredit.innerText = typeof fmtNum === 'function' ? fmtNum(totalCredit) : totalCredit.toLocaleString();
+        if (tdBalance) {
+            let bal = totalDebit - totalCredit;
+            tdBalance.innerText = typeof fmtNum === 'function' ? fmtNum(bal) : bal.toLocaleString();
+        }
+
+        ledgerCurrentPage = 1;
+        renderLedgerPage();
+    } catch (e) {
+        console.error('Error running report:', e);
+        // Show the error on screen so we know exactly why it fails instead of silently hiding it
+        const tbody = document.getElementById('recent-tbody');
+        if (tbody) tbody.innerHTML = `<tr><td colspan="14" style="text-align:center; padding: 20px; color:red;">حدث خطأ أثناء تحميل التقرير: ${e.message}</td></tr>`;
+    }
+}
+
+/* ═══════════════════════════════════════════════════════
+   Smart General Ledger (SGL) Column Customizer & Drilldown
    ═══════════════════════════════════════════════════════ */
 
-window.colConfigs = [
-    { name: 'م', alias: 'م', id: 'counter', bold: true, fs: 0.9, color: '', bg: '', visible: true, align: 'center' },
-    { name: 'التاريخ', alias: 'التاريخ', id: 'date', bold: false, fs: 0.9, color: '', bg: '', visible: true, align: 'center' },
-    { name: 'الرقم المرجعي', alias: 'الرقم المرجعي', id: 'ref', bold: true, fs: 0.9, color: '#38bdf8', bg: '', visible: true, align: 'center' },
-    { name: 'الحساب', alias: 'الحساب', id: 'account', bold: true, fs: 0.9, color: '#fbbf24', bg: '', visible: true, align: 'right' },
-    { name: 'نوع الحركة', alias: 'نوع الحركة', id: 'typeLabel', bold: true, fs: 0.85, color: '', bg: '', visible: true, align: 'center' },
-    { name: 'البيان', alias: 'البيان', id: 'statement', bold: false, fs: 0.9, color: '', bg: '', visible: true, align: 'right' },
-    { name: 'الحساب المقابل', alias: 'الحساب المقابل', id: 'counterAccount', bold: false, fs: 0.9, color: '', bg: '', visible: true, align: 'right' },
-    { name: 'مدين', alias: 'مدين', id: 'debit', bold: true, fs: 0.9, decimals: 2, dec: 2, color: '#34d399', bg: '', visible: true, align: 'center' },
-    { name: 'دائن', alias: 'دائن', id: 'credit', bold: true, fs: 0.9, decimals: 2, dec: 2, color: '#f87171', bg: '', visible: true, align: 'center' },
-    { name: 'الإجمالي المحلي', alias: 'الإجمالي المحلي', id: 'balance', bold: true, fs: 0.95, decimals: 2, dec: 2, color: '#38bdf8', bg: '', visible: true, align: 'center' },
-    { name: 'سعر الصرف', alias: 'سعر الصرف', id: 'exchangeRate', bold: true, fs: 0.9, decimals: 2, dec: 2, color: '#eab308', bg: '', visible: true, align: 'center' },
-    { name: 'مدين أجنبي', alias: 'مدين أجنبي', id: 'debitForeign', bold: true, fs: 0.9, decimals: 2, dec: 2, color: '#34d399', bg: '', visible: true, align: 'center' },
-    { name: 'دائن أجنبي', alias: 'دائن أجنبي', id: 'creditForeign', bold: true, fs: 0.9, decimals: 2, dec: 2, color: '#f87171', bg: '', visible: true, align: 'center' },
-    { name: 'الإجمالي الأجنبي', alias: 'الإجمالي الأجنبي', id: 'balanceForeign', bold: true, fs: 0.95, decimals: 2, dec: 2, color: '#38bdf8', bg: '', visible: true, align: 'center' }
+const DEFAULT_GL_COLUMNS_CONFIG = [
+    { id: 'seq', label: 'م', isNum: false, align: 'center', width: '40px' },
+    { id: 'date', label: 'التاريخ', isNum: false, align: 'center', width: '90px' },
+    { id: 'ref', label: 'الرقم المرجعي', isNum: false, align: 'center', width: '90px' },
+    { id: 'account', label: 'الحساب', isNum: false, align: 'right', width: '140px' },
+    { id: 'typeLabel', label: 'نوع الحركة', isNum: false, align: 'center', width: '90px' },
+    { id: 'statement', label: 'البيان', isNum: false, align: 'right', width: 'auto' },
+    { id: 'counterAccount', label: 'الحساب المقابل', isNum: false, align: 'right', width: '140px' },
+    { id: 'debit', label: 'مدين', isNum: true, align: 'right', width: '90px', numColor: '#34d399' },
+    { id: 'credit', label: 'دائن', isNum: true, align: 'right', width: '90px', numColor: '#f87171' },
+    { id: 'balance', label: 'الإجمالي المحلي', isNum: true, align: 'right', width: '100px' },
+    { id: 'exchangeRate', label: 'سعر الصرف', isNum: true, align: 'center', width: '90px', numColor: '#eab308' },
+    { id: 'debitForeign', label: 'مدين أجنبي', isNum: true, align: 'right', width: '90px', numColor: '#34d399' },
+    { id: 'creditForeign', label: 'دائن أجنبي', isNum: true, align: 'right', width: '90px', numColor: '#f87171' },
+    { id: 'balanceForeign', label: 'الإجمالي الأجنبي', isNum: true, align: 'right', width: '120px' }
 ];
-window.colOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
-window.currentTableTheme = '';
-window.currentNumFont = 'num-font-jetbrains';
 
-try {
-    const savedLayout = localStorage.getItem('general_ledger_layout_v1');
-    if (savedLayout) {
-        const parsed = JSON.parse(savedLayout);
-        if (parsed.colConfigs) window.colConfigs = parsed.colConfigs;
-        if (parsed.colOrder) window.colOrder = parsed.colOrder;
-        if (parsed.currentTableTheme !== undefined) window.currentTableTheme = parsed.currentTableTheme;
-        if (parsed.currentNumFont !== undefined) window.currentNumFont = parsed.currentNumFont;
-    }
-} catch(e){}
+let activeGLColumnSettings = loadGLColumnSettings();
 
-function openColumnContextMenu(e) {
-    if (e) {
-        e.preventDefault();
-        e.stopPropagation();
-    }
-    const menu = document.getElementById('columnContextMenu');
-    if (!menu) return;
-
-    // Center in screen by default so controls are 100% visible
-    menu.style.top = '50%';
-    menu.style.left = '50%';
-    menu.style.transform = 'translate(-50%, -50%)';
-    menu.style.display = 'block';
-
-    renderColumnContextMenu();
-    makeElementDraggable(menu, document.getElementById('columnContextMenuHeader'));
+function loadGLColumnSettings() {
+    try {
+        const stored = localStorage.getItem('gl_column_settings_v4');
+        if (stored) {
+            const parsed = JSON.parse(stored);
+            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+        }
+    } catch(e){}
+    return JSON.parse(JSON.stringify(DEFAULT_GL_COLUMNS_CONFIG));
 }
 
-function renderColumnContextMenu() {
-    const container = document.getElementById('columnToggles');
-    if (!container) return;
-    container.innerHTML = '';
+function saveGLColumnSettings() {
+    try {
+        localStorage.setItem('gl_column_settings_v4', JSON.stringify(activeGLColumnSettings));
+    } catch(e){}
+}
 
-    window.colOrder.forEach((origIdx, index) => {
-        const col = window.colConfigs[origIdx] || { name: 'عمود ' + origIdx, alias: 'عمود ' + origIdx, visible: true };
-        const item = document.createElement('div');
-        item.className = 'col-config-item';
-        item.style.cssText = 'display:flex; flex-direction:column; gap:8px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:10px 14px; margin-bottom:6px;';
+window.resetGLColumnsToDefault = function() {
+    activeGLColumnSettings = JSON.parse(JSON.stringify(DEFAULT_GL_COLUMNS_CONFIG));
+    saveGLColumnSettings();
+    if (typeof runReport === 'function') runReport();
+    showToast('تمت إعادة ضبط الأعمدة للوضع الافتراضي', 'info');
+};
 
-        const mainRow = document.createElement('div');
-        mainRow.style.cssText = 'display:flex; align-items:center; justify-content:space-between; width:100%; gap:8px;';
+window.resetMagnifiedNumbers = function() {
+    const magnified = document.querySelectorAll('.pos-grid td.num-magnified');
+    magnified.forEach(el => el.classList.remove('num-magnified'));
+    showToast('تم تصغير جميع الأرقام لحجمها الطبيعي', 'info');
+};
 
-        const leftGroup = document.createElement('div');
-        leftGroup.style.cssText = 'display:flex; align-items:center; gap:10px; flex:1;';
-
-        const dragHandle = document.createElement('span');
-        dragHandle.innerHTML = '⠿';
-        dragHandle.style.cssText = 'cursor:grab; font-size:1.2rem; color:#94a3b8; user-select:none;';
-        dragHandle.title = 'اضغط واسحب لترتيب العمود يميناً أو يساراً';
-
-        const chk = document.createElement('input');
-        chk.type = 'checkbox';
-        chk.checked = col.visible !== false;
-        chk.style.cssText = 'width:18px; height:18px; cursor:pointer; accent-color:#38bdf8;';
-        chk.onchange = (e) => {
-            col.visible = e.target.checked;
-            applyLayoutToDOM();
-        };
-
-        const aliasInput = document.createElement('input');
-        aliasInput.type = 'text';
-        aliasInput.value = col.alias || col.name;
-        aliasInput.style.cssText = 'background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.15); color:#f8fafc; border-radius:6px; padding:4px 8px; font-weight:bold; font-size:0.85rem; flex:1; font-family:inherit; outline:none;';
-        aliasInput.onchange = (e) => {
-            col.alias = e.target.value;
-            applyLayoutToDOM();
-        };
-
-        leftGroup.appendChild(dragHandle);
-        leftGroup.appendChild(chk);
-        leftGroup.appendChild(aliasInput);
-
-        const rightGroup = document.createElement('div');
-        rightGroup.style.cssText = 'display:flex; align-items:center; gap:6px;';
-
-        // Move Up/Down buttons
-        const moveUpBtn = document.createElement('button');
-        moveUpBtn.type = 'button';
-        moveUpBtn.innerHTML = '⬆️';
-        moveUpBtn.title = 'تحريك للأعلى (يمين الجدول)';
-        moveUpBtn.style.cssText = 'background:rgba(255,255,255,0.08); border:none; border-radius:6px; padding:4px 8px; cursor:pointer; font-size:0.8rem;';
-        moveUpBtn.onclick = () => {
-            if (index > 0) {
-                const temp = window.colOrder[index];
-                window.colOrder[index] = window.colOrder[index - 1];
-                window.colOrder[index - 1] = temp;
-                renderColumnContextMenu();
-                applyLayoutToDOM();
-            }
-        };
-
-        const moveDownBtn = document.createElement('button');
-        moveDownBtn.type = 'button';
-        moveDownBtn.innerHTML = '⬇️';
-        moveDownBtn.title = 'تحريك للأسفل (يسار الجدول)';
-        moveDownBtn.style.cssText = 'background:rgba(255,255,255,0.08); border:none; border-radius:6px; padding:4px 8px; cursor:pointer; font-size:0.8rem;';
-        moveDownBtn.onclick = () => {
-            if (index < window.colOrder.length - 1) {
-                const temp = window.colOrder[index];
-                window.colOrder[index] = window.colOrder[index + 1];
-                window.colOrder[index + 1] = temp;
-                renderColumnContextMenu();
-                applyLayoutToDOM();
-            }
-        };
-
-        const toggleDrawerBtn = document.createElement('button');
-        toggleDrawerBtn.type = 'button';
-        toggleDrawerBtn.innerHTML = '⚙️ تخصيص';
-        toggleDrawerBtn.style.cssText = 'background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); border-radius:6px; padding:4px 10px; cursor:pointer; font-weight:bold; font-size:0.8rem;';
-        
-        const drawer = document.createElement('div');
-        drawer.style.cssText = 'display:none; flex-direction:column; gap:8px; padding-top:8px; border-top:1px dashed rgba(255,255,255,0.1); margin-top:4px;';
-        drawer.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
-                <span style="font-size:0.8rem; color:#cbd5e1;">حجم الخط:</span>
-                <select onchange="updateColField(${origIdx}, 'fs', parseFloat(this.value))" style="background:#1e293b; color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:6px; padding:2px 6px; font-size:0.8rem;">
-                    <option value="0.75" ${col.fs === 0.75 ? 'selected' : ''}>0.75rem (صغير جداً)</option>
-                    <option value="0.85" ${col.fs === 0.85 ? 'selected' : ''}>0.85rem (صغير)</option>
-                    <option value="0.9" ${(!col.fs || col.fs === 0.9) ? 'selected' : ''}>0.9rem (عادي)</option>
-                    <option value="1.0" ${col.fs === 1.0 ? 'selected' : ''}>1.0rem (كبير)</option>
-                    <option value="1.15" ${col.fs === 1.15 ? 'selected' : ''}>1.15rem (كبير جداً)</option>
-                </select>
-
-                <span style="font-size:0.8rem; color:#cbd5e1;">المحاذاة:</span>
-                <select onchange="updateColField(${origIdx}, 'align', this.value)" style="background:#1e293b; color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:6px; padding:2px 6px; font-size:0.8rem;">
-                    <option value="right" ${col.align === 'right' ? 'selected' : ''}>يمين</option>
-                    <option value="center" ${(!col.align || col.align === 'center') ? 'selected' : ''}>وسط</option>
-                    <option value="left" ${col.align === 'left' ? 'selected' : ''}>يسار</option>
-                </select>
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
-                <span style="font-size:0.8rem; color:#cbd5e1;">لون النص:</span>
-                <input type="color" value="${col.color || '#ffffff'}" onchange="updateColField(${origIdx}, 'color', this.value)" style="border:none; width:36px; height:26px; border-radius:4px; cursor:pointer; background:transparent;">
-
-                <span style="font-size:0.8rem; color:#cbd5e1;">خلفية العمود:</span>
-                <input type="color" value="${col.bg || '#0f172a'}" onchange="updateColField(${origIdx}, 'bg', this.value)" style="border:none; width:36px; height:26px; border-radius:4px; cursor:pointer; background:transparent;">
-
-                <span style="font-size:0.8rem; color:#cbd5e1;">عريض (Bold):</span>
-                <input type="checkbox" ${col.bold ? 'checked' : ''} onchange="updateColField(${origIdx}, 'bold', this.checked)" style="width:16px; height:16px; cursor:pointer;">
-            </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
-                <span style="font-size:0.8rem; color:#cbd5e1;">الكسور العشرية:</span>
-                <select onchange="updateColField(${origIdx}, 'decimals', parseInt(this.value))" style="background:#1e293b; color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:6px; padding:2px 6px; font-size:0.8rem;">
-                    <option value="0" ${col.decimals === 0 ? 'selected' : ''}>0 (بدون كسور)</option>
-                    <option value="1" ${col.decimals === 1 ? 'selected' : ''}>1 (رقم واحد)</option>
-                    <option value="2" ${(!col.decimals || col.decimals === 2) ? 'selected' : ''}>2 (ركمان عشريان)</option>
-                    <option value="3" ${col.decimals === 3 ? 'selected' : ''}>3 (ثلاثة أرقام)</option>
-                    <option value="4" ${col.decimals === 4 ? 'selected' : ''}>4 (أربعة أرقام)</option>
-                </select>
-
-                <span style="font-size:0.8rem; color:#cbd5e1;">فاصلة 1,000:</span>
-                <input type="checkbox" ${col.useSep !== false ? 'checked' : ''} onchange="updateColField(${origIdx}, 'useSep', this.checked)" style="width:16px; height:16px; cursor:pointer;">
-            </div>
-        `;
-
-        toggleDrawerBtn.onclick = () => {
-            drawer.style.display = (drawer.style.display === 'none') ? 'flex' : 'none';
-        };
-
-        rightGroup.appendChild(moveUpBtn);
-        rightGroup.appendChild(moveDownBtn);
-        rightGroup.appendChild(toggleDrawerBtn);
-
-        mainRow.appendChild(leftGroup);
-        mainRow.appendChild(rightGroup);
-
-        item.appendChild(mainRow);
-        item.appendChild(drawer);
-
-        container.appendChild(item);
+function fmtNumCustom(n, decimals = 2, thousandsStyle = 'comma') {
+    const val = parseFloat(n) || 0;
+    if (val === 0 && (n === '' || n === undefined || n === null)) return '';
+    
+    let formatted = val.toLocaleString('en-US', {
+        minimumFractionDigits: decimals,
+        maximumFractionDigits: decimals
     });
-}
 
-function updateColField(idx, field, val) {
-    if (window.colConfigs[idx]) {
-        window.colConfigs[idx][field] = val;
-        applyLayoutToDOM();
-    }
-}
-
-function switchCtxTab(tabName) {
-    const btnCols = document.getElementById('tab-btn-cols');
-    const btnFormatting = document.getElementById('tab-btn-formatting');
-    const tabCols = document.getElementById('ctx-tab-cols');
-    const tabFormatting = document.getElementById('ctx-tab-formatting');
-
-    if (tabName === 'cols') {
-        if (btnCols) { btnCols.style.background = '#38bdf8'; btnCols.style.color = '#0f172a'; }
-        if (btnFormatting) { btnFormatting.style.background = 'transparent'; btnFormatting.style.color = '#94a3b8'; }
-        if (tabCols) tabCols.style.display = 'block';
-        if (tabFormatting) tabFormatting.style.display = 'none';
-    } else {
-        if (btnCols) { btnCols.style.background = 'transparent'; btnCols.style.color = '#94a3b8'; }
-        if (btnFormatting) { btnFormatting.style.background = '#38bdf8'; btnFormatting.style.color = '#0f172a'; }
-        if (tabCols) tabCols.style.display = 'none';
-        if (tabFormatting) tabFormatting.style.display = 'block';
-    }
-}
-
-function changeTableTheme(themeClass) {
-    const table = document.getElementById('recent-table');
-    if (!table) return;
-    table.classList.remove('table-theme-blue', 'table-theme-black', 'table-theme-emerald');
-    if (themeClass) table.classList.add(themeClass);
-    window.currentTableTheme = themeClass;
-    saveLayoutAndStyles(false);
-}
-
-function changeNumberFont(fontClass) {
-    const table = document.getElementById('recent-table');
-    if (!table) return;
-    table.classList.remove('num-font-jetbrains', 'num-font-roboto', 'num-font-firacode', 'num-font-inter', 'num-font-poppins');
-    if (fontClass) table.classList.add(fontClass);
-    window.currentNumFont = fontClass;
-    saveLayoutAndStyles(false);
-}
-
-function applyLayoutToDOM() {
-    if (window.currentTxns && typeof renderRecentTable === 'function') {
-        renderRecentTable(window.currentTxns.slice((ledgerCurrentPage - 1) * LEDGER_PAGE_SIZE, ledgerCurrentPage * LEDGER_PAGE_SIZE), (ledgerCurrentPage - 1) * LEDGER_PAGE_SIZE);
-    }
-}
-
-function saveLayoutAndStyles(showMsg = true) {
-    const dataToSave = {
-        colConfigs: window.colConfigs,
-        colOrder: window.colOrder,
-        currentTableTheme: window.currentTableTheme || '',
-        currentNumFont: window.currentNumFont || 'num-font-jetbrains'
-    };
-    localStorage.setItem('general_ledger_layout_v1', JSON.stringify(dataToSave));
-    applyLayoutToDOM();
-    const menu = document.getElementById('columnContextMenu');
-    if (menu) menu.style.display = 'none';
-    if (showMsg && typeof showToast === 'function') showToast('💾 تم حفظ التخصيصات والترتيب بنجاح', 'success');
-}
-
-function resetLayoutAndStyles() {
-    window.colConfigs = [
-        { name: 'م', alias: 'م', id: 'counter', bold: true, fs: 0.9, color: '', bg: '', visible: true, align: 'center' },
-        { name: 'التاريخ', alias: 'التاريخ', id: 'date', bold: false, fs: 0.9, color: '', bg: '', visible: true, align: 'center' },
-        { name: 'الرقم المرجعي', alias: 'الرقم المرجعي', id: 'ref', bold: true, fs: 0.9, color: '#38bdf8', bg: '', visible: true, align: 'center' },
-        { name: 'الحساب', alias: 'الحساب', id: 'account', bold: true, fs: 0.9, color: '#fbbf24', bg: '', visible: true, align: 'right' },
-        { name: 'نوع الحركة', alias: 'نوع الحركة', id: 'typeLabel', bold: true, fs: 0.85, color: '', bg: '', visible: true, align: 'center' },
-        { name: 'البيان', alias: 'البيان', id: 'statement', bold: false, fs: 0.9, color: '', bg: '', visible: true, align: 'right' },
-        { name: 'الحساب المقابل', alias: 'الحساب المقابل', id: 'counterAccount', bold: false, fs: 0.9, color: '', bg: '', visible: true, align: 'right' },
-        { name: 'مدين', alias: 'مدين', id: 'debit', bold: true, fs: 0.9, decimals: 2, dec: 2, color: '#34d399', bg: '', visible: true, align: 'center' },
-        { name: 'دائن', alias: 'دائن', id: 'credit', bold: true, fs: 0.9, decimals: 2, dec: 2, color: '#f87171', bg: '', visible: true, align: 'center' },
-        { name: 'الإجمالي المحلي', alias: 'الإجمالي المحلي', id: 'balance', bold: true, fs: 0.95, decimals: 2, dec: 2, color: '#38bdf8', bg: '', visible: true, align: 'center' },
-        { name: 'سعر الصرف', alias: 'سعر الصرف', id: 'exchangeRate', bold: true, fs: 0.9, decimals: 2, dec: 2, color: '#eab308', bg: '', visible: true, align: 'center' },
-        { name: 'مدين أجنبي', alias: 'مدين أجنبي', id: 'debitForeign', bold: true, fs: 0.9, decimals: 2, dec: 2, color: '#34d399', bg: '', visible: true, align: 'center' },
-        { name: 'دائن أجنبي', alias: 'دائن أجنبي', id: 'creditForeign', bold: true, fs: 0.9, decimals: 2, dec: 2, color: '#f87171', bg: '', visible: true, align: 'center' },
-        { name: 'الإجمالي الأجنبي', alias: 'الإجمالي الأجنبي', id: 'balanceForeign', bold: true, fs: 0.95, decimals: 2, dec: 2, color: '#38bdf8', bg: '', visible: true, align: 'center' }
-    ];
-    window.colOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
-    window.currentTableTheme = '';
-    window.currentNumFont = 'num-font-jetbrains';
-    saveLayoutAndStyles(false);
-    renderColumnContextMenu();
-}
-
-function makeElementDraggable(elmnt, headerElmnt) {
-    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
-    const handle = headerElmnt || elmnt;
-    handle.onmousedown = dragMouseDown;
-
-    function dragMouseDown(e) {
-        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
-        e = e || window.event;
-        e.preventDefault();
-
-        const rect = elmnt.getBoundingClientRect();
-        elmnt.style.transform = 'none';
-        elmnt.style.top = rect.top + 'px';
-        elmnt.style.left = rect.left + 'px';
-
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        document.onmouseup = closeDragElement;
-        document.onmousemove = elementDrag;
+    if (thousandsStyle === 'none') {
+        formatted = val.toFixed(decimals);
+    } else if (thousandsStyle === 'space') {
+        formatted = formatted.replace(/,/g, ' ');
     }
 
-    function elementDrag(e) {
-        e = e || window.event;
-        e.preventDefault();
-        pos1 = pos3 - e.clientX;
-        pos2 = pos4 - e.clientY;
-        pos3 = e.clientX;
-        pos4 = e.clientY;
-        elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
-        elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+    if (val < 0) {
+        let absVal = Math.abs(val);
+        let absFormatted = absVal.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+        if (thousandsStyle === 'none') absFormatted = absVal.toFixed(decimals);
+        else if (thousandsStyle === 'space') absFormatted = absFormatted.replace(/,/g, ' ');
+        return `-(${absFormatted})`;
     }
-
-    function closeDragElement() {
-        document.onmouseup = null;
-        document.onmousemove = null;
-    }
+    return formatted;
 }
 
 function renderRecentTable(txns, startIndex = 0) {
@@ -2252,156 +2068,100 @@ function renderRecentTable(txns, startIndex = 0) {
     const tbody = document.getElementById('recent-tbody');
     if (!tbody || !table) return;
 
-    // Apply current table theme & font
-    table.className = 'pos-grid ' + (window.currentTableTheme || '') + ' ' + (window.currentNumFont || 'num-font-jetbrains');
-
-    // Build Dynamic Header (thead)
+    const visibleCols = activeGLColumnSettings.filter(c => !c.hidden);
+    
+    // 1. Render Table Header dynamically
     let thead = table.querySelector('thead');
     if (!thead) {
         thead = document.createElement('thead');
         table.insertBefore(thead, tbody);
     }
-
-    let trHead = document.createElement('tr');
-    trHead.oncontextmenu = openColumnContextMenu;
-
-    window.colOrder.forEach(idx => {
-        const conf = window.colConfigs[idx];
-        if (!conf || conf.visible === false) return;
-
-        let th = document.createElement('th');
-        th.innerText = conf.alias || conf.name;
-        th.style.fontSize = (conf.fs || 0.9) + 'rem';
-        th.style.textAlign = conf.align || 'center';
-        if (conf.bold) th.style.fontWeight = '900';
-        if (conf.color) th.style.color = conf.color;
-        if (conf.bg) th.style.backgroundColor = conf.bg;
-
-        th.oncontextmenu = openColumnContextMenu;
-        trHead.appendChild(th);
+    
+    let headHtml = '<tr>';
+    visibleCols.forEach(col => {
+        const hStyle = `
+            text-align: ${col.align || 'right'};
+            ${col.width ? 'width:' + col.width + ';' : ''}
+            ${col.headerBg ? 'background:' + col.headerBg + '!important;' : ''}
+            ${col.headerColor ? 'color:' + col.headerColor + '!important;' : ''}
+            ${col.fontFamily ? 'font-family:' + col.fontFamily + ', sans-serif!important;' : ''}
+        `;
+        headHtml += `<th data-col-id="${col.id}" style="${hStyle}">${col.label}</th>`;
     });
-
-    thead.innerHTML = '';
-    thead.appendChild(trHead);
+    headHtml += '</tr>';
+    thead.innerHTML = headHtml;
 
     if (txns.length === 0) {
-        const visibleColsCount = window.colOrder.filter(idx => window.colConfigs[idx] && window.colConfigs[idx].visible !== false).length;
-        tbody.innerHTML = `<tr><td colspan="${visibleColsCount || 14}" style="text-align:center; padding: 20px;">لا توجد عمليات تطابق الفلتر...</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="${visibleCols.length}" style="text-align:center; padding: 20px;">لا توجد عمليات تطابق الفلتر...</td></tr>`;
         return;
     }
 
-    // Build Dynamic Body Rows (tbody)
-    tbody.innerHTML = '';
+    // 2. Render Table Body Rows
+    let html = '';
     txns.forEach((t, i) => {
         const counterAccName = getAccountName(t.counterAccount) || '-';
         const mainAccName = getAccountName(t.account) || '-';
         const isPosBal = (t.balance || 0) >= 0;
+        const isPosBalFc = (t.balanceForeign || 0) >= 0;
 
-        let tr = document.createElement('tr');
-        tr.oncontextmenu = openColumnContextMenu;
-        if (t.isOpening) {
-            tr.style.background = 'rgba(59,130,246,0.08)';
-            tr.style.borderRight = '3px solid #3b82f6';
-        }
+        let trStyle = t.isOpening ? 'background:rgba(59,130,246,0.08); border-right:3px solid #3b82f6;' : '';
 
-        window.colOrder.forEach(idx => {
-            const conf = window.colConfigs[idx];
-            if (!conf || conf.visible === false) return;
+        html += `<tr style="${trStyle}" data-txn-type="${t.type || ''}" data-txn-ref="${t.ref || ''}">`;
+        
+        visibleCols.forEach(col => {
+            const dec = col.decimals !== undefined ? col.decimals : 2;
+            const thSep = col.thousandsStyle || 'comma';
+            const cStyle = `
+                text-align: ${col.align || 'right'};
+                ${col.cellBg ? 'background:' + col.cellBg + '!important;' : ''}
+                ${col.cellColor ? 'color:' + col.cellColor + '!important;' : ''}
+                ${col.fontFamily ? 'font-family:\'' + col.fontFamily + '\', sans-serif!important;' : ''}
+                ${col.fontWeight ? 'font-weight:' + col.fontWeight + '!important;' : ''}
+                ${col.fontSize ? 'font-size:' + col.fontSize + '!important;' : ''}
+            `;
 
-            let td = document.createElement('td');
-            td.style.fontSize = (conf.fs || 0.9) + 'rem';
-            td.style.textAlign = conf.align || 'center';
-            if (conf.bold) td.style.fontWeight = '900';
-            if (conf.color) td.style.color = conf.color;
-            if (conf.bg) td.style.backgroundColor = conf.bg;
-
-            // Enable cumulative cell zoom on click
-            td.style.cursor = 'pointer';
-            td.onclick = function(e) {
-                e.stopPropagation();
-                this.classList.toggle('focused-num');
-            };
-
-            const dec = (conf.decimals !== undefined) ? conf.decimals : 2;
-            const useSep = (conf.useSep !== undefined) ? conf.useSep : true;
-            const doRound = (conf.doRound !== undefined) ? conf.doRound : false;
-
-            const formatVal = (v) => {
-                if (v === undefined || v === null || v === '' || isNaN(v)) return '-';
-                let num = parseFloat(v);
-                if (doRound) num = Math.round(num);
-                if (dec === 0) num = Math.round(num);
-
-                if (useSep) {
-                    return num.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
-                } else {
-                    return num.toFixed(dec);
-                }
-            };
-
-            switch (conf.id) {
-                case 'counter':
-                    td.innerText = startIndex + i + 1;
-                    break;
-                case 'date':
-                    td.innerText = t.date || '-';
-                    td.title = t.time || '';
-                    break;
-                case 'ref':
-                    td.innerHTML = t.isOpening ? '<span style="color:#3b82f6; font-weight:900;">📋 افتتاحي</span>' : '<strong style="color:#38bdf8;">' + (t.ref || '-') + '</strong>';
-                    break;
-                case 'account':
-                    td.innerHTML = `<span style="font-weight:700;">${mainAccName}</span>`;
-                    break;
-                case 'typeLabel':
-                    td.innerHTML = `<span style="background:${t.isOpening ? 'rgba(59,130,246,0.15)' : 'rgba(168,85,247,0.15)'}; color:${t.isOpening ? '#3b82f6' : '#c084fc'}; padding:2px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">${t.typeLabel || '-'}</span>`;
-                    break;
-                case 'statement':
-                    td.style.whiteSpace = 'normal';
-                    td.style.minWidth = '180px';
-                    if (t.isOpening) { td.style.fontWeight = 'bold'; td.style.color = '#3b82f6'; }
-                    td.innerHTML = `${(t.statement === 'undefined' ? '-' : t.statement) || '-'}` + (!t.isOpening && t.additionalNote && t.additionalNote !== t.statement && t.additionalNote !== 'undefined' ? '<br><small style="color:#94a3b8;">' + t.additionalNote + '</small>' : '');
-                    break;
-                case 'counterAccount':
-                    td.innerText = t.isOpening ? '-' : counterAccName;
-                    break;
-                case 'debit':
-                    td.style.color = conf.color || '#34d399';
-                    td.innerText = t.debit > 0 ? formatVal(t.debit) : '';
-                    break;
-                case 'credit':
-                    td.style.color = conf.color || '#f87171';
-                    td.innerText = t.credit > 0 ? formatVal(t.credit) : '';
-                    break;
-                case 'balance':
-                    td.style.color = conf.color || (isPosBal ? '#34d399' : '#f87171');
-                    td.innerText = t.balance !== undefined ? formatVal(t.balance) : '-';
-                    break;
-                case 'exchangeRate':
-                    td.style.color = conf.color || '#eab308';
-                    td.innerText = formatVal(t.exchangeRate || 1);
-                    break;
-                case 'debitForeign':
-                    td.style.color = conf.color || '#34d399';
-                    td.innerText = t.debitForeign > 0 ? formatVal(t.debitForeign) : '';
-                    break;
-                case 'creditForeign':
-                    td.style.color = conf.color || '#f87171';
-                    td.innerText = t.creditForeign > 0 ? formatVal(t.creditForeign) : '';
-                    break;
-                case 'balanceForeign':
-                    td.style.color = conf.color || ((t.balanceForeign || 0) >= 0 ? '#34d399' : '#f87171');
-                    td.dir = 'ltr';
-                    td.innerText = t.balanceForeign !== undefined ? formatVal(t.balanceForeign) : '-';
-                    break;
-                default:
-                    td.innerText = '-';
+            if (col.id === 'seq') {
+                html += `<td data-col-id="seq" data-is-num="false" style="${cStyle}">${startIndex + i + 1}</td>`;
+            } else if (col.id === 'date') {
+                html += `<td data-col-id="date" data-is-num="false" title="${t.time || ''}" style="${cStyle}">${t.date || '-'}</td>`;
+            } else if (col.id === 'ref') {
+                html += `<td data-col-id="ref" data-is-num="true" style="${cStyle}">${t.isOpening ? '<span style="color:#3b82f6; font-weight:900;">📋 افتتاحي</span>' : '<strong style="color:#38bdf8; cursor:pointer;" onclick="navigateToOriginalVoucher(\'' + (t.type || '') + '\', \'' + (t.ref || '') + '\')" title="انقر للذهاب لأصل السند">' + (t.ref || '-') + '</strong>'}</td>`;
+            } else if (col.id === 'account') {
+                html += `<td data-col-id="account" data-is-num="false" style="${cStyle}"><span style="font-weight:700;">${mainAccName}</span></td>`;
+            } else if (col.id === 'typeLabel') {
+                html += `<td data-col-id="typeLabel" data-is-num="false" style="${cStyle}"><span style="background:${t.isOpening ? 'rgba(59,130,246,0.15)' : 'rgba(168,85,247,0.15)'}; color:${t.isOpening ? '#3b82f6' : '#c084fc'}; padding:2px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">${t.typeLabel || '-'}</span></td>`;
+            } else if (col.id === 'statement') {
+                html += `<td data-col-id="statement" data-is-num="false" style="white-space:normal; min-width:180px; ${cStyle} ${t.isOpening ? 'font-weight:bold; color:#3b82f6;' : ''}">
+                    ${(t.statement === 'undefined' ? '-' : t.statement) || '-'}
+                    ${!t.isOpening && t.additionalNote && t.additionalNote !== t.statement && t.additionalNote !== 'undefined' ? '<br><small style="color:#94a3b8;">' + t.additionalNote + '</small>' : ''}
+                </td>`;
+            } else if (col.id === 'counterAccount') {
+                html += `<td data-col-id="counterAccount" data-is-num="false" style="${cStyle}">${t.isOpening ? '-' : counterAccName}</td>`;
+            } else if (col.id === 'debit') {
+                const color = col.numColor || '#34d399';
+                html += `<td data-col-id="debit" data-is-num="true" class="num-cell" style="color:${color}; font-weight:900; ${cStyle}">${t.debit > 0 ? fmtNumCustom(t.debit, dec, thSep) : ''}</td>`;
+            } else if (col.id === 'credit') {
+                const color = col.numColor || '#f87171';
+                html += `<td data-col-id="credit" data-is-num="true" class="num-cell" style="color:${color}; font-weight:900; ${cStyle}">${t.credit > 0 ? fmtNumCustom(t.credit, dec, thSep) : ''}</td>`;
+            } else if (col.id === 'balance') {
+                const color = col.numColor || (isPosBal ? '#34d399' : '#f87171');
+                html += `<td data-col-id="balance" data-is-num="true" class="num-cell" style="color:${color}; font-weight:900; font-family:'JetBrains Mono',monospace; ${cStyle}">${t.balance !== undefined ? fmtNumCustom(t.balance, dec, thSep) : '-'}</td>`;
+            } else if (col.id === 'exchangeRate') {
+                const color = col.numColor || '#eab308';
+                html += `<td data-col-id="exchangeRate" data-is-num="true" class="num-cell" style="color:${color}; font-weight:900; ${cStyle}">${fmtNumCustom(t.exchangeRate || 1, dec, thSep)}</td>`;
+            } else if (col.id === 'debitForeign') {
+                const color = col.numColor || '#34d399';
+                html += `<td data-col-id="debitForeign" data-is-num="true" class="num-cell" style="color:${color}; font-weight:900; ${cStyle}">${t.debitForeign > 0 ? fmtNumCustom(t.debitForeign, dec, thSep) : ''}</td>`;
+            } else if (col.id === 'creditForeign') {
+                const color = col.numColor || '#f87171';
+                html += `<td data-col-id="creditForeign" data-is-num="true" class="num-cell" style="color:${color}; font-weight:900; ${cStyle}">${t.creditForeign > 0 ? fmtNumCustom(t.creditForeign, dec, thSep) : ''}</td>`;
+            } else if (col.id === 'balanceForeign') {
+                const color = col.numColor || (isPosBalFc ? '#34d399' : '#f87171');
+                html += `<td data-col-id="balanceForeign" data-is-num="true" class="num-cell" style="color:${color}; font-weight:900; font-family:'JetBrains Mono',monospace; ${cStyle}" dir="ltr">${t.balanceForeign !== undefined ? fmtNumCustom(t.balanceForeign, dec, thSep) : '-'}</td>`;
             }
-
-            tr.appendChild(td);
         });
 
-        tbody.appendChild(tr);
+        html += '</tr>';
     });
 
     if (currentTxns && currentTxns.length > LEDGER_PAGE_SIZE) {
@@ -2411,7 +2171,7 @@ function renderRecentTable(txns, startIndex = 0) {
         
         html += `
             <tr class="pagination-row">
-                <td colspan="14" style="text-align:center; padding: 25px 0;">
+                <td colspan="${visibleCols.length}" style="text-align:center; padding: 25px 0;">
                     <div style="display:inline-flex; align-items:center; gap: 15px; background: rgba(125,125,125,0.08); padding: 8px 16px; border-radius: 20px; border: 1px solid rgba(125,125,125,0.15); box-shadow: 0 4px 12px rgba(0,0,0,0.05); backdrop-filter: blur(4px);">
                         <button onclick="prevLedgerPage()" style="background: ${hasPrev ? 'linear-gradient(135deg, #3b82f6, #2563eb)' : 'rgba(125,125,125,0.15)'}; color: ${hasPrev ? '#fff' : 'inherit'}; border: none; padding: 8px 18px; border-radius: 12px; font-family: inherit; font-size: 0.9rem; font-weight: bold; cursor: ${hasPrev ? 'pointer' : 'not-allowed'}; opacity: ${hasPrev ? '1' : '0.5'}; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); transform: scale(1);" onmouseover="if(${hasPrev}) { this.style.transform='scale(1.05) translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(59,130,246,0.4)'; }" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='none';" ${hasPrev ? '' : 'disabled'}>
                             السابق ◀
@@ -2430,6 +2190,473 @@ function renderRecentTable(txns, startIndex = 0) {
 
     tbody.innerHTML = html;
 }
+
+/* ── Navigate to Original Voucher ── */
+window.navigateToOriginalVoucher = function(type, ref) {
+    if (!ref || ref === '-' || ref === 'OPENING') {
+        showToast('لا يوجد سند مرتبط بـ هذه الحركة', 'warning');
+        return;
+    }
+    let cleanRef = String(ref).replace(/-PAID|-BT\d+|-CH\d+$/i, '').trim();
+    let targetUrl = '';
+    type = String(type || '').toLowerCase();
+
+    if (type === 'sales' || type === 'invoice' || type === 'direct-sales') targetUrl = `direct-sales.php?id=${cleanRef}`;
+    else if (type === 'purchase' || type === 'purchases') targetUrl = `purchase.php?id=${cleanRef}`;
+    else if (type === 'receipt' || type === 'single-receipt') targetUrl = `single-cash-receipt.php?id=${cleanRef}`;
+    else if (type === 'payment' || type === 'single-payment') targetUrl = `single-cash-payment.php?id=${cleanRef}`;
+    else if (type === 'multi-receipt') targetUrl = `single-cash-receipt.php?id=${cleanRef}`;
+    else if (type === 'multi-payment') targetUrl = `single-cash-payment.php?id=${cleanRef}`;
+    else if (type === 'comprehensive-receipt') targetUrl = `comprehensive-receipt.php?id=${cleanRef}`;
+    else if (type === 'comprehensive-payment') targetUrl = `comprehensive-payment.php?id=${cleanRef}`;
+    else if (type === 'jv' || type === 'journal' || type === 'adjustment') targetUrl = `journal-voucher.php?id=${cleanRef}`;
+    else if (type === 'bank-transfer') targetUrl = `bank-transfer.php?id=${cleanRef}`;
+    else if (type === 'check' || type === 'cheque') targetUrl = `checks-cycle.php?id=${cleanRef}`;
+    else {
+        if (cleanRef.startsWith('INV-') || cleanRef.startsWith('SAL-')) targetUrl = `direct-sales.php?id=${cleanRef}`;
+        else if (cleanRef.startsWith('PUR-')) targetUrl = `purchase.php?id=${cleanRef}`;
+        else if (cleanRef.startsWith('JV-')) targetUrl = `journal-voucher.php?id=${cleanRef}`;
+        else targetUrl = `single-cash-receipt.php?id=${cleanRef}`;
+    }
+
+    if (targetUrl) {
+        showToast('جاري فتح أصل السند: ' + cleanRef, 'info');
+        window.open(targetUrl, '_blank');
+    }
+};
+
+/* ── Single Click Number Magnification ── */
+document.addEventListener('click', function(e) {
+    const td = e.target.closest('#recent-table td');
+    if (!td) return;
+    const isNum = td.dataset.isNum === 'true' || td.classList.contains('num-cell') || /^[-+]?[\d,\.]+\%?$/.test(td.innerText.trim());
+    if (isNum) {
+        td.classList.toggle('num-magnified');
+    }
+});
+
+/* ── Split Right-Click Logic (TH: Customizer, TD: Source Voucher Menu) ── */
+let currentCtxColId = null;
+let currentCtxTxn = null;
+let currentCtxTd = null;
+
+document.addEventListener('contextmenu', function(e) {
+    const table = e.target.closest('#recent-table');
+    if (!table) return;
+
+    e.preventDefault();
+
+    const th = e.target.closest('th');
+    const td = e.target.closest('td');
+    currentCtxTd = td;
+    currentCtxColId = th ? th.dataset.colId : (td ? td.dataset.colId : 'ref');
+
+    let txnType = td ? td.dataset.txnType : null;
+    let txnRef = td ? td.dataset.txnRef : null;
+
+    if (!txnType && td && td.parentElement) {
+        txnType = td.parentElement.dataset.txnType;
+        txnRef = td.parentElement.dataset.txnRef;
+    }
+
+    currentCtxTxn = (txnRef && txnRef !== '-') ? { type: txnType, ref: txnRef } : null;
+
+    // 1. IF Right-Clicking on Header Row (th in top row): Open Customizer Window!
+    if (th) {
+        const menu = document.getElementById('gl-context-menu');
+        if (menu) menu.style.display = 'none';
+        if (currentCtxColId) openGLColumnModal(currentCtxColId);
+        return;
+    }
+
+    // 2. IF Right-Clicking on Data Cell / Number (td): Open Source Voucher Menu!
+    closeGLColumnModal(); // Close customization window if open
+
+    const menu = document.getElementById('gl-context-menu');
+    if (!menu) return;
+
+    // Configure Drilldown button
+    const drillEl = document.getElementById('gl-ctx-drilldown');
+    if (drillEl) {
+        if (currentCtxTxn) {
+            drillEl.classList.remove('disabled');
+            drillEl.innerHTML = `<span>🔗 الذهاب إلى أصل السند: <strong style="color:#38bdf8;">${currentCtxTxn.ref}</strong></span><span style="font-size:0.75rem; color:#38bdf8;">◀</span>`;
+            drillEl.onclick = () => {
+                menu.style.display = 'none';
+                navigateToOriginalVoucher(currentCtxTxn.type, currentCtxTxn.ref);
+            };
+        } else {
+            drillEl.classList.add('disabled');
+            drillEl.innerHTML = `<span>🔗 الذهاب إلى أصل السند (غير محدد)</span><span style="font-size:0.75rem; color:#38bdf8;">◀</span>`;
+            drillEl.onclick = null;
+        }
+    }
+
+    // Configure Zoom toggle
+    const zoomEl = document.getElementById('gl-ctx-toggle-zoom');
+    if (zoomEl) {
+        zoomEl.onclick = () => {
+            menu.style.display = 'none';
+            if (currentCtxTd) currentCtxTd.classList.toggle('num-magnified');
+        };
+    }
+
+    // Configure Custom col shortcut
+    const customColBtn = document.getElementById('gl-ctx-custom-col');
+    if (customColBtn) {
+        customColBtn.onclick = () => {
+            menu.style.display = 'none';
+            if (currentCtxColId) openGLColumnModal(currentCtxColId);
+        };
+    }
+
+    // Hide col shortcut
+    const hideColBtn = document.getElementById('gl-ctx-hide-col');
+    if (hideColBtn) {
+        hideColBtn.onclick = () => {
+            menu.style.display = 'none';
+            if (currentCtxColId) hideGLColumn(currentCtxColId);
+        };
+    }
+
+    let posX = e.clientX;
+    let posY = e.clientY;
+    const menuWidth = 260;
+    const menuHeight = 220;
+    if (posX + menuWidth > window.innerWidth) posX = window.innerWidth - menuWidth - 10;
+    if (posY + menuHeight > window.innerHeight) posY = window.innerHeight - menuHeight - 10;
+
+    menu.style.left = posX + 'px';
+    menu.style.top = posY + 'px';
+    menu.style.display = 'block';
+});
+
+/* ── Draggable Modal Logic ── */
+function initGLDraggableModal() {
+    const header = document.getElementById('gl-draggable-header');
+    const win = document.getElementById('gl-modal-window');
+    if (!header || !win) return;
+
+    let isDragging = false;
+    let startX = 0, startY = 0;
+    let initialLeft = 0, initialTop = 0;
+
+    header.onmousedown = function(e) {
+        if (e.target.closest('.gl-modal-close-btn') || e.target.closest('.gl-modal-ctrl-btn')) return;
+        isDragging = true;
+        startX = e.clientX;
+        startY = e.clientY;
+        
+        const rect = win.getBoundingClientRect();
+        initialLeft = rect.left;
+        initialTop = rect.top;
+
+        win.style.transform = 'none';
+        win.style.left = initialLeft + 'px';
+        win.style.top = initialTop + 'px';
+
+        document.onmousemove = function(ev) {
+            if (!isDragging) return;
+            const dx = ev.clientX - startX;
+            const dy = ev.clientY - startY;
+
+            let newLeft = initialLeft + dx;
+            let newTop = initialTop + dy;
+
+            if (newLeft < 10) newLeft = 10;
+            if (newTop < 10) newTop = 10;
+            if (newLeft + rect.width > window.innerWidth - 10) newLeft = window.innerWidth - rect.width - 10;
+            if (newTop + rect.height > window.innerHeight - 10) newTop = window.innerHeight - rect.height - 10;
+
+            win.style.left = newLeft + 'px';
+            win.style.top = newTop + 'px';
+        };
+
+        document.onmouseup = function() {
+            isDragging = false;
+            document.onmousemove = null;
+            document.onmouseup = null;
+        };
+    };
+}
+
+/* ── Live Preview Generator ── */
+window.updateGLModalLivePreview = function() {
+    const colId = document.getElementById('gl-modal-col-id').value;
+    const col = activeGLColumnSettings.find(c => c.id === colId) || {};
+    
+    const hBg = document.getElementById('gl-cfg-header-bg').value;
+    const hColor = document.getElementById('gl-cfg-header-color').value;
+    const cBg = document.getElementById('gl-cfg-cell-bg').value;
+    const cColor = document.getElementById('gl-cfg-cell-color').value;
+    const font = document.getElementById('gl-cfg-font').value;
+    const weight = document.getElementById('gl-cfg-weight').value;
+    const size = document.getElementById('gl-cfg-size').value || '0.85rem';
+    const align = document.getElementById('gl-cfg-align').value;
+    const decimals = parseInt(document.getElementById('gl-cfg-decimals').value, 10);
+    const thSep = document.getElementById('gl-cfg-thousands').value;
+    const numColor = document.getElementById('gl-cfg-num-color').value;
+
+    const prevTh = document.getElementById('gl-prev-th');
+    const prevTd = document.getElementById('gl-prev-td');
+
+    if (prevTh) {
+        prevTh.innerText = col.label || 'اسم العمود';
+        prevTh.style.background = hBg;
+        prevTh.style.color = hColor;
+        prevTh.style.fontFamily = font + ', sans-serif';
+        prevTh.style.fontWeight = weight;
+        prevTh.style.textAlign = align;
+    }
+
+    if (prevTd) {
+        prevTd.innerText = col.isNum ? fmtNumCustom(12500, decimals, thSep) : (col.label + ' نموذج');
+        prevTd.style.background = cBg;
+        prevTd.style.color = col.isNum ? numColor : cColor;
+        prevTd.style.fontFamily = font + ', sans-serif';
+        prevTd.style.fontWeight = weight;
+        prevTd.style.fontSize = size;
+        prevTd.style.textAlign = align;
+    }
+};
+
+/* ── Modal Customizer Functions & Window Controls ── */
+window.toggleMinimizeGLModal = function() {
+    const win = document.getElementById('gl-modal-window');
+    if (!win) return;
+    win.classList.remove('maximized');
+    win.classList.toggle('minimized');
+    if (win.classList.contains('minimized')) {
+        showToast('تم تصغير النافذة (انقر 🗕 للفتح)', 'info');
+    }
+};
+
+window.toggleMaximizeGLModal = function() {
+    const win = document.getElementById('gl-modal-window');
+    if (!win) return;
+    win.classList.remove('minimized');
+    win.classList.toggle('maximized');
+    if (win.classList.contains('maximized')) {
+        win.style.left = '50%';
+        win.style.top = '50%';
+        win.style.transform = 'translate(-50%, -50%)';
+    }
+};
+
+window.positionGLModal = function(pos) {
+    const win = document.getElementById('gl-modal-window');
+    if (!win) return;
+
+    win.classList.remove('minimized');
+    win.classList.remove('maximized');
+    win.style.transform = 'none';
+
+    const rect = win.getBoundingClientRect();
+    const margin = 20;
+
+    if (pos === 'left') {
+        win.style.left = margin + 'px';
+        win.style.top = Math.max(10, (window.innerHeight / 2 - rect.height / 2)) + 'px';
+        showToast('تم نقل النافذة للجهة اليسرى', 'info');
+    } else if (pos === 'right') {
+        win.style.left = Math.max(10, (window.innerWidth - rect.width - margin)) + 'px';
+        win.style.top = Math.max(10, (window.innerHeight / 2 - rect.height / 2)) + 'px';
+        showToast('تم نقل النافذة للجهة اليمنى', 'info');
+    } else if (pos === 'center') {
+        win.style.left = '50%';
+        win.style.top = '50%';
+        win.style.transform = 'translate(-50%, -50%)';
+        showToast('تم تمركز النافذة في المنتصف', 'info');
+    }
+};
+
+/* ── Render Master Column Selector List ── */
+window.renderGLModalColumnsList = function(selectedColId) {
+    const container = document.getElementById('gl-modal-columns-list');
+    if (!container) return;
+
+    let html = '';
+    activeGLColumnSettings.forEach(c => {
+        const isSelected = c.id === selectedColId;
+        const isVisible = !c.hidden;
+        
+        html += `
+            <div class="gl-col-chip ${isSelected ? 'active' : ''}" onclick="selectGLColumnInModal('${c.id}')" title="انقر لتنسيق هذا العمود">
+                <input type="checkbox" ${isVisible ? 'checked' : ''} onclick="event.stopPropagation(); toggleGLColumnVisibility('${c.id}', this.checked);" title="إظهار / إخفاء العمود">
+                <span>${c.label}</span>
+            </div>
+        `;
+    });
+
+    container.innerHTML = html;
+};
+
+window.toggleGLColumnVisibility = function(colId, isVisible) {
+    const col = activeGLColumnSettings.find(c => c.id === colId);
+    if (col) {
+        col.hidden = !isVisible;
+        saveGLColumnSettings();
+        if (typeof runReport === 'function') runReport();
+        renderGLModalColumnsList(document.getElementById('gl-modal-col-id').value);
+        showToast(isVisible ? `تم إظهار العمود: ${col.label}` : `تم إخفاء العمود: ${col.label}`, isVisible ? 'success' : 'info');
+    }
+};
+
+window.selectGLColumnInModal = function(colId) {
+    const col = activeGLColumnSettings.find(c => c.id === colId);
+    if (!col) return;
+
+    document.getElementById('gl-modal-col-id').value = col.id;
+    document.getElementById('gl-modal-col-name').innerText = col.label;
+
+    document.getElementById('gl-cfg-header-bg').value = col.headerBg || '#0f172a';
+    document.getElementById('gl-cfg-header-color').value = col.headerColor || '#c084fc';
+    document.getElementById('gl-cfg-cell-bg').value = col.cellBg || '#0f172a';
+    document.getElementById('gl-cfg-cell-color').value = col.cellColor || '#f8fafc';
+    document.getElementById('gl-cfg-font').value = col.fontFamily || 'Tajawal';
+    document.getElementById('gl-cfg-weight').value = col.fontWeight || '700';
+    document.getElementById('gl-cfg-size').value = col.fontSize || '0.85rem';
+    if (document.getElementById('gl-cfg-size-select')) document.getElementById('gl-cfg-size-select').value = col.fontSize || '0.85rem';
+    document.getElementById('gl-cfg-align').value = col.align || 'right';
+    document.getElementById('gl-cfg-decimals').value = col.decimals !== undefined ? col.decimals : 2;
+    if (document.getElementById('gl-cfg-thousands')) document.getElementById('gl-cfg-thousands').value = col.thousandsStyle || 'comma';
+    document.getElementById('gl-cfg-num-color').value = col.numColor || (col.id.includes('debit') ? '#34d399' : col.id.includes('credit') ? '#f87171' : '#34d399');
+
+    renderGLModalColumnsList(col.id);
+    updateGLModalLivePreview();
+};
+
+window.openGLColumnModal = function(colId) {
+    const col = activeGLColumnSettings.find(c => c.id === colId) || activeGLColumnSettings[0];
+    if (!col) return;
+
+    const win = document.getElementById('gl-modal-window');
+    if (win) {
+        win.classList.remove('minimized');
+        win.classList.remove('maximized');
+        win.style.left = '50%';
+        win.style.top = '50%';
+        win.style.transform = 'translate(-50%, -50%)';
+    }
+
+    selectGLColumnInModal(col.id);
+
+    const zoomBtn = document.getElementById('gl-modal-action-zoom');
+    if (zoomBtn) {
+        zoomBtn.onclick = () => {
+            if (currentCtxTd) currentCtxTd.classList.toggle('num-magnified');
+            else showToast('انقر على أي خلية لتكبير رقمها للمراجعة', 'info');
+        };
+    }
+
+    const hideBtn = document.getElementById('gl-modal-action-hide');
+    if (hideBtn) {
+        hideBtn.onclick = () => {
+            const activeId = document.getElementById('gl-modal-col-id').value;
+            hideGLColumn(activeId);
+            renderGLModalColumnsList(activeId);
+        };
+    }
+
+    const moveLBtn = document.getElementById('gl-modal-action-move-left');
+    if (moveLBtn) {
+        moveLBtn.onclick = () => {
+            const activeId = document.getElementById('gl-modal-col-id').value;
+            moveGLColumn(activeId, 1);
+            renderGLModalColumnsList(activeId);
+        };
+    }
+
+    const moveRBtn = document.getElementById('gl-modal-action-move-right');
+    if (moveRBtn) {
+        moveRBtn.onclick = () => {
+            const activeId = document.getElementById('gl-modal-col-id').value;
+            moveGLColumn(activeId, -1);
+            renderGLModalColumnsList(activeId);
+        };
+    }
+
+    const overlay = document.getElementById('gl-column-modal');
+    if (overlay) overlay.style.display = 'block';
+    
+    initGLDraggableModal();
+};
+
+window.closeGLColumnModal = function() {
+    const overlay = document.getElementById('gl-column-modal');
+    if (overlay) overlay.style.display = 'none';
+    const win = document.getElementById('gl-modal-window');
+    if (win) {
+        win.classList.remove('minimized');
+        win.classList.remove('maximized');
+    }
+};
+
+// Close modal on Escape key
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Escape') {
+        const modal = document.getElementById('gl-column-modal');
+        if (modal && modal.style.display !== 'none') {
+            closeGLColumnModal();
+        }
+    }
+});
+
+window.saveGLColumnCustomization = function() {
+    const colId = document.getElementById('gl-modal-col-id').value;
+    const col = activeGLColumnSettings.find(c => c.id === colId);
+    if (!col) return;
+
+    col.headerBg = document.getElementById('gl-cfg-header-bg').value;
+    col.headerColor = document.getElementById('gl-cfg-header-color').value;
+    col.cellBg = document.getElementById('gl-cfg-cell-bg').value;
+    col.cellColor = document.getElementById('gl-cfg-cell-color').value;
+    col.fontFamily = document.getElementById('gl-cfg-font').value;
+    col.fontWeight = document.getElementById('gl-cfg-weight').value;
+    col.fontSize = document.getElementById('gl-cfg-size').value;
+    col.align = document.getElementById('gl-cfg-align').value;
+    col.decimals = parseInt(document.getElementById('gl-cfg-decimals').value, 10);
+    if (document.getElementById('gl-cfg-thousands')) col.thousandsStyle = document.getElementById('gl-cfg-thousands').value;
+    col.numColor = document.getElementById('gl-cfg-num-color').value;
+
+    saveGLColumnSettings();
+    closeGLColumnModal();
+    if (typeof runReport === 'function') runReport();
+    showToast(`تم حفظ تخصيص العمود: ${col.label}`, 'success');
+};
+
+window.hideGLColumn = function(colId) {
+    const col = activeGLColumnSettings.find(c => c.id === colId);
+    if (col) {
+        col.hidden = true;
+        saveGLColumnSettings();
+        if (typeof runReport === 'function') runReport();
+        showToast(`تم إخفاء العمود: ${col.label}`, 'info');
+    }
+};
+
+window.unhideGLColumn = function(colId) {
+    const col = activeGLColumnSettings.find(c => c.id === colId);
+    if (col) {
+        col.hidden = false;
+        saveGLColumnSettings();
+        if (typeof runReport === 'function') runReport();
+        showToast(`تم إظهار العمود: ${col.label}`, 'success');
+    }
+};
+
+window.moveGLColumn = function(colId, dir) {
+    const idx = activeGLColumnSettings.findIndex(c => c.id === colId);
+    if (idx < 0) return;
+    const newIdx = idx + dir;
+    if (newIdx >= 0 && newIdx < activeGLColumnSettings.length) {
+        const item = activeGLColumnSettings.splice(idx, 1)[0];
+        activeGLColumnSettings.splice(newIdx, 0, item);
+        saveGLColumnSettings();
+        if (typeof runReport === 'function') runReport();
+        showToast('تم تغيير ترتيب العمود', 'info');
+    }
+};
 
 function getAccountName(accVal) {
     if (!accVal) return '';
