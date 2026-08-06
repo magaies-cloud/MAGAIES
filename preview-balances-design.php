@@ -77,6 +77,29 @@
         .font-tajawal { font-family: 'Tajawal', sans-serif !important; font-weight: 400 !important; font-variant-numeric: tabular-nums !important; }
         .font-cairo { font-family: 'Cairo', sans-serif !important; font-weight: 400 !important; font-variant-numeric: tabular-nums !important; }
 
+        /* Cumulative Independent Cell Magnification for Auditing */
+        td.focused-num {
+            transform: scale(1.45) translateY(-2px) !important;
+            color: #38bdf8 !important;
+            font-weight: 900 !important;
+            background: rgba(15, 23, 42, 0.96) !important;
+            border-radius: 8px !important;
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.7), inset 0 0 0 2px #38bdf8 !important;
+            z-index: 1000 !important;
+            position: relative !important;
+            display: inline-block !important;
+            padding: 4px 12px !important;
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.8) !important;
+        }
+        body.dark-mode td.focused-num,
+        :root.light-theme td.focused-num {
+            color: #0284c7 !important;
+            background: #ffffff !important;
+            box-shadow: 0 10px 30px rgba(2, 132, 199, 0.35), inset 0 0 0 2px #0284c7 !important;
+            text-shadow: none !important;
+        }
+
         /* Hide injected global navigation sidebar/header on preview page */
         .global-sidebar, header.premium-header, .global-header, .navbar {
             display: none !important;
@@ -558,6 +581,15 @@
     </table>
     
     <div id="print-footer-bar" class="print-meta-bar print-meta-footer" style="display:none;"></div>
+</div>
+
+<!-- Right-Click Context Menu for Partner Rows in Preview Page -->
+<div id="partnerContextMenu" style="display:none; position:fixed; z-index:1000000; background:rgba(15, 23, 42, 0.98); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(56, 189, 248, 0.4); border-radius:12px; box-shadow:0 20px 50px rgba(0,0,0,0.8), 0 0 20px rgba(56,189,248,0.3); padding:8px; width:260px; color:#f8fafc; font-family:'Tajawal', sans-serif; text-align:right;">
+    <div id="partnerMenuHeader" style="font-weight:bold; font-size:0.88rem; color:#38bdf8; padding:8px 12px; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">اسم الحساب</div>
+    <div id="gotoLedgerItem" onclick="window.goToPartnerLedgerFromPreview()" style="display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:0.9rem; transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.2)'; this.style.color='#38bdf8';" onmouseout="this.style.background='transparent'; this.style.color='#f8fafc';">
+        <span style="font-size:1.2rem;">📖</span>
+        <span>الذهاب إلى دفتر الأستاذ العام (GL)</span>
+    </div>
 </div>
 
 <!-- Long Press HUD Overlay for 8-second Save & Lock -->

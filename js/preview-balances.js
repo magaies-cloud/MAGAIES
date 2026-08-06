@@ -15,6 +15,30 @@ let showHeaderInfo = true;
 let isLongPressTriggered = false;
 let longPressInterval = null;
 
+window.currentSelectedPartnerId = null;
+window.currentSelectedPartnerType = null;
+window.currentSelectedPartnerName = '';
+
+window.goToPartnerLedgerFromPreview = function() {
+    if (!window.currentSelectedPartnerId && !window.currentSelectedPartnerName) return;
+    const partnerCtxMenu = document.getElementById('partnerContextMenu');
+    if (partnerCtxMenu) partnerCtxMenu.style.display = 'none';
+
+    const url = `general-ledger.php?partner_id=${encodeURIComponent(window.currentSelectedPartnerId)}&partner_type=${encodeURIComponent(window.currentSelectedPartnerType || 'CUST')}&name=${encodeURIComponent(window.currentSelectedPartnerName)}`;
+    if (window.parent && window.parent !== window) {
+        window.parent.location.href = url;
+    } else {
+        window.location.href = url;
+    }
+};
+
+document.addEventListener('click', function(e) {
+    const partnerCtxMenu = document.getElementById('partnerContextMenu');
+    if (partnerCtxMenu && !partnerCtxMenu.contains(e.target)) {
+        partnerCtxMenu.style.display = 'none';
+    }
+});
+
 // Default column definitions with exact field mapping
 const baseColumns = [
     { idx: 0, defaultLabel: "اسم الحساب", field: "name", isNum: false },
@@ -1383,8 +1407,43 @@ function renderTable() {
             if (conf.color) td.style.color = conf.color;
             if (conf.bgColor) td.style.backgroundColor = conf.bgColor;
             
+            // Cell Magnification on Click (Independent Cumulative Zoom)
+            td.style.cursor = 'pointer';
+            td.onclick = function(e) {
+                e.stopPropagation();
+                this.classList.toggle('focused-num');
+            };
+
             tr.appendChild(td);
         });
+
+        // Row Right-Click Context Menu for General Ledger (GL)
+        tr.oncontextmenu = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            window.currentSelectedPartnerId = row.id || row.partner_id || '';
+            window.currentSelectedPartnerName = row.name || row.account_name || row.accountName || '';
+            window.currentSelectedPartnerType = row.type || 'CUST';
+
+            const partnerCtxMenu = document.getElementById('partnerContextMenu');
+            const headerEl = document.getElementById('partnerMenuHeader');
+            if (headerEl) headerEl.innerHTML = `👤 <strong>${window.currentSelectedPartnerName}</strong>`;
+
+            if (partnerCtxMenu) {
+                let posX = e.clientX || e.pageX;
+                let posY = e.clientY || e.pageY;
+                const menuWidth = 260;
+                const menuHeight = 120;
+                if (posX + menuWidth > window.innerWidth) posX = window.innerWidth - menuWidth - 10;
+                if (posY + menuHeight > window.innerHeight) posY = window.innerHeight - menuHeight - 10;
+
+                partnerCtxMenu.style.left = posX + 'px';
+                partnerCtxMenu.style.top = posY + 'px';
+                partnerCtxMenu.style.display = 'block';
+            }
+        };
+
         tbody.appendChild(tr);
     });
 
