@@ -3874,7 +3874,7 @@ function loadDeliveryTransactions() {
     const emptyState = document.getElementById('delivery-empty-state');
     
     let allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
-    let pendingInvoices = allSales.filter(inv => inv.status === 'pending_delivery');
+    let pendingInvoices = allSales.filter(inv => inv.saleType !== 'preliminary' && inv.status !== 'preliminary' && inv.isDelivered !== true);
     
     if (pendingInvoices.length === 0) {
         tbody.innerHTML = '';
@@ -3939,7 +3939,16 @@ function executeDelivery(invNo) {
     
     if (inv.items) {
         for (const row of inv.items) {
-            let qtyToDeduct = row.baseQty || (row.quantity * (row.factor || 1));
+            const item = typeof ITEMS !== 'undefined' ? ITEMS.find(i => String(i.id) === String(row.itemId)) : null;
+            let selectedUnitFactor = row.customFactor !== undefined ? row.customFactor : 1;
+            if (row.customFactor === undefined && item && row.selectedUnit && item.unitsArray) {
+                const su = item.unitsArray.find(u => u.name === row.selectedUnit);
+                if (su) selectedUnitFactor = su.factor;
+            }
+            let conversionFactor = item ? (item.conversionFactor || 1) : 1;
+            let computedBaseQty = row.quantity * selectedUnitFactor * conversionFactor;
+            
+            let qtyToDeduct = row.customBaseQty !== undefined ? parseFloat(row.customBaseQty) : computedBaseQty;
             
             let itemInv = currentInvData.find(i => i.itemId === row.itemId && i.warehouse === whName);
             if (itemInv) {
@@ -3948,14 +3957,11 @@ function executeDelivery(invNo) {
                 currentInvData.push({ itemId: row.itemId, warehouse: whName, qty: -qtyToDeduct, minQty: 10 });
             }
             
-            if (typeof ITEMS !== 'undefined') {
-                const item = ITEMS.find(i => String(i.id) === String(row.itemId));
-                if (item) {
-                    if (item.actualStock && item.actualStock[selectedWhId] !== undefined) {
-                        item.actualStock[selectedWhId] -= qtyToDeduct;
-                    } else if (item.actualStock) {
-                        item.actualStock[selectedWhId] = -qtyToDeduct;
-                    }
+            if (item) {
+                if (item.actualStock && item.actualStock[selectedWhId] !== undefined) {
+                    item.actualStock[selectedWhId] -= qtyToDeduct;
+                } else if (item.actualStock) {
+                    item.actualStock[selectedWhId] = -qtyToDeduct;
                 }
             }
         }
@@ -3964,7 +3970,7 @@ function executeDelivery(invNo) {
     localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
     
     // Update Invoice Status
-    inv.status = 'delivered';
+    inv.isDelivered = true;
     inv.deliveredAt = new Date().toISOString();
     inv.deliveryWarehouse = whName;
     
@@ -4479,13 +4485,22 @@ function submitInvoiceSplit() {
         const qtyA = inputA ? parseFloat(inputA.value) || 0 : originalQty;
         const qtyB = originalQty - qtyA;
         
+        let customBaseA = undefined;
+        let customBaseB = undefined;
+        if (item.customBaseQty !== undefined) {
+            const cbq = parseFloat(item.customBaseQty) || 0;
+            customBaseA = originalQty > 0 ? cbq * (qtyA / originalQty) : 0;
+            customBaseB = originalQty > 0 ? cbq * (qtyB / originalQty) : 0;
+        }
+        
         if (qtyA > 0) {
             hasQtyA = true;
             itemsA.push({
                 ...item,
                 qty: qtyA,
                 quantity: qtyA,
-                total: qtyA * parseFloat(item.price || 0)
+                total: qtyA * parseFloat(item.price || 0),
+                ...(customBaseA !== undefined && { customBaseQty: customBaseA })
             });
         }
         
@@ -4495,7 +4510,8 @@ function submitInvoiceSplit() {
                 ...item,
                 qty: qtyB,
                 quantity: qtyB,
-                total: qtyB * parseFloat(item.price || 0)
+                total: qtyB * parseFloat(item.price || 0),
+                ...(customBaseB !== undefined && { customBaseQty: customBaseB })
             });
         }
     });
@@ -4521,12 +4537,32 @@ function submitInvoiceSplit() {
     const discountA = originalDiscount * ratioA;
     const taxA = originalTax * ratioA;
     const grandA = Math.max(0, subtotalA - discountA + taxA);
+    const cashA = (parseFloat(activeSplitInvoice.cashAmount) || 0) * ratioA;
+    const creditA = (parseFloat(activeSplitInvoice.creditAmount) || 0) * ratioA;
+    const bankTransfersA = (activeSplitInvoice.bankTransfers || []).map(bt => ({...bt, amount: bt.amount * ratioA}));
+    const chequesA = (activeSplitInvoice.cheques || []).map(ch => ({...ch, amount: ch.amount * ratioA}));
+    const laborA = (parseFloat(activeSplitInvoice.laborCost) || 0) * ratioA;
+    const laborFcA = (parseFloat(activeSplitInvoice.laborCostFc) || 0) * ratioA;
+    const transportA = (parseFloat(activeSplitInvoice.transportCost) || 0) * ratioA;
+    const transportFcA = (parseFloat(activeSplitInvoice.transportCostFc) || 0) * ratioA;
+    const additionsA = (parseFloat(activeSplitInvoice.additionsCost) || 0) * ratioA;
+    const additionsFcA = (parseFloat(activeSplitInvoice.additionsCostFc) || 0) * ratioA;
     
     const subtotalB = itemsB.reduce((sum, item) => sum + item.total, 0);
     const ratioB = subtotalB / originalSubtotal;
     const discountB = originalDiscount * ratioB;
     const taxB = originalTax * ratioB;
     const grandB = Math.max(0, subtotalB - discountB + taxB);
+    const cashB = (parseFloat(activeSplitInvoice.cashAmount) || 0) * ratioB;
+    const creditB = (parseFloat(activeSplitInvoice.creditAmount) || 0) * ratioB;
+    const bankTransfersB = (activeSplitInvoice.bankTransfers || []).map(bt => ({...bt, amount: bt.amount * ratioB}));
+    const chequesB = (activeSplitInvoice.cheques || []).map(ch => ({...ch, amount: ch.amount * ratioB}));
+    const laborB = (parseFloat(activeSplitInvoice.laborCost) || 0) * ratioB;
+    const laborFcB = (parseFloat(activeSplitInvoice.laborCostFc) || 0) * ratioB;
+    const transportB = (parseFloat(activeSplitInvoice.transportCost) || 0) * ratioB;
+    const transportFcB = (parseFloat(activeSplitInvoice.transportCostFc) || 0) * ratioB;
+    const additionsB = (parseFloat(activeSplitInvoice.additionsCost) || 0) * ratioB;
+    const additionsFcB = (parseFloat(activeSplitInvoice.additionsCostFc) || 0) * ratioB;
     
     const invoiceA = {
         ...activeSplitInvoice,
@@ -4536,6 +4572,16 @@ function submitInvoiceSplit() {
         discount: discountA,
         vatAmount: taxA,
         grandTotal: grandA,
+        cashAmount: cashA,
+        creditAmount: creditA,
+        bankTransfers: bankTransfersA,
+        cheques: chequesA,
+        laborCost: laborA,
+        laborCostFc: laborFcA,
+        transportCost: transportA,
+        transportCostFc: transportFcA,
+        additionsCost: additionsA,
+        additionsCostFc: additionsFcA,
         timestamp: new Date().toISOString(),
         parentInvoice: activeSplitInvoice.invoiceNo
     };
@@ -4548,6 +4594,16 @@ function submitInvoiceSplit() {
         discount: discountB,
         vatAmount: taxB,
         grandTotal: grandB,
+        cashAmount: cashB,
+        creditAmount: creditB,
+        bankTransfers: bankTransfersB,
+        cheques: chequesB,
+        laborCost: laborB,
+        laborCostFc: laborFcB,
+        transportCost: transportB,
+        transportCostFc: transportFcB,
+        additionsCost: additionsB,
+        additionsCostFc: additionsFcB,
         timestamp: new Date().toISOString(),
         parentInvoice: activeSplitInvoice.invoiceNo
     };
@@ -4571,31 +4627,56 @@ function submitInvoiceSplit() {
     localStorage.setItem('erp_inv_' + invoiceNoA, JSON.stringify(invoiceA));
     localStorage.setItem('erp_inv_' + invoiceNoB, JSON.stringify(invoiceB));
     
-    if (activeSplitInvoice.paymentMethod === 'credit' && activeSplitInvoice.customer && activeSplitInvoice.customer !== 'walk-in') {
-        let customers = [];
-        try { customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || []; } catch(e) {}
-        
-        const cIdx = customers.findIndex(c => c.id === activeSplitInvoice.customer);
-        if (cIdx > -1) {
-            let currentBalance = parseFloat(customers[cIdx].currentBalance) || 0;
-            currentBalance = currentBalance - parseFloat(activeSplitInvoice.grandTotal) + grandA + grandB;
-            customers[cIdx].currentBalance = currentBalance;
-            localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
-        }
+    // ── 1. Revert Old Invoice Effects ──
+    if (typeof revertSalesInvoiceEffects === 'function') {
+        revertSalesInvoiceEffects(activeSplitInvoice.invoiceNo, false);
     }
     
-    if (activeSplitInvoice.paymentMethod !== 'credit' && activeSplitInvoice.paymentAccountId) {
-        let banks = [];
-        try { banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || []; } catch(e) {}
+    // ── 2. Apply New Invoices Effects ──
+    const applyEffects = (inv) => {
+        if (inv.creditAmount > 0 && inv.customer && inv.customer !== 'walk-in') {
+            let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+            const cIdx = customers.findIndex(c => c.id === inv.customer || c.id === inv.customerId);
+            if (cIdx > -1) {
+                let currentBalance = parseFloat(customers[cIdx].currentBalance);
+                if (isNaN(currentBalance)) currentBalance = 0;
+                customers[cIdx].currentBalance = currentBalance + parseFloat(inv.creditAmount);
+                localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
+            }
+        }
         
-        const bIdx = banks.findIndex(b => b.id === activeSplitInvoice.paymentAccountId);
-        if (bIdx > -1) {
-            let currentBalance = parseFloat(banks[bIdx].currentBalance) || 0;
-            currentBalance = currentBalance - parseFloat(activeSplitInvoice.grandTotal) + grandA + grandB;
-            banks[bIdx].currentBalance = currentBalance;
+        let banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+        let banksModified = false;
+        
+        if (inv.cashAmount > 0 && inv.paymentAccountId) {
+            const bIdx = banks.findIndex(b => b.id === inv.paymentAccountId);
+            if (bIdx > -1) {
+                let currentBalance = parseFloat(banks[bIdx].currentBalance);
+                if (isNaN(currentBalance)) currentBalance = parseFloat(banks[bIdx].openingBalance) || 0;
+                banks[bIdx].currentBalance = currentBalance + parseFloat(inv.cashAmount);
+                banksModified = true;
+            }
+        }
+        
+        if (inv.bankTransfers && inv.bankTransfers.length > 0) {
+            inv.bankTransfers.forEach(bt => {
+                const bIdx = banks.findIndex(b => b.id === bt.bankAccountId);
+                if (bIdx > -1) {
+                    let currentBalance = parseFloat(banks[bIdx].currentBalance);
+                    if (isNaN(currentBalance)) currentBalance = parseFloat(banks[bIdx].openingBalance) || 0;
+                    banks[bIdx].currentBalance = currentBalance + parseFloat(bt.amount);
+                    banksModified = true;
+                }
+            });
+        }
+        
+        if (banksModified) {
             localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
         }
-    }
+    };
+    
+    applyEffects(invoiceA);
+    applyEffects(invoiceB);
     
     if (typeof showToast === 'function') {
         showToast('تم تقسيم الفاتورة واعتماد المستندين الجديدين بنجاح! ✂️', 'success');

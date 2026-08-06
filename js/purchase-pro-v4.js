@@ -134,7 +134,8 @@ function peekNextInvoiceNumber(type) {
     const now = new Date();
     const yy = String(now.getFullYear()).substring(2, 4);
     const mm = String(now.getMonth() + 1).padStart(2, '0');
-    const datePrefix = 'P' + yy + mm;
+    const isProforma = (type === 'proforma' || window.currentSaleType === 'proforma');
+    const datePrefix = isProforma ? ('D' + yy + mm) : ('P' + yy + mm);
     
     let max = 0;
     list.forEach(inv => {
@@ -145,13 +146,13 @@ function peekNextInvoiceNumber(type) {
             if (!isNaN(seq) && seq > max) {
                 max = seq;
             }
-        } else if (invNo.startsWith('P260')) {
+        } else if (!isProforma && invNo.startsWith('P260')) {
             const seqStr = invNo.substring(4);
             const seq = parseInt(seqStr, 10);
             if (!isNaN(seq) && seq > max) {
                 max = seq;
             }
-        } else if (/^\d{8}$/.test(invNo) || /^C-\d+$/.test(invNo)) {
+        } else if (!isProforma && (/^\d{8}$/.test(invNo) || /^C-\d+$/.test(invNo))) {
             let seq = parseInt(invNo.replace(/\D/g, ''), 10) % 10000;
             if (!isNaN(seq) && seq > max) {
                 max = seq;
@@ -3693,7 +3694,7 @@ function recalcPaymentSummary(isRevertCall = false) {
     // Show/hide entire payment details panel depending on invoice grand total
     const paymentPanel = document.getElementById('payment-panel');
     if (paymentPanel) {
-        if (grand > 0.01) {
+        if (grand > 0.01 && currentSaleType !== 'proforma') {
             paymentPanel.style.display = 'block';
         } else {
             paymentPanel.style.display = 'none';

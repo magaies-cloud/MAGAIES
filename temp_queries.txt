@@ -1,0 +1,214 @@
+@{Line=        // Auto-select template from URL if present}
+@{Line=        $count = $pdo->query("SELECT COUNT(*) FROM alert_settings WHERE tenant_id = '{$tenant_id}'")->fetchColumn();}
+@{Line=        $settings = $pdo->query("SELECT rule_key, is_enabled FROM alert_settings WHERE is_enabled = 1 AND tenant_id = '{$GLOBAL_TENANT_ID}'")->fetchAll(PDO::FETCH_KEY_PAIR);}
+@{Line=            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'credit_limit_breach'")->fetch(PDO::FETCH_ASSOC);}
+@{Line=                    $stmt = $pdo->query("SELECT data FROM customers WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'overdue_checks'")->fetch(PDO::FETCH_ASSOC);}
+@{Line=            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'low_stock_level'")->fetch(PDO::FETCH_ASSOC);}
+@{Line=                    $stmt = $pdo->query("SELECT data FROM items WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'deadstock_limit_breach'")->fetch(PDO::FETCH_ASSOC);}
+@{Line=                    $stmt = $pdo->query("SELECT data FROM items WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=    $rules = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);}
+@{Line=    $logs = $pdo->query("SELECT * FROM alert_logs WHERE tenant_id = '{$GLOBAL_TENANT_ID}' ORDER BY severity DESC, id DESC")->fetchAll(PDO::FETCH_ASSOC);}
+@{Line=    $stmt = $pdo->prepare("SELECT data FROM customers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");}
+@{Line=    $stmt = $pdo->prepare("SELECT data FROM suppliers WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");}
+@{Line=    $stmt = $pdo->prepare("SELECT data FROM accounts WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");}
+@{Line=    $stmt = $pdo->prepare("SELECT data FROM items WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");}
+@{Line=    $stmt = $pdo->prepare("SELECT data FROM banks WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL)");}
+@{Line=        $stmt_ex = $pdo->query("SELECT setting_value FROM global_settings WHERE setting_key = 'exchange_rate'");}
+@{Line=        $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");}
+@{Line=        $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('saas_plans', 'saas_partners', 'saas_ads', 'saas_partners_enabled')");}
+@{Line=            $dbg['tenants_count'] = (int)$pdo->query("SELECT COUNT(*) FROM tenants")->fetchColumn();}
+@{Line=            $dbg['tenants_sample'] = $pdo->query("SELECT id, company_name, subdomain, owner_name, status, valid_until FROM tenants LIMIT 5")->fetchAll();}
+@{Line=        $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE username = ?");}
+@{Line=        $stmt = $pdo->prepare("SELECT COUNT(*) FROM tenants WHERE subdomain = ?");}
+@{Line=        $stmt = $pdo->prepare("SELECT COUNT(*) FROM tenants WHERE owner_email = ?");}
+@{Line=        $stmt = $pdo->prepare("SELECT COUNT(*) FROM tenants WHERE owner_phone = ? OR phone2 = ? OR owner_phone = ? OR phone2 = ?");}
+@{Line=        $stmt = $pdo->prepare("SELECT id FROM otp_verifications WHERE (email = ? OR email = ?) AND otp = ? AND expires_at > NOW() ORDER BY id DESC LIMIT 1");}
+@{Line=        $stmt = $pdo->prepare("SELECT id FROM otp_verifications WHERE (email = ? OR email = ?) AND otp = ? AND expires_at > NOW() ORDER BY id DESC LIMIT 1");}
+@{Line=        $stmtT = $pdo->prepare("SELECT tenant_id FROM users WHERE token = ?");}
+@{Line=        $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");}
+@{Line=            $stmtLegacy = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");}
+@{Line=    $stmt = $pdo->prepare("SELECT tenant_id, id AS user_id, token_expires_at FROM users WHERE token = ?");}
+@{Line=        $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");}
+@{Line=    $stmt = $pdo->prepare("SELECT COUNT(*) FROM users WHERE tenant_id = ? AND last_active >= DATE_SUB(NOW(), INTERVAL 2 MINUTE)");}
+@{Line=        $stmt_ex = $pdo->query("SELECT setting_value FROM global_settings WHERE setting_key = 'exchange_rate'");}
+@{Line=    $stmtUser = $pdo->prepare("SELECT id FROM users WHERE token = ? LIMIT 1");}
+@{Line=            SELECT * FROM broadcast_messages }
+@{Line=                SELECT message_id FROM user_message_views WHERE user_id = ?}
+@{Line=    $stmtUser = $pdo->prepare("SELECT id FROM users WHERE token = ? LIMIT 1");}
+@{Line=        $stmtTenant = $pdo->prepare("SELECT t.max_users, t.plan_id, p.setting_value as plans_json FROM tenants t LEFT JOIN global_settings p ON p.setting_key = 'saas_plans' WHERE t.id = ?");}
+@{Line=            $stmtTenant = $pdo->prepare("SELECT t.plan_id, t.max_storage, p.setting_value as plans_json FROM tenants t LEFT JOIN global_settings p ON p.setting_key = 'saas_plans' WHERE t.id = ?");}
+@{Line=                                    $stmtTenant = $pdo->prepare("SELECT t.max_users, t.plan_id, p.setting_value as plans_json FROM tenants t LEFT JOIN global_settings p ON p.setting_key = 'saas_plans' WHERE t.id = ?");}
+@{Line=                                        $stmtP = $pdo->prepare("SELECT start_date, end_date FROM financial_periods WHERE tenant_id = ? AND is_closed = 1");}
+@{Line=                $stmtP = $pdo->prepare("SELECT start_date, end_date FROM financial_periods WHERE tenant_id = ? AND is_closed = 1");}
+@{Line=$stmt = $pdo->query("SELECT subdomain FROM tenants WHERE status = 'active'");}
+@{Line=        $safes_stmt = $pdo->query("SELECT data FROM safes WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=        $banks_stmt = $pdo->query("SELECT data FROM banks WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=        $stmt = $pdo->query("SELECT data FROM items WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)");}
+@{Line=        $stmt = $pdo->query("SELECT data FROM sales_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0)");}
+@{Line=        $stmt = $pdo->query("SELECT data FROM purchase_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0)");}
+@{Line=            $stmt = $pdo->query("SELECT data FROM single_payments WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0)");}
+@{Line=                $cstmt = $pdo->query("SELECT data FROM customers WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)");}
+@{Line=                $sstmt = $pdo->query("SELECT data FROM suppliers WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)");}
+@{Line=        $safes_stmt = $pdo->query("SELECT data FROM safes WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)");}
+@{Line=        $banks_stmt = $pdo->query("SELECT data FROM banks WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)");}
+@{Line=        $sales_stmt = $pdo->query("SELECT date_val, data FROM sales_invoices WHERE is_deleted = 0");}
+@{Line=        $receipts_stmt = $pdo->query("SELECT date_val, data FROM single_receipts WHERE is_deleted = 0");}
+@{Line=        $purchases_stmt = $pdo->query("SELECT date_val, data FROM purchase_invoices WHERE is_deleted = 0");}
+@{Line=        $payments_stmt = $pdo->query("SELECT date_val, data FROM single_payments WHERE is_deleted = 0");}
+@{Line=$stmt=$pdo->query("SELECT count(*) FROM customers WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)");}
+@{Line=$stmt = $pdo->query("SELECT data FROM customers WHERE tenant_id=2 LIMIT 3");}
+@{Line=$stmt = $pdo->query("SELECT data FROM single_payments WHERE tenant_id=2");}
+@{Line=$stmt = $pdo->query("SELECT data FROM single_payments WHERE tenant_id=2");}
+@{Line=$stmt = $pdo->query("SELECT data FROM customers WHERE tenant_id = '1' AND (is_deleted = 0 OR is_deleted IS NULL) LIMIT 1");}
+@{Line=$stmt = $pdo->query("SELECT data FROM sales_invoices WHERE tenant_id = '1' AND (is_deleted = 0 OR is_deleted IS NULL) LIMIT 1");}
+@{Line=$stmt = $pdo->query("SELECT data FROM sales_invoices WHERE tenant_id = '2'");}
+@{Line=$stmt = $pdo->query("SELECT data FROM customers WHERE tenant_id = '2'");}
+@{Line=$stmt = $pdo->query("SELECT data FROM single_payments WHERE tenant_id=2 LIMIT 3");}
+@{Line=$stmt = $pdo->query("SELECT data FROM customers WHERE tenant_id = '2' LIMIT 1");}
+@{Line=$stmt = $pdo->query("SELECT data FROM sales_invoices WHERE tenant_id = '2' LIMIT 1");}
+@{Line=$stmt = $pdo->query("SELECT * FROM tenants");}
+@{Line=$stmt = $pdo->query("SELECT tenant_id, count(*) as count FROM customers GROUP BY tenant_id");}
+@{Line=$stmt = $pdo->query("SELECT tenant_id, count(*) as count FROM sales_invoices GROUP BY tenant_id");}
+@{Line=    $stmt = $pdo->query("SELECT id, data FROM users WHERE data IS NOT NULL");}
+@{Line=        $cust_stmt = $pdo->query("SELECT id, data FROM customers WHERE is_deleted = 0 OR is_deleted IS NULL");}
+@{Line=            $sup_stmt = $pdo->query("SELECT id, data FROM suppliers WHERE is_deleted = 0 OR is_deleted IS NULL");}
+@{Line=    $stmt = $pdo->query("SELECT id FROM tenants WHERE subdomain = 'demo' OR id = 1 LIMIT 1");}
+@{Line=    $stmtUser = $pdo->prepare("SELECT id FROM users WHERE username = 'admin'");}
+@{Line=        $cust_rows = $pdo->query("SELECT id, data FROM customers WHERE is_deleted = 0 OR is_deleted IS NULL")->fetchAll(PDO::FETCH_ASSOC);}
+@{Line=            $sale_stmt = $pdo->query("SELECT customer_id_val, MAX(date_val) as last_date FROM sales_invoices WHERE is_deleted = 0 GROUP BY customer_id_val");}
+@{Line=            $eng_rows = $pdo->query("SELECT customer_id_val, COUNT(*) as visit_count, data, total_val FROM sales_invoices WHERE is_deleted = 0 GROUP BY customer_id_val")->fetchAll(PDO::FETCH_ASSOC);}
+@{Line=            $allSales = $pdo->query("SELECT customer_id_val, data, total_val FROM sales_invoices WHERE is_deleted = 0")->fetchAll(PDO::FETCH_ASSOC);}
+@{Line=                $date_filter_sql = "SELECT customer_id_val, data, total_val, date_val FROM sales_invoices WHERE is_deleted = 0";}
+@{Line=        $stmt = $pdo->prepare("SELECT tenant_id FROM users WHERE token = ? AND (token_expires_at IS NULL OR token_expires_at > NOW()) AND status = 'active'");}
+@{Line=            $stmt = $pdo->query("SELECT data FROM sales_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=        $stmt = $pdo->query("SELECT data FROM customers WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=            $stmt = $pdo->query("SELECT data FROM sales_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=            $stmtItems = $pdo->query("SELECT frontend_id, search_name FROM items WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=            $stmt = $pdo->query("SELECT data FROM sales_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=        $stmt = $pdo->prepare("SELECT data FROM customers WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (id = ? OR JSON_EXTRACT(data, '$.id') = ?)");}
+@{Line=            $customer = $pdo->query("SELECT data FROM customers WHERE tenant_id = '{$GLOBAL_TENANT_ID}' LIMIT 1")->fetchColumn();}
+@{Line=                $cstmt = $pdo->query("SELECT data FROM customers WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=            $stmt = $pdo->query("SELECT data FROM items WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=            $stmt = $pdo->query("SELECT data FROM sales_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=            $stmt = $pdo->query("SELECT data FROM purchase_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=            $stmt = $pdo->query("SELECT data FROM sales_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=            $stmt = $pdo->query("SELECT data FROM safes WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=            $stmt = $pdo->query("SELECT data FROM banks WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=        $stmt = $pdo->query("SELECT data FROM customers WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=            $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('whatsapp_instance_id', 'whatsapp_token', 'whatsapp_phone')");}
+@{Line=        $stmt = $pdo->query("SELECT * FROM items WHERE is_deleted = 0 AND tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=        $stmt = $pdo->query("SELECT * FROM purchase_invoices WHERE is_deleted = 0 AND status_val = 'confirmed' AND tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=        $stmt = $pdo->query("SELECT * FROM sales_invoices WHERE is_deleted = 0 AND tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=        $stmt = $pdo->query("SELECT * FROM warehouses WHERE is_deleted = 0 AND tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=        $stmt = $pdo->query("SELECT * FROM purchase_invoices WHERE is_deleted = 0 AND status_val = 'confirmed' AND tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=        $stmt = $pdo->query("SELECT * FROM sales_invoices WHERE is_deleted = 0 AND status_val = 'delivered' AND tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=        $stmt = $pdo->query("SELECT * FROM sales_invoices WHERE is_deleted = 0 AND tenant_id = '{$GLOBAL_TENANT_ID}' ORDER BY date_val DESC LIMIT 100");}
+@{Line=        $stmt = $pdo->query("SELECT * FROM purchase_invoices WHERE is_deleted = 0 AND status_val = 'confirmed' AND tenant_id = '{$GLOBAL_TENANT_ID}' ORDER BY date_val DESC LIMIT 50");}
+@{Line=        $safes_rows = $pdo->query("SELECT data FROM safes WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)")->fetchAll(PDO::FETCH_ASSOC);}
+@{Line=        $banks_rows = $pdo->query("SELECT data FROM banks WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)")->fetchAll(PDO::FETCH_ASSOC);}
+@{Line=        $cust_rows = $pdo->query("SELECT data FROM customers WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)")->fetchAll(PDO::FETCH_ASSOC);}
+@{Line=        $sup_rows = $pdo->query("SELECT data FROM suppliers WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (is_deleted = 0 OR is_deleted IS NULL)")->fetchAll(PDO::FETCH_ASSOC);}
+@{Line=        $inv_query = "SELECT date_val, total_val, data FROM sales_invoices WHERE is_deleted = 0";}
+@{Line=        $cust_stmt = $pdo->query("SELECT id, data FROM customers WHERE is_deleted = 0 OR is_deleted IS NULL");}
+@{Line=            $sales_query = "SELECT date_val, data FROM sales_invoices WHERE is_deleted = 0";}
+@{Line=            $receipts_query = "SELECT date_val, data FROM single_receipts WHERE is_deleted = 0";}
+@{Line=        $stmt = $pdo->query("SELECT data FROM items WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");}
+@{Line=        $sql = "SELECT date_val, data FROM sales_invoices";}
+@{Line=        $sql = "SELECT date_val, data FROM purchase_invoices";}
+@{Line=    $stmt = $pdo->query("SELECT * FROM sales_invoices WHERE is_deleted = 0 ORDER BY id DESC LIMIT 10");}
+@{Line=    $stmt = $pdo->query("SELECT * FROM purchase_invoices WHERE is_deleted=0 AND status_val = 'pending' LIMIT 5");}
+@{Line=    $stmt = $pdo->query("SELECT date_val, COUNT(*) as cnt FROM sales_invoices GROUP BY date_val ORDER BY date_val DESC LIMIT 10");}
+@{Line=        $pstmt = $pdo->prepare("SELECT data FROM purchase_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (date_val = ? AND status_val = 'confirmed')");}
+@{Line=        $sstmt = $pdo->prepare("SELECT data FROM sales_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND (date_val = ? AND status_val = 'delivered')");}
+@{Line=    $stmt = $pdo->query("SELECT data FROM suppliers WHERE tenant_id = '{$GLOBAL_TENANT_ID}' LIMIT 5");}
+@{Line=    $stmt = $pdo->prepare("SELECT data FROM payments WHERE tenant_id = ? ORDER BY id ASC");}
+@{Line=    $stmt = $pdo->prepare("SELECT data FROM receipts WHERE tenant_id = ? ORDER BY id ASC");}
+@{Line=        $item_stmt = $pdo->query("SELECT id, data FROM items WHERE is_deleted = 0");}
+@{Line=        $sales_query = "SELECT customer_id_val, date_val, data, total_val FROM sales_invoices WHERE is_deleted = 0";}
+@{Line=        $purch_query = "SELECT data, total_val FROM purchase_invoices WHERE is_deleted = 0";}
+@{Line=    $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ?");}
+@{Line=    $stmt = $pdo->prepare("SELECT data FROM single_payments WHERE tenant_id = ? ORDER BY id ASC");}
+@{Line=        $sup_stmt = $pdo->query("SELECT id, data FROM suppliers WHERE is_deleted = 0 OR is_deleted IS NULL");}
+@{Line=        $pinv_query = "SELECT supplier_id_val, date_val, data FROM purchase_invoices WHERE is_deleted = 0";}
+@{Line=$stmt = $pdo->query("SELECT token FROM users LIMIT 1");}
+@{Line=$stmt = $pdo->query("SELECT * FROM global_settings");}
+@{Line=$stmt = $pdo->query("SELECT setting_key FROM global_settings");}
+@{Line=    $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key LIKE 'balances_preset_%' OR setting_key LIKE 'balances_model_%'");}
+@{Line=    $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key LIKE 'gl_preset_%' OR setting_key LIKE 'gl_model_%'");}
+@{Line=$stmtAuth = $pdo->prepare('SELECT tenant_id FROM users WHERE token = ?');}
+@{Line=    $stmt = $pdo->prepare('SELECT data FROM items WHERE tenant_id = ?');}
+@{Line=    $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");}
+@{Line=    $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = ?");}
+@{Line=$stmtAuth = $pdo->prepare('SELECT tenant_id FROM users WHERE token = ?');}
+@{Line=        $sql = "SELECT data FROM suppliers WHERE tenant_id = ? ORDER BY id DESC LIMIT 20";}
+@{Line=        $sql = "SELECT data FROM suppliers WHERE tenant_id = ? AND LOWER(data) LIKE :q ORDER BY id DESC LIMIT 20";}
+@{Line=        $stmt = $this->pdo->prepare("SELECT id FROM otp_verifications WHERE email = ? AND otp = ? AND is_used = 0 AND expires_at > NOW() ORDER BY id DESC LIMIT 1");}
+@{Line=            $stmt = $this->pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('saas_plans', 'activation_delay_hours')");}
+@{Line=                $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until, t.created_at as tenant_created_at, u.created_at as user_created_at FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE t.subdomain = ? AND (u.role = '???? ??????' OR u.role = 'Admin') ORDER BY u.id ASC LIMIT 1");}
+@{Line=                    $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until, t.created_at as tenant_created_at, u.created_at as user_created_at FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE t.subdomain = ? ORDER BY u.id ASC LIMIT 1");}
+@{Line=                $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until, t.created_at as tenant_created_at, u.created_at as user_created_at FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE u.username = ? AND t.subdomain = ?");}
+@{Line=            $stmt = $this->pdo->prepare("SELECT u.*, t.subdomain, t.company_name, t.status, t.valid_until, t.created_at as tenant_created_at, u.created_at as user_created_at FROM users u JOIN tenants t ON u.tenant_id = t.id WHERE u.username = ?");}
+@{Line=            $stmtTenantLimit = $this->pdo->prepare("SELECT max_users, plan_id FROM tenants WHERE id = ?");}
+@{Line=                    $stmtPlans = $this->pdo->query("SELECT setting_value FROM global_settings WHERE setting_key = 'saas_plans'");}
+@{Line=                $countSql = "SELECT COUNT(*) FROM tenants t $whereClause";}
+@{Line=                $sql = "SELECT t.id, t.company_name, t.subdomain, t.owner_name, t.owner_phone, t.phone2, t.owner_email, t.status, t.receipt_path, t.valid_until, t.max_users, t.max_storage, t.plan_id, t.created_at, t.last_login_at, (SELECT username FROM users WHERE tenant_id = t.id AND role = 'admin' LIMIT 1) AS admin_username, (SELECT COUNT(*) FROM users WHERE tenant_id = t.id) AS users_count FROM tenants t $whereClause ORDER BY t.created_at DESC LIMIT $limit OFFSET $offset";}
+@{Line=                $countSql = "SELECT COUNT(*) FROM saas_payments p JOIN tenants t ON p.tenant_id = t.id $whereClause";}
+@{Line=                $sql = "SELECT p.*, t.company_name, t.subdomain FROM saas_payments p JOIN tenants t ON p.tenant_id = t.id $whereClause ORDER BY p.payment_date DESC LIMIT $limit OFFSET $offset";}
+@{Line=                $stmt = $this->pdo->prepare("SELECT p.*, t.company_name FROM saas_payments p JOIN tenants t ON p.tenant_id = t.id WHERE p.tenant_id = ? ORDER BY p.payment_date DESC");}
+@{Line=                    $tStmt = $this->pdo->prepare("SELECT id FROM tenants WHERE subdomain = ?");}
+@{Line=                $uStmt = $this->pdo->prepare("SELECT id, data FROM users WHERE tenant_id = ? AND username = ?");}
+@{Line=            $stmtAdmin = $this->pdo->prepare("SELECT id, data FROM users WHERE tenant_id = ? AND role = 'admin' LIMIT 1");}
+@{Line=            $stmt = $this->pdo->prepare("SELECT id, username, password, JSON_UNQUOTE(JSON_EXTRACT(data, '$.password')) as plain_password, JSON_UNQUOTE(JSON_EXTRACT(data, '$.fullName')) as fullName, JSON_UNQUOTE(JSON_EXTRACT(data, '$.phone')) as phone, JSON_UNQUOTE(JSON_EXTRACT(data, '$.email')) as email, role, status, last_active, created_at FROM users WHERE tenant_id = ? ORDER BY FIELD(role, 'admin', 'manager', 'employee', 'user'), username ASC");}
+@{Line=            $stmtEx = $this->pdo->prepare("SELECT data FROM users WHERE id = ?");}
+@{Line=                $stmt = $this->pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('exchange_rate', 'activation_delay_hours', 'auto_logout_value', 'auto_logout_unit')");}
+@{Line=                    $subdomainsStmt = $this->pdo->prepare("SELECT subdomain FROM tenants WHERE id IN ($placeholders)");}
+@{Line=                $stmt = $this->pdo->query("SELECT setting_value FROM global_settings WHERE setting_key = 'exchange_rate'");}
+@{Line=            $stmt = $this->pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key IN ('saas_ads', 'saas_partners', 'saas_partners_enabled')");}
+@{Line=                $stmt = $this->pdo->query("SELECT * FROM broadcast_messages ORDER BY created_at DESC");}
+@{Line=                $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'brevo_api_key'");}
+@{Line=                $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'brevo_api_key'");}
+@{Line=    $stmt = $pdo->prepare("SELECT COUNT(*) FROM INFORMATION_SCHEMA.COLUMNS WHERE TABLE_SCHEMA = 'magaees' AND TABLE_NAME = ? AND COLUMN_NAME = ?");}
+@{Line=            SELECT date_val, 0 as quantity_val FROM purchase_invoices WHERE is_deleted=0}
+@{Line=            SELECT date_val, 100 as quantity_val FROM purchase_invoices WHERE is_deleted=0}
+@{Line=            SELECT date_val, 0 as quantity_val FROM sales_invoices WHERE is_deleted=0}
+@{Line=            SELECT date_val, 50 as quantity_val FROM sales_invoices WHERE is_deleted=0}
+@{Line=    $stmt = $pdo->query("SELECT date_val, COUNT(*) as cnt FROM sales_invoices GROUP BY date_val ORDER BY date_val DESC LIMIT 10");}
+@{Line=        $pstmt = $pdo->prepare("SELECT data FROM purchase_invoices WHERE date_val = ? AND status_val = 'confirmed'");}
+@{Line=        $sstmt = $pdo->prepare("SELECT data FROM sales_invoices WHERE date_val = ? AND status_val = 'delivered'");}
+@{Line=    $stmt = $pdo->query("SELECT data FROM suppliers LIMIT 5");}
+@{Line=    $stmt = $pdo->query("SELECT * FROM sales_invoices WHERE is_deleted = 0 ORDER BY id DESC LIMIT 10");}
+@{Line=    $stmt = $pdo->query("SELECT * FROM purchase_invoices WHERE is_deleted=0 AND status_val = 'pending' LIMIT 5");}
+@{Line=    $stmt = $pdo->query("SELECT date_val, COUNT(*) as cnt FROM sales_invoices GROUP BY date_val ORDER BY date_val DESC LIMIT 10");}
+@{Line=        $pstmt = $pdo->prepare("SELECT data FROM purchase_invoices WHERE date_val = ? AND status_val = 'confirmed'");}
+@{Line=        $sstmt = $pdo->prepare("SELECT data FROM sales_invoices WHERE date_val = ? AND status_val = 'delivered'");}
+@{Line=    $stmt = $pdo->query("SELECT data FROM suppliers LIMIT 5");}
+@{Line=    $stmt = $pdo->query("SELECT * FROM sales_invoices WHERE is_deleted = 0 ORDER BY id DESC LIMIT 10");}
+@{Line=    $stmt = $pdo->query("SELECT * FROM purchase_invoices WHERE is_deleted=0 AND status_val = 'pending' LIMIT 5");}
+@{Line=$stmt = $pdo->query("SELECT * FROM global_settings");}
+@{Line=$stmt = $pdo->query("SELECT * FROM settings WHERE setting_key LIKE '%ad%' OR setting_key LIKE '%banner%' OR setting_key LIKE '%saas%'");}
+@{Line=$stmt = $pdo->query('SELECT id, data FROM payments');}
+@{Line=    $stmt = $pdo->query("SELECT setting_value FROM global_settings WHERE setting_key='layout_balances_report_user_presets_locked'");}
+@{Line=$stmt2 = $pdo->query('SELECT id, data, tenant_id FROM payments LIMIT 2');}
+@{Line=    $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings WHERE setting_key LIKE '%balances_report%'");}
+@{Line=    $stmt = $pdo->query("SELECT setting_key, setting_value FROM global_settings");}
+@{Line=$stmt = $pdo->query("SELECT id, data FROM items");}
+@{Line=$stmt = $pdo->query("SELECT * FROM inventory LIMIT 5");}
+@{Line=$stmt = $pdo->query("SELECT * FROM purchase_invoices LIMIT 5");}
+@{Line=$stmt = $pdo->query("SELECT * FROM sales_invoices LIMIT 5");}
+@{Line=    $stmt = $pdo->query("SELECT * FROM global_settings");}
+@{Line=    $stmt = $pdo->query("SELECT * FROM settings");}
+@{Line=$stmt = $pdo->query("SELECT * FROM transactions LIMIT 5");}
+@{Line=$stmt = $pdo->query("SELECT * FROM warehouses LIMIT 5");}
+@{Line=    $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key IN ('layout_balances_report_layout_default2', 'balances_report_master_default2', 'layout_balances_report_layout_default1') ORDER BY updated_at DESC LIMIT 1");}
+@{Line=$stmt = $pdo->query("SELECT * FROM items WHERE is_deleted = 0");}
+@{Line=$stmt = $pdo->query("SELECT * FROM purchase_invoices WHERE is_deleted = 0 AND status_val = 'confirmed'");}
+@{Line=$stmt = $pdo->query("SELECT * FROM sales_invoices WHERE is_deleted = 0");}
+@{Line=$stmt = $pdo->query("SELECT data FROM customers LIMIT 3");}
+@{Line=    $stmt = $pdo->prepare("SELECT setting_key, setting_value FROM global_settings WHERE setting_key LIKE 'layout_%'");}
+@{Line=    $stmt = $pdo->query("SELECT data FROM sales_invoices LIMIT 3");}
+@{Line=$stmt = $pdo->query("SELECT data FROM suppliers LIMIT 3");}
+@{Line=$stmt = $pdo->query("SELECT * FROM items LIMIT 3");}
+@{Line=$stmt = $pdo->query("SELECT * FROM inventory LIMIT 3");}
+@{Line=$stmt = $pdo->query("SELECT * FROM inventory_items LIMIT 3");}

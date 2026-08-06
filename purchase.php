@@ -1407,6 +1407,31 @@
         }
         .hub-badge.completed { background: rgba(16,185,129,0.15); color: #34d399; border: 1px solid rgba(16,185,129,0.3); }
         .hub-badge.draft { background: rgba(245,158,11,0.15); color: #fbbf24; border: 1px solid rgba(245,158,11,0.3); }
+
+        /* Proforma Mode Custom Styles (Lemon/Lime Theme) */
+        body.proforma-mode .premium-header {
+            background: linear-gradient(135deg, rgba(132, 204, 22, 0.25), rgba(163, 230, 53, 0.15)) !important;
+            border-bottom: 1px solid rgba(132, 204, 22, 0.4) !important;
+        }
+        body.proforma-mode .header-page-title {
+            color: #bef264 !important;
+        }
+        body.proforma-mode .ambient-bg {
+            background: radial-gradient(circle at 50% 50%, rgba(132, 204, 22, 0.1) 0%, transparent 70%) !important;
+        }
+        body.proforma-mode .purchase-glass-card {
+            background: linear-gradient(145deg, rgba(15, 23, 42, 1), rgba(132, 204, 22, 0.25)) !important;
+            border: 1px solid rgba(132, 204, 22, 0.3) !important;
+            border-top: 3px solid #bef264 !important;
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.6), inset 0 0 30px rgba(132, 204, 22, 0.15) !important;
+        }
+        body.proforma-mode .neo-card {
+            border-top: 2px solid #84cc16 !important;
+            box-shadow: 0 8px 32px 0 rgba(132, 204, 22, 0.1) !important;
+        }
+        body.proforma-mode .items-toolbar {
+            border-color: rgba(132, 204, 22, 0.3) !important;
+        }
     </style>
 </head>
 <body class="light-theme">
@@ -2240,12 +2265,13 @@
             document.getElementById('purchase-editor-view').style.display = 'none';
             document.getElementById('purchase-hub-view').style.display = 'flex';
             currentPurchaseView = 'hub';
+            document.body.classList.remove('proforma-mode');
             loadHubTransactions();
             
-            const dTitle = document.getElementById('default-header-title');
-            const eCtrls = document.getElementById('editor-header-controls');
-            if (dTitle) dTitle.style.display = 'flex';
-            if (eCtrls) eCtrls.style.display = 'none';
+            const pageTitleEl = document.querySelector('.header-page-title');
+            if (pageTitleEl && window.originalPageTitleHTML) {
+                pageTitleEl.innerHTML = window.originalPageTitleHTML;
+            }
             
             const backBtn = document.querySelector('button[title="رجوع"]');
             if (backBtn) {
@@ -2265,10 +2291,27 @@
             document.getElementById('purchase-editor-view').style.display = 'flex';
             currentPurchaseView = 'editor';
             
-            const dTitle = document.getElementById('default-header-title');
-            const eCtrls = document.getElementById('editor-header-controls');
-            if (dTitle) dTitle.style.display = 'none';
-            if (eCtrls) eCtrls.style.display = 'flex';
+            const pageTitleEl = document.querySelector('.header-page-title');
+            if (pageTitleEl) {
+                if (!window.originalPageTitleHTML) {
+                    window.originalPageTitleHTML = pageTitleEl.innerHTML;
+                }
+                let badge = document.getElementById('current-sale-type-badge');
+                if (!badge) {
+                    badge = document.createElement('span');
+                    badge.id = 'current-sale-type-badge';
+                    badge.style.background = 'rgba(132, 204, 22, 0.15)';
+                    badge.style.border = '1px solid rgba(132, 204, 22, 0.3)';
+                    badge.style.padding = '4px 12px';
+                    badge.style.borderRadius = '20px';
+                    badge.style.fontSize = '0.9rem';
+                    badge.style.color = '#bef264';
+                    badge.style.boxShadow = '0 0 10px rgba(132, 204, 22, 0.2)';
+                    badge.style.marginLeft = '10px';
+                    badge.style.marginRight = '10px';
+                    pageTitleEl.appendChild(badge);
+                }
+            }
             
             const backBtn = document.querySelector('button[title="رجوع"]');
             if (backBtn) {
@@ -2278,6 +2321,12 @@
                 backBtn.style.padding = '0 10px';
             }
 
+            if (type === 'proforma') {
+                document.body.classList.add('proforma-mode');
+            } else {
+                document.body.classList.remove('proforma-mode');
+            }
+            
             setSaleType(type);
             
             if (!isEdit) {
