@@ -1007,12 +1007,18 @@ $page_title = 'حساب الارصده الاساسية';
     </div>
 </div>
 
+<!-- Floating Customize Control Button (زر عائم بارز وثابت للتحكم بالأعمدة والألوان والخطوط) -->
+<button type="button" onclick="openColumnContextMenu(event)" class="no-print" style="position: fixed; bottom: 25px; left: 25px; z-index: 99999; background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; border: 2px solid rgba(255, 255, 255, 0.4); padding: 12px 22px; border-radius: 50px; font-weight: 900; font-size: 0.95rem; font-family: 'Tajawal', sans-serif; cursor: pointer; box-shadow: 0 10px 30px rgba(245, 158, 11, 0.6), 0 0 15px rgba(251, 191, 36, 0.4); display: flex; align-items: center; gap: 8px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);" onmouseover="this.style.transform='scale(1.08) translateY(-3px)'" onmouseout="this.style.transform='scale(1)'">
+    <span style="font-size: 1.2rem;">🎨</span>
+    <span>التحكم بالأعمدة والألوان والخطوط</span>
+</button>
+
 <!-- Custom Context Menu for Partner Rows -->
-<div id="partnerContextMenu" style="display:none; position:absolute; z-index:10000; background:rgba(15, 23, 42, 0.95); backdrop-filter:blur(10px); border:1px solid rgba(255,255,255,0.1); border-radius:12px; box-shadow:0 20px 40px rgba(0,0,0,0.5); padding:8px; width:220px; color:#f8fafc; font-family:'Tajawal', sans-serif;">
-    <div id="partnerMenuHeader" style="font-weight:bold; font-size:0.85rem; color:#94a3b8; padding:8px 12px; border-bottom:1px solid rgba(255,255,255,0.08); margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">اسم الحساب</div>
-    <div id="gotoLedgerItem" style="display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:0.9rem; transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.15)'; this.style.color='#38bdf8';" onmouseout="this.style.background='transparent'; this.style.color='#f8fafc';">
-        <span style="font-size:1.1rem;">📖</span>
-        <span>الذهاب إلى دفتر الأستاذ</span>
+<div id="partnerContextMenu" style="display:none; position:fixed; z-index:100000; background:rgba(15, 23, 42, 0.98); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(56, 189, 248, 0.4); border-radius:12px; box-shadow:0 20px 50px rgba(0,0,0,0.8), 0 0 20px rgba(56,189,248,0.3); padding:8px; width:250px; color:#f8fafc; font-family:'Tajawal', sans-serif;">
+    <div id="partnerMenuHeader" style="font-weight:bold; font-size:0.88rem; color:#38bdf8; padding:8px 12px; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">اسم الحساب</div>
+    <div id="gotoLedgerItem" onclick="window.goToPartnerLedger()" style="display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:0.9rem; transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.2)'; this.style.color='#38bdf8';" onmouseout="this.style.background='transparent'; this.style.color='#f8fafc';">
+        <span style="font-size:1.2rem;">📖</span>
+        <span>الذهاب إلى دفتر الأستاذ العام</span>
     </div>
 </div>
 

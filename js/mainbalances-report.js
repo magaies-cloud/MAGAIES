@@ -1983,36 +1983,85 @@ window.toggleMaximizeCtxMenu = function() {
     }
 };
 
+let currentSelectedPartnerId = null;
+let currentSelectedPartnerType = null;
+let currentSelectedPartnerName = '';
+
 function bindContextMenu() {
     const table = document.getElementById('balances-table');
     if (!table) return;
     const ctxMenu = document.getElementById('columnContextMenu');
     const partnerCtxMenu = document.getElementById('partnerContextMenu');
 
-    // Prevent default right-click context menu inside the table except headers
-    table.addEventListener('contextmenu', function(e) {
-        // Prevent default contextmenu on the entire table
-        e.preventDefault();
-        e.stopPropagation();
+    // Right click on header th -> Opens columnContextMenu
+    const thead = table.querySelector('thead');
+    if (thead) {
+        thead.oncontextmenu = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+            if (partnerCtxMenu) partnerCtxMenu.style.display = 'none';
+            openColumnContextMenu(e);
+        };
+    }
 
-        if (partnerCtxMenu) partnerCtxMenu.style.display = 'none';
-        if (ctxMenu) ctxMenu.style.display = 'none';
-    });
-
+    // Close partnerContextMenu when clicking anywhere else
     document.addEventListener('click', function(e) {
-        if (ctxMenu && !ctxMenu.contains(e.target)) {
-            // Wait, we want the modal to act like a normal modal, so clicking outside shouldn't close it instantly unless it's a backdrop.
-            // But let's leave it for now.
-            // ctxMenu.style.display = 'none'; 
+        if (partnerCtxMenu && !partnerCtxMenu.contains(e.target)) {
+            partnerCtxMenu.style.display = 'none';
         }
     });
 }
 
 function bindRowContextMenu() {
-    // Row context menu disabled to enforce single header contextmenu rule
+    const tbody = document.getElementById('balances-tbody');
+    if (!tbody) return;
+    const partnerCtxMenu = document.getElementById('partnerContextMenu');
+
+    const rows = tbody.querySelectorAll('tr.partner-row');
+    rows.forEach(row => {
+        row.oncontextmenu = function(e) {
+            e.preventDefault();
+            e.stopPropagation();
+
+            const pId = this.getAttribute('data-partner-id') || '';
+            const pName = this.getAttribute('data-partner-name') || '';
+            const pType = this.getAttribute('data-partner-type') || 'CUST';
+
+            currentSelectedPartnerId = pId;
+            currentSelectedPartnerType = pType;
+            currentSelectedPartnerName = pName;
+
+            const headerEl = document.getElementById('partnerMenuHeader');
+            if (headerEl) {
+                headerEl.innerHTML = `👤 <strong>${pName}</strong>`;
+            }
+
+            if (partnerCtxMenu) {
+                let posX = e.clientX || e.pageX;
+                let posY = e.clientY || e.pageY;
+                
+                const menuWidth = 250;
+                const menuHeight = 120;
+                if (posX + menuWidth > window.innerWidth) posX = window.innerWidth - menuWidth - 10;
+                if (posY + menuHeight > window.innerHeight) posY = window.innerHeight - menuHeight - 10;
+
+                partnerCtxMenu.style.left = posX + 'px';
+                partnerCtxMenu.style.top = posY + 'px';
+                partnerCtxMenu.style.display = 'block';
+            }
+        };
+    });
+}
+
+window.goToPartnerLedger = function() {
+    if (!currentSelectedPartnerId && !currentSelectedPartnerName) return;
     const partnerCtxMenu = document.getElementById('partnerContextMenu');
     if (partnerCtxMenu) partnerCtxMenu.style.display = 'none';
-}
+
+    // Navigate to General Ledger for this specific partner/customer/supplier
+    const url = `general_ledger_v2.php?accountId=cust-${encodeURIComponent(currentSelectedPartnerId)}&name=${encodeURIComponent(currentSelectedPartnerName)}`;
+    window.location.href = url;
+};
 
 window.initTogglesSortable = function() {
     const container = document.getElementById('columnToggles');
@@ -2639,6 +2688,7 @@ function renderTable(results, isAutoInit = false) {
         changeNumberFont(window.currentNumFont);
     }
     bindContextMenu();
+    bindRowContextMenu();
     bindColumnReorder();
     renderVisualAnalytics(results);
 }
