@@ -905,17 +905,20 @@ $page_title = 'حساب الارصده الاساسية';
 <div class="toast-container" id="toast-container"></div>
 
 <!-- Unified Context Menu for Columns & Data Formatting -->
-<div id="columnContextMenu" style="display:none; position:fixed; z-index:100000; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(15, 23, 42, 0.96); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(56, 189, 248, 0.35); border-radius:16px; box-shadow:0 25px 60px rgba(0,0,0,0.7), 0 0 30px rgba(56, 189, 248, 0.25); padding:16px 20px 20px 20px; width:550px; color:#f8fafc; font-family:'Tajawal', 'Inter', sans-serif; max-height:88vh; overflow:auto; resize:both; min-width:340px; min-height:200px; direction:rtl; text-align:right;">
+<div id="columnContextMenu" style="display:none; position:fixed; z-index:1000000; top:50%; left:50%; transform:translate(-50%, -50%); background:rgba(15, 23, 42, 0.98); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:2px solid rgba(56, 189, 248, 0.5); border-radius:18px; box-shadow:0 25px 70px rgba(0,0,0,0.85), 0 0 35px rgba(56, 189, 248, 0.3); padding:16px 20px 20px 20px; width:580px; color:#f8fafc; font-family:'Tajawal', 'Inter', sans-serif; max-height:88vh; overflow:auto; resize:both; min-width:340px; min-height:200px; direction:rtl; text-align:right;">
     <!-- Draggable Header -->
-    <div id="columnContextMenuHeader" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12); cursor:move; user-select:none; background:rgba(255,255,255,0.03); margin:-16px -20px 14px -20px; padding:12px 18px; border-top-left-radius:15px; border-top-right-radius:15px;">
-        <div style="font-weight:900; font-size:1.05rem; color:#38bdf8; display:flex; align-items:center; gap:8px;">
-            <span style="font-size:1.1rem; color:#94a3b8;" title="اضغط واسحب للتحريك في أي مكان">⠿</span>
-            <span>⚙️</span> قائمة إعدادات الأعمدة وتخصيص البيانات
+    <div id="columnContextMenuHeader" style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.15); cursor:move; user-select:none; background:rgba(255,255,255,0.05); margin:-16px -20px 14px -20px; padding:14px 20px; border-top-left-radius:16px; border-top-right-radius:16px;">
+        <div style="font-weight:900; font-size:1.1rem; color:#38bdf8; display:flex; align-items:center; gap:8px;">
+            <span style="font-size:1.2rem; color:#fbbf24;" title="اضغط واسحب للتحريك في أي مكان">⠿</span>
+            <span>⚙️</span> تخصيص وإعدادات الأعمدة (إسحب للتحريك)
         </div>
-        <div style="display:flex; align-items:center; gap:6px;">
-            <button type="button" title="تصغير / استعادة" onclick="toggleMinimizeCtxMenu()" style="cursor:pointer; font-weight:bold; font-size:0.9rem; color:#cbd5e1; border:none; padding:3px 8px; border-radius:6px; background:rgba(255,255,255,0.08); transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">🗕</button>
-            <button type="button" title="تكبير / استعادة" onclick="toggleMaximizeCtxMenu()" style="cursor:pointer; font-weight:bold; font-size:0.9rem; color:#cbd5e1; border:none; padding:3px 8px; border-radius:6px; background:rgba(255,255,255,0.08); transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">🗖</button>
-            <button type="button" title="إغلاق" onclick="document.getElementById('columnContextMenu').style.display='none'" style="cursor:pointer; font-weight:bold; font-size:1.1rem; color:#ef4444; border:none; padding:2px 8px; border-radius:6px; background:rgba(239,68,68,0.15); transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.3)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'">&times;</button>
+        <div style="display:flex; align-items:center; gap:8px;">
+            <button type="button" title="تصغير / استعادة" onclick="toggleMinimizeCtxMenu()" style="cursor:pointer; font-weight:bold; font-size:0.9rem; color:#cbd5e1; border:none; padding:4px 10px; border-radius:6px; background:rgba(255,255,255,0.1); transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">🗕</button>
+            <button type="button" title="تكبير / استعادة" onclick="toggleMaximizeCtxMenu()" style="cursor:pointer; font-weight:bold; font-size:0.9rem; color:#cbd5e1; border:none; padding:4px 10px; border-radius:6px; background:rgba(255,255,255,0.1); transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.3)'" onmouseout="this.style.background='rgba(255,255,255,0.1)'">🗖</button>
+            <!-- High Visibility Red Close Button -->
+            <button type="button" title="إغلاق النافذة" onclick="document.getElementById('columnContextMenu').style.display='none'" style="cursor:pointer; font-weight:900; font-size:1.15rem; color:#ffffff !important; border:1px solid rgba(255,255,255,0.4); padding:4px 14px; border-radius:8px; background:linear-gradient(135deg, #ef4444, #dc2626) !important; box-shadow:0 4px 15px rgba(239,68,68,0.5); transition:all 0.2s; display:flex; align-items:center; gap:4px;" onmouseover="this.style.transform='scale(1.08)'" onmouseout="this.style.transform='scale(1)'">
+                <span>✕</span> <span>إغلاق</span>
+            </button>
         </div>
     </div>
 
@@ -1002,6 +1005,9 @@ $page_title = 'حساب الارصده الاساسية';
             </button>
             <button type="button" onclick="resetLayoutAndStyles()" style="flex:1; padding:11px; background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.3); color:#ef4444; border-radius:8px; font-weight:bold; font-family:inherit; cursor:pointer; transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.25)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'">
                 🔄 إعادة الضبط
+            </button>
+            <button type="button" onclick="document.getElementById('columnContextMenu').style.display='none'" style="flex:1; padding:11px; background:linear-gradient(135deg, #ef4444, #dc2626); color:white; border:none; border-radius:8px; font-weight:900; font-family:inherit; cursor:pointer; box-shadow:0 4px 14px rgba(239,68,68,0.35); display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s;" onmouseover="this.style.transform='translateY(-1px)'" onmouseout="this.style.transform='none'">
+                ✕ إغلاق
             </button>
         </div>
     </div>

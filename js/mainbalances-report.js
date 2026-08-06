@@ -4792,16 +4792,10 @@ function openColumnContextMenu(e) {
     const menu = document.getElementById('columnContextMenu');
     if (!menu) return;
 
-    let posX = e ? (e.clientX || e.pageX) : window.innerWidth / 2 - 250;
-    let posY = e ? (e.clientY || e.pageY) : 100;
-
-    const menuWidth = 520;
-    const menuHeight = 500;
-    if (posX + menuWidth > window.innerWidth) posX = Math.max(10, window.innerWidth - menuWidth - 20);
-    if (posY + menuHeight > window.innerHeight) posY = Math.max(10, window.innerHeight - menuHeight - 20);
-
-    menu.style.left = posX + 'px';
-    menu.style.top = posY + 'px';
+    // Center modal in the screen by default so close button & controls are 100% visible
+    menu.style.top = '50%';
+    menu.style.left = '50%';
+    menu.style.transform = 'translate(-50%, -50%)';
     menu.style.display = 'block';
 
     renderColumnContextMenu();
@@ -4999,6 +4993,13 @@ function makeElementDraggable(elmnt, headerElmnt) {
         if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
         e = e || window.event;
         e.preventDefault();
+
+        // Lock exact top/left bounding rect and clear transform translation for smooth dragging
+        const rect = elmnt.getBoundingClientRect();
+        elmnt.style.transform = 'none';
+        elmnt.style.top = rect.top + 'px';
+        elmnt.style.left = rect.left + 'px';
+
         pos3 = e.clientX;
         pos4 = e.clientY;
         document.onmouseup = closeDragElement;
