@@ -219,13 +219,13 @@
             .plan-card.recommended:hover { transform: translateY(-10px); }
         }
     
-        /* Ads Banner (6MP 4K Dynamic Ratio & Full Un-cropped Image Display) */
+        /* Ads Banner (Unified Standard 16:5 Ratio - 3840x1200 4K / 1920x600 FHD) */
         .ads-banner {
             width: 100%;
             height: auto;
-            min-height: 300px;
-            max-height: 480px;
-            aspect-ratio: 3840 / 1534;
+            min-height: 280px;
+            max-height: 450px;
+            aspect-ratio: 16 / 5;
             margin-top: 0;
             position: relative;
             overflow: hidden;
