@@ -305,17 +305,26 @@ $page_title = 'حساب الارصده الاساسية';
             opacity: 0.8;
         }
         
-        /* The Focused Specific Number Feature */
-        .focused-num {
-            transform: scale(1.6) translateY(-2px) !important;
-            color: #8b5cf6 !important;
+        /* The Focused Specific Number Feature (Independent Cumulative Magnification) */
+        td.focused-num {
+            transform: scale(1.45) translateY(-2px) !important;
+            color: #38bdf8 !important;
             font-weight: 900 !important;
-            background: #f3e8ff !important;
-            border-radius: 8px;
-            box-shadow: 0 10px 25px rgba(139, 92, 246, 0.4), inset 0 0 0 2px #8b5cf6 !important;
-            z-index: 50;
-            display: inline-block;
-            padding: 0 8px;
+            background: rgba(15, 23, 42, 0.96) !important;
+            border-radius: 8px !important;
+            box-shadow: 0 0 30px rgba(56, 189, 248, 0.7), inset 0 0 0 2px #38bdf8 !important;
+            z-index: 1000 !important;
+            position: relative !important;
+            display: inline-block !important;
+            padding: 4px 12px !important;
+            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.8) !important;
+        }
+        :root.light-theme td.focused-num {
+            color: #0284c7 !important;
+            background: #ffffff !important;
+            box-shadow: 0 10px 30px rgba(2, 132, 199, 0.35), inset 0 0 0 2px #0284c7 !important;
+            text-shadow: none !important;
         }
 
         @media print {
@@ -947,6 +956,25 @@ $page_title = 'حساب الارصده الاساسية';
                 </div>
             </div>
 
+            <!-- Global Number Colors & Size Customizer -->
+            <div style="margin-bottom:16px; background:rgba(0,0,0,0.25); padding:14px; border-radius:12px; border:1px solid rgba(56,189,248,0.2);">
+                <label style="display:block; margin-bottom:10px; font-weight:800; color:#38bdf8;">🎨 تخصيص ألوان وحجم خط الأرقام:</label>
+                <div style="display:flex; flex-direction:column; gap:10px;">
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.85rem; font-weight:bold; color:#f87171;">🔴 لون أرقام المدين (عليه):</span>
+                        <input type="color" value="#f87171" onchange="updateColField(6, 'color', this.value); updateColField(4, 'color', this.value);" style="border:none; width:45px; height:30px; border-radius:6px; cursor:pointer; background:transparent;">
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.85rem; font-weight:bold; color:#34d399;">🟢 لون أرقام الدائن (له):</span>
+                        <input type="color" value="#34d399" onchange="updateColField(7, 'color', this.value); updateColField(5, 'color', this.value);" style="border:none; width:45px; height:30px; border-radius:6px; cursor:pointer; background:transparent;">
+                    </div>
+                    <div style="display:flex; justify-content:space-between; align-items:center;">
+                        <span style="font-size:0.85rem; font-weight:bold; color:#fbbf24;">👤 لون اسم الحساب:</span>
+                        <input type="color" value="#fbbf24" onchange="updateColField(0, 'color', this.value);" style="border:none; width:45px; height:30px; border-radius:6px; cursor:pointer; background:transparent;">
+                    </div>
+                </div>
+            </div>
+
             <!-- 5 Number Fonts Selector -->
             <div style="margin-bottom:16px; background:rgba(0,0,0,0.2); padding:14px; border-radius:12px; border:1px solid rgba(255,255,255,0.08);">
                 <label style="display:block; margin-bottom:10px; font-weight:800; color:#38bdf8;">📝 خطوط الأرقام الإنجليزية الفائقة الوضوح:</label>
@@ -1079,7 +1107,9 @@ $page_title = 'حساب الارصده الاساسية';
         </div>
         <div class="filter-row" style="margin-top: 10px; margin-bottom: 15px; display: flex; gap: 6px; flex-wrap: nowrap; width: 100%; align-items: center;">
 
-            <div class="preset-slots-container no-print" id="main-presets-container" style="flex:1; display:flex; gap:4px; align-items:center; flex-wrap:nowrap; padding:2px 6px; border-radius:8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); min-height: 36px; overflow-x: auto;">
+            <div class="preset-slots-container no-print" id="main-presets-container" style="flex:1; display:flex; gap:6px; align-items:center; flex-wrap:nowrap; padding:2px 6px; border-radius:8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); min-height: 36px; overflow-x: auto;">
+                <!-- Column & Colors Control Button (زر التحكم بالسطر الأول والأعمدة والألوان والخطوط) -->
+                <button type="button" class="preset-ribbon-btn" onclick="openColumnContextMenu(event)" style="background: linear-gradient(135deg, #f59e0b, #d97706) !important; color: #ffffff !important; border: 1px solid rgba(251, 191, 36, 0.8) !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4) !important;">⚙️ التحكم بالأعمدة والألوان والخطوط 🎨</button>
                 <!-- Visual Intelligence Hub Toggle Button -->
                 <button type="button" class="preset-ribbon-btn" onclick="window.toggleVisualHub()" style="background: linear-gradient(135deg, #0ea5e9, #6366f1) !important; color: #ffffff !important; border: 1px solid rgba(56, 189, 248, 0.6) !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4) !important;">📊 الشاشات والتقارير البصرية 📈</button>
                 <!-- Static fallback buttons matching General Ledger style -->

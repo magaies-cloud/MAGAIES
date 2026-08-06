@@ -1796,17 +1796,14 @@ function stopResize(e) {
 }
 
 function bindNumberFocus() {
-    const nums = document.querySelectorAll('#balances-tbody td.num');
-    nums.forEach(td => {
-        td.addEventListener('click', function(e) {
-            const cell = e.target;
-            if (cell.classList.contains('focused-num')) {
-                cell.classList.remove('focused-num');
-            } else {
-                document.querySelectorAll('.focused-num').forEach(c => c.classList.remove('focused-num'));
-                cell.classList.add('focused-num');
-            }
-        });
+    const cells = document.querySelectorAll('#balances-tbody td');
+    cells.forEach(td => {
+        td.style.cursor = 'pointer';
+        // Avoid duplicate listeners
+        td.onclick = function(e) {
+            e.stopPropagation();
+            this.classList.toggle('focused-num');
+        };
     });
 }
 
