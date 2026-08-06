@@ -1012,6 +1012,12 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             <div class="modal-header"><h3>إضافة إعلان</h3><button class="close-btn" onclick="closeModal('ad-modal')">&times;</button></div>
             <div class="form-group">
                 <label>صورة الإعلان</label>
+                <div style="font-size: 0.85rem; color: #fbbf24; margin-bottom: 8px; background: rgba(251,191,36,0.1); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(251,191,36,0.2);">
+                    📐 <strong>المقاس الأفضل والموصى به:</strong><br>
+                    • العرض × الارتفاع: <strong>1920 × 270 بكسل</strong> (أو <strong>1600 × 270 بكسل</strong>)<br>
+                    • نسبة الأبعاد: <strong>7:1 (بانر أفقي عريض Panoramic Banner)</strong><br>
+                    • الصيغ المدعومة: <strong>PNG, WEBP, JPG</strong>
+                </div>
                 <input type="file" id="ad-image-upload" accept="image/*" style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; width: 100%; color: #fff;">
                 <div id="ad-image-preview" style="margin-top:10px; max-height:100px; overflow:hidden; display:none; border-radius:8px;">
                     <img src="" alt="معاينة الإعلان" loading="lazy" style="width:100%; object-fit:cover;">
