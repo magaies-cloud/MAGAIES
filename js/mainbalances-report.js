@@ -2058,14 +2058,14 @@ window.goToPartnerLedger = function() {
     const partnerCtxMenu = document.getElementById('partnerContextMenu');
     if (partnerCtxMenu) partnerCtxMenu.style.display = 'none';
 
-    // Navigate directly into detailed statement for this account
+    // Navigate directly into general-ledger.php for this account
     let accId = currentSelectedPartnerId || '';
     if (accId && !accId.startsWith('cust-') && !accId.startsWith('supp-') && !accId.startsWith('acc-')) {
         const type = (currentSelectedPartnerType || 'CUST').toLowerCase();
         accId = (type === 'supp' ? 'supp-' : 'cust-') + accId;
     }
 
-    const url = `general_ledger_v2.php?accountId=${encodeURIComponent(accId)}&partner_id=${encodeURIComponent(currentSelectedPartnerId)}&name=${encodeURIComponent(currentSelectedPartnerName)}&autoRun=1`;
+    const url = `general-ledger.php?accountId=${encodeURIComponent(accId)}&partner_id=${encodeURIComponent(currentSelectedPartnerId)}&name=${encodeURIComponent(currentSelectedPartnerName)}&autoRun=1`;
     window.location.href = url;
 };
 

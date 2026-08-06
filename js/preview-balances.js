@@ -30,7 +30,7 @@ window.goToPartnerLedgerFromPreview = function() {
         accId = (type === 'supp' ? 'supp-' : 'cust-') + accId;
     }
 
-    const url = `general_ledger_v2.php?accountId=${encodeURIComponent(accId)}&partner_id=${encodeURIComponent(window.currentSelectedPartnerId)}&name=${encodeURIComponent(window.currentSelectedPartnerName)}&autoRun=1`;
+    const url = `general-ledger.php?accountId=${encodeURIComponent(accId)}&partner_id=${encodeURIComponent(window.currentSelectedPartnerId)}&name=${encodeURIComponent(window.currentSelectedPartnerName)}&autoRun=1`;
     if (window.parent && window.parent !== window) {
         window.parent.location.href = url;
     } else {

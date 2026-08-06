@@ -1293,17 +1293,29 @@ function initGeneralLedgerApp() {
     // Auto load account from URL parameter if present
     try {
         const urlParams = new URLSearchParams(window.location.search);
-        const accountIdParam = urlParams.get('accountId') || urlParams.get('id');
-        if (accountIdParam) {
-            const found = ALL_ACCOUNTS.find(a => String(a.id) === String(accountIdParam));
+        const accountIdParam = urlParams.get('accountId') || urlParams.get('partner_id') || urlParams.get('id');
+        const nameParam = urlParams.get('name') || urlParams.get('partner_name');
+
+        if (accountIdParam || nameParam) {
+            let found = null;
+            if (accountIdParam) {
+                found = ALL_ACCOUNTS.find(a => String(a.id) === String(accountIdParam));
+                if (!found) {
+                    const cleanParam = String(accountIdParam).replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '');
+                    found = ALL_ACCOUNTS.find(a => String(a.id).replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '') === cleanParam);
+                }
+            }
+            if (!found && nameParam) {
+                const normName = String(nameParam).trim().toLowerCase();
+                found = ALL_ACCOUNTS.find(a => String(a.name).trim().toLowerCase() === normName || String(a.name).includes(nameParam));
+            }
+
             if (found) {
                 selectAccount(found.id, found.name, found.icon);
-            } else {
-                const cleanParam = String(accountIdParam).replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '');
-                const foundClean = ALL_ACCOUNTS.find(a => String(a.id).replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '') === cleanParam);
-                if (foundClean) {
-                    selectAccount(foundClean.id, foundClean.name, foundClean.icon);
-                }
+            } else if (accountIdParam || nameParam) {
+                const targetId = accountIdParam || nameParam;
+                const targetName = nameParam || accountIdParam;
+                selectAccount(targetId, targetName, '👤');
             }
         }
     } catch (e) {
