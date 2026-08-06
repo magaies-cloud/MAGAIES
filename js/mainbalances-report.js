@@ -2841,7 +2841,7 @@ window.renderBalancesPresets = function() {
     try { presets = JSON.parse(localStorage.getItem(PRESETS_STORAGE_KEY) || '[]'); } catch(e){}
 
     if (!Array.isArray(presets) || presets.length === 0) {
-        const defaultNames = [
+        const defaultIcons = [
             '💎 افتراضي 1', 
             '⭐ افتراضي 2', 
             '🎨 افتراضي 3', 
@@ -2850,34 +2850,12 @@ window.renderBalancesPresets = function() {
             '🚀 نموذج 2', 
             '🌟 نموذج 3'
         ];
-        presets = defaultNames.map((name, i) => ({ 
+        presets = defaultIcons.map((name, i) => ({ 
             name, 
             showInRibbon: true,
-            isLocked: false,
+            isLocked: i < 4 ? true : false,
             isFactoryDefault: i < 4 ? true : false
         }));
-    }
-
-    // Merge database stored preset locks & configs
-    if (window.LOADED_BALANCES_PRESETS) {
-        presets.forEach((p, idx) => {
-            const dbKey = 'balances_preset_' + idx;
-            const dbLockKey = 'balances_preset_' + idx + '_locked';
-            if (window.LOADED_BALANCES_PRESETS[dbKey]) {
-                const dbObj = window.LOADED_BALANCES_PRESETS[dbKey];
-                if (typeof dbObj === 'object') {
-                    p.colOrder = dbObj.colOrder || p.colOrder;
-                    p.colConfigs = dbObj.colConfigs || p.colConfigs;
-                    p.theme = dbObj.theme || p.theme;
-                    p.numFont = dbObj.numFont || p.numFont;
-                }
-                p.isLocked = true;
-                p.isFactoryDefault = true;
-            } else if (window.LOADED_BALANCES_PRESETS[dbLockKey] === 'true' || window.LOADED_BALANCES_PRESETS[dbLockKey] === true) {
-                p.isLocked = true;
-                p.isFactoryDefault = true;
-            }
-        });
     }
 
     presets.forEach((p, idx) => {
@@ -2886,17 +2864,13 @@ window.renderBalancesPresets = function() {
         btn.type = 'button';
         btn.className = 'preset-ribbon-btn preset-slot-' + idx;
 
-        const isLocked = p.isLocked === true;
+        const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
+        btn.innerHTML = p.name + (p.isLocked ? ' 🔒' : ' 🔄');
+        btn.title = p.isLocked 
+            ? `🔒 ${p.name} مقفول كضبط مصنع ثابت (اضغط للمعاينة)`
+            : `اضغط مطولاً (8 ثوانٍ) لحفظ وتثبيت ${p.name} كضبط مصنع نهائي 🔒`;
 
-        if (isLocked) {
-            btn.innerHTML = p.name + ' 🔒';
-            btn.title = '🔒 ضبط مصنع دائم مخزن ومحمي في قاعدة البيانات (اضغط للمعاينة)';
-        } else {
-            btn.innerHTML = p.name + ' ⚡ (اضغط 8ث للحفظ النهائي)';
-            btn.title = '⚡ اضغط مطولاً (8 ثوانٍ) لتخزين وتشفير التنسيق الحالي كضبط مصنع مالي دائم في قاعدة البيانات!';
-        }
-
-        // Long Press (8 Seconds) + Quick Click Handler
+        // 8-second Long Press Handler for ALL Presets (Defaults & Models)
         let pressStartTime = 0;
         let mainInterval = null;
         let isTriggered = false;
@@ -2918,10 +2892,10 @@ window.renderBalancesPresets = function() {
                 if (hud) {
                     hud.style.display = 'block';
                     hudIcon.innerText = '🔒';
-                    hudTitle.innerText = `ضبط المصنع محمي (${p.name})`;
-                    hudDesc.innerText = 'هذا النموذج مخزن كضبط مصنع مالي دائم في قاعدة البيانات للنظام ومحمي من التعديل أو المسح نهائياً.';
+                    hudTitle.innerText = `تقرير مقفول (${p.name})`;
+                    hudDesc.innerText = 'هذا التقرير مقفول نهائياً كضبط مصنع ثابت لجميع الشركات والمناطق ولا يمكن إعادة الكتابة عليه.';
                     if (hudProgress) { hudProgress.style.width = '100%'; hudProgress.style.background = '#ef4444'; }
-                    if (hudTimer) hudTimer.innerText = '🔒 نمط محمي دائم';
+                    if (hudTimer) hudTimer.innerText = '🔒 مقفول كضبط مصنع';
                 }
                 return;
             }
@@ -2929,9 +2903,9 @@ window.renderBalancesPresets = function() {
             if (hud) {
                 hud.style.display = 'block';
                 hudIcon.innerText = '🔒';
-                hudTitle.innerText = `حفظ وتثبيت ضبط المصنع (${p.name})`;
-                hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) لتخزين التنسيق الحالي (الألوان، الأعمدة، الخطوط، والكسور) كضبط مصنع مالي دائم في قاعدة البيانات للنظام ولكافة الشركات.';
-                if (hudProgress) { hudProgress.style.width = '0%'; hudProgress.style.background = 'linear-gradient(90deg, #f59e0b, #10b981)'; }
+                hudTitle.innerText = `حفظ وتثبيت ضبط مصنع (${p.name})`;
+                hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) لقفل وحفظ التقرير بتنسيقه وألوانه وخطوطك الحالية كضبط مصنع نهائي ثابت لجميع الشركات.';
+                if (hudProgress) { hudProgress.style.width = '0%'; hudProgress.style.background = 'linear-gradient(90deg, #3b82f6, #10b981)'; }
                 if (hudTimer) hudTimer.innerText = '8.0 ثانية متبقية';
             }
 
@@ -2947,9 +2921,9 @@ window.renderBalancesPresets = function() {
                 if (hudProgress) hudProgress.style.width = percent + '%';
                 if (hudTimer) hudTimer.innerText = remainingSec + ' ثانية متبقية';
 
-                btn.style.boxShadow = `0 0 20px rgba(245, 158, 11, 0.9)`;
-                btn.style.borderColor = '#f59e0b';
-                btn.style.background = `linear-gradient(90deg, rgba(245, 158, 11, 0.45) ${percent}%, rgba(255,255,255,0.08) ${percent}%)`;
+                btn.style.boxShadow = `0 0 15px rgba(16,185,129,0.8)`;
+                btn.style.borderColor = '#10b981';
+                btn.style.background = `linear-gradient(90deg, rgba(16,185,129,0.45) ${percent}%, rgba(255,255,255,0.08) ${percent}%)`;
 
                 if (elapsed >= duration) {
                     clearInterval(mainInterval);
@@ -2958,44 +2932,20 @@ window.renderBalancesPresets = function() {
                     if (hud) hud.style.display = 'none';
                     btn.style.boxShadow = ''; btn.style.borderColor = ''; btn.style.background = '';
 
-                    setTimeout(async () => {
-                        const confirmSave = confirm(`🔒 اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد اعتماد وتخزين التنسيق الحالي كـ (ضبط مصنع مالي دائم) لـ (${p.name})؟\n\nتنويه هام: سيتم حفظ التنسيق في قاعدة البيانات للنظام ولكافة الشركات وقفل التعديل عليه نهائياً.`);
+                    setTimeout(() => {
+                        const confirmSave = confirm(`🔒 اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وقفل تصميم التقرير الحالي نهائياً كضبط مصنع ثابت في (${p.name})؟\n\n(ملاحظة: هذا الحفظ نهائي وسيحفظ في قاعدة البيانات لكل الشركات ولن يتغير لاحقاً).`);
                         if (confirmSave) {
-                            const currentConfig = {
-                                name: p.name,
-                                colOrder: window.colOrder || [0,1,2,3,4,5,6,7,8],
-                                colConfigs: window.colConfigs || [],
-                                theme: window.currentTableTheme || 'table-theme-blue',
-                                numFont: window.currentNumFont || 'num-font-inter',
-                                savedAt: new Date().toISOString(),
-                                isLocked: true,
-                                isFactoryDefault: true
-                            };
-
+                            const presetIdStr = isDefaultGroup ? ('default' + (idx + 1)) : ('m' + (idx + 1));
+                            
+                            // Save preset data via API
+                            savePresetData('balances_preset_' + presetIdStr, p.name, presetIdStr);
+                            
                             p.isLocked = true;
                             p.isFactoryDefault = true;
-                            p.colOrder = currentConfig.colOrder;
-                            p.colConfigs = currentConfig.colConfigs;
-                            p.theme = currentConfig.theme;
-                            p.numFont = currentConfig.numFont;
                             p.updatedAt = new Date().toISOString();
-
                             localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
-
-                            // Save to database via API
-                            try {
-                                await fetch('api/save_balances_preset.php', {
-                                    method: 'POST',
-                                    headers: { 'Content-Type': 'application/json' },
-                                    body: JSON.stringify({
-                                        id: idx,
-                                        config: currentConfig,
-                                        lockRequested: true
-                                    })
-                                });
-                            } catch(err) { console.error('Error saving preset to DB', err); }
-
-                            alert(`🔒 تم حفظ وتخزين (${p.name}) كضبط مصنع مالي دائم في قاعدة البيانات بنجاح وقفل التعديل عليه نهائياً!`);
+                            
+                            alert(`🔒 تم حفظ وقفل "${p.name}" كضبط مصنع نهائي بنجاح! يسري هذا التنسيق في كافة الأجهزة والشركات.`);
                             window.renderBalancesPresets();
                         }
                     }, 50);
@@ -3019,7 +2969,6 @@ window.renderBalancesPresets = function() {
                 return false;
             }
 
-            // Quick click (< 1s): Open modal preview as usual
             if (pressStartTime > 0 && duration < 1000) {
                 window.openPresetModal(idx, p.name);
             }
@@ -3034,16 +2983,6 @@ window.renderBalancesPresets = function() {
         btn.oncontextmenu = (e) => { e.preventDefault(); return false; };
         container.appendChild(btn);
     });
-
-    // Control & Visual Buttons
-    const ctrlBtn = document.createElement('button');
-    ctrlBtn.type = 'button';
-    ctrlBtn.className = 'preset-ribbon-btn';
-    ctrlBtn.onclick = (e) => openColumnContextMenu(e);
-    ctrlBtn.style.cssText = 'background: linear-gradient(135deg, #f59e0b, #d97706) !important; color: #ffffff !important; border: 1px solid rgba(251, 191, 36, 0.8) !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4) !important;';
-    ctrlBtn.innerHTML = '⚙️ التحكم';
-    container.insertBefore(ctrlBtn, container.firstChild);
-};
 
     // Main Preview & Design Page Button (Pushed to the very end of the row)
     const mainPreviewBtn = document.createElement('button');
