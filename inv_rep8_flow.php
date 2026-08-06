@@ -7,7 +7,7 @@ require_once 'db_bridge.php';
 $pdo = getDBConnection();
 
 try {
-    $stmt = $pdo->query("SELECT date_val, COUNT(*) as cnt FROM sales_invoices GROUP BY date_val ORDER BY date_val DESC LIMIT 10");
+    $stmt = $pdo->query("SELECT date_val, COUNT(*) as cnt FROM sales_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}' GROUP BY date_val ORDER BY date_val DESC LIMIT 10");
     $dates = $stmt->fetchAll(PDO::FETCH_ASSOC);
     $report_data = [];
     foreach ($dates as $d) {
@@ -262,3 +262,4 @@ try {
     <script defer src="js/app.js?v=20260803_v14"></script>
 </body>
 </html>
+

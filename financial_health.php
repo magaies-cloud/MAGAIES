@@ -78,7 +78,7 @@ try {
 
         // === حساب DSO من فواتير البيع الحقيقية ===
         // بناء استعلام فواتير البيع مع فلترة التاريخ
-        $inv_query = "SELECT date_val, total_val, data FROM sales_invoices WHERE is_deleted = 0";
+        $inv_query = "SELECT date_val, total_val, data FROM sales_invoices WHERE is_deleted = 0 AND tenant_id = '{\}'";
         $inv_params = [];
         if ($date_from) {
             $inv_query .= " AND date_val >= :date_from";
@@ -813,3 +813,4 @@ if (!function_exists('convertReportAmount')) {
     <script defer src="js/app.js"></script>
 </body>
 </html>
+

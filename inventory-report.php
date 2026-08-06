@@ -470,22 +470,7 @@
 
         function loadData() {
             itemsDb = JSON.parse(localStorage.getItem(ITEMS_STORAGE_KEY)) || [];
-            let storedInv = buildRealInventory(itemsDb);
-            
-            // Ensure all items are listed even if 0
-            itemsDb.forEach(item => {
-                let hasStock = storedInv.some(inv => inv.itemId === item.id);
-                if (!hasStock) {
-                    storedInv.push({
-                        itemId: item.id,
-                        warehouse: 'المخزن الرئيسي',
-                        qty: 0,
-                        reservedQuantity: 0,
-                        minQty: item.reorderLevel || 10
-                    });
-                }
-            });
-            invDb = storedInv;
+            invDb = buildRealInventory(itemsDb);
         }
 
         // The core accounting & inventory calculation engine
@@ -494,28 +479,35 @@
             let reservedStockMap = {};
 
             let warehousesDb = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
+            if (warehousesDb.length === 0) {
+                warehousesDb = [{ id:'w-main', name:'المخزن الرئيسي' }];
+            }
+            // Include pending receipt so items can have 0 balance there too
+            warehousesDb.unshift({ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام' });
+
             let getWarehouseName = (id) => {
-                if (id === 'PENDING_RECEIPT') return '⏳ بضاعة قيد الاستلام';
                 let w = warehousesDb.find(w => w.id === id || w.name === id);
                 return w ? w.name : 'المخزن الرئيسي';
             };
 
-            let defaultWhName = warehousesDb.length > 0 ? warehousesDb[0].name : 'المخزن الرئيسي';
             items.forEach(item => {
-                let key = item.id + '|' + defaultWhName;
-                actualStockMap[key] = 0;
-                reservedStockMap[key] = 0;
+                warehousesDb.forEach(wh => {
+                    let key = String(item.id) + '|' + wh.name;
+                    actualStockMap[key] = 0;
+                    reservedStockMap[key] = 0;
+                });
             });
 
             // 1. ADD Purchases (Inward) — SUBTRACT if Return
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
-            purchases = purchases.filter(x => !x.deleted && !x.isGRN);
+            purchases = purchases.filter(x => !x.deleted);
             purchases.forEach(inv => {
-                let whName = getWarehouseName(inv.warehouseId || inv.warehouse);
+                let hdrWhName = getWarehouseName(inv.warehouseId || inv.warehouse);
                 const isReturn = inv.isReturn === true;
                 (inv.items || inv.lines || []).forEach(line => {
-                    let key = (line.itemId || line.productId) + '|' + whName;
-                    let item = items.find(i => i.id === (line.itemId || line.productId));
+                    let lineWhName = line.warehouseId ? getWarehouseName(line.warehouseId) : hdrWhName;
+                    let key = String(line.itemId || line.productId) + '|' + lineWhName;
+                    let item = items.find(i => String(i.id) === String(line.itemId || line.productId));
                     let baseQty = line.customBaseQty !== undefined ? line.customBaseQty : ((parseFloat(line.quantity) || 0) * (line.customFactor || 1) * (item ? (item.conversionFactor || 1) : 1));
                     if (isReturn) {
                         actualStockMap[key] = (actualStockMap[key] || 0) - baseQty;
@@ -532,8 +524,8 @@
                 let hdrWhName = getWarehouseName(inv.warehouse);
                 (inv.items || []).forEach(line => {
                     let lineWhName = line.warehouseId ? getWarehouseName(line.warehouseId) : hdrWhName;
-                    let key = line.itemId + '|' + lineWhName;
-                    let item = items.find(i => i.id === line.itemId);
+                    let key = String(line.itemId) + '|' + lineWhName;
+                    let item = items.find(i => String(i.id) === String(line.itemId));
                     let baseQty = line.customBaseQty !== undefined ? line.customBaseQty : ((parseFloat(line.quantity) || 0) * (line.customFactor || 1) * (item ? (item.conversionFactor || 1) : 1));
 
                     if (inv.isReturn === true) {
@@ -551,14 +543,31 @@
                 });
             });
 
+            // 3. Process Warehouse Transfers
+            let transfers = JSON.parse(localStorage.getItem('erp_warehouse_transfers_v1')) || [];
+            transfers = transfers.filter(x => !x.deleted && x.status !== 'cancelled');
+            transfers.forEach(transfer => {
+                let fromWhName = getWarehouseName(transfer.fromWarehouse);
+                let toWhName = getWarehouseName(transfer.toWarehouse);
+                (transfer.items || []).forEach(line => {
+                    let fromKey = String(line.itemId) + '|' + fromWhName;
+                    let toKey = String(line.itemId) + '|' + toWhName;
+                    let item = items.find(i => String(i.id) === String(line.itemId));
+                    let baseQty = line.customBaseQty !== undefined ? line.customBaseQty : ((parseFloat(line.quantity) || 0) * (line.customFactor || 1) * (item ? (item.conversionFactor || 1) : 1));
+                    
+                    actualStockMap[fromKey] = (actualStockMap[fromKey] || 0) - baseQty;
+                    actualStockMap[toKey] = (actualStockMap[toKey] || 0) + baseQty;
+                });
+            });
+
             let generated = [];
             for (let key in actualStockMap) {
                 let [itemId, warehouse] = key.split('|');
-                let itemData = items.find(i => i.id === itemId);
+                let itemData = items.find(i => String(i.id) === String(itemId));
                 let minQty = itemData && itemData.reorderLevel ? parseFloat(itemData.reorderLevel) : 10;
                 
                 generated.push({
-                    itemId: itemId,
+                    itemId: String(itemId),
                     warehouse: warehouse,
                     qty: actualStockMap[key],
                     reservedQuantity: reservedStockMap[key] || 0,
@@ -591,7 +600,7 @@
 
             let reportData = [];
             invDb.forEach(invRecord => {
-                const item = itemsDb.find(i => i.id === invRecord.itemId);
+                const item = itemsDb.find(i => String(i.id) === String(invRecord.itemId));
                 if(item) {
                     let baseUnit = item.units && item.units.length > 0 ? item.units[0].unitName : (item.unit || 'وحدة');
                     let price = item.units && item.units.length > 0 ? item.units[0].cashPrice : (item.price || 0);

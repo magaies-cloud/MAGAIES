@@ -906,15 +906,15 @@ function getInventoryReportData($pdo) {
     global $GLOBAL_TENANT_ID;
     try {
         // جلب جميع الأصناف
-        $stmt = $pdo->query("SELECT * FROM items WHERE is_deleted = 0");
+        $stmt = $pdo->query("SELECT * FROM items WHERE is_deleted = 0 AND tenant_id = '{$GLOBAL_TENANT_ID}'");
         $items_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // جلب المشتريات المؤكدة
-        $stmt = $pdo->query("SELECT * FROM purchase_invoices WHERE is_deleted = 0 AND status_val = 'confirmed'");
+        $stmt = $pdo->query("SELECT * FROM purchase_invoices WHERE is_deleted = 0 AND status_val = 'confirmed' AND tenant_id = '{$GLOBAL_TENANT_ID}'");
         $purchases = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         // جلب المبيعات
-        $stmt = $pdo->query("SELECT * FROM sales_invoices WHERE is_deleted = 0");
+        $stmt = $pdo->query("SELECT * FROM sales_invoices WHERE is_deleted = 0 AND tenant_id = '{$GLOBAL_TENANT_ID}'");
         $sales = $stmt->fetchAll(PDO::FETCH_ASSOC);
 
         $report_data = [];
@@ -946,17 +946,27 @@ function getInventoryReportData($pdo) {
             
             foreach ($purchases as $p) {
                 $p_data = json_decode($p['data'], true);
-                if ($p_data && isset($p_data['items'])) {
+                if ($p_data) {
+                    $isReturn = !empty($p_data['isReturn']);
                     $p_date = $p['date_val'] ?? ($p_data['date'] ?? null);
                     $has_item = false;
-                    foreach ($p_data['items'] as $item) {
-                        $p_item_id = $item['itemId'] ?? ($item['id'] ?? '');
-                        if ($p_item_id === $item_id) {
+                    $items_arr = $p_data['items'] ?? ($p_data['lines'] ?? []);
+                    
+                    foreach ($items_arr as $item) {
+                        $p_item_id = $item['itemId'] ?? ($item['productId'] ?? ($item['id'] ?? ''));
+                        if ((string)$p_item_id === (string)$item_id) {
                             $qty = (float)($item['quantity'] ?? ($item['qty'] ?? 0));
-                            $purchased_qty += $qty;
+                            $baseQty = isset($item['customBaseQty']) ? (float)$item['customBaseQty'] : ($qty * (float)($item['customFactor'] ?? 1) * (float)($item_data['conversionFactor'] ?? 1));
+                            
+                            if ($isReturn) {
+                                $purchased_qty -= $baseQty;
+                            } else {
+                                $purchased_qty += $baseQty;
+                            }
+                            
                             $has_item = true;
                             $price = (float)($item['price'] ?? 0);
-                            if ($price > 0) {
+                            if ($price > 0 && !$isReturn) {
                                 $purchase_costs[] = $price;
                             }
                         }
@@ -980,28 +990,45 @@ function getInventoryReportData($pdo) {
             foreach ($sales as $s) {
                 $s_data = json_decode($s['data'], true);
                 if ($s_data) {
-                    $status = $s['status_val'] ?? ($s_data['status'] ?? '');
+                    $isReturn = !empty($s_data['isReturn']);
+                    $status = $s['status_val'] ?? ($s_data['status'] ?? ($s_data['saleType'] ?? ''));
+                    if ($status === 'preliminary') continue;
+                    
                     $s_date = $s['date_val'] ?? ($s_data['date'] ?? null);
                     $items_list = $s_data['items'] ?? [];
                     $has_item = false;
                     
                     foreach ($items_list as $item) {
                         $s_item_id = $item['itemId'] ?? ($item['id'] ?? '');
-                        if ($s_item_id === $item_id) {
+                        if ((string)$s_item_id === (string)$item_id) {
                             $qty = (float)($item['quantity'] ?? ($item['qty'] ?? 0));
+                            $baseQty = isset($item['customBaseQty']) ? (float)$item['customBaseQty'] : ($qty * (float)($item['customFactor'] ?? 1) * (float)($item_data['conversionFactor'] ?? 1));
+                            
                             $has_item = true;
                             
-                            if ($status === 'delivered') {
-                                $sold_qty += $qty;
-                                if ($s_date >= $thirty_days_ago) {
-                                    $sold_last_30_days += $qty;
+                            $deliveryStatus = $s_data['deliveryStatus'] ?? '';
+                            $isDelivered = ($status === 'delivered' || $deliveryStatus === 'delivered' || ($status !== 'reserved' && $status !== 'pending_delivery'));
+                            
+                            if ($isDelivered) {
+                                if ($isReturn) {
+                                    $sold_qty -= $baseQty;
+                                    if ($s_date >= $thirty_days_ago) {
+                                        $sold_last_30_days -= $baseQty;
+                                    }
+                                } else {
+                                    $sold_qty += $baseQty;
+                                    if ($s_date >= $thirty_days_ago) {
+                                        $sold_last_30_days += $baseQty;
+                                    }
                                 }
-                            } elseif ($status === 'pending_delivery') {
-                                $committed_qty += $qty;
+                            } else {
+                                if (!$isReturn) {
+                                    $committed_qty += $baseQty;
+                                }
                             }
                         }
                     }
-                    if ($has_item && $s_date && $status === 'delivered') {
+                    if ($has_item && $s_date && $isDelivered) {
                         if ($last_sales_date === null || $s_date > $last_sales_date) {
                             $last_sales_date = $s_date;
                         }
@@ -1058,14 +1085,14 @@ function getWarehouseCapacities($pdo) {
     global $GLOBAL_TENANT_ID;
     try {
         // جلب المستودعات
-        $stmt = $pdo->query("SELECT * FROM warehouses WHERE is_deleted = 0");
+        $stmt = $pdo->query("SELECT * FROM warehouses WHERE is_deleted = 0 AND tenant_id = '{$GLOBAL_TENANT_ID}'");
         $wh_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         // جلب المشتريات والمبيعات
-        $stmt = $pdo->query("SELECT * FROM purchase_invoices WHERE is_deleted = 0 AND status_val = 'confirmed'");
+        $stmt = $pdo->query("SELECT * FROM purchase_invoices WHERE is_deleted = 0 AND status_val = 'confirmed' AND tenant_id = '{$GLOBAL_TENANT_ID}'");
         $purchases = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
-        $stmt = $pdo->query("SELECT * FROM sales_invoices WHERE is_deleted = 0 AND status_val = 'delivered'");
+        $stmt = $pdo->query("SELECT * FROM sales_invoices WHERE is_deleted = 0 AND status_val = 'delivered' AND tenant_id = '{$GLOBAL_TENANT_ID}'");
         $sales = $stmt->fetchAll(PDO::FETCH_ASSOC);
         
         $wh_data = [];
@@ -1252,7 +1279,7 @@ function getUnifiedBrainData($pdo) {
     
     // 7. Sales data (from sales_invoices)
     try {
-        $stmt = $pdo->query("SELECT * FROM sales_invoices WHERE is_deleted = 0 ORDER BY date_val DESC LIMIT 100");
+        $stmt = $pdo->query("SELECT * FROM sales_invoices WHERE is_deleted = 0 AND tenant_id = '{$GLOBAL_TENANT_ID}' ORDER BY date_val DESC LIMIT 100");
         $sales_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $today_sales = 0;
         $month_sales = 0;
@@ -1287,7 +1314,7 @@ function getUnifiedBrainData($pdo) {
     
     // 8. Purchase data (from purchase_invoices)
     try {
-        $stmt = $pdo->query("SELECT * FROM purchase_invoices WHERE is_deleted = 0 AND status_val = 'confirmed' ORDER BY date_val DESC LIMIT 50");
+        $stmt = $pdo->query("SELECT * FROM purchase_invoices WHERE is_deleted = 0 AND status_val = 'confirmed' AND tenant_id = '{$GLOBAL_TENANT_ID}' ORDER BY date_val DESC LIMIT 50");
         $purchase_rows = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $month_purchases = 0;
         $purchase_count = 0;

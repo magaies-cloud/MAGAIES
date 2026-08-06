@@ -51,7 +51,7 @@ try {
         // 1. سحب جميع الأصناف وبناء خريطة الأسعار
         // -------------------------------------------------------
         $items_map = []; // itemId => ['name' => ..., 'category' => ..., 'sellingPrice' => ...]
-        $item_stmt = $pdo->query("SELECT id, data FROM items WHERE is_deleted = 0");
+        $item_stmt = $pdo->query("SELECT id, data FROM items WHERE is_deleted = 0 AND tenant_id = '{\}'");
         $item_rows = $item_stmt->fetchAll(PDO::FETCH_ASSOC);
         foreach ($item_rows as $ir) {
             $d = json_decode($ir['data'], true);
@@ -83,7 +83,7 @@ try {
         // -------------------------------------------------------
         // 2. تحليل فواتير المبيعات: إيراد وكمية لكل صنف + ربحية العملاء
         // -------------------------------------------------------
-        $sales_query = "SELECT customer_id_val, date_val, data, total_val FROM sales_invoices WHERE is_deleted = 0";
+        $sales_query = "SELECT customer_id_val, date_val, data, total_val FROM sales_invoices WHERE is_deleted = 0 AND tenant_id = '{\}'";
         $conditions = [];
         $params = [];
         if (!empty($date_from)) {
@@ -171,7 +171,7 @@ try {
         $purchase_costs = []; // itemName => ['total_cost' => x, 'total_qty' => y]
         $total_purchases_all = 0;
 
-        $purch_query = "SELECT data, total_val FROM purchase_invoices WHERE is_deleted = 0";
+        $purch_query = "SELECT data, total_val FROM purchase_invoices WHERE is_deleted = 0 AND tenant_id = '{\}'";
         $purch_conditions = [];
         $purch_params = [];
         if (!empty($date_from)) {
@@ -1092,3 +1092,4 @@ foreach ($chart_products as $cp) {
     <script defer src="js/app.js"></script>
 </body>
 </html>
+

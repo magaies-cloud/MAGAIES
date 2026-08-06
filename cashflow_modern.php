@@ -71,7 +71,7 @@ try {
         // 2. تجميع التدفقات الداخلة (المبيعات + المقبوضات)
         $inflows = [];
         // المبيعات
-        $sales_stmt = $pdo->query("SELECT date_val, data FROM sales_invoices WHERE is_deleted = 0");
+        $sales_stmt = $pdo->query("SELECT date_val, data FROM sales_invoices WHERE is_deleted = 0 AND tenant_id = '{\}'");
         while ($row = $sales_stmt->fetch()) {
             $date = date('Y-m', strtotime($row['date_val']));
             if (!isset($inflows[$date])) $inflows[$date] = 0;
@@ -84,7 +84,7 @@ try {
             $inflows[$date] += convertCashflowAmount($amt, $curr, $ex_rate, $selected_currency);
         }
         // سندات القبض
-        $receipts_stmt = $pdo->query("SELECT date_val, data FROM single_receipts WHERE is_deleted = 0");
+        $receipts_stmt = $pdo->query("SELECT date_val, data FROM single_receipts WHERE is_deleted = 0 AND tenant_id = '{\}'");
         while ($row = $receipts_stmt->fetch()) {
             $date = date('Y-m', strtotime($row['date_val']));
             if (!isset($inflows[$date])) $inflows[$date] = 0;
@@ -100,7 +100,7 @@ try {
         // 3. تجميع التدفقات الخارجة (المشتريات + المدفوعات)
         $outflows = [];
         // المشتريات
-        $purchases_stmt = $pdo->query("SELECT date_val, data FROM purchase_invoices WHERE is_deleted = 0");
+        $purchases_stmt = $pdo->query("SELECT date_val, data FROM purchase_invoices WHERE is_deleted = 0 AND tenant_id = '{\}'");
         while ($row = $purchases_stmt->fetch()) {
             $date = date('Y-m', strtotime($row['date_val']));
             if (!isset($outflows[$date])) $outflows[$date] = 0;
@@ -113,7 +113,7 @@ try {
             $outflows[$date] += convertCashflowAmount($amt, $curr, $ex_rate, $selected_currency);
         }
         // سندات الصرف
-        $payments_stmt = $pdo->query("SELECT date_val, data FROM single_payments WHERE is_deleted = 0");
+        $payments_stmt = $pdo->query("SELECT date_val, data FROM single_payments WHERE is_deleted = 0 AND tenant_id = '{\}'");
         while ($row = $payments_stmt->fetch()) {
             $date = date('Y-m', strtotime($row['date_val']));
             if (!isset($outflows[$date])) $outflows[$date] = 0;
@@ -446,3 +446,4 @@ $trend_outflow = count($monthly_outflows) > 1 ? (($monthly_outflows[count($month
     <script defer src="js/app.js"></script>
 </body>
 </html>
+

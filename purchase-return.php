@@ -166,17 +166,27 @@
         .info-val { color: #fff; font-weight: 800; font-family: 'Outfit', sans-serif; direction: ltr; }
         
         .return-input {
-            width: 80px; text-align: center; background: rgba(244,63,94,0.1); border: 1px solid rgba(244,63,94,0.5);
-            color: #fff; padding: 8px; border-radius: 8px; font-weight: 800; font-family: 'Outfit', sans-serif;
+            width: 80px; text-align: center; background: rgba(0,0,0,0.3); border: 2px solid rgba(255,255,255,0.1);
+            color: #fff; padding: 10px; border-radius: 10px; font-weight: 800; font-size: 1.1rem; font-family: 'Outfit', sans-serif;
+            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); outline: none;
         }
-        .return-input:focus { border-color: #f43f5e; box-shadow: 0 0 10px rgba(244,63,94,0.3); }
+        .return-input:focus { border-color: #10b981; box-shadow: 0 0 15px rgba(16,185,129,0.3); background: rgba(16,185,129,0.1); transform: scale(1.05); }
+        .return-input.error { border-color: #ef4444; box-shadow: 0 0 15px rgba(239,68,68,0.3); background: rgba(239,68,68,0.1); }
 
         .tot-grand {
-            margin-top: 10px; background: rgba(244,63,94,0.1); border: 1px solid rgba(244,63,94,0.3);
-            border-radius: 12px; padding: 15px; display: flex; justify-content: space-between; align-items: center;
+            margin-top: 15px; background: linear-gradient(135deg, rgba(244,63,94,0.15), rgba(159,18,57,0.15)); border: 1px solid rgba(244,63,94,0.4);
+            border-radius: 16px; padding: 20px; display: flex; justify-content: space-between; align-items: center; box-shadow: 0 5px 20px rgba(0,0,0,0.2);
         }
-        .tot-grand .lbl { color: #f43f5e; font-weight: 800; font-size: 0.9rem; }
-        .tot-grand .val { color: #f43f5e; font-weight: 900; font-size: 1.4rem; direction: ltr; text-shadow: 0 0 15px rgba(244,63,94,0.4); font-family: 'Outfit', sans-serif; }
+        .tot-grand .lbl { color: #fff; font-weight: 800; font-size: 1.1rem; text-shadow: 0 2px 5px rgba(0,0,0,0.5); }
+        .tot-grand .val { color: #fff; font-weight: 900; font-size: 1.8rem; direction: ltr; text-shadow: 0 0 20px rgba(244,63,94,0.6); font-family: 'Outfit', sans-serif; }
+        
+        .refund-options { display: flex; flex-direction: column; gap: 10px; margin-top: 15px; }
+        .refund-btn { background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); color: #94a3b8; padding: 10px; border-radius: 10px; cursor: pointer; transition: 0.3s; font-weight: 700; font-family: 'Tajawal'; display: flex; align-items: center; gap: 10px; }
+        .refund-btn.active { background: rgba(16,185,129,0.15); border-color: #10b981; color: #10b981; box-shadow: 0 4px 15px rgba(16,185,129,0.2); }
+        .refund-select-wrapper { display: none; margin-top: 5px; animation: fadeIn 0.3s ease; }
+        .refund-select-wrapper.active { display: block; }
+        .v-select { width: 100%; padding: 10px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #fff; font-family: 'Tajawal'; outline: none; }
+
 
     
         
@@ -340,15 +350,41 @@
                         <div class="info-row"><span class="info-lbl">المستودع الأصلي:</span> <span class="info-val" id="lbl-warehouse" style="direction:rtl;">-</span></div>
                     </div>
 
-                    <div class="info-card" style="flex:1;">
+                    <div class="info-card" style="flex:1; overflow-y:auto;">
                         <h3>ملخص المردودات</h3>
                         <div class="info-row"><span class="info-lbl">إجمالي قيمة المردودات:</span> <span class="info-val" id="lbl-subtotal">0.00</span></div>
                         <div class="info-row"><span class="info-lbl">الضريبة المرتجعة:</span> <span class="info-val" id="lbl-tax">0.00</span></div>
                         <div class="info-row"><span class="info-lbl">الخصم المسترد:</span> <span class="info-val" id="lbl-discount">0.00</span></div>
                         
                         <div class="tot-grand">
-                            <span class="lbl">صافي المردود للمورد</span>
+                            <span class="lbl">الصافي للمورد</span>
                             <span class="val" id="lbl-grand-total">0.00</span>
+                        </div>
+                        
+                        <h3 style="margin-top: 20px;">سبب الاسترجاع</h3>
+                        <input type="text" id="return-reason" class="v-input" placeholder="مثال: أصناف تالفة، غير مطابقة..." style="width: 100%;">
+                        
+                        <h3 style="margin-top: 20px;">طريقة الاسترداد <span style="color:#f43f5e;">*</span></h3>
+                        <div class="refund-options">
+                            <button class="refund-btn active" id="btn-refund-supplier" onclick="setRefundMethod('supplier')">
+                                <span>📉</span> خصم من رصيد المورد
+                            </button>
+                            <button class="refund-btn" id="btn-refund-cash" onclick="setRefundMethod('cash')">
+                                <span>💵</span> استرداد نقدي (الخزنة)
+                            </button>
+                            <div class="refund-select-wrapper" id="wrap-refund-cash">
+                                <select id="sel-refund-cash" class="v-select">
+                                    <option value="">-- اختر الخزنة --</option>
+                                </select>
+                            </div>
+                            <button class="refund-btn" id="btn-refund-bank" onclick="setRefundMethod('bank')">
+                                <span>🏦</span> استرداد بنكي
+                            </button>
+                            <div class="refund-select-wrapper" id="wrap-refund-bank">
+                                <select id="sel-refund-bank" class="v-select">
+                                    <option value="">-- اختر الحساب البنكي --</option>
+                                </select>
+                            </div>
                         </div>
                     </div>
 
@@ -366,13 +402,17 @@
     <div class="toast-container" id="toast-container" style="position:fixed; bottom:20px; left:20px; z-index:99999; display:flex; flex-direction:column; gap:10px;"></div>
 
     <script defer src="js/localforage.min.js"></script>
+    <script defer src="js/accounting-engine.js"></script>
     <script defer src="js/app.js?v=20260803.28525"></script>
     <script>
         let allPurchases = [];
         let itemsDb = [];
         let suppliersDb = [];
+        let safesDb = [];
+        let banksDb = [];
         let currentInvoice = null;
         let returnLines = [];
+        let activeRefundMethod = 'supplier';
 
         // Formatting utilities
         function fmtNum(n) { return Number(n).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}); }
@@ -402,7 +442,35 @@
             allPurchases = loadKey('erp_purchase_invoices_v1');
             itemsDb = loadKey('erp_items_v1');
             suppliersDb = loadKey('erp_suppliers_v1');
+            safesDb = loadKey('erp_safes_v1');
+            banksDb = loadKey('erp_banks_v1');
+            
+            populateRefundSelects();
             renderInvoices();
+        }
+
+        function populateRefundSelects() {
+            const safeSel = document.getElementById('sel-refund-cash');
+            const bankSel = document.getElementById('sel-refund-bank');
+            safeSel.innerHTML = '<option value="">-- اختر الخزنة --</option>';
+            bankSel.innerHTML = '<option value="">-- اختر الحساب البنكي --</option>';
+            
+            safesDb.forEach(s => {
+                if (!s.deleted) safeSel.innerHTML += `<option value="${s.id}">${s.name || s.safeName}</option>`;
+            });
+            banksDb.forEach(b => {
+                if (!b.deleted) bankSel.innerHTML += `<option value="${b.id}">${b.name || b.bankName}</option>`;
+            });
+        }
+        
+        function setRefundMethod(method) {
+            activeRefundMethod = method;
+            document.querySelectorAll('.refund-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.refund-select-wrapper').forEach(w => w.classList.remove('active'));
+            
+            document.getElementById(`btn-refund-${method}`).classList.add('active');
+            const wrap = document.getElementById(`wrap-refund-${method}`);
+            if (wrap) wrap.classList.add('active');
         }
 
         if (window.APP_READY) {
@@ -576,14 +644,18 @@
         function updateReturnQty(lineId, valStr) {
             const val = parseNum(valStr);
             const line = returnLines.find(x => x.id === lineId);
+            const inputEl = document.querySelector(`input[onchange="updateReturnQty('${lineId}', this.value)"]`);
             if (line) {
                 if (val > line.maxReturnable) {
                     showToast(`الكمية المرتجعة لا يمكن أن تتجاوز ${line.maxReturnable}`, 'error');
                     line.returnQty = line.maxReturnable;
+                    if(inputEl) { inputEl.classList.add('error'); setTimeout(()=>inputEl.classList.remove('error'), 500); }
                 } else if (val < 0) {
                     line.returnQty = 0;
+                    if(inputEl) { inputEl.classList.add('error'); setTimeout(()=>inputEl.classList.remove('error'), 500); }
                 } else {
                     line.returnQty = val;
+                    if(inputEl && val > 0) { inputEl.style.borderColor = '#10b981'; setTimeout(()=>inputEl.style.borderColor='', 500); }
                 }
             }
             renderReturnLines();
@@ -631,6 +703,16 @@
                 return showToast('يجب تحديد كمية للإرجاع في صنف واحد على الأقل', 'error');
             }
 
+            // Validate Refund Method
+            let refundAccountId = null;
+            if (activeRefundMethod === 'cash') {
+                refundAccountId = document.getElementById('sel-refund-cash').value;
+                if (!refundAccountId) return showToast('يرجى اختيار الخزنة لاسترداد المبلغ', 'error');
+            } else if (activeRefundMethod === 'bank') {
+                refundAccountId = document.getElementById('sel-refund-bank').value;
+                if (!refundAccountId) return showToast('يرجى اختيار الحساب البنكي لاسترداد المبلغ', 'error');
+            }
+
             // Create Return Invoice Object
             let subtotal = 0;
             let taxTotal = 0;
@@ -661,12 +743,18 @@
             let grand = (subtotal - discountTotal) + taxTotal;
 
             const currentInvId = currentInvoice.invoiceNo || currentInvoice.id;
+            const userReason = document.getElementById('return-reason').value.trim();
+            const notesText = userReason ? `مردودات: ${userReason} (أصل الفاتورة ${currentInvId})` : `مردودات لفاتورة المشتريات رقم ${currentInvId}`;
+            
+            const retInvId = 'RET-' + Date.now();
             const retInv = {
-                id: 'RET-' + Date.now(),
+                id: retInvId,
+                invoiceNo: retInvId,
                 isReturn: true,
                 originalInvoiceId: currentInvId,
                 type: 'purchase',
                 customerId: currentInvoice.customer || currentInvoice.customerId || currentInvoice.supplierId,
+                supplierName: currentInvoice.supplierName,
                 date: new Date().toISOString(),
                 warehouse: currentInvoice.warehouse,
                 subtotal: -subtotal,
@@ -675,7 +763,9 @@
                 grandTotal: -grand,
                 items: newItems,
                 status: 'completed',
-                notes: `مردودات لفاتورة المشتريات رقم ${currentInvId}`
+                notes: notesText,
+                refundMethod: activeRefundMethod,
+                refundAccountId: refundAccountId
             };
 
             allPurchases.push(retInv);
@@ -683,10 +773,10 @@
 
             // --- Apply Inventory Effects (Decrease stock because we return to supplier) ---
             let inventory = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
-            let itemsDb = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+            let itemsDbLocal = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
             
             newItems.forEach(retItem => {
-                const dbItem = itemsDb.find(i => String(i.id) === String(retItem.itemId));
+                const dbItem = itemsDbLocal.find(i => String(i.id) === String(retItem.itemId));
                 if (dbItem) {
                     const returnQtyNum = Math.abs(retItem.quantity);
                     let unitRate = 1;
@@ -704,26 +794,79 @@
                 }
             });
             localStorage.setItem('erp_inventory_v1', JSON.stringify(inventory));
-            localStorage.setItem('erp_items_v1', JSON.stringify(itemsDb));
+            localStorage.setItem('erp_items_v1', JSON.stringify(itemsDbLocal));
 
-            // --- Apply Supplier Effects ---
-            let suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
-            let custId = currentInvoice.customer || currentInvoice.customerId || currentInvoice.supplierId;
-            if (custId && custId !== 'walk-in') {
-                const sIdx = suppliers.findIndex(s => s.id === custId);
+            const exRate = parseFloat(currentInvoice.exchangeRate) || parseFloat(currentInvoice.currencyRate) || 1;
+            const grandLocal = grand * exRate;
+
+            // --- Apply Financial Effects (Treasury / Bank / Supplier) ---
+            if (activeRefundMethod === 'supplier') {
+                let suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
+                let custId = currentInvoice.customer || currentInvoice.customerId || currentInvoice.supplierId;
+                if (custId && custId !== 'walk-in') {
+                    const sIdx = suppliers.findIndex(s => String(s.id) === String(custId));
+                    if (sIdx > -1) {
+                        suppliers[sIdx].currentBalance = (parseFloat(suppliers[sIdx].currentBalance) || 0) - grandLocal; 
+                        localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
+                    }
+                }
+            } else if (activeRefundMethod === 'cash' || activeRefundMethod === 'bank') {
+                // Update Treasury Balance
+                let safesOrBanks = [];
+                let storageKey = activeRefundMethod === 'cash' ? 'erp_safes_v1' : 'erp_banks_v1';
+                safesOrBanks = JSON.parse(localStorage.getItem(storageKey)) || [];
+                let sIdx = safesOrBanks.findIndex(s => String(s.id) === String(refundAccountId));
                 if (sIdx > -1) {
-                    const exRate = parseFloat(currentInvoice.exchangeRate) || parseFloat(currentInvoice.currencyRate) || 1;
-                    const grandLocal = grand * exRate;
-                    let currentBalance = parseFloat(suppliers[sIdx].currentBalance) || 0;
-                    suppliers[sIdx].currentBalance = currentBalance - grandLocal; 
-                    localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
+                    safesOrBanks[sIdx].currentBalance = (parseFloat(safesOrBanks[sIdx].currentBalance) || 0) + grandLocal;
+                    localStorage.setItem(storageKey, JSON.stringify(safesOrBanks));
+                }
+
+                // Log a Single Receipt (سند قبض) for traceability
+                let receipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
+                let receiptNo = 'RCT-' + Date.now();
+                let newReceipt = {
+                    id: receiptNo,
+                    receiptNo: receiptNo,
+                    date: new Date().toISOString().split('T')[0],
+                    amount: grandLocal,
+                    amountText: grandLocal + " " + (currentInvoice.currency || "SDG"),
+                    fromAccount: `supp-${currentInvoice.customer || currentInvoice.customerId || currentInvoice.supplierId}`,
+                    toAccount: (activeRefundMethod === 'cash' ? 'safe-' : 'bank-') + refundAccountId,
+                    paymentMethod: activeRefundMethod,
+                    type: 'receipt',
+                    statement: `استرداد مبلغ مرتجع مشتريات للفاتورة ${currentInvId}`,
+                    notes: notesText,
+                    status: 'completed',
+                    isDeleted: false,
+                    isReturnRefund: true,
+                    originalReturnId: retInvId
+                };
+                receipts.push(newReceipt);
+                localStorage.setItem('erp_single_receipts_v1', JSON.stringify(receipts));
+            }
+
+            // --- Post GL Journal Voucher (if AccountingEngine is available) ---
+            if (typeof AccountingEngine !== 'undefined' && AccountingEngine.postPurchaseInvoice) {
+                // Post an inverse purchase invoice (since grandTotal and quantities are negative, it creates inverse entries automatically in the engine)
+                let jv = AccountingEngine.postPurchaseInvoice(retInv);
+                if (jv) {
+                    // Update the JV list
+                    let storedJVs = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];
+                    jv.description = "قيد " + notesText;
+                    storedJVs.push(jv);
+                    localStorage.setItem('erp_journal_vouchers_v1', JSON.stringify(storedJVs));
                 }
             }
 
-            showToast(`تم حفظ المردودات بنجاح برقم ${retInv.id}`, 'success');
+            // Ensure Immediate Cloud Sync
+            if (typeof window.pushToCloud === 'function') {
+                window.pushToCloud(true).catch(e => console.warn("Cloud push failed:", e));
+            }
+
+            showToast(`تم حفظ المردودات بنجاح برقم ${retInvId}`, 'success');
             
             setTimeout(() => {
-                renderInvoices();
+                initData(); // Refresh UI data
                 showHub();
             }, 1500);
         }

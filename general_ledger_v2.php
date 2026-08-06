@@ -27,7 +27,7 @@ try {
         $db_connected = true;
 
         // 1. حساب التمركز الائتماني الفعلي من جدول customers وجلب قائمة العملاء
-        $cust_stmt = $pdo->query("SELECT id, data FROM customers WHERE is_deleted = 0 OR is_deleted IS NULL");
+        $cust_stmt = $pdo->query("SELECT id, data FROM customers WHERE is_deleted = 0 AND tenant_id = '{\}' OR is_deleted IS NULL");
         $cust_rows = $cust_stmt->fetchAll(PDO::FETCH_ASSOC);
         
         $grand_total = 0;
@@ -109,7 +109,7 @@ try {
         // 2. بناء دفتر الأستاذ للعميل المختار
         if (!empty($target_customer_id)) {
             // أ. الفواتير (مدين) - جلب جميع الفواتير وتصفيتها بالـ ID المناسب
-            $sales_query = "SELECT date_val, data FROM sales_invoices WHERE is_deleted = 0";
+            $sales_query = "SELECT date_val, data FROM sales_invoices WHERE is_deleted = 0 AND tenant_id = '{\}'";
             $params = [];
             
             if (!empty($date_from)) { 
@@ -142,7 +142,7 @@ try {
             }
             
             // ب. سندات القبض (دائن) - تصفية في PHP لضمان الدقة
-            $receipts_query = "SELECT date_val, data FROM single_receipts WHERE is_deleted = 0";
+            $receipts_query = "SELECT date_val, data FROM single_receipts WHERE is_deleted = 0 AND tenant_id = '{\}'";
             $r_params = [];
             if (!empty($date_from)) { 
                 $receipts_query .= " AND date_val >= :r_date_from"; 
@@ -466,3 +466,4 @@ if (empty($ledger_entries) && empty($date_from) && empty($date_to) && (!$db_conn
     <script defer src="js/app.js"></script>
 </body>
 </html>
+

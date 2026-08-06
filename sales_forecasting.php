@@ -40,7 +40,8 @@ try {
 
         // جلب كل الفواتير لحساب المجاميع بشكل صحيح (مع دعم JSON)
         $sql = "SELECT id, date_val, total_val, data
-                FROM sales_invoices
+                FROM sales_invoices WHERE tenant_id = '{\}'
+
                 WHERE $where_sql
                 ORDER BY date_val ASC";
 
@@ -944,3 +945,4 @@ if (!function_exists('convertReportAmount')) {
     <script defer src="js/app.js"></script>
 </body>
 </html>
+

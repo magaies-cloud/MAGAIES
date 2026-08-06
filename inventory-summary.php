@@ -266,40 +266,26 @@ $header_theme_class = "header-theme-inventory";
             let endDate = new Date(dateTo);
             endDate.setHours(23,59,59,999);
 
-            let storedInv = buildSummaryReport(itemsDb, startDate, endDate);
-            
-            // Ensure all items are listed even if 0
-            itemsDb.forEach(item => {
-                let hasStock = storedInv.some(inv => inv.itemId === item.id);
-                if (!hasStock) {
-                    storedInv.push({
-                        itemId: item.id,
-                        warehouse: 'المخزن الرئيسي',
-                        opening: 0,
-                        inward: 0,
-                        outward: 0,
-                        closing: 0,
-                        cost: parseFloat(item.costPrice || 0)
-                    });
-                }
-            });
-            invDb = storedInv;
+            invDb = buildSummaryReport(itemsDb, startDate, endDate);
         }
 
         function buildSummaryReport(items, startDate, endDate) {
             let summaryMap = {}; 
 
             let warehousesDb = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
+            if (warehousesDb.length === 0) warehousesDb = [{ id: 'w-main', name: 'المخزن الرئيسي' }];
+            warehousesDb.unshift({ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام' });
+
             let getWarehouseName = (id) => {
-                if (id === 'PENDING_RECEIPT') return '⏳ بضاعة قيد الاستلام';
-                let w = warehousesDb.find(w => w.id === id || w.name === id);
+                let w = warehousesDb.find(w => String(w.id) === String(id) || w.name === id);
                 return w ? w.name : 'المخزن الرئيسي';
             };
 
-            let defaultWhName = warehousesDb.length > 0 ? warehousesDb[0].name : 'المخزن الرئيسي';
             items.forEach(item => {
-                let key = item.id + '|' + defaultWhName;
-                summaryMap[key] = { opening: 0, inward: 0, outward: 0, closing: 0 };
+                warehousesDb.forEach(wh => {
+                    let key = String(item.id) + '|' + wh.name;
+                    summaryMap[key] = { opening: 0, inward: 0, outward: 0, closing: 0 };
+                });
             });
 
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
@@ -310,15 +296,16 @@ $header_theme_class = "header-theme-inventory";
 
             // 1. Process Purchases
             purchases.forEach(inv => {
-                const isReturn = inv.isReturn === true;
                 let invDate = new Date(inv.date || inv.invoiceDate || inv.createdAt);
-                let whName = getWarehouseName(inv.warehouseId || inv.warehouse);
-                
+                let hdrWhName = getWarehouseName(inv.warehouseId || inv.warehouse);
+                const isReturn = inv.isReturn === true;
+                const isGRN = inv.isGRN === true;
                 (inv.items || inv.lines || []).forEach(line => {
-                    let key = (line.itemId || line.productId) + '|' + whName;
-                    if (!summaryMap[key]) summaryMap[key] = { opening: 0, inward: 0, outward: 0, closing: 0 };
+                    let lineWhName = line.warehouseId ? getWarehouseName(line.warehouseId) : hdrWhName;
+                    let itemId = String(line.itemId || line.productId);
+                    let key = itemId + '|' + lineWhName;
                     
-                    let item = items.find(i => i.id === (line.itemId || line.productId));
+                    let item = items.find(i => String(i.id) === itemId);
                     let baseQty = line.customBaseQty !== undefined ? line.customBaseQty : ((parseFloat(line.quantity) || 0) * (line.customFactor || 1) * (item ? (item.conversionFactor || 1) : 1));
                     
                     if (invDate < startDate) {
@@ -331,7 +318,7 @@ $header_theme_class = "header-theme-inventory";
                         }
                     } else if (invDate >= startDate && invDate <= endDate) {
                         if (isReturn) {
-                            summaryMap[key].inward -= baseQty;
+                            summaryMap[key].outward += baseQty;
                             summaryMap[key].closing -= baseQty;
                         } else {
                             summaryMap[key].inward += baseQty;
@@ -345,21 +332,64 @@ $header_theme_class = "header-theme-inventory";
             sales.forEach(inv => {
                 let invDate = new Date(inv.date || inv.invoiceDate || inv.createdAt);
                 let hdrWhName = getWarehouseName(inv.warehouse);
+                const isReturn = inv.isReturn === true;
                 
                 (inv.items || []).forEach(line => {
                     let lineWhName = line.warehouseId ? getWarehouseName(line.warehouseId) : hdrWhName;
-                    let key = line.itemId + '|' + lineWhName;
-                    if (!summaryMap[key]) summaryMap[key] = { opening: 0, inward: 0, outward: 0, closing: 0 };
+                    let itemId = String(line.itemId);
+                    let key = itemId + '|' + lineWhName;
                     
-                    let item = items.find(i => i.id === line.itemId);
+                    let item = items.find(i => String(i.id) === itemId);
                     let baseQty = line.customBaseQty !== undefined ? line.customBaseQty : ((parseFloat(line.quantity) || 0) * (line.customFactor || 1) * (item ? (item.conversionFactor || 1) : 1));
                     
                     if (invDate < startDate) {
-                        summaryMap[key].opening -= baseQty;
-                        summaryMap[key].closing -= baseQty;
+                        if (isReturn) {
+                            summaryMap[key].opening += baseQty;
+                            summaryMap[key].closing += baseQty;
+                        } else {
+                            summaryMap[key].opening -= baseQty;
+                            summaryMap[key].closing -= baseQty;
+                        }
                     } else if (invDate >= startDate && invDate <= endDate) {
-                        summaryMap[key].outward += baseQty;
-                        summaryMap[key].closing -= baseQty;
+                        if (isReturn) {
+                            summaryMap[key].inward += baseQty;
+                            summaryMap[key].closing += baseQty;
+                        } else {
+                            summaryMap[key].outward += baseQty;
+                            summaryMap[key].closing -= baseQty;
+                        }
+                    }
+                });
+            });
+
+            // 3. Process Warehouse Transfers
+            let transfers = JSON.parse(localStorage.getItem('erp_warehouse_transfers_v1')) || [];
+            transfers = transfers.filter(x => !x.deleted && x.status !== 'cancelled');
+            transfers.forEach(transfer => {
+                let transferDate = new Date(transfer.date || transfer.createdAt);
+                let fromWhName = getWarehouseName(transfer.fromWarehouse);
+                let toWhName = getWarehouseName(transfer.toWarehouse);
+                
+                (transfer.items || []).forEach(line => {
+                    let itemId = String(line.itemId);
+                    let fromKey = itemId + '|' + fromWhName;
+                    let toKey = itemId + '|' + toWhName;
+                    
+                    let item = items.find(i => String(i.id) === itemId);
+                    let baseQty = line.customBaseQty !== undefined ? line.customBaseQty : ((parseFloat(line.quantity) || 0) * (line.customFactor || 1) * (item ? (item.conversionFactor || 1) : 1));
+                    
+                    if (transferDate < startDate) {
+                        summaryMap[fromKey].opening -= baseQty;
+                        summaryMap[fromKey].closing -= baseQty;
+                        
+                        summaryMap[toKey].opening += baseQty;
+                        summaryMap[toKey].closing += baseQty;
+                    } else if (transferDate >= startDate && transferDate <= endDate) {
+                        summaryMap[fromKey].outward += baseQty;
+                        summaryMap[fromKey].closing -= baseQty;
+                        
+                        summaryMap[toKey].inward += baseQty;
+                        summaryMap[toKey].closing += baseQty;
                     }
                 });
             });
@@ -367,7 +397,7 @@ $header_theme_class = "header-theme-inventory";
             let generated = [];
             for (let key in summaryMap) {
                 let [itemId, warehouse] = key.split('|');
-                let itemData = items.find(i => i.id === itemId);
+                let itemData = items.find(i => String(i.id) === itemId);
                 let cost = itemData && itemData.costPrice ? parseFloat(itemData.costPrice) : 0;
                 
                 generated.push({
@@ -389,7 +419,7 @@ $header_theme_class = "header-theme-inventory";
 
             let filteredData = invDb.filter(row => {
                 let matchWh = (fWh === 'ALL' || row.warehouse === fWh);
-                let itemData = itemsDb.find(i => i.id === row.itemId);
+                let itemData = itemsDb.find(i => String(i.id) === String(row.itemId));
                 let matchSearch = true;
                 if (fSearch && itemData) {
                     let searchStr = `${itemData.code || ''} ${itemData.name || ''} ${itemData.barcode || ''}`.toLowerCase();

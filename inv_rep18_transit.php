@@ -8,7 +8,7 @@ $pdo = getDBConnection();
 
 $report_data = [];
 try {
-    $stmt = $pdo->query("SELECT * FROM purchase_invoices WHERE is_deleted=0 AND status_val = 'pending' LIMIT 5");
+    $stmt = $pdo->query("SELECT * FROM purchase_invoices WHERE is_deleted = 0 AND tenant_id = '{\}' AND status_val = 'pending' LIMIT 5");
     $purchases = $stmt->fetchAll(PDO::FETCH_ASSOC);
     foreach ($purchases as $p) {
         $data = json_decode($p['data'], true);
@@ -243,3 +243,4 @@ foreach ($report_data as $row) {
     <script defer src="js/app.js?v=20260803_v14"></script>
 </body>
 </html>
+

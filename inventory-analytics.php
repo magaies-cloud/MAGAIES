@@ -295,6 +295,7 @@ $header_theme_class = "header-theme-inventory";
         let itemsDb = [];
         let salesDb = [];
         let inventoryDb = []; // To calculate current balances for Aging report
+        let lastPurchasePriceMap = {}; // Maps itemId to its last known purchase cost
 
         function initAnalytics() {
             itemsDb = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
@@ -305,12 +306,47 @@ $header_theme_class = "header-theme-inventory";
             let actualStockMap = {}; 
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
             purchases = purchases.filter(x => !x.deleted);
+            
+            // Sort purchases by date ascending so the last one overwrites previous ones
+            purchases.sort((a, b) => new Date(a.date || a.createdAt) - new Date(b.date || b.createdAt));
+            
             purchases.forEach(inv => {
                 const isReturn = inv.isReturn === true;
+                
+                // Calculate Landed Cost additions for this invoice
+                let labor = parseFloat(String(inv.laborCost || 0).replace(/,/g, '')) || 0;
+                let transport = parseFloat(String(inv.transportCost || 0).replace(/,/g, '')) || 0;
+                let additions = parseFloat(String(inv.additionsCost || 0).replace(/,/g, '')) || 0;
+                let tax = parseFloat(String(inv.taxCost || 0).replace(/,/g, '')) || 0;
+                let discount = parseFloat(String(inv.discountCost || 0).replace(/,/g, '')) || 0;
+                let totalAdditions = labor + transport + additions + tax - discount;
+                
+                let invSubtotal = parseFloat(String(inv.subTotal || inv.subtotal || 0).replace(/,/g, '')) || 0;
+                
                 (inv.items || inv.lines || []).forEach(line => {
-                    let itemId = line.itemId || line.productId;
-                    let item = itemsDb.find(i => i.id === itemId);
+                    let itemId = String(line.itemId || line.productId);
+                    let item = itemsDb.find(i => String(i.id) === itemId);
                     let baseQty = line.customBaseQty !== undefined ? line.customBaseQty : ((parseFloat(line.quantity) || 0) * (line.customFactor || 1) * (item ? (item.conversionFactor || 1) : 1));
+                    
+                    if (!isReturn) {
+                        let linePrice = parseFloat(String(line.price != null ? line.price : 0).replace(/,/g, '')) || 0;
+                        let lineTotal = parseFloat(String(line.total != null ? line.total : 0).replace(/,/g, ''));
+                        if (isNaN(lineTotal) || lineTotal === 0) {
+                            lineTotal = (parseFloat(String(line.quantity || 0).replace(/,/g, '')) || 0) * linePrice;
+                        }
+                        
+                        let safeSubtotal = invSubtotal > 0 ? invSubtotal : (lineTotal > 0 ? lineTotal : 1);
+                        let ratio = lineTotal / safeSubtotal;
+                        let apportionedExpenses = totalAdditions * ratio;
+                        
+                        let landedTotal = lineTotal + apportionedExpenses;
+                        let unitCost = baseQty > 0 ? (landedTotal / baseQty) : 0;
+                        
+                        if (unitCost > 0) {
+                            lastPurchasePriceMap[itemId] = unitCost; // Track actual landed purchase cost
+                        }
+                    }
+                    
                     if (isReturn) {
                         actualStockMap[itemId] = (actualStockMap[itemId] || 0) - baseQty;
                     } else {
@@ -319,14 +355,19 @@ $header_theme_class = "header-theme-inventory";
                 });
             });
             salesDb.forEach(inv => {
+                const isReturn = inv.isReturn === true;
                 (inv.items || []).forEach(line => {
-                    let itemId = line.itemId;
+                    let itemId = String(line.itemId);
                     if (inv.saleType === 'reserved' && inv.deliveryStatus !== 'delivered') {
                         return; // Skip if reserved but not delivered yet
                     }
-                    let item = itemsDb.find(i => i.id === itemId);
+                    let item = itemsDb.find(i => String(i.id) === itemId);
                     let baseQty = line.customBaseQty !== undefined ? line.customBaseQty : ((parseFloat(line.quantity) || 0) * (line.customFactor || 1) * (item ? (item.conversionFactor || 1) : 1));
-                    actualStockMap[itemId] = (actualStockMap[itemId] || 0) - baseQty;
+                    if (isReturn) {
+                        actualStockMap[itemId] = (actualStockMap[itemId] || 0) + baseQty;
+                    } else {
+                        actualStockMap[itemId] = (actualStockMap[itemId] || 0) - baseQty;
+                    }
                 });
             });
             inventoryDb = actualStockMap;
@@ -354,23 +395,48 @@ $header_theme_class = "header-theme-inventory";
         function runProfitabilityAnalysis() {
             let itemStats = {};
             itemsDb.forEach(item => {
-                itemStats[item.id] = { id: item.id, code: item.code, name: item.name, qty: 0, revenue: 0, cost: 0 };
+                itemStats[String(item.id)] = { id: String(item.id), code: item.code, name: item.name, qty: 0, revenue: 0, cost: 0 };
             });
 
             salesDb.forEach(inv => {
+                const isReturn = inv.isReturn === true;
                 (inv.items || []).forEach(line => {
-                    if (itemStats[line.itemId]) {
-                        let item = itemsDb.find(i => i.id === line.itemId);
+                    let itemId = String(line.itemId);
+                    if (itemStats[itemId]) {
+                        let item = itemsDb.find(i => String(i.id) === itemId);
                         let baseQty = line.customBaseQty !== undefined ? line.customBaseQty : ((parseFloat(line.quantity) || 0) * (line.customFactor || 1) * (item ? (item.conversionFactor || 1) : 1));
                         
-                        let unitCost = parseFloat(item ? item.costPrice : 0) || 0;
-                        let lineRev = parseFloat(line.total || 0);
+                        let unitCost = lastPurchasePriceMap[itemId] || 0;
+                        if (unitCost === 0 && item) {
+                            let fallbackCost = item.costPrice || item.buyPrice || item.cost;
+                            let openingVal = parseFloat(String(item.openingValue || 0).replace(/,/g, ''));
+                            let openingQty = parseFloat(String(item.openingQty || 0).replace(/,/g, ''));
+                            let sellingPrice = parseFloat(String(item.sellingPrice || 0).replace(/,/g, ''));
+                            
+                            if (fallbackCost != null && parseFloat(String(fallbackCost).replace(/,/g, '')) > 0) {
+                                unitCost = parseFloat(String(fallbackCost).replace(/,/g, ''));
+                            } else if (openingQty > 0 && openingVal > 0) {
+                                unitCost = openingVal / openingQty;
+                            } else if (sellingPrice > 0) {
+                                unitCost = sellingPrice * 0.8; // 80% estimate fallback
+                            }
+                        }
                         
-                        // If discount was applied, approximate
+                        let lineRev = parseFloat(String(line.total != null ? line.total : 0).replace(/,/g, ''));
+                        if (isNaN(lineRev) || lineRev === 0) {
+                            let linePrice = parseFloat(String(line.price != null ? line.price : 0).replace(/,/g, '')) || 0;
+                            lineRev = baseQty * linePrice;
+                        }
                         
-                        itemStats[line.itemId].qty += baseQty;
-                        itemStats[line.itemId].revenue += lineRev;
-                        itemStats[line.itemId].cost += (baseQty * unitCost);
+                        if (isReturn) {
+                            itemStats[itemId].qty -= baseQty;
+                            itemStats[itemId].revenue -= lineRev;
+                            itemStats[itemId].cost -= (baseQty * unitCost);
+                        } else {
+                            itemStats[itemId].qty += baseQty;
+                            itemStats[itemId].revenue += lineRev;
+                            itemStats[itemId].cost += (baseQty * unitCost);
+                        }
                     }
                 });
             });
@@ -420,10 +486,12 @@ $header_theme_class = "header-theme-inventory";
         function runAgingAnalysis() {
             let itemLastSale = {};
             salesDb.forEach(inv => {
+                if (inv.isReturn) return; // Returns don't count as a recent sale
                 let date = new Date(inv.date || inv.invoiceDate || inv.createdAt);
                 (inv.items || []).forEach(line => {
-                    if (!itemLastSale[line.itemId] || date > itemLastSale[line.itemId]) {
-                        itemLastSale[line.itemId] = date;
+                    let itemId = String(line.itemId);
+                    if (!itemLastSale[itemId] || date > itemLastSale[itemId]) {
+                        itemLastSale[itemId] = date;
                     }
                 });
             });
@@ -433,10 +501,10 @@ $header_theme_class = "header-theme-inventory";
             
             let agingArray = [];
             itemsDb.forEach(item => {
-                let curStock = inventoryDb[item.id] || 0;
+                let curStock = inventoryDb[String(item.id)] || 0;
                 if (curStock <= 0) return; // Only care about items currently in stock
 
-                let lastDate = itemLastSale[item.id];
+                let lastDate = itemLastSale[String(item.id)];
                 let days = 9999;
                 if (lastDate) {
                     days = Math.floor((today - lastDate) / (1000 * 60 * 60 * 24));
@@ -455,7 +523,7 @@ $header_theme_class = "header-theme-inventory";
                 }
 
                 agingArray.push({
-                    id: item.id, code: item.code, name: item.name, stock: curStock,
+                    id: String(item.id), code: item.code, name: item.name, stock: curStock,
                     lastDate: lastDate, days: days, status: status, frozenVal: frozenVal
                 });
             });
@@ -497,15 +565,30 @@ $header_theme_class = "header-theme-inventory";
         /* 3. ABC Analysis */
         function runABCAnalysis() {
             let itemRev = {};
-            itemsDb.forEach(item => itemRev[item.id] = { id: item.id, code: item.code, name: item.name, rev: 0 });
+            itemsDb.forEach(item => itemRev[String(item.id)] = { id: String(item.id), code: item.code, name: item.name, rev: 0 });
 
             let totalRev = 0;
             salesDb.forEach(inv => {
+                const isReturn = inv.isReturn === true;
                 (inv.items || []).forEach(line => {
-                    if (itemRev[line.itemId]) {
-                        let lineRev = parseFloat(line.total || 0);
-                        itemRev[line.itemId].rev += lineRev;
-                        totalRev += lineRev;
+                    let itemId = String(line.itemId);
+                    if (itemRev[itemId]) {
+                        let lineRev = parseFloat(String(line.total != null ? line.total : 0).replace(/,/g, ''));
+                        if (isNaN(lineRev) || lineRev === 0) {
+                            let linePrice = parseFloat(String(line.price != null ? line.price : 0).replace(/,/g, '')) || 0;
+                            // Estimate base quantity to recalculate lineRev
+                            let item = itemsDb.find(i => String(i.id) === itemId);
+                            let baseQty = line.customBaseQty !== undefined ? line.customBaseQty : ((parseFloat(line.quantity) || 0) * (line.customFactor || 1) * (item ? (item.conversionFactor || 1) : 1));
+                            lineRev = baseQty * linePrice;
+                        }
+
+                        if (isReturn) {
+                            itemRev[itemId].rev -= lineRev;
+                            totalRev -= lineRev;
+                        } else {
+                            itemRev[itemId].rev += lineRev;
+                            totalRev += lineRev;
+                        }
                     }
                 });
             });

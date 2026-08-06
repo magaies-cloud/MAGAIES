@@ -29,12 +29,12 @@ try {
         // ====================================================================
         // 1. جلب بيانات العملاء الحقيقية من جدول customers (JSON data column)
         // ====================================================================
-        $cust_rows = $pdo->query("SELECT id, data FROM customers WHERE is_deleted = 0 OR is_deleted IS NULL")->fetchAll(PDO::FETCH_ASSOC);
+        $cust_rows = $pdo->query("SELECT id, data FROM customers WHERE is_deleted = 0 AND tenant_id = '{\}' OR is_deleted IS NULL")->fetchAll(PDO::FETCH_ASSOC);
 
         // جلب آخر تاريخ بيع لكل عميل لحساب أيام التأخير
         $last_sales = [];
         try {
-            $sale_stmt = $pdo->query("SELECT customer_id_val, MAX(date_val) as last_date FROM sales_invoices WHERE is_deleted = 0 GROUP BY customer_id_val");
+            $sale_stmt = $pdo->query("SELECT customer_id_val, MAX(date_val) as last_date FROM sales_invoices WHERE is_deleted = 0 AND tenant_id = '{\}' GROUP BY customer_id_val");
             $sale_rows = $sale_stmt->fetchAll(PDO::FETCH_ASSOC);
             foreach ($sale_rows as $sr) {
                 $last_sales[$sr['customer_id_val']] = $sr['last_date'];
@@ -95,7 +95,7 @@ try {
         // ====================================================================
         try {
             // جلب عدد الفواتير وإجمالي المبيعات لكل عميل
-            $eng_rows = $pdo->query("SELECT customer_id_val, COUNT(*) as visit_count, data, total_val FROM sales_invoices WHERE is_deleted = 0 GROUP BY customer_id_val")->fetchAll(PDO::FETCH_ASSOC);
+            $eng_rows = $pdo->query("SELECT customer_id_val, COUNT(*) as visit_count, data, total_val FROM sales_invoices WHERE is_deleted = 0 AND tenant_id = '{\}' GROUP BY customer_id_val")->fetchAll(PDO::FETCH_ASSOC);
 
             // بناء خريطة أسماء العملاء
             $customerNames = [];
@@ -110,7 +110,7 @@ try {
             }
 
             // حساب المجاميع من JSON data لأن total_val قد يكون صفراً
-            $allSales = $pdo->query("SELECT customer_id_val, data, total_val FROM sales_invoices WHERE is_deleted = 0")->fetchAll(PDO::FETCH_ASSOC);
+            $allSales = $pdo->query("SELECT customer_id_val, data, total_val FROM sales_invoices WHERE is_deleted = 0 AND tenant_id = '{\}'")->fetchAll(PDO::FETCH_ASSOC);
             $custAgg = [];
             foreach ($allSales as $s) {
                 $cid = $s['customer_id_val'] ?? 'unknown';
@@ -135,7 +135,7 @@ try {
 
             // فلترة التاريخ للفواتير إذا تم تحديد نطاق
             if (!empty($date_from) || !empty($date_to)) {
-                $date_filter_sql = "SELECT customer_id_val, data, total_val, date_val FROM sales_invoices WHERE is_deleted = 0";
+                $date_filter_sql = "SELECT customer_id_val, data, total_val, date_val FROM sales_invoices WHERE is_deleted = 0 AND tenant_id = '{\}'";
                 $conditions = [];
                 if (!empty($date_from)) $conditions[] = "date_val >= " . $pdo->quote($date_from);
                 if (!empty($date_to)) $conditions[] = "date_val <= " . $pdo->quote($date_to);
@@ -876,3 +876,4 @@ if (!function_exists('convertReportAmount')) {
     <script defer src="js/app.js"></script>
 </body>
 </html>
+

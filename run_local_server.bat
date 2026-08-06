@@ -27,7 +27,7 @@ if exist "C:\xampp\php\php.exe" (
     if exist create_admin.php "C:\xampp\php\php.exe" create_admin.php
 )
 
-echo [2/3] XAMPP Apache multi-threaded server running on http://localhost/ELSAJANA2/magaies/
+echo [2/3] XAMPP Apache multi-threaded server running on http://localhost/magaees/
 
 rem 2. Start Node.js server if needed
 echo [3/3] Starting Node.js server...
@@ -39,10 +39,10 @@ if exist "C:\Program Files\nodejs\node.exe" (
 
 echo =========================================================
 echo Server started successfully on Apache (Port 80)!
-echo Opening browser: http://localhost/ELSAJANA2/magaies/login.php
+echo Opening browser: http://localhost/magaees/login.php
 echo =========================================================
 
-start http://localhost/ELSAJANA2/magaies/login.php
+start http://localhost/magaees/login.php
 
 echo.
 echo Server running in background. Press any key to close this window...

@@ -62,7 +62,7 @@ try {
 $sales_data = []; // itemName => ['totalQty' => X, 'totalRevenue' => Y, 'lastSaleDate' => 'YYYY-MM-DD']
 try {
     if (isset($pdo)) {
-        $sql = "SELECT date_val, data FROM sales_invoices";
+        $sql = "SELECT date_val, data FROM sales_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}'";
         $params = [];
         $conditions = [];
         if ($date_from) {
@@ -117,7 +117,7 @@ $purchase_data = []; // itemId => totalQty
 $purchase_by_name = []; // itemName => totalQty (fallback)
 try {
     if (isset($pdo)) {
-        $sql = "SELECT date_val, data FROM purchase_invoices";
+        $sql = "SELECT date_val, data FROM purchase_invoices WHERE tenant_id = '{$GLOBAL_TENANT_ID}'";
         $params = [];
         $conditions = [];
         if ($date_from) {
@@ -1037,3 +1037,4 @@ if (!function_exists('convertReportAmount')) {
     <script defer src="js/app.js"></script>
 </body>
 </html>
+
