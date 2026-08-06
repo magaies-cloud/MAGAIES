@@ -39,7 +39,7 @@
 
         .glass-panel { background: var(--surface-color); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
 
-        nav { position: fixed; top: 0; width: 100%; z-index: 1000; display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 5%; border-bottom: 1px solid var(--glass-border); transition: all 0.3s ease; }
+        nav { position: sticky; top: 0; width: 100%; z-index: 1000; display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 5%; border-bottom: 1px solid var(--glass-border); transition: all 0.3s ease; }
         .logo { font-size: 1.6rem; font-weight: 900; display: flex; align-items: center; gap: 12px; color: #fff; text-decoration: none; }
         .logo-icon { background: linear-gradient(135deg, var(--primary-accent), var(--secondary-accent)); width: 45px; height: 45px; border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.3rem; box-shadow: 0 4px 20px rgba(59,130,246, 0.4); }
 
@@ -48,7 +48,7 @@
         .btn-nav:hover { transform: translateY(-2px); }
 
         /* Hero */
-        .hero { position: relative; min-height: 100vh; display: flex; align-items: center; padding: 120px 5% 50px; overflow: hidden; }
+        .hero { position: relative; min-height: calc(100vh - 350px); display: flex; align-items: center; padding: 50px 5% 50px; overflow: hidden; }
         .hero-bg-img { position: absolute; top: 0; right: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.15; z-index: -1; filter: saturate(1.5); }
         
         .hero-content { flex: 1; max-width: 600px; z-index: 2; }
@@ -222,8 +222,8 @@
         /* Ads Banner */
         .ads-banner {
             width: 100%;
-            height: 180px;
-            margin-top: 80px;
+            height: 270px;
+            margin-top: 0;
             position: relative;
             overflow: hidden;
             display: none;
@@ -820,6 +820,11 @@
 
     <img src="assets/ai_bg.png" alt="AI Background" class="hero-bg-img" loading="lazy" onerror="this.style.display='none'">
 
+    <!-- Ads Banner Section -->
+    <div class="ads-banner" id="ads-banner">
+        <!-- Ads will be injected here -->
+    </div>
+
     <!-- Navbar -->
     <nav class="glass-panel" id="navbar">
         <a href="#" class="logo">
@@ -830,13 +835,7 @@
             <a href="login.php" class="btn-nav">تسجيل الدخول</a>
             <a href="#pricing" class="btn-nav active">إنشاء حساب جديد</a>
         </div>
-    
     </nav>
-
-    <!-- Ads Banner Section -->
-    <div class="ads-banner" id="ads-banner">
-        <!-- Ads will be injected here -->
-    </div>
 
     <!-- Hero Section -->
     <section class="hero">
