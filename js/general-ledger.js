@@ -1922,105 +1922,486 @@ function runReport() {
             let credLoc = parseNum(t.credit || t.cr || 0);
             let rate = parseNum(t.exchangeRate || t.exRate || t.rate || entityExRate || 1);
             if (!rate || rate <= 0) rate = entityExRate || 1;
-            t.exchangeRate = rate;
+            /* ═══════════════════════════════════════════════════════
+   Column Customization & Context Menu Engine for General Ledger
+   ═══════════════════════════════════════════════════════ */
 
-            let df = parseNum(t.debitForeign || t.dr_foreign || 0);
-            let cf = parseNum(t.creditForeign || t.cr_foreign || 0);
+window.colConfigs = [
+    { name: 'م', alias: 'م', id: 'counter', bold: true, fs: 0.9, color: '', bg: '', visible: true, align: 'center' },
+    { name: 'التاريخ', alias: 'التاريخ', id: 'date', bold: false, fs: 0.9, color: '', bg: '', visible: true, align: 'center' },
+    { name: 'الرقم المرجعي', alias: 'الرقم المرجعي', id: 'ref', bold: true, fs: 0.9, color: '#38bdf8', bg: '', visible: true, align: 'center' },
+    { name: 'الحساب', alias: 'الحساب', id: 'account', bold: true, fs: 0.9, color: '#fbbf24', bg: '', visible: true, align: 'right' },
+    { name: 'نوع الحركة', alias: 'نوع الحركة', id: 'typeLabel', bold: true, fs: 0.85, color: '', bg: '', visible: true, align: 'center' },
+    { name: 'البيان', alias: 'البيان', id: 'statement', bold: false, fs: 0.9, color: '', bg: '', visible: true, align: 'right' },
+    { name: 'الحساب المقابل', alias: 'الحساب المقابل', id: 'counterAccount', bold: false, fs: 0.9, color: '', bg: '', visible: true, align: 'right' },
+    { name: 'مدين', alias: 'مدين', id: 'debit', bold: true, fs: 0.9, decimals: 2, dec: 2, color: '#34d399', bg: '', visible: true, align: 'center' },
+    { name: 'دائن', alias: 'دائن', id: 'credit', bold: true, fs: 0.9, decimals: 2, dec: 2, color: '#f87171', bg: '', visible: true, align: 'center' },
+    { name: 'الإجمالي المحلي', alias: 'الإجمالي المحلي', id: 'balance', bold: true, fs: 0.95, decimals: 2, dec: 2, color: '#38bdf8', bg: '', visible: true, align: 'center' },
+    { name: 'سعر الصرف', alias: 'سعر الصرف', id: 'exchangeRate', bold: true, fs: 0.9, decimals: 2, dec: 2, color: '#eab308', bg: '', visible: true, align: 'center' },
+    { name: 'مدين أجنبي', alias: 'مدين أجنبي', id: 'debitForeign', bold: true, fs: 0.9, decimals: 2, dec: 2, color: '#34d399', bg: '', visible: true, align: 'center' },
+    { name: 'دائن أجنبي', alias: 'دائن أجنبي', id: 'creditForeign', bold: true, fs: 0.9, decimals: 2, dec: 2, color: '#f87171', bg: '', visible: true, align: 'center' },
+    { name: 'الإجمالي الأجنبي', alias: 'الإجمالي الأجنبي', id: 'balanceForeign', bold: true, fs: 0.95, decimals: 2, dec: 2, color: '#38bdf8', bg: '', visible: true, align: 'center' }
+];
+window.colOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+window.currentTableTheme = '';
+window.currentNumFont = 'num-font-jetbrains';
 
-            if (debLoc > 0 && (df === 0 || df === debLoc) && rate > 1) {
-                df = debLoc / rate;
+try {
+    const savedLayout = localStorage.getItem('general_ledger_layout_v1');
+    if (savedLayout) {
+        const parsed = JSON.parse(savedLayout);
+        if (parsed.colConfigs) window.colConfigs = parsed.colConfigs;
+        if (parsed.colOrder) window.colOrder = parsed.colOrder;
+        if (parsed.currentTableTheme !== undefined) window.currentTableTheme = parsed.currentTableTheme;
+        if (parsed.currentNumFont !== undefined) window.currentNumFont = parsed.currentNumFont;
+    }
+} catch(e){}
+
+function openColumnContextMenu(e) {
+    if (e) {
+        e.preventDefault();
+        e.stopPropagation();
+    }
+    const menu = document.getElementById('columnContextMenu');
+    if (!menu) return;
+
+    // Center in screen by default so controls are 100% visible
+    menu.style.top = '50%';
+    menu.style.left = '50%';
+    menu.style.transform = 'translate(-50%, -50%)';
+    menu.style.display = 'block';
+
+    renderColumnContextMenu();
+    makeElementDraggable(menu, document.getElementById('columnContextMenuHeader'));
+}
+
+function renderColumnContextMenu() {
+    const container = document.getElementById('columnToggles');
+    if (!container) return;
+    container.innerHTML = '';
+
+    window.colOrder.forEach((origIdx, index) => {
+        const col = window.colConfigs[origIdx] || { name: 'عمود ' + origIdx, alias: 'عمود ' + origIdx, visible: true };
+        const item = document.createElement('div');
+        item.className = 'col-config-item';
+        item.style.cssText = 'display:flex; flex-direction:column; gap:8px; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:10px; padding:10px 14px; margin-bottom:6px;';
+
+        const mainRow = document.createElement('div');
+        mainRow.style.cssText = 'display:flex; align-items:center; justify-content:space-between; width:100%; gap:8px;';
+
+        const leftGroup = document.createElement('div');
+        leftGroup.style.cssText = 'display:flex; align-items:center; gap:10px; flex:1;';
+
+        const dragHandle = document.createElement('span');
+        dragHandle.innerHTML = '⠿';
+        dragHandle.style.cssText = 'cursor:grab; font-size:1.2rem; color:#94a3b8; user-select:none;';
+        dragHandle.title = 'اضغط واسحب لترتيب العمود يميناً أو يساراً';
+
+        const chk = document.createElement('input');
+        chk.type = 'checkbox';
+        chk.checked = col.visible !== false;
+        chk.style.cssText = 'width:18px; height:18px; cursor:pointer; accent-color:#38bdf8;';
+        chk.onchange = (e) => {
+            col.visible = e.target.checked;
+            applyLayoutToDOM();
+        };
+
+        const aliasInput = document.createElement('input');
+        aliasInput.type = 'text';
+        aliasInput.value = col.alias || col.name;
+        aliasInput.style.cssText = 'background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.15); color:#f8fafc; border-radius:6px; padding:4px 8px; font-weight:bold; font-size:0.85rem; flex:1; font-family:inherit; outline:none;';
+        aliasInput.onchange = (e) => {
+            col.alias = e.target.value;
+            applyLayoutToDOM();
+        };
+
+        leftGroup.appendChild(dragHandle);
+        leftGroup.appendChild(chk);
+        leftGroup.appendChild(aliasInput);
+
+        const rightGroup = document.createElement('div');
+        rightGroup.style.cssText = 'display:flex; align-items:center; gap:6px;';
+
+        // Move Up/Down buttons
+        const moveUpBtn = document.createElement('button');
+        moveUpBtn.type = 'button';
+        moveUpBtn.innerHTML = '⬆️';
+        moveUpBtn.title = 'تحريك للأعلى (يمين الجدول)';
+        moveUpBtn.style.cssText = 'background:rgba(255,255,255,0.08); border:none; border-radius:6px; padding:4px 8px; cursor:pointer; font-size:0.8rem;';
+        moveUpBtn.onclick = () => {
+            if (index > 0) {
+                const temp = window.colOrder[index];
+                window.colOrder[index] = window.colOrder[index - 1];
+                window.colOrder[index - 1] = temp;
+                renderColumnContextMenu();
+                applyLayoutToDOM();
             }
-            if (credLoc > 0 && (cf === 0 || cf === credLoc) && rate > 1) {
-                cf = credLoc / rate;
+        };
+
+        const moveDownBtn = document.createElement('button');
+        moveDownBtn.type = 'button';
+        moveDownBtn.innerHTML = '⬇️';
+        moveDownBtn.title = 'تحريك للأسفل (يسار الجدول)';
+        moveDownBtn.style.cssText = 'background:rgba(255,255,255,0.08); border:none; border-radius:6px; padding:4px 8px; cursor:pointer; font-size:0.8rem;';
+        moveDownBtn.onclick = () => {
+            if (index < window.colOrder.length - 1) {
+                const temp = window.colOrder[index];
+                window.colOrder[index] = window.colOrder[index + 1];
+                window.colOrder[index + 1] = temp;
+                renderColumnContextMenu();
+                applyLayoutToDOM();
             }
+        };
 
-            t.debitForeign = df;
-            t.creditForeign = cf;
+        const toggleDrawerBtn = document.createElement('button');
+        toggleDrawerBtn.type = 'button';
+        toggleDrawerBtn.innerHTML = '⚙️ تخصيص';
+        toggleDrawerBtn.style.cssText = 'background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); border-radius:6px; padding:4px 10px; cursor:pointer; font-weight:bold; font-size:0.8rem;';
+        
+        const drawer = document.createElement('div');
+        drawer.style.cssText = 'display:none; flex-direction:column; gap:8px; padding-top:8px; border-top:1px dashed rgba(255,255,255,0.1); margin-top:4px;';
+        drawer.innerHTML = `
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                <span style="font-size:0.8rem; color:#cbd5e1;">حجم الخط:</span>
+                <select onchange="updateColField(${origIdx}, 'fs', parseFloat(this.value))" style="background:#1e293b; color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:6px; padding:2px 6px; font-size:0.8rem;">
+                    <option value="0.75" ${col.fs === 0.75 ? 'selected' : ''}>0.75rem (صغير جداً)</option>
+                    <option value="0.85" ${col.fs === 0.85 ? 'selected' : ''}>0.85rem (صغير)</option>
+                    <option value="0.9" ${(!col.fs || col.fs === 0.9) ? 'selected' : ''}>0.9rem (عادي)</option>
+                    <option value="1.0" ${col.fs === 1.0 ? 'selected' : ''}>1.0rem (كبير)</option>
+                    <option value="1.15" ${col.fs === 1.15 ? 'selected' : ''}>1.15rem (كبير جداً)</option>
+                </select>
 
-            if (accVal !== 'ALL') {
-                if (t.isOpening) {
-                    t.balance = t.balance !== undefined ? t.balance : runningBal;
-                    t.balanceForeign = t.balanceForeign !== undefined ? t.balanceForeign : runningBalFc;
-                } else {
-                    runningBal += (debLoc - credLoc);
-                    runningBalFc += (df - cf);
-                    t.balance = runningBal;
-                    t.balanceForeign = runningBalFc;
-                }
-            } else {
-                t.balance = undefined;
-                t.balanceForeign = undefined;
-            }
-        });
+                <span style="font-size:0.8rem; color:#cbd5e1;">المحاذاة:</span>
+                <select onchange="updateColField(${origIdx}, 'align', this.value)" style="background:#1e293b; color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:6px; padding:2px 6px; font-size:0.8rem;">
+                    <option value="right" ${col.align === 'right' ? 'selected' : ''}>يمين</option>
+                    <option value="center" ${(!col.align || col.align === 'center') ? 'selected' : ''}>وسط</option>
+                    <option value="left" ${col.align === 'left' ? 'selected' : ''}>يسار</option>
+                </select>
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                <span style="font-size:0.8rem; color:#cbd5e1;">لون النص:</span>
+                <input type="color" value="${col.color || '#ffffff'}" onchange="updateColField(${origIdx}, 'color', this.value)" style="border:none; width:36px; height:26px; border-radius:4px; cursor:pointer; background:transparent;">
 
-        // Set display order to Chronological (Oldest first at top, newest created at bottom)
-        currentTxns = chronological;
+                <span style="font-size:0.8rem; color:#cbd5e1;">خلفية العمود:</span>
+                <input type="color" value="${col.bg || '#0f172a'}" onchange="updateColField(${origIdx}, 'bg', this.value)" style="border:none; width:36px; height:26px; border-radius:4px; cursor:pointer; background:transparent;">
 
-        let totalDebit = 0;
-        let totalCredit = 0;
-        currentTxns.forEach(t => {
-            if (!t || t.isOpening) return;
-            totalDebit += (t.debit || 0);
-            totalCredit += (t.credit || 0);
-        });
+                <span style="font-size:0.8rem; color:#cbd5e1;">عريض (Bold):</span>
+                <input type="checkbox" ${col.bold ? 'checked' : ''} onchange="updateColField(${origIdx}, 'bold', this.checked)" style="width:16px; height:16px; cursor:pointer;">
+            </div>
+            <div style="display:flex; justify-content:space-between; align-items:center; gap:8px;">
+                <span style="font-size:0.8rem; color:#cbd5e1;">الكسور العشرية:</span>
+                <select onchange="updateColField(${origIdx}, 'decimals', parseInt(this.value))" style="background:#1e293b; color:#fff; border:1px solid rgba(255,255,255,0.2); border-radius:6px; padding:2px 6px; font-size:0.8rem;">
+                    <option value="0" ${col.decimals === 0 ? 'selected' : ''}>0 (بدون كسور)</option>
+                    <option value="1" ${col.decimals === 1 ? 'selected' : ''}>1 (رقم واحد)</option>
+                    <option value="2" ${(!col.decimals || col.decimals === 2) ? 'selected' : ''}>2 (ركمان عشريان)</option>
+                    <option value="3" ${col.decimals === 3 ? 'selected' : ''}>3 (ثلاثة أرقام)</option>
+                    <option value="4" ${col.decimals === 4 ? 'selected' : ''}>4 (أربعة أرقام)</option>
+                </select>
 
-        const tdDebit = document.getElementById('launcher-total-debit');
-        const tdCredit = document.getElementById('launcher-total-credit');
-        const tdBalance = document.getElementById('launcher-total-balance');
+                <span style="font-size:0.8rem; color:#cbd5e1;">فاصلة 1,000:</span>
+                <input type="checkbox" ${col.useSep !== false ? 'checked' : ''} onchange="updateColField(${origIdx}, 'useSep', this.checked)" style="width:16px; height:16px; cursor:pointer;">
+            </div>
+        `;
 
-        if (tdDebit) tdDebit.innerText = typeof fmtNum === 'function' ? fmtNum(totalDebit) : totalDebit.toLocaleString();
-        if (tdCredit) tdCredit.innerText = typeof fmtNum === 'function' ? fmtNum(totalCredit) : totalCredit.toLocaleString();
-        if (tdBalance) {
-            let bal = totalDebit - totalCredit;
-            tdBalance.innerText = typeof fmtNum === 'function' ? fmtNum(bal) : bal.toLocaleString();
-        }
+        toggleDrawerBtn.onclick = () => {
+            drawer.style.display = (drawer.style.display === 'none') ? 'flex' : 'none';
+        };
 
-        ledgerCurrentPage = 1;
-        renderLedgerPage();
-    } catch (e) {
-        console.error('Error running report:', e);
-        // Show the error on screen so we know exactly why it fails instead of silently hiding it
-        const tbody = document.getElementById('recent-tbody');
-        if (tbody) tbody.innerHTML = `<tr><td colspan="14" style="text-align:center; padding: 20px; color:red;">حدث خطأ أثناء تحميل التقرير: ${e.message}</td></tr>`;
+        rightGroup.appendChild(moveUpBtn);
+        rightGroup.appendChild(moveDownBtn);
+        rightGroup.appendChild(toggleDrawerBtn);
+
+        mainRow.appendChild(leftGroup);
+        mainRow.appendChild(rightGroup);
+
+        item.appendChild(mainRow);
+        item.appendChild(drawer);
+
+        container.appendChild(item);
+    });
+}
+
+function updateColField(idx, field, val) {
+    if (window.colConfigs[idx]) {
+        window.colConfigs[idx][field] = val;
+        applyLayoutToDOM();
+    }
+}
+
+function switchCtxTab(tabName) {
+    const btnCols = document.getElementById('tab-btn-cols');
+    const btnFormatting = document.getElementById('tab-btn-formatting');
+    const tabCols = document.getElementById('ctx-tab-cols');
+    const tabFormatting = document.getElementById('ctx-tab-formatting');
+
+    if (tabName === 'cols') {
+        if (btnCols) { btnCols.style.background = '#38bdf8'; btnCols.style.color = '#0f172a'; }
+        if (btnFormatting) { btnFormatting.style.background = 'transparent'; btnFormatting.style.color = '#94a3b8'; }
+        if (tabCols) tabCols.style.display = 'block';
+        if (tabFormatting) tabFormatting.style.display = 'none';
+    } else {
+        if (btnCols) { btnCols.style.background = 'transparent'; btnCols.style.color = '#94a3b8'; }
+        if (btnFormatting) { btnFormatting.style.background = '#38bdf8'; btnFormatting.style.color = '#0f172a'; }
+        if (tabCols) tabCols.style.display = 'none';
+        if (tabFormatting) tabFormatting.style.display = 'block';
+    }
+}
+
+function changeTableTheme(themeClass) {
+    const table = document.getElementById('recent-table');
+    if (!table) return;
+    table.classList.remove('table-theme-blue', 'table-theme-black', 'table-theme-emerald');
+    if (themeClass) table.classList.add(themeClass);
+    window.currentTableTheme = themeClass;
+    saveLayoutAndStyles(false);
+}
+
+function changeNumberFont(fontClass) {
+    const table = document.getElementById('recent-table');
+    if (!table) return;
+    table.classList.remove('num-font-jetbrains', 'num-font-roboto', 'num-font-firacode', 'num-font-inter', 'num-font-poppins');
+    if (fontClass) table.classList.add(fontClass);
+    window.currentNumFont = fontClass;
+    saveLayoutAndStyles(false);
+}
+
+function applyLayoutToDOM() {
+    if (window.currentTxns && typeof renderRecentTable === 'function') {
+        renderRecentTable(window.currentTxns.slice((ledgerCurrentPage - 1) * LEDGER_PAGE_SIZE, ledgerCurrentPage * LEDGER_PAGE_SIZE), (ledgerCurrentPage - 1) * LEDGER_PAGE_SIZE);
+    }
+}
+
+function saveLayoutAndStyles(showMsg = true) {
+    const dataToSave = {
+        colConfigs: window.colConfigs,
+        colOrder: window.colOrder,
+        currentTableTheme: window.currentTableTheme || '',
+        currentNumFont: window.currentNumFont || 'num-font-jetbrains'
+    };
+    localStorage.setItem('general_ledger_layout_v1', JSON.stringify(dataToSave));
+    applyLayoutToDOM();
+    const menu = document.getElementById('columnContextMenu');
+    if (menu) menu.style.display = 'none';
+    if (showMsg && typeof showToast === 'function') showToast('💾 تم حفظ التخصيصات والترتيب بنجاح', 'success');
+}
+
+function resetLayoutAndStyles() {
+    window.colConfigs = [
+        { name: 'م', alias: 'م', id: 'counter', bold: true, fs: 0.9, color: '', bg: '', visible: true, align: 'center' },
+        { name: 'التاريخ', alias: 'التاريخ', id: 'date', bold: false, fs: 0.9, color: '', bg: '', visible: true, align: 'center' },
+        { name: 'الرقم المرجعي', alias: 'الرقم المرجعي', id: 'ref', bold: true, fs: 0.9, color: '#38bdf8', bg: '', visible: true, align: 'center' },
+        { name: 'الحساب', alias: 'الحساب', id: 'account', bold: true, fs: 0.9, color: '#fbbf24', bg: '', visible: true, align: 'right' },
+        { name: 'نوع الحركة', alias: 'نوع الحركة', id: 'typeLabel', bold: true, fs: 0.85, color: '', bg: '', visible: true, align: 'center' },
+        { name: 'البيان', alias: 'البيان', id: 'statement', bold: false, fs: 0.9, color: '', bg: '', visible: true, align: 'right' },
+        { name: 'الحساب المقابل', alias: 'الحساب المقابل', id: 'counterAccount', bold: false, fs: 0.9, color: '', bg: '', visible: true, align: 'right' },
+        { name: 'مدين', alias: 'مدين', id: 'debit', bold: true, fs: 0.9, decimals: 2, dec: 2, color: '#34d399', bg: '', visible: true, align: 'center' },
+        { name: 'دائن', alias: 'دائن', id: 'credit', bold: true, fs: 0.9, decimals: 2, dec: 2, color: '#f87171', bg: '', visible: true, align: 'center' },
+        { name: 'الإجمالي المحلي', alias: 'الإجمالي المحلي', id: 'balance', bold: true, fs: 0.95, decimals: 2, dec: 2, color: '#38bdf8', bg: '', visible: true, align: 'center' },
+        { name: 'سعر الصرف', alias: 'سعر الصرف', id: 'exchangeRate', bold: true, fs: 0.9, decimals: 2, dec: 2, color: '#eab308', bg: '', visible: true, align: 'center' },
+        { name: 'مدين أجنبي', alias: 'مدين أجنبي', id: 'debitForeign', bold: true, fs: 0.9, decimals: 2, dec: 2, color: '#34d399', bg: '', visible: true, align: 'center' },
+        { name: 'دائن أجنبي', alias: 'دائن أجنبي', id: 'creditForeign', bold: true, fs: 0.9, decimals: 2, dec: 2, color: '#f87171', bg: '', visible: true, align: 'center' },
+        { name: 'الإجمالي الأجنبي', alias: 'الإجمالي الأجنبي', id: 'balanceForeign', bold: true, fs: 0.95, decimals: 2, dec: 2, color: '#38bdf8', bg: '', visible: true, align: 'center' }
+    ];
+    window.colOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13];
+    window.currentTableTheme = '';
+    window.currentNumFont = 'num-font-jetbrains';
+    saveLayoutAndStyles(false);
+    renderColumnContextMenu();
+}
+
+function makeElementDraggable(elmnt, headerElmnt) {
+    let pos1 = 0, pos2 = 0, pos3 = 0, pos4 = 0;
+    const handle = headerElmnt || elmnt;
+    handle.onmousedown = dragMouseDown;
+
+    function dragMouseDown(e) {
+        if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT' || e.target.tagName === 'SELECT') return;
+        e = e || window.event;
+        e.preventDefault();
+
+        const rect = elmnt.getBoundingClientRect();
+        elmnt.style.transform = 'none';
+        elmnt.style.top = rect.top + 'px';
+        elmnt.style.left = rect.left + 'px';
+
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        document.onmouseup = closeDragElement;
+        document.onmousemove = elementDrag;
+    }
+
+    function elementDrag(e) {
+        e = e || window.event;
+        e.preventDefault();
+        pos1 = pos3 - e.clientX;
+        pos2 = pos4 - e.clientY;
+        pos3 = e.clientX;
+        pos4 = e.clientY;
+        elmnt.style.top = (elmnt.offsetTop - pos2) + "px";
+        elmnt.style.left = (elmnt.offsetLeft - pos1) + "px";
+    }
+
+    function closeDragElement() {
+        document.onmouseup = null;
+        document.onmousemove = null;
     }
 }
 
 function renderRecentTable(txns, startIndex = 0) {
+    const table = document.getElementById('recent-table');
     const tbody = document.getElementById('recent-tbody');
-    if (!tbody) return;
+    if (!tbody || !table) return;
+
+    // Apply current table theme & font
+    table.className = 'pos-grid ' + (window.currentTableTheme || '') + ' ' + (window.currentNumFont || 'num-font-jetbrains');
+
+    // Build Dynamic Header (thead)
+    let thead = table.querySelector('thead');
+    if (!thead) {
+        thead = document.createElement('thead');
+        table.insertBefore(thead, tbody);
+    }
+
+    let trHead = document.createElement('tr');
+    trHead.oncontextmenu = openColumnContextMenu;
+
+    window.colOrder.forEach(idx => {
+        const conf = window.colConfigs[idx];
+        if (!conf || conf.visible === false) return;
+
+        let th = document.createElement('th');
+        th.innerText = conf.alias || conf.name;
+        th.style.fontSize = (conf.fs || 0.9) + 'rem';
+        th.style.textAlign = conf.align || 'center';
+        if (conf.bold) th.style.fontWeight = '900';
+        if (conf.color) th.style.color = conf.color;
+        if (conf.bg) th.style.backgroundColor = conf.bg;
+
+        th.oncontextmenu = openColumnContextMenu;
+        trHead.appendChild(th);
+    });
+
+    thead.innerHTML = '';
+    thead.appendChild(trHead);
 
     if (txns.length === 0) {
-        tbody.innerHTML = '<tr><td colspan="14" style="text-align:center; padding: 20px;">لا توجد عمليات تطابق الفلتر...</td></tr>';
+        const visibleColsCount = window.colOrder.filter(idx => window.colConfigs[idx] && window.colConfigs[idx].visible !== false).length;
+        tbody.innerHTML = `<tr><td colspan="${visibleColsCount || 14}" style="text-align:center; padding: 20px;">لا توجد عمليات تطابق الفلتر...</td></tr>`;
         return;
     }
 
-    let html = '';
+    // Build Dynamic Body Rows (tbody)
+    tbody.innerHTML = '';
     txns.forEach((t, i) => {
         const counterAccName = getAccountName(t.counterAccount) || '-';
         const mainAccName = getAccountName(t.account) || '-';
         const isPosBal = (t.balance || 0) >= 0;
 
-        html += `
-            <tr style="${t.isOpening ? 'background:rgba(59,130,246,0.08); border-right:3px solid #3b82f6;' : ''}">
-                <td>${startIndex + i + 1}</td>
-                <td title="${t.time || ''}">${t.date || '-'}</td>
-                <td>${t.isOpening ? '<span style="color:#3b82f6; font-weight:900;">📋 افتتاحي</span>' : '<strong style="color:#38bdf8;">' + (t.ref || '-') + '</strong>'}</td>
-                <td><span style="font-weight:700;">${mainAccName}</span></td>
-                <td><span style="background:${t.isOpening ? 'rgba(59,130,246,0.15)' : 'rgba(168,85,247,0.15)'}; color:${t.isOpening ? '#3b82f6' : '#c084fc'}; padding:2px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">${t.typeLabel || '-'}</span></td>
-                <td style="white-space:normal; min-width:180px; ${t.isOpening ? 'font-weight:bold; color:#3b82f6;' : ''}">
-                    ${(t.statement === 'undefined' ? '-' : t.statement) || '-'}
-                    ${!t.isOpening && t.additionalNote && t.additionalNote !== t.statement && t.additionalNote !== 'undefined' ? '<br><small style="color:#94a3b8;">' + t.additionalNote + '</small>' : ''}
-                </td>
-                <td>${t.isOpening ? '-' : counterAccName}</td>
-                <td style="color:#34d399; font-weight:900;">${t.debit > 0 ? fmtNum(t.debit) : ''}</td>
-                <td style="color:#f87171; font-weight:900;">${t.credit > 0 ? fmtNum(t.credit) : ''}</td>
-                <td style="color:${isPosBal ? '#34d399' : '#f87171'}; font-weight:900; font-family:'JetBrains Mono',monospace;">${t.balance !== undefined ? fmtNum(t.balance) : '-'}</td>
-                <td style="color:#eab308; font-weight:900;">${fmtNum(t.exchangeRate || 1)}</td>
-                <td style="color:#34d399; font-weight:900;">${t.debitForeign > 0 ? fmtNum(t.debitForeign) : ''}</td>
-                <td style="color:#f87171; font-weight:900;">${t.creditForeign > 0 ? fmtNum(t.creditForeign) : ''}</td>
-                <td style="color:${(t.balanceForeign || 0) >= 0 ? '#34d399' : '#f87171'}; font-weight:900; font-family:'JetBrains Mono',monospace;" dir="ltr">${t.balanceForeign !== undefined ? fmtNum(t.balanceForeign) : '-'}</td>
-            </tr>
-        `;
+        let tr = document.createElement('tr');
+        tr.oncontextmenu = openColumnContextMenu;
+        if (t.isOpening) {
+            tr.style.background = 'rgba(59,130,246,0.08)';
+            tr.style.borderRight = '3px solid #3b82f6';
+        }
+
+        window.colOrder.forEach(idx => {
+            const conf = window.colConfigs[idx];
+            if (!conf || conf.visible === false) return;
+
+            let td = document.createElement('td');
+            td.style.fontSize = (conf.fs || 0.9) + 'rem';
+            td.style.textAlign = conf.align || 'center';
+            if (conf.bold) td.style.fontWeight = '900';
+            if (conf.color) td.style.color = conf.color;
+            if (conf.bg) td.style.backgroundColor = conf.bg;
+
+            // Enable cumulative cell zoom on click
+            td.style.cursor = 'pointer';
+            td.onclick = function(e) {
+                e.stopPropagation();
+                this.classList.toggle('focused-num');
+            };
+
+            const dec = (conf.decimals !== undefined) ? conf.decimals : 2;
+            const useSep = (conf.useSep !== undefined) ? conf.useSep : true;
+            const doRound = (conf.doRound !== undefined) ? conf.doRound : false;
+
+            const formatVal = (v) => {
+                if (v === undefined || v === null || v === '' || isNaN(v)) return '-';
+                let num = parseFloat(v);
+                if (doRound) num = Math.round(num);
+                if (dec === 0) num = Math.round(num);
+
+                if (useSep) {
+                    return num.toLocaleString('en-US', { minimumFractionDigits: dec, maximumFractionDigits: dec });
+                } else {
+                    return num.toFixed(dec);
+                }
+            };
+
+            switch (conf.id) {
+                case 'counter':
+                    td.innerText = startIndex + i + 1;
+                    break;
+                case 'date':
+                    td.innerText = t.date || '-';
+                    td.title = t.time || '';
+                    break;
+                case 'ref':
+                    td.innerHTML = t.isOpening ? '<span style="color:#3b82f6; font-weight:900;">📋 افتتاحي</span>' : '<strong style="color:#38bdf8;">' + (t.ref || '-') + '</strong>';
+                    break;
+                case 'account':
+                    td.innerHTML = `<span style="font-weight:700;">${mainAccName}</span>`;
+                    break;
+                case 'typeLabel':
+                    td.innerHTML = `<span style="background:${t.isOpening ? 'rgba(59,130,246,0.15)' : 'rgba(168,85,247,0.15)'}; color:${t.isOpening ? '#3b82f6' : '#c084fc'}; padding:2px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">${t.typeLabel || '-'}</span>`;
+                    break;
+                case 'statement':
+                    td.style.whiteSpace = 'normal';
+                    td.style.minWidth = '180px';
+                    if (t.isOpening) { td.style.fontWeight = 'bold'; td.style.color = '#3b82f6'; }
+                    td.innerHTML = `${(t.statement === 'undefined' ? '-' : t.statement) || '-'}` + (!t.isOpening && t.additionalNote && t.additionalNote !== t.statement && t.additionalNote !== 'undefined' ? '<br><small style="color:#94a3b8;">' + t.additionalNote + '</small>' : '');
+                    break;
+                case 'counterAccount':
+                    td.innerText = t.isOpening ? '-' : counterAccName;
+                    break;
+                case 'debit':
+                    td.style.color = conf.color || '#34d399';
+                    td.innerText = t.debit > 0 ? formatVal(t.debit) : '';
+                    break;
+                case 'credit':
+                    td.style.color = conf.color || '#f87171';
+                    td.innerText = t.credit > 0 ? formatVal(t.credit) : '';
+                    break;
+                case 'balance':
+                    td.style.color = conf.color || (isPosBal ? '#34d399' : '#f87171');
+                    td.innerText = t.balance !== undefined ? formatVal(t.balance) : '-';
+                    break;
+                case 'exchangeRate':
+                    td.style.color = conf.color || '#eab308';
+                    td.innerText = formatVal(t.exchangeRate || 1);
+                    break;
+                case 'debitForeign':
+                    td.style.color = conf.color || '#34d399';
+                    td.innerText = t.debitForeign > 0 ? formatVal(t.debitForeign) : '';
+                    break;
+                case 'creditForeign':
+                    td.style.color = conf.color || '#f87171';
+                    td.innerText = t.creditForeign > 0 ? formatVal(t.creditForeign) : '';
+                    break;
+                case 'balanceForeign':
+                    td.style.color = conf.color || ((t.balanceForeign || 0) >= 0 ? '#34d399' : '#f87171');
+                    td.dir = 'ltr';
+                    td.innerText = t.balanceForeign !== undefined ? formatVal(t.balanceForeign) : '-';
+                    break;
+                default:
+                    td.innerText = '-';
+            }
+
+            tr.appendChild(td);
+        });
+
+        tbody.appendChild(tr);
     });
 
     if (currentTxns && currentTxns.length > LEDGER_PAGE_SIZE) {
