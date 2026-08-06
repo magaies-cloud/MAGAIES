@@ -2841,7 +2841,7 @@ window.renderBalancesPresets = function() {
     try { presets = JSON.parse(localStorage.getItem(PRESETS_STORAGE_KEY) || '[]'); } catch(e){}
 
     if (!Array.isArray(presets) || presets.length === 0) {
-        const defaultIcons = [
+        const defaultNames = [
             '💎 افتراضي 1', 
             '⭐ افتراضي 2', 
             '🎨 افتراضي 3', 
@@ -2850,12 +2850,34 @@ window.renderBalancesPresets = function() {
             '🚀 نموذج 2', 
             '🌟 نموذج 3'
         ];
-        presets = defaultIcons.map((name, i) => ({ 
+        presets = defaultNames.map((name, i) => ({ 
             name, 
             showInRibbon: true,
-            isLocked: i < 4 ? true : false,
+            isLocked: false,
             isFactoryDefault: i < 4 ? true : false
         }));
+    }
+
+    // Merge database stored preset locks & configs
+    if (window.LOADED_BALANCES_PRESETS) {
+        presets.forEach((p, idx) => {
+            const dbKey = 'balances_preset_' + idx;
+            const dbLockKey = 'balances_preset_' + idx + '_locked';
+            if (window.LOADED_BALANCES_PRESETS[dbKey]) {
+                const dbObj = window.LOADED_BALANCES_PRESETS[dbKey];
+                if (typeof dbObj === 'object') {
+                    p.colOrder = dbObj.colOrder || p.colOrder;
+                    p.colConfigs = dbObj.colConfigs || p.colConfigs;
+                    p.theme = dbObj.theme || p.theme;
+                    p.numFont = dbObj.numFont || p.numFont;
+                }
+                p.isLocked = true;
+                p.isFactoryDefault = true;
+            } else if (window.LOADED_BALANCES_PRESETS[dbLockKey] === 'true' || window.LOADED_BALANCES_PRESETS[dbLockKey] === true) {
+                p.isLocked = true;
+                p.isFactoryDefault = true;
+            }
+        });
     }
 
     presets.forEach((p, idx) => {
@@ -2864,123 +2886,164 @@ window.renderBalancesPresets = function() {
         btn.type = 'button';
         btn.className = 'preset-ribbon-btn preset-slot-' + idx;
 
-        const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
+        const isLocked = p.isLocked === true;
 
-        if (isDefaultGroup) {
+        if (isLocked) {
             btn.innerHTML = p.name + ' 🔒';
-            btn.title = '🔒 معاينة وتعديل التنسيق بهذا النموذج الافتراضي';
-            
-            // Direct Click Handler to open modal directly (Same as General Ledger)
-            btn.onclick = (e) => {
-                if (e) e.preventDefault();
-                window.openPresetModal(idx, p.name);
-            };
+            btn.title = '🔒 ضبط مصنع دائم مخزن ومحمي في قاعدة البيانات (اضغط للمعاينة)';
         } else {
-            btn.innerHTML = p.name + ' 🔄';
-            btn.title = 'اضغط مطولاً (8 ثوانٍ) لحفظ وتحديث نموذج التنسيق 🔄';
+            btn.innerHTML = p.name + ' ⚡ (اضغط 8ث للحفظ النهائي)';
+            btn.title = '⚡ اضغط مطولاً (8 ثوانٍ) لتخزين وتشفير التنسيق الحالي كضبط مصنع مالي دائم في قاعدة البيانات!';
+        }
 
-            // 8-second Long Press Handler for Custom User Templates Only
-            let pressStartTime = 0;
-            let mainInterval = null;
-            let isTriggered = false;
+        // Long Press (8 Seconds) + Quick Click Handler
+        let pressStartTime = 0;
+        let mainInterval = null;
+        let isTriggered = false;
 
-            const startPress = (e) => {
-                if (e.type === 'mousedown' && e.button !== 0) return;
-                pressStartTime = Date.now();
-                isTriggered = false;
-                ensureLongPressHudExists();
+        const startPress = (e) => {
+            if (e.type === 'mousedown' && e.button !== 0) return;
+            pressStartTime = Date.now();
+            isTriggered = false;
+            ensureLongPressHudExists();
 
-                const hud = document.getElementById('long-press-hud');
-                const hudTitle = document.getElementById('hud-title');
-                const hudDesc = document.getElementById('hud-desc');
-                const hudProgress = document.getElementById('hud-progress-bar');
-                const hudTimer = document.getElementById('hud-timer');
-                const hudIcon = document.getElementById('hud-icon');
+            const hud = document.getElementById('long-press-hud');
+            const hudTitle = document.getElementById('hud-title');
+            const hudDesc = document.getElementById('hud-desc');
+            const hudProgress = document.getElementById('hud-progress-bar');
+            const hudTimer = document.getElementById('hud-timer');
+            const hudIcon = document.getElementById('hud-icon');
 
+            if (p.isLocked) {
                 if (hud) {
                     hud.style.display = 'block';
-                    hudIcon.innerText = '✨';
-                    hudTitle.innerText = `حفظ وتحديث (${p.name})`;
-                    hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) حتى يمتلئ الشريط، وسيطلب منك النظام تأكيد الحفظ والتحديث.';
-                    if (hudProgress) { hudProgress.style.width = '0%'; hudProgress.style.background = 'linear-gradient(90deg, #3b82f6, #10b981)'; }
-                    if (hudTimer) hudTimer.innerText = '8.0 ثانية متبقية';
+                    hudIcon.innerText = '🔒';
+                    hudTitle.innerText = `ضبط المصنع محمي (${p.name})`;
+                    hudDesc.innerText = 'هذا النموذج مخزن كضبط مصنع مالي دائم في قاعدة البيانات للنظام ومحمي من التعديل أو المسح نهائياً.';
+                    if (hudProgress) { hudProgress.style.width = '100%'; hudProgress.style.background = '#ef4444'; }
+                    if (hudTimer) hudTimer.innerText = '🔒 نمط محمي دائم';
                 }
+                return;
+            }
 
-                const duration = 8000;
-                const startTime = Date.now();
+            if (hud) {
+                hud.style.display = 'block';
+                hudIcon.innerText = '🔒';
+                hudTitle.innerText = `حفظ وتثبيت ضبط المصنع (${p.name})`;
+                hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) لتخزين التنسيق الحالي (الألوان، الأعمدة، الخطوط، والكسور) كضبط مصنع مالي دائم في قاعدة البيانات للنظام ولكافة الشركات.';
+                if (hudProgress) { hudProgress.style.width = '0%'; hudProgress.style.background = 'linear-gradient(90deg, #f59e0b, #10b981)'; }
+                if (hudTimer) hudTimer.innerText = '8.0 ثانية متبقية';
+            }
 
-                mainInterval = setInterval(() => {
-                    const elapsed = Date.now() - startTime;
-                    const remainingMs = Math.max(0, duration - elapsed);
-                    const remainingSec = (remainingMs / 1000).toFixed(1);
-                    const percent = Math.min(100, (elapsed / duration) * 100);
+            const duration = 8000;
+            const startTime = Date.now();
 
-                    if (hudProgress) hudProgress.style.width = percent + '%';
-                    if (hudTimer) hudTimer.innerText = remainingSec + ' ثانية متبقية';
+            mainInterval = setInterval(() => {
+                const elapsed = Date.now() - startTime;
+                const remainingMs = Math.max(0, duration - elapsed);
+                const remainingSec = (remainingMs / 1000).toFixed(1);
+                const percent = Math.min(100, (elapsed / duration) * 100);
 
-                    btn.style.boxShadow = `0 0 15px rgba(16,185,129,0.8)`;
-                    btn.style.borderColor = '#10b981';
-                    btn.style.background = `linear-gradient(90deg, rgba(16,185,129,0.45) ${percent}%, rgba(255,255,255,0.08) ${percent}%)`;
+                if (hudProgress) hudProgress.style.width = percent + '%';
+                if (hudTimer) hudTimer.innerText = remainingSec + ' ثانية متبقية';
 
-                    if (elapsed >= duration) {
-                        clearInterval(mainInterval);
-                        mainInterval = null;
-                        isTriggered = true;
-                        if (hud) hud.style.display = 'none';
-                        btn.style.boxShadow = ''; btn.style.borderColor = ''; btn.style.background = '';
+                btn.style.boxShadow = `0 0 20px rgba(245, 158, 11, 0.9)`;
+                btn.style.borderColor = '#f59e0b';
+                btn.style.background = `linear-gradient(90deg, rgba(245, 158, 11, 0.45) ${percent}%, rgba(255,255,255,0.08) ${percent}%)`;
 
-                        setTimeout(() => {
-                            const confirmSave = confirm(`✨ اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وتحديث تصميم التقرير الحالي في (${p.name})؟\n\n(ملاحظة: يمكنك إعادة تعديله وتجديده لاحقاً في أي وقت بالضغط المطول 8 ثوانٍ مجدداً).`);
-                            if (confirmSave) {
-                                p.isLocked = false;
-                                p.updatedAt = new Date().toISOString();
-                                localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
-                                const token = localStorage.getItem('erp_token') || '';
-                                const headers = { 'Content-Type': 'application/json' };
-                                if (token) headers['Authorization'] = 'Bearer ' + token;
-                                fetch('api_index.php/report-layout', {
-                                    method: 'POST',
-                                    headers: headers,
-                                    body: JSON.stringify({ reportKey: PRESETS_STORAGE_KEY, layout: presets })
-                                }).catch(e => {});
-                                alert(`✨ تم حفظ وتحديث تصميم التقرير في "${p.name}" بنجاح!`);
-                                window.renderBalancesPresets();
-                            }
-                        }, 50);
-                    }
-                }, 50);
-            };
-
-            const endPress = (e) => {
-                const duration = Date.now() - pressStartTime;
-                if (mainInterval) {
+                if (elapsed >= duration) {
                     clearInterval(mainInterval);
-                    clearTimeout(mainInterval);
                     mainInterval = null;
-                }
-                const hud = document.getElementById('long-press-hud');
-                if (hud) hud.style.display = 'none';
-                btn.style.boxShadow = ''; btn.style.borderColor = ''; btn.style.background = '';
+                    isTriggered = true;
+                    if (hud) hud.style.display = 'none';
+                    btn.style.boxShadow = ''; btn.style.borderColor = ''; btn.style.background = '';
 
-                if (isTriggered) {
-                    if (e) { e.preventDefault(); e.stopPropagation(); }
-                    return false;
-                }
+                    setTimeout(async () => {
+                        const confirmSave = confirm(`🔒 اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد اعتماد وتخزين التنسيق الحالي كـ (ضبط مصنع مالي دائم) لـ (${p.name})؟\n\nتنويه هام: سيتم حفظ التنسيق في قاعدة البيانات للنظام ولكافة الشركات وقفل التعديل عليه نهائياً.`);
+                        if (confirmSave) {
+                            const currentConfig = {
+                                name: p.name,
+                                colOrder: window.colOrder || [0,1,2,3,4,5,6,7,8],
+                                colConfigs: window.colConfigs || [],
+                                theme: window.currentTableTheme || 'table-theme-blue',
+                                numFont: window.currentNumFont || 'num-font-inter',
+                                savedAt: new Date().toISOString(),
+                                isLocked: true,
+                                isFactoryDefault: true
+                            };
 
-                if (pressStartTime > 0 && duration < 1000) {
-                    window.openPresetModal(idx, p.name);
-                }
-            };
+                            p.isLocked = true;
+                            p.isFactoryDefault = true;
+                            p.colOrder = currentConfig.colOrder;
+                            p.colConfigs = currentConfig.colConfigs;
+                            p.theme = currentConfig.theme;
+                            p.numFont = currentConfig.numFont;
+                            p.updatedAt = new Date().toISOString();
 
-            btn.addEventListener('mousedown', startPress);
-            btn.addEventListener('mouseup', endPress);
-            btn.addEventListener('touchstart', startPress, { passive: true });
-            btn.addEventListener('touchend', endPress);
-        }
+                            localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
+
+                            // Save to database via API
+                            try {
+                                await fetch('api/save_balances_preset.php', {
+                                    method: 'POST',
+                                    headers: { 'Content-Type': 'application/json' },
+                                    body: JSON.stringify({
+                                        id: idx,
+                                        config: currentConfig,
+                                        lockRequested: true
+                                    })
+                                });
+                            } catch(err) { console.error('Error saving preset to DB', err); }
+
+                            alert(`🔒 تم حفظ وتخزين (${p.name}) كضبط مصنع مالي دائم في قاعدة البيانات بنجاح وقفل التعديل عليه نهائياً!`);
+                            window.renderBalancesPresets();
+                        }
+                    }, 50);
+                }
+            }, 50);
+        };
+
+        const endPress = (e) => {
+            const duration = Date.now() - pressStartTime;
+            if (mainInterval) {
+                clearInterval(mainInterval);
+                clearTimeout(mainInterval);
+                mainInterval = null;
+            }
+            const hud = document.getElementById('long-press-hud');
+            if (hud) hud.style.display = 'none';
+            btn.style.boxShadow = ''; btn.style.borderColor = ''; btn.style.background = '';
+
+            if (isTriggered) {
+                if (e) { e.preventDefault(); e.stopPropagation(); }
+                return false;
+            }
+
+            // Quick click (< 1s): Open modal preview as usual
+            if (pressStartTime > 0 && duration < 1000) {
+                window.openPresetModal(idx, p.name);
+            }
+        };
+
+        btn.addEventListener('mousedown', startPress);
+        btn.addEventListener('mouseup', endPress);
+        btn.addEventListener('mouseleave', endPress);
+        btn.addEventListener('touchstart', startPress, { passive: true });
+        btn.addEventListener('touchend', endPress);
 
         btn.oncontextmenu = (e) => { e.preventDefault(); return false; };
         container.appendChild(btn);
     });
+
+    // Control & Visual Buttons
+    const ctrlBtn = document.createElement('button');
+    ctrlBtn.type = 'button';
+    ctrlBtn.className = 'preset-ribbon-btn';
+    ctrlBtn.onclick = (e) => openColumnContextMenu(e);
+    ctrlBtn.style.cssText = 'background: linear-gradient(135deg, #f59e0b, #d97706) !important; color: #ffffff !important; border: 1px solid rgba(251, 191, 36, 0.8) !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4) !important;';
+    ctrlBtn.innerHTML = '⚙️ التحكم';
+    container.insertBefore(ctrlBtn, container.firstChild);
+};
 
     // Main Preview & Design Page Button (Pushed to the very end of the row)
     const mainPreviewBtn = document.createElement('button');
