@@ -219,13 +219,13 @@
             .plan-card.recommended:hover { transform: translateY(-10px); }
         }
     
-        /* Ads Banner (Unified Standard 16:5 Ratio - 3840x1200 4K / 1920x600 FHD) */
+        /* Ads Banner (Leaderboard 13.33:1 Ratio - 3840x288 4K / 1600x120 FHD) */
         .ads-banner {
             width: 100%;
             height: auto;
-            min-height: 280px;
-            max-height: 450px;
-            aspect-ratio: 16 / 5;
+            min-height: 140px;
+            max-height: 220px;
+            aspect-ratio: 1600 / 120;
             margin-top: 0;
             position: relative;
             overflow: hidden;
