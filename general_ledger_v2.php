@@ -10,7 +10,8 @@ $rate = ($selected_currency === 'SDG') ? 600000 : 1000;
 // فلاتر البحث والتاريخ
 $date_from = isset($_GET['date_from']) ? $_GET['date_from'] : '';
 $date_to = isset($_GET['date_to']) ? $_GET['date_to'] : '';
-$target_customer_id = isset($_GET['accountId']) ? str_replace('cust-', '', $_GET['accountId']) : '';
+$target_customer_id = isset($_GET['accountId']) ? str_replace('cust-', '', $_GET['accountId']) : (isset($_GET['partner_id']) ? str_replace('cust-', '', $_GET['partner_id']) : (isset($_GET['id']) ? $_GET['id'] : ''));
+$target_customer_name = isset($_GET['name']) ? trim($_GET['name']) : '';
 
 $debt_distribution = [];
 $customer_profile = null;
@@ -43,21 +44,31 @@ try {
             
             $customers_list[$cid] = $cname;
             
-            // تحديد العميل الافتراضي إذا لم يتم اختيار عميل
-            if (empty($target_customer_id) && count($customers_list) == 1) {
-                $target_customer_id = $cid;
-            }
-            
             if ($bal > 0) {
                 $all_debts[] = [
                     'id' => $cid,
                     'customer_name' => $cname,
                     'debt' => $bal,
-                    'bounced_checks' => 0, // من الممكن جلبها من الشيكات لو وجدت
+                    'bounced_checks' => 0,
                     'max_days' => 0
                 ];
                 $grand_total += $bal;
             }
+        }
+        
+        // إذا لم يتوفر ID صريح وتوفر اسم العميل، نقوم بمطابقته من قائمة العملاء
+        if (empty($target_customer_id) && !empty($target_customer_name)) {
+            foreach ($customers_list as $cid => $cname) {
+                if (trim($cname) === $target_customer_name || strpos($cname, $target_customer_name) !== false) {
+                    $target_customer_id = $cid;
+                    break;
+                }
+            }
+        }
+
+        // إذا لا يزال فارغاً، اختر أول عميل في القائمة
+        if (empty($target_customer_id) && !empty($customers_list)) {
+            $target_customer_id = array_key_first($customers_list);
         }
         
         if (empty($target_customer_id) && !empty($all_debts)) {

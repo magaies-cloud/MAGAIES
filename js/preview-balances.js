@@ -24,7 +24,13 @@ window.goToPartnerLedgerFromPreview = function() {
     const partnerCtxMenu = document.getElementById('partnerContextMenu');
     if (partnerCtxMenu) partnerCtxMenu.style.display = 'none';
 
-    const url = `general-ledger.php?partner_id=${encodeURIComponent(window.currentSelectedPartnerId)}&partner_type=${encodeURIComponent(window.currentSelectedPartnerType || 'CUST')}&name=${encodeURIComponent(window.currentSelectedPartnerName)}`;
+    let accId = window.currentSelectedPartnerId || '';
+    if (accId && !accId.startsWith('cust-') && !accId.startsWith('supp-') && !accId.startsWith('acc-')) {
+        const type = (window.currentSelectedPartnerType || 'CUST').toLowerCase();
+        accId = (type === 'supp' ? 'supp-' : 'cust-') + accId;
+    }
+
+    const url = `general_ledger_v2.php?accountId=${encodeURIComponent(accId)}&partner_id=${encodeURIComponent(window.currentSelectedPartnerId)}&name=${encodeURIComponent(window.currentSelectedPartnerName)}&autoRun=1`;
     if (window.parent && window.parent !== window) {
         window.parent.location.href = url;
     } else {

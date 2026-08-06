@@ -2058,8 +2058,14 @@ window.goToPartnerLedger = function() {
     const partnerCtxMenu = document.getElementById('partnerContextMenu');
     if (partnerCtxMenu) partnerCtxMenu.style.display = 'none';
 
-    // Navigate to General Ledger (GL) for this specific account
-    const url = `general-ledger.php?partner_id=${encodeURIComponent(currentSelectedPartnerId)}&partner_type=${encodeURIComponent(currentSelectedPartnerType)}&name=${encodeURIComponent(currentSelectedPartnerName)}`;
+    // Navigate directly into detailed statement for this account
+    let accId = currentSelectedPartnerId || '';
+    if (accId && !accId.startsWith('cust-') && !accId.startsWith('supp-') && !accId.startsWith('acc-')) {
+        const type = (currentSelectedPartnerType || 'CUST').toLowerCase();
+        accId = (type === 'supp' ? 'supp-' : 'cust-') + accId;
+    }
+
+    const url = `general_ledger_v2.php?accountId=${encodeURIComponent(accId)}&partner_id=${encodeURIComponent(currentSelectedPartnerId)}&name=${encodeURIComponent(currentSelectedPartnerName)}&autoRun=1`;
     window.location.href = url;
 };
 
