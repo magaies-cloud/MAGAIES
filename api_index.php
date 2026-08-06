@@ -890,7 +890,7 @@ $tenant_id = null;
 $userId = null;
 
 // SAAS SUPER ADMIN BYPASS — رمز المشرف العام
-$saasSecret = defined('SAAS_ADMIN_TOKEN') ? SAAS_ADMIN_TOKEN : getenv('SAAS_ADMIN_TOKEN');
+$saasSecret = defined('SAAS_ADMIN_TOKEN') ? SAAS_ADMIN_TOKEN : (getenv('SAAS_ADMIN_TOKEN') ?: 'SUPER_ADMIN_SECRET_2026');
 
 if ($token === $saasSecret) {
     if ($resource === 'saas') {

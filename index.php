@@ -1339,7 +1339,7 @@
             try {
                 let data;
                 try {
-                    const res = await fetch('/api_index.php?r=public&_=' + Date.now());
+                    const res = await fetch('api_index.php?r=public&_=' + Date.now());
                     if (!res.ok) throw new Error('HTTP error ' + res.status);
                     const text = await res.text();
                     data = JSON.parse(text);
