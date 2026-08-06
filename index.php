@@ -219,15 +219,18 @@
             .plan-card.recommended:hover { transform: translateY(-10px); }
         }
     
-        /* Ads Banner */
+        /* Ads Banner (6MP 4K Dynamic Ratio & Full Un-cropped Image Display) */
         .ads-banner {
             width: 100%;
-            height: 270px;
+            height: auto;
+            min-height: 300px;
+            max-height: 480px;
+            aspect-ratio: 3840 / 1534;
             margin-top: 0;
             position: relative;
             overflow: hidden;
             display: none;
-            background: rgba(15,23,42,0.8);
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(3, 7, 18, 0.98));
             border-bottom: 1px solid var(--glass-border);
             z-index: 900;
         }
@@ -239,6 +242,7 @@
             display: flex;
             align-items: center;
             justify-content: center;
+            background: radial-gradient(circle at center, rgba(30, 41, 59, 0.5), rgba(3, 7, 18, 0.9));
         }
         .ad-slide.active { opacity: 1; z-index: 2; }
         .ad-badge {
@@ -259,10 +263,11 @@
         .ad-slide img {
             width: 100%;
             height: 100%;
-            object-fit: cover;
+            object-fit: contain;
             object-position: center;
             image-rendering: -webkit-optimize-contrast;
             image-rendering: crisp-edges;
+            filter: drop-shadow(0 10px 30px rgba(0, 0, 0, 0.6));
             cursor: default;
         }
     
