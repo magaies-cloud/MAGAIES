@@ -1013,10 +1013,10 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             <div class="form-group">
                 <label>صورة الإعلان</label>
                 <div style="font-size: 0.85rem; color: #fbbf24; margin-bottom: 8px; background: rgba(251,191,36,0.1); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(251,191,36,0.2); line-height: 1.6;">
-                    📐 <strong>المقاس القياسي الموحد (+50% زيادة في الارتفاع):</strong><br>
-                    • **دقة 4K الفائقة (4K UHD):** <strong>3840 × 432 بكسل</strong><br>
-                    • **دقة Full HD القياسية:** <strong>1600 × 180 بكسل</strong><br>
-                    • **نسبة الأبعاد الموحدة:** <strong>8.89 : 1 (بانر عريض بارز)</strong><br>
+                    📐 <strong>المقاس القياسي الموحد (نسبة 10 : 1):</strong><br>
+                    • **دقة 4K الفائقة (4K UHD):** <strong>3840 × 384 بكسل</strong><br>
+                    • **دقة Full HD القياسية:** <strong>1920 × 192 بكسل</strong><br>
+                    • **نسبة الأبعاد الموحدة:** <strong>10 : 1 (الارتفاع 1 والعرض 10)</strong><br>
                     • **الصيغ المدعومة:** <strong>PNG, WEBP, JPG</strong>
                 </div>
                 <input type="file" id="ad-image-upload" accept="image/*" style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; width: 100%; color: #fff;">

@@ -219,18 +219,18 @@
             .plan-card.recommended:hover { transform: translateY(-10px); }
         }
     
-        /* Ads Banner (+50% Height Increase Ratio - 3840x432 4K / 1600x180 FHD) */
+        /* Ads Banner (10:1 Ratio - 3840x384 4K UHD / 1920x192 FHD) */
         .ads-banner {
             width: 100%;
             height: auto;
-            min-height: 210px;
-            max-height: 330px;
-            aspect-ratio: 1600 / 180;
+            min-height: 180px;
+            max-height: 380px;
+            aspect-ratio: 10 / 1;
             margin-top: 0;
             position: relative;
             overflow: hidden;
             display: none;
-            background: linear-gradient(135deg, rgba(15, 23, 42, 0.95), rgba(3, 7, 18, 0.98));
+            background: linear-gradient(135deg, rgba(9, 27, 54, 0.95), rgba(3, 7, 18, 0.98));
             border-bottom: 1px solid var(--glass-border);
             z-index: 900;
         }
