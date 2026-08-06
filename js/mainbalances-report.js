@@ -2058,8 +2058,8 @@ window.goToPartnerLedger = function() {
     const partnerCtxMenu = document.getElementById('partnerContextMenu');
     if (partnerCtxMenu) partnerCtxMenu.style.display = 'none';
 
-    // Navigate to General Ledger for this specific partner/customer/supplier
-    const url = `general_ledger_v2.php?accountId=cust-${encodeURIComponent(currentSelectedPartnerId)}&name=${encodeURIComponent(currentSelectedPartnerName)}`;
+    // Navigate to General Ledger (GL) for this specific account
+    const url = `general-ledger.php?partner_id=${encodeURIComponent(currentSelectedPartnerId)}&partner_type=${encodeURIComponent(currentSelectedPartnerType)}&name=${encodeURIComponent(currentSelectedPartnerName)}`;
     window.location.href = url;
 };
 

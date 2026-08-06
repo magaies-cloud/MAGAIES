@@ -1007,18 +1007,12 @@ $page_title = 'حساب الارصده الاساسية';
     </div>
 </div>
 
-<!-- Floating Customize Control Button (زر عائم بارز وثابت للتحكم بالأعمدة والألوان والخطوط) -->
-<button type="button" onclick="openColumnContextMenu(event)" class="no-print" style="position: fixed; bottom: 25px; left: 25px; z-index: 99999; background: linear-gradient(135deg, #f59e0b, #d97706); color: #ffffff; border: 2px solid rgba(255, 255, 255, 0.4); padding: 12px 22px; border-radius: 50px; font-weight: 900; font-size: 0.95rem; font-family: 'Tajawal', sans-serif; cursor: pointer; box-shadow: 0 10px 30px rgba(245, 158, 11, 0.6), 0 0 15px rgba(251, 191, 36, 0.4); display: flex; align-items: center; gap: 8px; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);" onmouseover="this.style.transform='scale(1.08) translateY(-3px)'" onmouseout="this.style.transform='scale(1)'">
-    <span style="font-size: 1.2rem;">🎨</span>
-    <span>التحكم بالأعمدة والألوان والخطوط</span>
-</button>
-
 <!-- Custom Context Menu for Partner Rows -->
-<div id="partnerContextMenu" style="display:none; position:fixed; z-index:100000; background:rgba(15, 23, 42, 0.98); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(56, 189, 248, 0.4); border-radius:12px; box-shadow:0 20px 50px rgba(0,0,0,0.8), 0 0 20px rgba(56,189,248,0.3); padding:8px; width:250px; color:#f8fafc; font-family:'Tajawal', sans-serif;">
+<div id="partnerContextMenu" style="display:none; position:fixed; z-index:100000; background:rgba(15, 23, 42, 0.98); backdrop-filter:blur(16px); -webkit-backdrop-filter:blur(16px); border:1px solid rgba(56, 189, 248, 0.4); border-radius:12px; box-shadow:0 20px 50px rgba(0,0,0,0.8), 0 0 20px rgba(56,189,248,0.3); padding:8px; width:260px; color:#f8fafc; font-family:'Tajawal', sans-serif;">
     <div id="partnerMenuHeader" style="font-weight:bold; font-size:0.88rem; color:#38bdf8; padding:8px 12px; border-bottom:1px solid rgba(255,255,255,0.1); margin-bottom:6px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis;">اسم الحساب</div>
     <div id="gotoLedgerItem" onclick="window.goToPartnerLedger()" style="display:flex; align-items:center; gap:10px; padding:10px 12px; border-radius:8px; cursor:pointer; font-weight:bold; font-size:0.9rem; transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.2)'; this.style.color='#38bdf8';" onmouseout="this.style.background='transparent'; this.style.color='#f8fafc';">
         <span style="font-size:1.2rem;">📖</span>
-        <span>الذهاب إلى دفتر الأستاذ العام</span>
+        <span>الذهاب إلى دفتر الأستاذ العام (GL)</span>
     </div>
 </div>
 
@@ -1114,8 +1108,8 @@ $page_title = 'حساب الارصده الاساسية';
         <div class="filter-row" style="margin-top: 10px; margin-bottom: 15px; display: flex; gap: 6px; flex-wrap: nowrap; width: 100%; align-items: center;">
 
             <div class="preset-slots-container no-print" id="main-presets-container" style="flex:1; display:flex; gap:6px; align-items:center; flex-wrap:nowrap; padding:2px 6px; border-radius:8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); min-height: 36px; overflow-x: auto;">
-                <!-- Column & Colors Control Button (زر التحكم بالسطر الأول والأعمدة والألوان والخطوط) -->
-                <button type="button" class="preset-ribbon-btn" onclick="openColumnContextMenu(event)" style="background: linear-gradient(135deg, #f59e0b, #d97706) !important; color: #ffffff !important; border: 1px solid rgba(251, 191, 36, 0.8) !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4) !important;">⚙️ التحكم بالأعمدة والألوان والخطوط 🎨</button>
+                <!-- Column & Colors Control Button (زر التحكم) -->
+                <button type="button" class="preset-ribbon-btn" onclick="openColumnContextMenu(event)" style="background: linear-gradient(135deg, #f59e0b, #d97706) !important; color: #ffffff !important; border: 1px solid rgba(251, 191, 36, 0.8) !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4) !important;">⚙️ التحكم</button>
                 <!-- Visual Intelligence Hub Toggle Button -->
                 <button type="button" class="preset-ribbon-btn" onclick="window.toggleVisualHub()" style="background: linear-gradient(135deg, #0ea5e9, #6366f1) !important; color: #ffffff !important; border: 1px solid rgba(56, 189, 248, 0.6) !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4) !important;">📊 الشاشات والتقارير البصرية 📈</button>
                 <!-- Static fallback buttons matching General Ledger style -->
