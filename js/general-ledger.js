@@ -2269,8 +2269,8 @@ document.addEventListener('contextmenu', function(e) {
     let txnRef = td ? td.dataset.txnRef : null;
 
     if (!txnType && td && td.parentElement) {
-        txnType = td.parentElement.dataset.txnType;
-        txnRef = td.parentElement.dataset.txnRef;
+        txnType = td.parentElement.dataset.txnType || td.parentElement.dataset.type;
+        txnRef = td.parentElement.dataset.txnRef || td.parentElement.dataset.ref;
     }
 
     currentCtxTxn = (txnRef && txnRef !== '-') ? { type: txnType, ref: txnRef } : null;
