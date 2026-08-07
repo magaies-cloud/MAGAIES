@@ -2862,12 +2862,13 @@ window.renderBalancesPresets = function() {
         if (p.showInRibbon === false) return;
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'preset-ribbon-btn preset-slot-' + idx;
+        btn.className = 'preset-slot-btn';
+        btn.dataset.id = (idx + 1).toString();
 
         const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
 
         if (isDefaultGroup) {
-            btn.innerHTML = p.name + ' 🔒';
+            btn.innerHTML = p.name + ' 🔒<div class="hold-bar"></div>';
             btn.title = '🔒 معاينة وتعديل التنسيق بهذا النموذج الافتراضي';
             
             // Direct Click Handler to open modal directly (Same as General Ledger)
@@ -2876,7 +2877,7 @@ window.renderBalancesPresets = function() {
                 window.openPresetModal(idx, p.name);
             };
         } else {
-            btn.innerHTML = p.name + ' 🔄';
+            btn.innerHTML = p.name + ' 🔄<div class="hold-bar"></div>';
             btn.title = 'انقر لاسترجاع النموذج أو حفظ التعديلات 🔄';
 
             btn.onclick = (e) => {
@@ -5065,3 +5066,39 @@ document.addEventListener('DOMContentLoaded', () => {
         window.renderBalancesPresets();
     }
 });
+
+window.FACTORY_PRESETS = [];
+async function loadFactoryPresets() {
+    try {
+        const res = await fetch('api/factory_config/balances_factory_presets.json?t=' + Date.now());
+        if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data) && data.length > 0) {
+                window.FACTORY_PRESETS = data;
+                
+                // Merge factory presets into local storage if they don't exist or update them
+                let localPresets = [];
+                try { localPresets = JSON.parse(localStorage.getItem(PRESETS_STORAGE_KEY) || '[]'); } catch(e){}
+                
+                let updated = false;
+                window.FACTORY_PRESETS.forEach((fp, idx) => {
+                    if (fp && fp.isFactoryDefault) {
+                        localPresets[idx] = fp;
+                        updated = true;
+                    }
+                });
+                
+                if (updated) {
+                    localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(localPresets));
+                }
+
+                if (typeof window.renderBalancesPresets === 'function') window.renderBalancesPresets();
+            }
+        }
+    } catch (e) {
+        // No factory presets found, ignore
+    }
+}
+setTimeout(loadFactoryPresets, 50);
+
+

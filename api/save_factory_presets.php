@@ -1,9 +1,14 @@
 <?php
 header('Content-Type: application/json; charset=utf-8');
 
-// المسار لملف إعدادات المصنع
 $configDir = __DIR__ . '/factory_config';
-$configFile = $configDir . '/ledger_factory_presets.json';
+
+$type = isset($_GET['type']) ? $_GET['type'] : 'ledger';
+if ($type === 'balances') {
+    $configFile = $configDir . '/balances_factory_presets.json';
+} else {
+    $configFile = $configDir . '/ledger_factory_presets.json';
+}
 
 // تأكد من وجود المجلد
 if (!is_dir($configDir)) {

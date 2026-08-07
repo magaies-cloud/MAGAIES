@@ -2027,3 +2027,68 @@ function restoreToFactoryDefault() {
     applyDesignState(factoryState);
     showToast('🏭 تم استرجاع الضبط الافتراضي الأصلي للنظام بنجاح!', 'info');
 }
+
+// Developer Secret Shortcut: Ctrl + Shift + S to lock CURRENT SCREEN configuration as factory default
+document.addEventListener('keydown', async function(e) {
+    if (e.ctrlKey && e.shiftKey && (e.key === 'S' || e.key === 's' || e.key === 'س')) {
+        e.preventDefault();
+        
+        let presets = getSavedPresets();
+        
+        // Since Balances doesn't have a specific `currentPresetIndex` tracked like ledger in the same way, we prompt for which slot to lock (1 to 4)
+        const slotInput = prompt('يرجى إدخال رقم الزر الافتراضي الذي تريد قفله كـ "ضبط مصنع نهائي" (1 إلى 4):\n(سيتم حفظ التنسيق الحالي لهذا الزر وتعميمه على كل المستخدمين)');
+        if (!slotInput) return;
+        
+        const idx = parseInt(slotInput, 10) - 1;
+        
+        if (idx < 0 || idx > 3 || isNaN(idx)) {
+            alert('يمكنك قفل الأزرار الأربعة الأولى فقط كـ ضبط مصنع (افتراضي 1 إلى 4)!');
+            return;
+        }
+        
+        let activePreset = presets[idx];
+        if (!activePreset) {
+            alert('لا يوجد تصميم محفوظ في هذا الزر! يرجى تهيئة الزر أولاً.');
+            return;
+        }
+
+        if (confirm(`⚠️ تحذير المطورين: هل أنت متأكد من رغبتك في قفل التصميم *المعروض حالياً على الشاشة* في الزر رقم (${idx + 1}) كـ "ضبط مصنع نهائي"؟ لا يمكن التراجع عن هذا الإجراء من داخل النظام!`)) {
+            let pToSave = JSON.parse(JSON.stringify(activePreset));
+            
+            // Overwrite with CURRENT LIVE ON-SCREEN data
+            pToSave.configs = JSON.parse(JSON.stringify(columnConfigs));
+            pToSave.order = [...columnOrder];
+            pToSave.theme = currentTheme;
+            pToSave.font = currentFont;
+            pToSave.paperSize = currentPaperSize;
+            pToSave.orientation = currentOrientation;
+            pToSave.showLogo = showHeaderLogo;
+            pToSave.showInfo = showHeaderInfo;
+            pToSave.showUser = document.getElementById('hdr-show-user-chk')?.checked || false;
+            pToSave.userPos = document.getElementById('meta-user-pos-select')?.value || 'left';
+            pToSave.showDateTime = document.getElementById('hdr-show-datetime-chk')?.checked || false;
+            pToSave.showPageNums = document.getElementById('hdr-show-pagenums-chk')?.checked || false;
+
+            pToSave.isFactoryDefault = true;
+            pToSave.isLocked = true;
+            pToSave.updatedAt = new Date().toISOString();
+
+            try {
+                const res = await fetch('api/save_factory_presets.php?type=balances', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ preset: pToSave, index: idx })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('🎉 ' + data.message);
+                    window.location.reload(); // Reload to fetch factory defaults
+                } else {
+                    alert('❌ خطأ: ' + data.message);
+                }
+            } catch (err) {
+                alert('حدث خطأ غير متوقع أثناء الحفظ!');
+            }
+        }
+    }
+});
