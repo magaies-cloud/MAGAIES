@@ -2932,3 +2932,65 @@ window.addEventListener('storage', function(e) {
         }
     }
 });
+
+function initGeneralLedgerResizers() {
+    const table = document.getElementById('recent-table');
+    if (!table) return;
+    const resizers = table.querySelectorAll('.resizer');
+
+    resizers.forEach(resizer => {
+        let startX = 0;
+        let startWidth = 0;
+        let th = null;
+
+        const mouseDownHandler = function(e) {
+            e.stopPropagation();
+            e.preventDefault();
+            th = resizer.closest('th');
+            if (!th) return;
+            startX = e.clientX;
+            const styles = window.getComputedStyle(th);
+            startWidth = parseInt(styles.width, 10) || 120;
+
+            resizer.classList.add('resizing');
+            document.body.style.cursor = 'col-resize';
+            document.body.style.userSelect = 'none';
+
+            const mouseMoveHandler = function(ev) {
+                const dx = (startX - ev.clientX);
+                const newWidth = Math.max(50, startWidth + dx);
+                th.style.width = newWidth + 'px';
+                th.style.minWidth = newWidth + 'px';
+                th.style.maxWidth = newWidth + 'px';
+            };
+
+            const mouseUpHandler = function() {
+                resizer.classList.remove('resizing');
+                document.body.style.cursor = '';
+                document.body.style.userSelect = '';
+                document.removeEventListener('mousemove', mouseMoveHandler);
+                document.removeEventListener('mouseup', mouseUpHandler);
+            };
+
+            document.addEventListener('mousemove', mouseMoveHandler);
+            document.addEventListener('mouseup', mouseUpHandler);
+        };
+
+        const dblClickHandler = function(e) {
+            e.stopPropagation();
+            th = resizer.closest('th');
+            if (!th) return;
+            th.style.width = 'auto';
+            th.style.minWidth = 'max-content';
+            th.style.maxWidth = 'none';
+        };
+
+        resizer.removeEventListener('mousedown', resizer._mouseDown);
+        resizer.removeEventListener('dblclick', resizer._dblClick);
+        resizer._mouseDown = mouseDownHandler;
+        resizer._dblClick = dblClickHandler;
+        resizer.addEventListener('mousedown', mouseDownHandler);
+        resizer.addEventListener('dblclick', dblClickHandler);
+    });
+}
+document.addEventListener('DOMContentLoaded', initGeneralLedgerResizers);

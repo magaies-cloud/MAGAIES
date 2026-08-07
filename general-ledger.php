@@ -140,12 +140,30 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.02); } }
 
         .pos-grid { width: 100%; border-collapse: collapse; font-family: 'Tajawal', sans-serif; }
-        .pos-grid th, .pos-grid td { padding: 8px 10px; font-size: 0.85rem; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.05); color:#f8fafc; }
+        .pos-grid th, .pos-grid td { padding: 8px 10px; font-size: 0.85rem; text-align: right; border-bottom: 1px solid rgba(255,255,255,0.05); color:#f8fafc; white-space: nowrap; text-overflow: ellipsis; overflow: hidden; }
         .pos-grid thead th { background: rgba(15, 23, 42, 0.95); color: #c084fc; font-weight: 800; border-bottom: 2px solid #a855f7; position: sticky; top: 0; z-index: 10; }
         :root.light-theme .pos-grid th, :root.light-theme .pos-grid td { color: #0f172a !important; border-color: rgba(0,0,0,0.05) !important; }
         :root.light-theme .pos-grid thead th { background: #f1f5f9 !important; color: #9333ea !important; border-bottom: 2px solid #9333ea !important; }
         .pos-grid tbody tr:hover td { background: rgba(168,85,247,0.08); }
         :root.light-theme .pos-grid tbody tr:hover td { background: rgba(168,85,247,0.05) !important; }
+        
+        .pos-grid tbody tr { transform: none !important; opacity: 1; }
+        
+        .resizer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 7px;
+            user-select: none;
+            z-index: 30;
+            background: transparent;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .resizer:hover, .resizer.resizing {
+            background: #38bdf8 !important;
+            box-shadow: 0 0 10px #38bdf8;
+        }
         
         .grid-scroll-wrap {
             background: rgba(15, 23, 42, 0.6);
@@ -505,20 +523,20 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         <table class="pos-grid" id="recent-table">
             <thead>
                 <tr>
-                    <th width="40">م</th>
-                    <th width="90">التاريخ</th>
-                    <th width="90">الرقم المرجعي</th>
-                    <th width="140">الحساب</th>
-                    <th width="90">نوع الحركة</th>
-                    <th>البيان</th>
-                    <th width="140">الحساب المقابل</th>
-                    <th width="90">مدين</th>
-                    <th width="90">دائن</th>
-                    <th width="100">الإجمالي المحلي</th>
-                    <th width="90">سعر الصرف</th>
-                    <th width="90">مدين أجنبي</th>
-                    <th width="90">دائن أجنبي</th>
-                    <th width="120">الإجمالي الأجنبي</th>
+                    <th width="40" style="position: relative; white-space: nowrap;">م<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="90" style="position: relative; white-space: nowrap;">التاريخ<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="90" style="position: relative; white-space: nowrap;">الرقم المرجعي<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="140" style="position: relative; white-space: nowrap;">الحساب<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="90" style="position: relative; white-space: nowrap;">نوع الحركة<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th style="position: relative; white-space: nowrap;">البيان<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="140" style="position: relative; white-space: nowrap;">الحساب المقابل<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="90" style="position: relative; white-space: nowrap;">مدين<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="90" style="position: relative; white-space: nowrap;">دائن<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="100" style="position: relative; white-space: nowrap;">الإجمالي المحلي<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="90" style="position: relative; white-space: nowrap;">سعر الصرف<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="90" style="position: relative; white-space: nowrap;">مدين أجنبي<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="90" style="position: relative; white-space: nowrap;">دائن أجنبي<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="120" style="position: relative; white-space: nowrap;">الإجمالي الأجنبي<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                 </tr>
             </thead>
             <tbody id="recent-tbody">

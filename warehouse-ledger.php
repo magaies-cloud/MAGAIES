@@ -145,17 +145,42 @@
             border: 1px solid var(--glass-border); box-shadow: 0 10px 40px rgba(0,0,0,0.4);
             overflow: hidden; display: flex; flex-direction: column;
         }
-        .table-wrapper { overflow-x: auto; overflow-y: auto; max-height: 60vh; }
-        .dash-table { width: 100%; border-collapse: collapse; min-width: 100%; }
+        .table-wrapper { overflow-x: auto; overflow-y: auto; max-height: 60vh; width: 100%; }
+        .dash-table { width: 100%; border-collapse: collapse; min-width: 100%; table-layout: auto !important; }
         .dash-table thead { position: sticky; top: 0; z-index: 10; }
         .dash-table th {
             background: rgba(10, 15, 25, 0.95); padding: 15px; text-align: right;
             font-size: 0.75rem; font-weight: 800; color: var(--text-secondary); border-bottom: 2px solid var(--glass-border);
             text-transform: uppercase; letter-spacing: 0.5px;
+            position: relative !important;
+            white-space: nowrap !important;
+            box-sizing: border-box !important;
         }
-        .dash-table td { padding: 15px; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.03); vertical-align: middle; transition: background 0.2s; color: #f8fafc; }
-        .dash-table tbody tr { animation: fadeSlideIn 0.4s ease-out forwards; opacity: 0; transform: translateY(10px); }
-        .dash-table tbody tr:hover td { background: rgba(255,255,255,0.03); }
+        .dash-table td {
+            padding: 15px; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.03);
+            vertical-align: middle; transition: background 0.2s; color: #f8fafc;
+            white-space: nowrap !important;
+            box-sizing: border-box !important;
+        }
+        .dash-table tbody tr { transform: none !important; opacity: 1; }
+        .dash-table tbody tr:hover td { background: rgba(255,255,255,0.05); }
+
+        .resizer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            bottom: 0;
+            width: 7px;
+            cursor: col-resize;
+            user-select: none;
+            z-index: 30;
+            background: transparent;
+            transition: background 0.2s, box-shadow 0.2s;
+        }
+        .resizer:hover, .resizer.resizing {
+            background: #38bdf8 !important;
+            box-shadow: 0 0 10px #38bdf8;
+        }
 
         @keyframes fadeSlideIn { to { opacity: 1; transform: translateY(0); } }
 
@@ -257,15 +282,15 @@
         <!-- Ledger Table -->
         <div class="table-panel">
             <div class="table-wrapper" id="report-table-wrap">
-                <table class="dash-table">
+                <table class="dash-table" id="warehouse-ledger-table">
                     <thead>
                         <tr>
-                            <th>التاريخ</th>
-                            <th>رقم المستند</th>
-                            <th>المستند / البيان</th>
-                            <th>الصنف</th>
-                            <th style="color:#10b981; background:rgba(16,185,129,0.05); text-align: right;">وارد (دخول)</th>
-                            <th style="color:#ec4899; background:rgba(236,72,153,0.05); text-align: right;">منصرف (خروج)</th>
+                            <th data-col-idx="0">التاريخ<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                            <th data-col-idx="1">نوع الحركة<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                            <th data-col-idx="2">المستند / البيان<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                            <th data-col-idx="3">الصنف<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                            <th data-col-idx="4" style="color:#10b981; background:rgba(16,185,129,0.05); text-align: right;">وارد (دخول)<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                            <th data-col-idx="5" style="color:#ec4899; background:rgba(236,72,153,0.05); text-align: right;">منصرف (خروج)<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                         </tr>
                     </thead>
                     <tbody id="ledger-tbody">
@@ -476,7 +501,92 @@
                 `;
                 tbody.appendChild(tr);
             });
+
+            initWarehouseLedgerResizers();
         }
+
+        function initWarehouseLedgerResizers() {
+            const table = document.getElementById('warehouse-ledger-table');
+            if (!table) return;
+            const resizers = table.querySelectorAll('.resizer');
+
+            resizers.forEach(resizer => {
+                let startX = 0;
+                let startWidth = 0;
+                let th = null;
+
+                const mouseDownHandler = function(e) {
+                    e.stopPropagation();
+                    e.preventDefault();
+                    th = resizer.closest('th');
+                    if (!th) return;
+                    startX = e.clientX;
+                    const styles = window.getComputedStyle(th);
+                    startWidth = parseInt(styles.width, 10) || 120;
+
+                    resizer.classList.add('resizing');
+                    document.body.style.cursor = 'col-resize';
+                    document.body.style.userSelect = 'none';
+
+                    const mouseMoveHandler = function(ev) {
+                        const dx = (startX - ev.clientX);
+                        let newWidth = startWidth + dx;
+                        if (newWidth < 50) newWidth = 50;
+                        if (newWidth > 800) newWidth = 800;
+
+                        th.style.width = newWidth + 'px';
+                        th.style.minWidth = newWidth + 'px';
+
+                        const colIndex = Array.from(th.parentElement.children).indexOf(th);
+                        const rows = document.querySelectorAll('#ledger-tbody tr');
+                        rows.forEach(tr => {
+                            const cell = tr.children[colIndex];
+                            if (cell) {
+                                cell.style.width = newWidth + 'px';
+                                cell.style.minWidth = newWidth + 'px';
+                            }
+                        });
+                    };
+
+                    const mouseUpHandler = function() {
+                        resizer.classList.remove('resizing');
+                        document.body.style.cursor = '';
+                        document.body.style.userSelect = '';
+
+                        document.removeEventListener('mousemove', mouseMoveHandler);
+                        document.removeEventListener('mouseup', mouseUpHandler);
+                    };
+
+                    document.addEventListener('mousemove', mouseMoveHandler);
+                    document.addEventListener('mouseup', mouseUpHandler);
+                };
+
+                const dblClickHandler = function(e) {
+                    e.stopPropagation();
+                    th = resizer.closest('th');
+                    if (!th) return;
+                    th.style.width = 'auto';
+                    th.style.minWidth = 'max-content';
+                    const colIndex = Array.from(th.parentElement.children).indexOf(th);
+                    const rows = document.querySelectorAll('#ledger-tbody tr');
+                    rows.forEach(tr => {
+                        const cell = tr.children[colIndex];
+                        if (cell) {
+                            cell.style.width = 'auto';
+                            cell.style.minWidth = 'max-content';
+                        }
+                    });
+                };
+
+                resizer.removeEventListener('mousedown', resizer._mouseDown);
+                resizer.removeEventListener('dblclick', resizer._dblClick);
+                resizer._mouseDown = mouseDownHandler;
+                resizer._dblClick = dblClickHandler;
+                resizer.addEventListener('mousedown', mouseDownHandler);
+                resizer.addEventListener('dblclick', dblClickHandler);
+            });
+        }
+        document.addEventListener('DOMContentLoaded', initWarehouseLedgerResizers);
     </script>
 </body>
 </html>
