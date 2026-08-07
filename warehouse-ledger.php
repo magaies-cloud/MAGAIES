@@ -163,7 +163,9 @@
             box-sizing: border-box !important;
         }
         .dash-table tbody tr { transform: none !important; opacity: 1; }
-        .dash-table tbody tr:hover td { background: rgba(255,255,255,0.05); }
+        .dash-table tbody tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
+        :root.light-theme .dash-table tbody tr:nth-child(even) td { background: rgba(0,0,0,0.03) !important; }
+        .dash-table tbody tr:hover td { background: rgba(255,255,255,0.08) !important; }
 
         .resizer {
             position: absolute;

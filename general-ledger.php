@@ -144,7 +144,9 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         .pos-grid thead th { background: rgba(15, 23, 42, 0.95); color: #c084fc; font-weight: 800; border-bottom: 2px solid #a855f7; position: sticky; top: 0; z-index: 10; }
         :root.light-theme .pos-grid th, :root.light-theme .pos-grid td { color: #0f172a !important; border-color: rgba(0,0,0,0.05) !important; }
         :root.light-theme .pos-grid thead th { background: #f1f5f9 !important; color: #9333ea !important; border-bottom: 2px solid #9333ea !important; }
-        .pos-grid tbody tr:hover td { background: rgba(168,85,247,0.08); }
+        .pos-grid tbody tr:nth-child(even) td { background: rgba(255,255,255,0.03); }
+        :root.light-theme .pos-grid tbody tr:nth-child(even) td { background: rgba(0,0,0,0.03) !important; }
+        .pos-grid tbody tr:hover td { background: rgba(168,85,247,0.08) !important; }
         :root.light-theme .pos-grid tbody tr:hover td { background: rgba(168,85,247,0.05) !important; }
         
         .pos-grid tbody tr { transform: none !important; opacity: 1; }
