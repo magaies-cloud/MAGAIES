@@ -2991,6 +2991,16 @@ function initGeneralLedgerResizers() {
                 resizer.classList.remove('resizing');
                 document.body.style.cursor = '';
                 document.body.style.userSelect = '';
+                
+                const colId = th.getAttribute('data-col-id');
+                if (colId) {
+                    const colConfig = activeGLColumnSettings.find(c => c.id === colId);
+                    if (colConfig) {
+                        colConfig.width = th.style.width;
+                        if (typeof saveGLColumnSettings === 'function') saveGLColumnSettings();
+                    }
+                }
+
                 document.removeEventListener('mousemove', mouseMoveHandler);
                 document.removeEventListener('mouseup', mouseUpHandler);
             };
@@ -3015,6 +3025,15 @@ function initGeneralLedgerResizers() {
                     cell.style.minWidth = 'max-content';
                 }
             });
+            
+            const colId = th.getAttribute('data-col-id');
+            if (colId) {
+                const colConfig = activeGLColumnSettings.find(c => c.id === colId);
+                if (colConfig) {
+                    colConfig.width = 'auto';
+                    if (typeof saveGLColumnSettings === 'function') saveGLColumnSettings();
+                }
+            }
         };
 
         resizer.removeEventListener('mousedown', resizer._mouseDown);
