@@ -2086,7 +2086,7 @@ function renderRecentTable(txns, startIndex = 0) {
             ${col.headerColor ? 'color:' + col.headerColor + '!important;' : ''}
             ${col.fontFamily ? 'font-family:' + col.fontFamily + ', sans-serif!important;' : ''}
         `;
-        headHtml += `<th data-col-id="${col.id}" style="${hStyle}">${col.label}</th>`;
+        headHtml += `<th data-col-id="${col.id}" style="position: relative; white-space: nowrap; ${hStyle}">${col.label}<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>`;
     });
     headHtml += '</tr>';
     thead.innerHTML = headHtml;
@@ -2189,6 +2189,11 @@ function renderRecentTable(txns, startIndex = 0) {
     }
 
     tbody.innerHTML = html;
+    
+    // Initialize resizers after table is fully rendered
+    if (typeof initGeneralLedgerResizers === 'function') {
+        initGeneralLedgerResizers();
+    }
 }
 
 /* ── Navigate to Original Voucher ── */
@@ -2961,7 +2966,16 @@ function initGeneralLedgerResizers() {
                 const newWidth = Math.max(50, startWidth + dx);
                 th.style.width = newWidth + 'px';
                 th.style.minWidth = newWidth + 'px';
-                th.style.maxWidth = newWidth + 'px';
+                
+                const colIndex = Array.from(th.parentElement.children).indexOf(th);
+                const rows = document.querySelectorAll('#recent-tbody tr');
+                rows.forEach(tr => {
+                    const cell = tr.children[colIndex];
+                    if (cell) {
+                        cell.style.width = newWidth + 'px';
+                        cell.style.minWidth = newWidth + 'px';
+                    }
+                });
             };
 
             const mouseUpHandler = function() {
@@ -2982,7 +2996,16 @@ function initGeneralLedgerResizers() {
             if (!th) return;
             th.style.width = 'auto';
             th.style.minWidth = 'max-content';
-            th.style.maxWidth = 'none';
+            
+            const colIndex = Array.from(th.parentElement.children).indexOf(th);
+            const rows = document.querySelectorAll('#recent-tbody tr');
+            rows.forEach(tr => {
+                const cell = tr.children[colIndex];
+                if (cell) {
+                    cell.style.width = 'auto';
+                    cell.style.minWidth = 'max-content';
+                }
+            });
         };
 
         resizer.removeEventListener('mousedown', resizer._mouseDown);
