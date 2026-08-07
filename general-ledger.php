@@ -530,13 +530,13 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
                     <th width="90" style="position: relative; white-space: nowrap;">نوع الحركة<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th style="position: relative; white-space: nowrap;">البيان<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th width="140" style="position: relative; white-space: nowrap;">الحساب المقابل<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
-                    <th width="90" style="position: relative; white-space: nowrap;">مدين<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
-                    <th width="90" style="position: relative; white-space: nowrap;">دائن<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
-                    <th width="100" style="position: relative; white-space: nowrap;">الإجمالي المحلي<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="90" style="position: relative; white-space: nowrap;">مدين عليه<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="90" style="position: relative; white-space: nowrap;">دائن له<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="100" style="position: relative; white-space: nowrap;">الرصيد المحلي<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th width="90" style="position: relative; white-space: nowrap;">سعر الصرف<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th width="90" style="position: relative; white-space: nowrap;">مدين أجنبي<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th width="90" style="position: relative; white-space: nowrap;">دائن أجنبي<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
-                    <th width="120" style="position: relative; white-space: nowrap;">الإجمالي الأجنبي<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="120" style="position: relative; white-space: nowrap;">الرصيد الأجنبي<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                 </tr>
             </thead>
             <tbody id="recent-tbody">

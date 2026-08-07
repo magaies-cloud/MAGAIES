@@ -1997,13 +1997,13 @@ const DEFAULT_GL_COLUMNS_CONFIG = [
     { id: 'typeLabel', label: 'نوع الحركة', isNum: false, align: 'center', width: '90px' },
     { id: 'statement', label: 'البيان', isNum: false, align: 'right', width: 'auto' },
     { id: 'counterAccount', label: 'الحساب المقابل', isNum: false, align: 'right', width: '140px' },
-    { id: 'debit', label: 'مدين', isNum: true, align: 'right', width: '90px', numColor: '#34d399' },
-    { id: 'credit', label: 'دائن', isNum: true, align: 'right', width: '90px', numColor: '#f87171' },
-    { id: 'balance', label: 'الإجمالي المحلي', isNum: true, align: 'right', width: '100px' },
+    { id: 'debit', label: 'مدين عليه', isNum: true, align: 'right', width: '90px', numColor: '#34d399' },
+    { id: 'credit', label: 'دائن له', isNum: true, align: 'right', width: '90px', numColor: '#f87171' },
+    { id: 'balance', label: 'الرصيد المحلي', isNum: true, align: 'right', width: '100px' },
     { id: 'exchangeRate', label: 'سعر الصرف', isNum: true, align: 'center', width: '90px', numColor: '#eab308' },
     { id: 'debitForeign', label: 'مدين أجنبي', isNum: true, align: 'right', width: '90px', numColor: '#34d399' },
     { id: 'creditForeign', label: 'دائن أجنبي', isNum: true, align: 'right', width: '90px', numColor: '#f87171' },
-    { id: 'balanceForeign', label: 'الإجمالي الأجنبي', isNum: true, align: 'right', width: '120px' }
+    { id: 'balanceForeign', label: 'الرصيد الأجنبي', isNum: true, align: 'right', width: '120px' }
 ];
 
 let activeGLColumnSettings = loadGLColumnSettings();
