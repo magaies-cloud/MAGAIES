@@ -154,8 +154,10 @@ document.addEventListener('DBReady', () => {
     
     // Initialize UI
     togglePaymentMethod();
+});
 
-    // Deep Drill-down
+// Deep Drill-down (Run as soon as possible)
+document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const voucherId = urlParams.get('id');
     const voucherType = urlParams.get('type');
@@ -170,21 +172,25 @@ document.addEventListener('DBReady', () => {
         // Try finding in the selected data source first
         let idx = dataSource.findIndex(v => String(v.id) === String(voucherId) || String(v.voucherNo) === String(voucherId) || String(v.paymentNo) === String(voucherId) || String(v.receiptNo) === String(voucherId));
         if (idx !== -1) {
-            if (voucherType === 'receipt') {
-                // Use receipt data directly for rendering
-                renderVoucher(dataSource[idx]);
-            } else {
-                currentViewedIndex = idx;
-                renderVoucher(singlePaymentsData[idx]);
-            }
+            setTimeout(() => {
+                if (voucherType === 'receipt') {
+                    // Use receipt data directly for rendering
+                    renderVoucher(dataSource[idx]);
+                } else {
+                    currentViewedIndex = idx;
+                    renderVoucher(dataSource[idx]);
+                }
+            }, 150);
         } else {
             // Fallback: search in both data sources
             const fallbackReceipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
             const fallbackPayments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
             const allData = [...fallbackPayments, ...fallbackReceipts];
-            const found = allData.find(v => String(v.id) === String(voucherId) || String(v.voucherNo) === String(voucherId) || String(v.paymentNo) === String(voucherId) || String(v.receiptNo) === String(voucherId));
-            if (found) {
-                renderVoucher(found);
+            let altIdx = allData.findIndex(v => String(v.id) === String(voucherId) || String(v.voucherNo) === String(voucherId) || String(v.paymentNo) === String(voucherId) || String(v.receiptNo) === String(voucherId));
+            if (altIdx !== -1) {
+                setTimeout(() => {
+                    renderVoucher(allData[altIdx]);
+                }, 150);
             }
         }
     }

@@ -5092,3 +5092,15 @@ function unpostSalesInvoice(invNo) {
     updateSalesPostingStatusBar('pending_delivery');
     showToast('↩️ تم إلغاء ترحيل الفاتورة بنجاح', 'success');
 }
+ 
+ / /   D e e p   D r i l l - d o w n  
+ d o c u m e n t . a d d E v e n t L i s t e n e r ( ' D O M C o n t e n t L o a d e d ' ,   ( )   = >   {  
+         c o n s t   u r l P a r a m s   =   n e w   U R L S e a r c h P a r a m s ( w i n d o w . l o c a t i o n . s e a r c h ) ;  
+         c o n s t   i n v o i c e I d   =   u r l P a r a m s . g e t ( ' i d ' ) ;  
+         i f   ( i n v o i c e I d )   {  
+                 s e t T i m e o u t ( ( )   = >   {  
+                         i f   ( t y p e o f   l o a d I n v o i c e F r o m S t o r a g e   = = =   ' f u n c t i o n ' )   l o a d I n v o i c e F r o m S t o r a g e ( i n v o i c e I d ) ;  
+                 } ,   5 0 0 ) ;  
+         }  
+ } ) ;  
+ 

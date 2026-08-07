@@ -95,8 +95,10 @@ document.addEventListener('DBReady', async () => {
     await loadAllAccounts();
     applyExchangeRatePermission();
     if (typeof populateSafesDropdown === 'function') populateSafesDropdown();
-    
-    // Deep Drill-down
+});
+
+// Deep Drill-down (Run as soon as possible, SERVER_PAYMENTS is inline)
+document.addEventListener('DOMContentLoaded', () => {
     const urlParams = new URLSearchParams(window.location.search);
     const voucherId = urlParams.get('id');
     const voucherType = urlParams.get('type') || 'payment';
