@@ -1332,6 +1332,80 @@ function saveCurrentPreset() {
     showToast(`💾 تم حفظ تصميم الجدول في "${p.name}" بنجاح!`, 'success');
 }
 
+function updateReportTableTheme(theme) {
+    const tbl = document.getElementById('preview-table');
+    if (!tbl) return;
+    
+    // Remove old themes
+    tbl.classList.remove(
+        'theme-classic-navy', 'theme-emerald-pro', 'theme-modern-slate',
+        'theme-luxury-gold', 'theme-luxury-black'
+    );
+    
+    // Add new theme
+    if (theme !== 'default' && theme) {
+        tbl.classList.add(theme);
+    }
+}
+
+/* ── Custom Context Menu for Preview Ledger ── */
+let previewCtxType = '';
+let previewCtxRef = '';
+
+document.addEventListener('contextmenu', function(e) {
+    const table = e.target.closest('#preview-table');
+    if (!table) return;
+
+    const td = e.target.closest('td');
+    if (!td) return;
+    
+    const tr = td.closest('tr');
+    if (!tr) return;
+
+    previewCtxType = tr.dataset.type || '';
+    previewCtxRef = tr.dataset.ref || '';
+
+    if (!previewCtxRef || previewCtxRef === '-' || previewCtxRef === 'PRE-PERIOD') {
+        return;
+    }
+
+    e.preventDefault();
+    const menu = document.getElementById('preview-context-menu');
+    if (!menu) return;
+
+    menu.style.display = 'block';
+    
+    let x = e.clientX;
+    let y = e.clientY;
+
+    if (x + menu.offsetWidth > window.innerWidth) x -= menu.offsetWidth;
+    if (y + menu.offsetHeight > window.innerHeight) y -= menu.offsetHeight;
+
+    menu.style.left = x + 'px';
+    menu.style.top = y + 'px';
+});
+
+document.addEventListener('click', function(e) {
+    const menu = document.getElementById('preview-context-menu');
+    if (menu && !menu.contains(e.target)) {
+        menu.style.display = 'none';
+    }
+});
+
+document.addEventListener('DOMContentLoaded', () => {
+    const drillBtn = document.getElementById('preview-ctx-drilldown');
+    if (drillBtn) {
+        drillBtn.onclick = function() {
+            document.getElementById('preview-context-menu').style.display = 'none';
+            if (typeof window.navigateToOriginalVoucher === 'function') {
+                window.navigateToOriginalVoucher(previewCtxType, previewCtxRef);
+            }
+        };
+        drillBtn.onmouseover = function() { this.style.background = 'linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(56, 189, 248, 0.3))'; this.style.color = '#38bdf8'; this.style.paddingRight = '22px'; };
+        drillBtn.onmouseout = function() { this.style.background = 'transparent'; this.style.color = '#fff'; this.style.paddingRight = '18px'; };
+    }
+});
+
 function toggleSettingsPanel() {
     const p = document.getElementById('settings-panel');
     const isOpening = (p.style.display === 'none' || p.style.display === '');
@@ -1549,6 +1623,8 @@ function renderTable() {
     tbody.innerHTML = '';
     filteredData.forEach(row => {
         let tr = document.createElement('tr');
+        if (row.ref) tr.dataset.ref = row.ref;
+        if (row.type) tr.dataset.type = row.type;
         columnOrder.forEach(idx => {
             const c = baseColumns.find(x => x.idx === idx);
             if (!c) return;

@@ -64,6 +64,30 @@
         table.excel-table.theme-luxury-black tbody tr:nth-child(odd) { background: #ffffff !important; }
         table.excel-table.theme-luxury-black tfoot td { background: #171717 !important; color: #f5f5f5 !important; font-weight: 900 !important; border-color: #000000 !important; }
         
+        /* ── Magnified Number Audit Effect ── */
+        .excel-table td.num-magnified {
+            font-size: 1.85rem !important;
+            font-weight: 900 !important;
+            background: linear-gradient(135deg, #1e3a8a, #172554) !important;
+            color: #38bdf8 !important;
+            text-shadow: 0 2px 10px rgba(56, 189, 248, 0.5);
+            border: 2px solid #3b82f6 !important;
+            box-shadow: inset 0 0 15px rgba(59, 130, 246, 0.4), 0 0 20px rgba(0,0,0,0.5) !important;
+            z-index: 100;
+            position: relative;
+            transform: scale(1.05);
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            border-radius: 8px;
+            display: table-cell !important;
+        }
+        :root.light-theme .excel-table td.num-magnified {
+            background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+            color: #ffffff !important;
+            border: 2px solid #b45309 !important;
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.3), 0 5px 20px rgba(0,0,0,0.2) !important;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3);
+        }
+
         /* Fonts */
         .font-newsons { font-family: 'JetBrains Mono', monospace !important; }
         .font-ribot { font-family: 'Roboto Mono', monospace !important; }
@@ -535,6 +559,13 @@
     </table>
     
     <div id="print-footer-bar" class="print-meta-bar print-meta-footer" style="display:none;"></div>
+</div>
+
+<!-- Simple Context Menu for Preview Ledger -->
+<div id="preview-context-menu" style="position: fixed; display: none; background: rgba(15, 23, 42, 0.96); border: 1px solid rgba(56, 189, 248, 0.5); border-radius: 10px; padding: 6px 0; z-index: 999999; backdrop-filter: blur(16px); min-width: 220px; box-shadow: 0 15px 30px rgba(0,0,0,0.6), 0 0 15px rgba(56, 189, 248, 0.3); direction: rtl; font-family: 'Tajawal', sans-serif;">
+    <div id="preview-ctx-drilldown" style="padding: 12px 18px; color: #fff; cursor: pointer; font-size: 0.95rem; font-weight: 800; display: flex; justify-content: space-between; align-items: center; transition: all 0.2s;">
+        <span>🔗 الذهاب إلى أصل السند</span><span style="color:#38bdf8; font-size:0.8rem;">◀</span>
+    </div>
 </div>
 
 <!-- Long Press HUD Overlay for 8-second Save & Lock -->

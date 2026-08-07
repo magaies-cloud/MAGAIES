@@ -2241,7 +2241,7 @@ window.navigateToOriginalVoucher = function(type, ref) {
 
 /* ── Single Click Number Magnification ── */
 document.addEventListener('click', function(e) {
-    const td = e.target.closest('#recent-table td');
+    const td = e.target.closest('#recent-table td, #preview-table td');
     if (!td) return;
     const isNum = td.dataset.isNum === 'true' || td.classList.contains('num-cell') || /^[-+]?[\d,\.]+\%?$/.test(td.innerText.trim());
     if (isNum) {
@@ -2255,7 +2255,7 @@ let currentCtxTxn = null;
 let currentCtxTd = null;
 
 document.addEventListener('contextmenu', function(e) {
-    const table = e.target.closest('#recent-table');
+    const table = e.target.closest('#recent-table, #preview-table');
     if (!table) return;
 
     e.preventDefault();
