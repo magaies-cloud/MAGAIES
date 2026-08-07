@@ -781,16 +781,101 @@ function loadPresetsFromDB(reportKey, localKey, onComplete) {
             .catch(err => console.warn('[PresetDBSync] GET failed:', err));
     } catch(e) { console.warn('[PresetDBSync] Error:', e); }
 }
+window.FACTORY_PRESETS = [];
+async function loadFactoryPresets() {
+    try {
+        const res = await fetch('api/factory_config/ledger_factory_presets.json?t=' + Date.now());
+        if (res.ok) {
+            const data = await res.json();
+            if (Array.isArray(data) && data.length > 0) {
+                window.FACTORY_PRESETS = data;
+                renderPresetButtons();
+                if (typeof renderPresetsManagementList === 'function') renderPresetsManagementList();
+            }
+        }
+    } catch (e) {
+        // No factory presets found, ignore
+    }
+}
+setTimeout(loadFactoryPresets, 50);
+
+// Developer Secret Shortcut: Ctrl + Shift + S to lock ONLY the current preset as factory default
+document.addEventListener('keydown', async function(e) {
+    if (e.ctrlKey && e.shiftKey && (e.key === 'S' || e.key === 's' || e.key === 'س')) {
+        e.preventDefault();
+        
+        const idx = typeof currentPresetIndex !== 'undefined' ? currentPresetIndex : 0;
+        if (idx > 3) {
+            alert('يمكنك قفل الأزرار الأربعة الأولى فقط كـ ضبط مصنع (افتراضي 1 إلى 4)!');
+            return;
+        }
+        
+        let presets = getSavedPresets();
+        let activePreset = presets[idx];
+        
+        if (!activePreset) {
+            alert('لا يوجد تصميم محفوظ في هذا الزر! يرجى تصميمه وحفظه أولاً ثم الضغط على الاختصار.');
+            return;
+        }
+        
+        if (activePreset.isFactoryDefault) {
+            alert('هذا الزر مقفل مسبقاً كـ "ضبط مصنع" ولا يحتاج إلى قفل مرة أخرى!');
+            return;
+        }
+
+        if (confirm(`⚠️ تحذير المطورين: هل أنت متأكد من رغبتك في قفل التصميم الحالي المفتوح في الزر رقم (${idx + 1}) كـ "ضبط مصنع نهائي"؟ لا يمكن التراجع عن هذا الإجراء من داخل النظام!`)) {
+            let pToSave = JSON.parse(JSON.stringify(activePreset));
+            pToSave.isFactoryDefault = true;
+            pToSave.isLocked = true;
+            try {
+                const res = await fetch('api/save_factory_presets.php', {
+                    method: 'POST',
+                    headers: {'Content-Type': 'application/json'},
+                    body: JSON.stringify({ preset: pToSave, index: idx })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    alert('🎉 ' + data.message);
+                    window.location.reload();
+                } else {
+                    alert('❌ ' + data.message);
+                }
+            } catch(err) {
+                alert('حدث خطأ في الاتصال بالخادم!');
+            }
+        }
+    }
+});
+
+function applyFactoryLocks(list) {
+    if (window.FACTORY_PRESETS && window.FACTORY_PRESETS.length > 0) {
+        for(let i=0; i < window.FACTORY_PRESETS.length; i++) {
+            list[i] = JSON.parse(JSON.stringify(window.FACTORY_PRESETS[i])); // deep clone
+            list[i].isLocked = true;
+            list[i].isFactoryDefault = true;
+        }
+    }
+    return list;
+}
 
 function getSavedPresets() {
+    let list = [];
     let raw = localStorage.getItem(PRESETS_STORAGE_KEY);
-    if (!raw) return [];
-    try {
-        let list = JSON.parse(raw);
-        return Array.isArray(list) ? list : [];
-    } catch(e) {
-        return [];
+    if (raw) {
+        try { list = JSON.parse(raw); } catch(e) {}
     }
+    if (!Array.isArray(list)) list = [];
+    
+    // Sanitize local storage: remove any accidental locks that were saved locally
+    list = list.map(p => {
+        if (p) {
+            delete p.isFactoryDefault;
+            delete p.isLocked;
+        }
+        return p;
+    });
+
+    return applyFactoryLocks(list);
 }
 
 function savePresets(presets) {
@@ -1197,6 +1282,19 @@ function loadPreset(idx) {
     const presets = getSavedPresets();
     const preset = presets[idx];
     
+    const saveBtn = document.querySelector('button[onclick="saveCurrentPreset()"]');
+    if (saveBtn) {
+        if (preset && preset.isFactoryDefault) {
+            saveBtn.style.opacity = '0.3';
+            saveBtn.style.pointerEvents = 'none';
+            saveBtn.title = "لا يمكن حفظ تعديلات على ضبط المصنع الموحد";
+        } else {
+            saveBtn.style.opacity = '1';
+            saveBtn.style.pointerEvents = 'auto';
+            saveBtn.title = "";
+        }
+    }
+
     if (preset) {
         columnConfigs = preset.configs || getDefaultConfigs();
         columnOrder = preset.order || [0, 1, 2, 3, 4, 13, 14, 5, 6, 7, 8, 9, 10, 11, 12];
@@ -1284,6 +1382,11 @@ function saveCurrentPreset() {
     const presets = getSavedPresets();
     const p = presets[currentPresetIndex];
     if (!p) return;
+
+    if (p.isFactoryDefault) {
+        alert('🛑 هذا التصميم محمي كـ "ضبط مصنع" ولا يمكن حفظ التعديلات عليه!');
+        return;
+    }
 
     // Direct save - no long press needed, just save immediately
     p.configs = JSON.parse(JSON.stringify(columnConfigs));

@@ -2877,105 +2877,38 @@ window.renderBalancesPresets = function() {
             };
         } else {
             btn.innerHTML = p.name + ' 🔄';
-            btn.title = 'اضغط مطولاً (8 ثوانٍ) لحفظ وتحديث نموذج التنسيق 🔄';
+            btn.title = 'انقر لاسترجاع النموذج أو حفظ التعديلات 🔄';
 
-            // 8-second Long Press Handler for Custom User Templates Only
-            let pressStartTime = 0;
-            let mainInterval = null;
-            let isTriggered = false;
-
-            const startPress = (e) => {
-                if (e.type === 'mousedown' && e.button !== 0) return;
-                pressStartTime = Date.now();
-                isTriggered = false;
-                ensureLongPressHudExists();
-
-                const hud = document.getElementById('long-press-hud');
-                const hudTitle = document.getElementById('hud-title');
-                const hudDesc = document.getElementById('hud-desc');
-                const hudProgress = document.getElementById('hud-progress-bar');
-                const hudTimer = document.getElementById('hud-timer');
-                const hudIcon = document.getElementById('hud-icon');
-
-                if (hud) {
-                    hud.style.display = 'block';
-                    hudIcon.innerText = '✨';
-                    hudTitle.innerText = `حفظ وتحديث (${p.name})`;
-                    hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) حتى يمتلئ الشريط، وسيطلب منك النظام تأكيد الحفظ والتحديث.';
-                    if (hudProgress) { hudProgress.style.width = '0%'; hudProgress.style.background = 'linear-gradient(90deg, #3b82f6, #10b981)'; }
-                    if (hudTimer) hudTimer.innerText = '8.0 ثانية متبقية';
-                }
-
-                const duration = 8000;
-                const startTime = Date.now();
-
-                mainInterval = setInterval(() => {
-                    const elapsed = Date.now() - startTime;
-                    const remainingMs = Math.max(0, duration - elapsed);
-                    const remainingSec = (remainingMs / 1000).toFixed(1);
-                    const percent = Math.min(100, (elapsed / duration) * 100);
-
-                    if (hudProgress) hudProgress.style.width = percent + '%';
-                    if (hudTimer) hudTimer.innerText = remainingSec + ' ثانية متبقية';
-
-                    btn.style.boxShadow = `0 0 15px rgba(16,185,129,0.8)`;
-                    btn.style.borderColor = '#10b981';
-                    btn.style.background = `linear-gradient(90deg, rgba(16,185,129,0.45) ${percent}%, rgba(255,255,255,0.08) ${percent}%)`;
-
-                    if (elapsed >= duration) {
-                        clearInterval(mainInterval);
-                        mainInterval = null;
-                        isTriggered = true;
-                        if (hud) hud.style.display = 'none';
-                        btn.style.boxShadow = ''; btn.style.borderColor = ''; btn.style.background = '';
-
-                        setTimeout(() => {
-                            const confirmSave = confirm(`✨ اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وتحديث تصميم التقرير الحالي في (${p.name})؟\n\n(ملاحظة: يمكنك إعادة تعديله وتجديده لاحقاً في أي وقت بالضغط المطول 8 ثوانٍ مجدداً).`);
-                            if (confirmSave) {
-                                p.isLocked = false;
-                                p.updatedAt = new Date().toISOString();
-                                localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
-                                const token = localStorage.getItem('erp_token') || '';
-                                const headers = { 'Content-Type': 'application/json' };
-                                if (token) headers['Authorization'] = 'Bearer ' + token;
-                                fetch('api_index.php/report-layout', {
-                                    method: 'POST',
-                                    headers: headers,
-                                    body: JSON.stringify({ reportKey: PRESETS_STORAGE_KEY, layout: presets })
-                                }).catch(e => {});
-                                alert(`✨ تم حفظ وتحديث تصميم التقرير في "${p.name}" بنجاح!`);
-                                window.renderBalancesPresets();
-                            }
-                        }, 50);
-                    }
-                }, 50);
-            };
-
-            const endPress = (e) => {
-                const duration = Date.now() - pressStartTime;
-                if (mainInterval) {
-                    clearInterval(mainInterval);
-                    clearTimeout(mainInterval);
-                    mainInterval = null;
-                }
-                const hud = document.getElementById('long-press-hud');
-                if (hud) hud.style.display = 'none';
-                btn.style.boxShadow = ''; btn.style.borderColor = ''; btn.style.background = '';
-
-                if (isTriggered) {
-                    if (e) { e.preventDefault(); e.stopPropagation(); }
-                    return false;
-                }
-
-                if (pressStartTime > 0 && duration < 1000) {
+            btn.onclick = (e) => {
+                if (e) e.preventDefault();
+                
+                const userChoice = confirm(`إعدادات (${p.name})\n\n- اضغط [OK / حسناً] إذا كنت تريد تحميل هذا النموذج.\n- اضغط [Cancel / إلغاء] إذا كنت تريد حفظ التعديلات الحالية في هذا النموذج.`);
+                
+                if (userChoice) {
                     window.openPresetModal(idx, p.name);
+                } else {
+                    const confirmSave = confirm(`✨ تأكيد الحفظ\n\nهل أنت متأكد من رغبتك في حفظ التعديلات الحالية في (${p.name}) بشكل نهائي؟`);
+                    if (confirmSave) {
+                        p.isLocked = false;
+                        p.updatedAt = new Date().toISOString();
+                        localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
+                        const token = localStorage.getItem('erp_token') || '';
+                        const headers = { 'Content-Type': 'application/json' };
+                        if (token) headers['Authorization'] = 'Bearer ' + token;
+                        fetch('api_index.php/report-layout', {
+                            method: 'POST',
+                            headers: headers,
+                            body: JSON.stringify({ reportKey: PRESETS_STORAGE_KEY, layout: presets })
+                        }).catch(e => {});
+                        if (typeof showToast === 'function') {
+                            showToast(`✨ تم حفظ التعديلات في "${p.name}" بنجاح!`, 'success');
+                        } else {
+                            alert(`✨ تم حفظ التعديلات في "${p.name}" بنجاح!`);
+                        }
+                        window.renderBalancesPresets();
+                    }
                 }
             };
-
-            btn.addEventListener('mousedown', startPress);
-            btn.addEventListener('mouseup', endPress);
-            btn.addEventListener('touchstart', startPress, { passive: true });
-            btn.addEventListener('touchend', endPress);
         }
 
         btn.oncontextmenu = (e) => { e.preventDefault(); return false; };

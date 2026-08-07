@@ -120,9 +120,9 @@
             display: flex; justify-content: space-between; align-items: center;
             box-shadow: 0 4px 20px rgba(0,0,0,0.3);
             border-bottom: 3px solid #0284c7;
-            flex-wrap: wrap; gap: 10px;
+            flex-wrap: nowrap; gap: 10px; overflow-x: auto;
         }
-        .ribbon-btn, .preset-btn { position: relative; overflow: hidden; background: linear-gradient(135deg, color-mix(in srgb, var(--btn-color, #fff) 8%, rgba(255,255,255,0.05)), rgba(0,0,0,0.2)); background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(135deg, color-mix(in srgb, var(--btn-color, #fff) 10%, rgba(255,255,255,0.05)), rgba(0,0,0,0.2)); background-size: 3px 3px, auto; border: 1px solid color-mix(in srgb, var(--btn-color, #fff) 40%, rgba(255,255,255,0.2)); backdrop-filter: blur(12px) saturate(150%); color: #f8fafc; padding: 7px 16px; border-radius: 12px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); font-family: inherit; font-size: 0.85rem; height: 38px; box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 10px color-mix(in srgb, var(--btn-color, #fff) 20%, transparent); z-index: 1; animation: luxuryBreathe 3s ease-in-out infinite alternate; }
+        .ribbon-btn, .preset-btn { position: relative; overflow: hidden; background: linear-gradient(135deg, color-mix(in srgb, var(--btn-color, #fff) 8%, rgba(255,255,255,0.05)), rgba(0,0,0,0.2)); background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(135deg, color-mix(in srgb, var(--btn-color, #fff) 10%, rgba(255,255,255,0.05)), rgba(0,0,0,0.2)); background-size: 3px 3px, auto; border: 1px solid color-mix(in srgb, var(--btn-color, #fff) 40%, rgba(255,255,255,0.2)); backdrop-filter: blur(12px) saturate(150%); color: #f8fafc; padding: 10px 22px; border-radius: 16px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 10px; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); font-family: inherit; font-size: 1.15rem; height: 54px; box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 10px color-mix(in srgb, var(--btn-color, #fff) 20%, transparent); z-index: 1; animation: luxuryBreathe 3s ease-in-out infinite alternate; white-space: nowrap; flex-shrink: 0; }
         .ribbon-btn::before, .preset-btn::before { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 2px; background: linear-gradient(135deg, var(--btn-color, rgba(255,255,255,0.8)), transparent 40%, var(--btn-color, rgba(255,255,255,0.5))); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0.9; transition: opacity 0.4s; }
         .ribbon-btn::after, .preset-btn::after { content: ''; position: absolute; top: 0; left: -100%; width: 75%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.65), transparent); transform: skewX(-25deg); animation: luxurySweep 4s cubic-bezier(0.4, 0, 0.2, 1) infinite; z-index: -1; }
         
@@ -498,16 +498,16 @@
         <input type="text" id="live-search-input" placeholder="🔍 بحث سريع..." oninput="filterTableRows(this.value)" style="padding: 6px 14px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.3); color: #fff; font-family: inherit; font-size: 0.85rem; outline: none; width: 140px;">
 
         <button class="ribbon-btn" onclick="executePrintWithPermission()" style="--btn-color: #0ea5e9;">
-            <span style="font-size: 1.35rem;">🖨️</span> طباعة
+            <span style="font-size: 1.7rem;">🖨️</span> طباعة
         </button>
         <button class="ribbon-btn" onclick="toggleSettingsPanel()" style="--btn-color: #eab308;">
-            <span style="font-size: 1.35rem;">⚙️</span> إعدادات الأعمدة
+            <span style="font-size: 1.7rem;">⚙️</span> إعدادات الأعمدة
         </button>
         <button class="ribbon-btn" onclick="toggleDarkMode()" style="--btn-color: #a855f7;">
-            <span style="font-size: 1.35rem;">🌙</span> عكس الألوان
+            <span style="font-size: 1.7rem;">🌙</span> عكس الألوان
         </button>
         <button class="ribbon-btn" onclick="window.history.back()" style="--btn-color: #ef4444;">
-            <span style="font-size: 1.35rem;">❌</span> إغلاق / رجوع
+            <span style="font-size: 1.7rem;">❌</span> إغلاق / رجوع
         </button>
     </div>
 </div>
