@@ -534,8 +534,8 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
                     <th width="90" style="position: relative; white-space: nowrap;">دائن له<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th width="100" style="position: relative; white-space: nowrap;">الرصيد المحلي<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th width="90" style="position: relative; white-space: nowrap;">سعر الصرف<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
-                    <th width="90" style="position: relative; white-space: nowrap;">مدين أجنبي<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
-                    <th width="90" style="position: relative; white-space: nowrap;">دائن أجنبي<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="90" style="position: relative; white-space: nowrap;">مدين (عليه) أجنبي<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="90" style="position: relative; white-space: nowrap;">دائن (له) أجنبي<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th width="120" style="position: relative; white-space: nowrap;">الرصيد الأجنبي<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                 </tr>
             </thead>

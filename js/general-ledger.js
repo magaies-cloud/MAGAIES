@@ -2001,8 +2001,8 @@ const DEFAULT_GL_COLUMNS_CONFIG = [
     { id: 'credit', label: 'دائن له', isNum: true, align: 'right', width: '90px', numColor: '#f87171' },
     { id: 'balance', label: 'الرصيد المحلي', isNum: true, align: 'right', width: '100px' },
     { id: 'exchangeRate', label: 'سعر الصرف', isNum: true, align: 'center', width: '90px', numColor: '#eab308' },
-    { id: 'debitForeign', label: 'مدين أجنبي', isNum: true, align: 'right', width: '90px', numColor: '#34d399' },
-    { id: 'creditForeign', label: 'دائن أجنبي', isNum: true, align: 'right', width: '90px', numColor: '#f87171' },
+    { id: 'debitForeign', label: 'مدين (عليه) أجنبي', isNum: true, align: 'right', width: '90px', numColor: '#34d399' },
+    { id: 'creditForeign', label: 'دائن (له) أجنبي', isNum: true, align: 'right', width: '90px', numColor: '#f87171' },
     { id: 'balanceForeign', label: 'الرصيد الأجنبي', isNum: true, align: 'right', width: '120px' }
 ];
 
