@@ -599,6 +599,153 @@ $page_title = 'حساب الارصده الاساسية';
             filter: drop-shadow(0 0 12px #ffffff) drop-shadow(0 0 25px #00f3ff) !important;
         }
 
+        /* ─── 2. Preset Ribbon Buttons (افتراضي 1، افتراضي 2، إلى آخره) Luminous Neon Styling ─── */
+        .preset-ribbon-btn,
+        .preset-btn {
+            position: relative;
+            overflow: hidden;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            padding: 5px 12px !important;
+            border-radius: 16px !important;
+            font-size: 0.75rem !important;
+            font-weight: 800 !important;
+            font-family: inherit;
+            cursor: pointer;
+            user-select: none;
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            letter-spacing: 0.2px;
+            animation: neon-luminous-pulse 4s infinite ease-in-out;
+            white-space: nowrap;
+        }
+
+        .preset-ribbon-btn::after,
+        .preset-btn::after,
+        .btn-action-hero::after,
+        .btn-run::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 50%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.6), transparent);
+            transform: translateX(-150%) skewX(-25deg);
+            pointer-events: none;
+        }
+
+        .preset-ribbon-btn:hover::after,
+        .preset-btn:hover::after,
+        .btn-action-hero:hover::after,
+        .btn-run:hover::after {
+            animation: shimmer-sweep 0.75s ease-in-out forwards;
+        }
+
+        .preset-ribbon-btn:hover,
+        .preset-btn:hover {
+            transform: translateY(-5px) scale(1.09) !important;
+            box-shadow: 0 0 35px var(--glow-color, rgba(0, 243, 255, 0.95)), 0 0 60px var(--glow-color, rgba(0, 243, 255, 0.6)), inset 0 1px 3px rgba(255, 255, 255, 0.9) !important;
+            filter: brightness(1.25);
+            z-index: 10;
+        }
+
+        .preset-ribbon-btn:active,
+        .preset-btn:active {
+            transform: translateY(-2px) scale(1.03) !important;
+        }
+
+        /* Clock SVG Icon inside Presets: Width +50% (25.5px), Height +10% (18.7px) */
+        .preset-clock-svg {
+            flex-shrink: 0;
+            width: 25.5px !important;
+            height: 18.7px !important;
+            transform: scale(1.5, 1.1) !important;
+            transform-origin: center center;
+            filter: drop-shadow(0 0 6px var(--border-color, #00f3ff)) drop-shadow(0 0 12px var(--border-color, #00f3ff));
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease !important;
+        }
+
+        .preset-btn:hover .preset-clock-svg,
+        .preset-ribbon-btn:hover .preset-clock-svg {
+            transform: scale(1.75, 1.25) rotate(20deg) !important;
+            filter: drop-shadow(0 0 14px #ffffff) drop-shadow(0 0 28px var(--border-color, #00f3ff)) !important;
+        }
+
+        .preset-clock-progress {
+            stroke: #ffffff !important;
+            stroke-width: 3px;
+            transition: stroke-dashoffset 0.05s linear;
+        }
+
+        /* ─── Ultra Luminous Distinct Color Palette for Presets ─── */
+        /* افتراضي 1 - Neon Electric Cyan & Aurora Blue */
+        .preset-slot-0,
+        .preset-ribbon-btn.preset-slot-0 {
+            --glow-color: rgba(0, 243, 255, 0.85);
+            --border-color: #00f3ff;
+            background: linear-gradient(135deg, rgba(0, 243, 255, 0.45), rgba(2, 132, 199, 0.95)) !important;
+            border: 2px solid #00f3ff !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(0, 243, 255, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* افتراضي 2 - Neon Vivid Emerald & Acid Green */
+        .preset-slot-1,
+        .preset-ribbon-btn.preset-slot-1 {
+            --glow-color: rgba(0, 255, 157, 0.85);
+            --border-color: #00ff9d;
+            background: linear-gradient(135deg, rgba(0, 255, 157, 0.45), rgba(5, 150, 105, 0.95)) !important;
+            border: 2px solid #00ff9d !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(0, 255, 157, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* افتراضي 3 - Neon Plasma Purple & Orchid Pink */
+        .preset-slot-2,
+        .preset-ribbon-btn.preset-slot-2 {
+            --glow-color: rgba(217, 70, 239, 0.85);
+            --border-color: #d946ef;
+            background: linear-gradient(135deg, rgba(217, 70, 239, 0.45), rgba(126, 34, 206, 0.95)) !important;
+            border: 2px solid #d946ef !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(217, 70, 239, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* افتراضي 4 - Neon Plasma Coral & Crimson Rose */
+        .preset-slot-3,
+        .preset-ribbon-btn.preset-slot-3 {
+            --glow-color: rgba(255, 51, 102, 0.85);
+            --border-color: #ff3366;
+            background: linear-gradient(135deg, rgba(255, 51, 102, 0.45), rgba(190, 18, 60, 0.95)) !important;
+            border: 2px solid #ff3366 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(255, 51, 102, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* نموذج 1 - Neon Solar Gold & Amber Yellow */
+        .preset-slot-4,
+        .preset-ribbon-btn.preset-slot-4 {
+            --glow-color: rgba(255, 204, 0, 0.85);
+            --border-color: #ffcc00;
+            background: linear-gradient(135deg, rgba(255, 204, 0, 0.45), rgba(180, 83, 9, 0.95)) !important;
+            border: 2px solid #ffcc00 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(255, 204, 0, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+        }
+
+        /* نموذج 2 - Neon Cyber Indigo & Sapphire */
+        .preset-slot-5,
+        .preset-ribbon-btn.preset-slot-5,
+        .preset-slot-6 {
+            --glow-color: rgba(99, 102, 241, 0.85);
+            --border-color: #818cf8;
+            background: linear-gradient(135deg, rgba(99, 102, 241, 0.45), rgba(67, 56, 202, 0.95)) !important;
+            border: 2px solid #818cf8 !important;
+            color: #ffffff !important;
             box-shadow: 0 0 20px rgba(99, 102, 241, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
         }
 
@@ -972,13 +1119,13 @@ $page_title = 'حساب الارصده الاساسية';
                 <!-- Visual Intelligence Hub Toggle Button -->
                 <button type="button" class="preset-ribbon-btn" onclick="window.toggleVisualHub()" style="background: linear-gradient(135deg, #0ea5e9, #6366f1) !important; color: #ffffff !important; border: 1px solid rgba(56, 189, 248, 0.6) !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4) !important;">📊 الشاشات والتقارير البصرية 📈</button>
                 <!-- Static fallback buttons matching General Ledger style -->
-                <button type="button" class="preset-slot-btn" data-id="1" onclick="window.openPresetModal(0, 'افتراضي 1')">💎 افتراضي 1 🔒<div class="hold-bar"></div></button>
-                <button type="button" class="preset-slot-btn" data-id="2" onclick="window.openPresetModal(1, 'افتراضي 2')">⭐ افتراضي 2 🔒<div class="hold-bar"></div></button>
-                <button type="button" class="preset-slot-btn" data-id="3" onclick="window.openPresetModal(2, 'افتراضي 3')">🎨 افتراضي 3 🔒<div class="hold-bar"></div></button>
-                <button type="button" class="preset-slot-btn" data-id="4" onclick="window.openPresetModal(3, 'افتراضي 4')">🔥 افتراضي 4 🔒<div class="hold-bar"></div></button>
-                <button type="button" class="preset-slot-btn" data-id="5" onclick="window.openPresetModal(4, 'نموذج 1')">✨ نموذج 1 🔄<div class="hold-bar"></div></button>
-                <button type="button" class="preset-slot-btn" data-id="6" onclick="window.openPresetModal(5, 'نموذج 2')">🚀 نموذج 2 🔄<div class="hold-bar"></div></button>
-                <button type="button" class="preset-slot-btn" data-id="7" onclick="window.openPresetModal(6, 'نموذج 3')">🌟 نموذج 3 🔄<div class="hold-bar"></div></button>
+                <button type="button" class="preset-ribbon-btn preset-slot-0" onclick="window.openPresetModal(0, 'افتراضي 1')">💎 افتراضي 1 🔒</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-1" onclick="window.openPresetModal(1, 'افتراضي 2')">⭐ افتراضي 2 🔒</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-2" onclick="window.openPresetModal(2, 'افتراضي 3')">🎨 افتراضي 3 🔒</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-3" onclick="window.openPresetModal(3, 'افتراضي 4')">🔥 افتراضي 4 🔒</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-4" onclick="window.openPresetModal(4, 'نموذج 1')">✨ نموذج 1 🔄</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-5" onclick="window.openPresetModal(5, 'نموذج 2')">🚀 نموذج 2 🔄</button>
+                <button type="button" class="preset-ribbon-btn preset-slot-6" onclick="window.openPresetModal(6, 'نموذج 3')">🌟 نموذج 3 🔄</button>
             </div>
 
         </div>

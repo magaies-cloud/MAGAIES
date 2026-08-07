@@ -13,7 +13,7 @@
                 <span class="btn-progress" style="position: absolute; right: 0; top: 0; bottom: 0; width: 0%; background: rgba(255,255,255,0.25); transition: none; pointer-events: none;"></span>
                 <span class="btn-text">🔄 إعادة ضبط</span>
             </button>
-            <button class="ribbon-btn" onclick="saveCurrentPreset()" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:5px 16px; font-size:0.85rem; font-weight:800; border-radius:18px; box-shadow: 0 2px 8px rgba(16,185,129,0.3);">
+            <button id="save-settings-btn-main" class="ribbon-btn" onclick="saveCurrentPreset()" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:5px 16px; font-size:0.85rem; font-weight:800; border-radius:18px; box-shadow: 0 2px 8px rgba(16,185,129,0.3);">
                 💾 حفظ الإعدادات
             </button>
             <button type="button" class="btn-close-modal" onclick="toggleSettingsPanel()" title="إغلاق الاستوديو" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">❌ إغلاق</button>

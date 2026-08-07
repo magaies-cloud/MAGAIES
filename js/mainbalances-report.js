@@ -2862,13 +2862,12 @@ window.renderBalancesPresets = function() {
         if (p.showInRibbon === false) return;
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'preset-slot-btn';
-        btn.dataset.id = (idx + 1).toString();
+        btn.className = 'preset-ribbon-btn preset-slot-' + idx;
 
         const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
 
         if (isDefaultGroup) {
-            btn.innerHTML = p.name + ' 🔒<div class="hold-bar"></div>';
+            btn.innerHTML = p.name + ' 🔒';
             btn.title = '🔒 معاينة وتعديل التنسيق بهذا النموذج الافتراضي';
             
             // Direct Click Handler to open modal directly (Same as General Ledger)
@@ -2877,7 +2876,7 @@ window.renderBalancesPresets = function() {
                 window.openPresetModal(idx, p.name);
             };
         } else {
-            btn.innerHTML = p.name + ' 🔄<div class="hold-bar"></div>';
+            btn.innerHTML = p.name + ' 🔄';
             btn.title = 'انقر لاسترجاع النموذج أو حفظ التعديلات 🔄';
 
             btn.onclick = (e) => {
@@ -4663,18 +4662,6 @@ function handleDropBalances(e) {
 }
 
 function applyAndSaveConfig() {
-    if (typeof getSavedPresets === 'function' && typeof currentPresetIndex !== 'undefined') {
-        const presets = getSavedPresets();
-        if (presets[currentPresetIndex] && presets[currentPresetIndex].isLocked) {
-            if (typeof showToast === 'function') {
-                showToast('🔒 لا يمكن حفظ التعديلات لأن هذا النموذج (ضبط مصنع) مقفل نهائياً.', 'error');
-            } else {
-                alert('🔒 لا يمكن حفظ التعديلات لأن هذا النموذج (ضبط مصنع) مقفل نهائياً.');
-            }
-            return;
-        }
-    }
-
     saveLayout();
     window.previewBackupConfigBalances = {
         colConfigs: JSON.parse(JSON.stringify(window.colConfigs)),
@@ -5078,39 +5065,3 @@ document.addEventListener('DOMContentLoaded', () => {
         window.renderBalancesPresets();
     }
 });
-
-window.FACTORY_PRESETS = [];
-async function loadFactoryPresets() {
-    try {
-        const res = await fetch('api/factory_config/balances_factory_presets.json?t=' + Date.now());
-        if (res.ok) {
-            const data = await res.json();
-            if (Array.isArray(data) && data.length > 0) {
-                window.FACTORY_PRESETS = data;
-                
-                // Merge factory presets into local storage if they don't exist or update them
-                let localPresets = [];
-                try { localPresets = JSON.parse(localStorage.getItem(PRESETS_STORAGE_KEY) || '[]'); } catch(e){}
-                
-                let updated = false;
-                window.FACTORY_PRESETS.forEach((fp, idx) => {
-                    if (fp && fp.isFactoryDefault) {
-                        localPresets[idx] = fp;
-                        updated = true;
-                    }
-                });
-                
-                if (updated) {
-                    localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(localPresets));
-                }
-
-                if (typeof window.renderBalancesPresets === 'function') window.renderBalancesPresets();
-            }
-        }
-    } catch (e) {
-        // No factory presets found, ignore
-    }
-}
-setTimeout(loadFactoryPresets, 50);
-
-

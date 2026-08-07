@@ -537,7 +537,10 @@ function initPresets() {
     ];
 
     for (let i = 0; i < 4; i++) {
-        list[i] = Object.assign({}, FACTORY_DEFAULTS_SEED[i]);
+        if (!list[i] || !list[i].isLocked) {
+            list[i] = Object.assign({}, FACTORY_DEFAULTS_SEED[i]);
+            list[i].isLocked = false;
+        }
     }
 
     // Ensure list has at least 7 slots
@@ -559,7 +562,7 @@ function initPresets() {
         });
     }
 
-    // Locks will be applied dynamically by applyFactoryLocks() based on window.FACTORY_PRESETS
+    // Do not lock automatically, let the user save to lock it once
 
     // Enforce max limit of 7
     if (list.length > MAX_PRESETS_LIMIT) {
@@ -620,40 +623,15 @@ function loadPresetsFromDB(reportKey, localKey, onComplete) {
     } catch(e) { console.warn('[PresetDBSync] Error:', e); }
 }
 
-function applyFactoryLocks(list) {
-    if (window.FACTORY_PRESETS && window.FACTORY_PRESETS.length > 0) {
-        for(let i=0; i < window.FACTORY_PRESETS.length; i++) {
-            if (window.FACTORY_PRESETS[i]) {
-                list[i] = JSON.parse(JSON.stringify(window.FACTORY_PRESETS[i])); // deep clone
-                list[i].isLocked = true;
-                list[i].isFactoryDefault = true;
-            }
-        }
-    }
-    return list;
-}
-
 function getSavedPresets() {
-    let list = [];
     let raw = localStorage.getItem(PRESETS_STORAGE_KEY);
-    if (raw) {
-        try {
-            list = JSON.parse(raw);
-            if (!Array.isArray(list)) list = [];
-        } catch(e) {
-            list = [];
-        }
+    if (!raw) return [];
+    try {
+        let list = JSON.parse(raw);
+        return Array.isArray(list) ? list : [];
+    } catch(e) {
+        return [];
     }
-    
-    list = list.map(p => {
-        if (p) {
-            delete p.isFactoryDefault;
-            delete p.isLocked;
-        }
-        return p;
-    });
-
-    return applyFactoryLocks(list);
 }
 
 function savePresets(presets) {
@@ -679,7 +657,7 @@ function renderPresetButtons() {
         
         const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
 
-        if (isDefaultGroup) {
+        if (isDefaultGroup && p.isLocked) {
             btn.innerText = p.name + ' 🔒';
             btn.title = '🔒 ضبط مصنع نهائي مثبت في قاعدة البيانات لا يتغير نهائياً (مُطبق على كافة المنشآت والشركات)';
             btn.onclick = (e) => {
@@ -692,8 +670,8 @@ function renderPresetButtons() {
                 }
             };
         } else {
-            btn.innerText = p.name + ' 🔄';
-            btn.title = 'اضغط مطولاً (8 ثوانٍ) لحفظ وتحديث نموذج التنسيق 🔄';
+            btn.innerText = p.name + (isDefaultGroup ? ' 🔓' : ' 🔄');
+            btn.title = 'اضغط مطولاً (8 ثوانٍ) لحفظ وتحديث نموذج التنسيق ' + (isDefaultGroup ? 'مرة واحدة 🔓' : '🔄');
             bindPresetButtonLongPress(btn, idx);
         }
 
@@ -898,20 +876,18 @@ function executeLongPressSave(idx) {
     const p = presets[idx];
     if (!p) return;
 
+    const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
+
     if (p.isLocked) {
         if (typeof showToast === 'function') {
-            showToast("🔒 هذا الضبط مثبت نهائياً في النظام وقاعدة البيانات كضبط مصنع لا يتغير نهائياً.", "warning");
+            showToast("🔒 هذا الضبط تم حفظه نهائياً ولا يمكن تعديله.", "warning");
         } else {
-            alert("🔒 هذا الضبط مثبت نهائياً في النظام وقاعدة البيانات كضبط مصنع لا يتغير نهائياً.");
+            alert("🔒 هذا الضبط تم حفظه نهائياً ولا يمكن تعديله.");
         }
         return;
     }
 
-    const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
-
-
-
-    // Custom model preset (نموذج 1, 2, 3) - Overwritable
+    // Overwritable preset
     p.configs = JSON.parse(JSON.stringify(columnConfigs));
     p.order = [...columnOrder];
     p.theme = currentTheme;
@@ -924,8 +900,17 @@ function executeLongPressSave(idx) {
     p.userPos = document.getElementById('meta-user-pos-select')?.value;
     p.showDateTime = document.getElementById('hdr-show-datetime-chk')?.checked;
     p.showPageNums = document.getElementById('hdr-show-pagenums-chk')?.checked;
-    p.isLocked = false;
+    if (isDefaultGroup) {
+        p.isLocked = true;
+    } else {
+        p.isLocked = false;
+    }
     p.updatedAt = new Date().toISOString();
+    
+    const saveBtn = document.getElementById('save-settings-btn-main');
+    if (saveBtn && p.isLocked) {
+        saveBtn.style.display = 'none';
+    }
 
     savePresets(presets);
     renderPresetButtons();
@@ -1096,24 +1081,6 @@ function loadPreset(idx) {
     const presets = getSavedPresets();
     const preset = presets[idx];
     
-    const isLocked = preset && preset.isLocked;
-    
-    // Disable save buttons in the main DOM if this is a locked preset
-    const saveBtns = document.querySelectorAll('button[onclick="applyAndSaveConfig()"]');
-    saveBtns.forEach(btn => {
-        if (isLocked) {
-            btn.disabled = true;
-            btn.style.opacity = '0.5';
-            btn.style.cursor = 'not-allowed';
-            btn.title = '🔒 هذا النموذج مقفل (ضبط مصنع) ولا يمكن حفظ أي تعديلات عليه';
-        } else {
-            btn.disabled = false;
-            btn.style.opacity = '1';
-            btn.style.cursor = 'pointer';
-            btn.title = '';
-        }
-    });
-
     if (preset) {
         columnConfigs = preset.configs || getDefaultConfigs();
         columnOrder = preset.order || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];
@@ -1163,6 +1130,15 @@ function loadPreset(idx) {
     }
     if (typeof window.updatePrintMeta === 'function') window.updatePrintMeta();
 
+    const saveBtn = document.getElementById('save-settings-btn-main');
+    if (saveBtn) {
+        if (preset && preset.isLocked) {
+            saveBtn.style.display = 'none';
+        } else {
+            saveBtn.style.display = 'flex';
+        }
+    }
+
     renderPresetButtons();
     renderTable();
     updateHiddenColumnsDropdown();
@@ -1176,6 +1152,11 @@ function saveCurrentPreset() {
     const presets = getSavedPresets();
     const p = presets[currentPresetIndex];
     if (!p) return;
+    
+    if (p.isLocked) {
+        alert("🔒 هذا الضبط تم حفظه نهائياً ولا يمكن تعديله.");
+        return;
+    }
 
     // Direct save - no long press needed, just save immediately
     p.configs = JSON.parse(JSON.stringify(columnConfigs));
@@ -1190,9 +1171,20 @@ function saveCurrentPreset() {
     p.userPos = document.getElementById('meta-user-pos-select')?.value;
     p.showDateTime = document.getElementById('hdr-show-datetime-chk')?.checked;
     p.showPageNums = document.getElementById('hdr-show-pagenums-chk')?.checked;
+    const isDefaultGroup = currentPresetIndex < 4 || (p.name && p.name.includes('افتراضي'));
+    if (isDefaultGroup) {
+        p.isLocked = true;
+    } else {
+        p.isLocked = false;
+    }
     p.updatedAt = new Date().toISOString();
 
     savePresets(presets);
+    
+    const saveBtn = document.getElementById('save-settings-btn-main');
+    if (saveBtn && p.isLocked) {
+        saveBtn.style.display = 'none';
+    }
     renderPresetButtons();
     if (typeof renderPresetsManagementList === 'function') renderPresetsManagementList();
 
@@ -2066,57 +2058,3 @@ function restoreToFactoryDefault() {
     applyDesignState(factoryState);
     showToast('🏭 تم استرجاع الضبط الافتراضي الأصلي للنظام بنجاح!', 'info');
 }
-
-// Developer Secret Shortcut: Ctrl + Shift + S to lock ONLY the current preset as factory default
-document.addEventListener('keydown', async function(e) {
-    if (e.ctrlKey && e.shiftKey && (e.key === 'S' || e.key === 's' || e.key === 'س')) {
-        e.preventDefault();
-        
-        let presets = getSavedPresets();
-        
-        const slotInput = prompt('يرجى إدخال رقم الزر الافتراضي الذي تريد قفله كـ "ضبط مصنع نهائي" (1 إلى 4):\n(تأكد من أنك قمت بحفظ التعديلات أولاً بالزر العادي قبل استخدام هذا الاختصار)');
-        if (!slotInput) return;
-        
-        const idx = parseInt(slotInput, 10) - 1;
-        
-        if (idx < 0 || idx > 3 || isNaN(idx)) {
-            alert('يمكنك قفل الأزرار الأربعة الأولى فقط كـ ضبط مصنع (افتراضي 1 إلى 4)!');
-            return;
-        }
-        
-        let activePreset = presets[idx];
-        if (!activePreset) {
-            alert('لا يوجد تصميم محفوظ في هذا الزر! يرجى تصميمه وحفظه أولاً ثم الضغط على الاختصار.');
-            return;
-        }
-
-        if (activePreset.isFactoryDefault) {
-            alert('هذا الزر مقفل مسبقاً كـ "ضبط مصنع" ولا يحتاج إلى قفل مرة أخرى!');
-            return;
-        }
-
-        if (confirm(`⚠️ تحذير المطورين: هل أنت متأكد من رغبتك في قفل التصميم المحفوظ في الزر رقم (${idx + 1}) كـ "ضبط مصنع نهائي"؟ لا يمكن التراجع عن هذا الإجراء من داخل النظام!`)) {
-            let pToSave = JSON.parse(JSON.stringify(activePreset));
-            pToSave.isFactoryDefault = true;
-            pToSave.isLocked = true;
-            pToSave.updatedAt = new Date().toISOString();
-
-            try {
-                const res = await fetch('api/save_factory_presets.php?type=balances', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ preset: pToSave, index: idx })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    alert('🎉 ' + data.message);
-                    window.location.reload(); 
-                } else {
-                    alert('❌ خطأ: ' + data.message);
-                }
-            } catch (err) {
-                alert('حدث خطأ غير متوقع أثناء الحفظ!');
-            }
-        }
-    }
-});
