@@ -559,13 +559,7 @@ function initPresets() {
         });
     }
 
-    // Lock factory defaults slots 0..3 permanently
-    for (let i = 0; i < 4; i++) {
-        if (list[i]) {
-            list[i].isLocked = true;
-            list[i].isFactoryDefault = true;
-        }
-    }
+    // Locks will be applied dynamically by applyFactoryLocks() based on window.FACTORY_PRESETS
 
     // Enforce max limit of 7
     if (list.length > MAX_PRESETS_LIMIT) {
@@ -626,15 +620,40 @@ function loadPresetsFromDB(reportKey, localKey, onComplete) {
     } catch(e) { console.warn('[PresetDBSync] Error:', e); }
 }
 
-function getSavedPresets() {
-    let raw = localStorage.getItem(PRESETS_STORAGE_KEY);
-    if (!raw) return [];
-    try {
-        let list = JSON.parse(raw);
-        return Array.isArray(list) ? list : [];
-    } catch(e) {
-        return [];
+function applyFactoryLocks(list) {
+    if (window.FACTORY_PRESETS && window.FACTORY_PRESETS.length > 0) {
+        for(let i=0; i < window.FACTORY_PRESETS.length; i++) {
+            if (window.FACTORY_PRESETS[i]) {
+                list[i] = JSON.parse(JSON.stringify(window.FACTORY_PRESETS[i])); // deep clone
+                list[i].isLocked = true;
+                list[i].isFactoryDefault = true;
+            }
+        }
     }
+    return list;
+}
+
+function getSavedPresets() {
+    let list = [];
+    let raw = localStorage.getItem(PRESETS_STORAGE_KEY);
+    if (raw) {
+        try {
+            list = JSON.parse(raw);
+            if (!Array.isArray(list)) list = [];
+        } catch(e) {
+            list = [];
+        }
+    }
+    
+    list = list.map(p => {
+        if (p) {
+            delete p.isFactoryDefault;
+            delete p.isLocked;
+        }
+        return p;
+    });
+
+    return applyFactoryLocks(list);
 }
 
 function savePresets(presets) {
@@ -881,14 +900,7 @@ function executeLongPressSave(idx) {
 
     const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
 
-    if (idx < 4 || isDefaultGroup || p.isFactoryDefault || p.isLocked) {
-        if (typeof showToast === 'function') {
-            showToast("🔒 هذا الضبط مثبت نهائياً في النظام وقاعدة البيانات كضبط مصنع لا يتغير نهائياً.", "warning");
-        } else {
-            alert("🔒 هذا الضبط مثبت نهائياً في النظام وقاعدة البيانات كضبط مصنع لا يتغير نهائياً.");
-        }
-        return;
-    }
+
 
     // Custom model preset (نموذج 1, 2, 3) - Overwritable
     p.configs = JSON.parse(JSON.stringify(columnConfigs));
@@ -2028,15 +2040,14 @@ function restoreToFactoryDefault() {
     showToast('🏭 تم استرجاع الضبط الافتراضي الأصلي للنظام بنجاح!', 'info');
 }
 
-// Developer Secret Shortcut: Ctrl + Shift + S to lock CURRENT SCREEN configuration as factory default
+// Developer Secret Shortcut: Ctrl + Shift + S to lock ONLY the current preset as factory default
 document.addEventListener('keydown', async function(e) {
     if (e.ctrlKey && e.shiftKey && (e.key === 'S' || e.key === 's' || e.key === 'س')) {
         e.preventDefault();
         
         let presets = getSavedPresets();
         
-        // Since Balances doesn't have a specific `currentPresetIndex` tracked like ledger in the same way, we prompt for which slot to lock (1 to 4)
-        const slotInput = prompt('يرجى إدخال رقم الزر الافتراضي الذي تريد قفله كـ "ضبط مصنع نهائي" (1 إلى 4):\n(سيتم حفظ التنسيق الحالي لهذا الزر وتعميمه على كل المستخدمين)');
+        const slotInput = prompt('يرجى إدخال رقم الزر الافتراضي الذي تريد قفله كـ "ضبط مصنع نهائي" (1 إلى 4):\n(تأكد من أنك قمت بحفظ التعديلات أولاً بالزر العادي قبل استخدام هذا الاختصار)');
         if (!slotInput) return;
         
         const idx = parseInt(slotInput, 10) - 1;
@@ -2048,27 +2059,17 @@ document.addEventListener('keydown', async function(e) {
         
         let activePreset = presets[idx];
         if (!activePreset) {
-            alert('لا يوجد تصميم محفوظ في هذا الزر! يرجى تهيئة الزر أولاً.');
+            alert('لا يوجد تصميم محفوظ في هذا الزر! يرجى تصميمه وحفظه أولاً ثم الضغط على الاختصار.');
             return;
         }
 
-        if (confirm(`⚠️ تحذير المطورين: هل أنت متأكد من رغبتك في قفل التصميم *المعروض حالياً على الشاشة* في الزر رقم (${idx + 1}) كـ "ضبط مصنع نهائي"؟ لا يمكن التراجع عن هذا الإجراء من داخل النظام!`)) {
-            let pToSave = JSON.parse(JSON.stringify(activePreset));
-            
-            // Overwrite with CURRENT LIVE ON-SCREEN data
-            pToSave.configs = JSON.parse(JSON.stringify(columnConfigs));
-            pToSave.order = [...columnOrder];
-            pToSave.theme = currentTheme;
-            pToSave.font = currentFont;
-            pToSave.paperSize = currentPaperSize;
-            pToSave.orientation = currentOrientation;
-            pToSave.showLogo = showHeaderLogo;
-            pToSave.showInfo = showHeaderInfo;
-            pToSave.showUser = document.getElementById('hdr-show-user-chk')?.checked || false;
-            pToSave.userPos = document.getElementById('meta-user-pos-select')?.value || 'left';
-            pToSave.showDateTime = document.getElementById('hdr-show-datetime-chk')?.checked || false;
-            pToSave.showPageNums = document.getElementById('hdr-show-pagenums-chk')?.checked || false;
+        if (activePreset.isFactoryDefault) {
+            alert('هذا الزر مقفل مسبقاً كـ "ضبط مصنع" ولا يحتاج إلى قفل مرة أخرى!');
+            return;
+        }
 
+        if (confirm(`⚠️ تحذير المطورين: هل أنت متأكد من رغبتك في قفل التصميم المحفوظ في الزر رقم (${idx + 1}) كـ "ضبط مصنع نهائي"؟ لا يمكن التراجع عن هذا الإجراء من داخل النظام!`)) {
+            let pToSave = JSON.parse(JSON.stringify(activePreset));
             pToSave.isFactoryDefault = true;
             pToSave.isLocked = true;
             pToSave.updatedAt = new Date().toISOString();
@@ -2082,7 +2083,7 @@ document.addEventListener('keydown', async function(e) {
                 const data = await res.json();
                 if (data.success) {
                     alert('🎉 ' + data.message);
-                    window.location.reload(); // Reload to fetch factory defaults
+                    window.location.reload(); 
                 } else {
                     alert('❌ خطأ: ' + data.message);
                 }
