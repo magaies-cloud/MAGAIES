@@ -18,9 +18,8 @@ foreach ($urls as $url) {
     echo "Triggering: $url\n";
     $result = @file_get_contents($url, false, $context);
     if ($result === false) {
-        echo "Failed.\n";
+        echo "Failed for $url\n";
     } else {
-        echo "Success: $result\n";
-        break;
+        echo "Success for $url: $result\n";
     }
 }
