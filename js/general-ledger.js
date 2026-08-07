@@ -2013,7 +2013,16 @@ function loadGLColumnSettings() {
         const stored = localStorage.getItem('gl_column_settings_v4');
         if (stored) {
             const parsed = JSON.parse(stored);
-            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+            if (Array.isArray(parsed) && parsed.length > 0) {
+                // Sync labels from default config to ensure renames apply automatically
+                parsed.forEach(col => {
+                    const defaultCol = DEFAULT_GL_COLUMNS_CONFIG.find(c => c.id === col.id);
+                    if (defaultCol) {
+                        col.label = defaultCol.label;
+                    }
+                });
+                return parsed;
+            }
         }
     } catch(e){}
     return JSON.parse(JSON.stringify(DEFAULT_GL_COLUMNS_CONFIG));
