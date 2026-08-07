@@ -898,6 +898,15 @@ function executeLongPressSave(idx) {
     const p = presets[idx];
     if (!p) return;
 
+    if (p.isLocked) {
+        if (typeof showToast === 'function') {
+            showToast("🔒 هذا الضبط مثبت نهائياً في النظام وقاعدة البيانات كضبط مصنع لا يتغير نهائياً.", "warning");
+        } else {
+            alert("🔒 هذا الضبط مثبت نهائياً في النظام وقاعدة البيانات كضبط مصنع لا يتغير نهائياً.");
+        }
+        return;
+    }
+
     const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
 
 
@@ -1087,6 +1096,24 @@ function loadPreset(idx) {
     const presets = getSavedPresets();
     const preset = presets[idx];
     
+    const isLocked = preset && preset.isLocked;
+    
+    // Disable save buttons in the main DOM if this is a locked preset
+    const saveBtns = document.querySelectorAll('button[onclick="applyAndSaveConfig()"]');
+    saveBtns.forEach(btn => {
+        if (isLocked) {
+            btn.disabled = true;
+            btn.style.opacity = '0.5';
+            btn.style.cursor = 'not-allowed';
+            btn.title = '🔒 هذا النموذج مقفل (ضبط مصنع) ولا يمكن حفظ أي تعديلات عليه';
+        } else {
+            btn.disabled = false;
+            btn.style.opacity = '1';
+            btn.style.cursor = 'pointer';
+            btn.title = '';
+        }
+    });
+
     if (preset) {
         columnConfigs = preset.configs || getDefaultConfigs();
         columnOrder = preset.order || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10];

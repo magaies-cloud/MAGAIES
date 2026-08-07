@@ -4663,6 +4663,18 @@ function handleDropBalances(e) {
 }
 
 function applyAndSaveConfig() {
+    if (typeof getSavedPresets === 'function' && typeof currentPresetIndex !== 'undefined') {
+        const presets = getSavedPresets();
+        if (presets[currentPresetIndex] && presets[currentPresetIndex].isLocked) {
+            if (typeof showToast === 'function') {
+                showToast('🔒 لا يمكن حفظ التعديلات لأن هذا النموذج (ضبط مصنع) مقفل نهائياً.', 'error');
+            } else {
+                alert('🔒 لا يمكن حفظ التعديلات لأن هذا النموذج (ضبط مصنع) مقفل نهائياً.');
+            }
+            return;
+        }
+    }
+
     saveLayout();
     window.previewBackupConfigBalances = {
         colConfigs: JSON.parse(JSON.stringify(window.colConfigs)),
