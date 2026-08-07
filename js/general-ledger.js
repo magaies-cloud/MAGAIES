@@ -2828,28 +2828,17 @@ function renderLedgerPresets() {
         if (p.showInRibbon === false) return;
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'preset-ribbon-btn';
-        btn.style.cssText = `
-            display: inline-flex; align-items: center; gap: 6px;
-            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.25);
-            color: #f1f5f9; padding: 5px 14px; border-radius: 18px;
-            font-family: inherit; font-size: 0.85rem; font-weight: 800;
-            cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 2px 6px rgba(0,0,0,0.18);
-        `;
+        btn.className = 'luxury-action-btn';
+        
+        // Assign color based on index
+        let color = '#38bdf8'; // default blue
+        if (idx === 1) color = '#eab308'; // yellow
+        else if (idx === 2) color = '#a855f7'; // purple
+        else if (idx === 3) color = '#ef4444'; // red
+        else if (idx === 4) color = '#10b981'; // green
+        
+        btn.style.cssText = `--btn-color: ${color};`;
         btn.innerHTML = p.name || ('افتراضي ' + (idx + 1));
-        btn.onmouseover = () => {
-            btn.style.background = 'linear-gradient(135deg, rgba(56,189,248,0.3), rgba(2,132,199,0.4))';
-            btn.style.borderColor = '#38bdf8';
-            btn.style.transform = 'translateY(-2px) scale(1.03)';
-            btn.style.boxShadow = '0 6px 16px rgba(56,189,248,0.4)';
-        };
-        btn.onmouseout = () => {
-            btn.style.background = 'rgba(255,255,255,0.08)';
-            btn.style.borderColor = 'rgba(255,255,255,0.25)';
-            btn.style.transform = 'translateY(0) scale(1)';
-            btn.style.boxShadow = '0 2px 6px rgba(0,0,0,0.18)';
-        };
         btn.onclick = () => openPresetModal(idx, p.name || ('افتراضي ' + (idx + 1)));
         container.appendChild(btn);
     });

@@ -86,6 +86,22 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         .btn-action-secondary:hover { background: rgba(255,255,255,0.18); transform: translateY(-2px); }
         :root.light-theme .btn-action-secondary { background: #ffffff !important; border-color: rgba(0,0,0,0.15) !important; color: #0f172a !important; }
         
+        .luxury-action-btn { position: relative; overflow: hidden; background: linear-gradient(135deg, color-mix(in srgb, var(--btn-color, #fff) 8%, rgba(255,255,255,0.05)), rgba(0,0,0,0.2)); background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(135deg, color-mix(in srgb, var(--btn-color, #fff) 10%, rgba(255,255,255,0.05)), rgba(0,0,0,0.2)); background-size: 3px 3px, auto; border: 1px solid color-mix(in srgb, var(--btn-color, #fff) 40%, rgba(255,255,255,0.2)); backdrop-filter: blur(12px) saturate(150%); color: #f8fafc; padding: 10px 24px; border-radius: 14px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); font-family: inherit; font-size: 1.05rem; height: 50px; box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 10px color-mix(in srgb, var(--btn-color, #fff) 20%, transparent); z-index: 1; animation: luxuryBreathe 3s ease-in-out infinite alternate; }
+        @keyframes luxuryBreathe { 0% { box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 8px color-mix(in srgb, var(--btn-color, #fff) 15%, transparent); } 100% { box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 20px color-mix(in srgb, var(--btn-color, #fff) 40%, transparent); } }
+        .luxury-action-btn::before { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 2px; background: linear-gradient(135deg, var(--btn-color, rgba(255,255,255,0.8)), transparent 40%, var(--btn-color, rgba(255,255,255,0.5))); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0.9; transition: opacity 0.4s; }
+        .luxury-action-btn::after { content: ''; position: absolute; top: 0; left: -100%; width: 75%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.65), transparent); transform: skewX(-25deg); animation: luxurySweep 4s cubic-bezier(0.4, 0, 0.2, 1) infinite; z-index: -1; }
+        .luxury-action-btn:hover { transform: translateY(-4px) scale(1.06); background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(135deg, color-mix(in srgb, var(--btn-color, #fff) 30%, transparent), color-mix(in srgb, var(--btn-color, #fff) 10%, rgba(0,0,0,0.3))); border-color: var(--btn-color, #fff); box-shadow: 0 15px 30px rgba(0,0,0,0.4), 0 0 30px var(--btn-color, rgba(255,255,255,0.5)), inset 0 0 20px color-mix(in srgb, var(--btn-color, #fff) 40%, transparent); color: #fff; text-shadow: 0 0 12px rgba(255,255,255,0.6); animation: none; }
+        .luxury-action-btn:hover::before { opacity: 1; background: linear-gradient(135deg, #fff, var(--btn-color, #fff)); }
+        
+        .luxury-btn-primary { --btn-color: #a855f7; }
+        
+        @keyframes luxurySweep { 0% { left: -100%; } 15% { left: 200%; } 100% { left: 200%; } }
+        
+        :root.light-theme .luxury-action-btn { background-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.03) 1px, transparent 1px), linear-gradient(135deg, #ffffff, color-mix(in srgb, var(--btn-color, #fff) 5%, #f8fafc)); color: #0f172a; border-color: color-mix(in srgb, var(--btn-color, #000) 20%, rgba(0,0,0,0.1)); box-shadow: 0 4px 10px rgba(0,0,0,0.05), 0 0 10px color-mix(in srgb, var(--btn-color, #fff) 20%, transparent); }
+        :root.light-theme .luxury-action-btn::before { background: linear-gradient(135deg, var(--btn-color, rgba(0,0,0,0.3)), transparent); opacity: 0.5; }
+        :root.light-theme .luxury-action-btn:hover { background-image: radial-gradient(circle at 50% 50%, rgba(0,0,0,0.05) 1px, transparent 1px), linear-gradient(135deg, #ffffff, color-mix(in srgb, var(--btn-color, #fff) 15%, #f8fafc)); border-color: var(--btn-color, rgba(0,0,0,0.2)); box-shadow: 0 12px 25px rgba(0,0,0,0.1), 0 0 20px color-mix(in srgb, var(--btn-color, #fff) 40%, transparent); color: #000; text-shadow: 0 0 2px rgba(255,255,255,0.8); }
+        :root.light-theme .luxury-action-btn::after { background: linear-gradient(90deg, transparent, rgba(255,255,255,1), transparent); }
+        
         /* Preset Buttons styles */
         .preset-slots-container {
             background: rgba(15, 23, 42, 0.55);
@@ -479,22 +495,25 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
     </div>
 
     <!-- Presets & Action Buttons -->
-    <div class="filter-row" style="margin-bottom: 20px; display: flex; gap: 10px; flex-wrap: wrap;">
-        <div class="preset-slots-container no-print" id="presets-container" style="flex:1; display:flex; gap:6px; align-items:center; flex-wrap:wrap; padding:2px 10px; border-radius:8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); min-width: 250px;">
+    <div class="filter-row" style="margin-bottom: 20px; display: flex; gap: 16px; flex-wrap: wrap; align-items: center; justify-content: center; background: rgba(15, 23, 42, 0.4); padding: 15px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.05); backdrop-filter: blur(10px); box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 8px 20px rgba(0,0,0,0.2);">
+        <div class="preset-slots-container no-print" id="presets-container" style="display:flex; justify-content: center; gap:10px; align-items:center; flex-wrap:wrap; padding:0; border: none; background: transparent;">
             <!-- Dynamic preset buttons rendered via JS -->
         </div>
-        <button class="btn-action-secondary" onclick="resetMagnifiedNumbers()" title="إلغاء تكبير جميع الأرقام المكبرة للمراجعة">
-            🔍 إلغاء تكبير الأرقام
-        </button>
-        <button class="btn-action-secondary" onclick="shareViaWhatsApp()" title="مشاركة ملخص التقرير عبر واتساب">
-            💬 واتساب
-        </button>
-        <button class="btn-action-secondary" onclick="openPreviewDesign()" title="طباعة مباشرة">
-            🖨️ طباعة
-        </button>
-        <button class="btn-run" onclick="openPreviewDesign()">
-            👁️ الشاشة الذكية للمعاينة والتصميم والطباعة والتخصيص
-        </button>
+        
+        <div style="display: flex; justify-content: center; gap: 10px; align-items: center; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 16px; margin-right: 4px;">
+            <button class="luxury-action-btn" onclick="resetMagnifiedNumbers()" title="إلغاء تكبير جميع الأرقام المكبرة للمراجعة" style="--btn-color: #38bdf8;">
+                <span style="font-size: 1.35rem;">🔍</span> إلغاء التكبير
+            </button>
+            <button class="luxury-action-btn" onclick="shareViaWhatsApp()" title="مشاركة ملخص التقرير عبر واتساب" style="--btn-color: #22c55e;">
+                <span style="font-size: 1.35rem;">💬</span> واتساب
+            </button>
+            <button class="luxury-action-btn" onclick="openPreviewDesign()" title="طباعة مباشرة" style="--btn-color: #eab308;">
+                <span style="font-size: 1.35rem;">🖨️</span> طباعة
+            </button>
+            <button class="luxury-action-btn luxury-btn-primary" onclick="openPreviewDesign()">
+                <span style="font-size: 1.35rem;">👁️</span> معاينة التصميم
+            </button>
+        </div>
     </div>
 
     <!-- Summary Cards -->

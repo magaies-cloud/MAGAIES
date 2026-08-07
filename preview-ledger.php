@@ -122,33 +122,27 @@
             border-bottom: 3px solid #0284c7;
             flex-wrap: wrap; gap: 10px;
         }
-        .ribbon-btn {
-            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.25);
-            color: white; padding: 7px 16px; border-radius: 20px; font-family: inherit; font-weight: 800;
-            cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); font-size: 0.85rem; display: flex; align-items: center; gap: 6px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.15);
-        }
-        .ribbon-btn:hover {
-            transform: translateY(-2px);
-            background: rgba(56,189,248,0.25); border-color: #38bdf8;
-            box-shadow: 0 4px 12px rgba(56,189,248,0.3);
-        }
-        .ribbon-btn:active { transform: translateY(0); }
+        .ribbon-btn, .preset-btn { position: relative; overflow: hidden; background: linear-gradient(135deg, color-mix(in srgb, var(--btn-color, #fff) 8%, rgba(255,255,255,0.05)), rgba(0,0,0,0.2)); background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(135deg, color-mix(in srgb, var(--btn-color, #fff) 10%, rgba(255,255,255,0.05)), rgba(0,0,0,0.2)); background-size: 3px 3px, auto; border: 1px solid color-mix(in srgb, var(--btn-color, #fff) 40%, rgba(255,255,255,0.2)); backdrop-filter: blur(12px) saturate(150%); color: #f8fafc; padding: 7px 16px; border-radius: 12px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1); font-family: inherit; font-size: 0.85rem; height: 38px; box-shadow: 0 4px 15px rgba(0,0,0,0.2), 0 0 10px color-mix(in srgb, var(--btn-color, #fff) 20%, transparent); z-index: 1; animation: luxuryBreathe 3s ease-in-out infinite alternate; }
+        .ribbon-btn::before, .preset-btn::before { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 2px; background: linear-gradient(135deg, var(--btn-color, rgba(255,255,255,0.8)), transparent 40%, var(--btn-color, rgba(255,255,255,0.5))); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0.9; transition: opacity 0.4s; }
+        .ribbon-btn::after, .preset-btn::after { content: ''; position: absolute; top: 0; left: -100%; width: 75%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.65), transparent); transform: skewX(-25deg); animation: luxurySweep 4s cubic-bezier(0.4, 0, 0.2, 1) infinite; z-index: -1; }
         
-        .preset-btn {
-            background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.25);
-            color: #f1f5f9; padding: 7px 16px; border-radius: 20px; font-family: inherit; font-size: 0.95rem;
-            cursor: pointer; transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1); font-weight: 800; display: inline-flex; align-items: center; gap: 6px;
-            box-shadow: 0 2px 6px rgba(0,0,0,0.18);
-        }
+        .ribbon-btn:hover, .preset-btn:hover:not(.active) { transform: translateY(-4px) scale(1.06); background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(135deg, color-mix(in srgb, var(--btn-color, #fff) 30%, transparent), color-mix(in srgb, var(--btn-color, #fff) 10%, rgba(0,0,0,0.3))); border-color: var(--btn-color, #fff); box-shadow: 0 15px 30px rgba(0,0,0,0.4), 0 0 30px var(--btn-color, rgba(255,255,255,0.5)), inset 0 0 20px color-mix(in srgb, var(--btn-color, #fff) 40%, transparent); color: #fff !important; text-shadow: 0 0 12px rgba(255,255,255,0.6); animation: none; }
+        .ribbon-btn:hover::before, .preset-btn:hover:not(.active)::before { opacity: 1; background: linear-gradient(135deg, #fff, var(--btn-color, #fff)); }
+        .ribbon-btn:active, .preset-btn:active { transform: translateY(0); }
+        
         .preset-btn.active {
-            background: linear-gradient(135deg, #10b981, #059669); border-color: #34d399; color: #ffffff !important;
-            box-shadow: 0 4px 14px rgba(16,185,129,0.45); transform: translateY(-1px);
+            background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(5,150,105,0.3)); border-color: rgba(16,185,129,0.4); color: #ffffff !important; --btn-color: #10b981;
+            box-shadow: 0 4px 14px rgba(16,185,129,0.3), 0 0 15px rgba(16,185,129,0.5); animation: none;
         }
-        .preset-btn:hover:not(.active) {
-            background: rgba(56,189,248,0.25); border-color: #38bdf8; color: #ffffff !important; transform: translateY(-2px);
-            box-shadow: 0 4px 12px rgba(56,189,248,0.3);
-        }
+        .preset-btn.active::before { opacity: 1; background: linear-gradient(135deg, #10b981, transparent); }
+        
+        @keyframes luxurySweep { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
+        
+        :root.light-theme .ribbon-btn, :root.light-theme .preset-btn { background: linear-gradient(135deg, #ffffff, #f8fafc); color: #0f172a; border-color: rgba(0,0,0,0.08); box-shadow: 0 4px 10px rgba(0,0,0,0.04); }
+        :root.light-theme .ribbon-btn::before, :root.light-theme .preset-btn::before { background: linear-gradient(135deg, var(--btn-color, rgba(0,0,0,0.2)), transparent); opacity: 0.3; }
+        :root.light-theme .ribbon-btn:hover, :root.light-theme .preset-btn:hover:not(.active) { background: #ffffff; border-color: rgba(0,0,0,0.15); box-shadow: 0 8px 20px rgba(0,0,0,0.08), 0 0 15px rgba(var(--btn-color-rgb, 0,0,0), 0.1); color: #000 !important; text-shadow: none; }
+        :root.light-theme .ribbon-btn::after, :root.light-theme .preset-btn::after { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent); }
+        :root.light-theme .preset-btn.active { background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(5,150,105,0.05)); color: #047857 !important; }
         .preset-btn.is-pressing {
             transform: scale(0.96) translateY(1px) !important;
             box-shadow: 0 0 16px rgba(16, 185, 129, 0.9) !important;
@@ -503,14 +497,18 @@
         <!-- Live Quick Search Box -->
         <input type="text" id="live-search-input" placeholder="🔍 بحث سريع..." oninput="filterTableRows(this.value)" style="padding: 6px 14px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.3); color: #fff; font-family: inherit; font-size: 0.85rem; outline: none; width: 140px;">
 
-        <button class="ribbon-btn" onclick="executePrintWithPermission()" style="background: linear-gradient(135deg, #0284c7, #0369a1); border:none; box-shadow:0 2px 8px rgba(3,105,161,0.4);">
-            🖨️ طباعة
+        <button class="ribbon-btn" onclick="executePrintWithPermission()" style="--btn-color: #0ea5e9;">
+            <span style="font-size: 1.35rem;">🖨️</span> طباعة
         </button>
-        <button class="ribbon-btn" onclick="toggleSettingsPanel()" style="background: linear-gradient(135deg, #eab308, #ca8a04); border:none; box-shadow:0 2px 8px rgba(202,138,4,0.4);">
-            ⚙️ إعدادات الأعمدة
+        <button class="ribbon-btn" onclick="toggleSettingsPanel()" style="--btn-color: #eab308;">
+            <span style="font-size: 1.35rem;">⚙️</span> إعدادات الأعمدة
         </button>
-        <button class="ribbon-btn" onclick="toggleDarkMode()">🌙 عكس الألوان</button>
-        <button class="ribbon-btn" onclick="window.history.back()" style="color:#f87171; border-color:rgba(239,68,68,0.5);">❌ إغلاق / رجوع</button>
+        <button class="ribbon-btn" onclick="toggleDarkMode()" style="--btn-color: #a855f7;">
+            <span style="font-size: 1.35rem;">🌙</span> عكس الألوان
+        </button>
+        <button class="ribbon-btn" onclick="window.history.back()" style="--btn-color: #ef4444;">
+            <span style="font-size: 1.35rem;">❌</span> إغلاق / رجوع
+        </button>
     </div>
 </div>
 
