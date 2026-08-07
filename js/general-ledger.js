@@ -2219,8 +2219,8 @@ window.navigateToOriginalVoucher = function(type, ref) {
     else if (type === 'purchase' || type === 'purchases') targetUrl = `purchase.php?id=${cleanRef}`;
     else if (type === 'receipt' || type === 'single-receipt') targetUrl = `single-cash-receipt.php?id=${cleanRef}`;
     else if (type === 'payment' || type === 'single-payment') targetUrl = `single-cash-payment.php?id=${cleanRef}`;
-    else if (type === 'multi-receipt') targetUrl = `single-cash-receipt.php?id=${cleanRef}`;
-    else if (type === 'multi-payment') targetUrl = `single-cash-payment.php?id=${cleanRef}`;
+    else if (type === 'multi-receipt') targetUrl = `multi-cash-payment.php?type=receipt&id=${cleanRef}`;
+    else if (type === 'multi-payment') targetUrl = `multi-cash-payment.php?type=payment&id=${cleanRef}`;
     else if (type === 'comprehensive-receipt') targetUrl = `comprehensive-receipt.php?id=${cleanRef}`;
     else if (type === 'comprehensive-payment') targetUrl = `comprehensive-payment.php?id=${cleanRef}`;
     else if (type === 'jv' || type === 'journal' || type === 'adjustment') targetUrl = `journal-voucher.php?id=${cleanRef}`;

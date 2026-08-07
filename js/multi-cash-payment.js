@@ -95,6 +95,27 @@ document.addEventListener('DBReady', async () => {
     await loadAllAccounts();
     applyExchangeRatePermission();
     if (typeof populateSafesDropdown === 'function') populateSafesDropdown();
+    
+    // Deep Drill-down
+    const urlParams = new URLSearchParams(window.location.search);
+    const voucherId = urlParams.get('id');
+    const voucherType = urlParams.get('type') || 'payment';
+    if (voucherId) {
+        if (voucherType === 'receipt') {
+            setVoucherType('receipt');
+        } else {
+            setVoucherType('payment');
+        }
+        
+        let dataSource = voucherType === 'receipt' ? (window.SERVER_RECEIPTS || []) : (window.SERVER_PAYMENTS || []);
+        
+        let found = dataSource.find(v => String(v.id) === String(voucherId) || String(v.voucherNo) === String(voucherId));
+        if (found) {
+            setTimeout(() => {
+                loadVoucherIntoForm(found);
+            }, 300); // Give time for UI to settle
+        }
+    }
 });
 
 // ═══ Currency Change: Auto-fill exchange rate from settings ═══
