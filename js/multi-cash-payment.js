@@ -1,3 +1,12 @@
+window.getAllMultiPayments = function() {
+    let localInvs = [];
+    try { localInvs = JSON.parse(localStorage.getItem('erp_multi_payments_v1')) || []; } catch(e){}
+    let serverInvs = window.SERVER_MULTI_PAYMENTS || [];
+    let map = new Map();
+    serverInvs.forEach(inv => map.set(inv.id, inv));
+    localInvs.forEach(inv => map.set(inv.id, inv));
+    return Array.from(map.values());
+};
 // js/multi-cash-payment.js
 
 let currentVoucherIndex = -1;
@@ -2896,3 +2905,5 @@ window.populateSafesDropdown = function(selectElement) {
         console.error('Error populating safes dropdown:', e);
     }
 };
+
+

@@ -1,3 +1,12 @@
+window.getAllSalesInvoices = function() {
+    let localInvs = [];
+    try { localInvs = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []; } catch(e){}
+    let serverInvs = window.SERVER_SALES_INVOICES || [];
+    let map = new Map();
+    serverInvs.forEach(inv => map.set(inv.invoiceNo || inv.id, inv));
+    localInvs.forEach(inv => map.set(inv.invoiceNo || inv.id, inv));
+    return Array.from(map.values());
+};
 /* ═══════════════════════════════════════════════════════
    sales-invoice.js — POS Engine v6.0
    Real-time Reactive Calculations · Sequential Invoices
@@ -74,7 +83,7 @@ const SALE_PREFIX = { direct:'', split:'', delivery:'', proforma:'', costcenter:
 
 // Peek: show the next number WITHOUT incrementing (safe for refresh)
 function peekNextInvoiceNumber(type) {
-    let list = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))));
+    let list = window.getAllSalesInvoices();
     const now = new Date();
     const yy = String(now.getFullYear()).substring(2, 4);
     const mm = String(now.getMonth() + 1).padStart(2, '0');
@@ -115,7 +124,7 @@ function commitInvoiceNumber(type) {
 document.addEventListener('DBReady', () => {
     window.refreshAllMasterData = function() {
         // Load real customer data from master-data
-        const localCusts = ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))).filter(x => !x.deleted);
+        const localCusts = window.getAllSalesInvoices().filter(x => !x.deleted);
         if(localCusts.length > 0) {
             CUSTOMERS = localCusts.map(c => ({
                 id: c.id,
@@ -128,8 +137,8 @@ document.addEventListener('DBReady', () => {
             CUSTOMERS.unshift({ id:'walk-in', name:'زبون نقدي (Walk-in)', ledger:0, checks:0, creditLimit:0, status:'active' });
         }
 
-        const rawItems = ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))).filter(x => !x.deleted);
-        const invData = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []));
+        const rawItems = window.getAllSalesInvoices().filter(x => !x.deleted);
+        const invData = window.getAllSalesInvoices();
         
         if (rawItems.length === 0) {
             console.warn('تنبيه: لا توجد أصناف في النظام! يرجى إضافة الأصناف من شاشة (البيانات الأساسية) أولاً.');
@@ -203,7 +212,7 @@ document.addEventListener('DBReady', () => {
         const loaded = loadInvoiceFromStorage(invoiceId);
         if (!loaded) {
             // Sometimes id is the UUID, we need to find the invoiceNo
-            const sales = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))));
+            const sales = window.getAllSalesInvoices();
             const inv = sales.find(s => String(s.id) === String(invoiceId) || String(s.invoiceNo) === String(invoiceId));
             if (inv && inv.invoiceNo) {
                 loadInvoiceFromStorage(inv.invoiceNo);
@@ -249,7 +258,7 @@ function togglePaymentAccount() {
     
     let banks = [];
     try {
-        banks = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []));
+        banks = window.getAllSalesInvoices();
     } catch(e) {}
     
     banks.forEach(b => {
@@ -363,7 +372,7 @@ function addNewCustomer() {
 
 function loadPreviousInvoice() {
     const currentNoStr = document.getElementById('hdr-inv-no').value;
-    let list = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))));
+    let list = window.getAllSalesInvoices();
     
     let previousInvoices = list
         .filter(inv => inv.invoiceNo && inv.invoiceNo < currentNoStr)
@@ -381,7 +390,7 @@ function loadPreviousInvoice() {
 
 function loadNextInvoice() {
     const currentNoStr = document.getElementById('hdr-inv-no').value;
-    let list = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))));
+    let list = window.getAllSalesInvoices();
     
     let nextInvoices = list
         .filter(inv => inv.invoiceNo && inv.invoiceNo > currentNoStr)
@@ -411,7 +420,7 @@ function loadInvoiceFromStorage(invNo) {
     }
     
     if (!data) {
-        let allSales = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))));
+        let allSales = window.getAllSalesInvoices();
         data = allSales.find(inv => String(inv.invoiceNo) === String(invNo) || String(inv.id) === String(invNo));
     }
     
@@ -671,7 +680,7 @@ function loadInvoiceFromStorage(invNo) {
     }
     
     if (!data) {
-        let allSales = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))));
+        let allSales = window.getAllSalesInvoices();
         data = allSales.find(inv => inv.invoiceNo === invNo || inv.id === invNo);
     }
     
@@ -1415,7 +1424,7 @@ function submitInvoice(ignoreWarnings = false) {
     if (paymentMethod === 'credit' && cust && cust.id !== 'walk-in') {
         const debt = cust.ledger || 0;
         if (debt > 0) {
-            let allSales = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))));
+            let allSales = window.getAllSalesInvoices();
             const creditInvs = allSales.filter(inv => (inv.customer === cust.id || inv.customerId === cust.id) && inv.paymentMethod === 'credit');
             creditInvs.reverse(); // Newest first
 
@@ -1764,7 +1773,7 @@ function executeDeleteTransaction() {
     }
     
     if (!oldInv) {
-        let allSales = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))));
+        let allSales = window.getAllSalesInvoices();
         oldInv = allSales.find(inv => inv.invoiceNo === currentInvNo || inv.id === currentInvNo);
     }
 
@@ -1778,7 +1787,7 @@ function executeDeleteTransaction() {
 
     // 1. Revert Customer Balance (if credit)
     if (oldInv.paymentMethod === 'credit' && oldInv.customer && oldInv.customer !== 'walk-in') {
-        let customers = ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))).filter(x => !x.deleted);
+        let customers = window.getAllSalesInvoices().filter(x => !x.deleted);
         const cIdx = customers.findIndex(c => c.id === oldInv.customer);
         if (cIdx > -1) {
             let currentBalance = parseFloat(customers[cIdx].currentBalance) || 0;
@@ -1789,7 +1798,7 @@ function executeDeleteTransaction() {
 
     // 2. Revert Bank/Safe Balance (if cash)
     if (oldInv.paymentMethod !== 'credit' && oldInv.paymentAccountId) {
-        let banks = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []));
+        let banks = window.getAllSalesInvoices();
         const bIdx = banks.findIndex(b => b.id === oldInv.paymentAccountId);
         if (bIdx > -1) {
             let currentBalance = parseFloat(banks[bIdx].currentBalance) || 0;
@@ -1799,7 +1808,7 @@ function executeDeleteTransaction() {
     }
 
     // 3. Revert Inventory
-    let currentInvData = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []));
+    let currentInvData = window.getAllSalesInvoices();
     const mainWh = oldInv.warehouse || 'wh-001';
     if (oldInv.items && Array.isArray(oldInv.items)) {
         for (const row of oldInv.items) {
@@ -1832,7 +1841,7 @@ function executeDeleteTransaction() {
     localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
 
     // 4. Remove from sales invoices list
-    let allSales = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : ((window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []))));
+    let allSales = window.getAllSalesInvoices();
     const salesIdx = allSales.findIndex(inv => inv.invoiceNo === currentInvNo);
     if(salesIdx > -1) { allSales[salesIdx].deleted = true; allSales[salesIdx].updatedAt = Date.now(); }
     localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(allSales));
@@ -1962,7 +1971,7 @@ function showPriceHistory(rowId, type) {
     const custName = document.getElementById('hdr-customer-search').value || 'العميل';
 
     let historyKey = type === 'sales' ? 'erp_sales_invoices_v1' : 'erp_purchase_invoices_v1';
-    let invoices = (window.SERVER_SALES_INVOICES && window.SERVER_SALES_INVOICES.length > 0 ? window.SERVER_SALES_INVOICES : (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []));
+    let invoices = window.getAllSalesInvoices();
     
     // Filter invoices by this customer/vendor
     let customerInvoices = invoices.filter(inv => (inv.customer === custId || inv.customerId === custId) && inv.status === 'confirmed');
@@ -2263,4 +2272,7 @@ function toggleGPS() {
         }
     }
 }
+
+
+
 

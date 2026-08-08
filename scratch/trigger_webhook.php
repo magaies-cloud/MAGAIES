@@ -1,6 +1,6 @@
 <?php
 $secret = 'magaees_deploy_2026_secure';
-$payload = '{}';
+$payload = json_encode(['ref' => 'refs/heads/main']);
 $signature = 'sha256=' . hash_hmac('sha256', $payload, $secret);
 
 $ch = curl_init('https://c.elsajana.com/deploy_webhook.php');

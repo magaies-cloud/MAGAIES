@@ -1,3 +1,12 @@
+window.getAllSinglePayments = function() {
+    let localInvs = [];
+    try { localInvs = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []; } catch(e){}
+    let serverInvs = window.SERVER_SINGLE_PAYMENTS || [];
+    let map = new Map();
+    serverInvs.forEach(inv => map.set(inv.id, inv));
+    localInvs.forEach(inv => map.set(inv.id, inv));
+    return Array.from(map.values());
+};
 /* ═══════════════════════════════════════════════════════
    single-cash-payment.js — Single Cash/Check Disbursement Module
    ═══════════════════════════════════════════════════════ */
@@ -9,7 +18,7 @@ let ACCOUNTS = [];
 
 let singlePaymentsData = [];
             try {
-                singlePaymentsData = (window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : ((window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []))));
+                singlePaymentsData = window.getAllSinglePayments();
                 if (!Array.isArray(singlePaymentsData)) singlePaymentsData = [];
             } catch(e) {
                 singlePaymentsData = [];
@@ -167,7 +176,7 @@ document.addEventListener('DOMContentLoaded', () => {
             // Load from receipts data when coming from old single-cash-receipt links
             dataSource = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || []));
         } else {
-            dataSource = (window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : ((window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []))));
+            dataSource = window.getAllSinglePayments();
         }
         // Try finding in the selected data source first
         let idx = dataSource.findIndex(v => String(v.id) === String(voucherId) || String(v.voucherNo) === String(voucherId) || String(v.paymentNo) === String(voucherId) || String(v.receiptNo) === String(voucherId));
@@ -235,7 +244,7 @@ function setNextVoucherNumber() {
     let spData = [];
     try {
         const getTenantKey = window.getTenantKey || ((k) => k);
-        spData = (window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem(getTenantKey('erp_single_payments_v1')) || localStorage.getItem('erp_single_payments_v1')) || []));
+        spData = window.getAllSinglePayments();
     } catch(e) {}
 
     // Base prefix on selected voucher date, not current system date
@@ -499,7 +508,7 @@ function resetVoucherSilent() {
 }
 
 function loadPreviousVoucher() {
-    singlePaymentsData = (window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : ((window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []))));
+    singlePaymentsData = window.getAllSinglePayments();
     if (singlePaymentsData.length === 0) return showToast("لا توجد سندات سابقة", "warning");
     
     if (currentViewedIndex === -1) {
@@ -513,7 +522,7 @@ function loadPreviousVoucher() {
 }
 
 function loadNextVoucher() {
-    singlePaymentsData = (window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : ((window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []))));
+    singlePaymentsData = window.getAllSinglePayments();
     if (currentViewedIndex === -1) return; // already at new
     
     if (currentViewedIndex < singlePaymentsData.length - 1) {
@@ -908,7 +917,7 @@ function submitVoucher() {
     }
 
     const getTenantKey = window.getTenantKey || ((k) => k);
-    singlePaymentsData = (window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem(getTenantKey('erp_single_payments_v1')) || localStorage.getItem('erp_single_payments_v1')) || []));
+    singlePaymentsData = window.getAllSinglePayments();
     
     // Balance update logic
     function applyPaymentEffect(fromAccId, toAccId, amount, isRevert = false) {
@@ -2171,7 +2180,7 @@ window.unifyVoucherSequences = function() {
     
     let spData = [];
     try {
-        spData = (window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : ((window.SERVER_SINGLE_PAYMENTS && window.SERVER_SINGLE_PAYMENTS.length > 0 ? window.SERVER_SINGLE_PAYMENTS : (JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []))));
+        spData = window.getAllSinglePayments();
     } catch(e) {}
 
     if (spData.length === 0) {
@@ -2206,6 +2215,8 @@ window.unifyVoucherSequences = function() {
         window.location.href = window.location.pathname;
     }, 1500);
 };
+
+
 
 
 
