@@ -660,11 +660,6 @@ function renderPresetButtons() {
         
         const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
 
-    if (isDefaultGroup) {
-        alert('خطأ: لا يمكن تعديل قوالب ضبط المصنع الافتراضية نهائياً!');
-        return;
-    }
-
         if (isDefaultGroup && p.isLocked) {
             btn.innerText = p.name + ' 🔒';
             btn.title = '🔒 ضبط مصنع نهائي مثبت في قاعدة البيانات لا يتغير نهائياً (مُطبق على كافة المنشآت والشركات)';
@@ -767,9 +762,14 @@ function startLongPressCount(idx, btn) {
     if (hud) {
         hud.style.display = 'block';
         if (isDefaultGroup) {
-            alert('خطأ: لا يمكن تعديل قوالب ضبط المصنع الافتراضية نهائياً!');
-            modal.style.display = 'none';
-            return;
+            hudIcon.innerText = '🔒';
+            hudTitle.innerText = `حفظ وتثبيت ضبط المصنع (${p.name})`;
+            hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) لحفظ وتثبيت التعديلات الجديدة كـ "ضبط مصنع نهائي".';
+            if (hudProgress) {
+                hudProgress.style.width = '0%';
+                hudProgress.style.background = 'linear-gradient(90deg, #eab308, #10b981)';
+            }
+            if (hudTimer) hudTimer.innerText = '8.0 ثانية متبقية';
         } else {
             hudIcon.innerText = '✨';
             hudTitle.innerText = `حفظ وتحديث (${p.name})`;

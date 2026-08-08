@@ -2838,8 +2838,7 @@ function renderLedgerPresets() {
         else if (idx === 4) color = '#10b981'; // green
         
         btn.style.cssText = `--btn-color: ${color};`;
-        const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
-        btn.innerHTML = (p.name || ('افتراضي ' + (idx + 1))) + (isDefaultGroup ? ' 🔒' : '');
+        btn.innerHTML = p.name || ('افتراضي ' + (idx + 1));
         btn.onclick = () => openPresetModal(idx, p.name || ('افتراضي ' + (idx + 1)));
         container.appendChild(btn);
     });
