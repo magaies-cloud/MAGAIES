@@ -1030,9 +1030,9 @@ function promptConfirmationAndSave(idx) {
         modal.style.display = 'flex';
 
         if (isDefaultGroup) {
-            if (icon) icon.innerText = '🔒';
-            title.innerText = `حفظ وتثبيت ضبط المصنع (${p.name})`;
-            body.innerHTML = `اكتملت الـ 8 ثوانٍ بنجاح! <br><br>هل تريد حفظ وتثبيت التعديلات الجديدة في (<b>${p.name}</b>) كـ <b>"ضبط مصنع نهائي"</b>؟<br><br><span style="color:#eab308; font-size:0.85rem;">(ملاحظة: سيتم تثبيت وتقييد جميع الخطوط والألوان والأعمدة والتنسيقات الجديدة).</span>`;
+            alert(`خطأ: لا يمكن تعديل قوالب ضبط المصنع الافتراضية نهائياً!`);
+            modal.style.display = 'none';
+            return;
         } else {
             if (icon) icon.innerText = '✨';
             title.innerText = `حفظ وتحديث التقرير (${p.name})`;
@@ -1064,6 +1064,11 @@ function executeLongPressSave(idx) {
     if (!p) return;
 
     const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
+
+    if (isDefaultGroup) {
+        alert('خطأ: لا يمكن تعديل قوالب ضبط المصنع الافتراضية نهائياً!');
+        return;
+    }
 
     if (isDefaultGroup) {
         // Save updated Factory Reset settings without hard-locking future edits

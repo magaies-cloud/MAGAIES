@@ -865,8 +865,9 @@ function promptConfirmationAndSave(idx) {
         };
     } else {
         if (isDefaultGroup) {
-            const confirmSave = confirm(`🔒 اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وتثبيت التعديلات الجديدة في (${p.name}) كـ "ضبط مصنع نهائي"؟`);
-            if (confirmSave) executeLongPressSave(idx);
+            alert(`خطأ: لا يمكن تعديل قوالب ضبط المصنع الافتراضية نهائياً!`);
+            modal.style.display = 'none';
+            return;
         } else {
             const confirmSave = confirm(`✨ اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وتحديث تصميم التقرير الحالي في (${p.name})؟`);
             if (confirmSave) executeLongPressSave(idx);
@@ -880,6 +881,11 @@ function executeLongPressSave(idx) {
     if (!p) return;
 
     const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
+
+    if (isDefaultGroup) {
+        alert('خطأ: لا يمكن تعديل قوالب ضبط المصنع الافتراضية نهائياً!');
+        return;
+    }
 
     if (p.isLocked) {
         if (typeof showToast === 'function') {
