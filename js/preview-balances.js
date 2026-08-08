@@ -576,6 +576,9 @@ function initPresets() {
     loadPresetsFromDB(PRESETS_STORAGE_KEY, PRESETS_STORAGE_KEY, function() {
         renderPresetButtons();
         if (typeof renderPresetsManagementList === 'function') renderPresetsManagementList();
+        if (typeof currentPresetIndex !== 'undefined' && currentPresetIndex !== null) {
+            loadPreset(currentPresetIndex);
+        }
     });
 }
 
