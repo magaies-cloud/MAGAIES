@@ -2862,7 +2862,15 @@ window.renderBalancesPresets = function() {
         if (p.showInRibbon === false) return;
         const btn = document.createElement('button');
         btn.type = 'button';
-        btn.className = 'preset-ribbon-btn preset-slot-' + idx;
+        btn.className = 'luxury-action-btn';
+        let color = '#38bdf8';
+        if (idx === 1) color = '#eab308';
+        else if (idx === 2) color = '#a855f7';
+        else if (idx === 3) color = '#ef4444';
+        else if (idx === 4) color = '#10b981';
+        else if (idx === 5) color = '#f97316';
+        else if (idx === 6) color = '#ec4899';
+        btn.style.cssText = '--btn-color: ' + color + '; height: 42px; font-size: 1rem; padding: 5px 15px; border-radius: 12px;';
 
         const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
 

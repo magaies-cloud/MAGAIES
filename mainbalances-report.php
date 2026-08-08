@@ -1115,17 +1115,17 @@ $page_title = 'حساب الارصده الاساسية';
 
             <div class="preset-slots-container no-print" id="main-presets-container" style="flex:1; display:flex; gap:6px; align-items:center; flex-wrap:nowrap; padding:2px 6px; border-radius:8px; background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.08); min-height: 36px; overflow-x: auto;">
                 <!-- Column & Colors Control Button (زر التحكم) -->
-                <button type="button" class="preset-ribbon-btn" onclick="openColumnContextMenu(event)" style="background: linear-gradient(135deg, #f59e0b, #d97706) !important; color: #ffffff !important; border: 1px solid rgba(251, 191, 36, 0.8) !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4) !important;">⚙️ التحكم</button>
+                <button type="button" class="luxury-action-btn"  style="height: 42px; font-size: 1rem; padding: 5px 15px; border-radius: 12px; background: linear-gradient(135deg, #f59e0b, #d97706) !important; color: #ffffff !important; border: 1px solid rgba(251, 191, 36, 0.8) !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4) !important;">⚙️ التحكم</button>
                 <!-- Visual Intelligence Hub Toggle Button -->
-                <button type="button" class="preset-ribbon-btn" onclick="window.toggleVisualHub()" style="background: linear-gradient(135deg, #0ea5e9, #6366f1) !important; color: #ffffff !important; border: 1px solid rgba(56, 189, 248, 0.6) !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4) !important;">📊 الشاشات والتقارير البصرية 📈</button>
+                <button type="button" class="luxury-action-btn"  style="height: 42px; font-size: 1rem; padding: 5px 15px; border-radius: 12px; background: linear-gradient(135deg, #0ea5e9, #6366f1) !important; color: #ffffff !important; border: 1px solid rgba(56, 189, 248, 0.6) !important; font-weight: 900 !important; box-shadow: 0 4px 15px rgba(14, 165, 233, 0.4) !important;">📊 الشاشات والتقارير البصرية 📈</button>
                 <!-- Static fallback buttons matching General Ledger style -->
-                <button type="button" class="preset-ribbon-btn preset-slot-0" onclick="window.openPresetModal(0, 'افتراضي 1')">💎 افتراضي 1 🔒</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-1" onclick="window.openPresetModal(1, 'افتراضي 2')">⭐ افتراضي 2 🔒</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-2" onclick="window.openPresetModal(2, 'افتراضي 3')">🎨 افتراضي 3 🔒</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-3" onclick="window.openPresetModal(3, 'افتراضي 4')">🔥 افتراضي 4 🔒</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-4" onclick="window.openPresetModal(4, 'نموذج 1')">✨ نموذج 1 🔄</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-5" onclick="window.openPresetModal(5, 'نموذج 2')">🚀 نموذج 2 🔄</button>
-                <button type="button" class="preset-ribbon-btn preset-slot-6" onclick="window.openPresetModal(6, 'نموذج 3')">🌟 نموذج 3 🔄</button>
+                <button type="button" class="luxury-action-btn" style="height: 42px; font-size: 1rem; padding: 5px 15px; border-radius: 12px; --btn-color: #38bdf8;" onclick="window.openPresetModal(0, 'افتراضي 1')">💎 افتراضي 1 🔒</button>
+                <button type="button" class="luxury-action-btn" style="height: 42px; font-size: 1rem; padding: 5px 15px; border-radius: 12px; --btn-color: #eab308;" onclick="window.openPresetModal(1, 'افتراضي 2')">⭐ افتراضي 2 🔒</button>
+                <button type="button" class="luxury-action-btn" style="height: 42px; font-size: 1rem; padding: 5px 15px; border-radius: 12px; --btn-color: #a855f7;" onclick="window.openPresetModal(2, 'افتراضي 3')">🎨 افتراضي 3 🔒</button>
+                <button type="button" class="luxury-action-btn" style="height: 42px; font-size: 1rem; padding: 5px 15px; border-radius: 12px; --btn-color: #ef4444;" onclick="window.openPresetModal(3, 'افتراضي 4')">🔥 افتراضي 4 🔒</button>
+                <button type="button" class="luxury-action-btn" style="height: 42px; font-size: 1rem; padding: 5px 15px; border-radius: 12px; --btn-color: #10b981;" onclick="window.openPresetModal(4, 'نموذج 1')">✨ نموذج 1 🔄</button>
+                <button type="button" class="luxury-action-btn" style="height: 42px; font-size: 1rem; padding: 5px 15px; border-radius: 12px; --btn-color: #f97316;" onclick="window.openPresetModal(5, 'نموذج 2')">🚀 نموذج 2 🔄</button>
+                <button type="button" class="luxury-action-btn" style="height: 42px; font-size: 1rem; padding: 5px 15px; border-radius: 12px; --btn-color: #ec4899;" onclick="window.openPresetModal(6, 'نموذج 3')">🌟 نموذج 3 🔄</button>
             </div>
 
         </div>
