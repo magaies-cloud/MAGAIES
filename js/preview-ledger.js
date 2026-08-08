@@ -1079,7 +1079,7 @@ function executeLongPressSave(idx) {
         p.userPos = document.getElementById('meta-user-pos-select')?.value;
         p.showDateTime = document.getElementById('hdr-show-datetime-chk')?.checked;
         p.showPageNums = document.getElementById('hdr-show-pagenums-chk')?.checked;
-        p.isLocked = false;
+        p.isLocked = true;
         p.isFactoryDefault = true;
         p.updatedAt = new Date().toISOString();
 
@@ -3229,3 +3229,4 @@ function buildAccountsList() {
         });
     }
 }
+

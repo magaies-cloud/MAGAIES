@@ -2867,13 +2867,45 @@ window.renderBalancesPresets = function() {
         const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
 
         if (isDefaultGroup) {
-            btn.innerHTML = p.name + ' 🔒';
+            btn.innerHTML = p.name + (p.isLocked ? ' 🔒' : ' 🔓');
             btn.title = '🔒 معاينة وتعديل التنسيق بهذا النموذج الافتراضي';
             
             // Direct Click Handler to open modal directly (Same as General Ledger)
             btn.onclick = (e) => {
                 if (e) e.preventDefault();
-                window.openPresetModal(idx, p.name);
+                
+                // Admin Secret Unlock: Ctrl + Shift + Click
+                if (p.isLocked && e.ctrlKey && e.shiftKey) {
+                    const unlockConfirm = confirm("إدارة النظام: هل تريد فتح هذا القالب لتعديله كضبط مصنع نهائي؟");
+                    if (unlockConfirm) {
+                        p.isLocked = false;
+                        localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
+                        window.renderBalancesPresets();
+                        if (typeof showToast === 'function') showToast("تم فتح القالب! صمم التقرير ثم انقر عليه مجدداً للحفظ النهائي.", "info");
+                    }
+                    return;
+                }
+                
+                if (p.isLocked) {
+                    window.openPresetModal(idx, p.name);
+                } else {
+                    const finalConfirm = confirm(`تأكيد حفظ ضبط المصنع:\n\nهل أنت متأكد أن هذا ضبط نهائي لـ (${p.name}) لا يمكن تغييره مهما كان؟\nسوف ينتقل كضبط مصنع لكل الشركات وسيتم قفله نهائياً ولن يفتح مجدداً.`);
+                    if (finalConfirm) {
+                        p.isLocked = true;
+                        p.updatedAt = new Date().toISOString();
+                        localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
+                        const token = localStorage.getItem('erp_token') || '';
+                        const headers = { 'Content-Type': 'application/json' };
+                        if (token) headers['Authorization'] = 'Bearer ' + token;
+                        fetch('api_index.php/report-layout', {
+                            method: 'POST',
+                            headers: headers,
+                            body: JSON.stringify({ reportKey: PRESETS_STORAGE_KEY, layout: presets })
+                        }).catch(e => {});
+                        if (typeof showToast === 'function') showToast(`تم حفظ وقفل ضبط المصنع لـ ${p.name} بنجاح!`, "success");
+                        window.renderBalancesPresets();
+                    }
+                }
             };
         } else {
             btn.innerHTML = p.name + ' 🔄';
