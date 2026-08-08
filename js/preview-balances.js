@@ -762,14 +762,9 @@ function startLongPressCount(idx, btn) {
     if (hud) {
         hud.style.display = 'block';
         if (isDefaultGroup) {
-            hudIcon.innerText = '🔒';
-            hudTitle.innerText = `حفظ وتثبيت ضبط المصنع (${p.name})`;
-            hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) لحفظ وتثبيت التعديلات الجديدة كـ "ضبط مصنع نهائي".';
-            if (hudProgress) {
-                hudProgress.style.width = '0%';
-                hudProgress.style.background = 'linear-gradient(90deg, #eab308, #10b981)';
-            }
-            if (hudTimer) hudTimer.innerText = '8.0 ثانية متبقية';
+            alert('خطأ: لا يمكن تعديل قوالب ضبط المصنع الافتراضية نهائياً!');
+            modal.style.display = 'none';
+            return;
         } else {
             hudIcon.innerText = '✨';
             hudTitle.innerText = `حفظ وتحديث (${p.name})`;
@@ -865,9 +860,8 @@ function promptConfirmationAndSave(idx) {
         };
     } else {
         if (isDefaultGroup) {
-            alert(`خطأ: لا يمكن تعديل قوالب ضبط المصنع الافتراضية نهائياً!`);
-            modal.style.display = 'none';
-            return;
+            const confirmSave = confirm(`🔒 اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وتثبيت التعديلات الجديدة في (${p.name}) كـ "ضبط مصنع نهائي"؟`);
+            if (confirmSave) executeLongPressSave(idx);
         } else {
             const confirmSave = confirm(`✨ اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وتحديث تصميم التقرير الحالي في (${p.name})؟`);
             if (confirmSave) executeLongPressSave(idx);
@@ -881,11 +875,6 @@ function executeLongPressSave(idx) {
     if (!p) return;
 
     const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
-
-    if (isDefaultGroup) {
-        alert('خطأ: لا يمكن تعديل قوالب ضبط المصنع الافتراضية نهائياً!');
-        return;
-    }
 
     if (p.isLocked) {
         if (typeof showToast === 'function') {

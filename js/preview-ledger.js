@@ -946,14 +946,9 @@ function startLongPressCount(idx, btn) {
     if (hud) {
         hud.style.display = 'block';
         if (isDefaultGroup) {
-            hudIcon.innerText = '🔒';
-            hudTitle.innerText = `حفظ وتثبيت ضبط المصنع (${p.name})`;
-            hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) لحفظ وتثبيت التعديلات الجديدة كـ "ضبط مصنع نهائي".';
-            if (hudProgress) {
-                hudProgress.style.width = '0%';
-                hudProgress.style.background = 'linear-gradient(90deg, #eab308, #10b981)';
-            }
-            if (hudTimer) hudTimer.innerText = '8.0 ثانية متبقية';
+            alert('خطأ: لا يمكن تعديل قوالب ضبط المصنع الافتراضية نهائياً!');
+            modal.style.display = 'none';
+            return;
         } else {
             hudIcon.innerText = '✨';
             hudTitle.innerText = `حفظ وتحديث (${p.name})`;
@@ -1030,9 +1025,9 @@ function promptConfirmationAndSave(idx) {
         modal.style.display = 'flex';
 
         if (isDefaultGroup) {
-            alert(`خطأ: لا يمكن تعديل قوالب ضبط المصنع الافتراضية نهائياً!`);
-            modal.style.display = 'none';
-            return;
+            if (icon) icon.innerText = '🔒';
+            title.innerText = `حفظ وتثبيت ضبط المصنع (${p.name})`;
+            body.innerHTML = `اكتملت الـ 8 ثوانٍ بنجاح! <br><br>هل تريد حفظ وتثبيت التعديلات الجديدة في (<b>${p.name}</b>) كـ <b>"ضبط مصنع نهائي"</b>؟<br><br><span style="color:#eab308; font-size:0.85rem;">(ملاحظة: سيتم تثبيت وتقييد جميع الخطوط والألوان والأعمدة والتنسيقات الجديدة).</span>`;
         } else {
             if (icon) icon.innerText = '✨';
             title.innerText = `حفظ وتحديث التقرير (${p.name})`;
@@ -1066,11 +1061,6 @@ function executeLongPressSave(idx) {
     const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
 
     if (isDefaultGroup) {
-        alert('خطأ: لا يمكن تعديل قوالب ضبط المصنع الافتراضية نهائياً!');
-        return;
-    }
-
-    if (isDefaultGroup) {
         // Save updated Factory Reset settings without hard-locking future edits
         p.configs = JSON.parse(JSON.stringify(columnConfigs));
         p.order = [...columnOrder];
@@ -1084,7 +1074,7 @@ function executeLongPressSave(idx) {
         p.userPos = document.getElementById('meta-user-pos-select')?.value;
         p.showDateTime = document.getElementById('hdr-show-datetime-chk')?.checked;
         p.showPageNums = document.getElementById('hdr-show-pagenums-chk')?.checked;
-        p.isLocked = true;
+        p.isLocked = false;
         p.isFactoryDefault = true;
         p.updatedAt = new Date().toISOString();
 
@@ -3234,4 +3224,3 @@ function buildAccountsList() {
         });
     }
 }
-

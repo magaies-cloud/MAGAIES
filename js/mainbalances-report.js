@@ -2869,7 +2869,8 @@ window.renderBalancesPresets = function() {
         if (isDefaultGroup) {
             btn.innerHTML = p.name + ' 🔒';
             btn.title = 'قالب ضبط مصنع مقفل (للعرض فقط)';
-
+            
+            // Direct Click Handler to open modal directly (Same as General Ledger)
             btn.onclick = (e) => {
                 if (e) e.preventDefault();
                 window.openPresetModal(idx, p.name);
