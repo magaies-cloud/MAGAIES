@@ -660,6 +660,11 @@ function renderPresetButtons() {
         
         const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
 
+    if (isDefaultGroup) {
+        alert('خطأ: لا يمكن تعديل قوالب ضبط المصنع الافتراضية نهائياً!');
+        return;
+    }
+
         if (isDefaultGroup && p.isLocked) {
             btn.innerText = p.name + ' 🔒';
             btn.title = '🔒 ضبط مصنع نهائي مثبت في قاعدة البيانات لا يتغير نهائياً (مُطبق على كافة المنشآت والشركات)';

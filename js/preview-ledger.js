@@ -934,6 +934,11 @@ function startLongPressCount(idx, btn) {
     if (!p) return;
 
     const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
+
+    if (isDefaultGroup) {
+        alert('خطأ: لا يمكن تعديل قوالب ضبط المصنع الافتراضية نهائياً!');
+        return;
+    }
     const isLockedDefault = isDefaultGroup && p.isLocked === true;
 
     const hud = document.getElementById('long-press-hud');
