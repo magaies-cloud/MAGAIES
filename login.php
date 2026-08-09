@@ -979,6 +979,7 @@
                     localStorage.setItem('user', ssoParams.get('sso_user'));
                 }
                 document.cookie = "session_active=true; path=/";
+                document.cookie = "saas_token=" + encodeURIComponent(ssoParams.get('sso_token')) + "; path=/; max-age=2592000; SameSite=Lax";
                 sessionStorage.setItem('session_active', 'true');
                 window.location.replace(ssoParams.get('redirect') || 'dashboard-pro.php');
             }
@@ -1081,6 +1082,7 @@
             // If response succeeded from either Local or Cloud API
             if (res && res.ok && data && data.success !== false && data.token) {
                 document.cookie = "session_active=true; path=/";
+                document.cookie = "saas_token=" + encodeURIComponent(data.token) + "; path=/; max-age=2592000; SameSite=Lax";
                 sessionStorage.setItem('session_active', 'true');
                 sessionStorage.removeItem('cloud_synced');
                 localStorage.setItem('authToken', data.token);
@@ -1121,6 +1123,7 @@
                     };
                     const offlineToken = 'offline_token_' + Date.now();
                     document.cookie = "session_active=true; path=/";
+                    document.cookie = "saas_token=" + encodeURIComponent(offlineToken) + "; path=/; max-age=2592000; SameSite=Lax";
                     sessionStorage.setItem('session_active', 'true');
                     sessionStorage.setItem('cloud_synced', 'false');
                     localStorage.setItem('authToken', offlineToken);
