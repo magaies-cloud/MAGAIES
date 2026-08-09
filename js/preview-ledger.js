@@ -1305,10 +1305,9 @@ function loadPreset(idx) {
     const saveBtn = document.querySelector('button[onclick="saveCurrentPreset()"]');
     if (saveBtn) {
         if (preset && preset.isFactoryDefault) {
-            saveBtn.style.opacity = '0.3';
-            saveBtn.style.pointerEvents = 'none';
-            saveBtn.title = "لا يمكن حفظ تعديلات على ضبط المصنع الموحد";
+            saveBtn.style.display = 'none';
         } else {
+            saveBtn.style.display = 'inline-flex';
             saveBtn.style.opacity = '1';
             saveBtn.style.pointerEvents = 'auto';
             saveBtn.title = "";
