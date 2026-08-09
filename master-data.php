@@ -554,6 +554,7 @@
             font-size: 1.38rem !important;   /* تكبير أرقام الحقول داخل الجداول والمصفوفات (~22px) */
             font-weight: 900 !important;
             font-family: 'Outfit', 'Tajawal', sans-serif !important;
+            min-width: 140px !important;
         }
 
 
@@ -966,13 +967,13 @@
                                     </div>
                                     
                                     <button onclick="openInnerTab(event, 'inner-categories')" class="btn-action hover-glow" style="display:flex; align-items:center; gap:5px; justify-content:center; padding:10px 20px; font-size:0.95rem; font-weight:bold; border-radius: 8px; background: linear-gradient(135deg, rgba(168,85,247,0.2), rgba(88,28,135,0.6)); border: 1px solid rgba(168,85,247,0.5); color: #fff; cursor: pointer;">
-                                        أنواع الأصناف
+                                        <span style="font-size:1.1rem;">🗂️</span> أنواع الأصناف
                                     </button>
                                     <button onclick="openInnerTab(event, 'inner-units')" class="btn-action hover-glow" style="display:flex; align-items:center; gap:5px; justify-content:center; padding:10px 20px; font-size:0.95rem; font-weight:bold; border-radius: 8px; background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(14,165,233,0.6)); border: 1px solid rgba(56,189,248,0.5); color: #fff; cursor: pointer;">
-                                        الوحدات
+                                        <span style="font-size:1.1rem;">📐</span> الوحدات
                                     </button>
                                     <button onclick="alert('جاري التجهيز للطباعة...')" class="btn-action hover-glow" style="display:flex; align-items:center; gap:5px; justify-content:center; padding:10px 20px; font-size:0.95rem; font-weight:bold; border-radius: 8px; background: linear-gradient(135deg, rgba(52,211,153,0.2), rgba(6,78,59,0.6)); border: 1px solid rgba(52,211,153,0.5); color: #fff; cursor: pointer;">
-                                        طباعة باركود
+                                        <span style="font-size:1.1rem;">🖨️</span> طباعة باركود
                                     </button>
                                     <button class="btn-add hover-glow" style="background:linear-gradient(135deg, var(--success-color), #059669); padding:10px 25px; font-size: 1rem; border-radius: 8px; box-shadow: 0 4px 15px rgba(16,185,129,0.3); border: 1px solid rgba(16,185,129,0.5); color: #fff; cursor: pointer;" onclick="saveItem()">💾 حفظ الصنف</button>
                                     <button onclick="closeItemForm()" style="background:rgba(239,68,68,0.1); color:#ef4444; border:1px solid rgba(239,68,68,0.5); padding:10px 25px; border-radius:8px; cursor:pointer; font-weight:bold; transition: all 0.3s;" onmouseover="this.style.background='rgba(239,68,68,0.2)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'">✖ إلغاء</button>
@@ -1000,18 +1001,6 @@
                                             </div>
                                         </div>
                                         
-                                        <div style="display:flex; align-items:center; gap:15px; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(168,85,247,0.3); box-shadow: inset 0 2px 10px rgba(0,0,0,0.2); margin-top: 15px;">
-                                            <label style="color:#a855f7; font-weight:bold; margin:0; font-size: 1rem;">الوحدة الأساسية <span style="color:#ef4444;">*</span></label>
-                                            <div style="display:flex; align-items:center; gap:5px; flex: 1;">
-                                                <select id="item-base-unit" onchange="updateBaseUnitRow()" style="border:none; border-bottom: 2px solid #a855f7; background:transparent; color:#fff; font-weight:bold; font-size: 1.1rem; padding: 5px; outline:none; flex: 1; min-width: 250px; text-align: center; transition: all 0.3s;" onfocus="this.style.borderBottomColor='#d8b4fe'">
-                                                    <option value="">-- اختر الوحدة --</option>
-                                                </select>
-                                                <button class="btn-text" style="color:#38bdf8; background:rgba(56,189,248,0.1); border-radius:8px; padding:0 8px; font-size:0.9rem;" onclick="quickAddUnit()" title="إضافة وحدة سريعة">➕</button>
-                                            </div>
-                                            <label style="color:#a855f7; font-weight:bold; margin:0; font-size: 1rem; margin-right: 20px;">الشيلة</label>
-                                            <input type="number" id="item-bundle-factor" placeholder="مثال: 15" value="1" min="1" style="border:none; border-bottom: 2px solid #a855f7; background:transparent; color:#fff; font-weight:bold; font-size: 1.1rem; padding: 5px; outline:none; width: 80px; text-align: center; transition: all 0.3s;" onfocus="this.style.borderBottomColor='#d8b4fe'">
-                                        </div>
-
                                         <div class="form-grid" style="margin-top: 15px;">
                                             <div class="input-group"><label>الباركود</label><input type="text" id="item-barcode" placeholder="امسح بالليزر..."></div>
                                             <div class="input-group"><label>الماركة / المنشأ</label><input type="text" id="item-brand" placeholder="مثال: تركي، جياد"></div>
@@ -1073,9 +1062,21 @@
 
                                 <!-- SEC 5: Unit Matrix (Full Width) -->
                                 <div class="neon-glass-panel" style="margin-top: 20px; padding: 25px; border-top: 3px solid #a855f7; background: linear-gradient(to bottom, rgba(168,85,247,0.05), transparent); box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
-                                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
+                                    <div style="display:flex; align-items:center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
                                         <div style="display:flex; align-items:center; gap:10px;">
-                                            <span style="font-size:1.8rem; filter: drop-shadow(0 0 8px rgba(168,85,247,0.5));">📐</span><h4 style="margin:0; color:#a855f7; font-weight: 800; font-size: 1.3rem;">مصفوفة الوحدات والتحويل</h4>
+                                            <span style="font-size:1.8rem; filter: drop-shadow(0 0 8px rgba(168,85,247,0.5));">📐</span><h4 style="margin:0; color:#a855f7; font-weight: 800; font-size: 1.3rem; white-space: nowrap;">مصفوفة الوحدات والتحويل</h4>
+                                        </div>
+                                        <div style="display:flex; align-items:center; justify-content: flex-start; gap:15px; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(168,85,247,0.3); box-shadow: inset 0 2px 10px rgba(0,0,0,0.2); flex: 1; min-width: 300px;">
+                                            <label style="color:#a855f7; font-weight:bold; margin:0; font-size: 1rem; white-space: nowrap;">الوحدة الأساسية <span style="color:#ef4444;">*</span></label>
+                                            <div style="display:flex; align-items:center; gap:5px;">
+                                                <select id="item-base-unit" onchange="updateBaseUnitRow()" style="border:none; border-bottom: 2px solid #a855f7; background:transparent; color:#fff; font-weight:bold; font-size: 1.1rem; padding: 5px; outline:none; width: 150px; text-align: center; transition: all 0.3s;" onfocus="this.style.borderBottomColor='#d8b4fe'">
+                                                    <option value="">-- اختر الوحدة --</option>
+                                                </select>
+                                                <button class="btn-text" style="color:#38bdf8; background:rgba(56,189,248,0.1); border-radius:8px; padding:0 8px; font-size:0.9rem;" onclick="quickAddUnit()" title="إضافة وحدة سريعة">➕</button>
+                                            </div>
+                                            <div style="width: 1px; height: 25px; background: rgba(168,85,247,0.3); margin: 0 5px;"></div>
+                                            <label style="color:#a855f7; font-weight:bold; margin:0; font-size: 1rem;">الشيلة</label>
+                                            <input type="number" id="item-bundle-factor" placeholder="مثال: 15" value="1" min="1" style="border:none; border-bottom: 2px solid #a855f7; background:transparent; color:#fff; font-weight:bold; font-size: 1.1rem; padding: 5px; outline:none; width: 80px; text-align: center; transition: all 0.3s;" onfocus="this.style.borderBottomColor='#d8b4fe'">
                                         </div>
                                     </div>
                                     
@@ -1085,17 +1086,17 @@
                                             <button class="btn-text" style="color:#fff; font-weight:bold; background:linear-gradient(135deg, #a855f7, #9333ea); padding:8px 15px; border-radius:8px; box-shadow: 0 4px 10px rgba(168,85,247,0.3); border: none; cursor: pointer; display: flex; align-items: center; gap: 5px; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'" onclick="addUnitRow()"><span style="font-size: 1.2rem;">+</span> إضافة وحدة جديدة</button>
                                         </div>
                                         <div class="table-responsive" style="overflow-x: auto;">
-                                            <table class="pro-table" style="width: 100%; min-width: 1000px;">
+                                            <table class="pro-table" style="width: 100%; min-width: 1400px;">
                                                 <thead><tr style="background: rgba(0,0,0,0.2);">
-                                                    <th style="padding: 15px; width: 40px; text-align: center;">م</th>
-                                                    <th style="padding: 15px;">اسم الوحدة</th>
-                                                    <th style="padding: 15px; text-align: center;">المعادل (Factor)</th>
-                                                    <th style="padding: 15px;">باركود</th>
-                                                    <th style="padding: 15px; color: #34d399;">سعر نقدي</th>
-                                                    <th style="padding: 15px; color: #60a5fa;">سعر آجل</th>
-                                                    <th style="padding: 15px; color: #f87171;">أقل سعر</th>
-                                                    <th style="padding: 15px;">وزن (Kg)</th>
-                                                    <th style="padding: 15px; text-align: center;">إجراء</th>
+                                                    <th style="padding: 15px; width: 4%; text-align: center;">م</th>
+                                                    <th style="padding: 15px; width: 14%;">اسم الوحدة</th>
+                                                    <th style="padding: 15px; width: 8%; text-align: center;">المعادل (Factor)</th>
+                                                    <th style="padding: 15px; width: 12%;">باركود</th>
+                                                    <th style="padding: 15px; width: 16%; color: #34d399;">سعر نقدي</th>
+                                                    <th style="padding: 15px; width: 16%; color: #60a5fa;">سعر آجل</th>
+                                                    <th style="padding: 15px; width: 16%; color: #f87171;">أقل سعر</th>
+                                                    <th style="padding: 15px; width: 7%;">وزن (Kg)</th>
+                                                    <th style="padding: 15px; width: 7%; text-align: center;">إجراء</th>
                                                 </tr></thead>
                                                 <tbody id="units-matrix-body">
                                                     <tr style="background:rgba(52,211,153,0.05); border-right:4px solid var(--success-color); transition: background 0.3s;" onmouseover="this.style.background='rgba(52,211,153,0.1)'" onmouseout="this.style.background='rgba(52,211,153,0.05)'">
@@ -2508,10 +2509,10 @@ function openSafeForm() {
             let opts = `<option value="">-- اختر --</option>` + units.map(un => `<option value="${un}" ${un === val ? 'selected' : ''}>${un}</option>`).join('');
             
             let unitField = isBase ? 
-                `<input type="text" id="base-unit-name-display" value="${val}" disabled style="width:100px; background:transparent; border:none; color:var(--success-color); font-weight:bold; text-align:center; padding:5px; border-radius:6px;">` : 
-                `<select ${idAttr} style="width:120px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; font-weight:bold; text-align:center; padding:5px; border-radius:6px; outline:none;">${opts}</select>`;
+                `<input type="text" id="base-unit-name-display" value="${val}" disabled style="width:100%; background:transparent; border:none; color:var(--success-color); font-weight:bold; text-align:center; padding:10px; border-radius:8px; outline:none; font-size:1.1rem;">` : 
+                `<select ${idAttr} style="width:100%; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; font-weight:bold; text-align:center; padding:10px; border-radius:8px; outline:none;">${opts}</select>`;
 
-            return '<tr ' + bg + '><td>' + num + '</td><td>' + unitField + '</td><td><input type="number" value="' + (u.factor || 1) + '" ' + dis + ' style="width:60px; background:transparent; border:' + (isBase ? 'none' : '1px solid rgba(255,255,255,0.15)') + '; color:' + (isBase ? 'var(--success-color)' : '#fff') + '; font-weight:bold; text-align:center; padding:5px; border-radius:6px;"></td><td><input type="text" value="' + (u.barcode || '') + '" placeholder="باركود..." style="width:100px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px;"></td><td><input type="number" value="' + (u.cashPrice || '') + '" placeholder="0.00" style="width:85px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px; font-weight:bold;"></td><td><input type="number" value="' + (u.creditPrice || '') + '" placeholder="0.00" style="width:85px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px;"></td><td><input type="number" value="' + (u.minPrice || '') + '" placeholder="0.00" style="width:85px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px;"></td><td><input type="number" value="' + (u.weight || '') + '" placeholder="0.00" style="width:60px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px;"></td><td>' + act + '</td></tr>';
+            return '<tr ' + bg + '><td style="text-align:center; font-weight:bold;">' + num + '</td><td>' + unitField + '</td><td><input type="number" value="' + (u.factor || 1) + '" ' + dis + ' style="width:100%; background:transparent; border:' + (isBase ? 'none' : '1px solid rgba(255,255,255,0.15)') + '; color:' + (isBase ? 'var(--success-color)' : '#fff') + '; font-weight:bold; text-align:center; padding:10px; border-radius:8px; outline:none; font-size:1.2rem;"></td><td><input type="text" value="' + (u.barcode || '') + '" placeholder="باركود..." style="width:100%; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:10px; border-radius:8px; outline:none;"></td><td><input type="number" value="' + (u.cashPrice || '') + '" placeholder="0.00" style="width:100%; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#34d399; padding:10px; border-radius:8px; font-weight:bold; outline:none;"></td><td><input type="number" value="' + (u.creditPrice || '') + '" placeholder="0.00" style="width:100%; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#60a5fa; padding:10px; border-radius:8px; font-weight:bold; outline:none;"></td><td><input type="number" value="' + (u.minPrice || '') + '" placeholder="0.00" style="width:100%; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#f87171; padding:10px; border-radius:8px; font-weight:bold; outline:none;"></td><td><input type="number" value="' + (u.weight || '') + '" placeholder="0.00" style="width:100%; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:10px; border-radius:8px; outline:none;"></td><td style="text-align:center;">' + act + '</td></tr>';
         }
 
         function editItem(id) {
