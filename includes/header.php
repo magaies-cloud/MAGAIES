@@ -34,7 +34,100 @@
         }
     });
 </script>
-<header class="premium-header <?php echo isset($header_theme_class) ? $header_theme_class : ''; ?>" style="display:flex; justify-content:space-between; align-items:center; gap:15px;">
+<style>
+@keyframes neonPulseHeader {
+    0% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.2), inset 0 0 10px rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.3); }
+    50% { box-shadow: 0 0 35px rgba(168, 85, 247, 0.5), inset 0 0 20px rgba(168, 85, 247, 0.25); border-color: rgba(192, 132, 252, 0.8); }
+    100% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.2), inset 0 0 10px rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.3); }
+}
+@keyframes glassShine {
+    0% { transform: translateX(-100%) skewX(-15deg); }
+    100% { transform: translateX(200%) skewX(-15deg); }
+}
+.magical-glass-header {
+    background: linear-gradient(135deg, rgba(20, 10, 35, 0.65), rgba(35, 15, 60, 0.45)) !important;
+    backdrop-filter: blur(28px) saturate(220%) !important;
+    -webkit-backdrop-filter: blur(28px) saturate(220%) !important;
+    border: 1px solid rgba(192, 132, 252, 0.4) !important;
+    border-top: 2px solid rgba(192, 132, 252, 0.9) !important;
+    border-radius: 20px !important;
+    margin: 15px 25px !important;
+    padding: 12px 25px !important;
+    animation: neonPulseHeader 4s infinite alternate ease-in-out;
+    position: relative;
+    z-index: 1000;
+    transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+    overflow: hidden;
+}
+.magical-glass-header:hover {
+    transform: translateY(-3px) scale(1.005);
+    box-shadow: 0 15px 45px rgba(192, 132, 252, 0.6), inset 0 0 25px rgba(192, 132, 252, 0.4) !important;
+}
+.magical-glass-header::before {
+    content: '';
+    position: absolute;
+    top: 0; left: -100%;
+    width: 50%; height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.1), transparent);
+    animation: glassShine 6s infinite;
+    z-index: 1;
+    pointer-events: none;
+}
+.magical-glass-header > div {
+    position: relative;
+    z-index: 2;
+}
+/* Magical tweaks for inner items */
+.magical-glass-header .clock-container, 
+.magical-glass-header .user-info, 
+.magical-glass-header #online-users-badge,
+.magical-glass-header #global-exchange-rate-box {
+    background: rgba(20, 10, 40, 0.6) !important;
+    border: 1px solid rgba(192, 132, 252, 0.25) !important;
+    backdrop-filter: blur(12px);
+    border-radius: 14px !important;
+    transition: all 0.3s ease;
+}
+.magical-glass-header .clock-container:hover, 
+.magical-glass-header .user-info:hover, 
+.magical-glass-header #online-users-badge:hover,
+.magical-glass-header #global-exchange-rate-box:hover {
+    border-color: rgba(192, 132, 252, 0.8) !important;
+    box-shadow: 0 0 20px rgba(192, 132, 252, 0.4), inset 0 0 10px rgba(192, 132, 252, 0.2) !important;
+    transform: translateY(-2px);
+    background: rgba(30, 15, 60, 0.7) !important;
+}
+.magical-glass-header .header-page-title {
+    text-shadow: 0 0 15px rgba(192, 132, 252, 0.8), 0 0 30px rgba(192, 132, 252, 0.4);
+    color: #fff !important;
+}
+.magical-glass-header button.fullscreen-toggle-btn,
+.magical-glass-header button.theme-toggle-btn {
+    background: rgba(168, 85, 247, 0.15) !important;
+    border: 1px solid rgba(168, 85, 247, 0.4) !important;
+    color: #e9d5ff !important;
+    border-radius: 50% !important;
+}
+.magical-glass-header button.fullscreen-toggle-btn:hover,
+.magical-glass-header button.theme-toggle-btn:hover {
+    background: rgba(168, 85, 247, 0.4) !important;
+    box-shadow: 0 0 15px rgba(168, 85, 247, 0.6) !important;
+    transform: scale(1.15) rotate(8deg);
+    color: #fff !important;
+}
+.magical-glass-header #header-clock {
+    color: #d8b4fe !important;
+    text-shadow: 0 0 12px rgba(192, 132, 252, 0.6) !important;
+}
+@media (max-width: 768px) {
+    .magical-glass-header {
+        margin: 10px !important;
+        padding: 10px !important;
+        border-radius: 16px !important;
+    }
+}
+</style>
+<header class="premium-header magical-glass-header <?php echo isset($header_theme_class) ? $header_theme_class : ''; ?>" style="display:flex; justify-content:space-between; align-items:center; gap:15px;">
     <!-- Left: Logo / Brand -->
     <div style="display:flex; align-items:center; gap:12px; flex:1;">
         <div style="background:linear-gradient(135deg,#10b981,#34d399); width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">📦</div>

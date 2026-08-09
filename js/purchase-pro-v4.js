@@ -676,6 +676,21 @@ function loadInvoiceFromStorage(invNo) {
     if (!data) return false;
     
     try {
+        // Trigger magical animation
+        const formCard = document.getElementById('form-fields-card');
+        const tableCard = document.querySelector('.table-container') || (document.getElementById('details-table') ? document.getElementById('details-table').closest('.neo-card') : null);
+        if (formCard) {
+            formCard.classList.remove('invoice-slide-up-anim');
+            void formCard.offsetWidth; // trigger reflow
+            formCard.classList.add('invoice-slide-up-anim');
+        }
+        if (tableCard) {
+            tableCard.classList.remove('invoice-slide-up-anim');
+            void tableCard.offsetWidth; // trigger reflow
+            tableCard.style.animationDelay = '0.1s';
+            tableCard.classList.add('invoice-slide-up-anim');
+        }
+
         // If loading a confirmed or posted invoice, enter Edit Mode
         if (data.status === 'confirmed' || data.status === 'posted' || localStorage.getItem('erp_pur_' + invNo)) {
             currentViewedInvoiceNo = data.invoiceNo || data.id;

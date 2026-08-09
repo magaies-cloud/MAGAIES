@@ -23,6 +23,13 @@
     <link rel="stylesheet" href="css/print-invoice.css">
     <link rel="stylesheet" href="css/purchase-module.css?v=<?php echo time(); ?>">
     <style>
+        @keyframes magicalInvoiceSlideUp {
+            from { opacity: 0; transform: translateY(30px) scale(0.98); }
+            to { opacity: 1; transform: translateY(0) scale(1); }
+        }
+        .invoice-slide-up-anim {
+            animation: magicalInvoiceSlideUp 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards !important;
+        }
         /* ═══════════════════════════════════════════════════════
            ✨ RICH GLASSMORPHISM & LAYER ARCHITECTURE
            ═══════════════════════════════════════════════════════ */
