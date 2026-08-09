@@ -897,12 +897,18 @@ function renderPresetButtons() {
     container.innerHTML = ''; // Prevent duplicates if general-ledger.js also rendered
     let presets = getSavedPresets();
     
+    const defaultIcons = ['💎 افتراضي 1', '⭐ افتراضي 2', '🎨 افتراضي 3', '🔥 افتراضي 4', '🌺 افتراضي 5', '✨ نموذج 1', '✨ نموذج 2'];
+
     if (!Array.isArray(presets) || presets.length === 0) {
-        const defaultIcons = ['💎 افتراضي 1', '⭐ افتراضي 2', '🎨 افتراضي 3', '🔥 افتراضي 4', '✨ نموذج 1'];
         presets = defaultIcons.map(name => ({ name, showInRibbon: true }));
+    } else if (presets.length < defaultIcons.length) {
+        for (let i = presets.length; i < defaultIcons.length; i++) {
+            presets.push({ name: defaultIcons[i], showInRibbon: true });
+        }
+        savePresets(presets);
     }
 
-    presets.slice(0, 5).forEach((p, idx) => {
+    presets.slice(0, 7).forEach((p, idx) => {
         if (p.showInRibbon === false) return;
         const btn = document.createElement('button');
         btn.type = 'button';
@@ -912,7 +918,9 @@ function renderPresetButtons() {
         if (idx === 1) color = '#eab308'; // yellow
         else if (idx === 2) color = '#a855f7'; // purple
         else if (idx === 3) color = '#ef4444'; // red
-        else if (idx === 4) color = '#10b981'; // green
+        else if (idx === 4) color = '#f43f5e'; // rose
+        else if (idx === 5) color = '#10b981'; // green
+        else if (idx === 6) color = '#10b981'; // green
         
         btn.style.cssText = `--btn-color: ${color};`;
         btn.innerHTML = p.name || ('افتراضي ' + (idx + 1));
