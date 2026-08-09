@@ -1009,9 +1009,13 @@
                                             <div class="input-group"><label>الماركة / المنشأ</label><input type="text" id="item-brand" placeholder="مثال: تركي، جياد"></div>
                                             <div class="input-group"><label>الفئة الرئيسية</label><div style="display:flex; gap:5px;"><select id="item-category" style="flex:1;"></select><button class="btn-text" style="color:#a855f7; background:rgba(168,85,247,0.1); border-radius:8px; padding:0 10px;" onclick="quickAddCategory()" title="إضافة فئة">➕</button></div></div>
                                             <div class="input-group" style="grid-column: 1 / -1;">
-                                                <label>الوحدة الأساسية والشيلة <span style="color:#ef4444;">*</span></label>
+                                                <label>الوحدات الأساسية <span style="color:#ef4444;">*</span></label>
+                                                <input type="text" id="item-primary-base-unit" oninput="updateBaseUnitRow()" placeholder="مثال: حبة، كرتون">
+                                            </div>
+                                            <div class="input-group" style="grid-column: 1 / -1;">
+                                                <label>الوحدات</label>
                                                 <div style="display:flex; gap:15px; align-items:center; background: rgba(0,0,0,0.15); padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                                                    <input type="text" id="item-base-unit" oninput="updateBaseUnitRow()" placeholder="مثال: 1 ، حبة" style="flex:4; font-size: 1.35rem !important;">
+                                                    <input type="text" id="item-base-unit" placeholder="مثال: 1 ، حبة" style="flex:4; font-size: 1.35rem !important;">
                                                     <span style="color:#a855f7; font-weight:bold; font-size: 1.1rem; white-space: nowrap;">+ شيلة</span>
                                                     <input type="number" id="item-bundle-factor" placeholder="المعامل" value="1" min="1" style="flex:1;">
                                                 </div>
@@ -2113,7 +2117,7 @@
         }
 
         function updateBaseUnitRow() {
-            const v = document.getElementById('item-base-unit').value;
+            const v = document.getElementById('item-primary-base-unit').value;
             const d = document.getElementById('base-unit-name-display');
             if(d) d.value = v;
             document.querySelectorAll('.row-base-unit').forEach(el => el.value = v);
@@ -2138,8 +2142,9 @@
         function saveItem() {
             const name = document.getElementById('item-name-input').value;
             if(!name) { alert('الرجاء إدخال اسم الصنف'); return; }
-            const baseUnit = document.getElementById('item-base-unit').value;
-            if(!baseUnit) { alert('الرجاء إدخال الوحدة الأساسية'); return; }
+            const baseUnit = document.getElementById('item-primary-base-unit').value;
+            if(!baseUnit) { alert('الرجاء إدخال الوحدات الأساسية'); return; }
+            const secondaryUnit = document.getElementById('item-base-unit').value;
             const id = document.getElementById('item-code').value || 'ITEM-' + Date.now();
             const units = [];
             document.querySelectorAll('#units-matrix-body tr').forEach((row) => {
@@ -2149,7 +2154,7 @@
                 }
             });
             const costRadio = document.querySelector('input[name="cost_method"]:checked');
-            const itemData = { id, name, nameLatin: document.getElementById('item-name-latin').value, barcode: document.getElementById('item-barcode').value, category: document.getElementById('item-category').value, nature: document.getElementById('item-nature').value, brand: document.getElementById('item-brand').value, status: document.getElementById('item-active-toggle').checked ? 'active' : 'inactive', sellingPrice: parseFloat(document.getElementById('item-selling-price').value) || 0, maxDiscount: parseFloat(document.getElementById('item-max-discount').value) || 0, taxable: document.getElementById('item-taxable').checked, taxRate: parseFloat(document.getElementById('item-tax-rate').value) || 0, costMethod: costRadio ? costRadio.value : 'lastPurchase', openingQty: parseFloat(document.getElementById('item-opening-qty').value) || 0, openingValue: parseFloat(document.getElementById('item-opening-value').value) || 0, binLocation: document.getElementById('item-bin-location').value, maxLimit: parseFloat(document.getElementById('item-max-limit').value) || 0, minLimit: parseFloat(document.getElementById('item-min-limit').value) || 0, reorderLevel: parseFloat(document.getElementById('item-reorder-level').value) || 0, baseUnit, bundleFactor: parseFloat(document.getElementById('item-bundle-factor').value) || 1, units, description: document.getElementById('item-description').value };
+            const itemData = { id, name, nameLatin: document.getElementById('item-name-latin').value, barcode: document.getElementById('item-barcode').value, category: document.getElementById('item-category').value, nature: document.getElementById('item-nature').value, brand: document.getElementById('item-brand').value, status: document.getElementById('item-active-toggle').checked ? 'active' : 'inactive', sellingPrice: parseFloat(document.getElementById('item-selling-price').value) || 0, maxDiscount: parseFloat(document.getElementById('item-max-discount').value) || 0, taxable: document.getElementById('item-taxable').checked, taxRate: parseFloat(document.getElementById('item-tax-rate').value) || 0, costMethod: costRadio ? costRadio.value : 'lastPurchase', openingQty: parseFloat(document.getElementById('item-opening-qty').value) || 0, openingValue: parseFloat(document.getElementById('item-opening-value').value) || 0, binLocation: document.getElementById('item-bin-location').value, maxLimit: parseFloat(document.getElementById('item-max-limit').value) || 0, minLimit: parseFloat(document.getElementById('item-min-limit').value) || 0, reorderLevel: parseFloat(document.getElementById('item-reorder-level').value) || 0, primaryBaseUnit: baseUnit, baseUnit: secondaryUnit, bundleFactor: parseFloat(document.getElementById('item-bundle-factor').value) || 1, units, description: document.getElementById('item-description').value };
             let items = [];
             try {
                 items = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
@@ -2342,8 +2347,9 @@ function openSafeForm() {
         function saveItem() {
             const name = document.getElementById('item-name-input').value;
             if(!name) { alert('الرجاء إدخال اسم الصنف'); return; }
-            const baseUnit = document.getElementById('item-base-unit').value;
-            if(!baseUnit) { alert('الرجاء إدخال الوحدة الأساسية'); return; }
+            const baseUnit = document.getElementById('item-primary-base-unit').value;
+            if(!baseUnit) { alert('الرجاء إدخال الوحدات الأساسية'); return; }
+            const secondaryUnit = document.getElementById('item-base-unit').value;
             const id = document.getElementById('item-code').value || 'ITEM-' + Date.now();
             const units = [];
             document.querySelectorAll('#units-matrix-body tr').forEach((row) => {
@@ -2374,7 +2380,7 @@ function openSafeForm() {
             const newBarcodes = [itemBarcode, ...units.map(u => u.barcode)].filter(b => b && b.trim() !== '');
 
             const costRadio = document.querySelector('input[name="cost_method"]:checked');
-            const itemData = { id, name, nameLatin: document.getElementById('item-name-latin').value, barcode: itemBarcode, category: document.getElementById('item-category').value, nature: document.getElementById('item-nature').value, brand: document.getElementById('item-brand').value, status: document.getElementById('item-active-toggle').checked ? 'active' : 'inactive', sellingPrice: parseFloat(document.getElementById('item-selling-price').value) || 0, maxDiscount: parseFloat(document.getElementById('item-max-discount').value) || 0, taxable: document.getElementById('item-taxable').checked, taxRate: parseFloat(document.getElementById('item-tax-rate').value) || 0, costMethod: costRadio ? costRadio.value : 'lastPurchase', openingQty: parseFloat(document.getElementById('item-opening-qty').value) || 0, openingValue: parseFloat(document.getElementById('item-opening-value').value) || 0, binLocation: document.getElementById('item-bin-location').value, maxLimit: parseFloat(document.getElementById('item-max-limit').value) || 0, minLimit: parseFloat(document.getElementById('item-min-limit').value) || 0, reorderLevel: parseFloat(document.getElementById('item-reorder-level').value) || 0, baseUnit, bundleFactor: parseFloat(document.getElementById('item-bundle-factor').value) || 1, units, description: document.getElementById('item-description').value };
+            const itemData = { id, name, nameLatin: document.getElementById('item-name-latin').value, barcode: itemBarcode, category: document.getElementById('item-category').value, nature: document.getElementById('item-nature').value, brand: document.getElementById('item-brand').value, status: document.getElementById('item-active-toggle').checked ? 'active' : 'inactive', sellingPrice: parseFloat(document.getElementById('item-selling-price').value) || 0, maxDiscount: parseFloat(document.getElementById('item-max-discount').value) || 0, taxable: document.getElementById('item-taxable').checked, taxRate: parseFloat(document.getElementById('item-tax-rate').value) || 0, costMethod: costRadio ? costRadio.value : 'lastPurchase', openingQty: parseFloat(document.getElementById('item-opening-qty').value) || 0, openingValue: parseFloat(document.getElementById('item-opening-value').value) || 0, binLocation: document.getElementById('item-bin-location').value, maxLimit: parseFloat(document.getElementById('item-max-limit').value) || 0, minLimit: parseFloat(document.getElementById('item-min-limit').value) || 0, reorderLevel: parseFloat(document.getElementById('item-reorder-level').value) || 0, primaryBaseUnit: baseUnit, baseUnit: secondaryUnit, bundleFactor: parseFloat(document.getElementById('item-bundle-factor').value) || 1, units, description: document.getElementById('item-description').value };
             let items = [];
             try {
                 items = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
@@ -2551,6 +2557,7 @@ function openSafeForm() {
             document.getElementById('item-max-limit').value = item.maxLimit || '';
             document.getElementById('item-min-limit').value = item.minLimit || '';
             document.getElementById('item-reorder-level').value = item.reorderLevel || '';
+            document.getElementById('item-primary-base-unit').value = item.primaryBaseUnit || item.baseUnit || '';
             document.getElementById('item-base-unit').value = item.baseUnit || '';
             document.getElementById('item-bundle-factor').value = item.bundleFactor || 1;
             document.getElementById('item-description').value = item.description || '';
