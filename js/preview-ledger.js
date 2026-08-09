@@ -1304,7 +1304,7 @@ function loadPreset(idx) {
     
     const saveBtn = document.querySelector('button[onclick="saveCurrentPreset()"]');
     if (saveBtn) {
-        if (preset && preset.isFactoryDefault) {
+        if (idx < 5 || (preset && preset.isFactoryDefault)) {
             saveBtn.style.display = 'none';
         } else {
             saveBtn.style.display = 'inline-flex';
