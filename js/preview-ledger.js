@@ -1418,9 +1418,26 @@ function saveCurrentPreset() {
     p.showInfo = showHeaderInfo;
     p.updatedAt = new Date().toISOString();
 
+    // Automatically lock default presets upon first save
+    const isDefaultGroup = currentPresetIndex < 4 || (p.name && p.name.includes('افتراضي'));
+    if (isDefaultGroup) {
+        p.isFactoryDefault = true;
+        p.isLocked = true;
+        try {
+            fetch('api/save_factory_presets.php', {
+                method: 'POST',
+                headers: {'Content-Type': 'application/json'},
+                body: JSON.stringify({ preset: p, index: currentPresetIndex })
+            });
+        } catch(err) {}
+    }
+
     savePresets(presets);
     renderPresetButtons();
     if (typeof renderPresetsManagementList === 'function') renderPresetsManagementList();
+    
+    // Refresh loadPreset to immediately hide the save button
+    loadPreset(currentPresetIndex);
 
     try {
         if (window.DB_STORE && window.getTenantKey) {
@@ -1432,7 +1449,11 @@ function saveCurrentPreset() {
         }
     } catch(e){}
 
-    showToast(`💾 تم حفظ تصميم الجدول في "${p.name}" بنجاح!`, 'success');
+    if (isDefaultGroup) {
+        showToast(`🔒 تم حفظ "${p.name}" كـ ضبط مصنع نهائي بنجاح ولن يمكن تعديله بعد الآن!`, 'success');
+    } else {
+        showToast(`💾 تم حفظ تصميم الجدول في "${p.name}" بنجاح!`, 'success');
+    }
 }
 
 function updateReportTableTheme(theme) {
