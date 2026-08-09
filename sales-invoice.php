@@ -476,8 +476,8 @@
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20260803.81822"></script>
-    <script defer src="js/print-engine.js?v=<?php echo time(); ?>"></script>
-    <script defer src="js/sales-invoice.js?v=2"></script>
+    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1.0.0'; ?>"></script>
+    <script defer src="js/print-engine.js?v=<?php echo file_exists('js/print-engine.js') ? filemtime('js/print-engine.js') : '1.0.0'; ?>"></script>
+    <script defer src="js/sales-invoice.js?v=<?php echo file_exists('js/sales-invoice.js') ? filemtime('js/sales-invoice.js') : '1.0.0'; ?>"></script>
 </body>
 </html>
