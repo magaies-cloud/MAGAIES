@@ -2488,7 +2488,7 @@
                 <label class="h-label" style="margin:0; font-size: 0.95rem; font-weight:bold; white-space:nowrap;">رقم الفاتورة:</label>
                 <div style="display:flex; align-items:center; justify-content:space-between; flex:1; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); min-width: 0;">
                     <button class="pro-serial-btn" onclick="loadPreviousInvoice()" title="السابقة" style="background: transparent; border: none; color: #fff; font-size: 1.1rem; cursor: pointer; padding: 0 5px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❮</button>
-                    <span id="inv-number" class="pro-serial-number" style="font-size: 0.95rem; font-family: 'Outfit', sans-serif; font-weight: 900; letter-spacing: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">INV-000001</span>
+                    <span id="inv-number" class="pro-serial-number" style="font-size: 0.95rem; font-family: 'Outfit', sans-serif; font-weight: 900; letter-spacing: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">---</span>
                     <input type="hidden" id="hdr-inv-no">
                     <button class="pro-serial-btn" onclick="loadNextInvoice()" title="التالية" style="background: transparent; border: none; color: #fff; font-size: 1.1rem; cursor: pointer; padding: 0 5px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❯</button>
                 </div>
