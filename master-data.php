@@ -1000,11 +1000,23 @@
                                             </div>
                                         </div>
                                         
+                                        <div style="display:flex; align-items:center; gap:15px; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(168,85,247,0.3); box-shadow: inset 0 2px 10px rgba(0,0,0,0.2); margin-top: 15px;">
+                                            <label style="color:#a855f7; font-weight:bold; margin:0; font-size: 1rem;">الوحدة الأساسية <span style="color:#ef4444;">*</span></label>
+                                            <div style="display:flex; align-items:center; gap:5px; flex: 1;">
+                                                <select id="item-base-unit" onchange="updateBaseUnitRow()" style="border:none; border-bottom: 2px solid #a855f7; background:transparent; color:#fff; font-weight:bold; font-size: 1.1rem; padding: 5px; outline:none; flex: 1; min-width: 250px; text-align: center; transition: all 0.3s;" onfocus="this.style.borderBottomColor='#d8b4fe'">
+                                                    <option value="">-- اختر الوحدة --</option>
+                                                </select>
+                                                <button class="btn-text" style="color:#38bdf8; background:rgba(56,189,248,0.1); border-radius:8px; padding:0 8px; font-size:0.9rem;" onclick="quickAddUnit()" title="إضافة وحدة سريعة">➕</button>
+                                            </div>
+                                            <label style="color:#a855f7; font-weight:bold; margin:0; font-size: 1rem; margin-right: 20px;">الشيلة</label>
+                                            <input type="number" id="item-bundle-factor" placeholder="مثال: 15" value="1" min="1" style="border:none; border-bottom: 2px solid #a855f7; background:transparent; color:#fff; font-weight:bold; font-size: 1.1rem; padding: 5px; outline:none; width: 80px; text-align: center; transition: all 0.3s;" onfocus="this.style.borderBottomColor='#d8b4fe'">
+                                        </div>
+
                                         <div class="form-grid" style="margin-top: 15px;">
                                             <div class="input-group"><label>الباركود</label><input type="text" id="item-barcode" placeholder="امسح بالليزر..."></div>
                                             <div class="input-group"><label>الماركة / المنشأ</label><input type="text" id="item-brand" placeholder="مثال: تركي، جياد"></div>
                                             <div class="input-group"><label>الفئة الرئيسية</label><div style="display:flex; gap:5px;"><select id="item-category" style="flex:1;"></select><button class="btn-text" style="color:#a855f7; background:rgba(168,85,247,0.1); border-radius:8px; padding:0 10px;" onclick="quickAddCategory()" title="إضافة فئة">➕</button></div></div>
-                                            <div class="input-group"><label>الفئة الفرعية (للجرد)</label><input type="text" id="item-sub-category" placeholder="مثال: كمر 12 متر"></div>
+                                            <input type="hidden" id="item-sub-category" value="">
                                             <div class="input-group"><label>طبيعة الصنف</label><select id="item-nature"><option value="مخزني">📦 مخزني (يتم جرده)</option><option value="خدمي">🔧 خدمي (لا يجرد)</option><option value="تجميعي">🏗️ تجميعي</option></select></div>
                                             <div class="input-group"><label>حالة التفعيل</label><div style="display:flex; align-items:center; gap:10px; padding:10px; background: rgba(0,0,0,0.2); border-radius: 8px;"><label class="toggle-sw"><input type="checkbox" id="item-active-toggle" checked onchange="updateToggleLabel()"><span class="toggle-sl"></span></label><span id="item-active-label" style="color:var(--success-color); font-weight:bold; font-size:0.9rem;">🟢 نشط</span></div></div>
                                         </div>
@@ -1064,17 +1076,6 @@
                                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
                                         <div style="display:flex; align-items:center; gap:10px;">
                                             <span style="font-size:1.8rem; filter: drop-shadow(0 0 8px rgba(168,85,247,0.5));">📐</span><h4 style="margin:0; color:#a855f7; font-weight: 800; font-size: 1.3rem;">مصفوفة الوحدات والتحويل</h4>
-                                        </div>
-                                        <div style="display:flex; align-items:center; gap:15px; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(168,85,247,0.3); box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);">
-                                            <label style="color:#a855f7; font-weight:bold; margin:0; font-size: 1rem;">الوحدة الأساسية <span style="color:#ef4444;">*</span></label>
-                                            <div style="display:flex; align-items:center; gap:5px;">
-                                                <select id="item-base-unit" onchange="updateBaseUnitRow()" style="border:none; border-bottom: 2px solid #a855f7; background:transparent; color:#fff; font-weight:bold; font-size: 1.1rem; padding: 5px; outline:none; width: 150px; text-align: center; transition: all 0.3s;" onfocus="this.style.borderBottomColor='#d8b4fe'">
-                                                    <option value="">-- اختر الوحدة --</option>
-                                                </select>
-                                                <button class="btn-text" style="color:#38bdf8; background:rgba(56,189,248,0.1); border-radius:8px; padding:0 8px; font-size:0.9rem;" onclick="quickAddUnit()" title="إضافة وحدة سريعة">➕</button>
-                                            </div>
-                                            <label style="color:#a855f7; font-weight:bold; margin:0; font-size: 1rem; margin-right: 20px;">الشيلة</label>
-                                            <input type="number" id="item-bundle-factor" placeholder="مثال: 15" value="1" min="1" style="border:none; border-bottom: 2px solid #a855f7; background:transparent; color:#fff; font-weight:bold; font-size: 1.1rem; padding: 5px; outline:none; width: 80px; text-align: center; transition: all 0.3s;" onfocus="this.style.borderBottomColor='#d8b4fe'">
                                         </div>
                                     </div>
                                     
