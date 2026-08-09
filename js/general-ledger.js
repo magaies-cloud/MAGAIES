@@ -2823,9 +2823,18 @@ function renderLedgerPresets() {
 
     if (!Array.isArray(presets) || presets.length === 0) {
         presets = defaultIcons.map(name => ({ name, showInRibbon: true }));
-    } else if (presets.length < defaultIcons.length) {
-        for (let i = presets.length; i < defaultIcons.length; i++) {
-            presets.push({ name: defaultIcons[i], showInRibbon: true });
+    } else {
+        // Fix legacy arrays where index 4 was '✨ نموذج 1'
+        if (presets.length >= 5 && presets[4].name && presets[4].name.includes('نموذج 1')) {
+            // Insert 'افتراضي 5' at index 4 and shift the rest
+            presets.splice(4, 0, { name: defaultIcons[4], showInRibbon: true });
+        }
+        
+        // Append any remaining missing presets up to 7
+        if (presets.length < defaultIcons.length) {
+            for (let i = presets.length; i < defaultIcons.length; i++) {
+                presets.push({ name: defaultIcons[i], showInRibbon: true });
+            }
         }
         localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
     }
