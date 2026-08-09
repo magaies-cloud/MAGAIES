@@ -1,0 +1,17 @@
+<?php
+function fix_file($file) {
+    $content = file_get_contents($file);
+    $content = preg_replace('/\?\?\?\?\?\?\?/', 'ÇÝÊÑÇÖí', $content);
+    $content = preg_replace('/\?\?\?/', '??', $content);
+    $content = preg_replace('/\?\?\?\? \?\? \?\?\? \?\?\?\? \(\?\?\?\?\? \?\?\)/', 'ÞÇáÈ ÖÈØ ãÕäÚ ãÞÝá (ááÚÑÖ ÝÞØ)', $content);
+    $content = preg_replace('/\?\?\?/', '??', $content);
+    $content = preg_replace('/\?\?\?\? \?\?\?\?\?\?\?\? \?\?\?\?\?\? \? \?\?\? \?\?\?\?\?\?\?\?\? \?\?\?/', 'ÇäÞÑ áÇÓÊÑÌÇÚ ÇáäãæÐÌ Ãæ ÍÝÙ ÇáÊÚÏíáÇÊ ??', $content);
+    $content = preg_replace('/\?\?\?\? \(/', 'ÅÚÏÇÏÇÊ (', $content);
+    $content = preg_replace('/\- \? \[OK \/ \?\] \? \? \? \? ? \?\./', '- ÇÖÛØ [OK / ÍÓäÇð] ÅÐÇ ßäÊ ÊÑíÏ ÊÍãíá åÐÇ ÇáäãæÐÌ.', $content);
+    $content = preg_replace('/\- \? \[Cancel \/ \?\?\] \? \? \? \? \?\?\? \?\?\?\? \? ? \?\./', '- ÇÖÛØ [Cancel / ÅáÛÇÁ] ÅÐÇ ßäÊ ÊÑíÏ ÍÝÙ ÇáÊÚÏíáÇÊ ÇáÍÇáíÉ Ýí åÐÇ ÇáäãæÐÌ.', $content);
+    $content = preg_replace('/\? \? \?/', '? ÊÃßíÏ ÇáÍÝÙ', $content);
+    $content = preg_replace('/\? \? ?\? \? \?\?\?\? \? \? \?\?\? \?\?\?\? \?/', 'åá ÃäÊ ãÊÃßÏ ãä ÑÛÈÊß Ýí ÍÝÙ ÇáÊÚÏíáÇÊ ÇáÍÇáíÉ Ýí', $content);
+    $content = preg_replace('/\? \?\?\?/', 'ÈÔßá äåÇÆí', $content);
+    file_put_contents($file, $content);
+}
+fix_file('C:/xampp/htdocs/ELSAJANA2/magaies/js/mainbalances-report.js');

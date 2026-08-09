@@ -671,6 +671,10 @@
         :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
         :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
         :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
+        
+        /* إخفاء حقل الفئة الفرعية للجرد نهائياً بناء على طلب المستخدم */
+        #item-sub-category { display: none !important; }
+        .input-group:has(#item-sub-category) { display: none !important; }
 \n</style>
 
 </head>
@@ -1004,7 +1008,14 @@
                                             <div class="input-group"><label>الباركود</label><input type="text" id="item-barcode" placeholder="امسح بالليزر..."></div>
                                             <div class="input-group"><label>الماركة / المنشأ</label><input type="text" id="item-brand" placeholder="مثال: تركي، جياد"></div>
                                             <div class="input-group"><label>الفئة الرئيسية</label><div style="display:flex; gap:5px;"><select id="item-category" style="flex:1;"></select><button class="btn-text" style="color:#a855f7; background:rgba(168,85,247,0.1); border-radius:8px; padding:0 10px;" onclick="quickAddCategory()" title="إضافة فئة">➕</button></div></div>
-                                            <div class="input-group"><label>الفئة الفرعية (للجرد)</label><input type="text" id="item-sub-category" placeholder="مثال: كمر 12 متر"></div>
+                                            <div class="input-group">
+                                                <label>الوحدة الأساسية والشيلة <span style="color:#ef4444;">*</span></label>
+                                                <div style="display:flex; gap:5px; align-items:center;">
+                                                    <input type="text" id="item-base-unit" oninput="updateBaseUnitRow()" placeholder="مثال: 1 ، حبة" style="flex:2;">
+                                                    <span style="color:#a855f7; font-weight:bold;">+ شيلة</span>
+                                                    <input type="number" id="item-bundle-factor" placeholder="المعامل" value="1" min="1" style="flex:1;">
+                                                </div>
+                                            </div>
                                             <div class="input-group"><label>طبيعة الصنف</label><select id="item-nature"><option value="مخزني">📦 مخزني (يتم جرده)</option><option value="خدمي">🔧 خدمي (لا يجرد)</option><option value="تجميعي">🏗️ تجميعي</option></select></div>
                                             <div class="input-group"><label>حالة التفعيل</label><div style="display:flex; align-items:center; gap:10px; padding:10px; background: rgba(0,0,0,0.2); border-radius: 8px;"><label class="toggle-sw"><input type="checkbox" id="item-active-toggle" checked onchange="updateToggleLabel()"><span class="toggle-sl"></span></label><span id="item-active-label" style="color:var(--success-color); font-weight:bold; font-size:0.9rem;">🟢 نشط</span></div></div>
                                         </div>
@@ -1064,17 +1075,6 @@
                                     <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
                                         <div style="display:flex; align-items:center; gap:10px;">
                                             <span style="font-size:1.8rem; filter: drop-shadow(0 0 8px rgba(168,85,247,0.5));">📐</span><h4 style="margin:0; color:#a855f7; font-weight: 800; font-size: 1.3rem;">مصفوفة الوحدات والتحويل</h4>
-                                        </div>
-                                        <div style="display:flex; align-items:center; gap:15px; background: rgba(0,0,0,0.3); padding: 10px 15px; border-radius: 12px; border: 1px solid rgba(168,85,247,0.3); box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);">
-                                            <label style="color:#a855f7; font-weight:bold; margin:0; font-size: 1rem;">الوحدة الأساسية <span style="color:#ef4444;">*</span></label>
-                                            <div style="display:flex; align-items:center; gap:5px;">
-                                                <select id="item-base-unit" onchange="updateBaseUnitRow()" style="border:none; border-bottom: 2px solid #a855f7; background:transparent; color:#fff; font-weight:bold; font-size: 1.1rem; padding: 5px; outline:none; width: 150px; text-align: center; transition: all 0.3s;" onfocus="this.style.borderBottomColor='#d8b4fe'">
-                                                    <option value="">-- اختر الوحدة --</option>
-                                                </select>
-                                                <button class="btn-text" style="color:#38bdf8; background:rgba(56,189,248,0.1); border-radius:8px; padding:0 8px; font-size:0.9rem;" onclick="quickAddUnit()" title="إضافة وحدة سريعة">➕</button>
-                                            </div>
-                                            <label style="color:#a855f7; font-weight:bold; margin:0; font-size: 1rem; margin-right: 20px;">الشيلة</label>
-                                            <input type="number" id="item-bundle-factor" placeholder="مثال: 15" value="1" min="1" style="border:none; border-bottom: 2px solid #a855f7; background:transparent; color:#fff; font-weight:bold; font-size: 1.1rem; padding: 5px; outline:none; width: 80px; text-align: center; transition: all 0.3s;" onfocus="this.style.borderBottomColor='#d8b4fe'">
                                         </div>
                                     </div>
                                     
@@ -2147,7 +2147,7 @@
                 }
             });
             const costRadio = document.querySelector('input[name="cost_method"]:checked');
-            const itemData = { id, name, nameLatin: document.getElementById('item-name-latin').value, barcode: document.getElementById('item-barcode').value, category: document.getElementById('item-category').value, subCategory: document.getElementById('item-sub-category').value, nature: document.getElementById('item-nature').value, brand: document.getElementById('item-brand').value, status: document.getElementById('item-active-toggle').checked ? 'active' : 'inactive', sellingPrice: parseFloat(document.getElementById('item-selling-price').value) || 0, maxDiscount: parseFloat(document.getElementById('item-max-discount').value) || 0, taxable: document.getElementById('item-taxable').checked, taxRate: parseFloat(document.getElementById('item-tax-rate').value) || 0, costMethod: costRadio ? costRadio.value : 'lastPurchase', openingQty: parseFloat(document.getElementById('item-opening-qty').value) || 0, openingValue: parseFloat(document.getElementById('item-opening-value').value) || 0, binLocation: document.getElementById('item-bin-location').value, maxLimit: parseFloat(document.getElementById('item-max-limit').value) || 0, minLimit: parseFloat(document.getElementById('item-min-limit').value) || 0, reorderLevel: parseFloat(document.getElementById('item-reorder-level').value) || 0, baseUnit, bundleFactor: parseFloat(document.getElementById('item-bundle-factor').value) || 1, units, description: document.getElementById('item-description').value };
+            const itemData = { id, name, nameLatin: document.getElementById('item-name-latin').value, barcode: document.getElementById('item-barcode').value, category: document.getElementById('item-category').value, nature: document.getElementById('item-nature').value, brand: document.getElementById('item-brand').value, status: document.getElementById('item-active-toggle').checked ? 'active' : 'inactive', sellingPrice: parseFloat(document.getElementById('item-selling-price').value) || 0, maxDiscount: parseFloat(document.getElementById('item-max-discount').value) || 0, taxable: document.getElementById('item-taxable').checked, taxRate: parseFloat(document.getElementById('item-tax-rate').value) || 0, costMethod: costRadio ? costRadio.value : 'lastPurchase', openingQty: parseFloat(document.getElementById('item-opening-qty').value) || 0, openingValue: parseFloat(document.getElementById('item-opening-value').value) || 0, binLocation: document.getElementById('item-bin-location').value, maxLimit: parseFloat(document.getElementById('item-max-limit').value) || 0, minLimit: parseFloat(document.getElementById('item-min-limit').value) || 0, reorderLevel: parseFloat(document.getElementById('item-reorder-level').value) || 0, baseUnit, bundleFactor: parseFloat(document.getElementById('item-bundle-factor').value) || 1, units, description: document.getElementById('item-description').value };
             let items = [];
             try {
                 items = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
@@ -2371,7 +2371,7 @@ function openSafeForm() {
             const newBarcodes = [itemBarcode, ...units.map(u => u.barcode)].filter(b => b && b.trim() !== '');
 
             const costRadio = document.querySelector('input[name="cost_method"]:checked');
-            const itemData = { id, name, nameLatin: document.getElementById('item-name-latin').value, barcode: itemBarcode, category: document.getElementById('item-category').value, subCategory: document.getElementById('item-sub-category').value, nature: document.getElementById('item-nature').value, brand: document.getElementById('item-brand').value, status: document.getElementById('item-active-toggle').checked ? 'active' : 'inactive', sellingPrice: parseFloat(document.getElementById('item-selling-price').value) || 0, maxDiscount: parseFloat(document.getElementById('item-max-discount').value) || 0, taxable: document.getElementById('item-taxable').checked, taxRate: parseFloat(document.getElementById('item-tax-rate').value) || 0, costMethod: costRadio ? costRadio.value : 'lastPurchase', openingQty: parseFloat(document.getElementById('item-opening-qty').value) || 0, openingValue: parseFloat(document.getElementById('item-opening-value').value) || 0, binLocation: document.getElementById('item-bin-location').value, maxLimit: parseFloat(document.getElementById('item-max-limit').value) || 0, minLimit: parseFloat(document.getElementById('item-min-limit').value) || 0, reorderLevel: parseFloat(document.getElementById('item-reorder-level').value) || 0, baseUnit, bundleFactor: parseFloat(document.getElementById('item-bundle-factor').value) || 1, units, description: document.getElementById('item-description').value };
+            const itemData = { id, name, nameLatin: document.getElementById('item-name-latin').value, barcode: itemBarcode, category: document.getElementById('item-category').value, nature: document.getElementById('item-nature').value, brand: document.getElementById('item-brand').value, status: document.getElementById('item-active-toggle').checked ? 'active' : 'inactive', sellingPrice: parseFloat(document.getElementById('item-selling-price').value) || 0, maxDiscount: parseFloat(document.getElementById('item-max-discount').value) || 0, taxable: document.getElementById('item-taxable').checked, taxRate: parseFloat(document.getElementById('item-tax-rate').value) || 0, costMethod: costRadio ? costRadio.value : 'lastPurchase', openingQty: parseFloat(document.getElementById('item-opening-qty').value) || 0, openingValue: parseFloat(document.getElementById('item-opening-value').value) || 0, binLocation: document.getElementById('item-bin-location').value, maxLimit: parseFloat(document.getElementById('item-max-limit').value) || 0, minLimit: parseFloat(document.getElementById('item-min-limit').value) || 0, reorderLevel: parseFloat(document.getElementById('item-reorder-level').value) || 0, baseUnit, bundleFactor: parseFloat(document.getElementById('item-bundle-factor').value) || 1, units, description: document.getElementById('item-description').value };
             let items = [];
             try {
                 items = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
@@ -2531,7 +2531,6 @@ function openSafeForm() {
             document.getElementById('item-barcode').value = item.barcode || '';
             updateCategoryDropdowns();
             document.getElementById('item-category').value = item.category || '';
-            document.getElementById('item-sub-category').value = item.subCategory || '';
             document.getElementById('item-nature').value = item.nature || 'مخزني';
             document.getElementById('item-brand').value = item.brand || '';
             document.getElementById('item-active-toggle').checked = item.status !== 'inactive';
@@ -2592,7 +2591,6 @@ function openSafeForm() {
             document.getElementById('item-name-input').value = '';
             document.getElementById('item-name-latin').value = '';
             document.getElementById('item-barcode').value = '';
-            document.getElementById('item-sub-category').value = '';
             document.getElementById('item-brand').value = '';
             document.getElementById('item-active-toggle').checked = true;
             updateToggleLabel();
