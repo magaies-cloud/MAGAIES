@@ -1008,11 +1008,11 @@
                                             <div class="input-group"><label>الباركود</label><input type="text" id="item-barcode" placeholder="امسح بالليزر..."></div>
                                             <div class="input-group"><label>الماركة / المنشأ</label><input type="text" id="item-brand" placeholder="مثال: تركي، جياد"></div>
                                             <div class="input-group"><label>الفئة الرئيسية</label><div style="display:flex; gap:5px;"><select id="item-category" style="flex:1;"></select><button class="btn-text" style="color:#a855f7; background:rgba(168,85,247,0.1); border-radius:8px; padding:0 10px;" onclick="quickAddCategory()" title="إضافة فئة">➕</button></div></div>
-                                            <div class="input-group">
+                                            <div class="input-group" style="grid-column: 1 / -1;">
                                                 <label>الوحدة الأساسية والشيلة <span style="color:#ef4444;">*</span></label>
-                                                <div style="display:flex; gap:5px; align-items:center;">
-                                                    <input type="text" id="item-base-unit" oninput="updateBaseUnitRow()" placeholder="مثال: 1 ، حبة" style="flex:2;">
-                                                    <span style="color:#a855f7; font-weight:bold;">+ شيلة</span>
+                                                <div style="display:flex; gap:15px; align-items:center; background: rgba(0,0,0,0.15); padding: 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                                                    <input type="text" id="item-base-unit" oninput="updateBaseUnitRow()" placeholder="مثال: 1 ، حبة" style="flex:4; font-size: 1.35rem !important;">
+                                                    <span style="color:#a855f7; font-weight:bold; font-size: 1.1rem; white-space: nowrap;">+ شيلة</span>
                                                     <input type="number" id="item-bundle-factor" placeholder="المعامل" value="1" min="1" style="flex:1;">
                                                 </div>
                                             </div>
