@@ -35,8 +35,8 @@ if (!isset($input['preset']) || !isset($input['index'])) {
 $index = (int) $input['index'];
 $newPreset = $input['preset'];
 
-if ($index < 0 || $index > 3) {
-    echo json_encode(['success' => false, 'message' => 'يمكنك قفل الأزرار الأربعة الأولى فقط كـ "ضبط مصنع".']);
+if ($index < 0 || $index > 4) {
+    echo json_encode(['success' => false, 'message' => 'يمكنك قفل الأزرار الخمسة الأولى فقط كـ "ضبط مصنع".']);
     exit;
 }
 
