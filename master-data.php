@@ -1089,6 +1089,7 @@
                                                     <th style="padding: 15px; width: 40px; text-align: center;">م</th>
                                                     <th style="padding: 15px;">اسم الوحدة</th>
                                                     <th style="padding: 15px; text-align: center;">المعادل (Factor)</th>
+                                                    <th style="padding: 15px;">الوحدة الأساسية</th>
                                                     <th style="padding: 15px;">باركود</th>
                                                     <th style="padding: 15px; color: #34d399;">سعر نقدي</th>
                                                     <th style="padding: 15px; color: #60a5fa;">سعر آجل</th>
@@ -2115,6 +2116,7 @@
             const v = document.getElementById('item-base-unit').value;
             const d = document.getElementById('base-unit-name-display');
             if(d) d.value = v;
+            document.querySelectorAll('.row-base-unit').forEach(el => el.value = v);
         }
 
         function quickAddCategory() {
@@ -2318,6 +2320,7 @@ function openSafeForm() {
             const v = document.getElementById('item-base-unit').value;
             const d = document.getElementById('base-unit-name-display');
             if(d) d.value = v;
+            document.querySelectorAll('.row-base-unit').forEach(el => el.value = v);
         }
 
         function quickAddCategory() {
@@ -2358,11 +2361,11 @@ function openSafeForm() {
                 if (tds.length >= 8) {
                     const uName = tds[1].querySelector('input, select')?.value || baseUnit;
                     const uFactor = parseFloat(tds[2].querySelector('input')?.value) || 1;
-                    const uBarcode = tds[3].querySelector('input')?.value || '';
-                    const uCash = parseFloat(tds[4].querySelector('input')?.value) || 0;
-                    const uCredit = parseFloat(tds[5].querySelector('input')?.value) || 0;
-                    const uMin = parseFloat(tds[6].querySelector('input')?.value) || 0;
-                    const uWeight = parseFloat(tds[7].querySelector('input')?.value) || 0;
+                    const uBarcode = tds[4].querySelector('input')?.value || '';
+                    const uCash = parseFloat(tds[5].querySelector('input')?.value) || 0;
+                    const uCredit = parseFloat(tds[6].querySelector('input')?.value) || 0;
+                    const uMin = parseFloat(tds[7].querySelector('input')?.value) || 0;
+                    const uWeight = parseFloat(tds[8].querySelector('input')?.value) || 0;
                     
                     units.push({ unitName: uName, factor: uFactor, barcode: uBarcode, cashPrice: uCash, creditPrice: uCredit, minPrice: uMin, weight: uWeight, stock: 0 });
                 }
@@ -2510,7 +2513,7 @@ function openSafeForm() {
                 `<input type="text" id="base-unit-name-display" value="${val}" disabled style="width:100px; background:transparent; border:none; color:var(--success-color); font-weight:bold; text-align:center; padding:5px; border-radius:6px;">` : 
                 `<select ${idAttr} style="width:120px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; font-weight:bold; text-align:center; padding:5px; border-radius:6px; outline:none;">${opts}</select>`;
 
-            return '<tr ' + bg + '><td>' + num + '</td><td>' + unitField + '</td><td><input type="number" value="' + (u.factor || 1) + '" ' + dis + ' style="width:60px; background:transparent; border:' + (isBase ? 'none' : '1px solid rgba(255,255,255,0.15)') + '; color:' + (isBase ? 'var(--success-color)' : '#fff') + '; font-weight:bold; text-align:center; padding:5px; border-radius:6px;"></td><td><input type="text" value="' + (u.barcode || '') + '" placeholder="باركود..." style="width:100px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px;"></td><td><input type="number" value="' + (u.cashPrice || '') + '" placeholder="0.00" style="width:85px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px; font-weight:bold;"></td><td><input type="number" value="' + (u.creditPrice || '') + '" placeholder="0.00" style="width:85px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px;"></td><td><input type="number" value="' + (u.minPrice || '') + '" placeholder="0.00" style="width:85px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px;"></td><td><input type="number" value="' + (u.weight || '') + '" placeholder="0.00" style="width:60px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px;"></td><td>' + act + '</td></tr>';
+            return '<tr ' + bg + '><td>' + num + '</td><td>' + unitField + '</td><td><input type="number" value="' + (u.factor || 1) + '" ' + dis + ' style="width:60px; background:transparent; border:' + (isBase ? 'none' : '1px solid rgba(255,255,255,0.15)') + '; color:' + (isBase ? 'var(--success-color)' : '#fff') + '; font-weight:bold; text-align:center; padding:5px; border-radius:6px;"></td><td><input type="text" value="' + (document.getElementById('item-base-unit') ? document.getElementById('item-base-unit').value : '') + '" class="row-base-unit" style="width:80px; background:transparent; border:none; color:var(--success-color); font-weight:bold; text-align:center; padding:5px; border-radius:6px;" disabled></td><td><input type="text" value="' + (u.barcode || '') + '" placeholder="باركود..." style="width:100px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px;"></td><td><input type="number" value="' + (u.cashPrice || '') + '" placeholder="0.00" style="width:85px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px; font-weight:bold;"></td><td><input type="number" value="' + (u.creditPrice || '') + '" placeholder="0.00" style="width:85px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px;"></td><td><input type="number" value="' + (u.minPrice || '') + '" placeholder="0.00" style="width:85px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px;"></td><td><input type="number" value="' + (u.weight || '') + '" placeholder="0.00" style="width:60px; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:5px; border-radius:6px;"></td><td>' + act + '</td></tr>';
         }
 
         function editItem(id) {
