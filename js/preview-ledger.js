@@ -3164,11 +3164,10 @@ function collectAllTransactions() {
             // Process bank transfers
             if (source.bankTransfers && source.bankTransfers.length > 0) {
                 let bt = source.bankTransfers.find(b => matchAmt(b.amount)) || source.bankTransfers[0];
-                if (bt) t.transferNo = (bt.transferNo || '') + (bt.bankName ? ` (${bt.bankName})` : (bt.note ? ` (${bt.note})` : ''));
+                if (bt) t.transferNo = (bt.transferNo || '');
             } else if (source.transferNo || source.mobileTransferNo) {
                 let tr = source.transferNo || source.mobileTransferNo;
-                let note = source.mobileNote || source.bankName || '';
-                t.transferNo = note ? `${tr} (${note})` : tr;
+                t.transferNo = tr;
             }
 
             // Process multi-items
@@ -3184,9 +3183,9 @@ function collectAllTransactions() {
 
                     if (item.bankTransfers && item.bankTransfers.length > 0) {
                         let bt = item.bankTransfers.find(b => matchAmt(b.amount)) || item.bankTransfers[0];
-                        if (bt) t.transferNo = (bt.transferNo || '') + (bt.bankName ? ` (${bt.bankName})` : (bt.note ? ` (${bt.note})` : ''));
+                        if (bt) t.transferNo = (bt.transferNo || '');
                     } else if (item.transferNo) {
-                        t.transferNo = item.transferNo + (item.bankName || item.note ? ` (${item.bankName || item.note})` : '');
+                        t.transferNo = item.transferNo;
                     }
                 }
             }

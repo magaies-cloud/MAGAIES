@@ -1177,11 +1177,10 @@ function collectAllTransactions() {
             if (!t.transferNo) {
                 if (source.bankTransfers && source.bankTransfers.length > 0) {
                     let bt = source.bankTransfers.find(b => matchAmt(b.amount)) || source.bankTransfers[0];
-                    if (bt) t.transferNo = (bt.transferNo || bt.transfer_no || bt.referenceNo || '') + (bt.bankName ? ` (${bt.bankName})` : (bt.note ? ` (${bt.note})` : ''));
+                    if (bt) t.transferNo = (bt.transferNo || bt.transfer_no || bt.referenceNo || '');
                 } else if (source.transferNo || source.transfer_no || source.transferNumber || source.mobileTransferNo) {
                     let tr = source.transferNo || source.transfer_no || source.transferNumber || source.mobileTransferNo;
-                    let note = source.mobileNote || source.bankName || source.note || '';
-                    t.transferNo = note ? `${tr} (${note})` : tr;
+                    t.transferNo = tr;
                 }
             }
 
@@ -1201,9 +1200,9 @@ function collectAllTransactions() {
                     if (!t.transferNo) {
                         if (item.bankTransfers && item.bankTransfers.length > 0) {
                             let bt = item.bankTransfers.find(b => matchAmt(b.amount)) || item.bankTransfers[0];
-                            if (bt) t.transferNo = (bt.transferNo || bt.transfer_no || '') + (bt.bankName ? ` (${bt.bankName})` : (bt.note ? ` (${bt.note})` : ''));
+                            if (bt) t.transferNo = (bt.transferNo || bt.transfer_no || '');
                         } else if (item.transferNo || item.transfer_no) {
-                            t.transferNo = (item.transferNo || item.transfer_no) + (item.bankName || item.note ? ` (${item.bankName || item.note})` : '');
+                            t.transferNo = (item.transferNo || item.transfer_no);
                         }
                     }
                 }
