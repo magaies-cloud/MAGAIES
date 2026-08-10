@@ -1947,6 +1947,14 @@ function runReport() {
                     t.balance = runningBal;
                     t.balanceForeign = runningBalFc;
                 }
+                
+                if (t.balance !== undefined && t.balanceForeign !== undefined) {
+                    if (t.balance < 0) {
+                        t.balanceForeign = -Math.abs(t.balanceForeign);
+                    } else if (t.balance > 0) {
+                        t.balanceForeign = Math.abs(t.balanceForeign);
+                    }
+                }
             } else {
                 t.balance = undefined;
                 t.balanceForeign = undefined;
@@ -1958,21 +1966,44 @@ function runReport() {
 
         let totalDebit = 0;
         let totalCredit = 0;
+        let totalDebitFc = 0;
+        let totalCreditFc = 0;
         currentTxns.forEach(t => {
             if (!t || t.isOpening) return;
             totalDebit += (t.debit || 0);
             totalCredit += (t.credit || 0);
+            totalDebitFc += (t.debitForeign || 0);
+            totalCreditFc += (t.creditForeign || 0);
         });
 
         const tdDebit = document.getElementById('launcher-total-debit');
         const tdCredit = document.getElementById('launcher-total-credit');
         const tdBalance = document.getElementById('launcher-total-balance');
 
+        const tdDebitFc = document.getElementById('launcher-total-debit-foreign');
+        const tdCreditFc = document.getElementById('launcher-total-credit-foreign');
+        const tdBalanceFc = document.getElementById('launcher-total-balance-foreign');
+
         if (tdDebit) tdDebit.innerText = typeof fmtNum === 'function' ? fmtNum(totalDebit) : totalDebit.toLocaleString();
         if (tdCredit) tdCredit.innerText = typeof fmtNum === 'function' ? fmtNum(totalCredit) : totalCredit.toLocaleString();
+        
+        if (tdDebitFc) tdDebitFc.innerText = typeof fmtNum === 'function' ? fmtNum(totalDebitFc) : totalDebitFc.toLocaleString();
+        if (tdCreditFc) tdCreditFc.innerText = typeof fmtNum === 'function' ? fmtNum(totalCreditFc) : totalCreditFc.toLocaleString();
+
         if (tdBalance) {
             let bal = totalDebit - totalCredit;
             tdBalance.innerText = typeof fmtNum === 'function' ? fmtNum(bal) : bal.toLocaleString();
+        }
+        
+        if (tdBalanceFc) {
+            let bal = totalDebit - totalCredit;
+            let balFc = totalDebitFc - totalCreditFc;
+            if (bal < 0) {
+                balFc = -Math.abs(balFc);
+            } else if (bal > 0) {
+                balFc = Math.abs(balFc);
+            }
+            tdBalanceFc.innerText = typeof fmtNum === 'function' ? fmtNum(balFc) : balFc.toLocaleString();
         }
 
         ledgerCurrentPage = 1;
@@ -2737,13 +2768,22 @@ async function prepareLedgerPreviewData() {
             runningBalanceFc = undefined;
         }
 
+        let finalBalanceFc = runningBalanceFc;
+        if (runningBalance !== undefined && finalBalanceFc !== undefined) {
+            if (runningBalance < 0) {
+                finalBalanceFc = -Math.abs(finalBalanceFc);
+            } else if (runningBalance > 0) {
+                finalBalanceFc = Math.abs(finalBalanceFc);
+            }
+        }
+
         return Object.assign({}, t, {
             debit: dr,
             credit: cr,
             debitForeign: drF,
             creditForeign: crF,
             balance: runningBalance,
-            balanceForeign: runningBalanceFc,
+            balanceForeign: finalBalanceFc,
             statement: t.statement || t.description || t.desc || t.notes || '-',
             ref: t.ref || t.doc_no || t.voucher_no || t.id || '-',
             counterAccount: getAccountName(t.counterAccount || t.accountName || t.account) || '-',
