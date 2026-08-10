@@ -197,9 +197,15 @@ class AuthController {
                     ], 403);
                 }
             }
-            $token = generateToken();
-            $tokenExpiry = date('Y-m-d H:i:s', strtotime('+30 days'));
-            $this->pdo->prepare("UPDATE users SET token = ?, token_expires_at = ? WHERE id = ?")->execute([$token, $tokenExpiry, $user['id']]);
+            $token = $user['token'] ?? '';
+            $tokenExpiry = $user['token_expires_at'] ?? '';
+            
+            // Only generate a new token if one doesn't exist or if it has expired
+            if (empty($token) || empty($tokenExpiry) || strtotime($tokenExpiry) < time()) {
+                $token = generateToken();
+                $tokenExpiry = date('Y-m-d H:i:s', strtotime('+30 days'));
+                $this->pdo->prepare("UPDATE users SET token = ?, token_expires_at = ? WHERE id = ?")->execute([$token, $tokenExpiry, $user['id']]);
+            }
             $this->pdo->prepare("UPDATE tenants SET last_login_at = NOW() WHERE id = ?")->execute([$user['tenant_id']]);
             
             // Set cookie for server-side reports to read
