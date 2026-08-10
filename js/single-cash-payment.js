@@ -171,6 +171,9 @@ document.addEventListener('DOMContentLoaded', () => {
     const voucherId = urlParams.get('id');
     const voucherType = urlParams.get('type');
     if (voucherId) {
+        if(document.getElementById('edit-warning-banner')) {
+            document.getElementById('edit-warning-banner').style.display = 'flex';
+        }
         let dataSource;
         if (voucherType === 'receipt') {
             // Load from receipts data when coming from old single-cash-receipt links

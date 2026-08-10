@@ -908,6 +908,16 @@ try {
             <!-- Main Content area (Full width) -->
             <div class="main-panel" id="main-form-panel" style="padding: 10px; margin-bottom: 15px; width: 100%;">
 
+                <div id="edit-warning-banner" style="display: none; background: rgba(220, 38, 38, 0.15); border: 2px solid #ef4444; color: #f87171; padding: 15px 20px; border-radius: 12px; margin-bottom: 20px; align-items: center; justify-content: space-between; box-shadow: 0 4px 15px rgba(220, 38, 38, 0.2); animation: pulse-glow 2s infinite;">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <span style="font-size: 1.5rem;">⚠️</span>
+                        <div>
+                            <strong style="font-size: 1.1rem; display: block; margin-bottom: 4px;">تنبيه هام: أنت تقوم بعرض سند قديم تم حفظه مسبقاً!</strong>
+                            <span style="font-size: 0.95rem;">أي تغييرات تقوم بها سيتم تطبيقها وتعديل هذا السند. هل تريد التعديل حقاً؟</span>
+                        </div>
+                    </div>
+                </div>
+
                 <div class="interactive-columns" style="display: block;">
                     <!-- ONE SINGLE RECTANGLE -->
                     <div class="focus-zone single-unified-form" style="padding: 25px; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 16px; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
