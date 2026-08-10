@@ -746,8 +746,15 @@ function submitVoucher() {
                 row.querySelector('.transfer-no').focus();
                 hasInvalidTransfer = true;
                 return;
-            }: رقم التحويل يجب أن يكون 6 أرقام على الأقل`, "error");
+            }
+            if (trNo.length < 6) {
+                showToast(`السطر ${idx + 1}: رقم التحويل يجب أن يكون 6 أرقام على الأقل`, "error");
                 row.querySelector('.transfer-no').focus();
+                hasInvalidTransfer = true;
+                return;
+            }
+            if (!window.isBankReferenceUnique(trNo, 'mobile', document.getElementById('voucher-number').innerText)) {
+                window.showDuplicateWarningModal(trNo, 'mobile');
                 hasInvalidTransfer = true;
                 return;
             }
@@ -785,8 +792,15 @@ function submitVoucher() {
                 row.querySelector('.cheque-branch').focus();
                 hasInvalidCheque = true;
                 return;
-            }: رقم الشيك يجب أن يكون 6 أرقام على الأقل`, "error");
+            }
+            if (!chNo || chNo.length < 6) {
+                showToast(`السطر ${idx + 1}: رقم الشيك يجب أن يكون 6 أرقام على الأقل`, "error");
                 row.querySelector('.cheque-no').focus();
+                hasInvalidCheque = true;
+                return;
+            }
+            if (!window.isBankReferenceUnique(chNo, 'check', document.getElementById('voucher-number').innerText)) {
+                window.showDuplicateWarningModal(chNo, 'check');
                 hasInvalidCheque = true;
                 return;
             }
@@ -829,8 +843,15 @@ function submitVoucher() {
                 row.querySelector('.transfer-no').focus();
                 hasInvalidTransfer = true;
                 return;
-            }: رقم التحويل يجب أن يكون 6 أرقام على الأقل`, "error");
+            }
+            if (trNo.length < 6) {
+                showToast(`السطر ${idx + 1}: رقم التحويل يجب أن يكون 6 أرقام على الأقل`, "error");
                 row.querySelector('.transfer-no').focus();
+                hasInvalidTransfer = true;
+                return;
+            }
+            if (!window.isBankReferenceUnique(trNo, 'mobile', document.getElementById('voucher-number').innerText)) {
+                window.showDuplicateWarningModal(trNo, 'mobile');
                 hasInvalidTransfer = true;
                 return;
             }
@@ -857,8 +878,15 @@ function submitVoucher() {
                 row.querySelector('.cheque-branch').focus();
                 hasInvalidCheque = true;
                 return;
-            }: رقم الشيك يجب أن يكون 6 أرقام على الأقل`, "error");
+            }
+            if (!chNo || chNo.length < 6) {
+                showToast(`السطر ${idx + 1}: رقم الشيك يجب أن يكون 6 أرقام على الأقل`, "error");
                 row.querySelector('.cheque-no').focus();
+                hasInvalidCheque = true;
+                return;
+            }
+            if (!window.isBankReferenceUnique(chNo, 'check', document.getElementById('voucher-number').innerText)) {
+                window.showDuplicateWarningModal(chNo, 'check');
                 hasInvalidCheque = true;
                 return;
             }
@@ -2190,7 +2218,6 @@ window.unifyVoucherSequences = function() {
         window.location.href = window.location.pathname;
     }, 1500);
 };
-
 
 
 
