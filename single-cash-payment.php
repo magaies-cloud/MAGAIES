@@ -1729,22 +1729,9 @@ try {
         if(urlParams.get('id')) {
             isEditingOldVoucher = true;
             
-            // Add listeners to intercept any modification
-            document.addEventListener('input', (e) => {
-                if(isEditingOldVoucher && !hasWarnedAboutEdit && !e.target.closest('.modal-overlay')) {
-                    showEditWarningModal(e);
-                }
-            }, true);
-            
-            document.addEventListener('change', (e) => {
-                if(isEditingOldVoucher && !hasWarnedAboutEdit && !e.target.closest('.modal-overlay')) {
-                    showEditWarningModal(e);
-                }
-            }, true);
-            
             // Intercept save button clicks
             document.addEventListener('click', (e) => {
-                if(isEditingOldVoucher && !hasWarnedAboutEdit && e.target.closest('.btn-save')) {
+                if(isEditingOldVoucher && !hasWarnedAboutEdit && e.target.closest('#btn-save')) {
                     e.preventDefault();
                     e.stopPropagation();
                     showEditWarningModal(e);
@@ -1775,6 +1762,8 @@ try {
             modal.firstElementChild.style.transform = 'scale(0.9)';
             setTimeout(() => {
                 modal.style.display = 'none';
+                // Trigger the save action now that warning is accepted
+                document.getElementById('btn-save').click();
             }, 300);
         }
     }

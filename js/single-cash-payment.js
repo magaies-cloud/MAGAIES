@@ -294,7 +294,7 @@ window.adjustAmountFontSize = function(input) {
     }
 };
 
-function updateCurrency() {
+function updateCurrency(preventRateOverwrite = false) {
     const curr = document.getElementById('currency').value;
     const rateEl = document.getElementById('exchange-rate');
     const symbolEl1 = document.getElementById('amount-currency-symbol');
@@ -329,7 +329,7 @@ function updateCurrency() {
     }
 
     rateEl.readOnly = false;
-    if (typeof window.getExchangeRateForCurrency === 'function') {
+    if (typeof window.getExchangeRateForCurrency === 'function' && !preventRateOverwrite) {
         const fetchedRate = window.getExchangeRateForCurrency(targetForeignCurr);
         if (fetchedRate && fetchedRate !== 1) {
             rateEl.value = fetchedRate;
@@ -572,7 +572,7 @@ function renderVoucher(v) {
         loadVoucherPaymentDetails(v);
     }
     
-    updateCurrency();
+    updateCurrency(true); // pass true to prevent overwriting historical exchange rate
     updateBalances();
     updateLedgerButtons();
     if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
