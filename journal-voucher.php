@@ -314,7 +314,20 @@
                 <button class="btn btn-ghost" onclick="resetVoucher()">إفراغ الحقول</button>
                 <button class="btn btn-ghost" style="color: #f87171; border-color: rgba(239,68,68,0.3);" onclick="confirmDelete()">حذف القيد</button>
                 <button class="btn btn-ghost" onclick="printVoucher()">طباعة القيد</button>
-                <button class="btn btn-success" style="background: #c084fc; border-color: #c084fc; min-width: 200px;" onclick="submitVoucher()">✓ حفظ واعتماد القيد</button>
+                <button class="btn btn-success" id="btn-save" style="background: #c084fc; border-color: #c084fc; min-width: 200px;" onclick="submitVoucher()">✓ حفظ واعتماد القيد</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Edit Warning Modal -->
+    <div id="edit-warning-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px); z-index: 999999; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;">
+        <div style="background: linear-gradient(135deg, #7f1d1d, #991b1b); border: 2px solid #f87171; border-radius: 20px; padding: 40px; width: 90%; max-width: 600px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.5), 0 0 40px rgba(239,68,68,0.3); transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
+            <div style="font-size: 5rem; margin-bottom: 20px; animation: pulse-glow 2s infinite;">⚠️</div>
+            <h2 style="color: #ffffff; font-size: 2.2rem; font-weight: 900; margin: 0 0 15px 0; font-family: 'Tajawal', sans-serif; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">تنبيه: هل تريد التعديل؟</h2>
+            <p style="color: #fecaca; font-size: 1.2rem; line-height: 1.6; margin-bottom: 35px; font-weight: 500;">أنت تقوم الآن بتعديل سند قديم تم حفظه مسبقاً.<br>حفظ التعديلات سيؤدي إلى تغيير البيانات المالية بأثر رجعي.</p>
+            <div style="display: flex; gap: 15px; justify-content: center;">
+                <button onclick="confirmEditOldVoucher()" style="background: #ef4444; color: white; font-size: 1.3rem; font-weight: 900; padding: 15px 40px; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 15px rgba(239,68,68,0.4); transition: transform 0.2s;">نعم، اعتمد التعديل</button>
+                <button onclick="cancelEditOldVoucher()" style="background: rgba(255,255,255,0.1); color: #ffffff; font-size: 1.3rem; font-weight: 900; padding: 15px 30px; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; cursor: pointer;">تراجع ❌</button>
             </div>
         </div>
     </div>
@@ -322,6 +335,62 @@
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=20260803.10515"></script>
     <script defer src="js/journal-voucher.js"></script>
+    <script>
+    let hasWarnedAboutEdit = false;
+    let isEditingOldVoucher = false;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        if(urlParams.get('id')) {
+            isEditingOldVoucher = true;
+            
+            // Intercept save button clicks
+            document.addEventListener('click', (e) => {
+                if(isEditingOldVoucher && !hasWarnedAboutEdit && e.target.closest('#btn-save')) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    showEditWarningModal(e);
+                }
+            }, true);
+        }
+    });
+
+    function showEditWarningModal(e) {
+        if(e && e.target && typeof e.target.blur === 'function') {
+            e.target.blur();
+        }
+        const modal = document.getElementById('edit-warning-modal');
+        if(modal) {
+            modal.style.display = 'flex';
+            setTimeout(() => {
+                modal.style.opacity = '1';
+                modal.firstElementChild.style.transform = 'scale(1)';
+            }, 10);
+        }
+    }
+
+    function confirmEditOldVoucher() {
+        hasWarnedAboutEdit = true;
+        const modal = document.getElementById('edit-warning-modal');
+        if(modal) {
+            modal.style.opacity = '0';
+            modal.firstElementChild.style.transform = 'scale(0.9)';
+            setTimeout(() => {
+                modal.style.display = 'none';
+                // Trigger the save action now that warning is accepted
+                document.getElementById('btn-save').click();
+            }, 300);
+        }
+    }
+
+    function cancelEditOldVoucher() {
+        if(document.referrer) {
+            window.history.back();
+        } else {
+            window.location.href = 'dashboard-pro.php';
+        }
+    }
+    </script>
 </body>
 </html>
 
