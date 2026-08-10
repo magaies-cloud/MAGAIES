@@ -1341,8 +1341,14 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         if (typeof window.saveVoucher === 'function') {
             const originalSave = window.saveVoucher;
             window.saveVoucher = function(...args) {
-                const isEditing = (typeof window.currentVoucherIndex !== 'undefined' && window.currentVoucherIndex !== -1) ||
-                                  (new URLSearchParams(window.location.search).get('id') != null);
+                let editIndex = -1;
+                try {
+                    if (typeof currentVoucherIndex !== 'undefined') {
+                        editIndex = currentVoucherIndex;
+                    }
+                } catch(e) {}
+                
+                const isEditing = (editIndex !== -1) || (new URLSearchParams(window.location.search).get('id') != null);
                 
                 if (isEditing && !hasWarnedAboutEdit) {
                     showEditWarningModal();

@@ -343,8 +343,14 @@
         if (typeof window.submitVoucher === 'function') {
             const originalSubmit = window.submitVoucher;
             window.submitVoucher = function(...args) {
-                const isEditing = (typeof window.currentViewedIndex !== 'undefined' && window.currentViewedIndex !== -1) ||
-                                  (new URLSearchParams(window.location.search).get('id') != null);
+                let editIndex = -1;
+                try {
+                    if (typeof currentViewedIndex !== 'undefined') {
+                        editIndex = currentViewedIndex;
+                    }
+                } catch(e) {}
+                
+                const isEditing = (editIndex !== -1) || (new URLSearchParams(window.location.search).get('id') != null);
                 
                 if (isEditing && !hasWarnedAboutEdit) {
                     showEditWarningModal();
