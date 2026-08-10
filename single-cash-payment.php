@@ -1734,6 +1734,7 @@ try {
                 if (isEditing && !hasWarnedAboutEdit) {
                     showEditWarningModal();
                 } else {
+                    hasWarnedAboutEdit = false;
                     return originalSubmit.apply(this, args);
                 }
             };

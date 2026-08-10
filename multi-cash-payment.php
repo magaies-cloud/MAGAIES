@@ -1347,6 +1347,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 if (isEditing && !hasWarnedAboutEdit) {
                     showEditWarningModal();
                 } else {
+                    hasWarnedAboutEdit = false;
                     return originalSave.apply(this, args);
                 }
             };
