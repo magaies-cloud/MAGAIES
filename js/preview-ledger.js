@@ -420,6 +420,14 @@ function calculateLedgerTxns() {
             t.balance = runningBal;
             t.balanceForeign = runningBalFc;
         }
+
+        if (t.balance !== undefined && t.balanceForeign !== undefined) {
+            if (t.balance < 0) {
+                t.balanceForeign = -Math.abs(t.balanceForeign);
+            } else if (t.balance > 0) {
+                t.balanceForeign = Math.abs(t.balanceForeign);
+            }
+        }
     });
 
     return currentTxns;
