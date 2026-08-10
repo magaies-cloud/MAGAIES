@@ -1927,10 +1927,10 @@ function runReport() {
             let df = parseNum(t.debitForeign || t.dr_foreign || 0);
             let cf = parseNum(t.creditForeign || t.cr_foreign || 0);
 
-            if (debLoc > 0 && (df === 0 || df === debLoc) && rate > 1) {
+            if (debLoc > 0 && (df === 0 || df === debLoc) && rate > 0) {
                 df = debLoc / rate;
             }
-            if (credLoc > 0 && (cf === 0 || cf === credLoc) && rate > 1) {
+            if (credLoc > 0 && (cf === 0 || cf === credLoc) && rate > 0) {
                 cf = credLoc / rate;
             }
 
