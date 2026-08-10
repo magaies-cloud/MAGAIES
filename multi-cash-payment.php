@@ -1332,7 +1332,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=20260803.65812"></script>
-    <script defer src="js/multi-cash-payment.js"></script>
+    <script defer src="js/multi-cash-payment.js?v=<?= time() ?>"></script>
     <script>
     let hasWarnedAboutEdit = false;
 

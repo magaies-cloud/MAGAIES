@@ -334,7 +334,7 @@
 
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=20260803.10515"></script>
-    <script defer src="js/journal-voucher.js"></script>
+    <script defer src="js/journal-voucher.js?v=<?= time() ?>"></script>
     <script>
     let hasWarnedAboutEdit = false;
 
