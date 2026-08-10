@@ -1474,20 +1474,12 @@ async function saveVoucher() {
                         highlightError(row.querySelector('.block-transfer-no-input'));
                         hasInvalidTransfer = true;
                         break;
-                    }
-                    if (tno.length < 6) {
-                        showToast(`الحساب ${accountName} - السطر ${i + 1}: رقم التحويل يجب أن يكون 6 أرقام على الأقل`, "error");
+                    } - السطر ${i + 1}: رقم التحويل يجب أن يكون 6 أرقام على الأقل`, "error");
                         highlightError(row.querySelector('.block-transfer-no-input'));
                         hasInvalidTransfer = true;
                         break;
                     }
                     const currentVoucherNo = document.getElementById('voucher-no-display')?.value || '';
-                    if (!window.isBankReferenceUnique(tno, 'mobile', currentVoucherNo)) {
-                        window.showDuplicateWarningModal(tno, 'mobile');
-                        highlightError(row.querySelector('.block-transfer-no-input'));
-                        hasInvalidTransfer = true;
-                        break;
-                    }
                     bankTotalAmt += amt;
                     bankTransfers.push({ amount: amt, bankName: name, transferNo: tno, statement: desc });
                 }
@@ -1526,20 +1518,12 @@ async function saveVoucher() {
                         highlightError(row.querySelector('.block-cheque-no-input'));
                         hasInvalidCheque = true;
                         break;
-                    }
-                    if (no.length < 6) {
-                        showToast(`الحساب ${accountName} - السطر ${i + 1}: رقم الشيك يجب أن يكون 6 أرقام على الأقل`, "error");
+                    } - السطر ${i + 1}: رقم الشيك يجب أن يكون 6 أرقام على الأقل`, "error");
                         highlightError(row.querySelector('.block-cheque-no-input'));
                         hasInvalidCheque = true;
                         break;
                     }
                     const currentVoucherNo = document.getElementById('voucher-no-display')?.value || '';
-                    if (!window.isBankReferenceUnique(no, 'check', currentVoucherNo)) {
-                        window.showDuplicateWarningModal(no, 'check');
-                        highlightError(row.querySelector('.block-cheque-no-input'));
-                        hasInvalidCheque = true;
-                        break;
-                    }
                     chequeTotalAmt += amt;
                     cheques.push({ amount: amt, chequeBank: bank, chequeNo: no, chequeDate: dt, statement: desc });
                 }
@@ -2934,3 +2918,5 @@ window.openLedgerForBlockAccount = function(blockId) {
     const accName = document.getElementById(`account-${blockId}-search`).value;
     window.open(`general-ledger.php?accountId=${encodeURIComponent(accId)}&name=${encodeURIComponent(accName)}`, '_blank');
 };
+
+

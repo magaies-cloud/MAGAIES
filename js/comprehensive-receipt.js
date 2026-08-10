@@ -111,15 +111,6 @@ function saveVoucher() {
             alert('الرجاء إدخال رقم الشيك.');
             return;
         }
-        if (checkNumber.length < 6) {
-            alert('يجب أن يكون رقم الشيك 6 أرقام على الأقل.');
-            return;
-        }
-        const currentVoucherNo = document.getElementById('serial-number').innerText;
-        if (!window.isBankReferenceUnique(checkNumber, 'check', currentVoucherNo)) {
-            window.showDuplicateWarningModal(checkNumber, 'check');
-            return;
-        }
         
         voucher.checkNumber = checkNumber;
         voucher.checkDate = document.getElementById('check-date').value;
@@ -130,15 +121,6 @@ function saveVoucher() {
         const bankRef = document.getElementById('bank-ref').value.trim();
         if (!bankRef) {
             alert('الرجاء إدخال رقم التحويلة البنكية.');
-            return;
-        }
-        if (bankRef.length < 6) {
-            alert('يجب أن يكون رقم التحويلة 6 أرقام على الأقل.');
-            return;
-        }
-        const currentVoucherNo = document.getElementById('serial-number').innerText;
-        if (!window.isBankReferenceUnique(bankRef, 'mobile', currentVoucherNo)) {
-            window.showDuplicateWarningModal(bankRef, 'mobile');
             return;
         }
         
@@ -155,15 +137,6 @@ function saveVoucher() {
         const mobileRef = document.getElementById('mobile-ref').value.trim();
         if (!mobileRef) {
             alert('الرجاء إدخال رقم المرجع للتحويل.');
-            return;
-        }
-        if (mobileRef.length < 6) {
-            alert('يجب أن يكون رقم المرجع للتحويل 6 أرقام على الأقل.');
-            return;
-        }
-        const currentVoucherNo = document.getElementById('serial-number').innerText;
-        if (!window.isBankReferenceUnique(mobileRef, 'mobile', currentVoucherNo)) {
-            window.showDuplicateWarningModal(mobileRef, 'mobile');
             return;
         }
         
@@ -343,3 +316,4 @@ if (!window.normalizeArabic) {
             .toLowerCase();
     };
 }
+
