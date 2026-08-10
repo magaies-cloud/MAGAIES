@@ -1335,24 +1335,21 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
     <script defer src="js/multi-cash-payment.js"></script>
     <script>
     let hasWarnedAboutEdit = false;
-    let isEditingOldVoucher = false;
 
     document.addEventListener('DOMContentLoaded', () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        if(urlParams.get('id')) {
-            isEditingOldVoucher = true;
-            
-            // Intercept save by wrapping the original function
-            if (typeof window.saveVoucher === 'function') {
-                const originalSave = window.saveVoucher;
-                window.saveVoucher = function(...args) {
-                    if (isEditingOldVoucher && !hasWarnedAboutEdit) {
-                        showEditWarningModal();
-                    } else {
-                        return originalSave.apply(this, args);
-                    }
-                };
-            }
+        // Intercept save by wrapping the original function unconditionally
+        if (typeof window.saveVoucher === 'function') {
+            const originalSave = window.saveVoucher;
+            window.saveVoucher = function(...args) {
+                const isEditing = (typeof window.currentVoucherIndex !== 'undefined' && window.currentVoucherIndex !== -1) ||
+                                  (new URLSearchParams(window.location.search).get('id') != null);
+                
+                if (isEditing && !hasWarnedAboutEdit) {
+                    showEditWarningModal();
+                } else {
+                    return originalSave.apply(this, args);
+                }
+            };
         }
     });
 

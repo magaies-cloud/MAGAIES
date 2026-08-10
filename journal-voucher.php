@@ -337,24 +337,21 @@
     <script defer src="js/journal-voucher.js"></script>
     <script>
     let hasWarnedAboutEdit = false;
-    let isEditingOldVoucher = false;
 
     document.addEventListener('DOMContentLoaded', () => {
-        const urlParams = new URLSearchParams(window.location.search);
-        if(urlParams.get('id')) {
-            isEditingOldVoucher = true;
-            
-            // Intercept save by wrapping the original function
-            if (typeof window.submitVoucher === 'function') {
-                const originalSubmit = window.submitVoucher;
-                window.submitVoucher = function(...args) {
-                    if (isEditingOldVoucher && !hasWarnedAboutEdit) {
-                        showEditWarningModal();
-                    } else {
-                        return originalSubmit.apply(this, args);
-                    }
-                };
-            }
+        // Intercept save by wrapping the original function unconditionally
+        if (typeof window.submitVoucher === 'function') {
+            const originalSubmit = window.submitVoucher;
+            window.submitVoucher = function(...args) {
+                const isEditing = (typeof window.currentViewedIndex !== 'undefined' && window.currentViewedIndex !== -1) ||
+                                  (new URLSearchParams(window.location.search).get('id') != null);
+                
+                if (isEditing && !hasWarnedAboutEdit) {
+                    showEditWarningModal();
+                } else {
+                    return originalSubmit.apply(this, args);
+                }
+            };
         }
     });
 
