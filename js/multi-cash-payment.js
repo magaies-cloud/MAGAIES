@@ -62,7 +62,7 @@ document.addEventListener('DOMContentLoaded', () => {
                 localData.forEach(v => {
                     // Filter out old formats that were already fixed on the server
                     const vid = String(v.id);
-                    if (vid && (vid.includes('MV-') || vid.startsWith('MVP-') || vid.startsWith('TEMP_') || vid.startsWith('C-'))) {
+                    if (vid && (vid.startsWith('MVP-') || vid.startsWith('TEMP_') || vid.startsWith('C-'))) {
                         return; // discard
                     }
                     if (v.id && !serverMap.has(v.id)) {
@@ -1367,9 +1367,8 @@ async function confirmDelete() {
             existingData.splice(idx, 1);
             if (typeof localforage !== 'undefined') {
                 await localforage.setItem(tKey, existingData);
-            } else {
-                localStorage.setItem(tKey, JSON.stringify(existingData));
             }
+            localStorage.setItem(tKey, JSON.stringify(existingData));
             showToast('تم حذف المستند بنجاح وعكس تأثيره المحاسبي!', 'success');
         } else {
             showToast('المستند غير محفوظ بعد، تم تفريغ الحقول.', 'info');
@@ -1670,6 +1669,9 @@ async function saveVoucher() {
         if (typeof applyGroupedVoucherEffect === 'function') {
             applyGroupedVoucherEffect(voucher, false);
         }
+        
+        // Clear dirty flag so user doesn't get unsaved changes warning on exit
+        if (typeof formDirty !== 'undefined') formDirty = false;
 
         const mainAccName = document.getElementById('main-account-search') ? document.getElementById('main-account-search').value : 'الحساب الرئيسي';
         const subNames = voucher.items.map(i => i.accountName).join(' و ');
@@ -2905,5 +2907,6 @@ window.populateSafesDropdown = function(selectElement) {
         console.error('Error populating safes dropdown:', e);
     }
 };
+
 
 
