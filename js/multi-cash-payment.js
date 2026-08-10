@@ -2908,4 +2908,29 @@ window.populateSafesDropdown = function(selectElement) {
     }
 };
 
+window.openLedgerForMainAccount = function() {
+    const accId = document.getElementById('main-account').value;
+    if (!accId) {
+        if(typeof showToast === 'function') showToast('يرجى اختيار الحساب أولاً', 'info');
+        return;
+    }
+    const accName = document.getElementById('main-account-search').value;
+    window.open(`general-ledger.php?accountId=${encodeURIComponent(accId)}&name=${encodeURIComponent(accName)}`, '_blank');
+};
 
+window.openLedgerForBlockAccount = function(blockId) {
+    let accId = '';
+    const idEl = document.getElementById(`account-${blockId}-id`);
+    if(idEl && idEl.value) {
+        accId = idEl.value;
+    } else {
+        const nameEl = document.getElementById(`account-${blockId}`);
+        if(nameEl) accId = nameEl.value;
+    }
+    if (!accId) {
+        if(typeof showToast === 'function') showToast('يرجى اختيار الحساب أولاً', 'info');
+        return;
+    }
+    const accName = document.getElementById(`account-${blockId}-search`).value;
+    window.open(`general-ledger.php?accountId=${encodeURIComponent(accId)}&name=${encodeURIComponent(accName)}`, '_blank');
+};
