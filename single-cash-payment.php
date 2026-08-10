@@ -1729,14 +1729,17 @@ try {
         if(urlParams.get('id')) {
             isEditingOldVoucher = true;
             
-            // Intercept save button clicks
-            document.addEventListener('click', (e) => {
-                if(isEditingOldVoucher && !hasWarnedAboutEdit && e.target.closest('#btn-save')) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    showEditWarningModal(e);
-                }
-            }, true);
+            // Intercept save by wrapping the original function
+            if (typeof window.submitVoucher === 'function') {
+                const originalSubmit = window.submitVoucher;
+                window.submitVoucher = function(...args) {
+                    if (isEditingOldVoucher && !hasWarnedAboutEdit) {
+                        showEditWarningModal();
+                    } else {
+                        return originalSubmit.apply(this, args);
+                    }
+                };
+            }
         }
     });
 
@@ -1763,7 +1766,9 @@ try {
             setTimeout(() => {
                 modal.style.display = 'none';
                 // Trigger the save action now that warning is accepted
-                document.getElementById('btn-save').click();
+                if (typeof window.submitVoucher === 'function') {
+                    window.submitVoucher();
+                }
             }, 300);
         }
     }

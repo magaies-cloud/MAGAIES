@@ -1342,14 +1342,17 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         if(urlParams.get('id')) {
             isEditingOldVoucher = true;
             
-            // Intercept save button clicks
-            document.addEventListener('click', (e) => {
-                if(isEditingOldVoucher && !hasWarnedAboutEdit && e.target.closest('#btn-save')) {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    showEditWarningModal(e);
-                }
-            }, true);
+            // Intercept save by wrapping the original function
+            if (typeof window.saveVoucher === 'function') {
+                const originalSave = window.saveVoucher;
+                window.saveVoucher = function(...args) {
+                    if (isEditingOldVoucher && !hasWarnedAboutEdit) {
+                        showEditWarningModal();
+                    } else {
+                        return originalSave.apply(this, args);
+                    }
+                };
+            }
         }
     });
 
@@ -1376,7 +1379,9 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             setTimeout(() => {
                 modal.style.display = 'none';
                 // Trigger the save action now that warning is accepted
-                document.getElementById('btn-save').click();
+                if (typeof window.saveVoucher === 'function') {
+                    window.saveVoucher();
+                }
             }, 300);
         }
     }
