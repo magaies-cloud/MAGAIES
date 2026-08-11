@@ -1,4 +1,4 @@
-window.getAllMultiPayments = function() {
+﻿window.getAllMultiPayments = function() {
     let localInvs = [];
     try { localInvs = JSON.parse(localStorage.getItem('erp_multi_payments_v1')) || []; } catch(e){}
     let serverInvs = window.SERVER_MULTI_PAYMENTS || [];
@@ -309,7 +309,7 @@ async function loadAllAccounts() {
 }
 
 // Helper: Format number with commas
-const fmtNum = (num) => Number(num || 0).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+const fmtNum = (num) => Number(num || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
 // Helper: Clean commas for calculation
 const cleanNum = (str) => Number(String(str).replace(/,/g, '')) || 0;
@@ -2984,5 +2984,6 @@ window.openLedgerForBlockAccount = function(blockId) {
     const accName = document.getElementById(`account-${blockId}-search`).value;
     window.open(`general-ledger.php?accountId=${encodeURIComponent(accId)}&name=${encodeURIComponent(accName)}`, '_blank');
 };
+
 
 
