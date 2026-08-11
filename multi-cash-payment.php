@@ -458,28 +458,28 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             --tab-border-color: #d47a7e;
             --tab-glow-color: rgba(212, 122, 126, 0.7);
             --tab-hover-bg: linear-gradient(135deg, #d47a7e, #a3585c);
-            background: linear-gradient(135deg, #d47a7e, #a3585c) !important;
+            background: linear-gradient(135deg, rgba(212, 122, 126, 0.25), rgba(163, 88, 92, 0.4)) !important;
             border-color: #d47a7e !important;
             color: #ffffff !important;
             font-weight: 900 !important;
             text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
             box-shadow: 0 10px 30px rgba(212, 122, 126, 0.65), 0 0 25px rgba(212, 122, 126, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
             transform: translateY(-3px) scale(1.05) !important;
-            animation: rimPulseGlow 2.5s infinite ease-in-out !important;
+            /* animation removed */
         }
 
         .voucher-type-btn.active-receipt, #btn-receipt.active-receipt {
             --tab-border-color: #81b29a;
             --tab-glow-color: rgba(129, 178, 154, 0.7);
             --tab-hover-bg: linear-gradient(135deg, #81b29a, #5e8773);
-            background: linear-gradient(135deg, #81b29a, #5e8773) !important;
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.25), rgba(39, 174, 96, 0.4)) !important;
             border-color: #81b29a !important;
             color: #ffffff !important;
             font-weight: 900 !important;
             text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
             box-shadow: 0 10px 30px rgba(129, 178, 154, 0.65), 0 0 25px rgba(129, 178, 154, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
             transform: translateY(-3px) scale(1.05) !important;
-            animation: rimPulseGlow 2.5s infinite ease-in-out !important;
+            /* animation removed */
         }
 
         /* ═══ Payment Method Toggle Buttons (نقدي 💵 / تحويل 🏦 / شيك ✍️) ═══ */
@@ -743,22 +743,22 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             transform: translateY(-2px) scale(1) !important;
         }
         .voucher-type-btn.active-payment {
-            background: linear-gradient(135deg, #d47a7e, #a3585c) !important;
+            background: linear-gradient(135deg, rgba(212, 122, 126, 0.25), rgba(163, 88, 92, 0.4)) !important;
             border: 1px solid rgba(212, 122, 126, 0.8) !important;
             color: #ffffff !important;
             box-shadow: 0 8px 25px rgba(212, 122, 126, 0.5), 0 0 15px rgba(212, 122, 126, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
             font-weight: 900 !important;
             transform: translateY(-4px) scale(1.04) !important;
-            animation: activePulse 2.5s infinite ease-in-out !important;
+            /* animation removed */
         }
         .voucher-type-btn.active-receipt {
-            background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.25), rgba(39, 174, 96, 0.4)) !important;
             border: 1px solid rgba(39, 174, 96, 0.8) !important;
             color: #ffffff !important;
             box-shadow: 0 8px 25px rgba(39, 174, 96, 0.5), 0 0 15px rgba(39, 174, 96, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
             font-weight: 900 !important;
             transform: translateY(-4px) scale(1.04) !important;
-            animation: activePulseGreen 2.5s infinite ease-in-out !important;
+            /* animation removed */
         }
 
         /* Pulsing active buttons */
@@ -792,10 +792,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
 
         .voucher-type-btn.active-payment span {
-            animation: heartBeatRed 1.2s infinite ease-in-out !important;
+            /* animation removed */
         }
         .voucher-type-btn.active-receipt span {
-            animation: heartBeatGreen 1.2s infinite ease-in-out !important;
+            /* animation removed */
         }
 
         /* Color Wave Animation */
@@ -948,10 +948,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             <span>👤</span> بيان الطرف الرئيسي
                         </div>
                         <div style="display: flex; gap: 10px;">
-                            <button id="btn-payment" class="btn crystal-btn btn-action voucher-type-btn active-payment" onclick="setVoucherType('payment')">
+                            <button id="btn-payment" class="btn crystal-btn voucher-type-btn active-payment" onclick="setVoucherType('payment')">
                                 <span class="btn-icon">💸📤</span> <span class="btn-text">صرف مجمع</span>
                             </button>
-                            <button id="btn-receipt" class="btn crystal-btn btn-action voucher-type-btn" onclick="setVoucherType('receipt')">
+                            <button id="btn-receipt" class="btn crystal-btn voucher-type-btn" onclick="setVoucherType('receipt')">
                                 <span class="btn-icon">💰📥</span> <span class="btn-text">استلام مجمع</span>
                             </button>
                         </div>
@@ -1074,8 +1074,8 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             
                             <!-- Payment Toggles (No Cash) -->
                             <div style="display: flex; gap: 8px; flex: 1; min-width: 150px; align-items: stretch;">
-                                <button type="button" id="pm-bank-{ID}" class="btn crystal-btn btn-action pay-toggle-btn block-btn-bank" data-action="toggle-pm" data-block="{ID}" data-method="bank"><span class="btn-icon">🏦</span> <span class="btn-text">تحويل</span></button>
-                                <button type="button" id="pm-cheque-{ID}" class="btn crystal-btn btn-action pay-toggle-btn block-btn-cheque" data-action="toggle-pm" data-block="{ID}" data-method="cheque"><span class="btn-icon">✍️</span> <span class="btn-text">شيك</span></button>
+                                <button type="button" id="pm-bank-{ID}" class="btn crystal-btn pay-toggle-btn block-btn-bank" data-action="toggle-pm" data-block="{ID}" data-method="bank"><span class="btn-icon">🏦</span> <span class="btn-text">تحويل</span></button>
+                                <button type="button" id="pm-cheque-{ID}" class="btn crystal-btn pay-toggle-btn block-btn-cheque" data-action="toggle-pm" data-block="{ID}" data-method="cheque"><span class="btn-icon">✍️</span> <span class="btn-text">شيك</span></button>
                             </div>
                         </div>
 
@@ -1391,6 +1391,8 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
     </script>
 </body>
 </html>
+
+
 
 
 
