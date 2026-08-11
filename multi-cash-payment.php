@@ -138,30 +138,30 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
         /* Crystal Red Container (المستطيل الرئيسي للصرف) */
         .glass-red {
-            background: linear-gradient(135deg, rgba(153, 27, 27, 0.65), rgba(69, 10, 10, 0.85)) !important;
-            border: 1px solid rgba(248, 113, 113, 0.4) !important;
-            border-right: 6px solid #ef4444 !important;
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 5px rgba(248, 113, 113, 0.25) !important;
+            background: linear-gradient(135deg, rgba(40, 20, 28, 0.85), rgba(15, 23, 42, 0.95)) !important;
+            border: 1px solid rgba(248, 113, 113, 0.35) !important;
+            border-right: 5px solid #f87171 !important;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(248, 113, 113, 0.25), 0 0 25px rgba(239, 68, 68, 0.12) !important;
         }
         .glass-red:hover {
-            background: linear-gradient(135deg, rgba(185, 28, 28, 0.75), rgba(69, 10, 10, 0.95)) !important;
+            background: linear-gradient(135deg, rgba(50, 24, 34, 0.9), rgba(15, 23, 42, 0.98)) !important;
             border-color: rgba(248, 113, 113, 0.6) !important;
             border-right-color: #ef4444 !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.4) !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 0 35px rgba(239, 68, 68, 0.25) !important;
         }
 
         /* Crystal Green Container (مستطيلات الحسابات المستلمة) */
         .glass-green {
-            background: linear-gradient(135deg, rgba(6, 78, 59, 0.65), rgba(2, 44, 34, 0.85)) !important;
-            border: 1px solid rgba(52, 211, 153, 0.4) !important;
-            border-right: 6px solid #10b981 !important;
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 5px rgba(52, 211, 153, 0.25) !important;
+            background: linear-gradient(135deg, rgba(16, 36, 28, 0.85), rgba(15, 23, 42, 0.95)) !important;
+            border: 1px solid rgba(52, 211, 153, 0.35) !important;
+            border-right: 5px solid #34d399 !important;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(52, 211, 153, 0.25), 0 0 25px rgba(16, 185, 129, 0.12) !important;
         }
         .glass-green:hover {
-            background: linear-gradient(135deg, rgba(4, 120, 87, 0.75), rgba(2, 44, 34, 0.95)) !important;
+            background: linear-gradient(135deg, rgba(20, 44, 34, 0.9), rgba(15, 23, 42, 0.98)) !important;
             border-color: rgba(52, 211, 153, 0.6) !important;
             border-right-color: #10b981 !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.4) !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 0 35px rgba(16, 185, 129, 0.25) !important;
         }
 
         /* High Contrast Inputs, Placeholders, and Labels */
@@ -327,73 +327,130 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             50% { box-shadow: 0 0 32px var(--tab-glow-color, rgba(56, 189, 248, 0.9)), inset 0 2px 5px rgba(255, 255, 255, 0.8); }
         }
 
-        /* ═══ Base Crystal Button (Refined Elegance) ═══ */
+        /* ═══ Base Crystal Button (Master Data Inspired) ═══ */
         .crystal-btn, .voucher-type-btn, .pay-toggle-btn {
             position: relative;
-            background: rgba(255, 255, 255, 0.05);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border: 1px solid var(--tab-border-color, rgba(255, 255, 255, 0.15)) !important;
-            border-radius: 8px;
-            padding: 10px 22px;
-            font-size: 1.05rem;
-            font-weight: 700;
-            color: #f1f5f9 !important;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 3.8px solid var(--tab-border-color, rgba(255, 255, 255, 0.25)) !important;
+            border-radius: 14px;
+            padding: 10px 18px;
+            font-size: 1rem;
+            font-weight: 800;
+            color: #f8fafc !important;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 10px;
+            gap: 8px;
             white-space: nowrap;
-            overflow: hidden;
-            transition: all 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.2);
+            overflow: visible; /* Allows rear bottom glow projection */
+            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
             z-index: 1;
             font-family: 'Tajawal', sans-serif;
             user-select: none;
-            height: 44px;
+            height: 44px; /* Uniform height & width alignment */
             box-sizing: border-box;
         }
 
-        /* Subtle Glitter / Shimmer overlay (Calm & Elegant) */
+        /* Highly Visible Internal Glitter Sparkles Overlay */
         .crystal-btn::after, .voucher-type-btn::after, .pay-toggle-btn::after {
             content: '';
             position: absolute;
             inset: 0;
-            background: linear-gradient(110deg, transparent 20%, rgba(255, 255, 255, 0.08) 50%, transparent 80%);
-            background-size: 200% 100%;
-            background-position: 150% 0;
-            transition: background-position 0.6s ease-in-out;
+            border-radius: 10px;
+            background-image: 
+                radial-gradient(circle at 15% 25%, rgba(255, 255, 255, 1) 2px, transparent 2px),
+                radial-gradient(circle at 75% 15%, rgba(255, 255, 255, 0.95) 1.8px, transparent 1.8px),
+                radial-gradient(circle at 35% 75%, rgba(255, 255, 255, 1) 2px, transparent 2px),
+                radial-gradient(circle at 85% 80%, rgba(255, 255, 255, 0.9) 1.5px, transparent 1.5px),
+                radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.85) 1.5px, transparent 1.5px),
+                linear-gradient(135deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+            background-size: 50px 50px, 38px 38px, 45px 45px, 40px 40px, 35px 35px, 200% 200%;
+            background-repeat: repeat, repeat, repeat, repeat, repeat, no-repeat;
+            opacity: 0.85; /* Crystal clear glitter visibility */
+            mix-blend-mode: overlay;
             pointer-events: none;
             z-index: 2;
+            animation: glitterShimmer 3s infinite linear;
         }
 
         .crystal-btn:hover::after, .voucher-type-btn:hover::after, .pay-toggle-btn:hover::after {
-            background-position: -50% 0;
-            background: linear-gradient(110deg, transparent 20%, rgba(255, 255, 255, 0.15) 50%, transparent 80%);
+            opacity: 1;
+            animation: glitterShimmer 1.8s infinite linear;
         }
 
-        /* Hover State */
-        .crystal-btn:hover, .voucher-type-btn:hover, .pay-toggle-btn:hover {
-            transform: translateY(-2px);
-            color: #ffffff !important;
-            border-color: rgba(255, 255, 255, 0.4) !important;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3), 0 0 15px var(--tab-glow-color, rgba(56,189,248,0.25)) !important;
-            background: rgba(255, 255, 255, 0.09) !important;
+        /* Rear Bottom Light Ray Beam Projection (الإضاءة الخلفية من الأسفل فقط) */
+        .crystal-btn::before, .voucher-type-btn::before, .pay-toggle-btn::before {
+            content: '';
+            position: absolute;
+            bottom: -16px;
+            left: 10%;
+            width: 80%;
+            height: 18px;
+            background: var(--tab-glow-color, rgba(56, 189, 248, 0.75));
+            border-radius: 50%;
+            filter: blur(14px);
+            opacity: 0.65;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            pointer-events: none;
+            z-index: -1;
+            animation: rearRayPulse 3s infinite ease-in-out;
         }
 
-        /* Icon Styling */
+        .crystal-btn:hover::before, .voucher-type-btn:hover::before, .pay-toggle-btn:hover::before {
+            opacity: 1 !important;
+            transform: scaleX(1.4) translateY(5px) !important;
+            filter: blur(18px) brightness(1.6) !important;
+        }
+
+        /* Icon Styling & Detailed Icon Glow Halo (إضاءة مفصلة خلفية من الأيقونة) */
         .btn-icon, .md-tab-icon {
-            font-size: 1.25rem;
+            font-size: 1.35rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.3s ease;
-            filter: drop-shadow(0 1px 3px rgba(0,0,0,0.4));
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
+            position: relative;
+            z-index: 4;
+        }
+
+        /* Detailed Icon Rear Glow Ring */
+        .btn-icon::after, .md-tab-icon::after {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            background: var(--tab-glow-color, rgba(255, 255, 255, 0.6));
+            filter: blur(10px);
+            opacity: 0.4;
+            z-index: -1;
+            transition: all 0.35s ease;
+        }
+
+        /* Hover Scale + Light Glow + Text Contrast Protection */
+        .crystal-btn:hover, .voucher-type-btn:hover, .pay-toggle-btn:hover {
+            transform: translateY(-5px) scale(1.08) !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 12px var(--tab-glow-color, rgba(255,255,255,0.95)), 0 2px 5px rgba(0,0,0,0.9) !important;
+            border-color: var(--tab-border-color) !important;
+            box-shadow: 0 16px 36px var(--tab-glow-color, rgba(56,189,248,0.55)), 0 0 28px var(--tab-glow-color, rgba(56,189,248,0.45)), inset 0 1px 3px rgba(255,255,255,0.7) !important;
+            background: var(--tab-hover-bg, rgba(255,255,255,0.12)) !important;
+            z-index: 10;
         }
 
         .crystal-btn:hover .btn-icon, .voucher-type-btn:hover .btn-icon, .pay-toggle-btn:hover .btn-icon {
-            transform: scale(1.15);
+            transform: scale(1.38) rotate(8deg);
+            filter: drop-shadow(0 0 10px #ffffff);
+        }
+
+        .crystal-btn:hover .btn-icon::after, .voucher-type-btn:hover .btn-icon::after, .pay-toggle-btn:hover .btn-icon::after {
+            opacity: 0.95 !important;
+            transform: scale(1.6) !important;
+            filter: blur(14px) brightness(1.8) !important;
         }
 
         /* ═══ Voucher Type Buttons (صرف مجمع 📤 vs استلام مجمع 📥) ═══ */
@@ -681,20 +738,59 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             transform: translateY(-2px) scale(1) !important;
         }
         .voucher-type-btn.active-payment {
-            background: linear-gradient(135deg, rgba(220, 38, 38, 0.85), rgba(153, 27, 27, 0.9)) !important;
-            border: 1px solid rgba(252, 165, 165, 0.5) !important;
+            background: linear-gradient(135deg, #ef4444, #b91c1c) !important;
+            border: 1px solid rgba(239, 68, 68, 0.8) !important;
             color: #ffffff !important;
-            box-shadow: 0 6px 15px rgba(220, 38, 38, 0.3), inset 0 1px 2px rgba(255,255,255,0.2) !important;
-            font-weight: 800 !important;
-            transform: translateY(-2px) scale(1.02) !important;
+            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5), 0 0 15px rgba(239, 68, 68, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
+            font-weight: 900 !important;
+            transform: translateY(-4px) scale(1.04) !important;
+            animation: activePulse 2.5s infinite ease-in-out !important;
         }
         .voucher-type-btn.active-receipt {
-            background: linear-gradient(135deg, rgba(5, 150, 105, 0.85), rgba(6, 95, 70, 0.9)) !important;
-            border: 1px solid rgba(110, 231, 183, 0.5) !important;
+            background: linear-gradient(135deg, #10b981, #047857) !important;
+            border: 1px solid rgba(16, 185, 129, 0.8) !important;
             color: #ffffff !important;
-            box-shadow: 0 6px 15px rgba(5, 150, 105, 0.3), inset 0 1px 2px rgba(255,255,255,0.2) !important;
-            font-weight: 800 !important;
-            transform: translateY(-2px) scale(1.02) !important;
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5), 0 0 15px rgba(16, 185, 129, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
+            font-weight: 900 !important;
+            transform: translateY(-4px) scale(1.04) !important;
+            animation: activePulseGreen 2.5s infinite ease-in-out !important;
+        }
+
+        /* Pulsing active buttons */
+        @keyframes activePulse {
+            0% { box-shadow: 0 8px 20px rgba(239, 68, 68, 0.45), 0 0 10px rgba(239, 68, 68, 0.25); border-color: rgba(239, 68, 68, 0.7); }
+            50% { box-shadow: 0 12px 30px rgba(239, 68, 68, 0.75), 0 0 20px rgba(239, 68, 68, 0.5); border-color: rgba(255, 255, 255, 0.9); }
+            100% { box-shadow: 0 8px 20px rgba(239, 68, 68, 0.45), 0 0 10px rgba(239, 68, 68, 0.25); border-color: rgba(239, 68, 68, 0.7); }
+        }
+        @keyframes activePulseGreen {
+            0% { box-shadow: 0 8px 20px rgba(16, 185, 129, 0.45), 0 0 10px rgba(16, 185, 129, 0.25); border-color: rgba(16, 185, 129, 0.7); }
+            50% { box-shadow: 0 12px 30px rgba(16, 185, 129, 0.75), 0 0 20px rgba(16, 185, 129, 0.5); border-color: rgba(255, 255, 255, 0.9); }
+            100% { box-shadow: 0 8px 20px rgba(16, 185, 129, 0.45), 0 0 10px rgba(16, 185, 129, 0.25); border-color: rgba(16, 185, 129, 0.7); }
+        }
+
+        /* Heartbeat for active state circles */
+        @keyframes heartBeatRed {
+            0% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
+            20% { transform: scale(1.4); background-color: #ff8787; box-shadow: 0 0 15px #ff8787; }
+            40% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
+            60% { transform: scale(1.4); background-color: #ef4444; box-shadow: 0 0 15px #ef4444; }
+            80% { transform: scale(1.2); background-color: #fca5a5; box-shadow: 0 0 12px #fca5a5; }
+            100% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
+        }
+        @keyframes heartBeatGreen {
+            0% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
+            20% { transform: scale(1.4); background-color: #a7f3d0; box-shadow: 0 0 15px #a7f3d0; }
+            40% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
+            60% { transform: scale(1.4); background-color: #10b981; box-shadow: 0 0 15px #10b981; }
+            80% { transform: scale(1.2); background-color: #6ee7b7; box-shadow: 0 0 12px #6ee7b7; }
+            100% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
+        }
+
+        .voucher-type-btn.active-payment span {
+            animation: heartBeatRed 1.2s infinite ease-in-out !important;
+        }
+        .voucher-type-btn.active-receipt span {
+            animation: heartBeatGreen 1.2s infinite ease-in-out !important;
         }
 
         /* Color Wave Animation */
@@ -818,68 +914,6 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus, .multi-input[placeholder*="المبلغ"]:focus {
             border-color: #f97316 !important;
             box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25) !important;
-        }
-
-        /* ═══ Color Psychology Input Overrides ═══ */
-        /* Red/Source Container */
-        .glass-red input:not(.block-sub-amount):not(.amount-local-hdr):not(#amount-foreign):not(#exchange-rate), 
-        .glass-red select, .glass-red .custom-dropdown-input-wrap input {
-            background: rgba(220, 38, 38, 0.15) !important;
-            border: 1px solid rgba(239, 68, 68, 0.3) !important;
-            color: #fca5a5 !important;
-        }
-        .glass-red input:focus:not(.block-sub-amount), .glass-red select:focus {
-            background: rgba(220, 38, 38, 0.25) !important;
-            border-color: #f87171 !important;
-            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
-        }
-
-        /* Green/Destination Container */
-        .glass-green input:not(.block-sub-amount):not(.block-total-amount), 
-        .glass-green select, .glass-green .custom-dropdown-input-wrap input {
-            background: rgba(16, 185, 129, 0.15) !important;
-            border: 1px solid rgba(52, 211, 153, 0.3) !important;
-            color: #a7f3d0 !important;
-        }
-        .glass-green input:focus:not(.block-sub-amount), .glass-green select:focus {
-            background: rgba(16, 185, 129, 0.25) !important;
-            border-color: #34d399 !important;
-            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
-        }
-
-        /* Bank Inputs (Ocean Blue) */
-        .block-bank-details input:not(.block-sub-amount) {
-            background: rgba(14, 165, 233, 0.15) !important;
-            border: 1px solid rgba(14, 165, 233, 0.35) !important;
-            color: #bae6fd !important;
-        }
-        .block-bank-details input:focus:not(.block-sub-amount) {
-            background: rgba(14, 165, 233, 0.25) !important;
-            border-color: #38bdf8 !important;
-            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2) !important;
-        }
-
-        /* Cheque Inputs (Gold/Amber) */
-        .block-cheque-details {
-            background: rgba(245, 158, 11, 0.08) !important; 
-            border: 1.5px solid rgba(245, 158, 11, 0.45) !important; 
-            box-shadow: inset 0 0 15px rgba(245, 158, 11, 0.1) !important;
-        }
-        .cheque-row div { color: #fcd34d !important; }
-        .cheque-row button[data-action="add-cheque-row"] {
-            background: rgba(245, 158, 11, 0.2) !important;
-            border: 1px solid #fbbf24 !important;
-            color: #fbbf24 !important;
-        }
-        .block-cheque-details input:not(.block-sub-amount) {
-            background: rgba(245, 158, 11, 0.15) !important;
-            border: 1px solid rgba(245, 158, 11, 0.35) !important;
-            color: #fde68a !important;
-        }
-        .block-cheque-details input:focus:not(.block-sub-amount) {
-            background: rgba(245, 158, 11, 0.25) !important;
-            border-color: #fbbf24 !important;
-            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2) !important;
         }
     </style>
 </head>
