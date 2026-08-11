@@ -744,7 +744,6 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             box-shadow: 0 8px 25px rgba(212, 122, 126, 0.5), 0 0 15px rgba(212, 122, 126, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
             font-weight: 900 !important;
             transform: translateY(-4px) scale(1.04) !important;
-            animation: activePulse 2.5s infinite ease-in-out !important;
         }
         .voucher-type-btn.active-receipt {
             background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
@@ -753,44 +752,6 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             box-shadow: 0 8px 25px rgba(39, 174, 96, 0.5), 0 0 15px rgba(39, 174, 96, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
             font-weight: 900 !important;
             transform: translateY(-4px) scale(1.04) !important;
-            animation: activePulseGreen 2.5s infinite ease-in-out !important;
-        }
-
-        /* Pulsing active buttons */
-        @keyframes activePulse {
-            0% { box-shadow: 0 8px 20px rgba(212, 122, 126, 0.45), 0 0 10px rgba(212, 122, 126, 0.25); border-color: rgba(212, 122, 126, 0.7); }
-            50% { box-shadow: 0 12px 30px rgba(212, 122, 126, 0.75), 0 0 20px rgba(212, 122, 126, 0.5); border-color: rgba(255, 255, 255, 0.9); }
-            100% { box-shadow: 0 8px 20px rgba(212, 122, 126, 0.45), 0 0 10px rgba(212, 122, 126, 0.25); border-color: rgba(212, 122, 126, 0.7); }
-        }
-        @keyframes activePulseGreen {
-            0% { box-shadow: 0 8px 20px rgba(39, 174, 96, 0.45), 0 0 10px rgba(39, 174, 96, 0.25); border-color: rgba(39, 174, 96, 0.7); }
-            50% { box-shadow: 0 12px 30px rgba(39, 174, 96, 0.75), 0 0 20px rgba(39, 174, 96, 0.5); border-color: rgba(255, 255, 255, 0.9); }
-            100% { box-shadow: 0 8px 20px rgba(39, 174, 96, 0.45), 0 0 10px rgba(39, 174, 96, 0.25); border-color: rgba(39, 174, 96, 0.7); }
-        }
-
-        /* Heartbeat for active state circles */
-        @keyframes heartBeatRed {
-            0% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-            20% { transform: scale(1.4); background-color: #e8a5a7; box-shadow: 0 0 15px #e8a5a7; }
-            40% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-            60% { transform: scale(1.4); background-color: #d47a7e; box-shadow: 0 0 15px #d47a7e; }
-            80% { transform: scale(1.2); background-color: #ebbabc; box-shadow: 0 0 12px #ebbabc; }
-            100% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-        }
-        @keyframes heartBeatGreen {
-            0% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-            20% { transform: scale(1.4); background-color: #abebc6; box-shadow: 0 0 15px #abebc6; }
-            40% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-            60% { transform: scale(1.4); background-color: #27ae60; box-shadow: 0 0 15px #27ae60; }
-            80% { transform: scale(1.2); background-color: #58d68d; box-shadow: 0 0 12px #58d68d; }
-            100% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-        }
-
-        .voucher-type-btn.active-payment span {
-            animation: heartBeatRed 1.2s infinite ease-in-out !important;
-        }
-        .voucher-type-btn.active-receipt span {
-            animation: heartBeatGreen 1.2s infinite ease-in-out !important;
         }
 
         /* Color Wave Animation */
@@ -982,10 +943,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
                         <div style="flex: 2; min-width: 250px;">
                             <label id="main-account-label" style="color: #ef4444 !important; font-size: 1.2rem; margin-bottom: 5px; display: block; font-weight: bold; transition: color 0.3s; white-space: nowrap;">من حساب (صرف) <span class="animated-arrow-left">←</span></label>
-                            <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative; display: flex;">
+                            <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative; display: flex; gap: 8px;">
                                 <input type="hidden" id="main-account">
-                                <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onclick="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color); flex: 1; border-top-left-radius: 0; border-bottom-left-radius: 0;">
-                                <button type="button" onclick="openLedgerForMainAccount()" title="دفتر الأستاذ العام" style="background: rgba(52,211,153,0.2); border: 1px solid #34d399; border-right: none; color: #34d399; padding: 0 8px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; height: auto; font-weight: bold; font-size: 0.85rem; box-shadow: 0 0 10px rgba(52,211,153,0.5); text-shadow: 0 0 5px rgba(52,211,153,0.5);" onmouseover="this.style.background='rgba(52,211,153,0.5)'; this.style.color='#fff'; this.style.boxShadow='0 0 20px rgba(52,211,153,0.9)';" onmouseout="this.style.background='rgba(52,211,153,0.2)'; this.style.color='#34d399'; this.style.boxShadow='0 0 10px rgba(52,211,153,0.5)';">كشف حساب</button>
+                                <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onclick="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color); flex: 1; border-radius: 10px;">
+                                <button type="button" class="crystal-btn" onclick="openLedgerForMainAccount()" title="دفتر الأستاذ العام" style="--tab-border-color: #34d399; --tab-glow-color: rgba(52,211,153,0.6); --tab-hover-bg: linear-gradient(135deg, #10b981, #059669); padding: 0 14px; height: auto; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; min-width: max-content;">
+                                    <span class="btn-icon" style="font-size: 1rem;"><i class="fa fa-book"></i></span> <span class="btn-text">كشف حساب</span>
+                                </button>
                                 <div class="custom-dropdown-list" id="main-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                             </div>
                         </div>
@@ -1045,30 +1008,32 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         </div>
 
                         <!-- Row 1: Account, Amount, and Method Toggles -->
-                        <div style="display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; margin-bottom: 12px;">
+                        <div style="display: flex; gap: 12px; align-items: stretch; flex-wrap: wrap; margin-bottom: 12px;">
                             <!-- Account -->
-                            <div style="flex: 1.5; min-width: 200px; position: relative; display: flex; flex-direction: column;">
-                                <div class="custom-dropdown-input-wrap" style="position: relative; flex: 1; display: flex;">
+                            <div style="flex: 1.5; min-width: 180px; position: relative; display: flex; flex-direction: column;">
+                                <div class="custom-dropdown-input-wrap" style="position: relative; flex: 1; display: flex; gap: 8px;">
                                     <input type="hidden" id="account-{ID}-id" class="block-account-id">
                                     <input type="hidden" id="account-{ID}" class="block-account-name">
-                                    <input type="text" autocomplete="off" class="form-input block-account-search" id="account-{ID}-search" placeholder="الحساب / الجهة المستفيدة..." onfocus="showAccountDropdown('account-{ID}')" onclick="showAccountDropdown('account-{ID}')" onblur="hideAccountDropdownDelayed('account-{ID}')" oninput="filterAccountDropdown('account-{ID}')" style="font-size: 1rem; flex: 1; margin-bottom: 0; border-top-left-radius: 0; border-bottom-left-radius: 0;">
-                                    <button type="button" onclick="openLedgerForBlockAccount('{ID}')" title="دفتر الأستاذ العام" style="background: rgba(52,211,153,0.2); border: 1px solid #34d399; border-right: none; color: #34d399; padding: 0 8px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; height: auto; font-weight: bold; font-size: 0.85rem; box-shadow: 0 0 10px rgba(52,211,153,0.5); text-shadow: 0 0 5px rgba(52,211,153,0.5);" onmouseover="this.style.background='rgba(52,211,153,0.5)'; this.style.color='#fff'; this.style.boxShadow='0 0 20px rgba(52,211,153,0.9)';" onmouseout="this.style.background='rgba(52,211,153,0.2)'; this.style.color='#34d399'; this.style.boxShadow='0 0 10px rgba(52,211,153,0.5)';">كشف حساب</button>
+                                    <input type="text" autocomplete="off" class="form-input block-account-search" id="account-{ID}-search" placeholder="الحساب / الجهة المستفيدة..." onfocus="showAccountDropdown('account-{ID}')" onclick="showAccountDropdown('account-{ID}')" onblur="hideAccountDropdownDelayed('account-{ID}')" oninput="filterAccountDropdown('account-{ID}')" style="font-size: 1rem; flex: 1; margin-bottom: 0; border-radius: 10px;">
+                                    <button type="button" class="crystal-btn" onclick="openLedgerForBlockAccount('{ID}')" title="دفتر الأستاذ العام" style="--tab-border-color: #34d399; --tab-glow-color: rgba(52,211,153,0.6); --tab-hover-bg: linear-gradient(135deg, #10b981, #059669); padding: 0 14px; height: auto; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; min-width: max-content;">
+                                        <span class="btn-icon" style="font-size: 1rem;"><i class="fa fa-book"></i></span> <span class="btn-text">كشف حساب</span>
+                                    </button>
                                     <div class="custom-dropdown-list" id="account-{ID}-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                                 </div>
                             </div>
                             
                             <!-- Total Amount (auto-calculated or direct) -->
-                            <div style="flex: 0.8; min-width: 120px; max-width: 140px; display: flex; flex-direction: column; position: relative;">
-                                <input type="text" id="amount-{ID}" oninput="formatInput(this)" class="form-input block-total-amount" placeholder="المبلغ" style="font-weight: 900; font-family: monospace; font-size: 1.15rem; text-align: center; flex: 1; margin-bottom: 0; border-color: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); transition: all 0.4s ease;">
+                            <div style="flex: 1.5; min-width: 140px; max-width: 180px; display: flex; flex-direction: column; position: relative;">
+                                <input type="text" id="amount-{ID}" oninput="formatInput(this)" class="form-input block-total-amount" placeholder="المبلغ" style="font-weight: 900; font-family: monospace; font-size: 1.45rem; text-align: center; flex: 1; margin-bottom: 0; border-color: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); transition: all 0.4s ease;">
                             </div>
                             
                             <!-- Statement (بيان التحويل) -->
-                            <div style="flex: 1.2; min-width: 150px; display: flex; flex-direction: column; position: relative;">
+                            <div style="flex: 1.2; min-width: 120px; display: flex; flex-direction: column; position: relative;">
                                 <input type="text" autocomplete="off" id="statement-{ID}" class="form-input" placeholder="البيان" style="font-size: 1rem; flex: 1; margin-bottom: 0; background: rgba(255,255,255,0.05); color: #fff;">
                             </div>
                             
                             <!-- Payment Toggles (No Cash) -->
-                            <div style="display: flex; gap: 8px; flex: 1; min-width: 150px; align-items: stretch;">
+                            <div style="display: flex; gap: 8px; flex: 1.2; min-width: 160px; align-items: stretch; justify-content: flex-end; margin-right: auto;">
                                 <button type="button" id="pm-bank-{ID}" class="pay-toggle-btn block-btn-bank crystal-btn" data-action="toggle-pm" data-block="{ID}" data-method="bank"><span class="btn-icon"><i class="fa fa-mobile-alt"></i></span> <span class="btn-text">تحويل</span></button>
                                 <button type="button" id="pm-cheque-{ID}" class="pay-toggle-btn block-btn-cheque crystal-btn" data-action="toggle-pm" data-block="{ID}" data-method="cheque"><span class="btn-icon"><i class="fa fa-money-check-alt"></i></span> <span class="btn-text">شيك</span></button>
                             </div>
