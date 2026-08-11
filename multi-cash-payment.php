@@ -1,4 +1,4 @@
-<?php 
+﻿<?php 
 require_once 'db_bridge.php';
 $pdo = getDBConnection();
 global $GLOBAL_TENANT_ID;
@@ -579,7 +579,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             --tab-glow-color: rgba(148, 163, 184, 0.75);
             --tab-hover-bg: linear-gradient(135deg, #475569, #334155);
             background: linear-gradient(135deg, rgba(100, 116, 139, 0.3), rgba(51, 65, 85, 0.6)) !important;
-            border-color: #94a3b8 !important;
+            border-/* color removed */
             color: #ffffff !important;
             text-shadow: 0 0 10px rgba(148, 163, 184, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
         }
@@ -716,9 +716,9 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         /* Voucher Type Toggle Buttons (صرف/استلام مجمع) */
         /* Voucher Type Toggle Buttons (صرف/استلام مجمع) */
         .voucher-type-btn {
-            background: rgba(0,0,0,0.4) !important;
-            border: 1px solid rgba(255,255,255,0.08) !important;
-            color: #94a3b8 !important;
+            /* background removed */
+            /* border removed */
+            /* color removed */
             box-shadow: inset 0 2px 5px rgba(0,0,0,0.6) !important;
             min-width: 175px !important;
             height: 45px !important;
@@ -943,10 +943,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             <span>👤</span> بيان الطرف الرئيسي
                         </div>
                         <div style="display: flex; gap: 10px;">
-                            <button id="btn-payment" class="voucher-type-btn active-payment" onclick="setVoucherType('payment')">
+                            <button id="btn-payment" class="btn crystal-btn btn-action voucher-type-btn active-payment" onclick="setVoucherType('payment')">
                                 <span class="btn-icon">💸📤</span> <span class="btn-text">صرف مجمع</span>
                             </button>
-                            <button id="btn-receipt" class="voucher-type-btn" onclick="setVoucherType('receipt')">
+                            <button id="btn-receipt" class="btn crystal-btn btn-action voucher-type-btn" onclick="setVoucherType('receipt')">
                                 <span class="btn-icon">💰📥</span> <span class="btn-text">استلام مجمع</span>
                             </button>
                         </div>
@@ -1069,8 +1069,8 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             
                             <!-- Payment Toggles (No Cash) -->
                             <div style="display: flex; gap: 8px; flex: 1; min-width: 150px; align-items: stretch;">
-                                <button type="button" id="pm-bank-{ID}" class="pay-toggle-btn block-btn-bank" data-action="toggle-pm" data-block="{ID}" data-method="bank"><span class="btn-icon">🏦</span> <span class="btn-text">بنك</span></button>
-                                <button type="button" id="pm-cheque-{ID}" class="pay-toggle-btn block-btn-cheque" data-action="toggle-pm" data-block="{ID}" data-method="cheque"><span class="btn-icon">✍️</span> <span class="btn-text">شيك</span></button>
+                                <button type="button" id="pm-bank-{ID}" class="btn crystal-btn btn-action pay-toggle-btn block-btn-bank" data-action="toggle-pm" data-block="{ID}" data-method="bank"><span class="btn-icon">🏦</span> <span class="btn-text">بنك</span></button>
+                                <button type="button" id="pm-cheque-{ID}" class="btn crystal-btn btn-action pay-toggle-btn block-btn-cheque" data-action="toggle-pm" data-block="{ID}" data-method="cheque"><span class="btn-icon">✍️</span> <span class="btn-text">شيك</span></button>
                             </div>
                         </div>
 
@@ -1386,4 +1386,5 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
     </script>
 </body>
 </html>
+
 
