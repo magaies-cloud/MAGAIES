@@ -13,6 +13,44 @@ let currentVoucherIndex = -1;
 let currentVoucherList = [];
 let blockCounter = 0;
 
+window.getStoredVouchers = function(storageKey) {
+    const getTenantKey = window.getTenantKey || ((k) => k);
+    const tKey = getTenantKey(storageKey);
+    let list1 = [];
+    let list2 = [];
+    try { list1 = JSON.parse(localStorage.getItem(tKey) || '[]'); } catch(e) {}
+    try { list2 = JSON.parse(localStorage.getItem(storageKey) || '[]'); } catch(e) {}
+    if (!Array.isArray(list1)) list1 = Object.values(list1);
+    if (!Array.isArray(list2)) list2 = Object.values(list2);
+    
+    const map = new Map();
+    [...list2, ...list1].forEach(v => {
+        if (!v) return;
+        const key = String(v.voucherNo || v.id || '').trim();
+        if (key) map.set(key, v);
+    });
+    return Array.from(map.values());
+};
+
+window.saveStoredVouchers = function(storageKey, dataArray) {
+    if (!Array.isArray(dataArray)) return;
+    const getTenantKey = window.getTenantKey || ((k) => k);
+    const tKey = getTenantKey(storageKey);
+    const jsonStr = JSON.stringify(dataArray);
+    
+    try { localStorage.setItem(tKey, jsonStr); } catch(e) {}
+    if (tKey !== storageKey) {
+        try { localStorage.setItem(storageKey, jsonStr); } catch(e) {}
+    }
+    
+    if (typeof localforage !== 'undefined') {
+        localforage.setItem(tKey, dataArray).catch(e => console.error(e));
+        if (tKey !== storageKey) {
+            localforage.setItem(storageKey, dataArray).catch(e => console.error(e));
+        }
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     // Set today's date
     const __d = new Date();
@@ -1392,29 +1430,21 @@ async function confirmDelete() {
     
     const type = document.getElementById('voucher-type').value;
     const storageKey = type === 'payment' ? 'erp_payments_v1' : 'erp_receipts_v1';
-    const getTenantKeyFn = window.getTenantKey || ((k) => k);
-    const tKey = getTenantKeyFn(storageKey);
     
     try {
-        let existingData = [];
-        if (typeof localforage !== 'undefined') {
-            existingData = await localforage.getItem(tKey) || [];
-        } else {
-            existingData = JSON.parse(localStorage.getItem(tKey) || '[]');
-        }
-        if (!Array.isArray(existingData)) existingData = Object.values(existingData);
+        let existingData = getStoredVouchers(storageKey);
         
-        const idx = existingData.findIndex(v => v.voucherNo === voucherNo && v.isGrouped === true);
+        const idx = existingData.findIndex(v => v && (v.voucherNo === voucherNo || v.id === voucherNo) && v.isGrouped === true);
         if (idx > -1) {
             // Revert balance effects before deleting
             if (typeof applyGroupedVoucherEffect === 'function') {
                 applyGroupedVoucherEffect(existingData[idx], true);
             }
             existingData.splice(idx, 1);
-            if (typeof localforage !== 'undefined') {
-                await localforage.setItem(tKey, existingData);
+            saveStoredVouchers(storageKey, existingData);
+            if (window.rebuildGLFromAllTables) {
+                try { window.rebuildGLFromAllTables(false); } catch(e) {}
             }
-            localStorage.setItem(tKey, JSON.stringify(existingData));
             showToast('تم حذف المستند بنجاح وعكس تأثيره المحاسبي!', 'success');
         } else {
             showToast('المستند غير محفوظ بعد، تم تفريغ الحقول.', 'info');
@@ -1687,18 +1717,7 @@ async function saveVoucher() {
     const storageKey = type === 'payment' ? 'erp_payments_v1' : 'erp_receipts_v1';
     
     try {
-        const getTenantKey = window.getTenantKey || ((k) => k);
-        const tKey = getTenantKey(storageKey);
-        
-        let existingData = [];
-        // ALWAYS read from localStorage to keep sync with general-ledger.js
-        try {
-            existingData = JSON.parse(localStorage.getItem(tKey) || '[]');
-        } catch(e) {
-            existingData = [];
-        }
-
-        if (!Array.isArray(existingData)) existingData = Object.values(existingData);
+        let existingData = getStoredVouchers(storageKey);
 
         // Update existing record if editing, otherwise insert
         const existingIdx = existingData.findIndex(v => (v && (v.voucherNo === vNo || v.id === vNo) && v.isGrouped));
@@ -1709,12 +1728,12 @@ async function saveVoucher() {
             existingData.push(voucher);
         }
 
-        // ALWAYS save to localStorage so reporting engines see it immediately
-        localStorage.setItem(tKey, JSON.stringify(existingData));
-        
-        // Optionally sync to localforage as backup
-        if (typeof localforage !== 'undefined') {
-            localforage.setItem(tKey, existingData).catch(e => console.error(e));
+        // SAVE TO BOTH TENANT KEY AND BASE KEY
+        saveStoredVouchers(storageKey, existingData);
+
+        // Rebuild GL immediately so General Ledger reflects new voucher
+        if (window.rebuildGLFromAllTables) {
+            try { window.rebuildGLFromAllTables(false); } catch(e) {}
         }
 
         // Apply dynamic account balance effects
@@ -2011,18 +2030,7 @@ if (!window.normalizeArabic) {
 async function loadNextMultiVoucherNumber() {
     const type = document.getElementById('voucher-type') ? document.getElementById('voucher-type').value : 'payment';
     const storageKey = type === 'payment' ? 'erp_payments_v1' : 'erp_receipts_v1';
-    const getTenantKey = window.getTenantKey || ((k) => k);
-    const tKey = getTenantKey(storageKey);
-    
-    let existingData = [];
-    try {
-        if (typeof localforage !== 'undefined') {
-            existingData = await localforage.getItem(tKey) || [];
-        } else {
-            existingData = JSON.parse(localStorage.getItem(tKey) || '[]');
-        }
-    } catch(e) {}
-    if (!Array.isArray(existingData)) existingData = Object.values(existingData);
+    let existingData = getStoredVouchers(storageKey);
     
     // Base prefix on selected voucher date, not current system date
     const dateEl = document.getElementById('voucher-date');
@@ -2057,18 +2065,7 @@ async function loadNextMultiVoucherNumber() {
 async function refreshVoucherNavigationList() {
     const type = document.getElementById('voucher-type') ? document.getElementById('voucher-type').value : 'payment';
     const storageKey = type === 'payment' ? 'erp_payments_v1' : 'erp_receipts_v1';
-    const getTenantKey = window.getTenantKey || ((k) => k);
-    const tKey = getTenantKey(storageKey);
-    
-    let existingData = [];
-    try {
-        if (typeof localforage !== 'undefined') {
-            existingData = await localforage.getItem(tKey) || [];
-        } else {
-            existingData = JSON.parse(localStorage.getItem(tKey) || '[]');
-        }
-    } catch(e) {}
-    if (!Array.isArray(existingData)) existingData = Object.values(existingData);
+    let existingData = getStoredVouchers(storageKey);
     
     currentVoucherList = existingData.filter(v => v.isGrouped);
     currentVoucherList.sort((a, b) => {

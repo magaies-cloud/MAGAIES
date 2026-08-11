@@ -470,24 +470,30 @@ async function loadAllTransactions() {
         let allData = [];
 
         for (const meta of keys) {
-            let data = [];
             const tKey = getTenantKey(meta.key);
+            let list1 = [];
+            let list2 = [];
+            
             if (typeof localforage !== 'undefined') {
-                data = await localforage.getItem(tKey);
+                try { list1 = await localforage.getItem(tKey) || []; } catch(e){}
+                try { list2 = await localforage.getItem(meta.key) || []; } catch(e){}
             }
-            if (!data) {
-                data = localStorage.getItem(tKey) || localStorage.getItem(meta.key) || '[]';
+            if (!Array.isArray(list1) || list1.length === 0) {
+                try { list1 = JSON.parse(localStorage.getItem(tKey) || '[]'); } catch(e){}
             }
-            if (typeof data === 'string') {
-                try {
-                    data = JSON.parse(data);
-                } catch(e) {
-                    data = [];
-                }
+            if (!Array.isArray(list2) || list2.length === 0) {
+                try { list2 = JSON.parse(localStorage.getItem(meta.key) || '[]'); } catch(e){}
             }
-            if (data && typeof data === 'object' && !Array.isArray(data)) {
-                data = Object.values(data);
-            }
+            if (list1 && typeof list1 === 'object' && !Array.isArray(list1)) list1 = Object.values(list1);
+            if (list2 && typeof list2 === 'object' && !Array.isArray(list2)) list2 = Object.values(list2);
+
+            const itemMap = new Map();
+            [...(Array.isArray(list2) ? list2 : []), ...(Array.isArray(list1) ? list1 : [])].forEach(item => {
+                if (!item) return;
+                const k = String(item.voucherNo || item.id || item.paymentNo || item.receiptNo || item.invoiceNo || Math.random());
+                itemMap.set(k, item);
+            });
+            let data = Array.from(itemMap.values());
 
             if (Array.isArray(data)) {
                 let validItems = data.filter(item => item && !item.deleted);

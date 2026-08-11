@@ -5025,7 +5025,29 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         if (accountMap.has(cleanStr)) return accountMap.get(cleanStr);
         return accVal;
     }
-    const receipts = (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || []).filter(v => v && !v.deleted);
+
+    // Helper: merge data across tenant-prefixed key and base key for zero data loss
+    function loadSourceTable(baseKey) {
+        const getTK = window.getTenantKey || ((k) => k);
+        const tk = getTK(baseKey);
+        let list1 = [];
+        let list2 = [];
+        try { list1 = JSON.parse(localStorage.getItem(tk) || '[]'); } catch(e){}
+        try { list2 = JSON.parse(localStorage.getItem(baseKey) || '[]'); } catch(e){}
+        if (!Array.isArray(list1)) list1 = Object.values(list1);
+        if (!Array.isArray(list2)) list2 = Object.values(list2);
+        
+        const map = new Map();
+        [...list2, ...list1].forEach(v => {
+            if (!v) return;
+            const key = String(v.voucherNo || v.id || v.paymentNo || v.receiptNo || v.invoiceNo || Math.random()).trim();
+            map.set(key, v);
+        });
+        return Array.from(map.values()).filter(v => v && !v.deleted);
+    }
+
+    // 1. Single Receipts
+    const receipts = loadSourceTable('erp_single_receipts_v1');
     receipts.forEach(v => {
         const costCenter = v.costCenter || 'بدون مركز';
         const currency = v.currency || 'SDG';
@@ -5069,7 +5091,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
     });
 
     // 2. Single Payments
-    const payments = (JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []).filter(v => v && !v.deleted);
+    const payments = loadSourceTable('erp_single_payments_v1');
     payments.forEach(v => {
         const costCenter = v.costCenter || 'بدون مركز';
         const currency = v.currency || 'SDG';
@@ -5172,7 +5194,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
     });
 
     // 2b. Multi-Receipts (erp_receipts_v1)
-    const rawMultiReceipts = (JSON.parse(localStorage.getItem('erp_receipts_v1')) || []).filter(v => v && !v.deleted);
+    const rawMultiReceipts = loadSourceTable('erp_receipts_v1');
     rawMultiReceipts.forEach(v => {
         if (v.voucherNo && !String(v.voucherNo).startsWith('MV-') && !String(v.voucherNo).startsWith('MV17')) {
             v.id = v.voucherNo;
@@ -5522,7 +5544,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         }
     });
     // 2c2. Comprehensive Payments (erp_comprehensive_payments_v1)
-    const compPayments = (JSON.parse(localStorage.getItem('erp_comprehensive_payments_v1')) || []).filter(v => v && !v.deleted);
+    const compPayments = loadSourceTable('erp_comprehensive_payments_v1');
     compPayments.forEach(v => {
         const costCenter = v.costCenter || 'بدون مركز';
         const currency = v.currency || 'SDG';
@@ -5565,7 +5587,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
     });
 
     // 3. Journal Vouchers
-    const jvs = (JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || []).filter(v => v && !v.deleted);
+    const jvs = loadSourceTable('erp_journal_vouchers_v1');
     jvs.forEach(v => {
         if (!v.lines) return;
         const time = v.time || timeNow;
@@ -5600,7 +5622,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
 
     
     // 4. Sales Invoices
-    const sales = (JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []).filter(x => !x.deleted && !x.isGDN);
+    const sales = loadSourceTable('erp_sales_invoices_v1').filter(x => !x.isGDN);
     sales.forEach(inv => {
         let total = parseNum(inv.totalAmount || inv.total || inv.grandTotal);
         let subtotal = 0;
@@ -5856,7 +5878,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
 
     
     // 5. Purchase Invoices
-    const purchases = (JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || []).filter(x => !x.deleted && !x.isGRN);
+    const purchases = loadSourceTable('erp_purchase_invoices_v1').filter(x => !x.isGRN);
     purchases.forEach(inv => {
         let total = parseNum(inv.totalAmount || inv.total || inv.grandTotal);
         let subtotal = 0;
