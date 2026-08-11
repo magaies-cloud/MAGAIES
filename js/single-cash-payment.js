@@ -68,7 +68,7 @@ function showLengthWarningModal(transferNo) {
     const modalHTML = `
         <div id="critical-alert-modal" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(10,0,0,0.85); backdrop-filter:blur(10px); z-index:99999; display:flex; justify-content:center; align-items:center; overflow:hidden;">
             <div style="position:absolute; width:200vw; height:200vw; background: repeating-conic-gradient(from 0deg, transparent 0deg 15deg, rgba(255, 20, 60, 0.15) 15deg 30deg); animation: rayRotate 20s linear infinite; pointer-events:none;"></div>
-            <div style="position:absolute; top:50%; left:50%; width:450px; height:450px; background: radial-gradient(circle, #8b0000 0%, #3e0000 100%); animation: liquidPulsate 4s ease-in-out infinite, bounceInLiquid 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; transform-origin: top left; display:flex; flex-direction:column; justify-content:center; align-items:center; border: 3px solid rgba(255,100,100,0.5); padding: 40px; text-align:center;">
+            <div style="position:absolute; top:35%; left:50%; width:450px; height:450px; background: radial-gradient(circle, #8b0000 0%, #3e0000 100%); animation: liquidPulsate 4s ease-in-out infinite, bounceInLiquid 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; transform-origin: top left; display:flex; flex-direction:column; justify-content:center; align-items:center; border: 3px solid rgba(255,100,100,0.5); padding: 40px; text-align:center;">
                 <div style="font-size: 5rem; text-shadow: 0 0 20px #ff0000; animation: bounceInLiquid 1s infinite;">⚠️</div>
                 <h2 style="color: #ffcccc; font-family: 'Tajawal', sans-serif; font-size: 2rem; margin: 15px 0; text-shadow: 0 0 10px #ff0000;">تحذير أمني!</h2>
                 <p style="color: #fff; font-size: 1.2rem; font-weight:bold; line-height: 1.6;">رقم التحويلة <span style="color:#ffeb3b; font-size:1.4rem;">${transferNo}</span><br>أقل من 6 أرقام!</p>
@@ -2495,3 +2495,5 @@ window.unifyVoucherSequences = function() {
 
 
 
+
+window.restrictToNumbers = function(el) { if(el) { el.value = el.value.replace(/[^0-9.]/g, ''); let parts = el.value.split('.'); if (parts.length > 2) { el.value = parts[0] + '.' + parts.slice(1).join(''); } } };
