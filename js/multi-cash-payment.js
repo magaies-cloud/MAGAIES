@@ -1752,11 +1752,30 @@ async function saveVoucher() {
 
         const mainAccName = document.getElementById('main-account-search') ? document.getElementById('main-account-search').value : 'الحساب الرئيسي';
         const subNames = voucher.items.map(i => i.accountName).join(' و ');
+                const isEdit = (existingIdx > -1);
         const isPay = (type === 'payment');
-        const actionText = isPay ? 'تم صرف مبلغ' : 'تم استلام مبلغ';
+        let actionText = isPay ? 'تم صرف مبلغ' : 'تم استلام مبلغ';
+        let flowColor = isPay ? '#ef4444' : '#10b981';
+        let headerIcon = '✅';
+        let btnText = '✅ تم الحفظ بنجاح!';
+        let btnTextFinal = '✅ تم الحفظ بنجاح';
+        let btnColor = 'linear-gradient(135deg, #10b981 0%, #34d399 100%)';
+        let btnShadow1 = '0 0 30px rgba(16,185,129,0.6)';
+        let btnShadow2 = '0 0 15px rgba(16,185,129,0.4)';
+
+        if (isEdit) {
+            actionText = 'تم تعديل البيانات بمبلغ';
+            flowColor = '#ef4444'; // Red
+            headerIcon = '📝';
+            btnText = '📝 تم التعديل بنجاح!';
+            btnTextFinal = '📝 تم تعديل البيانات';
+            btnColor = 'linear-gradient(135deg, #ef4444 0%, #f87171 100%)';
+            btnShadow1 = '0 0 30px rgba(239,68,68,0.6)';
+            btnShadow2 = '0 0 15px rgba(239,68,68,0.4)';
+        }
+        
         const fromText = isPay ? mainAccName : subNames;
         const toText = isPay ? subNames : mainAccName;
-        const flowColor = isPay ? '#ef4444' : '#10b981';
         const currencyName = document.getElementById('currency') ? document.getElementById('currency').options[document.getElementById('currency').selectedIndex].text : '';
         
         // Build Animated Modal
@@ -1764,7 +1783,7 @@ async function saveVoucher() {
         modal.innerHTML = `
             <div style="position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); z-index: 99999; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.4s ease; direction: rtl;" id="success-flow-modal">
                 <div style="background: linear-gradient(145deg, #1e293b, #0f172a); border: 2px solid ${flowColor}; border-radius: 20px; padding: 40px; max-width: 600px; width: 90%; text-align: center; box-shadow: 0 20px 50px rgba(0,0,0,0.6), 0 0 40px ${flowColor}40; transform: scale(0.8) translateY(30px); transition: all 0.5s cubic-bezier(0.34, 1.56, 0.64, 1);">
-                    <div style="font-size: 3.5rem; margin-bottom: 10px; animation: bounceIn 0.6s ease-out;">✅</div>
+                    <div style="font-size: 3.5rem; margin-bottom: 10px; animation: bounceIn 0.6s ease-out;">${headerIcon}</div>
                     <h2 style="color: #fff; font-family: 'Tajawal', sans-serif; margin-bottom: 25px; font-size: 1.8rem;">
                         ${actionText} <span style="color: #fbbf24; font-weight: 900;">${parseFloat(voucher.totalAmount).toLocaleString()}</span> <span style="font-size: 1.2rem; color: #cbd5e1;">${currencyName}</span>
                     </h2>
@@ -1817,11 +1836,11 @@ async function saveVoucher() {
         if (typeof playClickSound === 'function') playClickSound();
         
         // Save success button animation
-        if (saveBtn) {
-            saveBtn.innerHTML = '✅ تم الحفظ بنجاح!';
-            saveBtn.style.background = 'linear-gradient(135deg, #10b981 0%, #34d399 100%)';
+                if (saveBtn) {
+            saveBtn.innerHTML = btnText;
+            saveBtn.style.background = btnColor;
             saveBtn.style.transform = 'scale(1.05)';
-            saveBtn.style.boxShadow = '0 0 30px rgba(16,185,129,0.6)';
+            saveBtn.style.boxShadow = btnShadow1;
         }
 
         // Hide modal and reset form after 3 seconds
@@ -1833,10 +1852,10 @@ async function saveVoucher() {
                 setTimeout(() => modal.remove(), 500);
             }
             
-            if (saveBtn) {
-                saveBtn.innerHTML = '✅ تم الحفظ بنجاح';
+                        if (saveBtn) {
+                saveBtn.innerHTML = btnTextFinal;
                 saveBtn.style.transform = 'scale(1)';
-                saveBtn.style.boxShadow = '0 0 15px rgba(16,185,129,0.4)';
+                saveBtn.style.boxShadow = btnShadow2;
                 saveBtn.style.background = '';
                 saveBtn.disabled = true;
                 saveBtn.style.opacity = '1';
