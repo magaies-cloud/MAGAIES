@@ -433,14 +433,14 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         /* ═══ Ultra-Premium Neo Toggle Chips (تحويل / شيك) ═══ */
         .neo-toggle-btn {
             height: 100% !important;
-            padding: 0 20px !important;
+            padding: 0 24px !important;
             border-radius: 10px !important;
-            font-size: 1.05rem !important;
+            font-size: 1.15rem !important;
             font-weight: 800 !important;
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
-            gap: 8px !important;
+            gap: 10px !important;
             background: rgba(255, 255, 255, 0.05) !important;
             border: 1px solid rgba(255, 255, 255, 0.15) !important;
             border-bottom: 3px solid rgba(255, 255, 255, 0.2) !important;
@@ -684,9 +684,44 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         .custom-dropdown-item:last-child {
             border-bottom: none;
         }
-
-        /* (Removed legacy .voucher-type-btn overrides to unify styles) */
-
+        /* ═══ RESTORED: Voucher Type Toggle Buttons (صرف/استلام مجمع) ═══ */
+        .voucher-type-btn {
+            background: rgba(0,0,0,0.4) !important;
+            border: 1px solid rgba(255,255,255,0.08) !important;
+            color: #94a3b8 !important;
+            transform: translateY(0) scale(0.97) !important;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+            height: 48px;
+            padding: 0 20px;
+            border-radius: 12px;
+            font-size: 1.1rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            min-width: 140px;
+        }
+        .voucher-type-btn:hover {
+            background: rgba(255, 255, 255, 0.05) !important;
+            color: #ffffff !important;
+            border-color: rgba(255,255,255,0.2) !important;
+            transform: translateY(-2px) scale(1) !important;
+        }
+        .voucher-type-btn.active-payment {
+            background: linear-gradient(135deg, #d47a7e, #a3585c) !important;
+            border: 1px solid rgba(212, 122, 126, 0.8) !important;
+            color: #ffffff !important;
+            font-weight: 900 !important;
+            transform: translateY(-4px) scale(1.04) !important;
+        }
+        .voucher-type-btn.active-receipt {
+            background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
+            border: 1px solid rgba(39, 174, 96, 0.8) !important;
+            color: #ffffff !important;
+            font-weight: 900 !important;
+            transform: translateY(-4px) scale(1.04) !important;
+        }
         /* Color Wave Animation */
         @keyframes colorWave {
             0% { background-position: 0% 50%; }
@@ -837,10 +872,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             <span><i class="fa fa-user"></i></span> بيان الطرف الرئيسي
                         </div>
                         <div style="display: flex; gap: 10px;">
-                            <button type="button" id="btn-payment" class="voucher-type-btn active-payment crystal-btn" onclick="switchType('payment')">
+                            <button type="button" id="btn-payment" class="voucher-type-btn active-payment" onclick="switchType('payment')">
                                 <span class="btn-icon"><i class="fa fa-arrow-up"></i></span> <span class="btn-text">صرف مجمع</span>
                             </button>
-                            <button type="button" id="btn-receipt" class="voucher-type-btn crystal-btn" onclick="switchType('receipt')">
+                            <button type="button" id="btn-receipt" class="voucher-type-btn" onclick="switchType('receipt')">
                                 <span class="btn-icon"><i class="fa fa-arrow-down"></i></span> <span class="btn-text">استلام مجمع</span>
                             </button>
                         </div>
