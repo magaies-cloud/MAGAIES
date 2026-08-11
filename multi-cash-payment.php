@@ -677,6 +677,11 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             text-shadow: 0 4px 15px rgba(255,255,255,0.3);
         }
         /* Custom Searchable Dropdown */
+        
+        /* Fix Dropdown Z-Index */
+        .custom-dropdown-input-wrap { z-index: 10; }
+        .custom-dropdown-input-wrap:focus-within { z-index: 999999 !important; }
+        .voucher-block:focus-within { z-index: 999999 !important; }
         .custom-dropdown-list {
             position: absolute;
             top: 100%;
@@ -1386,5 +1391,6 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
     </script>
 </body>
 </html>
+
 
 
