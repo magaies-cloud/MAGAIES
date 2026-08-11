@@ -138,30 +138,30 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
         /* Crystal Red Container (المستطيل الرئيسي للصرف) */
         .glass-red {
-            background: linear-gradient(135deg, rgba(40, 20, 28, 0.85), rgba(15, 23, 42, 0.95)) !important;
-            border: 1px solid rgba(248, 113, 113, 0.35) !important;
-            border-right: 5px solid #f87171 !important;
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(248, 113, 113, 0.25), 0 0 25px rgba(239, 68, 68, 0.12) !important;
+            background: linear-gradient(135deg, rgba(153, 27, 27, 0.65), rgba(69, 10, 10, 0.85)) !important;
+            border: 1px solid rgba(248, 113, 113, 0.4) !important;
+            border-right: 6px solid #ef4444 !important;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 5px rgba(248, 113, 113, 0.25) !important;
         }
         .glass-red:hover {
-            background: linear-gradient(135deg, rgba(50, 24, 34, 0.9), rgba(15, 23, 42, 0.98)) !important;
+            background: linear-gradient(135deg, rgba(185, 28, 28, 0.75), rgba(69, 10, 10, 0.95)) !important;
             border-color: rgba(248, 113, 113, 0.6) !important;
             border-right-color: #ef4444 !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 0 35px rgba(239, 68, 68, 0.25) !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.4) !important;
         }
 
         /* Crystal Green Container (مستطيلات الحسابات المستلمة) */
         .glass-green {
-            background: linear-gradient(135deg, rgba(16, 36, 28, 0.85), rgba(15, 23, 42, 0.95)) !important;
-            border: 1px solid rgba(52, 211, 153, 0.35) !important;
-            border-right: 5px solid #34d399 !important;
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(52, 211, 153, 0.25), 0 0 25px rgba(16, 185, 129, 0.12) !important;
+            background: linear-gradient(135deg, rgba(6, 78, 59, 0.65), rgba(2, 44, 34, 0.85)) !important;
+            border: 1px solid rgba(52, 211, 153, 0.4) !important;
+            border-right: 6px solid #10b981 !important;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 5px rgba(52, 211, 153, 0.25) !important;
         }
         .glass-green:hover {
-            background: linear-gradient(135deg, rgba(20, 44, 34, 0.9), rgba(15, 23, 42, 0.98)) !important;
+            background: linear-gradient(135deg, rgba(4, 120, 87, 0.75), rgba(2, 44, 34, 0.95)) !important;
             border-color: rgba(52, 211, 153, 0.6) !important;
             border-right-color: #10b981 !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 0 35px rgba(16, 185, 129, 0.25) !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.4) !important;
         }
 
         /* High Contrast Inputs, Placeholders, and Labels */
@@ -818,6 +818,68 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus, .multi-input[placeholder*="المبلغ"]:focus {
             border-color: #f97316 !important;
             box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25) !important;
+        }
+
+        /* ═══ Color Psychology Input Overrides ═══ */
+        /* Red/Source Container */
+        .glass-red input:not(.block-sub-amount):not(.amount-local-hdr):not(#amount-foreign):not(#exchange-rate), 
+        .glass-red select, .glass-red .custom-dropdown-input-wrap input {
+            background: rgba(220, 38, 38, 0.15) !important;
+            border: 1px solid rgba(239, 68, 68, 0.3) !important;
+            color: #fca5a5 !important;
+        }
+        .glass-red input:focus:not(.block-sub-amount), .glass-red select:focus {
+            background: rgba(220, 38, 38, 0.25) !important;
+            border-color: #f87171 !important;
+            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+        }
+
+        /* Green/Destination Container */
+        .glass-green input:not(.block-sub-amount):not(.block-total-amount), 
+        .glass-green select, .glass-green .custom-dropdown-input-wrap input {
+            background: rgba(16, 185, 129, 0.15) !important;
+            border: 1px solid rgba(52, 211, 153, 0.3) !important;
+            color: #a7f3d0 !important;
+        }
+        .glass-green input:focus:not(.block-sub-amount), .glass-green select:focus {
+            background: rgba(16, 185, 129, 0.25) !important;
+            border-color: #34d399 !important;
+            box-shadow: 0 0 0 3px rgba(16, 185, 129, 0.2) !important;
+        }
+
+        /* Bank Inputs (Ocean Blue) */
+        .block-bank-details input:not(.block-sub-amount) {
+            background: rgba(14, 165, 233, 0.15) !important;
+            border: 1px solid rgba(14, 165, 233, 0.35) !important;
+            color: #bae6fd !important;
+        }
+        .block-bank-details input:focus:not(.block-sub-amount) {
+            background: rgba(14, 165, 233, 0.25) !important;
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 0 3px rgba(14, 165, 233, 0.2) !important;
+        }
+
+        /* Cheque Inputs (Gold/Amber) */
+        .block-cheque-details {
+            background: rgba(245, 158, 11, 0.08) !important; 
+            border: 1.5px solid rgba(245, 158, 11, 0.45) !important; 
+            box-shadow: inset 0 0 15px rgba(245, 158, 11, 0.1) !important;
+        }
+        .cheque-row div { color: #fcd34d !important; }
+        .cheque-row button[data-action="add-cheque-row"] {
+            background: rgba(245, 158, 11, 0.2) !important;
+            border: 1px solid #fbbf24 !important;
+            color: #fbbf24 !important;
+        }
+        .block-cheque-details input:not(.block-sub-amount) {
+            background: rgba(245, 158, 11, 0.15) !important;
+            border: 1px solid rgba(245, 158, 11, 0.35) !important;
+            color: #fde68a !important;
+        }
+        .block-cheque-details input:focus:not(.block-sub-amount) {
+            background: rgba(245, 158, 11, 0.25) !important;
+            border-color: #fbbf24 !important;
+            box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.2) !important;
         }
     </style>
 </head>
