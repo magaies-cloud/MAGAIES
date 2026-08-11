@@ -681,59 +681,20 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             transform: translateY(-2px) scale(1) !important;
         }
         .voucher-type-btn.active-payment {
-            background: linear-gradient(135deg, #ef4444, #b91c1c) !important;
-            border: 1px solid rgba(239, 68, 68, 0.8) !important;
+            background: linear-gradient(135deg, rgba(220, 38, 38, 0.85), rgba(153, 27, 27, 0.9)) !important;
+            border: 1px solid rgba(252, 165, 165, 0.5) !important;
             color: #ffffff !important;
-            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5), 0 0 15px rgba(239, 68, 68, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
-            font-weight: 900 !important;
-            transform: translateY(-4px) scale(1.04) !important;
-            animation: activePulse 2.5s infinite ease-in-out !important;
+            box-shadow: 0 6px 15px rgba(220, 38, 38, 0.3), inset 0 1px 2px rgba(255,255,255,0.2) !important;
+            font-weight: 800 !important;
+            transform: translateY(-2px) scale(1.02) !important;
         }
         .voucher-type-btn.active-receipt {
-            background: linear-gradient(135deg, #10b981, #047857) !important;
-            border: 1px solid rgba(16, 185, 129, 0.8) !important;
+            background: linear-gradient(135deg, rgba(5, 150, 105, 0.85), rgba(6, 95, 70, 0.9)) !important;
+            border: 1px solid rgba(110, 231, 183, 0.5) !important;
             color: #ffffff !important;
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5), 0 0 15px rgba(16, 185, 129, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
-            font-weight: 900 !important;
-            transform: translateY(-4px) scale(1.04) !important;
-            animation: activePulseGreen 2.5s infinite ease-in-out !important;
-        }
-
-        /* Pulsing active buttons */
-        @keyframes activePulse {
-            0% { box-shadow: 0 8px 20px rgba(239, 68, 68, 0.45), 0 0 10px rgba(239, 68, 68, 0.25); border-color: rgba(239, 68, 68, 0.7); }
-            50% { box-shadow: 0 12px 30px rgba(239, 68, 68, 0.75), 0 0 20px rgba(239, 68, 68, 0.5); border-color: rgba(255, 255, 255, 0.9); }
-            100% { box-shadow: 0 8px 20px rgba(239, 68, 68, 0.45), 0 0 10px rgba(239, 68, 68, 0.25); border-color: rgba(239, 68, 68, 0.7); }
-        }
-        @keyframes activePulseGreen {
-            0% { box-shadow: 0 8px 20px rgba(16, 185, 129, 0.45), 0 0 10px rgba(16, 185, 129, 0.25); border-color: rgba(16, 185, 129, 0.7); }
-            50% { box-shadow: 0 12px 30px rgba(16, 185, 129, 0.75), 0 0 20px rgba(16, 185, 129, 0.5); border-color: rgba(255, 255, 255, 0.9); }
-            100% { box-shadow: 0 8px 20px rgba(16, 185, 129, 0.45), 0 0 10px rgba(16, 185, 129, 0.25); border-color: rgba(16, 185, 129, 0.7); }
-        }
-
-        /* Heartbeat for active state circles */
-        @keyframes heartBeatRed {
-            0% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-            20% { transform: scale(1.4); background-color: #ff8787; box-shadow: 0 0 15px #ff8787; }
-            40% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-            60% { transform: scale(1.4); background-color: #ef4444; box-shadow: 0 0 15px #ef4444; }
-            80% { transform: scale(1.2); background-color: #fca5a5; box-shadow: 0 0 12px #fca5a5; }
-            100% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-        }
-        @keyframes heartBeatGreen {
-            0% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-            20% { transform: scale(1.4); background-color: #a7f3d0; box-shadow: 0 0 15px #a7f3d0; }
-            40% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-            60% { transform: scale(1.4); background-color: #10b981; box-shadow: 0 0 15px #10b981; }
-            80% { transform: scale(1.2); background-color: #6ee7b7; box-shadow: 0 0 12px #6ee7b7; }
-            100% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-        }
-
-        .voucher-type-btn.active-payment span {
-            animation: heartBeatRed 1.2s infinite ease-in-out !important;
-        }
-        .voucher-type-btn.active-receipt span {
-            animation: heartBeatGreen 1.2s infinite ease-in-out !important;
+            box-shadow: 0 6px 15px rgba(5, 150, 105, 0.3), inset 0 1px 2px rgba(255,255,255,0.2) !important;
+            font-weight: 800 !important;
+            transform: translateY(-2px) scale(1.02) !important;
         }
 
         /* Color Wave Animation */
