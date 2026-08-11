@@ -110,7 +110,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25);
             background: linear-gradient(135deg, rgba(30, 41, 59, 0.65), rgba(15, 23, 42, 0.85));
             position: relative;
-            overflow: hidden;
+            overflow: visible !important;
         }
 
         .glass-container::before {
@@ -1391,6 +1391,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
     </script>
 </body>
 </html>
+
 
 
 
