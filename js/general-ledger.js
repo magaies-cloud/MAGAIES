@@ -1313,7 +1313,9 @@ function renderRecentTable(txns, startIndex = 0) {
                     ${!t.isOpening && t.additionalNote && t.additionalNote !== t.statement && t.additionalNote !== 'undefined' ? '<br><small style="color:#94a3b8;">' + t.additionalNote + '</small>' : ''}
                 </td>`;
             } else if (col.id === 'transferNo') {
-                html += `<td data-col-id="transferNo" data-is-num="false" style="${cStyle}">${t.transferNo || '-'}</td>`;
+                let disp = t.transferNo;
+                if (!disp && t.checkNo) disp = 'شيك رقم ' + t.checkNo;
+                html += `<td data-col-id="transferNo" data-is-num="false" style="${cStyle}">${disp || '-'}</td>`;
             } else if (col.id === 'bankName') {
                 html += `<td data-col-id="bankName" data-is-num="false" style="${cStyle} color:#e879f9; font-weight:bold;">${t.bankName || '-'}</td>`;
             } else if (col.id === 'counterAccount') {
