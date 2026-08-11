@@ -464,8 +464,8 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             box-shadow: 0 4px 15px var(--tab-glow-color, rgba(56,189,248,0.4)), inset 0 1px 2px rgba(255,255,255,0.4) !important;
             transform: translateY(-1px);
         }
-        .neo-toggle-btn .btn-icon { font-size: 1.25rem; transition: transform 0.3s; margin: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
-        .neo-toggle-btn .btn-text { margin: 0; padding: 0; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
+        .neo-toggle-btn .btn-icon { font-size: 1.25rem; transition: transform 0.3s; margin: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center; line-height: 0; }
+        .neo-toggle-btn .btn-text { margin: 0; padding: 0; line-height: 1; display: inline-flex; align-items: center; justify-content: center; transform: translateY(1px); }
         .neo-toggle-btn.active .btn-icon { transform: scale(1.1); }
 
         /* ═══ Unified Elegant Mini Ledger Button (كشف حساب) ═══ */
@@ -872,10 +872,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             <span><i class="fa fa-user"></i></span> بيان الطرف الرئيسي
                         </div>
                         <div style="display: flex; gap: 10px;">
-                            <button type="button" id="btn-payment" class="voucher-type-btn active-payment" onclick="switchType('payment')">
+                            <button type="button" id="btn-payment" class="voucher-type-btn active-payment" onclick="setVoucherType('payment')">
                                 <span class="btn-icon"><i class="fa fa-arrow-up"></i></span> <span class="btn-text">صرف مجمع</span>
                             </button>
-                            <button type="button" id="btn-receipt" class="voucher-type-btn" onclick="switchType('receipt')">
+                            <button type="button" id="btn-receipt" class="voucher-type-btn" onclick="setVoucherType('receipt')">
                                 <span class="btn-icon"><i class="fa fa-arrow-down"></i></span> <span class="btn-text">استلام مجمع</span>
                             </button>
                         </div>
