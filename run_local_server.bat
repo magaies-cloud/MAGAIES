@@ -12,7 +12,7 @@ echo (Powered by XAMPP Apache - Port 80)
 echo =========================================================
 echo.
 
-echo [1/3] Starting XAMPP Apache Web Server & MySQL Database...
+echo [1/3] Starting XAMPP Apache Web Server ^& MySQL Database...
 if exist "C:\xampp\apache\bin\httpd.exe" (
     start "Apache" /B "C:\xampp\apache\bin\httpd.exe"
 )

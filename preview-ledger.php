@@ -531,8 +531,7 @@
 
         <!-- Center Side: Report Title -->
         <div style="flex: 1; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center; height: 100%;">
-            <h2 style="margin: 0; padding: 8px 18px; background: rgba(0,0,0,0.04); border-radius: 8px; border: 2px solid var(--text-color); font-size: 1.3rem;">دفتر الأستاذ العام</h2>
-            <p style="margin: 6px 0 0 0; font-size: 0.95rem; opacity: 0.85;" id="report-date-lbl"></p>
+            <h2 style="margin: 0; padding: 8px 22px; background: rgba(0,0,0,0.04); border-radius: 8px; border: 2px solid var(--text-color); font-size: 1.5rem; font-weight: 900;" id="report-main-title">دفتر الأستاذ العام</h2>
         </div>
 
         <!-- Left Side: Logo Area -->
@@ -540,6 +539,24 @@
             <div class="company-logo-wrap">
                 <img id="company-logo" src="" alt="شعار الشركة" style="max-height: 100%; max-width: 100%; object-fit: contain;">
             </div>
+        </div>
+    </div>
+
+    <!-- Subheader Row: 3-column flex layout (Right: Customer, Center: Date, Left: Period) -->
+    <div id="report-subheader-row" style="display: flex; justify-content: space-between; align-items: center; margin: 12px 0 16px 0; padding: 10px 18px; background: rgba(0,0,0,0.02); border-radius: 8px; border: 1px solid rgba(0,0,0,0.12); font-family: 'Tajawal', sans-serif;">
+        <!-- Right Column: Customer Name -->
+        <div style="flex: 1; text-align: right;">
+            <span id="report-customer-name-lbl" style="font-size: 1.4rem; font-weight: 900; color: var(--text-color);"></span>
+        </div>
+        
+        <!-- Center Column: Report Date -->
+        <div style="flex: 1; text-align: center;">
+            <span id="report-date-lbl" style="font-size: 1.4rem; font-weight: 900; color: var(--text-color);"></span>
+        </div>
+        
+        <!-- Left Column: Period -->
+        <div style="flex: 1; text-align: left;">
+            <span id="report-period-lbl" style="font-size: 1.15rem; font-weight: 800; color: var(--text-color);"></span>
         </div>
     </div>
 

@@ -1493,6 +1493,9 @@
             
             const existingIdx = customers.findIndex(c => c.id === id);
             
+            const todayStr = new Date().toISOString().split('T')[0];
+            const nowIso = new Date().toISOString();
+            
             const custData = {
                 id, name, phone, whatsapp, email, contactPerson, address, 
                 openingDebit, openingCredit, 
@@ -1500,7 +1503,9 @@
                 currentBalance: (openingDebit - openingCredit), 
                 creditLimit: limit,
                 securityLevel: security, status: status, notes,
-                bankAccounts: bankAccounts
+                bankAccounts: bankAccounts,
+                date: existingIdx > -1 ? (customers[existingIdx].date || todayStr) : todayStr,
+                createdAt: existingIdx > -1 ? (customers[existingIdx].createdAt || nowIso) : nowIso
             };
 
             if (existingIdx > -1) {
@@ -1744,13 +1749,18 @@
             
             const existingIdx = suppliers.findIndex(s => s.id === id);
             
+            const todayStr = new Date().toISOString().split('T')[0];
+            const nowIso = new Date().toISOString();
+
             const supData = {
                 id, name, phone, whatsapp, email, address, 
                 openingDebit, openingCredit, 
                 currency, exRate, taxNumber, accountNo,
                 currentBalance: (openingCredit - openingDebit), 
                 creditLimit: limit,
-                securityLevel: security, status: status, notes
+                securityLevel: security, status: status, notes,
+                date: existingIdx > -1 ? (suppliers[existingIdx].date || todayStr) : todayStr,
+                createdAt: existingIdx > -1 ? (suppliers[existingIdx].createdAt || nowIso) : nowIso
             };
 
             if (existingIdx > -1) {

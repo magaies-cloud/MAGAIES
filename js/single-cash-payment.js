@@ -56,7 +56,53 @@ function showDuplicateModal(transferNo) {
     document.body.insertAdjacentHTML('beforeend', modalHTML);
 }
 
-document.addEventListener('DBReady', () => {
+function onDBReady(fn) {
+    if (window.APP_READY) {
+        setTimeout(fn, 10);
+    } else {
+        document.addEventListener('DBReady', fn);
+    }
+}
+
+// Immediate Drill-down check from sessionStorage
+(function checkImmediateDrillDown() {
+    const urlParams = new URLSearchParams(window.location.search);
+    const voucherId = urlParams.get('id');
+    const voucherType = urlParams.get('type');
+    if (!voucherId) return;
+
+    try {
+        let cached = sessionStorage.getItem('_edit_voucher_data');
+        if (cached) {
+            let parsed = JSON.parse(cached);
+            let parsedId = String(parsed.id || parsed.voucherNo || parsed.paymentNo || parsed.receiptNo || '');
+            if (parsedId === String(voucherId)) {
+                window.isVoucherLoadedFromDrilldown = true;
+                sessionStorage.removeItem('_edit_voucher_data');
+                
+                let doRender = () => {
+                    if (document.getElementById('edit-warning-banner')) {
+                        document.getElementById('edit-warning-banner').style.display = 'flex';
+                    }
+                    if (voucherType !== 'receipt') {
+                        let freshData = window.getAllSinglePayments ? window.getAllSinglePayments() : [];
+                        let pIdx = freshData.findIndex(v => String(v.id) === String(voucherId) || String(v.voucherNo) === String(voucherId) || String(v.paymentNo) === String(voucherId));
+                        if (pIdx !== -1) currentViewedIndex = pIdx;
+                    }
+                    renderVoucher(parsed);
+                };
+
+                if (document.readyState === 'loading') {
+                    document.addEventListener('DOMContentLoaded', doRender);
+                } else {
+                    doRender();
+                }
+            }
+        }
+    } catch(e) {}
+})();
+
+onDBReady(() => {
     // Load accounts dynamically here to ensure DB_STORE is populated
 
     const fromSelect = document.getElementById('from-account');
@@ -165,47 +211,98 @@ document.addEventListener('DBReady', () => {
     togglePaymentMethod();
 });
 
-// Deep Drill-down (Run as soon as possible)
-document.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const voucherId = urlParams.get('id');
-    const voucherType = urlParams.get('type');
-    if (voucherId) {
+// Deep Drill-down (Run after DBReady so localforage data is fully loaded)
+onDBReady(() => {
+    setTimeout(async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const voucherId = urlParams.get('id');
+        const voucherType = urlParams.get('type');
+        if (!voucherId) return;
+        
         if(document.getElementById('edit-warning-banner')) {
             document.getElementById('edit-warning-banner').style.display = 'flex';
         }
-        let dataSource;
-        if (voucherType === 'receipt') {
-            // Load from receipts data when coming from old single-cash-receipt links
-            dataSource = (window.SERVER_SINGLE_RECEIPTS && window.SERVER_SINGLE_RECEIPTS.length > 0 ? window.SERVER_SINGLE_RECEIPTS : (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || []));
-        } else {
-            dataSource = window.getAllSinglePayments();
-        }
-        // Try finding in the selected data source first
-        let idx = dataSource.findIndex(v => String(v.id) === String(voucherId) || String(v.voucherNo) === String(voucherId) || String(v.paymentNo) === String(voucherId) || String(v.receiptNo) === String(voucherId));
-        if (idx !== -1) {
-            setTimeout(() => {
-                if (voucherType === 'receipt') {
-                    // Use receipt data directly for rendering
-                    renderVoucher(dataSource[idx]);
-                } else {
-                    currentViewedIndex = idx;
-                    renderVoucher(dataSource[idx]);
+        
+        let foundVoucher = null;
+        
+        // 1. PRIORITY: Check sessionStorage (set by vouchers-hub before navigation)
+        try {
+            let cached = sessionStorage.getItem('_edit_voucher_data');
+            if (cached) {
+                let parsed = JSON.parse(cached);
+                if (parsed) {
+                    let parsedId = String(parsed.id || parsed.voucherNo || parsed.paymentNo || parsed.receiptNo || '');
+                    let targetId = String(voucherId || '');
+                    if (!targetId || parsedId === targetId || parsedId.replace(/^[A-Z]+-?/, '') === targetId.replace(/^[A-Z]+-?/, '')) {
+                        foundVoucher = parsed;
+                        sessionStorage.removeItem('_edit_voucher_data'); // Clean up
+                    }
                 }
-            }, 150);
-        } else {
-            // Fallback: search in both data sources
-            const fallbackReceipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
-            const fallbackPayments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
-            const allData = [...fallbackPayments, ...fallbackReceipts];
-            let altIdx = allData.findIndex(v => String(v.id) === String(voucherId) || String(v.voucherNo) === String(voucherId) || String(v.paymentNo) === String(voucherId) || String(v.receiptNo) === String(voucherId));
-            if (altIdx !== -1) {
-                setTimeout(() => {
-                    renderVoucher(allData[altIdx]);
-                }, 150);
+            }
+        } catch(e) {}
+        
+        // 2. FALLBACK: Search through all data sources
+        if (!foundVoucher) {
+            const tkSR = window.getTenantKey ? window.getTenantKey('erp_single_receipts_v1') : 'erp_single_receipts_v1';
+            const tkSP = window.getTenantKey ? window.getTenantKey('erp_single_payments_v1') : 'erp_single_payments_v1';
+            
+            let localReceipts = [];
+            let localPayments = [];
+            
+            // Try localforage first
+            if (typeof localforage !== 'undefined') {
+                try {
+                    localReceipts = (await localforage.getItem(tkSR)) || (await localforage.getItem('erp_single_receipts_v1')) || [];
+                    localPayments = (await localforage.getItem(tkSP)) || (await localforage.getItem('erp_single_payments_v1')) || [];
+                } catch(e) {}
+            }
+            
+            // Fallback to localStorage
+            if (!Array.isArray(localReceipts) || localReceipts.length === 0) {
+                localReceipts = JSON.parse(localStorage.getItem(tkSR) || localStorage.getItem('erp_single_receipts_v1') || '[]');
+            }
+            if (!Array.isArray(localPayments) || localPayments.length === 0) {
+                localPayments = window.getAllSinglePayments ? window.getAllSinglePayments() : JSON.parse(localStorage.getItem(tkSP) || localStorage.getItem('erp_single_payments_v1') || '[]');
+            }
+
+            if (!Array.isArray(localReceipts)) localReceipts = Object.values(localReceipts);
+            if (!Array.isArray(localPayments)) localPayments = Object.values(localPayments);
+            
+            const serverReceipts = window.SERVER_SINGLE_RECEIPTS || [];
+            const serverPayments = window.SERVER_SINGLE_PAYMENTS || [];
+            
+            const allData = [...serverPayments, ...localPayments, ...serverReceipts, ...localReceipts];
+            
+            const foundIdx = allData.findIndex(v => {
+                if (!v) return false;
+                const vid = String(v.id || '');
+                const vno = String(v.voucherNo || v.paymentNo || v.receiptNo || '');
+                const target = String(voucherId || '');
+                if (vid === target || vno === target) return true;
+                if (target && vid.replace(/^[A-Z]+-?/, '') === target.replace(/^[A-Z]+-?/, '')) return true;
+                if (target && vno.replace(/^[A-Z]+-?/, '') === target.replace(/^[A-Z]+-?/, '')) return true;
+                return false;
+            });
+            
+            if (foundIdx !== -1) {
+                foundVoucher = allData[foundIdx];
             }
         }
-    }
+        
+        // 3. If found, set currentViewedIndex and render
+        if (foundVoucher) {
+            if (voucherType !== 'receipt') {
+                let freshData = window.getAllSinglePayments ? window.getAllSinglePayments() : [];
+                if (freshData.length > 0) singlePaymentsData = freshData;
+                let pIdx = singlePaymentsData.findIndex(v => String(v.id) === String(voucherId) || String(v.voucherNo) === String(voucherId) || String(v.paymentNo) === String(voucherId));
+                if (pIdx !== -1) {
+                    currentViewedIndex = pIdx;
+                }
+            }
+            
+            renderVoucher(foundVoucher);
+        }
+    }, 300); // 300ms after DBReady to ensure generateNewId doesn't override us
 });
 
 function updateBalances() {
@@ -227,23 +324,40 @@ function togglePaymentMethod() {
     if (!methodEl) return;
     const method = methodEl.value;
     
-    // Check if the legacy elements exist (to prevent crashes on old layouts)
+    // Legacy elements
     const secMobile = document.getElementById('section-mobile');
     const secCheck = document.getElementById('section-check');
     if (secMobile) secMobile.classList.remove('active');
     if (secCheck) secCheck.classList.remove('active');
 
-    if (method === 'mobile') {
+    // New-style elements
+    const secCash = document.getElementById('pay-cash-section');
+    const secBank = document.getElementById('pay-bank-section');
+    const secCheque = document.getElementById('pay-cheque-section');
+    if (secCash) secCash.style.display = 'none';
+    if (secBank) secBank.style.display = 'none';
+    if (secCheque) secCheque.style.display = 'none';
+
+    if (method === 'cash') {
+        if (secCash) secCash.style.display = 'flex';
+    } else if (method === 'mobile') {
         if (secMobile) secMobile.classList.add('active');
+        if (secBank) secBank.style.display = 'flex';
     } else if (method === 'check') {
         if (secCheck) secCheck.classList.add('active');
+        if (secCheque) secCheque.style.display = 'flex';
     } else if (method === 'hybrid') {
         if (secMobile) secMobile.classList.add('active');
         if (secCheck) secCheck.classList.add('active');
+        if (secBank) secBank.style.display = 'flex';
+        if (secCheque) secCheque.style.display = 'flex';
     }
 }
 
 function setNextVoucherNumber() {
+    if (window.isVoucherLoadedFromDrilldown || (typeof currentViewedIndex !== 'undefined' && currentViewedIndex !== -1)) {
+        return;
+    }
     let spData = [];
     try {
         const getTenantKey = window.getTenantKey || ((k) => k);
@@ -538,34 +652,52 @@ function loadNextVoucher() {
 }
 
 function renderVoucher(v) {
-    document.getElementById('voucher-number').innerText = v.id;
-    document.getElementById('hdr-date').value = v.date;
-    
-    document.getElementById('to-account').value = v.toAccount || '';
-    document.getElementById('to-account-search').value = getAccountName(v.toAccount || '');
+    if (!v) return;
+    window.isVoucherLoadedFromDrilldown = true;
 
-    document.getElementById('amount-local').value = fmtNum(v.amountLocal);
-    document.getElementById('currency').value = v.currency || 'SDG';
-    document.getElementById('exchange-rate').value = v.rate || 1.0;
-    document.getElementById('amount-foreign').value = fmtNum(v.amountForeign);
-    document.getElementById('to-statement').value = v.toStatement || '';
-    document.getElementById('beneficiary-name').value = v.beneficiaryName || '';
+    let vid = v.id || v.voucherNo || v.paymentNo || v.receiptNo || v.invoiceNo || '';
+    if (document.getElementById('voucher-number')) document.getElementById('voucher-number').innerText = vid;
     
-    document.getElementById('from-account').value = v.fromAccount || 'safe-001';
-    document.getElementById('from-account-search').value = getAccountName(v.fromAccount || 'safe-001');
-    if (window.fromAccChoice) window.fromAccChoice.setChoiceByValue(v.fromAccount || 'safe-001');
+    let dt = v.date || (v.createdAt ? String(v.createdAt).split('T')[0] : '');
+    if (dt && document.getElementById('hdr-date')) document.getElementById('hdr-date').value = dt;
+    
+    let toAcc = v.toAccount || v.depositAccount || v.accountId || '';
+    let fromAcc = v.fromAccount || v.withdrawalAccount || v.cashSafe || v.mainAccount || 'safe-001';
+    
+    if (document.getElementById('to-account')) document.getElementById('to-account').value = toAcc;
+    if (document.getElementById('to-account-search')) document.getElementById('to-account-search').value = getAccountName(toAcc) || toAcc;
+
+    let amt = (v.amountLocal !== undefined && v.amountLocal !== null) ? v.amountLocal : (v.amount !== undefined ? v.amount : (v.totalAmount || 0));
+    if (document.getElementById('amount-local')) document.getElementById('amount-local').value = fmtNum(amt);
+    if (document.getElementById('currency')) document.getElementById('currency').value = v.currency || 'SDG';
+    
+    let rate = v.rate || v.exchangeRate || 1.0;
+    if (document.getElementById('exchange-rate')) document.getElementById('exchange-rate').value = rate;
+    
+    let amtForeign = (v.amountForeign !== undefined && v.amountForeign !== null) ? v.amountForeign : (parseNum(amt) / parseNum(rate));
+    if (document.getElementById('amount-foreign')) document.getElementById('amount-foreign').value = fmtNum(amtForeign);
+    
+    if (document.getElementById('to-statement')) document.getElementById('to-statement').value = v.toStatement || v.statement || v.description || v.notes || '';
+    if (document.getElementById('beneficiary-name')) document.getElementById('beneficiary-name').value = v.beneficiaryName || v.beneficiary || '';
+    
+    if (document.getElementById('from-account')) document.getElementById('from-account').value = fromAcc;
+    if (document.getElementById('from-account-search')) document.getElementById('from-account-search').value = getAccountName(fromAcc) || fromAcc;
+    if (window.fromAccChoice) window.fromAccChoice.setChoiceByValue(fromAcc);
 
     const costCenterEl = document.getElementById('cost-center');
     if (costCenterEl) {
-        costCenterEl.value = v.costCenter || '';
-        if (window.ccChoice) window.ccChoice.setChoiceByValue(v.costCenter || '');
+        costCenterEl.value = v.costCenter || v.jobId || '';
+        if (window.ccChoice) window.ccChoice.setChoiceByValue(v.costCenter || v.jobId || '');
     }
 
-    document.getElementById('from-statement').value = v.fromStatement || '';
+    if (document.getElementById('from-statement')) document.getElementById('from-statement').value = v.fromStatement || v.statement || v.description || '';
 
     // Set Payment Method
-    const method = v.paymentMethod || 'cash';
-    const methodEl = document.querySelector(`input[name="payment_method"][value="${method}"]`); if (methodEl) { methodEl.checked = true; } else { /* Fallback */ const firstMethod = document.querySelector(`input[name="payment_method"]`); if(firstMethod) firstMethod.checked = true; }
+    const method = v.paymentMethod || v.method || (v.cheques && v.cheques.length > 0 ? 'check' : (v.bankTransfers && v.bankTransfers.length > 0 ? 'mobile' : 'cash'));
+    const methodEl = document.querySelector(`input[name="payment_method"][value="${method}"]`); 
+    if (methodEl) { methodEl.checked = true; } 
+    else { const firstMethod = document.querySelector(`input[name="payment_method"]`); if(firstMethod) firstMethod.checked = true; }
+    
     togglePaymentMethod();
 
     if (typeof loadVoucherPaymentDetails === 'function') {
@@ -579,23 +711,10 @@ function renderVoucher(v) {
 }
 
 function submitVoucher() {
-    try { // WRAPPED
-    const amtLocal = parseNum(document.getElementById('amount-local').value);
-    const toAcc = document.getElementById('to-account').value;
-    const fromAcc = document.getElementById('from-account').value;
+    submitVoucherInner();
+}
 
-    if (amtLocal <= 0) {
-        showToast("لا يمكن اعتماد سند بقيمة صفر", "error");
-        return;
-    }
-    if (!toAcc) {
-        showToast("يرجى اختيار الحساب المستفيد", "error");
-        return;
-    }
-    if (!fromAcc) {
-        showToast("يرجى اختيار حساب الدفع (الدافع)", "error");
-        return;
-    }function showProfessionalSuccess(voucherId, fromName, toName, amountLocal, currency, title) {
+function showProfessionalSuccess(voucherId, fromName, toName, amountLocal, currency, title) {
     const overlay = document.createElement('div');
     overlay.style.position = 'fixed';
     overlay.style.top = '0'; overlay.style.left = '0';
@@ -695,7 +814,28 @@ function submitVoucher() {
             }
         }, 600);
     }, 2500);
-}    const _docDateStr = document.getElementById('hdr-date') ? document.getElementById('hdr-date').value : new Date().toISOString().split('T')[0];
+}
+
+function submitVoucherInner() {
+    try { // WRAPPED
+    const amtLocal = parseNum(document.getElementById('amount-local').value);
+    const toAcc = document.getElementById('to-account').value;
+    const fromAcc = document.getElementById('from-account').value;
+
+    if (amtLocal <= 0) {
+        showToast("لا يمكن اعتماد سند بقيمة صفر", "error");
+        return;
+    }
+    if (!toAcc) {
+        showToast("يرجى اختيار الحساب المستفيد", "error");
+        return;
+    }
+    if (!fromAcc) {
+        showToast("يرجى اختيار حساب الدفع (الدافع)", "error");
+        return;
+    }
+
+    const _docDateStr = document.getElementById('hdr-date') ? document.getElementById('hdr-date').value : new Date().toISOString().split('T')[0];
     if (!window.canCreateRecord(_docDateStr)) return;
 
     if (window.isSubmitting) return;
@@ -747,14 +887,9 @@ function submitVoucher() {
                 hasInvalidTransfer = true;
                 return;
             }
-            if (trNo.length < 6) {
-                showToast(`السطر ${idx + 1}: رقم التحويل يجب أن يكون 6 أرقام على الأقل`, "error");
+            if (trNo.length < 4) {
+                showToast(`السطر ${idx + 1}: رقم التحويل يجب أن يكون 4 أرقام على الأقل`, "error");
                 row.querySelector('.transfer-no').focus();
-                hasInvalidTransfer = true;
-                return;
-            }
-            if (!window.isBankReferenceUnique(trNo, 'mobile', document.getElementById('voucher-number').innerText)) {
-                window.showDuplicateWarningModal(trNo, 'mobile');
                 hasInvalidTransfer = true;
                 return;
             }
@@ -793,14 +928,9 @@ function submitVoucher() {
                 hasInvalidCheque = true;
                 return;
             }
-            if (!chNo || chNo.length < 6) {
-                showToast(`السطر ${idx + 1}: رقم الشيك يجب أن يكون 6 أرقام على الأقل`, "error");
+            if (chNo.length < 4) {
+                showToast(`السطر ${idx + 1}: رقم الشيك يجب أن يكون 4 أرقام على الأقل`, "error");
                 row.querySelector('.cheque-no').focus();
-                hasInvalidCheque = true;
-                return;
-            }
-            if (!window.isBankReferenceUnique(chNo, 'check', document.getElementById('voucher-number').innerText)) {
-                window.showDuplicateWarningModal(chNo, 'check');
                 hasInvalidCheque = true;
                 return;
             }
@@ -844,14 +974,9 @@ function submitVoucher() {
                 hasInvalidTransfer = true;
                 return;
             }
-            if (trNo.length < 6) {
-                showToast(`السطر ${idx + 1}: رقم التحويل يجب أن يكون 6 أرقام على الأقل`, "error");
+            if (trNo.length < 4) {
+                showToast(`السطر ${idx + 1}: رقم التحويل يجب أن يكون 4 أرقام على الأقل`, "error");
                 row.querySelector('.transfer-no').focus();
-                hasInvalidTransfer = true;
-                return;
-            }
-            if (!window.isBankReferenceUnique(trNo, 'mobile', document.getElementById('voucher-number').innerText)) {
-                window.showDuplicateWarningModal(trNo, 'mobile');
                 hasInvalidTransfer = true;
                 return;
             }
@@ -879,14 +1004,9 @@ function submitVoucher() {
                 hasInvalidCheque = true;
                 return;
             }
-            if (!chNo || chNo.length < 6) {
-                showToast(`السطر ${idx + 1}: رقم الشيك يجب أن يكون 6 أرقام على الأقل`, "error");
+            if (chNo.length < 4) {
+                showToast(`السطر ${idx + 1}: رقم الشيك يجب أن يكون 4 أرقام على الأقل`, "error");
                 row.querySelector('.cheque-no').focus();
-                hasInvalidCheque = true;
-                return;
-            }
-            if (!window.isBankReferenceUnique(chNo, 'check', document.getElementById('voucher-number').innerText)) {
-                window.showDuplicateWarningModal(chNo, 'check');
                 hasInvalidCheque = true;
                 return;
             }
@@ -926,8 +1046,8 @@ function submitVoucher() {
     function applyPaymentEffect(fromAccId, toAccId, amount, isRevert = false) {
         if (!fromAccId || !toAccId) return;
         let multiplier = isRevert ? -1 : 1;
-        let amtSafe = -amount * multiplier; // safe decreases
-        let amtBeneficiary = -amount * multiplier; // beneficiary balance decreases (repaid)
+        let amtFrom = -amount * multiplier; // source account decreases on payment
+        let amtToPositive = amount * multiplier; // receiving account INCREASES on payment
 
         // Helper function for multi-tenant local storage
         const loadEntity = (key) => {
@@ -937,13 +1057,13 @@ function submitVoucher() {
             localStorage.setItem(key, JSON.stringify(data));
         };
 
-        // 1. Update fromAccount (Safe/Bank)
+        // 1. Update fromAccount (Safe/Bank) — balance DECREASES
         if (fromAccId.startsWith('safe-')) {
             let id = fromAccId.substring(5);
             let safes = loadEntity('erp_safes_v1');
             let idx = safes.findIndex(s => String(s.id) === String(id));
             if (idx > -1) {
-                safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtSafe;
+                safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtFrom;
                 saveEntity('erp_safes_v1', safes);
             }
         } else if (fromAccId.startsWith('bank-')) {
@@ -951,19 +1071,42 @@ function submitVoucher() {
             let banks = loadEntity('erp_banks_v1');
             let idx = banks.findIndex(b => String(b.id) === String(id));
             if (idx > -1) {
-                banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtSafe;
+                banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtFrom;
                 saveEntity('erp_banks_v1', banks);
+            }
+        } else if (fromAccId.startsWith('cust-')) {
+            let id = fromAccId.substring(5);
+            let custs = loadEntity('erp_customers_v1');
+            let idx = custs.findIndex(c => String(c.id) === String(id));
+            if (idx > -1) {
+                custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amtFrom;
+                saveEntity('erp_customers_v1', custs);
+            }
+        } else if (fromAccId.startsWith('supp-')) {
+            let id = fromAccId.substring(5);
+            let sups = loadEntity('erp_suppliers_v1');
+            let idx = sups.findIndex(s => String(s.id) === String(id));
+            if (idx > -1) {
+                sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) + amtFrom;
+                saveEntity('erp_suppliers_v1', sups);
+            }
+        } else if (fromAccId.startsWith('exp-')) {
+            let id = fromAccId.substring(4);
+            let accounts = loadEntity('erp_accounts_v1');
+            let idx = accounts.findIndex(a => String(a.id) === String(id));
+            if (idx > -1) {
+                accounts[idx].currentBalance = (parseFloat(accounts[idx].currentBalance) || 0) + amtFrom;
+                saveEntity('erp_accounts_v1', accounts);
             }
         }
 
-        // 2. Update toAccount (Beneficiary: Customer/Supplier/Safe/Bank/Expense)
+        // 2. Update toAccount (Beneficiary) — balance INCREASES
         if (toAccId.startsWith('cust-')) {
             let id = toAccId.substring(5);
             let custs = loadEntity('erp_customers_v1');
             let idx = custs.findIndex(c => String(c.id) === String(id));
             if (idx > -1) {
-                // When we pay a customer, their debt to us INCREASES (or our debt to them decreases). Customer balance is Debit.
-                custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amount * multiplier;
+                custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amtToPositive;
                 saveEntity('erp_customers_v1', custs);
             }
         } else if (toAccId.startsWith('supp-')) {
@@ -971,7 +1114,7 @@ function submitVoucher() {
             let sups = loadEntity('erp_suppliers_v1');
             let idx = sups.findIndex(s => String(s.id) === String(id));
             if (idx > -1) {
-                sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) + amtBeneficiary;
+                sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) + amtToPositive;
                 saveEntity('erp_suppliers_v1', sups);
             }
         } else if (toAccId.startsWith('bank-')) {
@@ -979,7 +1122,7 @@ function submitVoucher() {
             let banks = loadEntity('erp_banks_v1');
             let idx = banks.findIndex(b => String(b.id) === String(id));
             if (idx > -1) {
-                banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtBeneficiary;
+                banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtToPositive;
                 saveEntity('erp_banks_v1', banks);
             }
         } else if (toAccId.startsWith('safe-')) {
@@ -987,7 +1130,7 @@ function submitVoucher() {
             let safes = loadEntity('erp_safes_v1');
             let idx = safes.findIndex(s => String(s.id) === String(id));
             if (idx > -1) {
-                safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtBeneficiary;
+                safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtToPositive;
                 saveEntity('erp_safes_v1', safes);
             }
         } else if (toAccId.startsWith('exp-')) {
@@ -995,7 +1138,7 @@ function submitVoucher() {
             let accounts = loadEntity('erp_accounts_v1');
             let idx = accounts.findIndex(a => String(a.id) === String(id));
             if (idx > -1) {
-                accounts[idx].currentBalance = (parseFloat(accounts[idx].currentBalance) || 0) + amount * multiplier;
+                accounts[idx].currentBalance = (parseFloat(accounts[idx].currentBalance) || 0) + amtToPositive;
                 saveEntity('erp_accounts_v1', accounts);
             }
         }
@@ -1017,17 +1160,21 @@ function submitVoucher() {
             applyPaymentEffect(voucherData.fromAccount, voucherData.toAccount, voucherData.amountLocal, false);
             
             singlePaymentsData[currentViewedIndex] = voucherData;
-            localStorage.setItem('erp_single_payments_v1', JSON.stringify(singlePaymentsData));
+            const tKey = getTenantKey('erp_single_payments_v1');
+            localStorage.setItem(tKey, JSON.stringify(singlePaymentsData));
             window.SERVER_SINGLE_PAYMENTS = singlePaymentsData;
+            if (typeof window.rebuildGLFromAllTables === 'function') window.rebuildGLFromAllTables(false);
             showProfessionalSuccess(voucherData.id, fromName, toName, voucherData.amountLocal, voucherData.currency, 'تم التعديل بنجاح');
         } else {
             applyPaymentEffect(voucherData.fromAccount, voucherData.toAccount, voucherData.amountLocal, false);
             singlePaymentsData.push(voucherData);
             currentViewedIndex = singlePaymentsData.length - 1; // Keep the saved voucher on screen
-            localStorage.setItem('erp_single_payments_v1', JSON.stringify(singlePaymentsData));
+            const tKey = getTenantKey('erp_single_payments_v1');
+            localStorage.setItem(tKey, JSON.stringify(singlePaymentsData));
             window.SERVER_SINGLE_PAYMENTS = singlePaymentsData;
             const currentSeq = parseInt(localStorage.getItem(getTenantKey('erp_single_payment_seq')) || localStorage.getItem('erp_single_payment_seq') || '0');
             localStorage.setItem('erp_single_payment_seq', currentSeq + 1);
+            if (typeof window.rebuildGLFromAllTables === 'function') window.rebuildGLFromAllTables(false);
             showProfessionalSuccess(voucherData.id, fromName, toName, voucherData.amountLocal, voucherData.currency, 'تم الحفظ بنجاح');
         }
 
@@ -1283,11 +1430,12 @@ function confirmDelete() {
     if (confirm("هل أنت متأكد من حذف هذا السند نهائياً؟")) {
         const oldVoucher = singlePaymentsData[currentViewedIndex];
         
-        // Revert old payment effect
+        // Revert old payment effect (isRevert = true means we REVERSE the original effect)
         function applyPaymentEffectDel(fromAccId, toAccId, amount, isRevert = false) {
+            if (!fromAccId || !toAccId) return;
             let multiplier = isRevert ? -1 : 1;
-            let amtSafe = -amount * multiplier;
-            let amtBeneficiary = -amount * multiplier;
+            let amtFrom = -amount * multiplier; // source was decreased, so reverting increases it
+            let amtToPositive = amount * multiplier; // dest was increased, so reverting decreases it
 
             const getTenantKey = window.getTenantKey || ((k) => k);
             const loadEntity = (key) => {
@@ -1297,48 +1445,60 @@ function confirmDelete() {
                 localStorage.setItem(key, JSON.stringify(data));
             };
 
+            // Revert fromAccount
             if (fromAccId.startsWith('safe-')) {
                 let id = fromAccId.substring(5);
                 let safes = loadEntity('erp_safes_v1');
                 let idx = safes.findIndex(s => String(s.id) === String(id));
-                if (idx > -1) {
-                    safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtSafe;
-                    saveEntity('erp_safes_v1', safes);
-                }
+                if (idx > -1) { safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtFrom; saveEntity('erp_safes_v1', safes); }
             } else if (fromAccId.startsWith('bank-')) {
                 let id = fromAccId.substring(5);
                 let banks = loadEntity('erp_banks_v1');
                 let idx = banks.findIndex(b => String(b.id) === String(id));
-                if (idx > -1) {
-                    banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtSafe;
-                    saveEntity('erp_banks_v1', banks);
-                }
+                if (idx > -1) { banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtFrom; saveEntity('erp_banks_v1', banks); }
+            } else if (fromAccId.startsWith('cust-')) {
+                let id = fromAccId.substring(5);
+                let custs = loadEntity('erp_customers_v1');
+                let idx = custs.findIndex(c => String(c.id) === String(id));
+                if (idx > -1) { custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amtFrom; saveEntity('erp_customers_v1', custs); }
+            } else if (fromAccId.startsWith('supp-')) {
+                let id = fromAccId.substring(5);
+                let sups = loadEntity('erp_suppliers_v1');
+                let idx = sups.findIndex(s => String(s.id) === String(id));
+                if (idx > -1) { sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) + amtFrom; saveEntity('erp_suppliers_v1', sups); }
+            } else if (fromAccId.startsWith('exp-')) {
+                let id = fromAccId.substring(4);
+                let accounts = loadEntity('erp_accounts_v1');
+                let idx = accounts.findIndex(a => String(a.id) === String(id));
+                if (idx > -1) { accounts[idx].currentBalance = (parseFloat(accounts[idx].currentBalance) || 0) + amtFrom; saveEntity('erp_accounts_v1', accounts); }
             }
 
+            // Revert toAccount
             if (toAccId.startsWith('cust-')) {
                 let id = toAccId.substring(5);
                 let custs = loadEntity('erp_customers_v1');
                 let idx = custs.findIndex(c => String(c.id) === String(id));
-                if (idx > -1) {
-                    custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amount * multiplier;
-                    saveEntity('erp_customers_v1', custs);
-                }
+                if (idx > -1) { custs[idx].currentBalance = (parseFloat(custs[idx].currentBalance) || 0) + amtToPositive; saveEntity('erp_customers_v1', custs); }
             } else if (toAccId.startsWith('supp-')) {
                 let id = toAccId.substring(5);
                 let sups = loadEntity('erp_suppliers_v1');
                 let idx = sups.findIndex(s => String(s.id) === String(id));
-                if (idx > -1) {
-                    sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) + amtBeneficiary;
-                    saveEntity('erp_suppliers_v1', sups);
-                }
+                if (idx > -1) { sups[idx].currentBalance = (parseFloat(sups[idx].currentBalance) || 0) + amtToPositive; saveEntity('erp_suppliers_v1', sups); }
+            } else if (toAccId.startsWith('bank-')) {
+                let id = toAccId.substring(5);
+                let banks = loadEntity('erp_banks_v1');
+                let idx = banks.findIndex(b => String(b.id) === String(id));
+                if (idx > -1) { banks[idx].currentBalance = (parseFloat(banks[idx].currentBalance) || 0) + amtToPositive; saveEntity('erp_banks_v1', banks); }
+            } else if (toAccId.startsWith('safe-')) {
+                let id = toAccId.substring(5);
+                let safes = loadEntity('erp_safes_v1');
+                let idx = safes.findIndex(s => String(s.id) === String(id));
+                if (idx > -1) { safes[idx].currentBalance = (parseFloat(safes[idx].currentBalance) || 0) + amtToPositive; saveEntity('erp_safes_v1', safes); }
             } else if (toAccId.startsWith('exp-')) {
                 let id = toAccId.substring(4);
                 let accounts = loadEntity('erp_accounts_v1');
                 let idx = accounts.findIndex(a => String(a.id) === String(id));
-                if (idx > -1) {
-                    accounts[idx].currentBalance = (parseFloat(accounts[idx].currentBalance) || 0) + amount * multiplier;
-                    saveEntity('erp_accounts_v1', accounts);
-                }
+                if (idx > -1) { accounts[idx].currentBalance = (parseFloat(accounts[idx].currentBalance) || 0) + amtToPositive; saveEntity('erp_accounts_v1', accounts); }
             }
         }
         
@@ -1346,8 +1506,10 @@ function confirmDelete() {
 
         singlePaymentsData.splice(currentViewedIndex, 1);
         const getTenantKey = window.getTenantKey || ((k) => k);
-        localStorage.setItem('erp_single_payments_v1', JSON.stringify(singlePaymentsData));
+        const tKey = getTenantKey('erp_single_payments_v1');
+        localStorage.setItem(tKey, JSON.stringify(singlePaymentsData));
         window.SERVER_SINGLE_PAYMENTS = singlePaymentsData;
+        if (typeof window.rebuildGLFromAllTables === 'function') window.rebuildGLFromAllTables(false);
         showToast("تم حذف السند بنجاح", "success");
         resetVoucherSilent();
     }
@@ -2218,6 +2380,7 @@ window.unifyVoucherSequences = function() {
         window.location.href = window.location.pathname;
     }, 1500);
 };
+
 
 
 

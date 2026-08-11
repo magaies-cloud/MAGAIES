@@ -635,11 +635,14 @@
                         <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">النوع</th>
                         <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">التاريخ</th>
                         <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">البيان</th>
+                        <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">من حساب (صُرف منه)</th>
+                        <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">إلى حساب (تم الاستلام فيه)</th>
                         <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">المبلغ</th>
+                        <th style="padding: 10px; border-bottom: 1px solid rgba(255,255,255,0.1);">إجراءات</th>
                     </tr>
                 </thead>
                 <tbody id="recent-transactions-body">
-                    <tr><td colspan='5' style='text-align:center; padding:20px; color:#94a3b8;'>جاري التحميل...</td></tr>
+                    <tr><td colspan='8' style='text-align:center; padding:20px; color:#94a3b8;'>جاري التحميل...</td></tr>
                 </tbody>
             </table>
         </div>
@@ -684,13 +687,52 @@
             cp = Array.isArray(cp) ? cp : Object.values(cp);
             
             let all = [];
-            sr.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند قبض مفرد', _color: '#10b981', _date: new Date(x.date || x.createdAt || 0)})});
-            br.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند قبض متعدد', _color: '#38bdf8', _date: new Date(x.date || x.createdAt || 0)})});
-            sp.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند صرف مفرد', _color: '#f43f5e', _date: new Date(x.date || x.createdAt || 0)})});
-            bp.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند صرف متعدد', _color: '#f59e0b', _date: new Date(x.date || x.createdAt || 0)})});
-            cr.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند قبض مجمع', _color: '#0ea5e9', _date: new Date(x.date || x.createdAt || 0)})});
-            cp.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند صرف مجمع', _color: '#eab308', _date: new Date(x.date || x.createdAt || 0)})});
+            sr.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند قبض مفرد', _color: '#10b981', _date: new Date(x.date || x.createdAt || 0), _storeKey: tkSR, _source: 'sr'})});
+            br.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند قبض متعدد', _color: '#38bdf8', _date: new Date(x.date || x.createdAt || 0), _storeKey: tkBR, _source: 'br'})});
+            sp.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند صرف مفرد', _color: '#f43f5e', _date: new Date(x.date || x.createdAt || 0), _storeKey: tkSP, _source: 'sp'})});
+            bp.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند صرف متعدد', _color: '#f59e0b', _date: new Date(x.date || x.createdAt || 0), _storeKey: tkBP, _source: 'bp'})});
+            cr.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند قبض مجمع', _color: '#0ea5e9', _date: new Date(x.date || x.createdAt || 0), _storeKey: tkCR, _source: 'cr'})});
+            cp.forEach(x => { if(x && !x.deleted) all.push({...x, _type: 'سند صرف مجمع', _color: '#eab308', _date: new Date(x.date || x.createdAt || 0), _storeKey: tkCP, _source: 'cp'})});
             
+            function sanitizeList(list, storeKey) {
+                if (!Array.isArray(list)) return;
+                let changed = false;
+                list.forEach(x => {
+                    if (!x) return;
+                    const isTimestampId = (id) => !id || String(id).startsWith('MV-') || String(id).startsWith('MV17') || String(id).startsWith('TEMP_');
+                    if (isTimestampId(x.id) && !isTimestampId(x.voucherNo)) {
+                        x.id = x.voucherNo;
+                        changed = true;
+                    } else if (isTimestampId(x.voucherNo) && !isTimestampId(x.id)) {
+                        x.voucherNo = x.id;
+                        changed = true;
+                    } else if (isTimestampId(x.id) && isTimestampId(x.voucherNo)) {
+                        const yymm = (x.date || x.createdAt || '').replace(/-/g, '').substring(2, 6) || '2608';
+                        const cleanNo = 'M' + yymm + String(Math.floor(Math.random() * 8999) + 1000);
+                        x.id = cleanNo;
+                        x.voucherNo = cleanNo;
+                        changed = true;
+                    }
+                });
+                if (changed) {
+                    try {
+                        localStorage.setItem(storeKey, JSON.stringify(list));
+                        if (typeof localforage !== 'undefined') localforage.setItem(storeKey, list);
+                    } catch(e) {}
+                }
+            }
+
+            sanitizeList(sr, tkSR);
+            sanitizeList(br, tkBR);
+            sanitizeList(sp, tkSP);
+            sanitizeList(bp, tkBP);
+            sanitizeList(cr, tkCR);
+            sanitizeList(cp, tkCP);
+
+            if (window.rebuildGLFromAllTables) {
+                try { window.rebuildGLFromAllTables(false); } catch(e) {}
+            }
+
             all.sort((a,b) => {
                 const dateA = isNaN(a._date.getTime()) ? 0 : a._date.getTime();
                 const dateB = isNaN(b._date.getTime()) ? 0 : b._date.getTime();
@@ -700,24 +742,109 @@
             
             let tbody = document.getElementById('recent-transactions-body');
             if(top.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#94a3b8;">لا توجد عمليات مسجلة</td></tr>';
+                tbody.innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:#94a3b8;">لا توجد عمليات مسجلة</td></tr>';
                 return;
             }
+
+            let localAccountMap = new Map();
+            try {
+                let keysToFetch = ['erp_customers_v1', 'erp_suppliers_v1', 'erp_banks_v1', 'erp_safes_v1', 'erp_employees_v1', 'erp_accounts_v1', 'erp_cost_centers_v1'];
+                for (let k of keysToFetch) {
+                    let tk = window.getTenantKey ? window.getTenantKey(k) : k;
+                    let items = JSON.parse(localStorage.getItem(tk) || localStorage.getItem(k) || '[]');
+                    items.forEach(item => {
+                        if (item && item.id) localAccountMap.set(String(item.id).toLowerCase(), item.name || item.nameAr || item.accountName);
+                    });
+                }
+            } catch(e) {}
+
+            function resolveAccName(accId) {
+                if (!accId || accId === 'متعدد') return accId;
+                let idStr = String(accId).toLowerCase().trim();
+                if (localAccountMap.has(idStr)) return localAccountMap.get(idStr);
+                let cleanId = idStr.replace(/^[a-zA-Z]+\s*[-_:/]\s*/, '').trim();
+                if (localAccountMap.has(cleanId)) return localAccountMap.get(cleanId);
+                return accId;
+            }
             
-            tbody.innerHTML = top.map(x => `
+            tbody.innerHTML = top.map((x, rowIdx) => {
+                let fromAcc = x.fromAccount || x.withdrawalAccount || x.cashSafe || x.bankSourceName || x.mobileWallet || 'متعدد';
+                let toAcc = x.toAccount || x.depositAccount || x.accountId || 'متعدد';
+                let fromName = resolveAccName(fromAcc);
+                let toName = resolveAccName(toAcc);
+                let vid = (x.voucherNo && !String(x.voucherNo).startsWith('MV-') && !String(x.voucherNo).startsWith('MV17')) 
+                          ? x.voucherNo 
+                          : ((x.id && !String(x.id).startsWith('MV-') && !String(x.id).startsWith('MV17')) 
+                              ? x.id 
+                              : (x.voucherNo || x.id || ''));
+                
+                // Store full voucher data for reliable drill-down
+                try { sessionStorage.setItem('_hub_voucher_' + rowIdx, JSON.stringify(x)); } catch(e) {}
+                
+                return `
                 <tr style="border-bottom: 1px solid rgba(255,255,255,0.05); transition: 0.2s; cursor: pointer;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
-                    <td style="padding: 12px 10px; font-weight: bold; color: ${x._color};">${x.id || '-'}</td>
+                    <td style="padding: 12px 10px; font-weight: bold; color: ${x._color}; text-decoration: underline;" onclick="editHubVoucher('${vid}', '${x._source}', ${rowIdx})" title="انقر لتعديل السند">${vid || '-'}</td>
                     <td style="padding: 12px 10px;"><span style="background: ${x._color}20; color: ${x._color}; padding: 3px 8px; border-radius: 6px; font-size: 0.85rem;">${x._type}</span></td>
                     <td style="padding: 12px 10px; color: #cbd5e1;">${!isNaN(x._date.getTime()) ? x._date.toLocaleDateString('en-GB') : '-'}</td>
-                    <td style="padding: 12px 10px; color: #cbd5e1;">${x.description || x.notes || '-'}</td>
-                    <td style="padding: 12px 10px; font-weight: bold; color: #fff;">${(x.amount || x.totalAmount || 0).toLocaleString()}</td>
+                    <td style="padding: 12px 10px; color: #cbd5e1;">${x.description || x.notes || x.statement || '-'}</td>
+                    <td style="padding: 12px 10px; color: #cbd5e1;">${fromName}</td>
+                    <td style="padding: 12px 10px; color: #cbd5e1;">${toName}</td>
+                    <td style="padding: 12px 10px; font-weight: bold; color: #fff;">${(x.amount || x.totalAmount || x.amountLocal || 0).toLocaleString()}</td>
+                    <td style="padding: 12px 10px; white-space: nowrap;">
+                        <button onclick="editHubVoucher('${vid}', '${x._source}', ${rowIdx})" style="background: rgba(56,189,248,0.1); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); border-radius: 4px; padding: 4px 8px; cursor: pointer; margin-left: 5px; font-family: 'Tajawal', sans-serif;">تعديل</button>
+                        <button onclick="deleteHubVoucher('${vid}', '${x._storeKey}')" style="background: rgba(244,63,94,0.1); color: #f43f5e; border: 1px solid rgba(244,63,94,0.3); border-radius: 4px; padding: 4px 8px; cursor: pointer; font-family: 'Tajawal', sans-serif;">حذف</button>
+                    </td>
                 </tr>
-            `).join('');
+            `}).join('');
         } catch(e) {
             console.error(e);
-            document.getElementById('recent-transactions-body').innerHTML = '<tr><td colspan="5" style="text-align:center; padding:20px; color:#ef4444;">خطأ في جلب البيانات: ' + (e.message || e) + '</td></tr>';
+            document.getElementById('recent-transactions-body').innerHTML = '<tr><td colspan="8" style="text-align:center; padding:20px; color:#ef4444;">خطأ في جلب البيانات: ' + (e.message || e) + '</td></tr>';
         }
     });
+
+    window.editHubVoucher = function(id, source, rowIdx) {
+        // Store the full voucher data so the target page can load it reliably
+        try {
+            let storedData = sessionStorage.getItem('_hub_voucher_' + rowIdx);
+            if (storedData) {
+                sessionStorage.setItem('_edit_voucher_data', storedData);
+            }
+        } catch(e) { console.error('Failed to store voucher for edit:', e); }
+        
+        let route = '';
+        if (source === 'sr') route = 'single-cash-payment.php?type=receipt&id=' + id;
+        else if (source === 'br') route = 'multi-cash-payment.php?type=receipt&id=' + id;
+        else if (source === 'sp') route = 'single-cash-payment.php?id=' + id;
+        else if (source === 'bp') route = 'multi-cash-payment.php?id=' + id;
+        else if (source === 'cr') route = 'comprehensive-receipt.php?id=' + id;
+        else if (source === 'cp') route = 'comprehensive-payment.php?id=' + id;
+        
+        if (route) window.location.href = route;
+    };
+
+    window.deleteHubVoucher = async function(id, storeKey) {
+        if(!confirm('هل أنت متأكد من حذف هذا السند؟ سيتم تحديث الحسابات ودفتر الأستاذ تلقائياً.')) return;
+        try {
+            let data = (await localforage.getItem(storeKey)) || [];
+            if (!Array.isArray(data) && data) data = Object.values(data);
+            
+            let idx = data.findIndex(v => String(v.id) === String(id) || String(v.voucherNo) === String(id));
+            if(idx > -1) {
+                data[idx].deleted = true;
+                await localforage.setItem(storeKey, data);
+                localStorage.setItem(storeKey, JSON.stringify(data)); // Fallback
+                if (window.rebuildGLFromAllTables) window.rebuildGLFromAllTables(false);
+                if (typeof showToast === 'function') showToast('تم حذف السند وتحديث الحسابات بنجاح.', 'success');
+                else alert('تم الحذف بنجاح.');
+                setTimeout(() => window.location.reload(), 1000);
+            } else {
+                alert('لم يتم العثور على السند.');
+            }
+        } catch(e) {
+            console.error(e);
+            alert('حدث خطأ أثناء الحذف.');
+        }
+    };
     </script>
     <style>
         @keyframes shakeEdit {

@@ -13,6 +13,44 @@ let currentVoucherIndex = -1;
 let currentVoucherList = [];
 let blockCounter = 0;
 
+window.getStoredVouchers = function(storageKey) {
+    const getTenantKey = window.getTenantKey || ((k) => k);
+    const tKey = getTenantKey(storageKey);
+    let list1 = [];
+    let list2 = [];
+    try { list1 = JSON.parse(localStorage.getItem(tKey) || '[]'); } catch(e) {}
+    try { list2 = JSON.parse(localStorage.getItem(storageKey) || '[]'); } catch(e) {}
+    if (!Array.isArray(list1)) list1 = Object.values(list1);
+    if (!Array.isArray(list2)) list2 = Object.values(list2);
+    
+    const map = new Map();
+    [...list2, ...list1].forEach(v => {
+        if (!v) return;
+        const key = String(v.voucherNo || v.id || '').trim();
+        if (key) map.set(key, v);
+    });
+    return Array.from(map.values());
+};
+
+window.saveStoredVouchers = function(storageKey, dataArray) {
+    if (!Array.isArray(dataArray)) return;
+    const getTenantKey = window.getTenantKey || ((k) => k);
+    const tKey = getTenantKey(storageKey);
+    const jsonStr = JSON.stringify(dataArray);
+    
+    try { localStorage.setItem(tKey, jsonStr); } catch(e) {}
+    if (tKey !== storageKey) {
+        try { localStorage.setItem(storageKey, jsonStr); } catch(e) {}
+    }
+    
+    if (typeof localforage !== 'undefined') {
+        localforage.setItem(tKey, dataArray).catch(e => console.error(e));
+        if (tKey !== storageKey) {
+            localforage.setItem(storageKey, dataArray).catch(e => console.error(e));
+        }
+    }
+};
+
 document.addEventListener('DOMContentLoaded', () => {
     // Set today's date
     const __d = new Date();
@@ -108,25 +146,71 @@ document.addEventListener('DBReady', async () => {
 
 // Deep Drill-down (Run as soon as possible, SERVER_PAYMENTS is inline)
 document.addEventListener('DOMContentLoaded', () => {
-    const urlParams = new URLSearchParams(window.location.search);
-    const voucherId = urlParams.get('id');
-    const voucherType = urlParams.get('type') || 'payment';
-    if (voucherId) {
+    setTimeout(async () => {
+        const urlParams = new URLSearchParams(window.location.search);
+        const voucherId = urlParams.get('id');
+        const voucherType = urlParams.get('type') || 'payment';
+        if (!voucherId) return;
+        
         if (voucherType === 'receipt') {
             setVoucherType('receipt');
         } else {
             setVoucherType('payment');
         }
         
-        let dataSource = voucherType === 'receipt' ? (window.SERVER_RECEIPTS || []) : (window.SERVER_PAYMENTS || []);
+        let found = null;
         
-        let found = dataSource.find(v => String(v.id) === String(voucherId) || String(v.voucherNo) === String(voucherId));
-        if (found) {
-            setTimeout(() => {
-                loadVoucherIntoForm(found);
-            }, 300); // Give time for UI to settle
+        // 1. PRIORITY: Check sessionStorage (set by vouchers-hub before navigation)
+        try {
+            let cached = sessionStorage.getItem('_edit_voucher_data');
+            if (cached) {
+                let parsed = JSON.parse(cached);
+                if (parsed) {
+                    let parsedId = String(parsed.id || parsed.voucherNo || parsed.paymentNo || parsed.receiptNo || '');
+                    let targetId = String(voucherId || '');
+                    if (!targetId || parsedId === targetId || parsedId.replace(/^MV-?/, '') === targetId.replace(/^MV-?/, '')) {
+                        found = parsed;
+                        sessionStorage.removeItem('_edit_voucher_data');
+                    }
+                }
+            }
+        } catch(e) {}
+        
+        // 2. FALLBACK: Search through all data sources
+        if (!found) {
+            let serverSource = voucherType === 'receipt' ? (window.SERVER_RECEIPTS || []) : (window.SERVER_PAYMENTS || []);
+            let localSourceKey = voucherType === 'receipt' ? 'erp_receipts_v1' : 'erp_payments_v1';
+            let tKey = window.getTenantKey ? window.getTenantKey(localSourceKey) : localSourceKey;
+            
+            let localSource = [];
+            if (typeof localforage !== 'undefined') {
+                try {
+                    localSource = (await localforage.getItem(tKey)) || (await localforage.getItem(localSourceKey)) || [];
+                } catch(e) {}
+            }
+            if (!Array.isArray(localSource) || localSource.length === 0) {
+                localSource = JSON.parse(localStorage.getItem(tKey) || localStorage.getItem(localSourceKey) || '[]');
+            }
+            if (!Array.isArray(localSource)) localSource = Object.values(localSource);
+
+            let dataSource = [...serverSource, ...localSource];
+            found = dataSource.find(v => {
+                if (!v) return false;
+                const vid = String(v.id || '');
+                const vno = String(v.voucherNo || '');
+                const target = String(voucherId || '');
+                if (vid === target || vno === target) return true;
+                if (target && vid.replace(/^MV-?/, '') === target.replace(/^MV-?/, '')) return true;
+                if (target && vno.replace(/^MV-?/, '') === target.replace(/^MV-?/, '')) return true;
+                return false;
+            });
         }
-    }
+        
+        // 3. Load into form if found
+        if (found) {
+            loadVoucherIntoForm(found);
+        }
+    }, 300);
 });
 
 // ═══ Currency Change: Auto-fill exchange rate from settings ═══
@@ -1346,29 +1430,21 @@ async function confirmDelete() {
     
     const type = document.getElementById('voucher-type').value;
     const storageKey = type === 'payment' ? 'erp_payments_v1' : 'erp_receipts_v1';
-    const getTenantKeyFn = window.getTenantKey || ((k) => k);
-    const tKey = getTenantKeyFn(storageKey);
     
     try {
-        let existingData = [];
-        if (typeof localforage !== 'undefined') {
-            existingData = await localforage.getItem(tKey) || [];
-        } else {
-            existingData = JSON.parse(localStorage.getItem(tKey) || '[]');
-        }
-        if (!Array.isArray(existingData)) existingData = Object.values(existingData);
+        let existingData = getStoredVouchers(storageKey);
         
-        const idx = existingData.findIndex(v => v.voucherNo === voucherNo && v.isGrouped === true);
+        const idx = existingData.findIndex(v => v && (v.voucherNo === voucherNo || v.id === voucherNo) && v.isGrouped === true);
         if (idx > -1) {
             // Revert balance effects before deleting
             if (typeof applyGroupedVoucherEffect === 'function') {
                 applyGroupedVoucherEffect(existingData[idx], true);
             }
             existingData.splice(idx, 1);
-            if (typeof localforage !== 'undefined') {
-                await localforage.setItem(tKey, existingData);
+            saveStoredVouchers(storageKey, existingData);
+            if (window.rebuildGLFromAllTables) {
+                try { window.rebuildGLFromAllTables(false); } catch(e) {}
             }
-            localStorage.setItem(tKey, JSON.stringify(existingData));
             showToast('تم حذف المستند بنجاح وعكس تأثيره المحاسبي!', 'success');
         } else {
             showToast('المستند غير محفوظ بعد، تم تفريغ الحقول.', 'info');
@@ -1474,7 +1550,9 @@ async function saveVoucher() {
                         highlightError(row.querySelector('.block-transfer-no-input'));
                         hasInvalidTransfer = true;
                         break;
-                    } - السطر ${i + 1}: رقم التحويل يجب أن يكون 6 أرقام على الأقل`, "error");
+                    }
+                    if (tno.length < 4) {
+                        showToast(`الحساب ${accountName} - السطر ${i + 1}: رقم التحويل يجب أن يكون 4 أرقام على الأقل`, "error");
                         highlightError(row.querySelector('.block-transfer-no-input'));
                         hasInvalidTransfer = true;
                         break;
@@ -1518,7 +1596,9 @@ async function saveVoucher() {
                         highlightError(row.querySelector('.block-cheque-no-input'));
                         hasInvalidCheque = true;
                         break;
-                    } - السطر ${i + 1}: رقم الشيك يجب أن يكون 6 أرقام على الأقل`, "error");
+                    }
+                    if (no.length < 4) {
+                        showToast(`الحساب ${accountName} - السطر ${i + 1}: رقم الشيك يجب أن يكون 4 أرقام على الأقل`, "error");
                         highlightError(row.querySelector('.block-cheque-no-input'));
                         hasInvalidCheque = true;
                         break;
@@ -1582,10 +1662,21 @@ async function saveVoucher() {
     const finalTotal = totalAmt;
     paymentMethod = 'hybrid';
 
+    // Build clean voucher number
+    const displayVal = (document.getElementById('voucher-no-display') ? document.getElementById('voucher-no-display').value : '').trim();
+    let vNo = displayVal;
+    if (!vNo || vNo.startsWith('MV-') || vNo.startsWith('MV17')) {
+        const yymm = (date || '').replace(/-/g, '').substring(2, 6) || '2608';
+        vNo = 'M' + yymm + String(Math.floor(Math.random() * 8999) + 1000);
+        if (document.getElementById('voucher-no-display')) {
+            document.getElementById('voucher-no-display').value = vNo;
+        }
+    }
+
     // Build the voucher object
     const voucher = {
-        id: 'MV-' + Date.now(), // Generate a unique ID
-        voucherNo: (document.getElementById('voucher-no-display') ? document.getElementById('voucher-no-display').value : '') || ref || ('MV-' + Math.floor(Math.random() * 10000)),
+        id: vNo, // Clean sequence ID matching voucherNo
+        voucherNo: vNo,
         type: type, // 'payment' or 'receipt'
         isGrouped: true,
         mainAccount: mainAccount,
@@ -1626,27 +1717,23 @@ async function saveVoucher() {
     const storageKey = type === 'payment' ? 'erp_payments_v1' : 'erp_receipts_v1';
     
     try {
-        const getTenantKey = window.getTenantKey || ((k) => k);
-        const tKey = getTenantKey(storageKey);
-        
-        let existingData = [];
-        // ALWAYS read from localStorage to keep sync with general-ledger.js
-        try {
-            existingData = JSON.parse(localStorage.getItem(tKey) || '[]');
-        } catch(e) {
-            existingData = [];
+        let existingData = getStoredVouchers(storageKey);
+
+        // Update existing record if editing, otherwise insert
+        const existingIdx = existingData.findIndex(v => (v && (v.voucherNo === vNo || v.id === vNo) && v.isGrouped));
+        if (existingIdx > -1) {
+            voucher.createdAt = existingData[existingIdx].createdAt || voucher.createdAt;
+            existingData[existingIdx] = voucher;
+        } else {
+            existingData.push(voucher);
         }
 
-        if (!Array.isArray(existingData)) existingData = Object.values(existingData);
+        // SAVE TO BOTH TENANT KEY AND BASE KEY
+        saveStoredVouchers(storageKey, existingData);
 
-        existingData.push(voucher);
-
-        // ALWAYS save to localStorage so reporting engines see it immediately
-        localStorage.setItem(tKey, JSON.stringify(existingData));
-        
-        // Optionally sync to localforage as backup
-        if (typeof localforage !== 'undefined') {
-            localforage.setItem(tKey, existingData).catch(e => console.error(e));
+        // Rebuild GL immediately so General Ledger reflects new voucher
+        if (window.rebuildGLFromAllTables) {
+            try { window.rebuildGLFromAllTables(false); } catch(e) {}
         }
 
         // Apply dynamic account balance effects
@@ -1943,18 +2030,7 @@ if (!window.normalizeArabic) {
 async function loadNextMultiVoucherNumber() {
     const type = document.getElementById('voucher-type') ? document.getElementById('voucher-type').value : 'payment';
     const storageKey = type === 'payment' ? 'erp_payments_v1' : 'erp_receipts_v1';
-    const getTenantKey = window.getTenantKey || ((k) => k);
-    const tKey = getTenantKey(storageKey);
-    
-    let existingData = [];
-    try {
-        if (typeof localforage !== 'undefined') {
-            existingData = await localforage.getItem(tKey) || [];
-        } else {
-            existingData = JSON.parse(localStorage.getItem(tKey) || '[]');
-        }
-    } catch(e) {}
-    if (!Array.isArray(existingData)) existingData = Object.values(existingData);
+    let existingData = getStoredVouchers(storageKey);
     
     // Base prefix on selected voucher date, not current system date
     const dateEl = document.getElementById('voucher-date');
@@ -1989,18 +2065,7 @@ async function loadNextMultiVoucherNumber() {
 async function refreshVoucherNavigationList() {
     const type = document.getElementById('voucher-type') ? document.getElementById('voucher-type').value : 'payment';
     const storageKey = type === 'payment' ? 'erp_payments_v1' : 'erp_receipts_v1';
-    const getTenantKey = window.getTenantKey || ((k) => k);
-    const tKey = getTenantKey(storageKey);
-    
-    let existingData = [];
-    try {
-        if (typeof localforage !== 'undefined') {
-            existingData = await localforage.getItem(tKey) || [];
-        } else {
-            existingData = JSON.parse(localStorage.getItem(tKey) || '[]');
-        }
-    } catch(e) {}
-    if (!Array.isArray(existingData)) existingData = Object.values(existingData);
+    let existingData = getStoredVouchers(storageKey);
     
     currentVoucherList = existingData.filter(v => v.isGrouped);
     currentVoucherList.sort((a, b) => {
@@ -2070,9 +2135,13 @@ function loadVoucherIntoForm(v) {
     updateLabels();
 
     // 2. Set fields
-    document.getElementById('voucher-no-display').value = v.voucherNo || '';
+    let vid = v.voucherNo || v.id || v.paymentNo || v.receiptNo || v.invoiceNo || '';
+    if ((!vid || vid.startsWith('MV-') || vid.startsWith('MV17')) && v.id && !v.id.startsWith('MV-') && !v.id.startsWith('MV17')) {
+        vid = v.id;
+    }
+    document.getElementById('voucher-no-display').value = vid;
     document.getElementById('voucher-date').value = v.date || '';
-    document.getElementById('voucher-ref').value = v.voucherNo || v.ref || '';
+    document.getElementById('voucher-ref').value = vid || v.ref || '';
     document.getElementById('voucher-desc').value = v.description || '';
     
     const currencyEl = document.getElementById('currency');
