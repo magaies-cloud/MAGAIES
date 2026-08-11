@@ -430,58 +430,18 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             transform: scale(1.25);
         }
 
-        /* ═══ Ultra-Premium Neo Toggle Chips (تحويل / شيك) ═══ */
-        .neo-toggle-btn {
-            height: 100% !important;
-            padding: 0 24px !important;
-            border-radius: 10px !important;
-            font-size: 1.15rem !important;
-            font-weight: 800 !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 10px !important;
-            background: rgba(255, 255, 255, 0.05) !important;
-            border: 1px solid rgba(255, 255, 255, 0.15) !important;
-            border-bottom: 3px solid rgba(255, 255, 255, 0.2) !important;
-            color: #e2e8f0 !important;
-            transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2) !important;
-            cursor: pointer;
-            text-align: center !important;
-        }
-        .neo-toggle-btn:hover {
-            background: rgba(255, 255, 255, 0.1) !important;
-            color: #ffffff !important;
-            border-color: rgba(255,255,255,0.3) !important;
-            transform: translateY(-2px);
-        }
-        .neo-toggle-btn.active {
-            background: var(--tab-active-bg, linear-gradient(135deg, #0284c7, #38bdf8)) !important;
-            color: #ffffff !important;
-            border-color: var(--tab-border-color, #38bdf8) !important;
-            border-bottom: 3px solid rgba(255,255,255,0.6) !important;
-            box-shadow: 0 4px 15px var(--tab-glow-color, rgba(56,189,248,0.4)), inset 0 1px 2px rgba(255,255,255,0.4) !important;
-            transform: translateY(-1px);
-        }
-        .neo-toggle-btn .btn-icon { font-size: 1.25rem; transition: transform 0.3s; margin: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center; line-height: 0; }
-        .neo-toggle-btn .btn-text { margin: 0; padding: 0; line-height: 1; display: inline-flex; align-items: center; justify-content: center; transform: translateY(1px); }
-        .neo-toggle-btn.active .btn-icon { transform: scale(1.1); }
-
-        /* ═══ Unified Elegant Mini Ledger Button (كشف حساب) ═══ */
-        .mini-ledger-btn {
-            height: 100% !important;
-            padding: 0 15px !important;
-            border-radius: 10px !important;
-            font-size: 0.9rem !important;
-            gap: 6px !important;
+        /* Elegant Compact Styling for Row-Level Action Buttons (كشف حساب، تحويل، شيك) */
+        .row-action-btn {
+            height: 38px !important;
+            padding: 0 12px !important;
+            border-radius: 12px !important;
+            font-size: 0.85rem !important;
             min-width: max-content !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
+            gap: 6px !important;
         }
-        .mini-ledger-btn .btn-icon { font-size: 1.05rem !important; margin: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
-        .mini-ledger-btn .btn-text { margin: 0; padding: 0; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
+        .row-action-btn .btn-icon {
+            font-size: 1rem !important;
+        }
 
         /* ═══ Voucher Type Buttons (صرف مجمع 📤 vs استلام مجمع 📥) ═══ */
         .voucher-type-btn.active-payment, #btn-payment.active-payment {
@@ -911,11 +871,11 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
                         <div style="flex: 2; min-width: 250px;">
                             <label id="main-account-label" style="color: #ef4444 !important; font-size: 1.2rem; margin-bottom: 5px; display: block; font-weight: bold; transition: color 0.3s; white-space: nowrap;">من حساب (صرف) <span class="animated-arrow-left">←</span></label>
-                            <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative; display: flex; gap: 8px; align-items: stretch;">
+                            <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative; display: flex; gap: 8px;">
                                 <input type="hidden" id="main-account">
-                                <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onclick="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color); flex: 1; border-radius: 10px; margin-bottom: 0;">
-                                <button type="button" class="crystal-btn mini-ledger-btn" onclick="openLedgerForMainAccount()" title="دفتر الأستاذ العام" style="--tab-border-color: #34d399; --tab-glow-color: rgba(52,211,153,0.6); --tab-hover-bg: linear-gradient(135deg, #10b981, #059669);">
-                                    <span class="btn-icon"><i class="fa fa-book"></i></span> <span class="btn-text">كشف حساب</span>
+                                <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onclick="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color); flex: 1; border-radius: 10px;">
+                                <button type="button" class="crystal-btn" onclick="openLedgerForMainAccount()" title="دفتر الأستاذ العام" style="--tab-border-color: #34d399; --tab-glow-color: rgba(52,211,153,0.6); --tab-hover-bg: linear-gradient(135deg, #10b981, #059669); padding: 0 14px; height: auto; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; min-width: max-content;">
+                                    <span class="btn-icon" style="font-size: 1rem;"><i class="fa fa-book"></i></span> <span class="btn-text">كشف حساب</span>
                                 </button>
                                 <div class="custom-dropdown-list" id="main-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                             </div>
@@ -978,12 +938,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         <!-- Row 1: Account, Amount, and Method Toggles -->
                         <div style="display: flex; gap: 12px; align-items: stretch; flex-wrap: wrap; margin-bottom: 12px;">
                             <!-- Account -->
-                            <div style="flex: 2.7; min-width: 250px; position: relative; display: flex; flex-direction: column;">
-                                <div class="custom-dropdown-input-wrap" style="position: relative; flex: 1; display: flex; gap: 8px; align-items: stretch;">
+                            <div style="flex: 4.5; min-width: 250px; position: relative; display: flex; flex-direction: column;">
+                                <div class="custom-dropdown-input-wrap" style="position: relative; flex: 1; display: flex; gap: 8px;">
                                     <input type="hidden" id="account-{ID}-id" class="block-account-id">
                                     <input type="hidden" id="account-{ID}" class="block-account-name">
                                     <input type="text" autocomplete="off" class="form-input block-account-search" id="account-{ID}-search" placeholder="الحساب / الجهة المستفيدة..." onfocus="showAccountDropdown('account-{ID}')" onclick="showAccountDropdown('account-{ID}')" onblur="hideAccountDropdownDelayed('account-{ID}')" oninput="filterAccountDropdown('account-{ID}')" style="font-size: 1rem; flex: 1; margin-bottom: 0; border-radius: 10px;">
-                                    <button type="button" class="crystal-btn mini-ledger-btn" onclick="openLedgerForBlockAccount('{ID}')" title="دفتر الأستاذ العام" style="--tab-border-color: #34d399; --tab-glow-color: rgba(52,211,153,0.6); --tab-hover-bg: linear-gradient(135deg, #10b981, #059669);">
+                                    <button type="button" class="crystal-btn row-action-btn" onclick="openLedgerForBlockAccount('{ID}')" title="دفتر الأستاذ العام" style="--tab-border-color: #34d399; --tab-glow-color: rgba(52,211,153,0.6); --tab-hover-bg: linear-gradient(135deg, #10b981, #059669);">
                                         <span class="btn-icon"><i class="fa fa-book"></i></span> <span class="btn-text">كشف حساب</span>
                                     </button>
                                     <div class="custom-dropdown-list" id="account-{ID}-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
@@ -996,14 +956,14 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             </div>
                             
                             <!-- Statement (بيان التحويل) -->
-                            <div style="flex: 3.3; min-width: 150px; display: flex; flex-direction: column; position: relative;">
+                            <div style="flex: 1.5; min-width: 150px; display: flex; flex-direction: column; position: relative;">
                                 <input type="text" autocomplete="off" id="statement-{ID}" class="form-input" placeholder="البيان" style="font-size: 1rem; flex: 1; margin-bottom: 0; background: rgba(255,255,255,0.05); color: #fff;">
                             </div>
                             
                             <!-- Payment Toggles (No Cash) -->
-                            <div style="display: flex; gap: 8px; flex: 1; min-width: 150px; align-items: stretch; justify-content: flex-end; margin-right: auto;">
-                                <button type="button" id="pm-bank-{ID}" class="pay-toggle-btn block-btn-bank neo-toggle-btn" data-action="toggle-pm" data-block="{ID}" data-method="bank"><span class="btn-icon"><i class="fa fa-mobile-alt"></i></span> <span class="btn-text">تحويل</span></button>
-                                <button type="button" id="pm-cheque-{ID}" class="pay-toggle-btn block-btn-cheque neo-toggle-btn" data-action="toggle-pm" data-block="{ID}" data-method="cheque"><span class="btn-icon"><i class="fa fa-money-check-alt"></i></span> <span class="btn-text">شيك</span></button>
+                            <div style="display: flex; gap: 8px; flex: 1; min-width: 150px; align-items: center; justify-content: flex-end; margin-right: auto;">
+                                <button type="button" id="pm-bank-{ID}" class="pay-toggle-btn block-btn-bank crystal-btn row-action-btn" data-action="toggle-pm" data-block="{ID}" data-method="bank"><span class="btn-icon"><i class="fa fa-mobile-alt"></i></span> <span class="btn-text">تحويل</span></button>
+                                <button type="button" id="pm-cheque-{ID}" class="pay-toggle-btn block-btn-cheque crystal-btn row-action-btn" data-action="toggle-pm" data-block="{ID}" data-method="cheque"><span class="btn-icon"><i class="fa fa-money-check-alt"></i></span> <span class="btn-text">شيك</span></button>
                             </div>
                         </div>
 
