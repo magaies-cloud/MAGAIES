@@ -1516,11 +1516,8 @@ async function saveVoucher() {
         const isBank = btnBank && btnBank.classList.contains('active');
         const isCheque = btnCheque && btnCheque.classList.contains('active');
         
-        if (!isCash && !isBank && !isCheque) {
-            showToast(`يرجى تحديد طريقة دفع واحدة على الأقل للحساب ${accountName}`, 'error'); 
-            reEnableSave(); 
-            return;
-        }
+        const isDirectTransfer = !isCash && !isBank && !isCheque;
+        // If not using Cash, Bank, or Cheque, it's considered a direct Account-to-Account transfer.
         
         // Collect cash data
         const cashAmtEl = block.querySelector('.block-cash-amount');
@@ -1617,7 +1614,7 @@ async function saveVoucher() {
 
         // VALIDATE SUM
         const subSum = cashAmt + bankTotalAmt + chequeTotalAmt;
-        if (Math.abs(subSum - amount) > 0.01) {
+        if (!isDirectTransfer && Math.abs(subSum - amount) > 0.01) {
             showToast(`مجموع مبالغ الدفع للحساب ${accountName} لا يساوي الإجمالي (${fmtNum(amount)})`, 'error'); 
             reEnableSave(); 
             return;
@@ -1634,8 +1631,8 @@ async function saveVoucher() {
             accountId: accountId, 
             amount: amount, 
             statement: statement,
-            paymentMethods: activeMethods,
-            paymentMethod: activeMethods.length > 0 ? activeMethods[0] : 'cash',
+            paymentMethods: isDirectTransfer ? ['direct'] : activeMethods,
+            paymentMethod: isDirectTransfer ? 'direct' : (activeMethods.length > 0 ? activeMethods[0] : 'cash'),
             cashAmount: cashAmt, 
             cashSafe: cashSafe, 
             cashStatement: cashDesc,

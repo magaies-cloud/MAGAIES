@@ -138,30 +138,30 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
         /* Crystal Red Container (المستطيل الرئيسي للصرف) */
         .glass-red {
-            background: linear-gradient(135deg, rgba(40, 20, 28, 0.85), rgba(15, 23, 42, 0.95)) !important;
-            border: 1px solid rgba(248, 113, 113, 0.35) !important;
-            border-right: 5px solid #f87171 !important;
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(248, 113, 113, 0.25), 0 0 25px rgba(239, 68, 68, 0.12) !important;
+            background: linear-gradient(135deg, rgba(46, 28, 30, 0.85), rgba(15, 23, 42, 0.95)) !important;
+            border: 1px solid rgba(212, 122, 126, 0.35) !important;
+            border-right: 5px solid #d47a7e !important;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(212, 122, 126, 0.25), 0 0 25px rgba(212, 122, 126, 0.12) !important;
         }
         .glass-red:hover {
-            background: linear-gradient(135deg, rgba(50, 24, 34, 0.9), rgba(15, 23, 42, 0.98)) !important;
-            border-color: rgba(248, 113, 113, 0.6) !important;
-            border-right-color: #ef4444 !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 0 35px rgba(239, 68, 68, 0.25) !important;
+            background: linear-gradient(135deg, rgba(56, 32, 34, 0.9), rgba(15, 23, 42, 0.98)) !important;
+            border-color: rgba(212, 122, 126, 0.6) !important;
+            border-right-color: #d47a7e !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 0 35px rgba(212, 122, 126, 0.25) !important;
         }
 
         /* Crystal Green Container (مستطيلات الحسابات المستلمة) */
         .glass-green {
-            background: linear-gradient(135deg, rgba(16, 36, 28, 0.85), rgba(15, 23, 42, 0.95)) !important;
-            border: 1px solid rgba(52, 211, 153, 0.35) !important;
-            border-right: 5px solid #34d399 !important;
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(52, 211, 153, 0.25), 0 0 25px rgba(16, 185, 129, 0.12) !important;
+            background: linear-gradient(135deg, rgba(16, 42, 28, 0.85), rgba(15, 23, 42, 0.95)) !important;
+            border: 1px solid rgba(39, 174, 96, 0.35) !important;
+            border-right: 5px solid #27ae60 !important;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(39, 174, 96, 0.25), 0 0 25px rgba(39, 174, 96, 0.12) !important;
         }
         .glass-green:hover {
-            background: linear-gradient(135deg, rgba(20, 44, 34, 0.9), rgba(15, 23, 42, 0.98)) !important;
-            border-color: rgba(52, 211, 153, 0.6) !important;
-            border-right-color: #10b981 !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 0 35px rgba(16, 185, 129, 0.25) !important;
+            background: linear-gradient(135deg, rgba(20, 52, 34, 0.9), rgba(15, 23, 42, 0.98)) !important;
+            border-color: rgba(39, 174, 96, 0.6) !important;
+            border-right-color: #2ecc71 !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 0 35px rgba(39, 174, 96, 0.25) !important;
         }
 
         /* High Contrast Inputs, Placeholders, and Labels */
@@ -455,76 +455,76 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
         /* ═══ Voucher Type Buttons (صرف مجمع 📤 vs استلام مجمع 📥) ═══ */
         .voucher-type-btn.active-payment, #btn-payment.active-payment {
-            --tab-border-color: #ef4444;
-            --tab-glow-color: rgba(239, 68, 68, 0.7);
-            --tab-hover-bg: linear-gradient(135deg, #f87171, #dc2626);
-            background: linear-gradient(135deg, #ef4444, #b91c1c) !important;
-            border-color: #f87171 !important;
+            --tab-border-color: #d47a7e;
+            --tab-glow-color: rgba(212, 122, 126, 0.7);
+            --tab-hover-bg: linear-gradient(135deg, #d47a7e, #a3585c);
+            background: linear-gradient(135deg, #d47a7e, #a3585c) !important;
+            border-color: #d47a7e !important;
             color: #ffffff !important;
             font-weight: 900 !important;
             text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.65), 0 0 25px rgba(239, 68, 68, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
+            box-shadow: 0 10px 30px rgba(212, 122, 126, 0.65), 0 0 25px rgba(212, 122, 126, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
             transform: translateY(-3px) scale(1.05) !important;
             animation: rimPulseGlow 2.5s infinite ease-in-out !important;
         }
 
         .voucher-type-btn.active-receipt, #btn-receipt.active-receipt {
-            --tab-border-color: #10b981;
-            --tab-glow-color: rgba(16, 185, 129, 0.7);
-            --tab-hover-bg: linear-gradient(135deg, #34d399, #059669);
-            background: linear-gradient(135deg, #10b981, #047857) !important;
-            border-color: #34d399 !important;
+            --tab-border-color: #81b29a;
+            --tab-glow-color: rgba(129, 178, 154, 0.7);
+            --tab-hover-bg: linear-gradient(135deg, #81b29a, #5e8773);
+            background: linear-gradient(135deg, #81b29a, #5e8773) !important;
+            border-color: #81b29a !important;
             color: #ffffff !important;
             font-weight: 900 !important;
             text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.65), 0 0 25px rgba(16, 185, 129, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
+            box-shadow: 0 10px 30px rgba(129, 178, 154, 0.65), 0 0 25px rgba(129, 178, 154, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
             transform: translateY(-3px) scale(1.05) !important;
             animation: rimPulseGlow 2.5s infinite ease-in-out !important;
         }
 
         /* ═══ Payment Method Toggle Buttons (نقدي 💵 / تحويل 🏦 / شيك ✍️) ═══ */
         .pay-toggle-btn.block-btn-cash {
-            --tab-border-color: rgba(251, 191, 36, 0.45);
-            --tab-glow-color: rgba(251, 191, 36, 0.65);
-            --tab-hover-bg: linear-gradient(135deg, rgba(251, 191, 36, 0.35), rgba(180, 83, 9, 0.5));
+            --tab-border-color: rgba(213, 189, 175, 0.45);
+            --tab-glow-color: rgba(213, 189, 175, 0.65);
+            --tab-hover-bg: linear-gradient(135deg, rgba(213, 189, 175, 0.35), rgba(179, 154, 138, 0.5));
         }
         .pay-toggle-btn.active.block-btn-cash {
-            --tab-border-color: #fbbf24;
-            background: linear-gradient(135deg, rgba(251, 191, 36, 0.45), rgba(180, 83, 9, 0.7)) !important;
-            border-color: #fbbf24 !important;
+            --tab-border-color: #d5bdaf;
+            background: linear-gradient(135deg, rgba(213, 189, 175, 0.45), rgba(179, 154, 138, 0.7)) !important;
+            border-color: #d5bdaf !important;
             color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(251, 191, 36, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 25px rgba(251, 191, 36, 0.5), 0 0 20px rgba(251, 191, 36, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
+            text-shadow: 0 0 10px rgba(213, 189, 175, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            box-shadow: 0 10px 25px rgba(213, 189, 175, 0.5), 0 0 20px rgba(213, 189, 175, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
             transform: translateY(-3px) scale(1.05) !important;
         }
 
         .pay-toggle-btn.block-btn-bank {
-            --tab-border-color: rgba(34, 211, 238, 0.45);
-            --tab-glow-color: rgba(34, 211, 238, 0.65);
-            --tab-hover-bg: linear-gradient(135deg, rgba(34, 211, 238, 0.35), rgba(14, 116, 144, 0.5));
+            --tab-border-color: rgba(52, 152, 219, 0.45);
+            --tab-glow-color: rgba(52, 152, 219, 0.65);
+            --tab-hover-bg: linear-gradient(135deg, rgba(52, 152, 219, 0.35), rgba(41, 128, 185, 0.5));
         }
         .pay-toggle-btn.active.block-btn-bank {
-            --tab-border-color: #22d3ee;
-            background: linear-gradient(135deg, rgba(34, 211, 238, 0.45), rgba(14, 116, 144, 0.7)) !important;
-            border-color: #22d3ee !important;
+            --tab-border-color: #3498db;
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.45), rgba(41, 128, 185, 0.7)) !important;
+            border-color: #3498db !important;
             color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(34, 211, 238, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 25px rgba(34, 211, 238, 0.5), 0 0 20px rgba(34, 211, 238, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
+            text-shadow: 0 0 10px rgba(52, 152, 219, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.5), 0 0 20px rgba(52, 152, 219, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
             transform: translateY(-3px) scale(1.05) !important;
         }
 
         .pay-toggle-btn.block-btn-cheque {
-            --tab-border-color: rgba(192, 132, 252, 0.45);
-            --tab-glow-color: rgba(192, 132, 252, 0.65);
-            --tab-hover-bg: linear-gradient(135deg, rgba(192, 132, 252, 0.35), rgba(126, 34, 206, 0.5));
+            --tab-border-color: rgba(155, 89, 182, 0.45);
+            --tab-glow-color: rgba(155, 89, 182, 0.65);
+            --tab-hover-bg: linear-gradient(135deg, rgba(155, 89, 182, 0.35), rgba(142, 68, 173, 0.5));
         }
         .pay-toggle-btn.active.block-btn-cheque {
-            --tab-border-color: #c084fc;
-            background: linear-gradient(135deg, rgba(192, 132, 252, 0.45), rgba(126, 34, 206, 0.7)) !important;
-            border-color: #c084fc !important;
+            --tab-border-color: #9b59b6;
+            background: linear-gradient(135deg, rgba(155, 89, 182, 0.45), rgba(142, 68, 173, 0.7)) !important;
+            border-color: #9b59b6 !important;
             color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(192, 132, 252, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 25px rgba(192, 132, 252, 0.5), 0 0 20px rgba(192, 132, 252, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
+            text-shadow: 0 0 10px rgba(155, 89, 182, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            box-shadow: 0 10px 25px rgba(155, 89, 182, 0.5), 0 0 20px rgba(155, 89, 182, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
             transform: translateY(-3px) scale(1.05) !important;
         }
 
@@ -594,25 +594,25 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
 
         .glass-red:hover {
-            --block-glow-color: rgba(239, 68, 68, 0.5);
-            border-color: rgba(248, 113, 113, 0.75) !important;
+            --block-glow-color: rgba(212, 122, 126, 0.5);
+            border-color: rgba(212, 122, 126, 0.75) !important;
         }
         .glass-green:hover {
-            --block-glow-color: rgba(16, 185, 129, 0.5);
-            border-color: rgba(52, 211, 153, 0.75) !important;
+            --block-glow-color: rgba(39, 174, 96, 0.5);
+            border-color: rgba(39, 174, 96, 0.75) !important;
         }
 
         .block-cash-details:hover {
-            border-color: rgba(251, 191, 36, 0.75) !important;
-            box-shadow: 0 0 25px rgba(251, 191, 36, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
+            border-color: rgba(213, 189, 175, 0.75) !important;
+            box-shadow: 0 0 25px rgba(213, 189, 175, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
         }
         .block-bank-details:hover {
-            border-color: rgba(34, 211, 238, 0.75) !important;
-            box-shadow: 0 0 25px rgba(34, 211, 238, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
+            border-color: rgba(52, 152, 219, 0.75) !important;
+            box-shadow: 0 0 25px rgba(52, 152, 219, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
         }
         .block-cheque-details:hover {
-            border-color: rgba(192, 132, 252, 0.75) !important;
-            box-shadow: 0 0 25px rgba(192, 132, 252, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
+            border-color: rgba(155, 89, 182, 0.75) !important;
+            box-shadow: 0 0 25px rgba(155, 89, 182, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
         }
 
 
@@ -738,19 +738,19 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             transform: translateY(-2px) scale(1) !important;
         }
         .voucher-type-btn.active-payment {
-            background: linear-gradient(135deg, #ef4444, #b91c1c) !important;
-            border: 1px solid rgba(239, 68, 68, 0.8) !important;
+            background: linear-gradient(135deg, #d47a7e, #a3585c) !important;
+            border: 1px solid rgba(212, 122, 126, 0.8) !important;
             color: #ffffff !important;
-            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5), 0 0 15px rgba(239, 68, 68, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
+            box-shadow: 0 8px 25px rgba(212, 122, 126, 0.5), 0 0 15px rgba(212, 122, 126, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
             font-weight: 900 !important;
             transform: translateY(-4px) scale(1.04) !important;
             animation: activePulse 2.5s infinite ease-in-out !important;
         }
         .voucher-type-btn.active-receipt {
-            background: linear-gradient(135deg, #10b981, #047857) !important;
-            border: 1px solid rgba(16, 185, 129, 0.8) !important;
+            background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
+            border: 1px solid rgba(39, 174, 96, 0.8) !important;
             color: #ffffff !important;
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5), 0 0 15px rgba(16, 185, 129, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.5), 0 0 15px rgba(39, 174, 96, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
             font-weight: 900 !important;
             transform: translateY(-4px) scale(1.04) !important;
             animation: activePulseGreen 2.5s infinite ease-in-out !important;
@@ -758,31 +758,31 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
         /* Pulsing active buttons */
         @keyframes activePulse {
-            0% { box-shadow: 0 8px 20px rgba(239, 68, 68, 0.45), 0 0 10px rgba(239, 68, 68, 0.25); border-color: rgba(239, 68, 68, 0.7); }
-            50% { box-shadow: 0 12px 30px rgba(239, 68, 68, 0.75), 0 0 20px rgba(239, 68, 68, 0.5); border-color: rgba(255, 255, 255, 0.9); }
-            100% { box-shadow: 0 8px 20px rgba(239, 68, 68, 0.45), 0 0 10px rgba(239, 68, 68, 0.25); border-color: rgba(239, 68, 68, 0.7); }
+            0% { box-shadow: 0 8px 20px rgba(212, 122, 126, 0.45), 0 0 10px rgba(212, 122, 126, 0.25); border-color: rgba(212, 122, 126, 0.7); }
+            50% { box-shadow: 0 12px 30px rgba(212, 122, 126, 0.75), 0 0 20px rgba(212, 122, 126, 0.5); border-color: rgba(255, 255, 255, 0.9); }
+            100% { box-shadow: 0 8px 20px rgba(212, 122, 126, 0.45), 0 0 10px rgba(212, 122, 126, 0.25); border-color: rgba(212, 122, 126, 0.7); }
         }
         @keyframes activePulseGreen {
-            0% { box-shadow: 0 8px 20px rgba(16, 185, 129, 0.45), 0 0 10px rgba(16, 185, 129, 0.25); border-color: rgba(16, 185, 129, 0.7); }
-            50% { box-shadow: 0 12px 30px rgba(16, 185, 129, 0.75), 0 0 20px rgba(16, 185, 129, 0.5); border-color: rgba(255, 255, 255, 0.9); }
-            100% { box-shadow: 0 8px 20px rgba(16, 185, 129, 0.45), 0 0 10px rgba(16, 185, 129, 0.25); border-color: rgba(16, 185, 129, 0.7); }
+            0% { box-shadow: 0 8px 20px rgba(39, 174, 96, 0.45), 0 0 10px rgba(39, 174, 96, 0.25); border-color: rgba(39, 174, 96, 0.7); }
+            50% { box-shadow: 0 12px 30px rgba(39, 174, 96, 0.75), 0 0 20px rgba(39, 174, 96, 0.5); border-color: rgba(255, 255, 255, 0.9); }
+            100% { box-shadow: 0 8px 20px rgba(39, 174, 96, 0.45), 0 0 10px rgba(39, 174, 96, 0.25); border-color: rgba(39, 174, 96, 0.7); }
         }
 
         /* Heartbeat for active state circles */
         @keyframes heartBeatRed {
             0% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-            20% { transform: scale(1.4); background-color: #ff8787; box-shadow: 0 0 15px #ff8787; }
+            20% { transform: scale(1.4); background-color: #e8a5a7; box-shadow: 0 0 15px #e8a5a7; }
             40% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-            60% { transform: scale(1.4); background-color: #ef4444; box-shadow: 0 0 15px #ef4444; }
-            80% { transform: scale(1.2); background-color: #fca5a5; box-shadow: 0 0 12px #fca5a5; }
+            60% { transform: scale(1.4); background-color: #d47a7e; box-shadow: 0 0 15px #d47a7e; }
+            80% { transform: scale(1.2); background-color: #ebbabc; box-shadow: 0 0 12px #ebbabc; }
             100% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
         }
         @keyframes heartBeatGreen {
             0% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-            20% { transform: scale(1.4); background-color: #a7f3d0; box-shadow: 0 0 15px #a7f3d0; }
+            20% { transform: scale(1.4); background-color: #abebc6; box-shadow: 0 0 15px #abebc6; }
             40% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-            60% { transform: scale(1.4); background-color: #10b981; box-shadow: 0 0 15px #10b981; }
-            80% { transform: scale(1.2); background-color: #6ee7b7; box-shadow: 0 0 12px #6ee7b7; }
+            60% { transform: scale(1.4); background-color: #27ae60; box-shadow: 0 0 15px #27ae60; }
+            80% { transform: scale(1.2); background-color: #58d68d; box-shadow: 0 0 12px #58d68d; }
             100% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
         }
 
@@ -1057,85 +1057,15 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                                 </div>
                             </div>
                             
-                            <!-- Total Amount (auto-calculated) -->
+                            <!-- Total Amount (auto-calculated or direct) -->
                             <div style="flex: 1; min-width: 150px; display: flex; flex-direction: column; position: relative;">
-                                <input type="text" readonly id="amount-{ID}" class="form-input block-total-amount" placeholder="0.00" style="font-weight: 900; font-family: monospace; font-size: 1.15rem; text-align: center; flex: 1; margin-bottom: 0; border-color: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); cursor: default; transition: all 0.4s ease;">
+                                <input type="text" id="amount-{ID}" oninput="formatInput(this)" class="form-input block-total-amount" placeholder="المبلغ" style="font-weight: 900; font-family: monospace; font-size: 1.15rem; text-align: center; flex: 1; margin-bottom: 0; border-color: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); transition: all 0.4s ease;">
                             </div>
                             
-                            <!-- Payment Toggles -->
-                            <div style="display: flex; gap: 8px; flex: 1.5; min-width: 240px;">
-                                <button type="button" id="pm-cash-{ID}" class="pay-toggle-btn block-btn-cash" data-action="toggle-pm" data-block="{ID}" data-method="cash"><span class="btn-icon">💵</span> <span class="btn-text">نقدي</span></button>
-                                <button type="button" id="pm-bank-{ID}" class="pay-toggle-btn block-btn-bank" data-action="toggle-pm" data-block="{ID}" data-method="bank"><span class="btn-icon">🏦</span> <span class="btn-text">تحويل</span></button>
-                                <button type="button" id="pm-cheque-{ID}" class="pay-toggle-btn block-btn-cheque" data-action="toggle-pm" data-block="{ID}" data-method="cheque"><span class="btn-icon">✍️</span> <span class="btn-text">شيك</span></button>
+                            <!-- Statement (بيان التحويل) -->
+                            <div style="flex: 2; min-width: 200px; display: flex; flex-direction: column; position: relative;">
+                                <input type="text" autocomplete="off" id="statement-{ID}" class="form-input" placeholder="بيان التحويل (اختياري)" style="font-size: 1rem; flex: 1; margin-bottom: 0; background: rgba(255,255,255,0.05); color: #fff;">
                             </div>
-                        </div>
-
-                        <!-- Dynamic Details Sections (aligned amounts) -->
-                        <!-- Cash Details -->
-                        <div id="cash-details-{ID}" class="block-cash-details" style="display: none; background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.3); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease;">
-                            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                                <div style="width: 80px; font-weight: bold; color: #fbbf24; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">💵 نقدي</div>
-                                <div style="width: 150px; flex-shrink: 0;">
-                                    <input type="text" autocomplete="off" id="cash-amount-{ID}" class="form-input block-cash-amount block-sub-amount" data-block-id="{ID}" placeholder="مبلغ الكاش" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
-                                </div>
-                                <div style="flex: 1; min-width: 180px;">
-                                    <select id="cash-safe-{ID}" class="form-input block-cash-safe" style="margin-bottom: 0;">
-                                        <option value="">-- اختر الخزنة --</option>
-                                    </select>
-                                </div>
-                                <div style="flex: 1.5; min-width: 180px;">
-                                    <input type="text" autocomplete="off" class="form-input block-cash-desc-input" placeholder="بيان الكاش" style="margin-bottom: 0;">
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Bank Details (supports multiple transfers) -->
-                        <div id="bank-details-{ID}" class="block-bank-details" style="display: none; background: rgba(14, 116, 144, 0.18); border: 1.5px solid rgba(14, 116, 144, 0.45); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease;">
-                            <div class="bank-rows-container" id="bank-rows-{ID}">
-                                <div class="bank-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
-                                    <div style="width: 80px; font-weight: bold; color: #22d3ee; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">🏦 تحويل</div>
-                                    <div style="width: 150px; flex-shrink: 0;">
-                                        <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
-                                    </div>
-                                    <div style="flex: 1; min-width: 120px;">
-                                        <input type="text" autocomplete="off" class="form-input block-bank-name-input" placeholder="اسم البنك" style="margin-bottom: 0;">
-                                    </div>
-                                    <div style="flex: 1; min-width: 120px;">
-                                        <input type="text" autocomplete="off" class="form-input block-transfer-no-input" placeholder="رقم التحويلة" style="margin-bottom: 0;">
-                                    </div>
-                                    <div style="flex: 1.5; min-width: 150px;">
-                                        <input type="text" autocomplete="off" class="form-input block-bank-desc-input" placeholder="بيان التحويل" style="margin-bottom: 0;">
-                                    </div>
-                                    <button type="button" data-action="add-bank-row" data-block="{ID}" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(6, 182, 212, 0.2); border: 1px solid #22d3ee; color: #22d3ee; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;" title="إضافة تحويلة أخرى">➕</button>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- Cheque Details (supports multiple cheques) -->
-                        <div id="cheque-details-{ID}" class="block-cheque-details" style="display: none; background: rgba(147, 51, 234, 0.22); border: 1.5px solid rgba(147, 51, 234, 0.65); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease; box-shadow: inset 0 0 15px rgba(147, 51, 234, 0.1);">
-                            <div class="cheque-rows-container" id="cheque-rows-{ID}">
-                                <div class="cheque-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
-                                    <div style="width: 80px; font-weight: bold; color: #d8b4fe; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">✍️ شيك</div>
-                                    <div style="width: 150px; flex-shrink: 0;">
-                                        <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
-                                    </div>
-                                    <div style="flex: 1; min-width: 90px;">
-                                        <input type="text" autocomplete="off" class="form-input block-cheque-bank-input" placeholder="اسم البنك" style="margin-bottom: 0;">
-                                    </div>
-                                    <div style="flex: 1; min-width: 80px;">
-                                        <input type="text" autocomplete="off" class="form-input block-cheque-no-input" placeholder="رقم الشيك" style="margin-bottom: 0;">
-                                    </div>
-                                    <div style="flex: 1; min-width: 100px;">
-                                        <input type="date" class="form-input block-cheque-date-input" title="تاريخ الاستحقاق" style="margin-bottom: 0;">
-                                    </div>
-                                    <div style="flex: 1.5; min-width: 150px;">
-                                        <input type="text" autocomplete="off" class="form-input block-cheque-desc-input" placeholder="بيان الشيك" style="margin-bottom: 0;">
-                                    </div>
-                                    <button type="button" data-action="add-cheque-row" data-block="{ID}" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(139,92,246,0.2); border: 1px solid #c084fc; color: #c084fc; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;" title="إضافة شيك آخر">➕</button>
-                                </div>
-                            </div>
-                        </div>
-
                         </div>
                     </div>
                 </template>
