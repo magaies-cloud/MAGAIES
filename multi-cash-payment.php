@@ -632,46 +632,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             border-bottom: none;
         }
 
-        /* Voucher Type Toggle Buttons (صرف/استلام مجمع) */
-        /* Voucher Type Toggle Buttons (صرف/استلام مجمع) */
-        .voucher-type-btn {
-            background: rgba(0,0,0,0.4) !important;
-            border: 1px solid rgba(255,255,255,0.08) !important;
-            color: #94a3b8 !important;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.6) !important;
-            min-width: 175px !important;
-            height: 45px !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 10px !important;
-            border-radius: 10px !important;
-            cursor: pointer !important;
-            transform: translateY(0) scale(0.97) !important;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-        }
-        .voucher-type-btn:hover {
-            background: rgba(255, 255, 255, 0.05) !important;
-            color: #ffffff !important;
-            border-color: rgba(255,255,255,0.2) !important;
-            transform: translateY(-2px) scale(1) !important;
-        }
-        .voucher-type-btn.active-payment {
-            background: linear-gradient(135deg, #d47a7e, #a3585c) !important;
-            border: 1px solid rgba(212, 122, 126, 0.8) !important;
-            color: #ffffff !important;
-            box-shadow: 0 8px 25px rgba(212, 122, 126, 0.5), 0 0 15px rgba(212, 122, 126, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
-            font-weight: 900 !important;
-            transform: translateY(-4px) scale(1.04) !important;
-        }
-        .voucher-type-btn.active-receipt {
-            background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
-            border: 1px solid rgba(39, 174, 96, 0.8) !important;
-            color: #ffffff !important;
-            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.5), 0 0 15px rgba(39, 174, 96, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
-            font-weight: 900 !important;
-            transform: translateY(-4px) scale(1.04) !important;
-        }
+        /* (Removed legacy .voucher-type-btn overrides to unify styles) */
 
         /* Color Wave Animation */
         @keyframes colorWave {
@@ -947,7 +908,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             </div>
                             
                             <!-- Statement (بيان التحويل) -->
-                            <div style="flex: 1.8; min-width: 150px; display: flex; flex-direction: column; position: relative;">
+                            <div style="flex: 3.5; min-width: 150px; display: flex; flex-direction: column; position: relative;">
                                 <input type="text" autocomplete="off" id="statement-{ID}" class="form-input" placeholder="البيان" style="font-size: 1rem; flex: 1; margin-bottom: 0; background: rgba(255,255,255,0.05); color: #fff;">
                             </div>
                             
@@ -1025,9 +986,6 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             </div>
 
             <style>
-                .footer-actions .btn { font-size: 0.85rem !important; padding: 8px 15px !important; }
-                .footer-actions .btn-save-master { font-size: 0.95rem !important; padding: 8px 20px !important; font-weight: bold; }
-                
                 /* Universal Light Theme Overrides for Internal Screens */
                 :root.light-theme body,
                 :root.light-theme .ambient-bg {
@@ -1108,12 +1066,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             <div style="padding: 20px 0 10px 0; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 30px; width: 100%;">
                 <!-- Action Buttons Section -->
                 <div class="footer-actions" style="display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; width: 100%;">
-                    <button type="button" class="btn crystal-btn btn-exit" onclick="if(document.referrer) { window.history.back(); } else { window.location.href='dashboard-pro.php'; }" title="الرجوع للشاشة السابقة">🚪 خروج</button>
-                    <button type="button" class="btn crystal-btn btn-new" onclick="resetVoucher()">✨ مستند جديد</button>
-                    <button type="button" class="btn crystal-btn btn-print" onclick="directPrint()">🖨️ طباعة</button>
-                    <button type="button" class="btn crystal-btn btn-print-preview" onclick="printVoucher()">👁️ معاينة</button>
-                    <button type="button" class="btn crystal-btn btn-delete" onclick="confirmDelete()">🗑️ حذف المستند</button>
-                    <button type="button" class="btn crystal-btn btn-save-master" id="btn-save" onclick="saveVoucher()">✅ حفظ واعتماد السند</button>
+                    <button type="button" class="btn crystal-btn btn-exit" onclick="if(document.referrer) { window.history.back(); } else { window.location.href='dashboard-pro.php'; }" title="الرجوع للشاشة السابقة"><span class="btn-icon">🚪</span> <span class="btn-text">خروج</span></button>
+                    <button type="button" class="btn crystal-btn btn-new" onclick="resetVoucher()"><span class="btn-icon">✨</span> <span class="btn-text">مستند جديد</span></button>
+                    <button type="button" class="btn crystal-btn btn-print" onclick="directPrint()"><span class="btn-icon">🖨️</span> <span class="btn-text">طباعة</span></button>
+                    <button type="button" class="btn crystal-btn btn-print-preview" onclick="printVoucher()"><span class="btn-icon">👁️</span> <span class="btn-text">معاينة</span></button>
+                    <button type="button" class="btn crystal-btn btn-delete" onclick="confirmDelete()"><span class="btn-icon">🗑️</span> <span class="btn-text">حذف المستند</span></button>
+                    <button type="button" class="btn crystal-btn btn-save-master" id="btn-save" onclick="saveVoucher()"><span class="btn-icon">✅</span> <span class="btn-text">حفظ واعتماد السند</span></button>
                 </div>
             </div>
         </div>
