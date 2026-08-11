@@ -36,7 +36,12 @@ const baseColumns = [
 
 function getRawFieldValue(row, field) {
     if (!row) return '';
-    if (field === 'date') return row.date || row.created_at || row.time || '';
+    if (field === 'date') {
+        let rawDate = String(row.date || row.created_at || row.time || '').trim();
+        if (rawDate.includes('T')) rawDate = rawDate.split('T')[0];
+        if (rawDate.includes(' ')) rawDate = rawDate.split(' ')[0];
+        return rawDate;
+    }
     if (field === 'ref') return row.ref || row.doc_no || row.voucher_no || row.id || '';
     if (field === 'statement') return row.statement || row.description || row.desc || row.notes || '';
     if (field === 'counterAccount') return row.counterAccount || row.accountName || row.account || '-';
@@ -164,12 +169,56 @@ function loadCompanyHeader() {
             }
         }
         
+        updateSubheaderLabels();
+    } catch(e) { console.error('Error loading company header', e); }
+}
+
+function updateSubheaderLabels() {
+    try {
+        let configStr = localStorage.getItem('preview_ledger_config');
+        let config = { filterAccount: 'ALL', dateMode: 'all' };
+        if (configStr) {
+            try { config = JSON.parse(configStr); } catch(e){}
+        }
+
+        const accVal = config.filterAccount || 'ALL';
+        const fromDate = config.dateFrom || '';
+        const toDate = config.dateTo || '';
+        const currentDateMode = config.dateMode || 'all';
+
+        // 1. Customer / Account Name Label
+        const custLbl = document.getElementById('report-customer-name-lbl');
+        if (custLbl) {
+            if (accVal !== 'ALL') {
+                let accName = typeof getAccountName === 'function' ? getAccountName(accVal) : accVal;
+                custLbl.innerText = 'السيد / ' + accName;
+            } else {
+                custLbl.innerText = 'السيد / جميع الحسابات';
+            }
+        }
+
+        // 2. Report Date Label
         const dateLbl = document.getElementById('report-date-lbl');
         if (dateLbl) {
             const today = new Date();
-            dateLbl.innerText = 'تاريخ التقرير: ' + today.toLocaleDateString('ar-EG');
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            dateLbl.innerText = 'تاريخ التقرير: ' + yyyy + '-' + mm + '-' + dd;
         }
-    } catch(e) { console.error('Error loading company header', e); }
+
+        // 3. Period Label
+        const periodLbl = document.getElementById('report-period-lbl');
+        if (periodLbl) {
+            if (currentDateMode !== 'all' && fromDate && toDate) {
+                periodLbl.innerText = 'الفترة: من ' + fromDate + ' إلى ' + toDate;
+            } else {
+                periodLbl.innerText = 'الفترة: كلي (جميع الفترات)';
+            }
+        }
+    } catch(e) {
+        console.error('Error updating subheader labels:', e);
+    }
 }
 
 
@@ -201,21 +250,75 @@ function calculateLedgerTxns() {
     
     if (accVal !== 'ALL') {
         const cleanFilter = accVal.replace(/^(cust|supp|bank|safe|exp)-/, '');
+        const selectedAccName = (typeof getAccountName === 'function') ? getAccountName(accVal) : '';
         txns = txns.filter(t => {
-            if (String(t.account) === String(accVal)) return true;
-            if (String(t.account) === cleanFilter) return true;
+            if (!t) return false;
+            const tAcc = String(t.account || '').trim();
+            if (tAcc === String(accVal)) return true;
+            if (tAcc === cleanFilter) return true;
+            
+            const cleanTAcc = tAcc.replace(/^(cust|supp|bank|safe|exp)-/, '');
+            if (cleanTAcc === cleanFilter) return true;
+
+            if (selectedAccName && selectedAccName !== accVal) {
+                const tAccName = (typeof getAccountName === 'function') ? getAccountName(tAcc) : '';
+                if (tAccName && tAccName === selectedAccName) return true;
+                if (tAcc === selectedAccName) return true;
+            }
             return false;
         });
 
         // Resolve opening balance from Master Data records (Customers, Suppliers, Banks, Safes, Accounts)
-        let usdRate = 600;
+        // Read system USD exchange rate from ALL possible sources
+        let systemUsdRate = 1;
+        
+        // Source 1: getExchangeRateForCurrency (centralized, reads settings + API)
         if (typeof window.getExchangeRateForCurrency === 'function') {
             const r = window.getExchangeRateForCurrency('USD');
-            if (r && r > 0) usdRate = parseFloat(r);
-        } else {
+            if (r && r > 1) systemUsdRate = parseFloat(r);
+        }
+        
+        // Source 2: ledgerExchangeRate (set by general-ledger.js from settings/API)
+        if (systemUsdRate <= 1 && typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 1) {
+            systemUsdRate = ledgerExchangeRate;
+        }
+        
+        // Source 3: window._gemInitialRate (set by app.js on load)
+        if (systemUsdRate <= 1 && window._gemInitialRate && parseFloat(window._gemInitialRate) > 1) {
+            systemUsdRate = parseFloat(window._gemInitialRate);
+        }
+        
+        // Source 4: erp_settings_v1.rateUSD (manual entry in settings)
+        if (systemUsdRate <= 1) {
             try {
-                const rates = JSON.parse(localStorage.getItem('erp_currency_rates_v1')) || {};
-                if (rates['USD'] && rates['USD'] > 0) usdRate = parseFloat(rates['USD']);
+                const settings = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+                if (settings.rateUSD && parseFloat(settings.rateUSD) > 1) {
+                    systemUsdRate = parseFloat(settings.rateUSD);
+                }
+            } catch(e){}
+        }
+        
+        // Source 5: erp_rate_usd (dedicated localStorage key)
+        if (systemUsdRate <= 1) {
+            try {
+                const dedicated = localStorage.getItem('erp_rate_usd');
+                if (dedicated && parseFloat(dedicated) > 1) systemUsdRate = parseFloat(dedicated);
+            } catch(e){}
+        }
+        
+        // Source 6: erp_cached_global_rate (cached from subscribers panel)
+        if (systemUsdRate <= 1) {
+            try {
+                const cached = localStorage.getItem('erp_cached_global_rate');
+                if (cached && parseFloat(cached) > 1) systemUsdRate = parseFloat(cached);
+            } catch(e){}
+        }
+        
+        // Source 7: erp_currency_rates_v1 (currency rates table)
+        if (systemUsdRate <= 1) {
+            try {
+                const rates = JSON.parse(localStorage.getItem('erp_currency_rates_v1') || '{}');
+                if (rates['USD'] && parseFloat(rates['USD']) > 1) systemUsdRate = parseFloat(rates['USD']);
             } catch(e){}
         }
 
@@ -239,7 +342,12 @@ function calculateLedgerTxns() {
         let currency = 'SDG';
         let exchangeRate = 0;
 
+        let entityDate = '';
         if (masterRec) {
+            let rawDate = String(masterRec.date || masterRec.createdAt || masterRec.created_at || masterRec.timestamp || masterRec.addedDate || '').trim();
+            if (rawDate.includes('T')) rawDate = rawDate.split('T')[0];
+            if (rawDate.includes(' ')) rawDate = rawDate.split(' ')[0];
+            entityDate = rawDate;
             let opDebit = parseFloat(masterRec.openingDebit || masterRec.debit || 0);
             let opCredit = parseFloat(masterRec.openingCredit || masterRec.credit || 0);
             let rawBal = parseFloat(masterRec.openingBalance || masterRec.opening_balance || masterRec.balance || 0);
@@ -254,19 +362,33 @@ function calculateLedgerTxns() {
                 }
             }
             currency = masterRec.currency || 'SDG';
-            exchangeRate = parseFloat(masterRec.exchangeRate || masterRec.exRate || masterRec.rate || 0);
+            // Read account-specific rate (only meaningful for foreign currency accounts)
+            const savedAccountRate = parseFloat(masterRec.exchangeRate || masterRec.exRate || masterRec.rate || 0);
+            if (savedAccountRate > 1) {
+                exchangeRate = savedAccountRate;
+            }
         }
 
-        if (!exchangeRate || exchangeRate <= 0) {
-            exchangeRate = usdRate;
+        // Resolve final exchange rate based on currency type
+        if (currency === 'SDG') {
+            // SDG account: always use system USD rate for foreign column
+            exchangeRate = systemUsdRate > 1 ? systemUsdRate : 1;
+        } else if (!exchangeRate || exchangeRate <= 1) {
+            // Foreign currency account without a valid rate
+            if (typeof window.getExchangeRateForCurrency === 'function') {
+                const specificRate = window.getExchangeRateForCurrency(currency);
+                exchangeRate = (specificRate && specificRate > 1) ? parseFloat(specificRate) : (systemUsdRate > 1 ? systemUsdRate : 1);
+            } else {
+                exchangeRate = systemUsdRate > 1 ? systemUsdRate : 1;
+            }
         }
 
         let opDebitLoc = intrinsicBal > 0 ? intrinsicBal : 0;
         let opCreditLoc = intrinsicBal < 0 ? Math.abs(intrinsicBal) : 0;
 
-        let opDebitFc = exchangeRate > 0 ? (opDebitLoc / exchangeRate) : 0;
-        let opCreditFc = exchangeRate > 0 ? (opCreditLoc / exchangeRate) : 0;
-        let opBalFc = exchangeRate > 0 ? (intrinsicBal / exchangeRate) : 0;
+        let opDebitFc = exchangeRate > 1 ? (opDebitLoc / exchangeRate) : 0;
+        let opCreditFc = exchangeRate > 1 ? (opCreditLoc / exchangeRate) : 0;
+        let opBalFc = exchangeRate > 1 ? (intrinsicBal / exchangeRate) : 0;
 
         opInfo = {
             intrinsicBal,
@@ -276,7 +398,8 @@ function calculateLedgerTxns() {
             opCreditFc,
             opBalFc,
             exchangeRate,
-            currency
+            currency,
+            entityDate
         };
     }
 
@@ -352,8 +475,7 @@ function calculateLedgerTxns() {
         let priorSum = 0;
         priorTxns.forEach(t => { priorSum += t.debit; priorSum -= t.credit; });
 
-        let opDate = '—';
-        if (txns.length > 0) opDate = txns.reduce((min, t) => t.date < min ? t.date : min, txns[0].date);
+        let opDate = opInfo.entityDate || (txns.length > 0 ? txns.reduce((min, t) => t.date < min ? t.date : min, txns[0].date) : new Date().toISOString().split('T')[0]);
 
         if (hasOpening || currentDateMode === 'all' || !hasPrior) {
             currentTxns.unshift({
@@ -383,7 +505,7 @@ function calculateLedgerTxns() {
                 account: accVal, counterAccount: '-', statement: 'رصيد ما قبل الفترة', additionalNote: 'رصيد ما قبل الفترة',
                 debit: preDebit, credit: preCredit, costCenter: '', 
                 debitForeign: preDebitFc, creditForeign: preCreditFc, exchangeRate: opInfo.exchangeRate,
-                currency: 'SDG', balance: 0, balanceForeign: 0,
+                currency: 'SDG', balance: priorSum, balanceForeign: opInfo.exchangeRate > 0 ? (priorSum / opInfo.exchangeRate) : 0,
                 isOpening: true
             });
         }
@@ -401,10 +523,11 @@ function calculateLedgerTxns() {
         let cf = parseFloat(t.creditForeign || t.cr_foreign || 0);
 
         // If local debit/credit is set and foreign amount is missing or equals local amount, calculate local / exchangeRate
-        if (t.debit > 0 && (df === 0 || df === t.debit) && rate > 1) {
+        const isForeignTxn = t.currency !== 'SDG' || opInfo.currency !== 'SDG';
+        if (t.debit > 0 && (df === 0 || df === t.debit) && rate > 1 && isForeignTxn) {
             df = t.debit / rate;
         }
-        if (t.credit > 0 && (cf === 0 || cf === t.credit) && rate > 1) {
+        if (t.credit > 0 && (cf === 0 || cf === t.credit) && rate > 1 && isForeignTxn) {
             cf = t.credit / rate;
         }
 
@@ -412,8 +535,10 @@ function calculateLedgerTxns() {
         t.creditForeign = cf;
 
         if (t.isOpening) {
-            runningBal = t.balance !== undefined ? t.balance : (t.debit - t.credit);
-            runningBalFc = t.balanceForeign !== undefined ? t.balanceForeign : (t.debitForeign - t.creditForeign);
+            runningBal += (t.debit - t.credit);
+            runningBalFc += (t.debitForeign - t.creditForeign);
+            t.balance = runningBal;
+            t.balanceForeign = runningBalFc;
         } else {
             runningBal += (t.debit - t.credit);
             runningBalFc += (t.debitForeign - t.creditForeign);
@@ -435,6 +560,7 @@ function calculateLedgerTxns() {
 
 document.addEventListener('DOMContentLoaded', async () => {
     loadCompanyHeader();
+    if (typeof buildAccountsList === 'function') buildAccountsList();
     
     let attempts = 0;
     const pollTimer = setInterval(() => {
@@ -443,7 +569,10 @@ document.addEventListener('DOMContentLoaded', async () => {
         if (attempts > 15) clearInterval(pollTimer);
     }, 300);
 
-    window.addEventListener('DBReady', loadCompanyHeader);
+    window.addEventListener('DBReady', () => {
+        loadCompanyHeader();
+        if (typeof buildAccountsList === 'function') buildAccountsList();
+    });
 
     // Load Ledger Table Data & Config (Try IndexedDB via localforage first for large datasets)
     if (typeof localforage !== 'undefined') {
@@ -476,9 +605,9 @@ document.addEventListener('DOMContentLoaded', async () => {
         try {
             const cfg = JSON.parse(rawConfig);
             if (cfg.accountName) {
-                const subTitle = document.getElementById('hdr-c-subtitle') || document.querySelector('.company-header h2') || document.querySelector('h2');
-                if (subTitle) {
-                    subTitle.innerText = 'تقرير دفتر الأستاذ العام - ' + cfg.accountName;
+                const mainTitle = document.getElementById('report-main-title');
+                if (mainTitle) {
+                    mainTitle.innerText = 'دفتر الأستاذ العام';
                 }
             }
         } catch(e){}
@@ -1715,6 +1844,7 @@ function moveSelectedCol(direction) {
 }
 
 function renderTable() {
+    updateSubheaderLabels();
     const thead = document.getElementById('preview-thead');
     const tbody = document.getElementById('preview-tbody');
     const tfoot = document.getElementById('preview-tfoot');
@@ -2255,19 +2385,6 @@ function saveFactoryResetViaModal() {
     });
 }
 
-function saveCustomResetState() {
-    const state = {
-        configs: JSON.parse(JSON.stringify(columnConfigs)),
-        order: [...columnOrder],
-        theme: currentTheme,
-        font: currentFont,
-        paperSize: currentPaperSize,
-        orientation: currentOrientation,
-        showLogo: showHeaderLogo,
-        showInfo: showHeaderInfo
-    };
-    localStorage.setItem('balances_custom_reset_v1', JSON.stringify(state));
-}
 
 // Long press 8 seconds on reset button: Open modal giving 2 options (User Custom Reset vs System Factory Default)
 function showResetOptionsModal() {
@@ -2385,6 +2502,26 @@ function restoreToFactoryDefault() {
 
 /* ─── INJECTED DATA COLLECTION ─── */
 function collectAllTransactions() {
+    // Always rebuild GL from source tables to ensure fresh data
+    if (typeof window.rebuildGLFromAllTables === 'function') {
+        try {
+            window.rebuildGLFromAllTables(false);
+        } catch(e) {
+            console.warn('GL rebuild error:', e);
+        }
+    }
+
+    // Try reading from saved GL first
+    const getTenantKey = window.getTenantKey || ((k) => k);
+    let savedTxns = [];
+    try {
+        savedTxns = JSON.parse(localStorage.getItem(getTenantKey('erp_gl_v1')) || localStorage.getItem('erp_gl_v1') || '[]');
+    } catch(e) {}
+    if (Array.isArray(savedTxns) && savedTxns.length > 0) {
+        return savedTxns;
+    }
+
+    // Fallback: build from source tables manually
     let txns = [];
     const timeNow = new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}); // Fallback time
 

@@ -419,7 +419,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
                 <label>🏦 الحساب الرئيسي</label>
                 <div class="search-wrap" id="account-search-wrap">
                     <input type="text" class="filter-input" id="account-search-input" placeholder="ابحث باسم أو رقم الحساب..." autocomplete="off">
-                    <button class="search-clear-btn" id="search-clear-btn">✕</button>
+                    <button class="search-clear-btn" id="search-clear-btn" onclick="clearAccountSearch()">✕</button>
                     <ul class="autocomplete-list" id="autocomplete-list"></ul>
                 </div>
                 <div class="selected-account-chip" id="selected-chip">
@@ -500,7 +500,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             <!-- Dynamic preset buttons rendered via JS -->
         </div>
         
-        <div style="display: flex; justify-content: center; gap: 12px; align-items: center; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 18px; margin-right: 4px; flex-wrap: nowrap;">
+        <div class="no-print" style="display: flex; justify-content: center; gap: 12px; align-items: center; border-right: 1px solid rgba(255,255,255,0.1); padding-right: 18px; margin-right: 4px; flex-wrap: nowrap;">
             <button class="luxury-action-btn" onclick="resetMagnifiedNumbers()" title="إلغاء تكبير جميع الأرقام المكبرة للمراجعة" style="--btn-color: #38bdf8;">
                 <span style="font-size: 1.7rem;">🔍</span> إلغاء التكبير
             </button>
@@ -793,6 +793,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 });
 </script>
+<div id="toast-container" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;"></div>
 </body>
 </html>
 
