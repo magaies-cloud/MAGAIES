@@ -940,14 +940,14 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                     <!-- Title & Toggles -->
                     <div style="display: flex; align-items: center; gap: 15px; flex: none; flex-wrap: wrap;">
                         <div id="main-party-title" style="display: flex; align-items: center; gap: 8px; font-size: 1.1rem; font-weight: 700; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-                            <span>👤</span> بيان الطرف الرئيسي
+                            <span><i class="fa fa-user"></i></span> بيان الطرف الرئيسي
                         </div>
                         <div style="display: flex; gap: 10px;">
-                            <button id="btn-payment" class="voucher-type-btn active-payment" onclick="setVoucherType('payment')">
-                                <span class="btn-icon">💸📤</span> <span class="btn-text">صرف مجمع</span>
+                            <button type="button" id="btn-payment" class="voucher-type-btn active-payment crystal-btn" onclick="switchType('payment')">
+                                <span class="btn-icon"><i class="fa fa-arrow-up"></i></span> <span class="btn-text">صرف مجمع</span>
                             </button>
-                            <button id="btn-receipt" class="voucher-type-btn" onclick="setVoucherType('receipt')">
-                                <span class="btn-icon">💰📥</span> <span class="btn-text">استلام مجمع</span>
+                            <button type="button" id="btn-receipt" class="voucher-type-btn crystal-btn" onclick="switchType('receipt')">
+                                <span class="btn-icon"><i class="fa fa-arrow-down"></i></span> <span class="btn-text">استلام مجمع</span>
                             </button>
                         </div>
                     </div>
@@ -984,8 +984,8 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             <label id="main-account-label" style="color: #ef4444 !important; font-size: 1.2rem; margin-bottom: 5px; display: block; font-weight: bold; transition: color 0.3s; white-space: nowrap;">من حساب (صرف) <span class="animated-arrow-left">←</span></label>
                             <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative; display: flex;">
                                 <input type="hidden" id="main-account">
-                                <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color); flex: 1; border-top-left-radius: 0; border-bottom-left-radius: 0;">
-                                <button type="button" onclick="openLedgerForMainAccount()" title="دفتر الأستاذ العام" style="background: rgba(52,211,153,0.15); border: 1px solid var(--border-color); border-right: none; color: #34d399; padding: 0 12px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; height: auto;" onmouseover="this.style.background='rgba(52,211,153,0.3)';" onmouseout="this.style.background='rgba(52,211,153,0.15)';"><i class="fa fa-book"></i></button>
+                                <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onclick="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color); flex: 1; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                <button type="button" onclick="openLedgerForMainAccount()" title="دفتر الأستاذ العام" style="background: rgba(52,211,153,0.2); border: 1px solid #34d399; border-right: none; color: #34d399; padding: 0 15px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; height: auto; font-weight: bold; font-size: 0.95rem; box-shadow: 0 0 10px rgba(52,211,153,0.5); text-shadow: 0 0 5px rgba(52,211,153,0.5);" onmouseover="this.style.background='rgba(52,211,153,0.5)'; this.style.color='#fff'; this.style.boxShadow='0 0 20px rgba(52,211,153,0.9)';" onmouseout="this.style.background='rgba(52,211,153,0.2)'; this.style.color='#34d399'; this.style.boxShadow='0 0 10px rgba(52,211,153,0.5)';">كشف حساب (من) <i class="fa fa-file-invoice-dollar" style="margin-right: 6px;"></i></button>
                                 <div class="custom-dropdown-list" id="main-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                             </div>
                         </div>
@@ -1051,8 +1051,8 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                                 <div class="custom-dropdown-input-wrap" style="position: relative; flex: 1; display: flex;">
                                     <input type="hidden" id="account-{ID}-id" class="block-account-id">
                                     <input type="hidden" id="account-{ID}" class="block-account-name">
-                                    <input type="text" autocomplete="off" class="form-input block-account-search" id="account-{ID}-search" placeholder="الحساب / الجهة المستفيدة..." onfocus="showAccountDropdown('account-{ID}')" onblur="hideAccountDropdownDelayed('account-{ID}')" oninput="filterAccountDropdown('account-{ID}')" style="font-size: 1rem; flex: 1; margin-bottom: 0; border-top-left-radius: 0; border-bottom-left-radius: 0;">
-                                    <button type="button" onclick="openLedgerForBlockAccount('{ID}')" title="دفتر الأستاذ العام" style="background: rgba(52,211,153,0.15); border: 1px solid rgba(255,255,255,0.1); border-right: none; color: #34d399; padding: 0 12px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; height: auto;" onmouseover="this.style.background='rgba(52,211,153,0.3)';" onmouseout="this.style.background='rgba(52,211,153,0.15)';"><i class="fa fa-book"></i></button>
+                                    <input type="text" autocomplete="off" class="form-input block-account-search" id="account-{ID}-search" placeholder="الحساب / الجهة المستفيدة..." onfocus="showAccountDropdown('account-{ID}')" onclick="showAccountDropdown('account-{ID}')" onblur="hideAccountDropdownDelayed('account-{ID}')" oninput="filterAccountDropdown('account-{ID}')" style="font-size: 1rem; flex: 1; margin-bottom: 0; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                    <button type="button" onclick="openLedgerForBlockAccount('{ID}')" title="دفتر الأستاذ العام" style="background: rgba(52,211,153,0.2); border: 1px solid #34d399; border-right: none; color: #34d399; padding: 0 15px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; height: auto; font-weight: bold; font-size: 0.95rem; box-shadow: 0 0 10px rgba(52,211,153,0.5); text-shadow: 0 0 5px rgba(52,211,153,0.5);" onmouseover="this.style.background='rgba(52,211,153,0.5)'; this.style.color='#fff'; this.style.boxShadow='0 0 20px rgba(52,211,153,0.9)';" onmouseout="this.style.background='rgba(52,211,153,0.2)'; this.style.color='#34d399'; this.style.boxShadow='0 0 10px rgba(52,211,153,0.5)';">كشف حساب (إلى) <i class="fa fa-file-invoice-dollar" style="margin-right: 6px;"></i></button>
                                     <div class="custom-dropdown-list" id="account-{ID}-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                                 </div>
                             </div>
@@ -1069,8 +1069,8 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             
                             <!-- Payment Toggles (No Cash) -->
                             <div style="display: flex; gap: 8px; flex: 1; min-width: 150px; align-items: stretch;">
-                                <button type="button" id="pm-bank-{ID}" class="pay-toggle-btn block-btn-bank" data-action="toggle-pm" data-block="{ID}" data-method="bank"><span class="btn-icon">🏦</span> <span class="btn-text">بنك</span></button>
-                                <button type="button" id="pm-cheque-{ID}" class="pay-toggle-btn block-btn-cheque" data-action="toggle-pm" data-block="{ID}" data-method="cheque"><span class="btn-icon">✍️</span> <span class="btn-text">شيك</span></button>
+                                <button type="button" id="pm-bank-{ID}" class="pay-toggle-btn block-btn-bank crystal-btn" data-action="toggle-pm" data-block="{ID}" data-method="bank"><span class="btn-icon"><i class="fa fa-mobile-alt"></i></span> <span class="btn-text">تحويل</span></button>
+                                <button type="button" id="pm-cheque-{ID}" class="pay-toggle-btn block-btn-cheque crystal-btn" data-action="toggle-pm" data-block="{ID}" data-method="cheque"><span class="btn-icon"><i class="fa fa-money-check-alt"></i></span> <span class="btn-text">شيك</span></button>
                             </div>
                         </div>
 
@@ -1079,7 +1079,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         <div id="bank-details-{ID}" class="block-bank-details" style="display: none; background: rgba(14, 116, 144, 0.18); border: 1.5px solid rgba(14, 116, 144, 0.45); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease;">
                             <div class="bank-rows-container" id="bank-rows-{ID}">
                                 <div class="bank-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
-                                    <div style="width: 80px; font-weight: bold; color: #22d3ee; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">🏦 بنكي</div>
+                                    <div style="width: 80px; font-weight: bold; color: #22d3ee; display: flex; align-items: center; gap: 5px; flex-shrink: 0;"><i class="fa fa-mobile-alt"></i> تحويل</div>
                                     <div style="width: 150px; flex-shrink: 0;">
                                         <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
                                     </div>
@@ -1101,7 +1101,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         <div id="cheque-details-{ID}" class="block-cheque-details" style="display: none; background: rgba(147, 51, 234, 0.22); border: 1.5px solid rgba(147, 51, 234, 0.65); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease; box-shadow: inset 0 0 15px rgba(147, 51, 234, 0.1);">
                             <div class="cheque-rows-container" id="cheque-rows-{ID}">
                                 <div class="cheque-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
-                                    <div style="width: 80px; font-weight: bold; color: #d8b4fe; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">✍️ شيك</div>
+                                    <div style="width: 80px; font-weight: bold; color: #d8b4fe; display: flex; align-items: center; gap: 5px; flex-shrink: 0;"><i class="fa fa-money-check-alt"></i> شيك</div>
                                     <div style="width: 150px; flex-shrink: 0;">
                                         <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
                                     </div>
