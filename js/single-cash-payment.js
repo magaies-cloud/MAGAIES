@@ -41,15 +41,81 @@ function showToast(msg, type = 'success', ms = 3000) {
     setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 500); }, ms);
 }
 
-function showDuplicateModal(transferNo) {
+function showLengthWarningModal(transferNo) {
+    const existing = document.getElementById('critical-alert-modal');
+    if (existing) existing.remove();
+
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @keyframes liquidPulsate {
+            0% { transform: scale(1) translate(-50%, -50%); border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; box-shadow: 0 0 40px rgba(220, 20, 60, 0.4), inset 0 0 20px rgba(220, 20, 60, 0.6); }
+            50% { transform: scale(1.05) translate(-50%, -50%); border-radius: 30% 60% 70% 40% / 50% 60% 30% 60%; box-shadow: 0 0 80px rgba(255, 0, 85, 0.8), inset 0 0 40px rgba(255, 0, 85, 0.9); }
+            100% { transform: scale(1) translate(-50%, -50%); border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%; box-shadow: 0 0 40px rgba(220, 20, 60, 0.4), inset 0 0 20px rgba(220, 20, 60, 0.6); }
+        }
+        @keyframes rayRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+        @keyframes bounceInLiquid {
+            0% { opacity: 0; transform: translateY(100vh); }
+            60% { opacity: 1; transform: translateY(-30px); }
+            80% { transform: translateY(15px); }
+            100% { transform: translateY(0); }
+        }
+    `;
+    document.head.appendChild(style);
+
     const modalHTML = `
-        <div id="duplicate-modal" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(15,23,42,0.8); backdrop-filter:blur(5px); z-index:99999; display:flex; justify-content:center; align-items:center;">
-            <div style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.5); padding:30px; border-radius:16px; text-align:center; max-width:400px; box-shadow:0 20px 50px rgba(0,0,0,0.5); animation:toastIn 0.3s ease;">
-                <div style="font-size:3rem; margin-bottom:10px;">⚠️</div>
-                <h2 style="color:#f87171; margin:0 0 15px 0;">تنبيه: حوالة مكررة!</h2>
-                <p style="color:#fff; font-size:1rem; line-height:1.5;">رقم الحوالة <strong>(${transferNo})</strong> تم إدخاله مسبقاً في النظام.</p>
-                <p style="color:var(--text-secondary); font-size:0.85rem; margin-bottom:20px;">يرجى التأكد لتجنب إدخال نفس الحوالة مرتين عن طريق الخطأ.</p>
-                <button onclick="document.getElementById('duplicate-modal').remove()" style="background:#ef4444; color:#fff; border:none; padding:10px 25px; border-radius:8px; font-weight:bold; cursor:pointer; font-size:1rem; width:100%;">فهمت، سأراجع الرقم</button>
+        <div id="critical-alert-modal" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:rgba(10,0,0,0.85); backdrop-filter:blur(10px); z-index:99999; display:flex; justify-content:center; align-items:center; overflow:hidden;">
+            <div style="position:absolute; width:200vw; height:200vw; background: repeating-conic-gradient(from 0deg, transparent 0deg 15deg, rgba(255, 20, 60, 0.15) 15deg 30deg); animation: rayRotate 20s linear infinite; pointer-events:none;"></div>
+            <div style="position:absolute; top:50%; left:50%; width:450px; height:450px; background: radial-gradient(circle, #8b0000 0%, #3e0000 100%); animation: liquidPulsate 4s ease-in-out infinite, bounceInLiquid 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; transform-origin: top left; display:flex; flex-direction:column; justify-content:center; align-items:center; border: 3px solid rgba(255,100,100,0.5); padding: 40px; text-align:center;">
+                <div style="font-size: 5rem; text-shadow: 0 0 20px #ff0000; animation: bounceInLiquid 1s infinite;">⚠️</div>
+                <h2 style="color: #ffcccc; font-family: 'Tajawal', sans-serif; font-size: 2rem; margin: 15px 0; text-shadow: 0 0 10px #ff0000;">تحذير أمني!</h2>
+                <p style="color: #fff; font-size: 1.2rem; font-weight:bold; line-height: 1.6;">رقم التحويلة <span style="color:#ffeb3b; font-size:1.4rem;">${transferNo}</span><br>أقل من 6 أرقام!</p>
+                <p style="color: #ff8888; font-size: 0.9rem; margin-bottom: 25px;">يجب أن يتكون رقم التحويلة من 6 أرقام على الأقل لضمان الحماية.</p>
+                <button onclick="document.getElementById('critical-alert-modal').remove()" style="background: linear-gradient(45deg, #ff0000, #880000); color: white; border: 2px solid #ffaaaa; border-radius: 30px; padding: 12px 35px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 0 15px #ff0000; transition: all 0.3s; font-family: 'Tajawal', sans-serif;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 0 30px #ff0000';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 0 15px #ff0000';">فهمت ذلك</button>
+            </div>
+        </div>
+    `;
+    document.body.insertAdjacentHTML('beforeend', modalHTML);
+}
+
+function showDuplicateWarningModal(transferNo) {
+    const existing = document.getElementById('duplicate-alert-modal');
+    if (existing) existing.remove();
+
+    const style = document.createElement('style');
+    style.innerHTML = `
+        @keyframes glitchZoom {
+            0% { transform: scale(0.1) skewX(20deg); opacity: 0; filter: hue-rotate(90deg); }
+            20% { transform: scale(1.2) skewX(-15deg); opacity: 1; }
+            40% { transform: scale(0.9) skewX(10deg); filter: hue-rotate(-90deg); }
+            60% { transform: scale(1.05) skewX(-5deg); }
+            80% { transform: scale(0.98) skewX(2deg); filter: hue-rotate(0deg); }
+            100% { transform: scale(1) skewX(0deg); }
+        }
+        @keyframes neonFlicker {
+            0%, 19%, 21%, 23%, 25%, 54%, 56%, 100% { box-shadow: 0 0 10px #ff0044, 0 0 20px #ff0044, 0 0 40px #ff0044, inset 0 0 20px #ff0044; border-color: #ff0044; }
+            20%, 24%, 55% { box-shadow: none; border-color: #330000; }
+        }
+        @keyframes warningScan {
+            0% { top: -10%; opacity: 0; }
+            50% { opacity: 1; }
+            100% { top: 110%; opacity: 0; }
+        }
+    `;
+    document.head.appendChild(style);
+
+    const modalHTML = `
+        <div id="duplicate-alert-modal" style="position:fixed; top:0; left:0; width:100vw; height:100vh; background:radial-gradient(circle at center, rgba(30,0,0,0.9) 0%, rgba(0,0,0,1) 100%); z-index:99999; display:flex; justify-content:center; align-items:center;">
+            <div style="position:absolute; width:100%; height:15px; background:rgba(255,0,68,0.8); box-shadow:0 0 30px #ff0044; animation: warningScan 2s linear infinite; z-index:1;"></div>
+            <div style="position:relative; width:500px; background: rgba(10,0,0,0.9); animation: glitchZoom 0.6s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards, neonFlicker 3s infinite; transform-origin: center; display:flex; flex-direction:column; justify-content:center; align-items:center; border: 4px solid #ff0044; padding: 40px; text-align:center; z-index:2; clip-path: polygon(0 15px, 15px 0, 100% 0, 100% calc(100% - 15px), calc(100% - 15px) 100%, 0 100%);">
+                <div style="font-size: 6rem; line-height:1; color: #ff0044; text-shadow: 4px 4px 0px #00ffff, -4px -4px 0px #ffff00; font-family: monospace; font-weight:900;">ERROR!</div>
+                <h2 style="color: #fff; font-family: 'Tajawal', sans-serif; font-size: 2.2rem; margin: 20px 0 10px; letter-spacing:2px; text-transform:uppercase;">تحويلة مكررة</h2>
+                <div style="width:100%; height:2px; background:#ff0044; margin:10px 0;"></div>
+                <p style="color: #ddd; font-size: 1.3rem; line-height: 1.6;">تم اكتشاف تطابق خطير!</p>
+                <p style="color: #fff; font-size: 1.1rem; margin-bottom: 30px; line-height:1.8;">رقم التحويلة <strong style="background:#ff0044; color:#fff; padding:3px 8px; border-radius:4px; font-family:monospace; font-size:1.4rem;">${transferNo}</strong><br>تم تسجيله مسبقاً في النظام (آخر 6 أرقام متطابقة).</p>
+                <button onclick="document.getElementById('duplicate-alert-modal').remove()" style="background: transparent; color: #ff0044; border: 2px solid #ff0044; padding: 12px 40px; font-size: 1.2rem; font-weight: 900; cursor: pointer; text-transform:uppercase; letter-spacing:2px; transition: 0.2s; font-family: 'Tajawal', sans-serif;" onmouseover="this.style.background='#ff0044'; this.style.color='#000'; this.style.boxShadow='0 0 20px #ff0044';" onmouseout="this.style.background='transparent'; this.style.color='#ff0044'; this.style.boxShadow='none';">تجاهل وإغلاق</button>
             </div>
         </div>
     `;
@@ -927,13 +993,13 @@ function submitVoucherInner() {
                 return;
             }
             if (trNo.length < 6) {
-                showToast(`السطر ${idx + 1}: رقم التحويلة يجب أن يكون 6 أرقام على الأقل`, "error");
+                showLengthWarningModal(trNo);
                 row.querySelector('.transfer-no').focus();
                 hasInvalidTransfer = true;
                 return;
             }
             if (checkTransferDuplicate(trNo, document.getElementById('voucher-number').innerText)) {
-                showToast(`السطر ${idx + 1}: رقم التحويلة مكرر في النظام (نفس آخر 6 أرقام)`, "error");
+                showDuplicateWarningModal(trNo);
                 row.querySelector('.transfer-no').focus();
                 hasInvalidTransfer = true;
                 return;
@@ -1015,13 +1081,13 @@ function submitVoucherInner() {
                 return;
             }
             if (trNo.length < 6) {
-                showToast(`السطر ${idx + 1}: رقم التحويلة يجب أن يكون 6 أرقام على الأقل`, "error");
+                showLengthWarningModal(trNo);
                 row.querySelector('.transfer-no').focus();
                 hasInvalidTransfer = true;
                 return;
             }
             if (checkTransferDuplicate(trNo, document.getElementById('voucher-number').innerText)) {
-                showToast(`السطر ${idx + 1}: رقم التحويلة مكرر في النظام (نفس آخر 6 أرقام)`, "error");
+                showDuplicateWarningModal(trNo);
                 row.querySelector('.transfer-no').focus();
                 hasInvalidTransfer = true;
                 return;
