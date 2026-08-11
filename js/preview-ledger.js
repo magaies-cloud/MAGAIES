@@ -3371,30 +3371,34 @@ function collectAllTransactions() {
             };
 
             // Process cheques
-            if (!t.checkNo) {
+            if (!t.checkNo && !t.transferNo) {
                 if (source.cheques && source.cheques.length > 0) {
-                    let ch = source.cheques.find(c => matchAmt(c.amount)) || source.cheques[0];
+                    let ch = source.cheques.find(c => matchAmt(c.amount));
                     if (ch) t.checkNo = (ch.checkNo || ch.chequeNo || '') + (ch.checkBranch || ch.chequeBank ? ` (${ch.checkBranch || ch.chequeBank})` : '');
-                } else if (source.checkNo || source.checkNumber || source.chequeNo) {
-                    let cNo = source.checkNo || source.checkNumber || source.chequeNo;
-                    let cBank = source.checkBranch || source.chequeBank || '';
-                    t.checkNo = cBank ? `${cNo} (${cBank})` : cNo;
+                } else if (!source.bankTransfers || source.bankTransfers.length === 0) {
+                    if (source.checkNo || source.checkNumber || source.chequeNo) {
+                        let cNo = source.checkNo || source.checkNumber || source.chequeNo;
+                        let cBank = source.checkBranch || source.chequeBank || '';
+                        t.checkNo = cBank ? `${cNo} (${cBank})` : cNo;
+                    }
                 }
             }
 
             // Process bank transfers
-            if (!t.transferNo) {
+            if (!t.transferNo && !t.checkNo) {
                 if (source.bankTransfers && source.bankTransfers.length > 0) {
-                    let bt = source.bankTransfers.find(b => matchAmt(b.amount)) || source.bankTransfers[0];
+                    let bt = source.bankTransfers.find(b => matchAmt(b.amount));
                     if (bt) {
                         t.transferNo = (bt.transferNo || '');
                         t.bankName = (bt.bankName || bt.note || '');
                     }
-                } else if (source.transferNo || source.mobileTransferNo) {
-                    let tr = source.transferNo || source.mobileTransferNo;
-                    let note = source.mobileNote || source.bankName || source.note || '';
-                    t.transferNo = tr;
-                    t.bankName = note;
+                } else if (!source.cheques || source.cheques.length === 0) {
+                    if (source.transferNo || source.mobileTransferNo) {
+                        let tr = source.transferNo || source.mobileTransferNo;
+                        let note = source.mobileNote || source.bankName || source.note || '';
+                        t.transferNo = tr;
+                        t.bankName = note;
+                    }
                 }
             }
 
@@ -3403,22 +3407,30 @@ function collectAllTransactions() {
             if (source.items && source.items.length > 0) {
                 let item = source.items.find(it => it.account === t.account || it.account === t.counterAccount);
                 if (item) {
-                    if (item.cheques && item.cheques.length > 0) {
-                        let ch = item.cheques.find(c => matchAmt(c.amount)) || item.cheques[0];
-                        if (ch) t.checkNo = (ch.chequeNo || ch.checkNo || '') + (ch.chequeBank || ch.checkBranch ? ` (${ch.chequeBank || ch.checkBranch})` : '');
-                    } else if (item.checkNo || item.chequeNo) {
-                        t.checkNo = (item.checkNo || item.chequeNo) + (item.chequeBank || item.checkBranch ? ` (${item.chequeBank || item.checkBranch})` : '');
+                    if (!t.checkNo && !t.transferNo) {
+                        if (item.cheques && item.cheques.length > 0) {
+                            let ch = item.cheques.find(c => matchAmt(c.amount));
+                            if (ch) t.checkNo = (ch.chequeNo || ch.checkNo || '') + (ch.chequeBank || ch.checkBranch ? ` (${ch.chequeBank || ch.checkBranch})` : '');
+                        } else if (!item.bankTransfers || item.bankTransfers.length === 0) {
+                            if (item.checkNo || item.chequeNo) {
+                                t.checkNo = (item.checkNo || item.chequeNo) + (item.chequeBank || item.checkBranch ? ` (${item.chequeBank || item.checkBranch})` : '');
+                            }
+                        }
                     }
 
-                    if (item.bankTransfers && item.bankTransfers.length > 0) {
-                        let bt = item.bankTransfers.find(b => matchAmt(b.amount)) || item.bankTransfers[0];
-                        if (bt) {
-                            t.transferNo = (bt.transferNo || '');
-                            t.bankName = (bt.bankName || bt.note || '');
+                    if (!t.transferNo && !t.checkNo) {
+                        if (item.bankTransfers && item.bankTransfers.length > 0) {
+                            let bt = item.bankTransfers.find(b => matchAmt(b.amount));
+                            if (bt) {
+                                t.transferNo = (bt.transferNo || '');
+                                t.bankName = (bt.bankName || bt.note || '');
+                            }
+                        } else if (!item.cheques || item.cheques.length === 0) {
+                            if (item.transferNo) {
+                                t.transferNo = item.transferNo;
+                                t.bankName = item.bankName || item.note || '';
+                            }
                         }
-                    } else if (item.transferNo) {
-                        t.transferNo = item.transferNo;
-                        t.bankName = item.bankName || item.note || '';
                     }
                 }
             }
