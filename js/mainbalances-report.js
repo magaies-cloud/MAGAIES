@@ -1417,10 +1417,15 @@ function loadData() {
             if (!t.transferNo) {
                 if (source.bankTransfers && source.bankTransfers.length > 0) {
                     let bt = source.bankTransfers.find(b => matchAmt(b.amount)) || source.bankTransfers[0];
-                    if (bt) t.transferNo = (bt.transferNo || bt.transfer_no || bt.referenceNo || '');
+                    if (bt) {
+                        t.transferNo = (bt.transferNo || bt.transfer_no || bt.referenceNo || '');
+                        t.bankName = (bt.bankName || bt.note || '');
+                    }
                 } else if (source.transferNo || source.transfer_no || source.transferNumber || source.mobileTransferNo) {
                     let tr = source.transferNo || source.transfer_no || source.transferNumber || source.mobileTransferNo;
+                    let note = source.mobileNote || source.bankName || source.note || '';
                     t.transferNo = tr;
+                    t.bankName = note;
                 }
             }
 
@@ -1440,9 +1445,13 @@ function loadData() {
                     if (!t.transferNo) {
                         if (item.bankTransfers && item.bankTransfers.length > 0) {
                             let bt = item.bankTransfers.find(b => matchAmt(b.amount)) || item.bankTransfers[0];
-                            if (bt) t.transferNo = (bt.transferNo || bt.transfer_no || '');
+                            if (bt) {
+                                t.transferNo = (bt.transferNo || bt.transfer_no || '');
+                                t.bankName = (bt.bankName || bt.note || '');
+                            }
                         } else if (item.transferNo || item.transfer_no) {
                             t.transferNo = (item.transferNo || item.transfer_no);
+                            t.bankName = item.bankName || item.note || '';
                         }
                     }
                 }

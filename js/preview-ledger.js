@@ -23,6 +23,7 @@ const baseColumns = [
     { idx: 3, defaultLabel: "الحساب المقابل", field: "counterAccount", isNum: false },
     { idx: 4, defaultLabel: "نوع الحركة", field: "typeLabel", isNum: false },
     { idx: 13, defaultLabel: "رقم التحويلة", field: "transferNo", isNum: false },
+    { idx: 15, defaultLabel: "اسم البنك", field: "bankName", isNum: false },
     { idx: 14, defaultLabel: "رقم الشيك", field: "checkNo", isNum: false },
     { idx: 5, defaultLabel: "مدين (محلي)", field: "debit", isNum: true },
     { idx: 6, defaultLabel: "دائن (محلي)", field: "credit", isNum: true },
@@ -47,6 +48,7 @@ function getRawFieldValue(row, field) {
     if (field === 'counterAccount') return row.counterAccount || row.accountName || row.account || '-';
     if (field === 'typeLabel') return row.typeLabel || row.type || '-';
     if (field === 'transferNo') return row.transferNo || row.transfer_no || row.transferNumber || row.transfer_number || row.mobileTransferNo || '-';
+    if (field === 'bankName') return row.bankName || row.bank_name || '-';
     if (field === 'checkNo') return row.checkNo || row.check_no || row.checkNumber || row.check_number || row.chequeNo || '-';
     
     let debLoc = parseFloat(row.debit || row.dr || 0);
@@ -3301,10 +3303,15 @@ function collectAllTransactions() {
             // Process bank transfers
             if (source.bankTransfers && source.bankTransfers.length > 0) {
                 let bt = source.bankTransfers.find(b => matchAmt(b.amount)) || source.bankTransfers[0];
-                if (bt) t.transferNo = (bt.transferNo || '');
+                if (bt) {
+                    t.transferNo = (bt.transferNo || '');
+                    t.bankName = (bt.bankName || bt.note || '');
+                }
             } else if (source.transferNo || source.mobileTransferNo) {
                 let tr = source.transferNo || source.mobileTransferNo;
+                let note = source.mobileNote || source.bankName || source.note || '';
                 t.transferNo = tr;
+                t.bankName = note;
             }
 
             // Process multi-items
@@ -3320,9 +3327,13 @@ function collectAllTransactions() {
 
                     if (item.bankTransfers && item.bankTransfers.length > 0) {
                         let bt = item.bankTransfers.find(b => matchAmt(b.amount)) || item.bankTransfers[0];
-                        if (bt) t.transferNo = (bt.transferNo || '');
+                        if (bt) {
+                            t.transferNo = (bt.transferNo || '');
+                            t.bankName = (bt.bankName || bt.note || '');
+                        }
                     } else if (item.transferNo) {
                         t.transferNo = item.transferNo;
+                        t.bankName = item.bankName || item.note || '';
                     }
                 }
             }

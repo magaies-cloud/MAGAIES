@@ -1159,6 +1159,8 @@ const DEFAULT_GL_COLUMNS_CONFIG = [
     { id: 'account', label: 'الحساب', isNum: false, align: 'right', width: '140px' },
     { id: 'typeLabel', label: 'نوع الحركة', isNum: false, align: 'center', width: '90px' },
     { id: 'statement', label: 'البيان', isNum: false, align: 'right', width: 'auto' },
+    { id: 'transferNo', label: 'رقم التحويلة', isNum: false, align: 'center', width: '100px' },
+    { id: 'bankName', label: 'اسم البنك', isNum: false, align: 'center', width: '120px' },
     { id: 'counterAccount', label: 'الحساب المقابل', isNum: false, align: 'right', width: '140px' },
     { id: 'debit', label: 'مدين (عليه)', isNum: true, align: 'right', width: '90px', numColor: '#34d399' },
     { id: 'credit', label: 'دائن (له)', isNum: true, align: 'right', width: '90px', numColor: '#f87171' },
@@ -1173,7 +1175,7 @@ let activeGLColumnSettings = loadGLColumnSettings();
 
 function loadGLColumnSettings() {
     try {
-        const stored = localStorage.getItem('gl_column_settings_v4');
+        const stored = localStorage.getItem('gl_column_settings_v5');
         if (stored) {
             const parsed = JSON.parse(stored);
             if (Array.isArray(parsed) && parsed.length > 0) {
@@ -1193,7 +1195,7 @@ function loadGLColumnSettings() {
 
 function saveGLColumnSettings() {
     try {
-        localStorage.setItem('gl_column_settings_v4', JSON.stringify(activeGLColumnSettings));
+        localStorage.setItem('gl_column_settings_v5', JSON.stringify(activeGLColumnSettings));
     } catch(e){}
 }
 
@@ -1310,6 +1312,10 @@ function renderRecentTable(txns, startIndex = 0) {
                     ${(t.statement === 'undefined' ? '-' : t.statement) || '-'}
                     ${!t.isOpening && t.additionalNote && t.additionalNote !== t.statement && t.additionalNote !== 'undefined' ? '<br><small style="color:#94a3b8;">' + t.additionalNote + '</small>' : ''}
                 </td>`;
+            } else if (col.id === 'transferNo') {
+                html += `<td data-col-id="transferNo" data-is-num="false" style="${cStyle}">${t.transferNo || '-'}</td>`;
+            } else if (col.id === 'bankName') {
+                html += `<td data-col-id="bankName" data-is-num="false" style="${cStyle} color:#e879f9; font-weight:bold;">${t.bankName || '-'}</td>`;
             } else if (col.id === 'counterAccount') {
                 html += `<td data-col-id="counterAccount" data-is-num="false" style="${cStyle}">${t.isOpening ? '-' : counterAccName}</td>`;
             } else if (col.id === 'debit') {
