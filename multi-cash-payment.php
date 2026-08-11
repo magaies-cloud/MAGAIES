@@ -433,54 +433,55 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         /* ═══ Ultra-Premium Neo Toggle Chips (تحويل / شيك) ═══ */
         .neo-toggle-btn {
             height: 100% !important;
-            min-height: 46px !important;
             padding: 0 20px !important;
             border-radius: 10px !important;
-            font-size: 1rem !important;
+            font-size: 1.05rem !important;
             font-weight: 800 !important;
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
             gap: 8px !important;
-            background: rgba(15,23,42,0.6) !important;
-            border: 1px solid rgba(255,255,255,0.1) !important;
-            color: #94a3b8 !important;
+            background: rgba(255, 255, 255, 0.05) !important;
+            border: 1px solid rgba(255, 255, 255, 0.15) !important;
+            border-bottom: 3px solid rgba(255, 255, 255, 0.2) !important;
+            color: #e2e8f0 !important;
             transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1) !important;
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.5) !important;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2) !important;
             cursor: pointer;
             text-align: center !important;
         }
         .neo-toggle-btn:hover {
-            background: rgba(30,41,59,0.9) !important;
+            background: rgba(255, 255, 255, 0.1) !important;
             color: #ffffff !important;
-            border-color: rgba(255,255,255,0.2) !important;
+            border-color: rgba(255,255,255,0.3) !important;
+            transform: translateY(-2px);
         }
         .neo-toggle-btn.active {
             background: var(--tab-active-bg, linear-gradient(135deg, #0284c7, #38bdf8)) !important;
             color: #ffffff !important;
             border-color: var(--tab-border-color, #38bdf8) !important;
+            border-bottom: 3px solid rgba(255,255,255,0.6) !important;
             box-shadow: 0 4px 15px var(--tab-glow-color, rgba(56,189,248,0.4)), inset 0 1px 2px rgba(255,255,255,0.4) !important;
-            transform: translateY(0);
+            transform: translateY(-1px);
         }
-        .neo-toggle-btn .btn-icon { font-size: 1.2rem; transition: transform 0.3s; margin: 0; padding: 0; }
-        .neo-toggle-btn .btn-text { margin: 0; padding: 0; line-height: 1; }
+        .neo-toggle-btn .btn-icon { font-size: 1.25rem; transition: transform 0.3s; margin: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+        .neo-toggle-btn .btn-text { margin: 0; padding: 0; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
         .neo-toggle-btn.active .btn-icon { transform: scale(1.1); }
 
         /* ═══ Unified Elegant Mini Ledger Button (كشف حساب) ═══ */
         .mini-ledger-btn {
             height: 100% !important;
-            min-height: 46px !important;
             padding: 0 15px !important;
             border-radius: 10px !important;
-            font-size: 0.85rem !important;
+            font-size: 0.9rem !important;
             gap: 6px !important;
             min-width: max-content !important;
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
         }
-        .mini-ledger-btn .btn-icon { font-size: 1rem !important; margin: 0; padding: 0; }
-        .mini-ledger-btn .btn-text { margin: 0; padding: 0; line-height: 1; }
+        .mini-ledger-btn .btn-icon { font-size: 1.05rem !important; margin: 0; padding: 0; display: inline-flex; align-items: center; justify-content: center; }
+        .mini-ledger-btn .btn-text { margin: 0; padding: 0; line-height: 1; display: inline-flex; align-items: center; justify-content: center; }
 
         /* ═══ Voucher Type Buttons (صرف مجمع 📤 vs استلام مجمع 📥) ═══ */
         .voucher-type-btn.active-payment, #btn-payment.active-payment {
