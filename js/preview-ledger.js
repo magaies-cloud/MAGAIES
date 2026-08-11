@@ -47,7 +47,13 @@ function getRawFieldValue(row, field) {
     if (field === 'statement') return row.statement || row.description || row.desc || row.notes || '';
     if (field === 'counterAccount') return row.counterAccount || row.accountName || row.account || '-';
     if (field === 'typeLabel') return row.typeLabel || row.type || '-';
-    if (field === 'transferNo') return row.transferNo || row.transfer_no || row.transferNumber || row.transfer_number || row.mobileTransferNo || '-';
+    if (field === 'transferNo') {
+        let tr = row.transferNo || row.transfer_no || row.transferNumber || row.transfer_number || row.mobileTransferNo;
+        if (!tr && (row.checkNo || row.check_no || row.chequeNo)) {
+            return 'شيك ' + (row.checkNo || row.check_no || row.chequeNo);
+        }
+        return tr || '-';
+    }
     if (field === 'bankName') return row.bankName || row.bank_name || '-';
     if (field === 'checkNo') return row.checkNo || row.check_no || row.checkNumber || row.check_number || row.chequeNo || '-';
     
