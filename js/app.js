@@ -5217,15 +5217,26 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
 
         if (v.items && v.items.length > 0) {
             v.items.forEach(item => {
-                const pms = item.paymentMethods || [item.paymentMethod || 'cash'];
+                if (!item) return;
+                const pms = (item.paymentMethods && item.paymentMethods.length > 0) ? item.paymentMethods : [item.paymentMethod || 'cash'];
                 const itemAcct = resolveAccount(item.accountId || item.account || item.accountName, 'unknown');
-                
+                const itemTotal = parseNum(item.amount);
+
+                let cashAmt = parseNum(item.cashAmount);
+                let bankAmt = parseNum(item.bankAmount);
+                let chequeAmt = parseNum(item.chequeAmount);
+
+                if (itemTotal > 0 && cashAmt <= 0 && bankAmt <= 0 && chequeAmt <= 0) {
+                    if (pms.includes('bank')) bankAmt = itemTotal;
+                    else if (pms.includes('cheque')) chequeAmt = itemTotal;
+                    else cashAmt = itemTotal;
+                }
+
                 // Cash Portion
-                if (pms.includes('cash') && parseNum(item.cashAmount) > 0) {
-                    const amt = parseNum(item.cashAmount);
-                    const amtLoc = isBaseSDG ? amt : amt * effRate;
-                    const amtFc = isBaseSDG ? (amt / effRate) : amt;
-                    const safeAcct = resolveAccount(item.cashSafe, mainAcc);
+                if ((pms.includes('cash') || cashAmt > 0) && cashAmt > 0) {
+                    const amtLoc = isBaseSDG ? cashAmt : cashAmt * effRate;
+                    const amtFc = isBaseSDG ? (cashAmt / effRate) : cashAmt;
+                    const safeAcct = resolveAccount(item.cashSafe || mainAcc, 'safe-001');
                     const stmt = item.cashStatement || item.statement || v.description || 'قبض نقدية';
 
                     // Safe Account (Debit)
@@ -5252,14 +5263,14 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                 }
 
                 // Bank Transfer Portion
-                if (pms.includes('bank') && parseNum(item.bankAmount) > 0) {
-                    const transfers = (item.bankTransfers && item.bankTransfers.length > 0) ? item.bankTransfers : [{ amount: item.bankAmount, bankName: item.bankName, transferNo: item.transferNo, statement: item.bankStatement || '' }];
+                if ((pms.includes('bank') || bankAmt > 0) && bankAmt > 0) {
+                    const transfers = (item.bankTransfers && item.bankTransfers.length > 0) ? item.bankTransfers : [{ amount: bankAmt, bankName: item.bankName, transferNo: item.transferNo, statement: item.bankStatement || '' }];
                     transfers.forEach(bt => {
-                        const amt = parseNum(bt.amount);
+                        const amt = parseNum(bt.amount || bankAmt);
                         if (amt <= 0) return;
                         const amtLoc = isBaseSDG ? amt : amt * effRate;
                         const amtFc = isBaseSDG ? (amt / effRate) : amt;
-                        const bankAcct = resolveAccount(bt.bankName, mainAcc);
+                        const bankAcct = resolveAccount(bt.bankName || mainAcc, 'bank-001');
                         const stmt = bt.statement || item.statement || v.description || 'قبض تحويل بنكي';
 
                         // Bank Account (Debit)
@@ -5287,10 +5298,10 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                 }
 
                 // Cheque Portion
-                if (pms.includes('cheque') && parseNum(item.chequeAmount) > 0) {
-                    const cheques = (item.cheques && item.cheques.length > 0) ? item.cheques : [{ amount: item.chequeAmount, chequeBank: item.chequeBank, chequeNo: item.chequeNo || item.checkNo, chequeDate: item.chequeDate || item.checkDate, statement: item.chequeStatement || '' }];
+                if ((pms.includes('cheque') || chequeAmt > 0) && chequeAmt > 0) {
+                    const cheques = (item.cheques && item.cheques.length > 0) ? item.cheques : [{ amount: chequeAmt, chequeBank: item.chequeBank, chequeNo: item.chequeNo || item.checkNo, chequeDate: item.chequeDate || item.checkDate, statement: item.chequeStatement || '' }];
                     cheques.forEach(ch => {
-                        const amt = parseNum(ch.amount);
+                        const amt = parseNum(ch.amount || chequeAmt);
                         if (amt <= 0) return;
                         const amtLoc = isBaseSDG ? amt : amt * effRate;
                         const amtFc = isBaseSDG ? (amt / effRate) : amt;
@@ -5414,15 +5425,26 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
 
         if (v.items && v.items.length > 0) {
             v.items.forEach(item => {
-                const pms = item.paymentMethods || [item.paymentMethod || 'cash'];
+                if (!item) return;
+                const pms = (item.paymentMethods && item.paymentMethods.length > 0) ? item.paymentMethods : [item.paymentMethod || 'cash'];
                 const itemAcct = resolveAccount(item.accountId || item.account || item.accountName, 'unknown');
+                const itemTotal = parseNum(item.amount);
+
+                let cashAmt = parseNum(item.cashAmount);
+                let bankAmt = parseNum(item.bankAmount);
+                let chequeAmt = parseNum(item.chequeAmount);
+
+                if (itemTotal > 0 && cashAmt <= 0 && bankAmt <= 0 && chequeAmt <= 0) {
+                    if (pms.includes('bank')) bankAmt = itemTotal;
+                    else if (pms.includes('cheque')) chequeAmt = itemTotal;
+                    else cashAmt = itemTotal;
+                }
                 
                 // Cash Portion
-                if (pms.includes('cash') && parseNum(item.cashAmount) > 0) {
-                    const amt = parseNum(item.cashAmount);
-                    const amtLoc = isBaseSDG ? amt : amt * effRate;
-                    const amtFc = isBaseSDG ? (amt / effRate) : amt;
-                    const safeAcct = resolveAccount(item.cashSafe, mainAcc);
+                if ((pms.includes('cash') || cashAmt > 0) && cashAmt > 0) {
+                    const amtLoc = isBaseSDG ? cashAmt : cashAmt * effRate;
+                    const amtFc = isBaseSDG ? (cashAmt / effRate) : cashAmt;
+                    const safeAcct = resolveAccount(item.cashSafe || mainAcc, 'safe-001');
                     const stmt = item.cashStatement || item.statement || v.description || 'صرف نقدية';
 
                     // Recipient Account (Debit)
@@ -5449,14 +5471,14 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                 }
 
                 // Bank Transfer Portion
-                if (pms.includes('bank') && parseNum(item.bankAmount) > 0) {
-                    const transfers = (item.bankTransfers && item.bankTransfers.length > 0) ? item.bankTransfers : [{ amount: item.bankAmount, bankName: item.bankName, transferNo: item.transferNo, statement: item.bankStatement || '' }];
+                if ((pms.includes('bank') || bankAmt > 0) && bankAmt > 0) {
+                    const transfers = (item.bankTransfers && item.bankTransfers.length > 0) ? item.bankTransfers : [{ amount: bankAmt, bankName: item.bankName, transferNo: item.transferNo, statement: item.bankStatement || '' }];
                     transfers.forEach(bt => {
-                        const amt = parseNum(bt.amount);
+                        const amt = parseNum(bt.amount || bankAmt);
                         if (amt <= 0) return;
                         const amtLoc = isBaseSDG ? amt : amt * effRate;
                         const amtFc = isBaseSDG ? (amt / effRate) : amt;
-                        const bankAcct = resolveAccount(bt.bankName, mainAcc);
+                        const bankAcct = resolveAccount(bt.bankName || mainAcc, 'bank-001');
                         const stmt = bt.statement || item.statement || v.description || 'صرف تحويل بنكي';
 
                         // Recipient Account (Debit)
@@ -5484,10 +5506,10 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                 }
 
                 // Cheque Portion
-                if (pms.includes('cheque') && parseNum(item.chequeAmount) > 0) {
-                    const cheques = (item.cheques && item.cheques.length > 0) ? item.cheques : [{ amount: item.chequeAmount, chequeBank: item.chequeBank, chequeNo: item.chequeNo || item.checkNo, chequeDate: item.chequeDate || item.checkDate, statement: item.chequeStatement || '' }];
+                if ((pms.includes('cheque') || chequeAmt > 0) && chequeAmt > 0) {
+                    const cheques = (item.cheques && item.cheques.length > 0) ? item.cheques : [{ amount: chequeAmt, chequeBank: item.chequeBank, chequeNo: item.chequeNo || item.checkNo, chequeDate: item.chequeDate || item.checkDate, statement: item.chequeStatement || '' }];
                     cheques.forEach(ch => {
-                        const amt = parseNum(ch.amount);
+                        const amt = parseNum(ch.amount || chequeAmt);
                         if (amt <= 0) return;
                         const amtLoc = isBaseSDG ? amt : amt * effRate;
                         const amtFc = isBaseSDG ? (amt / effRate) : amt;
