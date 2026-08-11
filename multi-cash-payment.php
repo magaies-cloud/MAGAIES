@@ -110,7 +110,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25);
             background: linear-gradient(135deg, rgba(30, 41, 59, 0.65), rgba(15, 23, 42, 0.85));
             position: relative;
-            overflow: hidden;
+            overflow: visible;
         }
 
         .glass-container::before {
@@ -985,7 +985,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative; display: flex;">
                                 <input type="hidden" id="main-account">
                                 <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onclick="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color); flex: 1; border-top-left-radius: 0; border-bottom-left-radius: 0;">
-                                <button type="button" onclick="openLedgerForMainAccount()" title="دفتر الأستاذ العام" style="background: rgba(52,211,153,0.2); border: 1px solid #34d399; border-right: none; color: #34d399; padding: 0 15px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; height: auto; font-weight: bold; font-size: 0.95rem; box-shadow: 0 0 10px rgba(52,211,153,0.5); text-shadow: 0 0 5px rgba(52,211,153,0.5);" onmouseover="this.style.background='rgba(52,211,153,0.5)'; this.style.color='#fff'; this.style.boxShadow='0 0 20px rgba(52,211,153,0.9)';" onmouseout="this.style.background='rgba(52,211,153,0.2)'; this.style.color='#34d399'; this.style.boxShadow='0 0 10px rgba(52,211,153,0.5)';">كشف حساب (من) <i class="fa fa-file-invoice-dollar" style="margin-right: 6px;"></i></button>
+                                <button type="button" onclick="openLedgerForMainAccount()" title="دفتر الأستاذ العام" style="background: rgba(52,211,153,0.2); border: 1px solid #34d399; border-right: none; color: #34d399; padding: 0 8px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; height: auto; font-weight: bold; font-size: 0.85rem; box-shadow: 0 0 10px rgba(52,211,153,0.5); text-shadow: 0 0 5px rgba(52,211,153,0.5);" onmouseover="this.style.background='rgba(52,211,153,0.5)'; this.style.color='#fff'; this.style.boxShadow='0 0 20px rgba(52,211,153,0.9)';" onmouseout="this.style.background='rgba(52,211,153,0.2)'; this.style.color='#34d399'; this.style.boxShadow='0 0 10px rgba(52,211,153,0.5)';">كشف حساب</button>
                                 <div class="custom-dropdown-list" id="main-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                             </div>
                         </div>
@@ -1047,24 +1047,24 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         <!-- Row 1: Account, Amount, and Method Toggles -->
                         <div style="display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; margin-bottom: 12px;">
                             <!-- Account -->
-                            <div style="flex: 2; min-width: 250px; position: relative; display: flex; flex-direction: column;">
+                            <div style="flex: 1.5; min-width: 200px; position: relative; display: flex; flex-direction: column;">
                                 <div class="custom-dropdown-input-wrap" style="position: relative; flex: 1; display: flex;">
                                     <input type="hidden" id="account-{ID}-id" class="block-account-id">
                                     <input type="hidden" id="account-{ID}" class="block-account-name">
                                     <input type="text" autocomplete="off" class="form-input block-account-search" id="account-{ID}-search" placeholder="الحساب / الجهة المستفيدة..." onfocus="showAccountDropdown('account-{ID}')" onclick="showAccountDropdown('account-{ID}')" onblur="hideAccountDropdownDelayed('account-{ID}')" oninput="filterAccountDropdown('account-{ID}')" style="font-size: 1rem; flex: 1; margin-bottom: 0; border-top-left-radius: 0; border-bottom-left-radius: 0;">
-                                    <button type="button" onclick="openLedgerForBlockAccount('{ID}')" title="دفتر الأستاذ العام" style="background: rgba(52,211,153,0.2); border: 1px solid #34d399; border-right: none; color: #34d399; padding: 0 15px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; height: auto; font-weight: bold; font-size: 0.95rem; box-shadow: 0 0 10px rgba(52,211,153,0.5); text-shadow: 0 0 5px rgba(52,211,153,0.5);" onmouseover="this.style.background='rgba(52,211,153,0.5)'; this.style.color='#fff'; this.style.boxShadow='0 0 20px rgba(52,211,153,0.9)';" onmouseout="this.style.background='rgba(52,211,153,0.2)'; this.style.color='#34d399'; this.style.boxShadow='0 0 10px rgba(52,211,153,0.5)';">كشف حساب (إلى) <i class="fa fa-file-invoice-dollar" style="margin-right: 6px;"></i></button>
+                                    <button type="button" onclick="openLedgerForBlockAccount('{ID}')" title="دفتر الأستاذ العام" style="background: rgba(52,211,153,0.2); border: 1px solid #34d399; border-right: none; color: #34d399; padding: 0 8px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.3s; display: flex; align-items: center; justify-content: center; height: auto; font-weight: bold; font-size: 0.85rem; box-shadow: 0 0 10px rgba(52,211,153,0.5); text-shadow: 0 0 5px rgba(52,211,153,0.5);" onmouseover="this.style.background='rgba(52,211,153,0.5)'; this.style.color='#fff'; this.style.boxShadow='0 0 20px rgba(52,211,153,0.9)';" onmouseout="this.style.background='rgba(52,211,153,0.2)'; this.style.color='#34d399'; this.style.boxShadow='0 0 10px rgba(52,211,153,0.5)';">كشف حساب</button>
                                     <div class="custom-dropdown-list" id="account-{ID}-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                                 </div>
                             </div>
                             
                             <!-- Total Amount (auto-calculated or direct) -->
-                            <div style="flex: 1; min-width: 150px; display: flex; flex-direction: column; position: relative;">
+                            <div style="flex: 0.8; min-width: 120px; max-width: 140px; display: flex; flex-direction: column; position: relative;">
                                 <input type="text" id="amount-{ID}" oninput="formatInput(this)" class="form-input block-total-amount" placeholder="المبلغ" style="font-weight: 900; font-family: monospace; font-size: 1.15rem; text-align: center; flex: 1; margin-bottom: 0; border-color: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); transition: all 0.4s ease;">
                             </div>
                             
                             <!-- Statement (بيان التحويل) -->
-                            <div style="flex: 2; min-width: 200px; display: flex; flex-direction: column; position: relative;">
-                                <input type="text" autocomplete="off" id="statement-{ID}" class="form-input" placeholder="بيان التحويل (اختياري)" style="font-size: 1rem; flex: 1; margin-bottom: 0; background: rgba(255,255,255,0.05); color: #fff;">
+                            <div style="flex: 1.2; min-width: 150px; display: flex; flex-direction: column; position: relative;">
+                                <input type="text" autocomplete="off" id="statement-{ID}" class="form-input" placeholder="البيان" style="font-size: 1rem; flex: 1; margin-bottom: 0; background: rgba(255,255,255,0.05); color: #fff;">
                             </div>
                             
                             <!-- Payment Toggles (No Cash) -->
