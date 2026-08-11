@@ -5079,6 +5079,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                     date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند قبض',
                     account: toAcct, counterAccount: fromAcct,
                     statement: stmt, additionalNote: stmt,
+                    transferNo: bt.transferNo, bankName: bt.note,
                     debit: amtLoc, credit: 0, debitForeign: amtFc, creditForeign: 0,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
@@ -5086,6 +5087,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                     date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند صرف',
                     account: fromAcct, counterAccount: toAcct,
                     statement: stmt, additionalNote: stmt,
+                    transferNo: bt.transferNo, bankName: bt.note,
                     debit: 0, credit: amtLoc, debitForeign: 0, creditForeign: amtFc,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
@@ -5100,12 +5102,13 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                 const amt = parseNum(ch.amount);
                 const amtLoc = isBaseSDG ? amt : amt * effRate;
                 const amtFc = isBaseSDG ? (amt / effRate) : amt;
-                const stmt = ch.statement || v.statement || v.fromStatement || ('شيك - سند قبض #' + (v.voucherNo || v.id || 'بدون_رقم'));
+                const stmt = ch.statement || ('شيك / ' + (ch.checkNo || '') + ' / قبض نقدية');
 
                 txns.push({
                     date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند قبض',
                     account: toAcct, counterAccount: fromAcct,
                     statement: stmt, additionalNote: stmt,
+                    checkNo: ch.checkNo, bankName: ch.checkBranch,
                     debit: amtLoc, credit: 0, debitForeign: amtFc, creditForeign: 0,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
@@ -5113,6 +5116,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                     date: v.date, time: time, ref: v.id, type: 'receipt', typeLabel: 'سند صرف',
                     account: fromAcct, counterAccount: toAcct,
                     statement: stmt, additionalNote: stmt,
+                    checkNo: ch.checkNo, bankName: ch.checkBranch,
                     debit: 0, credit: amtLoc, debitForeign: 0, creditForeign: amtFc,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
@@ -5178,6 +5182,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                     date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند صرف',
                     account: fromAcct, counterAccount: toAcct,
                     statement: stmt, additionalNote: stmt,
+                    transferNo: bt.transferNo, bankName: bt.note,
                     debit: 0, credit: amtLoc, debitForeign: 0, creditForeign: amtFc,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
@@ -5186,6 +5191,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                     date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند استلام',
                     account: toAcct, counterAccount: fromAcct,
                     statement: stmt, additionalNote: stmt,
+                    transferNo: bt.transferNo, bankName: bt.note,
                     debit: amtLoc, credit: 0, debitForeign: amtFc, creditForeign: 0,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
@@ -5200,13 +5206,14 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                 const amt = parseNum(ch.amount);
                 const amtLoc = isBaseSDG ? amt : amt * effRate;
                 const amtFc = isBaseSDG ? (amt / effRate) : amt;
-                const stmt = ch.statement || v.statement || v.toStatement || ('شيك - سند صرف #' + (v.voucherNo || v.id || 'بدون_رقم'));
+                const stmt = ch.statement || ('شيك / ' + (ch.checkNo || '') + ' / صرف نقدية');
 
                 // Disbursing side (Safe/Bank)
                 txns.push({
                     date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند صرف',
                     account: fromAcct, counterAccount: toAcct,
                     statement: stmt, additionalNote: stmt,
+                    checkNo: ch.checkNo, bankName: ch.checkBranch,
                     debit: 0, credit: amtLoc, debitForeign: 0, creditForeign: amtFc,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
@@ -5215,6 +5222,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                     date: v.date, time: time, ref: v.id, type: 'payment', typeLabel: 'سند استلام',
                     account: toAcct, counterAccount: fromAcct,
                     statement: stmt, additionalNote: stmt,
+                    checkNo: ch.checkNo, bankName: ch.checkBranch,
                     debit: amtLoc, credit: 0, debitForeign: amtFc, creditForeign: 0,
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });

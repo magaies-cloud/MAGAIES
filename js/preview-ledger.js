@@ -3371,28 +3371,33 @@ function collectAllTransactions() {
             };
 
             // Process cheques
-            if (source.cheques && source.cheques.length > 0) {
-                let ch = source.cheques.find(c => matchAmt(c.amount)) || source.cheques[0];
-                if (ch) t.checkNo = (ch.checkNo || ch.chequeNo || '') + (ch.checkBranch || ch.chequeBank ? ` (${ch.checkBranch || ch.chequeBank})` : '');
-            } else if (source.checkNo || source.checkNumber || source.chequeNo) {
-                let cNo = source.checkNo || source.checkNumber || source.chequeNo;
-                let cBank = source.checkBranch || source.chequeBank || '';
-                t.checkNo = cBank ? `${cNo} (${cBank})` : cNo;
+            if (!t.checkNo) {
+                if (source.cheques && source.cheques.length > 0) {
+                    let ch = source.cheques.find(c => matchAmt(c.amount)) || source.cheques[0];
+                    if (ch) t.checkNo = (ch.checkNo || ch.chequeNo || '') + (ch.checkBranch || ch.chequeBank ? ` (${ch.checkBranch || ch.chequeBank})` : '');
+                } else if (source.checkNo || source.checkNumber || source.chequeNo) {
+                    let cNo = source.checkNo || source.checkNumber || source.chequeNo;
+                    let cBank = source.checkBranch || source.chequeBank || '';
+                    t.checkNo = cBank ? `${cNo} (${cBank})` : cNo;
+                }
             }
 
             // Process bank transfers
-            if (source.bankTransfers && source.bankTransfers.length > 0) {
-                let bt = source.bankTransfers.find(b => matchAmt(b.amount)) || source.bankTransfers[0];
-                if (bt) {
-                    t.transferNo = (bt.transferNo || '');
-                    t.bankName = (bt.bankName || bt.note || '');
+            if (!t.transferNo) {
+                if (source.bankTransfers && source.bankTransfers.length > 0) {
+                    let bt = source.bankTransfers.find(b => matchAmt(b.amount)) || source.bankTransfers[0];
+                    if (bt) {
+                        t.transferNo = (bt.transferNo || '');
+                        t.bankName = (bt.bankName || bt.note || '');
+                    }
+                } else if (source.transferNo || source.mobileTransferNo) {
+                    let tr = source.transferNo || source.mobileTransferNo;
+                    let note = source.mobileNote || source.bankName || source.note || '';
+                    t.transferNo = tr;
+                    t.bankName = note;
                 }
-            } else if (source.transferNo || source.mobileTransferNo) {
-                let tr = source.transferNo || source.mobileTransferNo;
-                let note = source.mobileNote || source.bankName || source.note || '';
-                t.transferNo = tr;
-                t.bankName = note;
             }
+
 
             // Process multi-items
             if (source.items && source.items.length > 0) {
