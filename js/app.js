@@ -5135,40 +5135,41 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         }
     });
 
-    // Comprehensive helper to resolve any safe/bank/customer/supplier account (Name or ID) to canonical ID
+    // Pre-build O(1) Master Data Lookup Maps for maximum performance
+    const custs = []; try { custs.push(...(JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => x && !x.deleted)); } catch(e){}
+    const sups = []; try { sups.push(...(JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => x && !x.deleted)); } catch(e){}
+    const banks = []; try { banks.push(...(JSON.parse(localStorage.getItem('erp_banks_v1')) || []).filter(x => x && !x.deleted)); } catch(e){}
+    const safes = []; try { safes.push(...(JSON.parse(localStorage.getItem('erp_safes_v1')) || []).filter(x => x && !x.deleted)); } catch(e){}
+    const accounts = []; try { accounts.push(...(JSON.parse(localStorage.getItem('erp_accounts_v1')) || []).filter(x => x && !x.deleted)); } catch(e){}
+
+    const accountMap = new Map();
+    const registerAcc = (item, prefix) => {
+        if (!item) return;
+        const id = String(item.id || '').trim();
+        const name = String(item.name || item.bankName || item.safeName || item.accountName || '').trim();
+        const code = String(item.code || '').trim();
+        let canonicalId = id;
+        if (prefix && !id.startsWith(prefix)) canonicalId = prefix + id;
+        if (id) {
+            accountMap.set(id.toLowerCase(), canonicalId);
+            accountMap.set(id.replace(/^(cust|supp|bank|safe|exp)-/, '').toLowerCase(), canonicalId);
+        }
+        if (name) accountMap.set(name.toLowerCase(), canonicalId);
+        if (code) accountMap.set(code.toLowerCase(), canonicalId);
+    };
+
+    custs.forEach(c => registerAcc(c, 'cust-'));
+    sups.forEach(s => registerAcc(s, 'supp-'));
+    banks.forEach(b => registerAcc(b, 'bank-'));
+    safes.forEach(sf => registerAcc(sf, 'safe-'));
+    accounts.forEach(a => registerAcc(a, 'exp-'));
+
     const resolveAccount = (accVal, fallback = '') => {
         if (!accVal) return fallback;
-        accVal = String(accVal).trim();
-        if (!accVal) return fallback;
-        if (/^(safe|bank|cust|supp|gl|exp|act|rev)-/.test(accVal)) return accVal;
-        
-        let custs = []; try { custs = (JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => x && !x.deleted); } catch(e){}
-        let sups = []; try { sups = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => x && !x.deleted); } catch(e){}
-        let banks = []; try { banks = (JSON.parse(localStorage.getItem('erp_banks_v1')) || []).filter(x => x && !x.deleted); } catch(e){}
-        let safes = []; try { safes = (JSON.parse(localStorage.getItem('erp_safes_v1')) || []).filter(x => x && !x.deleted); } catch(e){}
-        let accounts = []; try { accounts = (JSON.parse(localStorage.getItem('erp_accounts_v1')) || []).filter(x => x && !x.deleted); } catch(e){}
-        
-        const cleanVal = accVal.replace(/^(cust|supp|bank|safe|exp)-/, '');
-
-        const foundC = custs.find(c => c && (c.id === accVal || c.id === cleanVal || c.name === accVal));
-        if (foundC) return foundC.id.startsWith('cust-') ? foundC.id : 'cust-' + foundC.id;
-        
-        const foundS = sups.find(s => s && (s.id === accVal || s.id === cleanVal || s.name === accVal));
-        if (foundS) return foundS.id.startsWith('supp-') ? foundS.id : 'supp-' + foundS.id;
-        
-        const foundB = banks.find(b => b && (b.id === accVal || b.id === cleanVal || b.bankName === accVal || b.name === accVal));
-        if (foundB) return foundB.id.startsWith('bank-') ? foundB.id : 'bank-' + foundB.id;
-        
-        const foundSf = safes.find(s => s && (s.id === accVal || s.id === cleanVal || s.safeName === accVal || s.name === accVal));
-        if (foundSf) return foundSf.id.startsWith('safe-') ? foundSf.id : 'safe-' + foundSf.id;
-
-        const foundAcc = accounts.find(a => a && (a.id === accVal || a.id === cleanVal || a.code === cleanVal || a.name === accVal));
-        if (foundAcc) return foundAcc.id.startsWith('exp-') ? foundAcc.id : 'exp-' + foundAcc.id;
-
-        if (typeof ACCOUNTS !== 'undefined' && Array.isArray(ACCOUNTS)) {
-            const found = ACCOUNTS.find(a => a.name === accVal || a.id === accVal);
-            if (found) return found.id;
-        }
+        const str = String(accVal).trim().toLowerCase();
+        if (accountMap.has(str)) return accountMap.get(str);
+        const cleanStr = str.replace(/^(cust|supp|bank|safe|exp)-/, '');
+        if (accountMap.has(cleanStr)) return accountMap.get(cleanStr);
         return accVal;
     };
 
