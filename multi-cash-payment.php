@@ -110,7 +110,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25);
             background: linear-gradient(135deg, rgba(30, 41, 59, 0.65), rgba(15, 23, 42, 0.85));
             position: relative;
-            overflow: visible;
+            overflow: hidden;
         }
 
         .glass-container::before {
@@ -300,207 +300,288 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
         /* ═══ MASTER DATA ULTRA-PREMIUM ICON & BUTTON DESIGN SYSTEM ═══ */
 
+        /* 1. Highly Visible Glitter Shimmer Sparkles (From Master Data) */
+        @keyframes glitterShimmer {
+            0% {
+                background-position: 0 0, 0 0, 0 0, 0 0, 0 0, -100% -100%;
+                filter: brightness(1.3) drop-shadow(0 0 3px #ffffff);
+            }
+            50% {
+                filter: brightness(2.4) drop-shadow(0 0 8px #ffffff);
+            }
+            100% {
+                background-position: 55px 55px, -40px 40px, 48px -48px, -42px -42px, 30px -30px, 200% 200%;
+                filter: brightness(1.3) drop-shadow(0 0 3px #ffffff);
+            }
+        }
+
+        /* 2. Rear Bottom Light Ray Pulse */
+        @keyframes rearRayPulse {
+            0%, 100% { transform: scaleX(1) translateY(0); opacity: 0.65; }
+            50% { transform: scaleX(1.35) translateY(3px); opacity: 1; filter: blur(16px) brightness(1.5); }
+        }
+
+        /* 3. Rim Glow Pulse Animation */
+        @keyframes rimPulseGlow {
+            0%, 100% { box-shadow: 0 0 16px var(--tab-glow-color, rgba(56, 189, 248, 0.5)), inset 0 1px 2px rgba(255, 255, 255, 0.5); }
+            50% { box-shadow: 0 0 32px var(--tab-glow-color, rgba(56, 189, 248, 0.9)), inset 0 2px 5px rgba(255, 255, 255, 0.8); }
+        }
+
+        /* ═══ Base Crystal Button (Master Data Inspired) ═══ */
         .crystal-btn, .voucher-type-btn, .pay-toggle-btn {
             position: relative;
-            background: rgba(255, 255, 255, 0.03);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.05) !important;
-            border-bottom: 3px solid var(--tab-border-color, #38bdf8) !important;
+            background: rgba(255, 255, 255, 0.04);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 3.8px solid var(--tab-border-color, rgba(255, 255, 255, 0.25)) !important;
             border-radius: 14px;
             padding: 10px 18px;
             font-size: 1rem;
             font-weight: 800;
-            color: #e2e8f0 !important;
+            color: #f8fafc !important;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            text-align: center;
-            gap: 10px;
+            gap: 8px;
             white-space: nowrap;
-            overflow: hidden;
+            overflow: visible; /* Allows rear bottom glow projection */
             transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
             z-index: 1;
             font-family: 'Tajawal', sans-serif;
-            height: 44px;
+            user-select: none;
+            height: 44px; /* Uniform height & width alignment */
             box-sizing: border-box;
         }
 
+        /* Highly Visible Internal Glitter Sparkles Overlay */
         .crystal-btn::after, .voucher-type-btn::after, .pay-toggle-btn::after {
             content: '';
             position: absolute;
             inset: 0;
+            border-radius: 10px;
             background-image: 
-                radial-gradient(circle at 20% 35%, rgba(255, 255, 255, 0.95) 1.5px, transparent 1.5px),
-                radial-gradient(circle at 75% 25%, rgba(255, 255, 255, 0.85) 1.2px, transparent 1.2px),
-                radial-gradient(circle at 45% 70%, rgba(255, 255, 255, 0.9) 1.5px, transparent 1.5px),
-                radial-gradient(circle at 85% 75%, rgba(255, 255, 255, 0.8) 1.2px, transparent 1.2px),
-                linear-gradient(135deg, transparent 35%, rgba(255, 255, 255, 0.22) 50%, transparent 65%);
-            background-size: 55px 55px, 40px 40px, 48px 48px, 42px 42px, 200% 200%;
-            background-repeat: repeat, repeat, repeat, repeat, no-repeat;
-            opacity: 0.55;
+                radial-gradient(circle at 15% 25%, rgba(255, 255, 255, 1) 2px, transparent 2px),
+                radial-gradient(circle at 75% 15%, rgba(255, 255, 255, 0.95) 1.8px, transparent 1.8px),
+                radial-gradient(circle at 35% 75%, rgba(255, 255, 255, 1) 2px, transparent 2px),
+                radial-gradient(circle at 85% 80%, rgba(255, 255, 255, 0.9) 1.5px, transparent 1.5px),
+                radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.85) 1.5px, transparent 1.5px),
+                linear-gradient(135deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
+            background-size: 50px 50px, 38px 38px, 45px 45px, 40px 40px, 35px 35px, 200% 200%;
+            background-repeat: repeat, repeat, repeat, repeat, repeat, no-repeat;
+            opacity: 0.85; /* Crystal clear glitter visibility */
             mix-blend-mode: overlay;
             pointer-events: none;
             z-index: 2;
-            animation: glitterShimmer 3.5s infinite linear;
+            animation: glitterShimmer 3s infinite linear;
         }
 
-        .crystal-btn:hover::after, .voucher-type-btn:hover::after, .pay-toggle-btn:hover::after,
-        .crystal-btn.active::after, .voucher-type-btn.active::after, .pay-toggle-btn.active::after {
-            opacity: 0.95;
-            animation: glitterShimmer 2.2s infinite linear;
+        .crystal-btn:hover::after, .voucher-type-btn:hover::after, .pay-toggle-btn:hover::after {
+            opacity: 1;
+            animation: glitterShimmer 1.8s infinite linear;
         }
 
-        @keyframes glitterShimmer {
-            0% {
-                background-position: 0 0, 0 0, 0 0, 0 0, -100% -100%;
-                filter: brightness(1) drop-shadow(0 0 1px #fff);
-            }
-            50% {
-                filter: brightness(1.75) drop-shadow(0 0 3px #fff);
-            }
-            100% {
-                background-position: 55px 55px, -40px 40px, 48px -48px, -42px -42px, 200% 200%;
-                filter: brightness(1) drop-shadow(0 0 1px #fff);
-            }
-        }
-
+        /* Rear Bottom Light Ray Beam Projection (الإضاءة الخلفية من الأسفل فقط) */
         .crystal-btn::before, .voucher-type-btn::before, .pay-toggle-btn::before {
             content: '';
             position: absolute;
-            top: 0; left: -100%;
-            width: 70%; height: 100%;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
-            transform: skewX(-25deg);
-            transition: 0.5s;
+            bottom: -16px;
+            left: 10%;
+            width: 80%;
+            height: 18px;
+            background: var(--tab-glow-color, rgba(56, 189, 248, 0.75));
+            border-radius: 50%;
+            filter: blur(14px);
+            opacity: 0.65;
+            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
             pointer-events: none;
-            z-index: 3;
-        }
-        .crystal-btn:hover::before, .voucher-type-btn:hover::before, .pay-toggle-btn:hover::before {
-            left: 140%;
-            transition: 0.75s ease-in-out;
+            z-index: -1;
+            animation: rearRayPulse 3s infinite ease-in-out;
         }
 
+        .crystal-btn:hover::before, .voucher-type-btn:hover::before, .pay-toggle-btn:hover::before {
+            opacity: 1 !important;
+            transform: scaleX(1.4) translateY(5px) !important;
+            filter: blur(18px) brightness(1.6) !important;
+        }
+
+        /* Icon Styling & Detailed Icon Glow Halo (إضاءة مفصلة خلفية من الأيقونة) */
         .btn-icon, .md-tab-icon {
-            font-size: 1.3rem;
+            font-size: 1.35rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.4));
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease;
+            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
             position: relative;
             z-index: 4;
-            margin: 0;
-            padding: 0;
-            line-height: 1;
         }
 
-        .btn-text {
-            display: inline-block;
-            margin: 0;
-            padding: 0;
-            line-height: 1;
+        /* Detailed Icon Rear Glow Ring */
+        .btn-icon::after, .md-tab-icon::after {
+            content: '';
+            position: absolute;
+            inset: -8px;
+            border-radius: 50%;
+            background: var(--tab-glow-color, rgba(255, 255, 255, 0.6));
+            filter: blur(10px);
+            opacity: 0.4;
+            z-index: -1;
+            transition: all 0.35s ease;
         }
 
+        /* Hover Scale + Light Glow + Text Contrast Protection */
         .crystal-btn:hover, .voucher-type-btn:hover, .pay-toggle-btn:hover {
             transform: translateY(-5px) scale(1.08) !important;
             color: #ffffff !important;
-            border-color: var(--tab-border-color, #38bdf8) !important;
-            box-shadow: 0 12px 30px var(--tab-glow-color, rgba(56, 189, 248, 0.55)), 0 0 20px var(--tab-glow-color, rgba(56, 189, 248, 0.55)), inset 0 1px 2px rgba(255,255,255,0.4) !important;
-            background: var(--tab-hover-bg, rgba(255,255,255,0.1)) !important;
+            text-shadow: 0 0 12px var(--tab-glow-color, rgba(255,255,255,0.95)), 0 2px 5px rgba(0,0,0,0.9) !important;
+            border-color: var(--tab-border-color) !important;
+            box-shadow: 0 16px 36px var(--tab-glow-color, rgba(56,189,248,0.55)), 0 0 28px var(--tab-glow-color, rgba(56,189,248,0.45)), inset 0 1px 3px rgba(255,255,255,0.7) !important;
+            background: var(--tab-hover-bg, rgba(255,255,255,0.12)) !important;
             z-index: 10;
-            text-shadow: none !important;
         }
 
         .crystal-btn:hover .btn-icon, .voucher-type-btn:hover .btn-icon, .pay-toggle-btn:hover .btn-icon {
-            transform: scale(1.35) rotate(8deg);
+            transform: scale(1.38) rotate(8deg);
+            filter: drop-shadow(0 0 10px #ffffff);
         }
 
-        .crystal-btn.active, .voucher-type-btn.active, .pay-toggle-btn.active {
-            color: #ffffff !important;
-            background: var(--tab-active-bg, linear-gradient(135deg, #0284c7, #38bdf8)) !important;
-            border-color: var(--tab-border-color, #38bdf8) !important;
-            box-shadow: 0 10px 30px var(--tab-glow-color, rgba(56, 189, 248, 0.55)), 0 0 25px var(--tab-glow-color, rgba(56, 189, 248, 0.55)), inset 0 2px 4px rgba(255,255,255,0.5) !important;
-            transform: translateY(-3px) scale(1.05);
-        }
-
-        .crystal-btn.active .btn-icon, .voucher-type-btn.active .btn-icon, .pay-toggle-btn.active .btn-icon {
-            transform: scale(1.25);
+        .crystal-btn:hover .btn-icon::after, .voucher-type-btn:hover .btn-icon::after, .pay-toggle-btn:hover .btn-icon::after {
+            opacity: 0.95 !important;
+            transform: scale(1.6) !important;
+            filter: blur(14px) brightness(1.8) !important;
         }
 
         /* ═══ Voucher Type Buttons (صرف مجمع 📤 vs استلام مجمع 📥) ═══ */
         .voucher-type-btn.active-payment, #btn-payment.active-payment {
             --tab-border-color: #d47a7e;
             --tab-glow-color: rgba(212, 122, 126, 0.7);
-            --tab-active-bg: linear-gradient(135deg, #d47a7e, #a3585c);
+            --tab-hover-bg: linear-gradient(135deg, #d47a7e, #a3585c);
+            background: linear-gradient(135deg, #d47a7e, #a3585c) !important;
+            border-color: #d47a7e !important;
+            color: #ffffff !important;
+            font-weight: 900 !important;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            box-shadow: 0 10px 30px rgba(212, 122, 126, 0.65), 0 0 25px rgba(212, 122, 126, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
+            transform: translateY(-3px) scale(1.05) !important;
+            animation: rimPulseGlow 2.5s infinite ease-in-out !important;
         }
 
         .voucher-type-btn.active-receipt, #btn-receipt.active-receipt {
             --tab-border-color: #81b29a;
             --tab-glow-color: rgba(129, 178, 154, 0.7);
-            --tab-active-bg: linear-gradient(135deg, #81b29a, #5e8773);
+            --tab-hover-bg: linear-gradient(135deg, #81b29a, #5e8773);
+            background: linear-gradient(135deg, #81b29a, #5e8773) !important;
+            border-color: #81b29a !important;
+            color: #ffffff !important;
+            font-weight: 900 !important;
+            text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            box-shadow: 0 10px 30px rgba(129, 178, 154, 0.65), 0 0 25px rgba(129, 178, 154, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
+            transform: translateY(-3px) scale(1.05) !important;
+            animation: rimPulseGlow 2.5s infinite ease-in-out !important;
         }
 
         /* ═══ Payment Method Toggle Buttons (نقدي 💵 / تحويل 🏦 / شيك ✍️) ═══ */
         .pay-toggle-btn.block-btn-cash {
             --tab-border-color: rgba(213, 189, 175, 0.45);
             --tab-glow-color: rgba(213, 189, 175, 0.65);
+            --tab-hover-bg: linear-gradient(135deg, rgba(213, 189, 175, 0.35), rgba(179, 154, 138, 0.5));
         }
         .pay-toggle-btn.active.block-btn-cash {
             --tab-border-color: #d5bdaf;
-            --tab-active-bg: linear-gradient(135deg, rgba(213, 189, 175, 0.45), rgba(179, 154, 138, 0.7));
+            background: linear-gradient(135deg, rgba(213, 189, 175, 0.45), rgba(179, 154, 138, 0.7)) !important;
+            border-color: #d5bdaf !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 10px rgba(213, 189, 175, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            box-shadow: 0 10px 25px rgba(213, 189, 175, 0.5), 0 0 20px rgba(213, 189, 175, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
+            transform: translateY(-3px) scale(1.05) !important;
         }
 
         .pay-toggle-btn.block-btn-bank {
             --tab-border-color: rgba(52, 152, 219, 0.45);
             --tab-glow-color: rgba(52, 152, 219, 0.65);
+            --tab-hover-bg: linear-gradient(135deg, rgba(52, 152, 219, 0.35), rgba(41, 128, 185, 0.5));
         }
         .pay-toggle-btn.active.block-btn-bank {
             --tab-border-color: #3498db;
-            --tab-active-bg: linear-gradient(135deg, rgba(52, 152, 219, 0.45), rgba(41, 128, 185, 0.7));
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.45), rgba(41, 128, 185, 0.7)) !important;
+            border-color: #3498db !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 10px rgba(52, 152, 219, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.5), 0 0 20px rgba(52, 152, 219, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
+            transform: translateY(-3px) scale(1.05) !important;
         }
 
         .pay-toggle-btn.block-btn-cheque {
             --tab-border-color: rgba(155, 89, 182, 0.45);
             --tab-glow-color: rgba(155, 89, 182, 0.65);
+            --tab-hover-bg: linear-gradient(135deg, rgba(155, 89, 182, 0.35), rgba(142, 68, 173, 0.5));
         }
         .pay-toggle-btn.active.block-btn-cheque {
             --tab-border-color: #9b59b6;
-            --tab-active-bg: linear-gradient(135deg, rgba(155, 89, 182, 0.45), rgba(142, 68, 173, 0.7));
+            background: linear-gradient(135deg, rgba(155, 89, 182, 0.45), rgba(142, 68, 173, 0.7)) !important;
+            border-color: #9b59b6 !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 10px rgba(155, 89, 182, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            box-shadow: 0 10px 25px rgba(155, 89, 182, 0.5), 0 0 20px rgba(155, 89, 182, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
+            transform: translateY(-3px) scale(1.05) !important;
         }
 
         /* ═══ Footer Action Buttons ═══ */
         .btn-save-master {
             --tab-border-color: #34d399;
             --tab-glow-color: rgba(16, 185, 129, 0.75);
-            --tab-active-bg: linear-gradient(135deg, #10b981, #059669);
+            --tab-hover-bg: linear-gradient(135deg, #10b981, #059669);
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(4, 120, 87, 0.75)) !important;
+            border-color: #34d399 !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 12px rgba(52, 211, 153, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
         }
         .btn-new {
             --tab-border-color: #38bdf8;
             --tab-glow-color: rgba(56, 189, 248, 0.75);
-            --tab-active-bg: linear-gradient(135deg, #0284c7, #0369a1);
+            --tab-hover-bg: linear-gradient(135deg, #0284c7, #0369a1);
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(3, 105, 161, 0.6)) !important;
+            border-color: #38bdf8 !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
         }
         .btn-print {
             --tab-border-color: #c084fc;
             --tab-glow-color: rgba(168, 85, 247, 0.75);
-            --tab-active-bg: linear-gradient(135deg, #9333ea, #7e22ce);
+            --tab-hover-bg: linear-gradient(135deg, #9333ea, #7e22ce);
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(126, 34, 206, 0.6)) !important;
+            border-color: #c084fc !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 10px rgba(192, 132, 252, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
         }
         .btn-print-preview {
             --tab-border-color: #22d3ee;
             --tab-glow-color: rgba(6, 182, 212, 0.75);
-            --tab-active-bg: linear-gradient(135deg, #0891b2, #0e7490);
+            --tab-hover-bg: linear-gradient(135deg, #0891b2, #0e7490);
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(14, 116, 144, 0.6)) !important;
+            border-color: #22d3ee !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 10px rgba(34, 211, 238, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
         }
         .btn-delete {
             --tab-border-color: #fb7185;
             --tab-glow-color: rgba(244, 63, 94, 0.75);
-            --tab-active-bg: linear-gradient(135deg, #e11d48, #be123c);
+            --tab-hover-bg: linear-gradient(135deg, #e11d48, #be123c);
+            background: linear-gradient(135deg, rgba(244, 63, 94, 0.3), rgba(190, 18, 60, 0.6)) !important;
+            border-color: #fb7185 !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 10px rgba(251, 113, 133, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
         }
         .btn-exit {
             --tab-border-color: #94a3b8;
             --tab-glow-color: rgba(148, 163, 184, 0.75);
-            --tab-active-bg: linear-gradient(135deg, #475569, #334155);
+            --tab-hover-bg: linear-gradient(135deg, #475569, #334155);
+            background: linear-gradient(135deg, rgba(100, 116, 139, 0.3), rgba(51, 65, 85, 0.6)) !important;
+            border-color: #94a3b8 !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 10px rgba(148, 163, 184, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
         }
 
         /* Luminous Glowing Borders on Hover for Account Blocks & Details Panels */
@@ -663,6 +744,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             box-shadow: 0 8px 25px rgba(212, 122, 126, 0.5), 0 0 15px rgba(212, 122, 126, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
             font-weight: 900 !important;
             transform: translateY(-4px) scale(1.04) !important;
+            animation: activePulse 2.5s infinite ease-in-out !important;
         }
         .voucher-type-btn.active-receipt {
             background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
@@ -671,6 +753,44 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             box-shadow: 0 8px 25px rgba(39, 174, 96, 0.5), 0 0 15px rgba(39, 174, 96, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
             font-weight: 900 !important;
             transform: translateY(-4px) scale(1.04) !important;
+            animation: activePulseGreen 2.5s infinite ease-in-out !important;
+        }
+
+        /* Pulsing active buttons */
+        @keyframes activePulse {
+            0% { box-shadow: 0 8px 20px rgba(212, 122, 126, 0.45), 0 0 10px rgba(212, 122, 126, 0.25); border-color: rgba(212, 122, 126, 0.7); }
+            50% { box-shadow: 0 12px 30px rgba(212, 122, 126, 0.75), 0 0 20px rgba(212, 122, 126, 0.5); border-color: rgba(255, 255, 255, 0.9); }
+            100% { box-shadow: 0 8px 20px rgba(212, 122, 126, 0.45), 0 0 10px rgba(212, 122, 126, 0.25); border-color: rgba(212, 122, 126, 0.7); }
+        }
+        @keyframes activePulseGreen {
+            0% { box-shadow: 0 8px 20px rgba(39, 174, 96, 0.45), 0 0 10px rgba(39, 174, 96, 0.25); border-color: rgba(39, 174, 96, 0.7); }
+            50% { box-shadow: 0 12px 30px rgba(39, 174, 96, 0.75), 0 0 20px rgba(39, 174, 96, 0.5); border-color: rgba(255, 255, 255, 0.9); }
+            100% { box-shadow: 0 8px 20px rgba(39, 174, 96, 0.45), 0 0 10px rgba(39, 174, 96, 0.25); border-color: rgba(39, 174, 96, 0.7); }
+        }
+
+        /* Heartbeat for active state circles */
+        @keyframes heartBeatRed {
+            0% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
+            20% { transform: scale(1.4); background-color: #e8a5a7; box-shadow: 0 0 15px #e8a5a7; }
+            40% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
+            60% { transform: scale(1.4); background-color: #d47a7e; box-shadow: 0 0 15px #d47a7e; }
+            80% { transform: scale(1.2); background-color: #ebbabc; box-shadow: 0 0 12px #ebbabc; }
+            100% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
+        }
+        @keyframes heartBeatGreen {
+            0% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
+            20% { transform: scale(1.4); background-color: #abebc6; box-shadow: 0 0 15px #abebc6; }
+            40% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
+            60% { transform: scale(1.4); background-color: #27ae60; box-shadow: 0 0 15px #27ae60; }
+            80% { transform: scale(1.2); background-color: #58d68d; box-shadow: 0 0 12px #58d68d; }
+            100% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
+        }
+
+        .voucher-type-btn.active-payment span {
+            animation: heartBeatRed 1.2s infinite ease-in-out !important;
+        }
+        .voucher-type-btn.active-receipt span {
+            animation: heartBeatGreen 1.2s infinite ease-in-out !important;
         }
 
         /* Color Wave Animation */
@@ -820,14 +940,14 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                     <!-- Title & Toggles -->
                     <div style="display: flex; align-items: center; gap: 15px; flex: none; flex-wrap: wrap;">
                         <div id="main-party-title" style="display: flex; align-items: center; gap: 8px; font-size: 1.1rem; font-weight: 700; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-                            <span><i class="fa fa-user"></i></span> بيان الطرف الرئيسي
+                            <span>👤</span> بيان الطرف الرئيسي
                         </div>
                         <div style="display: flex; gap: 10px;">
-                            <button type="button" id="btn-payment" class="voucher-type-btn active-payment crystal-btn" onclick="switchType('payment')">
-                                <span class="btn-icon"><i class="fa fa-arrow-up"></i></span> <span class="btn-text">صرف مجمع</span>
+                            <button id="btn-payment" class="voucher-type-btn active-payment" onclick="setVoucherType('payment')">
+                                <span class="btn-icon">💸📤</span> <span class="btn-text">صرف مجمع</span>
                             </button>
-                            <button type="button" id="btn-receipt" class="voucher-type-btn crystal-btn" onclick="switchType('receipt')">
-                                <span class="btn-icon"><i class="fa fa-arrow-down"></i></span> <span class="btn-text">استلام مجمع</span>
+                            <button id="btn-receipt" class="voucher-type-btn" onclick="setVoucherType('receipt')">
+                                <span class="btn-icon">💰📥</span> <span class="btn-text">استلام مجمع</span>
                             </button>
                         </div>
                     </div>
@@ -862,12 +982,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
                         <div style="flex: 2; min-width: 250px;">
                             <label id="main-account-label" style="color: #ef4444 !important; font-size: 1.2rem; margin-bottom: 5px; display: block; font-weight: bold; transition: color 0.3s; white-space: nowrap;">من حساب (صرف) <span class="animated-arrow-left">←</span></label>
-                            <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative; display: flex; gap: 8px;">
+                            <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative; display: flex;">
                                 <input type="hidden" id="main-account">
-                                <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onclick="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color); flex: 1; border-radius: 10px;">
-                                <button type="button" class="crystal-btn" onclick="openLedgerForMainAccount()" title="دفتر الأستاذ العام" style="--tab-border-color: #34d399; --tab-glow-color: rgba(52,211,153,0.6); --tab-hover-bg: linear-gradient(135deg, #10b981, #059669); padding: 0 14px; height: auto; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; min-width: max-content;">
-                                    <span class="btn-icon" style="font-size: 1rem;"><i class="fa fa-book"></i></span> <span class="btn-text">كشف حساب</span>
-                                </button>
+                                <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color); flex: 1; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                <button type="button" onclick="openLedgerForMainAccount()" title="دفتر الأستاذ العام" style="background: rgba(52,211,153,0.15); border: 1px solid var(--border-color); border-right: none; color: #34d399; padding: 0 12px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; height: auto;" onmouseover="this.style.background='rgba(52,211,153,0.3)';" onmouseout="this.style.background='rgba(52,211,153,0.15)';"><i class="fa fa-book"></i></button>
                                 <div class="custom-dropdown-list" id="main-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                             </div>
                         </div>
@@ -927,34 +1045,32 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         </div>
 
                         <!-- Row 1: Account, Amount, and Method Toggles -->
-                        <div style="display: flex; gap: 12px; align-items: stretch; flex-wrap: wrap; margin-bottom: 12px;">
+                        <div style="display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; margin-bottom: 12px;">
                             <!-- Account -->
-                            <div style="flex: 1.5; min-width: 180px; position: relative; display: flex; flex-direction: column;">
-                                <div class="custom-dropdown-input-wrap" style="position: relative; flex: 1; display: flex; gap: 8px;">
+                            <div style="flex: 2; min-width: 250px; position: relative; display: flex; flex-direction: column;">
+                                <div class="custom-dropdown-input-wrap" style="position: relative; flex: 1; display: flex;">
                                     <input type="hidden" id="account-{ID}-id" class="block-account-id">
                                     <input type="hidden" id="account-{ID}" class="block-account-name">
-                                    <input type="text" autocomplete="off" class="form-input block-account-search" id="account-{ID}-search" placeholder="الحساب / الجهة المستفيدة..." onfocus="showAccountDropdown('account-{ID}')" onclick="showAccountDropdown('account-{ID}')" onblur="hideAccountDropdownDelayed('account-{ID}')" oninput="filterAccountDropdown('account-{ID}')" style="font-size: 1rem; flex: 1; margin-bottom: 0; border-radius: 10px;">
-                                    <button type="button" class="crystal-btn" onclick="openLedgerForBlockAccount('{ID}')" title="دفتر الأستاذ العام" style="--tab-border-color: #34d399; --tab-glow-color: rgba(52,211,153,0.6); --tab-hover-bg: linear-gradient(135deg, #10b981, #059669); padding: 0 14px; height: auto; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; min-width: max-content;">
-                                        <span class="btn-icon" style="font-size: 1rem;"><i class="fa fa-book"></i></span> <span class="btn-text">كشف حساب</span>
-                                    </button>
+                                    <input type="text" autocomplete="off" class="form-input block-account-search" id="account-{ID}-search" placeholder="الحساب / الجهة المستفيدة..." onfocus="showAccountDropdown('account-{ID}')" onblur="hideAccountDropdownDelayed('account-{ID}')" oninput="filterAccountDropdown('account-{ID}')" style="font-size: 1rem; flex: 1; margin-bottom: 0; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                    <button type="button" onclick="openLedgerForBlockAccount('{ID}')" title="دفتر الأستاذ العام" style="background: rgba(52,211,153,0.15); border: 1px solid rgba(255,255,255,0.1); border-right: none; color: #34d399; padding: 0 12px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; height: auto;" onmouseover="this.style.background='rgba(52,211,153,0.3)';" onmouseout="this.style.background='rgba(52,211,153,0.15)';"><i class="fa fa-book"></i></button>
                                     <div class="custom-dropdown-list" id="account-{ID}-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                                 </div>
                             </div>
                             
                             <!-- Total Amount (auto-calculated or direct) -->
-                            <div style="flex: 2; min-width: 140px; max-width: 180px; display: flex; flex-direction: column; position: relative;">
-                                <input type="text" id="amount-{ID}" oninput="formatInput(this)" class="form-input block-total-amount" placeholder="المبلغ" style="font-weight: 900; font-family: monospace; font-size: 1.85rem; text-align: center; flex: 1; margin-bottom: 0; border-color: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); transition: all 0.4s ease;">
+                            <div style="flex: 1; min-width: 150px; display: flex; flex-direction: column; position: relative;">
+                                <input type="text" id="amount-{ID}" oninput="formatInput(this)" class="form-input block-total-amount" placeholder="المبلغ" style="font-weight: 900; font-family: monospace; font-size: 1.15rem; text-align: center; flex: 1; margin-bottom: 0; border-color: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); transition: all 0.4s ease;">
                             </div>
                             
                             <!-- Statement (بيان التحويل) -->
-                            <div style="flex: 1.8; min-width: 150px; display: flex; flex-direction: column; position: relative;">
-                                <input type="text" autocomplete="off" id="statement-{ID}" class="form-input" placeholder="البيان" style="font-size: 1rem; flex: 1; margin-bottom: 0; background: rgba(255,255,255,0.05); color: #fff;">
+                            <div style="flex: 2; min-width: 200px; display: flex; flex-direction: column; position: relative;">
+                                <input type="text" autocomplete="off" id="statement-{ID}" class="form-input" placeholder="بيان التحويل (اختياري)" style="font-size: 1rem; flex: 1; margin-bottom: 0; background: rgba(255,255,255,0.05); color: #fff;">
                             </div>
                             
                             <!-- Payment Toggles (No Cash) -->
-                            <div style="display: flex; gap: 8px; flex: 1.2; min-width: 160px; align-items: stretch; justify-content: flex-end; margin-right: auto;">
-                                <button type="button" id="pm-bank-{ID}" class="pay-toggle-btn block-btn-bank crystal-btn" data-action="toggle-pm" data-block="{ID}" data-method="bank"><span class="btn-icon"><i class="fa fa-mobile-alt"></i></span> <span class="btn-text">تحويل</span></button>
-                                <button type="button" id="pm-cheque-{ID}" class="pay-toggle-btn block-btn-cheque crystal-btn" data-action="toggle-pm" data-block="{ID}" data-method="cheque"><span class="btn-icon"><i class="fa fa-money-check-alt"></i></span> <span class="btn-text">شيك</span></button>
+                            <div style="display: flex; gap: 8px; flex: 1; min-width: 150px; align-items: stretch;">
+                                <button type="button" id="pm-bank-{ID}" class="pay-toggle-btn block-btn-bank" data-action="toggle-pm" data-block="{ID}" data-method="bank"><span class="btn-icon">🏦</span> <span class="btn-text">بنك</span></button>
+                                <button type="button" id="pm-cheque-{ID}" class="pay-toggle-btn block-btn-cheque" data-action="toggle-pm" data-block="{ID}" data-method="cheque"><span class="btn-icon">✍️</span> <span class="btn-text">شيك</span></button>
                             </div>
                         </div>
 
@@ -963,7 +1079,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         <div id="bank-details-{ID}" class="block-bank-details" style="display: none; background: rgba(14, 116, 144, 0.18); border: 1.5px solid rgba(14, 116, 144, 0.45); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease;">
                             <div class="bank-rows-container" id="bank-rows-{ID}">
                                 <div class="bank-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
-                                    <div style="width: 80px; font-weight: bold; color: #22d3ee; display: flex; align-items: center; gap: 5px; flex-shrink: 0;"><i class="fa fa-mobile-alt"></i> تحويل</div>
+                                    <div style="width: 80px; font-weight: bold; color: #22d3ee; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">🏦 بنكي</div>
                                     <div style="width: 150px; flex-shrink: 0;">
                                         <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
                                     </div>
@@ -985,7 +1101,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         <div id="cheque-details-{ID}" class="block-cheque-details" style="display: none; background: rgba(147, 51, 234, 0.22); border: 1.5px solid rgba(147, 51, 234, 0.65); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease; box-shadow: inset 0 0 15px rgba(147, 51, 234, 0.1);">
                             <div class="cheque-rows-container" id="cheque-rows-{ID}">
                                 <div class="cheque-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
-                                    <div style="width: 80px; font-weight: bold; color: #d8b4fe; display: flex; align-items: center; gap: 5px; flex-shrink: 0;"><i class="fa fa-money-check-alt"></i> شيك</div>
+                                    <div style="width: 80px; font-weight: bold; color: #d8b4fe; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">✍️ شيك</div>
                                     <div style="width: 150px; flex-shrink: 0;">
                                         <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
                                     </div>
