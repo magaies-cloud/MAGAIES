@@ -818,6 +818,43 @@ function showProfessionalSuccess(voucherId, fromName, toName, amountLocal, curre
     }, 2500);
 }
 
+function checkTransferDuplicate(newTrNo, currentVoucherId) {
+    if (!newTrNo || newTrNo.length < 6) return false;
+    const last6 = newTrNo.slice(-6);
+    const stores = [
+        'erp_single_payments_v1', 'erp_single_receipts_v1',
+        'erp_payments_v1', 'erp_receipts_v1',
+        'erp_comprehensive_payments_v1', 'erp_comprehensive_receipts_v1'
+    ];
+    
+    const getTenantKey = window.getTenantKey || ((k) => k);
+    for (const store of stores) {
+        const data = JSON.parse(localStorage.getItem(getTenantKey(store)) || localStorage.getItem(store) || '[]');
+        for (const v of data) {
+            if ((v.id && v.id === currentVoucherId) || (v.voucherNo && v.voucherNo === currentVoucherId)) continue;
+            
+            if (v.bankTransfers && Array.isArray(v.bankTransfers)) {
+                for (const tr of v.bankTransfers) {
+                    if (tr.transferNo && tr.transferNo.length >= 6 && tr.transferNo.slice(-6) === last6) return true;
+                }
+            }
+            if (v.mobileTransferNo && v.mobileTransferNo.length >= 6 && v.mobileTransferNo.slice(-6) === last6) return true;
+
+            if (v.items && Array.isArray(v.items)) {
+                for (const item of v.items) {
+                    if (item.bankTransfers && Array.isArray(item.bankTransfers)) {
+                        for (const tr of item.bankTransfers) {
+                            if (tr.transferNo && tr.transferNo.length >= 6 && tr.transferNo.slice(-6) === last6) return true;
+                        }
+                    }
+                    if (item.mobileTransferNo && item.mobileTransferNo.length >= 6 && item.mobileTransferNo.slice(-6) === last6) return true;
+                }
+            }
+        }
+    }
+    return false;
+}
+
 function submitVoucherInner() {
     try { // WRAPPED
     const amtLocal = parseNum(document.getElementById('amount-local').value);
@@ -889,8 +926,14 @@ function submitVoucherInner() {
                 hasInvalidTransfer = true;
                 return;
             }
-            if (trNo.length < 4) {
-                showToast(`السطر ${idx + 1}: رقم التحويل يجب أن يكون 4 أرقام على الأقل`, "error");
+            if (trNo.length < 6) {
+                showToast(`السطر ${idx + 1}: رقم التحويلة يجب أن يكون 6 أرقام على الأقل`, "error");
+                row.querySelector('.transfer-no').focus();
+                hasInvalidTransfer = true;
+                return;
+            }
+            if (checkTransferDuplicate(trNo, document.getElementById('voucher-number').innerText)) {
+                showToast(`السطر ${idx + 1}: رقم التحويلة مكرر في النظام (نفس آخر 6 أرقام)`, "error");
                 row.querySelector('.transfer-no').focus();
                 hasInvalidTransfer = true;
                 return;
@@ -930,12 +973,7 @@ function submitVoucherInner() {
                 hasInvalidCheque = true;
                 return;
             }
-            if (chNo.length < 4) {
-                showToast(`السطر ${idx + 1}: رقم الشيك يجب أن يكون 4 أرقام على الأقل`, "error");
-                row.querySelector('.cheque-no').focus();
-                hasInvalidCheque = true;
-                return;
-            }
+            // removed cheque length check as per user request
 
             cheques.push({ checkNo: chNo, checkBranch: chBranch, checkDate: chDate, amount: chAmt, statement: chStmt });
             totalChequesAmount += chAmt;
@@ -976,8 +1014,14 @@ function submitVoucherInner() {
                 hasInvalidTransfer = true;
                 return;
             }
-            if (trNo.length < 4) {
-                showToast(`السطر ${idx + 1}: رقم التحويل يجب أن يكون 4 أرقام على الأقل`, "error");
+            if (trNo.length < 6) {
+                showToast(`السطر ${idx + 1}: رقم التحويلة يجب أن يكون 6 أرقام على الأقل`, "error");
+                row.querySelector('.transfer-no').focus();
+                hasInvalidTransfer = true;
+                return;
+            }
+            if (checkTransferDuplicate(trNo, document.getElementById('voucher-number').innerText)) {
+                showToast(`السطر ${idx + 1}: رقم التحويلة مكرر في النظام (نفس آخر 6 أرقام)`, "error");
                 row.querySelector('.transfer-no').focus();
                 hasInvalidTransfer = true;
                 return;
@@ -1006,12 +1050,7 @@ function submitVoucherInner() {
                 hasInvalidCheque = true;
                 return;
             }
-            if (chNo.length < 4) {
-                showToast(`السطر ${idx + 1}: رقم الشيك يجب أن يكون 4 أرقام على الأقل`, "error");
-                row.querySelector('.cheque-no').focus();
-                hasInvalidCheque = true;
-                return;
-            }
+            // removed cheque length check as per user request
 
             cheques.push({ checkNo: chNo, checkBranch: chBranch, checkDate: chDate, amount: chAmt, statement: chStmt });
             totalChequesAmount += chAmt;
