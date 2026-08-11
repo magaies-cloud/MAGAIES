@@ -300,288 +300,207 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
         /* ═══ MASTER DATA ULTRA-PREMIUM ICON & BUTTON DESIGN SYSTEM ═══ */
 
-        /* 1. Highly Visible Glitter Shimmer Sparkles (From Master Data) */
-        @keyframes glitterShimmer {
-            0% {
-                background-position: 0 0, 0 0, 0 0, 0 0, 0 0, -100% -100%;
-                filter: brightness(1.3) drop-shadow(0 0 3px #ffffff);
-            }
-            50% {
-                filter: brightness(2.4) drop-shadow(0 0 8px #ffffff);
-            }
-            100% {
-                background-position: 55px 55px, -40px 40px, 48px -48px, -42px -42px, 30px -30px, 200% 200%;
-                filter: brightness(1.3) drop-shadow(0 0 3px #ffffff);
-            }
-        }
-
-        /* 2. Rear Bottom Light Ray Pulse */
-        @keyframes rearRayPulse {
-            0%, 100% { transform: scaleX(1) translateY(0); opacity: 0.65; }
-            50% { transform: scaleX(1.35) translateY(3px); opacity: 1; filter: blur(16px) brightness(1.5); }
-        }
-
-        /* 3. Rim Glow Pulse Animation */
-        @keyframes rimPulseGlow {
-            0%, 100% { box-shadow: 0 0 16px var(--tab-glow-color, rgba(56, 189, 248, 0.5)), inset 0 1px 2px rgba(255, 255, 255, 0.5); }
-            50% { box-shadow: 0 0 32px var(--tab-glow-color, rgba(56, 189, 248, 0.9)), inset 0 2px 5px rgba(255, 255, 255, 0.8); }
-        }
-
-        /* ═══ Base Crystal Button (Master Data Inspired) ═══ */
         .crystal-btn, .voucher-type-btn, .pay-toggle-btn {
             position: relative;
-            background: rgba(255, 255, 255, 0.04);
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            border: 3.8px solid var(--tab-border-color, rgba(255, 255, 255, 0.25)) !important;
+            background: rgba(255, 255, 255, 0.03);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.05) !important;
+            border-bottom: 3px solid var(--tab-border-color, #38bdf8) !important;
             border-radius: 14px;
             padding: 10px 18px;
             font-size: 1rem;
             font-weight: 800;
-            color: #f8fafc !important;
+            color: #e2e8f0 !important;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 8px;
+            text-align: center;
+            gap: 10px;
             white-space: nowrap;
-            overflow: visible; /* Allows rear bottom glow projection */
+            overflow: hidden;
             transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.3);
             z-index: 1;
             font-family: 'Tajawal', sans-serif;
-            user-select: none;
-            height: 44px; /* Uniform height & width alignment */
+            height: 44px;
             box-sizing: border-box;
         }
 
-        /* Highly Visible Internal Glitter Sparkles Overlay */
         .crystal-btn::after, .voucher-type-btn::after, .pay-toggle-btn::after {
             content: '';
             position: absolute;
             inset: 0;
-            border-radius: 10px;
             background-image: 
-                radial-gradient(circle at 15% 25%, rgba(255, 255, 255, 1) 2px, transparent 2px),
-                radial-gradient(circle at 75% 15%, rgba(255, 255, 255, 0.95) 1.8px, transparent 1.8px),
-                radial-gradient(circle at 35% 75%, rgba(255, 255, 255, 1) 2px, transparent 2px),
-                radial-gradient(circle at 85% 80%, rgba(255, 255, 255, 0.9) 1.5px, transparent 1.5px),
-                radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.85) 1.5px, transparent 1.5px),
-                linear-gradient(135deg, transparent 30%, rgba(255, 255, 255, 0.3) 50%, transparent 70%);
-            background-size: 50px 50px, 38px 38px, 45px 45px, 40px 40px, 35px 35px, 200% 200%;
-            background-repeat: repeat, repeat, repeat, repeat, repeat, no-repeat;
-            opacity: 0.85; /* Crystal clear glitter visibility */
+                radial-gradient(circle at 20% 35%, rgba(255, 255, 255, 0.95) 1.5px, transparent 1.5px),
+                radial-gradient(circle at 75% 25%, rgba(255, 255, 255, 0.85) 1.2px, transparent 1.2px),
+                radial-gradient(circle at 45% 70%, rgba(255, 255, 255, 0.9) 1.5px, transparent 1.5px),
+                radial-gradient(circle at 85% 75%, rgba(255, 255, 255, 0.8) 1.2px, transparent 1.2px),
+                linear-gradient(135deg, transparent 35%, rgba(255, 255, 255, 0.22) 50%, transparent 65%);
+            background-size: 55px 55px, 40px 40px, 48px 48px, 42px 42px, 200% 200%;
+            background-repeat: repeat, repeat, repeat, repeat, no-repeat;
+            opacity: 0.55;
             mix-blend-mode: overlay;
             pointer-events: none;
             z-index: 2;
-            animation: glitterShimmer 3s infinite linear;
+            animation: glitterShimmer 3.5s infinite linear;
         }
 
-        .crystal-btn:hover::after, .voucher-type-btn:hover::after, .pay-toggle-btn:hover::after {
-            opacity: 1;
-            animation: glitterShimmer 1.8s infinite linear;
+        .crystal-btn:hover::after, .voucher-type-btn:hover::after, .pay-toggle-btn:hover::after,
+        .crystal-btn.active::after, .voucher-type-btn.active::after, .pay-toggle-btn.active::after {
+            opacity: 0.95;
+            animation: glitterShimmer 2.2s infinite linear;
         }
 
-        /* Rear Bottom Light Ray Beam Projection (الإضاءة الخلفية من الأسفل فقط) */
+        @keyframes glitterShimmer {
+            0% {
+                background-position: 0 0, 0 0, 0 0, 0 0, -100% -100%;
+                filter: brightness(1) drop-shadow(0 0 1px #fff);
+            }
+            50% {
+                filter: brightness(1.75) drop-shadow(0 0 3px #fff);
+            }
+            100% {
+                background-position: 55px 55px, -40px 40px, 48px -48px, -42px -42px, 200% 200%;
+                filter: brightness(1) drop-shadow(0 0 1px #fff);
+            }
+        }
+
         .crystal-btn::before, .voucher-type-btn::before, .pay-toggle-btn::before {
             content: '';
             position: absolute;
-            bottom: -16px;
-            left: 10%;
-            width: 80%;
-            height: 18px;
-            background: var(--tab-glow-color, rgba(56, 189, 248, 0.75));
-            border-radius: 50%;
-            filter: blur(14px);
-            opacity: 0.65;
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
+            top: 0; left: -100%;
+            width: 70%; height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.35), transparent);
+            transform: skewX(-25deg);
+            transition: 0.5s;
             pointer-events: none;
-            z-index: -1;
-            animation: rearRayPulse 3s infinite ease-in-out;
+            z-index: 3;
         }
-
         .crystal-btn:hover::before, .voucher-type-btn:hover::before, .pay-toggle-btn:hover::before {
-            opacity: 1 !important;
-            transform: scaleX(1.4) translateY(5px) !important;
-            filter: blur(18px) brightness(1.6) !important;
+            left: 140%;
+            transition: 0.75s ease-in-out;
         }
 
-        /* Icon Styling & Detailed Icon Glow Halo (إضاءة مفصلة خلفية من الأيقونة) */
         .btn-icon, .md-tab-icon {
-            font-size: 1.35rem;
+            font-size: 1.3rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease;
-            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+            filter: drop-shadow(0 2px 5px rgba(0,0,0,0.4));
             position: relative;
             z-index: 4;
+            margin: 0;
+            padding: 0;
+            line-height: 1;
         }
 
-        /* Detailed Icon Rear Glow Ring */
-        .btn-icon::after, .md-tab-icon::after {
-            content: '';
-            position: absolute;
-            inset: -8px;
-            border-radius: 50%;
-            background: var(--tab-glow-color, rgba(255, 255, 255, 0.6));
-            filter: blur(10px);
-            opacity: 0.4;
-            z-index: -1;
-            transition: all 0.35s ease;
+        .btn-text {
+            display: inline-block;
+            margin: 0;
+            padding: 0;
+            line-height: 1;
         }
 
-        /* Hover Scale + Light Glow + Text Contrast Protection */
         .crystal-btn:hover, .voucher-type-btn:hover, .pay-toggle-btn:hover {
             transform: translateY(-5px) scale(1.08) !important;
             color: #ffffff !important;
-            text-shadow: 0 0 12px var(--tab-glow-color, rgba(255,255,255,0.95)), 0 2px 5px rgba(0,0,0,0.9) !important;
-            border-color: var(--tab-border-color) !important;
-            box-shadow: 0 16px 36px var(--tab-glow-color, rgba(56,189,248,0.55)), 0 0 28px var(--tab-glow-color, rgba(56,189,248,0.45)), inset 0 1px 3px rgba(255,255,255,0.7) !important;
-            background: var(--tab-hover-bg, rgba(255,255,255,0.12)) !important;
+            border-color: var(--tab-border-color, #38bdf8) !important;
+            box-shadow: 0 12px 30px var(--tab-glow-color, rgba(56, 189, 248, 0.55)), 0 0 20px var(--tab-glow-color, rgba(56, 189, 248, 0.55)), inset 0 1px 2px rgba(255,255,255,0.4) !important;
+            background: var(--tab-hover-bg, rgba(255,255,255,0.1)) !important;
             z-index: 10;
+            text-shadow: none !important;
         }
 
         .crystal-btn:hover .btn-icon, .voucher-type-btn:hover .btn-icon, .pay-toggle-btn:hover .btn-icon {
-            transform: scale(1.38) rotate(8deg);
-            filter: drop-shadow(0 0 10px #ffffff);
+            transform: scale(1.35) rotate(8deg);
         }
 
-        .crystal-btn:hover .btn-icon::after, .voucher-type-btn:hover .btn-icon::after, .pay-toggle-btn:hover .btn-icon::after {
-            opacity: 0.95 !important;
-            transform: scale(1.6) !important;
-            filter: blur(14px) brightness(1.8) !important;
+        .crystal-btn.active, .voucher-type-btn.active, .pay-toggle-btn.active {
+            color: #ffffff !important;
+            background: var(--tab-active-bg, linear-gradient(135deg, #0284c7, #38bdf8)) !important;
+            border-color: var(--tab-border-color, #38bdf8) !important;
+            box-shadow: 0 10px 30px var(--tab-glow-color, rgba(56, 189, 248, 0.55)), 0 0 25px var(--tab-glow-color, rgba(56, 189, 248, 0.55)), inset 0 2px 4px rgba(255,255,255,0.5) !important;
+            transform: translateY(-3px) scale(1.05);
+        }
+
+        .crystal-btn.active .btn-icon, .voucher-type-btn.active .btn-icon, .pay-toggle-btn.active .btn-icon {
+            transform: scale(1.25);
         }
 
         /* ═══ Voucher Type Buttons (صرف مجمع 📤 vs استلام مجمع 📥) ═══ */
         .voucher-type-btn.active-payment, #btn-payment.active-payment {
             --tab-border-color: #d47a7e;
             --tab-glow-color: rgba(212, 122, 126, 0.7);
-            --tab-hover-bg: linear-gradient(135deg, #d47a7e, #a3585c);
-            background: linear-gradient(135deg, #d47a7e, #a3585c) !important;
-            border-color: #d47a7e !important;
-            color: #ffffff !important;
-            font-weight: 900 !important;
-            text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 30px rgba(212, 122, 126, 0.65), 0 0 25px rgba(212, 122, 126, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
-            transform: translateY(-3px) scale(1.05) !important;
-            animation: rimPulseGlow 2.5s infinite ease-in-out !important;
+            --tab-active-bg: linear-gradient(135deg, #d47a7e, #a3585c);
         }
 
         .voucher-type-btn.active-receipt, #btn-receipt.active-receipt {
             --tab-border-color: #81b29a;
             --tab-glow-color: rgba(129, 178, 154, 0.7);
-            --tab-hover-bg: linear-gradient(135deg, #81b29a, #5e8773);
-            background: linear-gradient(135deg, #81b29a, #5e8773) !important;
-            border-color: #81b29a !important;
-            color: #ffffff !important;
-            font-weight: 900 !important;
-            text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 30px rgba(129, 178, 154, 0.65), 0 0 25px rgba(129, 178, 154, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
-            transform: translateY(-3px) scale(1.05) !important;
-            animation: rimPulseGlow 2.5s infinite ease-in-out !important;
+            --tab-active-bg: linear-gradient(135deg, #81b29a, #5e8773);
         }
 
         /* ═══ Payment Method Toggle Buttons (نقدي 💵 / تحويل 🏦 / شيك ✍️) ═══ */
         .pay-toggle-btn.block-btn-cash {
             --tab-border-color: rgba(213, 189, 175, 0.45);
             --tab-glow-color: rgba(213, 189, 175, 0.65);
-            --tab-hover-bg: linear-gradient(135deg, rgba(213, 189, 175, 0.35), rgba(179, 154, 138, 0.5));
         }
         .pay-toggle-btn.active.block-btn-cash {
             --tab-border-color: #d5bdaf;
-            background: linear-gradient(135deg, rgba(213, 189, 175, 0.45), rgba(179, 154, 138, 0.7)) !important;
-            border-color: #d5bdaf !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(213, 189, 175, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 25px rgba(213, 189, 175, 0.5), 0 0 20px rgba(213, 189, 175, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
-            transform: translateY(-3px) scale(1.05) !important;
+            --tab-active-bg: linear-gradient(135deg, rgba(213, 189, 175, 0.45), rgba(179, 154, 138, 0.7));
         }
 
         .pay-toggle-btn.block-btn-bank {
             --tab-border-color: rgba(52, 152, 219, 0.45);
             --tab-glow-color: rgba(52, 152, 219, 0.65);
-            --tab-hover-bg: linear-gradient(135deg, rgba(52, 152, 219, 0.35), rgba(41, 128, 185, 0.5));
         }
         .pay-toggle-btn.active.block-btn-bank {
             --tab-border-color: #3498db;
-            background: linear-gradient(135deg, rgba(52, 152, 219, 0.45), rgba(41, 128, 185, 0.7)) !important;
-            border-color: #3498db !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(52, 152, 219, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.5), 0 0 20px rgba(52, 152, 219, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
-            transform: translateY(-3px) scale(1.05) !important;
+            --tab-active-bg: linear-gradient(135deg, rgba(52, 152, 219, 0.45), rgba(41, 128, 185, 0.7));
         }
 
         .pay-toggle-btn.block-btn-cheque {
             --tab-border-color: rgba(155, 89, 182, 0.45);
             --tab-glow-color: rgba(155, 89, 182, 0.65);
-            --tab-hover-bg: linear-gradient(135deg, rgba(155, 89, 182, 0.35), rgba(142, 68, 173, 0.5));
         }
         .pay-toggle-btn.active.block-btn-cheque {
             --tab-border-color: #9b59b6;
-            background: linear-gradient(135deg, rgba(155, 89, 182, 0.45), rgba(142, 68, 173, 0.7)) !important;
-            border-color: #9b59b6 !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(155, 89, 182, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 25px rgba(155, 89, 182, 0.5), 0 0 20px rgba(155, 89, 182, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
-            transform: translateY(-3px) scale(1.05) !important;
+            --tab-active-bg: linear-gradient(135deg, rgba(155, 89, 182, 0.45), rgba(142, 68, 173, 0.7));
         }
 
         /* ═══ Footer Action Buttons ═══ */
         .btn-save-master {
             --tab-border-color: #34d399;
             --tab-glow-color: rgba(16, 185, 129, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #10b981, #059669);
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(4, 120, 87, 0.75)) !important;
-            border-color: #34d399 !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 12px rgba(52, 211, 153, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            --tab-active-bg: linear-gradient(135deg, #10b981, #059669);
         }
         .btn-new {
             --tab-border-color: #38bdf8;
             --tab-glow-color: rgba(56, 189, 248, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #0284c7, #0369a1);
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(3, 105, 161, 0.6)) !important;
-            border-color: #38bdf8 !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(56, 189, 248, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            --tab-active-bg: linear-gradient(135deg, #0284c7, #0369a1);
         }
         .btn-print {
             --tab-border-color: #c084fc;
             --tab-glow-color: rgba(168, 85, 247, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #9333ea, #7e22ce);
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(126, 34, 206, 0.6)) !important;
-            border-color: #c084fc !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(192, 132, 252, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            --tab-active-bg: linear-gradient(135deg, #9333ea, #7e22ce);
         }
         .btn-print-preview {
             --tab-border-color: #22d3ee;
             --tab-glow-color: rgba(6, 182, 212, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #0891b2, #0e7490);
-            background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(14, 116, 144, 0.6)) !important;
-            border-color: #22d3ee !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(34, 211, 238, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            --tab-active-bg: linear-gradient(135deg, #0891b2, #0e7490);
         }
         .btn-delete {
             --tab-border-color: #fb7185;
             --tab-glow-color: rgba(244, 63, 94, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #e11d48, #be123c);
-            background: linear-gradient(135deg, rgba(244, 63, 94, 0.3), rgba(190, 18, 60, 0.6)) !important;
-            border-color: #fb7185 !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(251, 113, 133, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            --tab-active-bg: linear-gradient(135deg, #e11d48, #be123c);
         }
         .btn-exit {
             --tab-border-color: #94a3b8;
             --tab-glow-color: rgba(148, 163, 184, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #475569, #334155);
-            background: linear-gradient(135deg, rgba(100, 116, 139, 0.3), rgba(51, 65, 85, 0.6)) !important;
-            border-color: #94a3b8 !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(148, 163, 184, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            --tab-active-bg: linear-gradient(135deg, #475569, #334155);
         }
 
         /* Luminous Glowing Borders on Hover for Account Blocks & Details Panels */
@@ -1023,12 +942,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             </div>
                             
                             <!-- Total Amount (auto-calculated or direct) -->
-                            <div style="flex: 1.5; min-width: 140px; max-width: 180px; display: flex; flex-direction: column; position: relative;">
-                                <input type="text" id="amount-{ID}" oninput="formatInput(this)" class="form-input block-total-amount" placeholder="المبلغ" style="font-weight: 900; font-family: monospace; font-size: 1.45rem; text-align: center; flex: 1; margin-bottom: 0; border-color: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); transition: all 0.4s ease;">
+                            <div style="flex: 2; min-width: 140px; max-width: 180px; display: flex; flex-direction: column; position: relative;">
+                                <input type="text" id="amount-{ID}" oninput="formatInput(this)" class="form-input block-total-amount" placeholder="المبلغ" style="font-weight: 900; font-family: monospace; font-size: 1.85rem; text-align: center; flex: 1; margin-bottom: 0; border-color: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); transition: all 0.4s ease;">
                             </div>
                             
                             <!-- Statement (بيان التحويل) -->
-                            <div style="flex: 1.2; min-width: 120px; display: flex; flex-direction: column; position: relative;">
+                            <div style="flex: 1.8; min-width: 150px; display: flex; flex-direction: column; position: relative;">
                                 <input type="text" autocomplete="off" id="statement-{ID}" class="form-input" placeholder="البيان" style="font-size: 1rem; flex: 1; margin-bottom: 0; background: rgba(255,255,255,0.05); color: #fff;">
                             </div>
                             
