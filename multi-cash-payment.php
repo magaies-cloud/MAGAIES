@@ -1074,7 +1074,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             
                             <!-- Payment Toggles (No Cash) -->
                             <div style="display: flex; gap: 8px; flex: 1; min-width: 150px; align-items: stretch;">
-                                <button type="button" id="pm-bank-{ID}" class="btn crystal-btn btn-action pay-toggle-btn block-btn-bank" data-action="toggle-pm" data-block="{ID}" data-method="bank"><span class="btn-icon">🏦</span> <span class="btn-text">بنك</span></button>
+                                <button type="button" id="pm-bank-{ID}" class="btn crystal-btn btn-action pay-toggle-btn block-btn-bank" data-action="toggle-pm" data-block="{ID}" data-method="bank"><span class="btn-icon">🏦</span> <span class="btn-text">تحويل</span></button>
                                 <button type="button" id="pm-cheque-{ID}" class="btn crystal-btn btn-action pay-toggle-btn block-btn-cheque" data-action="toggle-pm" data-block="{ID}" data-method="cheque"><span class="btn-icon">✍️</span> <span class="btn-text">شيك</span></button>
                             </div>
                         </div>
@@ -1391,6 +1391,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
     </script>
 </body>
 </html>
+
 
 
 
