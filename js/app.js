@@ -4988,7 +4988,43 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         return (typeof ledgerExchangeRate !== "undefined" && ledgerExchangeRate > 0 ? ledgerExchangeRate : 1);
     }
 
-    // 1. Single Receipts
+    // Pre-build O(1) Master Data Lookup Maps for maximum performance
+    const custs = []; try { custs.push(...(JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => x && !x.deleted)); } catch(e){}
+    const sups = []; try { sups.push(...(JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => x && !x.deleted)); } catch(e){}
+    const banks = []; try { banks.push(...(JSON.parse(localStorage.getItem('erp_banks_v1')) || []).filter(x => x && !x.deleted)); } catch(e){}
+    const safes = []; try { safes.push(...(JSON.parse(localStorage.getItem('erp_safes_v1')) || []).filter(x => x && !x.deleted)); } catch(e){}
+    const accounts = []; try { accounts.push(...(JSON.parse(localStorage.getItem('erp_accounts_v1')) || []).filter(x => x && !x.deleted)); } catch(e){}
+
+    const accountMap = new Map();
+    const registerAcc = (item, prefix) => {
+        if (!item) return;
+        const id = String(item.id || '').trim();
+        const name = String(item.name || item.bankName || item.safeName || item.accountName || '').trim();
+        const code = String(item.code || '').trim();
+        let canonicalId = id;
+        if (prefix && !id.startsWith(prefix)) canonicalId = prefix + id;
+        if (id) {
+            accountMap.set(id.toLowerCase(), canonicalId);
+            accountMap.set(id.replace(/^(cust|supp|bank|safe|exp)-/, '').toLowerCase(), canonicalId);
+        }
+        if (name) accountMap.set(name.toLowerCase(), canonicalId);
+        if (code) accountMap.set(code.toLowerCase(), canonicalId);
+    };
+
+    custs.forEach(c => registerAcc(c, 'cust-'));
+    sups.forEach(s => registerAcc(s, 'supp-'));
+    banks.forEach(b => registerAcc(b, 'bank-'));
+    safes.forEach(sf => registerAcc(sf, 'safe-'));
+    accounts.forEach(a => registerAcc(a, 'exp-'));
+
+    function resolveAccount(accVal, fallback = '') {
+        if (!accVal) return fallback;
+        const str = String(accVal).trim().toLowerCase();
+        if (accountMap.has(str)) return accountMap.get(str);
+        const cleanStr = str.replace(/^(cust|supp|bank|safe|exp)-/, '');
+        if (accountMap.has(cleanStr)) return accountMap.get(cleanStr);
+        return accVal;
+    }
     const receipts = (JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || []).filter(v => v && !v.deleted);
     receipts.forEach(v => {
         const costCenter = v.costCenter || 'بدون مركز';
@@ -5134,44 +5170,6 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
             });
         }
     });
-
-    // Pre-build O(1) Master Data Lookup Maps for maximum performance
-    const custs = []; try { custs.push(...(JSON.parse(localStorage.getItem('erp_customers_v1')) || []).filter(x => x && !x.deleted)); } catch(e){}
-    const sups = []; try { sups.push(...(JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => x && !x.deleted)); } catch(e){}
-    const banks = []; try { banks.push(...(JSON.parse(localStorage.getItem('erp_banks_v1')) || []).filter(x => x && !x.deleted)); } catch(e){}
-    const safes = []; try { safes.push(...(JSON.parse(localStorage.getItem('erp_safes_v1')) || []).filter(x => x && !x.deleted)); } catch(e){}
-    const accounts = []; try { accounts.push(...(JSON.parse(localStorage.getItem('erp_accounts_v1')) || []).filter(x => x && !x.deleted)); } catch(e){}
-
-    const accountMap = new Map();
-    const registerAcc = (item, prefix) => {
-        if (!item) return;
-        const id = String(item.id || '').trim();
-        const name = String(item.name || item.bankName || item.safeName || item.accountName || '').trim();
-        const code = String(item.code || '').trim();
-        let canonicalId = id;
-        if (prefix && !id.startsWith(prefix)) canonicalId = prefix + id;
-        if (id) {
-            accountMap.set(id.toLowerCase(), canonicalId);
-            accountMap.set(id.replace(/^(cust|supp|bank|safe|exp)-/, '').toLowerCase(), canonicalId);
-        }
-        if (name) accountMap.set(name.toLowerCase(), canonicalId);
-        if (code) accountMap.set(code.toLowerCase(), canonicalId);
-    };
-
-    custs.forEach(c => registerAcc(c, 'cust-'));
-    sups.forEach(s => registerAcc(s, 'supp-'));
-    banks.forEach(b => registerAcc(b, 'bank-'));
-    safes.forEach(sf => registerAcc(sf, 'safe-'));
-    accounts.forEach(a => registerAcc(a, 'exp-'));
-
-    const resolveAccount = (accVal, fallback = '') => {
-        if (!accVal) return fallback;
-        const str = String(accVal).trim().toLowerCase();
-        if (accountMap.has(str)) return accountMap.get(str);
-        const cleanStr = str.replace(/^(cust|supp|bank|safe|exp)-/, '');
-        if (accountMap.has(cleanStr)) return accountMap.get(cleanStr);
-        return accVal;
-    };
 
     // 2b. Multi-Receipts (erp_receipts_v1)
     const rawMultiReceipts = (JSON.parse(localStorage.getItem('erp_receipts_v1')) || []).filter(v => v && !v.deleted);
