@@ -654,6 +654,7 @@ function loadNextVoucher() {
 function renderVoucher(v) {
     if (!v) return;
     window.isVoucherLoadedFromDrilldown = true;
+    window.isLoadingVoucher = true;
 
     let vid = v.id || v.voucherNo || v.paymentNo || v.receiptNo || v.invoiceNo || '';
     if (document.getElementById('voucher-number')) document.getElementById('voucher-number').innerText = vid;
@@ -708,6 +709,7 @@ function renderVoucher(v) {
     updateBalances();
     updateLedgerButtons();
     if (typeof updateActionButtonsVisibility === 'function') updateActionButtonsVisibility();
+    window.isLoadingVoucher = false;
 }
 
 function submitVoucher() {
@@ -2275,6 +2277,7 @@ window.initPaymentContainers = function() {
 };
 
 window.syncFirstRowAmount = function() {
+    if (window.isLoadingVoucher) return;
     const totalAmount = parseNum(document.getElementById('amount-local').value);
     const transferRows = document.querySelectorAll('.transfer-row');
     if (transferRows.length === 1) {
