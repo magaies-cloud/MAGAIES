@@ -430,19 +430,6 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             transform: scale(1.25);
         }
 
-        /* Elegant Compact Styling for Row-Level Action Buttons (كشف حساب، تحويل، شيك) */
-        .row-action-btn {
-            height: 38px !important;
-            padding: 0 12px !important;
-            border-radius: 12px !important;
-            font-size: 0.85rem !important;
-            min-width: max-content !important;
-            gap: 6px !important;
-        }
-        .row-action-btn .btn-icon {
-            font-size: 1rem !important;
-        }
-
         /* ═══ Voucher Type Buttons (صرف مجمع 📤 vs استلام مجمع 📥) ═══ */
         .voucher-type-btn.active-payment, #btn-payment.active-payment {
             --tab-border-color: #d47a7e;
@@ -644,23 +631,24 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         .custom-dropdown-item:last-child {
             border-bottom: none;
         }
-        /* ═══ RESTORED: Voucher Type Toggle Buttons (صرف/استلام مجمع) ═══ */
+
+        /* Voucher Type Toggle Buttons (صرف/استلام مجمع) */
+        /* Voucher Type Toggle Buttons (صرف/استلام مجمع) */
         .voucher-type-btn {
             background: rgba(0,0,0,0.4) !important;
             border: 1px solid rgba(255,255,255,0.08) !important;
             color: #94a3b8 !important;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.6) !important;
+            min-width: 175px !important;
+            height: 45px !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 10px !important;
+            border-radius: 10px !important;
+            cursor: pointer !important;
             transform: translateY(0) scale(0.97) !important;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-            height: 48px;
-            padding: 0 20px;
-            border-radius: 12px;
-            font-size: 1.1rem;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            cursor: pointer;
-            min-width: 140px;
         }
         .voucher-type-btn:hover {
             background: rgba(255, 255, 255, 0.05) !important;
@@ -672,6 +660,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             background: linear-gradient(135deg, #d47a7e, #a3585c) !important;
             border: 1px solid rgba(212, 122, 126, 0.8) !important;
             color: #ffffff !important;
+            box-shadow: 0 8px 25px rgba(212, 122, 126, 0.5), 0 0 15px rgba(212, 122, 126, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
             font-weight: 900 !important;
             transform: translateY(-4px) scale(1.04) !important;
         }
@@ -679,9 +668,11 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             background: linear-gradient(135deg, #2ecc71, #27ae60) !important;
             border: 1px solid rgba(39, 174, 96, 0.8) !important;
             color: #ffffff !important;
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.5), 0 0 15px rgba(39, 174, 96, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
             font-weight: 900 !important;
             transform: translateY(-4px) scale(1.04) !important;
         }
+
         /* Color Wave Animation */
         @keyframes colorWave {
             0% { background-position: 0% 50%; }
@@ -832,10 +823,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             <span><i class="fa fa-user"></i></span> بيان الطرف الرئيسي
                         </div>
                         <div style="display: flex; gap: 10px;">
-                            <button type="button" id="btn-payment" class="voucher-type-btn active-payment" onclick="setVoucherType('payment')">
+                            <button type="button" id="btn-payment" class="voucher-type-btn active-payment crystal-btn" onclick="switchType('payment')">
                                 <span class="btn-icon"><i class="fa fa-arrow-up"></i></span> <span class="btn-text">صرف مجمع</span>
                             </button>
-                            <button type="button" id="btn-receipt" class="voucher-type-btn" onclick="setVoucherType('receipt')">
+                            <button type="button" id="btn-receipt" class="voucher-type-btn crystal-btn" onclick="switchType('receipt')">
                                 <span class="btn-icon"><i class="fa fa-arrow-down"></i></span> <span class="btn-text">استلام مجمع</span>
                             </button>
                         </div>
@@ -938,13 +929,13 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         <!-- Row 1: Account, Amount, and Method Toggles -->
                         <div style="display: flex; gap: 12px; align-items: stretch; flex-wrap: wrap; margin-bottom: 12px;">
                             <!-- Account -->
-                            <div style="flex: 4.5; min-width: 250px; position: relative; display: flex; flex-direction: column;">
+                            <div style="flex: 1.5; min-width: 180px; position: relative; display: flex; flex-direction: column;">
                                 <div class="custom-dropdown-input-wrap" style="position: relative; flex: 1; display: flex; gap: 8px;">
                                     <input type="hidden" id="account-{ID}-id" class="block-account-id">
                                     <input type="hidden" id="account-{ID}" class="block-account-name">
                                     <input type="text" autocomplete="off" class="form-input block-account-search" id="account-{ID}-search" placeholder="الحساب / الجهة المستفيدة..." onfocus="showAccountDropdown('account-{ID}')" onclick="showAccountDropdown('account-{ID}')" onblur="hideAccountDropdownDelayed('account-{ID}')" oninput="filterAccountDropdown('account-{ID}')" style="font-size: 1rem; flex: 1; margin-bottom: 0; border-radius: 10px;">
-                                    <button type="button" class="crystal-btn row-action-btn" onclick="openLedgerForBlockAccount('{ID}')" title="دفتر الأستاذ العام" style="--tab-border-color: #34d399; --tab-glow-color: rgba(52,211,153,0.6); --tab-hover-bg: linear-gradient(135deg, #10b981, #059669);">
-                                        <span class="btn-icon"><i class="fa fa-book"></i></span> <span class="btn-text">كشف حساب</span>
+                                    <button type="button" class="crystal-btn" onclick="openLedgerForBlockAccount('{ID}')" title="دفتر الأستاذ العام" style="--tab-border-color: #34d399; --tab-glow-color: rgba(52,211,153,0.6); --tab-hover-bg: linear-gradient(135deg, #10b981, #059669); padding: 0 14px; height: auto; font-size: 0.85rem; display: flex; align-items: center; justify-content: center; min-width: max-content;">
+                                        <span class="btn-icon" style="font-size: 1rem;"><i class="fa fa-book"></i></span> <span class="btn-text">كشف حساب</span>
                                     </button>
                                     <div class="custom-dropdown-list" id="account-{ID}-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                                 </div>
@@ -956,14 +947,14 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             </div>
                             
                             <!-- Statement (بيان التحويل) -->
-                            <div style="flex: 1.5; min-width: 150px; display: flex; flex-direction: column; position: relative;">
+                            <div style="flex: 1.8; min-width: 150px; display: flex; flex-direction: column; position: relative;">
                                 <input type="text" autocomplete="off" id="statement-{ID}" class="form-input" placeholder="البيان" style="font-size: 1rem; flex: 1; margin-bottom: 0; background: rgba(255,255,255,0.05); color: #fff;">
                             </div>
                             
                             <!-- Payment Toggles (No Cash) -->
-                            <div style="display: flex; gap: 8px; flex: 1; min-width: 150px; align-items: center; justify-content: flex-end; margin-right: auto;">
-                                <button type="button" id="pm-bank-{ID}" class="pay-toggle-btn block-btn-bank crystal-btn row-action-btn" data-action="toggle-pm" data-block="{ID}" data-method="bank"><span class="btn-icon"><i class="fa fa-mobile-alt"></i></span> <span class="btn-text">تحويل</span></button>
-                                <button type="button" id="pm-cheque-{ID}" class="pay-toggle-btn block-btn-cheque crystal-btn row-action-btn" data-action="toggle-pm" data-block="{ID}" data-method="cheque"><span class="btn-icon"><i class="fa fa-money-check-alt"></i></span> <span class="btn-text">شيك</span></button>
+                            <div style="display: flex; gap: 8px; flex: 1.2; min-width: 160px; align-items: stretch; justify-content: flex-end; margin-right: auto;">
+                                <button type="button" id="pm-bank-{ID}" class="pay-toggle-btn block-btn-bank crystal-btn" data-action="toggle-pm" data-block="{ID}" data-method="bank"><span class="btn-icon"><i class="fa fa-mobile-alt"></i></span> <span class="btn-text">تحويل</span></button>
+                                <button type="button" id="pm-cheque-{ID}" class="pay-toggle-btn block-btn-cheque crystal-btn" data-action="toggle-pm" data-block="{ID}" data-method="cheque"><span class="btn-icon"><i class="fa fa-money-check-alt"></i></span> <span class="btn-text">شيك</span></button>
                             </div>
                         </div>
 
@@ -1034,6 +1025,9 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             </div>
 
             <style>
+                .footer-actions .btn { font-size: 0.85rem !important; padding: 8px 15px !important; }
+                .footer-actions .btn-save-master { font-size: 0.95rem !important; padding: 8px 20px !important; font-weight: bold; }
+                
                 /* Universal Light Theme Overrides for Internal Screens */
                 :root.light-theme body,
                 :root.light-theme .ambient-bg {
@@ -1114,12 +1108,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             <div style="padding: 20px 0 10px 0; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 30px; width: 100%;">
                 <!-- Action Buttons Section -->
                 <div class="footer-actions" style="display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; width: 100%;">
-                    <button type="button" class="btn crystal-btn btn-exit" onclick="if(document.referrer) { window.history.back(); } else { window.location.href='dashboard-pro.php'; }" title="الرجوع للشاشة السابقة"><span class="btn-icon">🚪</span> <span class="btn-text">خروج</span></button>
-                    <button type="button" class="btn crystal-btn btn-new" onclick="resetVoucher()"><span class="btn-icon">✨</span> <span class="btn-text">مستند جديد</span></button>
-                    <button type="button" class="btn crystal-btn btn-print" onclick="directPrint()"><span class="btn-icon">🖨️</span> <span class="btn-text">طباعة</span></button>
-                    <button type="button" class="btn crystal-btn btn-print-preview" onclick="printVoucher()"><span class="btn-icon">👁️</span> <span class="btn-text">معاينة</span></button>
-                    <button type="button" class="btn crystal-btn btn-delete" onclick="confirmDelete()"><span class="btn-icon">🗑️</span> <span class="btn-text">حذف المستند</span></button>
-                    <button type="button" class="btn crystal-btn btn-save-master" id="btn-save" onclick="saveVoucher()"><span class="btn-icon">✅</span> <span class="btn-text">حفظ واعتماد السند</span></button>
+                    <button type="button" class="btn crystal-btn btn-exit" onclick="if(document.referrer) { window.history.back(); } else { window.location.href='dashboard-pro.php'; }" title="الرجوع للشاشة السابقة">🚪 خروج</button>
+                    <button type="button" class="btn crystal-btn btn-new" onclick="resetVoucher()">✨ مستند جديد</button>
+                    <button type="button" class="btn crystal-btn btn-print" onclick="directPrint()">🖨️ طباعة</button>
+                    <button type="button" class="btn crystal-btn btn-print-preview" onclick="printVoucher()">👁️ معاينة</button>
+                    <button type="button" class="btn crystal-btn btn-delete" onclick="confirmDelete()">🗑️ حذف المستند</button>
+                    <button type="button" class="btn crystal-btn btn-save-master" id="btn-save" onclick="saveVoucher()">✅ حفظ واعتماد السند</button>
                 </div>
             </div>
         </div>

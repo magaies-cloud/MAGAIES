@@ -1548,53 +1548,8 @@ async function saveVoucher() {
                         hasInvalidTransfer = true;
                         break;
                     }
-                    if (tno.length < 6) {
-                        showToast(`الحساب ${accountName} - السطر ${i + 1}: رقم التحويلة يجب ألا يقل عن 6 أرقام`, "error");
-                        highlightError(row.querySelector('.block-transfer-no-input'));
-                        hasInvalidTransfer = true;
-                        break;
-                    }
-                    
-                    const currentVoucherNo = document.getElementById('voucher-no-display')?.value || '';
-                    
-                    // Uniqueness Check for last 6 digits
-                    let last6 = tno.slice(-6);
-                    let isDuplicate = false;
-                    let allVouchers = [];
-                    const tKeyPay = (typeof window.getTenantKey === 'function') ? window.getTenantKey('erp_payments_v1') : 'erp_payments_v1';
-                    const tKeyRec = (typeof window.getTenantKey === 'function') ? window.getTenantKey('erp_receipts_v1') : 'erp_receipts_v1';
-                    try {
-                        let p = JSON.parse(localStorage.getItem(tKeyPay) || localStorage.getItem('erp_payments_v1') || '[]');
-                        if (!Array.isArray(p)) p = Object.values(p);
-                        allVouchers = allVouchers.concat(p);
-                    } catch(e) {}
-                    try {
-                        let r = JSON.parse(localStorage.getItem(tKeyRec) || localStorage.getItem('erp_receipts_v1') || '[]');
-                        if (!Array.isArray(r)) r = Object.values(r);
-                        allVouchers = allVouchers.concat(r);
-                    } catch(e) {}
-                    if (window.SERVER_PAYMENTS && Array.isArray(window.SERVER_PAYMENTS)) allVouchers = allVouchers.concat(window.SERVER_PAYMENTS);
-                    if (window.SERVER_RECEIPTS && Array.isArray(window.SERVER_RECEIPTS)) allVouchers = allVouchers.concat(window.SERVER_RECEIPTS);
-
-                    for (let v of allVouchers) {
-                        if (!v) continue;
-                        if (v.id === currentVoucherNo || v.voucherNo === currentVoucherNo) continue; 
-                        
-                        if (v.bankTransfers && Array.isArray(v.bankTransfers)) {
-                            for (let tr of v.bankTransfers) {
-                                if (tr.transferNo && String(tr.transferNo).slice(-6) === last6) {
-                                    isDuplicate = true; break;
-                                }
-                            }
-                        }
-                        if (v.transferNo && String(v.transferNo).slice(-6) === last6) {
-                            isDuplicate = true;
-                        }
-                        if (isDuplicate) break;
-                    }
-                    
-                    if (isDuplicate) {
-                        showToast(`الحساب ${accountName} - السطر ${i + 1}: رقم التحويلة مكرر (تطابق في آخر 6 أرقام مع حركة سابقة)`, "error");
+                    if (tno.length < 4) {
+                        showToast(`الحساب ${accountName} - السطر ${i + 1}: رقم التحويل يجب أن يكون 4 أرقام على الأقل`, "error");
                         highlightError(row.querySelector('.block-transfer-no-input'));
                         hasInvalidTransfer = true;
                         break;
@@ -1639,7 +1594,12 @@ async function saveVoucher() {
                         hasInvalidCheque = true;
                         break;
                     }
-                    // Cheque length validation removed intentionally (can be 1 digit and can be duplicated)
+                    if (no.length < 4) {
+                        showToast(`الحساب ${accountName} - السطر ${i + 1}: رقم الشيك يجب أن يكون 4 أرقام على الأقل`, "error");
+                        highlightError(row.querySelector('.block-cheque-no-input'));
+                        hasInvalidCheque = true;
+                        break;
+                    }
                     const currentVoucherNo = document.getElementById('voucher-no-display')?.value || '';
                     chequeTotalAmt += amt;
                     cheques.push({ amount: amt, chequeBank: bank, chequeNo: no, chequeDate: dt, statement: desc });
