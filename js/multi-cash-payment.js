@@ -1548,8 +1548,17 @@ async function saveVoucher() {
                         hasInvalidTransfer = true;
                         break;
                     }
-                    if (tno.length < 4) {
-                        showToast(`الحساب ${accountName} - السطر ${i + 1}: رقم التحويل يجب أن يكون 4 أرقام على الأقل`, "error");
+                    if (tno.length < 6) {
+                        showToast(`الحساب ${accountName} - السطر ${i + 1}: رقم التحويل يجب أن لا يقل عن 6 أرقام`, "error");
+                        highlightError(row.querySelector('.block-transfer-no-input'));
+                        hasInvalidTransfer = true;
+                        break;
+                    }
+                    
+                    const cvNo = document.getElementById('voucher-no-display') ? document.getElementById('voucher-no-display').value : '';
+                    const isUnique = await window.checkTransferDuplicate(tno, cvNo);
+                    if (!isUnique) {
+                        showToast(`الحساب ${accountName} - السطر ${i + 1}: رقم التحويل (${tno}) مكرر في النظام (تطابق آخر 6 أرقام)`, "error");
                         highlightError(row.querySelector('.block-transfer-no-input'));
                         hasInvalidTransfer = true;
                         break;
@@ -2987,3 +2996,57 @@ window.openLedgerForBlockAccount = function(blockId) {
 
 
 
+
+
+
+// Check for transfer number duplicates
+window.checkTransferDuplicate = async function(tno, currentVoucherId) {
+    if (!tno || String(tno).trim().length < 6) return true;
+    const targetSuffix = String(tno).trim().slice(-6);
+    const getTenantKey = window.getTenantKey || ((k) => k);
+    const keys = [
+        getTenantKey('erp_multi_payments_v1'),
+        getTenantKey('erp_multi_receipts_v1'),
+        getTenantKey('erp_single_payments_v1'),
+        getTenantKey('erp_single_receipts_v1')
+    ];
+    
+    for (let key of keys) {
+        let vouchers = [];
+        try {
+            vouchers = (await localforage.getItem(key)) || [];
+        } catch(e) { continue; }
+        
+        for (let v of vouchers) {
+            if (v.deleted) continue;
+            if (currentVoucherId && (v.id === currentVoucherId || v.voucherNo === currentVoucherId)) continue;
+            
+            // Check top-level bankTransfers
+            if (v.bankTransfers && Array.isArray(v.bankTransfers)) {
+                for (let bt of v.bankTransfers) {
+                    let no = String(bt.transferNo || '').trim();
+                    if (no.length >= 6 && no.slice(-6) === targetSuffix) return false;
+                }
+            } else if (v.mobileTransferNo) {
+                let no = String(v.mobileTransferNo).trim();
+                if (no.length >= 6 && no.slice(-6) === targetSuffix) return false;
+            }
+            
+            // Check items array
+            if (v.items && Array.isArray(v.items)) {
+                for (let item of v.items) {
+                    if (item.bankTransfers && Array.isArray(item.bankTransfers)) {
+                        for (let bt of item.bankTransfers) {
+                            let no = String(bt.transferNo || '').trim();
+                            if (no.length >= 6 && no.slice(-6) === targetSuffix) return false;
+                        }
+                    } else if (item.transferNo) {
+                        let no = String(item.transferNo).trim();
+                        if (no.length >= 6 && no.slice(-6) === targetSuffix) return false;
+                    }
+                }
+            }
+        }
+    }
+    return true; // Not duplicated
+};
