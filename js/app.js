@@ -5208,7 +5208,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         const currency = v.currency || 'SDG';
         const time = v.time || timeNow;
         const isPosted = v.isPosted !== false;
-        const mainAcc = v.toAccount || 'safe-001';
+        const mainAcc = resolveAccount(v.toAccount || v.mainAccount || v.depositAccount || 'safe-001', 'safe-001');
         const refNo = (v.voucherNo && !String(v.voucherNo).startsWith('MV-')) ? v.voucherNo : ((v.id && !String(v.id).startsWith('MV-')) ? v.id : (v.voucherNo || v.id));
 
         const rate = parseNum(v.exchangeRate || 1);
@@ -5416,7 +5416,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         const currency = v.currency || 'SDG';
         const time = v.time || timeNow;
         const isPosted = v.isPosted !== false;
-        const mainAcc = v.fromAccount || 'safe-001';
+        const mainAcc = resolveAccount(v.fromAccount || v.mainAccount || v.withdrawalAccount || 'safe-001', 'safe-001');
         const refNo = (v.voucherNo && !String(v.voucherNo).startsWith('MV-')) ? v.voucherNo : ((v.id && !String(v.id).startsWith('MV-')) ? v.id : (v.voucherNo || v.id));
 
         const rate = parseNum(v.exchangeRate || 1);
