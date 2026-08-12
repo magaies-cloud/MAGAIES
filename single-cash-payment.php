@@ -1092,16 +1092,34 @@ try {
             color: #ffffff !important;
         }
         .dynamic-focus-input:focus {
-            height: 65px !important;
-            font-size: 3rem !important;
+            font-size: 5.5rem !important;
+            height: 100px !important;
+            min-width: 400px !important;
+            position: relative !important;
+            z-index: 1000 !important;
+            margin-right: -100px !important;
             font-weight: 900 !important;
             letter-spacing: 3px !important;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 25px rgba(251, 191, 36, 0.6) !important;
         }
         .dynamic-focus-amount:focus {
             color: #fbbf24 !important; /* Yellow */
         }
         .dynamic-focus-number:focus {
             color: #38bdf8 !important; /* Sky Blue for focus/comfort */
+        }
+        
+        .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus {
+            font-size: 5.5rem !important;
+            height: 100px !important;
+            min-width: 400px !important;
+            position: relative !important;
+            z-index: 1000 !important;
+            margin-right: -100px !important;
+            border-color: #fbbf24 !important;
+            background: rgba(15, 23, 42, 0.98) !important;
+            color: #fbbf24 !important;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 25px rgba(251, 191, 36, 0.6) !important;
         }
             /* Custom Number Properties Menu */
         #num-props-menu { display: none; position: absolute; z-index: 9999; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); border-radius: 12px; padding: 10px; width: 260px; color: #cbd5e1; font-family: 'Inter', sans-serif; direction: rtl; }

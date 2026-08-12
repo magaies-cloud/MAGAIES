@@ -946,9 +946,16 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         
         /* Focus State for Amounts */
         input.block-total-amount:focus, input.block-bank-amount:focus, input.block-cheque-amount:focus, input.transfer-amount:focus, input.cheque-amount:focus {
-            font-size: 4.0rem !important;
+            font-size: 5.5rem !important;
+            height: 100px !important;
+            min-width: 400px !important;
+            position: relative !important;
+            z-index: 1000 !important;
+            margin-right: -100px !important; /* Offset for RTL to expand outwards */
             color: #fbbf24 !important; /* Gold */
-            background: rgba(15, 23, 42, 0.8) !important;
+            background: rgba(15, 23, 42, 0.98) !important;
+            border: 2px solid #fbbf24 !important;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 25px rgba(251, 191, 36, 0.6) !important;
         }
         
         /* Normal State for Numbers */
