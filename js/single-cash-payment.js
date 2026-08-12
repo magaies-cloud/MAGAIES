@@ -2299,7 +2299,7 @@ window.addTransferRow = function(no = '', note = '', amt = 0, statement = '') {
         ${labelHTML}
         <div class="dynamic-focus-container" style="width: 270px; flex: none; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">المبلغ:</label>
-            <input type="text" maxlength="12" class="v-input ctrl-input transfer-amount dynamic-focus-input dynamic-focus-amount" value="${amt > 0 ? Math.round(amt).toLocaleString('en-US') : ''}" placeholder="0.00" oninput="restrictToNumbers(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" onblur="if(this.value) { this.value = Math.round(Number(this.value.replace(/,/g, '')) || 0).toLocaleString('en-US'); } if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.7rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fbbf24; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900; text-align: center;">
+            <input type="text" maxlength="12" class="v-input ctrl-input transfer-amount dynamic-focus-input dynamic-focus-amount" value="${amt > 0 ? Math.round(amt).toLocaleString('en-US') : ''}" placeholder="0.00" oninput="restrictToNumbers(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.7rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fbbf24; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900; text-align: center;">
         </div>
         <div style="flex: 1; min-width: 80px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">اسم البنك:</label>
@@ -2354,7 +2354,7 @@ window.addChequeRow = function(branch = '', no = '', date = '', amt = 0, stateme
         ${labelHTML}
         <div class="dynamic-focus-container" style="width: 270px; flex: none; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">المبلغ:</label>
-            <input type="text" maxlength="12" class="v-input ctrl-input cheque-amount dynamic-focus-input dynamic-focus-amount" value="${amt > 0 ? parseFloat(amt).toFixed(2) : ''}" placeholder="0.00" oninput="restrictToNumbers(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" onblur="if(this.value) { this.value = Math.round(Number(this.value.replace(/,/g, '')) || 0).toLocaleString('en-US'); } if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.7rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fbbf24; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900; text-align: center;">
+            <input type="text" maxlength="12" class="v-input ctrl-input cheque-amount dynamic-focus-input dynamic-focus-amount" value="${amt > 0 ? parseFloat(amt).toFixed(2) : ''}" placeholder="0.00" oninput="restrictToNumbers(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.7rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fbbf24; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900; text-align: center;">
         </div>
         <div style="flex: 1; min-width: 80px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">اسم البنك:</label>
@@ -2525,4 +2525,124 @@ window.restrictToNumbers = function(el) { if(el) { el.value = el.value.replace(/
 
 
 
+
+
+// --- Custom Context Menu for Number Properties ---
+let currentTargetInput = null;
+
+window.showNumberProperties = function(e, input) {
+    e.preventDefault();
+    currentTargetInput = input;
+    
+    const menu = document.getElementById('num-props-menu');
+    if (!menu) return;
+    
+    // Read current state from data attributes (or set defaults)
+    const hasComma = input.getAttribute('data-thousands') !== 'false';
+    const decimals = parseInt(input.getAttribute('data-decimals') || '0');
+    const font = input.getAttribute('data-font') || 'inter';
+    
+    // Update UI
+    document.getElementById('prop-comma-status').textContent = hasComma ? 'مفعل' : 'معطل';
+    document.getElementById('prop-comma-status').style.color = hasComma ? '#10b981' : '#ef4444';
+    document.getElementById('prop-dec-val').textContent = decimals;
+    document.getElementById('prop-font-status').textContent = font === 'inter' ? 'Inter' : 'Roboto Mono';
+    
+    // Position menu
+    menu.style.display = 'block';
+    
+    // Adjust if it goes off screen
+    let x = e.pageX;
+    let y = e.pageY;
+    if (x + menu.offsetWidth > window.innerWidth) x = window.innerWidth - menu.offsetWidth - 10;
+    if (y + menu.offsetHeight > window.innerHeight) y = window.innerHeight - menu.offsetHeight - 10;
+    
+    menu.style.left = x + 'px';
+    menu.style.top = y + 'px';
+};
+
+window.closeNumberProperties = function() {
+    const menu = document.getElementById('num-props-menu');
+    if (menu) menu.style.display = 'none';
+};
+
+document.addEventListener('click', function(e) {
+    const menu = document.getElementById('num-props-menu');
+    if (menu && menu.style.display === 'block') {
+        if (!menu.contains(e.target)) {
+            closeNumberProperties();
+        }
+    }
+});
+
+window.applyNumProp = function(action) {
+    if (!currentTargetInput) return;
+    const input = currentTargetInput;
+    
+    if (action === 'font-inc') {
+        let currentSize = parseFloat(window.getComputedStyle(input).fontSize);
+        input.style.setProperty('font-size', (currentSize + 2) + 'px', 'important');
+    } else if (action === 'font-dec') {
+        let currentSize = parseFloat(window.getComputedStyle(input).fontSize);
+        input.style.setProperty('font-size', (currentSize - 2) + 'px', 'important');
+    } else if (action === 'toggle-comma') {
+        const current = input.getAttribute('data-thousands') !== 'false';
+        input.setAttribute('data-thousands', current ? 'false' : 'true');
+        document.getElementById('prop-comma-status').textContent = !current ? 'مفعل' : 'معطل';
+        document.getElementById('prop-comma-status').style.color = !current ? '#10b981' : '#ef4444';
+    } else if (action === 'dec-inc') {
+        let dec = parseInt(input.getAttribute('data-decimals') || '0');
+        if (dec < 4) dec++;
+        input.setAttribute('data-decimals', dec);
+        document.getElementById('prop-dec-val').textContent = dec;
+    } else if (action === 'dec-dec') {
+        let dec = parseInt(input.getAttribute('data-decimals') || '0');
+        if (dec > 0) dec--;
+        input.setAttribute('data-decimals', dec);
+        document.getElementById('prop-dec-val').textContent = dec;
+    } else if (action === 'toggle-font') {
+        const current = input.getAttribute('data-font') || 'inter';
+        const newFont = current === 'inter' ? 'monospace' : 'inter';
+        input.setAttribute('data-font', newFont);
+        if (newFont === 'monospace') {
+            input.style.setProperty('font-family', "'Roboto Mono', Consolas, monospace", 'important');
+            document.getElementById('prop-font-status').textContent = 'Roboto Mono';
+        } else {
+            input.style.setProperty('font-family', "'Inter', system-ui, sans-serif", 'important');
+            document.getElementById('prop-font-status').textContent = 'Inter';
+        }
+    }
+    
+    // Reformat
+    formatAmount(input);
+    
+    // Trigger any dependent calculations if they exist
+    if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();
+    if (typeof calcEquiv === 'function') {
+        if (input.id === 'amount-local') calcEquiv('local');
+        if (input.id === 'amount-foreign') calcEquiv('foreign');
+    }
+};
+
+window.formatAmount = function(input) {
+    if (!input.value) return;
+    
+    let raw = input.value.toString().replace(/[^0-9.-]/g, '');
+    let num = parseFloat(raw) || 0;
+    
+    const hasComma = input.getAttribute('data-thousands') !== 'false';
+    const decimals = parseInt(input.getAttribute('data-decimals') || '0');
+    
+    let factor = Math.pow(10, decimals);
+    num = Math.round(num * factor) / factor;
+    
+    let parts = num.toFixed(decimals).split('.');
+    
+    if (hasComma) {
+        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    }
+    
+    let result = decimals > 0 ? parts.join('.') : parts[0];
+    input.value = result;
+};
 
