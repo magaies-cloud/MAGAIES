@@ -260,7 +260,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         .btn-del:hover { transform: scale(1.2); }
 
         /* Choices custom overrides */
-        .choices__inner { background-color: rgba(0,0,0,0.2) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fff !important; border-radius: 8px !important; min-height: 42px !important; }
+        .choices__inner { background-color: rgba(0,0,0,0.2) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fff !important;  min-height: 42px !important; }
         .choices__list--dropdown { background-color: #1e293b !important; color: #fff !important; border: 1px solid #f97316 !important; }
         .choices__item--selectable.is-highlighted { background-color: #f97316 !important; }
         /* Toast */
@@ -876,6 +876,9 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         .amount-animate.changed {
             transform: scale(1.08);
             color: #fbbf24 !important;
+                    height: 55px !important;
+                    padding: 10px 20px !important;
+                    
         }
 
         /* ═══ Button Active Press ═══ */
@@ -1163,6 +1166,9 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                     font-size: 1.4rem !important;
                     font-weight: 900 !important;
                     color: #fbbf24 !important;
+                    height: 55px !important;
+                    padding: 10px 20px !important;
+                    
                 }
                 
                 /* Large Totals & Rates */
