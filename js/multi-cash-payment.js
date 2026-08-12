@@ -957,17 +957,52 @@ function calcTotal() {
 }
 
 
-function showCenterError(msg) {
+function showCenterError(msg, type = 'default') {
     const existing = document.getElementById('center-error-modal');
     if (existing) existing.remove();
+    
+    let bgGradient = 'linear-gradient(135deg, #7f1d1d, #b91c1c)';
+    let borderColor = '#f87171';
+    let icon = '❌';
+    let btnText = 'فهمت ذلك';
+    let shadowColor = 'rgba(239, 68, 68, 0.5)';
+    let btnDismissLogic = "document.getElementById('center-error-modal').remove()";
+    
+    if (type === 'empty') {
+        bgGradient = 'linear-gradient(135deg, #ea580c, #c2410c)'; // Orange-Red for empty fields
+        borderColor = '#fdba74';
+        icon = '⚠️';
+        btnText = 'حسناً، سأقوم بإدخاله';
+        shadowColor = 'rgba(234, 88, 12, 0.6)';
+    } else if (type === 'short') {
+        bgGradient = 'linear-gradient(135deg, #be123c, #9f1239)'; // Pinkish-Red for short numbers
+        borderColor = '#fda4af';
+        icon = '🔢';
+        btnText = 'تعديل الرقم';
+        shadowColor = 'rgba(190, 18, 60, 0.6)';
+    } else if (type === 'duplicate') {
+        bgGradient = 'linear-gradient(135deg, #7f1d1d, #450a0a)'; // Dark Maroon for duplicates
+        borderColor = '#ef4444';
+        icon = '🔄';
+        btnText = 'إلغاء التكرار';
+        shadowColor = 'rgba(127, 29, 29, 0.7)';
+    }
+
     const modal = document.createElement('div');
     modal.id = 'center-error-modal';
     modal.style.cssText = 'position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 999999; display: flex; align-items: center; justify-content: center; direction: rtl; opacity: 0; transition: opacity 0.3s;';
+    
+    if (type === 'empty') {
+        modal.onclick = function(e) {
+            if (e.target === modal) modal.remove();
+        };
+    }
+    
     modal.innerHTML = `
-        <div style="background: linear-gradient(135deg, #7f1d1d, #b91c1c); border: 2px solid #f87171; border-radius: 15px; padding: 30px 40px; box-shadow: 0 10px 30px rgba(239, 68, 68, 0.5); text-align: center; max-width: 500px; width: 90%; transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
-            <div style="font-size: 4rem; margin-bottom: 15px; text-shadow: 0 4px 10px rgba(0,0,0,0.3);">⚠️</div>
+        <div style="background: ${bgGradient}; border: 2px solid ${borderColor}; border-radius: 15px; padding: 30px 40px; box-shadow: 0 10px 30px ${shadowColor}; text-align: center; max-width: 500px; width: 90%; transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
+            <div style="font-size: 4rem; margin-bottom: 15px; text-shadow: 0 4px 10px rgba(0,0,0,0.3);">${icon}</div>
             <h2 style="color: #fff; font-family: 'Tajawal', sans-serif; font-size: 1.6rem; margin: 0 0 20px 0; line-height: 1.4;">${msg}</h2>
-            <button onclick="document.getElementById('center-error-modal').remove()" style="background: #fff; color: #b91c1c; border: none; padding: 10px 30px; border-radius: 8px; font-weight: bold; font-family: 'Tajawal', sans-serif; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">حسناً، فهمت</button>
+            <button onclick="${btnDismissLogic}" style="background: #fff; color: #b91c1c; border: none; padding: 10px 30px; border-radius: 8px; font-weight: bold; font-family: 'Tajawal', sans-serif; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">${btnText}</button>
         </div>
     `;
     document.body.appendChild(modal);
@@ -977,6 +1012,7 @@ function showCenterError(msg) {
         modal.children[0].style.transform = 'scale(1)';
     });
 }
+
 
 function showToast(msg, type='success') {
     const container = document.getElementById('toast-container');
@@ -1066,6 +1102,14 @@ function resetVoucher() {
     calcTotal();
     loadNextMultiVoucherNumber();
     formDirty = false;
+    
+    // Re-enable save button
+    const saveBtn = document.getElementById('btn-save');
+    if (saveBtn) { 
+        saveBtn.disabled = false; 
+        saveBtn.style.opacity = '1'; 
+        saveBtn.style.pointerEvents = 'auto'; 
+    }
 }
 
 window.printVoucher = function() {
@@ -1518,6 +1562,7 @@ async function _saveVoucherCore() {
     const blocks = document.querySelectorAll('.account-block');
     let items = [];
     let totalAmt = 0;
+    const seenTransfers = new Set(); // Prevent duplicates within the same voucher
 
     for (let block of blocks) {
         const id = block.getAttribute('data-block-id');
@@ -1575,22 +1620,31 @@ async function _saveVoucherCore() {
                 
                 if (amt > 0) {
                     if (!tno) {
-                        showToast(`الحساب ${accountName} - السطر ${i + 1}: يرجى إدخال رقم حساب التحويل`, "error");
+                        showCenterError(`الحساب ${accountName} - السطر ${i + 1}:<br><br>يرجى إدخال رقم حساب التحويل البنكي!`, 'empty');
                         highlightError(row.querySelector('.block-transfer-no-input'));
                         hasInvalidTransfer = true;
                         break;
                     }
                     if (tno.length < 6) {
-                        showCenterError(`رقم التحويل البنكي للحساب ( ${accountName} - السطر ${i + 1} ) قصير جداً!<br><br>يجب أن لا يقل عن 6 أرقام`);
+                        showCenterError(`رقم التحويل البنكي للحساب ( ${accountName} - السطر ${i + 1} ) قصير جداً!<br><br>يجب أن لا يقل عن 6 أرقام`, 'short');
                         highlightError(row.querySelector('.block-transfer-no-input'));
                         hasInvalidTransfer = true;
                         break;
                     }
                     
+                    const targetSuffix = String(tno).trim().slice(-6);
+                    if (seenTransfers.has(targetSuffix)) {
+                        showCenterError(`رقم التحويل ( ${tno} ) للحساب ( ${accountName} - السطر ${i + 1} ) مكرر داخل نفس الشاشة!<br><br>يوجد تطابق في آخر 6 أرقام مع تحويلة أخرى أدخلتها الآن.`, 'duplicate');
+                        highlightError(row.querySelector('.block-transfer-no-input'));
+                        hasInvalidTransfer = true;
+                        break;
+                    }
+                    seenTransfers.add(targetSuffix);
+                    
                     const cvNo = document.getElementById('voucher-no-display') ? document.getElementById('voucher-no-display').value : '';
                     const isUnique = await window.checkTransferDuplicate(tno, cvNo);
                     if (!isUnique) {
-                        showCenterError(`رقم التحويل ( ${tno} ) للحساب ( ${accountName} - السطر ${i + 1} ) مستخدم من قبل!<br><br>يوجد تطابق في آخر 6 أرقام مع سند آخر في النظام.`);
+                        showCenterError(`رقم التحويل ( ${tno} ) للحساب ( ${accountName} - السطر ${i + 1} ) مستخدم من قبل!<br><br>يوجد تطابق في آخر 6 أرقام مع سند آخر في النظام.`, 'duplicate');
                         highlightError(row.querySelector('.block-transfer-no-input'));
                         hasInvalidTransfer = true;
                         break;
@@ -1624,13 +1678,13 @@ async function _saveVoucherCore() {
                 
                 if (amt > 0) {
                     if (!bank) {
-                        showToast(`الحساب ${accountName} - السطر ${i + 1}: يرجى إدخال اسم البنك للشيك`, "error");
+                        showCenterError(`الحساب ${accountName} - السطر ${i + 1}:<br><br>يرجى إدخال اسم البنك الخاص بالشيك!`, 'empty');
                         highlightError(row.querySelector('.block-cheque-bank-input'));
                         hasInvalidCheque = true;
                         break;
                     }
                     if (!no) {
-                        showToast(`الحساب ${accountName} - السطر ${i + 1}: يرجى إدخال رقم الشيك`, "error");
+                        showCenterError(`الحساب ${accountName} - السطر ${i + 1}:<br><br>يرجى إدخال رقم الشيك!`, 'empty');
                         highlightError(row.querySelector('.block-cheque-no-input'));
                         hasInvalidCheque = true;
                         break;
@@ -3052,46 +3106,75 @@ window.checkTransferDuplicate = async function(tno, currentVoucherId) {
     const targetSuffix = String(tno).trim().slice(-6);
     const getTenantKey = window.getTenantKey || ((k) => k);
     const keys = [
-        getTenantKey('erp_multi_payments_v1'),
-        getTenantKey('erp_multi_receipts_v1'),
-        getTenantKey('erp_single_payments_v1'),
-        getTenantKey('erp_single_receipts_v1')
+        getTenantKey('erp_payments_v1'),
+        getTenantKey('erp_receipts_v1'),
+        getTenantKey('erp_comprehensive_payments_v1'),
+        getTenantKey('erp_comprehensive_receipts_v1'),
+        getTenantKey('erp_journal_v1')
     ];
     
+    // Helper to check transfer number matches
+    const isMatch = (no) => {
+        let strNo = String(no || '').trim();
+        return (strNo.length >= 6 && strNo.slice(-6) === targetSuffix);
+    };
+
     for (let key of keys) {
         let vouchers = [];
         try {
-            vouchers = (await localforage.getItem(key)) || [];
+            // Using localStorage since all vouchers are typically stored there, but fallback to localforage just in case
+            vouchers = JSON.parse(localStorage.getItem(key)) || [];
+            if (!vouchers.length && typeof localforage !== 'undefined') {
+                vouchers = (await localforage.getItem(key)) || [];
+            }
         } catch(e) { continue; }
         
         for (let v of vouchers) {
             if (!v || v.deleted) continue;
             if (currentVoucherId && (v.id === currentVoucherId || v.voucherNo === currentVoucherId)) continue;
             
-            // Check top-level bankTransfers
+            // 1. Check top-level bankTransfers
             if (v.bankTransfers && Array.isArray(v.bankTransfers)) {
                 for (let bt of v.bankTransfers) {
-                    let no = String(bt.transferNo || '').trim();
-                    if (no.length >= 6 && no.slice(-6) === targetSuffix) return false;
+                    if (isMatch(bt.transferNo)) return false;
                 }
-            } else if (v.mobileTransferNo) {
-                let no = String(v.mobileTransferNo).trim();
-                if (no.length >= 6 && no.slice(-6) === targetSuffix) return false;
+            } else if (v.mobileTransferNo && isMatch(v.mobileTransferNo)) {
+                return false;
             }
             
-            // Check items array
+            // 2. Check items array (Multi Payment)
             if (v.items && Array.isArray(v.items)) {
                 for (let item of v.items) {
                     if (!item) continue;
                     if (item.bankTransfers && Array.isArray(item.bankTransfers)) {
                         for (let bt of item.bankTransfers) {
-                            let no = String(bt.transferNo || '').trim();
-                            if (no.length >= 6 && no.slice(-6) === targetSuffix) return false;
+                            if (isMatch(bt.transferNo)) return false;
                         }
-                    } else if (item.transferNo) {
-                        let no = String(item.transferNo).trim();
-                        if (no.length >= 6 && no.slice(-6) === targetSuffix) return false;
+                    } else if (item.transferNo && isMatch(item.transferNo)) {
+                        return false;
                     }
+                }
+            }
+            
+            // 3. Check details array (Single Payment)
+            if (v.details && Array.isArray(v.details)) {
+                for (let det of v.details) {
+                    if (!det) continue;
+                    if (det.bankTransfers && Array.isArray(det.bankTransfers)) {
+                        for (let bt of det.bankTransfers) {
+                            if (isMatch(bt.transferNo)) return false;
+                        }
+                    } else if (det.transferNo && isMatch(det.transferNo)) {
+                        return false;
+                    }
+                }
+            }
+            
+            // 4. Check subTransactions (Journal)
+            if (v.subTransactions && Array.isArray(v.subTransactions)) {
+                for (let sub of v.subTransactions) {
+                    if (!sub) continue;
+                    if (sub.transferNo && isMatch(sub.transferNo)) return false;
                 }
             }
         }
