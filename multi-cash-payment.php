@@ -5,6 +5,36 @@ global $GLOBAL_TENANT_ID;
 
 $SERVER_PAYMENTS_json = '[]';
 $SERVER_RECEIPTS_json = '[]';
+
+// --- AJAX save logic for num properties ---
+if (isset($_POST['action']) && $_POST['action'] === 'save_num_props') {
+    try {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS ui_preferences (
+            tenant_id VARCHAR(50) NOT NULL,
+            pref_key VARCHAR(100) NOT NULL,
+            pref_value TEXT,
+            PRIMARY KEY (tenant_id, pref_key)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+        $val = $_POST['num_props'] ?? '{}';
+        $stmt = $pdo->prepare("INSERT INTO ui_preferences (tenant_id, pref_key, pref_value) VALUES (?, 'multi_cash_num_props', ?) ON DUPLICATE KEY UPDATE pref_value = ?");
+        $stmt->execute([$GLOBAL_TENANT_ID, $val, $val]);
+        echo "success";
+    } catch (Exception $e) {
+        echo "error";
+    }
+    exit;
+}
+
+// --- Fetch num properties for initial load ---
+$db_num_props_json = '{}';
+try {
+    $stmt = $pdo->prepare("SELECT pref_value FROM ui_preferences WHERE tenant_id = ? AND pref_key = 'multi_cash_num_props'");
+    $stmt->execute([$GLOBAL_TENANT_ID]);
+    $res = $stmt->fetchColumn();
+    if($res) $db_num_props_json = $res;
+} catch(Exception $e) {}
+// ------------------------------------------
+
 try {
     // Fetch payments
     $stmt = $pdo->prepare("SELECT data FROM payments WHERE tenant_id = ? ORDER BY id ASC");
@@ -1465,7 +1495,8 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
     </div>
 
     <script>
-    let allNumProps = JSON.parse(localStorage.getItem('all-num-props')) || {};
+    let dbNumProps = <?php echo $db_num_props_json ?: '{}'; ?>;
+    let allNumProps = Object.keys(dbNumProps).length > 0 ? dbNumProps : (JSON.parse(localStorage.getItem('all-num-props')) || {});
     let currentPropId = 'default';
 
     function getActiveProp() {
@@ -1540,6 +1571,19 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
     function saveNumProps() {
         localStorage.setItem('all-num-props', JSON.stringify(allNumProps));
+        
+        // Save to Database via AJAX
+        let formData = new FormData();
+        formData.append('action', 'save_num_props');
+        formData.append('num_props', JSON.stringify(allNumProps));
+        
+        fetch(window.location.href, {
+            method: 'POST',
+            body: formData
+        }).then(r => r.text()).then(txt => {
+            console.log('Saved to DB:', txt);
+        });
+
         document.getElementById('custom-num-menu').style.display = 'none';
         applyNumPropsToAll();
     }
