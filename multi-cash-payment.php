@@ -1,4 +1,4 @@
-<?php 
+﻿<?php 
 require_once 'db_bridge.php';
 $pdo = getDBConnection();
 global $GLOBAL_TENANT_ID;
@@ -260,7 +260,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         .btn-del:hover { transform: scale(1.2); }
 
         /* Choices custom overrides */
-        .choices__inner { background-color: rgba(0,0,0,0.2) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fff !important;  min-height: 42px !important; }
+        .choices__inner { background-color: rgba(0,0,0,0.2) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fff !important; border-radius: 8px !important; min-height: 42px !important; }
         .choices__list--dropdown { background-color: #1e293b !important; color: #fff !important; border: 1px solid #f97316 !important; }
         .choices__item--selectable.is-highlighted { background-color: #f97316 !important; }
         /* Toast */
@@ -876,9 +876,6 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         .amount-animate.changed {
             transform: scale(1.08);
             color: #fbbf24 !important;
-                    height: 55px !important;
-                    padding: 10px 20px !important;
-                    
         }
 
         /* ═══ Button Active Press ═══ */
@@ -988,13 +985,38 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                     <!-- Form Inputs Row -->
                     <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; overflow: visible; padding-bottom: 10px; margin-bottom: 15px;">
 
-                        <div style="flex: 0 0 35%; max-width: 35%; min-width: 250px;">
-                            <label id="main-account-label" style="color: #ef4444 !important;  margin-bottom: 5px; display: block; font-weight: bold; transition: color 0.3s; white-space: nowrap;">من حساب (صرف) <span class="animated-arrow-left">←</span></label>
+                        <div style="flex: 2; min-width: 250px;">
+                            <label id="main-account-label" style="color: #ef4444 !important; font-size: 1.2rem; margin-bottom: 5px; display: block; font-weight: bold; transition: color 0.3s; white-space: nowrap;">من حساب (صرف) <span class="animated-arrow-left">←</span></label>
                             <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative; display: flex;">
                                 <input type="hidden" id="main-account">
                                 <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color); flex: 1; border-top-left-radius: 0; border-bottom-left-radius: 0;">
                                 <button type="button" onclick="openLedgerForMainAccount()" title="دفتر الأستاذ العام" style="background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(16,185,129,0.25)); border: 1px solid var(--border-color); border-right: none; color: #34d399; padding: 0 10px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; height: auto; font-size: 0.75rem; font-weight: bold; white-space: nowrap; box-shadow: inset 0 1px 3px rgba(255,255,255,0.1);" onmouseover="this.style.background='linear-gradient(135deg, rgba(52,211,153,0.3), rgba(16,185,129,0.5))'; this.style.color='#fff';" onmouseout="this.style.background='linear-gradient(135deg, rgba(52,211,153,0.15), rgba(16,185,129,0.25))'; this.style.color='#34d399';"><i class="fa fa-book" style="margin-left: 4px;"></i> كشف حساب</button>
                                 <div class="custom-dropdown-list" id="main-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
+                            </div>
+                        </div>
+
+                        <div style="flex: 1; min-width: 120px;">
+                            <label style="color: #fbbf24; font-size: 0.85rem; margin-bottom: 5px; display: block; white-space: nowrap;">العملة</label>
+                            <select id="currency" class="form-input system-currency-select input-glow-focus hover-glow" onchange="typeof onCurrencyChange === 'function' ? onCurrencyChange() : (typeof updateCurrency === 'function' ? updateCurrency() : null);" style="border-radius: 10px; flex-grow: 1; min-width: 0; width: 100%; font-size: 1.1rem !important; font-weight: 800;">
+                                <option value="SDG">جنيه (SDG)</option>
+                                <option value="USD">دولار (USD)</option>
+                                <option value="AED">درهم (AED)</option>
+                            </select>
+                        </div>
+                        
+                        <div style="flex: 1; min-width: 100px;">
+                            <label style="color: #fbbf24; font-size: 0.85rem; margin-bottom: 5px; display: block; white-space: nowrap;">التعادل</label>
+                            <input type="number" autocomplete="off" id="exchange-rate" class="form-input" value="1.0" readonly style="font-weight: bold; font-family: monospace; text-align: center; cursor:pointer; background:rgba(16,185,129,0.1); color:#10b981; border-radius: 10px;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=r; if(typeof calcTotal === 'function') calcTotal(); else if(typeof recalcAll === 'function') recalcAll();});">
+                        </div>
+                        
+                        <div style="flex: 1; min-width: 150px;">
+                            <label style="color: #10b981; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالمحلي</label>
+                            <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-weight: 900; font-family: monospace; color: #10b981; background: rgba(255,255,255,0.05);">
+                        </div>
+                        
+                        <div style="flex: 1; min-width: 150px;">
+                            <label style="color: #ef4444; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالأجنبي</label>
+                            <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-weight: 900; font-family: monospace; color: #ef4444; background: rgba(255,255,255,0.05);">
                         </div>
                     </div>
 
@@ -1030,11 +1052,11 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         <!-- Row 1: Account, Amount, and Method Toggles -->
                         <div style="display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; margin-bottom: 12px;">
                             <!-- Account -->
-                            <div style="flex: 0 0 35%; max-width: 35%; min-width: 250px; position: relative; display: flex; flex-direction: column;">
+                            <div style="flex: 2; min-width: 250px; position: relative; display: flex; flex-direction: column;">
                                 <div class="custom-dropdown-input-wrap" style="position: relative; flex: 1; display: flex;">
                                     <input type="hidden" id="account-{ID}-id" class="block-account-id">
                                     <input type="hidden" id="account-{ID}" class="block-account-name">
-                                    <input type="text" autocomplete="off" class="form-input block-account-search" id="account-{ID}-search" placeholder="الحساب / الجهة المستفيدة..." onfocus="showAccountDropdown('account-{ID}')" onblur="hideAccountDropdownDelayed('account-{ID}')" oninput="filterAccountDropdown('account-{ID}')" style="font-size: 1.4rem !important; font-weight: 900 !important; color: #fbbf24 !important; height: 55px !important; padding: 10px 20px !important; flex: 1; margin-bottom: 0; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                    <input type="text" autocomplete="off" class="form-input block-account-search" id="account-{ID}-search" placeholder="الحساب / الجهة المستفيدة..." onfocus="showAccountDropdown('account-{ID}')" onblur="hideAccountDropdownDelayed('account-{ID}')" oninput="filterAccountDropdown('account-{ID}')" style="font-size: 1rem; flex: 1; margin-bottom: 0; border-top-left-radius: 0; border-bottom-left-radius: 0;">
                                     <button type="button" onclick="openLedgerForBlockAccount('{ID}')" title="دفتر الأستاذ العام" style="background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(16,185,129,0.25)); border: 1px solid rgba(255,255,255,0.1); border-right: none; color: #34d399; padding: 0 10px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; height: auto; font-size: 0.75rem; font-weight: bold; white-space: nowrap; box-shadow: inset 0 1px 3px rgba(255,255,255,0.1);" onmouseover="this.style.background='linear-gradient(135deg, rgba(52,211,153,0.3), rgba(16,185,129,0.5))'; this.style.color='#fff';" onmouseout="this.style.background='linear-gradient(135deg, rgba(52,211,153,0.15), rgba(16,185,129,0.25))'; this.style.color='#34d399';"><i class="fa fa-book" style="margin-left: 4px;"></i> كشف حساب</button>
                                     <div class="custom-dropdown-list" id="account-{ID}-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                                 </div>
@@ -1042,7 +1064,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             
                             <!-- Total Amount (auto-calculated or direct) -->
                             <div style="flex: 0.75; min-width: 110px; display: flex; flex-direction: column; position: relative;">
-                                <input type="text" id="amount-{ID}" oninput="formatInput(this)" class="form-input block-total-amount" placeholder="المبلغ" style="font-weight: 900; font-family: monospace; font-size: 3.0rem; text-align: center; flex: 1; margin-bottom: 0; border-color: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); transition: all 0.4s ease; -webkit-text-stroke: 1px currentColor; letter-spacing: 1px;">
+                                <input type="text" id="amount-{ID}" oninput="formatInput(this)" class="form-input block-total-amount" placeholder="المبلغ" style="font-weight: 900; font-family: monospace; font-size: 1.5rem; text-align: center; flex: 1; margin-bottom: 0; border-color: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); transition: all 0.4s ease; -webkit-text-stroke: 1px currentColor; letter-spacing: 1px;">
                             </div>
                             
                             <!-- Statement (بيان التحويل) -->
@@ -1059,18 +1081,18 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
                         <!-- Dynamic Details Sections -->
                         <!-- Bank Details (supports multiple transfers) -->
-                        <div id="bank-details-{ID}" class="block-bank-details" style="display: none; background: rgba(110, 125, 115, 0.25); border: 1.5px solid rgba(110, 125, 115, 0.6); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease;">
+                        <div id="bank-details-{ID}" class="block-bank-details" style="display: none; background: rgba(14, 116, 144, 0.18); border: 1.5px solid rgba(14, 116, 144, 0.45); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease;">
                             <div class="bank-rows-container" id="bank-rows-{ID}">
                                 <div class="bank-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
                                     <div style="width: 80px; font-weight: bold; color: #22d3ee; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">🏦 بنكي</div>
                                     <div style="width: 150px; flex-shrink: 0;">
-                                        <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" style="margin-bottom: 0; font-family: monospace; font-weight: 900; font-size: 3.6rem; text-align: center; -webkit-text-stroke: 0.5px currentColor;">
+                                        <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: 900; font-size: 1.25rem; text-align: center; -webkit-text-stroke: 0.5px currentColor;">
                                     </div>
                                     <div style="flex: 1; min-width: 120px;">
                                         <input type="text" autocomplete="off" class="form-input block-bank-name-input" placeholder="اسم البنك" style="margin-bottom: 0;">
                                     </div>
                                     <div style="flex: 1; min-width: 120px;">
-                                        <input type="text" autocomplete="off" class="form-input block-transfer-no-input" placeholder="رقم التحويلة" style="margin-bottom: 0; font-size: 1.35rem !important; font-weight: 900;">
+                                        <input type="text" autocomplete="off" class="form-input block-transfer-no-input" placeholder="رقم التحويلة" style="margin-bottom: 0;">
                                     </div>
                                     <div style="flex: 1.5; min-width: 150px;">
                                         <input type="text" autocomplete="off" class="form-input block-bank-desc-input" placeholder="بيان التحويل" style="margin-bottom: 0;">
@@ -1086,13 +1108,13 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                                 <div class="cheque-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
                                     <div style="width: 80px; font-weight: bold; color: #d8b4fe; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">✍️ شيك</div>
                                     <div style="width: 150px; flex-shrink: 0;">
-                                        <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" style="margin-bottom: 0; font-family: monospace; font-weight: 900; font-size: 3.6rem; text-align: center; -webkit-text-stroke: 0.5px currentColor;">
+                                        <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: 900; font-size: 1.25rem; text-align: center; -webkit-text-stroke: 0.5px currentColor;">
                                     </div>
                                     <div style="flex: 1; min-width: 90px;">
                                         <input type="text" autocomplete="off" class="form-input block-cheque-bank-input" placeholder="اسم البنك" style="margin-bottom: 0;">
                                     </div>
                                     <div style="flex: 1; min-width: 80px;">
-                                        <input type="text" autocomplete="off" class="form-input block-cheque-no-input" placeholder="رقم الشيك" style="margin-bottom: 0; font-size: 1.35rem !important; font-weight: 900;">
+                                        <input type="text" autocomplete="off" class="form-input block-cheque-no-input" placeholder="رقم الشيك" style="margin-bottom: 0;">
                                     </div>
                                     <div style="flex: 1; min-width: 100px;">
                                         <input type="date" class="form-input block-cheque-date-input" title="تاريخ الاستحقاق" style="margin-bottom: 0;">
@@ -1127,44 +1149,6 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 .footer-actions .btn { font-size: 0.85rem !important; padding: 8px 15px !important; }
                 .footer-actions .btn-save-master { font-size: 0.95rem !important; padding: 8px 20px !important; font-weight: bold; }
                 
-                
-                
-                /* Enhanced Typography & UI overrides - V2 */
-                body, .form-input, .btn, .context-menu-item, p, span, div {
-                    font-size: 1.2rem;
-                }
-                h3 { font-size: 1.4rem !important; }
-                .form-label, .block-label, #main-account-label { font-size: 1.4rem !important; font-weight: bold !important; }
-                
-                /* Yellow Names */
-                .block-account-search, #main-account-search, .block-bank-name-input, .block-cheque-bank-input {
-                    font-size: 1.4rem !important;
-                    font-weight: 900 !important;
-                    color: #fbbf24 !important;
-                    height: 55px !important;
-                    padding: 10px 20px !important;
-                    
-                }
-                
-                /* Large Totals & Rates */
-                #amount-local-hdr, #amount-foreign, #exchange-rate {
-                    font-size: 3.0rem !important;
-                    font-weight: 900 !important;
-                }
-                
-                /* Large Amounts in blocks */
-                .block-total-amount, .block-bank-amount, .block-cheque-amount {
-                    font-size: 3.0rem !important;
-                    font-weight: 900 !important;
-                }
-                
-                /* Large Transfer & Cheque Numbers */
-                .block-transfer-no-input, .block-cheque-no-input {
-                    font-size: 1.9rem !important;
-                    font-weight: bold !important;
-                    letter-spacing: 2px !important;
-                }
-
                 /* Universal Light Theme Overrides for Internal Screens */
                 :root.light-theme body,
                 :root.light-theme .ambient-bg {
@@ -1338,7 +1322,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=<?= time() ?>"></script>
+    <script defer src="js/app.js?v=20260803.65812"></script>
     <script defer src="js/multi-cash-payment.js?v=<?= time() ?>"></script>
     <script>
     let hasWarnedAboutEdit = false;
