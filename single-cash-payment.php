@@ -1165,7 +1165,7 @@ try {
 
                             <!-- Epic Animated Transfer Arrow (Centered Absolute) -->
                             <div class="epic-arrow-container" onclick="swapAccounts()" role="button" aria-label="عكس الحسابات" title="عكس حساب الصرف والاستلام">
-                                <svg class="transfer-arrow-anim" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                                <svg class="transfer-arrow-anim" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline class="chev chev-3" points="20 18 14 12 20 6"></polyline>
                                     <polyline class="chev chev-2" points="13 18 7 12 13 6"></polyline>
                                     <polyline class="chev chev-1" points="6 18 0 12 6 6"></polyline>
@@ -1933,3 +1933,5 @@ try {
 
 
 
+
+<!-- FORCE CACHE BUST: 10001 -->
