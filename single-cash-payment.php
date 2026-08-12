@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once 'db_bridge.php';
 $pdo = getDBConnection();
 global $GLOBAL_TENANT_ID;
@@ -450,6 +450,201 @@ try {
                 inset 0 4px 18px rgba(255, 255, 255, 0.35), 
                 inset 0 -4px 18px rgba(0, 0, 0, 0.2),
                 0 0 20px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -1px 1px rgba(0,0,0,0.3);
+            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1), animateGradient 12s ease infinite;
+            position: relative;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        .premium-header::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 40%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            animation: shimmer 8s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
+            pointer-events: none;
+        }
+
+        @keyframes animateGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            25% { left: 200%; }
+            100% { left: 200%; }
+        }
+
+        .header-brand { display: flex; align-items: center; gap: 15px; }
+        .brand-icon {
+            width: 50px; height: 50px;
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            border-radius: 16px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4), inset 0 2px 5px rgba(255,255,255,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .brand-text h1 { margin: 0; font-size: 1.4rem; font-weight: 900; color: #fff; letter-spacing: 0.5px; text-shadow: 0 2px 10px rgba(255,255,255,0.1); }
+        .brand-text p { margin: 0; font-size: 0.85rem; color: #fca5a5; font-weight: 500; }
+        .header-center { text-align: center; }
+        .header-center h2 {
+            margin: 0; font-size: 1.6rem; font-weight: 900;
+            background: linear-gradient(to right, #fff, #fca5a5);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+        .header-controls { display: flex; align-items: center; gap: 15px; }
+        
+        .icon-btn {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+            width: 46px; height: 46px; border-radius: 14px; color: #fff; font-size: 1.2rem;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease;
+        }
+        .icon-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+        .sub-header-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 15px; 
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px; margin-bottom: 15px; margin-top: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .header-group { display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; }
+        
+        .crystal-pill {
+            display: flex; align-items: center; gap: 10px;
+            height: 42px; /* Slimmer height */
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 0 12px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        .title-crystal { border-color: rgba(239, 68, 68, 0.6); box-shadow: 0 0 20px rgba(239, 68, 68, 0.3), inset 0 2px 10px rgba(255,255,255,0.1); }
+        .date-crystal { border-color: rgba(56, 189, 248, 0.6); box-shadow: 0 0 20px rgba(56, 189, 248, 0.3), inset 0 2px 10px rgba(255,255,255,0.1); }
+        .bal-crystal { border-color: rgba(249, 115, 22, 0.6); box-shadow: 0 0 20px rgba(249, 115, 22, 0.3), inset 0 2px 10px rgba(255,255,255,0.1); gap: 15px; }
+        .nav-crystal { border-color: rgba(16, 185, 129, 0.6); box-shadow: 0 0 20px rgba(16, 185, 129, 0.3), inset 0 2px 10px rgba(255,255,255,0.1); padding: 0 8px; }
+        
+        .icon-box {
+            width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; font-size: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .bg-gradient-red { background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff; }
+        .bg-gradient-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; }
+        .pill-text { font-size: 1.15rem; color: #ffffff; font-weight: 800; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        .date-input { 
+            background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); 
+            color: #ffffff; border-radius: 6px; padding: 2px 10px;
+            font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 700; 
+            outline: none; cursor: pointer; height: 32px; line-height: 1; text-align: center;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); transition: all 0.2s;
+        }
+        .date-input:focus { border-color: #38bdf8; background: rgba(0,0,0,0.8); }
+        .date-input::-webkit-calendar-picker-indicator { 
+            filter: invert(1); opacity: 0.8; cursor: pointer; 
+            margin-left: 8px; width: 16px; height: 16px; padding: 0;
+        }
+
+        /* Unused balance-container replaced by crystal-pill */
+        .bal-card { display: flex; align-items: center; gap: 8px; }
+        .bal-icon { font-size: 1.3rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+        .bal-info { display: flex; flex-direction: column; line-height: 1.1; }
+        .bal-label { font-size: 0.8rem; color: #e2e8f0; font-weight: 700; }
+        .bal-val { font-size: 1.25rem; color: #f97316; font-family: 'Inter', monospace; font-weight: 900; letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .cash-card .bal-val { color: #10b981; }
+        .check-card .bal-val { color: #3b82f6; }
+        .loan-card .bal-val { color: #f59e0b; }
+        .bal-divider { width: 1px; height: 30px; background: rgba(255,255,255,0.1); }
+
+        /* Unused nav-pill replaced by crystal-pill */
+        .nav-btn {
+            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+            border-radius: 8px; background: transparent; border: none; color: #94a3b8; cursor: pointer; transition: all 0.2s;
+        }
+        .nav-btn:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .nav-badge { display: flex; flex-direction: column; align-items: center; padding: 0 15px; min-width: 90px; }
+        .badge-label { font-size: 0.7rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .badge-val { font-size: 1.2rem; color: #ef4444; font-family: 'Inter', monospace; font-weight: 800; text-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+
+        .hover-scale { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow: 0.3s ease; }
+        .hover-scale:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 25px rgba(0,0,0,0.3); z-index: 10; }
+        
+        /* Entrance animation */
+        .premium-header { animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Advanced Layout & Animations */
+        .split-layout-wrapper {
+            display: flex; flex-direction: row-reverse; gap: 0; margin-top: 15px; width: 100%; transition: all 0.6s cubic-bezier(0.25, 1, 0.2, 1);
+        }
+        
+        /* Side Panel */
+        .side-panel {
+            width: 0; opacity: 0; overflow: hidden; transform: translateX(-80px) scale(0.95);
+            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(25px); border-radius: 16px;
+            border: none; box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            transition: all 0.6s cubic-bezier(0.25, 1, 0.2, 1); flex-shrink: 0;
+            padding: 0; /* Padding is 0 when hidden */
+        }
+        
+        /* When side panel is active */
+        .split-layout-wrapper.has-sidebar { gap: 20px; }
+        .split-layout-wrapper.has-sidebar .side-panel {
+            width: 380px; opacity: 1; transform: translateX(0) scale(1); padding: 25px;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        /* Main Panel */
+        .main-panel {
+            flex-grow: 1; transition: all 0.6s cubic-bezier(0.25, 1, 0.2, 1);
+            background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(12px);
+            border-radius: 16px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transform-origin: left center;
+        }
+        
+        .interactive-columns {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .interactive-columns { grid-template-columns: 1fr; }
+            .split-layout-wrapper.has-sidebar { flex-direction: column; }
+            .split-layout-wrapper.has-sidebar .side-panel { width: 100%; transform: translateX(0) translateY(-20px); }
+        }
+
+        /* Crystalline Glassmorphic Transfer Arrow */
+        @keyframes rotateRing {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes crystalShineSweep {
+            0% { transform: translate(-150%, -150%) rotate(45deg); }
+            100% { transform: translate(150%, 150%) rotate(45deg); }
+        }
+
+        .epic-arrow-container {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20; 
+            display: flex; align-items: center; justify-content: center; 
+            width: 72px; height: 72px; 
+            /* Premium Crystalline Background: high glassmorphic translucency with colorful light */
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.02) 100%);
+            background-size: 200% 200%;
+            border-radius: 50%; 
+            /* Sharp, highly reflective, thin double border effect */
+            border: 1.5px solid rgba(255, 255, 255, 0.45);
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.6), 
+                inset 0 4px 18px rgba(255, 255, 255, 0.35), 
+                inset 0 -4px 18px rgba(0, 0, 0, 0.2),
+                0 0 20px rgba(255, 255, 255, 0.1);
             backdrop-filter: blur(25px) saturate(220%);
             -webkit-backdrop-filter: blur(25px) saturate(220%);
             cursor: pointer;
@@ -458,14 +653,14 @@ try {
             user-select: none;
         }
 
-        /* Outer Crystalline Orbit Ring with soft green-red gradient path */
+        /* Outer Crystalline Orbit Ring with soft red gradient path */
         .epic-arrow-container::before {
             content: '';
             position: absolute;
             top: -8px; left: -8px; right: -8px; bottom: -8px;
             border-radius: 50%;
             border: 1.5px dashed rgba(255, 255, 255, 0.25);
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.15), rgba(239, 68, 68, 0.15));
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.15));
             animation: rotateRing 15s linear infinite;
             pointer-events: none;
             z-index: -1;
@@ -507,7 +702,7 @@ try {
             top: -12px; left: -12px; right: -12px; bottom: -12px;
             border-color: rgba(255, 255, 255, 0.65);
             animation-duration: 6s; /* Spin faster */
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(239, 68, 68, 0.3));
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(239, 68, 68, 0.3));
         }
 
         .epic-arrow-container:hover::after {
@@ -536,26 +731,26 @@ try {
         .chev-1 { animation: chevFlow1 1.5s infinite; }
 
         @keyframes chevFlow3 {
-            0%, 100% { opacity: 0.15; stroke-width: 3.2px; color: rgba(16, 185, 129, 0.25); transform: scale(0.9); }
+            0%, 100% { opacity: 0.15; stroke-width: 3.2px; color: rgba(239, 68, 68, 0.25); transform: scale(0.9); }
             15% { 
                 opacity: 1; 
                 stroke-width: 4.8px;
-                color: #00ff88; 
-                filter: drop-shadow(0 0 6px #00ff88) drop-shadow(0 0 15px #00ff88) drop-shadow(0 0 30px #00ff88); 
+                color: #ff0055; 
+                filter: drop-shadow(0 0 6px #ff0055) drop-shadow(0 0 15px #ff0055) drop-shadow(0 0 30px #ff0055); 
                 transform: scale(1.22) translateX(-3px); 
             }
-            40% { opacity: 0.15; stroke-width: 3.2px; color: rgba(16, 185, 129, 0.25); transform: scale(0.9); }
+            40% { opacity: 0.15; stroke-width: 3.2px; color: rgba(239, 68, 68, 0.25); transform: scale(0.9); }
         }
         @keyframes chevFlow2 {
-            0%, 20%, 100% { opacity: 0.15; stroke-width: 3.2px; color: rgba(251, 191, 36, 0.25); transform: scale(0.9); }
+            0%, 20%, 100% { opacity: 0.15; stroke-width: 3.2px; color: rgba(239, 68, 68, 0.25); transform: scale(0.9); }
             35% { 
                 opacity: 1; 
                 stroke-width: 4.8px;
-                color: #ffff00; 
-                filter: drop-shadow(0 0 8px #ffff00) drop-shadow(0 0 20px #ffff00) drop-shadow(0 0 35px #ffff00); 
+                color: #ff0055; 
+                filter: drop-shadow(0 0 8px #ff0055) drop-shadow(0 0 20px #ff0055) drop-shadow(0 0 35px #ff0055); 
                 transform: scale(1.25) translateX(-3px); 
             }
-            60% { opacity: 0.15; stroke-width: 3.2px; color: rgba(251, 191, 36, 0.25); transform: scale(0.9); }
+            60% { opacity: 0.15; stroke-width: 3.2px; color: rgba(239, 68, 68, 0.25); transform: scale(0.9); }
         }
         @keyframes chevFlow1 {
             0%, 40%, 100% { opacity: 0.15; stroke-width: 3.2px; color: rgba(239, 68, 68, 0.25); transform: scale(0.9); }
@@ -588,14 +783,14 @@ try {
         .flow-path-wave-1 {
             stroke-linecap: round;
             animation: waveLaser1 2.2s linear infinite;
-            filter: drop-shadow(0 0 4px #00ff88) drop-shadow(0 0 10px #ffff00);
+            filter: drop-shadow(0 0 4px #ff0055) drop-shadow(0 0 10px #ff0055);
         }
 
         .flow-path-wave-2 {
             stroke-linecap: round;
             animation: waveLaser2 1.4s linear infinite;
             animation-delay: 0.5s;
-            filter: drop-shadow(0 0 3px #ffff00) drop-shadow(0 0 8px #ff0055);
+            filter: drop-shadow(0 0 3px #ff0055) drop-shadow(0 0 8px #ff0055);
             opacity: 0.85;
         }
 
@@ -1037,7 +1232,7 @@ try {
                                 <label id="label-box-1" class="label" style="display:flex; align-items:center; gap:5px; color:#cbd5e1 !important; font-size:1.1rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;"><span class="vivid-icon vivid-green" style="width:24px; height:24px; font-size:1.1rem;">💰</span> المبلغ (محلي)</label>
                                 <div style="position: relative; flex-grow: 1; min-width: 0; width: 100%;">
                                     <span id="amount-currency-symbol" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: var(--primary-color, #3b82f6); color: white; padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.9rem; pointer-events: none; z-index: 5; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);">SDG</span>
-                                    <input type="text" class="form-input amount hover-scale input-glow-focus hover-glow" id="amount-local" data-next="from-account" autofocus value="0" inputmode="numeric" onfocus="this.select()" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if(typeof calcEquiv === 'function') calcEquiv('local');" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="let val = this.value.replace(/[^0-9.]/g, ''); let parts = val.split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); this.value = parts.join('.'); calcEquiv('local'); if(typeof adjustAmountFontSize === 'function') adjustAmountFontSize(this);" style="height: 55px; font-size: 2.35rem !important; font-weight: 900; text-align: center; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; direction: ltr; border-radius: 10px; width: 100%; transition: font-size 0.2s ease, letter-spacing 0.2s ease; padding-left: 60px;">
+                                    <input type="text" class="form-input amount hover-scale input-glow-focus hover-glow" id="amount-local" data-next="from-account" autofocus value="0" inputmode="numeric" onfocus="this.select()" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if(typeof calcEquiv === 'function') calcEquiv('local');" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="let val = this.value.replace(/[^0-9.]/g, ''); this.value = val; calcEquiv('local'); if(typeof adjustAmountFontSize === 'function') adjustAmountFontSize(this); if(this.getAttribute('data-thousands') !== 'false') { let parts = val.split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); this.value = parts.join('.'); }" style="height: 55px; font-size: 2.35rem !important; font-weight: 900; text-align: center; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; direction: ltr; border-radius: 10px; width: 100%; transition: font-size 0.2s ease, letter-spacing 0.2s ease; padding-left: 60px;">
                                 </div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px;">
@@ -1048,111 +1243,20 @@ try {
                                 <label id="label-box-2" class="label" style="display:flex; align-items:center; gap:5px; color:#cbd5e1 !important; font-size:1.1rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">💵 القيمة (أجنبي)</label>
                                 <div style="position: relative; flex-grow: 1; min-width: 0; width: 100%;">
                                     <span id="amount-foreign-currency-symbol" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: #ef4444; color: white; padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.9rem; pointer-events: none; z-index: 5; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);">USD</span>
-                                    <input type="text" class="form-input amount input-glow-focus hover-glow" id="amount-foreign" data-next="from-account" value="0" inputmode="decimal" onfocus="this.select()" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if(typeof calcEquiv === 'function') calcEquiv('foreign');" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="let val = this.value.replace(/[^0-9.]/g, ''); let parts = val.split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); this.value = parts.join('.'); calcEquiv('foreign'); if(typeof adjustAmountFontSize === 'function') adjustAmountFontSize(this);" style="height: 55px; font-size: 2.35rem !important; text-align: center; background: #ffffff !important; color: #ef4444 !important; font-weight: 900; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; direction: ltr; border-radius: 10px; width: 100%; transition: font-size 0.2s ease, letter-spacing 0.2s ease; padding-left: 60px;">
+                                    <input type="text" class="form-input amount input-glow-focus hover-glow" id="amount-foreign" data-next="from-account" value="0" inputmode="decimal" onfocus="this.select()" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if(typeof calcEquiv === 'function') calcEquiv('foreign');" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="let val = this.value.replace(/[^0-9.]/g, ''); this.value = val; calcEquiv('foreign'); if(typeof adjustAmountFontSize === 'function') adjustAmountFontSize(this); if(this.getAttribute('data-thousands') !== 'false') { let parts = val.split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); this.value = parts.join('.'); }" style="height: 55px; font-size: 2.35rem !important; text-align: center; background: #ffffff !important; color: #ef4444 !important; font-weight: 900; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; direction: ltr; border-radius: 10px; width: 100%; transition: font-size 0.2s ease, letter-spacing 0.2s ease; padding-left: 60px;">
                                 </div>
                             </div>
                         </div>
 
                         <!-- Row 2: من حساب | إلى حساب -->
-                        <style>
-                            .from-to-row .choices__inner .choices__item--selectable {
-                                color: #ffffff !important;
-                                font-size: 1.25rem !important;
-                                font-weight: 900 !important;
-                                text-shadow: 0 0 8px rgba(255,255,255,0.4);
-                            }
-                        
-        
-        /* Universal Light Theme Overrides for Internal Screens */
-        :root.light-theme body,
-        :root.light-theme .ambient-bg {
-            background: #f8fafc !important;
-        }
-        :root.light-theme .glass-panel,
-        :root.light-theme .neo-card,
-        :root.light-theme .summary-card,
-        :root.light-theme .filter-panel,
-        :root.light-theme .chart-card,
-        :root.light-theme .kpi-card,
-        :root.light-theme .premium-header,
-        :root.light-theme .top-header,
-        :root.light-theme .header-area {
-            background: #ffffff !important;
-            border-color: rgba(0, 0, 0, 0.08) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
-            color: #0f172a !important;
-        }
-        :root.light-theme .glass-panel *,
-        :root.light-theme .neo-card *,
-        :root.light-theme .summary-card * {
-            text-shadow: none !important;
-        }
-        :root.light-theme table.pro-table th,
-        :root.light-theme .pos-grid thead th,
-        :root.light-theme .ledger-table th,
-        :root.light-theme .report-table th {
-            background: #f1f5f9 !important;
-            color: #0f172a !important;
-            border-bottom: 2px solid #cbd5e1 !important;
-        }
-        :root.light-theme table.pro-table td,
-        :root.light-theme .pos-grid tbody td,
-        :root.light-theme .ledger-table td,
-        :root.light-theme .report-table td {
-            color: #1e293b !important;
-            border-bottom: 1px solid rgba(0,0,0,0.08) !important;
-        }
-        :root.light-theme table.pro-table tbody tr:hover td,
-        :root.light-theme .pos-grid tbody tr:hover td,
-        :root.light-theme .ledger-table tbody tr:hover td,
-        :root.light-theme .report-table tbody tr:hover td {
-            background: rgba(0,0,0,0.02) !important;
-        }
-        :root.light-theme .h-label,
-        :root.light-theme .form-label,
-        :root.light-theme .tot-lbl,
-        :root.light-theme .lbl,
-        :root.light-theme label,
-        :root.light-theme .table-header {
-            color: #334155 !important;
-        }
-        :root.light-theme .tot-val,
-        :root.light-theme .val {
-            color: #0f172a !important;
-        }
-        :root.light-theme .h-form-group,
-        :root.light-theme .control-panel {
-            background: transparent !important;
-            border-color: rgba(0,0,0,0.08) !important;
-        }
-        :root.light-theme .modern-btn {
-            color: #1e293b !important;
-        }
-        :root.light-theme .modern-btn:hover {
-            color: #0f172a !important;
-        }
-        /* Neon text colors correction for light theme */
-        :root.light-theme .text-emerald-400, :root.light-theme span[style*="color: #34d399"], :root.light-theme span[style*="color:#34d399"] { color: #059669 !important; }
-        :root.light-theme .text-rose-400, :root.light-theme span[style*="color: #f87171"], :root.light-theme span[style*="color:#f87171"] { color: #e11d48 !important; }
-        :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
-        :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
-        :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
-\n        /* Custom Number Properties Menu */
-        #num-props-menu { display: none; position: absolute; z-index: 9999; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); border-radius: 12px; padding: 10px; width: 260px; color: #cbd5e1; font-family: 'Inter', sans-serif; direction: rtl; }
-        #num-props-menu .props-header { font-weight: bold; color: #38bdf8; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); text-align: center; font-size: 1.1rem; }
-        #num-props-menu .props-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 5px; cursor: pointer; border-radius: 6px; transition: background 0.2s; font-size: 0.95rem; }
-        #num-props-menu .props-item:hover { background: rgba(255, 255, 255, 0.1); }
-        #num-props-menu button.prop-btn { background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.5); color: #60a5fa; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
-        #num-props-menu button.prop-btn:hover { background: rgba(59, 130, 246, 0.4); color: #fff; }
-    </style>
                         <div class="from-to-row" style="display: grid; grid-template-columns: 1fr 1fr; gap: 70px; margin-bottom: 25px; position: relative;">
                             
                             <!-- Crystalline Wave Flow Connection -->
                             <svg class="money-flow-svg" width="100%" height="40" viewBox="0 0 1000 40" preserveAspectRatio="none">
                                 <defs>
                                     <linearGradient id="pathColorGradient" x1="100%" y1="0%" x2="0%" y2="0%">
-                                        <stop offset="0%" stop-color="#00ff88" />
-                                        <stop offset="50%" stop-color="#ffff00" />
+                                        <stop offset="0%" stop-color="#ff0055" />
+                                        <stop offset="50%" stop-color="#ff0055" />
                                         <stop offset="100%" stop-color="#ff0055" />
                                     </linearGradient>
                                 </defs>
@@ -1174,11 +1278,11 @@ try {
 
                             <!-- من حساب (Red) -->
                             <div style="background: rgba(239, 68, 68, 0.05); padding: 8px 15px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.3); display: flex; align-items: center; gap: 10px;" data-swap="1">
-                                <label class="label" style="display:flex; align-items:center; gap:5px; color:#10b981 !important; margin-bottom:0; font-weight:800; white-space:nowrap; flex-shrink:0;">
-                                    <span style="display:flex; align-items:center; justify-content:center; width: 24px; height: 24px; background: rgba(239, 68, 68, 0.15); border-radius: 50%;">
-                                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                                <label class="label" style="display:flex; align-items:center; gap:5px; color:red !important; margin-bottom:0; font-weight:800; white-space:nowrap; flex-shrink:0;">
+                                    <span style="display:flex; align-items:center; justify-content:center; width: 24px; height: 24px; background: rgba(255, 0, 0, 0.15); border-radius: 50%;">
+                                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
                                     </span>
-                                    من حساب <span style="color:#ffffff !important;">(صرف)</span>
+                                    من حساب <span style="color:red !important;">(صرف)</span>
                                 </label>
                                 <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
                                     <input type="hidden" id="from-account">
