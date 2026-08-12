@@ -1,4 +1,4 @@
-<?php $page_title = 'مقاييس (MAGAIEES) - كشف المخزن التحليلي'; ?>
+﻿<?php $page_title = 'مقاييس (MAGAIEES) - كشف المخزن التحليلي'; ?>
 <!-- c:\mynewapp\frontend-pwa\warehouse-ledger.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -305,7 +305,7 @@
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20260803.52149"></script>
+    <script defer src="js/app.js?v=<?= time() ?>"></script>
     <script>
         document.addEventListener('DBReady', () => {
             // Load Warehouses

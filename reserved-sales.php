@@ -1,4 +1,4 @@
-<?php $page_title = 'المبيعات - المبيعات المحجوزة'; ?>
+﻿<?php $page_title = 'المبيعات - المبيعات المحجوزة'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -504,7 +504,7 @@
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20260803.46011"></script>
+    <script defer src="js/app.js?v=<?= time() ?>"></script>
     <script defer src="js/print-engine.js"></script>
     <script defer src="js/reserved-sales.js?v=3"></script>
 </body>

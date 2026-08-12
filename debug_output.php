@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // Test what the server actually outputs for single-cash-payment.php
 // by simulating a request
 $ch = curl_init('http://localhost:3000/single-cash-payment.php');

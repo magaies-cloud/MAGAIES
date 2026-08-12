@@ -1,4 +1,4 @@
-<?php 
+﻿<?php 
 $page_title = 'العقل الذكي الموحد'; 
 ?>
 <!DOCTYPE html>
@@ -31,7 +31,7 @@ $page_title = 'العقل الذكي الموحد';
     
     <script defer src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20260803_v14"></script>
+    <script defer src="js/app.js?v=<?= time() ?>"></script>
     
     <style>
         :root {

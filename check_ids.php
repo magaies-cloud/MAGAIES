@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require 'db_bridge.php';
 $pdo = getDBConnection();
 $stmt = $pdo->query("SELECT data FROM single_payments WHERE tenant_id=2");

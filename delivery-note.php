@@ -1,4 +1,4 @@
-<?php $page_title = 'أذونات التسليم 2026 - نظام الإدارة الشاملة'; ?>
+﻿<?php $page_title = 'أذونات التسليم 2026 - نظام الإدارة الشاملة'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -217,7 +217,7 @@
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20260803.34666"></script>
+    <script defer src="js/app.js?v=<?= time() ?>"></script>
     <script>
         let allInvoices = [];
 

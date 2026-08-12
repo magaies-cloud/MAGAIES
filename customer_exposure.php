@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $page_title = 'تقرير مديونيات الأرصدة الاستراتيجي';
 $header_theme_class = 'header-theme-reports';
 

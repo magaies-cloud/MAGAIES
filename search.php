@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $files = glob("c:/xampp/htdocs/ELSAJANA2/magaies/js/*.js");
 foreach($files as $file) {
     $lines = file($file);

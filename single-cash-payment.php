@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once 'db_bridge.php';
 $pdo = getDBConnection();
 global $GLOBAL_TENANT_ID;

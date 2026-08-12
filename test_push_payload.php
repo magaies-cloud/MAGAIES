@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $token = 'TEST'; // Need a valid token. Or just test public endpoint size limit.
 // Let's find a valid token from DB.
 $pdo = new PDO('mysql:host=localhost;dbname=magaees;charset=utf8mb4', 'root', '');

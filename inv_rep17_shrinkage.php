@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header("Cache-Control: no-cache, no-store, must-revalidate");
 header("Pragma: no-cache");
 header("Expires: 0");
@@ -226,6 +226,6 @@ foreach ($raw_data as $row) {
     </div> <!-- Close .dashboard-container -->
 
     <script defer src="js/localforage.min.js?v=20260723_v14"></script>
-    <script defer src="js/app.js?v=20260803_v14"></script>
+    <script defer src="js/app.js?v=<?= time() ?>"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-<?php $page_title = 'مردودات المشتريات'; ?>
+﻿<?php $page_title = 'مردودات المشتريات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -403,7 +403,7 @@
 
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/accounting-engine.js"></script>
-    <script defer src="js/app.js?v=20260803.28525"></script>
+    <script defer src="js/app.js?v=<?= time() ?>"></script>
     <script>
         let allPurchases = [];
         let itemsDb = [];

@@ -1,4 +1,4 @@
-<?php $page_title = 'مقاييس (MAGAIEES) - كارت الصنف (حركة الأصناف)'; ?>
+﻿<?php $page_title = 'مقاييس (MAGAIEES) - كارت الصنف (حركة الأصناف)'; ?>
 <!-- c:\mynewapp\frontend-pwa\item-ledger.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -335,7 +335,7 @@
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20260803.9791"></script>
+    <script defer src="js/app.js?v=<?= time() ?>"></script>
     <script>
         const ITEMS_STORAGE_KEY = 'erp_items_v1';
         let itemsDb = [];

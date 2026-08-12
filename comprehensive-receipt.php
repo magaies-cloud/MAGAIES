@@ -1,4 +1,4 @@
-<?php $page_title = 'سند قبض شامل'; ?>
+﻿<?php $page_title = 'سند قبض شامل'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

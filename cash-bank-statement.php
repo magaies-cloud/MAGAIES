@@ -1,4 +1,4 @@
-<?php $page_title = 'دفتر أستاذ الخزن والبنوك'; ?>
+﻿<?php $page_title = 'دفتر أستاذ الخزن والبنوك'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

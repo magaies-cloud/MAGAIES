@@ -1,4 +1,4 @@
-<?php $page_title = 'سجل التطوير'; ?>
+﻿<?php $page_title = 'سجل التطوير'; ?>
 <!-- c:\mynewapp\frontend-pwa\audit-log.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -231,7 +231,7 @@
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20260803.09151"></script>
+    <script defer src="js/app.js?v=<?= time() ?>"></script>
     <script>
         document.addEventListener('DBReady', () => {
             const userStr = localStorage.getItem('user');

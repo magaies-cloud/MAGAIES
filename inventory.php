@@ -1,4 +1,4 @@
-<?php $page_title = 'إدارة المخزون 2026 - مقاييس (MAGAIEES)'; ?>
+﻿<?php $page_title = 'إدارة المخزون 2026 - مقاييس (MAGAIEES)'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -230,7 +230,7 @@
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20260803.88578"></script>
+    <script defer src="js/app.js?v=<?= time() ?>"></script>
     <script>
         document.addEventListener('DBReady', () => {
             const searchBox = document.getElementById('search-box');

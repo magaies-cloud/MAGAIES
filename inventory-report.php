@@ -1,4 +1,4 @@
-<?php $page_title = 'المخازن'; ?>
+﻿<?php $page_title = 'المخازن'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -432,7 +432,7 @@
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20260803.79042"></script>
+    <script defer src="js/app.js?v=<?= time() ?>"></script>
     <script>
         const ITEMS_STORAGE_KEY = 'erp_items_v1';
         const INVENTORY_STORAGE_KEY = 'erp_inventory_v1';

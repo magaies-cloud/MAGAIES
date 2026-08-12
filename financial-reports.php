@@ -1,4 +1,4 @@
-<?php $page_title = 'القوائم الختامية والمحاسبية'; ?>
+﻿<?php $page_title = 'القوائم الختامية والمحاسبية'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -394,7 +394,7 @@
 
     </div>
 
-    <script defer src="js/app.js?v=20260803.64462"></script>
+    <script defer src="js/app.js?v=<?= time() ?>"></script>
     <script>
         // Clock functionality for header
         function updateClock() {

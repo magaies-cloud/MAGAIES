@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $files = glob('*.php');
 $count = 0;
 foreach ($files as $f) {

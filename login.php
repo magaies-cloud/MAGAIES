@@ -1,4 +1,4 @@
-<?php $page_title = 'مقاييس 2026 - تسجيل الدخول'; ?>
+﻿<?php $page_title = 'مقاييس 2026 - تسجيل الدخول'; ?>
 <!-- c:\mynewapp\frontend-pwa\login.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -598,7 +598,7 @@
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20260803_v14"></script>
+    <script defer src="js/app.js?v=<?= time() ?>"></script>
 
     <script>
         // ==================== FORGOT PASSWORD LOGIC ====================

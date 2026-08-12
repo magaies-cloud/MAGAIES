@@ -1,4 +1,4 @@
-<?php $page_title = 'سند قبض نقدية'; ?>
+﻿<?php $page_title = 'سند قبض نقدية'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -279,7 +279,7 @@
     </div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20260803.73732"></script>
+    <script defer src="js/app.js?v=<?= time() ?>"></script>
     <script defer src="js/cash-receipt.js"></script>
 </body>
 </html>

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // preview-balances-design.php
 // Excel-Style Preview Page for Balances - Pro Edition with Studio Tabs & Page Setup
 ?>

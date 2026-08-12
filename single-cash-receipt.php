@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 /**
  * Redirect: single-cash-receipt.php → single-cash-payment.php
  * هذا الملف يقوم بتحويل جميع الروابط القديمة لسند القبض

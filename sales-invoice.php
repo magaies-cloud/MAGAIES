@@ -1,4 +1,4 @@
-<?php $page_title = 'مرتجع مبيعات'; ?>
+﻿<?php $page_title = 'مرتجع مبيعات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js?v=<?php echo time(); ?>"></script>

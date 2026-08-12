@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $page_title = 'حساب مديونية الأرصدة الشامل';
 $header_theme_class = 'header-theme-reports';
 

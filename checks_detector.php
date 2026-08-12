@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $page_title = 'كاشف ومقارن الشيكات والالتزامات';
 $header_theme_class = 'header-theme-reports';
 

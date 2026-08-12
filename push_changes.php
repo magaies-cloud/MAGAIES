@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 header('Content-Type: text/plain; charset=UTF-8');
 header("Cache-Control: no-store, no-cache, must-revalidate");
 putenv("PATH=C:\\Program Files\\Git\\cmd;C:\\Program Files\\Git\\bin;" . getenv("PATH"));

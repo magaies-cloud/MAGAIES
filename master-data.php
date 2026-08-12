@@ -1,4 +1,4 @@
-<?php $page_title = 'البيانات الأساسية'; ?>
+﻿<?php $page_title = 'البيانات الأساسية'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -1250,7 +1250,7 @@
 
     <!-- Scripts -->
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20260803"></script>
+    <script defer src="js/app.js?v=<?= time() ?>"></script>
     <script>
         function renderAllMasterData() {
             renderCustomers();

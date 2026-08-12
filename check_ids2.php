@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require 'db_bridge.php';
 $GLOBAL_TENANT_ID = 2;
 $pdo = getDBConnection();

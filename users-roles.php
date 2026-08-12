@@ -1,4 +1,4 @@
-<?php $page_title = 'مقاييس (MAGAIEES) - إدارة المستخدمين والصلاحيات'; ?>
+﻿<?php $page_title = 'مقاييس (MAGAIEES) - إدارة المستخدمين والصلاحيات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -491,7 +491,7 @@
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20260803_v14"></script>
+    <script defer src="js/app.js?v=<?= time() ?>"></script>
     <script defer src="js/users-roles.js?v=20260723_v14"></script>
     <script>
         // Simple Tab Switcher for this page

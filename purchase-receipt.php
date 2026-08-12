@@ -1,4 +1,4 @@
-<?php $page_title = 'استلام البضاعة (GRN)'; ?>
+﻿<?php $page_title = 'استلام البضاعة (GRN)'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -503,7 +503,7 @@
     <div class="toast-container" id="toast-container" style="position:fixed; bottom:20px; left:20px; z-index:99999; display:flex; flex-direction:column; gap:10px;"></div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20260803.18727"></script>
+    <script defer src="js/app.js?v=<?= time() ?>"></script>
     <script>
         let allPurchases = [];
         let itemsDb = [];

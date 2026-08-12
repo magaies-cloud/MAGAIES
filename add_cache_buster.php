@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 function addCacheBuster($file) {
     if (!file_exists($file)) return;
     $c = file_get_contents($file);

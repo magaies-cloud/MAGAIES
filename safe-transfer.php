@@ -1,4 +1,4 @@
-<?php $page_title = 'تحويل بين الخزن'; ?>
+﻿<?php $page_title = 'تحويل بين الخزن'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require 'api/db.php';
 $stmt = $pdo->query("SELECT data FROM sales_invoices WHERE tenant_id = '2'");
 $invoice_customers = [];

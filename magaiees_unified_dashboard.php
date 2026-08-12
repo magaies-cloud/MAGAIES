@@ -1,4 +1,4 @@
-<?php $page_title = 'لوحة التحكم'; ?>
+﻿<?php $page_title = 'لوحة التحكم'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
@@ -1247,7 +1247,7 @@
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20260803_v14"></script>
+    <script defer src="js/app.js?v=<?= time() ?>"></script>
     <script>
         // Spotlight Effect Mouse Tracker (throttled to 60fps)
         let _spotlightTick = false;

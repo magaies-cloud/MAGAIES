@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // =============================================================
 // نظام MAGAIEES ERP 2026 - البوابة المركزية الكاملة لتقارير المخزون الـ 20
 // =============================================================
@@ -449,6 +449,6 @@ try {
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js?v=20260723_v14"></script>
-    <script defer src="js/app.js?v=20260803_v14"></script>
+    <script defer src="js/app.js?v=<?= time() ?>"></script>
 </body>
 </html>

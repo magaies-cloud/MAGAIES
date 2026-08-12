@@ -1,4 +1,4 @@
-<?php $page_title = 'كشف الحساب - 25 نموذج عالمي'; ?>
+﻿<?php $page_title = 'كشف الحساب - 25 نموذج عالمي'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

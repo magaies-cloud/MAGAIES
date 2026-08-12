@@ -1,4 +1,4 @@
-<?php $page_title = 'سند صرف شامل'; ?>
+﻿<?php $page_title = 'سند صرف شامل'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

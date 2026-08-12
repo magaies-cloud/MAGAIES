@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require 'api/db.php';
 $tables = ['items', 'customers', 'suppliers', 'accounts'];
 foreach ($tables as $t) {

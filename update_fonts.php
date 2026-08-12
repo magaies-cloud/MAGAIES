@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $path = 'js/general-ledger.js';
 $content = file_get_contents($path);
 

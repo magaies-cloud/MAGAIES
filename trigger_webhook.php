@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $payload = json_encode(['ref'=>'refs/heads/main','head_commit'=>['message'=>'Manual deploy from antigravity']]);
 $secret = 'magaees_deploy_2026_secure';
 $signature = 'sha256=' . hash_hmac('sha256', $payload, $secret);

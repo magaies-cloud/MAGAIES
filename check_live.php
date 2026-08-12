@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 $c = file_get_contents('https://c.elsajana.com/js/single-cash-payment.js');
 if (strpos($c, 'window.location.href = window.location.pathname;') !== false) {
     if (strpos($c, "}\r\n}") !== false || strpos($c, "}\n}") !== false) {
