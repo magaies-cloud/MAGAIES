@@ -499,18 +499,16 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
 
         .pay-toggle-btn.block-btn-bank {
-            --tab-border-color: rgba(249, 115, 22, 0.45);
-            --tab-glow-color: rgba(249, 115, 22, 0.65);
-            --tab-hover-bg: linear-gradient(135deg, rgba(249, 115, 22, 0.35), rgba(234, 88, 12, 0.5));
+            --tab-border-color: #fbbf24;
+            --tab-glow-color: rgba(251, 191, 36, 0.55);
+            --tab-hover-bg: linear-gradient(135deg, rgba(217, 119, 6, 0.4), rgba(251, 191, 36, 0.6));
+            --tab-active-bg: linear-gradient(135deg, #d97706, #fbbf24);
         }
-        .pay-toggle-btn.active.block-btn-bank {
-            --tab-border-color: #f97316;
-            background: linear-gradient(135deg, rgba(249, 115, 22, 0.45), rgba(234, 88, 12, 0.7)) !important;
-            border-color: #f97316 !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(249, 115, 22, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 25px rgba(249, 115, 22, 0.5), 0 0 20px rgba(249, 115, 22, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
-            transform: translateY(-3px) scale(1.05) !important;
+        .pay-toggle-btn.block-btn-cheque {
+            --tab-border-color: #c084fc;
+            --tab-glow-color: rgba(192, 132, 252, 0.55);
+            --tab-hover-bg: linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(192, 132, 252, 0.6));
+            --tab-active-bg: linear-gradient(135deg, #7c3aed, #c084fc);
         }
 
         .pay-toggle-btn.block-btn-cheque {
@@ -607,8 +605,8 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             box-shadow: 0 0 25px rgba(213, 189, 175, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
         }
         .block-bank-details:hover {
-            border-color: rgba(249, 115, 22, 0.75) !important;
-            box-shadow: 0 0 25px rgba(249, 115, 22, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
+            border-color: rgba(251, 191, 36, 0.75) !important;
+            box-shadow: 0 0 25px rgba(251, 191, 36, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
         }
         .block-cheque-details:hover {
             border-color: rgba(155, 89, 182, 0.75) !important;
@@ -742,23 +740,25 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             border-color: rgba(255,255,255,0.2) !important;
             transform: translateY(-2px) scale(1) !important;
         }
-        .voucher-type-btn.active-payment {
-            background: linear-gradient(135deg, rgba(212, 122, 126, 0.25), rgba(163, 88, 92, 0.4)) !important;
-            border: 1px solid rgba(212, 122, 126, 0.8) !important;
-            color: #ffffff !important;
-            box-shadow: 0 8px 25px rgba(212, 122, 126, 0.5), 0 0 15px rgba(212, 122, 126, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
-            font-weight: 900 !important;
-            transform: translateY(-4px) scale(1.04) !important;
-            /* animation removed */
+        .voucher-type-btn.active-payment, .voucher-type-btn[id="btn-payment"] {
+            --tab-border-color: #f87171;
+            --tab-glow-color: rgba(248, 113, 113, 0.55);
+            --tab-hover-bg: linear-gradient(135deg, rgba(220, 38, 38, 0.4), rgba(248, 113, 113, 0.6));
+            --tab-active-bg: linear-gradient(135deg, #dc2626, #f87171);
         }
-        .voucher-type-btn.active-receipt {
-            background: linear-gradient(135deg, rgba(46, 204, 113, 0.25), rgba(39, 174, 96, 0.4)) !important;
-            border: 1px solid rgba(39, 174, 96, 0.8) !important;
+        .voucher-type-btn.active-receipt, .voucher-type-btn[id="btn-receipt"] {
+            --tab-border-color: #34d399;
+            --tab-glow-color: rgba(52, 211, 153, 0.55);
+            --tab-hover-bg: linear-gradient(135deg, rgba(5, 150, 105, 0.4), rgba(52, 211, 153, 0.6));
+            --tab-active-bg: linear-gradient(135deg, #059669, #34d399);
+        }
+        .voucher-type-btn.active-payment, .voucher-type-btn.active-receipt {
             color: #ffffff !important;
-            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.5), 0 0 15px rgba(39, 174, 96, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
-            font-weight: 900 !important;
-            transform: translateY(-4px) scale(1.04) !important;
-            /* animation removed */
+            background: var(--tab-active-bg) !important;
+            border-color: var(--tab-border-color) !important;
+            box-shadow: 0 10px 30px var(--tab-glow-color), 0 0 25px var(--tab-glow-color), inset 0 2px 4px rgba(255,255,255,0.5) !important;
+            transform: translateY(-3px) scale(1.05);
+            animation: tabPulse 2.5s infinite alternate ease-in-out;
         }
 
         /* Pulsing active buttons */
@@ -1134,18 +1134,18 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             </div>
                             
                             <!-- Payment Toggles (No Cash) -->
-                            <div style="display: flex; gap: 4px; flex: 1.2; min-width: 160px; align-items: stretch;">
-                                <button type="button" id="pm-bank-{ID}" class="btn crystal-btn pay-toggle-btn block-btn-bank" data-action="toggle-pm" data-block="{ID}" data-method="bank" style="padding: 4px 8px !important; font-size: 0.9rem !important; height: 38px !important; min-width: 0 !important; flex: 1;"><span class="btn-icon" style="font-size: 1.1rem;">🏦</span> <span class="btn-text">تحويل</span></button>
-                                <button type="button" id="pm-cheque-{ID}" class="btn crystal-btn pay-toggle-btn block-btn-cheque" data-action="toggle-pm" data-block="{ID}" data-method="cheque" style="padding: 4px 8px !important; font-size: 0.9rem !important; height: 38px !important; min-width: 0 !important; flex: 1;"><span class="btn-icon" style="font-size: 1.1rem;">✍️</span> <span class="btn-text">شيك</span></button>
+                            <div style="display: flex; gap: 8px; flex: 1.5; min-width: 180px; align-items: stretch;">
+                                <button type="button" id="pm-bank-{ID}" class="btn crystal-btn pay-toggle-btn block-btn-bank" data-action="toggle-pm" data-block="{ID}" data-method="bank" style="flex: 1;"><span class="btn-icon">🏦</span> <span class="btn-text">تحويل</span></button>
+                                <button type="button" id="pm-cheque-{ID}" class="btn crystal-btn pay-toggle-btn block-btn-cheque" data-action="toggle-pm" data-block="{ID}" data-method="cheque" style="flex: 1;"><span class="btn-icon">✍️</span> <span class="btn-text">شيك</span></button>
                             </div>
                         </div>
 
                         <!-- Dynamic Details Sections -->
                         <!-- Bank Details (supports multiple transfers) -->
-                        <div id="bank-details-{ID}" class="block-bank-details" style="display: none; background: rgba(234, 88, 12, 0.18); border: 1.5px solid rgba(234, 88, 12, 0.45); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease;">
+                        <div id="bank-details-{ID}" class="block-bank-details" style="display: none; background: rgba(251, 191, 36, 0.18); border: 1.5px solid rgba(251, 191, 36, 0.45); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease;">
                             <div class="bank-rows-container" id="bank-rows-{ID}">
                                 <div class="bank-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
-                                    <div style="width: 80px; font-weight: bold; color: #fdba74; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">🏦 بنكي</div>
+                                    <div style="width: 80px; font-weight: bold; color: #fbbf24; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">🏦 بنكي</div>
                                     <div style="width: 150px; flex-shrink: 0;">
                                         <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: 900; text-align: center; -webkit-text-stroke: 0.5px currentColor;">
                                     </div>
