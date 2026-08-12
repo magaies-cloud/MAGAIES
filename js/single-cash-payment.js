@@ -884,41 +884,80 @@ function showProfessionalSuccess(voucherId, fromName, toName, amountLocal, curre
     }, 2500);
 }
 
-function checkTransferDuplicate(newTrNo, currentVoucherId) {
-    if (!newTrNo || newTrNo.length < 6) return false;
-    const last6 = newTrNo.slice(-6);
-    const stores = [
-        'erp_single_payments_v1', 'erp_single_receipts_v1',
-        'erp_payments_v1', 'erp_receipts_v1',
-        'erp_comprehensive_payments_v1', 'erp_comprehensive_receipts_v1'
+function checkTransferDuplicate(tno, currentVoucherId) {
+    if (!tno || String(tno).trim().length < 6) return false;
+    const targetSuffix = String(tno).trim().slice(-6);
+    const getTenantKey = window.getTenantKey || ((k) => k);
+    const keys = [
+        getTenantKey('erp_payments_v1'),
+        getTenantKey('erp_receipts_v1'),
+        getTenantKey('erp_comprehensive_payments_v1'),
+        getTenantKey('erp_comprehensive_receipts_v1'),
+        getTenantKey('erp_journal_v1')
     ];
     
-    const getTenantKey = window.getTenantKey || ((k) => k);
-    for (const store of stores) {
-        const data = JSON.parse(localStorage.getItem(getTenantKey(store)) || localStorage.getItem(store) || '[]');
-        for (const v of data) {
-            if ((v.id && v.id === currentVoucherId) || (v.voucherNo && v.voucherNo === currentVoucherId)) continue;
+    const isMatch = (no) => {
+        let strNo = String(no || '').trim();
+        return (strNo.length >= 6 && strNo.slice(-6) === targetSuffix);
+    };
+
+    for (let key of keys) {
+        let vouchers = [];
+        try {
+            vouchers = JSON.parse(localStorage.getItem(key)) || [];
+        } catch(e) { continue; }
+        
+        for (let v of vouchers) {
+            if (!v || v.deleted) continue;
+            if (currentVoucherId && (v.id === currentVoucherId || v.voucherNo === currentVoucherId)) continue;
             
+            // 1. Check top-level bankTransfers
             if (v.bankTransfers && Array.isArray(v.bankTransfers)) {
-                for (const tr of v.bankTransfers) {
-                    if (tr.transferNo && tr.transferNo.length >= 6 && tr.transferNo.slice(-6) === last6) return true;
+                for (let bt of v.bankTransfers) {
+                    if (isMatch(bt.transferNo)) return true;
+                }
+            } else if (v.mobileTransferNo && isMatch(v.mobileTransferNo)) {
+                return true;
+            }
+            
+            // 2. Check items array (Multi Payment)
+            if (v.items && Array.isArray(v.items)) {
+                for (let item of v.items) {
+                    if (!item) continue;
+                    if (item.bankTransfers && Array.isArray(item.bankTransfers)) {
+                        for (let bt of item.bankTransfers) {
+                            if (isMatch(bt.transferNo)) return true;
+                        }
+                    } else if (item.transferNo && isMatch(item.transferNo)) {
+                        return true;
+                    }
                 }
             }
-            if (v.mobileTransferNo && v.mobileTransferNo.length >= 6 && v.mobileTransferNo.slice(-6) === last6) return true;
-
-            if (v.items && Array.isArray(v.items)) {
-                for (const item of v.items) {
-                    if (item.bankTransfers && Array.isArray(item.bankTransfers)) {
-                        for (const tr of item.bankTransfers) {
-                            if (tr.transferNo && tr.transferNo.length >= 6 && tr.transferNo.slice(-6) === last6) return true;
+            
+            // 3. Check details array (Bulk Payment)
+            if (v.details && Array.isArray(v.details)) {
+                for (let det of v.details) {
+                    if (!det) continue;
+                    if (det.bankTransfers && Array.isArray(det.bankTransfers)) {
+                        for (let bt of det.bankTransfers) {
+                            if (isMatch(bt.transferNo)) return true;
                         }
+                    } else if (det.transferNo && isMatch(det.transferNo)) {
+                        return true;
                     }
-                    if (item.mobileTransferNo && item.mobileTransferNo.length >= 6 && item.mobileTransferNo.slice(-6) === last6) return true;
+                }
+            }
+            
+            // 4. Check subTransactions (Journal)
+            if (v.subTransactions && Array.isArray(v.subTransactions)) {
+                for (let sub of v.subTransactions) {
+                    if (!sub) continue;
+                    if (sub.transferNo && isMatch(sub.transferNo)) return true;
                 }
             }
         }
     }
-    return false;
+    return false; // Not duplicated
 }
 
 function submitVoucherInner() {
