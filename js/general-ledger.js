@@ -926,8 +926,17 @@ function runReport() {
                 if (!t) return false;
                 if (typeFilter === 'sales' && t.type === 'invoice' && t.account !== 'revenue-sales') return true;
                 if (typeFilter === 'purchases' && t.type === 'purchase' && t.account !== 'cost-purchases') return true;
-                if (typeFilter === 'receipt' && (t.type === 'receipt' || t.type === 'multi-receipt') && t.debit > 0) return true;
-                if (typeFilter === 'payment' && (t.type === 'payment' || t.type === 'multi-payment') && t.credit > 0) return true;
+                
+                // If a specific account is selected, show all entries regardless of debit/credit.
+                // Otherwise, restrict to debit/credit to avoid duplicating global entries.
+                if (selectedAccName) {
+                    if (typeFilter === 'receipt' && (t.type === 'receipt' || t.type === 'multi-receipt')) return true;
+                    if (typeFilter === 'payment' && (t.type === 'payment' || t.type === 'multi-payment')) return true;
+                } else {
+                    if (typeFilter === 'receipt' && (t.type === 'receipt' || t.type === 'multi-receipt') && t.debit > 0) return true;
+                    if (typeFilter === 'payment' && (t.type === 'payment' || t.type === 'multi-payment') && t.credit > 0) return true;
+                }
+                
                 if (typeFilter === 'journal' && t.type === 'jv') return true;
                 return false;
             });

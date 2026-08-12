@@ -5297,10 +5297,10 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                 if ((pms.includes('cash') || cashAmt > 0) && cashAmt > 0) {
                     const amtLoc = isBaseSDG ? cashAmt : cashAmt * effRate;
                     const amtFc = isBaseSDG ? (cashAmt / effRate) : cashAmt;
-                    const safeAcct = resolveAccount(item.cashSafe || mainAcc, 'safe-001');
-                    const stmt = item.cashStatement || item.statement || v.description || 'قبض نقدية';
+                    const safeAcct = mainAcc;
+                    const stmt = item.cashSafe ? `خزينة: ${item.cashSafe} - ${item.cashStatement || item.statement || v.description || 'قبض نقدية'}` : (item.cashStatement || item.statement || v.description || 'قبض نقدية');
 
-                    // Safe Account (Debit)
+                    // Safe/Main Account (Debit)
                     txns.push({
                         date: v.date, time: time, ref: refNo, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
                         account: safeAcct, counterAccount: itemAcct,
@@ -5331,10 +5331,11 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                         if (amt <= 0) return;
                         const amtLoc = isBaseSDG ? amt : amt * effRate;
                         const amtFc = isBaseSDG ? (amt / effRate) : amt;
-                        const bankAcct = resolveAccount(bt.bankName || mainAcc, 'bank-001');
-                        const stmt = bt.statement || item.statement || v.description || 'قبض تحويل بنكي';
+                        const bankAcct = mainAcc;
+                        const baseStmt = bt.statement || item.statement || v.description || 'قبض تحويل بنكي';
+                        const stmt = bt.bankName ? `بنك: ${bt.bankName} - ${baseStmt}` : baseStmt;
 
-                        // Bank Account (Debit)
+                        // Bank/Main Account (Debit)
                         txns.push({
                             date: v.date, time: time, ref: refNo, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
                             account: bankAcct, counterAccount: itemAcct,
@@ -5366,10 +5367,11 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                         if (amt <= 0) return;
                         const amtLoc = isBaseSDG ? amt : amt * effRate;
                         const amtFc = isBaseSDG ? (amt / effRate) : amt;
-                        const chequeAcct = 'cheques-receivable';
-                        const stmt = ch.statement || item.statement || v.description || 'قبض شيك';
+                        const chequeAcct = mainAcc;
+                        const baseStmt = ch.statement || item.statement || v.description || 'قبض شيك';
+                        const stmt = ch.chequeBank ? `شيك بنك: ${ch.chequeBank} - ${baseStmt}` : baseStmt;
 
-                        // Cheque Account (Debit)
+                        // Cheque/Main Account (Debit)
                         txns.push({
                             date: v.date, time: time, ref: refNo, type: 'multi-receipt', typeLabel: 'سند قبض مجمع',
                             account: chequeAcct, counterAccount: itemAcct,
@@ -5505,8 +5507,8 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                 if ((pms.includes('cash') || cashAmt > 0) && cashAmt > 0) {
                     const amtLoc = isBaseSDG ? cashAmt : cashAmt * effRate;
                     const amtFc = isBaseSDG ? (cashAmt / effRate) : cashAmt;
-                    const safeAcct = resolveAccount(item.cashSafe || mainAcc, 'safe-001');
-                    const stmt = item.cashStatement || item.statement || v.description || 'صرف نقدية';
+                    const safeAcct = mainAcc;
+                    const stmt = item.cashSafe ? `خزينة: ${item.cashSafe} - ${item.cashStatement || item.statement || v.description || 'صرف نقدية'}` : (item.cashStatement || item.statement || v.description || 'صرف نقدية');
 
                     // Recipient Account (Debit)
                     txns.push({
@@ -5519,7 +5521,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                         costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
                     });
                     
-                    // Safe Account (Credit)
+                    // Safe/Main Account (Credit)
                     txns.push({
                         date: v.date, time: time, ref: refNo, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
                         account: safeAcct, counterAccount: itemAcct,
@@ -5539,8 +5541,9 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                         if (amt <= 0) return;
                         const amtLoc = isBaseSDG ? amt : amt * effRate;
                         const amtFc = isBaseSDG ? (amt / effRate) : amt;
-                        const bankAcct = resolveAccount(bt.bankName || mainAcc, 'bank-001');
-                        const stmt = bt.statement || item.statement || v.description || 'صرف تحويل بنكي';
+                        const bankAcct = mainAcc;
+                        const baseStmt = bt.statement || item.statement || v.description || 'صرف تحويل بنكي';
+                        const stmt = bt.bankName ? `بنك: ${bt.bankName} - ${baseStmt}` : baseStmt;
 
                         // Recipient Account (Debit)
                         txns.push({
@@ -5553,7 +5556,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                             costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
                         });
                         
-                        // Bank Account (Credit)
+                        // Bank/Main Account (Credit)
                         txns.push({
                             date: v.date, time: time, ref: refNo, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
                             account: bankAcct, counterAccount: itemAcct,
@@ -5574,8 +5577,9 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                         if (amt <= 0) return;
                         const amtLoc = isBaseSDG ? amt : amt * effRate;
                         const amtFc = isBaseSDG ? (amt / effRate) : amt;
-                        const chequeAcct = resolveAccount(ch.chequeBank, 'banks-cheques');
-                        const stmt = ch.statement || item.statement || v.description || 'صرف شيك';
+                        const chequeAcct = mainAcc;
+                        const baseStmt = ch.statement || item.statement || v.description || 'صرف شيك';
+                        const stmt = ch.chequeBank ? `شيك بنك: ${ch.chequeBank} - ${baseStmt}` : baseStmt;
 
                         // Recipient Account (Debit)
                         txns.push({
@@ -5588,7 +5592,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                             costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
                         });
                         
-                        // Cheque Account (Credit)
+                        // Cheque/Main Account (Credit)
                         txns.push({
                             date: v.date, time: time, ref: refNo, type: 'multi-payment', typeLabel: 'سند صرف مجمع',
                             account: chequeAcct, counterAccount: itemAcct,

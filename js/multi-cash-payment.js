@@ -1479,6 +1479,16 @@ async function confirmDelete() {
 }
 
 async function saveVoucher() {
+    try {
+        await _saveVoucherCore();
+    } catch (e) {
+        console.error('Unhandled Save error:', e);
+        showToast('حدث خطأ فادح أثناء الحفظ! يرجى المحاولة مرة أخرى.', 'error');
+        const saveBtn = document.getElementById('btn-save');
+        if (saveBtn) { saveBtn.disabled = false; saveBtn.style.opacity = '1'; saveBtn.style.pointerEvents = 'auto'; }
+    }
+}
+async function _saveVoucherCore() {
     // Double-click protection
     const saveBtn = document.getElementById('btn-save');
     if (saveBtn && saveBtn.disabled) return;
