@@ -981,6 +981,21 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         .cheque-row > div:nth-child(4) { flex: 2.5 !important; min-width: 440px !important; }
         .cheque-row > div:nth-child(5) { flex: 1 !important; min-width: 150px !important; }
         .cheque-row > div:nth-child(6) { flex: 1 !important; min-width: 150px !important; }
+        /* --- ألوان مريحة للعين (Eye-Comfort Light Mode Override) --- */
+        body { background-color: #F4F5F7 !important; color: #2C3E50 !important; }
+        .glass-container, .side-panel, .main-panel { background: #FFFFFF !important; border-color: #E2E8F0 !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important; backdrop-filter: none !important; }
+        .glass-container label { color: #475569 !important; font-weight: bold; }
+        input, select, textarea, .form-input, .form-select, .multi-input, .custom-dropdown-list { background: #F8FAFC !important; color: #1E293B !important; border-color: #CBD5E1 !important; box-shadow: none !important; }
+        input::placeholder { color: #94A3B8 !important; }
+        .form-section-title { color: #0284C7 !important; border-bottom: 1px solid #E2E8F0 !important; }
+        .glass-red { background: #FEF2F2 !important; border-color: #FECACA !important; }
+        .glass-green { background: #F0FDF4 !important; border-color: #BBF7D0 !important; }
+        .crystal-btn, .voucher-type-btn, .pay-toggle-btn { background: #FFFFFF !important; color: #1E293B !important; border-color: #E2E8F0 !important; text-shadow: none !important; }
+        .pm-tab-content { color: #475569 !important; }
+        .pm-tab input:checked + .pm-tab-content { background: #FFFFFF !important; border-color: #CBD5E1 !important; color: #0F172A !important; }
+        .multi-table th { color: #475569 !important; border-bottom: 1px solid #E2E8F0 !important; }
+        .sticky-footer { background: #FFFFFF !important; border-top: 1px solid #E2E8F0 !important; }
+        .custom-dropdown-item:hover { background: #E2E8F0 !important; }
     </style>
 </head>
 <body>
@@ -1071,13 +1086,13 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         </div>
                         
                         <div style="flex: 1.5; min-width: 180px;">
-                            <label style="color: #10b981; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالمحلي</label>
-                            <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-weight: 900; font-family: monospace; color: #10b981; background: rgba(255,255,255,0.05);">
+                            <label style="color: #10b981; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالمحلي</label>
+                            <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-size: 1.6rem; font-weight: 900; font-family: monospace; color: #10b981; background: rgba(255,255,255,0.05);">
                         </div>
                         
                         <div style="flex: 1.5; min-width: 180px;">
-                            <label style="color: #ef4444; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالأجنبي</label>
-                            <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-weight: 900; font-family: monospace; color: #ef4444; background: rgba(255,255,255,0.05);">
+                            <label style="color: #ef4444; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالأجنبي</label>
+                            <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-size: 1.6rem; font-weight: 900; font-family: monospace; color: #ef4444; background: rgba(255,255,255,0.05);">
                         </div>
                     </div>
 
@@ -1124,7 +1139,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             </div>
                             
                             <!-- Total Amount (auto-calculated or direct) -->
-                            <div style="flex: 2; min-width: 380px; display: flex; flex-direction: column; position: relative;">
+                            <div style="flex: 1.2; min-width: 150px; display: flex; flex-direction: column; position: relative;">
                                 <input type="text" id="amount-{ID}" oninput="formatInput(this)" class="form-input block-total-amount" placeholder="المبلغ" style="font-weight: 900; font-family: monospace; text-align: center; flex: 1; margin-bottom: 0; border-color: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); transition: all 0.4s ease; -webkit-text-stroke: 1px currentColor; letter-spacing: 1px;">
                             </div>
                             
@@ -1134,9 +1149,9 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             </div>
                             
                             <!-- Payment Toggles (No Cash) -->
-                            <div style="display: flex; gap: 8px; flex: 1; min-width: 150px; align-items: stretch;">
-                                <button type="button" id="pm-bank-{ID}" class="btn crystal-btn pay-toggle-btn block-btn-bank" data-action="toggle-pm" data-block="{ID}" data-method="bank"><span class="btn-icon">🏦</span> <span class="btn-text">تحويل</span></button>
-                                <button type="button" id="pm-cheque-{ID}" class="btn crystal-btn pay-toggle-btn block-btn-cheque" data-action="toggle-pm" data-block="{ID}" data-method="cheque"><span class="btn-icon">✍️</span> <span class="btn-text">شيك</span></button>
+                            <div style="display: flex; gap: 4px; flex: 1.2; min-width: 160px; align-items: stretch;">
+                                <button type="button" id="pm-bank-{ID}" class="btn crystal-btn pay-toggle-btn block-btn-bank" data-action="toggle-pm" data-block="{ID}" data-method="bank" style="padding: 4px 8px !important; font-size: 0.9rem !important; height: 38px !important; min-width: 0 !important; flex: 1;"><span class="btn-icon" style="font-size: 1.1rem;">🏦</span> <span class="btn-text">تحويل</span></button>
+                                <button type="button" id="pm-cheque-{ID}" class="btn crystal-btn pay-toggle-btn block-btn-cheque" data-action="toggle-pm" data-block="{ID}" data-method="cheque" style="padding: 4px 8px !important; font-size: 0.9rem !important; height: 38px !important; min-width: 0 !important; flex: 1;"><span class="btn-icon" style="font-size: 1.1rem;">✍️</span> <span class="btn-text">شيك</span></button>
                             </div>
                         </div>
 
