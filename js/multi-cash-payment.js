@@ -956,6 +956,28 @@ function calcTotal() {
     }
 }
 
+
+function showCenterError(msg) {
+    const existing = document.getElementById('center-error-modal');
+    if (existing) existing.remove();
+    const modal = document.createElement('div');
+    modal.id = 'center-error-modal';
+    modal.style.cssText = 'position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(0,0,0,0.6); backdrop-filter: blur(5px); z-index: 999999; display: flex; align-items: center; justify-content: center; direction: rtl; opacity: 0; transition: opacity 0.3s;';
+    modal.innerHTML = `
+        <div style="background: linear-gradient(135deg, #7f1d1d, #b91c1c); border: 2px solid #f87171; border-radius: 15px; padding: 30px 40px; box-shadow: 0 10px 30px rgba(239, 68, 68, 0.5); text-align: center; max-width: 500px; width: 90%; transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
+            <div style="font-size: 4rem; margin-bottom: 15px; text-shadow: 0 4px 10px rgba(0,0,0,0.3);">⚠️</div>
+            <h2 style="color: #fff; font-family: 'Tajawal', sans-serif; font-size: 1.6rem; margin: 0 0 20px 0; line-height: 1.4;">${msg}</h2>
+            <button onclick="document.getElementById('center-error-modal').remove()" style="background: #fff; color: #b91c1c; border: none; padding: 10px 30px; border-radius: 8px; font-weight: bold; font-family: 'Tajawal', sans-serif; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">حسناً، فهمت</button>
+        </div>
+    `;
+    document.body.appendChild(modal);
+    if (typeof playErrorSound === 'function') playErrorSound();
+    requestAnimationFrame(() => {
+        modal.style.opacity = '1';
+        modal.children[0].style.transform = 'scale(1)';
+    });
+}
+
 function showToast(msg, type='success') {
     const container = document.getElementById('toast-container');
     if (!container) return;
@@ -1549,7 +1571,7 @@ async function saveVoucher() {
                         break;
                     }
                     if (tno.length < 6) {
-                        showToast(`الحساب ${accountName} - السطر ${i + 1}: رقم التحويل يجب أن لا يقل عن 6 أرقام`, "error");
+                        showCenterError(`رقم التحويل البنكي للحساب ( ${accountName} - السطر ${i + 1} ) قصير جداً!<br><br>يجب أن لا يقل عن 6 أرقام`);
                         highlightError(row.querySelector('.block-transfer-no-input'));
                         hasInvalidTransfer = true;
                         break;
@@ -1558,7 +1580,7 @@ async function saveVoucher() {
                     const cvNo = document.getElementById('voucher-no-display') ? document.getElementById('voucher-no-display').value : '';
                     const isUnique = await window.checkTransferDuplicate(tno, cvNo);
                     if (!isUnique) {
-                        showToast(`الحساب ${accountName} - السطر ${i + 1}: رقم التحويل (${tno}) مكرر في النظام (تطابق آخر 6 أرقام)`, "error");
+                        showCenterError(`رقم التحويل ( ${tno} ) للحساب ( ${accountName} - السطر ${i + 1} ) مستخدم من قبل!<br><br>يوجد تطابق في آخر 6 أرقام مع سند آخر في النظام.`);
                         highlightError(row.querySelector('.block-transfer-no-input'));
                         hasInvalidTransfer = true;
                         break;
@@ -1599,12 +1621,6 @@ async function saveVoucher() {
                     }
                     if (!no) {
                         showToast(`الحساب ${accountName} - السطر ${i + 1}: يرجى إدخال رقم الشيك`, "error");
-                        highlightError(row.querySelector('.block-cheque-no-input'));
-                        hasInvalidCheque = true;
-                        break;
-                    }
-                    if (no.length < 4) {
-                        showToast(`الحساب ${accountName} - السطر ${i + 1}: رقم الشيك يجب أن يكون 4 أرقام على الأقل`, "error");
                         highlightError(row.querySelector('.block-cheque-no-input'));
                         hasInvalidCheque = true;
                         break;
