@@ -1165,39 +1165,39 @@ try {
 
                             <!-- Epic Animated Transfer Arrow (Centered Absolute) -->
                             <div class="epic-arrow-container" onclick="swapAccounts()" role="button" aria-label="عكس الحسابات" title="عكس حساب الصرف والاستلام">
-                                <svg class="transfer-arrow-anim" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
+                                <svg class="transfer-arrow-anim" width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="3.5" stroke-linecap="round" stroke-linejoin="round">
                                     <polyline class="chev chev-3" points="20 18 14 12 20 6"></polyline>
                                     <polyline class="chev chev-2" points="13 18 7 12 13 6"></polyline>
                                     <polyline class="chev chev-1" points="6 18 0 12 6 6"></polyline>
                                 </svg>
                             </div>
 
-                            <!-- من حساب (Green) -->
-                            <div style="background: rgba(16, 185, 129, 0.05); padding: 8px 15px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3); display: flex; align-items: center; gap: 10px;">
+                            <!-- من حساب (Red) -->
+                            <div style="background: rgba(239, 68, 68, 0.05); padding: 8px 15px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.3); display: flex; align-items: center; gap: 10px;" data-swap="1">
                                 <label class="label" style="display:flex; align-items:center; gap:5px; color:#10b981 !important; margin-bottom:0; font-weight:800; white-space:nowrap; flex-shrink:0;">
-                                    <span style="display:flex; align-items:center; justify-content:center; width: 24px; height: 24px; background: rgba(16, 185, 129, 0.15); border-radius: 50%;">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
+                                    <span style="display:flex; align-items:center; justify-content:center; width: 24px; height: 24px; background: rgba(239, 68, 68, 0.15); border-radius: 50%;">
+                                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
                                     </span>
                                     من حساب <span style="color:#ffffff !important;">(صرف)</span>
                                 </label>
                                 <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
                                     <input type="hidden" id="from-account">
-                                    <input type="text" autocomplete="off" class="form-input input-glow-focus hover-glow" id="from-account-search" placeholder="ابحث عن حساب الصرف..." onfocus="showAccountDropdown('from')" onblur="hideAccountDropdownDelayed('from')" oninput="filterAccountDropdown('from')" style="width: 100%; padding: 12px 15px 12px 95px; border-radius: 8px; font-weight: bold; font-size: 1.25rem !important; border: 1px solid rgba(16, 185, 129, 0.5); background: rgba(0,0,0,0.3); color: #fbbf24 !important;">
+                                    <input type="text" autocomplete="off" class="form-input input-glow-focus hover-glow" id="from-account-search" placeholder="ابحث عن حساب الصرف..." onfocus="showAccountDropdown('from')" onblur="hideAccountDropdownDelayed('from')" oninput="filterAccountDropdown('from')" style="width: 100%; padding: 12px 15px 12px 95px; border-radius: 8px; font-weight: bold; font-size: 1.25rem !important; border: 1px solid rgba(239, 68, 68, 0.5); background: rgba(0,0,0,0.3); color: #fbbf24 !important;">
                                     <button type="button" id="from-account-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('from-account').value)" class="crystal-btn-sm btn-blue-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 5; font-size: 0.8rem; padding: 4px 8px; height: 32px; display: none;" title="دفتر الأستاذ العام">📖 دفتر الأستاذ</button>
                                     <div class="custom-dropdown-list" id="from-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: none; margin-top: 5px;"></div>
                                 </div>
                             </div>
-                            <!-- إلى حساب (Red) -->
-                            <div style="background: rgba(239, 68, 68, 0.05); padding: 8px 15px; border-radius: 12px; border: 1px solid rgba(239, 68, 68, 0.3); display: flex; align-items: center; gap: 10px;">
-                                <label class="label" style="display:flex; align-items:center; gap:5px; color:#ef4444 !important; margin-bottom:0; font-weight:800; white-space:nowrap; flex-shrink:0;">
-                                    <span style="display:flex; align-items:center; justify-content:center; width: 24px; height: 24px; background: rgba(239, 68, 68, 0.15); border-radius: 50%;">
-                                        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
+                            <!-- إلى حساب (Green) -->
+                            <div style="background: rgba(16, 185, 129, 0.05); padding: 8px 15px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3); display: flex; align-items: center; gap: 10px;" data-swap="1">
+                                <label class="label" style="display:flex; align-items:center; gap:5px; color:#10b981 !important; margin-bottom:0; font-weight:800; white-space:nowrap; flex-shrink:0;">
+                                    <span style="display:flex; align-items:center; justify-content:center; width: 24px; height: 24px; background: rgba(16, 185, 129, 0.15); border-radius: 50%;">
+                                          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
                                     </span>
                                     إلى حساب <span style="color:#ffffff !important;">(استلام)</span>
                                 </label>
                                 <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
                                     <input type="hidden" id="to-account">
-                                    <input type="text" autocomplete="off" class="form-input input-glow-focus hover-glow" id="to-account-search" placeholder="ابحث عن حساب الاستلام..." onfocus="showAccountDropdown('to')" onblur="hideAccountDropdownDelayed('to')" oninput="filterAccountDropdown('to')" style="width: 100%; padding: 12px 15px 12px 95px; border-radius: 8px; font-weight: bold; font-size: 1.25rem !important; border: 1px solid rgba(239, 68, 68, 0.5); background: rgba(0,0,0,0.3); color: #fbbf24 !important;">
+                                    <input type="text" autocomplete="off" class="form-input input-glow-focus hover-glow" id="to-account-search" placeholder="ابحث عن حساب الاستلام..." onfocus="showAccountDropdown('to')" onblur="hideAccountDropdownDelayed('to')" oninput="filterAccountDropdown('to')" style="width: 100%; padding: 12px 15px 12px 95px; border-radius: 8px; font-weight: bold; font-size: 1.25rem !important; border: 1px solid rgba(16, 185, 129, 0.5); background: rgba(0,0,0,0.3); color: #fbbf24 !important;">
                                     <button type="button" id="to-account-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('to-account').value)" class="crystal-btn-sm btn-blue-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 5; font-size: 0.8rem; padding: 4px 8px; height: 32px; display: none;" title="دفتر الأستاذ العام">📖 دفتر الأستاذ</button>
                                     <div class="custom-dropdown-list" id="to-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: none; margin-top: 5px;"></div>
                                 </div>
@@ -1921,6 +1921,8 @@ try {
     </div>
 </body>
 </html>
+
+
 
 
 
