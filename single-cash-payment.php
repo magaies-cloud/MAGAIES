@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 require_once 'db_bridge.php';
 $pdo = getDBConnection();
 global $GLOBAL_TENANT_ID;
@@ -893,12 +893,15 @@ try {
             flex: none !important;
         }
         .dynamic-focus-input {
-            transition: font-size 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), letter-spacing 0.3s ease !important;
+            transition: font-size 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), letter-spacing 0.3s ease, height 0.3s ease, color 0.3s ease !important;
+            color: #ffffff !important;
         }
         .dynamic-focus-input:focus {
-            font-size: 2.8rem !important;
+            height: 65px !important;
+            font-size: 3rem !important;
             font-weight: 900 !important;
-            letter-spacing: 2px !important;
+            letter-spacing: 3px !important;
+            color: #fbbf24 !important;
         }
     </style>
 </head>
@@ -1865,3 +1868,4 @@ try {
     
 </body>
 </html>
+
