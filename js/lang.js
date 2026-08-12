@@ -813,4 +813,61 @@
     window.getLang = getLang;
     window.setLang = setLang;
 
+    /** Global Arabic Character Normalizer */
+    window.normalizeArabic = function normalizeArabic(s) {
+        return String(s || '').toLowerCase()
+            .replace(/[أإآ]/g, 'ا')
+            .replace(/ة/g, 'ه')
+            .replace(/ى/g, 'ي');
+    };
+
+    /** Global Search Dropdown Text Highlighting Engine */
+    window.highlightSearchMatches = function highlightSearchMatches(text, query) {
+        if (!text || !query) return text || '';
+        const textStr = String(text);
+        const rawQuery = String(query).trim();
+        if (!rawQuery) return textStr;
+
+        const normText = window.normalizeArabic(textStr);
+        const normQuery = window.normalizeArabic(rawQuery);
+
+        const tokens = normQuery.split(/\s+/).filter(Boolean);
+        if (tokens.length === 0) return textStr;
+
+        let matches = [];
+        tokens.forEach(tok => {
+            let pos = 0;
+            while ((pos = normText.indexOf(tok, pos)) !== -1) {
+                matches.push({ start: pos, end: pos + tok.length });
+                pos += Math.max(1, tok.length);
+            }
+        });
+
+        if (matches.length === 0) return textStr;
+
+        matches.sort((a, b) => a.start - b.start);
+        let merged = [matches[0]];
+        for (let i = 1; i < matches.length; i++) {
+            let last = merged[merged.length - 1];
+            let curr = matches[i];
+            if (curr.start <= last.end) {
+                last.end = Math.max(last.end, curr.end);
+            } else {
+                merged.push(curr);
+            }
+        }
+
+        let result = '';
+        let lastIndex = 0;
+        merged.forEach(m => {
+            result += textStr.substring(lastIndex, m.start);
+            const matchText = textStr.substring(m.start, m.end);
+            result += `<span class="search-highlight-match" style="color: #ff6600 !important; font-weight: 900 !important; font-size: 1.05em !important; background: transparent !important; box-shadow: none !important; border: none !important;">${matchText}</span>`;
+            lastIndex = m.end;
+        });
+        result += textStr.substring(lastIndex);
+        return result;
+    };
+
 })();
+

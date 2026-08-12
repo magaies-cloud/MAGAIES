@@ -450,10 +450,12 @@ function renderAccountDropdown(type, filter = '') {
             else if (String(a.id).startsWith('safe-')) typeTag = '<span style="font-size:0.75rem; color:#34d399; background:rgba(52,211,153,0.1); padding:2px 6px; border-radius:4px;">خزينة</span>';
             else if (String(a.id).startsWith('exp-')) typeTag = '<span style="font-size:0.75rem; color:#fbbf24; background:rgba(251,191,36,0.1); padding:2px 6px; border-radius:4px;">مصروف</span>';
 
+            const nameH = window.highlightSearchMatches ? window.highlightSearchMatches(a.name, filter) : a.name;
+            const idH = window.highlightSearchMatches ? window.highlightSearchMatches(String(a.id), filter) : String(a.id);
             div.innerHTML = `
-                <div style="font-weight: bold; color: #fff;">${a.name}</div>
+                <div style="font-weight: bold; color: #fff;">${nameH}</div>
                 <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 3px; display: flex; gap: 8px; align-items: center;">
-                    <span>[${a.id}]</span>
+                    <span>[${idH}]</span>
                     ${typeTag}
                 </div>
             `;

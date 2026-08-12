@@ -1,4 +1,4 @@
-﻿window.getAllMultiPayments = function() {
+window.getAllMultiPayments = function() {
     let localInvs = [];
     try { localInvs = JSON.parse(localStorage.getItem('erp_multi_payments_v1')) || []; } catch(e){}
     let serverInvs = window.SERVER_MULTI_PAYMENTS || [];
@@ -1973,10 +1973,12 @@ function renderAccountDropdown(type, filter = '') {
             else if (String(a.id).startsWith('safe-')) typeTag = '<span style="font-size:0.8rem; background:rgba(52,211,153,0.15); color:#34d399; padding: 4px 12px; border-radius: 20px; font-weight: bold; min-width: 60px; text-align: center; box-shadow: inset 0 0 5px rgba(52,211,153,0.3);">خزينة</span>';
             else if (String(a.id).startsWith('exp-')) typeTag = '<span style="font-size:0.8rem; background:rgba(251,191,36,0.15); color:#fbbf24; padding: 4px 12px; border-radius: 20px; font-weight: bold; min-width: 60px; text-align: center; box-shadow: inset 0 0 5px rgba(251,191,36,0.3);">مصروف</span>';
 
+            const highlightedName = window.highlightSearchMatches ? window.highlightSearchMatches(a.name, filter) : a.name;
+
             div.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-weight: bold; color: #fff;">${a.name}</span>
+                        <span style="font-weight: bold; color: #fff;">${highlightedName}</span>
                     </div>
                     ${typeTag}
                 </div>

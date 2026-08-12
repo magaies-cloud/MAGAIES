@@ -534,11 +534,11 @@ function renderCustomerDropdown(filter = '') {
             const item = document.createElement('div');
             item.className = 'custom-dropdown-item';
             
-            let displayText = c.name;
-            if (c.phone) displayText += ' <span style="font-size:0.8rem; color:#aaa;">(' + c.phone + ')</span>';
-            if (c.email) displayText += ' <span style="font-size:0.8rem; color:#888;">[' + c.email + ']</span>';
-            
-            item.innerHTML = displayText;
+            const nameH = window.highlightSearchMatches ? window.highlightSearchMatches(c.name, filter) : c.name;
+            const phoneH = c.phone ? (window.highlightSearchMatches ? window.highlightSearchMatches(String(c.phone), filter) : c.phone) : '';
+            const emailH = c.email ? (window.highlightSearchMatches ? window.highlightSearchMatches(String(c.email), filter) : c.email) : '';
+
+            item.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: right; dir: rtl;"><div style="display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap;"><span style="font-weight: bold; color: #fff;">${nameH}</span>${phoneH ? `<span style="font-size:0.8rem; color:#94a3b8;">(${phoneH})</span>` : ''}${emailH ? `<span style="font-size:0.8rem; color:#64748b;">[${emailH}]</span>` : ''}</div></div>`;
             item.onmousedown = () => selectCustomer(c.id, c.name); 
             item.onpointerdown = () => selectCustomer(c.id, c.name);
             listEl.appendChild(item);
@@ -1576,6 +1576,7 @@ function submitInvoice(ignoreWarnings = false) {
             localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
             data.paymentAccountId = paymentAccountId;
             usedAccountName = banks[bIdx].name || banks[bIdx].bankName;
+        }
     }
 
     localStorage.setItem('erp_inv_' + committedNo, JSON.stringify(data));

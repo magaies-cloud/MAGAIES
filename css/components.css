@@ -2117,7 +2117,43 @@ a[data-href], a[onclick] { cursor: pointer; }
     }
     .form-group, .col-md-6, .col-md-4, .col-xs-12 {
         flex: 1 !important;
-        margin-bottom: 8px !important;
-    }
 }
+
+/* ═══════════════════════════════════════════════════════
+   🍊 GLOBAL DROPDOWN SEARCH HIGHLIGHT MATCHING SYSTEM
+   Highlighted matching text characters in vibrant orange
+   ═══════════════════════════════════════════════════════ */
+.search-highlight-match {
+    color: #ff7700 !important;
+    font-weight: 900 !important;
+    background: transparent !important;
+    box-shadow: none !important;
+    border: none !important;
+    padding: 0 !important;
+    display: inline !important;
+}
+.custom-dropdown-list div:hover .search-highlight-match,
+.custom-dropdown-list li:hover .search-highlight-match,
+.custom-dropdown-item:hover .search-highlight-match,
+.autocomplete-list li:hover .search-highlight-match,
+.autocomplete-list li.active .search-highlight-match {
+    color: #ff5500 !important;
+    font-weight: 900 !important;
+    background: transparent !important;
+    text-shadow: none !important;
+}
+
+.custom-dropdown-item {
+    text-align: right !important;
+    direction: rtl !important;
+    font-family: inherit !important;
+}
+.custom-dropdown-item .search-highlight-match {
+    display: inline !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    vertical-align: baseline !important;
+}
+
+
 

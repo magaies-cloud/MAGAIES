@@ -491,9 +491,13 @@ function renderCustomerDropdown(filter = '') {
             const item = document.createElement('div');
             item.className = 'custom-dropdown-item';
             
-            let displayText = c.name;
-            if (c.phone) displayText += ' <span style="font-size:0.8rem; color:#aaa;">(' + c.phone + ')</span>';
-            if (c.email) displayText += ' <span style="font-size:0.8rem; color:#888;">[' + c.email + ']</span>';
+            const nameH = window.highlightSearchMatches ? window.highlightSearchMatches(c.name, filter) : c.name;
+            const phoneH = c.phone ? (window.highlightSearchMatches ? window.highlightSearchMatches(String(c.phone), filter) : c.phone) : '';
+            const emailH = c.email ? (window.highlightSearchMatches ? window.highlightSearchMatches(String(c.email), filter) : c.email) : '';
+
+            let displayText = nameH;
+            if (phoneH) displayText += ' <span style="font-size:0.8rem; color:#aaa;">(' + phoneH + ')</span>';
+            if (emailH) displayText += ' <span style="font-size:0.8rem; color:#888;">[' + emailH + ']</span>';
             
             item.innerHTML = displayText;
             item.onmousedown = () => selectCustomer(c.id, c.name); 

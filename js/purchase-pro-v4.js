@@ -851,11 +851,11 @@ async function renderCustomerDropdown(filter = '') {
             const item = document.createElement('div');
             item.className = 'custom-dropdown-item';
             
-            let displayText = c.name;
-            if (c.phone) displayText += ` <span style="font-size:0.8rem; color:#aaa;">(${c.phone})</span>`;
-            if (c.code) displayText += ` <span style="font-size:0.8rem; color:#888;">[${c.code}]</span>`;
-            
-            item.innerHTML = displayText;
+            const nameH = window.highlightSearchMatches ? window.highlightSearchMatches(c.name, filter) : c.name;
+            const phoneH = c.phone ? (window.highlightSearchMatches ? window.highlightSearchMatches(String(c.phone), filter) : c.phone) : '';
+            const codeH = c.code ? (window.highlightSearchMatches ? window.highlightSearchMatches(String(c.code), filter) : c.code) : '';
+
+            item.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: right; dir: rtl;"><div style="display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap;"><span style="font-weight: bold; color: #fff;">${nameH}</span>${phoneH ? `<span style="font-size:0.8rem; color:#94a3b8;">(${phoneH})</span>` : ''}${codeH ? `<span style="font-size:0.8rem; color:#64748b;">[${codeH}]</span>` : ''}</div></div>`;
             item.onmousedown = () => selectCustomer(c.id, c.name); 
             item.onpointerdown = () => selectCustomer(c.id, c.name);
             listEl.appendChild(item);
@@ -1020,9 +1020,11 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
                     imgHtml = `<div style="width:28px; height:28px; border-radius:6px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.25); color:#38bdf8; display:flex; align-items:center; justify-content:center; font-size:0.8rem; flex-shrink:0;">📦</div>`;
                 }
 
-                let textHtml = `<div style="flex:1;"><span>${existing.name}</span>`;
+                const nameH = window.highlightSearchMatches ? window.highlightSearchMatches(existing.name, filter) : existing.name;
+                const barcodeH = existing.barcode ? (window.highlightSearchMatches ? window.highlightSearchMatches(String(existing.barcode), filter) : existing.barcode) : '';
+                let textHtml = `<div style="flex:1;"><span>${nameH}</span>`;
                 if (isMobile && existing.unit) textHtml += ` <span style="font-size:0.75rem; color:#aaa;">— ${existing.unit}</span>`;
-                if (existing.barcode) textHtml += ` <span style="font-size:0.75rem; color:#888;">[${existing.barcode}]</span>`;
+                if (barcodeH) textHtml += ` <span style="font-size:0.75rem; color:#888;">[${barcodeH}]</span>`;
                 textHtml += `</div>`;
 
                 div.innerHTML = imgHtml + textHtml;
@@ -1246,9 +1248,11 @@ async function renderQuickItemDropdown(filter = '') {
             const div = document.createElement('div');
             div.className = 'custom-dropdown-item';
             
-            let displayText = existing.name;
+            const nameH = window.highlightSearchMatches ? window.highlightSearchMatches(existing.name, filter) : existing.name;
+            const barcodeH = existing.barcode ? (window.highlightSearchMatches ? window.highlightSearchMatches(String(existing.barcode), filter) : existing.barcode) : '';
+            let displayText = nameH;
             if (existing.unit) displayText += ' <span style="font-size:0.8rem; color:#aaa;">— ' + existing.unit + '</span>';
-            if (existing.barcode) displayText += ' <span style="font-size:0.8rem; color:#888;">[' + existing.barcode + ']</span>';
+            if (barcodeH) displayText += ' <span style="font-size:0.8rem; color:#888;">[' + barcodeH + ']</span>';
             div.innerHTML = displayText;
             
             div.onmousedown = () => selectQuickItem(existing.id);

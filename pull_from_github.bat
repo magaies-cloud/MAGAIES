@@ -3,7 +3,7 @@ echo ===================================================
 echo     تنزيل أحدث نسخة من جيتهاب (GitHub Pull)
 echo ===================================================
 echo.
-cd /d "c:\xampp\htdocs\ELSAJANA2\magaies"
+cd /d "%~dp0"
 
 echo جاري الاتصال بجيتهاب وتنزيل النسخة...
 git pull origin main

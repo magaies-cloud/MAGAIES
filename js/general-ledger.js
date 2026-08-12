@@ -115,6 +115,17 @@ function buildAccountsList() {
         sups.forEach(s  => ALL_ACCOUNTS.push({ id: `supp-${s.id}`, name: s.name, icon: '🏭', type: 'مورد' }));
     } catch(e) { console.warn('Error loading suppliers:', e); }
 
+    // Fallback default accounts if local storage has no accounts
+    if (ALL_ACCOUNTS.length <= 1) {
+        ALL_ACCOUNTS.push(
+            { id: 'cust-demo-1', name: 'محمد عمار', icon: '👤', type: 'عميل' },
+            { id: 'cust-demo-2', name: 'محمد أحمد', icon: '👤', type: 'عميل' },
+            { id: 'safe-demo-1', name: 'الخزينة الرئيسية', icon: '💰', type: 'صندوق' },
+            { id: 'bank-demo-1', name: 'بنك الخرطوم', icon: '🏦', type: 'بنك' },
+            { id: 'supp-demo-1', name: 'شركة السجانة للتوريدات', icon: '🏭', type: 'مورد' }
+        );
+    }
+
     // Build O(1) lookup cache
     ACCOUNT_NAME_CACHE = new Map();
     ALL_ACCOUNTS.forEach(a => {
@@ -143,6 +154,60 @@ function buildAccountsList() {
 }
 
 /* ─── Account Search & Autocomplete ─── */
+function highlightSearchMatches(text, query) {
+    if (!text || !query) return text || '';
+    const textStr = String(text);
+    const rawQuery = String(query).trim();
+    if (!rawQuery) return textStr;
+
+    function normalizeArabic(s) {
+        return String(s || '').toLowerCase()
+            .replace(/[أإآ]/g, 'ا')
+            .replace(/ة/g, 'ه')
+            .replace(/ى/g, 'ي');
+    }
+
+    const normText = normalizeArabic(textStr);
+    const normQuery = normalizeArabic(rawQuery);
+
+    const tokens = normQuery.split(/\s+/).filter(Boolean);
+    if (tokens.length === 0) return textStr;
+
+    let matches = [];
+    tokens.forEach(tok => {
+        let pos = 0;
+        while ((pos = normText.indexOf(tok, pos)) !== -1) {
+            matches.push({ start: pos, end: pos + tok.length });
+            pos += Math.max(1, tok.length);
+        }
+    });
+
+    if (matches.length === 0) return textStr;
+
+    matches.sort((a, b) => a.start - b.start);
+    let merged = [matches[0]];
+    for (let i = 1; i < matches.length; i++) {
+        let last = merged[merged.length - 1];
+        let curr = matches[i];
+        if (curr.start <= last.end) {
+            last.end = Math.max(last.end, curr.end);
+        } else {
+            merged.push(curr);
+        }
+    }
+
+    let result = '';
+    let lastIndex = 0;
+    merged.forEach(m => {
+        result += textStr.substring(lastIndex, m.start);
+        const matchText = textStr.substring(m.start, m.end);
+        result += `<span class="search-highlight-match" style="color: #ff6600 !important; font-weight: 900 !important; font-size: 1.05em !important; background: transparent !important; box-shadow: none !important; border: none !important;">${matchText}</span>`;
+        lastIndex = m.end;
+    });
+    result += textStr.substring(lastIndex);
+    return result;
+}
+
 function onAccountSearch() {
     if (!ALL_ACCOUNTS || ALL_ACCOUNTS.length <= 1) {
         buildAccountsList();
@@ -151,10 +216,26 @@ function onAccountSearch() {
     const list = document.getElementById('autocomplete-list');
     if (!input || !list) return;
     
-    const q = input.value.trim().toLowerCase();
+    const q = input.value.trim();
     list.innerHTML = '';
     
-    let results = ALL_ACCOUNTS.filter(a => a.id !== 'ALL' && (a.name.toLowerCase().includes(q) || String(a.id).toLowerCase().includes(q)));
+    function normStr(s) {
+        return String(s || '').toLowerCase()
+            .replace(/[أإآ]/g, 'ا')
+            .replace(/ة/g, 'ه')
+            .replace(/ى/g, 'ي');
+    }
+    
+    const normQ = normStr(q);
+    const qTokens = normQ.split(/\s+/).filter(Boolean);
+    
+    let results = ALL_ACCOUNTS.filter(a => {
+        if (a.id === 'ALL') return false;
+        if (qTokens.length === 0) return true;
+        const nameNorm = normStr(a.name);
+        const idNorm = normStr(a.id);
+        return qTokens.every(tok => nameNorm.includes(tok) || idNorm.includes(tok));
+    });
     
     if (results.length === 0) {
         list.innerHTML = '<li class="no-results" style="padding: 10px; color: #f87171; text-align: center;">لا يوجد حساب مطابق</li>';
@@ -171,9 +252,13 @@ function onAccountSearch() {
         if (a.type === 'صندوق' || a.type === 'خزنة') badgeColor = '#10b981';
         if (a.type === 'بنك') badgeColor = '#8b5cf6';
         
+        const highlightedName = highlightSearchMatches(a.name, q);
+        const highlightedId = (String(a.id) !== 'ALL' && normStr(a.id).includes(normQ)) ? highlightSearchMatches(String(a.id), q) : '';
+        const idBadge = highlightedId ? `<span style="font-size: 0.75rem; opacity: 0.7; margin-right: 6px;">(#${highlightedId})</span>` : '';
+
         li.innerHTML = `
             <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-                <span style="font-weight: 600;">${a.icon} ${a.name}</span>
+                <span style="font-weight: 600;">${a.icon} ${highlightedName} ${idBadge}</span>
                 <span style="background:${badgeColor}; color:white; padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight: bold; min-width: 50px; text-align: center;">${a.type}</span>
             </div>
         `;

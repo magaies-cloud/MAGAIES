@@ -236,10 +236,13 @@ function renderAccountDropdown(type, filter = '') {
             else if (a.storeType === 'safe') typeTag = '<span style="font-size:0.75rem; color:#34d399; background:rgba(52,211,153,0.1); padding:2px 6px; border-radius:4px;">خزينة</span>';
             else if (a.storeType === 'gl') typeTag = '<span style="font-size:0.75rem; color:#fbbf24; background:rgba(251,191,36,0.1); padding:2px 6px; border-radius:4px;">حساب عام</span>';
 
+            const highlightedName = window.highlightSearchMatches ? window.highlightSearchMatches(a.name, filter) : a.name;
+            const highlightedCode = window.highlightSearchMatches ? window.highlightSearchMatches(String(a.rawId || ''), filter) : String(a.rawId || '');
+
             div.innerHTML = `
-                <div style="font-weight: bold; color: #fff;">${a.name}</div>
+                <div style="font-weight: bold; color: #fff;">${highlightedName}</div>
                 <div style="font-size: 0.8rem; color: #94a3b8; margin-top: 3px; display: flex; gap: 8px; align-items: center;">
-                    <span>[${a.rawId}]</span>
+                    <span>[${highlightedCode}]</span>
                     ${typeTag}
                 </div>
             `;

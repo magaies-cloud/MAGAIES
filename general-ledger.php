@@ -6,7 +6,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<script src="js/lang.js"></script>
+<script src="js/lang.js?v=<?php echo time(); ?>"></script>
 <script>
 (function(){
     var l = localStorage.getItem('erp_lang') || 'ar';
@@ -72,6 +72,22 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         .autocomplete-list { position:absolute; top:calc(100% + 4px); right:0; left:0; background:#1e293b; border:1px solid #334155; border-radius:8px; list-style:none; margin:0; padding:4px; display:none; max-height:250px; overflow-y:auto; z-index:1000; box-shadow:0 10px 25px rgba(0,0,0,0.5); }
         .autocomplete-list li { padding:8px 12px; cursor:pointer; color:#f8fafc; font-size:0.85rem; border-radius:6px; margin-bottom:2px; font-weight:bold; display:flex; justify-content:space-between; }
         .autocomplete-list li:hover, .autocomplete-list li.active { background:#38bdf8; color:#0f172a; }
+        .search-highlight-match {
+            color: #ff7700 !important;
+            font-weight: 900 !important;
+            background: transparent !important;
+            box-shadow: none !important;
+            border: none !important;
+            padding: 0 !important;
+            display: inline !important;
+        }
+        .autocomplete-list li:hover .search-highlight-match,
+        .autocomplete-list li.active .search-highlight-match {
+            color: #ff5500 !important;
+            font-weight: 900 !important;
+            background: transparent !important;
+            text-shadow: none !important;
+        }
         :root.light-theme .autocomplete-list { background:#ffffff !important; border-color:#e2e8f0 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         :root.light-theme .autocomplete-list li { color:#1e293b !important; }
         :root.light-theme .autocomplete-list li:hover { background:#e0f2fe !important; color:#0284c7 !important; }
@@ -418,7 +434,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             <div class="filter-group" style="flex:2;">
                 <label>🏦 الحساب الرئيسي</label>
                 <div class="search-wrap" id="account-search-wrap">
-                    <input type="text" class="filter-input" id="account-search-input" placeholder="ابحث باسم أو رقم الحساب..." autocomplete="off">
+                    <input type="text" class="filter-input" id="account-search-input" placeholder="ابحث باسم أو رقم الحساب..." autocomplete="off" onfocus="if(typeof onAccountSearch==='function')onAccountSearch()" oninput="if(typeof onAccountSearch==='function')onAccountSearch()" onclick="if(typeof onAccountSearch==='function')onAccountSearch()">
                     <button class="search-clear-btn" id="search-clear-btn" onclick="clearAccountSearch()">✕</button>
                     <ul class="autocomplete-list" id="autocomplete-list"></ul>
                 </div>

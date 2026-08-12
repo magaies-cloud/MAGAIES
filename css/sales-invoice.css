@@ -1367,3 +1367,173 @@ body.has-sidebar.sidebar-open .sticky-footer {
 .total-line.grand {
     animation: grandTotalBreathe 3.5s ease-in-out infinite;
 }
+
+/* ═══════════════════════════════════════════════════════
+   ✨ OBSIDIAN & PURE GOLD GLASS PRISM DESIGN SYSTEM
+   Luxury Golden Glass Edge with Integrated Corner Facets
+   ═══════════════════════════════════════════════════════ */
+
+/* 1. Main Header Card Container (Golden Glass Rim) */
+#form-fields-card.gold-obsidian-card,
+.sales-glass-card.gold-obsidian-card {
+    background: linear-gradient(155deg, rgba(12, 13, 20, 0.98) 0%, rgba(18, 20, 30, 0.96) 50%, rgba(6, 7, 10, 0.99) 100%) !important;
+    border: 1px solid rgba(212, 175, 55, 0.5) !important;
+    border-radius: 18px !important;
+    position: relative !important;
+    overflow: visible !important;
+    box-shadow: 
+        0 20px 50px rgba(0, 0, 0, 0.95),
+        0 0 25px rgba(212, 175, 55, 0.16),
+        inset 0 1.5px 2px rgba(255, 245, 190, 0.45),
+        inset 0 -1.5px 2px rgba(180, 135, 35, 0.3) !important;
+    transition: border-color 0.4s ease, box-shadow 0.4s ease !important;
+}
+
+/* Integrated Golden Glass Top Highlight (Beveled Edge Effect) */
+#form-fields-card.gold-obsidian-card::before,
+.sales-glass-card.gold-obsidian-card::before {
+    content: '' !important;
+    position: absolute !important;
+    top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+    border-radius: 17px !important;
+    padding: 1px !important;
+    background: linear-gradient(135deg, 
+        rgba(255, 245, 180, 0.7) 0%, 
+        rgba(212, 175, 55, 0.4) 25%, 
+        transparent 50%, 
+        rgba(180, 135, 35, 0.3) 75%, 
+        rgba(255, 225, 130, 0.6) 100%
+    ) !important;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0) !important;
+    -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0) !important;
+    mask-composite: exclude !important;
+    -webkit-mask-composite: destination-out !important;
+    pointer-events: none !important;
+    z-index: 1 !important;
+}
+
+/* Integrated Golden Corner Flares (Natural Glowing Corner Facets) */
+#form-fields-card.gold-obsidian-card::after,
+.sales-glass-card.gold-obsidian-card::after {
+    content: '' !important;
+    position: absolute !important;
+    top: -1px !important; left: -1px !important; right: -1px !important; bottom: -1px !important;
+    border-radius: 18px !important;
+    background: 
+        radial-gradient(circle at 0% 0%, rgba(255, 225, 120, 0.45) 0%, transparent 18px),
+        radial-gradient(circle at 100% 0%, rgba(255, 225, 120, 0.45) 0%, transparent 18px),
+        radial-gradient(circle at 0% 100%, rgba(255, 225, 120, 0.35) 0%, transparent 18px),
+        radial-gradient(circle at 100% 100%, rgba(255, 225, 120, 0.35) 0%, transparent 18px) !important;
+    pointer-events: none !important;
+    z-index: 2 !important;
+}
+
+/* 2. Invoice Number & Date Container Box (#invoice-info-box) */
+#invoice-info-box {
+    background: linear-gradient(90deg, rgba(6, 7, 12, 0.95) 0%, rgba(16, 18, 28, 0.95) 50%, rgba(6, 7, 12, 0.95) 100%) !important;
+    border: 1px solid rgba(212, 175, 55, 0.45) !important;
+    border-radius: 12px !important;
+    padding: 6px 14px !important;
+    box-shadow: 
+        0 8px 25px rgba(0, 0, 0, 0.85),
+        0 0 15px rgba(212, 175, 55, 0.15),
+        inset 0 1px 1px rgba(255, 235, 170, 0.35),
+        inset 0 -1px 1px rgba(180, 135, 35, 0.2) !important;
+    position: relative !important;
+}
+
+/* Pure Metallic Gold Pill for Invoice Serial Display */
+.gold-serial-wrap {
+    display: flex !important;
+    align-items: center !important;
+    justify-content: space-between !important;
+    flex: 1 !important;
+    background: #020305 !important;
+    padding: 4px 10px !important;
+    border-radius: 9px !important;
+    border: 1.2px solid rgba(255, 215, 0, 0.6) !important;
+    box-shadow: 
+        inset 0 0 10px rgba(212, 175, 55, 0.25),
+        0 0 14px rgba(212, 175, 55, 0.2) !important;
+    transition: all 0.3s ease !important;
+}
+.gold-serial-wrap:hover {
+    border-color: #ffd700 !important;
+    box-shadow: 
+        inset 0 0 14px rgba(255, 215, 0, 0.35),
+        0 0 20px rgba(255, 215, 0, 0.4) !important;
+}
+
+/* Metallic Gold Typography for Invoice Serial Number */
+#inv-number.pro-serial-number,
+.gold-serial-text {
+    font-size: 1.1rem !important;
+    font-family: 'Outfit', sans-serif !important;
+    font-weight: 900 !important;
+    letter-spacing: 1.5px !important;
+    background: linear-gradient(135deg, #fff6c8 0%, #ffd700 45%, #ca9e28 100%) !important;
+    -webkit-background-clip: text !important;
+    -webkit-text-fill-color: transparent !important;
+    text-shadow: 0 0 14px rgba(255, 215, 0, 0.4) !important;
+}
+
+/* Serial Navigation Buttons (❮ / ❯) */
+.pro-serial-btn {
+    color: #ffd700 !important;
+    font-weight: 900 !important;
+    text-shadow: 0 0 8px rgba(255, 215, 0, 0.5) !important;
+    transition: all 0.2s ease !important;
+}
+.pro-serial-btn:hover {
+    color: #ffffff !important;
+    transform: scale(1.25) !important;
+    text-shadow: 0 0 12px #ffd700 !important;
+}
+
+/* Golden Label Typography */
+#form-fields-card .h-label,
+.gold-obsidian-card .h-label {
+    color: #e8cf8c !important;
+    font-weight: 800 !important;
+    font-size: 0.92rem !important;
+    text-shadow: 0 1px 3px rgba(0, 0, 0, 0.9) !important;
+    letter-spacing: 0.3px !important;
+}
+
+/* Inputs, Selects & Date pickers inside Gold Obsidian Card */
+#form-fields-card .ctrl-input,
+.gold-obsidian-card .ctrl-input {
+    background: #07080d !important;
+    border: 1px solid rgba(212, 175, 55, 0.35) !important;
+    color: #ffffff !important;
+    font-weight: 700 !important;
+    box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.7) !important;
+    transition: all 0.3s ease !important;
+}
+#form-fields-card .ctrl-input:hover,
+.gold-obsidian-card .ctrl-input:hover {
+    border-color: rgba(255, 215, 0, 0.6) !important;
+    background: #0b0c13 !important;
+}
+#form-fields-card .ctrl-input:focus,
+.gold-obsidian-card .ctrl-input:focus {
+    border-color: #ffd700 !important;
+    background: #0e0f18 !important;
+    box-shadow: 
+        0 0 14px rgba(255, 215, 0, 0.35),
+        inset 0 0 8px rgba(212, 175, 55, 0.15) !important;
+    outline: none !important;
+}
+
+/* Financial Strip Frame (#fin-strip) */
+#fin-strip > div {
+    background: linear-gradient(90deg, #05060a 0%, #0e1019 50%, #05060a 100%) !important;
+    border: 1px solid rgba(212, 175, 55, 0.45) !important;
+    box-shadow: 
+        0 6px 20px rgba(0, 0, 0, 0.8), 
+        0 0 15px rgba(212, 175, 55, 0.12),
+        inset 0 1px 1px rgba(255, 235, 170, 0.3) !important;
+    border-radius: 12px !important;
+}
+
+

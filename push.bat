@@ -1,4 +1,6 @@
-cd c:\xampp\htdocs\ELSAJANA2
+@echo off
+cd /d "%~dp0"
 git add .
-git commit -m "Add preset saving feature with progress bar for balances report"
+git commit -m "System-wide orange search text highlighting, obsidian liquid gold rim header design, and comprehensive ERP system audit"
 git push origin main
+

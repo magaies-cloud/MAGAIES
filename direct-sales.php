@@ -2462,17 +2462,19 @@
 
                 
                 <!-- Form Fields -->
-                <div class="neo-card expanded-form sales-glass-card" id="form-fields-card" style="
+                <div class="neo-card expanded-form sales-glass-card gold-obsidian-card" id="form-fields-card" style="
                     margin-bottom: 0; 
                     padding: 25px; 
-                    border-radius: 16px; 
+                    border-radius: 18px; 
                     position: relative;
                     overflow: visible;
                     width: 100%;
                 ">
-                    <!-- Neon glow effect -->
-                    <div style="position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden; border-radius:16px; z-index:0; pointer-events:none;">
-                        <div style="position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(circle, rgba(99,102,241,0.1) 0%, transparent 60%);"></div>
+                    <!-- Ambient Glow & Integrated Glass Facets -->
+
+                    <!-- Ambient Glow -->
+                    <div style="position:absolute; top:0; left:0; width:100%; height:100%; overflow:hidden; border-radius:18px; z-index:0; pointer-events:none;">
+                        <div style="position:absolute; top:-50%; left:-50%; width:200%; height:200%; background:radial-gradient(circle, rgba(212,175,55,0.08) 0%, transparent 60%);"></div>
                     </div>
                     
                     <div style="display: flex; flex-direction: column; gap: 18px; position:relative; z-index:1;">
@@ -2483,14 +2485,14 @@
     <div style="display: flex; width: 100%; gap: 15px; margin-bottom: 12px; transition: all 0.4s ease;">
         
         <!-- Row 1: Invoice Number & Date -->
-        <div id="invoice-info-box" style="flex: 1; display: flex; gap: 12px; width: 100%; background: linear-gradient(90deg, rgba(30,58,138,0.2), rgba(15,23,42,0.4)); padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(56, 189, 248, 0.25); box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); align-items: center; justify-content: space-between;">
+        <div id="invoice-info-box" style="flex: 1; display: flex; gap: 12px; width: 100%; padding: 4px 10px; border-radius: 12px; align-items: center; justify-content: space-between;">
             <div class="h-form-group group-invoice" style="flex: 1.1; display:flex; align-items:center; gap:8px; margin:0; min-width: 0;">
                 <label class="h-label" style="margin:0; font-size: 0.95rem; font-weight:bold; white-space:nowrap;">رقم الفاتورة:</label>
-                <div style="display:flex; align-items:center; justify-content:space-between; flex:1; background: rgba(0,0,0,0.3); padding: 2px 6px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); min-width: 0;">
-                    <button class="pro-serial-btn" onclick="loadPreviousInvoice()" title="السابقة" style="background: transparent; border: none; color: #fff; font-size: 1.1rem; cursor: pointer; padding: 0 5px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❮</button>
-                    <span id="inv-number" class="pro-serial-number" style="font-size: 0.95rem; font-family: 'Outfit', sans-serif; font-weight: 900; letter-spacing: 1px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">---</span>
+                <div class="gold-serial-wrap" style="display:flex; align-items:center; justify-content:space-between; flex:1; padding: 3px 8px; border-radius: 9px; min-width: 0;">
+                    <button class="pro-serial-btn" onclick="loadPreviousInvoice()" title="السابقة" style="background: transparent; border: none; font-size: 1.1rem; cursor: pointer; padding: 0 5px; opacity:0.85; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.85">❮</button>
+                    <span id="inv-number" class="pro-serial-number gold-serial-text" style="font-size: 1.1rem; font-family: 'Outfit', sans-serif; font-weight: 900; letter-spacing: 1.5px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">---</span>
                     <input type="hidden" id="hdr-inv-no">
-                    <button class="pro-serial-btn" onclick="loadNextInvoice()" title="التالية" style="background: transparent; border: none; color: #fff; font-size: 1.1rem; cursor: pointer; padding: 0 5px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❯</button>
+                    <button class="pro-serial-btn" onclick="loadNextInvoice()" title="التالية" style="background: transparent; border: none; font-size: 1.1rem; cursor: pointer; padding: 0 5px; opacity:0.85; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.85">❯</button>
                 </div>
             </div>
 
@@ -2973,7 +2975,7 @@
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1.0.0'; ?>"></script>
     <script defer src="js/print-engine.js?v=<?php echo file_exists('js/print-engine.js') ? filemtime('js/print-engine.js') : '1.0.0'; ?>"></script>
     
-    <script defer src="js/direct-sales-v3.js?v=<?php echo file_exists('js/direct-sales-v3.js') ? filemtime('js/direct-sales-v3.js') : '1.0.0'; ?>"></script>
+    <script defer src="js/direct-sales-v3.js?v=<?php echo time(); ?>"></script>
 
     <script>
         // Sales Hub Logic

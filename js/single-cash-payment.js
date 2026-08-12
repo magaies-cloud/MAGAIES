@@ -1730,13 +1730,16 @@ function renderAccountDropdown(type = 'from', filter = '') {
             }
             let codeBadge = '';
             if (c.code) {
-                codeBadge = `<span style="font-size:0.8rem; color:#888;">[${c.code}]</span>`;
+                const highlightedCode = window.highlightSearchMatches ? window.highlightSearchMatches(String(c.code), filter) : String(c.code);
+                codeBadge = `<span style="font-size:0.8rem; color:#888;">[${highlightedCode}]</span>`;
             }
+
+            const highlightedName = window.highlightSearchMatches ? window.highlightSearchMatches(c.name, filter) : c.name;
 
             item.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-weight: bold; color: #fff;">${c.name}</span>
+                        <span style="font-weight: bold; color: #fff;">${highlightedName}</span>
                         ${codeBadge}
                     </div>
                     ${typeBadge}
