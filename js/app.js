@@ -5395,6 +5395,38 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                     });
                 }
             });
+        } else if (v.details && v.details.length > 0) {
+            // Single Receipt (from cash-receipt.php) which uses bulk format v.details
+            v.details.forEach(det => {
+                if (!det || (!det.accountId && !det.account)) return;
+                const detAmtLocal = parseNum(det.amountLocal || det.amount);
+                const detAmtForeign = parseNum(det.amountForeign);
+                if (detAmtLocal <= 0 && detAmtForeign <= 0) return;
+                
+                const detAcct = resolveAccount(det.accountId || det.account);
+                const detRate = parseNum(det.rate || effRate);
+                const stmt = det.note || det.statement || v.statement || v.description || 'قبض نقدية';
+
+                // Debit Safe/Main Account
+                txns.push({
+                    date: v.date, time: time, ref: refNo, type: 'receipt', typeLabel: 'سند قبض نقدية',
+                    account: mainAcc, counterAccount: detAcct,
+                    statement: stmt, additionalNote: stmt,
+                    debit: detAmtLocal, credit: 0,
+                    debitForeign: detAmtForeign, creditForeign: 0,
+                    costCenter: det.costCenter || costCenter, currency, exchangeRate: detRate, isPosted
+                });
+                
+                // Credit Payer/Recipient Account
+                txns.push({
+                    date: v.date, time: time, ref: refNo, type: 'receipt', typeLabel: 'سند قبض نقدية',
+                    account: detAcct, counterAccount: mainAcc,
+                    statement: stmt, additionalNote: stmt,
+                    debit: 0, credit: detAmtLocal,
+                    debitForeign: 0, creditForeign: detAmtForeign,
+                    costCenter: det.costCenter || costCenter, currency, exchangeRate: detRate, isPosted
+                });
+            });
         } else {
             // Fallback for old/empty items vouchers
             const totalAmount = parseNum(v.totalAmount);
@@ -5604,6 +5636,38 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                         });
                     });
                 }
+            });
+        } else if (v.details && v.details.length > 0) {
+            // Single Payment (from cash-payment.php) which uses bulk format v.details
+            v.details.forEach(det => {
+                if (!det || (!det.accountId && !det.account)) return;
+                const detAmtLocal = parseNum(det.amountLocal || det.amount);
+                const detAmtForeign = parseNum(det.amountForeign);
+                if (detAmtLocal <= 0 && detAmtForeign <= 0) return;
+                
+                const detAcct = resolveAccount(det.accountId || det.account);
+                const detRate = parseNum(det.rate || effRate);
+                const stmt = det.note || det.statement || v.statement || v.description || 'صرف نقدية';
+
+                // Debit Recipient Account
+                txns.push({
+                    date: v.date, time: time, ref: refNo, type: 'payment', typeLabel: 'سند صرف نقدية',
+                    account: detAcct, counterAccount: mainAcc,
+                    statement: stmt, additionalNote: stmt,
+                    debit: detAmtLocal, credit: 0,
+                    debitForeign: detAmtForeign, creditForeign: 0,
+                    costCenter: det.costCenter || costCenter, currency, exchangeRate: detRate, isPosted
+                });
+                
+                // Credit Safe/Main Account
+                txns.push({
+                    date: v.date, time: time, ref: refNo, type: 'payment', typeLabel: 'سند صرف نقدية',
+                    account: mainAcc, counterAccount: detAcct,
+                    statement: stmt, additionalNote: stmt,
+                    debit: 0, credit: detAmtLocal,
+                    debitForeign: 0, creditForeign: detAmtForeign,
+                    costCenter: det.costCenter || costCenter, currency, exchangeRate: detRate, isPosted
+                });
             });
         } else {
             // Fallback for old/empty items vouchers
