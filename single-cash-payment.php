@@ -1892,8 +1892,36 @@ try {
     }
     </script>
     
+    <!-- Custom Context Menu for Numbers -->
+    <div id="num-props-menu">
+        <div class="props-header">⚙️ خصائص الأرقام</div>
+        <div class="props-item">
+            <span>حجم الخط (تعديل)</span>
+            <div style="display: flex; gap: 5px;">
+                <button class="prop-btn" onclick="applyNumProp('font-inc'); event.stopPropagation();">➕</button>
+                <button class="prop-btn" onclick="applyNumProp('font-dec'); event.stopPropagation();">➖</button>
+            </div>
+        </div>
+        <div class="props-item" onclick="applyNumProp('toggle-comma')">
+            <span>الفاصلة الألفية (,)</span>
+            <span id="prop-comma-status" style="color:#10b981; font-weight:bold;">مفعل</span>
+        </div>
+        <div class="props-item">
+            <span>الخانات العشرية</span>
+            <div style="display: flex; gap: 5px; align-items: center;">
+                <span id="prop-dec-val" style="color:#fbbf24; font-weight:bold;">0</span>
+                <button class="prop-btn" onclick="applyNumProp('dec-inc'); event.stopPropagation();">➕</button>
+                <button class="prop-btn" onclick="applyNumProp('dec-dec'); event.stopPropagation();">➖</button>
+            </div>
+        </div>
+        <div class="props-item" onclick="applyNumProp('toggle-font')">
+            <span>نوع الخط</span>
+            <span id="prop-font-status" style="color:#fbbf24; font-size:0.8rem; font-weight:bold;">Inter</span>
+        </div>
+    </div>
 </body>
 </html>
+
 
 
 
