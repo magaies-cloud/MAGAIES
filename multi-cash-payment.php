@@ -922,8 +922,13 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
 
         /* Large Totals & Rates */
-        #amount-local-hdr, #amount-foreign, #exchange-rate {
+        /* Large Totals & Rates */
+        #exchange-rate {
             font-size: 1.8rem !important;
+            font-weight: 900 !important;
+        }
+        #amount-local-hdr, #amount-foreign {
+            font-size: 2.2rem !important;
             font-weight: 900 !important;
         }
         
