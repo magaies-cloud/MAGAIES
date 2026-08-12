@@ -986,7 +986,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                     <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; overflow: visible; padding-bottom: 10px; margin-bottom: 15px;">
 
                         <div style="flex: 2; min-width: 250px;">
-                            <label id="main-account-label" style="color: #ef4444 !important; font-size: 1.2rem; margin-bottom: 5px; display: block; font-weight: bold; transition: color 0.3s; white-space: nowrap;">من حساب (صرف) <span class="animated-arrow-left">←</span></label>
+                            <label id="main-account-label" style="color: #ef4444 !important;  margin-bottom: 5px; display: block; font-weight: bold; transition: color 0.3s; white-space: nowrap;">من حساب (صرف) <span class="animated-arrow-left">←</span></label>
                             <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative; display: flex;">
                                 <input type="hidden" id="main-account">
                                 <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color); flex: 1; border-top-left-radius: 0; border-bottom-left-radius: 0;">
@@ -1156,7 +1156,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                     font-size: 1.2rem;
                 }
                 h3 { font-size: 1.4rem !important; }
-                .form-label, .block-label { font-size: 1.3rem !important; font-weight: bold; }
+                .form-label, .block-label, #main-account-label { font-size: 1.4rem !important; font-weight: bold !important; }
                 
                 /* Yellow Names */
                 .block-account-search, #main-account-search, .block-bank-name-input, .block-cheque-bank-input {
