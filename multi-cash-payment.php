@@ -1150,15 +1150,38 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 .footer-actions .btn-save-master { font-size: 0.95rem !important; padding: 8px 20px !important; font-weight: bold; }
                 
                 
-                /* Enhanced Typography & UI overrides */
+                
+                /* Enhanced Typography & UI overrides - V2 */
                 body, .form-input, .btn, .context-menu-item, p, span, div {
-                    font-size: 1.05rem;
+                    font-size: 1.2rem;
                 }
-                h3 { font-size: 1.25rem !important; }
-                .form-label, .block-label { font-size: 1.15rem !important; font-weight: bold; }
-                .block-account-search, #main-account-search {
-                    font-size: 1.25rem !important;
+                h3 { font-size: 1.4rem !important; }
+                .form-label, .block-label { font-size: 1.3rem !important; font-weight: bold; }
+                
+                /* Yellow Names */
+                .block-account-search, #main-account-search, .block-bank-name-input, .block-cheque-bank-input {
+                    font-size: 1.4rem !important;
+                    font-weight: 900 !important;
+                    color: #fbbf24 !important;
+                }
+                
+                /* Large Totals & Rates */
+                #amount-local-hdr, #amount-foreign, #exchange-rate {
+                    font-size: 1.8rem !important;
+                    font-weight: 900 !important;
+                }
+                
+                /* Large Amounts in blocks */
+                .block-total-amount, .block-bank-amount, .block-cheque-amount {
+                    font-size: 1.8rem !important;
+                    font-weight: 900 !important;
+                }
+                
+                /* Large Transfer & Cheque Numbers */
+                .block-transfer-no-input, .block-cheque-no-input {
+                    font-size: 1.6rem !important;
                     font-weight: bold !important;
+                    letter-spacing: 2px !important;
                 }
 
                 /* Universal Light Theme Overrides for Internal Screens */
