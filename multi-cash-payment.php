@@ -1156,7 +1156,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                     font-size: 1.2rem;
                 }
                 h3 { font-size: 1.4rem !important; }
-                .form-label, .block-label { font-size: 1.3rem !important; font-weight: bold; color: #fbbf24 !important; }
+                .form-label, .block-label { font-size: 1.3rem !important; font-weight: bold; }
                 
                 /* Yellow Names */
                 .block-account-search, #main-account-search, .block-bank-name-input, .block-cheque-bank-input {
@@ -1167,13 +1167,13 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 
                 /* Large Totals & Rates */
                 #amount-local-hdr, #amount-foreign, #exchange-rate {
-                    font-size: 2.1rem !important;
+                    font-size: 2.4rem !important;
                     font-weight: 900 !important;
                 }
                 
                 /* Large Amounts in blocks */
                 .block-total-amount, .block-bank-amount, .block-cheque-amount {
-                    font-size: 2.1rem !important;
+                    font-size: 2.4rem !important;
                     font-weight: 900 !important;
                 }
                 

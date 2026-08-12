@@ -595,8 +595,8 @@ window.addAccountBlock = function() {
         }
         if (label) {
             label.textContent = 'إلى حساب (مستلم)';
-            label.style.color = '#fbbf24';
-            if (label.parentElement) label.parentElement.style.color = '#fbbf24';
+            label.style.color = '#34d399';
+            if (label.parentElement) label.parentElement.style.color = '#34d399';
         }
         if (arrow) {
             arrow.className = 'animated-arrow-right';
@@ -767,7 +767,7 @@ window.addBankRow = function(blockId) {
     row.innerHTML = `
         <div style="width: 80px; flex-shrink: 0;"></div>
         <div style="width: 150px; flex-shrink: 0;">
-            <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="${blockId}" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
+            <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="${blockId}" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" style="margin-bottom: 0; font-family: monospace; font-weight: 900; text-align: center;">
         </div>
         <div style="flex: 1; min-width: 120px;">
             <input type="text" autocomplete="off" class="form-input block-bank-name-input" placeholder="اسم البنك" style="margin-bottom: 0;">
@@ -803,7 +803,7 @@ window.addChequeRow = function(blockId) {
     row.innerHTML = `
         <div style="width: 80px; flex-shrink: 0;"></div>
         <div style="width: 150px; flex-shrink: 0;">
-            <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="${blockId}" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
+            <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="${blockId}" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" style="margin-bottom: 0; font-family: monospace; font-weight: 900; text-align: center;">
         </div>
         <div style="flex: 1; min-width: 90px;">
             <input type="text" autocomplete="off" class="form-input block-cheque-bank-input" placeholder="اسم البنك" style="margin-bottom: 0;">
@@ -850,7 +850,7 @@ document.addEventListener('click', function(e) {
         row.innerHTML = `
             <div style="width: 80px; flex-shrink: 0;"></div>
             <div style="width: 150px; flex-shrink: 0;">
-                <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
+                <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" style="margin-bottom: 0; font-family: monospace; font-weight: 900; text-align: center;">
             </div>
             <div style="flex: 1; min-width: 120px;">
                 <input type="text" autocomplete="off" class="form-input block-bank-name-input" placeholder="اسم البنك" style="margin-bottom: 0;">
@@ -875,7 +875,7 @@ document.addEventListener('click', function(e) {
         row.innerHTML = `
             <div style="width: 80px; flex-shrink: 0;"></div>
             <div style="width: 150px; flex-shrink: 0;">
-                <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
+                <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" style="margin-bottom: 0; font-family: monospace; font-weight: 900; text-align: center;">
             </div>
             <div style="flex: 1; min-width: 90px;">
                 <input type="text" autocomplete="off" class="form-input block-cheque-bank-input" placeholder="اسم البنك" style="margin-bottom: 0;">
@@ -1034,7 +1034,7 @@ function showCenterError(msg, type = 'default') {
         <div style="background: ${bgGradient}; border: 2px solid ${borderColor}; border-radius: 15px; padding: 30px 40px; box-shadow: 0 10px 30px ${shadowColor}; text-align: center; max-width: 500px; width: 90%; transform: scale(0.8); transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);">
             <div style="font-size: 4rem; margin-bottom: 15px; text-shadow: 0 4px 10px rgba(0,0,0,0.3);">${icon}</div>
             <h2 style="color: #fff; font-family: 'Tajawal', sans-serif; font-size: 1.6rem; margin: 0 0 20px 0; line-height: 1.4;">${msg}</h2>
-            <button onclick="${btnDismissLogic}" style="background: #fff; color: #b91c1c; border: none; padding: 10px 30px; border-radius: 8px; font-weight: bold; font-family: 'Tajawal', sans-serif; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">${btnText}</button>
+            <button onclick="${btnDismissLogic}" style="background: #fff; color: #b91c1c; border: none; padding: 10px 30px; border-radius: 8px; font-weight: 900; font-family: 'Tajawal', sans-serif; font-size: 1.1rem; cursor: pointer; box-shadow: 0 4px 6px rgba(0,0,0,0.2);">${btnText}</button>
         </div>
     `;
     document.body.appendChild(modal);
@@ -1215,7 +1215,7 @@ window.printVoucher = function() {
                 <tr>
                     <td>${idx + 1}</td>
                     <td>${item.accountName || item.account}</td>
-                    <td style="font-weight: bold; color: #1e293b;">${fmtNum(item.amount)}</td>
+                    <td style="font-weight: 900; color: #1e293b;">${fmtNum(item.amount)}</td>
                     <td>${item.statement || ''}</td>
                     <td>${pmLabel}</td>
                 </tr>
@@ -1236,7 +1236,7 @@ window.printVoucher = function() {
                 <tr>
                     <td>${idx + 1}</td>
                     <td>${accName}</td>
-                    <td style="font-weight: bold; color: #1e293b;">${amt}</td>
+                    <td style="font-weight: 900; color: #1e293b;">${amt}</td>
                     <td>${note}</td>
                     <td>---</td>
                 </tr>
@@ -1247,8 +1247,8 @@ window.printVoucher = function() {
             </tbody>
             <tfoot>
                 <tr>
-                    <td colspan="2" style="text-align: left; font-weight: bold;">الإجمالي:</td>
-                    <td style="font-weight: bold; color: #059669; font-size: 1.1rem;">${totalAmt.toLocaleString('en-US', {minimumFractionDigits:2})}</td>
+                    <td colspan="2" style="text-align: left; font-weight: 900;">الإجمالي:</td>
+                    <td style="font-weight: 900; color: #059669; font-size: 1.1rem;">${totalAmt.toLocaleString('en-US', {minimumFractionDigits:2})}</td>
                     <td colspan="2"></td>
                 </tr>
             </tfoot>
@@ -1268,7 +1268,7 @@ window.printVoucher = function() {
     
     if (payMethodVal === 'cash') {
         const cashAmt = document.getElementById('cash-amount') ? document.getElementById('cash-amount').value : '';
-        paymentHtml += `<p style="font-size: 1.1rem;"><strong>المبلغ النقدي:</strong> <span style="font-family: monospace; font-weight: bold; color: #059669;">${cashAmt}</span></p>`;
+        paymentHtml += `<p style="font-size: 1.1rem;"><strong>المبلغ النقدي:</strong> <span style="font-family: monospace; font-weight: 900; color: #059669;">${cashAmt}</span></p>`;
     } else if (payMethodVal === 'mobile') {
         paymentHtml += `<table class="print-table" style="margin-top:10px;">
             <thead><tr><th>المبلغ</th><th>رقم التحويل</th><th>البيان</th></tr></thead><tbody>`;
@@ -1277,7 +1277,7 @@ window.printVoucher = function() {
             const tAmt = tr.querySelector('.transfer-amount')?.value || '';
             const tNo = tr.querySelector('.transfer-no')?.value || '';
             const tNote = tr.querySelector('.transfer-note')?.value || '';
-            paymentHtml += `<tr><td style="font-weight: bold;">${tAmt}</td><td>${tNo}</td><td>${tNote}</td></tr>`;
+            paymentHtml += `<tr><td style="font-weight: 900;">${tAmt}</td><td>${tNo}</td><td>${tNote}</td></tr>`;
         });
         paymentHtml += `</tbody></table>`;
     } else if (payMethodVal === 'check') {
@@ -1289,7 +1289,7 @@ window.printVoucher = function() {
             const cBranch = cr.querySelector('.cheque-branch')?.value || '';
             const cNo = cr.querySelector('.cheque-no')?.value || '';
             const cDate = cr.querySelector('.cheque-date')?.value || '';
-            paymentHtml += `<tr><td style="font-weight: bold;">${cAmt}</td><td>${cBranch}</td><td>${cNo}</td><td dir="ltr">${cDate}</td></tr>`;
+            paymentHtml += `<tr><td style="font-weight: 900;">${cAmt}</td><td>${cBranch}</td><td>${cNo}</td><td dir="ltr">${cDate}</td></tr>`;
         });
         paymentHtml += `</tbody></table>`;
     } else if (payMethodVal === 'hybrid') {
@@ -1301,7 +1301,7 @@ window.printVoucher = function() {
             const tAmt = tr.querySelector('.transfer-amount')?.value || '';
             const tNo = tr.querySelector('.transfer-no')?.value || '';
             const tNote = tr.querySelector('.transfer-note')?.value || '';
-            paymentHtml += `<tr><td style="font-weight: bold;">${tAmt}</td><td>${tNo}</td><td>${tNote}</td></tr>`;
+            paymentHtml += `<tr><td style="font-weight: 900;">${tAmt}</td><td>${tNo}</td><td>${tNote}</td></tr>`;
         });
         paymentHtml += `</tbody></table>`;
         
@@ -1314,13 +1314,13 @@ window.printVoucher = function() {
             const cBranch = cr.querySelector('.cheque-branch')?.value || '';
             const cNo = cr.querySelector('.cheque-no')?.value || '';
             const cDate = cr.querySelector('.cheque-date')?.value || '';
-            paymentHtml += `<tr><td style="font-weight: bold;">${cAmt}</td><td>${cBranch}</td><td>${cNo}</td><td dir="ltr">${cDate}</td></tr>`;
+            paymentHtml += `<tr><td style="font-weight: 900;">${cAmt}</td><td>${cBranch}</td><td>${cNo}</td><td dir="ltr">${cDate}</td></tr>`;
         });
         paymentHtml += `</tbody></table>`;
     }
     paymentHtml += `</div>`;
 
-    const logoHtml = companyLogo ? `<img src="${companyLogo}" alt="Logo" style="max-height: 80px; max-width: 150px; object-fit: contain;">` : `<div style="width: 80px; height: 80px; background: #e2e8f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-weight: bold;">شعار الشركة</div>`;
+    const logoHtml = companyLogo ? `<img src="${companyLogo}" alt="Logo" style="max-height: 80px; max-width: 150px; object-fit: contain;">` : `<div style="width: 80px; height: 80px; background: #e2e8f0; border-radius: 8px; display: flex; align-items: center; justify-content: center; color: #94a3b8; font-weight: 900;">شعار الشركة</div>`;
 
     const html = `
         <style>
@@ -1377,7 +1377,7 @@ window.printVoucher = function() {
             }
             .meta-val {
                 font-size: 1rem;
-                font-weight: bold;
+                font-weight: 900;
                 color: #1e293b;
             }
             .highlight-val {
@@ -2063,18 +2063,18 @@ function renderAccountDropdown(type, filter = '') {
             div.onmouseleave = () => div.style.background = 'transparent';
             
             let typeTag = '';
-            if (String(a.id).startsWith('cust-')) typeTag = '<span style="font-size:0.8rem; background:rgba(96,165,250,0.15); color:#60a5fa; padding: 4px 12px; border-radius: 20px; font-weight: bold; min-width: 60px; text-align: center; box-shadow: inset 0 0 5px rgba(96,165,250,0.3);">عميل</span>';
-            else if (String(a.id).startsWith('supp-')) typeTag = '<span style="font-size:0.8rem; background:rgba(244,114,182,0.15); color:#f472b6; padding: 4px 12px; border-radius: 20px; font-weight: bold; min-width: 60px; text-align: center; box-shadow: inset 0 0 5px rgba(244,114,182,0.3);">مورد</span>';
-            else if (String(a.id).startsWith('bank-')) typeTag = '<span style="font-size:0.8rem; background:rgba(167,139,250,0.15); color:#a78bfa; padding: 4px 12px; border-radius: 20px; font-weight: bold; min-width: 60px; text-align: center; box-shadow: inset 0 0 5px rgba(167,139,250,0.3);">بنك</span>';
-            else if (String(a.id).startsWith('safe-')) typeTag = '<span style="font-size:0.8rem; background:rgba(52,211,153,0.15); color:#34d399; padding: 4px 12px; border-radius: 20px; font-weight: bold; min-width: 60px; text-align: center; box-shadow: inset 0 0 5px rgba(52,211,153,0.3);">خزينة</span>';
-            else if (String(a.id).startsWith('exp-')) typeTag = '<span style="font-size:0.8rem; background:rgba(251,191,36,0.15); color:#fbbf24; padding: 4px 12px; border-radius: 20px; font-weight: bold; min-width: 60px; text-align: center; box-shadow: inset 0 0 5px rgba(251,191,36,0.3);">مصروف</span>';
+            if (String(a.id).startsWith('cust-')) typeTag = '<span style="font-size:0.8rem; background:rgba(96,165,250,0.15); color:#60a5fa; padding: 4px 12px; border-radius: 20px; font-weight: 900; min-width: 60px; text-align: center; box-shadow: inset 0 0 5px rgba(96,165,250,0.3);">عميل</span>';
+            else if (String(a.id).startsWith('supp-')) typeTag = '<span style="font-size:0.8rem; background:rgba(244,114,182,0.15); color:#f472b6; padding: 4px 12px; border-radius: 20px; font-weight: 900; min-width: 60px; text-align: center; box-shadow: inset 0 0 5px rgba(244,114,182,0.3);">مورد</span>';
+            else if (String(a.id).startsWith('bank-')) typeTag = '<span style="font-size:0.8rem; background:rgba(167,139,250,0.15); color:#a78bfa; padding: 4px 12px; border-radius: 20px; font-weight: 900; min-width: 60px; text-align: center; box-shadow: inset 0 0 5px rgba(167,139,250,0.3);">بنك</span>';
+            else if (String(a.id).startsWith('safe-')) typeTag = '<span style="font-size:0.8rem; background:rgba(52,211,153,0.15); color:#34d399; padding: 4px 12px; border-radius: 20px; font-weight: 900; min-width: 60px; text-align: center; box-shadow: inset 0 0 5px rgba(52,211,153,0.3);">خزينة</span>';
+            else if (String(a.id).startsWith('exp-')) typeTag = '<span style="font-size:0.8rem; background:rgba(251,191,36,0.15); color:#fbbf24; padding: 4px 12px; border-radius: 20px; font-weight: 900; min-width: 60px; text-align: center; box-shadow: inset 0 0 5px rgba(251,191,36,0.3);">مصروف</span>';
 
             const highlightedName = window.highlightSearchMatches ? window.highlightSearchMatches(a.name, filter) : a.name;
 
             div.innerHTML = `
                 <div style="display: flex; justify-content: space-between; align-items: center; width: 100%;">
                     <div style="display: flex; align-items: center; gap: 8px;">
-                        <span style="font-weight: bold; color: #fff;">${highlightedName}</span>
+                        <span style="font-weight: 900; color: #fff;">${highlightedName}</span>
                     </div>
                     ${typeTag}
                 </div>
@@ -2384,9 +2384,9 @@ function loadVoucherIntoForm(v) {
                         row.className = 'bank-row';
                         row.style.cssText = 'display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;';
                         row.innerHTML = `
-                            <div style="width: 80px; font-weight: bold; color: #22d3ee; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">${idx === 0 ? '🏦 تحويل' : ''}</div>
+                            <div style="width: 80px; font-weight: 900; color: #22d3ee; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">${idx === 0 ? '🏦 تحويل' : ''}</div>
                             <div style="width: 150px; flex-shrink: 0;">
-                                <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="${blockId}" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" value="${bt.amount || ''}" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
+                                <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="${blockId}" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" value="${bt.amount || ''}" style="margin-bottom: 0; font-family: monospace; font-weight: 900; text-align: center;">
                             </div>
                             <div style="flex: 1; min-width: 120px;">
                                 <input type="text" autocomplete="off" class="form-input block-bank-name-input" placeholder="اسم البنك" value="${bt.bankName || ''}" style="margin-bottom: 0;">
@@ -2417,9 +2417,9 @@ function loadVoucherIntoForm(v) {
                         row.className = 'cheque-row';
                         row.style.cssText = 'display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;';
                         row.innerHTML = `
-                            <div style="width: 80px; font-weight: bold; color: #d8b4fe; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">${idx === 0 ? '✍️ شيك' : ''}</div>
+                            <div style="width: 80px; font-weight: 900; color: #d8b4fe; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">${idx === 0 ? '✍️ شيك' : ''}</div>
                             <div style="width: 150px; flex-shrink: 0;">
-                                <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="${blockId}" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" value="${ch.amount || ''}" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
+                                <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="${blockId}" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" value="${ch.amount || ''}" style="margin-bottom: 0; font-family: monospace; font-weight: 900; text-align: center;">
                             </div>
                             <div style="flex: 1; min-width: 90px;">
                                 <input type="text" autocomplete="off" class="form-input block-cheque-bank-input" placeholder="اسم البنك" value="${ch.chequeBank || ''}" style="margin-bottom: 0;">
@@ -2820,16 +2820,16 @@ window.addTransferRow = function(no = '', note = '', amt = 0) {
     row.innerHTML = `
         ${labelHTML}
         <div style="width: 220px; flex: none; display: flex; align-items: center; gap: 5px;">
-            <label style="font-size: 0.75rem; color: #ffffff; font-weight: bold; white-space: nowrap;">المبلغ:</label>
-            <input type="text" autocomplete="off" class="v-input ctrl-input transfer-amount" value="${amt > 0 ? Number(parseFloat(amt)).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : ''}" placeholder="0.00" onfocus="if(parseFloat(this.value.replace(/,/g, '') || 0) === 0) this.value = '';" oninput="window.formatWhileTyping(this); recalcPaymentSummary();" onblur="if(this.value) this.value = parseFloat(this.value.replace(/,/g, '') || 0).toFixed(2); recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:1.35rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
+            <label style="font-size: 0.75rem; color: #ffffff; font-weight: 900; white-space: nowrap;">المبلغ:</label>
+            <input type="text" autocomplete="off" class="v-input ctrl-input transfer-amount" value="${amt > 0 ? Number(parseFloat(amt)).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : ''}" placeholder="0.00" onfocus="if(parseFloat(this.value.replace(/,/g, '') || 0) === 0) this.value = '';" oninput="window.formatWhileTyping(this); recalcPaymentSummary();" onblur="if(this.value) { let v = parseFloat(this.value.replace(/,/g, '') || 0); this.value = v > 0 ? v.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : ''; } recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:2.4rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: 900; text-align: center;">
         </div>
         <div style="flex: 1.2; min-width: 170px; display: flex; align-items: center; gap: 5px;">
-            <label style="font-size: 0.75rem; color: #ffffff; font-weight: bold; white-space: nowrap;">اسم البنك:</label>
+            <label style="font-size: 0.75rem; color: #ffffff; font-weight: 900; white-space: nowrap;">اسم البنك:</label>
             <input type="text" autocomplete="off" class="v-input ctrl-input transfer-note" value="${note}" placeholder="اسم البنك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center;">
         </div>
         <div style="flex: 1.2; min-width: 190px; display: flex; align-items: center; gap: 5px;">
-            <label style="font-size: 0.75rem; color: #ffffff; font-weight: bold; white-space: nowrap;">رقم التحويلة:</label>
-            <input type="text" autocomplete="off" class="v-input ctrl-input transfer-no" value="${no}" placeholder="رقم التحويلة..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center;">
+            <label style="font-size: 0.75rem; color: #ffffff; font-weight: 900; white-space: nowrap;">رقم التحويلة:</label>
+            <input type="text" autocomplete="off" class="v-input ctrl-input transfer-no" value="${no}" placeholder="رقم التحويلة..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:2.4rem; font-weight: 900; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center;">
         </div>
         <div style="display: flex; justify-content: flex-end; width: 40px; flex: none;">
             ${buttonHTML}
@@ -2881,19 +2881,19 @@ window.addChequeRow = function(branch = '', no = '', date = '', amt = 0) {
     row.innerHTML = `
         ${labelHTML}
         <div style="width: 220px; flex: none; display: flex; align-items: center; gap: 5px;">
-            <label style="font-size: 0.75rem; color: #ffffff; font-weight: bold; white-space: nowrap;">المبلغ:</label>
-            <input type="text" class="v-input ctrl-input cheque-amount" value="${amt > 0 ? Number(parseFloat(amt)).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : ''}" placeholder="0.00" onfocus="if(parseFloat(this.value.replace(/,/g, '') || 0) === 0) this.value = '';" oninput="window.formatWhileTyping(this); recalcPaymentSummary();" onblur="if(this.value) this.value = parseFloat(this.value.replace(/,/g, '') || 0).toFixed(2); recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:1.35rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
+            <label style="font-size: 0.75rem; color: #ffffff; font-weight: 900; white-space: nowrap;">المبلغ:</label>
+            <input type="text" class="v-input ctrl-input cheque-amount" value="${amt > 0 ? Number(parseFloat(amt)).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : ''}" placeholder="0.00" onfocus="if(parseFloat(this.value.replace(/,/g, '') || 0) === 0) this.value = '';" oninput="window.formatWhileTyping(this); recalcPaymentSummary();" onblur="if(this.value) { let v = parseFloat(this.value.replace(/,/g, '') || 0); this.value = v > 0 ? v.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : ''; } recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:2.4rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: 900; text-align: center;">
         </div>
         <div style="flex: 1.2; min-width: 170px; display: flex; align-items: center; gap: 5px;">
-            <label style="font-size: 0.75rem; color: #ffffff; font-weight: bold; white-space: nowrap;">اسم البنك:</label>
+            <label style="font-size: 0.75rem; color: #ffffff; font-weight: 900; white-space: nowrap;">اسم البنك:</label>
             <input type="text" class="v-input ctrl-input cheque-branch" value="${branch}" placeholder="اسم البنك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
         </div>
         <div style="flex: 1; min-width: 150px; display: flex; align-items: center; gap: 5px;">
-            <label style="font-size: 0.75rem; color: #ffffff; font-weight: bold; white-space: nowrap;">رقم الشيك:</label>
-            <input type="text" class="v-input ctrl-input cheque-no" value="${no}" placeholder="رقم الشيك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
+            <label style="font-size: 0.75rem; color: #ffffff; font-weight: 900; white-space: nowrap;">رقم الشيك:</label>
+            <input type="text" class="v-input ctrl-input cheque-no" value="${no}" placeholder="رقم الشيك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:2.4rem; font-weight: 900; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
         </div>
         <div style="flex: 0.9; min-width: 220px; display: flex; align-items: center; gap: 5px;">
-            <label style="font-size: 0.75rem; color: #ffffff; font-weight: bold; white-space: nowrap;">تاريخ الاستحقاق:</label>
+            <label style="font-size: 0.75rem; color: #ffffff; font-weight: 900; white-space: nowrap;">تاريخ الاستحقاق:</label>
             <input type="date" class="v-input ctrl-input cheque-date" value="${date}" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 4px; width: 100%; border-radius: 6px; color:#fff;">
         </div>
         <div style="display: flex; justify-content: flex-end; width: 40px; flex: none;">
