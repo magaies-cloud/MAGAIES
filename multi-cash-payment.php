@@ -933,14 +933,14 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
         
         /* Large Amounts in blocks */
-        .block-total-amount, .block-bank-amount, .block-cheque-amount {
-            font-size: 4.0rem !important;
+        .block-total-amount, .block-bank-amount, .block-cheque-amount, .transfer-amount, .cheque-amount {
+            font-size: 5.0rem !important;
             font-weight: 900 !important;
         }
         
         /* Large Transfer & Cheque Numbers */
-        .block-transfer-no-input, .block-cheque-no-input {
-            font-size: 3.0rem !important;
+        .block-transfer-no-input, .block-cheque-no-input, .transfer-no, .cheque-no {
+            font-size: 3.5rem !important;
             font-weight: 900 !important;
             letter-spacing: 2px !important;
         }
