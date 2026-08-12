@@ -3053,7 +3053,7 @@ window.checkTransferDuplicate = async function(tno, currentVoucherId) {
         } catch(e) { continue; }
         
         for (let v of vouchers) {
-            if (v.deleted) continue;
+            if (!v || v.deleted) continue;
             if (currentVoucherId && (v.id === currentVoucherId || v.voucherNo === currentVoucherId)) continue;
             
             // Check top-level bankTransfers
@@ -3070,6 +3070,7 @@ window.checkTransferDuplicate = async function(tno, currentVoucherId) {
             // Check items array
             if (v.items && Array.isArray(v.items)) {
                 for (let item of v.items) {
+                    if (!item) continue;
                     if (item.bankTransfers && Array.isArray(item.bankTransfers)) {
                         for (let bt of item.bankTransfers) {
                             let no = String(bt.transferNo || '').trim();
