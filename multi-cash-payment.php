@@ -934,16 +934,29 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         
         /* Large Amounts in blocks */
         .block-total-amount, .block-bank-amount, .block-cheque-amount {
-            font-size: 3.0rem !important;
+            font-size: 4.0rem !important;
             font-weight: 900 !important;
         }
         
         /* Large Transfer & Cheque Numbers */
         .block-transfer-no-input, .block-cheque-no-input {
-            font-size: 2.2rem !important;
+            font-size: 3.0rem !important;
             font-weight: 900 !important;
             letter-spacing: 2px !important;
         }
+
+        /* Bank Row Layout Overrides */
+        .bank-row > div:nth-child(2) { flex: 1.2 !important; min-width: 280px !important; width: auto !important; }
+        .bank-row > div:nth-child(3) { flex: 0.8 !important; min-width: 90px !important; }
+        .bank-row > div:nth-child(4) { flex: 1.5 !important; min-width: 350px !important; }
+        .bank-row > div:nth-child(5) { flex: 1 !important; min-width: 120px !important; }
+
+        /* Cheque Row Layout Overrides */
+        .cheque-row > div:nth-child(2) { flex: 1.2 !important; min-width: 280px !important; width: auto !important; }
+        .cheque-row > div:nth-child(3) { flex: 0.8 !important; min-width: 90px !important; }
+        .cheque-row > div:nth-child(4) { flex: 1.5 !important; min-width: 350px !important; }
+        .cheque-row > div:nth-child(5) { flex: 0.8 !important; min-width: 90px !important; }
+        .cheque-row > div:nth-child(6) { flex: 1 !important; min-width: 120px !important; }
     </style>
 </head>
 <body>
