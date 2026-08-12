@@ -932,33 +932,49 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             font-weight: 900 !important;
         }
         
-        /* Large Amounts in blocks */
-        input.block-total-amount, input.block-bank-amount, input.block-cheque-amount, input.transfer-amount, input.cheque-amount,
-        input.block-total-amount:focus, input.block-bank-amount:focus, input.block-cheque-amount:focus, input.transfer-amount:focus, input.cheque-amount:focus {
-            font-size: 3.5rem !important;
+        /* Normal State for Amounts */
+        input.block-total-amount, input.block-bank-amount, input.block-cheque-amount, input.transfer-amount, input.cheque-amount {
+            font-size: 2.4rem !important;
             font-weight: 900 !important;
+            transition: font-size 0.2s ease !important;
         }
         
-        /* Large Transfer & Cheque Numbers */
-        input.block-transfer-no-input, input.block-cheque-no-input, input.transfer-no, input.cheque-no,
-        input.block-transfer-no-input:focus, input.block-cheque-no-input:focus, input.transfer-no:focus, input.cheque-no:focus {
-            font-size: 3.0rem !important;
+        /* Focus State for Amounts */
+        input.block-total-amount:focus, input.block-bank-amount:focus, input.block-cheque-amount:focus, input.transfer-amount:focus, input.cheque-amount:focus {
+            font-size: 4.0rem !important;
+        }
+        
+        /* Normal State for Numbers */
+        input.block-transfer-no-input, input.block-cheque-no-input, input.transfer-no, input.cheque-no {
+            font-size: 2.0rem !important;
             font-weight: 900 !important;
-            letter-spacing: 2px !important;
+            letter-spacing: 1px !important;
+            transition: font-size 0.2s ease !important;
+        }
+        
+        /* Focus State for Numbers */
+        input.block-transfer-no-input:focus, input.block-cheque-no-input:focus, input.transfer-no:focus, input.cheque-no:focus {
+            font-size: 3.5rem !important;
+        }
+
+        /* Larger Bank Name Font */
+        input.block-bank-name-input, input.block-cheque-bank-input {
+            font-size: 1.35rem !important;
+            font-weight: bold !important;
         }
 
         /* Bank Row Layout Overrides */
         .bank-row > div:nth-child(2) { flex: 2 !important; min-width: 380px !important; width: auto !important; }
-        .bank-row > div:nth-child(3) { flex: 0.5 !important; min-width: 90px !important; }
+        .bank-row > div:nth-child(3) { flex: 1 !important; min-width: 150px !important; }
         .bank-row > div:nth-child(4) { flex: 2.5 !important; min-width: 440px !important; }
-        .bank-row > div:nth-child(5) { flex: 0.5 !important; min-width: 90px !important; }
+        .bank-row > div:nth-child(5) { flex: 1 !important; min-width: 150px !important; }
 
         /* Cheque Row Layout Overrides */
         .cheque-row > div:nth-child(2) { flex: 2 !important; min-width: 380px !important; width: auto !important; }
-        .cheque-row > div:nth-child(3) { flex: 0.5 !important; min-width: 90px !important; }
+        .cheque-row > div:nth-child(3) { flex: 1 !important; min-width: 150px !important; }
         .cheque-row > div:nth-child(4) { flex: 2.5 !important; min-width: 440px !important; }
-        .cheque-row > div:nth-child(5) { flex: 0.5 !important; min-width: 90px !important; }
-        .cheque-row > div:nth-child(6) { flex: 0.5 !important; min-width: 90px !important; }
+        .cheque-row > div:nth-child(5) { flex: 1 !important; min-width: 150px !important; }
+        .cheque-row > div:nth-child(6) { flex: 1 !important; min-width: 150px !important; }
     </style>
 </head>
 <body>
