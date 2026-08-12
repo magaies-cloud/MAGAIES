@@ -71,7 +71,7 @@ function showLengthWarningModal(transferNo) {
             <div style="position:absolute; top:35%; left:50%; width:450px; height:450px; background: radial-gradient(circle, #8b0000 0%, #3e0000 100%); animation: liquidPulsate 4s ease-in-out infinite, bounceInLiquid 0.8s cubic-bezier(0.2, 0.8, 0.2, 1) forwards; transform-origin: top left; display:flex; flex-direction:column; justify-content:center; align-items:center; border: 3px solid rgba(255,100,100,0.5); padding: 40px; text-align:center;">
                 <div style="font-size: 5rem; text-shadow: 0 0 20px #ff0000; animation: bounceInLiquid 1s infinite;">⚠️</div>
                 <h2 style="color: #ffcccc; font-family: 'Tajawal', sans-serif; font-size: 2rem; margin: 15px 0; text-shadow: 0 0 10px #ff0000;">تحذير أمني!</h2>
-                <p style="color: #fff; font-size: 1.2rem; font-weight:bold; line-height: 1.6;">رقم التحويلة <span style="color:#ffeb3b; font-size:1.4rem;">${transferNo}</span><br>أقل من 6 أرقام!</p>
+                <p style="color: #fff; font-size: 1.2rem; font-weight:bold; line-height: 1.6;">رقم التحويلة <span style="color:#ffeb3b; font-size:1.7rem;">${transferNo}</span><br>أقل من 6 أرقام!</p>
                 <p style="color: #ff8888; font-size: 0.9rem; margin-bottom: 25px;">يجب أن يتكون رقم التحويلة من 6 أرقام على الأقل لضمان الحماية.</p>
                 <button onclick="document.getElementById('critical-alert-modal').remove()" style="background: linear-gradient(45deg, #ff0000, #880000); color: white; border: 2px solid #ffaaaa; border-radius: 30px; padding: 12px 35px; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 0 15px #ff0000; transition: all 0.3s; font-family: 'Tajawal', sans-serif;" onmouseover="this.style.transform='scale(1.1)'; this.style.boxShadow='0 0 30px #ff0000';" onmouseout="this.style.transform='scale(1)'; this.style.boxShadow='0 0 15px #ff0000';">فهمت ذلك</button>
             </div>
@@ -114,7 +114,7 @@ function showDuplicateWarningModal(transferNo) {
                 <h2 style="color: #fff; font-family: 'Tajawal', sans-serif; font-size: 2.2rem; margin: 20px 0 10px; letter-spacing:2px; text-transform:uppercase;">تحويلة مكررة</h2>
                 <div style="width:100%; height:2px; background:#ff0044; margin:10px 0;"></div>
                 <p style="color: #ddd; font-size: 1.3rem; line-height: 1.6;">تم اكتشاف تطابق خطير!</p>
-                <p style="color: #fff; font-size: 1.1rem; margin-bottom: 30px; line-height:1.8;">رقم التحويلة <strong style="background:#ff0044; color:#fff; padding:3px 8px; border-radius:4px; font-family:monospace; font-size:1.4rem;">${transferNo}</strong><br>تم تسجيله مسبقاً في النظام (آخر 6 أرقام متطابقة).</p>
+                <p style="color: #fff; font-size: 1.1rem; margin-bottom: 30px; line-height:1.8;">رقم التحويلة <strong style="background:#ff0044; color:#fff; padding:3px 8px; border-radius:4px; font-family:monospace; font-size:1.7rem;">${transferNo}</strong><br>تم تسجيله مسبقاً في النظام (آخر 6 أرقام متطابقة).</p>
                 <button onclick="document.getElementById('duplicate-alert-modal').remove()" style="background: transparent; color: #ff0044; border: 2px solid #ff0044; padding: 12px 40px; font-size: 1.2rem; font-weight: 900; cursor: pointer; text-transform:uppercase; letter-spacing:2px; transition: 0.2s; font-family: 'Tajawal', sans-serif;" onmouseover="this.style.background='#ff0044'; this.style.color='#000'; this.style.boxShadow='0 0 20px #ff0044';" onmouseout="this.style.background='transparent'; this.style.color='#ff0044'; this.style.boxShadow='none';">تجاهل وإغلاق</button>
             </div>
         </div>
@@ -499,12 +499,12 @@ function updateCurrency(preventRateOverwrite = false) {
     if (curr === localCurr || curr === 'SDG') {
         if (symbolEl1) symbolEl1.innerText = localCurr;
         if (symbolEl2) symbolEl2.innerText = foreignCurr;
-        if (label1) label1.innerHTML = '<span class="vivid-icon vivid-green" style="width:24px; height:24px; font-size:1.1rem;">💰</span> المبلغ (محلي)';
+        if (label1) label1.innerHTML = '<span class="vivid-icon vivid-green" style="width:24px; height:24px; font-size:1.3rem;">💰</span> المبلغ (محلي)';
         if (label2) label2.innerHTML = '💵 القيمة (أجنبي)';
     } else {
         if (symbolEl1) symbolEl1.innerText = curr;
         if (symbolEl2) symbolEl2.innerText = localCurr;
-        if (label1) label1.innerHTML = '<span class="vivid-icon vivid-green" style="width:24px; height:24px; font-size:1.1rem;">💰</span> المبلغ (أجنبي)';
+        if (label1) label1.innerHTML = '<span class="vivid-icon vivid-green" style="width:24px; height:24px; font-size:1.3rem;">💰</span> المبلغ (أجنبي)';
         if (label2) label2.innerHTML = '💵 القيمة (محلي)';
     }
 
@@ -2045,16 +2045,16 @@ async function sendVoucherWA(voucherId) {
                         <button type="button" onclick="toggleEditPhone()" style="background: transparent; border: none; color: #cbd5e1; font-size: 0.75rem; cursor: pointer; text-decoration: underline; outline: none;">رجوع</button>
                     </div>
                     <div style="position: relative;">
-                        <input type="tel" id="wa-prompt-input" placeholder="رقم الهاتف الجديد..." value="${defaultPhone}" oninput="document.getElementById('wa-display-phone-text').textContent = this.value;" style="width:100%; background:rgba(0,0,0,0.4); border:2px solid rgba(255,255,255,0.1); color:#fff; padding:12px 15px; border-radius:12px; font-size:1.4rem; text-align:center; transition:all 0.3s; outline:none; font-family:'Inter',sans-serif;" onfocus="this.style.borderColor='#25d366'; this.style.boxShadow='0 0 12px rgba(37,211,102,0.2)';" onblur="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.boxShadow='none';">
+                        <input type="tel" id="wa-prompt-input" placeholder="رقم الهاتف الجديد..." value="${defaultPhone}" oninput="document.getElementById('wa-display-phone-text').textContent = this.value;" style="width:100%; background:rgba(0,0,0,0.4); border:2px solid rgba(255,255,255,0.1); color:#fff; padding:12px 15px; border-radius:12px; font-size:1.7rem; text-align:center; transition:all 0.3s; outline:none; font-family:'Inter',sans-serif;" onfocus="this.style.borderColor='#25d366'; this.style.boxShadow='0 0 12px rgba(37,211,102,0.2)';" onblur="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.boxShadow='none';">
                     </div>
                 </div>
 
                 <div style="display:flex; gap:15px; justify-content:center;">
-                    <button id="wa-prompt-send" style="background:linear-gradient(135deg, #25d366, #1da851); color:#fff; border:none; padding:12px 30px; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer; font-family:'Tajawal',sans-serif; transition:all 0.3s; box-shadow:0 4px 15px rgba(37,211,102,0.4); display:flex; align-items:center; gap:8px;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(37,211,102,0.5)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 15px rgba(37,211,102,0.4)';">
+                    <button id="wa-prompt-send" style="background:linear-gradient(135deg, #25d366, #1da851); color:#fff; border:none; padding:12px 30px; border-radius:12px; font-weight:bold; font-size:1.3rem; cursor:pointer; font-family:'Tajawal',sans-serif; transition:all 0.3s; box-shadow:0 4px 15px rgba(37,211,102,0.4); display:flex; align-items:center; gap:8px;" onmouseover="this.style.transform='translateY(-3px)'; this.style.boxShadow='0 8px 25px rgba(37,211,102,0.5)';" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 15px rgba(37,211,102,0.4)';">
                         <span>إرسال</span>
                         <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
                     </button>
-                    <button id="wa-prompt-cancel" style="background:rgba(255,255,255,0.05); color:#cbd5e1; border:1px solid rgba(255,255,255,0.1); padding:12px 25px; border-radius:12px; font-weight:bold; font-size:1.1rem; cursor:pointer; font-family:'Tajawal',sans-serif; transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">إلغاء</button>
+                    <button id="wa-prompt-cancel" style="background:rgba(255,255,255,0.05); color:#cbd5e1; border:1px solid rgba(255,255,255,0.1); padding:12px 25px; border-radius:12px; font-weight:bold; font-size:1.3rem; cursor:pointer; font-family:'Tajawal',sans-serif; transition:all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">إلغاء</button>
                 </div>
             </div>
         </div>
@@ -2299,19 +2299,19 @@ window.addTransferRow = function(no = '', note = '', amt = 0, statement = '') {
         ${labelHTML}
         <div class="dynamic-focus-container" style="width: 270px; flex: none; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">المبلغ:</label>
-            <input type="text" maxlength="12" class="v-input ctrl-input transfer-amount dynamic-focus-input" value="${amt > 0 ? Math.round(amt).toLocaleString('en-US') : ''}" placeholder="0.00" oninput="restrictToNumbers(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" onblur="if(this.value) { this.value = Math.round(Number(this.value.replace(/,/g, '')) || 0).toLocaleString('en-US'); } if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.4rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fbbf24; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900; text-align: center;">
+            <input type="text" maxlength="12" class="v-input ctrl-input transfer-amount dynamic-focus-input dynamic-focus-amount" value="${amt > 0 ? Math.round(amt).toLocaleString('en-US') : ''}" placeholder="0.00" oninput="restrictToNumbers(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" onblur="if(this.value) { this.value = Math.round(Number(this.value.replace(/,/g, '')) || 0).toLocaleString('en-US'); } if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.7rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fbbf24; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900; text-align: center;">
         </div>
         <div style="flex: 1; min-width: 80px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">اسم البنك:</label>
-            <input type="text" class="v-input ctrl-input transfer-note" value="${note}" placeholder="اسم البنك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.1rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center;">
+            <input type="text" class="v-input ctrl-input transfer-note" value="${note}" placeholder="اسم البنك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.3rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center;">
         </div>
         <div class="dynamic-focus-container" style="flex: none; width: 270px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">رقم التحويلة:</label>
-            <input type="text" maxlength="12" class="v-input ctrl-input transfer-no dynamic-focus-input" value="${no}" placeholder="رقم التحويلة..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.4rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#2dd4bf; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900;">
+            <input type="text" maxlength="12" class="v-input ctrl-input transfer-no dynamic-focus-input dynamic-focus-number" value="${no}" placeholder="رقم التحويلة..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.7rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#2dd4bf; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900;">
         </div>
         <div style="flex: 1.2; min-width: 100px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">البيان:</label>
-            <input type="text" class="v-input ctrl-input transfer-statement" value="${statement}" placeholder="البيان..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.1rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center;">
+            <input type="text" class="v-input ctrl-input transfer-statement" value="${statement}" placeholder="البيان..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.3rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center;">
         </div>
         <div style="display: flex; justify-content: flex-end; width: 40px; flex: none;">
             ${buttonHTML}
@@ -2354,15 +2354,15 @@ window.addChequeRow = function(branch = '', no = '', date = '', amt = 0, stateme
         ${labelHTML}
         <div class="dynamic-focus-container" style="width: 270px; flex: none; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">المبلغ:</label>
-            <input type="text" maxlength="12" class="v-input ctrl-input cheque-amount dynamic-focus-input" value="${amt > 0 ? parseFloat(amt).toFixed(2) : ''}" placeholder="0.00" oninput="restrictToNumbers(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" onblur="if(this.value) { this.value = Math.round(Number(this.value.replace(/,/g, '')) || 0).toLocaleString('en-US'); } if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.4rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fbbf24; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900; text-align: center;">
+            <input type="text" maxlength="12" class="v-input ctrl-input cheque-amount dynamic-focus-input dynamic-focus-amount" value="${amt > 0 ? parseFloat(amt).toFixed(2) : ''}" placeholder="0.00" oninput="restrictToNumbers(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" onblur="if(this.value) { this.value = Math.round(Number(this.value.replace(/,/g, '')) || 0).toLocaleString('en-US'); } if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.7rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fbbf24; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900; text-align: center;">
         </div>
         <div style="flex: 1; min-width: 80px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">اسم البنك:</label>
-            <input type="text" class="v-input ctrl-input cheque-branch" value="${branch}" placeholder="اسم البنك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.1rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
+            <input type="text" class="v-input ctrl-input cheque-branch" value="${branch}" placeholder="اسم البنك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.3rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
         </div>
-        <div class="dynamic-focus-container" style="flex: none; width: 270px; display: flex; align-items: center; gap: 5px;"><label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">رقم الشيك:</label><input type="text" maxlength="5" class="v-input ctrl-input cheque-no dynamic-focus-input" value="${no}" placeholder="رقم الشيك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.4rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#2dd4bf; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900;"></div>
-        <div style="flex: 0.8; min-width: 120px; display: flex; align-items: center; gap: 5px;"><label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">تاريخ الاستحقاق:</label><input type="date" class="v-input ctrl-input cheque-date" value="${date}" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.1rem; padding: 0 4px; width: 100%; border-radius: 6px; color:#fff;"></div>
-        <div style="flex: 1.2; min-width: 100px; display: flex; align-items: center; gap: 5px;"><label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">البيان:</label><input type="text" class="v-input ctrl-input cheque-statement" value="${statement}" placeholder="البيان..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.1rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center;"></div>
+        <div class="dynamic-focus-container" style="flex: none; width: 270px; display: flex; align-items: center; gap: 5px;"><label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">رقم الشيك:</label><input type="text" maxlength="5" class="v-input ctrl-input cheque-no dynamic-focus-input dynamic-focus-number" value="${no}" placeholder="رقم الشيك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.7rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#2dd4bf; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900;"></div>
+        <div style="flex: 0.8; min-width: 120px; display: flex; align-items: center; gap: 5px;"><label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">تاريخ الاستحقاق:</label><input type="date" class="v-input ctrl-input cheque-date" value="${date}" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.3rem; padding: 0 4px; width: 100%; border-radius: 6px; color:#fff;"></div>
+        <div style="flex: 1.2; min-width: 100px; display: flex; align-items: center; gap: 5px;"><label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">البيان:</label><input type="text" class="v-input ctrl-input cheque-statement" value="${statement}" placeholder="البيان..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.3rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center;"></div>
         <div style="display: flex; justify-content: flex-end; width: 40px; flex: none;">
             ${buttonHTML}
         </div>
@@ -2514,6 +2514,7 @@ window.unifyVoucherSequences = function() {
 
 
 window.restrictToNumbers = function(el) { if(el) { el.value = el.value.replace(/[^0-9.]/g, ''); let parts = el.value.split('.'); if (parts.length > 2) { el.value = parts[0] + '.' + parts.slice(1).join(''); } } };
+
 
 
 

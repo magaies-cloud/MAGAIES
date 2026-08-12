@@ -901,7 +901,12 @@ try {
             font-size: 3rem !important;
             font-weight: 900 !important;
             letter-spacing: 3px !important;
-            color: #fbbf24 !important;
+        }
+        .dynamic-focus-amount:focus {
+            color: #fbbf24 !important; /* Yellow */
+        }
+        .dynamic-focus-number:focus {
+            color: #38bdf8 !important; /* Sky Blue for focus/comfort */
         }
     </style>
 </head>
@@ -1868,4 +1873,5 @@ try {
     
 </body>
 </html>
+
 
