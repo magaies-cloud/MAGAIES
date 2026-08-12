@@ -935,14 +935,14 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         /* Large Amounts in blocks */
         input.block-total-amount, input.block-bank-amount, input.block-cheque-amount, input.transfer-amount, input.cheque-amount,
         input.block-total-amount:focus, input.block-bank-amount:focus, input.block-cheque-amount:focus, input.transfer-amount:focus, input.cheque-amount:focus {
-            font-size: 5.5rem !important;
+            font-size: 3.5rem !important;
             font-weight: 900 !important;
         }
         
         /* Large Transfer & Cheque Numbers */
         input.block-transfer-no-input, input.block-cheque-no-input, input.transfer-no, input.cheque-no,
         input.block-transfer-no-input:focus, input.block-cheque-no-input:focus, input.transfer-no:focus, input.cheque-no:focus {
-            font-size: 4.5rem !important;
+            font-size: 3.0rem !important;
             font-weight: 900 !important;
             letter-spacing: 2px !important;
         }
