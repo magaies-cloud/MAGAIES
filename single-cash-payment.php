@@ -889,14 +889,14 @@ try {
             transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), flex 0.3s ease !important;
         }
         .dynamic-focus-container:focus-within {
-            width: 330px !important;
+            width: 450px !important;
             flex: none !important;
         }
         .dynamic-focus-input {
             transition: font-size 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), letter-spacing 0.3s ease !important;
         }
         .dynamic-focus-input:focus {
-            font-size: 2rem !important;
+            font-size: 2.8rem !important;
             font-weight: 900 !important;
             letter-spacing: 2px !important;
         }
