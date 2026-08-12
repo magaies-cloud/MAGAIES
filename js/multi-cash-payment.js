@@ -1518,6 +1518,7 @@ async function _saveVoucherCore() {
     const blocks = document.querySelectorAll('.account-block');
     let items = [];
     let totalAmt = 0;
+    const seenTransfers = new Set(); // Prevent duplicates within the same voucher
 
     for (let block of blocks) {
         const id = block.getAttribute('data-block-id');
@@ -1586,6 +1587,15 @@ async function _saveVoucherCore() {
                         hasInvalidTransfer = true;
                         break;
                     }
+                    
+                    const targetSuffix = String(tno).trim().slice(-6);
+                    if (seenTransfers.has(targetSuffix)) {
+                        showCenterError(`رقم التحويل ( ${tno} ) للحساب ( ${accountName} - السطر ${i + 1} ) مكرر داخل نفس الشاشة!<br><br>يوجد تطابق في آخر 6 أرقام مع تحويلة أخرى أدخلتها الآن.`);
+                        highlightError(row.querySelector('.block-transfer-no-input'));
+                        hasInvalidTransfer = true;
+                        break;
+                    }
+                    seenTransfers.add(targetSuffix);
                     
                     const cvNo = document.getElementById('voucher-no-display') ? document.getElementById('voucher-no-display').value : '';
                     const isUnique = await window.checkTransferDuplicate(tno, cvNo);
