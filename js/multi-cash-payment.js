@@ -1066,6 +1066,14 @@ function resetVoucher() {
     calcTotal();
     loadNextMultiVoucherNumber();
     formDirty = false;
+    
+    // Re-enable save button
+    const saveBtn = document.getElementById('btn-save');
+    if (saveBtn) { 
+        saveBtn.disabled = false; 
+        saveBtn.style.opacity = '1'; 
+        saveBtn.style.pointerEvents = 'auto'; 
+    }
 }
 
 window.printVoucher = function() {
