@@ -2360,7 +2360,7 @@ window.addChequeRow = function(branch = '', no = '', date = '', amt = 0, stateme
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">اسم البنك:</label>
             <input type="text" class="v-input ctrl-input cheque-branch" value="${branch}" placeholder="اسم البنك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.3rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
         </div>
-        <div class="dynamic-focus-container" style="flex: none; width: 270px; display: flex; align-items: center; gap: 5px;"><label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">رقم الشيك:</label><input type="text" maxlength="5" class="v-input ctrl-input cheque-no dynamic-focus-input dynamic-focus-number" value="${no}" placeholder="رقم الشيك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.7rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#2dd4bf; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900;"></div>
+        <div class="dynamic-focus-container" style="flex: none; width: 270px; display: flex; align-items: center; gap: 5px;"><label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">رقم الشيك:</label><input type="text" maxlength="6" class="v-input ctrl-input cheque-no dynamic-focus-input dynamic-focus-number" value="${no}" placeholder="رقم الشيك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.7rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#2dd4bf; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900;"></div>
         <div style="flex: 0.8; min-width: 120px; display: flex; align-items: center; gap: 5px;"><label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">تاريخ الاستحقاق:</label><input type="date" class="v-input ctrl-input cheque-date" value="${date}" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.3rem; padding: 0 4px; width: 100%; border-radius: 6px; color:#fff;"></div>
         <div style="flex: 1.2; min-width: 100px; display: flex; align-items: center; gap: 5px;"><label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">البيان:</label><input type="text" class="v-input ctrl-input cheque-statement" value="${statement}" placeholder="البيان..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.3rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center;"></div>
         <div style="display: flex; justify-content: flex-end; width: 40px; flex: none;">
@@ -2514,6 +2514,7 @@ window.unifyVoucherSequences = function() {
 
 
 window.restrictToNumbers = function(el) { if(el) { el.value = el.value.replace(/[^0-9.]/g, ''); let parts = el.value.split('.'); if (parts.length > 2) { el.value = parts[0] + '.' + parts.slice(1).join(''); } } };
+
 
 
 
