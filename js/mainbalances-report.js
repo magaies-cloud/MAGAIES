@@ -2614,6 +2614,15 @@ function handleRowClick(event, partnerId, partnerType) {
 }
 
 function renderTable(results, isAutoInit = false) {
+    // Filter out accounts with zero ending balance in all currencies
+    results = results.filter(p => {
+        const dL = Math.abs(p.endingDebitLocal || 0);
+        const cL = Math.abs(p.endingCreditLocal || 0);
+        const dF = Math.abs(p.endingDebitForeign || 0);
+        const cF = Math.abs(p.endingCreditForeign || 0);
+        return (dL > 0.001 || cL > 0.001 || dF > 0.001 || cF > 0.001);
+    });
+    
     window.lastResults = results;
     const tbody = document.getElementById('balances-tbody');
     
