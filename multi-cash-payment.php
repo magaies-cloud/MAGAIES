@@ -899,8 +899,11 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             font-weight: 900 !important;
         }
         #amount-local-hdr, #amount-foreign {
-            font-size: 2.2rem !important;
+            font-size: 2.6rem !important;
             font-weight: 900 !important;
+            color: #ef4444 !important;
+            background-color: #ffffff !important;
+            text-align: center !important;
         }
         
         /* Normal State for Amounts */
@@ -1043,12 +1046,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         
                         <div style="flex: 1.5; min-width: 180px;">
                             <label style="color: #10b981; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالمحلي</label>
-                            <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-size: 1.6rem; font-weight: 900; font-family: monospace; color: #10b981; background: rgba(255,255,255,0.05);">
+                            <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: monospace; color: #ef4444; background: #ffffff; text-align: center;">
                         </div>
                         
                         <div style="flex: 1.5; min-width: 180px;">
                             <label style="color: #ef4444; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالأجنبي</label>
-                            <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-size: 1.6rem; font-weight: 900; font-family: monospace; color: #ef4444; background: rgba(255,255,255,0.05);">
+                            <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: monospace; color: #ef4444; background: #ffffff; text-align: center;">
                         </div>
                     </div>
 
@@ -1420,6 +1423,217 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             window.location.href = 'dashboard-pro.php';
         }
     }
+    </script>
+    <!-- Custom Number Properties Menu -->
+    <div id="custom-num-menu" style="display: none; position: absolute; z-index: 10000; background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 18px; width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); font-family: Inter, Tahoma, Arial, sans-serif; direction: rtl; user-select: none;">
+        <div style="text-align: center; color: #38bdf8; font-weight: bold; margin-bottom: 18px; border-bottom: 1px solid #1e293b; padding-bottom: 10px; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
+            ⚙️ خصائص الأرقام
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <span style="color: #cbd5e1; font-size: 0.95rem;">حجم الخط (تعديل)</span>
+            <div style="display: flex; gap: 6px;">
+                <button onclick="changeNumProp('font', -1)" style="background: #1e293b; border: 1px solid #334155; color: #a855f7; border-radius: 6px; width: 34px; height: 34px; cursor: pointer; font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">−</button>
+                <button onclick="changeNumProp('font', 1)" style="background: #1e293b; border: 1px solid #334155; color: #a855f7; border-radius: 6px; width: 34px; height: 34px; cursor: pointer; font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">+</button>
+            </div>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+            <span style="color: #cbd5e1; font-size: 0.95rem;">الفاصلة الألفية (،)</span>
+            <span id="num-prop-sep-status" onclick="toggleNumPropSep()" style="color: #10b981; font-weight: bold; cursor: pointer; font-size: 0.95rem;">مفعل</span>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+            <span style="color: #cbd5e1; font-size: 0.95rem;">الخانات العشرية</span>
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <button onclick="changeNumProp('dec', -1)" style="background: #1e293b; border: 1px solid #334155; color: #a855f7; border-radius: 6px; width: 34px; height: 34px; cursor: pointer; font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">−</button>
+                <span id="num-prop-dec-val" style="color: #fbbf24; width: 24px; text-align: center; font-weight: bold; font-size: 1.1rem;">0</span>
+                <button onclick="changeNumProp('dec', 1)" style="background: #1e293b; border: 1px solid #334155; color: #a855f7; border-radius: 6px; width: 34px; height: 34px; cursor: pointer; font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">+</button>
+            </div>
+        </div>
+        
+        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
+            <button onclick="saveNumProps()" style="background: #10b981; border: none; color: white; padding: 12px 16px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: transform 0.1s;">
+                حفظ الخصائص 💾
+            </button>
+            
+            <div style="text-align: left; display: flex; flex-direction: column; align-items: center; cursor: pointer;" onclick="toggleNumPropFontFamily()">
+                <span style="color: #cbd5e1; font-size: 0.85rem; margin-bottom: 4px;">نوع الخط</span>
+                <span id="num-prop-font-val" style="color: #fbbf24; font-weight: bold; font-size: 0.95rem;">Inter</span>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    const numPropConfig = JSON.parse(localStorage.getItem('num-prop-config')) || {
+        fontSizeMod: 0,
+        thousandsSep: true,
+        decimals: 2,
+        fontFamily: 'monospace'
+    };
+    const fontFamilies = ['monospace', 'Inter', 'Arial', 'Tahoma'];
+
+    function updateMenuUI() {
+        document.getElementById('num-prop-sep-status').textContent = numPropConfig.thousandsSep ? 'مفعل' : 'معطل';
+        document.getElementById('num-prop-sep-status').style.color = numPropConfig.thousandsSep ? '#10b981' : '#ef4444';
+        document.getElementById('num-prop-dec-val').textContent = numPropConfig.decimals;
+        document.getElementById('num-prop-font-val').textContent = numPropConfig.fontFamily;
+    }
+
+    function changeNumProp(type, val) {
+        if(type === 'font') {
+            numPropConfig.fontSizeMod += val;
+            applyNumPropsToAll();
+        } else if(type === 'dec') {
+            numPropConfig.decimals += val;
+            if(numPropConfig.decimals < 0) numPropConfig.decimals = 0;
+            if(numPropConfig.decimals > 4) numPropConfig.decimals = 4;
+            updateMenuUI();
+            applyNumPropsToAll();
+        }
+    }
+
+    function toggleNumPropSep() {
+        numPropConfig.thousandsSep = !numPropConfig.thousandsSep;
+        updateMenuUI();
+        applyNumPropsToAll();
+    }
+
+    function toggleNumPropFontFamily() {
+        let idx = fontFamilies.indexOf(numPropConfig.fontFamily);
+        idx = (idx + 1) % fontFamilies.length;
+        numPropConfig.fontFamily = fontFamilies[idx];
+        updateMenuUI();
+        applyNumPropsToAll();
+    }
+
+    function saveNumProps() {
+        localStorage.setItem('num-prop-config', JSON.stringify(numPropConfig));
+        document.getElementById('custom-num-menu').style.display = 'none';
+        applyNumPropsToAll();
+    }
+
+    function formatNumberCustom(valStr) {
+        if(!valStr && valStr !== 0) return "";
+        let val = parseFloat(valStr.toString().replace(/,/g, ''));
+        if(isNaN(val)) return valStr;
+        
+        let parts = val.toFixed(numPropConfig.decimals).split('.');
+        if(numPropConfig.thousandsSep) {
+            parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+        }
+        return parts.join('.');
+    }
+
+    function applyNumPropsToAll() {
+        const targets = [
+            document.getElementById('amount-local-hdr'),
+            document.getElementById('amount-foreign'),
+            ...document.querySelectorAll('.block-bank-amount'),
+            ...document.querySelectorAll('.block-cheque-amount')
+        ];
+        
+        targets.forEach(el => {
+            if(!el) return;
+            
+            // Apply font family
+            el.style.setProperty('font-family', numPropConfig.fontFamily, 'important');
+            
+            // Apply font size modifier (base + mod * 0.1rem)
+            // Determine base size
+            let baseSize = (el.id === 'amount-local-hdr' || el.id === 'amount-foreign') ? 2.2 : 1.2;
+            let newSize = baseSize + (numPropConfig.fontSizeMod * 0.1);
+            if(newSize < 0.5) newSize = 0.5;
+            el.style.setProperty('font-size', newSize + 'rem', 'important');
+            
+            // Format value
+            if(el.value !== "") {
+                let cleanVal = el.value.toString().replace(/,/g, '');
+                // Store raw if not exists, or update if typing manually didn't trigger dataset update yet
+                if(!el.dataset.raw) el.dataset.raw = cleanVal;
+                else if (cleanVal !== el.dataset.raw && !el.dataset.isFormatting) {
+                     el.dataset.raw = cleanVal;
+                }
+                
+                el.dataset.isFormatting = 'true';
+                el.value = formatNumberCustom(el.dataset.raw);
+                el.dataset.isFormatting = '';
+            }
+        });
+    }
+
+    // Context menu binding via mousedown to bypass blockers
+    document.addEventListener('mousedown', function(e) {
+        if(e.button !== 2) return; // only right click
+        
+        let target = e.target;
+        if (target && target.closest) {
+            target = target.closest('#amount-local-hdr, #amount-foreign, .block-bank-amount, .block-cheque-amount');
+        } else {
+            if (target.id === 'amount-local-hdr' || target.id === 'amount-foreign' || target.classList.contains('block-bank-amount') || target.classList.contains('block-cheque-amount')) {
+                // target is already correct
+            } else {
+                target = null;
+            }
+        }
+
+        if(target) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            updateMenuUI();
+            
+            const menu = document.getElementById('custom-num-menu');
+            menu.style.display = 'block';
+            menu.style.left = e.pageX + 'px';
+            menu.style.top = e.pageY + 'px';
+            
+            if(e.pageX + 280 > window.innerWidth) {
+                menu.style.left = (e.pageX - 280) + 'px';
+            }
+        }
+    }, true);
+    
+    document.addEventListener('contextmenu', function(e) {
+        let target = e.target;
+        if (target && target.closest) {
+            target = target.closest('#amount-local-hdr, #amount-foreign, .block-bank-amount, .block-cheque-amount');
+            if (target) {
+                e.preventDefault();
+                e.stopPropagation();
+                e.stopImmediatePropagation();
+            }
+        }
+    }, true);
+
+    document.addEventListener('click', function(e) {
+        const menu = document.getElementById('custom-num-menu');
+        if(menu && menu.style.display === 'block' && !menu.contains(e.target)) {
+            menu.style.display = 'none';
+        }
+    });
+
+    // Handle raw value tracking
+    document.addEventListener('input', function(e) {
+        if(e.target.id === 'amount-local-hdr' || 
+           e.target.id === 'amount-foreign' || 
+           e.target.classList.contains('block-bank-amount') || 
+           e.target.classList.contains('block-cheque-amount')) {
+            e.target.dataset.raw = e.target.value.replace(/,/g, '');
+        }
+    });
+
+    document.addEventListener('focusout', function(e) {
+         if(e.target.id === 'amount-local-hdr' || 
+           e.target.id === 'amount-foreign' || 
+           e.target.classList.contains('block-bank-amount') || 
+           e.target.classList.contains('block-cheque-amount')) {
+            applyNumPropsToAll();
+        }
+    });
+    
+    // Periodically apply styles to newly added rows dynamically
+    setInterval(applyNumPropsToAll, 1000);
     </script>
 </body>
 </html>
