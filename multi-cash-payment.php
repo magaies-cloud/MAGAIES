@@ -920,6 +920,25 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             border-color: #f97316 !important;
             box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25) !important;
         }
+
+        /* Large Totals & Rates */
+        #amount-local-hdr, #amount-foreign, #exchange-rate {
+            font-size: 3.0rem !important;
+            font-weight: 900 !important;
+        }
+        
+        /* Large Amounts in blocks */
+        .block-total-amount, .block-bank-amount, .block-cheque-amount {
+            font-size: 3.0rem !important;
+            font-weight: 900 !important;
+        }
+        
+        /* Large Transfer & Cheque Numbers */
+        .block-transfer-no-input, .block-cheque-no-input {
+            font-size: 2.2rem !important;
+            font-weight: 900 !important;
+            letter-spacing: 2px !important;
+        }
     </style>
 </head>
 <body>

@@ -888,10 +888,29 @@ document.addEventListener('click', function(e) {
     }
 });
 
+// Number formatting utility
+window.formatWhileTyping = function(input) {
+    let cursor = input.selectionStart;
+    let oldLength = input.value.length;
+    let val = input.value.replace(/[^0-9.-]/g, '');
+    let parts = val.split('.');
+    parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+    input.value = parts.join('.');
+    let newLength = input.value.length;
+    let newCursor = cursor + (newLength - oldLength);
+    if (newCursor > 0) input.setSelectionRange(newCursor, newCursor);
+};
+
 // Handle oninput for sub-amount fields (via delegation)
 document.addEventListener('input', function(e) {
-    if (e.target.classList.contains('block-sub-amount')) {
-        e.target.value = e.target.value.replace(/[^0-9.]/g, '');
+    if (e.target.classList.contains('block-sub-amount') || 
+        e.target.classList.contains('block-total-amount') || 
+        e.target.classList.contains('block-cash-amount') || 
+        e.target.classList.contains('transfer-amount') || 
+        e.target.classList.contains('cheque-amount')) {
+        
+        window.formatWhileTyping(e.target);
+        
         const block = e.target.closest('.account-block');
         if (block) {
             recalcBlockTotal(block.getAttribute('data-block-id'));
