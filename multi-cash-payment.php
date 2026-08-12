@@ -912,9 +912,9 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
         /* ═══ High legibility white background for Amount/Value fields ═══ */
         .transfer-amount, .cheque-amount, .block-sub-amount, .block-cash-amount, .block-bank-amount, .block-cheque-amount, .block-total-amount, .total-val, .val, .value-field, .multi-input[placeholder*="المبلغ"], .multi-input[placeholder*="القيمة"] {
-            background: #ffffff !important;
-            color: #047857 !important; /* Rich readable dark green */
-            border: 1.5px solid #cbd5e1 !important;
+            background: rgba(15, 23, 42, 0.45) !important;
+            color: #ffffff !important;
+            border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
         }
         .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus, .multi-input[placeholder*="المبلغ"]:focus {
             border-color: #f97316 !important;
@@ -936,12 +936,15 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         input.block-total-amount, input.block-bank-amount, input.block-cheque-amount, input.transfer-amount, input.cheque-amount {
             font-size: 2.4rem !important;
             font-weight: 900 !important;
-            transition: font-size 0.2s ease !important;
+            color: #ffffff !important;
+            transition: font-size 0.2s ease, color 0.2s ease, background 0.2s ease !important;
         }
         
         /* Focus State for Amounts */
         input.block-total-amount:focus, input.block-bank-amount:focus, input.block-cheque-amount:focus, input.transfer-amount:focus, input.cheque-amount:focus {
             font-size: 4.0rem !important;
+            color: #fbbf24 !important; /* Gold */
+            background: rgba(15, 23, 42, 0.8) !important;
         }
         
         /* Normal State for Numbers */
@@ -949,12 +952,15 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             font-size: 2.0rem !important;
             font-weight: 900 !important;
             letter-spacing: 1px !important;
-            transition: font-size 0.2s ease !important;
+            color: #ffffff !important;
+            transition: font-size 0.2s ease, color 0.2s ease, background 0.2s ease !important;
         }
         
         /* Focus State for Numbers */
         input.block-transfer-no-input:focus, input.block-cheque-no-input:focus, input.transfer-no:focus, input.cheque-no:focus {
             font-size: 3.5rem !important;
+            color: #22d3ee !important; /* Cyan */
+            background: rgba(15, 23, 42, 0.8) !important;
         }
 
         /* Larger Bank Name Font */
