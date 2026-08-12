@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require_once 'db_bridge.php';
 $pdo = getDBConnection();
 global $GLOBAL_TENANT_ID;
@@ -882,6 +882,23 @@ try {
         .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus {
             border-color: #3b82f6 !important;
             box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25) !important;
+        }
+
+        /* Dynamic Scaling per user request */
+        .dynamic-focus-container {
+            transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), flex 0.3s ease !important;
+        }
+        .dynamic-focus-container:focus-within {
+            width: 330px !important;
+            flex: none !important;
+        }
+        .dynamic-focus-input {
+            transition: font-size 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), letter-spacing 0.3s ease !important;
+        }
+        .dynamic-focus-input:focus {
+            font-size: 2rem !important;
+            font-weight: 900 !important;
+            letter-spacing: 2px !important;
         }
     </style>
 </head>

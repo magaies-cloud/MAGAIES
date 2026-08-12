@@ -1,4 +1,4 @@
-window.getAllSinglePayments = function() {
+﻿window.getAllSinglePayments = function() {
     let localInvs = [];
     try { localInvs = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []; } catch(e){}
     let serverInvs = window.SERVER_SINGLE_PAYMENTS || [];
@@ -2305,17 +2305,17 @@ window.addTransferRow = function(no = '', note = '', amt = 0, statement = '') {
 
     row.innerHTML = `
         ${labelHTML}
-        <div style="width: 260px; flex: none; display: flex; align-items: center; gap: 5px;">
+        <div class="dynamic-focus-container" style="width: 150px; flex: none; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">المبلغ:</label>
-            <input type="text" maxlength="12" class="v-input ctrl-input transfer-amount" value="${amt > 0 ? parseFloat(amt).toFixed(2) : ''}" placeholder="0.00" oninput="restrictToNumbers(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" onblur="if(this.value) this.value = parseFloat(this.value.replace(/,/g, '') || 0).toFixed(2); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 42px; font-size:1.7rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
+            <input type="text" maxlength="12" class="v-input ctrl-input transfer-amount dynamic-focus-input" value="${amt > 0 ? parseFloat(amt).toFixed(2) : ''}" placeholder="0.00" oninput="restrictToNumbers(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" onblur="if(this.value) this.value = parseFloat(this.value.replace(/,/g, '') || 0).toFixed(2); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 42px; font-size:1.15rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
         </div>
         <div style="flex: 1; min-width: 80px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">اسم البنك:</label>
             <input type="text" class="v-input ctrl-input transfer-note" value="${note}" placeholder="اسم البنك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 42px; font-size:0.9rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center;">
         </div>
-        <div style="flex: none; width: 230px; display: flex; align-items: center; gap: 5px;">
+        <div class="dynamic-focus-container" style="flex: none; width: 160px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">رقم التحويلة:</label>
-            <input type="text" maxlength="12" class="v-input ctrl-input transfer-no" value="${no}" placeholder="رقم التحويلة..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 42px; font-size:1.7rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center; font-family: monospace; font-weight: bold;">
+            <input type="text" maxlength="12" class="v-input ctrl-input transfer-no dynamic-focus-input" value="${no}" placeholder="رقم التحويلة..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 42px; font-size:1.15rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center; font-family: monospace; font-weight: bold;">
         </div>
         <div style="flex: 1.2; min-width: 100px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">البيان:</label>
@@ -2368,26 +2368,17 @@ window.addChequeRow = function(branch = '', no = '', date = '', amt = 0, stateme
 
     row.innerHTML = `
         ${labelHTML}
-        <div style="width: 260px; flex: none; display: flex; align-items: center; gap: 5px;">
+        <div class="dynamic-focus-container" style="width: 150px; flex: none; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">المبلغ:</label>
-            <input type="text" maxlength="12" class="v-input ctrl-input cheque-amount" value="${amt > 0 ? parseFloat(amt).toFixed(2) : ''}" placeholder="0.00" oninput="restrictToNumbers(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" onblur="if(this.value) this.value = parseFloat(this.value.replace(/,/g, '') || 0).toFixed(2); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 42px; font-size:1.7rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
+            <input type="text" maxlength="12" class="v-input ctrl-input cheque-amount dynamic-focus-input" value="${amt > 0 ? parseFloat(amt).toFixed(2) : ''}" placeholder="0.00" oninput="restrictToNumbers(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" onblur="if(this.value) this.value = parseFloat(this.value.replace(/,/g, '') || 0).toFixed(2); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 42px; font-size:1.15rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
         </div>
         <div style="flex: 1; min-width: 80px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">اسم البنك:</label>
             <input type="text" class="v-input ctrl-input cheque-branch" value="${branch}" placeholder="اسم البنك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 42px; font-size:0.9rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
         </div>
-        <div style="flex: none; width: 230px; display: flex; align-items: center; gap: 5px;">
-            <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">رقم الشيك:</label>
-            <input type="text" class="v-input ctrl-input cheque-no" value="${no}" placeholder="رقم الشيك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
-        </div>
-        <div style="flex: 0.8; min-width: 170px; display: flex; align-items: center; gap: 5px;">
-            <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">تاريخ الاستحقاق:</label>
-            <input type="date" class="v-input ctrl-input cheque-date" value="${date}" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 4px; width: 100%; border-radius: 6px; color:#fff;">
-        </div>
-        <div style="flex: 1.5; min-width: 160px; display: flex; align-items: center; gap: 5px;">
-            <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">البيان:</label>
-            <input type="text" class="v-input ctrl-input cheque-statement" value="${statement}" placeholder="البيان..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:0.8rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center;">
-        </div>
+        <div class="dynamic-focus-container" style="flex: none; width: 160px; display: flex; align-items: center; gap: 5px;"><label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">رقم الشيك:</label><input type="text" maxlength="12" class="v-input ctrl-input cheque-no dynamic-focus-input" value="${no}" placeholder="رقم الشيك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 42px; font-size:1.15rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center; font-family: monospace; font-weight: bold;"></div>
+        <div style="flex: 0.8; min-width: 120px; display: flex; align-items: center; gap: 5px;"><label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">تاريخ الاستحقاق:</label><input type="date" class="v-input ctrl-input cheque-date" value="${date}" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 42px; font-size:0.9rem; padding: 0 4px; width: 100%; border-radius: 6px; color:#fff;"></div>
+        <div style="flex: 1.2; min-width: 100px; display: flex; align-items: center; gap: 5px;"><label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">البيان:</label><input type="text" class="v-input ctrl-input cheque-statement" value="${statement}" placeholder="البيان..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 42px; font-size:0.9rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center;"></div>
         <div style="display: flex; justify-content: flex-end; width: 40px; flex: none;">
             ${buttonHTML}
         </div>
@@ -2539,3 +2530,5 @@ window.unifyVoucherSequences = function() {
 
 
 window.restrictToNumbers = function(el) { if(el) { el.value = el.value.replace(/[^0-9.]/g, ''); let parts = el.value.split('.'); if (parts.length > 2) { el.value = parts[0] + '.' + parts.slice(1).join(''); } } };
+
+
