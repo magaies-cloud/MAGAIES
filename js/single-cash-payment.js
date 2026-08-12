@@ -2646,3 +2646,105 @@ window.formatAmount = function(input) {
     input.value = result;
 };
 
+
+// --- Persist Number Properties ---
+function getNumPropKey(input) {
+    if (input.id) return 'num_prop_' + input.id;
+    if (input.classList.contains('transfer-amount')) return 'num_prop_transfer_amount';
+    if (input.classList.contains('cheque-amount')) return 'num_prop_cheque_amount';
+    return 'num_prop_default';
+}
+
+window.saveNumberProperties = function() {
+    if (!currentTargetInput) return;
+    const input = currentTargetInput;
+    const key = getNumPropKey(input);
+    const props = {
+        fontSize: input.style.fontSize,
+        thousands: input.getAttribute('data-thousands') !== 'false',
+        decimals: parseInt(input.getAttribute('data-decimals') || '0'),
+        font: input.getAttribute('data-font') || 'inter'
+    };
+    
+    localStorage.setItem(key, JSON.stringify(props));
+    
+    // Save state for all identical classes if it's a dynamic row
+    if (!input.id) {
+        if (input.classList.contains('transfer-amount')) {
+            document.querySelectorAll('.transfer-amount').forEach(el => applyPropsToElement(el, props));
+        } else if (input.classList.contains('cheque-amount')) {
+            document.querySelectorAll('.cheque-amount').forEach(el => applyPropsToElement(el, props));
+        }
+    }
+    
+    const btn = document.getElementById('save-props-btn');
+    if (btn) {
+        const oldText = btn.innerHTML;
+        btn.innerHTML = '✅ تم الحفظ';
+        setTimeout(() => btn.innerHTML = oldText, 1500);
+    }
+};
+
+function applyPropsToElement(input, props) {
+    if (!input || !props) return;
+    if (props.fontSize) input.style.setProperty('font-size', props.fontSize, 'important');
+    input.setAttribute('data-thousands', props.thousands ? 'true' : 'false');
+    input.setAttribute('data-decimals', props.decimals);
+    input.setAttribute('data-font', props.font);
+    
+    if (props.font === 'monospace') {
+        input.style.setProperty('font-family', "'Roboto Mono', Consolas, monospace", 'important');
+    } else {
+        input.style.setProperty('font-family', "'Inter', system-ui, sans-serif", 'important');
+    }
+    
+    if(typeof formatAmount === 'function') formatAmount(input);
+}
+
+window.loadAndApplyNumberProperties = function(input) {
+    if (!input) return;
+    const key = getNumPropKey(input);
+    const saved = localStorage.getItem(key);
+    if (saved) {
+        try {
+            const props = JSON.parse(saved);
+            applyPropsToElement(input, props);
+        } catch(e) {}
+    }
+};
+
+// Apply properties on initial load
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        ['amount-local', 'amount-foreign'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) loadAndApplyNumberProperties(el);
+        });
+        document.querySelectorAll('.transfer-amount, .cheque-amount').forEach(el => {
+            loadAndApplyNumberProperties(el);
+        });
+    }, 300);
+});
+
+// Hook into dynamic row generation if they exist
+if (typeof addTransferRow === 'function') {
+    const originalAddTransfer = addTransferRow;
+    window.addTransferRow = function(amt, bank, no) {
+        originalAddTransfer(amt, bank, no);
+        setTimeout(() => {
+            const rows = document.querySelectorAll('.transfer-amount');
+            if (rows.length > 0) loadAndApplyNumberProperties(rows[rows.length - 1]);
+        }, 50);
+    };
+}
+
+if (typeof addChequeRow === 'function') {
+    const originalAddCheque = addChequeRow;
+    window.addChequeRow = function(amt, bank, no, dt) {
+        originalAddCheque(amt, bank, no, dt);
+        setTimeout(() => {
+            const rows = document.querySelectorAll('.cheque-amount');
+            if (rows.length > 0) loadAndApplyNumberProperties(rows[rows.length - 1]);
+        }, 50);
+    };
+}

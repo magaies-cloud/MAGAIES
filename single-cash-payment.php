@@ -1917,10 +1917,13 @@ try {
         <div class="props-item" onclick="applyNumProp('toggle-font')">
             <span>نوع الخط</span>
             <span id="prop-font-status" style="color:#fbbf24; font-size:0.8rem; font-weight:bold;">Inter</span>
+                <div class="props-item" style="justify-content: center; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+            <button id="save-props-btn" onclick="saveNumberProperties(); event.stopPropagation();" style="background: #10b981; color: #fff; border: none; padding: 6px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; transition: background 0.2s;">💾 حفظ الخصائص</button>
         </div>
     </div>
 </body>
 </html>
+
 
 
 
