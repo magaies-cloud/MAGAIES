@@ -1,4 +1,4 @@
-﻿<?php 
+<?php 
 require_once 'db_bridge.php';
 $pdo = getDBConnection();
 global $GLOBAL_TENANT_ID;
@@ -25,7 +25,7 @@ try {
     $SERVER_RECEIPTS_json = json_encode($arrRec, JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {}
 
-$page_title = '╪ص╪▒┘â╪ر ┘à╪د┘┘è╪ر ┘à╪ش┘à╪╣╪ر'; 
+$page_title = 'حركة مالية مجمعة'; 
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -45,7 +45,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
     <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>╪ص╪▒┘â╪ر ┘à╪د┘┘è╪ر ┘à╪ش┘à╪╣╪ر | ┘à┘é╪د┘è┘è╪│ (MAGAIEES)</title>
+    <title>حركة مالية مجمعة | مقاييس (MAGAIEES)</title>
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -80,7 +80,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             font-weight: bold;
         }
 
-        /* ظـظـظـ Ultra-Modern Glassmorphic Crystal Theme & Dynamic Light System ظـظـظـ */
+        /* ═══ Ultra-Modern Glassmorphic Crystal Theme & Dynamic Light System ═══ */
         @keyframes lightWavePulse {
             0% { box-shadow: 0 0 0 0 var(--btn-glow, rgba(56, 189, 248, 0.6)), 0 8px 25px rgba(0,0,0,0.4); }
             50% { box-shadow: 0 0 20px 4px var(--btn-glow, rgba(56, 189, 248, 0.6)), 0 12px 35px rgba(0,0,0,0.6); }
@@ -110,7 +110,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25);
             background: linear-gradient(135deg, rgba(30, 41, 59, 0.65), rgba(15, 23, 42, 0.85));
             position: relative;
-            overflow: hidden;
+            overflow: visible !important;
         }
 
         .glass-container::before {
@@ -136,32 +136,32 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             padding-bottom: 6px !important;
         }
 
-        /* Crystal Red Container (╪د┘┘à╪│╪ز╪╖┘è┘ ╪د┘╪▒╪خ┘è╪│┘è ┘┘╪╡╪▒┘) */
+        /* Crystal Red Container (المستطيل الرئيسي للصرف) */
         .glass-red {
-            background: linear-gradient(135deg, rgba(40, 20, 28, 0.85), rgba(15, 23, 42, 0.95)) !important;
-            border: 1px solid rgba(248, 113, 113, 0.35) !important;
-            border-right: 5px solid #f87171 !important;
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(248, 113, 113, 0.25), 0 0 25px rgba(239, 68, 68, 0.12) !important;
+            background: linear-gradient(135deg, rgba(46, 28, 30, 0.85), rgba(15, 23, 42, 0.95)) !important;
+            border: 1px solid rgba(212, 122, 126, 0.35) !important;
+            border-right: 5px solid #d47a7e !important;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(212, 122, 126, 0.25), 0 0 25px rgba(212, 122, 126, 0.12) !important;
         }
         .glass-red:hover {
-            background: linear-gradient(135deg, rgba(50, 24, 34, 0.9), rgba(15, 23, 42, 0.98)) !important;
-            border-color: rgba(248, 113, 113, 0.6) !important;
-            border-right-color: #ef4444 !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 0 35px rgba(239, 68, 68, 0.25) !important;
+            background: linear-gradient(135deg, rgba(56, 32, 34, 0.9), rgba(15, 23, 42, 0.98)) !important;
+            border-color: rgba(212, 122, 126, 0.6) !important;
+            border-right-color: #d47a7e !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 0 35px rgba(212, 122, 126, 0.25) !important;
         }
 
-        /* Crystal Green Container (┘à╪│╪ز╪╖┘è┘╪د╪ز ╪د┘╪ص╪│╪د╪ذ╪د╪ز ╪د┘┘à╪│╪ز┘┘à╪ر) */
+        /* Crystal Green Container (مستطيلات الحسابات المستلمة) */
         .glass-green {
-            background: linear-gradient(135deg, rgba(16, 36, 28, 0.85), rgba(15, 23, 42, 0.95)) !important;
-            border: 1px solid rgba(52, 211, 153, 0.35) !important;
-            border-right: 5px solid #34d399 !important;
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(52, 211, 153, 0.25), 0 0 25px rgba(16, 185, 129, 0.12) !important;
+            background: linear-gradient(135deg, rgba(16, 42, 28, 0.85), rgba(15, 23, 42, 0.95)) !important;
+            border: 1px solid rgba(39, 174, 96, 0.35) !important;
+            border-right: 5px solid #27ae60 !important;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(39, 174, 96, 0.25), 0 0 25px rgba(39, 174, 96, 0.12) !important;
         }
         .glass-green:hover {
-            background: linear-gradient(135deg, rgba(20, 44, 34, 0.9), rgba(15, 23, 42, 0.98)) !important;
-            border-color: rgba(52, 211, 153, 0.6) !important;
-            border-right-color: #10b981 !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 0 35px rgba(16, 185, 129, 0.25) !important;
+            background: linear-gradient(135deg, rgba(20, 52, 34, 0.9), rgba(15, 23, 42, 0.98)) !important;
+            border-color: rgba(39, 174, 96, 0.6) !important;
+            border-right-color: #2ecc71 !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 0 35px rgba(39, 174, 96, 0.25) !important;
         }
 
         /* High Contrast Inputs, Placeholders, and Labels */
@@ -260,7 +260,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         .btn-del:hover { transform: scale(1.2); }
 
         /* Choices custom overrides */
-        .choices__inner { background-color: rgba(0,0,0,0.2) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fff !important; border-radius: 8px !important; min-height: 42px !important; }
+        .choices__inner { background-color: rgba(0,0,0,0.2) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fff !important;  min-height: 42px !important; }
         .choices__list--dropdown { background-color: #1e293b !important; color: #fff !important; border: 1px solid #f97316 !important; }
         .choices__item--selectable.is-highlighted { background-color: #f97316 !important; }
         /* Toast */
@@ -298,7 +298,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         /* Sticky Footer */
         .sticky-footer { position: sticky; bottom: 0; background: rgba(15,23,42,0.9); border-top: 1px solid rgba(249,115,22,0.3); padding: 15px 25px; border-radius: 0 0 16px 16px; display: flex; justify-content: space-between; align-items: center; z-index: 50; backdrop-filter: blur(10px); margin-top: 20px; margin-left: -25px; margin-right: -25px; margin-bottom: -25px; }
 
-        /* ظـظـظـ MASTER DATA ULTRA-PREMIUM ICON & BUTTON DESIGN SYSTEM ظـظـظـ */
+        /* ═══ MASTER DATA ULTRA-PREMIUM ICON & BUTTON DESIGN SYSTEM ═══ */
 
         /* 1. Highly Visible Glitter Shimmer Sparkles (From Master Data) */
         @keyframes glitterShimmer {
@@ -327,7 +327,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             50% { box-shadow: 0 0 32px var(--tab-glow-color, rgba(56, 189, 248, 0.9)), inset 0 2px 5px rgba(255, 255, 255, 0.8); }
         }
 
-        /* ظـظـظـ Base Crystal Button (Master Data Inspired) ظـظـظـ */
+        /* ═══ Base Crystal Button (Master Data Inspired) ═══ */
         .crystal-btn, .voucher-type-btn, .pay-toggle-btn {
             position: relative;
             background: rgba(255, 255, 255, 0.04);
@@ -382,7 +382,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             animation: glitterShimmer 1.8s infinite linear;
         }
 
-        /* Rear Bottom Light Ray Beam Projection (╪د┘╪ح╪╢╪د╪ة╪ر ╪د┘╪«┘┘┘è╪ر ┘à┘ ╪د┘╪ث╪│┘┘ ┘┘é╪╖) */
+        /* Rear Bottom Light Ray Beam Projection (الإضاءة الخلفية من الأسفل فقط) */
         .crystal-btn::before, .voucher-type-btn::before, .pay-toggle-btn::before {
             content: '';
             position: absolute;
@@ -406,7 +406,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             filter: blur(18px) brightness(1.6) !important;
         }
 
-        /* Icon Styling & Detailed Icon Glow Halo (╪ح╪╢╪د╪ة╪ر ┘à┘╪╡┘╪ر ╪«┘┘┘è╪ر ┘à┘ ╪د┘╪ث┘è┘é┘ê┘╪ر) */
+        /* Icon Styling & Detailed Icon Glow Halo (إضاءة مفصلة خلفية من الأيقونة) */
         .btn-icon, .md-tab-icon {
             font-size: 1.35rem;
             display: inline-flex;
@@ -453,82 +453,82 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             filter: blur(14px) brightness(1.8) !important;
         }
 
-        /* ظـظـظـ Voucher Type Buttons (╪╡╪▒┘ ┘à╪ش┘à╪╣ ≡اôج vs ╪د╪│╪ز┘╪د┘à ┘à╪ش┘à╪╣ ≡اôح) ظـظـظـ */
+        /* ═══ Voucher Type Buttons (صرف مجمع 📤 vs استلام مجمع 📥) ═══ */
         .voucher-type-btn.active-payment, #btn-payment.active-payment {
-            --tab-border-color: #ef4444;
-            --tab-glow-color: rgba(239, 68, 68, 0.7);
-            --tab-hover-bg: linear-gradient(135deg, #f87171, #dc2626);
-            background: linear-gradient(135deg, #ef4444, #b91c1c) !important;
-            border-color: #f87171 !important;
+            --tab-border-color: #d47a7e;
+            --tab-glow-color: rgba(212, 122, 126, 0.7);
+            --tab-hover-bg: linear-gradient(135deg, #d47a7e, #a3585c);
+            background: linear-gradient(135deg, rgba(212, 122, 126, 0.25), rgba(163, 88, 92, 0.4)) !important;
+            border-color: #d47a7e !important;
             color: #ffffff !important;
             font-weight: 900 !important;
             text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 30px rgba(239, 68, 68, 0.65), 0 0 25px rgba(239, 68, 68, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
+            box-shadow: 0 10px 30px rgba(212, 122, 126, 0.65), 0 0 25px rgba(212, 122, 126, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
             transform: translateY(-3px) scale(1.05) !important;
-            animation: rimPulseGlow 2.5s infinite ease-in-out !important;
+            /* animation removed */
         }
 
         .voucher-type-btn.active-receipt, #btn-receipt.active-receipt {
-            --tab-border-color: #10b981;
-            --tab-glow-color: rgba(16, 185, 129, 0.7);
-            --tab-hover-bg: linear-gradient(135deg, #34d399, #059669);
-            background: linear-gradient(135deg, #10b981, #047857) !important;
-            border-color: #34d399 !important;
+            --tab-border-color: #81b29a;
+            --tab-glow-color: rgba(129, 178, 154, 0.7);
+            --tab-hover-bg: linear-gradient(135deg, #81b29a, #5e8773);
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.25), rgba(39, 174, 96, 0.4)) !important;
+            border-color: #81b29a !important;
             color: #ffffff !important;
             font-weight: 900 !important;
             text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.65), 0 0 25px rgba(16, 185, 129, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
+            box-shadow: 0 10px 30px rgba(129, 178, 154, 0.65), 0 0 25px rgba(129, 178, 154, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
             transform: translateY(-3px) scale(1.05) !important;
-            animation: rimPulseGlow 2.5s infinite ease-in-out !important;
+            /* animation removed */
         }
 
-        /* ظـظـظـ Payment Method Toggle Buttons (┘┘é╪»┘è ≡اْ╡ / ╪ز╪ص┘ê┘è┘ ≡اخ / ╪┤┘è┘â ظ£ي╕) ظـظـظـ */
+        /* ═══ Payment Method Toggle Buttons (نقدي 💵 / تحويل 🏦 / شيك ✍️) ═══ */
         .pay-toggle-btn.block-btn-cash {
-            --tab-border-color: rgba(251, 191, 36, 0.45);
-            --tab-glow-color: rgba(251, 191, 36, 0.65);
-            --tab-hover-bg: linear-gradient(135deg, rgba(251, 191, 36, 0.35), rgba(180, 83, 9, 0.5));
+            --tab-border-color: rgba(213, 189, 175, 0.45);
+            --tab-glow-color: rgba(213, 189, 175, 0.65);
+            --tab-hover-bg: linear-gradient(135deg, rgba(213, 189, 175, 0.35), rgba(179, 154, 138, 0.5));
         }
         .pay-toggle-btn.active.block-btn-cash {
-            --tab-border-color: #fbbf24;
-            background: linear-gradient(135deg, rgba(251, 191, 36, 0.45), rgba(180, 83, 9, 0.7)) !important;
-            border-color: #fbbf24 !important;
+            --tab-border-color: #d5bdaf;
+            background: linear-gradient(135deg, rgba(213, 189, 175, 0.45), rgba(179, 154, 138, 0.7)) !important;
+            border-color: #d5bdaf !important;
             color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(251, 191, 36, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 25px rgba(251, 191, 36, 0.5), 0 0 20px rgba(251, 191, 36, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
+            text-shadow: 0 0 10px rgba(213, 189, 175, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            box-shadow: 0 10px 25px rgba(213, 189, 175, 0.5), 0 0 20px rgba(213, 189, 175, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
             transform: translateY(-3px) scale(1.05) !important;
         }
 
         .pay-toggle-btn.block-btn-bank {
-            --tab-border-color: rgba(34, 211, 238, 0.45);
-            --tab-glow-color: rgba(34, 211, 238, 0.65);
-            --tab-hover-bg: linear-gradient(135deg, rgba(34, 211, 238, 0.35), rgba(14, 116, 144, 0.5));
+            --tab-border-color: rgba(52, 152, 219, 0.45);
+            --tab-glow-color: rgba(52, 152, 219, 0.65);
+            --tab-hover-bg: linear-gradient(135deg, rgba(52, 152, 219, 0.35), rgba(41, 128, 185, 0.5));
         }
         .pay-toggle-btn.active.block-btn-bank {
-            --tab-border-color: #22d3ee;
-            background: linear-gradient(135deg, rgba(34, 211, 238, 0.45), rgba(14, 116, 144, 0.7)) !important;
-            border-color: #22d3ee !important;
+            --tab-border-color: #3498db;
+            background: linear-gradient(135deg, rgba(52, 152, 219, 0.45), rgba(41, 128, 185, 0.7)) !important;
+            border-color: #3498db !important;
             color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(34, 211, 238, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 25px rgba(34, 211, 238, 0.5), 0 0 20px rgba(34, 211, 238, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
+            text-shadow: 0 0 10px rgba(52, 152, 219, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            box-shadow: 0 10px 25px rgba(52, 152, 219, 0.5), 0 0 20px rgba(52, 152, 219, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
             transform: translateY(-3px) scale(1.05) !important;
         }
 
         .pay-toggle-btn.block-btn-cheque {
-            --tab-border-color: rgba(192, 132, 252, 0.45);
-            --tab-glow-color: rgba(192, 132, 252, 0.65);
-            --tab-hover-bg: linear-gradient(135deg, rgba(192, 132, 252, 0.35), rgba(126, 34, 206, 0.5));
+            --tab-border-color: rgba(155, 89, 182, 0.45);
+            --tab-glow-color: rgba(155, 89, 182, 0.65);
+            --tab-hover-bg: linear-gradient(135deg, rgba(155, 89, 182, 0.35), rgba(142, 68, 173, 0.5));
         }
         .pay-toggle-btn.active.block-btn-cheque {
-            --tab-border-color: #c084fc;
-            background: linear-gradient(135deg, rgba(192, 132, 252, 0.45), rgba(126, 34, 206, 0.7)) !important;
-            border-color: #c084fc !important;
+            --tab-border-color: #9b59b6;
+            background: linear-gradient(135deg, rgba(155, 89, 182, 0.45), rgba(142, 68, 173, 0.7)) !important;
+            border-color: #9b59b6 !important;
             color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(192, 132, 252, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 25px rgba(192, 132, 252, 0.5), 0 0 20px rgba(192, 132, 252, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
+            text-shadow: 0 0 10px rgba(155, 89, 182, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            box-shadow: 0 10px 25px rgba(155, 89, 182, 0.5), 0 0 20px rgba(155, 89, 182, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
             transform: translateY(-3px) scale(1.05) !important;
         }
 
-        /* ظـظـظـ Footer Action Buttons ظـظـظـ */
+        /* ═══ Footer Action Buttons ═══ */
         .btn-save-master {
             --tab-border-color: #34d399;
             --tab-glow-color: rgba(16, 185, 129, 0.75);
@@ -579,7 +579,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             --tab-glow-color: rgba(148, 163, 184, 0.75);
             --tab-hover-bg: linear-gradient(135deg, #475569, #334155);
             background: linear-gradient(135deg, rgba(100, 116, 139, 0.3), rgba(51, 65, 85, 0.6)) !important;
-            border-color: #94a3b8 !important;
+            border-/* color removed */
             color: #ffffff !important;
             text-shadow: 0 0 10px rgba(148, 163, 184, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
         }
@@ -594,25 +594,25 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
 
         .glass-red:hover {
-            --block-glow-color: rgba(239, 68, 68, 0.5);
-            border-color: rgba(248, 113, 113, 0.75) !important;
+            --block-glow-color: rgba(212, 122, 126, 0.5);
+            border-color: rgba(212, 122, 126, 0.75) !important;
         }
         .glass-green:hover {
-            --block-glow-color: rgba(16, 185, 129, 0.5);
-            border-color: rgba(52, 211, 153, 0.75) !important;
+            --block-glow-color: rgba(39, 174, 96, 0.5);
+            border-color: rgba(39, 174, 96, 0.75) !important;
         }
 
         .block-cash-details:hover {
-            border-color: rgba(251, 191, 36, 0.75) !important;
-            box-shadow: 0 0 25px rgba(251, 191, 36, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
+            border-color: rgba(213, 189, 175, 0.75) !important;
+            box-shadow: 0 0 25px rgba(213, 189, 175, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
         }
         .block-bank-details:hover {
-            border-color: rgba(34, 211, 238, 0.75) !important;
-            box-shadow: 0 0 25px rgba(34, 211, 238, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
+            border-color: rgba(52, 152, 219, 0.75) !important;
+            box-shadow: 0 0 25px rgba(52, 152, 219, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
         }
         .block-cheque-details:hover {
-            border-color: rgba(192, 132, 252, 0.75) !important;
-            box-shadow: 0 0 25px rgba(192, 132, 252, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
+            border-color: rgba(155, 89, 182, 0.75) !important;
+            box-shadow: 0 0 25px rgba(155, 89, 182, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
         }
 
 
@@ -677,6 +677,11 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             text-shadow: 0 4px 15px rgba(255,255,255,0.3);
         }
         /* Custom Searchable Dropdown */
+        
+        /* Fix Dropdown Z-Index */
+        .custom-dropdown-input-wrap { z-index: 10; }
+        .custom-dropdown-input-wrap:focus-within { z-index: 999999 !important; }
+        .voucher-block:focus-within { z-index: 999999 !important; }
         .custom-dropdown-list {
             position: absolute;
             top: 100%;
@@ -713,12 +718,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             border-bottom: none;
         }
 
-        /* Voucher Type Toggle Buttons (╪╡╪▒┘/╪د╪│╪ز┘╪د┘à ┘à╪ش┘à╪╣) */
-        /* Voucher Type Toggle Buttons (╪╡╪▒┘/╪د╪│╪ز┘╪د┘à ┘à╪ش┘à╪╣) */
+        /* Voucher Type Toggle Buttons (صرف/استلام مجمع) */
+        /* Voucher Type Toggle Buttons (صرف/استلام مجمع) */
         .voucher-type-btn {
-            background: rgba(0,0,0,0.4) !important;
-            border: 1px solid rgba(255,255,255,0.08) !important;
-            color: #94a3b8 !important;
+            /* background removed */
+            /* border removed */
+            /* color removed */
             box-shadow: inset 0 2px 5px rgba(0,0,0,0.6) !important;
             min-width: 175px !important;
             height: 45px !important;
@@ -738,59 +743,59 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             transform: translateY(-2px) scale(1) !important;
         }
         .voucher-type-btn.active-payment {
-            background: linear-gradient(135deg, #ef4444, #b91c1c) !important;
-            border: 1px solid rgba(239, 68, 68, 0.8) !important;
+            background: linear-gradient(135deg, rgba(212, 122, 126, 0.25), rgba(163, 88, 92, 0.4)) !important;
+            border: 1px solid rgba(212, 122, 126, 0.8) !important;
             color: #ffffff !important;
-            box-shadow: 0 8px 25px rgba(239, 68, 68, 0.5), 0 0 15px rgba(239, 68, 68, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
+            box-shadow: 0 8px 25px rgba(212, 122, 126, 0.5), 0 0 15px rgba(212, 122, 126, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
             font-weight: 900 !important;
             transform: translateY(-4px) scale(1.04) !important;
-            animation: activePulse 2.5s infinite ease-in-out !important;
+            /* animation removed */
         }
         .voucher-type-btn.active-receipt {
-            background: linear-gradient(135deg, #10b981, #047857) !important;
-            border: 1px solid rgba(16, 185, 129, 0.8) !important;
+            background: linear-gradient(135deg, rgba(46, 204, 113, 0.25), rgba(39, 174, 96, 0.4)) !important;
+            border: 1px solid rgba(39, 174, 96, 0.8) !important;
             color: #ffffff !important;
-            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.5), 0 0 15px rgba(16, 185, 129, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
+            box-shadow: 0 8px 25px rgba(39, 174, 96, 0.5), 0 0 15px rgba(39, 174, 96, 0.3), inset 0 0 8px rgba(255,255,255,0.2) !important;
             font-weight: 900 !important;
             transform: translateY(-4px) scale(1.04) !important;
-            animation: activePulseGreen 2.5s infinite ease-in-out !important;
+            /* animation removed */
         }
 
         /* Pulsing active buttons */
         @keyframes activePulse {
-            0% { box-shadow: 0 8px 20px rgba(239, 68, 68, 0.45), 0 0 10px rgba(239, 68, 68, 0.25); border-color: rgba(239, 68, 68, 0.7); }
-            50% { box-shadow: 0 12px 30px rgba(239, 68, 68, 0.75), 0 0 20px rgba(239, 68, 68, 0.5); border-color: rgba(255, 255, 255, 0.9); }
-            100% { box-shadow: 0 8px 20px rgba(239, 68, 68, 0.45), 0 0 10px rgba(239, 68, 68, 0.25); border-color: rgba(239, 68, 68, 0.7); }
+            0% { box-shadow: 0 8px 20px rgba(212, 122, 126, 0.45), 0 0 10px rgba(212, 122, 126, 0.25); border-color: rgba(212, 122, 126, 0.7); }
+            50% { box-shadow: 0 12px 30px rgba(212, 122, 126, 0.75), 0 0 20px rgba(212, 122, 126, 0.5); border-color: rgba(255, 255, 255, 0.9); }
+            100% { box-shadow: 0 8px 20px rgba(212, 122, 126, 0.45), 0 0 10px rgba(212, 122, 126, 0.25); border-color: rgba(212, 122, 126, 0.7); }
         }
         @keyframes activePulseGreen {
-            0% { box-shadow: 0 8px 20px rgba(16, 185, 129, 0.45), 0 0 10px rgba(16, 185, 129, 0.25); border-color: rgba(16, 185, 129, 0.7); }
-            50% { box-shadow: 0 12px 30px rgba(16, 185, 129, 0.75), 0 0 20px rgba(16, 185, 129, 0.5); border-color: rgba(255, 255, 255, 0.9); }
-            100% { box-shadow: 0 8px 20px rgba(16, 185, 129, 0.45), 0 0 10px rgba(16, 185, 129, 0.25); border-color: rgba(16, 185, 129, 0.7); }
+            0% { box-shadow: 0 8px 20px rgba(39, 174, 96, 0.45), 0 0 10px rgba(39, 174, 96, 0.25); border-color: rgba(39, 174, 96, 0.7); }
+            50% { box-shadow: 0 12px 30px rgba(39, 174, 96, 0.75), 0 0 20px rgba(39, 174, 96, 0.5); border-color: rgba(255, 255, 255, 0.9); }
+            100% { box-shadow: 0 8px 20px rgba(39, 174, 96, 0.45), 0 0 10px rgba(39, 174, 96, 0.25); border-color: rgba(39, 174, 96, 0.7); }
         }
 
         /* Heartbeat for active state circles */
         @keyframes heartBeatRed {
             0% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-            20% { transform: scale(1.4); background-color: #ff8787; box-shadow: 0 0 15px #ff8787; }
+            20% { transform: scale(1.4); background-color: #e8a5a7; box-shadow: 0 0 15px #e8a5a7; }
             40% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-            60% { transform: scale(1.4); background-color: #ef4444; box-shadow: 0 0 15px #ef4444; }
-            80% { transform: scale(1.2); background-color: #fca5a5; box-shadow: 0 0 12px #fca5a5; }
+            60% { transform: scale(1.4); background-color: #d47a7e; box-shadow: 0 0 15px #d47a7e; }
+            80% { transform: scale(1.2); background-color: #ebbabc; box-shadow: 0 0 12px #ebbabc; }
             100% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
         }
         @keyframes heartBeatGreen {
             0% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-            20% { transform: scale(1.4); background-color: #a7f3d0; box-shadow: 0 0 15px #a7f3d0; }
+            20% { transform: scale(1.4); background-color: #abebc6; box-shadow: 0 0 15px #abebc6; }
             40% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-            60% { transform: scale(1.4); background-color: #10b981; box-shadow: 0 0 15px #10b981; }
-            80% { transform: scale(1.2); background-color: #6ee7b7; box-shadow: 0 0 12px #6ee7b7; }
+            60% { transform: scale(1.4); background-color: #27ae60; box-shadow: 0 0 15px #27ae60; }
+            80% { transform: scale(1.2); background-color: #58d68d; box-shadow: 0 0 12px #58d68d; }
             100% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
         }
 
         .voucher-type-btn.active-payment span {
-            animation: heartBeatRed 1.2s infinite ease-in-out !important;
+            /* animation removed */
         }
         .voucher-type-btn.active-receipt span {
-            animation: heartBeatGreen 1.2s infinite ease-in-out !important;
+            /* animation removed */
         }
 
         /* Color Wave Animation */
@@ -804,7 +809,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             animation: colorWave 5s ease infinite !important;
         }
 
-        /* ظـظـظـ Row Add/Delete Animations ظـظـظـ */
+        /* ═══ Row Add/Delete Animations ═══ */
         @keyframes rowSlideIn {
             from { opacity: 0; transform: translateY(-15px) scale(0.97); max-height: 0; }
             to { opacity: 1; transform: translateY(0) scale(1); max-height: 100px; }
@@ -816,7 +821,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         .multi-row { animation: rowSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
         .multi-row.removing { animation: rowSlideOut 0.3s ease forwards; pointer-events: none; }
 
-        /* ظـظـظـ Focus Glow Effect ظـظـظـ */
+        /* ═══ Focus Glow Effect ═══ */
         .multi-input:focus, .v-input:focus, .ctrl-input:focus {
             outline: none !important;
             border-color: rgba(56, 189, 248, 0.6) !important;
@@ -824,7 +829,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             transition: border-color 0.3s, box-shadow 0.3s !important;
         }
 
-        /* ظـظـظـ Shake Animation for Errors ظـظـظـ */
+        /* ═══ Shake Animation for Errors ═══ */
         @keyframes shakeError {
             0%, 100% { transform: translateX(0); }
             10%, 50%, 90% { transform: translateX(-6px); }
@@ -836,7 +841,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
         }
 
-        /* ظـظـظـ Save Success Celebration ظـظـظـ */
+        /* ═══ Save Success Celebration ═══ */
         @keyframes saveSuccess {
             0% { transform: scale(1); }
             30% { transform: scale(1.15); }
@@ -848,7 +853,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             animation: saveSuccess 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
         }
 
-        /* ظـظـظـ Confetti Overlay ظـظـظـ */
+        /* ═══ Confetti Overlay ═══ */
         @keyframes confettiFall {
             0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
             100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
@@ -864,22 +869,25 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             pointer-events: none;
         }
 
-        /* ظـظـظـ Number Counter Transition ظـظـظـ */
+        /* ═══ Number Counter Transition ═══ */
         .amount-animate {
             transition: transform 0.2s ease;
         }
         .amount-animate.changed {
             transform: scale(1.08);
             color: #fbbf24 !important;
+                    height: 55px !important;
+                    padding: 10px 20px !important;
+                    
         }
 
-        /* ظـظـظـ Button Active Press ظـظـظـ */
+        /* ═══ Button Active Press ═══ */
         .crystal-btn:active, .btn-add-row-inline:active {
             transform: scale(0.92) !important;
             transition: transform 0.1s !important;
         }
 
-        /* ظـظـظـ Transfer/Cheque Row Animations ظـظـظـ */
+        /* ═══ Transfer/Cheque Row Animations ═══ */
         .transfer-row, .cheque-row {
             animation: rowSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
         }
@@ -888,12 +896,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             pointer-events: none;
         }
 
-        /* ظـظـظـ Payment Section Smooth Transition ظـظـظـ */
+        /* ═══ Payment Section Smooth Transition ═══ */
         #cash-section, #bank-section, #cheque-section {
             transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
-        /* ظـظـظـ Skeleton Loading ظـظـظـ */
+        /* ═══ Skeleton Loading ═══ */
         @keyframes skeletonShimmer {
             0% { background-position: -200px 0; }
             100% { background-position: calc(200px + 100%) 0; }
@@ -905,13 +913,13 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             border-radius: 6px;
         }
 
-        /* ظـظـظـ High legibility white background for Amount/Value fields ظـظـظـ */
-        .transfer-amount, .cheque-amount, .block-sub-amount, .block-cash-amount, .block-bank-amount, .block-cheque-amount, .block-total-amount, .total-val, .val, .value-field, .multi-input[placeholder*="╪د┘┘à╪ذ┘╪║"], .multi-input[placeholder*="╪د┘┘é┘è┘à╪ر"] {
+        /* ═══ High legibility white background for Amount/Value fields ═══ */
+        .transfer-amount, .cheque-amount, .block-sub-amount, .block-cash-amount, .block-bank-amount, .block-cheque-amount, .block-total-amount, .total-val, .val, .value-field, .multi-input[placeholder*="المبلغ"], .multi-input[placeholder*="القيمة"] {
             background: #ffffff !important;
             color: #047857 !important; /* Rich readable dark green */
             border: 1.5px solid #cbd5e1 !important;
         }
-        .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus, .multi-input[placeholder*="╪د┘┘à╪ذ┘╪║"]:focus {
+        .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus, .multi-input[placeholder*="المبلغ"]:focus {
             border-color: #f97316 !important;
             box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25) !important;
         }
@@ -940,14 +948,14 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                     <!-- Title & Toggles -->
                     <div style="display: flex; align-items: center; gap: 15px; flex: none; flex-wrap: wrap;">
                         <div id="main-party-title" style="display: flex; align-items: center; gap: 8px; font-size: 1.1rem; font-weight: 700; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-                            <span>≡اّج</span> ╪ذ┘è╪د┘ ╪د┘╪╖╪▒┘ ╪د┘╪▒╪خ┘è╪│┘è
+                            <span>👤</span> بيان الطرف الرئيسي
                         </div>
                         <div style="display: flex; gap: 10px;">
-                            <button id="btn-payment" class="voucher-type-btn active-payment" onclick="setVoucherType('payment')">
-                                <span class="btn-icon">≡اْ╕≡اôج</span> <span class="btn-text">╪╡╪▒┘ ┘à╪ش┘à╪╣</span>
+                            <button id="btn-payment" class="btn crystal-btn voucher-type-btn active-payment" onclick="setVoucherType('payment')">
+                                <span class="btn-icon">💸📤</span> <span class="btn-text">صرف مجمع</span>
                             </button>
-                            <button id="btn-receipt" class="voucher-type-btn" onclick="setVoucherType('receipt')">
-                                <span class="btn-icon">≡اْ░≡اôح</span> <span class="btn-text">╪د╪│╪ز┘╪د┘à ┘à╪ش┘à╪╣</span>
+                            <button id="btn-receipt" class="btn crystal-btn voucher-type-btn" onclick="setVoucherType('receipt')">
+                                <span class="btn-icon">💰📥</span> <span class="btn-text">استلام مجمع</span>
                             </button>
                         </div>
                     </div>
@@ -956,21 +964,21 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                     <div style="display: flex; align-items: center; gap: 15px; flex: 1; justify-content: flex-end; flex-wrap: wrap;">
                         
                         <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; height: 40px; padding: 0 8px;">
-                            <button type="button" onclick="navigateVoucher(-1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 1.1rem; padding: 0 5px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="╪د┘╪│┘╪» ╪د┘╪│╪د╪ذ┘é">ظù</button>
+                            <button type="button" onclick="navigateVoucher(-1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 1.1rem; padding: 0 5px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند السابق">◀</button>
                             <div style="display: flex; align-items: center; gap: 4px;">
-                                <span style="color: #94a3b8; font-size: 0.85rem; font-weight: bold; white-space: nowrap;">≡اô ╪د┘╪│┘╪»:</span>
+                                <span style="color: #94a3b8; font-size: 0.85rem; font-weight: bold; white-space: nowrap;">📄 السند:</span>
                                 <input type="text" id="voucher-no-display" readonly style="background: transparent !important; border: none !important; color: #fff; font-weight: bold; width: 140px; text-align: center; outline: none !important; font-size:0.95rem; box-shadow: none !important; padding: 0;" value="">
                             </div>
-                            <button type="button" onclick="navigateVoucher(1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 1.1rem; padding: 0 5px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="╪د┘╪│┘╪» ╪د┘╪ز╪د┘┘è">ظû╢</button>
+                            <button type="button" onclick="navigateVoucher(1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 1.1rem; padding: 0 5px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند التالي">▶</button>
                         </div>
 
                         <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; height: 40px; padding: 0 12px;">
-                            <span style="color: #94a3b8; font-size: 0.85rem; font-weight: bold; white-space: nowrap;">≡اôà ╪د┘╪ز╪د╪▒┘è╪«:</span>
+                            <span style="color: #94a3b8; font-size: 0.85rem; font-weight: bold; white-space: nowrap;">📅 التاريخ:</span>
                             <input type="date" id="voucher-date" style="background: transparent !important; border: none !important; color: #fff; font-weight: bold; padding: 0; margin: 0; height: 100%; width: 130px; outline: none !important; box-shadow: none !important; font-size: 0.9rem; -webkit-appearance: none; appearance: none;">
                         </div>
 
                         <div style="display: flex; align-items: center;">
-                            <input type="text" autocomplete="off" id="voucher-ref" class="form-input" placeholder="╪▒┘é┘à ╪د┘┘à╪▒╪ش╪╣ (╪د╪«╪ز┘è╪د╪▒┘è)" style="height: 40px; width: 160px; background: rgba(0,0,0,0.3); font-size: 0.9rem;">
+                            <input type="text" autocomplete="off" id="voucher-ref" class="form-input" placeholder="رقم المرجع (اختياري)" style="height: 40px; width: 160px; background: rgba(0,0,0,0.3); font-size: 0.9rem;">
                         </div>
                     </div>
                 </div>
@@ -980,133 +988,94 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                     <!-- Form Inputs Row -->
                     <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; overflow: visible; padding-bottom: 10px; margin-bottom: 15px;">
 
-                        <div style="flex: 2; min-width: 250px;">
-                            <label id="main-account-label" style="color: #ef4444 !important; font-size: 1.2rem; margin-bottom: 5px; display: block; font-weight: bold; transition: color 0.3s; white-space: nowrap;">┘à┘ ╪ص╪│╪د╪ذ (╪╡╪▒┘) <span class="animated-arrow-left">ظ</span></label>
+                        <div style="flex: 0 0 35%; max-width: 35%; min-width: 250px;">
+                            <label id="main-account-label" style="color: #ef4444 !important;  margin-bottom: 5px; display: block; font-weight: bold; transition: color 0.3s; white-space: nowrap;">من حساب (صرف) <span class="animated-arrow-left">←</span></label>
                             <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative; display: flex;">
                                 <input type="hidden" id="main-account">
-                                <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="╪د╪ذ╪ص╪س ╪╣┘ ╪ص╪│╪د╪ذ ╪د┘╪╡╪▒┘ (╪«╪▓┘è┘╪ر/╪ذ┘┘â)..." onfocus="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color); flex: 1; border-top-left-radius: 0; border-bottom-left-radius: 0;">
-                                <button type="button" onclick="openLedgerForMainAccount()" title="╪»┘╪ز╪▒ ╪د┘╪ث╪│╪ز╪د╪░ ╪د┘╪╣╪د┘à" style="background: rgba(52,211,153,0.15); border: 1px solid var(--border-color); border-right: none; color: #34d399; padding: 0 12px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; height: auto;" onmouseover="this.style.background='rgba(52,211,153,0.3)';" onmouseout="this.style.background='rgba(52,211,153,0.15)';"><i class="fa fa-book"></i></button>
+                                <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color); flex: 1; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                <button type="button" onclick="openLedgerForMainAccount()" title="دفتر الأستاذ العام" style="background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(16,185,129,0.25)); border: 1px solid var(--border-color); border-right: none; color: #34d399; padding: 0 10px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; height: auto; font-size: 0.75rem; font-weight: bold; white-space: nowrap; box-shadow: inset 0 1px 3px rgba(255,255,255,0.1);" onmouseover="this.style.background='linear-gradient(135deg, rgba(52,211,153,0.3), rgba(16,185,129,0.5))'; this.style.color='#fff';" onmouseout="this.style.background='linear-gradient(135deg, rgba(52,211,153,0.15), rgba(16,185,129,0.25))'; this.style.color='#34d399';"><i class="fa fa-book" style="margin-left: 4px;"></i> كشف حساب</button>
                                 <div class="custom-dropdown-list" id="main-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
-                            </div>
-                        </div>
-
-                        <div style="flex: 1; min-width: 120px;">
-                            <label style="color: #fbbf24; font-size: 0.85rem; margin-bottom: 5px; display: block; white-space: nowrap;">╪د┘╪╣┘à┘╪ر</label>
-                            <select id="currency" class="form-input system-currency-select input-glow-focus hover-glow" onchange="typeof onCurrencyChange === 'function' ? onCurrencyChange() : (typeof updateCurrency === 'function' ? updateCurrency() : null);" style="border-radius: 10px; flex-grow: 1; min-width: 0; width: 100%; font-size: 1.1rem !important; font-weight: 800;">
-                                <option value="SDG">╪ش┘┘è┘ç (SDG)</option>
-                                <option value="USD">╪»┘ê┘╪د╪▒ (USD)</option>
-                                <option value="AED">╪»╪▒┘ç┘à (AED)</option>
-                            </select>
-                        </div>
-                        
-                        <div style="flex: 1; min-width: 100px;">
-                            <label style="color: #fbbf24; font-size: 0.85rem; margin-bottom: 5px; display: block; white-space: nowrap;">╪د┘╪ز╪╣╪د╪»┘</label>
-                            <input type="number" autocomplete="off" id="exchange-rate" class="form-input" value="1.0" readonly style="font-weight: bold; font-family: monospace; text-align: center; cursor:pointer; background:rgba(16,185,129,0.1); color:#10b981; border-radius: 10px;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=r; if(typeof calcTotal === 'function') calcTotal(); else if(typeof recalcAll === 'function') recalcAll();});">
-                        </div>
-                        
-                        <div style="flex: 1; min-width: 150px;">
-                            <label style="color: #10b981; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">≡اْ╡ ╪د┘╪ح╪ش┘à╪د┘┘è ╪ذ╪د┘┘à╪ص┘┘è</label>
-                            <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-weight: 900; font-family: monospace; color: #10b981; background: rgba(255,255,255,0.05);">
-                        </div>
-                        
-                        <div style="flex: 1; min-width: 150px;">
-                            <label style="color: #ef4444; font-size: 0.85rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">≡اْ╡ ╪د┘╪ح╪ش┘à╪د┘┘è ╪ذ╪د┘╪ث╪ش┘╪ذ┘è</label>
-                            <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-weight: 900; font-family: monospace; color: #ef4444; background: rgba(255,255,255,0.05);">
                         </div>
                     </div>
 
                     <div style="display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.25); padding: 12px 15px; min-height: 48px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); margin-top: 12px;">
-                        <label style="color: #fbbf24; font-size: 0.95rem; font-weight: bold; margin: 0; white-space: nowrap; display: flex; align-items: center; gap: 5px;">ظ£ي╕ ╪ذ┘è╪د┘ ╪ص╪│╪د╪ذ ╪د┘╪╡╪▒┘:</label>
-                        <input type="text" autocomplete="off" id="voucher-desc" class="form-input" placeholder="╪د┘â╪ز╪ذ ╪د┘╪ذ┘è╪د┘ ╪د┘╪ز┘╪╡┘è┘┘è ┘╪ص╪│╪د╪ذ ╪د┘╪╡╪▒┘ ┘ç┘╪د (╪د┘╪░┘è ┘è╪╕┘ç╪▒ ┘┘è ┘â╪┤┘ ╪د┘╪ث╪│╪ز╪د╪░ ╪د┘╪╣╪د┘à)..." style="flex: 1; margin: 0; background: rgba(15,23,42,0.4) !important; border: 1px solid rgba(255,255,255,0.1) !important; padding: 8px 12px; height: 38px !important; font-size: 0.95rem; color: #fff !important; border-radius: 6px;">
+                        <label style="color: #fbbf24; font-size: 0.95rem; font-weight: bold; margin: 0; white-space: nowrap; display: flex; align-items: center; gap: 5px;">✍️ بيان حساب الصرف:</label>
+                        <input type="text" autocomplete="off" id="voucher-desc" class="form-input" placeholder="اكتب البيان التفصيلي لحساب الصرف هنا (الذي يظهر في كشف الأستاذ العام)..." style="flex: 1; margin: 0; background: rgba(15,23,42,0.4) !important; border: 1px solid rgba(255,255,255,0.1) !important; padding: 8px 12px; height: 38px !important; font-size: 0.95rem; color: #fff !important; border-radius: 6px;">
                     </div>
                 </div>
 
 
-                <!-- ظـظـظـ ╪ص╪د┘ê┘è╪ر ╪د┘╪ص╪│╪د╪ذ╪د╪ز (Accounts Blocks Container) ظـظـظـ -->
+                <!-- ═══ حاوية الحسابات (Accounts Blocks Container) ═══ -->
                 <div id="accounts-blocks-container" style="display: flex; flex-direction: column; gap: 20px; position: relative; z-index: 10;">
                     <!-- Blocks will be dynamically inserted here -->
                 </div>
 
-                <!-- ظـظـظـ ╪▓╪▒ ╪ح╪╢╪د┘╪ر ╪ص╪│╪د╪ذ ╪ش╪»┘è╪» ظـظـظـ -->
+                <!-- ═══ زر إضافة حساب جديد ═══ -->
                 <div style="display: flex; justify-content: center; margin-top: 20px; margin-bottom: 30px;">
                     <button type="button" onclick="addAccountBlock()" style="padding: 12px 30px; border-radius: 30px; background: rgba(16,185,129,0.15); color: #34d399; border: 1px dashed #34d399; font-weight: 900; font-size: 1.1rem; cursor: pointer; font-family: 'Tajawal', sans-serif; transition: all 0.3s; display: flex; align-items: center; gap: 10px;" onmouseover="this.style.background='rgba(16,185,129,0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='rgba(16,185,129,0.15)'; this.style.transform='translateY(0)';">
-                        ظئـ ╪ح╪╢╪د┘╪ر ╪ص╪│╪د╪ذ ┘à╪│╪ز┘┘à / ╪»╪د┘╪╣ ╪ت╪«╪▒
+                        ➕ إضافة حساب مستلم / دافع آخر
                     </button>
                 </div>
 
-                <!-- ظـظـظـ ┘é╪د┘╪ذ ╪د┘┘â╪ز┘╪ر ╪د┘┘à╪«┘┘è (Hidden Template) ظـظـظـ -->
+                <!-- ═══ قالب الكتلة المخفي (Hidden Template) ═══ -->
                 <template id="account-block-template">
                     <div class="account-block glass-container glass-green" data-block-id="{ID}" style="position: relative; padding: 15px; border-radius: 12px; transition: all 0.3s ease;">
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; padding-bottom: 0px;">
                             <div style="display: flex; align-items: center; gap: 8px; font-size: 1.2rem; font-weight: 800; color: #34d399;">
-                                <span>≡اôï</span> <span class="block-label">╪ح┘┘ë ╪ص╪│╪د╪ذ (┘à╪│╪ز┘┘à)</span> <span class="animated-arrow-right" style="color: #34d399;">ظْ</span>
+                                <span>📋</span> <span class="block-label">إلى حساب (مستلم)</span> <span class="animated-arrow-right" style="color: #34d399;">→</span>
                             </div>
-                            <button type="button" class="btn-remove-block" data-action="remove-block" data-block="{ID}" style="background: rgba(239,68,68,0.15); border: none; color: #ef4444; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; transition: all 0.2s;" title="╪ص╪░┘ ┘ç╪░╪د ╪د┘╪ص╪│╪د╪ذ">ظ£û</button>
+                            <button type="button" class="btn-remove-block" data-action="remove-block" data-block="{ID}" style="background: rgba(239,68,68,0.15); border: none; color: #ef4444; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; transition: all 0.2s;" title="حذف هذا الحساب">✖</button>
                         </div>
 
                         <!-- Row 1: Account, Amount, and Method Toggles -->
                         <div style="display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; margin-bottom: 12px;">
                             <!-- Account -->
-                            <div style="flex: 2; min-width: 250px; position: relative; display: flex; flex-direction: column;">
+                            <div style="flex: 0 0 35%; max-width: 35%; min-width: 250px; position: relative; display: flex; flex-direction: column;">
                                 <div class="custom-dropdown-input-wrap" style="position: relative; flex: 1; display: flex;">
                                     <input type="hidden" id="account-{ID}-id" class="block-account-id">
                                     <input type="hidden" id="account-{ID}" class="block-account-name">
-                                    <input type="text" autocomplete="off" class="form-input block-account-search" id="account-{ID}-search" placeholder="╪د┘╪ص╪│╪د╪ذ / ╪د┘╪ش┘ç╪ر ╪د┘┘à╪│╪ز┘┘è╪»╪ر..." onfocus="showAccountDropdown('account-{ID}')" onblur="hideAccountDropdownDelayed('account-{ID}')" oninput="filterAccountDropdown('account-{ID}')" style="font-size: 1rem; flex: 1; margin-bottom: 0; border-top-left-radius: 0; border-bottom-left-radius: 0;">
-                                    <button type="button" onclick="openLedgerForBlockAccount('{ID}')" title="╪»┘╪ز╪▒ ╪د┘╪ث╪│╪ز╪د╪░ ╪د┘╪╣╪د┘à" style="background: rgba(52,211,153,0.15); border: 1px solid rgba(255,255,255,0.1); border-right: none; color: #34d399; padding: 0 12px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.2s; display: flex; align-items: center; justify-content: center; height: auto;" onmouseover="this.style.background='rgba(52,211,153,0.3)';" onmouseout="this.style.background='rgba(52,211,153,0.15)';"><i class="fa fa-book"></i></button>
+                                    <input type="text" autocomplete="off" class="form-input block-account-search" id="account-{ID}-search" placeholder="الحساب / الجهة المستفيدة..." onfocus="showAccountDropdown('account-{ID}')" onblur="hideAccountDropdownDelayed('account-{ID}')" oninput="filterAccountDropdown('account-{ID}')" style="font-size: 1.4rem !important; font-weight: 900 !important; color: #fbbf24 !important; height: 55px !important; padding: 10px 20px !important; flex: 1; margin-bottom: 0; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                    <button type="button" onclick="openLedgerForBlockAccount('{ID}')" title="دفتر الأستاذ العام" style="background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(16,185,129,0.25)); border: 1px solid rgba(255,255,255,0.1); border-right: none; color: #34d399; padding: 0 10px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; height: auto; font-size: 0.75rem; font-weight: bold; white-space: nowrap; box-shadow: inset 0 1px 3px rgba(255,255,255,0.1);" onmouseover="this.style.background='linear-gradient(135deg, rgba(52,211,153,0.3), rgba(16,185,129,0.5))'; this.style.color='#fff';" onmouseout="this.style.background='linear-gradient(135deg, rgba(52,211,153,0.15), rgba(16,185,129,0.25))'; this.style.color='#34d399';"><i class="fa fa-book" style="margin-left: 4px;"></i> كشف حساب</button>
                                     <div class="custom-dropdown-list" id="account-{ID}-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                                 </div>
                             </div>
                             
-                            <!-- Total Amount (auto-calculated) -->
-                            <div style="flex: 1; min-width: 150px; display: flex; flex-direction: column; position: relative;">
-                                <input type="text" readonly id="amount-{ID}" class="form-input block-total-amount" placeholder="0.00" style="font-weight: 900; font-family: monospace; font-size: 1.15rem; text-align: center; flex: 1; margin-bottom: 0; border-color: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); cursor: default; transition: all 0.4s ease;">
+                            <!-- Total Amount (auto-calculated or direct) -->
+                            <div style="flex: 0.75; min-width: 110px; display: flex; flex-direction: column; position: relative;">
+                                <input type="text" id="amount-{ID}" oninput="formatInput(this)" class="form-input block-total-amount" placeholder="المبلغ" style="font-weight: 900; font-family: monospace; font-size: 3.0rem; text-align: center; flex: 1; margin-bottom: 0; border-color: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); transition: all 0.4s ease; -webkit-text-stroke: 1px currentColor; letter-spacing: 1px;">
                             </div>
                             
-                            <!-- Payment Toggles -->
-                            <div style="display: flex; gap: 8px; flex: 1.5; min-width: 240px;">
-                                <button type="button" id="pm-cash-{ID}" class="pay-toggle-btn block-btn-cash" data-action="toggle-pm" data-block="{ID}" data-method="cash"><span class="btn-icon">≡اْ╡</span> <span class="btn-text">┘┘é╪»┘è</span></button>
-                                <button type="button" id="pm-bank-{ID}" class="pay-toggle-btn block-btn-bank" data-action="toggle-pm" data-block="{ID}" data-method="bank"><span class="btn-icon">≡اخ</span> <span class="btn-text">╪ز╪ص┘ê┘è┘</span></button>
-                                <button type="button" id="pm-cheque-{ID}" class="pay-toggle-btn block-btn-cheque" data-action="toggle-pm" data-block="{ID}" data-method="cheque"><span class="btn-icon">ظ£ي╕</span> <span class="btn-text">╪┤┘è┘â</span></button>
+                            <!-- Statement (بيان التحويل) -->
+                            <div style="flex: 1.5; min-width: 150px; display: flex; flex-direction: column; position: relative;">
+                                <input type="text" autocomplete="off" id="statement-{ID}" class="form-input" placeholder="بيان التحويل (اختياري)" style="font-size: 1rem; flex: 1; margin-bottom: 0; background: rgba(255,255,255,0.05); color: #fff;">
+                            </div>
+                            
+                            <!-- Payment Toggles (No Cash) -->
+                            <div style="display: flex; gap: 8px; flex: 1; min-width: 150px; align-items: stretch;">
+                                <button type="button" id="pm-bank-{ID}" class="btn crystal-btn pay-toggle-btn block-btn-bank" data-action="toggle-pm" data-block="{ID}" data-method="bank"><span class="btn-icon">🏦</span> <span class="btn-text">تحويل</span></button>
+                                <button type="button" id="pm-cheque-{ID}" class="btn crystal-btn pay-toggle-btn block-btn-cheque" data-action="toggle-pm" data-block="{ID}" data-method="cheque"><span class="btn-icon">✍️</span> <span class="btn-text">شيك</span></button>
                             </div>
                         </div>
 
-                        <!-- Dynamic Details Sections (aligned amounts) -->
-                        <!-- Cash Details -->
-                        <div id="cash-details-{ID}" class="block-cash-details" style="display: none; background: rgba(251,191,36,0.08); border: 1px solid rgba(251,191,36,0.3); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease;">
-                            <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-                                <div style="width: 80px; font-weight: bold; color: #fbbf24; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">≡اْ╡ ┘┘é╪»┘è</div>
-                                <div style="width: 150px; flex-shrink: 0;">
-                                    <input type="text" autocomplete="off" id="cash-amount-{ID}" class="form-input block-cash-amount block-sub-amount" data-block-id="{ID}" placeholder="┘à╪ذ┘╪║ ╪د┘┘â╪د╪┤" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
-                                </div>
-                                <div style="flex: 1; min-width: 180px;">
-                                    <select id="cash-safe-{ID}" class="form-input block-cash-safe" style="margin-bottom: 0;">
-                                        <option value="">-- ╪د╪«╪ز╪▒ ╪د┘╪«╪▓┘╪ر --</option>
-                                    </select>
-                                </div>
-                                <div style="flex: 1.5; min-width: 180px;">
-                                    <input type="text" autocomplete="off" class="form-input block-cash-desc-input" placeholder="╪ذ┘è╪د┘ ╪د┘┘â╪د╪┤" style="margin-bottom: 0;">
-                                </div>
-                            </div>
-                        </div>
-
+                        <!-- Dynamic Details Sections -->
                         <!-- Bank Details (supports multiple transfers) -->
-                        <div id="bank-details-{ID}" class="block-bank-details" style="display: none; background: rgba(14, 116, 144, 0.18); border: 1.5px solid rgba(14, 116, 144, 0.45); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease;">
+                        <div id="bank-details-{ID}" class="block-bank-details" style="display: none; background: rgba(110, 125, 115, 0.25); border: 1.5px solid rgba(110, 125, 115, 0.6); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease;">
                             <div class="bank-rows-container" id="bank-rows-{ID}">
                                 <div class="bank-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
-                                    <div style="width: 80px; font-weight: bold; color: #22d3ee; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">≡اخ ╪ز╪ص┘ê┘è┘</div>
+                                    <div style="width: 80px; font-weight: bold; color: #22d3ee; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">🏦 بنكي</div>
                                     <div style="width: 150px; flex-shrink: 0;">
-                                        <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="{ID}" placeholder="╪د┘┘à╪ذ┘╪║" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
+                                        <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" style="margin-bottom: 0; font-family: monospace; font-weight: 900; font-size: 3.6rem; text-align: center; -webkit-text-stroke: 0.5px currentColor;">
                                     </div>
                                     <div style="flex: 1; min-width: 120px;">
-                                        <input type="text" autocomplete="off" class="form-input block-bank-name-input" placeholder="╪د╪│┘à ╪د┘╪ذ┘┘â" style="margin-bottom: 0;">
+                                        <input type="text" autocomplete="off" class="form-input block-bank-name-input" placeholder="اسم البنك" style="margin-bottom: 0;">
                                     </div>
                                     <div style="flex: 1; min-width: 120px;">
-                                        <input type="text" autocomplete="off" class="form-input block-transfer-no-input" placeholder="╪▒┘é┘à ╪د┘╪ز╪ص┘ê┘è┘╪ر" style="margin-bottom: 0;">
+                                        <input type="text" autocomplete="off" class="form-input block-transfer-no-input" placeholder="رقم التحويلة" style="margin-bottom: 0; font-size: 1.35rem !important; font-weight: 900;">
                                     </div>
                                     <div style="flex: 1.5; min-width: 150px;">
-                                        <input type="text" autocomplete="off" class="form-input block-bank-desc-input" placeholder="╪ذ┘è╪د┘ ╪د┘╪ز╪ص┘ê┘è┘" style="margin-bottom: 0;">
+                                        <input type="text" autocomplete="off" class="form-input block-bank-desc-input" placeholder="بيان التحويل" style="margin-bottom: 0;">
                                     </div>
-                                    <button type="button" data-action="add-bank-row" data-block="{ID}" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(6, 182, 212, 0.2); border: 1px solid #22d3ee; color: #22d3ee; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;" title="╪ح╪╢╪د┘╪ر ╪ز╪ص┘ê┘è┘╪ر ╪ث╪«╪▒┘ë">ظئـ</button>
+                                    <button type="button" data-action="add-bank-row" data-block="{ID}" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(6, 182, 212, 0.2); border: 1px solid #22d3ee; color: #22d3ee; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;" title="إضافة تحويلة أخرى">➕</button>
                                 </div>
                             </div>
                         </div>
@@ -1115,27 +1084,25 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         <div id="cheque-details-{ID}" class="block-cheque-details" style="display: none; background: rgba(147, 51, 234, 0.22); border: 1.5px solid rgba(147, 51, 234, 0.65); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease; box-shadow: inset 0 0 15px rgba(147, 51, 234, 0.1);">
                             <div class="cheque-rows-container" id="cheque-rows-{ID}">
                                 <div class="cheque-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
-                                    <div style="width: 80px; font-weight: bold; color: #d8b4fe; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">ظ£ي╕ ╪┤┘è┘â</div>
+                                    <div style="width: 80px; font-weight: bold; color: #d8b4fe; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">✍️ شيك</div>
                                     <div style="width: 150px; flex-shrink: 0;">
-                                        <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="{ID}" placeholder="╪د┘┘à╪ذ┘╪║" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
+                                        <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" style="margin-bottom: 0; font-family: monospace; font-weight: 900; font-size: 3.6rem; text-align: center; -webkit-text-stroke: 0.5px currentColor;">
                                     </div>
                                     <div style="flex: 1; min-width: 90px;">
-                                        <input type="text" autocomplete="off" class="form-input block-cheque-bank-input" placeholder="╪د╪│┘à ╪د┘╪ذ┘┘â" style="margin-bottom: 0;">
+                                        <input type="text" autocomplete="off" class="form-input block-cheque-bank-input" placeholder="اسم البنك" style="margin-bottom: 0;">
                                     </div>
                                     <div style="flex: 1; min-width: 80px;">
-                                        <input type="text" autocomplete="off" class="form-input block-cheque-no-input" placeholder="╪▒┘é┘à ╪د┘╪┤┘è┘â" style="margin-bottom: 0;">
+                                        <input type="text" autocomplete="off" class="form-input block-cheque-no-input" placeholder="رقم الشيك" style="margin-bottom: 0; font-size: 1.35rem !important; font-weight: 900;">
                                     </div>
                                     <div style="flex: 1; min-width: 100px;">
-                                        <input type="date" class="form-input block-cheque-date-input" title="╪ز╪د╪▒┘è╪« ╪د┘╪د╪│╪ز╪ص┘é╪د┘é" style="margin-bottom: 0;">
+                                        <input type="date" class="form-input block-cheque-date-input" title="تاريخ الاستحقاق" style="margin-bottom: 0;">
                                     </div>
                                     <div style="flex: 1.5; min-width: 150px;">
-                                        <input type="text" autocomplete="off" class="form-input block-cheque-desc-input" placeholder="╪ذ┘è╪د┘ ╪د┘╪┤┘è┘â" style="margin-bottom: 0;">
+                                        <input type="text" autocomplete="off" class="form-input block-cheque-desc-input" placeholder="بيان الشيك" style="margin-bottom: 0;">
                                     </div>
-                                    <button type="button" data-action="add-cheque-row" data-block="{ID}" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(139,92,246,0.2); border: 1px solid #c084fc; color: #c084fc; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;" title="╪ح╪╢╪د┘╪ر ╪┤┘è┘â ╪ت╪«╪▒">ظئـ</button>
+                                    <button type="button" data-action="add-cheque-row" data-block="{ID}" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(139,92,246,0.2); border: 1px solid #c084fc; color: #c084fc; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;" title="إضافة شيك آخر">➕</button>
                                 </div>
                             </div>
-                        </div>
-
                         </div>
                     </div>
                 </template>
@@ -1160,6 +1127,44 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 .footer-actions .btn { font-size: 0.85rem !important; padding: 8px 15px !important; }
                 .footer-actions .btn-save-master { font-size: 0.95rem !important; padding: 8px 20px !important; font-weight: bold; }
                 
+                
+                
+                /* Enhanced Typography & UI overrides - V2 */
+                body, .form-input, .btn, .context-menu-item, p, span, div {
+                    font-size: 1.2rem;
+                }
+                h3 { font-size: 1.4rem !important; }
+                .form-label, .block-label, #main-account-label { font-size: 1.4rem !important; font-weight: bold !important; }
+                
+                /* Yellow Names */
+                .block-account-search, #main-account-search, .block-bank-name-input, .block-cheque-bank-input {
+                    font-size: 1.4rem !important;
+                    font-weight: 900 !important;
+                    color: #fbbf24 !important;
+                    height: 55px !important;
+                    padding: 10px 20px !important;
+                    
+                }
+                
+                /* Large Totals & Rates */
+                #amount-local-hdr, #amount-foreign, #exchange-rate {
+                    font-size: 3.0rem !important;
+                    font-weight: 900 !important;
+                }
+                
+                /* Large Amounts in blocks */
+                .block-total-amount, .block-bank-amount, .block-cheque-amount {
+                    font-size: 3.0rem !important;
+                    font-weight: 900 !important;
+                }
+                
+                /* Large Transfer & Cheque Numbers */
+                .block-transfer-no-input, .block-cheque-no-input {
+                    font-size: 1.9rem !important;
+                    font-weight: bold !important;
+                    letter-spacing: 2px !important;
+                }
+
                 /* Universal Light Theme Overrides for Internal Screens */
                 :root.light-theme body,
                 :root.light-theme .ambient-bg {
@@ -1240,12 +1245,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             <div style="padding: 20px 0 10px 0; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 30px; width: 100%;">
                 <!-- Action Buttons Section -->
                 <div class="footer-actions" style="display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; width: 100%;">
-                    <button type="button" class="btn crystal-btn btn-exit" onclick="if(document.referrer) { window.history.back(); } else { window.location.href='dashboard-pro.php'; }" title="╪د┘╪▒╪ش┘ê╪╣ ┘┘╪┤╪د╪┤╪ر ╪د┘╪│╪د╪ذ┘é╪ر">≡اأز ╪«╪▒┘ê╪ش</button>
-                    <button type="button" class="btn crystal-btn btn-new" onclick="resetVoucher()">ظ£ذ ┘à╪│╪ز┘╪» ╪ش╪»┘è╪»</button>
-                    <button type="button" class="btn crystal-btn btn-print" onclick="directPrint()">≡اûذي╕ ╪╖╪ذ╪د╪╣╪ر</button>
-                    <button type="button" class="btn crystal-btn btn-print-preview" onclick="printVoucher()">≡اّي╕ ┘à╪╣╪د┘è┘╪ر</button>
-                    <button type="button" class="btn crystal-btn btn-delete" onclick="confirmDelete()">≡اùّي╕ ╪ص╪░┘ ╪د┘┘à╪│╪ز┘╪»</button>
-                    <button type="button" class="btn crystal-btn btn-save-master" id="btn-save" onclick="saveVoucher()">ظ£à ╪ص┘╪╕ ┘ê╪د╪╣╪ز┘à╪د╪» ╪د┘╪│┘╪»</button>
+                    <button type="button" class="btn crystal-btn btn-exit" onclick="if(document.referrer) { window.history.back(); } else { window.location.href='dashboard-pro.php'; }" title="الرجوع للشاشة السابقة">🚪 خروج</button>
+                    <button type="button" class="btn crystal-btn btn-new" onclick="resetVoucher()">✨ مستند جديد</button>
+                    <button type="button" class="btn crystal-btn btn-print" onclick="directPrint()">🖨️ طباعة</button>
+                    <button type="button" class="btn crystal-btn btn-print-preview" onclick="printVoucher()">👁️ معاينة</button>
+                    <button type="button" class="btn crystal-btn btn-delete" onclick="confirmDelete()">🗑️ حذف المستند</button>
+                    <button type="button" class="btn crystal-btn btn-save-master" id="btn-save" onclick="saveVoucher()">✅ حفظ واعتماد السند</button>
                 </div>
             </div>
         </div>
@@ -1253,12 +1258,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
     <!-- Context Menu -->
     <div class="context-menu" id="column-context-menu">
-        <div style="color: #fbbf24; font-size: 0.8rem; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;">╪ح╪╕┘ç╪د╪▒ / ╪ح╪«┘╪د╪ة ╪د┘╪ث╪╣┘à╪»╪ر</div>
-        <label class="context-menu-item"><input type="checkbox" value="cost-center" onchange="toggleColumn('cost-center', this.checked)"> ┘à╪▒┘â╪▓ ╪د┘╪ز┘â┘┘╪ر</label>
-        <label class="context-menu-item"><input type="checkbox" value="note" onchange="toggleColumn('note', this.checked)"> ┘à┘╪ص┘ê╪╕╪ر</label>
-        <label class="context-menu-item"><input type="checkbox" value="check-no" onchange="toggleColumn('check-no', this.checked)"> ╪▒┘é┘à ╪د┘╪┤┘è┘â</label>
-        <label class="context-menu-item"><input type="checkbox" value="check-date" onchange="toggleColumn('check-date', this.checked)"> ╪ز╪د╪▒┘è╪« ╪د┘╪┤┘è┘â</label>
-        <label class="context-menu-item"><input type="checkbox" value="check-due" onchange="toggleColumn('check-due', this.checked)"> ╪د┘╪د╪│╪ز╪ص┘é╪د┘é</label>
+        <div style="color: #fbbf24; font-size: 0.8rem; margin-bottom: 5px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 5px;">إظهار / إخفاء الأعمدة</div>
+        <label class="context-menu-item"><input type="checkbox" value="cost-center" onchange="toggleColumn('cost-center', this.checked)"> مركز التكلفة</label>
+        <label class="context-menu-item"><input type="checkbox" value="note" onchange="toggleColumn('note', this.checked)"> ملحوظة</label>
+        <label class="context-menu-item"><input type="checkbox" value="check-no" onchange="toggleColumn('check-no', this.checked)"> رقم الشيك</label>
+        <label class="context-menu-item"><input type="checkbox" value="check-date" onchange="toggleColumn('check-date', this.checked)"> تاريخ الشيك</label>
+        <label class="context-menu-item"><input type="checkbox" value="check-due" onchange="toggleColumn('check-due', this.checked)"> الاستحقاق</label>
     </div>
 
     <!-- Print Preview Modal -->
@@ -1267,12 +1272,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             <!-- Modal Header -->
             <div style="padding: 15px 25px; background: #0f172a; display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); flex-shrink: 0;">
                 <div style="display: flex; align-items: center; gap: 10px; color: #38bdf8;">
-                    <span style="font-size: 1.4rem;">≡اّي╕</span>
-                    <h3 style="margin: 0; font-size: 1.15rem; font-weight: bold; font-family: 'Tajawal', sans-serif;">┘à╪╣╪د┘è┘╪ر ╪د┘┘à╪│╪ز┘╪» ┘é╪ذ┘ ╪د┘╪╖╪ذ╪د╪╣╪ر</h3>
+                    <span style="font-size: 1.4rem;">👁️</span>
+                    <h3 style="margin: 0; font-size: 1.15rem; font-weight: bold; font-family: 'Tajawal', sans-serif;">معاينة المستند قبل الطباعة</h3>
                 </div>
                 <div style="display: flex; gap: 12px; align-items: center;">
-                    <button onclick="window.print()" style="background: #0ea5e9; border: none; border-radius: 8px; color: #fff; padding: 8px 16px; font-weight: bold; cursor: pointer; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(14,165,233,0.3); transition: transform 0.2s;">≡اûذي╕ ╪╖╪ذ╪د╪╣╪ر</button>
-                    <button onclick="closePrintPreviewModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #94a3b8; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; transition: all 0.2s;">ظ£û</button>
+                    <button onclick="window.print()" style="background: #0ea5e9; border: none; border-radius: 8px; color: #fff; padding: 8px 16px; font-weight: bold; cursor: pointer; font-family: 'Tajawal', sans-serif; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(14,165,233,0.3); transition: transform 0.2s;">🖨️ طباعة</button>
+                    <button onclick="closePrintPreviewModal()" style="background: rgba(255,255,255,0.08); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; color: #94a3b8; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; transition: all 0.2s;">✖</button>
                 </div>
             </div>
             <!-- Scrollable Preview Area -->
@@ -1321,12 +1326,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
     <!-- Edit Warning Modal -->
     <div id="edit-warning-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px); z-index: 999999; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease;">
         <div style="background: linear-gradient(135deg, #7f1d1d, #991b1b); border: 2px solid #f87171; border-radius: 20px; padding: 40px; width: 90%; max-width: 600px; text-align: center; box-shadow: 0 25px 50px rgba(0,0,0,0.5), 0 0 40px rgba(239,68,68,0.3); transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);">
-            <div style="font-size: 5rem; margin-bottom: 20px; animation: pulse-glow 2s infinite;">ظأبي╕</div>
-            <h2 style="color: #ffffff; font-size: 2.2rem; font-weight: 900; margin: 0 0 15px 0; font-family: 'Tajawal', sans-serif; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">╪ز┘╪ذ┘è┘ç: ┘ç┘ ╪ز╪▒┘è╪» ╪د┘╪ز╪╣╪»┘è┘╪ا</h2>
-            <p style="color: #fecaca; font-size: 1.2rem; line-height: 1.6; margin-bottom: 35px; font-weight: 500;">╪ث┘╪ز ╪ز┘é┘ê┘à ╪د┘╪ت┘ ╪ذ╪ز╪╣╪»┘è┘ ╪│┘╪» ┘é╪»┘è┘à ╪ز┘à ╪ص┘╪╕┘ç ┘à╪│╪ذ┘é╪د┘ï.<br>╪ص┘╪╕ ╪د┘╪ز╪╣╪»┘è┘╪د╪ز ╪│┘è╪ج╪»┘è ╪ح┘┘ë ╪ز╪║┘è┘è╪▒ ╪د┘╪ذ┘è╪د┘╪د╪ز ╪د┘┘à╪د┘┘è╪ر ╪ذ╪ث╪س╪▒ ╪▒╪ش╪╣┘è.</p>
+            <div style="font-size: 5rem; margin-bottom: 20px; animation: pulse-glow 2s infinite;">⚠️</div>
+            <h2 style="color: #ffffff; font-size: 2.2rem; font-weight: 900; margin: 0 0 15px 0; font-family: 'Tajawal', sans-serif; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">تنبيه: هل تريد التعديل؟</h2>
+            <p style="color: #fecaca; font-size: 1.2rem; line-height: 1.6; margin-bottom: 35px; font-weight: 500;">أنت تقوم الآن بتعديل سند قديم تم حفظه مسبقاً.<br>حفظ التعديلات سيؤدي إلى تغيير البيانات المالية بأثر رجعي.</p>
             <div style="display: flex; gap: 15px; justify-content: center;">
-                <button onclick="confirmEditOldVoucher()" style="background: #ef4444; color: white; font-size: 1.3rem; font-weight: 900; padding: 15px 40px; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 15px rgba(239,68,68,0.4); transition: transform 0.2s;">┘╪╣┘à╪î ╪د╪╣╪ز┘à╪» ╪د┘╪ز╪╣╪»┘è┘</button>
-                <button onclick="cancelEditOldVoucher()" style="background: rgba(255,255,255,0.1); color: #ffffff; font-size: 1.3rem; font-weight: 900; padding: 15px 30px; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; cursor: pointer;">╪ز╪▒╪د╪ش╪╣ ظإî</button>
+                <button onclick="confirmEditOldVoucher()" style="background: #ef4444; color: white; font-size: 1.3rem; font-weight: 900; padding: 15px 40px; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 15px rgba(239,68,68,0.4); transition: transform 0.2s;">نعم، اعتمد التعديل</button>
+                <button onclick="cancelEditOldVoucher()" style="background: rgba(255,255,255,0.1); color: #ffffff; font-size: 1.3rem; font-weight: 900; padding: 15px 30px; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; cursor: pointer;">تراجع ❌</button>
             </div>
         </div>
     </div>
@@ -1402,4 +1407,14 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
     </script>
 </body>
 </html>
+
+
+
+
+
+
+
+
+
+
 
