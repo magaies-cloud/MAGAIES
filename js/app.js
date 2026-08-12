@@ -5463,7 +5463,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
     });
 
     // 2c. Multi-Payments (erp_payments_v1)
-    const rawMultiPayments = (JSON.parse(localStorage.getItem('erp_payments_v1')) || []).filter(v => v && !v.deleted);
+    const rawMultiPayments = loadSourceTable('erp_payments_v1');
     rawMultiPayments.forEach(v => {
         if (v.voucherNo && !String(v.voucherNo).startsWith('MV-') && !String(v.voucherNo).startsWith('MV17')) {
             v.id = v.voucherNo;
