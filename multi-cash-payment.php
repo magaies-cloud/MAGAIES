@@ -933,14 +933,16 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
         
         /* Large Amounts in blocks */
-        .block-total-amount, .block-bank-amount, .block-cheque-amount, .transfer-amount, .cheque-amount {
-            font-size: 5.0rem !important;
+        input.block-total-amount, input.block-bank-amount, input.block-cheque-amount, input.transfer-amount, input.cheque-amount,
+        input.block-total-amount:focus, input.block-bank-amount:focus, input.block-cheque-amount:focus, input.transfer-amount:focus, input.cheque-amount:focus {
+            font-size: 5.5rem !important;
             font-weight: 900 !important;
         }
         
         /* Large Transfer & Cheque Numbers */
-        .block-transfer-no-input, .block-cheque-no-input, .transfer-no, .cheque-no {
-            font-size: 3.5rem !important;
+        input.block-transfer-no-input, input.block-cheque-no-input, input.transfer-no, input.cheque-no,
+        input.block-transfer-no-input:focus, input.block-cheque-no-input:focus, input.transfer-no:focus, input.cheque-no:focus {
+            font-size: 4.5rem !important;
             font-weight: 900 !important;
             letter-spacing: 2px !important;
         }
@@ -1123,7 +1125,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                                 <div class="bank-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
                                     <div style="width: 80px; font-weight: bold; color: #22d3ee; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">🏦 بنكي</div>
                                     <div style="width: 150px; flex-shrink: 0;">
-                                        <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: 900; font-size: 1.25rem; text-align: center; -webkit-text-stroke: 0.5px currentColor;">
+                                        <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: 900; text-align: center; -webkit-text-stroke: 0.5px currentColor;">
                                     </div>
                                     <div style="flex: 1; min-width: 120px;">
                                         <input type="text" autocomplete="off" class="form-input block-bank-name-input" placeholder="اسم البنك" style="margin-bottom: 0;">
@@ -1145,7 +1147,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                                 <div class="cheque-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
                                     <div style="width: 80px; font-weight: bold; color: #d8b4fe; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">✍️ شيك</div>
                                     <div style="width: 150px; flex-shrink: 0;">
-                                        <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: 900; font-size: 1.25rem; text-align: center; -webkit-text-stroke: 0.5px currentColor;">
+                                        <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: 900; text-align: center; -webkit-text-stroke: 0.5px currentColor;">
                                     </div>
                                     <div style="flex: 1; min-width: 90px;">
                                         <input type="text" autocomplete="off" class="form-input block-cheque-bank-input" placeholder="اسم البنك" style="margin-bottom: 0;">
