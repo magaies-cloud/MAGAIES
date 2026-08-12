@@ -1,4 +1,4 @@
-﻿<?php 
+<?php 
 require_once 'db_bridge.php';
 $pdo = getDBConnection();
 global $GLOBAL_TENANT_ID;
@@ -985,11 +985,11 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                     <!-- Form Inputs Row -->
                     <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; overflow: visible; padding-bottom: 10px; margin-bottom: 15px;">
 
-                        <div style="flex: 2; min-width: 250px;">
+                        <div style="flex: 0 0 35%; max-width: 35%; min-width: 250px;">
                             <label id="main-account-label" style="color: #ef4444 !important; font-size: 1.2rem; margin-bottom: 5px; display: block; font-weight: bold; transition: color 0.3s; white-space: nowrap;">من حساب (صرف) <span class="animated-arrow-left">←</span></label>
                             <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative; display: flex;">
                                 <input type="hidden" id="main-account">
-                                <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: var(--text-primary); border-color: var(--border-color); flex: 1; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: #fbbf24 !important; font-size: 1.4rem !important; font-weight: 900 !important; border-color: var(--border-color); flex: 1; border-top-left-radius: 0; border-bottom-left-radius: 0;">
                                 <button type="button" onclick="openLedgerForMainAccount()" title="دفتر الأستاذ العام" style="background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(16,185,129,0.25)); border: 1px solid var(--border-color); border-right: none; color: #34d399; padding: 0 10px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; height: auto; font-size: 0.75rem; font-weight: bold; white-space: nowrap; box-shadow: inset 0 1px 3px rgba(255,255,255,0.1);" onmouseover="this.style.background='linear-gradient(135deg, rgba(52,211,153,0.3), rgba(16,185,129,0.5))'; this.style.color='#fff';" onmouseout="this.style.background='linear-gradient(135deg, rgba(52,211,153,0.15), rgba(16,185,129,0.25))'; this.style.color='#34d399';"><i class="fa fa-book" style="margin-left: 4px;"></i> كشف حساب</button>
                                 <div class="custom-dropdown-list" id="main-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                             </div>
@@ -1052,11 +1052,11 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         <!-- Row 1: Account, Amount, and Method Toggles -->
                         <div style="display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; margin-bottom: 12px;">
                             <!-- Account -->
-                            <div style="flex: 2; min-width: 250px; position: relative; display: flex; flex-direction: column;">
+                            <div style="flex: 0 0 35%; max-width: 35%; min-width: 250px; position: relative; display: flex; flex-direction: column;">
                                 <div class="custom-dropdown-input-wrap" style="position: relative; flex: 1; display: flex;">
                                     <input type="hidden" id="account-{ID}-id" class="block-account-id">
                                     <input type="hidden" id="account-{ID}" class="block-account-name">
-                                    <input type="text" autocomplete="off" class="form-input block-account-search" id="account-{ID}-search" placeholder="الحساب / الجهة المستفيدة..." onfocus="showAccountDropdown('account-{ID}')" onblur="hideAccountDropdownDelayed('account-{ID}')" oninput="filterAccountDropdown('account-{ID}')" style="font-size: 1rem; flex: 1; margin-bottom: 0; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                    <input type="text" autocomplete="off" class="form-input block-account-search" id="account-{ID}-search" placeholder="الحساب / الجهة المستفيدة..." onfocus="showAccountDropdown('account-{ID}')" onblur="hideAccountDropdownDelayed('account-{ID}')" oninput="filterAccountDropdown('account-{ID}')" style="font-size: 1.4rem !important; font-weight: 900 !important; color: #fbbf24 !important; flex: 1; margin-bottom: 0; border-top-left-radius: 0; border-bottom-left-radius: 0;">
                                     <button type="button" onclick="openLedgerForBlockAccount('{ID}')" title="دفتر الأستاذ العام" style="background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(16,185,129,0.25)); border: 1px solid rgba(255,255,255,0.1); border-right: none; color: #34d399; padding: 0 10px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; height: auto; font-size: 0.75rem; font-weight: bold; white-space: nowrap; box-shadow: inset 0 1px 3px rgba(255,255,255,0.1);" onmouseover="this.style.background='linear-gradient(135deg, rgba(52,211,153,0.3), rgba(16,185,129,0.5))'; this.style.color='#fff';" onmouseout="this.style.background='linear-gradient(135deg, rgba(52,211,153,0.15), rgba(16,185,129,0.25))'; this.style.color='#34d399';"><i class="fa fa-book" style="margin-left: 4px;"></i> كشف حساب</button>
                                     <div class="custom-dropdown-list" id="account-{ID}-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                                 </div>
