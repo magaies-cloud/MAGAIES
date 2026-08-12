@@ -1282,7 +1282,7 @@ try {
                                     <span style="display:flex; align-items:center; justify-content:center; width: 24px; height: 24px; background: rgba(255, 0, 0, 0.15); border-radius: 50%;">
                                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="red" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="19" x2="12" y2="5"></line><polyline points="5 12 12 5 19 12"></polyline></svg>
                                     </span>
-                                    من حساب <span style="color:red !important;">(صرف)</span>
+                                    من حساب <span style="color:#ffffff !important;">(صرف)</span>
                                 </label>
                                 <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
                                     <input type="hidden" id="from-account">
