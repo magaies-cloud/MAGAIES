@@ -499,17 +499,17 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
 
         .pay-toggle-btn.block-btn-bank {
-            --tab-border-color: rgba(148, 163, 184, 0.45);
-            --tab-glow-color: rgba(148, 163, 184, 0.65);
-            --tab-hover-bg: linear-gradient(135deg, rgba(148, 163, 184, 0.35), rgba(100, 116, 139, 0.5));
+            --tab-border-color: rgba(249, 115, 22, 0.45);
+            --tab-glow-color: rgba(249, 115, 22, 0.65);
+            --tab-hover-bg: linear-gradient(135deg, rgba(249, 115, 22, 0.35), rgba(234, 88, 12, 0.5));
         }
         .pay-toggle-btn.active.block-btn-bank {
-            --tab-border-color: #94a3b8;
-            background: linear-gradient(135deg, rgba(148, 163, 184, 0.45), rgba(100, 116, 139, 0.7)) !important;
-            border-color: #94a3b8 !important;
+            --tab-border-color: #f97316;
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.45), rgba(234, 88, 12, 0.7)) !important;
+            border-color: #f97316 !important;
             color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(148, 163, 184, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 25px rgba(148, 163, 184, 0.5), 0 0 20px rgba(148, 163, 184, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
+            text-shadow: 0 0 10px rgba(249, 115, 22, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            box-shadow: 0 10px 25px rgba(249, 115, 22, 0.5), 0 0 20px rgba(249, 115, 22, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
             transform: translateY(-3px) scale(1.05) !important;
         }
 
@@ -607,8 +607,8 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             box-shadow: 0 0 25px rgba(213, 189, 175, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
         }
         .block-bank-details:hover {
-            border-color: rgba(148, 163, 184, 0.75) !important;
-            box-shadow: 0 0 25px rgba(148, 163, 184, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
+            border-color: rgba(249, 115, 22, 0.75) !important;
+            box-shadow: 0 0 25px rgba(249, 115, 22, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
         }
         .block-cheque-details:hover {
             border-color: rgba(155, 89, 182, 0.75) !important;
@@ -1142,10 +1142,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
                         <!-- Dynamic Details Sections -->
                         <!-- Bank Details (supports multiple transfers) -->
-                        <div id="bank-details-{ID}" class="block-bank-details" style="display: none; background: rgba(100, 116, 139, 0.18); border: 1.5px solid rgba(100, 116, 139, 0.45); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease;">
+                        <div id="bank-details-{ID}" class="block-bank-details" style="display: none; background: rgba(234, 88, 12, 0.18); border: 1.5px solid rgba(234, 88, 12, 0.45); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease;">
                             <div class="bank-rows-container" id="bank-rows-{ID}">
                                 <div class="bank-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
-                                    <div style="width: 80px; font-weight: bold; color: #cbd5e1; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">🏦 بنكي</div>
+                                    <div style="width: 80px; font-weight: bold; color: #fdba74; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">🏦 بنكي</div>
                                     <div style="width: 150px; flex-shrink: 0;">
                                         <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: 900; text-align: center; -webkit-text-stroke: 0.5px currentColor;">
                                     </div>
