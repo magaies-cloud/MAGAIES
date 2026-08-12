@@ -1465,61 +1465,92 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
     </div>
 
     <script>
-    const numPropConfig = JSON.parse(localStorage.getItem('num-prop-config')) || {
-        fontSizeMod: 0,
-        thousandsSep: true,
-        decimals: 2,
-        fontFamily: 'monospace'
-    };
+    let allNumProps = JSON.parse(localStorage.getItem('all-num-props')) || {};
+    let currentPropId = 'default';
+
+    function getActiveProp() {
+        if(!allNumProps[currentPropId]) {
+            allNumProps[currentPropId] = {
+                fontSizeMod: 0,
+                thousandsSep: true,
+                decimals: 2,
+                fontFamily: 'monospace'
+            };
+        }
+        return allNumProps[currentPropId];
+    }
+
+    function getPropFor(el) {
+        let id = el.id;
+        if (!id) {
+            if (el.classList.contains('block-bank-amount')) id = 'block-bank-amount';
+            else if (el.classList.contains('block-cheque-amount')) id = 'block-cheque-amount';
+            else id = 'default';
+        }
+        if(!allNumProps[id]) {
+            allNumProps[id] = {
+                fontSizeMod: 0,
+                thousandsSep: true,
+                decimals: 2,
+                fontFamily: 'monospace'
+            };
+        }
+        return allNumProps[id];
+    }
+
     const fontFamilies = ['monospace', 'Inter', 'Arial', 'Tahoma'];
 
     function updateMenuUI() {
-        document.getElementById('num-prop-sep-status').textContent = numPropConfig.thousandsSep ? 'مفعل' : 'معطل';
-        document.getElementById('num-prop-sep-status').style.color = numPropConfig.thousandsSep ? '#10b981' : '#ef4444';
-        document.getElementById('num-prop-dec-val').textContent = numPropConfig.decimals;
-        document.getElementById('num-prop-font-val').textContent = numPropConfig.fontFamily;
+        const conf = getActiveProp();
+        document.getElementById('num-prop-sep-status').textContent = conf.thousandsSep ? 'مفعل' : 'معطل';
+        document.getElementById('num-prop-sep-status').style.color = conf.thousandsSep ? '#10b981' : '#ef4444';
+        document.getElementById('num-prop-dec-val').textContent = conf.decimals;
+        document.getElementById('num-prop-font-val').textContent = conf.fontFamily;
     }
 
     function changeNumProp(type, val) {
+        const conf = getActiveProp();
         if(type === 'font') {
-            numPropConfig.fontSizeMod += val;
+            conf.fontSizeMod += val;
             applyNumPropsToAll();
         } else if(type === 'dec') {
-            numPropConfig.decimals += val;
-            if(numPropConfig.decimals < 0) numPropConfig.decimals = 0;
-            if(numPropConfig.decimals > 4) numPropConfig.decimals = 4;
+            conf.decimals += val;
+            if(conf.decimals < 0) conf.decimals = 0;
+            if(conf.decimals > 4) conf.decimals = 4;
             updateMenuUI();
             applyNumPropsToAll();
         }
     }
 
     function toggleNumPropSep() {
-        numPropConfig.thousandsSep = !numPropConfig.thousandsSep;
+        const conf = getActiveProp();
+        conf.thousandsSep = !conf.thousandsSep;
         updateMenuUI();
         applyNumPropsToAll();
     }
 
     function toggleNumPropFontFamily() {
-        let idx = fontFamilies.indexOf(numPropConfig.fontFamily);
+        const conf = getActiveProp();
+        let idx = fontFamilies.indexOf(conf.fontFamily);
         idx = (idx + 1) % fontFamilies.length;
-        numPropConfig.fontFamily = fontFamilies[idx];
+        conf.fontFamily = fontFamilies[idx];
         updateMenuUI();
         applyNumPropsToAll();
     }
 
     function saveNumProps() {
-        localStorage.setItem('num-prop-config', JSON.stringify(numPropConfig));
+        localStorage.setItem('all-num-props', JSON.stringify(allNumProps));
         document.getElementById('custom-num-menu').style.display = 'none';
         applyNumPropsToAll();
     }
 
-    function formatNumberCustom(valStr) {
+    function formatNumberCustom(valStr, conf) {
         if(!valStr && valStr !== 0) return "";
         let val = parseFloat(valStr.toString().replace(/,/g, ''));
         if(isNaN(val)) return valStr;
         
-        let parts = val.toFixed(numPropConfig.decimals).split('.');
-        if(numPropConfig.thousandsSep) {
+        let parts = val.toFixed(conf.decimals).split('.');
+        if(conf.thousandsSep) {
             parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
         }
         return parts.join('.');
@@ -1535,14 +1566,15 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         
         targets.forEach(el => {
             if(!el) return;
+            const conf = getPropFor(el);
             
             // Apply font family
-            el.style.setProperty('font-family', numPropConfig.fontFamily, 'important');
+            el.style.setProperty('font-family', conf.fontFamily, 'important');
             
             // Apply font size modifier (base + mod * 0.1rem)
-            // Determine base size
-            let baseSize = (el.id === 'amount-local-hdr' || el.id === 'amount-foreign') ? 2.2 : 1.2;
-            let newSize = baseSize + (numPropConfig.fontSizeMod * 0.1);
+            // Determine base size - increased to 2.6 for local/foreign totals
+            let baseSize = (el.id === 'amount-local-hdr' || el.id === 'amount-foreign') ? 2.6 : 1.2;
+            let newSize = baseSize + (conf.fontSizeMod * 0.1);
             if(newSize < 0.5) newSize = 0.5;
             el.style.setProperty('font-size', newSize + 'rem', 'important');
             
@@ -1556,7 +1588,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 }
                 
                 el.dataset.isFormatting = 'true';
-                el.value = formatNumberCustom(el.dataset.raw);
+                el.value = formatNumberCustom(el.dataset.raw, conf);
                 el.dataset.isFormatting = '';
             }
         });
@@ -1581,6 +1613,18 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             e.preventDefault();
             e.stopPropagation();
             e.stopImmediatePropagation();
+            
+            // Set current target ID for specific configuration
+            if (target.id) {
+                currentPropId = target.id;
+            } else if (target.classList.contains('block-bank-amount')) {
+                currentPropId = 'block-bank-amount';
+            } else if (target.classList.contains('block-cheque-amount')) {
+                currentPropId = 'block-cheque-amount';
+            } else {
+                currentPropId = 'default';
+            }
+            
             updateMenuUI();
             
             const menu = document.getElementById('custom-num-menu');
