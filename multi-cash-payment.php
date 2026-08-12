@@ -1086,7 +1086,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                                 <div class="bank-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
                                     <div style="width: 80px; font-weight: bold; color: #22d3ee; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">🏦 بنكي</div>
                                     <div style="width: 150px; flex-shrink: 0;">
-                                        <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: 900; font-size: 1.25rem; text-align: center; -webkit-text-stroke: 0.5px currentColor;">
+                                        <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" style="margin-bottom: 0; font-family: monospace; font-weight: 900; font-size: 1.25rem; text-align: center; -webkit-text-stroke: 0.5px currentColor;">
                                     </div>
                                     <div style="flex: 1; min-width: 120px;">
                                         <input type="text" autocomplete="off" class="form-input block-bank-name-input" placeholder="اسم البنك" style="margin-bottom: 0;">
@@ -1108,7 +1108,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                                 <div class="cheque-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
                                     <div style="width: 80px; font-weight: bold; color: #d8b4fe; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">✍️ شيك</div>
                                     <div style="width: 150px; flex-shrink: 0;">
-                                        <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: 900; font-size: 1.25rem; text-align: center; -webkit-text-stroke: 0.5px currentColor;">
+                                        <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" style="margin-bottom: 0; font-family: monospace; font-weight: 900; font-size: 1.25rem; text-align: center; -webkit-text-stroke: 0.5px currentColor;">
                                     </div>
                                     <div style="flex: 1; min-width: 90px;">
                                         <input type="text" autocomplete="off" class="form-input block-cheque-bank-input" placeholder="اسم البنك" style="margin-bottom: 0;">
@@ -1156,7 +1156,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                     font-size: 1.2rem;
                 }
                 h3 { font-size: 1.4rem !important; }
-                .form-label, .block-label { font-size: 1.3rem !important; font-weight: bold; }
+                .form-label, .block-label { font-size: 1.3rem !important; font-weight: bold; color: #fbbf24 !important; }
                 
                 /* Yellow Names */
                 .block-account-search, #main-account-search, .block-bank-name-input, .block-cheque-bank-input {
@@ -1167,19 +1167,19 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 
                 /* Large Totals & Rates */
                 #amount-local-hdr, #amount-foreign, #exchange-rate {
-                    font-size: 1.8rem !important;
+                    font-size: 2.1rem !important;
                     font-weight: 900 !important;
                 }
                 
                 /* Large Amounts in blocks */
                 .block-total-amount, .block-bank-amount, .block-cheque-amount {
-                    font-size: 1.8rem !important;
+                    font-size: 2.1rem !important;
                     font-weight: 900 !important;
                 }
                 
                 /* Large Transfer & Cheque Numbers */
                 .block-transfer-no-input, .block-cheque-no-input {
-                    font-size: 1.6rem !important;
+                    font-size: 1.9rem !important;
                     font-weight: bold !important;
                     letter-spacing: 2px !important;
                 }

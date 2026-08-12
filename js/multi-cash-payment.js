@@ -312,6 +312,34 @@ async function loadAllAccounts() {
 const fmtNum = (num) => Number(num || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
 
 // Helper: Clean commas for calculation
+
+window.formatWhileTyping = function(input) {
+    if (!input || !input.value) return;
+    if (input.value.endsWith('.')) return; // Allow typing decimals
+    
+    let cursor = input.selectionStart;
+    let oldLen = input.value.length;
+    
+    let parts = input.value.replace(/[^0-9.]/g, '').split('.');
+    let intPart = parts[0];
+    if (intPart === '') {
+       if (parts.length > 1) intPart = '0';
+       else { input.value = ''; return; }
+    }
+    
+    intPart = Number(intPart).toLocaleString('en-US');
+    
+    if (parts.length > 1) {
+        input.value = intPart + '.' + parts[1].substring(0, 2);
+    } else {
+        input.value = intPart;
+    }
+    
+    let newLen = input.value.length;
+    cursor += (newLen - oldLen);
+    if (cursor >= 0) input.setSelectionRange(cursor, cursor);
+};
+
 const cleanNum = (str) => Number(String(str).replace(/,/g, '')) || 0;
 
 // Helper: Restrict input to numbers and decimal point only
@@ -567,8 +595,8 @@ window.addAccountBlock = function() {
         }
         if (label) {
             label.textContent = 'إلى حساب (مستلم)';
-            label.style.color = '#34d399';
-            if (label.parentElement) label.parentElement.style.color = '#34d399';
+            label.style.color = '#fbbf24';
+            if (label.parentElement) label.parentElement.style.color = '#fbbf24';
         }
         if (arrow) {
             arrow.className = 'animated-arrow-right';
@@ -739,7 +767,7 @@ window.addBankRow = function(blockId) {
     row.innerHTML = `
         <div style="width: 80px; flex-shrink: 0;"></div>
         <div style="width: 150px; flex-shrink: 0;">
-            <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="${blockId}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
+            <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="${blockId}" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
         </div>
         <div style="flex: 1; min-width: 120px;">
             <input type="text" autocomplete="off" class="form-input block-bank-name-input" placeholder="اسم البنك" style="margin-bottom: 0;">
@@ -775,7 +803,7 @@ window.addChequeRow = function(blockId) {
     row.innerHTML = `
         <div style="width: 80px; flex-shrink: 0;"></div>
         <div style="width: 150px; flex-shrink: 0;">
-            <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="${blockId}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
+            <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="${blockId}" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
         </div>
         <div style="flex: 1; min-width: 90px;">
             <input type="text" autocomplete="off" class="form-input block-cheque-bank-input" placeholder="اسم البنك" style="margin-bottom: 0;">
@@ -822,7 +850,7 @@ document.addEventListener('click', function(e) {
         row.innerHTML = `
             <div style="width: 80px; flex-shrink: 0;"></div>
             <div style="width: 150px; flex-shrink: 0;">
-                <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
+                <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
             </div>
             <div style="flex: 1; min-width: 120px;">
                 <input type="text" autocomplete="off" class="form-input block-bank-name-input" placeholder="اسم البنك" style="margin-bottom: 0;">
@@ -847,7 +875,7 @@ document.addEventListener('click', function(e) {
         row.innerHTML = `
             <div style="width: 80px; flex-shrink: 0;"></div>
             <div style="width: 150px; flex-shrink: 0;">
-                <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
+                <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
             </div>
             <div style="flex: 1; min-width: 90px;">
                 <input type="text" autocomplete="off" class="form-input block-cheque-bank-input" placeholder="اسم البنك" style="margin-bottom: 0;">
@@ -900,8 +928,12 @@ document.addEventListener('input', function(e) {
 });
 
 function formatInput(input) {
-    const val = cleanNum(input.value);
-    input.value = val === 0 ? '' : fmtNum(val);
+    if (window.formatWhileTyping) {
+        window.formatWhileTyping(input);
+    } else {
+        const val = cleanNum(input.value);
+        input.value = val === 0 ? '' : fmtNum(val);
+    }
     calcTotal();
 }
 
@@ -2354,7 +2386,7 @@ function loadVoucherIntoForm(v) {
                         row.innerHTML = `
                             <div style="width: 80px; font-weight: bold; color: #22d3ee; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">${idx === 0 ? '🏦 تحويل' : ''}</div>
                             <div style="width: 150px; flex-shrink: 0;">
-                                <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="${blockId}" placeholder="المبلغ" value="${bt.amount || ''}" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
+                                <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="${blockId}" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" value="${bt.amount || ''}" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
                             </div>
                             <div style="flex: 1; min-width: 120px;">
                                 <input type="text" autocomplete="off" class="form-input block-bank-name-input" placeholder="اسم البنك" value="${bt.bankName || ''}" style="margin-bottom: 0;">
@@ -2387,7 +2419,7 @@ function loadVoucherIntoForm(v) {
                         row.innerHTML = `
                             <div style="width: 80px; font-weight: bold; color: #d8b4fe; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">${idx === 0 ? '✍️ شيك' : ''}</div>
                             <div style="width: 150px; flex-shrink: 0;">
-                                <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="${blockId}" placeholder="المبلغ" value="${ch.amount || ''}" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
+                                <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="${blockId}" placeholder="المبلغ" oninput="if(window.formatWhileTyping) window.formatWhileTyping(this);" value="${ch.amount || ''}" style="margin-bottom: 0; font-family: monospace; font-weight: bold; text-align: center;">
                             </div>
                             <div style="flex: 1; min-width: 90px;">
                                 <input type="text" autocomplete="off" class="form-input block-cheque-bank-input" placeholder="اسم البنك" value="${ch.chequeBank || ''}" style="margin-bottom: 0;">
@@ -2789,7 +2821,7 @@ window.addTransferRow = function(no = '', note = '', amt = 0) {
         ${labelHTML}
         <div style="width: 220px; flex: none; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #ffffff; font-weight: bold; white-space: nowrap;">المبلغ:</label>
-            <input type="text" autocomplete="off" class="v-input ctrl-input transfer-amount" value="${amt > 0 ? parseFloat(amt).toFixed(2) : ''}" placeholder="0.00" onfocus="if(parseFloat(this.value.replace(/,/g, '') || 0) === 0) this.value = '';" oninput="restrictToNumbers(this); recalcPaymentSummary();" onblur="if(this.value) this.value = parseFloat(this.value.replace(/,/g, '') || 0).toFixed(2); recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:1.35rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
+            <input type="text" autocomplete="off" class="v-input ctrl-input transfer-amount" value="${amt > 0 ? Number(parseFloat(amt)).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : ''}" placeholder="0.00" onfocus="if(parseFloat(this.value.replace(/,/g, '') || 0) === 0) this.value = '';" oninput="window.formatWhileTyping(this); recalcPaymentSummary();" onblur="if(this.value) this.value = parseFloat(this.value.replace(/,/g, '') || 0).toFixed(2); recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:1.35rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
         </div>
         <div style="flex: 1.2; min-width: 170px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #ffffff; font-weight: bold; white-space: nowrap;">اسم البنك:</label>
@@ -2850,7 +2882,7 @@ window.addChequeRow = function(branch = '', no = '', date = '', amt = 0) {
         ${labelHTML}
         <div style="width: 220px; flex: none; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #ffffff; font-weight: bold; white-space: nowrap;">المبلغ:</label>
-            <input type="text" class="v-input ctrl-input cheque-amount" value="${amt > 0 ? parseFloat(amt).toFixed(2) : ''}" placeholder="0.00" onfocus="if(parseFloat(this.value.replace(/,/g, '') || 0) === 0) this.value = '';" oninput="restrictToNumbers(this); recalcPaymentSummary();" onblur="if(this.value) this.value = parseFloat(this.value.replace(/,/g, '') || 0).toFixed(2); recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:1.35rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
+            <input type="text" class="v-input ctrl-input cheque-amount" value="${amt > 0 ? Number(parseFloat(amt)).toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) : ''}" placeholder="0.00" onfocus="if(parseFloat(this.value.replace(/,/g, '') || 0) === 0) this.value = '';" oninput="window.formatWhileTyping(this); recalcPaymentSummary();" onblur="if(this.value) this.value = parseFloat(this.value.replace(/,/g, '') || 0).toFixed(2); recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:1.35rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
         </div>
         <div style="flex: 1.2; min-width: 170px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #ffffff; font-weight: bold; white-space: nowrap;">اسم البنك:</label>
