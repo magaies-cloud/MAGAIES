@@ -981,21 +981,6 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         .cheque-row > div:nth-child(4) { flex: 2.5 !important; min-width: 440px !important; }
         .cheque-row > div:nth-child(5) { flex: 1 !important; min-width: 150px !important; }
         .cheque-row > div:nth-child(6) { flex: 1 !important; min-width: 150px !important; }
-        /* --- ألوان مريحة للعين (Eye-Comfort Light Mode Override) --- */
-        body { background-color: #F4F5F7 !important; color: #2C3E50 !important; }
-        .glass-container, .side-panel, .main-panel { background: #FFFFFF !important; border-color: #E2E8F0 !important; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05) !important; backdrop-filter: none !important; }
-        .glass-container label { color: #475569 !important; font-weight: bold; }
-        input, select, textarea, .form-input, .form-select, .multi-input, .custom-dropdown-list { background: #F8FAFC !important; color: #1E293B !important; border-color: #CBD5E1 !important; box-shadow: none !important; }
-        input::placeholder { color: #94A3B8 !important; }
-        .form-section-title { color: #0284C7 !important; border-bottom: 1px solid #E2E8F0 !important; }
-        .glass-red { background: #FEF2F2 !important; border-color: #FECACA !important; }
-        .glass-green { background: #F0FDF4 !important; border-color: #BBF7D0 !important; }
-        .crystal-btn, .voucher-type-btn, .pay-toggle-btn { background: #FFFFFF !important; color: #1E293B !important; border-color: #E2E8F0 !important; text-shadow: none !important; }
-        .pm-tab-content { color: #475569 !important; }
-        .pm-tab input:checked + .pm-tab-content { background: #FFFFFF !important; border-color: #CBD5E1 !important; color: #0F172A !important; }
-        .multi-table th { color: #475569 !important; border-bottom: 1px solid #E2E8F0 !important; }
-        .sticky-footer { background: #FFFFFF !important; border-top: 1px solid #E2E8F0 !important; }
-        .custom-dropdown-item:hover { background: #E2E8F0 !important; }
     </style>
 </head>
 <body>
