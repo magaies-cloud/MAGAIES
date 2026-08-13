@@ -3506,7 +3506,7 @@ document.addEventListener('keydown', function(e) {
             return;
         }
 
-        // 3. account-*-search -> bank toggle
+        // 3. account-*-search -> bank amount
         if (active.classList.contains('block-account-search')) {
             const listId = active.id.replace('-search', '-dropdown-list');
             const list = document.getElementById(listId);
@@ -3515,8 +3515,8 @@ document.addEventListener('keydown', function(e) {
                 setTimeout(() => {
                     const block = active.closest('.account-block');
                     if (block) {
-                        const bankBtn = block.querySelector('.block-btn-bank');
-                        if (bankBtn) bankBtn.focus();
+                        const amtEl = block.querySelector('.block-bank-amount');
+                        if (amtEl && amtEl.offsetParent !== null) { amtEl.focus(); amtEl.select(); }
                     }
                 }, 150);
                 return; 
@@ -3524,8 +3524,18 @@ document.addEventListener('keydown', function(e) {
                 e.preventDefault();
                 const block = active.closest('.account-block');
                 if (block) {
-                    const bankBtn = block.querySelector('.block-btn-bank');
-                    if (bankBtn) bankBtn.focus();
+                    const blockId = block.id.replace('block-', '');
+                    const radioBank = block.querySelector('.pay-method-radio[value="bank"]');
+                    if (radioBank && !radioBank.checked) {
+                        radioBank.checked = true;
+                        if (typeof window.togglePaymentMethodBlock === 'function') {
+                            window.togglePaymentMethodBlock(blockId);
+                        }
+                    }
+                    setTimeout(() => {
+                        const amtEl = block.querySelector('.block-bank-amount');
+                        if (amtEl && amtEl.offsetParent !== null) { amtEl.focus(); amtEl.select(); }
+                    }, 50);
                 }
                 return;
             }
@@ -3607,8 +3617,11 @@ document.addEventListener('keydown', function(e) {
                 const desc = row.querySelector('.block-bank-desc-input');
                 if (desc) { desc.focus(); desc.select(); }
                 else {
-                    const btn = row.querySelector('[data-action="add-bank-row"]');
-                    if (btn) btn.focus();
+                    const block = active.closest('.account-block');
+                    if (block) {
+                        const btn = block.querySelector('[data-action="add-bank-row"]');
+                        if (btn) btn.focus();
+                    }
                 }
             }
             return;
@@ -3617,19 +3630,16 @@ document.addEventListener('keydown', function(e) {
         // 9. bank desc -> trigger add bank row and focus amount
         if (active.classList.contains('block-bank-desc-input')) {
             e.preventDefault();
-            const row = active.closest('.bank-row');
-            if (row) {
-                const btn = row.querySelector('[data-action="add-bank-row"]');
+            const block = active.closest('.account-block');
+            if (block) {
+                const btn = block.querySelector('[data-action="add-bank-row"]');
                 if (btn) {
                     btn.click();
                     setTimeout(() => {
-                        const block = active.closest('.account-block');
-                        if (block) {
-                            const bankAmts = block.querySelectorAll('.block-bank-amount');
-                            if (bankAmts.length > 0) {
-                                bankAmts[bankAmts.length - 1].focus();
-                                bankAmts[bankAmts.length - 1].select();
-                            }
+                        const bankAmts = block.querySelectorAll('.block-bank-amount');
+                        if (bankAmts.length > 0) {
+                            bankAmts[bankAmts.length - 1].focus();
+                            bankAmts[bankAmts.length - 1].select();
                         }
                     }, 50);
                 }
@@ -3694,8 +3704,11 @@ document.addEventListener('keydown', function(e) {
                 const desc = row.querySelector('.block-cheque-desc-input');
                 if (desc) { desc.focus(); desc.select(); }
                 else {
-                    const btn = row.querySelector('[data-action="add-cheque-row"]');
-                    if (btn) btn.focus();
+                    const block = active.closest('.account-block');
+                    if (block) {
+                        const btn = block.querySelector('[data-action="add-cheque-row"]');
+                        if (btn) btn.focus();
+                    }
                 }
             }
             return;
@@ -3704,19 +3717,16 @@ document.addEventListener('keydown', function(e) {
         // 14. cheque desc -> trigger add cheque row and focus amount
         if (active.classList.contains('block-cheque-desc-input')) {
             e.preventDefault();
-            const row = active.closest('.cheque-row');
-            if (row) {
-                const btn = row.querySelector('[data-action="add-cheque-row"]');
+            const block = active.closest('.account-block');
+            if (block) {
+                const btn = block.querySelector('[data-action="add-cheque-row"]');
                 if (btn) {
                     btn.click();
                     setTimeout(() => {
-                        const block = active.closest('.account-block');
-                        if (block) {
-                            const chqAmts = block.querySelectorAll('.block-cheque-amount');
-                            if (chqAmts.length > 0) {
-                                chqAmts[chqAmts.length - 1].focus();
-                                chqAmts[chqAmts.length - 1].select();
-                            }
+                        const chqAmts = block.querySelectorAll('.block-cheque-amount');
+                        if (chqAmts.length > 0) {
+                            chqAmts[chqAmts.length - 1].focus();
+                            chqAmts[chqAmts.length - 1].select();
                         }
                     }, 50);
                 }
@@ -3748,3 +3758,4 @@ document.addEventListener('DOMContentLoaded', () => {
         if (searchInput) searchInput.focus();
     }, 300);
 });
+
