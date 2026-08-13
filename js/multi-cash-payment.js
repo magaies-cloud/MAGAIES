@@ -446,6 +446,7 @@ function updateLabels() {
     const primaryContainer = document.getElementById('primary-inputs-container');
     const secondaryContainer = document.getElementById('secondary-table-container');
     const entryCardLabel = document.getElementById('entry-card-label');
+    const currencyLabel = document.getElementById('currency-label');
     
     if (type === 'payment') {
         if (primaryContainer) {
@@ -478,6 +479,9 @@ function updateLabels() {
             lbl.style.color = '#34d399';
             if (lbl.parentElement) lbl.parentElement.style.color = '#34d399';
         });
+        if (currencyLabel) {
+            currencyLabel.innerText = 'عملة الصرف';
+        }
         document.querySelectorAll('.account-block').forEach(block => {
             block.classList.remove('glass-red');
             block.classList.add('glass-green');
@@ -541,6 +545,9 @@ function updateLabels() {
             el.style.borderColor = 'rgba(239, 68, 68, 0.4)';
             el.style.boxShadow = '0 0 10px rgba(239, 68, 68, 0.25)';
         });
+        if (currencyLabel) {
+            currencyLabel.innerText = 'عملة الاستلام';
+        }
     }
 }
 

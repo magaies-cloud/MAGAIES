@@ -459,31 +459,29 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
         /* ═══ Voucher Type Buttons (صرف مجمع 📤 vs استلام مجمع 📥) ═══ */
         .voucher-type-btn.active-payment, #btn-payment.active-payment {
-            --tab-border-color: #d47a7e;
-            --tab-glow-color: rgba(212, 122, 126, 0.7);
-            --tab-hover-bg: linear-gradient(135deg, #d47a7e, #a3585c);
-            background: linear-gradient(135deg, rgba(212, 122, 126, 0.25), rgba(163, 88, 92, 0.4)) !important;
-            border-color: #d47a7e !important;
+            --tab-border-color: #f43f5e;
+            --tab-glow-color: rgba(244, 63, 94, 0.7);
+            --tab-hover-bg: linear-gradient(135deg, #f43f5e, #be123c);
+            background: linear-gradient(135deg, #e11d48, #9f1239) !important;
+            border-color: #f43f5e !important;
             color: #ffffff !important;
             font-weight: 900 !important;
             text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 30px rgba(212, 122, 126, 0.65), 0 0 25px rgba(212, 122, 126, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
+            box-shadow: 0 10px 30px rgba(225, 29, 72, 0.65), 0 0 25px rgba(225, 29, 72, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
             transform: translateY(-3px) scale(1.05) !important;
-            /* animation removed */
         }
 
         .voucher-type-btn.active-receipt, #btn-receipt.active-receipt {
-            --tab-border-color: #81b29a;
-            --tab-glow-color: rgba(129, 178, 154, 0.7);
-            --tab-hover-bg: linear-gradient(135deg, #81b29a, #5e8773);
-            background: linear-gradient(135deg, rgba(46, 204, 113, 0.25), rgba(39, 174, 96, 0.4)) !important;
-            border-color: #81b29a !important;
+            --tab-border-color: #10b981;
+            --tab-glow-color: rgba(16, 185, 129, 0.7);
+            --tab-hover-bg: linear-gradient(135deg, #10b981, #047857);
+            background: linear-gradient(135deg, #059669, #064e3b) !important;
+            border-color: #10b981 !important;
             color: #ffffff !important;
             font-weight: 900 !important;
             text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 30px rgba(129, 178, 154, 0.65), 0 0 25px rgba(129, 178, 154, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.65), 0 0 25px rgba(16, 185, 129, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
             transform: translateY(-3px) scale(1.05) !important;
-            /* animation removed */
         }
 
         /* ═══ Payment Method Toggle Buttons (نقدي 💵 / تحويل 🏦 / شيك ✍️) ═══ */
@@ -1086,15 +1084,15 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; height: 40px; padding: 0 8px;">
                             <button type="button" onclick="navigateVoucher(-1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 1.1rem; padding: 0 5px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند السابق">◀</button>
                             <div style="display: flex; align-items: center; gap: 4px;">
-                                <span style="color: #94a3b8; font-size: 0.85rem; font-weight: bold; white-space: nowrap;">📄 السند:</span>
-                                <input type="text" id="voucher-no-display" readonly style="background: transparent !important; border: none !important; color: #fff; font-weight: bold; width: 140px; text-align: center; outline: none !important; font-size:0.95rem; box-shadow: none !important; padding: 0;" value="">
+                                <span style="color: #94a3b8; font-size: 1rem; font-weight: bold; white-space: nowrap;">📄 السند:</span>
+                                <input type="text" id="voucher-no-display" readonly style="background: transparent !important; border: none !important; color: #fff; font-weight: bold; width: 140px; text-align: center; outline: none !important; font-size: 1.4rem; box-shadow: none !important; padding: 0;" value="">
                             </div>
                             <button type="button" onclick="navigateVoucher(1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 1.1rem; padding: 0 5px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند التالي">▶</button>
                         </div>
 
                         <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; height: 40px; padding: 0 12px;">
-                            <span style="color: #94a3b8; font-size: 0.85rem; font-weight: bold; white-space: nowrap;">📅 التاريخ:</span>
-                            <input type="date" id="voucher-date" style="background: transparent !important; border: none !important; color: #fff; font-weight: bold; padding: 0; margin: 0; height: 100%; width: 130px; outline: none !important; box-shadow: none !important; font-size: 0.9rem; -webkit-appearance: none; appearance: none;">
+                            <span style="color: #94a3b8; font-size: 1rem; font-weight: bold; white-space: nowrap;">📅 التاريخ:</span>
+                            <input type="date" id="voucher-date" style="background: transparent !important; border: none !important; color: #fff; font-weight: bold; padding: 0; margin: 0; height: 100%; width: 145px; outline: none !important; box-shadow: none !important; font-size: 1.2rem; -webkit-appearance: none; appearance: none;">
                         </div>
 
                         <div style="display: flex; align-items: center;">
@@ -1119,7 +1117,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         </div>
 
                         <div style="flex: 0.8; min-width: 90px;">
-                            <label style="color: #fbbf24; font-size: 0.85rem; margin-bottom: 5px; display: block; white-space: nowrap;">العملة</label>
+                            <label id="currency-label" style="color: #fbbf24; font-size: 0.85rem; margin-bottom: 5px; display: block; white-space: nowrap;">العملة</label>
                             <select id="currency" class="form-input system-currency-select input-glow-focus hover-glow" onchange="typeof onCurrencyChange === 'function' ? onCurrencyChange() : (typeof updateCurrency === 'function' ? updateCurrency() : null);" style="border-radius: 10px; flex-grow: 1; min-width: 0; width: 100%; font-size: 1.1rem !important; font-weight: 800;">
                                 <option value="SDG">جنيه (SDG)</option>
                                 <option value="USD">دولار (USD)</option>
