@@ -1606,7 +1606,11 @@ try {
                         document.getElementById('to-account-search').focus();
                     };
                 } else if (id === 'to-account-search') {
-                    nextAction = () => { let n = document.getElementById('to-statement'); n.focus(); n.select(); };
+                    nextAction = () => {
+                        const btnBank = document.getElementById('toggle-bank');
+                        if (btnBank && !btnBank.classList.contains('active')) { btnBank.click(); }
+                        setTimeout(() => { const amtInput = document.querySelector('.transfer-amount'); if (amtInput) { amtInput.focus(); amtInput.select(); } }, 150);
+                    };
                 } else if (id === 'to-statement') {
                     nextAction = () => { let n = document.getElementById('currency'); n.focus(); };
                 } else if (id === 'currency') {
@@ -1616,15 +1620,16 @@ try {
                 } else if (id === 'amount-foreign') {
                     nextAction = () => { let n = document.getElementById('beneficiary-name'); n.focus(); n.select(); };
                 } else if (id === 'beneficiary-name') {
-                    nextAction = () => { 
-                        document.getElementById('from-account-search').focus();
+                    nextAction = () => {
+                        const btnBank = document.getElementById('toggle-bank');
+                        if (btnBank && !btnBank.classList.contains('active')) { btnBank.click(); }
+                        setTimeout(() => { const amtInput = document.querySelector('.transfer-amount'); if (amtInput) { amtInput.focus(); amtInput.select(); } }, 150);
                     };
                 } else if (id === 'from-account-search') {
-                    nextAction = () => { 
-                        if(window.ccChoice) window.ccChoice.showDropdown(); 
-                        let cc = document.getElementById('cost-center').closest('.choices');
-                        if(cc) { let inp = cc.querySelector('.choices__input.choices__input--cloned') || cc.querySelector('.choices__input'); if(inp) inp.focus(); }
-                        else { let n = document.getElementById('from-statement'); n.focus(); n.select(); } 
+                    nextAction = () => {
+                        const btnBank = document.getElementById('toggle-bank');
+                        if (btnBank && !btnBank.classList.contains('active')) { btnBank.click(); }
+                        setTimeout(() => { const amtInput = document.querySelector('.transfer-amount'); if (amtInput) { amtInput.focus(); amtInput.select(); } }, 150);
                     };
                 } else if (id === 'cost-center') {
                     nextAction = () => { let n = document.getElementById('from-statement'); n.focus(); n.select(); };
