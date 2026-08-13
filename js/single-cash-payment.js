@@ -1863,7 +1863,13 @@ window.selectAccount = function(type, id, name) {
     // Auto-trigger Bank Transfer and focus amount
     const btnBank = document.getElementById('toggle-bank');
     if (btnBank && !btnBank.classList.contains('active')) {
-        btnBank.click();
+        if (typeof togglePaymentSection === 'function') togglePaymentSection('bank');
+    }
+    const bankSec = document.getElementById('pay-bank-section');
+    if (bankSec) bankSec.style.display = 'flex';
+    const container = document.getElementById('transfers-container');
+    if (container && container.children.length === 0 && typeof addTransferRow === 'function') {
+        addTransferRow('', '', 0);
     }
     
     setTimeout(() => {
