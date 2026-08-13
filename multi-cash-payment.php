@@ -1132,12 +1132,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         
                         <div style="flex: 1.5; min-width: 180px;">
                             <label style="color: #fbbf24; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالمحلي</label>
-                            <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: monospace; color: #fbbf24; background: #1e293b; border: 1px solid rgba(251,191,36,0.3); text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">
+                            <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: monospace; color: #fbbf24 !important; background: #1e293b !important; border: 1px solid rgba(251,191,36,0.3); text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">
                         </div>
                         
                         <div style="flex: 1.5; min-width: 180px;">
                             <label style="color: #fbbf24; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالأجنبي</label>
-                            <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: monospace; color: #fbbf24; background: #1e293b; border: 1px solid rgba(251,191,36,0.3); text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">
+                            <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: monospace; color: #fbbf24 !important; background: #1e293b !important; border: 1px solid rgba(251,191,36,0.3); text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">
                         </div>
                     </div>
 
