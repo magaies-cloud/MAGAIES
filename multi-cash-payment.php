@@ -1070,10 +1070,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         </div>
                         <div style="display: flex; gap: 10px;">
                             <button id="btn-payment" class="btn crystal-btn voucher-type-btn active-payment" onclick="setVoucherType('payment')" title="الصرف من حساب واحد إلى مجموعة حسابات">
-                                <span class="btn-icon"><i class="fa-solid fa-money-bill-transfer"></i></span> <span class="btn-text">صرف إلى مجموعة</span>
+                                <span class="btn-icon"><i class="fa-solid fa-wallet"></i></span> <span class="btn-text">صرف إلى مجموعة</span>
                             </button>
                             <button id="btn-receipt" class="btn crystal-btn voucher-type-btn" onclick="setVoucherType('receipt')" title="استلام في حساب واحد من مجموعة حسابات">
-                                <span class="btn-icon"><i class="fa-solid fa-hand-holding-dollar"></i></span> <span class="btn-text">استلام من مجموعة</span>
+                                <span class="btn-icon"><i class="fa-solid fa-sack-dollar"></i></span> <span class="btn-text">استلام من مجموعة</span>
                             </button>
                         </div>
                     </div>
@@ -1085,14 +1085,14 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             <button type="button" onclick="navigateVoucher(-1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 1.1rem; padding: 0 5px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند السابق">◀</button>
                             <div style="display: flex; align-items: center; gap: 4px;">
                                 <span style="color: #94a3b8; font-size: 1rem; font-weight: bold; white-space: nowrap;">📄 السند:</span>
-                                <input type="text" id="voucher-no-display" readonly style="background: transparent !important; border: none !important; color: #fff; font-weight: bold; width: 140px; text-align: center; outline: none !important; font-size: 1.4rem; box-shadow: none !important; padding: 0;" value="">
+                                <input type="text" id="voucher-no-display" readonly style="background: transparent !important; border: none !important; color: #fff; font-weight: bold; width: 140px; text-align: center; outline: none !important; font-size: 1.6rem; box-shadow: none !important; padding: 0;" value="">
                             </div>
                             <button type="button" onclick="navigateVoucher(1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 1.1rem; padding: 0 5px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند التالي">▶</button>
                         </div>
 
                         <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; height: 40px; padding: 0 12px;">
                             <span style="color: #94a3b8; font-size: 1rem; font-weight: bold; white-space: nowrap;">📅 التاريخ:</span>
-                            <input type="date" id="voucher-date" style="background: transparent !important; border: none !important; color: #fff; font-weight: bold; padding: 0; margin: 0; height: 100%; width: 145px; outline: none !important; box-shadow: none !important; font-size: 1.2rem; -webkit-appearance: none; appearance: none;">
+                            <input type="date" id="voucher-date" style="background: transparent !important; border: none !important; color: #fff; font-weight: bold; padding: 0; margin: 0; height: 100%; width: 165px; outline: none !important; box-shadow: none !important; font-size: 1.5rem; -webkit-appearance: none; appearance: none;">
                         </div>
 
                         <div style="display: flex; align-items: center;">

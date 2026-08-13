@@ -405,17 +405,21 @@ function executeSetVoucherType(type) {
         if (btnPayment) btnPayment.className = 'voucher-type-btn active-payment';
         if (btnReceipt) btnReceipt.className = 'voucher-type-btn';
         if (pmRow) {
-            pmRow.style.background = 'linear-gradient(45deg, #b91c1c, #ef4444, #991b1b, #dc2626)';
-            pmRow.style.borderColor = '#f87171';
-            pmRow.style.boxShadow = '0 8px 20px rgba(220, 38, 38, 0.4)';
+            pmRow.style.background = 'linear-gradient(135deg, rgba(225, 29, 72, 0.35), rgba(159, 18, 57, 0.45))';
+            pmRow.style.borderColor = 'rgba(244, 63, 94, 0.5)';
+            pmRow.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.4), inset 0 1px 15px rgba(225, 29, 72, 0.25)';
+            pmRow.style.backdropFilter = 'blur(16px)';
+            pmRow.style.webkitBackdropFilter = 'blur(16px)';
         }
     } else {
         if (btnReceipt) btnReceipt.className = 'voucher-type-btn active-receipt';
         if (btnPayment) btnPayment.className = 'voucher-type-btn';
         if (pmRow) {
-            pmRow.style.background = 'linear-gradient(45deg, #047857, #10b981, #065f46, #059669)';
-            pmRow.style.borderColor = '#34d399';
-            pmRow.style.boxShadow = '0 8px 20px rgba(16, 185, 129, 0.4)';
+            pmRow.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(4, 120, 87, 0.45))';
+            pmRow.style.borderColor = 'rgba(52, 211, 153, 0.5)';
+            pmRow.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.4), inset 0 1px 15px rgba(16, 185, 129, 0.25)';
+            pmRow.style.backdropFilter = 'blur(16px)';
+            pmRow.style.webkitBackdropFilter = 'blur(16px)';
         }
     }
     
