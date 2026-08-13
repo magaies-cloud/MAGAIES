@@ -679,8 +679,8 @@ function resetVoucherSilent() {
     
     document.getElementById('from-statement').value = '';
 
-    // Reset Radio to Cash
-    document.querySelector('input[name="payment_method"][value="cash"]').checked = true;
+    // Reset Radio to Bank Transfer (mobile)
+    document.querySelector('input[name="payment_method"][value="mobile"]').checked = true;
     togglePaymentMethod();
 
     if (typeof initPaymentContainers === 'function') initPaymentContainers();
