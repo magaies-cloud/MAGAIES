@@ -1085,14 +1085,14 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             <button type="button" onclick="navigateVoucher(-1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 1.1rem; padding: 0 5px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند السابق">◀</button>
                             <div style="display: flex; align-items: center; gap: 4px;">
                                 <span style="color: #94a3b8; font-size: 1rem; font-weight: bold; white-space: nowrap;">📄 السند:</span>
-                                <input type="text" id="voucher-no-display" readonly style="background: transparent !important; border: none !important; color: #fff; font-weight: bold; width: 140px; text-align: center; outline: none !important; font-size: 1.8rem; box-shadow: none !important; padding: 0;" value="">
+                                <input type="text" id="voucher-no-display" readonly style="background: transparent !important; border: none !important; color: #fff; font-weight: bold; width: 140px; text-align: center; outline: none !important; font-size: 2.0rem; box-shadow: none !important; padding: 0;" value="">
                             </div>
                             <button type="button" onclick="navigateVoucher(1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 1.1rem; padding: 0 5px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند التالي">▶</button>
                         </div>
 
                         <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; height: 40px; padding: 0 12px;">
                             <span style="color: #94a3b8; font-size: 1rem; font-weight: bold; white-space: nowrap;">📅 التاريخ:</span>
-                            <input type="date" id="voucher-date" style="background: transparent !important; border: none !important; color: #fff; font-weight: bold; padding: 0; margin: 0; height: 100%; width: 185px; outline: none !important; box-shadow: none !important; font-size: 1.7rem; -webkit-appearance: none; appearance: none;">
+                            <input type="date" id="voucher-date" style="background: transparent !important; border: none !important; color: #fff; font-weight: bold; padding: 0; margin: 0; height: 100%; width: 185px; outline: none !important; box-shadow: none !important; font-size: 1.9rem; -webkit-appearance: none; appearance: none;">
                         </div>
 
                         <div style="display: flex; align-items: center;">
@@ -1131,12 +1131,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         </div>
                         
                         <div style="flex: 1.5; min-width: 180px;">
-                            <label style="color: #10b981; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالمحلي</label>
+                            <label style="color: #fbbf24; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالمحلي</label>
                             <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: monospace; color: #fbbf24; background: #1e293b; border: 1px solid rgba(251,191,36,0.3); text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">
                         </div>
                         
                         <div style="flex: 1.5; min-width: 180px;">
-                            <label style="color: #ef4444; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالأجنبي</label>
+                            <label style="color: #fbbf24; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالأجنبي</label>
                             <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: monospace; color: #fbbf24; background: #1e293b; border: 1px solid rgba(251,191,36,0.3); text-align: center; text-shadow: 0 1px 3px rgba(0,0,0,0.5);">
                         </div>
                     </div>
