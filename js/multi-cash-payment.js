@@ -3465,15 +3465,29 @@ document.addEventListener('keydown', function(e) {
             }
         }
 
-        // 4. bank toggle -> statement
-        if (active.classList.contains('block-btn-bank') || active.classList.contains('block-btn-cheque')) {
+        // 4. bank toggle -> bank amount
+        if (active.classList.contains('block-btn-bank')) {
             setTimeout(() => {
                 const block = active.closest('.account-block');
                 if (block) {
-                    const stmt = block.querySelector('input[id^="statement-"]');
-                    if (stmt) {
-                        stmt.focus();
-                        stmt.select();
+                    const amt = block.querySelector('.block-bank-amount');
+                    if (amt && amt.offsetParent !== null) {
+                        amt.focus();
+                        amt.select();
+                    }
+                }
+            }, 50);
+            return;
+        }
+
+        if (active.classList.contains('block-btn-cheque')) {
+            setTimeout(() => {
+                const block = active.closest('.account-block');
+                if (block) {
+                    const amt = block.querySelector('.block-cheque-amount');
+                    if (amt && amt.offsetParent !== null) {
+                        amt.focus();
+                        amt.select();
                     }
                 }
             }, 50);
@@ -3534,13 +3548,25 @@ document.addEventListener('keydown', function(e) {
             return;
         }
         
-        // 9. bank desc -> add bank row button
+        // 9. bank desc -> trigger add bank row and focus amount
         if (active.classList.contains('block-bank-desc-input')) {
             e.preventDefault();
             const row = active.closest('.bank-row');
             if (row) {
                 const btn = row.querySelector('[data-action="add-bank-row"]');
-                if (btn) btn.focus();
+                if (btn) {
+                    btn.click();
+                    setTimeout(() => {
+                        const block = active.closest('.account-block');
+                        if (block) {
+                            const bankAmts = block.querySelectorAll('.block-bank-amount');
+                            if (bankAmts.length > 0) {
+                                bankAmts[bankAmts.length - 1].focus();
+                                bankAmts[bankAmts.length - 1].select();
+                            }
+                        }
+                    }, 50);
+                }
             }
             return;
         }
@@ -3609,13 +3635,25 @@ document.addEventListener('keydown', function(e) {
             return;
         }
 
-        // 14. cheque desc -> add cheque row button
+        // 14. cheque desc -> trigger add cheque row and focus amount
         if (active.classList.contains('block-cheque-desc-input')) {
             e.preventDefault();
             const row = active.closest('.cheque-row');
             if (row) {
                 const btn = row.querySelector('[data-action="add-cheque-row"]');
-                if (btn) btn.focus();
+                if (btn) {
+                    btn.click();
+                    setTimeout(() => {
+                        const block = active.closest('.account-block');
+                        if (block) {
+                            const chqAmts = block.querySelectorAll('.block-cheque-amount');
+                            if (chqAmts.length > 0) {
+                                chqAmts[chqAmts.length - 1].focus();
+                                chqAmts[chqAmts.length - 1].select();
+                            }
+                        }
+                    }, 50);
+                }
             }
             return;
         }

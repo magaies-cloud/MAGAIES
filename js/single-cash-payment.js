@@ -1,4 +1,4 @@
-﻿window.getAllSinglePayments = function() {
+window.getAllSinglePayments = function() {
     let localInvs = [];
     try { localInvs = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || []; } catch(e){}
     let serverInvs = window.SERVER_SINGLE_PAYMENTS || [];
@@ -458,6 +458,7 @@ function setNextVoucherNumber() {
 }
 
 window.adjustAmountFontSize = function(input) {
+    if (input.getAttribute('data-manual-font') === 'true') return;
     const len = input.value.length;
     if (len > 14) {
         input.style.setProperty('font-size', '1.2rem', 'important');
@@ -2307,7 +2308,7 @@ window.addTransferRow = function(no = '', note = '', amt = 0, statement = '') {
         </div>
         <div class="dynamic-focus-container" style="flex: none; width: 270px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">رقم التحويلة:</label>
-            <input type="text" maxlength="12" class="v-input ctrl-input transfer-no dynamic-focus-input dynamic-focus-number" value="${no}" placeholder="رقم التحويلة..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.7rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#2dd4bf; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900;">
+            <input type="text" maxlength="14" class="v-input ctrl-input transfer-no dynamic-focus-input dynamic-focus-number" value="${no}" placeholder="رقم التحويلة..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.5rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#2dd4bf; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900;">
         </div>
         <div style="flex: 1.2; min-width: 100px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">البيان:</label>
@@ -2360,7 +2361,7 @@ window.addChequeRow = function(branch = '', no = '', date = '', amt = 0, stateme
             <label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">اسم البنك:</label>
             <input type="text" class="v-input ctrl-input cheque-branch" value="${branch}" placeholder="اسم البنك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.3rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
         </div>
-        <div class="dynamic-focus-container" style="flex: none; width: 270px; display: flex; align-items: center; gap: 5px;"><label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">رقم الشيك:</label><input type="text" maxlength="12" class="v-input ctrl-input cheque-no dynamic-focus-input dynamic-focus-number" value="${no}" placeholder="رقم الشيك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.7rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#2dd4bf; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900;"></div>
+        <div class="dynamic-focus-container" style="flex: none; width: 270px; display: flex; align-items: center; gap: 5px;"><label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">رقم الشيك:</label><input type="text" maxlength="14" class="v-input ctrl-input cheque-no dynamic-focus-input dynamic-focus-number" value="${no}" placeholder="رقم الشيك..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.5rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#2dd4bf; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900;"></div>
         <div style="flex: 0.8; min-width: 120px; display: flex; align-items: center; gap: 5px;"><label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">تاريخ الاستحقاق:</label><input type="date" class="v-input ctrl-input cheque-date" value="${date}" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.3rem; padding: 0 4px; width: 100%; border-radius: 6px; color:#fff;"></div>
         <div style="flex: 1.2; min-width: 100px; display: flex; align-items: center; gap: 5px;"><label style="font-size: 0.75rem; color: #94a3b8; white-space: nowrap;">البيان:</label><input type="text" class="v-input ctrl-input cheque-statement" value="${statement}" placeholder="البيان..." style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.3rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center;"></div>
         <div style="display: flex; justify-content: flex-end; width: 40px; flex: none;">
@@ -2582,9 +2583,11 @@ window.applyNumProp = function(action) {
     if (action === 'font-inc') {
         let currentSize = parseFloat(window.getComputedStyle(input).fontSize);
         input.style.setProperty('font-size', (currentSize + 2) + 'px', 'important');
+        input.setAttribute('data-manual-font', 'true');
     } else if (action === 'font-dec') {
         let currentSize = parseFloat(window.getComputedStyle(input).fontSize);
         input.style.setProperty('font-size', (currentSize - 2) + 'px', 'important');
+        input.setAttribute('data-manual-font', 'true');
     } else if (action === 'toggle-comma') {
         const current = input.getAttribute('data-thousands') !== 'false';
         input.setAttribute('data-thousands', current ? 'false' : 'true');
@@ -2650,8 +2653,17 @@ window.formatAmount = function(input) {
 // --- Persist Number Properties ---
 function getNumPropKey(input) {
     if (input.id) return 'num_prop_' + input.id;
-    if (input.classList.contains('transfer-amount')) return 'num_prop_transfer_amount';
-    if (input.classList.contains('cheque-amount')) return 'num_prop_cheque_amount';
+    
+    if (input.classList.contains('transfer-amount')) {
+        let idx = Array.from(document.querySelectorAll('.transfer-amount')).indexOf(input);
+        input.id = 'transfer-amount-' + idx;
+        return 'num_prop_' + input.id;
+    }
+    if (input.classList.contains('cheque-amount')) {
+        let idx = Array.from(document.querySelectorAll('.cheque-amount')).indexOf(input);
+        input.id = 'cheque-amount-' + idx;
+        return 'num_prop_' + input.id;
+    }
     return 'num_prop_default';
 }
 
@@ -2668,15 +2680,6 @@ window.saveNumberProperties = function() {
     
     localStorage.setItem(key, JSON.stringify(props));
     
-    // Save state for all identical classes if it's a dynamic row
-    if (!input.id) {
-        if (input.classList.contains('transfer-amount')) {
-            document.querySelectorAll('.transfer-amount').forEach(el => applyPropsToElement(el, props));
-        } else if (input.classList.contains('cheque-amount')) {
-            document.querySelectorAll('.cheque-amount').forEach(el => applyPropsToElement(el, props));
-        }
-    }
-    
     const btn = document.getElementById('save-props-btn');
     if (btn) {
         const oldText = btn.innerHTML;
@@ -2687,7 +2690,10 @@ window.saveNumberProperties = function() {
 
 function applyPropsToElement(input, props) {
     if (!input || !props) return;
-    if (props.fontSize) input.style.setProperty('font-size', props.fontSize, 'important');
+    if (props.fontSize) {
+        input.style.setProperty('font-size', props.fontSize, 'important');
+        input.setAttribute('data-manual-font', 'true');
+    }
     input.setAttribute('data-thousands', props.thousands ? 'true' : 'false');
     input.setAttribute('data-decimals', props.decimals);
     input.setAttribute('data-font', props.font);
@@ -2713,8 +2719,7 @@ window.loadAndApplyNumberProperties = function(input) {
     }
 };
 
-// Apply properties on initial load
-document.addEventListener('DOMContentLoaded', () => {
+window.initNumberProperties = function() {
     setTimeout(() => {
         ['amount-local', 'amount-foreign'].forEach(id => {
             const el = document.getElementById(id);
@@ -2724,7 +2729,13 @@ document.addEventListener('DOMContentLoaded', () => {
             loadAndApplyNumberProperties(el);
         });
     }, 300);
-});
+};
+
+if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', window.initNumberProperties);
+} else {
+    window.initNumberProperties();
+}
 
 // Hook into dynamic row generation if they exist
 if (typeof addTransferRow === 'function') {
