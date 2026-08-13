@@ -397,6 +397,8 @@ function executeSetVoucherType(type) {
     const typeInput = document.getElementById('voucher-type');
     if (typeInput) typeInput.value = type;
     
+    document.body.setAttribute('data-voucher-type', type);
+    
     const pmRow = document.getElementById('payment-methods-row');
     
     if (type === 'payment') {

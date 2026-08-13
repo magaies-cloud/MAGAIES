@@ -608,9 +608,45 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             border-color: rgba(213, 189, 175, 0.75) !important;
             box-shadow: 0 0 25px rgba(213, 189, 175, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
         }
+        /* CSS variables for dynamic bank transfer colors */
+        .block-bank-details {
+            --bank-bg-start: rgba(12, 74, 110, 0.6);
+            --bank-bg-end: rgba(14, 165, 233, 0.15);
+            --bank-border: rgba(14, 165, 233, 0.7);
+            --bank-shadow: rgba(14, 165, 233, 0.15);
+            --bank-hover-border: rgba(56, 189, 248, 1);
+            --bank-hover-shadow-outer: rgba(14, 165, 233, 0.9);
+            --bank-hover-shadow-inner: rgba(14, 165, 233, 0.5);
+            --bank-icon: #38bdf8;
+            
+            background: linear-gradient(135deg, var(--bank-bg-start), var(--bank-bg-end)) !important;
+            border: 1px solid var(--bank-border) !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 0 20px var(--bank-shadow) !important;
+        }
+        
+        body[data-voucher-type="receipt"] .block-bank-details {
+            --bank-bg-start: rgba(6, 78, 59, 0.6);
+            --bank-bg-end: rgba(16, 185, 129, 0.15);
+            --bank-border: rgba(16, 185, 129, 0.7);
+            --bank-shadow: rgba(16, 185, 129, 0.15);
+            --bank-hover-border: rgba(110, 231, 183, 1);
+            --bank-hover-shadow-outer: rgba(16, 185, 129, 0.8);
+            --bank-hover-shadow-inner: rgba(16, 185, 129, 0.4);
+            --bank-icon: #34d399;
+        }
+        
+        body[data-voucher-type="receipt"] .bank-icon-label {
+            color: var(--bank-icon) !important;
+        }
+
         .block-bank-details:hover {
-            border-color: rgba(56, 189, 248, 1) !important;
-            box-shadow: 0 0 40px rgba(14, 165, 233, 0.9), inset 0 0 25px rgba(14, 165, 233, 0.5) !important;
+            border-color: var(--bank-hover-border) !important;
+            box-shadow: 0 0 40px var(--bank-hover-shadow-outer), inset 0 0 25px var(--bank-hover-shadow-inner) !important;
+        }
+        .block-cheque-details {
+            background: linear-gradient(135deg, rgba(88, 28, 135, 0.6), rgba(168, 85, 247, 0.15)) !important;
+            border: 1px solid rgba(168, 85, 247, 0.7) !important;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 0 20px rgba(168, 85, 247, 0.15) !important;
         }
         .block-cheque-details:hover {
             border-color: rgba(216, 180, 254, 1) !important;
@@ -618,7 +654,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
         @keyframes shimmerWave {
             0% { transform: translateX(-150%) skewX(-45deg); opacity: 0; }
-            50% { opacity: 0.4; }
+            50% { opacity: 0.8; }
             100% { transform: translateX(150%) skewX(-45deg); opacity: 0; }
         }
         .block-bank-details, .block-cheque-details, .glass-red, .glass-green {
@@ -628,7 +664,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
         .block-bank-details::before, .block-cheque-details::before, .glass-red::before, .glass-green::before {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 45%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.05) 55%, rgba(255,255,255,0) 100%);
+            background: linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 40%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.2) 60%, rgba(255,255,255,0) 100%);
             z-index: 1; opacity: 0; transition: opacity 0.5s ease; pointer-events: none;
         }
         .block-bank-details:hover::before, .block-cheque-details:hover::before, .glass-red:hover::before, .glass-green:hover::before { animation: shimmerWave 1.5s infinite; opacity: 1; }
@@ -1167,10 +1203,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
                         <!-- Dynamic Details Sections -->
                         <!-- Bank Details (supports multiple transfers) -->
-                        <div id="bank-details-{ID}" class="block-bank-details" style="display: none; background: linear-gradient(135deg, rgba(12, 74, 110, 0.6), rgba(14, 165, 233, 0.15)); border: 1px solid rgba(14, 165, 233, 0.7); border-radius: 12px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 0 20px rgba(14, 165, 233, 0.15); backdrop-filter: blur(12px);">
+                        <div id="bank-details-{ID}" class="block-bank-details" style="display: none; border-radius: 12px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease; backdrop-filter: blur(12px);">
                             <div class="bank-rows-container" id="bank-rows-{ID}">
                                 <div class="bank-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
-                                    <div style="width: 80px; font-weight: bold; color: #38bdf8; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">🏦 بنكي</div>
+                                    <div class="bank-icon-label" style="width: 80px; font-weight: bold; display: flex; align-items: center; gap: 5px; flex-shrink: 0; transition: color 0.4s ease;">🏦 بنكي</div>
                                     <div style="width: 150px; flex-shrink: 0;">
                                         <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: 900; text-align: center; -webkit-text-stroke: 0.5px currentColor;">
                                     </div>
@@ -1189,7 +1225,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         </div>
 
                         <!-- Cheque Details (supports multiple cheques) -->
-                        <div id="cheque-details-{ID}" class="block-cheque-details" style="display: none; background: linear-gradient(135deg, rgba(88, 28, 135, 0.6), rgba(168, 85, 247, 0.15)); border: 1px solid rgba(168, 85, 247, 0.7); border-radius: 12px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 0 20px rgba(168, 85, 247, 0.15); backdrop-filter: blur(12px);">
+                        <div id="cheque-details-{ID}" class="block-cheque-details" style="display: none; border-radius: 12px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease; backdrop-filter: blur(12px);">
                             <div class="cheque-rows-container" id="cheque-rows-{ID}">
                                 <div class="cheque-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
                                     <div style="width: 80px; font-weight: bold; color: #d8b4fe; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">✍️ شيك</div>
