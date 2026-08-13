@@ -778,6 +778,9 @@ window.addBankRow = function(blockId) {
         <div style="flex: 1; min-width: 120px;">
             <input type="text" autocomplete="off" class="form-input block-transfer-no-input" placeholder="رقم التحويلة" style="margin-bottom: 0;">
         </div>
+        <div style="flex: 1.5; min-width: 150px;">
+            <input type="text" autocomplete="off" class="form-input block-bank-desc-input" placeholder="بيان التحويلة" style="margin-bottom: 0;">
+        </div>
         <button type="button" data-action="remove-bank-row" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.4); color: #ef4444; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;" title="حذف هذه التحويلة">✖</button>
     `;
     container.appendChild(row);
