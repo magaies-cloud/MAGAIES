@@ -1486,13 +1486,28 @@ try {
                                         </div>
                                     </div>
 
-                                    <!-- Unified Total Box -->
-                                    <div id="unified-total-box" style="display: none; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 15px 20px; margin-top: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
-                                        <span style="color: #94a3b8; font-size: 1.1rem; font-weight: bold; line-height: 1.5;">
-                                            مجموع الشيكات <span id="unified-cheque-total" style="color: #a855f7;">0</span> ، 
-                                            ومجموع التحويلات <span id="unified-bank-total" style="color: #34d399;">0</span> ، 
-                                            والجملة <span id="unified-grand-total" style="color: #38bdf8;">0</span>
-                                        </span>
+                                    <!-- Unified Total Box Redesign -->
+                                    <div id="unified-total-box" style="display: none; width: 100%; margin-top: 15px; padding: 10px 0;">
+                                        <div style="display: flex; justify-content: space-between; align-items: stretch; gap: 15px; flex-wrap: wrap;">
+                                            <!-- Cheques Total -->
+                                            <div class="total-glass-card cheque-glow" style="flex: 1; min-width: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; border-radius: 16px; background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.4); position: relative; overflow: hidden;">
+                                                <div class="glow-orb" style="position: absolute; top: -50px; right: -50px; width: 100px; height: 100px; background: rgba(168, 85, 247, 0.5); filter: blur(40px); border-radius: 50%; animation: pulseOrb 3s infinite alternate;"></div>
+                                                <span style="color: #c084fc; font-size: 1.1rem; font-weight: 800; z-index: 2; margin-bottom: 5px; text-shadow: 0 0 10px rgba(168,85,247,0.5);">مجموع الشيكات</span>
+                                                <span id="unified-cheque-total" style="color: #e9d5ff; font-size: 1.8rem; font-weight: 900; z-index: 2; text-shadow: 0 0 15px rgba(168,85,247,0.8); font-variant-numeric: tabular-nums;">0</span>
+                                            </div>
+                                            <!-- Bank Total -->
+                                            <div class="total-glass-card bank-glow" style="flex: 1; min-width: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; border-radius: 16px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.4); position: relative; overflow: hidden;">
+                                                <div class="glow-orb" style="position: absolute; top: -50px; right: -50px; width: 100px; height: 100px; background: rgba(16, 185, 129, 0.5); filter: blur(40px); border-radius: 50%; animation: pulseOrb 3.5s infinite alternate-reverse;"></div>
+                                                <span style="color: #34d399; font-size: 1.1rem; font-weight: 800; z-index: 2; margin-bottom: 5px; text-shadow: 0 0 10px rgba(16,185,129,0.5);">مجموع التحويلات</span>
+                                                <span id="unified-bank-total" style="color: #a7f3d0; font-size: 1.8rem; font-weight: 900; z-index: 2; text-shadow: 0 0 15px rgba(16,185,129,0.8); font-variant-numeric: tabular-nums;">0</span>
+                                            </div>
+                                            <!-- Grand Total -->
+                                            <div class="total-glass-card grand-glow" style="flex: 1; min-width: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; border-radius: 16px; background: rgba(56, 189, 248, 0.15); border: 2px solid rgba(56, 189, 248, 0.6); position: relative; overflow: hidden; transform: scale(1.02); box-shadow: 0 0 20px rgba(56,189,248,0.2);">
+                                                <div class="glow-orb" style="position: absolute; top: -50px; left: -50px; width: 120px; height: 120px; background: rgba(56, 189, 248, 0.6); filter: blur(50px); border-radius: 50%; animation: pulseOrb 2.5s infinite alternate;"></div>
+                                                <span style="color: #7dd3fc; font-size: 1.3rem; font-weight: 900; z-index: 2; margin-bottom: 5px; text-shadow: 0 0 15px rgba(56,189,248,0.6);">إجمالي الجملة</span>
+                                                <span id="unified-grand-total" style="color: #ffffff; font-size: 2.2rem; font-weight: 900; z-index: 2; text-shadow: 0 0 20px rgba(56,189,248,1); font-variant-numeric: tabular-nums;">0</span>
+                                            </div>
+                                        </div>
                                     </div>
 
                                     <!-- Hidden legacy inputs to prevent crashes in old scripts -->
