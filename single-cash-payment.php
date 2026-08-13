@@ -1699,11 +1699,6 @@ try {
             const panel = document.getElementById('payment-panel');
             if (!panel) return;
             
-            if (amount <= 0.01) {
-                panel.style.display = 'none';
-                return;
-            }
-            
             panel.style.display = 'block';
             
             // Get active method
