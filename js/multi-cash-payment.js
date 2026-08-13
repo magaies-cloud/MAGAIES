@@ -3382,3 +3382,131 @@ window.saveNumberProperties = function() {
         setTimeout(() => btn.innerHTML = oldText, 1500);
     }
 };
+
+// --- Custom Keyboard Navigation Flow (Enter Key) ---
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        const active = document.activeElement;
+        if (!active) return;
+        
+        // 1. main-account-search -> amount input of first block
+        if (active.id === 'main-account-search') {
+            e.preventDefault();
+            const firstAmount = document.querySelector('.block-total-amount');
+            if (firstAmount) {
+                firstAmount.focus();
+                firstAmount.select();
+            }
+            return;
+        }
+        
+        // 2. amount-* -> account-*-search
+        if (active.classList.contains('block-total-amount')) {
+            e.preventDefault();
+            const block = active.closest('.account-block');
+            if (block) {
+                const acctSearch = block.querySelector('.block-account-search');
+                if (acctSearch) { acctSearch.focus(); acctSearch.select(); }
+            }
+            return;
+        }
+
+        // 3. account-*-search -> bank toggle
+        if (active.classList.contains('block-account-search')) {
+            // Check if dropdown is active
+            const listId = active.id.replace('-search', '-dropdown-list');
+            const list = document.getElementById(listId);
+            if (list && list.style.display !== 'none' && list.innerHTML.trim() !== '') {
+                setTimeout(() => {
+                    const block = active.closest('.account-block');
+                    if (block) {
+                        const bankBtn = block.querySelector('.block-btn-bank');
+                        if (bankBtn) bankBtn.focus();
+                    }
+                }, 100);
+                return; // Let default selection happen
+            } else {
+                e.preventDefault();
+                const block = active.closest('.account-block');
+                if (block) {
+                    const bankBtn = block.querySelector('.block-btn-bank');
+                    if (bankBtn) bankBtn.focus();
+                }
+                return;
+            }
+        }
+
+        // 4. bank toggle -> statement
+        if (active.classList.contains('block-btn-bank') || active.classList.contains('block-btn-cheque')) {
+            setTimeout(() => {
+                const block = active.closest('.account-block');
+                if (block) {
+                    const stmt = block.querySelector('input[id^="statement-"]');
+                    if (stmt) {
+                        stmt.focus();
+                        stmt.select();
+                    }
+                }
+            }, 10);
+            return;
+        }
+
+        // 5. statement-* -> create new block and focus its amount
+        if (active.id && active.id.startsWith('statement-')) {
+            e.preventDefault();
+            if (typeof window.addAccountBlock === 'function') {
+                window.addAccountBlock();
+                setTimeout(() => {
+                    const amounts = document.querySelectorAll('.block-total-amount');
+                    if (amounts.length > 0) {
+                        amounts[amounts.length - 1].focus();
+                        amounts[amounts.length - 1].select();
+                    }
+                }, 50);
+            }
+            return;
+        }
+        
+        // --- Bank Details Navigation ---
+        // 6. bank amount -> bank name
+        if (active.classList.contains('block-bank-amount')) {
+            e.preventDefault();
+            const row = active.closest('.bank-row');
+            if (row) {
+                const nameInp = row.querySelector('.block-bank-name-input');
+                if (nameInp) { nameInp.focus(); nameInp.select(); }
+            }
+            return;
+        }
+        
+        // 7. bank name -> transfer no
+        if (active.classList.contains('block-bank-name-input')) {
+            e.preventDefault();
+            const row = active.closest('.bank-row');
+            if (row) {
+                const trNo = row.querySelector('.block-transfer-no-input');
+                if (trNo) { trNo.focus(); trNo.select(); }
+            }
+            return;
+        }
+        
+        // 8. transfer no -> add bank row button
+        if (active.classList.contains('block-transfer-no-input')) {
+            e.preventDefault();
+            const row = active.closest('.bank-row');
+            if (row) {
+                const btn = row.querySelector('[data-action="add-bank-row"]');
+                if (btn) btn.focus();
+            }
+            return;
+        }
+    }
+}, true);
+
+// Auto-focus the main account search when the script loads
+document.addEventListener('DOMContentLoaded', () => {
+    setTimeout(() => {
+        const searchInput = document.getElementById('main-account-search');
+        if (searchInput) searchInput.focus();
+    }, 300);
+});
