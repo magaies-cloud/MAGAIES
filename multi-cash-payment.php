@@ -607,12 +607,32 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             box-shadow: 0 0 25px rgba(213, 189, 175, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
         }
         .block-bank-details:hover {
-            border-color: rgba(251, 191, 36, 0.75) !important;
-            box-shadow: 0 0 25px rgba(251, 191, 36, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
+            border-color: rgba(110, 231, 183, 1) !important;
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.8), inset 0 0 20px rgba(16, 185, 129, 0.4) !important;
         }
         .block-cheque-details:hover {
-            border-color: rgba(155, 89, 182, 0.75) !important;
-            box-shadow: 0 0 25px rgba(155, 89, 182, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
+            border-color: rgba(216, 180, 254, 1) !important;
+            box-shadow: 0 0 30px rgba(168, 85, 247, 0.8), inset 0 0 20px rgba(168, 85, 247, 0.4) !important;
+        }
+        @keyframes shimmerWave {
+            0% { transform: translateX(-150%) skewX(-45deg); opacity: 0; }
+            50% { opacity: 0.4; }
+            100% { transform: translateX(150%) skewX(-45deg); opacity: 0; }
+        }
+        .block-bank-details, .block-cheque-details {
+            position: relative;
+            overflow: hidden;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+        }
+        .block-bank-details::before, .block-cheque-details::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 45%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.05) 55%, rgba(255,255,255,0) 100%);
+            z-index: 1; opacity: 0; transition: opacity 0.5s ease; pointer-events: none;
+        }
+        .block-bank-details:hover::before, .block-cheque-details:hover::before { animation: shimmerWave 1.5s infinite; opacity: 1; }
+        .block-bank-details:hover, .block-cheque-details:hover {
+            transform: translateY(-2px) scale(1.01) !important;
+            z-index: 10;
         }
 
 
@@ -1050,10 +1070,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                     <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; overflow: visible; padding-bottom: 10px; margin-bottom: 15px;">
 
                         <div style="flex: 0 0 35%; max-width: 35%; min-width: 250px;">
-                            <label id="main-account-label" style="color: #ef4444 !important; font-size: 1.2rem; margin-bottom: 5px; display: block; font-weight: bold; transition: color 0.3s; white-space: nowrap;">من حساب (صرف) <span class="animated-arrow-left">←</span></label>
+                            <label id="main-account-label" style="color: #f43f5e !important; font-size: 1.2rem; margin-bottom: 5px; display: block; font-weight: bold; transition: color 0.3s; white-space: nowrap;">من حساب (صرف) <span class="animated-arrow-left" style="color: #f43f5e;">←</span></label>
                             <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative; display: flex;">
                                 <input type="hidden" id="main-account">
-                                <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: #fbbf24 !important; font-size: 1.4rem !important; font-weight: 900 !important; border-color: var(--border-color); flex: 1; border-top-left-radius: 0; border-bottom-left-radius: 0;">
+                                <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: #fbbf24 !important; font-size: 1.4rem !important; font-weight: 900 !important; border: 1px solid rgba(244, 63, 94, 0.5); flex: 1; border-top-left-radius: 0; border-bottom-left-radius: 0;">
                                 <button type="button" onclick="openLedgerForMainAccount()" title="دفتر الأستاذ العام" style="background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(16,185,129,0.25)); border: 1px solid var(--border-color); border-right: none; color: #34d399; padding: 0 10px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; height: auto; font-size: 0.75rem; font-weight: bold; white-space: nowrap; box-shadow: inset 0 1px 3px rgba(255,255,255,0.1);" onmouseover="this.style.background='linear-gradient(135deg, rgba(52,211,153,0.3), rgba(16,185,129,0.5))'; this.style.color='#fff';" onmouseout="this.style.background='linear-gradient(135deg, rgba(52,211,153,0.15), rgba(16,185,129,0.25))'; this.style.color='#34d399';"><i class="fa fa-book" style="margin-left: 4px;"></i> كشف حساب</button>
                                 <div class="custom-dropdown-list" id="main-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                             </div>
@@ -1145,10 +1165,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
                         <!-- Dynamic Details Sections -->
                         <!-- Bank Details (supports multiple transfers) -->
-                        <div id="bank-details-{ID}" class="block-bank-details" style="display: none; background: rgba(251, 191, 36, 0.18); border: 1.5px solid rgba(251, 191, 36, 0.45); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease;">
+                        <div id="bank-details-{ID}" class="block-bank-details" style="display: none; background: linear-gradient(135deg, rgba(6, 78, 59, 0.6), rgba(16, 185, 129, 0.15)); border: 1px solid rgba(16, 185, 129, 0.7); border-radius: 12px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 0 20px rgba(16, 185, 129, 0.15); backdrop-filter: blur(12px);">
                             <div class="bank-rows-container" id="bank-rows-{ID}">
                                 <div class="bank-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
-                                    <div style="width: 80px; font-weight: bold; color: #fbbf24; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">🏦 بنكي</div>
+                                    <div style="width: 80px; font-weight: bold; color: #34d399; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">🏦 بنكي</div>
                                     <div style="width: 150px; flex-shrink: 0;">
                                         <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: 900; text-align: center; -webkit-text-stroke: 0.5px currentColor;">
                                     </div>
@@ -1167,7 +1187,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         </div>
 
                         <!-- Cheque Details (supports multiple cheques) -->
-                        <div id="cheque-details-{ID}" class="block-cheque-details" style="display: none; background: rgba(147, 51, 234, 0.22); border: 1.5px solid rgba(147, 51, 234, 0.65); border-radius: 8px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease; box-shadow: inset 0 0 15px rgba(147, 51, 234, 0.1);">
+                        <div id="cheque-details-{ID}" class="block-cheque-details" style="display: none; background: linear-gradient(135deg, rgba(88, 28, 135, 0.6), rgba(168, 85, 247, 0.15)); border: 1px solid rgba(168, 85, 247, 0.7); border-radius: 12px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 0 20px rgba(168, 85, 247, 0.15); backdrop-filter: blur(12px);">
                             <div class="cheque-rows-container" id="cheque-rows-{ID}">
                                 <div class="cheque-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
                                     <div style="width: 80px; font-weight: bold; color: #d8b4fe; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">✍️ شيك</div>
