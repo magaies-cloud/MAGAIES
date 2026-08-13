@@ -1020,10 +1020,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             <span>👤</span> بيان الطرف الرئيسي
                         </div>
                         <div style="display: flex; gap: 10px;">
-                            <button id="btn-payment" class="btn crystal-btn voucher-type-btn active-payment" onclick="setVoucherType('payment')">
+                            <button id="btn-payment" class="btn crystal-btn voucher-type-btn active-payment" onclick="setVoucherType('payment')" title="الصرف من حساب واحد إلى مجموعة حسابات">
                                 <span class="btn-icon">💸📤</span> <span class="btn-text">صرف مجمع</span>
                             </button>
-                            <button id="btn-receipt" class="btn crystal-btn voucher-type-btn" onclick="setVoucherType('receipt')">
+                            <button id="btn-receipt" class="btn crystal-btn voucher-type-btn" onclick="setVoucherType('receipt')" title="استلام في حساب واحد من مجموعة حسابات">
                                 <span class="btn-icon">💰📥</span> <span class="btn-text">استلام مجمع</span>
                             </button>
                         </div>
