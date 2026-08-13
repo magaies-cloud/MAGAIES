@@ -2061,6 +2061,16 @@ try {
             <button id="save-props-btn" onclick="saveNumberProperties(); event.stopPropagation();" style="background: #10b981; color: #fff; border: none; padding: 6px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; transition: background 0.2s;">💾 حفظ الخصائص</button>
         </div>
     </div>
+    <script>
+        document.addEventListener('DOMContentLoaded', () => {
+            // Force Bank Transfer as the default payment method on load
+            setTimeout(() => {
+                if (typeof togglePaymentSection === 'function') {
+                    togglePaymentSection('bank');
+                }
+            }, 100);
+        });
+    </script>
 </body>
 </html>
 
