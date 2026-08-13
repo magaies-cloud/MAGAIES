@@ -3411,21 +3411,19 @@ document.addEventListener('keydown', function(e) {
 
     if (e.key === 'Enter' && !e.ctrlKey) {
         
-        // 1. main-account-search -> amount input of first block
+        // 1. main-account-search -> account-search input of first block
         if (active.id === 'main-account-search') {
             const list = document.getElementById('main-account-dropdown-list');
             if (list && list.style.display !== 'none' && list.innerHTML.trim() !== '') {
                 // Dropdown is open. User is selecting. We let default happen.
-                // It will select the item, but won't jump to Amount yet.
-                // User will press Enter a second time to jump to Amount.
                 return;
             } else {
-                // Second enter (dropdown closed) jumps to first amount
+                // Second enter (dropdown closed) jumps to first account search
                 e.preventDefault();
-                const firstAmount = document.querySelector('.block-total-amount');
-                if (firstAmount) {
-                    firstAmount.focus();
-                    firstAmount.select();
+                const firstAccount = document.querySelector('.block-account-search');
+                if (firstAccount) {
+                    firstAccount.focus();
+                    firstAccount.select();
                 }
                 return;
             }
