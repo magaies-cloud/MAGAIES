@@ -2169,10 +2169,36 @@ window.selectAccount = function(type, id, name) {
         listEl.style.display = 'none';
     }
     
+    if (type === 'main-account') {
+        setTimeout(() => {
+            const firstAccount = document.querySelector('.block-account-search');
+            if (firstAccount) {
+                firstAccount.focus();
+                firstAccount.select();
+                const blockId = firstAccount.id.replace('account-search-', '');
+                if (typeof showAccountDropdown === 'function') {
+                    showAccountDropdown('account-' + blockId);
+                }
+            }
+        }, 50);
+    }
+
     if (type.startsWith('account-')) {
         const blockId = type.replace('account-', '');
-        const amtEl = document.getElementById('amount-' + blockId);
-        if (amtEl) amtEl.focus();
+        const block = document.getElementById('block-' + blockId);
+        if (block) {
+            const radioBank = block.querySelector('.pay-method-radio[value="bank"]');
+            if (radioBank && !radioBank.checked) {
+                radioBank.checked = true;
+                if (typeof window.togglePaymentMethodBlock === 'function') {
+                    window.togglePaymentMethodBlock(blockId);
+                }
+            }
+            setTimeout(() => {
+                const amtEl = block.querySelector('.block-bank-amount');
+                if (amtEl) { amtEl.focus(); amtEl.select(); }
+            }, 100);
+        }
     }
 };
 
@@ -3422,6 +3448,26 @@ document.addEventListener('keydown', function(e) {
         return;
     }
 
+    if (e.key === 'Enter' && e.ctrlKey) {
+        const block = active.closest('.account-block');
+        if (block) {
+            e.preventDefault();
+            const blockId = block.id.replace('block-', '');
+            const radioCheque = block.querySelector('.pay-method-radio[value="cheque"]');
+            if (radioCheque && !radioCheque.checked) {
+                radioCheque.checked = true;
+                if (typeof window.togglePaymentMethodBlock === 'function') {
+                    window.togglePaymentMethodBlock(blockId);
+                }
+            }
+            setTimeout(() => {
+                const amtEl = block.querySelector('.block-cheque-amount');
+                if (amtEl) { amtEl.focus(); amtEl.select(); }
+            }, 50);
+        }
+        return;
+    }
+
     if (e.key === 'Enter' && !e.ctrlKey) {
         
         // 1. main-account-search -> account-search input of first block
@@ -3437,6 +3483,10 @@ document.addEventListener('keydown', function(e) {
                 if (firstAccount) {
                     firstAccount.focus();
                     firstAccount.select();
+                    const blockId = firstAccount.id.replace('account-search-', '');
+                    if (typeof showAccountDropdown === 'function') {
+                        showAccountDropdown('account-' + blockId);
+                    }
                 }
                 return;
             }
