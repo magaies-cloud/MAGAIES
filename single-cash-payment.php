@@ -1128,6 +1128,42 @@ try {
         #num-props-menu .props-item:hover { background: rgba(255, 255, 255, 0.1); }
         #num-props-menu button.prop-btn { background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.5); color: #60a5fa; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
         #num-props-menu button.prop-btn:hover { background: rgba(59, 130, 246, 0.4); color: #fff; }
+
+        @keyframes pulseOrb {
+            0% { transform: scale(0.8) translate(0, 0); opacity: 0.5; }
+            100% { transform: scale(1.5) translate(20px, 20px); opacity: 1; }
+        }
+        @keyframes shimmerWave {
+            0% { transform: translateX(-150%) skewX(-45deg); opacity: 0; }
+            50% { opacity: 0.4; }
+            100% { transform: translateX(150%) skewX(-45deg); opacity: 0; }
+        }
+        .total-glass-card {
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .total-glass-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 45%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.05) 55%, rgba(255,255,255,0) 100%);
+            z-index: 1; opacity: 0; transition: opacity 0.5s ease;
+        }
+        .total-glass-card::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
+            opacity: 0; z-index: 0; pointer-events: none; transition: opacity 0.4s ease, transform 0.6s ease;
+        }
+        .total-glass-card:hover {
+            transform: translateY(-8px) scale(1.05) !important;
+            z-index: 10;
+        }
+        .total-glass-card:hover::before { animation: shimmerWave 1.5s infinite; opacity: 1; }
+        .total-glass-card:hover::after { opacity: 1; transform: rotate(15deg); }
+        .total-glass-card:hover .glow-orb { filter: blur(20px); transform: scale(2); opacity: 0.8; }
+        
+        .cheque-glow:hover { border-color: rgba(216, 180, 254, 1) !important; box-shadow: 0 0 30px rgba(168, 85, 247, 0.8), inset 0 0 20px rgba(168, 85, 247, 0.4) !important; }
+        .bank-glow:hover { border-color: rgba(110, 231, 183, 1) !important; box-shadow: 0 0 30px rgba(16, 185, 129, 0.8), inset 0 0 20px rgba(16, 185, 129, 0.4) !important; }
+        .grand-glow:hover { border-color: rgba(125, 211, 252, 1) !important; box-shadow: 0 0 40px rgba(56, 189, 248, 1), inset 0 0 25px rgba(56, 189, 248, 0.5) !important; }
     </style>
 </head>
 <body>
