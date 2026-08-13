@@ -3556,7 +3556,7 @@ document.addEventListener('keydown', function(e) {
                     }
                     setTimeout(() => {
                         const amtEl = block.querySelector('.block-bank-amount');
-                        if (amtEl && amtEl.offsetParent !== null) { amtEl.focus(); amtEl.select(); }
+                        if (amtEl ) { amtEl.focus(); amtEl.select(); }
                     }, 50);
                 }
                 return;
