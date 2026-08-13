@@ -626,9 +626,9 @@ window.addAccountBlock = function() {
         window.populateSafesDropdown(safeSelect);
     }
     
-    // Auto toggle cash by default
+    // Auto toggle bank by default
     if (typeof window.toggleBlockPaymentMethod === 'function') {
-        window.toggleBlockPaymentMethod(id, 'cash');
+        window.toggleBlockPaymentMethod(id, 'bank');
     }
     
     // Update delete buttons visibility

@@ -1360,9 +1360,9 @@ try {
 
                         <!-- Hidden radios to prevent legacy JS checks breaking -->
                         <div style="display: none;">
-                            <input type="radio" name="payment_method" value="cash" id="radio-cash" checked>
+                            <input type="radio" name="payment_method" value="cash" id="radio-cash">
                             <input type="radio" name="payment_method" value="check" id="radio-check">
-                            <input type="radio" name="payment_method" value="mobile" id="radio-mobile">
+                            <input type="radio" name="payment_method" value="mobile" id="radio-mobile" checked>
                             <input type="radio" name="payment_method" value="credit" id="radio-credit">
                             <input type="radio" name="payment_method" value="hybrid" id="radio-hybrid">
                         </div>
