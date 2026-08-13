@@ -168,30 +168,32 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
         /* Crystal Red Container (المستطيل الرئيسي للصرف) */
         .glass-red {
-            background: linear-gradient(135deg, rgba(46, 28, 30, 0.85), rgba(15, 23, 42, 0.95)) !important;
-            border: 1px solid rgba(212, 122, 126, 0.35) !important;
-            border-right: 5px solid #d47a7e !important;
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(212, 122, 126, 0.25), 0 0 25px rgba(212, 122, 126, 0.12) !important;
+            position: relative; overflow: hidden;
+            background: linear-gradient(135deg, rgba(110, 30, 45, 0.75), rgba(15, 23, 42, 0.85)) !important;
+            border: 1px solid rgba(244, 63, 94, 0.45) !important;
+            border-right: 5px solid #f43f5e !important;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(244, 63, 94, 0.35), 0 0 25px rgba(244, 63, 94, 0.15) !important;
         }
         .glass-red:hover {
-            background: linear-gradient(135deg, rgba(56, 32, 34, 0.9), rgba(15, 23, 42, 0.98)) !important;
-            border-color: rgba(212, 122, 126, 0.6) !important;
-            border-right-color: #d47a7e !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 0 35px rgba(212, 122, 126, 0.25) !important;
+            background: linear-gradient(135deg, rgba(130, 35, 50, 0.85), rgba(15, 23, 42, 0.92)) !important;
+            border-color: rgba(244, 63, 94, 0.8) !important;
+            border-right-color: #fb7185 !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.6), 0 0 45px rgba(244, 63, 94, 0.6) !important;
         }
 
         /* Crystal Green Container (مستطيلات الحسابات المستلمة) */
         .glass-green {
-            background: linear-gradient(135deg, rgba(16, 42, 28, 0.85), rgba(15, 23, 42, 0.95)) !important;
-            border: 1px solid rgba(39, 174, 96, 0.35) !important;
+            position: relative; overflow: hidden;
+            background: linear-gradient(135deg, rgba(16, 60, 40, 0.85), rgba(15, 23, 42, 0.95)) !important;
+            border: 1px solid rgba(39, 174, 96, 0.45) !important;
             border-right: 5px solid #27ae60 !important;
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(39, 174, 96, 0.25), 0 0 25px rgba(39, 174, 96, 0.12) !important;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(39, 174, 96, 0.35), 0 0 25px rgba(39, 174, 96, 0.2) !important;
         }
         .glass-green:hover {
-            background: linear-gradient(135deg, rgba(20, 52, 34, 0.9), rgba(15, 23, 42, 0.98)) !important;
-            border-color: rgba(39, 174, 96, 0.6) !important;
+            background: linear-gradient(135deg, rgba(20, 75, 50, 0.9), rgba(15, 23, 42, 0.98)) !important;
+            border-color: rgba(39, 174, 96, 0.8) !important;
             border-right-color: #2ecc71 !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.65), inset 0 1px 2px rgba(255, 255, 255, 0.4), 0 0 35px rgba(39, 174, 96, 0.25) !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.6), 0 0 45px rgba(39, 174, 96, 0.6) !important;
         }
 
         /* High Contrast Inputs, Placeholders, and Labels */
@@ -607,29 +609,29 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             box-shadow: 0 0 25px rgba(213, 189, 175, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
         }
         .block-bank-details:hover {
-            border-color: rgba(110, 231, 183, 1) !important;
-            box-shadow: 0 0 30px rgba(16, 185, 129, 0.8), inset 0 0 20px rgba(16, 185, 129, 0.4) !important;
+            border-color: rgba(56, 189, 248, 1) !important;
+            box-shadow: 0 0 40px rgba(14, 165, 233, 0.9), inset 0 0 25px rgba(14, 165, 233, 0.5) !important;
         }
         .block-cheque-details:hover {
             border-color: rgba(216, 180, 254, 1) !important;
-            box-shadow: 0 0 30px rgba(168, 85, 247, 0.8), inset 0 0 20px rgba(168, 85, 247, 0.4) !important;
+            box-shadow: 0 0 40px rgba(168, 85, 247, 0.9), inset 0 0 25px rgba(168, 85, 247, 0.5) !important;
         }
         @keyframes shimmerWave {
             0% { transform: translateX(-150%) skewX(-45deg); opacity: 0; }
             50% { opacity: 0.4; }
             100% { transform: translateX(150%) skewX(-45deg); opacity: 0; }
         }
-        .block-bank-details, .block-cheque-details {
+        .block-bank-details, .block-cheque-details, .glass-red, .glass-green {
             position: relative;
             overflow: hidden;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease, background 0.4s ease;
         }
-        .block-bank-details::before, .block-cheque-details::before {
+        .block-bank-details::before, .block-cheque-details::before, .glass-red::before, .glass-green::before {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 45%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.05) 55%, rgba(255,255,255,0) 100%);
+            background: linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 45%, rgba(255,255,255,0.5) 50%, rgba(255,255,255,0.05) 55%, rgba(255,255,255,0) 100%);
             z-index: 1; opacity: 0; transition: opacity 0.5s ease; pointer-events: none;
         }
-        .block-bank-details:hover::before, .block-cheque-details:hover::before { animation: shimmerWave 1.5s infinite; opacity: 1; }
+        .block-bank-details:hover::before, .block-cheque-details:hover::before, .glass-red:hover::before, .glass-green:hover::before { animation: shimmerWave 1.5s infinite; opacity: 1; }
         .block-bank-details:hover, .block-cheque-details:hover {
             transform: translateY(-2px) scale(1.01) !important;
             z-index: 10;
@@ -1165,10 +1167,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
                         <!-- Dynamic Details Sections -->
                         <!-- Bank Details (supports multiple transfers) -->
-                        <div id="bank-details-{ID}" class="block-bank-details" style="display: none; background: linear-gradient(135deg, rgba(6, 78, 59, 0.6), rgba(16, 185, 129, 0.15)); border: 1px solid rgba(16, 185, 129, 0.7); border-radius: 12px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 0 20px rgba(16, 185, 129, 0.15); backdrop-filter: blur(12px);">
+                        <div id="bank-details-{ID}" class="block-bank-details" style="display: none; background: linear-gradient(135deg, rgba(12, 74, 110, 0.6), rgba(14, 165, 233, 0.15)); border: 1px solid rgba(14, 165, 233, 0.7); border-radius: 12px; padding: 10px; margin-bottom: 8px; animation: rowSlideIn 0.3s ease; box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 0 20px rgba(14, 165, 233, 0.15); backdrop-filter: blur(12px);">
                             <div class="bank-rows-container" id="bank-rows-{ID}">
                                 <div class="bank-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
-                                    <div style="width: 80px; font-weight: bold; color: #34d399; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">🏦 بنكي</div>
+                                    <div style="width: 80px; font-weight: bold; color: #38bdf8; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">🏦 بنكي</div>
                                     <div style="width: 150px; flex-shrink: 0;">
                                         <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: 900; text-align: center; -webkit-text-stroke: 0.5px currentColor;">
                                     </div>
