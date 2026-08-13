@@ -1023,17 +1023,17 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
 
         /* Bank Row Layout Overrides */
-        .bank-row > div:nth-child(2) { flex: 2 !important; min-width: 380px !important; width: auto !important; }
-        .bank-row > div:nth-child(3) { flex: 1 !important; min-width: 150px !important; }
-        .bank-row > div:nth-child(4) { flex: 2.5 !important; min-width: 440px !important; }
-        .bank-row > div:nth-child(5) { flex: 1 !important; min-width: 150px !important; }
+        .bank-row > div:nth-child(2) { flex: 1.5 !important; min-width: 140px !important; width: auto !important; }
+        .bank-row > div:nth-child(3) { flex: 2 !important; min-width: 160px !important; width: auto !important; }
+        .bank-row > div:nth-child(4) { flex: 1.5 !important; min-width: 120px !important; }
+        .bank-row > div:nth-child(5) { flex: 3 !important; min-width: 250px !important; }
 
         /* Cheque Row Layout Overrides */
-        .cheque-row > div:nth-child(2) { flex: 2 !important; min-width: 380px !important; width: auto !important; }
-        .cheque-row > div:nth-child(3) { flex: 1 !important; min-width: 150px !important; }
-        .cheque-row > div:nth-child(4) { flex: 2.5 !important; min-width: 440px !important; }
-        .cheque-row > div:nth-child(5) { flex: 1 !important; min-width: 150px !important; }
-        .cheque-row > div:nth-child(6) { flex: 1 !important; min-width: 150px !important; }
+        .cheque-row > div:nth-child(2) { flex: 1.5 !important; min-width: 140px !important; width: auto !important; }
+        .cheque-row > div:nth-child(3) { flex: 2 !important; min-width: 160px !important; width: auto !important; }
+        .cheque-row > div:nth-child(4) { flex: 0.8 !important; min-width: 90px !important; } /* Cheque No (Smaller) */
+        .cheque-row > div:nth-child(5) { flex: 1.2 !important; min-width: 120px !important; } /* Cheque Date */
+        .cheque-row > div:nth-child(6) { flex: 2.5 !important; min-width: 210px !important; } /* Cheque Desc (Wider) */
         /* Custom Number Properties Menu */
         #num-props-menu { display: none; position: absolute; z-index: 9999; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); border-radius: 12px; padding: 10px; width: 260px; color: #cbd5e1; font-family: 'Inter', sans-serif; direction: rtl; }
         #num-props-menu .props-header { font-weight: bold; color: #38bdf8; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); text-align: center; font-size: 1.1rem; }
