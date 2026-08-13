@@ -946,16 +946,9 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         
         /* Focus State for Amounts */
         input.block-total-amount:focus, input.block-bank-amount:focus, input.block-cheque-amount:focus, input.transfer-amount:focus, input.cheque-amount:focus {
-            font-size: 5.5rem !important;
-            height: 100px !important;
-            min-width: 400px !important;
-            position: relative !important;
-            z-index: 1000 !important;
-            margin-right: -100px !important; /* Offset for RTL to expand outwards */
+            font-size: 4.0rem !important;
             color: #fbbf24 !important; /* Gold */
-            background: rgba(15, 23, 42, 0.98) !important;
-            border: 2px solid #fbbf24 !important;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 25px rgba(251, 191, 36, 0.6) !important;
+            background: rgba(15, 23, 42, 0.8) !important;
         }
         
         /* Normal State for Numbers */
@@ -992,6 +985,13 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         .cheque-row > div:nth-child(4) { flex: 2.5 !important; min-width: 440px !important; }
         .cheque-row > div:nth-child(5) { flex: 1 !important; min-width: 150px !important; }
         .cheque-row > div:nth-child(6) { flex: 1 !important; min-width: 150px !important; }
+        /* Custom Number Properties Menu */
+        #num-props-menu { display: none; position: absolute; z-index: 9999; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); border-radius: 12px; padding: 10px; width: 260px; color: #cbd5e1; font-family: 'Inter', sans-serif; direction: rtl; }
+        #num-props-menu .props-header { font-weight: bold; color: #38bdf8; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); text-align: center; font-size: 1.1rem; }
+        #num-props-menu .props-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 5px; cursor: pointer; border-radius: 6px; transition: background 0.2s; font-size: 0.95rem; }
+        #num-props-menu .props-item:hover { background: rgba(255, 255, 255, 0.1); }
+        #num-props-menu button.prop-btn { background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.5); color: #60a5fa; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
+        #num-props-menu button.prop-btn:hover { background: rgba(59, 130, 246, 0.4); color: #fff; }
     </style>
 </head>
 <body>
@@ -1389,6 +1389,46 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 <button onclick="confirmEditOldVoucher()" style="background: #ef4444; color: white; font-size: 1.3rem; font-weight: 900; padding: 15px 40px; border: none; border-radius: 12px; cursor: pointer; box-shadow: 0 4px 15px rgba(239,68,68,0.4); transition: transform 0.2s;">نعم، اعتمد التعديل</button>
                 <button onclick="cancelEditOldVoucher()" style="background: rgba(255,255,255,0.1); color: #ffffff; font-size: 1.3rem; font-weight: 900; padding: 15px 30px; border: 1px solid rgba(255,255,255,0.2); border-radius: 12px; cursor: pointer;">تراجع ❌</button>
             </div>
+        </div>
+    </div>
+
+    <!-- Custom Context Menu for Numbers -->
+    <div id="num-props-menu">
+        <div class="props-header">خصائص الرقم المتقدمة</div>
+        <div class="props-item">
+            <span>حجم الخط (التقريب)</span>
+            <div style="display: flex; gap: 5px;">
+                <button class="prop-btn" onclick="applyNumProp('font-inc'); event.stopPropagation();">كبر</button>
+                <button class="prop-btn" onclick="applyNumProp('font-dec'); event.stopPropagation();">صغر</button>
+            </div>
+        </div>
+        <div class="props-item" onclick="applyNumProp('toggle-comma')">
+            <span>فواصل الآلاف (,)</span>
+            <span id="prop-comma-status" style="color:#10b981; font-weight:bold;">مفعل</span>
+        </div>
+        <div class="props-item">
+            <span>الخانات العشرية</span>
+            <div style="display: flex; gap: 5px; align-items: center;">
+                <span id="prop-dec-val" style="color:#fbbf24; font-weight:bold;">0</span>
+                <button class="prop-btn" onclick="applyNumProp('dec-set-2'); event.stopPropagation();">.00</button>
+                <button class="prop-btn" onclick="applyNumProp('dec-inc'); event.stopPropagation();">+</button>
+                <button class="prop-btn" onclick="applyNumProp('dec-dec'); event.stopPropagation();">-</button>
+            </div>
+        </div>
+        <div class="props-item" onclick="applyNumProp('toggle-font')">
+            <span>نوع الخط</span>
+            <span id="prop-font-status" style="color:#fbbf24; font-size:0.8rem; font-weight:bold;">Inter</span>
+        </div>
+        <div class="props-item">
+            <span>لون الرقم</span>
+            <input type="color" id="prop-color-picker" style="width: 30px; height: 30px; border: none; cursor: pointer; border-radius: 4px; padding: 0; background: transparent;" onchange="applyNumProp('color-change', this.value)">
+        </div>
+        <div class="props-item" onclick="applyNumProp('toggle-rounding')">
+            <span>تفعيل التقريب</span>
+            <span id="prop-rounding-status" style="color:#10b981; font-weight:bold;">معطل</span>
+        </div>
+        <div class="props-item" style="justify-content: center; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
+            <button id="save-props-btn" onclick="saveNumberProperties(); event.stopPropagation();" style="background: #10b981; color: #fff; border: none; padding: 6px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; transition: background 0.2s;">حفظ الإعدادات</button>
         </div>
     </div>
 

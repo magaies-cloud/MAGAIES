@@ -309,7 +309,23 @@ async function loadAllAccounts() {
 }
 
 // Helper: Format number with commas
-const fmtNum = (num) => Number(num || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+window.fmtNum = function(num, dec = null, hasComma = true) {
+    if (num === 0 || num === '0' || !num) return '0';
+    let n = parseFloat(num);
+    if (isNaN(n)) return '0';
+    
+    if (dec !== null) {
+        let factor = Math.pow(10, dec);
+        n = Math.round(n * factor) / factor;
+        let parts = n.toFixed(dec).split('.');
+        if (hasComma) parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+        return dec > 0 ? parts.join('.') : parts[0];
+    }
+    
+    let parts = n.toString().split('.');
+    if (hasComma) parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+    return parts.join('.');
+};
 
 // Helper: Clean commas for calculation
 const cleanNum = (str) => Number(String(str).replace(/,/g, '')) || 0;
@@ -709,12 +725,14 @@ window.recalcBlockTotal = function(blockId) {
         const eased = 1 - (1 - progress) * (1 - progress);
         const currentVal = oldTotal + diff * eased;
         
-        totalEl.value = currentVal > 0 ? fmtNum(currentVal) : '0.00';
+        const animDec = totalEl.getAttribute('data-decimals') !== null ? parseInt(totalEl.getAttribute('data-decimals')) : 2;
+        totalEl.value = currentVal > 0 ? fmtNum(currentVal, animDec) : '0.00';
         
         if (progress < 1) {
             requestAnimationFrame(animateCount);
         } else {
-            totalEl.value = newTotal > 0 ? fmtNum(newTotal) : '0.00';
+            const finalDec = totalEl.getAttribute('data-decimals') !== null ? parseInt(totalEl.getAttribute('data-decimals')) : null;
+            totalEl.value = newTotal > 0 ? fmtNum(newTotal, finalDec) : '0.00';
             // Reset visual effect
             setTimeout(() => {
                 totalEl.style.transform = 'scale(1)';
@@ -919,8 +937,7 @@ document.addEventListener('input', function(e) {
 });
 
 function formatInput(input) {
-    const val = cleanNum(input.value);
-    input.value = val === 0 ? '' : fmtNum(val);
+    formatAmount(input);
     calcTotal();
 }
 
@@ -937,7 +954,10 @@ function calcTotal() {
     });
 
     const totalAmtEl = document.getElementById('total-amount');
-    if (totalAmtEl) totalAmtEl.innerText = fmtNum(total);
+    if (totalAmtEl) {
+        const dec = totalAmtEl.getAttribute('data-decimals') !== null ? parseInt(totalAmtEl.getAttribute('data-decimals')) : null;
+        totalAmtEl.innerText = fmtNum(total, dec);
+    }
 
     const totalRowsEl = document.getElementById('total-rows');
     if (totalRowsEl) totalRowsEl.innerText = document.querySelectorAll('.account-block').length;
@@ -947,7 +967,8 @@ function calcTotal() {
     const eqEl = document.getElementById('amount-foreign');
     const localHdrEl = document.getElementById('amount-local-hdr');
     if (localHdrEl) {
-        localHdrEl.value = fmtNum(total);
+        const dec = localHdrEl.getAttribute('data-decimals') !== null ? parseInt(localHdrEl.getAttribute('data-decimals')) : null;
+        localHdrEl.value = fmtNum(total, dec);
     }
     if (rateEl && eqEl) {
         let rate = cleanNum(rateEl.value) || 1;
@@ -3199,4 +3220,165 @@ window.checkTransferDuplicate = async function(tno, currentVoucherId) {
         }
     }
     return true; // Not duplicated
+};
+
+// --- Custom Number Properties Menu Logic ---
+let currentTargetInput = null;
+
+window.showNumberProperties = function(e, input) {
+    e.preventDefault();
+    currentTargetInput = input;
+    
+    const menu = document.getElementById('num-props-menu');
+    if (!menu) return;
+    
+    const hasComma = input.getAttribute('data-thousands') !== 'false';
+    const decimals = parseInt(input.getAttribute('data-decimals') || '0');
+    const font = input.getAttribute('data-font') || 'inter';
+    const numColor = input.getAttribute('data-color') || '#ffffff';
+    const isRounding = input.getAttribute('data-rounding') === 'true';
+    
+    document.getElementById('prop-comma-status').textContent = hasComma ? 'مفعل' : 'معطل';
+    document.getElementById('prop-comma-status').style.color = hasComma ? '#10b981' : '#ef4444';
+    document.getElementById('prop-dec-val').textContent = decimals;
+    document.getElementById('prop-font-status').textContent = font === 'inter' ? 'Inter' : 'Roboto Mono';
+    
+    const colorPicker = document.getElementById('prop-color-picker');
+    if (colorPicker) colorPicker.value = numColor;
+    
+    const roundingStatus = document.getElementById('prop-rounding-status');
+    if (roundingStatus) {
+        roundingStatus.textContent = isRounding ? 'مفعل' : 'معطل';
+        roundingStatus.style.color = isRounding ? '#10b981' : '#ef4444';
+    }
+    
+    menu.style.display = 'block';
+    
+    let x = e.pageX;
+    let y = e.pageY;
+    if (x + menu.offsetWidth > window.innerWidth) x = window.innerWidth - menu.offsetWidth - 10;
+    if (y + menu.offsetHeight > window.innerHeight) y = window.innerHeight - menu.offsetHeight - 10;
+    
+    menu.style.left = x + 'px';
+    menu.style.top = y + 'px';
+};
+
+window.closeNumberProperties = function() {
+    const menu = document.getElementById('num-props-menu');
+    if (menu) menu.style.display = 'none';
+};
+
+document.addEventListener('click', function(e) {
+    const menu = document.getElementById('num-props-menu');
+    if (menu && menu.style.display === 'block') {
+        if (!menu.contains(e.target)) {
+            closeNumberProperties();
+        }
+    }
+});
+
+// Attach context menu to total fields
+document.addEventListener('contextmenu', function(e) {
+    if (e.target.classList.contains('block-total-amount') || e.target.classList.contains('block-sub-amount') || e.target.id === 'total-amount' || e.target.id === 'amount-local-hdr' || e.target.classList.contains('transfer-amount') || e.target.classList.contains('cheque-amount')) {
+        showNumberProperties(e, e.target);
+    }
+});
+
+window.applyNumProp = function(action, val) {
+    if (!currentTargetInput) return;
+    const input = currentTargetInput;
+    
+    if (action === 'font-inc') {
+        let currentSize = parseFloat(window.getComputedStyle(input).fontSize);
+        input.style.setProperty('font-size', (currentSize + 2) + 'px', 'important');
+    } else if (action === 'font-dec') {
+        let currentSize = parseFloat(window.getComputedStyle(input).fontSize);
+        input.style.setProperty('font-size', (currentSize - 2) + 'px', 'important');
+    } else if (action === 'toggle-comma') {
+        const current = input.getAttribute('data-thousands') !== 'false';
+        input.setAttribute('data-thousands', current ? 'false' : 'true');
+        document.getElementById('prop-comma-status').textContent = !current ? 'مفعل' : 'معطل';
+        document.getElementById('prop-comma-status').style.color = !current ? '#10b981' : '#ef4444';
+    } else if (action === 'dec-set-2') {
+        let dec = 2;
+        input.setAttribute('data-decimals', dec);
+        input.setAttribute('data-rounding', 'true');
+        document.getElementById('prop-dec-val').textContent = dec;
+        const roundingStatus = document.getElementById('prop-rounding-status');
+        if (roundingStatus) {
+            roundingStatus.textContent = 'مفعل';
+            roundingStatus.style.color = '#10b981';
+        }
+    } else if (action === 'dec-inc') {
+        let dec = parseInt(input.getAttribute('data-decimals') || '0');
+        if (dec < 10) dec++;
+        input.setAttribute('data-decimals', dec);
+        input.setAttribute('data-rounding', 'true');
+        document.getElementById('prop-dec-val').textContent = dec;
+        const roundingStatus = document.getElementById('prop-rounding-status');
+        if (roundingStatus) {
+            roundingStatus.textContent = 'مفعل';
+            roundingStatus.style.color = '#10b981';
+        }
+    } else if (action === 'dec-dec') {
+        let dec = parseInt(input.getAttribute('data-decimals') || '0');
+        if (dec > 0) dec--;
+        input.setAttribute('data-decimals', dec);
+        input.setAttribute('data-rounding', 'true');
+        document.getElementById('prop-dec-val').textContent = dec;
+        const roundingStatus = document.getElementById('prop-rounding-status');
+        if (roundingStatus) {
+            roundingStatus.textContent = 'مفعل';
+            roundingStatus.style.color = '#10b981';
+        }
+    } else if (action === 'toggle-font') {
+        const current = input.getAttribute('data-font') || 'inter';
+        const newFont = current === 'inter' ? 'monospace' : 'inter';
+        input.setAttribute('data-font', newFont);
+        if (newFont === 'monospace') {
+            input.style.setProperty('font-family', "'Roboto Mono', Consolas, monospace", 'important');
+            document.getElementById('prop-font-status').textContent = 'Roboto Mono';
+        } else {
+            input.style.setProperty('font-family', "'Inter', system-ui, sans-serif", 'important');
+            document.getElementById('prop-font-status').textContent = 'Inter';
+        }
+    } else if (action === 'color-change') {
+        input.setAttribute('data-color', val);
+        input.style.setProperty('color', val, 'important');
+    } else if (action === 'toggle-rounding') {
+        const current = input.getAttribute('data-rounding') === 'true';
+        input.setAttribute('data-rounding', current ? 'false' : 'true');
+        const roundingStatus = document.getElementById('prop-rounding-status');
+        if (roundingStatus) {
+            roundingStatus.textContent = !current ? 'مفعل' : 'معطل';
+            roundingStatus.style.color = !current ? '#10b981' : '#ef4444';
+        }
+    }
+    
+    formatAmount(input);
+    if (typeof calcTotal === 'function') calcTotal();
+    if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();
+};
+
+window.formatAmount = function(input) {
+    if (!input.value) return;
+    let raw = input.value.toString().replace(/[^0-9.-]/g, '');
+    let num = parseFloat(raw);
+    if (isNaN(num)) num = 0;
+    
+    const hasComma = input.getAttribute('data-thousands') !== 'false';
+    const isRounding = input.getAttribute('data-rounding') === 'true';
+    const decimals = isRounding ? parseInt(input.getAttribute('data-decimals') || '0') : null;
+    
+    input.value = fmtNum(num, decimals, hasComma);
+};
+
+window.saveNumberProperties = function() {
+    // Placeholder for save logic if needed globally.
+    const btn = document.getElementById('save-props-btn');
+    if (btn) {
+        const oldText = btn.innerHTML;
+        btn.innerHTML = 'تم الحفظ بنجاح';
+        setTimeout(() => btn.innerHTML = oldText, 1500);
+    }
 };
