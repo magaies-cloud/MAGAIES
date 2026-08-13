@@ -1605,15 +1605,16 @@ try {
                     nextAction = () => { 
                         document.getElementById('to-account-search').focus();
                     };
-                } else if (id === 'to-account-search') {
+                } else if (id === 'to-account-search' || id === 'from-account-search') {
                     nextAction = () => {
-                        const btnBank = document.getElementById('toggle-bank');
-                        if (btnBank && !btnBank.classList.contains('active')) { if (typeof togglePaymentSection === 'function') togglePaymentSection('bank'); }
-                        const bankSec = document.getElementById('pay-bank-section');
-                        if (bankSec) bankSec.style.display = 'flex';
-                        const container = document.getElementById('transfers-container');
-                        if (container && container.children.length === 0 && typeof addTransferRow === 'function') { addTransferRow('', '', 0); }
-                        setTimeout(() => { const amtInput = document.querySelector('.transfer-amount'); if (amtInput) { amtInput.focus(); amtInput.select(); } }, 150);
+                        let type = id.split('-')[0];
+                        let list = document.getElementById(type + '-account-dropdown-list');
+                        if (list && list.classList.contains('show')) {
+                            let firstItem = list.querySelector('.custom-dropdown-item');
+                            if (firstItem && typeof firstItem.onmousedown === 'function') {
+                                firstItem.onmousedown(); // This will call selectAccount and our logic
+                            }
+                        }
                     };
                 } else if (id === 'to-statement') {
                     nextAction = () => { let n = document.getElementById('currency'); n.focus(); };
