@@ -1694,7 +1694,7 @@ try {
 
         function recalcPaymentSummary() {
             const amtStr = document.getElementById('amount-local')?.value || '0';
-            const amount = parseFloat(amtStr.replace(/,/g, '')) || 0;
+            let amount = parseFloat(amtStr.replace(/,/g, '')) || 0;
             
             const panel = document.getElementById('payment-panel');
             if (!panel) return;
@@ -1710,6 +1710,26 @@ try {
             else if (bankActive) method = 'bank';
             else if (chequeActive) method = 'cheque';
             else method = 'cash';
+            
+            let tSum = 0;
+            document.querySelectorAll('.transfer-row .transfer-amount').forEach(inp => tSum += parseFloat(inp.value.replace(/,/g, '')) || 0);
+            let cSum = 0;
+            document.querySelectorAll('.cheque-row .cheque-amount').forEach(inp => cSum += parseFloat(inp.value.replace(/,/g, '')) || 0);
+            
+            // Auto-calculate amount-local based on rows if not cash!
+            if (method !== 'cash') {
+                const totalSum = tSum + cSum;
+                if (Math.abs(amount - totalSum) > 0.001) {
+                    amount = totalSum;
+                    const amtEl = document.getElementById('amount-local');
+                    if (amtEl) {
+                        let parts = totalSum.toFixed(2).split('.');
+                        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
+                        amtEl.value = parts.join('.');
+                        if (typeof calcEquiv === 'function') calcEquiv('local');
+                    }
+                }
+            }
             
             // Progress widths
             const elCash = document.getElementById('prog-cash');
@@ -1727,13 +1747,8 @@ try {
             } else if (method === 'cheque') {
                 if (elCheque) elCheque.style.width = '100%';
             } else if (method === 'hybrid') {
-                let tSum = 0;
-                document.querySelectorAll('.transfer-row .transfer-amount').forEach(inp => tSum += parseFloat(inp.value.replace(/,/g, '')) || 0);
-                let cSum = 0;
-                document.querySelectorAll('.cheque-row .cheque-amount').forEach(inp => cSum += parseFloat(inp.value.replace(/,/g, '')) || 0);
-                
-                const bankPct = Math.min(100, (tSum / amount) * 100);
-                const chequePct = Math.min(100, (cSum / amount) * 100);
+                const bankPct = amount > 0 ? Math.min(100, (tSum / amount) * 100) : 0;
+                const chequePct = amount > 0 ? Math.min(100, (cSum / amount) * 100) : 0;
                 
                 if (elBank) elBank.style.width = bankPct + '%';
                 if (elCheque) elCheque.style.width = chequePct + '%';
