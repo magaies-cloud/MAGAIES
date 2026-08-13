@@ -472,15 +472,15 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
 
         .voucher-type-btn.active-receipt, #btn-receipt.active-receipt {
-            --tab-border-color: #10b981;
-            --tab-glow-color: rgba(16, 185, 129, 0.7);
-            --tab-hover-bg: linear-gradient(135deg, #10b981, #047857);
-            background: linear-gradient(135deg, #059669, #064e3b) !important;
-            border-color: #10b981 !important;
+            --tab-border-color: #06b6d4;
+            --tab-glow-color: rgba(6, 182, 212, 0.7);
+            --tab-hover-bg: linear-gradient(135deg, #06b6d4, #0891b2);
+            background: linear-gradient(135deg, #0891b2, #164e63) !important;
+            border-color: #06b6d4 !important;
             color: #ffffff !important;
             font-weight: 900 !important;
             text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.65), 0 0 25px rgba(16, 185, 129, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
+            box-shadow: 0 10px 30px rgba(6, 182, 212, 0.65), 0 0 25px rgba(6, 182, 212, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
             transform: translateY(-3px) scale(1.05) !important;
         }
 
