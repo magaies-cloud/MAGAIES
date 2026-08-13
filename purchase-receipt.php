@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'استلام البضاعة (GRN)'; ?>
+<?php $page_title = 'استلام البضاعة (GRN)'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

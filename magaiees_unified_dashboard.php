@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'لوحة التحكم'; ?>
+<?php $page_title = 'لوحة التحكم'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

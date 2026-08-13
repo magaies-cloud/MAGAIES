@@ -1,4 +1,4 @@
-﻿<?php 
+<?php 
 $page_title = "التحليل الاستراتيجي للمخزون"; 
 $header_theme_class = "header-theme-inventory";
 ?>

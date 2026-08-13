@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $page_title = 'محلل ركود البضائع ومعدل الدوران';
 $header_theme_class = 'header-theme-reports';
 

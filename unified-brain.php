@@ -1,4 +1,4 @@
-﻿<?php 
+<?php 
 $page_title = 'العقل الذكي الموحد'; 
 ?>
 <!DOCTYPE html>

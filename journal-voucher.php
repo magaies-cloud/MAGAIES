@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'قيد يومية'; ?>
+<?php $page_title = 'قيد يومية'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

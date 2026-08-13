@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // router.php - Router script for PHP built-in web server (php -S)
 
 $uri = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);

@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'مقاييس (MAGAIEES) - إدارة المستخدمين والصلاحيات'; ?>
+<?php $page_title = 'مقاييس (MAGAIEES) - إدارة المستخدمين والصلاحيات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

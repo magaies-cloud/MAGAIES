@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 header('Content-Type: text/plain; charset=UTF-8');
 require_once __DIR__ . '/api/db.php';
 

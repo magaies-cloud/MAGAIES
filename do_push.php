@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $log = "Adding files...\n";
 $log .= shell_exec('git add . 2>&1');
 $log .= "\nCommitting...\n";

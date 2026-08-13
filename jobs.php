@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'إدارة المهام (شغل)'; ?>
+<?php $page_title = 'إدارة المهام (شغل)'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

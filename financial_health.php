@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $page_title = 'تقرير الصحة المالية ومعدلات الأمان';
 $header_theme_class = 'header-theme-reports';
 

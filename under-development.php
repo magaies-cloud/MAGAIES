@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'جاري التطوير'; ?>
+<?php $page_title = 'جاري التطوير'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>

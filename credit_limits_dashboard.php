@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $page_title = 'مراقب سقوف الائتمان والمديونية العامه';
 $header_theme_class = 'header-theme-reports';
 

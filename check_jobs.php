@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $token = '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';
 $runId = 29733154296;
 

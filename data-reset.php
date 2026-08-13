@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'تصفير بيانات التطبيق'; ?>
+<?php $page_title = 'تصفير بيانات التطبيق'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

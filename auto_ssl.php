@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // /root/auto_ssl.php
 $envPath = '/var/www/magaees/.env';
 if (!file_exists($envPath)) { die("Error: .env not found\n"); }

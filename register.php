@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'تسجيل شركة جديدة - مقاييس (MAGAIEES) SaaS'; ?>
+<?php $page_title = 'تسجيل شركة جديدة - مقاييس (MAGAIEES) SaaS'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>

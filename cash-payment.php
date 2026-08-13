@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'سند صرف نقدية'; ?>
+<?php $page_title = 'سند صرف نقدية'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

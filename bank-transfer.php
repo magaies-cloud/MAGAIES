@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'تحويل بين البنوك'; ?>
+<?php $page_title = 'تحويل بين البنوك'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

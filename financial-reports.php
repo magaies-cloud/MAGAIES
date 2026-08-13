@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'القوائم الختامية والمحاسبية'; ?>
+<?php $page_title = 'القوائم الختامية والمحاسبية'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

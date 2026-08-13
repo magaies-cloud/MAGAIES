@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'ميزان المراجعة'; ?>
+<?php $page_title = 'ميزان المراجعة'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $page_title = 'تقرير الجرد السنوي الشامل والمركز المالي والزكاة الشرعية';
 require_once __DIR__ . '/db_bridge.php';
 

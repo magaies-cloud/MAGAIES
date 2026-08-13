@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $page_title = 'مؤشر موثوقية وثبات أسعار الموردين';
 $header_theme_class = 'header-theme-reports';
 

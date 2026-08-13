@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'دورة الشيكات'; ?>
+<?php $page_title = 'دورة الشيكات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

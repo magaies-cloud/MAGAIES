@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'الرواتب والأجور'; ?>
+<?php $page_title = 'الرواتب والأجور'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

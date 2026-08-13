@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'تحويلات المستودعات - مقاييس (MAGAIEES)'; ?>
+<?php $page_title = 'تحويلات المستودعات - مقاييس (MAGAIEES)'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

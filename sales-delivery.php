@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'تسليم المبيعات - إذن المنصرف'; ?>
+<?php $page_title = 'تسليم المبيعات - إذن المنصرف'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

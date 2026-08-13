@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'مقاييس - أذكى نظام سحابي لإدارة الموارد (ERP)'; ?>
+<?php $page_title = 'مقاييس - أذكى نظام سحابي لإدارة الموارد (ERP)'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>

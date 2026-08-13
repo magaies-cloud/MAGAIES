@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'سجل التطوير'; ?>
+<?php $page_title = 'سجل التطوير'; ?>
 <!-- c:\mynewapp\frontend-pwa\audit-log.html -->
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">

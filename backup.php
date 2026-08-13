@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'النسخ الاحتياطي'; ?>
+<?php $page_title = 'النسخ الاحتياطي'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>

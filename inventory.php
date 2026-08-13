@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'إدارة المخزون 2026 - مقاييس (MAGAIEES)'; ?>
+<?php $page_title = 'إدارة المخزون 2026 - مقاييس (MAGAIEES)'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

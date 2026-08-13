@@ -1,4 +1,4 @@
-﻿<?php 
+<?php 
 $page_title = "ملخص حركة المخزون (الشامل)"; 
 $header_theme_class = "header-theme-inventory";
 ?>

@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'قائمة الأرباح والخسائر'; ?>
+<?php $page_title = 'قائمة الأرباح والخسائر'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

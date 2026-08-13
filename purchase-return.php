@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'مردودات المشتريات'; ?>
+<?php $page_title = 'مردودات المشتريات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

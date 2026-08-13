@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'المبيعات - المبيعات المحجوزة'; ?>
+<?php $page_title = 'المبيعات - المبيعات المحجوزة'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

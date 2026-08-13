@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 require 'api/db.php';
 global $GLOBAL_TENANT_ID;
 $pdo = getDBConnection();

@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'المحاسبة - سير العمليات'; ?>
+<?php $page_title = 'المحاسبة - سير العمليات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <head>

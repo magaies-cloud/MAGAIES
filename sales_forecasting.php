@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $page_title = 'التنبؤ المالي الذكي (AI Forecasting)';
 $header_theme_class = 'header-theme-reports';
 

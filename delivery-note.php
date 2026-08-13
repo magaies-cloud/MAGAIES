@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'أذونات التسليم 2026 - نظام الإدارة الشاملة'; ?>
+<?php $page_title = 'أذونات التسليم 2026 - نظام الإدارة الشاملة'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

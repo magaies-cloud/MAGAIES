@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $token = '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';
 $url = 'https://api.github.com/repos/magaies-cloud/MAGAIES/actions/runs?per_page=5';
 $ch = curl_init($url);

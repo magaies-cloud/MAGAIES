@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'تقرير أعمار الديون'; ?>
+<?php $page_title = 'تقرير أعمار الديون'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

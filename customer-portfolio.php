@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'بطاقة الموقف المالي للعملاء'; ?>
+<?php $page_title = 'بطاقة الموقف المالي للعملاء'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

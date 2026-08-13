@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $page_title = 'محلل الأرصدة الشامل';
 $header_theme_class = 'header-theme-reports';
 

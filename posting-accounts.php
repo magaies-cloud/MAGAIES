@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'ترحيل الحسابات'; ?>
+<?php $page_title = 'ترحيل الحسابات'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

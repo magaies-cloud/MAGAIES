@@ -1,4 +1,4 @@
-﻿<?php $page_title = 'مقاييس - طباعة الباركود'; ?>
+<?php $page_title = 'مقاييس - طباعة الباركود'; ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>

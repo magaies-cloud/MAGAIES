@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 $page_title = 'تحليل نقطة التعادل الفوري (Break-Even)';
 $header_theme_class = 'header-theme-reports';
 
