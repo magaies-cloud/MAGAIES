@@ -1723,10 +1723,17 @@ try {
                     amount = totalSum;
                     const amtEl = document.getElementById('amount-local');
                     if (amtEl) {
+                        // Remember original cursor position if focused on amount-local (unlikely but safe)
                         let parts = totalSum.toFixed(2).split('.');
+                        if (parts[1] === '00') parts = [parts[0]]; // Don't add .00 if not needed
                         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
                         amtEl.value = parts.join('.');
+                        
+                        // Disable syncFirstRowAmount temporarily to prevent cursor jump
+                        const origSync = window.syncFirstRowAmount;
+                        window.syncFirstRowAmount = function(){};
                         if (typeof calcEquiv === 'function') calcEquiv('local');
+                        window.syncFirstRowAmount = origSync;
                     }
                 }
             }
