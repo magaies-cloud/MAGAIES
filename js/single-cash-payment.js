@@ -1858,19 +1858,21 @@ window.selectAccount = function(type, id, name) {
     
     if (type === 'to') {
         if(typeof updateBalances === 'function') updateBalances();
-        const toStmt = document.getElementById('to-statement');
-        if (toStmt) toStmt.focus();
-    } else if (type === 'from') {
-        const cc = document.getElementById('cost-center');
-        if (cc && cc.closest('.choices') && window.ccChoice) {
-            window.ccChoice.showDropdown();
-            let inp = cc.closest('.choices').querySelector('.choices__input');
-            if (inp) inp.focus();
-        } else {
-            const fromStmt = document.getElementById('from-statement');
-            if (fromStmt) fromStmt.focus();
-        }
     }
+    
+    // Auto-trigger Bank Transfer and focus amount
+    const btnBank = document.getElementById('toggle-bank');
+    if (btnBank && !btnBank.classList.contains('active')) {
+        btnBank.click();
+    }
+    
+    setTimeout(() => {
+        const amtInput = document.querySelector('.transfer-amount');
+        if (amtInput) {
+            amtInput.focus();
+            amtInput.select();
+        }
+    }, 150);
 };
 
 function updateLedgerButtons() {
