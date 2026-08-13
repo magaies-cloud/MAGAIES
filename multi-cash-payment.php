@@ -623,14 +623,14 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
         
         body[data-voucher-type="receipt"] .block-bank-details {
-            --bank-bg-start: rgba(6, 78, 59, 0.6);
-            --bank-bg-end: rgba(16, 185, 129, 0.15);
-            --bank-border: rgba(16, 185, 129, 0.7);
-            --bank-shadow: rgba(16, 185, 129, 0.15);
-            --bank-hover-border: rgba(110, 231, 183, 1);
-            --bank-hover-shadow-outer: rgba(16, 185, 129, 0.8);
-            --bank-hover-shadow-inner: rgba(16, 185, 129, 0.4);
-            --bank-icon: #34d399;
+            --bank-bg-start: rgba(30, 58, 138, 0.6);
+            --bank-bg-end: rgba(59, 130, 246, 0.15);
+            --bank-border: rgba(59, 130, 246, 0.7);
+            --bank-shadow: rgba(59, 130, 246, 0.15);
+            --bank-hover-border: rgba(147, 197, 253, 1);
+            --bank-hover-shadow-outer: rgba(59, 130, 246, 0.8);
+            --bank-hover-shadow-inner: rgba(59, 130, 246, 0.4);
+            --bank-icon: #60a5fa;
         }
         
         body[data-voucher-type="receipt"] .bank-icon-label {
