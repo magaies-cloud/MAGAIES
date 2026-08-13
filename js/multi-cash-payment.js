@@ -415,9 +415,9 @@ function executeSetVoucherType(type) {
         if (btnReceipt) btnReceipt.className = 'voucher-type-btn active-receipt';
         if (btnPayment) btnPayment.className = 'voucher-type-btn';
         if (pmRow) {
-            pmRow.style.background = 'linear-gradient(135deg, rgba(6, 182, 212, 0.35), rgba(8, 145, 178, 0.45))';
-            pmRow.style.borderColor = 'rgba(6, 182, 212, 0.5)';
-            pmRow.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.4), inset 0 1px 15px rgba(6, 182, 212, 0.25)';
+            pmRow.style.background = 'linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(4, 120, 87, 0.45))';
+            pmRow.style.borderColor = 'rgba(52, 211, 153, 0.5)';
+            pmRow.style.boxShadow = '0 8px 30px rgba(0, 0, 0, 0.4), inset 0 1px 15px rgba(16, 185, 129, 0.25)';
             pmRow.style.backdropFilter = 'blur(16px)';
             pmRow.style.webkitBackdropFilter = 'blur(16px)';
         }

@@ -472,15 +472,15 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
 
         .voucher-type-btn.active-receipt, #btn-receipt.active-receipt {
-            --tab-border-color: #06b6d4;
-            --tab-glow-color: rgba(6, 182, 212, 0.7);
-            --tab-hover-bg: linear-gradient(135deg, #06b6d4, #0891b2);
-            background: linear-gradient(135deg, #0891b2, #164e63) !important;
-            border-color: #06b6d4 !important;
+            --tab-border-color: #10b981;
+            --tab-glow-color: rgba(16, 185, 129, 0.7);
+            --tab-hover-bg: linear-gradient(135deg, #10b981, #047857);
+            background: linear-gradient(135deg, #059669, #064e3b) !important;
+            border-color: #10b981 !important;
             color: #ffffff !important;
             font-weight: 900 !important;
             text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 30px rgba(6, 182, 212, 0.65), 0 0 25px rgba(6, 182, 212, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
+            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.65), 0 0 25px rgba(16, 185, 129, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
             transform: translateY(-3px) scale(1.05) !important;
         }
 
@@ -623,14 +623,14 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
         
         body[data-voucher-type="receipt"] .block-bank-details {
-            --bank-bg-start: rgba(30, 58, 138, 0.6);
-            --bank-bg-end: rgba(59, 130, 246, 0.15);
-            --bank-border: rgba(59, 130, 246, 0.7);
-            --bank-shadow: rgba(59, 130, 246, 0.15);
-            --bank-hover-border: rgba(147, 197, 253, 1);
-            --bank-hover-shadow-outer: rgba(59, 130, 246, 0.8);
-            --bank-hover-shadow-inner: rgba(59, 130, 246, 0.4);
-            --bank-icon: #60a5fa;
+            --bank-bg-start: rgba(8, 145, 178, 0.4); /* Cyan 600 */
+            --bank-bg-end: rgba(6, 182, 212, 0.15); /* Cyan 500 */
+            --bank-border: rgba(6, 182, 212, 0.7);
+            --bank-shadow: rgba(6, 182, 212, 0.25);
+            --bank-hover-border: rgba(34, 211, 238, 1); /* Cyan 400 */
+            --bank-hover-shadow-outer: rgba(6, 182, 212, 0.8);
+            --bank-hover-shadow-inner: rgba(6, 182, 212, 0.5);
+            --bank-icon: #22d3ee;
         }
         
         body[data-voucher-type="receipt"] .bank-icon-label {
