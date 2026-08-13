@@ -718,85 +718,80 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             border-bottom: none;
         }
 
-        /* Voucher Type Toggle Buttons (صرف/استلام مجمع) */
-        /* Voucher Type Toggle Buttons (صرف/استلام مجمع) */
+        /* Voucher Type Toggle Buttons (صرف/استلام من مجموعة) - PREMIUM DESIGN */
         .voucher-type-btn {
-            /* background removed */
-            /* border removed */
-            /* color removed */
-            box-shadow: inset 0 2px 5px rgba(0,0,0,0.6) !important;
-            min-width: 175px !important;
-            height: 45px !important;
+            position: relative;
+            overflow: hidden;
+            min-width: 185px !important;
+            height: 50px !important;
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
-            gap: 10px !important;
-            border-radius: 10px !important;
+            gap: 12px !important;
+            border-radius: 12px !important;
             cursor: pointer !important;
+            font-size: 1.05rem !important;
+            font-weight: 700 !important;
+            color: rgba(255, 255, 255, 0.8) !important;
+            background: rgba(15, 23, 42, 0.6) !important;
+            border: 1px solid rgba(255, 255, 255, 0.1) !important;
+            box-shadow: inset 0 2px 5px rgba(0,0,0,0.6), 0 4px 10px rgba(0,0,0,0.3) !important;
             transform: translateY(0) scale(0.97) !important;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+            backdrop-filter: blur(8px);
+        }
+        .voucher-type-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%; width: 50%; height: 100%;
+            background: linear-gradient(to right, transparent, rgba(255,255,255,0.3), transparent);
+            transform: skewX(-25deg);
+            animation: none;
         }
         .voucher-type-btn:hover {
-            background: rgba(255, 255, 255, 0.05) !important;
             color: #ffffff !important;
-            border-color: rgba(255,255,255,0.2) !important;
+            border-color: rgba(255, 255, 255, 0.4) !important;
             transform: translateY(-2px) scale(1) !important;
+            box-shadow: 0 8px 15px rgba(0,0,0,0.4), inset 0 0 10px rgba(255,255,255,0.1) !important;
         }
+        .voucher-type-btn:hover::before {
+            animation: shineSweep 1.5s infinite;
+        }
+        
         .voucher-type-btn.active-payment, .voucher-type-btn[id="btn-payment"] {
-            --tab-border-color: #f87171;
-            --tab-glow-color: rgba(248, 113, 113, 0.55);
-            --tab-hover-bg: linear-gradient(135deg, rgba(220, 38, 38, 0.4), rgba(248, 113, 113, 0.6));
-            --tab-active-bg: linear-gradient(135deg, #dc2626, #f87171);
+            --tab-main-color: #f43f5e;
+            --tab-glow-color: rgba(244, 63, 94, 0.6);
+            --tab-active-bg: linear-gradient(135deg, rgba(225, 29, 72, 0.9), rgba(244, 63, 94, 0.9));
         }
         .voucher-type-btn.active-receipt, .voucher-type-btn[id="btn-receipt"] {
-            --tab-border-color: #34d399;
-            --tab-glow-color: rgba(52, 211, 153, 0.55);
-            --tab-hover-bg: linear-gradient(135deg, rgba(5, 150, 105, 0.4), rgba(52, 211, 153, 0.6));
-            --tab-active-bg: linear-gradient(135deg, #059669, #34d399);
+            --tab-main-color: #10b981;
+            --tab-glow-color: rgba(16, 185, 129, 0.6);
+            --tab-active-bg: linear-gradient(135deg, rgba(5, 150, 105, 0.9), rgba(16, 185, 129, 0.9));
         }
+
         .voucher-type-btn.active-payment, .voucher-type-btn.active-receipt {
             color: #ffffff !important;
-            background: rgba(0,0,0,0.4) !important; /* No inner light */
-            border-color: var(--tab-border-color) !important;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.6), 0 0 15px var(--tab-glow-color) !important;
-            transform: translateY(-3px) scale(1.05);
+            background: var(--tab-active-bg) !important;
+            border: 1px solid var(--tab-main-color) !important;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.5), 0 0 20px var(--tab-glow-color), inset 0 2px 5px rgba(255,255,255,0.3) !important;
+            transform: translateY(-3px) scale(1.05) !important;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+            animation: buttonBreath 3s infinite alternate ease-in-out;
         }
 
-        /* Pulsing active buttons */
-        @keyframes activePulse {
-            0% { box-shadow: 0 8px 20px rgba(212, 122, 126, 0.45), 0 0 10px rgba(212, 122, 126, 0.25); border-color: rgba(212, 122, 126, 0.7); }
-            50% { box-shadow: 0 12px 30px rgba(212, 122, 126, 0.75), 0 0 20px rgba(212, 122, 126, 0.5); border-color: rgba(255, 255, 255, 0.9); }
-            100% { box-shadow: 0 8px 20px rgba(212, 122, 126, 0.45), 0 0 10px rgba(212, 122, 126, 0.25); border-color: rgba(212, 122, 126, 0.7); }
+        @keyframes shineSweep {
+            0% { left: -100%; }
+            100% { left: 200%; }
         }
-        @keyframes activePulseGreen {
-            0% { box-shadow: 0 8px 20px rgba(39, 174, 96, 0.45), 0 0 10px rgba(39, 174, 96, 0.25); border-color: rgba(39, 174, 96, 0.7); }
-            50% { box-shadow: 0 12px 30px rgba(39, 174, 96, 0.75), 0 0 20px rgba(39, 174, 96, 0.5); border-color: rgba(255, 255, 255, 0.9); }
-            100% { box-shadow: 0 8px 20px rgba(39, 174, 96, 0.45), 0 0 10px rgba(39, 174, 96, 0.25); border-color: rgba(39, 174, 96, 0.7); }
+        
+        @keyframes buttonBreath {
+            0% { box-shadow: 0 10px 25px rgba(0,0,0,0.5), 0 0 15px var(--tab-glow-color), inset 0 2px 5px rgba(255,255,255,0.3); }
+            100% { box-shadow: 0 15px 35px rgba(0,0,0,0.6), 0 0 35px var(--tab-glow-color), inset 0 2px 5px rgba(255,255,255,0.5); }
         }
 
-        /* Heartbeat for active state circles */
-        @keyframes heartBeatRed {
-            0% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-            20% { transform: scale(1.4); background-color: #e8a5a7; box-shadow: 0 0 15px #e8a5a7; }
-            40% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-            60% { transform: scale(1.4); background-color: #d47a7e; box-shadow: 0 0 15px #d47a7e; }
-            80% { transform: scale(1.2); background-color: #ebbabc; box-shadow: 0 0 12px #ebbabc; }
-            100% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-        }
-        @keyframes heartBeatGreen {
-            0% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-            20% { transform: scale(1.4); background-color: #abebc6; box-shadow: 0 0 15px #abebc6; }
-            40% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-            60% { transform: scale(1.4); background-color: #27ae60; box-shadow: 0 0 15px #27ae60; }
-            80% { transform: scale(1.2); background-color: #58d68d; box-shadow: 0 0 12px #58d68d; }
-            100% { transform: scale(1); background-color: #ffffff; box-shadow: 0 0 10px #ffffff; }
-        }
-
-        .voucher-type-btn.active-payment span {
-            /* animation removed */
-        }
-        .voucher-type-btn.active-receipt span {
-            /* animation removed */
+        .voucher-type-btn.active-payment span.btn-icon, .voucher-type-btn.active-receipt span.btn-icon {
+            filter: drop-shadow(0 0 8px rgba(255,255,255,0.8));
+            transform: scale(1.1);
         }
 
         /* Color Wave Animation */
@@ -1021,10 +1016,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         </div>
                         <div style="display: flex; gap: 10px;">
                             <button id="btn-payment" class="btn crystal-btn voucher-type-btn active-payment" onclick="setVoucherType('payment')" title="الصرف من حساب واحد إلى مجموعة حسابات">
-                                <span class="btn-icon">💸📤</span> <span class="btn-text">صرف مجمع</span>
+                                <span class="btn-icon">💸📤</span> <span class="btn-text">صرف من مجموعة</span>
                             </button>
                             <button id="btn-receipt" class="btn crystal-btn voucher-type-btn" onclick="setVoucherType('receipt')" title="استلام في حساب واحد من مجموعة حسابات">
-                                <span class="btn-icon">💰📥</span> <span class="btn-text">استلام مجمع</span>
+                                <span class="btn-icon">💰📥</span> <span class="btn-text">استلام من مجموعة</span>
                             </button>
                         </div>
                     </div>
