@@ -3383,21 +3383,52 @@ window.saveNumberProperties = function() {
     }
 };
 
-// --- Custom Keyboard Navigation Flow (Enter Key) ---
+// --- Custom Keyboard Navigation Flow (Enter & Ctrl+Enter) ---
 document.addEventListener('keydown', function(e) {
-    if (e.key === 'Enter') {
-        const active = document.activeElement;
-        if (!active) return;
+    const active = document.activeElement;
+    if (!active) return;
+
+    // --- Ctrl + Enter : Switch to Cheque Mode ---
+    if (e.ctrlKey && e.key === 'Enter') {
+        e.preventDefault();
+        const block = active.closest('.account-block');
+        if (block) {
+            const chequeBtn = block.querySelector('.block-btn-cheque');
+            if (chequeBtn) {
+                // Click it to ensure it opens
+                chequeBtn.click();
+                setTimeout(() => {
+                    const chequeAmount = block.querySelector('.block-cheque-amount');
+                    if (chequeAmount) {
+                        chequeAmount.focus();
+                        chequeAmount.select();
+                    }
+                }, 100);
+            }
+        }
+        return;
+    }
+
+    if (e.key === 'Enter' && !e.ctrlKey) {
         
         // 1. main-account-search -> amount input of first block
         if (active.id === 'main-account-search') {
-            e.preventDefault();
-            const firstAmount = document.querySelector('.block-total-amount');
-            if (firstAmount) {
-                firstAmount.focus();
-                firstAmount.select();
+            const list = document.getElementById('main-account-dropdown-list');
+            if (list && list.style.display !== 'none' && list.innerHTML.trim() !== '') {
+                // Dropdown is open. User is selecting. We let default happen.
+                // It will select the item, but won't jump to Amount yet.
+                // User will press Enter a second time to jump to Amount.
+                return;
+            } else {
+                // Second enter (dropdown closed) jumps to first amount
+                e.preventDefault();
+                const firstAmount = document.querySelector('.block-total-amount');
+                if (firstAmount) {
+                    firstAmount.focus();
+                    firstAmount.select();
+                }
+                return;
             }
-            return;
         }
         
         // 2. amount-* -> account-*-search
@@ -3413,18 +3444,18 @@ document.addEventListener('keydown', function(e) {
 
         // 3. account-*-search -> bank toggle
         if (active.classList.contains('block-account-search')) {
-            // Check if dropdown is active
             const listId = active.id.replace('-search', '-dropdown-list');
             const list = document.getElementById(listId);
             if (list && list.style.display !== 'none' && list.innerHTML.trim() !== '') {
+                // Dropdown open, let selection happen
                 setTimeout(() => {
                     const block = active.closest('.account-block');
                     if (block) {
                         const bankBtn = block.querySelector('.block-btn-bank');
                         if (bankBtn) bankBtn.focus();
                     }
-                }, 100);
-                return; // Let default selection happen
+                }, 150);
+                return; 
             } else {
                 e.preventDefault();
                 const block = active.closest('.account-block');
@@ -3447,7 +3478,7 @@ document.addEventListener('keydown', function(e) {
                         stmt.select();
                     }
                 }
-            }, 10);
+            }, 50);
             return;
         }
 
@@ -3462,7 +3493,7 @@ document.addEventListener('keydown', function(e) {
                         amounts[amounts.length - 1].focus();
                         amounts[amounts.length - 1].select();
                     }
-                }, 50);
+                }, 100);
             }
             return;
         }
@@ -3489,15 +3520,120 @@ document.addEventListener('keydown', function(e) {
             }
             return;
         }
-        
-        // 8. transfer no -> add bank row button
+
+        // 8. transfer no -> bank desc
         if (active.classList.contains('block-transfer-no-input')) {
+            e.preventDefault();
+            const row = active.closest('.bank-row');
+            if (row) {
+                const desc = row.querySelector('.block-bank-desc-input');
+                if (desc) { desc.focus(); desc.select(); }
+                else {
+                    const btn = row.querySelector('[data-action="add-bank-row"]');
+                    if (btn) btn.focus();
+                }
+            }
+            return;
+        }
+        
+        // 9. bank desc -> add bank row button
+        if (active.classList.contains('block-bank-desc-input')) {
             e.preventDefault();
             const row = active.closest('.bank-row');
             if (row) {
                 const btn = row.querySelector('[data-action="add-bank-row"]');
                 if (btn) btn.focus();
             }
+            return;
+        }
+
+        // Handle enter on 'add-bank-row' button to focus new amount
+        if (active.getAttribute('data-action') === 'add-bank-row') {
+            setTimeout(() => {
+                const block = active.closest('.account-block');
+                if (block) {
+                    const bankAmts = block.querySelectorAll('.block-bank-amount');
+                    if (bankAmts.length > 0) {
+                        bankAmts[bankAmts.length - 1].focus();
+                        bankAmts[bankAmts.length - 1].select();
+                    }
+                }
+            }, 50);
+            return;
+        }
+
+        // --- Cheque Details Navigation ---
+        // 10. cheque amount -> cheque bank name
+        if (active.classList.contains('block-cheque-amount')) {
+            e.preventDefault();
+            const row = active.closest('.cheque-row');
+            if (row) {
+                const nameInp = row.querySelector('.block-cheque-bank-input');
+                if (nameInp) { nameInp.focus(); nameInp.select(); }
+            }
+            return;
+        }
+
+        // 11. cheque name -> cheque no
+        if (active.classList.contains('block-cheque-bank-input')) {
+            e.preventDefault();
+            const row = active.closest('.cheque-row');
+            if (row) {
+                const chqNo = row.querySelector('.block-cheque-no-input');
+                if (chqNo) { chqNo.focus(); chqNo.select(); }
+            }
+            return;
+        }
+
+        // 12. cheque no -> cheque date
+        if (active.classList.contains('block-cheque-no-input')) {
+            e.preventDefault();
+            const row = active.closest('.cheque-row');
+            if (row) {
+                const chqDate = row.querySelector('.block-cheque-date-input');
+                if (chqDate) { chqDate.focus(); }
+            }
+            return;
+        }
+
+        // 13. cheque date -> cheque desc
+        if (active.classList.contains('block-cheque-date-input')) {
+            e.preventDefault();
+            const row = active.closest('.cheque-row');
+            if (row) {
+                const desc = row.querySelector('.block-cheque-desc-input');
+                if (desc) { desc.focus(); desc.select(); }
+                else {
+                    const btn = row.querySelector('[data-action="add-cheque-row"]');
+                    if (btn) btn.focus();
+                }
+            }
+            return;
+        }
+
+        // 14. cheque desc -> add cheque row button
+        if (active.classList.contains('block-cheque-desc-input')) {
+            e.preventDefault();
+            const row = active.closest('.cheque-row');
+            if (row) {
+                const btn = row.querySelector('[data-action="add-cheque-row"]');
+                if (btn) btn.focus();
+            }
+            return;
+        }
+
+        // Handle enter on 'add-cheque-row' button to focus new amount
+        if (active.getAttribute('data-action') === 'add-cheque-row') {
+            setTimeout(() => {
+                const block = active.closest('.account-block');
+                if (block) {
+                    const chqAmts = block.querySelectorAll('.block-cheque-amount');
+                    if (chqAmts.length > 0) {
+                        chqAmts[chqAmts.length - 1].focus();
+                        chqAmts[chqAmts.length - 1].select();
+                    }
+                }
+            }, 50);
             return;
         }
     }
