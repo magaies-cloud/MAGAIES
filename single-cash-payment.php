@@ -1135,7 +1135,8 @@ try {
         }
         @keyframes shimmerWave {
             0% { transform: translateX(-150%) skewX(-45deg); opacity: 0; }
-            50% { opacity: 0.4; }
+            11.5% { opacity: 0.15; }
+            23% { transform: translateX(150%) skewX(-45deg); opacity: 0; }
             100% { transform: translateX(150%) skewX(-45deg); opacity: 0; }
         }
         .total-glass-card {
@@ -1157,7 +1158,7 @@ try {
             transform: translateY(-8px) scale(1.05) !important;
             z-index: 10;
         }
-        .total-glass-card:hover::before { animation: shimmerWave 1.5s infinite; opacity: 1; }
+        .total-glass-card:hover::before { animation: shimmerWave 6.5s infinite; opacity: 1; }
         .total-glass-card:hover::after { opacity: 1; transform: rotate(15deg); }
         .total-glass-card:hover .glow-orb { filter: blur(20px); transform: scale(2); opacity: 0.8; }
         
