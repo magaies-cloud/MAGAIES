@@ -1847,14 +1847,6 @@ function selectAccount(type, id, name) {
     document.getElementById(type + '-account-search').value = name;
     document.getElementById(type + '-account-dropdown-list').classList.remove('show');
     updateLedgerButtons();
-}
-
-// Override selectAccount to handle focus jumping and balance updating
-window.selectAccount = function(type, id, name) {
-    document.getElementById(type + '-account').value = id;
-    document.getElementById(type + '-account-search').value = name;
-    document.getElementById(type + '-account-dropdown-list').classList.remove('show');
-    updateLedgerButtons();
     
     if (type === 'to') {
         if(typeof updateBalances === 'function') updateBalances();
@@ -1879,7 +1871,10 @@ window.selectAccount = function(type, id, name) {
             amtInput.select();
         }
     }, 150);
-};
+}
+
+window.selectAccount = selectAccount;
+;
 
 function updateLedgerButtons() {
     const fromVal = document.getElementById('from-account') ? document.getElementById('from-account').value : '';
