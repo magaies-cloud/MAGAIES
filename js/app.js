@@ -5341,6 +5341,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                             account: bankAcct, counterAccount: itemAcct,
                             statement: v.description || stmt,
                             additionalNote: v.description || stmt,
+                            transferNo: bt.transferNo, bankName: bt.bankName || bt.note,
                             debit: amtLoc, credit: 0, 
                             debitForeign: amtFc, creditForeign: 0,
                             costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
@@ -5352,6 +5353,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                             account: itemAcct, counterAccount: bankAcct,
                             statement: stmt,
                             additionalNote: stmt,
+                            transferNo: bt.transferNo, bankName: bt.bankName || bt.note,
                             debit: 0, credit: amtLoc, 
                             debitForeign: 0, creditForeign: amtFc,
                             costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
@@ -5377,6 +5379,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                             account: chequeAcct, counterAccount: itemAcct,
                             statement: v.description || stmt,
                             additionalNote: v.description || stmt,
+                            checkNo: ch.chequeNo || ch.checkNo, bankName: ch.chequeBank || ch.checkBank,
                             debit: amtLoc, credit: 0, 
                             debitForeign: amtFc, creditForeign: 0,
                             costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
@@ -5388,6 +5391,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                             account: itemAcct, counterAccount: chequeAcct,
                             statement: stmt,
                             additionalNote: stmt,
+                            checkNo: ch.chequeNo || ch.checkNo, bankName: ch.chequeBank || ch.checkBank,
                             debit: 0, credit: amtLoc, 
                             debitForeign: 0, creditForeign: amtFc,
                             costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
@@ -5583,6 +5587,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                             account: itemAcct, counterAccount: bankAcct,
                             statement: stmt,
                             additionalNote: stmt,
+                            transferNo: bt.transferNo, bankName: bt.bankName || bt.note,
                             debit: amtLoc, credit: 0, 
                             debitForeign: amtFc, creditForeign: 0,
                             costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
@@ -5594,6 +5599,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                             account: bankAcct, counterAccount: itemAcct,
                             statement: v.description || stmt,
                             additionalNote: v.description || stmt,
+                            transferNo: bt.transferNo, bankName: bt.bankName || bt.note,
                             debit: 0, credit: amtLoc, 
                             debitForeign: 0, creditForeign: amtFc,
                             costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
@@ -5619,6 +5625,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                             account: itemAcct, counterAccount: chequeAcct,
                             statement: stmt,
                             additionalNote: stmt,
+                            checkNo: ch.chequeNo || ch.checkNo, bankName: ch.chequeBank || ch.checkBank,
                             debit: amtLoc, credit: 0, 
                             debitForeign: amtFc, creditForeign: 0,
                             costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
@@ -5630,6 +5637,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                             account: chequeAcct, counterAccount: itemAcct,
                             statement: v.description || stmt,
                             additionalNote: v.description || stmt,
+                            checkNo: ch.chequeNo || ch.checkNo, bankName: ch.chequeBank || ch.checkBank,
                             debit: 0, credit: amtLoc, 
                             debitForeign: 0, creditForeign: amtFc,
                             costCenter: item.costCenter || costCenter, currency, exchangeRate: effRate, isPosted
