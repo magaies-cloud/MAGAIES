@@ -654,7 +654,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
         @keyframes shimmerWave {
             0% { transform: translateX(-150%) skewX(-45deg); opacity: 0; }
-            50% { opacity: 0.8; }
+            50% { opacity: 0.3; }
             100% { transform: translateX(150%) skewX(-45deg); opacity: 0; }
         }
         .block-bank-details, .block-cheque-details, .glass-red, .glass-green {
@@ -664,7 +664,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
         .block-bank-details::before, .block-cheque-details::before, .glass-red::before, .glass-green::before {
             content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 40%, rgba(255,255,255,0.9) 50%, rgba(255,255,255,0.2) 60%, rgba(255,255,255,0) 100%);
+            background: linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.02) 45%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.02) 55%, rgba(255,255,255,0) 100%);
             z-index: 1; opacity: 0; transition: opacity 0.5s ease; pointer-events: none;
         }
         .block-bank-details:hover::before, .block-cheque-details:hover::before, .glass-red:hover::before, .glass-green:hover::before { animation: shimmerWave 1.5s infinite; opacity: 1; }
