@@ -2192,11 +2192,10 @@ window.selectAccount = function(type, id, name) {
         const blockId = type.replace('account-', '');
         const block = document.getElementById('block-' + blockId);
         if (block) {
-            const radioBank = block.querySelector('.pay-method-radio[value="bank"]');
-            if (radioBank && !radioBank.checked) {
-                radioBank.checked = true;
-                if (typeof window.togglePaymentMethodBlock === 'function') {
-                    window.togglePaymentMethodBlock(blockId);
+            const btnBank = block.querySelector('.block-btn-bank');
+            if (btnBank && !btnBank.classList.contains('active')) {
+                if (typeof window.toggleBlockPaymentMethod === 'function') {
+                    window.toggleBlockPaymentMethod(blockId, 'bank');
                 }
             }
             setTimeout(() => {
@@ -3458,11 +3457,10 @@ document.addEventListener('keydown', function(e) {
         if (block) {
             e.preventDefault();
             const blockId = block.id.replace('block-', '');
-            const radioCheque = block.querySelector('.pay-method-radio[value="cheque"]');
-            if (radioCheque && !radioCheque.checked) {
-                radioCheque.checked = true;
-                if (typeof window.togglePaymentMethodBlock === 'function') {
-                    window.togglePaymentMethodBlock(blockId);
+            const btnCheque = block.querySelector('.block-btn-cheque');
+            if (btnCheque && !btnCheque.classList.contains('active')) {
+                if (typeof window.toggleBlockPaymentMethod === 'function') {
+                    window.toggleBlockPaymentMethod(blockId, 'cheque');
                 }
             }
             setTimeout(() => {
@@ -3550,11 +3548,10 @@ document.addEventListener('keydown', function(e) {
                 const block = active.closest('.account-block');
                 if (block) {
                     const blockId = block.id.replace('block-', '');
-                    const radioBank = block.querySelector('.pay-method-radio[value="bank"]');
-                    if (radioBank && !radioBank.checked) {
-                        radioBank.checked = true;
-                        if (typeof window.togglePaymentMethodBlock === 'function') {
-                            window.togglePaymentMethodBlock(blockId);
+                    const btnBank = block.querySelector('.block-btn-bank');
+                    if (btnBank && !btnBank.classList.contains('active')) {
+                        if (typeof window.toggleBlockPaymentMethod === 'function') {
+                            window.toggleBlockPaymentMethod(blockId, 'bank');
                         }
                     }
                     setTimeout(() => {
