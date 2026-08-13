@@ -1712,22 +1712,28 @@ try {
             else method = 'cash';
             
             let tSum = 0;
-            document.querySelectorAll('.transfer-row .transfer-amount').forEach(inp => tSum += parseFloat(inp.value.replace(/,/g, '')) || 0);
+            if (bankActive) {
+                document.querySelectorAll('.transfer-row .transfer-amount').forEach(inp => tSum += parseFloat(inp.value.replace(/,/g, '')) || 0);
+            }
             let cSum = 0;
-            document.querySelectorAll('.cheque-row .cheque-amount').forEach(inp => cSum += parseFloat(inp.value.replace(/,/g, '')) || 0);
+            if (chequeActive) {
+                document.querySelectorAll('.cheque-row .cheque-amount').forEach(inp => cSum += parseFloat(inp.value.replace(/,/g, '')) || 0);
+            }
+            
+            const amtElGlobal = document.getElementById('amount-local');
             
             // Auto-calculate amount-local based on rows if not cash!
             if (method !== 'cash') {
+                if (amtElGlobal) amtElGlobal.readOnly = true; // Lock local amount field
                 const totalSum = tSum + cSum;
                 if (Math.abs(amount - totalSum) > 0.001) {
                     amount = totalSum;
-                    const amtEl = document.getElementById('amount-local');
-                    if (amtEl) {
+                    if (amtElGlobal) {
                         // Remember original cursor position if focused on amount-local (unlikely but safe)
                         let parts = totalSum.toFixed(2).split('.');
                         if (parts[1] === '00') parts = [parts[0]]; // Don't add .00 if not needed
                         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
-                        amtEl.value = parts.join('.');
+                        amtElGlobal.value = parts.join('.');
                         
                         // Disable syncFirstRowAmount temporarily to prevent cursor jump
                         const origSync = window.syncFirstRowAmount;
@@ -1736,6 +1742,8 @@ try {
                         window.syncFirstRowAmount = origSync;
                     }
                 }
+            } else {
+                if (amtElGlobal) amtElGlobal.readOnly = false; // Unlock local amount field in cash mode
             }
             
             // Progress widths
