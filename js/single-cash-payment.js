@@ -2406,15 +2406,7 @@ window.initPaymentContainers = function() {
 
 window.syncFirstRowAmount = function() {
     if (window.isLoadingVoucher) return;
-    const totalAmount = parseNum(document.getElementById('amount-local').value);
-    const transferRows = document.querySelectorAll('.transfer-row');
-    if (transferRows.length === 1) {
-        transferRows[0].querySelector('.transfer-amount').value = fmtNum(totalAmount);
-    }
-    const chequeRows = document.querySelectorAll('.cheque-row');
-    if (chequeRows.length === 1) {
-        chequeRows[0].querySelector('.cheque-amount').value = fmtNum(totalAmount);
-    }
+    if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();
 };
 
 window.loadVoucherPaymentDetails = function(v) {
