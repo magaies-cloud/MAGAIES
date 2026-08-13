@@ -1477,12 +1477,20 @@ try {
                                         <div id="transfers-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
                                             <!-- Dynamic rows -->
                                         </div>
+                                        <div style="margin-top: 5px; padding-top: 10px; border-top: 1px dashed rgba(16, 185, 129, 0.3); display: flex; justify-content: space-between; align-items: center;">
+                                            <span style="color: #34d399; font-size: 0.9rem; font-weight: bold;">إجمالي التحويلات:</span>
+                                            <span id="bank-total-display" style="color: #10b981; font-size: 1.4rem; font-weight: 900; background: rgba(0,0,0,0.2); padding: 2px 12px; border-radius: 6px;">0</span>
+                                        </div>
                                     </div>
 
                                     <!-- Cheque section -->
                                     <div id="pay-cheque-section" class="payment-method-box" style="background: rgba(168, 85, 247, 0.14); border: 1.5px solid rgba(168, 85, 247, 0.55); border-radius: 12px; padding: 12px 15px; display: none; flex-direction: column; gap: 10px; box-shadow: inset 0 0 15px rgba(168, 85, 247, 0.15);">
                                         <div id="cheques-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
                                             <!-- Dynamic rows -->
+                                        </div>
+                                        <div style="margin-top: 5px; padding-top: 10px; border-top: 1px dashed rgba(168, 85, 247, 0.4); display: flex; justify-content: space-between; align-items: center;">
+                                            <span style="color: #c084fc; font-size: 0.9rem; font-weight: bold;">إجمالي الشيكات:</span>
+                                            <span id="cheque-total-display" style="color: #a855f7; font-size: 1.4rem; font-weight: 900; background: rgba(0,0,0,0.2); padding: 2px 12px; border-radius: 6px;">0</span>
                                         </div>
                                     </div>
 
@@ -1735,15 +1743,25 @@ try {
                         parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',');
                         amtElGlobal.value = parts.join('.');
                         
-                        // Disable syncFirstRowAmount temporarily to prevent cursor jump
-                        const origSync = window.syncFirstRowAmount;
-                        window.syncFirstRowAmount = function(){};
                         if (typeof calcEquiv === 'function') calcEquiv('local');
-                        window.syncFirstRowAmount = origSync;
                     }
                 }
             } else {
                 if (amtElGlobal) amtElGlobal.readOnly = false; // Unlock local amount field in cash mode
+            }
+            
+            // Update total boxes
+            const bankTotalBox = document.getElementById('bank-total-display');
+            if (bankTotalBox) {
+                let parts = tSum.toFixed(2).split('.');
+                if (parts[1] === '00') parts = [parts[0]];
+                bankTotalBox.textContent = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (parts[1] ? '.' + parts[1] : '');
+            }
+            const chequeTotalBox = document.getElementById('cheque-total-display');
+            if (chequeTotalBox) {
+                let parts = cSum.toFixed(2).split('.');
+                if (parts[1] === '00') parts = [parts[0]];
+                chequeTotalBox.textContent = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ',') + (parts[1] ? '.' + parts[1] : '');
             }
             
             // Progress widths
