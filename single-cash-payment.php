@@ -1261,7 +1261,7 @@ try {
                                 <label id="label-box-2" class="label" style="display:flex; align-items:center; gap:5px; color:#cbd5e1 !important; font-size:1.1rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">💵 القيمة (أجنبي)</label>
                                 <div style="position: relative; flex-grow: 1; min-width: 0; width: 100%;">
                                     <span id="amount-foreign-currency-symbol" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: #ef4444; color: white; padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.9rem; pointer-events: none; z-index: 5; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);">USD</span>
-                                    <input type="text" class="form-input amount input-glow-focus hover-glow" id="amount-foreign" data-next="from-account" value="0" inputmode="decimal" onfocus="this.select()" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if(typeof calcEquiv === 'function') calcEquiv('foreign');" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="let val = this.value.replace(/[^0-9.]/g, ''); this.value = val; calcEquiv('foreign'); if(typeof adjustAmountFontSize === 'function') adjustAmountFontSize(this); if(this.getAttribute('data-thousands') !== 'false') { let parts = val.split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); this.value = parts.join('.'); }" style="height: 55px; font-size: 2.35rem !important; text-align: center; background: #ffffff !important; color: #ef4444 !important; font-weight: 900; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; direction: ltr; border-radius: 10px; width: 100%; transition: font-size 0.2s ease, letter-spacing 0.2s ease; padding-left: 60px;">
+                                    <input type="text" class="form-input amount input-glow-focus hover-glow" id="amount-foreign" data-next="from-account" value="0" inputmode="decimal" readonly tabindex="-1" onfocus="this.select()" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if(typeof calcEquiv === 'function') calcEquiv('foreign');" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="let val = this.value.replace(/[^0-9.]/g, ''); this.value = val; calcEquiv('foreign'); if(typeof adjustAmountFontSize === 'function') adjustAmountFontSize(this); if(this.getAttribute('data-thousands') !== 'false') { let parts = val.split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); this.value = parts.join('.'); }" style="height: 60px; font-size: 2.35rem !important; text-align: center; background: #fafafa !important; color: #ef4444 !important; font-weight: 900; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; direction: ltr; border-radius: 10px; width: 100%; transition: font-size 0.2s ease, letter-spacing 0.2s ease; padding-left: 60px; cursor: not-allowed; border: 1px solid #fca5a5;">
                                 </div>
                             </div>
                         </div>
@@ -1484,6 +1484,15 @@ try {
                                         <div id="cheques-container" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
                                             <!-- Dynamic rows -->
                                         </div>
+                                    </div>
+
+                                    <!-- Unified Total Box -->
+                                    <div id="unified-total-box" style="display: none; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); border-radius: 8px; padding: 15px 20px; margin-top: 8px; text-align: center; box-shadow: 0 4px 6px rgba(0,0,0,0.1);">
+                                        <span style="color: #94a3b8; font-size: 1.1rem; font-weight: bold; line-height: 1.5;">
+                                            مجموع الشيكات <span id="unified-cheque-total" style="color: #a855f7;">0</span> ، 
+                                            ومجموع التحويلات <span id="unified-bank-total" style="color: #34d399;">0</span> ، 
+                                            والجملة <span id="unified-grand-total" style="color: #38bdf8;">0</span>
+                                        </span>
                                     </div>
 
                                     <!-- Hidden legacy inputs to prevent crashes in old scripts -->
