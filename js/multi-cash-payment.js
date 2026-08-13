@@ -2078,6 +2078,8 @@ function renderAccountDropdown(type, filter = '') {
         filtered.forEach(a => {
             const div = document.createElement('div');
             div.className = 'custom-dropdown-item';
+            div.dataset.id = a.id;
+            div.dataset.name = a.name;
             div.style.padding = '12px 16px';
             div.style.cursor = 'pointer';
             div.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
@@ -3477,7 +3479,27 @@ document.addEventListener('keydown', function(e) {
         if (active.id === 'main-account-search') {
             const list = document.getElementById('main-account-dropdown-list');
             if (list && list.style.display !== 'none' && list.innerHTML.trim() !== '') {
-                // Dropdown is open. User is selecting. We let default happen.
+                // Dropdown is open. Auto-select first item and jump to first receiving account
+                e.preventDefault();
+                const firstItem = list.querySelector('.custom-dropdown-item');
+                if (firstItem) {
+                    const id = firstItem.dataset.id;
+                    const name = firstItem.dataset.name;
+                    if (id && name && typeof selectAccount === 'function') {
+                        selectAccount('main-account', id, name);
+                    }
+                }
+                setTimeout(() => {
+                    const firstAccount = document.querySelector('.block-account-search');
+                    if (firstAccount) {
+                        firstAccount.focus();
+                        firstAccount.select();
+                        const blockId = firstAccount.id.replace('account-search-', '');
+                        if (typeof showAccountDropdown === 'function') {
+                            showAccountDropdown('account-' + blockId);
+                        }
+                    }
+                }, 100);
                 return;
             } else {
                 // Second enter (dropdown closed) jumps to first account search
@@ -3508,17 +3530,20 @@ document.addEventListener('keydown', function(e) {
 
         // 3. account-*-search -> bank amount
         if (active.classList.contains('block-account-search')) {
-            const listId = active.id.replace('-search', '-dropdown-list');
+            const type = active.id.replace('-search', '');
+            const listId = type + '-dropdown-list';
             const list = document.getElementById(listId);
             if (list && list.style.display !== 'none' && list.innerHTML.trim() !== '') {
-                // Dropdown open, let selection happen
-                setTimeout(() => {
-                    const block = active.closest('.account-block');
-                    if (block) {
-                        const amtEl = block.querySelector('.block-bank-amount');
-                        if (amtEl && amtEl.offsetParent !== null) { amtEl.focus(); amtEl.select(); }
+                // Dropdown open, auto-select first item
+                e.preventDefault();
+                const firstItem = list.querySelector('.custom-dropdown-item');
+                if (firstItem) {
+                    const id = firstItem.dataset.id;
+                    const name = firstItem.dataset.name;
+                    if (id && name && typeof selectAccount === 'function') {
+                        selectAccount(type, id, name);
                     }
-                }, 150);
+                }
                 return; 
             } else {
                 e.preventDefault();
