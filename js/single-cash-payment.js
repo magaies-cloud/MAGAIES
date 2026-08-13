@@ -2336,7 +2336,8 @@ window.removeTransferRow = function(btn) {
         return;
     }
     btn.closest('.transfer-row').remove();
-    syncFirstRowAmount();
+    if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();
+    else syncFirstRowAmount();
 };
 
 window.addChequeRow = function(branch = '', no = '', date = '', amt = 0, statement = '') {
@@ -2386,7 +2387,8 @@ window.removeChequeRow = function(btn) {
         return;
     }
     btn.closest('.cheque-row').remove();
-    syncFirstRowAmount();
+    if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();
+    else syncFirstRowAmount();
 };
 
 window.initPaymentContainers = function() {
