@@ -2068,6 +2068,9 @@
                     </div>
                 </div>
                 
+                <!-- New Button: Solid Green Gradient -->
+                <button type="button" class="btn-action btn-new" style="flex: 1; height: 45px; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4); background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s;" onmouseover="this.style.boxShadow='0 6px 20px rgba(16, 185, 129, 0.6)';" onmouseout="this.style.boxShadow='0 2px 10px rgba(16, 185, 129, 0.4)';" onclick="window.location.href='purchase.php';">✨ جديد</button>
+
                 <!-- Submit Button: Solid Blue Gradient -->
                 <span style="display:none;" id="footer-grand"></span>
                 <button class="btn-action btn-submit" style="flex: 1.5; height: 45px; box-shadow: 0 2px 10px rgba(56, 189, 248, 0.4); background: linear-gradient(135deg, #0ea5e9, #2563eb); color: #fff; border: none; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s;" onmouseover="this.style.boxShadow='0 6px 20px rgba(56, 189, 248, 0.6)';" onmouseout="this.style.boxShadow='0 2px 10px rgba(56, 189, 248, 0.4)';" onclick="submitInvoice()">✅ تأكيد وحفظ</button>
