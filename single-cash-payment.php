@@ -1108,6 +1108,13 @@ try {
         .dynamic-focus-number:focus {
             color: #38bdf8 !important; /* Sky Blue for focus/comfort */
         }
+        .transfer-no.dynamic-focus-input:focus {
+            font-size: 2.2rem !important;
+            height: 80px !important;
+            min-width: 450px !important;
+            margin-right: -50px !important;
+            letter-spacing: 2px !important;
+        }
         
         .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus {
             font-size: 5.5rem !important;
