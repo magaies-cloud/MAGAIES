@@ -69,8 +69,8 @@
             font-size: 1.85rem !important;
             font-weight: 900 !important;
             background: linear-gradient(135deg, #1e3a8a, #172554) !important;
-            color: #38bdf8 !important;
-            text-shadow: 0 2px 10px rgba(56, 189, 248, 0.5);
+            color: #ffffff !important;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.6) !important;
             border: 2px solid #3b82f6 !important;
             box-shadow: inset 0 0 15px rgba(59, 130, 246, 0.4), 0 0 20px rgba(0,0,0,0.5) !important;
             z-index: 100;
@@ -81,10 +81,10 @@
             display: table-cell !important;
         }
         :root.light-theme .excel-table td.num-magnified {
-            background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+            background: linear-gradient(135deg, #1e3a8a, #172554) !important;
             color: #ffffff !important;
-            border: 2px solid #b45309 !important;
-            box-shadow: inset 0 0 10px rgba(255,255,255,0.3), 0 5px 20px rgba(0,0,0,0.2) !important;
+            border: 2px solid #3b82f6 !important;
+            box-shadow: inset 0 0 10px rgba(255,255,255,0.3), 0 5px 20px rgba(30, 58, 138, 0.3) !important;
             text-shadow: 0 1px 3px rgba(0,0,0,0.3);
         }
 

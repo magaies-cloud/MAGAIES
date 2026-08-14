@@ -136,7 +136,7 @@ try {
         /* Typography Scale for Clarity */
         .label { font-size: 1.3rem !important; font-weight: 900 !important; color: #f8fafc !important; text-shadow: 0 2px 4px rgba(0,0,0,0.9) !important; }
         .form-input, textarea.form-input { font-size: 1.25rem !important; font-weight: 800 !important; color: #ffffff !important; background: #0f172a !important; border: 1px solid #38bdf8 !important; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); text-shadow: none !important; }
-        .form-input:not(#amount-local) { height: 48px !important; }
+        .form-input:not(#amount-local):not(#amount-foreign) { height: 48px !important; }
         textarea.form-input { height: auto !important; min-height: 48px; }
         #to-statement, #from-statement { font-size: 0.95rem !important; }
         #amount-local { 
@@ -1109,11 +1109,12 @@ try {
             color: #38bdf8 !important; /* Sky Blue for focus/comfort */
         }
         .transfer-no.dynamic-focus-input:focus {
-            font-size: 2.2rem !important;
+            font-size: 1.7rem !important;
             height: 80px !important;
-            min-width: 450px !important;
+            width: 500px !important;
+            max-width: none !important;
             margin-right: -50px !important;
-            letter-spacing: 2px !important;
+            letter-spacing: 1px !important;
         }
         
         .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus {
@@ -1281,7 +1282,7 @@ try {
                         </div>
 
                         <!-- Row 1: Currency | Amount | Rate | Foreign -->
-                        <div style="display: grid; grid-template-columns: 1.0fr 1.7fr 1.3fr 1.5fr; gap: 15px; margin-bottom: 25px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="display: grid; grid-template-columns: 0.8fr 2.2fr 1.0fr 2.0fr; gap: 15px; margin-bottom: 25px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <label class="label" style="display:flex; align-items:center; gap:5px; color:#fbbf24 !important; font-size:1.1rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">💱 العملة</label>
                                 <select class="form-input system-currency-select input-glow-focus hover-glow" id="currency" data-next="exchange-rate" onchange="updateCurrency(); document.getElementById('exchange-rate').focus(); document.getElementById('exchange-rate').select();" style="height: 55px; border-radius: 10px; flex-grow: 1; min-width: 0; width: 100%; font-size: 1.3rem !important; font-weight: 800; padding-right: 5px; padding-left: 5px;">
@@ -1294,7 +1295,7 @@ try {
                                 <label id="label-box-1" class="label" style="display:flex; align-items:center; gap:5px; color:#cbd5e1 !important; font-size:1.1rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;"><span class="vivid-icon vivid-green" style="width:24px; height:24px; font-size:1.1rem;">💰</span> المبلغ (محلي)</label>
                                 <div style="position: relative; flex-grow: 1; min-width: 0; width: 100%;">
                                     <span id="amount-currency-symbol" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: var(--primary-color, #3b82f6); color: white; padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.9rem; pointer-events: none; z-index: 5; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);">SDG</span>
-                                    <input type="text" class="form-input amount hover-scale input-glow-focus hover-glow" id="amount-local" data-next="from-account" autofocus value="0" inputmode="numeric" onfocus="this.select()" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if(typeof calcEquiv === 'function') calcEquiv('local');" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="let val = this.value.replace(/[^0-9.]/g, ''); this.value = val; calcEquiv('local'); if(typeof adjustAmountFontSize === 'function') adjustAmountFontSize(this); if(this.getAttribute('data-thousands') !== 'false') { let parts = val.split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); this.value = parts.join('.'); }" style="height: 72px !important; box-sizing: border-box !important; font-size: 2.35rem !important; font-weight: 900; text-align: center; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; direction: ltr; border-radius: 10px; width: 100%; transition: font-size 0.2s ease, letter-spacing 0.2s ease; padding-left: 60px;">
+                                    <input type="text" class="form-input amount hover-scale input-glow-focus hover-glow" id="amount-local" data-next="from-account" autofocus value="0" inputmode="numeric" onfocus="this.select()" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if(typeof calcEquiv === 'function') calcEquiv('local');" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="let val = this.value.replace(/[^0-9.]/g, ''); this.value = val; calcEquiv('local'); if(typeof adjustAmountFontSize === 'function') adjustAmountFontSize(this); if(this.getAttribute('data-thousands') !== 'false') { let parts = val.split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); this.value = parts.join('.'); }" style="height: 94px !important; box-sizing: border-box !important; font-size: 2.35rem !important; font-weight: 900; text-align: center; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; direction: ltr; border-radius: 10px; width: 100%; transition: font-size 0.2s ease, letter-spacing 0.2s ease; padding-left: 60px;">
                                 </div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px;">
@@ -1305,7 +1306,7 @@ try {
                                 <label id="label-box-2" class="label" style="display:flex; align-items:center; gap:5px; color:#cbd5e1 !important; font-size:1.1rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">💵 القيمة (أجنبي)</label>
                                 <div style="position: relative; flex-grow: 1; min-width: 0; width: 100%;">
                                     <span id="amount-foreign-currency-symbol" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: #ef4444; color: white; padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.9rem; pointer-events: none; z-index: 5; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);">USD</span>
-                                    <input type="text" class="form-input amount input-glow-focus hover-glow" id="amount-foreign" data-next="from-account" value="0" inputmode="decimal" readonly tabindex="-1" onfocus="this.select()" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if(typeof calcEquiv === 'function') calcEquiv('foreign');" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="let val = this.value.replace(/[^0-9.]/g, ''); this.value = val; calcEquiv('foreign'); if(typeof adjustAmountFontSize === 'function') adjustAmountFontSize(this); if(this.getAttribute('data-thousands') !== 'false') { let parts = val.split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); this.value = parts.join('.'); }" style="height: 72px !important; box-sizing: border-box !important; font-size: 2.35rem !important; text-align: center; background: #fafafa !important; color: #ef4444 !important; font-weight: 900; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; direction: ltr; border-radius: 10px; width: 100%; transition: font-size 0.2s ease, letter-spacing 0.2s ease; padding-left: 60px; cursor: not-allowed; border: 1px solid #fca5a5;">
+                                    <input type="text" class="form-input amount input-glow-focus hover-glow" id="amount-foreign" data-next="from-account" value="0" inputmode="decimal" readonly tabindex="-1" onfocus="this.select()" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if(typeof calcEquiv === 'function') calcEquiv('foreign');" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="let val = this.value.replace(/[^0-9.]/g, ''); this.value = val; calcEquiv('foreign'); if(typeof adjustAmountFontSize === 'function') adjustAmountFontSize(this); if(this.getAttribute('data-thousands') !== 'false') { let parts = val.split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); this.value = parts.join('.'); }" style="height: 94px !important; box-sizing: border-box !important; font-size: 2.35rem !important; text-align: center; background: #fafafa !important; color: #ef4444 !important; font-weight: 900; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; direction: ltr; border-radius: 10px; width: 100%; transition: font-size 0.2s ease, letter-spacing 0.2s ease; padding-left: 60px; cursor: not-allowed; border: 1px solid #fca5a5;">
                                 </div>
                             </div>
                         </div>
@@ -1629,8 +1630,13 @@ try {
     
     <script>
       document.addEventListener('DOMContentLoaded', () => {
-          
-          
+          setTimeout(() => {
+              const fromSearch = document.getElementById('from-account-search');
+              if (fromSearch) {
+                  fromSearch.focus();
+                  fromSearch.select();
+              }
+          }, 300);
       });
     </script>
     <script>
@@ -1665,24 +1671,70 @@ try {
                     }
                 }
 
-                if (!id) return;
-                
                 let nextAction = null;
 
-                if (id === 'amount-local') {
-                    nextAction = () => { 
-                        document.getElementById('to-account-search').focus();
-                    };
-                } else if (id === 'to-account-search' || id === 'from-account-search') {
+                if (id === 'from-account-search' || id === 'to-account-search') {
                     nextAction = () => {
                         let type = id.split('-')[0];
                         let list = document.getElementById(type + '-account-dropdown-list');
                         if (list && list.classList.contains('show')) {
                             let firstItem = list.querySelector('.custom-dropdown-item');
                             if (firstItem && typeof firstItem.onmousedown === 'function') {
-                                firstItem.onmousedown(); // This will call selectAccount and our logic
+                                firstItem.onmousedown(); // This calls selectAccount and auto-focuses
+                            }
+                        } else {
+                            if (id === 'from-account-search') {
+                                const toSearch = document.getElementById('to-account-search');
+                                if (toSearch) { toSearch.focus(); toSearch.select(); }
+                            } else {
+                                const amts = document.querySelectorAll('.transfer-amount');
+                                if (amts.length > 0) { amts[0].focus(); amts[0].select(); }
                             }
                         }
+                    };
+                } else if (current.classList.contains('transfer-amount')) {
+                    nextAction = () => {
+                        const row = current.closest('.transfer-row');
+                        if (row) {
+                            const bank = row.querySelector('.transfer-note');
+                            if (bank) { bank.focus(); bank.select(); }
+                        }
+                    };
+                } else if (current.classList.contains('transfer-note')) {
+                    nextAction = () => {
+                        const row = current.closest('.transfer-row');
+                        if (row) {
+                            const no = row.querySelector('.transfer-no');
+                            if (no) { no.focus(); no.select(); }
+                        }
+                    };
+                } else if (current.classList.contains('transfer-no')) {
+                    nextAction = () => {
+                        const row = current.closest('.transfer-row');
+                        if (row) {
+                            const statement = row.querySelector('.transfer-statement');
+                            if (statement) { statement.focus(); statement.select(); }
+                        }
+                    };
+                } else if (current.classList.contains('transfer-statement')) {
+                    nextAction = () => {
+                        if (typeof addTransferRow === 'function') {
+                            addTransferRow('', '', 0);
+                            setTimeout(() => {
+                                const amts = document.querySelectorAll('.transfer-amount');
+                                if (amts.length > 0) {
+                                    const lastAmt = amts[amts.length - 1];
+                                    lastAmt.focus();
+                                    lastAmt.select();
+                                }
+                            }, 100);
+                        }
+                    };
+                } else if (!id) {
+                    return; // Ignore other inputs without IDs
+                } else if (id === 'amount-local') {
+                    nextAction = () => { 
+                        document.getElementById('to-account-search').focus();
                     };
                 } else if (id === 'to-statement') {
                     nextAction = () => { let n = document.getElementById('currency'); n.focus(); };
@@ -1693,16 +1745,6 @@ try {
                 } else if (id === 'amount-foreign') {
                     nextAction = () => { let n = document.getElementById('beneficiary-name'); n.focus(); n.select(); };
                 } else if (id === 'beneficiary-name') {
-                    nextAction = () => {
-                        const btnBank = document.getElementById('toggle-bank');
-                        if (btnBank && !btnBank.classList.contains('active')) { if (typeof togglePaymentSection === 'function') togglePaymentSection('bank'); }
-                        const bankSec = document.getElementById('pay-bank-section');
-                        if (bankSec) bankSec.style.display = 'flex';
-                        const container = document.getElementById('transfers-container');
-                        if (container && container.children.length === 0 && typeof addTransferRow === 'function') { addTransferRow('', '', 0); }
-                        setTimeout(() => { const amtInput = document.querySelector('.transfer-amount'); if (amtInput) { amtInput.focus(); amtInput.select(); } }, 150);
-                    };
-                } else if (id === 'from-account-search') {
                     nextAction = () => {
                         const btnBank = document.getElementById('toggle-bank');
                         if (btnBank && !btnBank.classList.contains('active')) { if (typeof togglePaymentSection === 'function') togglePaymentSection('bank'); }

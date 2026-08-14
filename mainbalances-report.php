@@ -308,22 +308,22 @@ $page_title = 'حساب الارصده الاساسية';
         /* The Focused Specific Number Feature (Independent Cumulative Magnification) */
         td.focused-num {
             transform: scale(1.45) translateY(-2px) !important;
-            color: #38bdf8 !important;
+            color: #ffffff !important;
             font-weight: 900 !important;
-            background: rgba(15, 23, 42, 0.96) !important;
+            background: linear-gradient(135deg, #1e3a8a, #172554) !important;
             border-radius: 8px !important;
-            box-shadow: 0 0 30px rgba(56, 189, 248, 0.7), inset 0 0 0 2px #38bdf8 !important;
+            box-shadow: 0 0 30px rgba(30, 58, 138, 0.7), inset 0 0 0 2px #3b82f6 !important;
             z-index: 1000 !important;
             position: relative !important;
             display: inline-block !important;
             padding: 4px 12px !important;
             transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-            text-shadow: 0 0 10px rgba(56, 189, 248, 0.8) !important;
+            text-shadow: 0 0 10px rgba(0, 0, 0, 0.6) !important;
         }
         :root.light-theme td.focused-num {
-            color: #0284c7 !important;
-            background: #ffffff !important;
-            box-shadow: 0 10px 30px rgba(2, 132, 199, 0.35), inset 0 0 0 2px #0284c7 !important;
+            color: #ffffff !important;
+            background: linear-gradient(135deg, #1e3a8a, #172554) !important;
+            box-shadow: 0 10px 30px rgba(30, 58, 138, 0.35), inset 0 0 0 2px #3b82f6 !important;
             text-shadow: none !important;
         }
 

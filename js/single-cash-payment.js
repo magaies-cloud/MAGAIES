@@ -1848,29 +1848,39 @@ function selectAccount(type, id, name) {
     document.getElementById(type + '-account-dropdown-list').classList.remove('show');
     updateLedgerButtons();
     
-    if (type === 'to') {
+    if (type === 'from') {
+        setTimeout(() => {
+            const toSearch = document.getElementById('to-account-search');
+            if (toSearch) {
+                toSearch.focus();
+                toSearch.select();
+                if(typeof showAccountDropdown === 'function') showAccountDropdown('to');
+            }
+        }, 150);
+    } else if (type === 'to') {
         if(typeof updateBalances === 'function') updateBalances();
-    }
-    
-    // Auto-trigger Bank Transfer and focus amount
-    const btnBank = document.getElementById('toggle-bank');
-    if (btnBank && !btnBank.classList.contains('active')) {
-        if (typeof togglePaymentSection === 'function') togglePaymentSection('bank');
-    }
-    const bankSec = document.getElementById('pay-bank-section');
-    if (bankSec) bankSec.style.display = 'flex';
-    const container = document.getElementById('transfers-container');
-    if (container && container.children.length === 0 && typeof addTransferRow === 'function') {
-        addTransferRow('', '', 0);
-    }
-    
-    setTimeout(() => {
-        const amtInput = document.querySelector('.transfer-amount');
-        if (amtInput) {
-            amtInput.focus();
-            amtInput.select();
+        
+        // Auto-trigger Bank Transfer and focus amount
+        const btnBank = document.getElementById('toggle-bank');
+        if (btnBank && !btnBank.classList.contains('active')) {
+            if (typeof togglePaymentSection === 'function') togglePaymentSection('bank');
         }
-    }, 150);
+        const bankSec = document.getElementById('pay-bank-section');
+        if (bankSec) bankSec.style.display = 'flex';
+        const container = document.getElementById('transfers-container');
+        if (container && container.children.length === 0 && typeof addTransferRow === 'function') {
+            addTransferRow('', '', 0);
+        }
+        
+        setTimeout(() => {
+            const amts = document.querySelectorAll('.transfer-amount');
+            if (amts.length > 0) {
+                const amtInput = amts[0];
+                amtInput.focus();
+                amtInput.select();
+            }
+        }, 150);
+    }
 }
 
 window.selectAccount = selectAccount;
@@ -2311,7 +2321,7 @@ window.addTransferRow = function(no = '', note = '', amt = 0, statement = '') {
         </div>
         <div class="dynamic-focus-container transfer-no-container" style="flex: 1; min-width: 200px; display: flex; align-items: center; gap: 5px; transition: all 0.3s ease;">
             
-            <input type="text" maxlength="14" class="v-input ctrl-input transfer-no dynamic-focus-input dynamic-focus-number" value="${no}" placeholder="رقم التحويلة" onfocus="this.parentElement.style.flex='10'; this.parentElement.style.minWidth='420px'; this.style.fontSize='1.55rem'; this.style.letterSpacing='1px';" onblur="this.parentElement.style.flex='1'; this.parentElement.style.minWidth='200px'; this.style.fontSize='1.5rem'; this.style.letterSpacing='normal';" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.5rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#2dd4bf; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900; transition: all 0.3s ease;">
+            <input type="text" maxlength="14" class="v-input ctrl-input transfer-no dynamic-focus-input dynamic-focus-number" value="${no}" placeholder="رقم التحويلة" onfocus="this.parentElement.style.flex='15'; this.parentElement.style.minWidth='480px'; this.style.letterSpacing='1px';" onblur="this.parentElement.style.flex='1'; this.parentElement.style.minWidth='200px'; this.style.letterSpacing='normal';" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.5rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#2dd4bf; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900; transition: all 0.3s ease;">
         </div>
         <div style="flex: 1.2; min-width: 100px; display: flex; align-items: center; gap: 5px;">
             
@@ -2667,7 +2677,8 @@ function getNumPropKey(input) {
 window.saveNumberProperties = function() {
     if (!currentTargetInput) return;
     const input = currentTargetInput;
-    const key = getNumPropKey(input);
+    const fullKey = getNumPropKey(input);
+    const rawKey = fullKey.replace('num_prop_', '');
     const props = {
         fontSize: input.style.fontSize,
         thousands: input.getAttribute('data-thousands') !== 'false',
@@ -2675,14 +2686,35 @@ window.saveNumberProperties = function() {
         font: input.getAttribute('data-font') || 'inter'
     };
     
-    localStorage.setItem(key, JSON.stringify(props));
+    // Save to local storage for immediate sync
+    localStorage.setItem(fullKey, JSON.stringify(props));
     
-    const btn = document.getElementById('save-props-btn');
-    if (btn) {
-        const oldText = btn.innerHTML;
-        btn.innerHTML = '✅ تم الحفظ';
-        setTimeout(() => btn.innerHTML = oldText, 1500);
-    }
+    // Update memory cache
+    if (!window.globalNumberPropsCache) window.globalNumberPropsCache = {};
+    window.globalNumberPropsCache[fullKey] = props;
+    
+    // Save to DB
+    fetch('api/save_num_props.php', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ key: rawKey, props: props })
+    })
+    .then(res => res.json())
+    .then(data => {
+        const btn = document.getElementById('save-props-btn');
+        if (btn) {
+            const oldText = btn.innerHTML;
+            btn.innerHTML = data.status === 'success' ? '✅ تم الحفظ في قاعدة البيانات' : '❌ خطأ في الحفظ';
+            setTimeout(() => btn.innerHTML = '💾 حفظ الخصائص', 2000);
+        }
+    })
+    .catch(err => {
+        const btn = document.getElementById('save-props-btn');
+        if (btn) {
+            btn.innerHTML = '❌ فشل الاتصال';
+            setTimeout(() => btn.innerHTML = '💾 حفظ الخصائص', 2000);
+        }
+    });
 };
 
 function applyPropsToElement(input, props) {
@@ -2706,26 +2738,54 @@ function applyPropsToElement(input, props) {
 
 window.loadAndApplyNumberProperties = function(input) {
     if (!input) return;
-    const key = getNumPropKey(input);
-    const saved = localStorage.getItem(key);
+    const fullKey = getNumPropKey(input);
+    
+    // Check DB cache first
+    if (window.globalNumberPropsCache && window.globalNumberPropsCache[fullKey]) {
+        applyPropsToElement(input, window.globalNumberPropsCache[fullKey]);
+        localStorage.setItem(fullKey, JSON.stringify(window.globalNumberPropsCache[fullKey]));
+        return;
+    }
+    
+    // Fallback to localStorage
+    const saved = localStorage.getItem(fullKey);
     if (saved) {
         try {
-            const props = JSON.parse(saved);
-            applyPropsToElement(input, props);
+            applyPropsToElement(input, JSON.parse(saved));
         } catch(e) {}
     }
 };
 
+window.globalNumberPropsCache = null;
+
 window.initNumberProperties = function() {
-    setTimeout(() => {
-        ['amount-local', 'amount-foreign'].forEach(id => {
-            const el = document.getElementById(id);
-            if (el) loadAndApplyNumberProperties(el);
+    // Fetch all props from DB once
+    fetch('api/get_all_num_props.php')
+        .then(res => res.json())
+        .then(data => {
+            window.globalNumberPropsCache = data;
+            setTimeout(() => {
+                ['amount-local', 'amount-foreign'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) loadAndApplyNumberProperties(el);
+                });
+                document.querySelectorAll('.transfer-amount, .cheque-amount').forEach(el => {
+                    loadAndApplyNumberProperties(el);
+                });
+            }, 100);
+        })
+        .catch(err => {
+            // Fallback if network fails
+            setTimeout(() => {
+                ['amount-local', 'amount-foreign'].forEach(id => {
+                    const el = document.getElementById(id);
+                    if (el) loadAndApplyNumberProperties(el);
+                });
+                document.querySelectorAll('.transfer-amount, .cheque-amount').forEach(el => {
+                    loadAndApplyNumberProperties(el);
+                });
+            }, 100);
         });
-        document.querySelectorAll('.transfer-amount, .cheque-amount').forEach(el => {
-            loadAndApplyNumberProperties(el);
-        });
-    }, 300);
 };
 
 if (document.readyState === 'loading') {

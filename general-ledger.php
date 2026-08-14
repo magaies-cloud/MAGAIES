@@ -220,11 +220,11 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         .pos-grid td.num-magnified {
             font-size: 1.85rem !important;
             font-weight: 900 !important;
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.4), rgba(217, 119, 6, 0.5)) !important;
+            background: linear-gradient(135deg, #1e3a8a, #172554) !important;
             color: #ffffff !important;
-            border: 2px solid #fbbf24 !important;
+            border: 2px solid #3b82f6 !important;
             border-radius: 8px !important;
-            box-shadow: 0 0 25px rgba(245, 158, 11, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.4) !important;
+            box-shadow: 0 0 25px rgba(30, 58, 138, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.4) !important;
             transform: scale(1.15) !important;
             transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
             z-index: 50 !important;
@@ -234,8 +234,11 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             display: table-cell !important;
         }
         :root.light-theme .pos-grid td.num-magnified {
-            background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+            background: linear-gradient(135deg, #1e3a8a, #172554) !important;
             color: #ffffff !important;
+            border: 2px solid #3b82f6 !important;
+            box-shadow: 0 5px 20px rgba(30, 58, 138, 0.3) !important;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
         }
 
         /* ── Custom Context Menu Styling ── */
