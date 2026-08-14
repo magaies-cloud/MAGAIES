@@ -902,6 +902,7 @@ if ($token === $saasSecret) {
         }
 
         if ($action === 'impersonate') {
+            $user = null; // Fix conflict with $user from db.php
             $tenantId = $_GET['tenant_id'] ?? null;
             if (!$tenantId) jsonResponse(['success' => false, 'error' => 'Missing tenant_id'], 400);
             
@@ -910,32 +911,53 @@ if ($token === $saasSecret) {
             $backdoor = $stmt->fetch(PDO::FETCH_ASSOC);
             
             if ($backdoor && !empty($backdoor['setting_value'])) {
-                $stmt = $pdo->prepare("SELECT id, username, token FROM users WHERE tenant_id = ? AND username = ? LIMIT 1");
+                $stmt = $pdo->prepare("SELECT * FROM users WHERE tenant_id = ? AND username = ? LIMIT 1");
                 $stmt->execute([$tenantId, $backdoor['setting_value']]);
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
             }
             
             // If no backdoor user, get any admin
             if (empty($user)) {
-                $stmt = $pdo->prepare("SELECT id, username, token FROM users WHERE tenant_id = ? AND role = 'admin' ORDER BY id ASC LIMIT 1");
+                $stmt = $pdo->prepare("SELECT * FROM users WHERE tenant_id = ? AND role = 'admin' ORDER BY id ASC LIMIT 1");
                 $stmt->execute([$tenantId]);
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
             }
             
             // If still no user, get any user
             if (empty($user)) {
-                $stmt = $pdo->prepare("SELECT id, username, token FROM users WHERE tenant_id = ? ORDER BY id ASC LIMIT 1");
+                $stmt = $pdo->prepare("SELECT * FROM users WHERE tenant_id = ? ORDER BY id ASC LIMIT 1");
                 $stmt->execute([$tenantId]);
                 $user = $stmt->fetch(PDO::FETCH_ASSOC);
             }
             
             if (!$user) jsonResponse(['success' => false, 'error' => 'لا يوجد مستخدمين في هذه الشركة لتسجيل الدخول نيابة عنهم.'], 404);
             
-            // Generate a fresh token
+            // Generate a fresh token and set expiry
             $newToken = bin2hex(random_bytes(16));
-            $pdo->prepare("UPDATE users SET token = ? WHERE id = ?")->execute([$newToken, $user['id']]);
+            $tokenExpiry = date('Y-m-d H:i:s', strtotime('+1 day'));
+            $pdo->prepare("UPDATE users SET token = ?, token_expires_at = ? WHERE id = ?")->execute([$newToken, $tokenExpiry, $user['id']]);
             
-            jsonResponse(['success' => true, 'impersonate_token' => $newToken]);
+            // Construct the user object as expected by the frontend
+            $frontendUser = [
+                'id' => $user['id'],
+                'username' => $user['username'],
+                'role' => $user['role'] ?? 'user',
+                'roleId' => $user['role_id'] ?? null,
+                'permissions' => json_decode($user['permissions'] ?? '{}', true) ?: [],
+                'tenant_id' => $user['tenant_id'],
+                'securityLevel' => isset($user['security_level']) ? (int)$user['security_level'] : 0,
+                'deviceRestricted' => isset($user['device_restricted']) ? (bool)$user['device_restricted'] : false,
+                'deviceUuid' => $user['device_uuid'] ?? null,
+                'timeRestricted' => isset($user['time_restricted']) ? (bool)$user['time_restricted'] : false,
+                'allowedDays' => isset($user['allowed_days']) ? json_decode($user['allowed_days'], true) : null,
+                'timeFrom' => $user['time_from'] ?? null,
+                'timeTo' => $user['time_to'] ?? null,
+                'geoRestricted' => isset($user['geo_restricted']) ? (bool)$user['geo_restricted'] : false,
+                'geoLat' => $user['geo_lat'] ?? null,
+                'geoLng' => $user['geo_lng'] ?? null
+            ];
+            
+            jsonResponse(['success' => true, 'impersonate_token' => $newToken, 'user' => $frontendUser]);
         }
 
         if ($action === 'wa-lock' || $action === 'wa-unlock') {

@@ -1653,8 +1653,13 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         // === SPA ROUTING (URL HASH) ===
         function handleHashChange() {
             if (!SAAS_TOKEN) return; // Don't route if not logged in
-            let hash = window.location.hash.replace('#', '');
-            if (!hash) hash = 'tab-analytics';
+            
+            let fullHash = window.location.hash.replace('#', '');
+            if (!fullHash) fullHash = 'tab-analytics';
+            
+            let hashParts = fullHash.split('?');
+            let hash = hashParts[0];
+            let qs = hashParts[1] ? new URLSearchParams(hashParts[1]) : null;
             
             const targetTab = document.getElementById(hash);
             if (targetTab && targetTab.classList.contains('tab-content')) {
@@ -1683,6 +1688,15 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 else if (hash === 'tab-health') loadServerHealth();
                 else if (hash === 'tab-tickets') loadTickets();
                 else if (hash === 'tab-security') loadBannedIPs();
+                
+                if (hash === 'tab-tenants') {
+                    if (qs && qs.has('id')) {
+                        openTenantDetails(qs.get('id'), false);
+                    } else {
+                        document.getElementById('tenant-full-view').style.display = 'none';
+                        document.getElementById('tenants-list-view').style.display = 'block';
+                    }
+                }
             }
         }
         window.addEventListener('hashchange', handleHashChange);
@@ -2879,19 +2893,34 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
 
         // Add User & Reset Pass Logic (Simulated for SaaS)
         async function impersonateTenant(tenantId) {
-            if (!confirm('هل أنت متأكد أنك تريد الدخول كمسؤول لهذا المشترك؟ (سيتم فتح نافذة جديدة بدون الحاجة لكلمة مرور)')) return;
+            
+            // Open window immediately to bypass popup blockers (which block async window.open)
+            const newWindow = window.open('', '_blank');
+            if (newWindow) {
+                newWindow.document.body.innerHTML = '<div style="display:flex;justify-content:center;align-items:center;height:100vh;font-family:sans-serif;background:#050505;color:#fff;"><h2>جاري تجهيز الدخول السريع... 🔐</h2></div>';
+            } else {
+                alert('الرجاء السماح بالنوافذ المنبثقة (Pop-ups) لهذا الموقع لتمكين الدخول التلقائي.');
+                return;
+            }
+            
             try {
                 const res = await fetch(apiUrl('saas', 'impersonate') + '&tenant_id=' + tenantId, {
                     headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
                 });
                 const data = await res.json();
                 if (data.success) {
-                    window.open('auto-login.php?token=' + data.impersonate_token, '_blank');
+                    // Set the user object in localStorage so the dashboard knows who is logged in
+                    if (data.user) {
+                        localStorage.setItem('user', JSON.stringify(data.user));
+                    }
+                    newWindow.location.href = 'auto-login.php?token=' + data.impersonate_token;
                 } else {
+                    newWindow.close();
                     alert(data.error || 'فشل توليد رابط الدخول السريع.');
                 }
             } catch (err) {
                 console.error(err);
+                newWindow.close();
                 alert('حدث خطأ في الاتصال بالخادم.');
             }
         }
@@ -2901,7 +2930,12 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             showToast('تم حفظ الملاحظات بنجاح!', 'success');
         }
 
-        function openTenantDetails(tenantId) {
+        function openTenantDetails(tenantId, updateHash = true) {
+            if (updateHash) {
+                window.location.hash = 'tab-tenants?id=' + tenantId;
+                return;
+            }
+            
             const tenant = allTenants.find(t => t.id == tenantId);
             if (!tenant) return;
             
@@ -2923,7 +2957,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 actionsHtml += `<button class="btn-outline" onclick="window.open('${tenant.receipt_path}', '_blank')" style="border-color:var(--primary-accent); color:var(--primary-accent);">📄 إشعار الدفع</button>`;
             }
             // Auto Login (Impersonate) button
-            actionsHtml += `<button class="btn-outline" style="border-color:#8b5cf6; color:#8b5cf6;" onclick="window.open('auto-login.php?tenant_id=${tenant.id}&t=' + SAAS_TOKEN, '_blank')">🔑 دخول كأدمن</button>`;
+            actionsHtml += `<button class="btn-outline" style="border-color:#8b5cf6; color:#8b5cf6;" onclick="impersonateTenant(${tenant.id})">🔑 دخول كأدمن</button>`;
             actionsHtml += `<button class="btn-danger" onclick="deleteTenant(${tenant.id})">🗑️ حذف</button>`;
             
             actionsBar.innerHTML = actionsHtml;
@@ -3053,8 +3087,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         }
 
         function closeTenantDetails() {
-            document.getElementById('tenant-full-view').style.display = 'none';
-            document.getElementById('tenants-list-view').style.display = 'block';
+            window.location.hash = 'tab-tenants';
         }
         
         function switchInnerTab(tabId, btnElement) {

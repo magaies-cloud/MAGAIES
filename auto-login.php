@@ -47,7 +47,7 @@ header("Pragma: no-cache");
             
             // Redirect to dashboard after a brief delay
             setTimeout(function() {
-                window.location.href = 'index.php';
+                window.location.href = 'magaiees_unified_dashboard.php';
             }, 800);
         })();
     </script>
