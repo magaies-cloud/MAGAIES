@@ -736,6 +736,47 @@ function loadInvoiceFromStorage(invNo) {
             const c = VENDORS.find(x => String(x.id) === String(custId));
             if (c) selectCustomer(c.id, c.name);
         }
+
+        // Payments Loading
+        document.querySelectorAll('.pay-toggle-btn').forEach(btn => btn.classList.remove('active'));
+        if (document.getElementById('pay-cash-section')) document.getElementById('pay-cash-section').style.display = 'none';
+        if (document.getElementById('pay-credit-section')) document.getElementById('pay-credit-section').style.display = 'none';
+        if (document.getElementById('pay-bank-section')) document.getElementById('pay-bank-section').style.display = 'none';
+        if (document.getElementById('pay-cheque-section')) document.getElementById('pay-cheque-section').style.display = 'none';
+        
+        if (document.getElementById('bank-transfers-list')) document.getElementById('bank-transfers-list').innerHTML = '';
+        if (document.getElementById('cheques-list')) document.getElementById('cheques-list').innerHTML = '';
+
+        if (data.cashAmount > 0) {
+            const btn = document.getElementById('toggle-cash');
+            if(btn) btn.classList.add('active');
+            if (document.getElementById('pay-cash-section')) document.getElementById('pay-cash-section').style.display = 'flex';
+            if (document.getElementById('pay-cash-amount')) document.getElementById('pay-cash-amount').value = data.cashAmount;
+        }
+        if (data.creditAmount > 0) {
+            const btn = document.getElementById('toggle-credit');
+            if(btn) btn.classList.add('active');
+            if (document.getElementById('pay-credit-section')) document.getElementById('pay-credit-section').style.display = 'flex';
+            if (document.getElementById('pay-credit-amount')) document.getElementById('pay-credit-amount').value = data.creditAmount;
+            if(data.dueDate && document.getElementById('pay-credit-due-date')) document.getElementById('pay-credit-due-date').value = data.dueDate;
+        }
+        if (data.bankTransfers && data.bankTransfers.length > 0) {
+            const btn = document.getElementById('toggle-bank');
+            if(btn) btn.classList.add('active');
+            if (document.getElementById('pay-bank-section')) document.getElementById('pay-bank-section').style.display = 'flex';
+            data.bankTransfers.forEach(bt => addBankTransferRow(bt));
+        }
+        if (data.cheques && data.cheques.length > 0) {
+            const btn = document.getElementById('toggle-cheque');
+            if(btn) btn.classList.add('active');
+            if (document.getElementById('pay-cheque-section')) document.getElementById('pay-cheque-section').style.display = 'flex';
+            data.cheques.forEach(ch => addChequeRow(ch));
+        }
+        
+        if (data.paymentAccountId) {
+            const payAccEl = document.getElementById('hdr-payment-account');
+            if (payAccEl) payAccEl.value = data.paymentAccountId;
+        }
         
         // Rows — PERFORMANCE: assign properties directly instead of calling
         // updateRow() (which fires recalcAll on every call). We call renderGrid
@@ -2048,7 +2089,7 @@ function saveDraft() {
     if (chequeActive) {
         document.querySelectorAll('#cheques-list .payment-row-item').forEach(row => {
             const chequeNo = row.querySelector('.ch-no-input').value;
-            const bankName = row.querySelector('.ch-bank-input').value;
+            const bankAccountId = row.querySelector('.ch-bank-select').value;
             const dueDate = row.querySelector('.ch-date-input').value;
             const amount = parseNum(row.querySelector('.ch-amount-input').value);
             if (amount > 0) {
@@ -2199,25 +2240,43 @@ function submitInvoice(ignoreWarnings = false) {
         creditAmt = creditActive ? parseNum(document.getElementById('pay-credit-amount').value) : 0;
         
         if (bankActive) {
+            let validationFailed = false;
+            let existingPayments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+            
             document.querySelectorAll('#bank-transfers-list .payment-row-item').forEach(row => {
                 const bankAccountId = row.querySelector('.bt-bank-select').value;
-                const reference = row.querySelector('.bt-ref-input').value;
+                const reference = row.querySelector('.bt-ref-input').value.trim();
                 const amount = parseNum(row.querySelector('.bt-amount-input').value);
                 if (amount > 0) {
+                    if (reference.length <= 6) {
+                        showToast('❌ يجب أن يكون رقم التحويل أكثر من 6 أرقام', 'error', 5000);
+                        validationFailed = true;
+                    } else {
+                        const last5 = reference.slice(-5);
+                        const isDuplicate = existingPayments.some(p => p.reference && String(p.reference).trim().slice(-5) === last5);
+                        if (isDuplicate) {
+                            showToast(`❌ رقم التحويل منتهي بـ (${last5}) مسجل مسبقاً في حوالة أخرى!`, 'error', 5000);
+                            validationFailed = true;
+                        }
+                    }
                     bankTransfers.push({ bankAccountId, reference, amount });
                     transfersSum += amount;
                 }
             });
+            if (validationFailed) {
+                window.isSubmitting = false;
+                return;
+            }
         }
         
         if (chequeActive) {
             document.querySelectorAll('#cheques-list .payment-row-item').forEach(row => {
                 const chequeNo = row.querySelector('.ch-no-input').value;
-                const bankName = row.querySelector('.ch-bank-input').value;
+                const bankAccountId = row.querySelector('.ch-bank-select').value;
                 const dueDate = row.querySelector('.ch-date-input').value;
                 const amount = parseNum(row.querySelector('.ch-amount-input').value);
                 if (amount > 0) {
-                    cheques.push({ chequeNo, bankName, dueDate, amount });
+                    cheques.push({ chequeNo, bankAccountId, dueDate, amount });
                     chequesSum += amount;
                 }
             });
@@ -2333,6 +2392,18 @@ function submitInvoice(ignoreWarnings = false) {
                         banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - localBtAmt;
                     }
                 });
+            }
+            // Subtract cheques immediately (always in local base currency)
+            if (cheques && cheques.length > 0) {
+                cheques.forEach(ch => {
+                    const bIdx = banks.findIndex(b => b.id === ch.bankAccountId);
+                    if (bIdx > -1) {
+                        const localChAmt = isBase ? ch.amount : ch.amount * rate;
+                        banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) - localChAmt;
+                    }
+                });
+            }
+            if ((bankTransfers && bankTransfers.length > 0) || (cheques && cheques.length > 0)) {
                 localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
             }
         } else if (paymentMethod !== 'credit') {
@@ -2369,6 +2440,96 @@ function submitInvoice(ignoreWarnings = false) {
                 suppliers[sIdx].currentBalance = currentBalance + localCreditToAdd;
                 localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
             }
+        }
+
+        // --- ADD BACKGROUND PAYMENT VOUCHERS FOR CASH/BANK ---
+        let paymentsLog = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+        const dateStr = document.getElementById('hdr-date') ? document.getElementById('hdr-date').value : new Date().toISOString().split('T')[0];
+        
+        if (paymentMethod === 'hybrid' || paymentMethod === 'multipay') {
+            if (cashAmt > 0 && data.paymentAccountId) {
+                paymentsLog.unshift({
+                    id: 'pay-' + Date.now() + '-c',
+                    paymentNo: 'PMT-PUR-' + committedNo + '-C',
+                    date: dateStr,
+                    type: 'supplier',
+                    partnerId: custId,
+                    partnerName: data.supplierName || 'مورد عام',
+                    amount: cashAmt,
+                    currency: cur,
+                    exchangeRate: rate,
+                    paymentMethod: 'cash',
+                    accountId: data.paymentAccountId,
+                    reference: 'نقدي فاتورة ' + committedNo,
+                    notes: 'سداد آلي من شاشة المشتريات فاتورة #' + committedNo,
+                    refInvoice: committedNo
+                });
+            }
+            if (bankTransfers && bankTransfers.length > 0) {
+                bankTransfers.forEach((bt, idx) => {
+                    paymentsLog.unshift({
+                        id: 'pay-' + Date.now() + '-b' + idx,
+                        paymentNo: 'PMT-PUR-' + committedNo + '-B' + idx,
+                        date: dateStr,
+                        type: 'supplier',
+                        partnerId: custId,
+                        partnerName: data.supplierName || 'مورد عام',
+                        amount: bt.amount,
+                        currency: cur,
+                        exchangeRate: rate,
+                        paymentMethod: 'bank',
+                        accountId: bt.bankAccountId,
+                        reference: bt.reference || 'حوالة فاتورة ' + committedNo,
+                        notes: 'سداد آلي من شاشة المشتريات فاتورة #' + committedNo,
+                        refInvoice: committedNo
+                    });
+                });
+            }
+        } else if (paymentMethod !== 'credit' && grandAmount > 0) {
+            paymentsLog.unshift({
+                id: 'pay-' + Date.now() + '-f',
+                paymentNo: 'PMT-PUR-' + committedNo + '-F',
+                date: dateStr,
+                type: 'supplier',
+                partnerId: custId,
+                partnerName: data.supplierName || 'مورد عام',
+                amount: grandAmount,
+                currency: cur,
+                exchangeRate: rate,
+                paymentMethod: paymentMethod === 'bank' ? 'bank' : 'cash',
+                accountId: data.paymentAccountId,
+                reference: 'سداد فاتورة ' + committedNo,
+                notes: 'سداد آلي من شاشة المشتريات فاتورة #' + committedNo,
+                refInvoice: committedNo
+            });
+        }
+        localStorage.setItem('erp_single_payments_v1', JSON.stringify(paymentsLog));
+
+        // --- ADD CHEQUES TO ERP_CHECKS_V1 ---
+        if (cheques && cheques.length > 0) {
+            let checksLog = JSON.parse(localStorage.getItem('erp_checks_v1')) || [];
+            let allBanksCache = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+            cheques.forEach((ch, idx) => {
+                const bObj = allBanksCache.find(b => String(b.id) === String(ch.bankAccountId));
+                const actualBankName = bObj ? bObj.name : 'بنك غير محدد';
+                checksLog.unshift({
+                    id: 'chk-' + Date.now() + '-' + idx,
+                    checkNumber: ch.chequeNo,
+                    type: 'payable',
+                    bankName: actualBankName,
+                    bankAccountId: ch.bankAccountId,
+                    dueDate: ch.dueDate,
+                    amount: ch.amount,
+                    currency: cur,
+                    exchangeRate: rate,
+                    beneficiary: data.supplierName || 'مورد عام',
+                    beneficiaryId: custId,
+                    status: 'issued',
+                    refInvoice: committedNo,
+                    notes: 'شيك آلي من شاشة المشتريات فاتورة #' + committedNo
+                });
+            });
+            localStorage.setItem('erp_checks_v1', JSON.stringify(checksLog));
         }
     }
 
@@ -2866,6 +3027,16 @@ function revertOldInvoiceEffects(currentInvNo) {
                 }
             });
         }
+        // Revert cheques
+        if (oldInv.cheques && oldInv.cheques.length > 0) {
+            oldInv.cheques.forEach(ch => {
+                const bIdx = banks.findIndex(b => b.id === ch.bankAccountId);
+                if (bIdx > -1) {
+                    const localChAmt = isOldBase ? ch.amount : ch.amount * oldRate;
+                    banks[bIdx].currentBalance = (parseFloat(banks[bIdx].currentBalance) || 0) + localChAmt;
+                }
+            });
+        }
         localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
         localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
     } else if (oldInv.paymentMethod !== 'credit' && oldInv.paymentAccountId) {
@@ -2928,6 +3099,21 @@ function revertOldInvoiceEffects(currentInvNo) {
         localStorage.setItem('erp_items_v1', JSON.stringify(ITEMS));
     }
     localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
+
+    // 4. Revert Journal Vouchers
+    let jvs = JSON.parse(localStorage.getItem('erp_journal_entries_v1')) || [];
+    jvs = jvs.filter(jv => jv.refInvoiceNo !== currentInvNo);
+    localStorage.setItem('erp_journal_entries_v1', JSON.stringify(jvs));
+
+    // 5. Revert Payment Vouchers
+    let paymentsLog = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+    paymentsLog = paymentsLog.filter(p => p.refInvoice !== currentInvNo);
+    localStorage.setItem('erp_single_payments_v1', JSON.stringify(paymentsLog));
+
+    // 6. Revert Cheques
+    let checksLog = JSON.parse(localStorage.getItem('erp_checks_v1')) || [];
+    checksLog = checksLog.filter(ch => ch.refInvoice !== currentInvNo);
+    localStorage.setItem('erp_checks_v1', JSON.stringify(checksLog));
 }
 
 function executeDeleteTransaction() {
@@ -2936,9 +3122,49 @@ function executeDeleteTransaction() {
     const currentInvNo = document.getElementById('hdr-inv-no').value;
     if (!currentInvNo) return;
 
+    let allPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
+    const oldInv = allPurchases.find(inv => inv.invoiceNo === currentInvNo);
+    
+    // --- SAFEGUARDS ---
+    if (oldInv && oldInv.status !== 'draft' && oldInv.saleType !== 'proforma') {
+        // 1. Cheque Processing Lock
+        let checksLog = JSON.parse(localStorage.getItem('erp_checks_v1')) || [];
+        let processedCheque = checksLog.find(ch => ch.refInvoice === currentInvNo && ch.status && ch.status !== 'issued' && ch.status !== 'pending');
+        if (processedCheque) {
+            showToast('❌ عذراً، لا يمكن حذف الفاتورة لوجود شيكات مرتبطة بها تم تحصيلها أو صرفها.', 'error', 6000);
+            return;
+        }
+
+        // 2. Negative Inventory Lock
+        if (oldInv.items && Array.isArray(oldInv.items)) {
+            const ITEMS = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+            const mainWh = oldInv.warehouse || 'wh-001';
+            for (const row of oldInv.items) {
+                const item = ITEMS.find(i => String(i.id) === String(row.itemId));
+                if (!item) continue;
+                
+                let selectedUnitFactor = row.customFactor !== undefined ? row.customFactor : 1;
+                let baseQty = 0;
+                if (row.customBaseQty !== undefined) {
+                    baseQty = row.customBaseQty;
+                } else {
+                    baseQty = row.quantity * selectedUnitFactor * item.conversionFactor;
+                }
+
+                const whId = row.warehouseId || mainWh;
+                const currentStock = (item.stock && item.stock[whId] !== undefined) ? item.stock[whId] : 0;
+                
+                if (currentStock - baseQty < 0) {
+                    showToast(`❌ لا يمكن حذف الفاتورة. رصيد الصنف (${item.name}) لا يسمح بإرجاع الكمية المشتراة!`, 'error', 6000);
+                    return;
+                }
+            }
+        }
+    }
+    // --- END SAFEGUARDS ---
+
     revertOldInvoiceEffects(currentInvNo);
 
-    let allPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
     allPurchases = allPurchases.filter(inv => inv.invoiceNo !== currentInvNo);
     localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
 
@@ -3379,6 +3605,18 @@ function printCurrentInvoice() {
     const transportVal= parseNum(document.getElementById('t-transport')?.value  || '0');
     const grandVal    = parseNum(document.getElementById('t-grand-local')?.textContent || '0');
 
+    let printBankTransfers = [];
+    document.querySelectorAll('#bank-transfers-list .payment-row-item').forEach(row => {
+        const amount = parseNum(row.querySelector('.bt-amount-input')?.value);
+        if(amount > 0) printBankTransfers.push({ amount });
+    });
+    
+    let printCheques = [];
+    document.querySelectorAll('#cheques-list .payment-row-item').forEach(row => {
+        const amount = parseNum(row.querySelector('.ch-amount-input')?.value);
+        if(amount > 0) printCheques.push({ amount });
+    });
+
     const data = {
         type:          'purchase',
         typeLabel:     'فاتورة مشتريات',
@@ -3389,6 +3627,8 @@ function printCurrentInvoice() {
         exchangeRate:  parseNum(document.getElementById('hdr-exchange-rate')?.value || '1'),
         systemExchangeRate: (typeof window.getExchangeRateForCurrency === 'function' ? window.getExchangeRateForCurrency('USD') : 1) || 1,
         paymentMethod: getPaymentMethodFromUI(),
+        bankTransfers: printBankTransfers,
+        cheques:       printCheques,
         warehouseName: whObj ? whObj.name : '—',
         notes:         document.getElementById('inv-notes').value || '',
         items:         printItems,
@@ -3578,29 +3818,24 @@ function addBankTransferRow(existingData = null) {
     
     const isFirst = container.children.length === 0;
     
-    const titleCol = isFirst
-        ? `<div style="display: flex; align-items: center; gap: 8px; min-width: 200px;">
-               <span style="font-size: 1.2rem;">🏦</span>
-               <span style="font-weight: 800; color: #60a5fa; font-size: 0.95rem;">التحويلات البنكية</span>
-           </div>`
-        : `<div class="desktop-only-title-placeholder" style="display: flex; align-items: center; gap: 8px; min-width: 200px; opacity: 0; pointer-events: none;">
-               <span style="font-size: 1.2rem;">🏦</span>
-               <span style="font-weight: 800; color: #60a5fa; font-size: 0.95rem;">التحويلات البنكية</span>
-           </div>`;
-
     const actionBtn = isFirst
-        ? `<button type="button" onclick="addBankTransferRow()" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; border-radius: 6px; width: 36px; height: 36px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; font-weight: bold;" title="إضافة تحويل آخر">➕</button>`
-        : `<button type="button" class="btn-action" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="width: 36px; height: 36px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">✕</button>`;
+        ? `<button type="button" onclick="addBankTransferRow()" style="background: rgba(16,185,129,0.2); border: 1px solid #34d399; color:#34d399; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">➕</button>`
+        : `<button type="button" class="btn-action" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; border: none; font-size: 0.9rem;">✖</button>`;
 
     const rowHtml = `
-        <div class="payment-row-item payment-method-box" id="${rowId}" style="display: flex; gap: 15px; align-items: center; justify-content: space-between; background: rgba(59, 130, 246, 0.04); border: 1px solid rgba(59, 130, 246, 0.18); border-radius: 12px; padding: 12px 15px; width: 100%; flex-wrap: wrap; margin-bottom: 5px;">
-            ${titleCol}
-            <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px;">
-                <input type="number" class="v-input ctrl-input bt-amount-input" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : '0.00'}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: none; width: 145px; min-width: 145px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; text-align: center; font-size: 1.15rem; font-weight: 800; color: #60a5fa !important;">
-                <select class="v-input ctrl-input bt-bank-select" style="flex: 1.5; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size: 0.85rem;">
+        <div class="payment-row-item payment-method-box" id="${rowId}" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; width: 100%;">
+            <div class="dynamic-focus-container" style="width: 324px; flex: none; display: flex; align-items: center; gap: 5px;">
+                <input type="number" class="v-input ctrl-input bt-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : ''}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 58px; font-size:2rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fbbf24; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900; text-align: center;">
+            </div>
+            <div style="flex: none; width: 200px; display: flex; align-items: center; gap: 5px;">
+                <select class="v-input ctrl-input bt-bank-select" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.1rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center;">
                     ${banksHtml}
                 </select>
-                <input type="text" class="v-input ctrl-input bt-ref-input" value="${existingData?.reference || ''}" placeholder="رقم المرجع..." style="flex: 1.2; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; text-align: center; font-size: 0.85rem;">
+            </div>
+            <div class="dynamic-focus-container transfer-no-container" style="flex: 1; min-width: 200px; display: flex; align-items: center; gap: 5px; transition: all 0.3s ease;">
+                <input type="text" maxlength="14" class="v-input ctrl-input bt-ref-input dynamic-focus-input dynamic-focus-number" value="${existingData?.reference || ''}" placeholder="رقم التحويلة (> 6 أرقام)" onfocus="this.parentElement.style.flex='15'; this.parentElement.style.minWidth='480px'; this.style.letterSpacing='1px';" onblur="this.parentElement.style.flex='1'; this.parentElement.style.minWidth='200px'; this.style.letterSpacing='normal';" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.5rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#2dd4bf; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900; transition: all 0.3s ease;">
+            </div>
+            <div style="display: flex; justify-content: flex-end; width: 40px; flex: none;">
                 ${actionBtn}
             </div>
         </div>
@@ -3618,33 +3853,39 @@ function addChequeRow(existingData = null) {
     const rowId = 'ch-row-' + Date.now() + '-' + Math.random().toString(36).substring(2,5);
     const today = new Date().toISOString().split('T')[0];
     
+    let banksHtml = '';
+    try {
+        const banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+        banks.forEach(b => {
+            const selected = (existingData && existingData.bankAccountId === (b.id || b.code)) ? 'selected' : '';
+            banksHtml += `<option value="${b.id || b.code}" ${selected}>🏦 ${b.name}</option>`;
+        });
+    } catch(e) {}
+
     const isFirst = container.children.length === 0;
-    
-    const titleCol = isFirst
-        ? `<div style="display: flex; align-items: center; gap: 8px; min-width: 200px;">
-               <span style="font-size: 1.2rem;">✍️</span>
-               <span style="font-weight: 800; color: #c084fc; font-size: 0.95rem;">الشيكات الصادرة</span>
-           </div>`
-        : `<div class="desktop-only-title-placeholder" style="display: flex; align-items: center; gap: 8px; min-width: 200px; opacity: 0; pointer-events: none;">
-               <span style="font-size: 1.2rem;">✍️</span>
-               <span style="font-weight: 800; color: #c084fc; font-size: 0.95rem;">الشيكات الصادرة</span>
-           </div>`;
 
     const actionBtn = isFirst
-        ? `<button type="button" onclick="addChequeRow()" style="background: rgba(16, 185, 129, 0.15); border: 1px solid rgba(16, 185, 129, 0.3); color: #34d399; border-radius: 6px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; font-weight: bold;" title="إضافة شيك آخر">➕</button>`
-        : `<button type="button" class="btn-action" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="width: 36px; height: 36px; background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #ef4444; border-radius: 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-weight: bold; font-size: 0.9rem;">✕</button>`;
+        ? `<button type="button" onclick="addChequeRow()" class="pay-toggle-btn" style="background: rgba(147,51,234,0.22); border: 1px solid #d8b4fe; color:#d8b4fe; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">➕</button>`
+        : `<button type="button" class="btn-action" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; border: none; font-size: 0.9rem;">✖</button>`;
 
     const rowHtml = `
-        <div class="payment-row-item payment-method-box" id="${rowId}" style="display: flex; gap: 15px; align-items: center; justify-content: space-between; background: rgba(139, 92, 246, 0.05); border: 1px solid rgba(139, 92, 246, 0.15); border-radius: 12px; padding: 12px 15px; width: 100%; flex-wrap: wrap; margin-bottom: 5px;">
-            ${titleCol}
-            <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
-                <input type="number" class="v-input ctrl-input ch-amount-input" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : '0.00'}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: none; width: 145px; min-width: 145px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; text-align: center; font-size: 1.15rem; font-weight: 800; color: #c084fc !important;">
-                <input type="text" class="v-input ctrl-input ch-no-input" value="${existingData?.chequeNo || ''}" placeholder="رقم الشيك..." style="flex: 1; min-width: 90px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; text-align: center; font-size: 0.85rem;">
-                <input type="text" class="v-input ctrl-input ch-bank-input" value="${existingData?.bankName || ''}" placeholder="اسم البنك..." style="flex: 1.2; min-width: 110px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; text-align: center; font-size: 0.85rem;">
-                <div style="display:flex; align-items:center; gap:5px; flex: 1.3; min-width: 200px;">
-                    <label style="font-size:0.75rem; color:#94a3b8; white-space:nowrap;">الاستحقاق:</label>
-                    <input type="date" class="v-input ctrl-input ch-date-input" value="${existingData?.dueDate || today}" style="height: 36px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); font-size: 0.85rem; padding: 0 4px; width: 100%;">
-                </div>
+        <div class="payment-row-item payment-method-box" id="${rowId}" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; width: 100%;">
+            <div class="dynamic-focus-container" style="width: 324px; flex: none; display: flex; align-items: center; gap: 5px;">
+                <input type="number" class="v-input ctrl-input ch-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : ''}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 58px; font-size:2rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fbbf24; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900; text-align: center;">
+            </div>
+            <div style="flex: 1; min-width: 80px; display: flex; align-items: center; gap: 5px;">
+                <select class="v-input ctrl-input ch-bank-select" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.1rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center;">
+                    ${banksHtml}
+                </select>
+            </div>
+
+            <div class="dynamic-focus-container" style="flex: none; width: 270px; display: flex; align-items: center; gap: 5px;">
+                <input type="text" maxlength="14" class="v-input ctrl-input ch-no-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || ''}" placeholder="رقم الشيك" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.5rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#2dd4bf; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900;">
+            </div>
+            <div style="flex: 0.8; min-width: 120px; display: flex; align-items: center; gap: 5px;">
+                <input type="date" class="v-input ctrl-input ch-date-input" value="${existingData?.dueDate || today}" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.3rem; padding: 0 4px; width: 100%; border-radius: 6px; color:#fff;">
+            </div>
+            <div style="display: flex; justify-content: flex-end; width: 40px; flex: none;">
                 ${actionBtn}
             </div>
         </div>
