@@ -3440,166 +3440,15 @@ window.formatAmount = function(input) {
     input.value = fmtNum(num, decimals, hasComma);
 };
 
-window.getNumPropKey = function(input) {
-    if (input.id && input.id !== '') return 'num_prop_' + input.id;
-    
-    // For elements without ID, use class + index
-    if (input.classList.contains('block-total-amount')) {
-        let idx = Array.from(document.querySelectorAll('.block-total-amount')).indexOf(input);
-        return 'num_prop_block-total-amount-' + idx;
-    }
-    if (input.classList.contains('block-sub-amount')) {
-        let idx = Array.from(document.querySelectorAll('.block-sub-amount')).indexOf(input);
-        return 'num_prop_block-sub-amount-' + idx;
-    }
-    if (input.classList.contains('block-bank-amount')) {
-        let idx = Array.from(document.querySelectorAll('.block-bank-amount')).indexOf(input);
-        return 'num_prop_block-bank-amount-' + idx;
-    }
-    if (input.classList.contains('block-cheque-amount')) {
-        let idx = Array.from(document.querySelectorAll('.block-cheque-amount')).indexOf(input);
-        return 'num_prop_block-cheque-amount-' + idx;
-    }
-    return 'num_prop_default';
-};
-
 window.saveNumberProperties = function() {
-    if (!currentTargetInput) return;
-    const input = currentTargetInput;
-    const fullKey = window.getNumPropKey(input);
-    const rawKey = fullKey.replace('num_prop_', '');
-    const props = {
-        fontSize: input.style.fontSize,
-        thousands: input.getAttribute('data-thousands') !== 'false',
-        decimals: parseInt(input.getAttribute('data-decimals') || '0'),
-        font: input.getAttribute('data-font') || 'inter'
-    };
-    
-    // Save to local storage for immediate sync
-    localStorage.setItem(fullKey, JSON.stringify(props));
-    
-    // Update memory cache
-    if (!window.globalNumberPropsCache) window.globalNumberPropsCache = {};
-    window.globalNumberPropsCache[fullKey] = props;
-    
-    // Save to DB
-    fetch('api/save_num_props.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ key: rawKey, props: props })
-    })
-    .then(res => res.json())
-    .then(data => {
-        const btn = document.getElementById('save-props-btn');
-        if (btn) {
-            const oldText = btn.innerHTML;
-            btn.innerHTML = data.status === 'success' ? '✅ تم الحفظ في قاعدة البيانات' : '❌ خطأ في الحفظ';
-            setTimeout(() => btn.innerHTML = '💾 حفظ الخصائص', 2000);
-        }
-    })
-    .catch(err => {
-        const btn = document.getElementById('save-props-btn');
-        if (btn) {
-            btn.innerHTML = '❌ فشل الاتصال';
-            setTimeout(() => btn.innerHTML = '💾 حفظ الخصائص', 2000);
-        }
-    });
-};
-
-window.applyPropsToElement = function(input, props) {
-    if (!input || !props) return;
-    if (props.fontSize) {
-        input.style.setProperty('font-size', props.fontSize, 'important');
-        input.setAttribute('data-manual-font', 'true');
-    }
-    input.setAttribute('data-thousands', props.thousands ? 'true' : 'false');
-    input.setAttribute('data-decimals', props.decimals);
-    input.setAttribute('data-font', props.font);
-    
-    if (props.font === 'monospace') {
-        input.style.setProperty('font-family', "'Roboto Mono', Consolas, monospace", 'important');
-    } else {
-        input.style.setProperty('font-family', "'Inter', system-ui, sans-serif", 'important');
-    }
-    
-    if(typeof window.formatAmount === 'function') window.formatAmount(input);
-};
-
-window.loadAndApplyNumberProperties = function(input) {
-    if (!input) return;
-    const fullKey = window.getNumPropKey(input);
-    
-    // Check DB cache first
-    if (window.globalNumberPropsCache && window.globalNumberPropsCache[fullKey]) {
-        window.applyPropsToElement(input, window.globalNumberPropsCache[fullKey]);
-        localStorage.setItem(fullKey, JSON.stringify(window.globalNumberPropsCache[fullKey]));
-        return;
-    }
-    
-    // Fallback to localStorage
-    const saved = localStorage.getItem(fullKey);
-    if (saved) {
-        try {
-            window.applyPropsToElement(input, JSON.parse(saved));
-        } catch(e) {}
+    // Placeholder for save logic if needed globally.
+    const btn = document.getElementById('save-props-btn');
+    if (btn) {
+        const oldText = btn.innerHTML;
+        btn.innerHTML = 'تم الحفظ بنجاح';
+        setTimeout(() => btn.innerHTML = oldText, 1500);
     }
 };
-
-window.globalNumberPropsCache = null;
-
-window.initNumberProperties = function() {
-    // Fetch all props from DB once
-    fetch('api/get_all_num_props.php')
-        .then(res => res.json())
-        .then(data => {
-            window.globalNumberPropsCache = data;
-            setTimeout(() => {
-                document.querySelectorAll('.block-total-amount, .block-sub-amount, .block-bank-amount, .block-cheque-amount, #amount-local-hdr, #total-amount, .transfer-amount').forEach(el => {
-                    window.loadAndApplyNumberProperties(el);
-                });
-            }, 100);
-        })
-        .catch(err => {
-            // Fallback if network fails
-            setTimeout(() => {
-                document.querySelectorAll('.block-total-amount, .block-sub-amount, .block-bank-amount, .block-cheque-amount, #amount-local-hdr, #total-amount, .transfer-amount').forEach(el => {
-                    window.loadAndApplyNumberProperties(el);
-                });
-            }, 100);
-        });
-};
-
-if (document.readyState === 'loading') {
-    document.addEventListener('DOMContentLoaded', window.initNumberProperties);
-} else {
-    window.initNumberProperties();
-}
-
-// Observer for dynamically added inputs
-const observer = new MutationObserver((mutations) => {
-    mutations.forEach(mutation => {
-        mutation.addedNodes.forEach(node => {
-            if (node.nodeType === 1) { // Element node
-                if (node.classList && (
-                    node.classList.contains('block-total-amount') || 
-                    node.classList.contains('block-sub-amount') || 
-                    node.classList.contains('block-bank-amount') || 
-                    node.classList.contains('block-cheque-amount') ||
-                    node.classList.contains('transfer-amount'))) {
-                    window.loadAndApplyNumberProperties(node);
-                }
-                
-                // If it's a container, find inputs inside it
-                const inputs = node.querySelectorAll ? node.querySelectorAll('.block-total-amount, .block-sub-amount, .block-bank-amount, .block-cheque-amount, .transfer-amount') : [];
-                inputs.forEach(input => {
-                    window.loadAndApplyNumberProperties(input);
-                });
-            }
-        });
-    });
-});
-observer.observe(document.body, { childList: true, subtree: true });
-
 
 // --- Custom Keyboard Navigation Flow (Enter & Ctrl+Enter) ---
 document.addEventListener('keydown', function(e) {
@@ -3646,7 +3495,7 @@ document.addEventListener('keydown', function(e) {
         return;
     }
 
-        if (e.key === 'Enter' && !e.ctrlKey) {
+    if (e.key === 'Enter' && !e.ctrlKey) {
         
         // 1. main-account-search -> account-search input of first block
         if (active.id === 'main-account-search') {
@@ -3690,7 +3539,18 @@ document.addEventListener('keydown', function(e) {
             }
         }
         
-        // 2. account-*-search -> statement-*
+        // 2. amount-* -> account-*-search
+        if (active.classList.contains('block-total-amount')) {
+            e.preventDefault();
+            const block = active.closest('.account-block');
+            if (block) {
+                const acctSearch = block.querySelector('.block-account-search');
+                if (acctSearch) { acctSearch.focus(); acctSearch.select(); }
+            }
+            return;
+        }
+
+        // 3. account-*-search -> bank amount
         if (active.classList.contains('block-account-search')) {
             const type = active.id.replace('-search', '');
             const listId = type + '-dropdown-list';
@@ -3706,60 +3566,74 @@ document.addEventListener('keydown', function(e) {
                         selectAccount(type, id, name);
                     }
                 }
-                setTimeout(() => {
-                    const block = active.closest('.account-block');
-                    if (block) {
-                        const stmt = block.querySelector('[id^="statement-"]');
-                        if (stmt) { stmt.focus(); stmt.select(); }
-                    }
-                }, 100);
                 return; 
             } else {
                 e.preventDefault();
                 const block = active.closest('.account-block');
                 if (block) {
-                    const stmt = block.querySelector('[id^="statement-"]');
-                    if (stmt) { stmt.focus(); stmt.select(); }
+                    const blockId = block.id.replace('block-', '');
+                    const btnBank = block.querySelector('.block-btn-bank');
+                    if (btnBank && !btnBank.classList.contains('active')) {
+                        if (typeof window.toggleBlockPaymentMethod === 'function') {
+                            window.toggleBlockPaymentMethod(blockId, 'bank');
+                        }
+                    }
+                    setTimeout(() => {
+                        const amtEl = block.querySelector('.block-bank-amount');
+                        if (amtEl ) { amtEl.focus(); amtEl.select(); }
+                    }, 50);
                 }
                 return;
             }
         }
 
-        // 3. statement-* -> block-total-amount
-        if (active.id && active.id.startsWith('statement-')) {
-            e.preventDefault();
-            const block = active.closest('.account-block');
-            if (block) {
-                const amt = block.querySelector('.block-total-amount');
-                if (amt) { amt.focus(); amt.select(); }
-            }
+        // 4. bank toggle -> bank amount
+        if (active.classList.contains('block-btn-bank')) {
+            setTimeout(() => {
+                const block = active.closest('.account-block');
+                if (block) {
+                    const amt = block.querySelector('.block-bank-amount');
+                    if (amt && amt.offsetParent !== null) {
+                        amt.focus();
+                        amt.select();
+                    }
+                }
+            }, 50);
             return;
         }
 
-        // 4. block-total-amount -> block-bank-amount (also toggle bank mode automatically!)
-        if (active.classList.contains('block-total-amount')) {
-            e.preventDefault();
-            const block = active.closest('.account-block');
-            if (block) {
-                const blockId = block.id.replace('block-', '');
-                const btnBank = block.querySelector('.block-btn-bank');
-                if (btnBank && !btnBank.classList.contains('active')) {
-                    if (typeof window.toggleBlockPaymentMethod === 'function') {
-                        window.toggleBlockPaymentMethod(blockId, 'bank');
+        if (active.classList.contains('block-btn-cheque')) {
+            setTimeout(() => {
+                const block = active.closest('.account-block');
+                if (block) {
+                    const amt = block.querySelector('.block-cheque-amount');
+                    if (amt && amt.offsetParent !== null) {
+                        amt.focus();
+                        amt.select();
                     }
                 }
+            }, 50);
+            return;
+        }
+
+        // 5. statement-* -> create new block and focus its amount
+        if (active.id && active.id.startsWith('statement-')) {
+            e.preventDefault();
+            if (typeof window.addAccountBlock === 'function') {
+                window.addAccountBlock();
                 setTimeout(() => {
-                    const bankAmts = block.querySelectorAll('.block-bank-amount');
-                    if (bankAmts.length > 0) {
-                        bankAmts[bankAmts.length - 1].focus();
-                        bankAmts[bankAmts.length - 1].select();
+                    const amounts = document.querySelectorAll('.block-total-amount');
+                    if (amounts.length > 0) {
+                        amounts[amounts.length - 1].focus();
+                        amounts[amounts.length - 1].select();
                     }
                 }, 100);
             }
             return;
         }
-
-        // 5. block-bank-amount -> block-bank-name-input
+        
+        // --- Bank Details Navigation ---
+        // 6. bank amount -> bank name
         if (active.classList.contains('block-bank-amount')) {
             e.preventDefault();
             const row = active.closest('.bank-row');
@@ -3770,7 +3644,7 @@ document.addEventListener('keydown', function(e) {
             return;
         }
         
-        // 6. block-bank-name-input -> block-transfer-no-input
+        // 7. bank name -> transfer no
         if (active.classList.contains('block-bank-name-input')) {
             e.preventDefault();
             const row = active.closest('.bank-row');
@@ -3781,18 +3655,25 @@ document.addEventListener('keydown', function(e) {
             return;
         }
 
-        // 7. block-transfer-no-input -> block-bank-desc-input
+        // 8. transfer no -> bank desc
         if (active.classList.contains('block-transfer-no-input')) {
             e.preventDefault();
             const row = active.closest('.bank-row');
             if (row) {
                 const desc = row.querySelector('.block-bank-desc-input');
                 if (desc) { desc.focus(); desc.select(); }
+                else {
+                    const block = active.closest('.account-block');
+                    if (block) {
+                        const btn = block.querySelector('[data-action="add-bank-row"]');
+                        if (btn) btn.focus();
+                    }
+                }
             }
             return;
         }
-
-        // 8. block-bank-desc-input -> trigger add bank row and focus amount
+        
+        // 9. bank desc -> trigger add bank row and focus amount
         if (active.classList.contains('block-bank-desc-input')) {
             e.preventDefault();
             const block = active.closest('.account-block');
@@ -3812,7 +3693,7 @@ document.addEventListener('keydown', function(e) {
             return;
         }
 
-        // Handle enter on 'add-bank-row' button
+        // Handle enter on 'add-bank-row' button to focus new amount
         if (active.getAttribute('data-action') === 'add-bank-row') {
             setTimeout(() => {
                 const block = active.closest('.account-block');
@@ -3920,7 +3801,7 @@ document.addEventListener('keydown', function(e) {
 document.addEventListener('DOMContentLoaded', () => {
     setTimeout(() => {
         const searchInput = document.getElementById('main-account-search');
-        if (searchInput) { searchInput.focus(); if (typeof showAccountDropdown === 'function') showAccountDropdown('main-account'); }
+        if (searchInput) searchInput.focus();
     }, 300);
 });
 
