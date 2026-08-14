@@ -54,598 +54,335 @@ try {
     <link rel="stylesheet" href="css/sales-invoice.css">
     
     <style>
-        @keyframes flowOut {
-            0% { transform: translateX(0); opacity: 0.4; }
-            50% { transform: translateX(-10px); opacity: 1; filter: drop-shadow(0 0 3px #ef4444); }
-            100% { transform: translateX(0); opacity: 0.4; }
+        html { font-size: 14.5px; } /* Slightly reduce overall scale to make everything beautifully compact */
+        /* -------------------------------------------
+           ✨ ADVANCED UI / UX VISUAL EFFECTS ✨
+           ------------------------------------------- */
+        /* Entrance Animations */
+        @keyframes gl-fadeIn { from { opacity: 0; } to { opacity: 1; } }
+        @keyframes gl-slideUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+        @keyframes gl-slideFromLeft { from { opacity: 0; transform: translateX(-40px); } to { opacity: 1; transform: translateX(0); } }
+        @keyframes gl-scaleIn { from { opacity: 0; transform: scale(0.95); } to { opacity: 1; transform: scale(1); } }
+
+        /* Apply Entrance Animations */
+        body > .premium-header { animation: gl-slideFromLeft 0.5s cubic-bezier(0.16, 1, 0.3, 1) forwards !important; }
+        .main-panel { animation: gl-scaleIn 0.4s ease-out 0.1s both; }
+        .side-panel { animation: gl-slideUp 0.4s ease-out 0.2s both; }
+        .sticky-footer { animation: gl-slideUp 0.4s ease-out 0.3s both; }
+        
+        /* Glassmorphism & Blur */
+        .main-panel, .side-panel, .premium-header, .sticky-footer {
+            backdrop-filter: blur(16px);
+            -webkit-backdrop-filter: blur(16px);
         }
-        .animated-arrow-left {
-            display: inline-block;
-            margin-right: 8px;
-            color: #ef4444;
-            animation: flowOut 1.5s infinite ease-in-out;
-            font-size: 1.6rem;
-            vertical-align: middle;
-            font-weight: bold;
+        
+        /* Fluid Transitions & State Changes */
+        .form-input, .btn, .pm-tab-content, .choices__inner {
+            transition: all 0.4s cubic-bezier(0.25, 1, 0.5, 1) !important;
+        }
+        
+        /* Hover Effects & Neumorphism / Glow */
+        .form-input:hover, .choices__inner:hover, textarea.form-input:hover {
+            box-shadow: 0 0 15px rgba(255, 255, 255, 0.05);
+            border-color: rgba(255, 255, 255, 0.3) !important;
+        }
+        .form-input:focus, .choices.is-focused .choices__inner {
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.4) !important;
+            border-color: #38bdf8 !important;
+            transform: translateY(-2px);
+        }
+        
+        /* Amount Field Premium Glow */
+        #amount-local:focus {
+            box-shadow: 0 0 30px rgba(239, 68, 68, 0.6) !important;
+            border-color: #ef4444 !important;
+            transform: scale(1.02);
         }
 
-        @keyframes flowIn {
-            0% { transform: translateX(0); opacity: 0.4; }
-            50% { transform: translateX(10px); opacity: 1; filter: drop-shadow(0 0 3px currentColor); }
-            100% { transform: translateX(0); opacity: 0.4; }
+        /* Micro-interactions (Buttons & Payment Tabs) */
+        .btn:hover, .pm-tab input:checked + .pm-tab-content {
+            transform: translateY(-3px) scale(1.02);
+            box-shadow: 0 10px 25px rgba(0,0,0,0.4) !important;
         }
-        .animated-arrow-right {
-            display: inline-block;
-            margin-right: 8px;
-            color: inherit;
-            animation: flowIn 1.5s infinite ease-in-out;
-            font-size: 1.6rem;
-            vertical-align: middle;
-            font-weight: bold;
+        .btn:active {
+            transform: scale(0.95);
         }
 
-        /* ═══ Ultra-Modern Glassmorphic Crystal Theme & Dynamic Light System ═══ */
-        @keyframes lightWavePulse {
-            0% { box-shadow: 0 0 0 0 var(--btn-glow, rgba(56, 189, 248, 0.6)), 0 8px 25px rgba(0,0,0,0.4); }
-            50% { box-shadow: 0 0 20px 4px var(--btn-glow, rgba(56, 189, 248, 0.6)), 0 12px 35px rgba(0,0,0,0.6); }
-            100% { box-shadow: 0 0 0 0 var(--btn-glow, rgba(56, 189, 248, 0.6)), 0 8px 25px rgba(0,0,0,0.4); }
+        /* Focus Zones Subtle Glow & Blur */
+        .focus-zone {
+            transition: filter 0.5s ease, opacity 0.5s ease, transform 0.5s cubic-bezier(0.25, 1, 0.5, 1), box-shadow 0.5s ease !important;
+            border-radius: 16px;
+            backdrop-filter: blur(8px);
         }
-
-        @keyframes crystalBeamSweep {
-            0% { transform: translateX(-120%) rotate(25deg); }
-            100% { transform: translateX(220%) rotate(25deg); }
+        .interactive-columns:focus-within .focus-zone:not(:focus-within) {
+            filter: grayscale(30%) blur(0.5px) brightness(0.85);
+            transform: scale(0.99);
+            opacity: 0.9;
         }
-
-        @keyframes rimGlowFlow {
-            0% { border-color: rgba(255, 255, 255, 0.18); }
-            50% { border-color: rgba(255, 255, 255, 0.45); }
-            100% { border-color: rgba(255, 255, 255, 0.18); }
-        }
-
-        /* Glassmorphism Crystal Containers */
-        .glass-container {
-            padding: 22px 26px;
-            border-radius: 18px;
-            margin-bottom: 25px;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.16);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25);
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.65), rgba(15, 23, 42, 0.85));
-            position: relative;
-            overflow: visible !important;
-        }
-
-        .glass-container::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; height: 1.5px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
-            pointer-events: none;
-        }
-
-        .glass-container:hover {
+        .interactive-columns:focus-within .focus-zone:focus-within {
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.3);
             transform: translateY(-4px);
-            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.35);
-            border-color: rgba(255, 255, 255, 0.3);
+            z-index: 10;
         }
 
-        #secondary-table-container {
-            padding-top: 4px !important;
+        /* Continuous Shine Animation for Amount */
+        @keyframes subtleShine {
+            0% { text-shadow: 0 0 10px rgba(239,68,68,0.3); box-shadow: 0 0 15px rgba(239,68,68,0.1); }
+            50% { text-shadow: 0 0 20px rgba(239,68,68,0.8), 0 0 30px rgba(239,68,68,0.4); box-shadow: 0 0 25px rgba(239,68,68,0.3); }
+            100% { text-shadow: 0 0 10px rgba(239,68,68,0.3); box-shadow: 0 0 15px rgba(239,68,68,0.1); }
         }
+        #amount-local { animation: subtleShine 3s infinite alternate; }
 
-        #secondary-table-container th {
-            padding-top: 6px !important;
-            padding-bottom: 6px !important;
+        /* Typography Scale for Clarity */
+        .label { font-size: 1.3rem !important; font-weight: 900 !important; color: #f8fafc !important; text-shadow: 0 2px 4px rgba(0,0,0,0.9) !important; }
+        .form-input, textarea.form-input { font-size: 1.25rem !important; font-weight: 800 !important; color: #ffffff !important; background: #0f172a !important; border: 1px solid #38bdf8 !important; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); text-shadow: none !important; }
+        .form-input:not(#amount-local) { height: 48px !important; }
+        textarea.form-input { height: auto !important; min-height: 48px; }
+        #to-statement, #from-statement { font-size: 0.95rem !important; }
+        #amount-local { 
+            font-size: 3.2rem !important; 
+            font-weight: 900 !important; 
+            color: #b91c1c !important; /* Medium elegant red */
+            background: #d6d3d1 !important; /* Warm, calm beige/gray, not bright white */
+            border: 2px solid #991b1b !important;
+            text-shadow: none !important;
+            box-shadow: inset 0 3px 8px rgba(0, 0, 0, 0.15) !important;
+            line-height: 1 !important;
+            padding-top: 5px !important;
         }
-
-        /* Crystal Red Container (المستطيل الرئيسي للصرف) */
-        .glass-red {
-            position: relative; overflow: hidden;
-            background: linear-gradient(135deg, rgba(110, 30, 45, 0.75), rgba(15, 23, 42, 0.85)) !important;
-            border: 1px solid rgba(244, 63, 94, 0.45) !important;
-            border-right: 5px solid #f43f5e !important;
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(244, 63, 94, 0.35), 0 0 25px rgba(244, 63, 94, 0.15) !important;
-        }
-        .glass-red:hover {
-            background: linear-gradient(135deg, rgba(130, 35, 50, 0.85), rgba(15, 23, 42, 0.92)) !important;
-            border-color: rgba(244, 63, 94, 0.8) !important;
-            border-right-color: #fb7185 !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.6), 0 0 45px rgba(244, 63, 94, 0.6) !important;
-        }
-
-        /* Crystal Green Container (مستطيلات الحسابات المستلمة) */
-        .glass-green {
-            position: relative; overflow: hidden;
-            background: linear-gradient(135deg, rgba(16, 60, 40, 0.85), rgba(15, 23, 42, 0.95)) !important;
-            border: 1px solid rgba(39, 174, 96, 0.45) !important;
-            border-right: 5px solid #27ae60 !important;
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(39, 174, 96, 0.35), 0 0 25px rgba(39, 174, 96, 0.2) !important;
-        }
-        .glass-green:hover {
-            background: linear-gradient(135deg, rgba(20, 75, 50, 0.9), rgba(15, 23, 42, 0.98)) !important;
-            border-color: rgba(39, 174, 96, 0.8) !important;
-            border-right-color: #2ecc71 !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.6), 0 0 45px rgba(39, 174, 96, 0.6) !important;
-        }
-
-        /* High Contrast Inputs, Placeholders, and Labels */
-        input::placeholder,
-        select::placeholder,
-        textarea::placeholder,
-        .form-input::placeholder,
-        .form-select::placeholder,
-        .multi-input::placeholder {
-            color: rgba(255, 255, 255, 0.6) !important;
-            opacity: 1 !important;
-        }
-
-        input, select, textarea, .form-input, .form-select, .multi-input {
-            color: #ffffff !important;
-        }
-
-        .glass-container label {
-            color: #e2e8f0;
-        }
-
-        /* High Contrast for Payment Method Details Inputs & Labels */
-        .payment-method-box label {
-            color: #e2e8f0 !important;
-            opacity: 1 !important;
-        }
-        .payment-method-box input {
-            color: #ffffff !important;
-        }
-        .payment-method-box input::placeholder {
-            color: rgba(255, 255, 255, 0.6) !important;
-            opacity: 1 !important;
-        }
-
-        /* Auto-Expanding heights for payment containers */
-        #payment-panel,
-        .payment-layout,
-        .payment-details-card,
-        .payment-method-box,
-        #transfers-container,
-        #cheques-container {
-            height: auto !important;
-            min-height: fit-content !important;
-            overflow: visible !important;
-        }
-
-        .top-action-bar { background: rgba(249, 115, 22, 0.1); border-bottom: 1px solid rgba(249, 115, 22, 0.2); }
-        .action-tab.active { background: #f97316; color: #fff; border-color: #f97316; }
-
-        .form-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px;
+        #amount-local:focus {
+            border-color: #7f1d1d !important;
+            background: #e7e5e4 !important; /* Slightly lighter warm gray on focus, still not white */
+            box-shadow: 0 0 15px rgba(127, 29, 29, 0.3), inset 0 3px 8px rgba(0, 0, 0, 0.1) !important;
         }
         
-        .form-input, .form-select {
-            width: 100%; background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.15);
-            color: #fff; padding: 10px 14px; border-radius: 10px;
-            font-family: inherit; font-size: 0.95rem; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
-        }
-        .form-input:focus, .form-select:focus { 
-            border-color: #38bdf8; background: rgba(15, 23, 42, 0.9); outline: none;
-            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2), 0 0 15px rgba(56, 189, 248, 0.15);
-        }
-        
-        .form-section-title { 
-            font-size: 1.1rem; font-weight: 700; color: #38bdf8; 
-            margin-bottom: 15px; display: flex; align-items: center; gap: 8px; 
-            border-bottom: 1px solid rgba(56,189,248,0.2); padding-bottom: 10px; 
-        }
-
-        /* Grid */
-        .multi-table { width: 100%; border-collapse: separate; border-spacing: 0 5px; }
-        .multi-table th { text-align: right; padding: 12px 10px; color: #94a3b8; font-weight: 600; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.05); white-space: nowrap; }
-        .multi-row { transition: all 0.2s; }
-        .multi-row:hover { background: rgba(255,255,255,0.02); }
-        .multi-row td { padding: 5px; }
-        .multi-input {
-            width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);
-            color: #f8fafc; padding: 8px 10px; border-radius: 6px; font-size: 0.9rem; min-width: 100px;
-        }
-        .multi-input:focus { border-color: #f97316; outline: none; background: rgba(0,0,0,0.4); }
-        
-        .btn-add-row {
-            background: rgba(249, 115, 22, 0.1); color: #f97316; border: 1px dashed #f97316;
-            padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 700;
-            width: 100%; margin-top: 10px; transition: all 0.2s; font-family: 'Tajawal', sans-serif;
-        }
-        .btn-add-row:hover { background: rgba(249, 115, 22, 0.2); }
-
-        .btn-save {
-            background: #10b981; color: #fff; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Tajawal', sans-serif; transition: 0.2s; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(16,185,129,0.3);
-        }
-        .btn-save:hover { background: #059669; transform: translateY(-2px); }
-
-        .btn-del { background: none; border: none; color: #ef4444; font-size: 1.2rem; cursor: pointer; padding: 5px; transition: 0.2s; }
-        .btn-del:hover { transform: scale(1.2); }
-
-        /* Choices custom overrides */
-        .choices__inner { background-color: rgba(0,0,0,0.2) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fff !important; border-radius: 8px !important; min-height: 42px !important; }
-        .choices__list--dropdown { background-color: #1e293b !important; color: #fff !important; border: 1px solid #f97316 !important; }
-        .choices__item--selectable.is-highlighted { background-color: #f97316 !important; }
-        /* Toast */
+        .choices { margin-bottom: 0 !important; }
+        .choices__inner { font-size: 1.1rem !important; font-weight: 800 !important; min-height: 48px !important; padding: 6px 12px !important; border-radius: 8px !important; background: #0f172a !important; border: 1px solid #38bdf8 !important; color: #ffffff !important; box-shadow: inset 0 2px 5px rgba(0,0,0,0.5); text-shadow: none !important; }
+        .choices__input { color: #ffffff !important; font-size: 1.1rem !important; font-weight: 700 !important; }
+        .choices__list--dropdown { background: #1e293b !important; color: #fff !important; border: 1px solid rgba(255,255,255,0.1) !important; z-index: 1000 !important; }
+        .choices__list--dropdown .choices__item { font-size: 1.1rem !important; font-weight: 500 !important; }
+        .choices__list--dropdown .choices__item--selectable.is-highlighted { background: #38bdf8 !important; color: #fff !important; }
         .toast-container { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
-        .toast { padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem; display:flex; align-items:center; gap:8px; pointer-events:auto; backdrop-filter:blur(20px); box-shadow:0 12px 40px rgba(0,0,0,0.5); animation:toastIn 0.4s cubic-bezier(0.16,1,0.3,1) both; }
-        .toast.success { background:rgba(52,211,153,0.15); border:1px solid rgba(52,211,153,0.4); color:#34d399; }
+        .toast {
+            padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem;
+            display:flex; align-items:center; gap:8px; pointer-events:auto;
+            backdrop-filter:blur(20px); box-shadow:0 12px 40px rgba(0,0,0,0.5);
+            animation:toastIn 0.4s cubic-bezier(0.16,1,0.3,1) both;
+            font-family:'Cairo',sans-serif; max-width:90vw;
+        }
+        .toast.success { background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.4); color:#34d399; }
         .toast.error { background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#f87171; }
         .toast.hide { animation:toastOut 0.4s forwards; }
         @keyframes toastIn { from { opacity:0; transform:translateY(-20px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
         @keyframes toastOut { to { opacity:0; transform:translateY(-20px) scale(0.95); } }
 
-        /* Context Menu */
-        .context-menu {
-            position: absolute; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.5); z-index: 1000;
-            display: none; min-width: 200px;
-        }
-        .context-menu.active { display: flex; flex-direction: column; gap: 8px; animation: fadeIn 0.2s; }
-        .context-menu-item {
-            display: flex; align-items: center; gap: 10px; color: #fff;
-            padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 0.9rem;
-        }
-        .context-menu-item:hover { background: rgba(255,255,255,0.05); }
-        .context-menu-item input[type="checkbox"] { accent-color: #f97316; width: 16px; height: 16px; cursor: pointer; }
+        .top-action-bar { background: rgba(239, 68, 68, 0.1); border-bottom: 1px solid rgba(239, 68, 68, 0.2); }
+        .action-tab.active { background: #ef4444; color: #fff; border-color: #ef4444; }
 
-        /* Dynamic Columns */
-        .col-cost-center, .col-note, .col-check-no, .col-check-date, .col-check-due { display: none; }
-        table.show-col-cost-center .col-cost-center { display: table-cell; }
-        table.show-col-note .col-note { display: table-cell; }
-        table.show-col-check-no .col-check-no { display: table-cell; }
-        table.show-col-check-date .col-check-date { display: table-cell; }
-        table.show-col-check-due .col-check-due { display: table-cell; }
-
-        /* Sticky Footer */
-        .sticky-footer { position: sticky; bottom: 0; background: rgba(15,23,42,0.9); border-top: 1px solid rgba(249,115,22,0.3); padding: 15px 25px; border-radius: 0 0 16px 16px; display: flex; justify-content: space-between; align-items: center; z-index: 50; backdrop-filter: blur(10px); margin-top: 20px; margin-left: -25px; margin-right: -25px; margin-bottom: -25px; }
-
-        /* ═══ MASTER DATA ULTRA-PREMIUM ICON & BUTTON DESIGN SYSTEM ═══ */
-
-        /* 1. Highly Visible Glitter Shimmer Sparkles (From Master Data) */
-        @keyframes glitterShimmer {
-            0% {
-                background-position: 0 0, 0 0, 0 0, 0 0, 0 0, -100% -100%;
-                filter: brightness(1.3) drop-shadow(0 0 3px #ffffff);
-            }
-            50% {
-                filter: brightness(2.4) drop-shadow(0 0 8px #ffffff);
-            }
-            100% {
-                background-position: 55px 55px, -40px 40px, 48px -48px, -42px -42px, 30px -30px, 200% 200%;
-                filter: brightness(1.3) drop-shadow(0 0 3px #ffffff);
-            }
-        }
-
-        /* 2. Rear Bottom Light Ray Pulse */
-        @keyframes rearRayPulse {
-            0%, 100% { transform: scaleX(1) translateY(0); opacity: 0.65; }
-            50% { transform: scaleX(1.35) translateY(3px); opacity: 1; filter: blur(16px) brightness(1.5); }
-        }
-
-        /* 3. Rim Glow Pulse Animation */
-        @keyframes rimPulseGlow {
-            0%, 100% { box-shadow: 0 0 16px var(--tab-glow-color, rgba(56, 189, 248, 0.5)), inset 0 1px 2px rgba(255, 255, 255, 0.5); }
-            50% { box-shadow: 0 0 32px var(--tab-glow-color, rgba(56, 189, 248, 0.9)), inset 0 2px 5px rgba(255, 255, 255, 0.8); }
-        }
-
-        /* ═══ Base Crystal Button (Master Data Inspired) ═══ */
-        .crystal-btn, .voucher-type-btn, .pay-toggle-btn {
-            position: relative;
-            background: rgba(0, 0, 0, 0.2); /* Darker background, no inner light */
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            border: 4.8px solid var(--tab-border-color, rgba(255, 255, 255, 0.25)) !important;
-            border-radius: 14px;
-            padding: 10px 18px;
-            font-size: 1rem;
-            font-weight: 800;
-            color: #f8fafc !important;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            white-space: nowrap;
-            overflow: visible; /* Allows rear bottom glow projection */
-            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
-            z-index: 1;
-            font-family: 'Tajawal', sans-serif;
-            user-select: none;
-            height: 44px; /* Uniform height & width alignment */
-            box-sizing: border-box;
-        }
-
-        /* Highly Visible Internal Glitter Sparkles Overlay (DISABLED PER USER) */
-        .crystal-btn::after, .voucher-type-btn::after, .pay-toggle-btn::after {
-            display: none !important;
-        }
-
-        .crystal-btn:hover::after, .voucher-type-btn:hover::after, .pay-toggle-btn:hover::after {
-            display: none !important;
-        }
-
-        /* Rear Bottom Light Ray Beam Projection (Faint per user) */
-        .crystal-btn::before, .voucher-type-btn::before, .pay-toggle-btn::before {
-            content: '';
-            position: absolute;
-            bottom: -16px;
-            left: 10%;
-            width: 80%;
-            height: 18px;
-            background: var(--tab-glow-color, rgba(56, 189, 248, 0.75));
-            border-radius: 50%;
-            filter: blur(14px);
-            opacity: 0.15; /* Very faint */
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            pointer-events: none;
-            z-index: -1;
-            animation: rearRayPulse 3s infinite ease-in-out;
-        }
-
-        .crystal-btn:hover::before, .voucher-type-btn:hover::before, .pay-toggle-btn:hover::before {
-            opacity: 0.25 !important; /* Very faint on hover */
-            transform: scaleX(1.4) translateY(5px) !important;
-            filter: blur(18px) brightness(1.2) !important;
-        }
-
-        /* Icon Styling & Detailed Icon Glow Halo (إضاءة مفصلة خلفية من الأيقونة) */
-        .btn-icon, .md-tab-icon {
-            font-size: 1.35rem;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease;
-            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
-            position: relative;
-            z-index: 4;
-        }
-
-        /* Detailed Icon Rear Glow Ring */
-        .btn-icon::after, .md-tab-icon::after {
-            display: none !important;
-        }
-
-        /* Hover Scale + Light Glow + Text Contrast Protection */
-        .crystal-btn:hover, .voucher-type-btn:hover, .pay-toggle-btn:hover {
-            transform: translateY(-5px) scale(1.08) !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 8px rgba(0,0,0,0.8) !important;
-            border-color: var(--tab-border-color) !important;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.6), 0 0 12px var(--tab-glow-color, rgba(56,189,248,0.2)) !important;
-            background: rgba(0,0,0,0.3) !important; /* No inner light */
-            z-index: 10;
-        }
-
-        .crystal-btn:hover .btn-icon, .voucher-type-btn:hover .btn-icon, .pay-toggle-btn:hover .btn-icon {
-            transform: scale(1.38) rotate(8deg);
-            filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
-        }
-
-        .crystal-btn:hover .btn-icon::after, .voucher-type-btn:hover .btn-icon::after, .pay-toggle-btn:hover .btn-icon::after {
-            display: none !important;
-        }
-
-        /* ═══ Voucher Type Buttons (صرف مجمع 📤 vs استلام مجمع 📥) ═══ */
-        .voucher-type-btn.active-payment, #btn-payment.active-payment {
-            --tab-border-color: #f43f5e;
-            --tab-glow-color: rgba(244, 63, 94, 0.7);
-            --tab-hover-bg: linear-gradient(135deg, #f43f5e, #be123c);
-            background: linear-gradient(135deg, #e11d48, #9f1239) !important;
-            border-color: #f43f5e !important;
-            color: #ffffff !important;
-            font-weight: 900 !important;
-            text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 30px rgba(225, 29, 72, 0.65), 0 0 25px rgba(225, 29, 72, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
-            transform: translateY(-3px) scale(1.05) !important;
-        }
-
-        .voucher-type-btn.active-receipt, #btn-receipt.active-receipt {
-            --tab-border-color: #10b981;
-            --tab-glow-color: rgba(16, 185, 129, 0.7);
-            --tab-hover-bg: linear-gradient(135deg, #10b981, #047857);
-            background: linear-gradient(135deg, #059669, #064e3b) !important;
-            border-color: #10b981 !important;
-            color: #ffffff !important;
-            font-weight: 900 !important;
-            text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.65), 0 0 25px rgba(16, 185, 129, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
-            transform: translateY(-3px) scale(1.05) !important;
-        }
-
-        /* ═══ Payment Method Toggle Buttons (نقدي 💵 / تحويل 🏦 / شيك ✍️) ═══ */
-        .pay-toggle-btn.block-btn-cash {
-            --tab-border-color: rgba(213, 189, 175, 0.45);
-            --tab-glow-color: rgba(213, 189, 175, 0.65);
-            --tab-hover-bg: linear-gradient(135deg, rgba(213, 189, 175, 0.35), rgba(179, 154, 138, 0.5));
-        }
-        .pay-toggle-btn.active.block-btn-cash {
-            --tab-border-color: #d5bdaf;
-            background: linear-gradient(135deg, rgba(213, 189, 175, 0.45), rgba(179, 154, 138, 0.7)) !important;
-            border-color: #d5bdaf !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(213, 189, 175, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 25px rgba(213, 189, 175, 0.5), 0 0 20px rgba(213, 189, 175, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
-            transform: translateY(-3px) scale(1.05) !important;
-        }
-
-        .pay-toggle-btn.block-btn-bank {
-            --tab-border-color: #fbbf24;
-            --tab-glow-color: rgba(251, 191, 36, 0.55);
-            --tab-hover-bg: linear-gradient(135deg, rgba(217, 119, 6, 0.4), rgba(251, 191, 36, 0.6));
-            --tab-active-bg: linear-gradient(135deg, #d97706, #fbbf24);
-        }
-        .pay-toggle-btn.block-btn-cheque {
-            --tab-border-color: #c084fc;
-            --tab-glow-color: rgba(192, 132, 252, 0.55);
-            --tab-hover-bg: linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(192, 132, 252, 0.6));
-            --tab-active-bg: linear-gradient(135deg, #7c3aed, #c084fc);
-        }
-
-        .pay-toggle-btn.block-btn-cheque {
-            --tab-border-color: rgba(155, 89, 182, 0.45);
-            --tab-glow-color: rgba(155, 89, 182, 0.65);
-            --tab-hover-bg: linear-gradient(135deg, rgba(155, 89, 182, 0.35), rgba(142, 68, 173, 0.5));
-        }
-        .pay-toggle-btn.active.block-btn-cheque {
-            --tab-border-color: #9b59b6;
-            background: linear-gradient(135deg, rgba(155, 89, 182, 0.45), rgba(142, 68, 173, 0.7)) !important;
-            border-color: #9b59b6 !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(155, 89, 182, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 25px rgba(155, 89, 182, 0.5), 0 0 20px rgba(155, 89, 182, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
-            transform: translateY(-3px) scale(1.05) !important;
-        }
-
-        /* ═══ Footer Action Buttons ═══ */
-        .btn-save-master {
-            --tab-border-color: #34d399;
-            --tab-glow-color: rgba(16, 185, 129, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #10b981, #059669);
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(4, 120, 87, 0.75)) !important;
-            border-color: #34d399 !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 12px rgba(52, 211, 153, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-        }
-        .btn-new {
-            --tab-border-color: #38bdf8;
-            --tab-glow-color: rgba(56, 189, 248, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #0284c7, #0369a1);
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(3, 105, 161, 0.6)) !important;
-            border-color: #38bdf8 !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(56, 189, 248, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-        }
-        .btn-print {
-            --tab-border-color: #c084fc;
-            --tab-glow-color: rgba(168, 85, 247, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #9333ea, #7e22ce);
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(126, 34, 206, 0.6)) !important;
-            border-color: #c084fc !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(192, 132, 252, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-        }
-        .btn-print-preview {
-            --tab-border-color: #22d3ee;
-            --tab-glow-color: rgba(6, 182, 212, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #0891b2, #0e7490);
-            background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(14, 116, 144, 0.6)) !important;
-            border-color: #22d3ee !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(34, 211, 238, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-        }
-        .btn-delete {
-            --tab-border-color: #fb7185;
-            --tab-glow-color: rgba(244, 63, 94, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #e11d48, #be123c);
-            background: linear-gradient(135deg, rgba(244, 63, 94, 0.3), rgba(190, 18, 60, 0.6)) !important;
-            border-color: #fb7185 !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(251, 113, 133, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-        }
-        .btn-exit {
-            --tab-border-color: #94a3b8;
-            --tab-glow-color: rgba(148, 163, 184, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #475569, #334155);
-            background: linear-gradient(135deg, rgba(100, 116, 139, 0.3), rgba(51, 65, 85, 0.6)) !important;
-            border-/* color removed */
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(148, 163, 184, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-        }
-
-        /* Luminous Glowing Borders on Hover for Account Blocks & Details Panels */
-        .glass-container:hover, .account-block:hover {
-            border-color: rgba(255, 255, 255, 0.45) !important;
-            box-shadow: 
-                0 20px 50px rgba(0, 0, 0, 0.7),
-                0 0 35px var(--block-glow-color, rgba(56, 189, 248, 0.4)),
-                inset 0 1px 3px rgba(255, 255, 255, 0.5) !important;
-        }
-
-        .glass-red:hover {
-            --block-glow-color: rgba(212, 122, 126, 0.5);
-            border-color: rgba(212, 122, 126, 0.75) !important;
-        }
-        .glass-green:hover {
-            --block-glow-color: rgba(39, 174, 96, 0.5);
-            border-color: rgba(39, 174, 96, 0.75) !important;
-        }
-
-        .block-cash-details:hover {
-            border-color: rgba(213, 189, 175, 0.75) !important;
-            box-shadow: 0 0 25px rgba(213, 189, 175, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
-        }
-        /* CSS variables for dynamic bank transfer colors */
-        .block-bank-details {
-            --bank-bg-start: rgba(12, 74, 110, 0.6);
-            --bank-bg-end: rgba(14, 165, 233, 0.15);
-            --bank-border: rgba(14, 165, 233, 0.7);
-            --bank-shadow: rgba(14, 165, 233, 0.15);
-            --bank-hover-border: rgba(56, 189, 248, 1);
-            --bank-hover-shadow-outer: rgba(14, 165, 233, 0.9);
-            --bank-hover-shadow-inner: rgba(14, 165, 233, 0.5);
-            --bank-icon: #38bdf8;
-            
-            background: linear-gradient(135deg, var(--bank-bg-start), var(--bank-bg-end)) !important;
-            border: 1px solid var(--bank-border) !important;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 0 20px var(--bank-shadow) !important;
+        .form-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+            gap: 10px;
+            margin-bottom: 10px;
         }
         
-        body[data-voucher-type="receipt"] .block-bank-details {
-            --bank-bg-start: rgba(8, 145, 178, 0.4); /* Cyan 600 */
-            --bank-bg-end: rgba(6, 182, 212, 0.15); /* Cyan 500 */
-            --bank-border: rgba(6, 182, 212, 0.7);
-            --bank-shadow: rgba(6, 182, 212, 0.25);
-            --bank-hover-border: rgba(34, 211, 238, 1); /* Cyan 400 */
-            --bank-hover-shadow-outer: rgba(6, 182, 212, 0.8);
-            --bank-hover-shadow-inner: rgba(6, 182, 212, 0.5);
-            --bank-icon: #22d3ee;
+        .form-input {
+            width: 100%; border: 1px solid rgba(255,255,255,0.2);
+            padding: 8px 12px; border-radius: 8px;
+            font-family: inherit; transition: all 0.2s;
         }
+        .form-input:focus { border-color: #ef4444; background: rgba(0,0,0,0.6) !important; outline: none; }
+        .form-input.amount { color: #f87171 !important; font-weight: 900 !important; font-family: monospace; }
         
-        body[data-voucher-type="receipt"] .bank-icon-label {
-            color: var(--bank-icon) !important;
+        .form-section-title { 
+            font-size: 1.3rem; font-weight: 800; color: #f87171; 
+            border-bottom: 2px solid rgba(239, 68, 68, 0.2);
+            padding-bottom: 5px; margin-bottom: 15px; 
+            display: flex; align-items: center; 
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
         }
 
-        .block-bank-details:hover {
-            border-color: var(--bank-hover-border) !important;
-            box-shadow: 0 0 40px var(--bank-hover-shadow-outer), inset 0 0 25px var(--bank-hover-shadow-inner) !important;
+        .balance-summary {
+            background: rgba(249, 115, 22, 0.1);
+            border: 1px solid rgba(249, 115, 22, 0.3);
+            border-radius: 8px;
+            display: flex;
+            padding: 8px 15px;
+            gap: 15px;
+            font-size: 0.85rem;
+            color: #fdba74;
+            float: left; /* Left align for RTL */
+            margin-top: -5px;
         }
-        .block-cheque-details {
-            background: linear-gradient(135deg, rgba(88, 28, 135, 0.6), rgba(168, 85, 247, 0.15)) !important;
-            border: 1px solid rgba(168, 85, 247, 0.7) !important;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 0 20px rgba(168, 85, 247, 0.15) !important;
+        .bal-item strong { color: #f97316; margin-right: 5px; font-family: monospace; font-size: 1.05rem; }
+        .hover-animate { transition: transform 0.3s ease, box-shadow 0.3s ease; }
+        .hover-animate:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(249,115,22,0.2) !important; }
+
+        /* Custom Radio Buttons */
+        .radio-group {
+            display: flex; gap: 20px; align-items: center; padding: 15px 0;
+            border-bottom: 1px solid rgba(255,255,255,0.05); margin-bottom: 15px;
         }
-        .block-cheque-details:hover {
-            border-color: rgba(216, 180, 254, 1) !important;
-            box-shadow: 0 0 40px rgba(168, 85, 247, 0.9), inset 0 0 25px rgba(168, 85, 247, 0.5) !important;
+        .radio-label {
+            display: flex; align-items: center; gap: 8px; cursor: pointer;
+            font-weight: 600; color: var(--text-primary);
         }
-        @keyframes shimmerWave {
-            0% { transform: translateX(-150%) skewX(-45deg); opacity: 0; }
-            11.5% { opacity: 0.15; }
-            23% { transform: translateX(150%) skewX(-45deg); opacity: 0; }
-            100% { transform: translateX(150%) skewX(-45deg); opacity: 0; }
+        .radio-label input[type="radio"] {
+            width: 18px; height: 18px; cursor: pointer;
+            accent-color: #ef4444;
         }
-        .block-bank-details, .block-cheque-details, .glass-red, .glass-green {
+
+        .dynamic-section { display: none; background: rgba(0,0,0,0.1); padding: 15px; border-radius: 8px; border: 1px dashed rgba(255,255,255,0.1); margin-bottom: 15px; }
+        .dynamic-section.active { display: block; animation: fadeIn 0.3s; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
+
+        .checkbox-label {
+            display: flex; align-items: center; gap: 8px; cursor: pointer; font-size: 0.9rem; margin-top: 10px;
+        }
+        .checkbox-label input { width: 16px; height: 16px; accent-color: #ef4444; }
+
+        /* Premium Header Styling */
+        @keyframes slideDown {
+            from { opacity: 0; transform: translateY(-30px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .premium-header {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(249, 115, 22, 0.15), rgba(220, 38, 38, 0.15), rgba(234, 88, 12, 0.15));
+            background-size: 300% 300%;
+            backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px);
+            border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 12px 20px;
+            display: flex; justify-content: space-between; align-items: center;
+            height: 110px; box-sizing: border-box;
+            margin-bottom: 0px; width: 100%;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -1px 1px rgba(0,0,0,0.3);
+            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1), animateGradient 12s ease infinite;
             position: relative;
             overflow: hidden;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease, background 0.4s ease;
-        }
-        .block-bank-details::before, .block-cheque-details::before, .glass-red::before, .glass-green::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.02) 45%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.02) 55%, rgba(255,255,255,0) 100%);
-            z-index: 1; opacity: 0; transition: opacity 0.5s ease; pointer-events: none;
-        }
-        .block-bank-details:hover::before, .block-cheque-details:hover::before, .glass-red:hover::before, .glass-green:hover::before { animation: shimmerWave 6.5s infinite; opacity: 1; }
-        .block-bank-details:hover, .block-cheque-details:hover {
-            transform: translateY(-2px) scale(1.01) !important;
-            z-index: 10;
+            margin: 0;
         }
 
+        .premium-header::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 40%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            animation: shimmer 8s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
+            pointer-events: none;
+        }
+
+        @keyframes animateGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            25% { left: 200%; }
+            100% { left: 200%; }
+        }
+
+        .header-brand { display: flex; align-items: center; gap: 15px; }
+        .brand-icon {
+            width: 50px; height: 50px;
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            border-radius: 16px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4), inset 0 2px 5px rgba(255,255,255,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .brand-text h1 { margin: 0; font-size: 1.4rem; font-weight: 900; color: #fff; letter-spacing: 0.5px; text-shadow: 0 2px 10px rgba(255,255,255,0.1); }
+        .brand-text p { margin: 0; font-size: 0.85rem; color: #fca5a5; font-weight: 500; }
+        .header-center { text-align: center; }
+        .header-center h2 {
+            margin: 0; font-size: 1.6rem; font-weight: 900;
+            background: linear-gradient(to right, #fff, #fca5a5);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+        .header-controls { display: flex; align-items: center; gap: 15px; }
+        
+        .icon-btn {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+            width: 46px; height: 46px; border-radius: 14px; color: #fff; font-size: 1.2rem;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease;
+        }
+        .icon-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+        .sub-header-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 15px; 
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px; margin-bottom: 15px; margin-top: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .header-group { display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; }
+        
+        .crystal-pill {
+            display: flex; align-items: center; gap: 10px;
+            height: 42px; /* Slimmer height */
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 0 12px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        .title-crystal { border-color: rgba(239, 68, 68, 0.6); box-shadow: 0 0 20px rgba(239, 68, 68, 0.3), inset 0 2px 10px rgba(255,255,255,0.1); }
+        .date-crystal { border-color: rgba(56, 189, 248, 0.6); box-shadow: 0 0 20px rgba(56, 189, 248, 0.3), inset 0 2px 10px rgba(255,255,255,0.1); }
+        .bal-crystal { border-color: rgba(249, 115, 22, 0.6); box-shadow: 0 0 20px rgba(249, 115, 22, 0.3), inset 0 2px 10px rgba(255,255,255,0.1); gap: 15px; }
+        .nav-crystal { border-color: rgba(16, 185, 129, 0.6); box-shadow: 0 0 20px rgba(16, 185, 129, 0.3), inset 0 2px 10px rgba(255,255,255,0.1); padding: 0 8px; }
+        
+        .icon-box {
+            width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; font-size: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .bg-gradient-red { background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff; }
+        .bg-gradient-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; }
+        .pill-text { font-size: 1.15rem; color: #ffffff; font-weight: 800; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        .date-input { 
+            background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); 
+            color: #ffffff; border-radius: 6px; padding: 2px 10px;
+            font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 700; 
+            outline: none; cursor: pointer; height: 32px; line-height: 1; text-align: center;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); transition: all 0.2s;
+        }
+        .date-input:focus { border-color: #38bdf8; background: rgba(0,0,0,0.8); }
+        .date-input::-webkit-calendar-picker-indicator { 
+            filter: invert(1); opacity: 0.8; cursor: pointer; 
+            margin-left: 8px; width: 16px; height: 16px; padding: 0;
+        }
+
+        /* Unused balance-container replaced by crystal-pill */
+        .bal-card { display: flex; align-items: center; gap: 8px; }
+        .bal-icon { font-size: 1.3rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+        .bal-info { display: flex; flex-direction: column; line-height: 1.1; }
+        .bal-label { font-size: 0.8rem; color: #e2e8f0; font-weight: 700; }
+        .bal-val { font-size: 1.25rem; color: #f97316; font-family: 'Inter', monospace; font-weight: 900; letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .cash-card .bal-val { color: #10b981; }
+        .check-card .bal-val { color: #3b82f6; }
+        .loan-card .bal-val { color: #f59e0b; }
+        .bal-divider { width: 1px; height: 30px; background: rgba(255,255,255,0.1); }
+
+        /* Unused nav-pill replaced by crystal-pill */
+        .nav-btn {
+            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+            border-radius: 8px; background: transparent; border: none; color: #94a3b8; cursor: pointer; transition: all 0.2s;
+        }
+        .nav-btn:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .nav-badge { display: flex; flex-direction: column; align-items: center; padding: 0 15px; min-width: 90px; }
+        .badge-label { font-size: 0.7rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .badge-val { font-size: 1.2rem; color: #ef4444; font-family: 'Inter', monospace; font-weight: 800; text-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+
+        .hover-scale { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow 0.3s ease; }
+        .hover-scale:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 25px rgba(0,0,0,0.3); z-index: 10; }
+        
+        /* Entrance animation */
+        .premium-header { animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
 
         /* Advanced Layout & Animations */
         .split-layout-wrapper {
@@ -676,13 +413,421 @@ try {
             box-shadow: 0 10px 30px rgba(0,0,0,0.2);
             transform-origin: left center;
         }
+        
+        .interactive-columns {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
+        }
 
         @media (max-width: 900px) {
+            .interactive-columns { grid-template-columns: 1fr; }
             .split-layout-wrapper.has-sidebar { flex-direction: column; }
             .split-layout-wrapper.has-sidebar .side-panel { width: 100%; transform: translateX(0) translateY(-20px); }
         }
 
-        /* Payment Methods Tabs */
+        /* Crystalline Glassmorphic Transfer Arrow */
+        @keyframes rotateRing {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes crystalShineSweep {
+            0% { transform: translate(-150%, -150%) rotate(45deg); }
+            100% { transform: translate(150%, 150%) rotate(45deg); }
+        }
+
+        .epic-arrow-container {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20; 
+            display: flex; align-items: center; justify-content: center; 
+            width: 72px; height: 72px; 
+            /* Premium Crystalline Background: high glassmorphic translucency with colorful light */
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.02) 100%);
+            background-size: 200% 200%;
+            border-radius: 50%; 
+            /* Sharp, highly reflective, thin double border effect */
+            border: 1.5px solid rgba(255, 255, 255, 0.45);
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.6), 
+                inset 0 4px 18px rgba(255, 255, 255, 0.35), 
+                inset 0 -4px 18px rgba(0, 0, 0, 0.2),
+                0 0 20px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4), inset 0 1px 1px rgba(255,255,255,0.2), inset 0 -1px 1px rgba(0,0,0,0.3);
+            animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1), animateGradient 12s ease infinite;
+            position: relative;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        .premium-header::after {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 40%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.04) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            animation: shimmer 8s cubic-bezier(0.25, 0.8, 0.25, 1) infinite;
+            pointer-events: none;
+        }
+
+        @keyframes animateGradient {
+            0% { background-position: 0% 50%; }
+            50% { background-position: 100% 50%; }
+            100% { background-position: 0% 50%; }
+        }
+
+        @keyframes shimmer {
+            0% { left: -100%; }
+            25% { left: 200%; }
+            100% { left: 200%; }
+        }
+
+        .header-brand { display: flex; align-items: center; gap: 15px; }
+        .brand-icon {
+            width: 50px; height: 50px;
+            background: linear-gradient(135deg, #ef4444, #f97316);
+            border-radius: 16px; display: flex; align-items: center; justify-content: center;
+            font-size: 1.5rem;
+            box-shadow: 0 8px 20px rgba(239, 68, 68, 0.4), inset 0 2px 5px rgba(255,255,255,0.3);
+            border: 1px solid rgba(255,255,255,0.2);
+        }
+        .brand-text h1 { margin: 0; font-size: 1.4rem; font-weight: 900; color: #fff; letter-spacing: 0.5px; text-shadow: 0 2px 10px rgba(255,255,255,0.1); }
+        .brand-text p { margin: 0; font-size: 0.85rem; color: #fca5a5; font-weight: 500; }
+        .header-center { text-align: center; }
+        .header-center h2 {
+            margin: 0; font-size: 1.6rem; font-weight: 900;
+            background: linear-gradient(to right, #fff, #fca5a5);
+            -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+            letter-spacing: 1px;
+        }
+        .header-controls { display: flex; align-items: center; gap: 15px; }
+        
+        .icon-btn {
+            background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.1);
+            width: 46px; height: 46px; border-radius: 14px; color: #fff; font-size: 1.2rem;
+            display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease;
+        }
+        .icon-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
+
+        .sub-header-bar {
+            display: flex; align-items: center; justify-content: space-between;
+            padding: 10px 15px; 
+            background: rgba(15, 23, 42, 0.6); backdrop-filter: blur(16px); -webkit-backdrop-filter: blur(16px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            border-radius: 12px; margin-bottom: 15px; margin-top: 15px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+        .header-group { display: flex; align-items: center; gap: 10px; flex-wrap: nowrap; }
+        
+        .crystal-pill {
+            display: flex; align-items: center; gap: 10px;
+            height: 42px; /* Slimmer height */
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 10px;
+            padding: 0 12px;
+            box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.5);
+        }
+        .title-crystal { border-color: rgba(239, 68, 68, 0.6); box-shadow: 0 0 20px rgba(239, 68, 68, 0.3), inset 0 2px 10px rgba(255,255,255,0.1); }
+        .date-crystal { border-color: rgba(56, 189, 248, 0.6); box-shadow: 0 0 20px rgba(56, 189, 248, 0.3), inset 0 2px 10px rgba(255,255,255,0.1); }
+        .bal-crystal { border-color: rgba(249, 115, 22, 0.6); box-shadow: 0 0 20px rgba(249, 115, 22, 0.3), inset 0 2px 10px rgba(255,255,255,0.1); gap: 15px; }
+        .nav-crystal { border-color: rgba(16, 185, 129, 0.6); box-shadow: 0 0 20px rgba(16, 185, 129, 0.3), inset 0 2px 10px rgba(255,255,255,0.1); padding: 0 8px; }
+        
+        .icon-box {
+            width: 26px; height: 26px; display: flex; align-items: center; justify-content: center;
+            border-radius: 50%; font-size: 1rem; box-shadow: 0 4px 10px rgba(0,0,0,0.2);
+        }
+        .bg-gradient-red { background: linear-gradient(135deg, #ef4444, #b91c1c); color: #fff; }
+        .bg-gradient-blue { background: linear-gradient(135deg, #3b82f6, #1d4ed8); color: #fff; }
+        .pill-text { font-size: 1.15rem; color: #ffffff; font-weight: 800; letter-spacing: 0.5px; text-shadow: 0 2px 4px rgba(0,0,0,0.8); }
+        .date-input { 
+            background: rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.2); 
+            color: #ffffff; border-radius: 6px; padding: 2px 10px;
+            font-family: 'Inter', sans-serif; font-size: 1.05rem; font-weight: 700; 
+            outline: none; cursor: pointer; height: 32px; line-height: 1; text-align: center;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); transition: all 0.2s;
+        }
+        .date-input:focus { border-color: #38bdf8; background: rgba(0,0,0,0.8); }
+        .date-input::-webkit-calendar-picker-indicator { 
+            filter: invert(1); opacity: 0.8; cursor: pointer; 
+            margin-left: 8px; width: 16px; height: 16px; padding: 0;
+        }
+
+        /* Unused balance-container replaced by crystal-pill */
+        .bal-card { display: flex; align-items: center; gap: 8px; }
+        .bal-icon { font-size: 1.3rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+        .bal-info { display: flex; flex-direction: column; line-height: 1.1; }
+        .bal-label { font-size: 0.8rem; color: #e2e8f0; font-weight: 700; }
+        .bal-val { font-size: 1.25rem; color: #f97316; font-family: 'Inter', monospace; font-weight: 900; letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+        .cash-card .bal-val { color: #10b981; }
+        .check-card .bal-val { color: #3b82f6; }
+        .loan-card .bal-val { color: #f59e0b; }
+        .bal-divider { width: 1px; height: 30px; background: rgba(255,255,255,0.1); }
+
+        /* Unused nav-pill replaced by crystal-pill */
+        .nav-btn {
+            width: 32px; height: 32px; display: flex; align-items: center; justify-content: center;
+            border-radius: 8px; background: transparent; border: none; color: #94a3b8; cursor: pointer; transition: all 0.2s;
+        }
+        .nav-btn:hover { background: rgba(239, 68, 68, 0.1); color: #ef4444; }
+        .nav-badge { display: flex; flex-direction: column; align-items: center; padding: 0 15px; min-width: 90px; }
+        .badge-label { font-size: 0.7rem; color: #94a3b8; font-weight: 600; text-transform: uppercase; letter-spacing: 1px; }
+        .badge-val { font-size: 1.2rem; color: #ef4444; font-family: 'Inter', monospace; font-weight: 800; text-shadow: 0 0 10px rgba(239, 68, 68, 0.4); }
+
+        .hover-scale { transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), box-shadow: 0.3s ease; }
+        .hover-scale:hover { transform: translateY(-3px) scale(1.02); box-shadow: 0 12px 25px rgba(0,0,0,0.3); z-index: 10; }
+        
+        /* Entrance animation */
+        .premium-header { animation: slideDown 0.6s cubic-bezier(0.16, 1, 0.3, 1); }
+        @keyframes slideDown { from { opacity: 0; transform: translateY(-20px); } to { opacity: 1; transform: translateY(0); } }
+
+        /* Advanced Layout & Animations */
+        .split-layout-wrapper {
+            display: flex; flex-direction: row-reverse; gap: 0; margin-top: 15px; width: 100%; transition: all 0.6s cubic-bezier(0.25, 1, 0.2, 1);
+        }
+        
+        /* Side Panel */
+        .side-panel {
+            width: 0; opacity: 0; overflow: hidden; transform: translateX(-80px) scale(0.95);
+            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(25px); border-radius: 16px;
+            border: none; box-shadow: 0 15px 40px rgba(0,0,0,0.4);
+            transition: all 0.6s cubic-bezier(0.25, 1, 0.2, 1); flex-shrink: 0;
+            padding: 0; /* Padding is 0 when hidden */
+        }
+        
+        /* When side panel is active */
+        .split-layout-wrapper.has-sidebar { gap: 20px; }
+        .split-layout-wrapper.has-sidebar .side-panel {
+            width: 380px; opacity: 1; transform: translateX(0) scale(1); padding: 25px;
+            border: 1px solid rgba(251, 191, 36, 0.3);
+        }
+
+        /* Main Panel */
+        .main-panel {
+            flex-grow: 1; transition: all 0.6s cubic-bezier(0.25, 1, 0.2, 1);
+            background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(12px);
+            border-radius: 16px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.05);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            transform-origin: left center;
+        }
+        
+        .interactive-columns {
+            display: grid; grid-template-columns: 1fr 1fr; gap: 30px;
+        }
+
+        @media (max-width: 900px) {
+            .interactive-columns { grid-template-columns: 1fr; }
+            .split-layout-wrapper.has-sidebar { flex-direction: column; }
+            .split-layout-wrapper.has-sidebar .side-panel { width: 100%; transform: translateX(0) translateY(-20px); }
+        }
+
+        /* Crystalline Glassmorphic Transfer Arrow */
+        @keyframes rotateRing {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        @keyframes crystalShineSweep {
+            0% { transform: translate(-150%, -150%) rotate(45deg); }
+            100% { transform: translate(150%, 150%) rotate(45deg); }
+        }
+
+        .epic-arrow-container {
+            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%); z-index: 20; 
+            display: flex; align-items: center; justify-content: center; 
+            width: 72px; height: 72px; 
+            /* Premium Crystalline Background: high glassmorphic translucency with colorful light */
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.15) 0%, rgba(255, 255, 255, 0.05) 50%, rgba(255, 255, 255, 0.02) 100%);
+            background-size: 200% 200%;
+            border-radius: 50%; 
+            /* Sharp, highly reflective, thin double border effect */
+            border: 1.5px solid rgba(255, 255, 255, 0.45);
+            box-shadow: 
+                0 15px 35px rgba(0, 0, 0, 0.6), 
+                inset 0 4px 18px rgba(255, 255, 255, 0.35), 
+                inset 0 -4px 18px rgba(0, 0, 0, 0.2),
+                0 0 20px rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(25px) saturate(220%);
+            -webkit-backdrop-filter: blur(25px) saturate(220%);
+            cursor: pointer;
+            overflow: hidden; /* To clip the shine reflection */
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
+        }
+
+        /* Outer Crystalline Orbit Ring with soft red gradient path */
+        .epic-arrow-container::before {
+            content: '';
+            position: absolute;
+            top: -8px; left: -8px; right: -8px; bottom: -8px;
+            border-radius: 50%;
+            border: 1.5px dashed rgba(255, 255, 255, 0.25);
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.15), rgba(239, 68, 68, 0.15));
+            animation: rotateRing 15s linear infinite;
+            pointer-events: none;
+            z-index: -1;
+            transition: all 0.6s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Moving Diagonal Reflection Gleam */
+        .epic-arrow-container::after {
+            content: '';
+            position: absolute;
+            top: -50%; left: -50%; width: 200%; height: 200%;
+            background: linear-gradient(
+                45deg,
+                rgba(255, 255, 255, 0) 0%,
+                rgba(255, 255, 255, 0) 40%,
+                rgba(255, 255, 255, 0.45) 50%,
+                rgba(255, 255, 255, 0) 60%,
+                rgba(255, 255, 255, 0) 100%
+            );
+            transform: translate(-150%, -150%) rotate(45deg);
+            transition: all 0.6s ease;
+            pointer-events: none;
+            /* Sweep every 6 seconds automatically */
+            animation: crystalShineSweep 6s infinite ease-in-out;
+        }
+        
+        .epic-arrow-container:hover {
+            transform: translate(-50%, -50%) scale(1.18);
+            border-color: rgba(255, 255, 255, 0.7);
+            background: linear-gradient(135deg, rgba(255, 255, 255, 0.25) 0%, rgba(255, 255, 255, 0.1) 50%, rgba(255, 255, 255, 0.05) 100%);
+            box-shadow: 
+                0 20px 45px rgba(0, 0, 0, 0.7), 
+                inset 0 6px 24px rgba(255, 255, 255, 0.4), 
+                inset 0 -6px 24px rgba(0, 0, 0, 0.2),
+                0 0 30px rgba(255, 255, 255, 0.3);
+        }
+        
+        .epic-arrow-container:hover::before {
+            top: -12px; left: -12px; right: -12px; bottom: -12px;
+            border-color: rgba(255, 255, 255, 0.65);
+            animation-duration: 6s; /* Spin faster */
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.3), rgba(239, 68, 68, 0.3));
+        }
+
+        .epic-arrow-container:hover::after {
+            /* Trigger a faster shine sweep on hover */
+            animation: crystalShineSweep 1.5s infinite ease-in-out;
+        }
+
+        .epic-arrow-container:active {
+            transform: translate(-50%, -50%) scale(0.9);
+            transition: all 0.1s ease;
+        }
+
+        .transfer-arrow-anim {
+            display: block;
+            overflow: visible;
+        }
+
+        /* Continuous flowing chevrons (Right to Left / Green to Red) */
+        .chev {
+            opacity: 0.15;
+            stroke-width: 3.2px;
+            transition: all 0.25s cubic-bezier(0.25, 0.8, 0.25, 1);
+        }
+        .chev-3 { animation: chevFlow3 1.5s infinite; }
+        .chev-2 { animation: chevFlow2 1.5s infinite; }
+        .chev-1 { animation: chevFlow1 1.5s infinite; }
+
+        @keyframes chevFlow3 {
+            0%, 100% { opacity: 0.15; stroke-width: 3.2px; color: rgba(239, 68, 68, 0.25); transform: scale(0.9); }
+            15% { 
+                opacity: 1; 
+                stroke-width: 4.8px;
+                color: #ff0055; 
+                filter: drop-shadow(0 0 6px #ff0055) drop-shadow(0 0 15px #ff0055) drop-shadow(0 0 30px #ff0055); 
+                transform: scale(1.22) translateX(-3px); 
+            }
+            40% { opacity: 0.15; stroke-width: 3.2px; color: rgba(239, 68, 68, 0.25); transform: scale(0.9); }
+        }
+        @keyframes chevFlow2 {
+            0%, 20%, 100% { opacity: 0.15; stroke-width: 3.2px; color: rgba(239, 68, 68, 0.25); transform: scale(0.9); }
+            35% { 
+                opacity: 1; 
+                stroke-width: 4.8px;
+                color: #ff0055; 
+                filter: drop-shadow(0 0 8px #ff0055) drop-shadow(0 0 20px #ff0055) drop-shadow(0 0 35px #ff0055); 
+                transform: scale(1.25) translateX(-3px); 
+            }
+            60% { opacity: 0.15; stroke-width: 3.2px; color: rgba(239, 68, 68, 0.25); transform: scale(0.9); }
+        }
+        @keyframes chevFlow1 {
+            0%, 40%, 100% { opacity: 0.15; stroke-width: 3.2px; color: rgba(239, 68, 68, 0.25); transform: scale(0.9); }
+            55% { 
+                opacity: 1; 
+                stroke-width: 4.8px;
+                color: #ff0055; 
+                filter: drop-shadow(0 0 6px #ff0055) drop-shadow(0 0 15px #ff0055) drop-shadow(0 0 30px #ff0055); 
+                transform: scale(1.22) translateX(-3px); 
+            }
+            80% { opacity: 0.15; stroke-width: 3.2px; color: rgba(239, 68, 68, 0.25); transform: scale(0.9); }
+        }
+
+        /* Money Flow Conduit Styles */
+        .money-flow-svg {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            pointer-events: none;
+            z-index: 10;
+            overflow: visible;
+        }
+
+        .flow-path-bg {
+            stroke-linecap: round;
+            opacity: 0.7;
+        }
+
+        .flow-path-wave-1 {
+            stroke-linecap: round;
+            animation: waveLaser1 2.2s linear infinite;
+            filter: drop-shadow(0 0 4px #ff0055) drop-shadow(0 0 10px #ff0055);
+        }
+
+        .flow-path-wave-2 {
+            stroke-linecap: round;
+            animation: waveLaser2 1.4s linear infinite;
+            animation-delay: 0.5s;
+            filter: drop-shadow(0 0 3px #ff0055) drop-shadow(0 0 8px #ff0055);
+            opacity: 0.85;
+        }
+
+        @keyframes waveLaser1 {
+            0% { stroke-dashoffset: 1000; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        @keyframes waveLaser2 {
+            0% { stroke-dashoffset: 1000; }
+            100% { stroke-dashoffset: 0; }
+        }
+
+        .focus-zone {
+            background: rgba(0, 0, 0, 0.2); padding: 25px; border-radius: 12px;
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            transition: all 0.5s cubic-bezier(0.25, 1, 0.2, 1);
+            transform-origin: center;
+        }
+        
+        /* When Main Form has focus somewhere, handle siblings */
+        .interactive-columns:focus-within .focus-zone {
+            opacity: 0.4; transform: scale(0.96) translateY(5px); filter: grayscale(50%);
+        }
+        /* Elevate and light up the zone that actually contains focus */
+        .interactive-columns:focus-within .focus-zone:focus-within {
+            opacity: 1; transform: scale(1.02) translateY(-5px); filter: grayscale(0%);
+            box-shadow: 0 20px 40px rgba(0,0,0,0.5);
+            background: rgba(30, 41, 59, 0.7);
+            border-color: rgba(255, 255, 255, 0.2);
+        }
+        
+        /* Specialized glowing borders for active zones */
+        #zone-recipient:focus-within { border-bottom: 4px solid #ef4444; }
+        #zone-sender:focus-within { border-bottom: 4px solid #38bdf8; }
+
+        /* Payment Methods Tabs (Modern Apple-like Segmented Control) */
         .payment-methods-tabs {
             display: flex; gap: 10px; background: rgba(0,0,0,0.4); padding: 8px;
             border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);
@@ -707,314 +852,319 @@ try {
             transform: scale(1.3); filter: grayscale(0%); opacity: 1;
             text-shadow: 0 4px 15px rgba(255,255,255,0.3);
         }
-        /* Custom Searchable Dropdown */
-        
-        /* Fix Dropdown Z-Index */
-        .custom-dropdown-input-wrap { z-index: 10; }
-        .custom-dropdown-input-wrap:focus-within { z-index: 999999 !important; }
-        .voucher-block:focus-within { z-index: 999999 !important; }
-        .custom-dropdown-list {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            z-index: 9999;
-            background: #0b1120 !important;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            max-height: 280px;
-            overflow-y: auto;
-            text-align: right;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
-            display: none;
-            margin-top: 6px;
-        }
-        .custom-dropdown-list.show {
-            display: block;
-            animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .custom-dropdown-item {
-            padding: 12px 16px;
-            cursor: pointer;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .custom-dropdown-item:hover {
-            background: rgba(255, 255, 255, 0.08) !important;
-        }
-        .custom-dropdown-item:last-child {
-            border-bottom: none;
-        }
 
-        /* Voucher Type Toggle Buttons (صرف/استلام من مجموعة) - PREMIUM DESIGN */
-        .voucher-type-btn {
+        /* -------------------------------------------
+           💎 CRYSTAL FOOTER BUTTONS 💎
+           ------------------------------------------- */
+        .crystal-btn {
             position: relative;
-            min-width: 185px !important;
-            height: 50px !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 12px !important;
-            border-radius: 12px !important;
-            cursor: pointer !important;
-            font-size: 1.05rem !important;
-            font-weight: 700 !important;
-            color: rgba(255, 255, 255, 0.8) !important;
-            background: rgba(15, 23, 42, 0.4) !important;
-            border: 2px solid transparent !important;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
-            transform: translateY(0) scale(0.97) !important;
+            overflow: hidden;
+            border-radius: 12px;
+            font-weight: 800;
+            font-size: 0.95rem !important;
+            padding: 7px 18px !important;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-            backdrop-filter: blur(8px);
+            text-shadow: 0 1px 3px rgba(0,0,0,0.8);
+            z-index: 1;
+        }
+        .crystal-btn::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            animation: crystalShine 6s infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+        @keyframes crystalShine { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
+        
+        @keyframes tactileBuzz {
+            0% { transform: translateY(-5px) scale(1.05) rotate(0deg); }
+            25% { transform: translateY(-5px) scale(1.05) rotate(-0.5deg); }
+            50% { transform: translateY(-5px) scale(1.05) rotate(0.5deg); }
+            75% { transform: translateY(-5px) scale(1.05) rotate(-0.5deg); }
+            100% { transform: translateY(-5px) scale(1.05) rotate(0deg); }
         }
 
-        .voucher-type-btn.active-payment, .voucher-type-btn[id="btn-payment"] {
-            --btn-color: #f43f5e;
-            --btn-glow: rgba(244, 63, 94, 0.6);
-            --btn-bg-glow: rgba(244, 63, 94, 0.15);
+        .crystal-btn:hover {
+            animation: tactileBuzz 0.1s linear infinite;
+            z-index: 10;
         }
-        .voucher-type-btn.active-receipt, .voucher-type-btn[id="btn-receipt"] {
-            --btn-color: #3b82f6;
-            --btn-glow: rgba(59, 130, 246, 0.6);
-            --btn-bg-glow: rgba(59, 130, 246, 0.15);
+        .crystal-btn:active {
+            transform: translateY(2px) scale(0.98) !important;
         }
-
-        /* Default state: colored border, slight underlying glow */
-        .voucher-type-btn {
-            border-color: var(--btn-color) !important;
-            box-shadow: 0 4px 15px var(--btn-bg-glow) !important;
+        
+        .crystal-btn i, .crystal-btn span.icon, .crystal-btn .btn-icon, .crystal-btn span:first-child {
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: inline-block;
         }
-
-        /* Hover state: intense border glow */
-        .voucher-type-btn:hover {
-            color: #ffffff !important;
-            transform: translateY(-2px) scale(1) !important;
-            background: var(--btn-bg-glow) !important;
-            box-shadow: 0 0 20px var(--btn-glow), 0 5px 25px var(--btn-bg-glow) !important;
-            text-shadow: 0 0 8px var(--btn-color);
+        .crystal-btn:hover i, .crystal-btn:hover span.icon, .crystal-btn:hover .btn-icon, .crystal-btn:hover span:first-child {
+            transform: scale(1.2);
         }
 
-        /* Active State */
-        .voucher-type-btn.active-payment, .voucher-type-btn.active-receipt {
-            color: #ffffff !important;
-            background: var(--btn-bg-glow) !important;
-            border: 2px solid var(--btn-color) !important;
-            box-shadow: 0 0 25px var(--btn-glow), inset 0 0 15px var(--btn-bg-glow), 0 8px 30px var(--btn-bg-glow) !important;
-            transform: translateY(-3px) scale(1.05) !important;
-            text-shadow: 0 0 8px var(--btn-color);
-            animation: borderPulse 2s infinite alternate ease-in-out;
+        .btn-exit {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.2), rgba(185, 28, 28, 0.4));
+            border: 1px solid rgba(239, 68, 68, 0.5);
+            color: #fca5a5;
+            box-shadow: 0 4px 15px rgba(239, 68, 68, 0.2), inset 0 2px 5px rgba(255,255,255,0.1);
         }
-
-        @keyframes borderPulse {
-            0% { box-shadow: 0 0 15px var(--btn-glow), inset 0 0 10px var(--btn-bg-glow), 0 4px 20px var(--btn-bg-glow); }
-            100% { box-shadow: 0 0 35px var(--btn-glow), inset 0 0 25px var(--btn-bg-glow), 0 8px 40px var(--btn-bg-glow); }
-        }
-
-        .voucher-type-btn span.btn-icon i {
-            font-size: 1.25rem;
-            transition: all 0.3s ease;
-        }
-        .voucher-type-btn.active-payment span.btn-icon i, .voucher-type-btn.active-receipt span.btn-icon i {
-            filter: drop-shadow(0 0 12px var(--btn-color));
-            transform: scale(1.15);
-        }
-
-        /* Color Wave Animation */
-        @keyframes colorWave {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .wave-bg {
-            background-size: 300% 300% !important;
-            animation: colorWave 5s ease infinite !important;
-        }
-
-        /* ═══ Row Add/Delete Animations ═══ */
-        @keyframes rowSlideIn {
-            from { opacity: 0; transform: translateY(-15px) scale(0.97); max-height: 0; }
-            to { opacity: 1; transform: translateY(0) scale(1); max-height: 100px; }
-        }
-        @keyframes rowSlideOut {
-            from { opacity: 1; transform: translateX(0) scale(1); max-height: 100px; }
-            to { opacity: 0; transform: translateX(40px) scale(0.9); max-height: 0; padding: 0; margin: 0; }
-        }
-        .multi-row { animation: rowSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
-        .multi-row.removing { animation: rowSlideOut 0.3s ease forwards; pointer-events: none; }
-
-        /* ═══ Focus Glow Effect ═══ */
-        .multi-input:focus, .v-input:focus, .ctrl-input:focus {
-            outline: none !important;
-            border-color: rgba(56, 189, 248, 0.6) !important;
-            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15), 0 0 15px rgba(56, 189, 248, 0.1) !important;
-            transition: border-color 0.3s, box-shadow 0.3s !important;
-        }
-
-        /* ═══ Shake Animation for Errors ═══ */
-        @keyframes shakeError {
-            0%, 100% { transform: translateX(0); }
-            10%, 50%, 90% { transform: translateX(-6px); }
-            30%, 70% { transform: translateX(6px); }
-        }
-        .shake-error {
-            animation: shakeError 0.5s ease;
+        .btn-exit:hover {
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.4), rgba(185, 28, 28, 0.6));
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.6), 0 0 30px rgba(239, 68, 68, 0.3), inset 0 0 15px rgba(239, 68, 68, 0.2) !important;
             border-color: #ef4444 !important;
-            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
+            color: #fff;
         }
 
-        /* ═══ Save Success Celebration ═══ */
-        @keyframes saveSuccess {
-            0% { transform: scale(1); }
-            30% { transform: scale(1.15); }
-            50% { transform: scale(0.95); }
-            70% { transform: scale(1.05); }
-            100% { transform: scale(1); }
+        .btn-new {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(3, 105, 161, 0.4));
+            border: 1px solid rgba(56, 189, 248, 0.5);
+            color: #bae6fd;
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.2), inset 0 2px 5px rgba(255,255,255,0.1);
         }
-        .save-success-anim {
-            animation: saveSuccess 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-        }
-
-        /* ═══ Confetti Overlay ═══ */
-        @keyframes confettiFall {
-            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-        }
-        .confetti-piece {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            top: -10px;
-            z-index: 99999;
-            border-radius: 2px;
-            animation: confettiFall 2.5s linear forwards;
-            pointer-events: none;
+        .btn-new:hover {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.4), rgba(3, 105, 161, 0.6));
+            box-shadow: 0 0 15px rgba(56, 189, 248, 0.6), 0 0 30px rgba(56, 189, 248, 0.3), inset 0 0 15px rgba(56, 189, 248, 0.2) !important;
+            border-color: #38bdf8 !important;
+            color: #fff;
         }
 
-        /* ═══ Number Counter Transition ═══ */
-        .amount-animate {
-            transition: transform 0.2s ease;
+        .btn-delete {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(194, 65, 12, 0.4));
+            border: 1px solid rgba(249, 115, 22, 0.5);
+            color: #fdba74;
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.2), inset 0 2px 5px rgba(255,255,255,0.1);
         }
-        .amount-animate.changed {
-            transform: scale(1.08);
-            color: #fbbf24 !important;
-        }
-
-        /* ═══ Button Active Press ═══ */
-        .crystal-btn:active, .btn-add-row-inline:active {
-            transform: scale(0.92) !important;
-            transition: transform 0.1s !important;
-        }
-
-        /* ═══ Transfer/Cheque Row Animations ═══ */
-        .transfer-row, .cheque-row {
-            animation: rowSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
-        }
-        .transfer-row.removing, .cheque-row.removing {
-            animation: rowSlideOut 0.3s ease forwards;
-            pointer-events: none;
-        }
-
-        /* ═══ Payment Section Smooth Transition ═══ */
-        #cash-section, #bank-section, #cheque-section {
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        /* ═══ Skeleton Loading ═══ */
-        @keyframes skeletonShimmer {
-            0% { background-position: -200px 0; }
-            100% { background-position: calc(200px + 100%) 0; }
-        }
-        .skeleton-loading {
-            background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
-            background-size: 200px 100%;
-            animation: skeletonShimmer 1.5s infinite;
-            border-radius: 6px;
-        }
-
-        /* ═══ High legibility white background for Amount/Value fields ═══ */
-        .transfer-amount, .cheque-amount, .block-sub-amount, .block-cash-amount, .block-bank-amount, .block-cheque-amount, .block-total-amount, .total-val, .val, .value-field, .multi-input[placeholder*="المبلغ"], .multi-input[placeholder*="القيمة"] {
-            background: rgba(15, 23, 42, 0.45) !important;
-            color: #ffffff !important;
-            border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
-        }
-        .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus, .multi-input[placeholder*="المبلغ"]:focus {
+        .btn-delete:hover {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.4), rgba(194, 65, 12, 0.6));
+            box-shadow: 0 0 15px rgba(249, 115, 22, 0.6), 0 0 30px rgba(249, 115, 22, 0.3), inset 0 0 15px rgba(249, 115, 22, 0.2) !important;
             border-color: #f97316 !important;
-            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25) !important;
+            color: #fff;
         }
 
-        /* Large Totals & Rates */
-        /* Large Totals & Rates */
-        #exchange-rate {
-            font-size: 1.8rem !important;
-            font-weight: 900 !important;
+        .btn-print {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.2), rgba(107, 33, 168, 0.4));
+            border: 1px solid rgba(168, 85, 247, 0.5);
+            color: #d8b4fe;
+            box-shadow: 0 4px 15px rgba(168, 85, 247, 0.2), inset 0 2px 5px rgba(255,255,255,0.1);
         }
-        #amount-local-hdr, #amount-foreign {
-            font-size: 2.6rem !important;
-            font-weight: 900 !important;
-            color: #ef4444 !important;
-            background-color: #ffffff !important;
-            text-align: center !important;
+        .btn-print:hover {
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.4), rgba(107, 33, 168, 0.6));
+            box-shadow: 0 0 15px rgba(168, 85, 247, 0.6), 0 0 30px rgba(168, 85, 247, 0.3), inset 0 0 15px rgba(168, 85, 247, 0.2) !important;
+            border-color: #a855f7 !important;
+            color: #fff;
+        }
+
+        .btn-save-master {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.6), rgba(4, 120, 87, 0.8));
+            border: 1px solid rgba(52, 211, 153, 0.8);
+            color: #fff;
+            box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4), inset 0 2px 10px rgba(255,255,255,0.2);
+            font-size: 1.1rem !important;
+            padding: 8px 24px !important;
+            animation: pulseGlow 2s infinite alternate;
+        }
+        .btn-save-master:hover {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.8), rgba(4, 120, 87, 1));
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.8), 0 0 40px rgba(16, 185, 129, 0.4), inset 0 0 20px rgba(16, 185, 129, 0.3) !important;
+            border-color: #10b981 !important;
+            animation: tactileBuzz 0.1s linear infinite !important;
+        }
+        @keyframes pulseGlow { 0% { box-shadow: 0 4px 20px rgba(16, 185, 129, 0.4); } 100% { box-shadow: 0 4px 35px rgba(16, 185, 129, 0.8); } }
+
+        /* Small Crystal Buttons */
+        .crystal-btn-sm {
+            position: relative;
+            overflow: hidden;
+            border-radius: 8px;
+            font-weight: 800;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 5px;
+            cursor: pointer;
+            backdrop-filter: blur(15px);
+            -webkit-backdrop-filter: blur(15px);
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+            z-index: 1;
+            padding: 6px 12px;
+            font-size: 0.9rem;
+            color: #fff;
+        }
+        .crystal-btn-sm::before {
+            content: '';
+            position: absolute;
+            top: 0; left: -100%;
+            width: 50%; height: 100%;
+            background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.2) 50%, rgba(255,255,255,0) 100%);
+            transform: skewX(-25deg);
+            animation: crystalShine 6s infinite;
+            z-index: -1;
+            pointer-events: none;
+        }
+        .crystal-btn-sm:hover {
+            transform: translateY(-3px) scale(1.05) !important;
+        }
+        .crystal-btn-sm:active {
+            transform: translateY(1px) scale(0.95) !important;
+        }
+        .crystal-btn-icon-only {
+            padding: 6px !important;
+            border-radius: 50%;
+        }
+        .btn-blue-glass {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(3, 105, 161, 0.4));
+            border: 1px solid rgba(56, 189, 248, 0.5);
+            box-shadow: 0 4px 15px rgba(56, 189, 248, 0.2), inset 0 2px 5px rgba(255,255,255,0.1);
+        }
+        .btn-blue-glass:hover {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.4), rgba(3, 105, 161, 0.6));
+            box-shadow: 0 8px 25px rgba(56, 189, 248, 0.4), inset 0 2px 5px rgba(255,255,255,0.2);
+        }
+        .btn-green-glass {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(4, 120, 87, 0.4));
+            border: 1px solid rgba(52, 211, 153, 0.5);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.2), inset 0 2px 5px rgba(255,255,255,0.1);
+        }
+        .btn-green-glass:hover {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.4), rgba(4, 120, 87, 0.6));
+            box-shadow: 0 8px 25px rgba(16, 185, 129, 0.4), inset 0 2px 5px rgba(255,255,255,0.2);
+        }
+        .btn-orange-glass {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.2), rgba(194, 65, 12, 0.4));
+            border: 1px solid rgba(249, 115, 22, 0.5);
+            box-shadow: 0 4px 15px rgba(249, 115, 22, 0.2), inset 0 2px 5px rgba(255,255,255,0.1);
+        }
+        .btn-orange-glass:hover {
+            background: linear-gradient(135deg, rgba(249, 115, 22, 0.4), rgba(194, 65, 12, 0.6));
+            box-shadow: 0 8px 25px rgba(249, 115, 22, 0.4), inset 0 2px 5px rgba(255,255,255,0.2);
+        }
+        .btn-slate-glass {
+            background: linear-gradient(135deg, rgba(148, 163, 184, 0.2), rgba(71, 85, 105, 0.4));
+            border: 1px solid rgba(148, 163, 184, 0.5);
+            box-shadow: 0 4px 15px rgba(148, 163, 184, 0.2), inset 0 2px 5px rgba(255,255,255,0.1);
+        }
+        .btn-slate-glass:hover {
+            background: linear-gradient(135deg, rgba(148, 163, 184, 0.4), rgba(71, 85, 105, 0.6));
+            box-shadow: 0 8px 25px rgba(148, 163, 184, 0.4), inset 0 2px 5px rgba(255,255,255,0.2);
         }
         
-        /* Normal State for Amounts */
-        input.block-total-amount, input.block-bank-amount, input.block-cheque-amount, input.transfer-amount, input.cheque-amount {
-            font-size: 2.4rem !important;
-            font-weight: 900 !important;
+        /* ═══ High legibility white background for Amount/Value fields ═══ */
+        #amount-local {
+            background: #ffffff !important;
+            color: #b91c1c !important;
+            border: 2px solid #ef4444 !important;
+            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        }
+        #amount-local:focus {
+            background: #ffffff !important;
+            border-color: #ef4444 !important;
+            box-shadow: 0 0 15px rgba(239, 68, 68, 0.3), inset 0 2px 8px rgba(0, 0, 0, 0.1) !important;
+        }
+        .transfer-amount, .cheque-amount, .block-sub-amount, .block-cash-amount, .block-bank-amount, .block-cheque-amount, .block-total-amount, .total-val, .val, .value-field {
+            background: #ffffff !important;
+            color: #047857 !important; /* Rich readable dark green */
+            border: 1.5px solid #cbd5e1 !important;
+        }
+        .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus {
+            border-color: #3b82f6 !important;
+            box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.25) !important;
+        }
+
+        /* Dynamic Scaling per user request */
+        .dynamic-focus-container {
+            transition: width 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), flex 0.3s ease !important;
+        }
+        .dynamic-focus-container:focus-within {
+            width: 450px !important;
+            flex: none !important;
+        }
+        .dynamic-focus-input {
+            transition: font-size 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), letter-spacing 0.3s ease, height 0.3s ease, color 0.3s ease !important;
             color: #ffffff !important;
-            transition: font-size 0.2s ease, color 0.2s ease, background 0.2s ease !important;
         }
-        
-        /* Focus State for Amounts */
-        input.block-total-amount:focus, input.block-bank-amount:focus, input.block-cheque-amount:focus, input.transfer-amount:focus, input.cheque-amount:focus {
-            font-size: 4.0rem !important;
-            color: #fbbf24 !important; /* Gold */
-            background: rgba(15, 23, 42, 0.8) !important;
-        }
-        
-        /* Normal State for Numbers */
-        input.block-transfer-no-input, input.block-cheque-no-input, input.transfer-no, input.cheque-no {
-            font-size: 2.0rem !important;
+        .dynamic-focus-input:focus {
+            font-size: 5.5rem !important;
+            height: 100px !important;
+            min-width: 400px !important;
+            position: relative !important;
+            z-index: 1000 !important;
+            margin-right: -100px !important;
             font-weight: 900 !important;
-            letter-spacing: 1px !important;
-            color: #ffffff !important;
-            transition: font-size 0.2s ease, color 0.2s ease, background 0.2s ease !important;
+            letter-spacing: 3px !important;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 25px rgba(251, 191, 36, 0.6) !important;
+        }
+        .dynamic-focus-amount:focus {
+            color: #fbbf24 !important; /* Yellow */
+        }
+        .dynamic-focus-number:focus {
+            color: #38bdf8 !important; /* Sky Blue for focus/comfort */
         }
         
-        /* Focus State for Numbers */
-        input.block-transfer-no-input:focus, input.block-cheque-no-input:focus, input.transfer-no:focus, input.cheque-no:focus {
-            font-size: 3.5rem !important;
-            color: #22d3ee !important; /* Cyan */
-            background: rgba(15, 23, 42, 0.8) !important;
+        .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus {
+            font-size: 5.5rem !important;
+            height: 100px !important;
+            min-width: 400px !important;
+            position: relative !important;
+            z-index: 1000 !important;
+            margin-right: -100px !important;
+            border-color: #fbbf24 !important;
+            background: rgba(15, 23, 42, 0.98) !important;
+            color: #fbbf24 !important;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 25px rgba(251, 191, 36, 0.6) !important;
         }
-
-        /* Larger Bank Name Font */
-        input.block-bank-name-input, input.block-cheque-bank-input {
-            font-size: 1.35rem !important;
-            font-weight: bold !important;
-        }
-
-        /* Bank Row Layout Overrides */
-        .bank-row > div:nth-child(2) { flex: 1.5 !important; min-width: 140px !important; width: auto !important; }
-        .bank-row > div:nth-child(3) { flex: 2 !important; min-width: 160px !important; width: auto !important; }
-        .bank-row > div:nth-child(4) { flex: 1.5 !important; min-width: 120px !important; }
-        .bank-row > div:nth-child(5) { flex: 3 !important; min-width: 250px !important; }
-
-        /* Cheque Row Layout Overrides */
-        .cheque-row > div:nth-child(2) { flex: 1.5 !important; min-width: 140px !important; width: auto !important; }
-        .cheque-row > div:nth-child(3) { flex: 2 !important; min-width: 160px !important; width: auto !important; }
-        .cheque-row > div:nth-child(4) { flex: 0.8 !important; min-width: 90px !important; } /* Cheque No (Smaller) */
-        .cheque-row > div:nth-child(5) { flex: 1.2 !important; min-width: 120px !important; } /* Cheque Date */
-        .cheque-row > div:nth-child(6) { flex: 2.5 !important; min-width: 210px !important; } /* Cheque Desc (Wider) */
-        /* Custom Number Properties Menu */
+            /* Custom Number Properties Menu */
         #num-props-menu { display: none; position: absolute; z-index: 9999; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); border-radius: 12px; padding: 10px; width: 260px; color: #cbd5e1; font-family: 'Inter', sans-serif; direction: rtl; }
         #num-props-menu .props-header { font-weight: bold; color: #38bdf8; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); text-align: center; font-size: 1.1rem; }
         #num-props-menu .props-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 5px; cursor: pointer; border-radius: 6px; transition: background 0.2s; font-size: 0.95rem; }
         #num-props-menu .props-item:hover { background: rgba(255, 255, 255, 0.1); }
         #num-props-menu button.prop-btn { background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.5); color: #60a5fa; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
         #num-props-menu button.prop-btn:hover { background: rgba(59, 130, 246, 0.4); color: #fff; }
+
+        @keyframes pulseOrb {
+            0% { transform: scale(0.8) translate(0, 0); opacity: 0.5; }
+            100% { transform: scale(1.5) translate(20px, 20px); opacity: 1; }
+        }
+        @keyframes shimmerWave {
+            0% { transform: translateX(-150%) skewX(-45deg); opacity: 0; }
+            11.5% { opacity: 0.15; }
+            23% { transform: translateX(150%) skewX(-45deg); opacity: 0; }
+            100% { transform: translateX(150%) skewX(-45deg); opacity: 0; }
+        }
+        .total-glass-card {
+            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease;
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+        }
+        .total-glass-card::before {
+            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+            background: linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.05) 45%, rgba(255,255,255,0.4) 50%, rgba(255,255,255,0.05) 55%, rgba(255,255,255,0) 100%);
+            z-index: 1; opacity: 0; transition: opacity 0.5s ease;
+        }
+        .total-glass-card::after {
+            content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+            background: radial-gradient(circle, rgba(255,255,255,0.15) 0%, transparent 60%);
+            opacity: 0; z-index: 0; pointer-events: none; transition: opacity 0.4s ease, transform 0.6s ease;
+        }
+        .total-glass-card:hover {
+            transform: translateY(-8px) scale(1.05) !important;
+            z-index: 10;
+        }
+        .total-glass-card:hover::before { animation: shimmerWave 6.5s infinite; opacity: 1; }
+        .total-glass-card:hover::after { opacity: 1; transform: rotate(15deg); }
+        .total-glass-card:hover .glow-orb { filter: blur(20px); transform: scale(2); opacity: 0.8; }
+        
+        .cheque-glow:hover { border-color: rgba(216, 180, 254, 1) !important; box-shadow: 0 0 30px rgba(168, 85, 247, 0.8), inset 0 0 20px rgba(168, 85, 247, 0.4) !important; }
+        .bank-glow:hover { border-color: rgba(110, 231, 183, 1) !important; box-shadow: 0 0 30px rgba(16, 185, 129, 0.8), inset 0 0 20px rgba(16, 185, 129, 0.4) !important; }
+        .grand-glow:hover { border-color: rgba(125, 211, 252, 1) !important; box-shadow: 0 0 40px rgba(56, 189, 248, 1), inset 0 0 25px rgba(56, 189, 248, 0.5) !important; }
     </style>
 </head>
 <body>
@@ -1137,7 +1287,7 @@ try {
                                 <label id="label-box-1" class="label" style="display:flex; align-items:center; gap:5px; color:#cbd5e1 !important; font-size:1.1rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;"><span class="vivid-icon vivid-green" style="width:24px; height:24px; font-size:1.1rem;">💰</span> المبلغ (محلي)</label>
                                 <div style="position: relative; flex-grow: 1; min-width: 0; width: 100%;">
                                     <span id="amount-currency-symbol" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: var(--primary-color, #3b82f6); color: white; padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.9rem; pointer-events: none; z-index: 5; box-shadow: 0 4px 10px rgba(59, 130, 246, 0.3);">SDG</span>
-                                    <input type="text" class="form-input amount hover-scale input-glow-focus hover-glow" .2rem !important; font-weight: 900; text-align: center; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; direction: ltr; border-radius: 10px; width: 100%; transition: font-size 0.2s ease, letter-spacing 0.2s ease; padding-left: 60px;">
+                                    <input type="text" class="form-input amount hover-scale input-glow-focus hover-glow" id="amount-local" data-next="from-account" autofocus value="0" inputmode="numeric" onfocus="this.select()" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if(typeof calcEquiv === 'function') calcEquiv('local');" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="let val = this.value.replace(/[^0-9.]/g, ''); this.value = val; calcEquiv('local'); if(typeof adjustAmountFontSize === 'function') adjustAmountFontSize(this); if(this.getAttribute('data-thousands') !== 'false') { let parts = val.split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); this.value = parts.join('.'); }" style="height: 55px; font-size: 2.35rem !important; font-weight: 900; text-align: center; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; direction: ltr; border-radius: 10px; width: 100%; transition: font-size 0.2s ease, letter-spacing 0.2s ease; padding-left: 60px;">
                                 </div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px;">
@@ -1148,7 +1298,7 @@ try {
                                 <label id="label-box-2" class="label" style="display:flex; align-items:center; gap:5px; color:#cbd5e1 !important; font-size:1.1rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">💵 القيمة (أجنبي)</label>
                                 <div style="position: relative; flex-grow: 1; min-width: 0; width: 100%;">
                                     <span id="amount-foreign-currency-symbol" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); background: #ef4444; color: white; padding: 4px 10px; border-radius: 8px; font-weight: 800; font-size: 0.9rem; pointer-events: none; z-index: 5; box-shadow: 0 4px 10px rgba(239, 68, 68, 0.3);">USD</span>
-                                    <input type="text" class="form-input amount input-glow-focus hover-glow" .2rem !important; text-align: center; background: #fafafa !important; color: #ef4444 !important; font-weight: 900; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; direction: ltr; border-radius: 10px; width: 100%; transition: font-size 0.2s ease, letter-spacing 0.2s ease; padding-left: 60px; cursor: not-allowed; border: 1px solid #fca5a5;">
+                                    <input type="text" class="form-input amount input-glow-focus hover-glow" id="amount-foreign" data-next="from-account" value="0" inputmode="decimal" readonly tabindex="-1" onfocus="this.select()" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if(typeof calcEquiv === 'function') calcEquiv('foreign');" onkeydown="if(event.key.length===1 && !/[0-9.]/.test(event.key)) event.preventDefault();" oninput="let val = this.value.replace(/[^0-9.]/g, ''); this.value = val; calcEquiv('foreign'); if(typeof adjustAmountFontSize === 'function') adjustAmountFontSize(this); if(this.getAttribute('data-thousands') !== 'false') { let parts = val.split('.'); parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ','); this.value = parts.join('.'); }" style="height: 60px; font-size: 2.35rem !important; text-align: center; background: #fafafa !important; color: #ef4444 !important; font-weight: 900; font-family: 'Inter', sans-serif; font-variant-numeric: tabular-nums; letter-spacing: 2px; direction: ltr; border-radius: 10px; width: 100%; transition: font-size 0.2s ease, letter-spacing 0.2s ease; padding-left: 60px; cursor: not-allowed; border: 1px solid #fca5a5;">
                                 </div>
                             </div>
                         </div>
@@ -1191,13 +1341,13 @@ try {
                                 </label>
                                 <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
                                     <input type="hidden" id="from-account">
-                                    <input type="text" autocomplete="off" class="form-input input-glow-focus hover-glow" .4rem !important; border: 1px solid rgba(244, 63, 94, 0.5); background: rgba(0,0,0,0.3); color: #fbbf24 !important;">
+                                    <input type="text" autocomplete="off" class="form-input input-glow-focus hover-glow" id="from-account-search" placeholder="ابحث عن حساب الصرف..." onfocus="showAccountDropdown('from')" onblur="hideAccountDropdownDelayed('from')" oninput="filterAccountDropdown('from')" style="width: 100%; padding: 12px 15px 12px 95px; border-radius: 8px; font-weight: bold; font-size: 1.55rem !important; border: 1px solid rgba(244, 63, 94, 0.5); background: rgba(0,0,0,0.3); color: #fbbf24 !important;">
                                     <button type="button" id="from-account-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('from-account').value)" class="crystal-btn-sm btn-blue-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 5; font-size: 0.8rem; padding: 4px 8px; height: 32px; display: none;" title="دفتر الأستاذ العام">📖 دفتر الأستاذ</button>
                                     <div class="custom-dropdown-list" id="from-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: none; margin-top: 5px;"></div>
                                 </div>
                             </div>
                             <!-- إلى حساب (Green) -->
-                            <div class="glass-container glass-green" style="position: relative; padding: 15px; border-radius: 12px; transition: all 0.3s ease;" data-swap="1">
+                            <div style="background: rgba(16, 185, 129, 0.05); padding: 8px 15px; border-radius: 12px; border: 1px solid rgba(16, 185, 129, 0.3); display: flex; align-items: center; gap: 10px;" data-swap="1">
                                 <label class="label" style="display:flex; align-items:center; gap:5px; color:#10b981 !important; margin-bottom:0; font-weight:800; white-space:nowrap; flex-shrink:0; font-size: 1.5rem !important;">
                                     <span style="display:flex; align-items:center; justify-content:center; width: 24px; height: 24px; background: rgba(16, 185, 129, 0.15); border-radius: 50%;">
                                           <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><polyline points="19 12 12 19 5 12"></polyline></svg>
@@ -1206,7 +1356,7 @@ try {
                                 </label>
                                 <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative;">
                                     <input type="hidden" id="to-account">
-                                    <input type="text" autocomplete="off" class="form-input input-glow-focus hover-glow" .4rem !important; border: 1px solid rgba(16, 185, 129, 0.5); background: rgba(0,0,0,0.3); color: #fbbf24 !important;">
+                                    <input type="text" autocomplete="off" class="form-input input-glow-focus hover-glow" id="to-account-search" placeholder="ابحث عن حساب الاستلام..." onfocus="showAccountDropdown('to')" onblur="hideAccountDropdownDelayed('to')" oninput="filterAccountDropdown('to')" style="width: 100%; padding: 12px 15px 12px 95px; border-radius: 8px; font-weight: bold; font-size: 1.55rem !important; border: 1px solid rgba(16, 185, 129, 0.5); background: rgba(0,0,0,0.3); color: #fbbf24 !important;">
                                     <button type="button" id="to-account-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('to-account').value)" class="crystal-btn-sm btn-blue-glass" style="position: absolute; left: 10px; top: 50%; transform: translateY(-50%); z-index: 5; font-size: 0.8rem; padding: 4px 8px; height: 32px; display: none;" title="دفتر الأستاذ العام">📖 دفتر الأستاذ</button>
                                     <div class="custom-dropdown-list" id="to-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: none; margin-top: 5px;"></div>
                                 </div>
@@ -1256,961 +1406,65 @@ try {
 
                         <!-- Unified Payment details panel styled like Sales/Purchase -->
                         <style>
-        @keyframes flowOut {
-            0% { transform: translateX(0); opacity: 0.4; }
-            50% { transform: translateX(-10px); opacity: 1; filter: drop-shadow(0 0 3px #ef4444); }
-            100% { transform: translateX(0); opacity: 0.4; }
-        }
-        .animated-arrow-left {
-            display: inline-block;
-            margin-right: 8px;
-            color: #ef4444;
-            animation: flowOut 1.5s infinite ease-in-out;
-            font-size: 1.6rem;
-            vertical-align: middle;
-            font-weight: bold;
-        }
-
-        @keyframes flowIn {
-            0% { transform: translateX(0); opacity: 0.4; }
-            50% { transform: translateX(10px); opacity: 1; filter: drop-shadow(0 0 3px currentColor); }
-            100% { transform: translateX(0); opacity: 0.4; }
-        }
-        .animated-arrow-right {
-            display: inline-block;
-            margin-right: 8px;
-            color: inherit;
-            animation: flowIn 1.5s infinite ease-in-out;
-            font-size: 1.6rem;
-            vertical-align: middle;
-            font-weight: bold;
-        }
-
-        /* ═══ Ultra-Modern Glassmorphic Crystal Theme & Dynamic Light System ═══ */
-        @keyframes lightWavePulse {
-            0% { box-shadow: 0 0 0 0 var(--btn-glow, rgba(56, 189, 248, 0.6)), 0 8px 25px rgba(0,0,0,0.4); }
-            50% { box-shadow: 0 0 20px 4px var(--btn-glow, rgba(56, 189, 248, 0.6)), 0 12px 35px rgba(0,0,0,0.6); }
-            100% { box-shadow: 0 0 0 0 var(--btn-glow, rgba(56, 189, 248, 0.6)), 0 8px 25px rgba(0,0,0,0.4); }
-        }
-
-        @keyframes crystalBeamSweep {
-            0% { transform: translateX(-120%) rotate(25deg); }
-            100% { transform: translateX(220%) rotate(25deg); }
-        }
-
-        @keyframes rimGlowFlow {
-            0% { border-color: rgba(255, 255, 255, 0.18); }
-            50% { border-color: rgba(255, 255, 255, 0.45); }
-            100% { border-color: rgba(255, 255, 255, 0.18); }
-        }
-
-        /* Glassmorphism Crystal Containers */
-        .glass-container {
-            padding: 22px 26px;
-            border-radius: 18px;
-            margin-bottom: 25px;
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.16);
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25);
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.65), rgba(15, 23, 42, 0.85));
-            position: relative;
-            overflow: visible !important;
-        }
-
-        .glass-container::before {
-            content: '';
-            position: absolute;
-            top: 0; left: 0; right: 0; height: 1.5px;
-            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent);
-            pointer-events: none;
-        }
-
-        .glass-container:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.35);
-            border-color: rgba(255, 255, 255, 0.3);
-        }
-
-        #secondary-table-container {
-            padding-top: 4px !important;
-        }
-
-        #secondary-table-container th {
-            padding-top: 6px !important;
-            padding-bottom: 6px !important;
-        }
-
-        /* Crystal Red Container (المستطيل الرئيسي للصرف) */
-        .glass-red {
-            position: relative; overflow: hidden;
-            background: linear-gradient(135deg, rgba(110, 30, 45, 0.75), rgba(15, 23, 42, 0.85)) !important;
-            border: 1px solid rgba(244, 63, 94, 0.45) !important;
-            border-right: 5px solid #f43f5e !important;
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(244, 63, 94, 0.35), 0 0 25px rgba(244, 63, 94, 0.15) !important;
-        }
-        .glass-red:hover {
-            background: linear-gradient(135deg, rgba(130, 35, 50, 0.85), rgba(15, 23, 42, 0.92)) !important;
-            border-color: rgba(244, 63, 94, 0.8) !important;
-            border-right-color: #fb7185 !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.6), 0 0 45px rgba(244, 63, 94, 0.6) !important;
-        }
-
-        /* Crystal Green Container (مستطيلات الحسابات المستلمة) */
-        .glass-green {
-            position: relative; overflow: hidden;
-            background: linear-gradient(135deg, rgba(16, 60, 40, 0.85), rgba(15, 23, 42, 0.95)) !important;
-            border: 1px solid rgba(39, 174, 96, 0.45) !important;
-            border-right: 5px solid #27ae60 !important;
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(39, 174, 96, 0.35), 0 0 25px rgba(39, 174, 96, 0.2) !important;
-        }
-        .glass-green:hover {
-            background: linear-gradient(135deg, rgba(20, 75, 50, 0.9), rgba(15, 23, 42, 0.98)) !important;
-            border-color: rgba(39, 174, 96, 0.8) !important;
-            border-right-color: #2ecc71 !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.6), 0 0 45px rgba(39, 174, 96, 0.6) !important;
-        }
-
-        /* High Contrast Inputs, Placeholders, and Labels */
-        input::placeholder,
-        select::placeholder,
-        textarea::placeholder,
-        .form-input::placeholder,
-        .form-select::placeholder,
-        .multi-input::placeholder {
-            color: rgba(255, 255, 255, 0.6) !important;
-            opacity: 1 !important;
-        }
-
-        input, select, textarea, .form-input, .form-select, .multi-input {
-            color: #ffffff !important;
-        }
-
-        .glass-container label {
-            color: #e2e8f0;
-        }
-
-        /* High Contrast for Payment Method Details Inputs & Labels */
-        .payment-method-box label {
-            color: #e2e8f0 !important;
-            opacity: 1 !important;
-        }
-        .payment-method-box input {
-            color: #ffffff !important;
-        }
-        .payment-method-box input::placeholder {
-            color: rgba(255, 255, 255, 0.6) !important;
-            opacity: 1 !important;
-        }
-
-        /* Auto-Expanding heights for payment containers */
-        #payment-panel,
-        .payment-layout,
-        .payment-details-card,
-        .payment-method-box,
-        #transfers-container,
-        #cheques-container {
-            height: auto !important;
-            min-height: fit-content !important;
-            overflow: visible !important;
-        }
-
-        .top-action-bar { background: rgba(249, 115, 22, 0.1); border-bottom: 1px solid rgba(249, 115, 22, 0.2); }
-        .action-tab.active { background: #f97316; color: #fff; border-color: #f97316; }
-
-        .form-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px;
-        }
-        
-        .form-input, .form-select {
-            width: 100%; background: rgba(15, 23, 42, 0.65); border: 1px solid rgba(255,255,255,0.15);
-            color: #fff; padding: 10px 14px; border-radius: 10px;
-            font-family: inherit; font-size: 0.95rem; transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);
-        }
-        .form-input:focus, .form-select:focus { 
-            border-color: #38bdf8; background: rgba(15, 23, 42, 0.9); outline: none;
-            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.2), 0 0 15px rgba(56, 189, 248, 0.15);
-        }
-        
-        .form-section-title { 
-            font-size: 1.1rem; font-weight: 700; color: #38bdf8; 
-            margin-bottom: 15px; display: flex; align-items: center; gap: 8px; 
-            border-bottom: 1px solid rgba(56,189,248,0.2); padding-bottom: 10px; 
-        }
-
-        /* Grid */
-        .multi-table { width: 100%; border-collapse: separate; border-spacing: 0 5px; }
-        .multi-table th { text-align: right; padding: 12px 10px; color: #94a3b8; font-weight: 600; font-size: 0.85rem; border-bottom: 1px solid rgba(255,255,255,0.05); white-space: nowrap; }
-        .multi-row { transition: all 0.2s; }
-        .multi-row:hover { background: rgba(255,255,255,0.02); }
-        .multi-row td { padding: 5px; }
-        .multi-input {
-            width: 100%; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);
-            color: #f8fafc; padding: 8px 10px; border-radius: 6px; font-size: 0.9rem; min-width: 100px;
-        }
-        .multi-input:focus { border-color: #f97316; outline: none; background: rgba(0,0,0,0.4); }
-        
-        .btn-add-row {
-            background: rgba(249, 115, 22, 0.1); color: #f97316; border: 1px dashed #f97316;
-            padding: 10px 20px; border-radius: 8px; cursor: pointer; font-weight: 700;
-            width: 100%; margin-top: 10px; transition: all 0.2s; font-family: 'Tajawal', sans-serif;
-        }
-        .btn-add-row:hover { background: rgba(249, 115, 22, 0.2); }
-
-        .btn-save {
-            background: #10b981; color: #fff; border: none; padding: 12px 25px; border-radius: 8px; cursor: pointer; font-weight: bold; font-family: 'Tajawal', sans-serif; transition: 0.2s; font-size: 1.1rem; box-shadow: 0 4px 15px rgba(16,185,129,0.3);
-        }
-        .btn-save:hover { background: #059669; transform: translateY(-2px); }
-
-        .btn-del { background: none; border: none; color: #ef4444; font-size: 1.2rem; cursor: pointer; padding: 5px; transition: 0.2s; }
-        .btn-del:hover { transform: scale(1.2); }
-
-        /* Choices custom overrides */
-        .choices__inner { background-color: rgba(0,0,0,0.2) !important; border: 1px solid rgba(255,255,255,0.1) !important; color: #fff !important; border-radius: 8px !important; min-height: 42px !important; }
-        .choices__list--dropdown { background-color: #1e293b !important; color: #fff !important; border: 1px solid #f97316 !important; }
-        .choices__item--selectable.is-highlighted { background-color: #f97316 !important; }
-        /* Toast */
-        .toast-container { position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:99999; display:flex; flex-direction:column; gap:10px; pointer-events:none; }
-        .toast { padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem; display:flex; align-items:center; gap:8px; pointer-events:auto; backdrop-filter:blur(20px); box-shadow:0 12px 40px rgba(0,0,0,0.5); animation:toastIn 0.4s cubic-bezier(0.16,1,0.3,1) both; }
-        .toast.success { background:rgba(52,211,153,0.15); border:1px solid rgba(52,211,153,0.4); color:#34d399; }
-        .toast.error { background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#f87171; }
-        .toast.hide { animation:toastOut 0.4s forwards; }
-        @keyframes toastIn { from { opacity:0; transform:translateY(-20px) scale(0.95); } to { opacity:1; transform:translateY(0) scale(1); } }
-        @keyframes toastOut { to { opacity:0; transform:translateY(-20px) scale(0.95); } }
-
-        /* Context Menu */
-        .context-menu {
-            position: absolute; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(15px);
-            border: 1px solid rgba(255,255,255,0.1); border-radius: 12px; padding: 10px;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.5); z-index: 1000;
-            display: none; min-width: 200px;
-        }
-        .context-menu.active { display: flex; flex-direction: column; gap: 8px; animation: fadeIn 0.2s; }
-        .context-menu-item {
-            display: flex; align-items: center; gap: 10px; color: #fff;
-            padding: 8px 12px; border-radius: 8px; cursor: pointer; transition: 0.2s; font-size: 0.9rem;
-        }
-        .context-menu-item:hover { background: rgba(255,255,255,0.05); }
-        .context-menu-item input[type="checkbox"] { accent-color: #f97316; width: 16px; height: 16px; cursor: pointer; }
-
-        /* Dynamic Columns */
-        .col-cost-center, .col-note, .col-check-no, .col-check-date, .col-check-due { display: none; }
-        table.show-col-cost-center .col-cost-center { display: table-cell; }
-        table.show-col-note .col-note { display: table-cell; }
-        table.show-col-check-no .col-check-no { display: table-cell; }
-        table.show-col-check-date .col-check-date { display: table-cell; }
-        table.show-col-check-due .col-check-due { display: table-cell; }
-
-        /* Sticky Footer */
-        .sticky-footer { position: sticky; bottom: 0; background: rgba(15,23,42,0.9); border-top: 1px solid rgba(249,115,22,0.3); padding: 15px 25px; border-radius: 0 0 16px 16px; display: flex; justify-content: space-between; align-items: center; z-index: 50; backdrop-filter: blur(10px); margin-top: 20px; margin-left: -25px; margin-right: -25px; margin-bottom: -25px; }
-
-        /* ═══ MASTER DATA ULTRA-PREMIUM ICON & BUTTON DESIGN SYSTEM ═══ */
-
-        /* 1. Highly Visible Glitter Shimmer Sparkles (From Master Data) */
-        @keyframes glitterShimmer {
-            0% {
-                background-position: 0 0, 0 0, 0 0, 0 0, 0 0, -100% -100%;
-                filter: brightness(1.3) drop-shadow(0 0 3px #ffffff);
-            }
-            50% {
-                filter: brightness(2.4) drop-shadow(0 0 8px #ffffff);
-            }
-            100% {
-                background-position: 55px 55px, -40px 40px, 48px -48px, -42px -42px, 30px -30px, 200% 200%;
-                filter: brightness(1.3) drop-shadow(0 0 3px #ffffff);
-            }
-        }
-
-        /* 2. Rear Bottom Light Ray Pulse */
-        @keyframes rearRayPulse {
-            0%, 100% { transform: scaleX(1) translateY(0); opacity: 0.65; }
-            50% { transform: scaleX(1.35) translateY(3px); opacity: 1; filter: blur(16px) brightness(1.5); }
-        }
-
-        /* 3. Rim Glow Pulse Animation */
-        @keyframes rimPulseGlow {
-            0%, 100% { box-shadow: 0 0 16px var(--tab-glow-color, rgba(56, 189, 248, 0.5)), inset 0 1px 2px rgba(255, 255, 255, 0.5); }
-            50% { box-shadow: 0 0 32px var(--tab-glow-color, rgba(56, 189, 248, 0.9)), inset 0 2px 5px rgba(255, 255, 255, 0.8); }
-        }
-
-        /* ═══ Base Crystal Button (Master Data Inspired) ═══ */
-        .crystal-btn, .voucher-type-btn, .pay-toggle-btn {
-            position: relative;
-            background: rgba(0, 0, 0, 0.2); /* Darker background, no inner light */
-            backdrop-filter: blur(18px);
-            -webkit-backdrop-filter: blur(18px);
-            border: 4.8px solid var(--tab-border-color, rgba(255, 255, 255, 0.25)) !important;
-            border-radius: 14px;
-            padding: 10px 18px;
-            font-size: 1rem;
-            font-weight: 800;
-            color: #f8fafc !important;
-            cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            gap: 8px;
-            white-space: nowrap;
-            overflow: visible; /* Allows rear bottom glow projection */
-            transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
-            z-index: 1;
-            font-family: 'Tajawal', sans-serif;
-            user-select: none;
-            height: 44px; /* Uniform height & width alignment */
-            box-sizing: border-box;
-        }
-
-        /* Highly Visible Internal Glitter Sparkles Overlay (DISABLED PER USER) */
-        .crystal-btn::after, .voucher-type-btn::after, .pay-toggle-btn::after {
-            display: none !important;
-        }
-
-        .crystal-btn:hover::after, .voucher-type-btn:hover::after, .pay-toggle-btn:hover::after {
-            display: none !important;
-        }
-
-        /* Rear Bottom Light Ray Beam Projection (Faint per user) */
-        .crystal-btn::before, .voucher-type-btn::before, .pay-toggle-btn::before {
-            content: '';
-            position: absolute;
-            bottom: -16px;
-            left: 10%;
-            width: 80%;
-            height: 18px;
-            background: var(--tab-glow-color, rgba(56, 189, 248, 0.75));
-            border-radius: 50%;
-            filter: blur(14px);
-            opacity: 0.15; /* Very faint */
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            pointer-events: none;
-            z-index: -1;
-            animation: rearRayPulse 3s infinite ease-in-out;
-        }
-
-        .crystal-btn:hover::before, .voucher-type-btn:hover::before, .pay-toggle-btn:hover::before {
-            opacity: 0.25 !important; /* Very faint on hover */
-            transform: scaleX(1.4) translateY(5px) !important;
-            filter: blur(18px) brightness(1.2) !important;
-        }
-
-        /* Icon Styling & Detailed Icon Glow Halo (إضاءة مفصلة خلفية من الأيقونة) */
-        .btn-icon, .md-tab-icon {
-            font-size: 1.35rem;
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease;
-            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
-            position: relative;
-            z-index: 4;
-        }
-
-        /* Detailed Icon Rear Glow Ring */
-        .btn-icon::after, .md-tab-icon::after {
-            display: none !important;
-        }
-
-        /* Hover Scale + Light Glow + Text Contrast Protection */
-        .crystal-btn:hover, .voucher-type-btn:hover, .pay-toggle-btn:hover {
-            transform: translateY(-5px) scale(1.08) !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 8px rgba(0,0,0,0.8) !important;
-            border-color: var(--tab-border-color) !important;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.6), 0 0 12px var(--tab-glow-color, rgba(56,189,248,0.2)) !important;
-            background: rgba(0,0,0,0.3) !important; /* No inner light */
-            z-index: 10;
-        }
-
-        .crystal-btn:hover .btn-icon, .voucher-type-btn:hover .btn-icon, .pay-toggle-btn:hover .btn-icon {
-            transform: scale(1.38) rotate(8deg);
-            filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
-        }
-
-        .crystal-btn:hover .btn-icon::after, .voucher-type-btn:hover .btn-icon::after, .pay-toggle-btn:hover .btn-icon::after {
-            display: none !important;
-        }
-
-        /* ═══ Voucher Type Buttons (صرف مجمع 📤 vs استلام مجمع 📥) ═══ */
-        .voucher-type-btn.active-payment, #btn-payment.active-payment {
-            --tab-border-color: #f43f5e;
-            --tab-glow-color: rgba(244, 63, 94, 0.7);
-            --tab-hover-bg: linear-gradient(135deg, #f43f5e, #be123c);
-            background: linear-gradient(135deg, #e11d48, #9f1239) !important;
-            border-color: #f43f5e !important;
-            color: #ffffff !important;
-            font-weight: 900 !important;
-            text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 30px rgba(225, 29, 72, 0.65), 0 0 25px rgba(225, 29, 72, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
-            transform: translateY(-3px) scale(1.05) !important;
-        }
-
-        .voucher-type-btn.active-receipt, #btn-receipt.active-receipt {
-            --tab-border-color: #10b981;
-            --tab-glow-color: rgba(16, 185, 129, 0.7);
-            --tab-hover-bg: linear-gradient(135deg, #10b981, #047857);
-            background: linear-gradient(135deg, #059669, #064e3b) !important;
-            border-color: #10b981 !important;
-            color: #ffffff !important;
-            font-weight: 900 !important;
-            text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.65), 0 0 25px rgba(16, 185, 129, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
-            transform: translateY(-3px) scale(1.05) !important;
-        }
-
-        /* ═══ Payment Method Toggle Buttons (نقدي 💵 / تحويل 🏦 / شيك ✍️) ═══ */
-        .pay-toggle-btn.block-btn-cash {
-            --tab-border-color: rgba(213, 189, 175, 0.45);
-            --tab-glow-color: rgba(213, 189, 175, 0.65);
-            --tab-hover-bg: linear-gradient(135deg, rgba(213, 189, 175, 0.35), rgba(179, 154, 138, 0.5));
-        }
-        .pay-toggle-btn.active.block-btn-cash {
-            --tab-border-color: #d5bdaf;
-            background: linear-gradient(135deg, rgba(213, 189, 175, 0.45), rgba(179, 154, 138, 0.7)) !important;
-            border-color: #d5bdaf !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(213, 189, 175, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 25px rgba(213, 189, 175, 0.5), 0 0 20px rgba(213, 189, 175, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
-            transform: translateY(-3px) scale(1.05) !important;
-        }
-
-        .pay-toggle-btn.block-btn-bank {
-            --tab-border-color: #fbbf24;
-            --tab-glow-color: rgba(251, 191, 36, 0.55);
-            --tab-hover-bg: linear-gradient(135deg, rgba(217, 119, 6, 0.4), rgba(251, 191, 36, 0.6));
-            --tab-active-bg: linear-gradient(135deg, #d97706, #fbbf24);
-        }
-        .pay-toggle-btn.block-btn-cheque {
-            --tab-border-color: #c084fc;
-            --tab-glow-color: rgba(192, 132, 252, 0.55);
-            --tab-hover-bg: linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(192, 132, 252, 0.6));
-            --tab-active-bg: linear-gradient(135deg, #7c3aed, #c084fc);
-        }
-
-        .pay-toggle-btn.block-btn-cheque {
-            --tab-border-color: rgba(155, 89, 182, 0.45);
-            --tab-glow-color: rgba(155, 89, 182, 0.65);
-            --tab-hover-bg: linear-gradient(135deg, rgba(155, 89, 182, 0.35), rgba(142, 68, 173, 0.5));
-        }
-        .pay-toggle-btn.active.block-btn-cheque {
-            --tab-border-color: #9b59b6;
-            background: linear-gradient(135deg, rgba(155, 89, 182, 0.45), rgba(142, 68, 173, 0.7)) !important;
-            border-color: #9b59b6 !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(155, 89, 182, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 25px rgba(155, 89, 182, 0.5), 0 0 20px rgba(155, 89, 182, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
-            transform: translateY(-3px) scale(1.05) !important;
-        }
-
-        /* ═══ Footer Action Buttons ═══ */
-        .btn-save-master {
-            --tab-border-color: #34d399;
-            --tab-glow-color: rgba(16, 185, 129, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #10b981, #059669);
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(4, 120, 87, 0.75)) !important;
-            border-color: #34d399 !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 12px rgba(52, 211, 153, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-        }
-        .btn-new {
-            --tab-border-color: #38bdf8;
-            --tab-glow-color: rgba(56, 189, 248, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #0284c7, #0369a1);
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(3, 105, 161, 0.6)) !important;
-            border-color: #38bdf8 !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(56, 189, 248, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-        }
-        .btn-print {
-            --tab-border-color: #c084fc;
-            --tab-glow-color: rgba(168, 85, 247, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #9333ea, #7e22ce);
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(126, 34, 206, 0.6)) !important;
-            border-color: #c084fc !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(192, 132, 252, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-        }
-        .btn-print-preview {
-            --tab-border-color: #22d3ee;
-            --tab-glow-color: rgba(6, 182, 212, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #0891b2, #0e7490);
-            background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(14, 116, 144, 0.6)) !important;
-            border-color: #22d3ee !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(34, 211, 238, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-        }
-        .btn-delete {
-            --tab-border-color: #fb7185;
-            --tab-glow-color: rgba(244, 63, 94, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #e11d48, #be123c);
-            background: linear-gradient(135deg, rgba(244, 63, 94, 0.3), rgba(190, 18, 60, 0.6)) !important;
-            border-color: #fb7185 !important;
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(251, 113, 133, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-        }
-        .btn-exit {
-            --tab-border-color: #94a3b8;
-            --tab-glow-color: rgba(148, 163, 184, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #475569, #334155);
-            background: linear-gradient(135deg, rgba(100, 116, 139, 0.3), rgba(51, 65, 85, 0.6)) !important;
-            border-/* color removed */
-            color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(148, 163, 184, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-        }
-
-        /* Luminous Glowing Borders on Hover for Account Blocks & Details Panels */
-        .glass-container:hover, .account-block:hover {
-            border-color: rgba(255, 255, 255, 0.45) !important;
-            box-shadow: 
-                0 20px 50px rgba(0, 0, 0, 0.7),
-                0 0 35px var(--block-glow-color, rgba(56, 189, 248, 0.4)),
-                inset 0 1px 3px rgba(255, 255, 255, 0.5) !important;
-        }
-
-        .glass-red:hover {
-            --block-glow-color: rgba(212, 122, 126, 0.5);
-            border-color: rgba(212, 122, 126, 0.75) !important;
-        }
-        .glass-green:hover {
-            --block-glow-color: rgba(39, 174, 96, 0.5);
-            border-color: rgba(39, 174, 96, 0.75) !important;
-        }
-
-        .block-cash-details:hover {
-            border-color: rgba(213, 189, 175, 0.75) !important;
-            box-shadow: 0 0 25px rgba(213, 189, 175, 0.35), inset 0 1px 2px rgba(255,255,255,0.4) !important;
-        }
-        /* CSS variables for dynamic bank transfer colors */
-        .block-bank-details {
-            --bank-bg-start: rgba(12, 74, 110, 0.6);
-            --bank-bg-end: rgba(14, 165, 233, 0.15);
-            --bank-border: rgba(14, 165, 233, 0.7);
-            --bank-shadow: rgba(14, 165, 233, 0.15);
-            --bank-hover-border: rgba(56, 189, 248, 1);
-            --bank-hover-shadow-outer: rgba(14, 165, 233, 0.9);
-            --bank-hover-shadow-inner: rgba(14, 165, 233, 0.5);
-            --bank-icon: #38bdf8;
-            
-            background: linear-gradient(135deg, var(--bank-bg-start), var(--bank-bg-end)) !important;
-            border: 1px solid var(--bank-border) !important;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 0 20px var(--bank-shadow) !important;
-        }
-        
-        body[data-voucher-type="receipt"] .block-bank-details {
-            --bank-bg-start: rgba(8, 145, 178, 0.4); /* Cyan 600 */
-            --bank-bg-end: rgba(6, 182, 212, 0.15); /* Cyan 500 */
-            --bank-border: rgba(6, 182, 212, 0.7);
-            --bank-shadow: rgba(6, 182, 212, 0.25);
-            --bank-hover-border: rgba(34, 211, 238, 1); /* Cyan 400 */
-            --bank-hover-shadow-outer: rgba(6, 182, 212, 0.8);
-            --bank-hover-shadow-inner: rgba(6, 182, 212, 0.5);
-            --bank-icon: #22d3ee;
-        }
-        
-        body[data-voucher-type="receipt"] .bank-icon-label {
-            color: var(--bank-icon) !important;
-        }
-
-        .block-bank-details:hover {
-            border-color: var(--bank-hover-border) !important;
-            box-shadow: 0 0 40px var(--bank-hover-shadow-outer), inset 0 0 25px var(--bank-hover-shadow-inner) !important;
-        }
-        .block-cheque-details {
-            background: linear-gradient(135deg, rgba(88, 28, 135, 0.6), rgba(168, 85, 247, 0.15)) !important;
-            border: 1px solid rgba(168, 85, 247, 0.7) !important;
-            box-shadow: 0 10px 30px rgba(0,0,0,0.6), inset 0 0 20px rgba(168, 85, 247, 0.15) !important;
-        }
-        .block-cheque-details:hover {
-            border-color: rgba(216, 180, 254, 1) !important;
-            box-shadow: 0 0 40px rgba(168, 85, 247, 0.9), inset 0 0 25px rgba(168, 85, 247, 0.5) !important;
-        }
-        @keyframes shimmerWave {
-            0% { transform: translateX(-150%) skewX(-45deg); opacity: 0; }
-            11.5% { opacity: 0.15; }
-            23% { transform: translateX(150%) skewX(-45deg); opacity: 0; }
-            100% { transform: translateX(150%) skewX(-45deg); opacity: 0; }
-        }
-        .block-bank-details, .block-cheque-details, .glass-red, .glass-green {
-            position: relative;
-            overflow: hidden;
-            transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.4s ease, border-color 0.4s ease, background 0.4s ease;
-        }
-        .block-bank-details::before, .block-cheque-details::before, .glass-red::before, .glass-green::before {
-            content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
-            background: linear-gradient(105deg, rgba(255,255,255,0) 0%, rgba(255,255,255,0.02) 45%, rgba(255,255,255,0.12) 50%, rgba(255,255,255,0.02) 55%, rgba(255,255,255,0) 100%);
-            z-index: 1; opacity: 0; transition: opacity 0.5s ease; pointer-events: none;
-        }
-        .block-bank-details:hover::before, .block-cheque-details:hover::before, .glass-red:hover::before, .glass-green:hover::before { animation: shimmerWave 6.5s infinite; opacity: 1; }
-        .block-bank-details:hover, .block-cheque-details:hover {
-            transform: translateY(-2px) scale(1.01) !important;
-            z-index: 10;
-        }
-
-
-        /* Advanced Layout & Animations */
-        .split-layout-wrapper {
-            display: flex; flex-direction: row-reverse; gap: 0; margin-top: 15px; width: 100%; transition: all 0.6s cubic-bezier(0.25, 1, 0.2, 1);
-        }
-        
-        /* Side Panel */
-        .side-panel {
-            width: 0; opacity: 0; overflow: hidden; transform: translateX(-80px) scale(0.95);
-            background: rgba(15, 23, 42, 0.8); backdrop-filter: blur(25px); border-radius: 16px;
-            border: none; box-shadow: 0 15px 40px rgba(0,0,0,0.4);
-            transition: all 0.6s cubic-bezier(0.25, 1, 0.2, 1); flex-shrink: 0;
-            padding: 0; /* Padding is 0 when hidden */
-        }
-        
-        /* When side panel is active */
-        .split-layout-wrapper.has-sidebar { gap: 20px; }
-        .split-layout-wrapper.has-sidebar .side-panel {
-            width: 380px; opacity: 1; transform: translateX(0) scale(1); padding: 25px;
-            border: 1px solid rgba(251, 191, 36, 0.3);
-        }
-
-        /* Main Panel */
-        .main-panel {
-            flex-grow: 1; transition: all 0.6s cubic-bezier(0.25, 1, 0.2, 1);
-            background: rgba(15, 23, 42, 0.4); backdrop-filter: blur(12px);
-            border-radius: 16px; padding: 25px; border: 1px solid rgba(255, 255, 255, 0.05);
-            box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            transform-origin: left center;
-        }
-
-        @media (max-width: 900px) {
-            .split-layout-wrapper.has-sidebar { flex-direction: column; }
-            .split-layout-wrapper.has-sidebar .side-panel { width: 100%; transform: translateX(0) translateY(-20px); }
-        }
-
-        /* Payment Methods Tabs */
-        .payment-methods-tabs {
-            display: flex; gap: 10px; background: rgba(0,0,0,0.4); padding: 8px;
-            border-radius: 16px; border: 1px solid rgba(255,255,255,0.05);
-            box-shadow: inset 0 2px 10px rgba(0,0,0,0.2);
-        }
-        .pm-tab { flex: 1; cursor: pointer; }
-        .pm-tab input { display: none; }
-        .pm-tab-content {
-            display: flex; flex-direction: column; align-items: center; justify-content: center;
-            padding: 15px 5px; gap: 10px; border-radius: 10px; transition: all 0.4s cubic-bezier(0.25, 1, 0.2, 1);
-            color: #94a3b8; font-weight: 700; font-size: 0.9rem;
-        }
-        .pm-icon { font-size: 1.8rem; transition: transform 0.4s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.4s; filter: grayscale(100%); opacity: 0.5; }
-        
-        .pm-tab input:checked + .pm-tab-content {
-            background: linear-gradient(135deg, rgba(255,255,255,0.15), rgba(255,255,255,0.05)); 
-            color: #fff; box-shadow: 0 8px 25px rgba(0,0,0,0.3);
-            border: 1px solid rgba(255,255,255,0.2);
-            transform: translateY(-4px);
-        }
-        .pm-tab input:checked + .pm-tab-content .pm-icon {
-            transform: scale(1.3); filter: grayscale(0%); opacity: 1;
-            text-shadow: 0 4px 15px rgba(255,255,255,0.3);
-        }
-        /* Custom Searchable Dropdown */
-        
-        /* Fix Dropdown Z-Index */
-        .custom-dropdown-input-wrap { z-index: 10; }
-        .custom-dropdown-input-wrap:focus-within { z-index: 999999 !important; }
-        .voucher-block:focus-within { z-index: 999999 !important; }
-        .custom-dropdown-list {
-            position: absolute;
-            top: 100%;
-            left: 0;
-            right: 0;
-            z-index: 9999;
-            background: #0b1120 !important;
-            border: 1px solid rgba(255, 255, 255, 0.1);
-            border-radius: 12px;
-            max-height: 280px;
-            overflow-y: auto;
-            text-align: right;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.6);
-            display: none;
-            margin-top: 6px;
-        }
-        .custom-dropdown-list.show {
-            display: block;
-            animation: slideDown 0.2s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-        .custom-dropdown-item {
-            padding: 12px 16px;
-            cursor: pointer;
-            border-bottom: 1px solid rgba(255, 255, 255, 0.03);
-            transition: all 0.2s;
-            display: flex;
-            flex-direction: column;
-            gap: 4px;
-        }
-        .custom-dropdown-item:hover {
-            background: rgba(255, 255, 255, 0.08) !important;
-        }
-        .custom-dropdown-item:last-child {
-            border-bottom: none;
-        }
-
-        /* Voucher Type Toggle Buttons (صرف/استلام من مجموعة) - PREMIUM DESIGN */
-        .voucher-type-btn {
-            position: relative;
-            min-width: 185px !important;
-            height: 50px !important;
-            display: inline-flex !important;
-            align-items: center !important;
-            justify-content: center !important;
-            gap: 12px !important;
-            border-radius: 12px !important;
-            cursor: pointer !important;
-            font-size: 1.05rem !important;
-            font-weight: 700 !important;
-            color: rgba(255, 255, 255, 0.8) !important;
-            background: rgba(15, 23, 42, 0.4) !important;
-            border: 2px solid transparent !important;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
-            transform: translateY(0) scale(0.97) !important;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-            backdrop-filter: blur(8px);
-        }
-
-        .voucher-type-btn.active-payment, .voucher-type-btn[id="btn-payment"] {
-            --btn-color: #f43f5e;
-            --btn-glow: rgba(244, 63, 94, 0.6);
-            --btn-bg-glow: rgba(244, 63, 94, 0.15);
-        }
-        .voucher-type-btn.active-receipt, .voucher-type-btn[id="btn-receipt"] {
-            --btn-color: #3b82f6;
-            --btn-glow: rgba(59, 130, 246, 0.6);
-            --btn-bg-glow: rgba(59, 130, 246, 0.15);
-        }
-
-        /* Default state: colored border, slight underlying glow */
-        .voucher-type-btn {
-            border-color: var(--btn-color) !important;
-            box-shadow: 0 4px 15px var(--btn-bg-glow) !important;
-        }
-
-        /* Hover state: intense border glow */
-        .voucher-type-btn:hover {
-            color: #ffffff !important;
-            transform: translateY(-2px) scale(1) !important;
-            background: var(--btn-bg-glow) !important;
-            box-shadow: 0 0 20px var(--btn-glow), 0 5px 25px var(--btn-bg-glow) !important;
-            text-shadow: 0 0 8px var(--btn-color);
-        }
-
-        /* Active State */
-        .voucher-type-btn.active-payment, .voucher-type-btn.active-receipt {
-            color: #ffffff !important;
-            background: var(--btn-bg-glow) !important;
-            border: 2px solid var(--btn-color) !important;
-            box-shadow: 0 0 25px var(--btn-glow), inset 0 0 15px var(--btn-bg-glow), 0 8px 30px var(--btn-bg-glow) !important;
-            transform: translateY(-3px) scale(1.05) !important;
-            text-shadow: 0 0 8px var(--btn-color);
-            animation: borderPulse 2s infinite alternate ease-in-out;
-        }
-
-        @keyframes borderPulse {
-            0% { box-shadow: 0 0 15px var(--btn-glow), inset 0 0 10px var(--btn-bg-glow), 0 4px 20px var(--btn-bg-glow); }
-            100% { box-shadow: 0 0 35px var(--btn-glow), inset 0 0 25px var(--btn-bg-glow), 0 8px 40px var(--btn-bg-glow); }
-        }
-
-        .voucher-type-btn span.btn-icon i {
-            font-size: 1.25rem;
-            transition: all 0.3s ease;
-        }
-        .voucher-type-btn.active-payment span.btn-icon i, .voucher-type-btn.active-receipt span.btn-icon i {
-            filter: drop-shadow(0 0 12px var(--btn-color));
-            transform: scale(1.15);
-        }
-
-        /* Color Wave Animation */
-        @keyframes colorWave {
-            0% { background-position: 0% 50%; }
-            50% { background-position: 100% 50%; }
-            100% { background-position: 0% 50%; }
-        }
-        .wave-bg {
-            background-size: 300% 300% !important;
-            animation: colorWave 5s ease infinite !important;
-        }
-
-        /* ═══ Row Add/Delete Animations ═══ */
-        @keyframes rowSlideIn {
-            from { opacity: 0; transform: translateY(-15px) scale(0.97); max-height: 0; }
-            to { opacity: 1; transform: translateY(0) scale(1); max-height: 100px; }
-        }
-        @keyframes rowSlideOut {
-            from { opacity: 1; transform: translateX(0) scale(1); max-height: 100px; }
-            to { opacity: 0; transform: translateX(40px) scale(0.9); max-height: 0; padding: 0; margin: 0; }
-        }
-        .multi-row { animation: rowSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
-        .multi-row.removing { animation: rowSlideOut 0.3s ease forwards; pointer-events: none; }
-
-        /* ═══ Focus Glow Effect ═══ */
-        .multi-input:focus, .v-input:focus, .ctrl-input:focus {
-            outline: none !important;
-            border-color: rgba(56, 189, 248, 0.6) !important;
-            box-shadow: 0 0 0 3px rgba(56, 189, 248, 0.15), 0 0 15px rgba(56, 189, 248, 0.1) !important;
-            transition: border-color 0.3s, box-shadow 0.3s !important;
-        }
-
-        /* ═══ Shake Animation for Errors ═══ */
-        @keyframes shakeError {
-            0%, 100% { transform: translateX(0); }
-            10%, 50%, 90% { transform: translateX(-6px); }
-            30%, 70% { transform: translateX(6px); }
-        }
-        .shake-error {
-            animation: shakeError 0.5s ease;
-            border-color: #ef4444 !important;
-            box-shadow: 0 0 0 3px rgba(239, 68, 68, 0.2) !important;
-        }
-
-        /* ═══ Save Success Celebration ═══ */
-        @keyframes saveSuccess {
-            0% { transform: scale(1); }
-            30% { transform: scale(1.15); }
-            50% { transform: scale(0.95); }
-            70% { transform: scale(1.05); }
-            100% { transform: scale(1); }
-        }
-        .save-success-anim {
-            animation: saveSuccess 0.6s cubic-bezier(0.68, -0.55, 0.27, 1.55);
-        }
-
-        /* ═══ Confetti Overlay ═══ */
-        @keyframes confettiFall {
-            0% { transform: translateY(-100vh) rotate(0deg); opacity: 1; }
-            100% { transform: translateY(100vh) rotate(720deg); opacity: 0; }
-        }
-        .confetti-piece {
-            position: fixed;
-            width: 10px;
-            height: 10px;
-            top: -10px;
-            z-index: 99999;
-            border-radius: 2px;
-            animation: confettiFall 2.5s linear forwards;
-            pointer-events: none;
-        }
-
-        /* ═══ Number Counter Transition ═══ */
-        .amount-animate {
-            transition: transform 0.2s ease;
-        }
-        .amount-animate.changed {
-            transform: scale(1.08);
-            color: #fbbf24 !important;
-        }
-
-        /* ═══ Button Active Press ═══ */
-        .crystal-btn:active, .btn-add-row-inline:active {
-            transform: scale(0.92) !important;
-            transition: transform 0.1s !important;
-        }
-
-        /* ═══ Transfer/Cheque Row Animations ═══ */
-        .transfer-row, .cheque-row {
-            animation: rowSlideIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) both;
-        }
-        .transfer-row.removing, .cheque-row.removing {
-            animation: rowSlideOut 0.3s ease forwards;
-            pointer-events: none;
-        }
-
-        /* ═══ Payment Section Smooth Transition ═══ */
-        #cash-section, #bank-section, #cheque-section {
-            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
-        }
-
-        /* ═══ Skeleton Loading ═══ */
-        @keyframes skeletonShimmer {
-            0% { background-position: -200px 0; }
-            100% { background-position: calc(200px + 100%) 0; }
-        }
-        .skeleton-loading {
-            background: linear-gradient(90deg, rgba(255,255,255,0.04) 25%, rgba(255,255,255,0.08) 50%, rgba(255,255,255,0.04) 75%);
-            background-size: 200px 100%;
-            animation: skeletonShimmer 1.5s infinite;
-            border-radius: 6px;
-        }
-
-        /* ═══ High legibility white background for Amount/Value fields ═══ */
-        .transfer-amount, .cheque-amount, .block-sub-amount, .block-cash-amount, .block-bank-amount, .block-cheque-amount, .block-total-amount, .total-val, .val, .value-field, .multi-input[placeholder*="المبلغ"], .multi-input[placeholder*="القيمة"] {
-            background: rgba(15, 23, 42, 0.45) !important;
-            color: #ffffff !important;
-            border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
-        }
-        .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus, .multi-input[placeholder*="المبلغ"]:focus {
-            border-color: #f97316 !important;
-            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25) !important;
-        }
-
-        /* Large Totals & Rates */
-        /* Large Totals & Rates */
-        #exchange-rate {
-            font-size: 1.8rem !important;
-            font-weight: 900 !important;
-        }
-        #amount-local-hdr, #amount-foreign {
-            font-size: 2.6rem !important;
-            font-weight: 900 !important;
-            color: #ef4444 !important;
-            background-color: #ffffff !important;
-            text-align: center !important;
-        }
-        
-        /* Normal State for Amounts */
-        input.block-total-amount, input.block-bank-amount, input.block-cheque-amount, input.transfer-amount, input.cheque-amount {
-            font-size: 2.4rem !important;
-            font-weight: 900 !important;
-            color: #ffffff !important;
-            transition: font-size 0.2s ease, color 0.2s ease, background 0.2s ease !important;
-        }
-        
-        /* Focus State for Amounts */
-        input.block-total-amount:focus, input.block-bank-amount:focus, input.block-cheque-amount:focus, input.transfer-amount:focus, input.cheque-amount:focus {
-            font-size: 4.0rem !important;
-            color: #fbbf24 !important; /* Gold */
-            background: rgba(15, 23, 42, 0.8) !important;
-        }
-        
-        /* Normal State for Numbers */
-        input.block-transfer-no-input, input.block-cheque-no-input, input.transfer-no, input.cheque-no {
-            font-size: 2.0rem !important;
-            font-weight: 900 !important;
-            letter-spacing: 1px !important;
-            color: #ffffff !important;
-            transition: font-size 0.2s ease, color 0.2s ease, background 0.2s ease !important;
-        }
-        
-        /* Focus State for Numbers */
-        input.block-transfer-no-input:focus, input.block-cheque-no-input:focus, input.transfer-no:focus, input.cheque-no:focus {
-            font-size: 3.5rem !important;
-            color: #22d3ee !important; /* Cyan */
-            background: rgba(15, 23, 42, 0.8) !important;
-        }
-
-        /* Larger Bank Name Font */
-        input.block-bank-name-input, input.block-cheque-bank-input {
-            font-size: 1.35rem !important;
-            font-weight: bold !important;
-        }
-
-        /* Bank Row Layout Overrides */
-        .bank-row > div:nth-child(2) { flex: 1.5 !important; min-width: 140px !important; width: auto !important; }
-        .bank-row > div:nth-child(3) { flex: 2 !important; min-width: 160px !important; width: auto !important; }
-        .bank-row > div:nth-child(4) { flex: 1.5 !important; min-width: 120px !important; }
-        .bank-row > div:nth-child(5) { flex: 3 !important; min-width: 250px !important; }
-
-        /* Cheque Row Layout Overrides */
-        .cheque-row > div:nth-child(2) { flex: 1.5 !important; min-width: 140px !important; width: auto !important; }
-        .cheque-row > div:nth-child(3) { flex: 2 !important; min-width: 160px !important; width: auto !important; }
-        .cheque-row > div:nth-child(4) { flex: 0.8 !important; min-width: 90px !important; } /* Cheque No (Smaller) */
-        .cheque-row > div:nth-child(5) { flex: 1.2 !important; min-width: 120px !important; } /* Cheque Date */
-        .cheque-row > div:nth-child(6) { flex: 2.5 !important; min-width: 210px !important; } /* Cheque Desc (Wider) */
-        /* Custom Number Properties Menu */
+                            .pay-toggle-btn {
+                                background: rgba(255, 255, 255, 0.05);
+                                border: 1px solid rgba(255, 255, 255, 0.1);
+                                color: #94a3b8;
+                                padding: 6px 14px;
+                                border-radius: 20px;
+                                font-size: 0.9rem;
+                                font-weight: 800;
+                                cursor: pointer;
+                                transition: all 0.3s ease;
+                                display: flex;
+                                align-items: center;
+                                gap: 6px;
+                            }
+                            .pay-toggle-btn.active {
+                                background: rgba(56, 189, 248, 0.2) !important;
+                                border-color: #38bdf8 !important;
+                                color: #38bdf8 !important;
+                                box-shadow: 0 0 12px rgba(56, 189, 248, 0.3);
+                            }
+                            #toggle-credit.active {
+                                background: rgba(245, 158, 11, 0.2) !important;
+                                border-color: #fbbf24 !important;
+                                color: #fbbf24 !important;
+                                box-shadow: 0 0 12px rgba(245, 158, 11, 0.3);
+                            }
+                            #toggle-cash.active {
+                                background: rgba(16, 185, 129, 0.2) !important;
+                                border-color: #34d399 !important;
+                                color: #34d399 !important;
+                                box-shadow: 0 0 12px rgba(16, 185, 129, 0.3);
+                            }
+                            #toggle-bank.active {
+                                background: rgba(59, 130, 246, 0.2) !important;
+                                border-color: #60a5fa !important;
+                                color: #60a5fa !important;
+                                box-shadow: 0 0 12px rgba(59, 130, 246, 0.3);
+                            }
+                            #toggle-cheque.active {
+                                background: rgba(139, 92, 246, 0.2) !important;
+                                border-color: #c084fc !important;
+                                color: #c084fc !important;
+                                box-shadow: 0 0 12px rgba(139, 92, 246, 0.3);
+                            }
+                            .payment-method-box {
+                                transition: all 0.3s ease;
+                            }
+                            /* Auto-Expanding heights for payment containers */
+                            #payment-panel,
+                            .payment-layout,
+                            .payment-details-card,
+                            .payment-method-box,
+                            #transfers-container,
+                            #cheques-container {
+                                height: auto !important;
+                                min-height: fit-content !important;
+                                overflow: visible !important;
+                            }
+                                /* Custom Number Properties Menu */
         #num-props-menu { display: none; position: absolute; z-index: 9999; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); border-radius: 12px; padding: 10px; width: 260px; color: #cbd5e1; font-family: 'Inter', sans-serif; direction: rtl; }
         #num-props-menu .props-header { font-weight: bold; color: #38bdf8; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); text-align: center; font-size: 1.1rem; }
         #num-props-menu .props-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 5px; cursor: pointer; border-radius: 6px; transition: background 0.2s; font-size: 0.95rem; }
