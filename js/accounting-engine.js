@@ -10,6 +10,7 @@ window.AccountingEngine = {
         '110301': { code: '110301', name: 'حسابات العملاء (المدينون)', type: 'asset', category: 'receivables' },
         '110401': { code: '110401', name: 'مخزون البضائع والمنتجات', type: 'asset', category: 'inventory' },
         '210101': { code: '210101', name: 'حسابات الموردين (الدائنون)', type: 'liability', category: 'payables' },
+        '210201': { code: '210201', name: 'أوراق دفع / شيكات آجلة', type: 'liability', category: 'payables' },
         '410101': { code: '410101', name: 'إيرادات المبيعات', type: 'revenue', category: 'sales' },
         '510101': { code: '510101', name: 'تكلفة المشتريات / البضاعة المباعة', type: 'expense', category: 'cost' }
     },
@@ -26,26 +27,17 @@ window.AccountingEngine = {
             const localTotal = invoiceData.localTotal !== undefined ? invoiceData.localTotal : (isBase ? parseFloat(invoiceData.grandTotal) : parseFloat(invoiceData.grandTotal) * rate);
             
             // Calculate total paid explicitly from invoice data
-            let paidForeign = 0;
-            paidForeign += parseFloat(invoiceData.cashAmount) || 0;
-            if (invoiceData.bankTransfers && invoiceData.bankTransfers.length > 0) {
-                paidForeign += invoiceData.bankTransfers.reduce((sum, bt) => sum + (parseFloat(bt.amount) || 0), 0);
-            }
-            if (invoiceData.cheques && invoiceData.cheques.length > 0) {
-                paidForeign += invoiceData.cheques.reduce((sum, ch) => sum + (parseFloat(ch.amount) || 0), 0);
-            }
-            const paidLocal = isBase ? paidForeign : paidForeign * rate;
-            const remainingLocal = localTotal - paidLocal;
-
             const date = invoiceData.date || new Date().toISOString().split('T')[0];
             const supplierName = invoiceData.supplierName || 'مورد عام';
-            
             const currencyDesc = !isBase ? ` (${invoiceData.grandTotal} ${invoiceData.currency} @ ${rate})` : '';
 
             // Entries Array
             let entries = [];
+            let totalDebitAcc = 0;
+            let totalCreditAcc = 0;
 
-            // 1. Debit Inventory Account (110401)
+            // 1. Full Invoice Value
+            // Debit Inventory (110401)
             entries.push({
                 accountCode: '110401',
                 accountName: 'مخزون البضائع والمنتجات',
@@ -56,34 +48,146 @@ window.AccountingEngine = {
                 exchangeRate: rate,
                 description: `استلام بضاعة بموجب فاتورة مشتريات رقم #${invoiceData.invoiceNo}${currencyDesc}`
             });
+            totalDebitAcc += localTotal;
 
-            // 2. Credit Paid Cash/Bank if any
-            if (paidLocal > 0) {
-                const paymentAccountCode = invoiceData.paymentMethod === 'bank' || invoiceData.paymentMethod === 'multipay' ? '110201' : '110101';
-                const paymentAccountName = invoiceData.paymentMethod === 'bank' || invoiceData.paymentMethod === 'multipay' ? 'البنك / الحسابات المصرفية' : 'الصندوق الرئيسي / الخزينة';
-                entries.push({
-                    accountCode: paymentAccountCode,
-                    accountName: paymentAccountName,
-                    debit: 0,
-                    credit: paidLocal,
-                    fcAmount: paidForeign,
-                    currency: invoiceData.currency,
-                    exchangeRate: rate,
-                    description: `سداد نقدي/بنكي لفاتورة مشتريات #${invoiceData.invoiceNo} (${supplierName})${currencyDesc}`
-                });
-            }
+            // Credit Supplier (210101) - FULL AMOUNT
+            entries.push({
+                accountCode: '210101',
+                accountName: `حسابات الموردين [${supplierName}]`,
+                debit: 0,
+                credit: localTotal,
+                fcAmount: invoiceData.fcTotal,
+                currency: invoiceData.currency,
+                exchangeRate: rate,
+                description: `استحقاق فاتورة مشتريات #${invoiceData.invoiceNo} (${supplierName})${currencyDesc}`
+            });
+            totalCreditAcc += localTotal;
 
-            // 3. Credit Supplier Payable Account (210101) for remaining balance
-            if (remainingLocal > 0 || paidLocal === 0) {
+            let allSafes = [];
+            let allBanks = [];
+            try {
+                allSafes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
+                allBanks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
+            } catch(e) {}
+
+            // 2. Process Payments individually (Debit Supplier, Credit Asset)
+            // 2.a Cash Payment
+            let cashAmtForeign = parseFloat(invoiceData.cashAmount) || 0;
+            if (cashAmtForeign > 0) {
+                let cashAmtLocal = isBase ? cashAmtForeign : cashAmtForeign * rate;
+                
+                let safeName = 'الخزينة العامة';
+                if (invoiceData.paymentAccountId) {
+                    const sObj = allSafes.find(s => String(s.id) === String(invoiceData.paymentAccountId));
+                    if (sObj) safeName = sObj.name;
+                }
+
+                // Debit Supplier
                 entries.push({
                     accountCode: '210101',
                     accountName: `حسابات الموردين [${supplierName}]`,
-                    debit: 0,
-                    credit: remainingLocal,
-                    fcAmount: invoiceData.fcTotal - paidForeign,
+                    debit: cashAmtLocal,
+                    credit: 0,
+                    fcAmount: cashAmtForeign,
                     currency: invoiceData.currency,
                     exchangeRate: rate,
-                    description: `استحقاق آجل لفاتورة مشتريات #${invoiceData.invoiceNo} (${supplierName})${currencyDesc}`
+                    description: `سداد نقدي من [${safeName}] للفاتورة #${invoiceData.invoiceNo}`
+                });
+                totalDebitAcc += cashAmtLocal;
+                
+                // Credit Safe
+                entries.push({
+                    accountCode: '110101',
+                    accountName: `الخزينة [${safeName}]`,
+                    debit: 0,
+                    credit: cashAmtLocal,
+                    fcAmount: cashAmtForeign,
+                    currency: invoiceData.currency,
+                    exchangeRate: rate,
+                    description: `سداد نقدي من [${safeName}] لفاتورة مشتريات #${invoiceData.invoiceNo} (${supplierName})`
+                });
+                totalCreditAcc += cashAmtLocal;
+            }
+
+            // 2.b Bank Transfers
+            if (invoiceData.bankTransfers && invoiceData.bankTransfers.length > 0) {
+                invoiceData.bankTransfers.forEach(bt => {
+                    let btAmtForeign = parseFloat(bt.amount) || 0;
+                    if (btAmtForeign > 0) {
+                        let btAmtLocal = isBase ? btAmtForeign : btAmtForeign * rate;
+                        
+                        let bankName = 'البنك';
+                        const bObj = allBanks.find(b => String(b.id) === String(bt.bankAccountId));
+                        if (bObj) bankName = bObj.name;
+
+                        // Debit Supplier
+                        entries.push({
+                            accountCode: '210101',
+                            accountName: `حسابات الموردين [${supplierName}]`,
+                            debit: btAmtLocal,
+                            credit: 0,
+                            fcAmount: btAmtForeign,
+                            currency: invoiceData.currency,
+                            exchangeRate: rate,
+                            description: `سداد بتحويل بنكي رقم [${bt.reference || ''}] من [${bankName}] - فاتورة #${invoiceData.invoiceNo}`
+                        });
+                        totalDebitAcc += btAmtLocal;
+                        
+                        // Credit Bank
+                        entries.push({
+                            accountCode: '110201',
+                            accountName: `البنك [${bankName}]`,
+                            debit: 0,
+                            credit: btAmtLocal,
+                            fcAmount: btAmtForeign,
+                            currency: invoiceData.currency,
+                            exchangeRate: rate,
+                            description: `تحويل بنكي رقم [${bt.reference || ''}] مسحوب من [${bankName}] - فاتورة #${invoiceData.invoiceNo} (${supplierName})`
+                        });
+                        totalCreditAcc += btAmtLocal;
+                    }
+                });
+            }
+
+            // 2.c Cheques
+            if (invoiceData.cheques && invoiceData.cheques.length > 0) {
+                invoiceData.cheques.forEach(ch => {
+                    let chAmtForeign = parseFloat(ch.amount) || 0;
+                    if (chAmtForeign > 0) {
+                        let chAmtLocal = isBase ? chAmtForeign : chAmtForeign * rate;
+                        
+                        let chBankName = ch.bankName || 'البنك';
+                        if (!ch.bankName || ch.bankName === 'بنك غير محدد') {
+                            const bObj = allBanks.find(b => String(b.id) === String(ch.bankAccountId));
+                            if (bObj) chBankName = bObj.name;
+                        }
+
+                        // Debit Supplier
+                        entries.push({
+                            accountCode: '210101',
+                            accountName: `حسابات الموردين [${supplierName}]`,
+                            debit: chAmtLocal,
+                            credit: 0,
+                            fcAmount: chAmtForeign,
+                            currency: invoiceData.currency,
+                            exchangeRate: rate,
+                            description: `سداد بشيك رقم [${ch.chequeNo || ''}] من [${chBankName}] - فاتورة #${invoiceData.invoiceNo}`
+                        });
+                        totalDebitAcc += chAmtLocal;
+                        
+                        // Credit Bank (Immediate deduction as requested)
+                        entries.push({
+                            accountCode: '110201',
+                            accountName: `البنك [${chBankName}]`,
+                            debit: 0,
+                            credit: chAmtLocal,
+                            fcAmount: chAmtForeign,
+                            currency: invoiceData.currency,
+                            exchangeRate: rate,
+                            description: `شيك رقم [${ch.chequeNo || ''}] مسحوب من [${chBankName}] - فاتورة #${invoiceData.invoiceNo}`
+                        });
+                        totalCreditAcc += chAmtLocal;
+                    }
                 });
             }
 
@@ -94,8 +198,8 @@ window.AccountingEngine = {
                 type: 'PURCHASE',
                 date: date,
                 entries: entries,
-                totalDebit: localTotal,
-                totalCredit: localTotal,
+                totalDebit: totalDebitAcc,
+                totalCredit: totalCreditAcc,
                 supplierName: supplierName,
                 createdAt: new Date().toISOString()
             };
