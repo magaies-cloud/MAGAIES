@@ -208,11 +208,16 @@ function calculateTotals() {
 
     const diff = Math.abs(totalDebit - totalCredit);
     
-    document.getElementById('tot-debit').innerText = fmtNum(totalDebit);
-    document.getElementById('tot-credit').innerText = fmtNum(totalCredit);
-    
     const diffEl = document.getElementById('tot-diff');
-    diffEl.innerText = fmtNum(diff);
+    if (typeof window.animateValue === 'function') {
+        window.animateValue(document.getElementById('tot-debit'), totalDebit, 600, 2);
+        window.animateValue(document.getElementById('tot-credit'), totalCredit, 600, 2);
+        window.animateValue(diffEl, diff, 600, 2);
+    } else {
+        document.getElementById('tot-debit').innerText = fmtNum(totalDebit);
+        document.getElementById('tot-credit').innerText = fmtNum(totalCredit);
+        diffEl.innerText = fmtNum(diff);
+    }
     
     if (diff === 0 && totalDebit > 0) {
         diffEl.classList.add('balanced');

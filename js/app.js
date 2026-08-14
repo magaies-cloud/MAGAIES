@@ -6348,3 +6348,53 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
     
 }
 
+window.animateValue = function(element, end, duration = 600, decimals = null, formatterFn = null) {
+    if (!element) return;
+    
+    let startStr = element.tagName === 'INPUT' ? element.value : element.innerText;
+    let cleanStr = (startStr || '0').toString().replace(/,/g, '').replace(/[^\d.-]/g, '');
+    let start = parseFloat(cleanStr);
+    if (isNaN(start)) start = 0;
+    
+    if (start === end) return;
+    
+    if (element._animId) {
+        cancelAnimationFrame(element._animId);
+    }
+    
+    const targetDecimals = decimals !== null ? decimals : (end % 1 !== 0 ? 2 : 0);
+    
+    const format = formatterFn || ((n, d) => {
+        if (typeof window.fmtNum === 'function') return window.fmtNum(n);
+        return Number(n).toLocaleString('en-US', {minimumFractionDigits: d, maximumFractionDigits: d});
+    });
+
+    let startTimestamp = null;
+    const step = (timestamp) => {
+        if (!startTimestamp) startTimestamp = timestamp;
+        const progress = Math.min((timestamp - startTimestamp) / duration, 1);
+        
+        const easeProgress = progress * (2 - progress);
+        let current = start + easeProgress * (end - start);
+        
+        current = Number(current.toFixed(targetDecimals));
+        
+        if (element.tagName === 'INPUT') {
+            element.value = format(current, targetDecimals);
+        } else {
+            element.innerHTML = format(current, targetDecimals);
+        }
+        
+        if (progress < 1) {
+            element._animId = window.requestAnimationFrame(step);
+        } else {
+            if (element.tagName === 'INPUT') {
+                element.value = format(end, targetDecimals);
+            } else {
+                element.innerHTML = format(end, targetDecimals);
+            }
+            element._animId = null;
+        }
+    };
+    element._animId = window.requestAnimationFrame(step);
+};

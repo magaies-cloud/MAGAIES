@@ -175,10 +175,17 @@ function calcTotals() {
         if (curr === 'AED') totalAED += eqAmt;
     });
     
-    document.getElementById('footer-grand').innerText = fmtNum(totalSDG);
-    if(document.getElementById('header-grand-sdg')) document.getElementById('header-grand-sdg').innerText = fmtNum(totalSDG);
-    if(document.getElementById('header-grand-usd')) document.getElementById('header-grand-usd').innerText = fmtNum(totalUSD);
-    if(document.getElementById('header-grand-aed')) document.getElementById('header-grand-aed').innerText = fmtNum(totalAED);
+    if (typeof window.animateValue === 'function') {
+        window.animateValue(document.getElementById('footer-grand'), totalSDG, 600, 2);
+        if (document.getElementById('header-grand-sdg')) window.animateValue(document.getElementById('header-grand-sdg'), totalSDG, 600, 2);
+        if (document.getElementById('header-grand-usd')) window.animateValue(document.getElementById('header-grand-usd'), totalUSD, 600, 2);
+        if (document.getElementById('header-grand-aed')) window.animateValue(document.getElementById('header-grand-aed'), totalAED, 600, 2);
+    } else {
+        document.getElementById('footer-grand').innerText = fmtNum(totalSDG);
+        if(document.getElementById('header-grand-sdg')) document.getElementById('header-grand-sdg').innerText = fmtNum(totalSDG);
+        if(document.getElementById('header-grand-usd')) document.getElementById('header-grand-usd').innerText = fmtNum(totalUSD);
+        if(document.getElementById('header-grand-aed')) document.getElementById('header-grand-aed').innerText = fmtNum(totalAED);
+    }
 }
 
 // ════════════════════════════════════════

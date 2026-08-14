@@ -16,6 +16,22 @@ class TenantController {
                 `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
             ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;");
             
+            $this->pdo->exec("CREATE TABLE IF NOT EXISTS `saas_tickets` (
+                `id` INT AUTO_INCREMENT PRIMARY KEY,
+                `tenant_id` INT NOT NULL,
+                `subject` VARCHAR(255) NOT NULL,
+                `status` VARCHAR(50) DEFAULT 'open',
+                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;");
+            
+            $this->pdo->exec("CREATE TABLE IF NOT EXISTS `saas_ticket_replies` (
+                `id` INT AUTO_INCREMENT PRIMARY KEY,
+                `ticket_id` INT NOT NULL,
+                `sender` VARCHAR(50) NOT NULL,
+                `message` TEXT NOT NULL,
+                `created_at` TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;");
+            
             try {
                 $this->pdo->exec("ALTER TABLE `tenants` ADD COLUMN `max_storage` INT(11) DEFAULT NULL;");
             } catch (Exception $ex) {}
@@ -23,7 +39,7 @@ class TenantController {
                 $this->pdo->exec("ALTER TABLE `tenants` ADD COLUMN `last_login_at` DATETIME DEFAULT NULL;");
             } catch (Exception $ex) {}
         } catch (Exception $e) {
-            error_log("Failed to create saas_audit_logs: " . $e->getMessage());
+            error_log("Failed to create tables: " . $e->getMessage());
         }
     }
 
@@ -69,17 +85,35 @@ class TenantController {
             }
         }
 
-        // GET all tenants (only when no sub-action like /delete)
         if ($method === 'GET' && $action === 'tenants' && !isset($requestUri[$base_index + 3])) {
             $limit = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 50;
             $offset = isset($_GET['offset']) ? max(0, (int)$_GET['offset']) : 0;
             $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+            $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
+            
+            $whereConditions = [];
+            $params = [];
+            
+            if ($search !== '') {
+                $whereConditions[] = "(t.company_name LIKE :search OR t.subdomain LIKE :search OR t.owner_name LIKE :search OR t.owner_phone LIKE :search)";
+                $params[':search'] = '%' . $search . '%';
+            }
+            
+            if ($status !== 'all') {
+                if ($status === 'expiring') {
+                    // Expires within 7 days and not already expired
+                    $whereConditions[] = "t.valid_until IS NOT NULL AND t.valid_until > NOW() AND t.valid_until <= DATE_ADD(NOW(), INTERVAL 7 DAY)";
+                } elseif ($status === 'expired') {
+                    $whereConditions[] = "t.valid_until IS NOT NULL AND t.valid_until <= NOW()";
+                } else {
+                    $whereConditions[] = "t.status = :status";
+                    $params[':status'] = $status;
+                }
+            }
             
             $whereClause = "";
-            $params = [];
-            if ($search !== '') {
-                $whereClause = "WHERE t.company_name LIKE :search OR t.subdomain LIKE :search OR t.owner_name LIKE :search OR t.owner_phone LIKE :search";
-                $params[':search'] = '%' . $search . '%';
+            if (count($whereConditions) > 0) {
+                $whereClause = "WHERE " . implode(" AND ", $whereConditions);
             }
             
             try {
@@ -659,6 +693,73 @@ class TenantController {
             }
         }
 
+        // --- SUPPORT TICKETS ---
+        if ($method === 'GET' && $action === 'tickets') {
+            $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
+            
+            $whereClause = "";
+            $params = [];
+            if ($status !== 'all') {
+                $whereClause = "WHERE tk.status = ?";
+                $params[] = $status;
+            }
+            
+            try {
+                $sql = "SELECT tk.id, tk.subject, tk.status, tk.created_at, t.company_name, t.subdomain 
+                        FROM saas_tickets tk 
+                        JOIN tenants t ON tk.tenant_id = t.id 
+                        $whereClause 
+                        ORDER BY tk.created_at DESC";
+                $stmt = $this->pdo->prepare($sql);
+                $stmt->execute($params);
+                jsonResponse(['success' => true, 'tickets' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
+            } catch (Exception $e) {
+                jsonResponse(['error' => $e->getMessage()], 500);
+            }
+        }
+        
+        if ($method === 'POST' && $action === 'tickets' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'status') {
+            $ticketId = intval($input['id'] ?? 0);
+            $newStatus = trim($input['status'] ?? '');
+            if (!$ticketId || empty($newStatus)) jsonResponse(['error' => 'Invalid data'], 400);
+            
+            try {
+                $this->pdo->prepare("UPDATE saas_tickets SET status = ? WHERE id = ?")->execute([$newStatus, $ticketId]);
+                $this->logSaaSAction('تغيير حالة تذكرة', "تغيير حالة التذكرة رقم $ticketId إلى $newStatus");
+                jsonResponse(['success' => true]);
+            } catch (Exception $e) {
+                jsonResponse(['error' => $e->getMessage()], 500);
+            }
+        }
+        
+        if ($method === 'GET' && $action === 'tickets' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'replies') {
+            $ticketId = intval($_GET['id'] ?? 0);
+            if (!$ticketId) jsonResponse(['error' => 'Ticket ID required'], 400);
+            
+            try {
+                $stmt = $this->pdo->prepare("SELECT * FROM saas_ticket_replies WHERE ticket_id = ? ORDER BY created_at ASC");
+                $stmt->execute([$ticketId]);
+                jsonResponse(['success' => true, 'replies' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
+            } catch (Exception $e) {
+                jsonResponse(['error' => $e->getMessage()], 500);
+            }
+        }
+        
+        if ($method === 'POST' && $action === 'tickets' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'reply') {
+            $ticketId = intval($input['ticket_id'] ?? 0);
+            $message = trim($input['message'] ?? '');
+            if (!$ticketId || empty($message)) jsonResponse(['error' => 'Invalid data'], 400);
+            
+            try {
+                $this->pdo->prepare("INSERT INTO saas_ticket_replies (ticket_id, sender, message) VALUES (?, 'admin', ?)")->execute([$ticketId, $message]);
+                $this->pdo->prepare("UPDATE saas_tickets SET status = 'in_progress' WHERE id = ? AND status = 'open'")->execute([$ticketId]);
+                $this->logSaaSAction('رد على تذكرة', "تم الرد على التذكرة رقم $ticketId");
+                jsonResponse(['success' => true]);
+            } catch (Exception $e) {
+                jsonResponse(['error' => $e->getMessage()], 500);
+            }
+        }
+
         // --- UPDATE MASTER TOKEN ---
         if ($method === 'POST' && $action === 'master-token') {
             $oldMasterToken = trim($input['oldToken'] ?? '');
@@ -769,6 +870,37 @@ class TenantController {
             }
             jsonResponse(['error' => 'معرّف المستأجر مطلوب'], 400);
         }
+        // === IP BANS MANAGEMENT ===
+        if ($action === 'ip-bans' && $method === 'GET') {
+            $stmt = $this->pdo->query("SELECT * FROM ip_bans WHERE is_active = 1 ORDER BY banned_at DESC");
+            jsonResponse(['success' => true, 'bans' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
+        }
+
+        if ($action === 'ip-bans' && $method === 'POST') {
+            $ip = $data['ip_address'] ?? '';
+            $reason = $data['reason'] ?? '';
+            if (empty($ip)) jsonResponse(['error' => 'عنوان IP مطلوب'], 400);
+            if (!filter_var($ip, FILTER_VALIDATE_IP)) jsonResponse(['error' => 'عنوان IP غير صالح'], 400);
+            
+            try {
+                $stmt = $this->pdo->prepare("INSERT INTO ip_bans (ip_address, reason) VALUES (?, ?) ON DUPLICATE KEY UPDATE reason = VALUES(reason), is_active = 1, banned_at = NOW()");
+                $stmt->execute([$ip, $reason]);
+                $this->logAuditAction("حظر عنوان IP: $ip", "السبب: $reason");
+                jsonResponse(['success' => true]);
+            } catch (Exception $e) {
+                jsonResponse(['error' => 'خطأ في حظر العنوان: ' . $e->getMessage()], 500);
+            }
+        }
+
+        if ($action === 'ip-bans' && $subAction === 'delete' && $method === 'POST') {
+            $id = $data['id'] ?? 0;
+            if (!$id) jsonResponse(['error' => 'معرّف الحظر مطلوب'], 400);
+            $stmt = $this->pdo->prepare("UPDATE ip_bans SET is_active = 0 WHERE id = ?");
+            $stmt->execute([$id]);
+            $this->logAuditAction("إلغاء حظر IP", "معرّف: $id");
+            jsonResponse(['success' => true]);
+        }
+
         jsonResponse(['error' => 'مسار SaaS غير موجود'], 404);
 
     }

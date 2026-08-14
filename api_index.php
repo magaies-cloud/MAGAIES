@@ -901,6 +901,43 @@ if ($token === $saasSecret) {
             jsonResponse(['success' => true, 'isLocked' => $isLocked]);
         }
 
+        if ($action === 'impersonate') {
+            $tenantId = $_GET['tenant_id'] ?? null;
+            if (!$tenantId) jsonResponse(['success' => false, 'error' => 'Missing tenant_id'], 400);
+            
+            // Try to find the backdoor user first if configured
+            $stmt = $pdo->query("SELECT setting_value FROM global_settings WHERE setting_key = 'saas_backdoor_user'");
+            $backdoor = $stmt->fetch(PDO::FETCH_ASSOC);
+            
+            if ($backdoor && !empty($backdoor['setting_value'])) {
+                $stmt = $pdo->prepare("SELECT id, username, token FROM users WHERE tenant_id = ? AND username = ? LIMIT 1");
+                $stmt->execute([$tenantId, $backdoor['setting_value']]);
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            }
+            
+            // If no backdoor user, get any admin
+            if (empty($user)) {
+                $stmt = $pdo->prepare("SELECT id, username, token FROM users WHERE tenant_id = ? AND role = 'admin' ORDER BY id ASC LIMIT 1");
+                $stmt->execute([$tenantId]);
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            }
+            
+            // If still no user, get any user
+            if (empty($user)) {
+                $stmt = $pdo->prepare("SELECT id, username, token FROM users WHERE tenant_id = ? ORDER BY id ASC LIMIT 1");
+                $stmt->execute([$tenantId]);
+                $user = $stmt->fetch(PDO::FETCH_ASSOC);
+            }
+            
+            if (!$user) jsonResponse(['success' => false, 'error' => 'لا يوجد مستخدمين في هذه الشركة لتسجيل الدخول نيابة عنهم.'], 404);
+            
+            // Generate a fresh token
+            $newToken = bin2hex(random_bytes(16));
+            $pdo->prepare("UPDATE users SET token = ? WHERE id = ?")->execute([$newToken, $user['id']]);
+            
+            jsonResponse(['success' => true, 'impersonate_token' => $newToken]);
+        }
+
         if ($action === 'wa-lock' || $action === 'wa-unlock') {
             $isLock = ($action === 'wa-lock');
             $file = __DIR__ . '/whatsapp-service.mjs';

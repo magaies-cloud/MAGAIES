@@ -1363,14 +1363,21 @@ function recalcAll() {
     const grand = invTotal + labor + transport + additionAmt + taxAmt - discountAmt;
 
     // Update totals display
-    document.getElementById('t-invoice-total').textContent = fmtNum(invTotal) + ' ' + cur;
-    document.getElementById('t-additions').textContent = '+ ' + fmtNum(additionAmt) + ' ' + cur;
-    document.getElementById('t-tax').textContent = '+ ' + fmtNum(taxAmt) + ' ' + cur;
-    document.getElementById('t-discount').textContent = '- ' + fmtNum(discountAmt) + ' ' + cur;
-    document.getElementById('t-grand').textContent = fmtNum(grand) + ' ' + cur;
-
-    // Footer
-    document.getElementById('footer-grand').textContent = fmtNum(grand) + ' ' + cur;
+    if (typeof window.animateValue === 'function') {
+        window.animateValue(document.getElementById('t-invoice-total'), invTotal, 600, 2, (n, d) => fmtNum(n) + ' ' + cur);
+        window.animateValue(document.getElementById('t-additions'), additionAmt, 600, 2, (n, d) => '+ ' + fmtNum(n) + ' ' + cur);
+        window.animateValue(document.getElementById('t-tax'), taxAmt, 600, 2, (n, d) => '+ ' + fmtNum(n) + ' ' + cur);
+        window.animateValue(document.getElementById('t-discount'), discountAmt, 600, 2, (n, d) => '- ' + fmtNum(n) + ' ' + cur);
+        window.animateValue(document.getElementById('t-grand'), grand, 600, 2, (n, d) => fmtNum(n) + ' ' + cur);
+        window.animateValue(document.getElementById('footer-grand'), grand, 600, 2, (n, d) => fmtNum(n) + ' ' + cur);
+    } else {
+        document.getElementById('t-invoice-total').textContent = fmtNum(invTotal) + ' ' + cur;
+        document.getElementById('t-additions').textContent = '+ ' + fmtNum(additionAmt) + ' ' + cur;
+        document.getElementById('t-tax').textContent = '+ ' + fmtNum(taxAmt) + ' ' + cur;
+        document.getElementById('t-discount').textContent = '- ' + fmtNum(discountAmt) + ' ' + cur;
+        document.getElementById('t-grand').textContent = fmtNum(grand) + ' ' + cur;
+        document.getElementById('footer-grand').textContent = fmtNum(grand) + ' ' + cur;
+    }
 }
 
 // ════════════════════════════════════════
