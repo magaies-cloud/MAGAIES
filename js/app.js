@@ -158,7 +158,7 @@ JSON.parse = function(val) {
         // 1. FAST PATH: Load from localStorage immediately (synchronous)
         syncKeys.forEach(key => {
             const tenantKey = window.getTenantKey(key);
-            const val = originalGetItem.call(localStorage, tenantKey) || originalGetItem.call(localStorage, key);
+            const val = originalGetItem.call(localStorage, tenantKey);
             if (val !== null) {
                 window.DB_STORE[tenantKey] = val;
             }
@@ -183,7 +183,7 @@ JSON.parse = function(val) {
         syncKeys.forEach(key => {
             const tenantKey = window.getTenantKey(key);
             if (!window.DB_STORE[tenantKey]) {
-                const val = originalGetItem.call(localStorage, tenantKey) || originalGetItem.call(localStorage, key);
+                const val = originalGetItem.call(localStorage, tenantKey);
                 if (val !== null) {
                     window.DB_STORE[tenantKey] = val;
                 }
@@ -990,8 +990,8 @@ JSON.parse = function(val) {
                 return window.DB_STORE[tenantKey];
             }
             
-            // Fallback for non-sync keys or missing keys
-            return originalGetItem.call(localStorage, tenantKey) || originalGetItem.call(localStorage, key);
+            // Strict Tenant Isolation: no fallback to unprefixed keys
+            return originalGetItem.call(localStorage, tenantKey);
         }
         return originalGetItem.call(this, key);
     };
