@@ -1882,22 +1882,6 @@
             }
 
             let validEntities = allCreditEntities.filter(c => c.creditLimit > 0 || c.debt > 0);
-            if (validEntities.length === 0) {
-                validEntities = [
-                    { name: 'محمد عمار', typeLabel: '👤 عميل', creditLimit: 33500000, debt: 12400000 },
-                    { name: 'شركة البركة للتوريدات', typeLabel: '🏭 مورد', creditLimit: 25000000, debt: 8900000 },
-                    { name: 'حسن علي', typeLabel: '👤 عميل', creditLimit: 450000, debt: 210000 },
-                    { name: 'مصنع السلام للحديد', typeLabel: '🏭 مورد', creditLimit: 18000000, debt: 6500000 },
-                    { name: 'C', typeLabel: '👤 عميل', creditLimit: 280000, debt: 95000 },
-                    { name: 'شفقع', typeLabel: '👤 عميل', creditLimit: 320000, debt: 150000 },
-                    { name: 'مؤسسة النيل للأسمنت', typeLabel: '🏭 مورد', creditLimit: 15000000, debt: 4200000 },
-                    { name: 'التجاني', typeLabel: '👤 عميل', creditLimit: 220000, debt: 80000 },
-                    { name: 'شريبهان احمد', typeLabel: '👤 عميل', creditLimit: 2200000, debt: 1100000 },
-                    { name: 'شركة الهدى العالمية', typeLabel: '🏭 مورد', creditLimit: 12000000, debt: 3800000 },
-                    { name: 'فلفله', typeLabel: '👤 عميل', creditLimit: 10200000, debt: 4800000 },
-                    { name: 'كوستا', typeLabel: '👤 عميل', creditLimit: 3400000, debt: 1600000 }
-                ];
-            }
 
             const topEntities = validEntities.slice(0, 15);
             const creditLabels = topEntities.map(c => `${c.name} (${c.typeLabel})`);
