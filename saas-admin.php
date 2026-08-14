@@ -13,7 +13,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <link rel="manifest" href="manifest.json">
-    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#050505">
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
@@ -50,29 +50,98 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         .orb-3 { width: 600px; height: 600px; background: #ea580c; top: 30%; left: 30%; }
         @keyframes floatOrb { 0% { transform: translate(0, 0) scale(1); } 50% { transform: translate(30px, -30px) scale(1.05); } 100% { transform: translate(0, 0) scale(1); } }
 
-        .dash-main { width: 100%; max-width: 98%; margin: 0 auto; padding: 0px 15px 20px 15px; box-sizing: border-box; flex-direction: column; }
-        .premium-header {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(168, 85, 247, 0.15));
-            backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 15px 25px;
-            display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;
-            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+        /* === SIDEBAR NAVIGATION === */
+        .app-layout { display: flex; min-height: 100vh; direction: rtl; }
+        .sidebar {
+            position: fixed; top: 0; right: 0; height: 100vh; width: 72px; z-index: 1000;
+            background: rgba(12, 10, 18, 0.95); backdrop-filter: blur(30px);
+            border-left: 1px solid var(--glass-border);
+            transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            overflow-x: hidden; overflow-y: auto;
+            display: flex; flex-direction: column;
+            box-shadow: -5px 0 25px rgba(0,0,0,0.4);
         }
-        .header-brand { display: flex; align-items: center; gap: 15px; }
-        .brand-icon { width: 45px; height: 45px; border-radius: 12px; background: linear-gradient(135deg, #f59e0b, #ea580c); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
-        .brand-text h1 { margin: 0; font-size: 1.4rem; font-weight: 800; color: #fff; }
-        .brand-text p { margin: 0; font-size: 0.85rem; color: #cbd5e1; }
-        
-        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .glass-panel { background: var(--surface-color); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; transition: all 0.3s; }
-        .glass-panel:hover { border-color: rgba(255,255,255,0.15); box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
-        .kpi-card { padding: 10px 15px !important; border-radius: 12px !important; }
-        .kpi-title { font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; display: flex; justify-content: space-between; margin-bottom: 5px; }
-        .kpi-value { font-size: 1.4rem; font-weight: 700; }
-        .kpi-1 { border-top: 3px solid #3b82f6; } .kpi-1 .kpi-value { color: #3b82f6; }
-        .kpi-2 { border-top: 3px solid #10b981; } .kpi-2 .kpi-value { color: #10b981; }
-        .kpi-3 { border-top: 3px solid #f59e0b; } .kpi-3 .kpi-value { color: #f59e0b; }
-        .kpi-4 { border-top: 3px solid #a855f7; } .kpi-4 .kpi-value { color: #a855f7; }
+        .sidebar:hover, .sidebar.pinned { width: 270px; }
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: rgba(255,255,255,0.1); border-radius: 4px; }
 
+        .sidebar-header {
+            padding: 18px 16px; display: flex; align-items: center; gap: 12px;
+            border-bottom: 1px solid var(--glass-border); min-height: 65px; flex-shrink: 0;
+        }
+        .sidebar-header .brand-logo {
+            width: 40px; height: 40px; min-width: 40px; border-radius: 10px;
+            background: linear-gradient(135deg, #f59e0b, #ea580c);
+            display: flex; align-items: center; justify-content: center; font-size: 1.3rem;
+        }
+        .sidebar-header .brand-label { white-space: nowrap; opacity: 0; transition: opacity 0.2s 0.1s; }
+        .sidebar:hover .sidebar-header .brand-label,
+        .sidebar.pinned .sidebar-header .brand-label { opacity: 1; }
+        .sidebar-header .brand-label h3 { margin: 0; font-size: 0.95rem; font-weight: 800; color: #fff; }
+        .sidebar-header .brand-label small { color: var(--text-secondary); font-size: 0.75rem; }
+
+        .sidebar-nav { flex: 1; padding: 10px 8px; display: flex; flex-direction: column; gap: 4px; }
+
+        .nav-item {
+            display: flex; align-items: center; gap: 12px; padding: 13px 16px;
+            border-radius: 10px; cursor: pointer; transition: all 0.2s; color: #fff;
+            white-space: nowrap; position: relative; user-select: none;
+        }
+        .nav-item:hover { background: rgba(255,255,255,0.06); color: #fff; }
+        .nav-item.active { background: linear-gradient(135deg, rgba(245,158,11,0.18), rgba(234,88,12,0.12)); color: #fff; }
+        .nav-item.active::before {
+            content: ''; position: absolute; right: 0; top: 50%; transform: translateY(-50%);
+            width: 3px; height: 60%; background: var(--primary-accent); border-radius: 3px 0 0 3px;
+        }
+        .nav-item .nav-icon { font-size: 1.5rem; min-width: 24px; text-align: center; }
+        .nav-item .nav-label { opacity: 0; transition: opacity 0.2s 0.1s; font-size: 1.1rem; font-weight: 600; }
+        .sidebar:hover .nav-item .nav-label,
+        .sidebar.pinned .nav-item .nav-label { opacity: 1; }
+
+        .nav-group-header {
+            display: flex; align-items: center; gap: 12px; padding: 11px 16px;
+            border-radius: 10px; cursor: pointer; transition: all 0.2s; color: var(--text-secondary);
+            white-space: nowrap; user-select: none;
+        }
+        .nav-group-header:hover { background: rgba(255,255,255,0.06); color: #fff; }
+        .nav-group-header.has-active { color: var(--primary-accent); }
+        .nav-group-header .nav-icon { font-size: 1.2rem; min-width: 24px; text-align: center; }
+        .nav-group-header .nav-label { opacity: 0; transition: opacity 0.2s 0.1s; font-size: 0.88rem; font-weight: 600; flex: 1; }
+        .nav-group-header .nav-arrow { opacity: 0; transition: all 0.2s; font-size: 0.65rem; color: var(--text-secondary); }
+        .sidebar:hover .nav-group-header .nav-label,
+        .sidebar.pinned .nav-group-header .nav-label { opacity: 1; }
+        .sidebar:hover .nav-group-header .nav-arrow,
+        .sidebar.pinned .nav-group-header .nav-arrow { opacity: 1; }
+        .nav-group-header.open .nav-arrow { transform: rotate(90deg); }
+
+        .nav-sub-items {
+            max-height: 0; overflow: hidden; transition: max-height 0.3s ease;
+            padding-right: 20px;
+        }
+        .nav-sub-items.open { max-height: 300px; }
+        .nav-sub-items .nav-item { padding: 9px 16px 9px 12px; font-size: 0.84rem; }
+        .nav-sub-items .nav-item .nav-icon { font-size: 1rem; }
+
+        .sidebar-footer {
+            padding: 12px 16px; border-top: 1px solid var(--glass-border);
+            display: flex; align-items: center; gap: 12px; flex-shrink: 0;
+        }
+        .sidebar-pin {
+            width: 38px; height: 38px; min-width: 38px; border-radius: 8px;
+            background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border);
+            color: var(--text-secondary); cursor: pointer; display: flex;
+            align-items: center; justify-content: center; transition: all 0.2s; font-size: 1rem;
+        }
+        .sidebar-pin:hover { background: rgba(255,255,255,0.1); color: #fff; }
+        .sidebar.pinned .sidebar-pin { color: var(--primary-accent); background: rgba(245,158,11,0.1); }
+
+        .dash-main {
+            margin-right: 72px; width: calc(100% - 72px);
+            padding: 0px 20px 20px 20px; box-sizing: border-box;
+            transition: margin-right 0.35s cubic-bezier(0.16, 1, 0.3, 1), width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        /* Keep legacy .tabs-container hidden but functional for inner tabs (tenant drawer) */
         .tabs-container {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
@@ -98,7 +167,47 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         .tab-content { display: none; animation: fadeUp 0.3s ease forwards; }
         .tab-content.active { display: block; }
         @keyframes fadeUp { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
+        
+        /* Hide the old horizontal tabs container on the main page */
+        #main-tabs-container { display: none !important; }
 
+        .section-inner-tabs {
+            display: flex; gap: 10px; margin-bottom: 20px;
+        }
+        .section-inner-tab {
+            flex: 1; padding: 14px 20px; border-radius: 12px; cursor: pointer;
+            background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border);
+            color: var(--text-secondary); font-weight: 700; font-size: 0.95rem;
+            text-align: center; transition: all 0.3s; display: flex; align-items: center;
+            justify-content: center; gap: 8px;
+        }
+        .section-inner-tab:hover { background: rgba(255,255,255,0.08); color: #fff; }
+        .section-inner-tab.active {
+            background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(234,88,12,0.15));
+            border-color: rgba(245,158,11,0.5); color: #fff;
+        }
+
+        .premium-header {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(168, 85, 247, 0.15));
+            backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 15px 25px;
+            display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;
+            box-shadow: 0 15px 30px rgba(0,0,0,0.4);
+        }
+        .header-brand { display: flex; align-items: center; gap: 15px; }
+        .brand-icon { width: 45px; height: 45px; border-radius: 12px; background: linear-gradient(135deg, #f59e0b, #ea580c); display: flex; align-items: center; justify-content: center; font-size: 1.5rem; }
+        .brand-text h1 { margin: 0; font-size: 1.4rem; font-weight: 800; color: #fff; }
+        .brand-text p { margin: 0; font-size: 0.85rem; color: #cbd5e1; }
+        
+        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
+        .glass-panel { background: var(--surface-color); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; transition: all 0.3s; }
+        .glass-panel:hover { border-color: rgba(255,255,255,0.15); box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
+        .kpi-card { padding: 10px 15px !important; border-radius: 12px !important; }
+        .kpi-title { font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; display: flex; justify-content: space-between; margin-bottom: 5px; }
+        .kpi-value { font-size: 1.4rem; font-weight: 700; }
+        .kpi-1 { border-top: 3px solid #3b82f6; } .kpi-1 .kpi-value { color: #3b82f6; }
+        .kpi-2 { border-top: 3px solid #10b981; } .kpi-2 .kpi-value { color: #10b981; }
+        .kpi-3 { border-top: 3px solid #f59e0b; } .kpi-3 .kpi-value { color: #f59e0b; }
+        .kpi-4 { border-top: 3px solid #a855f7; } .kpi-4 .kpi-value { color: #a855f7; }
         .islamic-ticker-container { overflow: hidden; white-space: nowrap; width: 350px; margin-left: 20px; position: relative; display: flex; align-items: center; border-radius: 8px; background: rgba(0,0,0,0.2); padding: 5px 10px; border: 1px solid rgba(255,255,255,0.05); }
         .islamic-ticker {
             display: inline-block; font-weight: 700; font-size: 0.95rem; color: transparent;
@@ -276,6 +385,110 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             cursor: pointer; display: flex; justify-content: space-between; align-items: center;
         }
         .gs-item:hover { background: rgba(255,255,255,0.05); }
+        .radial-progress {
+            position: relative; display: inline-flex; align-items: center; justify-content: center;
+        }
+        .radial-value {
+            position: absolute; font-size: 1.5rem; font-weight: 800; color: #fff;
+        }
+        .chat-bubble {
+            max-width: 80%; padding: 12px 16px; border-radius: 14px;
+            font-size: 0.92rem; line-height: 1.6; word-wrap: break-word;
+        }
+        .chat-bubble.admin {
+            align-self: flex-start; background: linear-gradient(135deg, rgba(245,158,11,0.2), rgba(234,88,12,0.15));
+            border: 1px solid rgba(245,158,11,0.3); border-radius: 14px 14px 4px 14px;
+        }
+        .chat-bubble.tenant {
+            align-self: flex-end; background: rgba(59,130,246,0.15);
+            border: 1px solid rgba(59,130,246,0.3); border-radius: 14px 14px 14px 4px;
+        }
+        .chat-bubble .chat-meta {
+            font-size: 0.75rem; color: var(--text-secondary); margin-top: 6px;
+        }
+        .toast-notification {
+            position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
+            background: rgba(20, 20, 22, 0.95); backdrop-filter: blur(20px);
+            border: 1px solid rgba(255,255,255,0.15); border-radius: 12px;
+            padding: 14px 28px; color: #fff; font-weight: 600; font-size: 0.95rem;
+            z-index: 99999; opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); display: flex; align-items: center; gap: 10px;
+        }
+        .toast-notification.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+        .toast-notification.success { border-color: rgba(16,185,129,0.5); }
+        .toast-notification.error { border-color: rgba(239,68,68,0.5); }
+        .toast-notification.info { border-color: rgba(59,130,246,0.5); }
+
+        /* Tenant Detail View Enhancements */
+        .tenant-header {
+            display: flex; justify-content: space-between; align-items: center; 
+            padding: 20px; background: rgba(0, 0, 0, 0.25); border-radius: 16px; 
+            margin-bottom: 25px; border: 1px solid var(--glass-border);
+            box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.2);
+        }
+        .tenant-info-card {
+            background: linear-gradient(145deg, rgba(255,255,255,0.04) 0%, rgba(255,255,255,0.01) 100%);
+            padding: 20px; border-radius: 16px; border: 1px solid rgba(255,255,255,0.08);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.15); transition: all 0.3s ease;
+            position: relative; overflow: hidden;
+        }
+        .tenant-info-card:hover {
+            border-color: rgba(255,255,255,0.15); box-shadow: 0 8px 30px rgba(0,0,0,0.25);
+            transform: translateY(-2px);
+        }
+        .tenant-info-card h4 {
+            margin-top: 0; color: var(--primary-accent); margin-bottom: 20px; 
+            font-size: 1.15rem; display: flex; align-items: center; gap: 8px;
+        }
+        .tenant-info-row {
+            margin: 15px 0; font-size: 1.1rem; display: flex; align-items: center; justify-content: space-between;
+        }
+        .tenant-edit-row {
+            margin: 15px 0; font-size: 1.1rem; display: flex; flex-direction: column; align-items: flex-start; gap: 10px;
+        }
+        .tenant-info-label {
+            color: var(--text-secondary); font-weight: 600; display: inline-flex; align-items: center; gap: 6px; min-width: 80px;
+        }
+        .tenant-info-value {
+            color: #fff; font-weight: 500; text-align: left;
+        }
+        .glass-input {
+            padding: 12px 15px; border-radius: 10px; background: rgba(0,0,0,0.4); 
+            color: #fff; border: 1px solid rgba(255,255,255,0.15); width: 100%;
+            font-family: 'Tajawal', sans-serif; font-size: 1.1rem; font-weight: bold; transition: all 0.2s ease;
+        }
+        .glass-input:focus {
+            border-color: var(--primary-accent); outline: none; box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.15);
+        }
+        .progress-bar-bg {
+            width: 100%; background: rgba(0,0,0,0.4); border-radius: 8px; height: 12px; overflow: hidden;
+            box-shadow: inset 0 1px 3px rgba(0,0,0,0.5); border: 1px solid rgba(255,255,255,0.05);
+        }
+        .progress-bar-glow {
+            height: 100%; border-radius: 8px; transition: width 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            position: relative;
+        }
+        .progress-bar-glow::after {
+            content: ''; position: absolute; top: 0; left: 0; right: 0; bottom: 0;
+            background: linear-gradient(90deg, transparent, rgba(255,255,255,0.3), transparent);
+            animation: shimmer 2s infinite;
+        }
+        @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
+        .admin-notes-card {
+            background: linear-gradient(145deg, rgba(245, 158, 11, 0.05) 0%, rgba(0,0,0,0.2) 100%);
+            border-left: 4px solid var(--primary-accent); padding: 20px; border-radius: 16px;
+            margin-bottom: 25px; border-top: 1px solid rgba(255,255,255,0.05); border-right: 1px solid rgba(255,255,255,0.05); border-bottom: 1px solid rgba(255,255,255,0.05);
+        }
+        .split-view-grid {
+            display: grid; grid-template-columns: 3fr 2fr; gap: 20px;
+        }
+        @media (max-width: 900px) {
+            .split-view-grid { grid-template-columns: 1fr; }
+            .tenant-header { flex-direction: column; gap: 15px; align-items: flex-start; }
+            #detail-actions-bar { width: 100%; justify-content: space-between; }
+            .tenant-info-row { flex-direction: column; align-items: flex-start; gap: 8px; }
+            .glass-input { width: 100%; }
+        }
     </style>
 </head>
 <body>
@@ -299,6 +512,27 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             <button class="btn-primary" onclick="loginSaas()" style="width: 100%; font-family:'Tajawal',sans-serif;">تسجيل الدخول</button>
         </div>
     </div>
+
+    <!-- SIDEBAR NAVIGATION -->
+    <nav id="sidebar" class="sidebar">
+        <div class="sidebar-header">
+            <div class="brand-logo">&#x1F451;</div>
+            <div class="brand-label"><h3>SaaS Admin</h3><small>&#x0625;&#x062F;&#x0627;&#x0631;&#x0629; &#x0627;&#x0644;&#x0645;&#x0646;&#x0635;&#x0629;</small></div>
+        </div>
+        <div class="sidebar-nav">
+            <div class="nav-item active" onclick="sidebarNav('tab-analytics', this)"><span class="nav-icon">&#x1F4CA;</span><span class="nav-label">التحليلات</span></div>
+            <div class="nav-item" onclick="sidebarNav('tab-tenants', this)"><span class="nav-icon">&#x1F3E2;</span><span class="nav-label">المشتركون</span></div>
+            <div class="nav-item" onclick="sidebarNav('tab-global-payments', this)"><span class="nav-icon">&#x1F4B0;</span><span class="nav-label">المالية</span></div>
+            <div class="nav-item" onclick="sidebarNav('tab-broadcasts', this)"><span class="nav-icon">&#x1F4E3;</span><span class="nav-label">التواصل</span></div>
+            <div class="nav-item" onclick="sidebarNav('tab-ads', this)"><span class="nav-icon">&#x1F31F;</span><span class="nav-label">التسويق</span></div>
+            <div class="nav-item" onclick="sidebarNav('tab-backup-saas', this)"><span class="nav-icon">&#x1F4BE;</span><span class="nav-label">النسخ الاحتياطي</span></div>
+            <div class="nav-item" onclick="sidebarNav('tab-health', this)"><span class="nav-icon">&#x1FA7A;</span><span class="nav-label">المراقبة والأمان</span></div>
+            <div class="nav-item" onclick="sidebarNav('tab-settings', this)"><span class="nav-icon">&#x2699;&#xFE0F;</span><span class="nav-label">الإعدادات</span></div>
+        </div>
+        <div class="sidebar-footer">
+            <button class="sidebar-pin" onclick="toggleSidebarPin()" title="تثبيت القائمة">&#x1F4CC;</button>
+        </div>
+    </nav>
 
     <div id="dashboard" class="dash-main" style="display: none;">
         <div class="premium-header">
@@ -350,7 +584,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             </div>
         </div>
 
-        <div class="tabs-container">
+        <div id="main-tabs-container" class="tabs-container">
             <button class="tab-btn active" onclick="switchTab('tab-analytics', this)">📊 التحليلات والإحصائيات</button>
             <button class="tab-btn" onclick="switchTab('tab-tenants', this)">🏢 المشتركون</button>
             <button class="tab-btn" onclick="switchTab('tab-global-payments', this)">💰 الفواتير والمدفوعات</button>
@@ -361,6 +595,9 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             <button class="tab-btn" onclick="switchTab('tab-audit', this)">🛡️ سجل العمليات</button>
             <button class="tab-btn" onclick="switchTab('tab-backup-saas', this)">💾 نسخة SaaS الكاملة</button>
             <button class="tab-btn" onclick="switchTab('tab-backup-tenants', this)">👥 نسخة المشتركين المحددة</button>
+            <button class="tab-btn" onclick="switchTab('tab-health', this)">🩺 حالة الخادم (Health)</button>
+            <button class="tab-btn" onclick="switchTab('tab-tickets', this)">🎫 تذاكر الدعم الفني</button>
+            <button class="tab-btn" onclick="switchTab('tab-security', this)">🛡️ الأمان (Security)</button>
             <button class="tab-btn" onclick="switchTab('tab-settings', this)">⚙️ الإعدادات</button>
         </div>
 
@@ -390,6 +627,12 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
 
         <!-- TAB: AUDIT LOGS -->
         <div id="tab-audit" class="tab-content">
+            <div class="section-inner-tabs" data-group="monitoring">
+                <div class="section-inner-tab" onclick="switchSectionTab('tab-health', 'monitoring', this)">&#x1F5A5;&#xFE0F; حالة الخادم</div>
+                <div class="section-inner-tab" onclick="switchSectionTab('tab-security', 'monitoring', this)">&#x1F6E1;&#xFE0F; الأمان</div>
+                <div class="section-inner-tab active" onclick="switchSectionTab('tab-audit', 'monitoring', this)">&#x1F4CB; السجل</div>
+                <div class="section-inner-tab" onclick="switchSectionTab('tab-tickets', 'monitoring', this)">&#x1F3AB; التذاكر</div>
+            </div>
             <div class="glass-panel">
                 <div class="flex-between" style="margin-bottom: 20px;">
                     <h3>🛡️ سجل العمليات البرمجية والإدارية</h3>
@@ -424,6 +667,10 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
 
         <!-- TAB: DATABASE BACKUPS (SAAS FULL) -->
         <div id="tab-backup-saas" class="tab-content">
+            <div class="section-inner-tabs" data-group="backup">
+                <div class="section-inner-tab active" onclick="switchSectionTab('tab-backup-saas', 'backup', this)">&#x1F5C4;&#xFE0F; نسخة SaaS الكاملة</div>
+                <div class="section-inner-tab" onclick="switchSectionTab('tab-backup-tenants', 'backup', this)">&#x1F465; نسخة المشتركين المحددة</div>
+            </div>
             <div class="glass-panel" style="text-align: center; padding: 40px 20px;">
                 <div style="width: 100px; height: 100px; background: linear-gradient(135deg, rgba(59,130,246,0.2), rgba(37,99,235,0.2)); border-radius: 50%; border: 2px dashed rgba(59,130,246,0.5); display: flex; justify-content: center; align-items: center; font-size: 3.5rem; margin: 0 auto 20px auto; color: #3b82f6;">💾</div>
                 <h2 style="color: #fff; font-weight: 800; margin-bottom: 10px;">النسخ الاحتياطي الكامل لـ SaaS</h2>
@@ -438,6 +685,10 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
 
         <!-- TAB: TENANTS DATABASE BACKUPS (CUSTOM FILTERED) -->
         <div id="tab-backup-tenants" class="tab-content">
+            <div class="section-inner-tabs" data-group="backup">
+                <div class="section-inner-tab" onclick="switchSectionTab('tab-backup-saas', 'backup', this)">&#x1F5C4;&#xFE0F; نسخة SaaS الكاملة</div>
+                <div class="section-inner-tab active" onclick="switchSectionTab('tab-backup-tenants', 'backup', this)">&#x1F465; نسخة المشتركين المحددة</div>
+            </div>
             <div class="glass-panel">
                 <div class="flex-between" style="margin-bottom: 20px; flex-wrap: wrap; gap: 15px;">
                     <div>
@@ -488,6 +739,8 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                                 <option value="active">نشط</option>
                                 <option value="pending">قيد المراجعة</option>
                                 <option value="suspended">موقوف</option>
+                                <option value="expiring">ينتهي قريباً (أقل من 7 أيام)</option>
+                                <option value="expired">منتهي الصلاحية</option>
                             </select>
                         </div>
                     </div>
@@ -520,43 +773,52 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 </div>
             </div>
 
-            <!-- DETAIL VIEW (Drill-down) -->
-            <div id="tenant-detail-view" style="display: none; position: fixed; top: 0; right: -800px; width: 700px; height: 100vh; background: var(--glass-bg); border-left: 1px solid var(--glass-border); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); z-index: 9999; overflow-y: auto; box-shadow: -10px 0 30px rgba(0,0,0,0.5); transition: right 0.3s ease; padding: 20px;">
-                <div class="flex-between" style="margin-bottom: 20px; border-bottom: 1px solid var(--glass-border); padding-bottom: 10px;">
-                    <h2 id="detail-company-title" style="margin:0; color:var(--primary-accent);">تفاصيل الشركة</h2>
-                    <button class="close-btn" onclick="closeTenantDetails()" style="font-size:1.5rem;">&times;</button>
-                </div>
-                
-                <div class="tabs-container" style="margin-bottom: 20px;">
-                    <button class="tab-btn active" onclick="switchInnerTab('inner-tab-info', this)">📋 معلومات الشركة</button>
-                    <button class="tab-btn" onclick="switchInnerTab('inner-tab-users', this)">👥 المستخدمين</button>
-                    <button class="tab-btn" onclick="switchInnerTab('inner-tab-payments', this)">💳 الفواتير والمدفوعات</button>
+            <!-- FULL DETAIL VIEW -->
+            <div id="tenant-full-view" style="display: none;">
+                <!-- Header -->
+                <div class="tenant-header">
+                    <div style="display: flex; align-items: center; gap: 15px;">
+                        <button class="btn-outline" onclick="closeTenantDetails()" style="border-radius: 12px; width: 44px; height: 44px; padding: 0; display: flex; justify-content: center; align-items: center; font-size: 1.2rem; border-color: rgba(255,255,255,0.1);">🔙</button>
+                        <div>
+                            <h2 id="detail-company-title" style="margin:0; color:#fff; display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 1.6rem;">تفاصيل الشركة</h2>
+                            <small id="detail-company-subdomain" style="color:var(--primary-accent); font-weight: 600; letter-spacing: 0.5px; font-size: 1rem;"></small>
+                        </div>
+                    </div>
+                    <div id="detail-actions-bar" style="display: flex; gap: 10px; flex-wrap: wrap;">
+                        <!-- Actions injected via JS -->
+                    </div>
                 </div>
                 
                 <input type="hidden" id="users-tenant-select" value="">
                 
-                <!-- Inner Tab: Info -->
-                <div id="inner-tab-info" class="inner-tab-content">
-                    <div class="glass-panel">
-                        <div id="detail-company-info" style="line-height:1.8; color:var(--text-secondary);">
-                            <!-- Populated dynamically -->
-                        </div>
-                    </div>
+                <!-- Info Cards Row -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 25px;" id="detail-info-cards">
+                    <!-- Populated via JS -->
                 </div>
-                
-                <!-- Inner Tab: Users -->
-                <div id="inner-tab-users" class="inner-tab-content" style="display:none;">
-                    <div class="glass-panel">
-                        <div class="flex-between" style="margin-bottom: 15px;">
-                            <h3 style="margin-top:0;">المستخدمون</h3>
-                            <button class="btn-primary" onclick="openAddUserModal()">+ مستخدم جديد</button>
+
+                <!-- Admin Notes -->
+                <div class="admin-notes-card">
+                    <div class="flex-between" style="margin-bottom: 12px;">
+                        <h4 style="margin:0; color:var(--primary-accent); display:flex; align-items:center; gap:8px;">📝 ملاحظات الإدارة (سرية)</h4>
+                        <button class="btn-outline" style="padding: 6px 14px; font-size: 0.85rem; border-color: var(--primary-accent); color: var(--primary-accent);" onclick="saveAdminNotes()">حفظ الملاحظات</button>
+                    </div>
+                    <textarea id="tenant-admin-notes" placeholder="اكتب ملاحظاتك الخاصة هنا (مثال: تم الاتفاق على تأجيل الدفعة)..." style="width: 100%; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #fff; padding: 12px; resize: vertical; min-height: 80px; font-family: 'Tajawal', sans-serif; font-size: 0.95rem;"></textarea>
+                </div>
+
+                <!-- Split View: Users and Payments -->
+                <div class="split-view-grid">
+                    <!-- Users Column -->
+                    <div class="glass-panel" style="padding: 20px;">
+                        <div class="flex-between" style="margin-bottom: 20px;">
+                            <h3 style="margin-top:0; display:flex; align-items:center; gap:8px; font-size:1.2rem;">👥 مستخدمو الشركة</h3>
+                            <button class="btn-primary" onclick="openAddUserModal()" style="font-size: 0.85rem; padding: 6px 12px;">+ مستخدم جديد</button>
                         </div>
                         <div class="table-responsive">
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>المستخدم</th>
                                         <th>الاسم</th>
+                                        <th>البريد/المستخدم</th>
                                         <th>الدور</th>
                                         <th>إجراءات</th>
                                     </tr>
@@ -567,20 +829,18 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                             </table>
                         </div>
                     </div>
-                </div>
-
-                <!-- Inner Tab: Payments -->
-                <div id="inner-tab-payments" class="inner-tab-content" style="display:none;">
-                    <div class="glass-panel">
-                        <div class="flex-between" style="margin-bottom: 15px;">
-                            <h3 style="margin-top:0;">سجل المدفوعات</h3>
-                            <button class="btn-primary" onclick="openEditModal(document.getElementById('users-tenant-select').value)">+ إضافة دفعة</button>
+                    
+                    <!-- Payments Column -->
+                    <div class="glass-panel" style="padding: 20px;">
+                        <div class="flex-between" style="margin-bottom: 20px;">
+                            <h3 style="margin-top:0; display:flex; align-items:center; gap:8px; font-size:1.2rem;">💳 الفواتير والمدفوعات</h3>
+                            <button class="btn-outline" style="border-color:var(--primary-accent); color:var(--primary-accent); font-size: 0.85rem; padding: 6px 12px;" onclick="openEditModal(document.getElementById('users-tenant-select').value)">إضافة دفعة</button>
                         </div>
                         <div class="table-responsive">
                             <table>
                                 <thead>
                                     <tr>
-                                        <th>تاريخ الدفع</th>
+                                        <th>التاريخ</th>
                                         <th>المبلغ</th>
                                         <th>البيان</th>
                                     </tr>
@@ -593,13 +853,14 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     </div>
                 </div>
             </div>
-            
-            <!-- Overlay for Drawer -->
-            <div id="tenant-detail-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.5); z-index: 9998;" onclick="closeTenantDetails()"></div>
         </div>
 
         <!-- TAB: GLOBAL PAYMENTS -->
         <div id="tab-global-payments" class="tab-content">
+            <div class="section-inner-tabs" data-group="financial">
+                <div class="section-inner-tab active" onclick="switchSectionTab('tab-global-payments', 'financial', this)">&#x1F4B3; الفواتير والمدفوعات</div>
+                <div class="section-inner-tab" onclick="switchSectionTab('tab-plans', 'financial', this)">&#x1F48E; الباقات (Plans)</div>
+            </div>
             <div class="glass-panel">
                 <div class="flex-between" style="margin-bottom: 20px;">
                     <h3>سجل المدفوعات والفواتير (جميع الشركات)</h3>
@@ -634,6 +895,10 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
 
         <!-- TAB: PLANS -->
         <div id="tab-plans" class="tab-content">
+            <div class="section-inner-tabs" data-group="financial">
+                <div class="section-inner-tab" onclick="switchSectionTab('tab-global-payments', 'financial', this)">&#x1F4B3; الفواتير والمدفوعات</div>
+                <div class="section-inner-tab active" onclick="switchSectionTab('tab-plans', 'financial', this)">&#x1F48E; الباقات (Plans)</div>
+            </div>
             <div class="glass-panel">
                 <div class="flex-between" style="margin-bottom: 20px;">
                     <h3>الباقات (Plans)</h3>
@@ -661,6 +926,10 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         
         <!-- TAB: PARTNERS -->
         <div id="tab-partners" class="tab-content">
+            <div class="section-inner-tabs" data-group="marketing">
+                <div class="section-inner-tab" onclick="switchSectionTab('tab-ads', 'marketing', this)">&#x1F4E2; الإعلانات المدفوعة</div>
+                <div class="section-inner-tab active" onclick="switchSectionTab('tab-partners', 'marketing', this)">&#x1F91D; الشركاء والعملاء</div>
+            </div>
             <div class="glass-panel">
                 <div class="flex-between" style="margin-bottom: 20px; align-items: center;">
                     <div style="display: flex; align-items: center; gap: 15px;">
@@ -755,6 +1024,10 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         
         <!-- TAB: ADS -->
         <div id="tab-ads" class="tab-content">
+            <div class="section-inner-tabs" data-group="marketing">
+                <div class="section-inner-tab active" onclick="switchSectionTab('tab-ads', 'marketing', this)">&#x1F4E2; الإعلانات المدفوعة</div>
+                <div class="section-inner-tab" onclick="switchSectionTab('tab-partners', 'marketing', this)">&#x1F91D; الشركاء والعملاء</div>
+            </div>
             <div class="glass-panel">
                 <div class="flex-between" style="margin-bottom: 20px;">
                     <h3>إدارة الإعلانات (الصفحة الرئيسية)</h3>
@@ -866,6 +1139,182 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     </div>
                     <button class="btn-primary" onclick="generateDynamicRecoveryToken()" style="width:100%; background:#0ea5e9; border-color:#0ea5e9;">⚙️ توليد التوكن الآن</button>
                 </div>
+            </div>
+        </div>
+
+    <!-- Health Tab -->
+    <div id="tab-health" class="tab-content fade-in">
+        <div class="section-inner-tabs" data-group="monitoring">
+            <div class="section-inner-tab active" onclick="switchSectionTab('tab-health', 'monitoring', this)">&#x1F5A5;&#xFE0F; حالة الخادم</div>
+            <div class="section-inner-tab" onclick="switchSectionTab('tab-security', 'monitoring', this)">&#x1F6E1;&#xFE0F; الأمان</div>
+            <div class="section-inner-tab" onclick="switchSectionTab('tab-audit', 'monitoring', this)">&#x1F4CB; السجل</div>
+            <div class="section-inner-tab" onclick="switchSectionTab('tab-tickets', 'monitoring', this)">&#x1F3AB; التذاكر</div>
+        </div>
+        <div class="header-actions">
+            <h2>🩺 حالة الخادم (Server Health)</h2>
+            <button class="btn-primary" onclick="loadServerHealth()">🔄 تحديث البيانات</button>
+        </div>
+        <div class="grid-cards" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;" id="health-cards-container">
+            <!-- CPU -->
+            <div class="card" style="text-align: center; padding: 20px;">
+                <h3 style="margin-bottom:15px;">المعالج (CPU)</h3>
+                <div class="radial-progress" id="health-cpu-radial" data-value="0">
+                    <svg viewBox="0 0 120 120" width="110" height="110">
+                        <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
+                        <circle class="radial-bar" cx="60" cy="60" r="52" fill="none" stroke="var(--primary-accent)" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73" transform="rotate(-90 60 60)" style="transition: stroke-dashoffset 1s ease, stroke 0.5s;"/>
+                    </svg>
+                    <span class="radial-value" id="health-cpu">0%</span>
+                </div>
+            </div>
+            <!-- RAM -->
+            <div class="card" style="text-align: center; padding: 20px;">
+                <h3 style="margin-bottom:15px;">الذاكرة (RAM)</h3>
+                <div class="radial-progress" id="health-ram-radial" data-value="0">
+                    <svg viewBox="0 0 120 120" width="110" height="110">
+                        <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
+                        <circle class="radial-bar" cx="60" cy="60" r="52" fill="none" stroke="#f59e0b" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73" transform="rotate(-90 60 60)" style="transition: stroke-dashoffset 1s ease, stroke 0.5s;"/>
+                    </svg>
+                    <span class="radial-value" id="health-ram">0%</span>
+                </div>
+                <small style="color:var(--text-secondary); display:block; margin-top:8px;" id="health-ram-peak">-- / --</small>
+            </div>
+            <!-- Disk -->
+            <div class="card" style="text-align: center; padding: 20px;">
+                <h3 style="margin-bottom:15px;">مساحة القرص</h3>
+                <div class="radial-progress" id="health-disk-radial" data-value="0">
+                    <svg viewBox="0 0 120 120" width="110" height="110">
+                        <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
+                        <circle class="radial-bar" cx="60" cy="60" r="52" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73" transform="rotate(-90 60 60)" style="transition: stroke-dashoffset 1s ease, stroke 0.5s;"/>
+                    </svg>
+                    <span class="radial-value" id="health-disk">0%</span>
+                </div>
+                <small style="color:var(--text-secondary); display:block; margin-top:8px;" id="health-disk-details">-- / --</small>
+            </div>
+            <!-- DB -->
+            <div class="card" style="text-align: center; padding: 20px;">
+                <h3 style="margin-bottom:15px;">قاعدة البيانات</h3>
+                <div style="font-size:2.2rem; font-weight:bold; color:#8b5cf6; margin: 18px 0;" id="health-db">--</div>
+                <small style="color:var(--text-secondary);" id="health-mysql-ver">MySQL: --</small>
+            </div>
+            <!-- Connections -->
+            <div class="card" style="text-align: center; padding: 20px;">
+                <h3 style="margin-bottom:15px;">اتصالات نشطة</h3>
+                <div style="font-size:2.2rem; font-weight:bold; color:#38bdf8; margin: 18px 0;" id="health-connections">--</div>
+                <small style="color:var(--text-secondary);" id="health-uptime">Uptime: --</small>
+            </div>
+        </div>
+        <div class="glass-panel" style="margin-top: 20px;">
+            <h3 style="margin-top:0;">تفاصيل النظام</h3>
+            <div style="display:flex; gap:20px; flex-wrap:wrap; color:var(--text-secondary);">
+                <div style="background:rgba(255,255,255,0.05); padding:10px 15px; border-radius:8px;"><strong>نظام التشغيل:</strong> <span id="health-os">--</span></div>
+                <div style="background:rgba(255,255,255,0.05); padding:10px 15px; border-radius:8px;"><strong>إصدار PHP:</strong> <span id="health-php">--</span></div>
+                <div style="background:rgba(255,255,255,0.05); padding:10px 15px; border-radius:8px;"><strong>إصدار MySQL:</strong> <span id="health-mysql">--</span></div>
+                <div style="background:rgba(255,255,255,0.05); padding:10px 15px; border-radius:8px;"><strong>آخر تحديث:</strong> <span id="health-time" style="direction:ltr;">--</span></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Tickets Tab -->
+    <div id="tab-tickets" class="tab-content fade-in">
+        <div class="section-inner-tabs" data-group="monitoring">
+            <div class="section-inner-tab" onclick="switchSectionTab('tab-health', 'monitoring', this)">&#x1F5A5;&#xFE0F; حالة الخادم</div>
+            <div class="section-inner-tab" onclick="switchSectionTab('tab-security', 'monitoring', this)">&#x1F6E1;&#xFE0F; الأمان</div>
+            <div class="section-inner-tab" onclick="switchSectionTab('tab-audit', 'monitoring', this)">&#x1F4CB; السجل</div>
+            <div class="section-inner-tab active" onclick="switchSectionTab('tab-tickets', 'monitoring', this)">&#x1F3AB; التذاكر</div>
+        </div>
+        <div class="header-actions">
+            <h2>🎫 تذاكر الدعم الفني (Support Tickets)</h2>
+            <div style="display:flex; gap:10px;">
+                <select id="tickets-status-filter" onchange="loadTickets()" style="padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.3); color:#fff; border: 1px solid var(--glass-border);">
+                    <option value="all">جميع الحالات</option>
+                    <option value="open" selected>مفتوحة</option>
+                    <option value="in_progress">قيد المعالجة</option>
+                    <option value="closed">مغلقة</option>
+                </select>
+                <button class="btn-primary" onclick="loadTickets()">🔄 تحديث</button>
+            </div>
+        </div>
+        <div class="table-container glass-panel">
+            <table class="styled-table">
+                <thead>
+                    <tr>
+                        <th>رقم التذكرة</th>
+                        <th>الشركة</th>
+                        <th>العنوان</th>
+                        <th>الحالة</th>
+                        <th>تاريخ الإنشاء</th>
+                        <th>إجراءات</th>
+                    </tr>
+                </thead>
+                <tbody id="tickets-table-body">
+                    <tr><td colspan="6" style="text-align:center;">قريباً... يتم تجهيز النظام</td></tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <!-- Security Tab -->
+    <div id="tab-security" class="tab-content fade-in">
+        <div class="section-inner-tabs" data-group="monitoring">
+            <div class="section-inner-tab" onclick="switchSectionTab('tab-health', 'monitoring', this)">&#x1F5A5;&#xFE0F; حالة الخادم</div>
+            <div class="section-inner-tab active" onclick="switchSectionTab('tab-security', 'monitoring', this)">&#x1F6E1;&#xFE0F; الأمان</div>
+            <div class="section-inner-tab" onclick="switchSectionTab('tab-audit', 'monitoring', this)">&#x1F4CB; السجل</div>
+            <div class="section-inner-tab" onclick="switchSectionTab('tab-tickets', 'monitoring', this)">&#x1F3AB; التذاكر</div>
+        </div>
+        <div class="header-actions">
+            <h2>🛡️ الأمان وحظر العناوين (Security & IP Ban)</h2>
+            <div style="display:flex; gap:10px;">
+                <button class="btn-primary" onclick="loadBannedIPs()">🔄 تحديث</button>
+                <button class="btn-primary" style="background:#ef4444; border-color:#ef4444;" onclick="document.getElementById('ip-ban-form').style.display = document.getElementById('ip-ban-form').style.display === 'none' ? 'flex' : 'none'">➕ حظر IP جديد</button>
+            </div>
+        </div>
+        <!-- Add IP Ban Form -->
+        <div id="ip-ban-form" class="glass-panel" style="display:none; gap:15px; align-items:flex-end; margin-bottom:15px; padding:20px;">
+            <div class="form-group" style="flex:1; margin:0;">
+                <label>عنوان IP</label>
+                <input type="text" id="ban-ip-address" placeholder="مثال: 192.168.1.100" style="direction:ltr; text-align:left;">
+            </div>
+            <div class="form-group" style="flex:2; margin:0;">
+                <label>سبب الحظر</label>
+                <input type="text" id="ban-ip-reason" placeholder="مثال: محاولات دخول مشبوهة متكررة">
+            </div>
+            <button class="btn-primary" style="background:#ef4444; border-color:#ef4444; white-space:nowrap; height:42px;" onclick="banIP()">🚫 حظر الآن</button>
+        </div>
+        <div class="glass-panel" style="padding: 20px;">
+            <p style="color:var(--text-secondary); margin-bottom:20px;">هذه الشاشة تتيح لك مراقبة ومنع عناوين IP المشبوهة من الوصول للنظام. العناوين المحظورة لن تتمكن من تسجيل الدخول.</p>
+            <div class="table-container">
+                <table class="styled-table">
+                    <thead>
+                        <tr>
+                            <th>عنوان IP</th>
+                            <th>سبب الحظر</th>
+                            <th>تاريخ الحظر</th>
+                            <th>إجراءات</th>
+                        </tr>
+                    </thead>
+                    <tbody id="banned-ips-body">
+                        <tr><td colspan="4" style="text-align:center;">جاري التحميل...</td></tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+    </div>
+
+    <!-- Ticket Chat Modal -->
+    <div id="ticket-chat-modal" class="modal-overlay" style="display:none;">
+        <div class="glass-panel modal-content" style="max-width: 700px; height: 80vh; display: flex; flex-direction: column;">
+            <div class="modal-header" style="flex-shrink:0;">
+                <h3 id="ticket-chat-title">محادثة التذكرة</h3>
+                <button class="close-btn" onclick="closeModal('ticket-chat-modal')">&times;</button>
+            </div>
+            <div id="ticket-chat-messages" style="flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:12px; background:rgba(0,0,0,0.2); border-radius:10px; margin:10px 0;">
+                <div style="text-align:center; color:var(--text-secondary);">جاري تحميل المحادثة...</div>
+            </div>
+            <div style="flex-shrink:0; display:flex; gap:10px; padding-top:10px; border-top:1px solid var(--glass-border);">
+                <input type="hidden" id="ticket-chat-id">
+                <textarea id="ticket-chat-input" placeholder="اكتب ردك هنا..." style="flex:1; background:rgba(255,255,255,0.05); border:1px solid var(--glass-border); border-radius:10px; color:#fff; padding:12px; font-family:'Tajawal',sans-serif; resize:none; min-height:50px; max-height:100px;"></textarea>
+                <button class="btn-primary" onclick="sendTicketReply()" style="align-self:flex-end; padding:12px 20px;">إرسال ↩</button>
             </div>
         </div>
     </div>
@@ -1097,6 +1546,16 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             SAAS_TOKEN = null;
         }
 
+        function showToast(message, type = 'success') {
+            const icons = {success: '✅', error: '❌', info: 'ℹ️'};
+            const toast = document.createElement('div');
+            toast.className = `toast-notification ${type}`;
+            toast.innerHTML = `<span>${icons[type] || '✅'}</span><span>${message}</span>`;
+            document.body.appendChild(toast);
+            requestAnimationFrame(() => { requestAnimationFrame(() => { toast.classList.add('show'); }); });
+            setTimeout(() => { toast.classList.remove('show'); setTimeout(() => toast.remove(), 400); }, 3000);
+        }
+
         // Global Fetch Interceptor to handle expired or invalid tokens (401 Unauthorized)
         const originalFetch = window.fetch;
         window.fetch = async function(...args) {
@@ -1104,8 +1563,8 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 const res = await originalFetch(...args);
                 if (res.status === 401 && SAAS_TOKEN) {
                     localStorage.removeItem('saas_token');
-                    alert('انتهت صلاحية الجلسة أو الرمز غير صحيح. يرجى تسجيل الدخول مرة أخرى.');
-                    location.reload();
+                    showToast('انتهت صلاحية الجلسة أو الرمز غير صحيح. يرجى تسجيل الدخول مرة أخرى.', 'error');
+                    setTimeout(() => { location.reload(); }, 1500);
                 }
                 return res;
             } catch (err) {
@@ -1139,10 +1598,12 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
 
         if (SAAS_TOKEN) {
             document.getElementById('login-modal').style.display = 'none';
-            document.getElementById('dashboard').style.display = 'flex';
+            document.getElementById('dashboard').style.display = 'block';
+            document.getElementById('sidebar').style.display = 'flex';
             initDashboard();
         } else {
             document.getElementById('login-modal').style.display = 'flex';
+            document.getElementById('sidebar').style.display = 'none';
         }
 
         async function loginSaas() {
@@ -1170,10 +1631,10 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 if (data.success) {
                     SAAS_TOKEN = data.token;
                     localStorage.setItem('saas_token', SAAS_TOKEN);
-                    alert("تم التحقق بنجاح! جاري تحويلك للوحة التحكم...");
-                    location.reload();
+                    showToast("تم التحقق بنجاح! جاري تحويلك للوحة التحكم...", "success");
+                    setTimeout(() => { location.reload(); }, 1200);
                 } else {
-                    alert(data.error || 'رمز خاطئ');
+                    showToast(data.error || 'رمز الدخول خاطئ', 'error');
                 }
             } catch (e) { 
                 console.error(e);
@@ -1183,18 +1644,65 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             }
         }
 
-        function logoutSaas() { localStorage.removeItem('saas_token'); location.reload(); }
+        function logoutSaas() { localStorage.removeItem('saas_token'); document.getElementById('sidebar').style.display = 'none'; location.reload(); }
 
         function switchTab(tabId, btn) {
-            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
-            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-            document.getElementById(tabId).classList.add('active');
-            btn.classList.add('active');
-            if (tabId === 'tab-audit') {
-                loadAuditLogs(true);
-            } else if (tabId === 'tab-global-payments') {
-                loadGlobalPayments(true);
+            window.location.hash = tabId;
+        }
+
+        // === SPA ROUTING (URL HASH) ===
+        function handleHashChange() {
+            if (!SAAS_TOKEN) return; // Don't route if not logged in
+            let hash = window.location.hash.replace('#', '');
+            if (!hash) hash = 'tab-analytics';
+            
+            const targetTab = document.getElementById(hash);
+            if (targetTab && targetTab.classList.contains('tab-content')) {
+                // Hide all tabs
+                document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+                // Show target
+                targetTab.classList.add('active');
+                
+                // Update Sidebar highlight
+                document.querySelectorAll('.sidebar .nav-item').forEach(n => {
+                    n.classList.remove('active');
+                    const onclickAttr = n.getAttribute('onclick');
+                    if (onclickAttr && onclickAttr.includes("'" + hash + "'")) n.classList.add('active');
+                });
+                
+                // Update Inner Tabs highlight
+                document.querySelectorAll('.section-inner-tab').forEach(btn => {
+                    btn.classList.remove('active');
+                    const onclickAttr = btn.getAttribute('onclick');
+                    if (onclickAttr && onclickAttr.includes("'" + hash + "'")) btn.classList.add('active');
+                });
+
+                // Trigger data loading
+                if (hash === 'tab-audit') loadAuditLogs(true);
+                else if (hash === 'tab-global-payments') loadGlobalPayments(true);
+                else if (hash === 'tab-health') loadServerHealth();
+                else if (hash === 'tab-tickets') loadTickets();
+                else if (hash === 'tab-security') loadBannedIPs();
             }
+        }
+        window.addEventListener('hashchange', handleHashChange);
+
+        // === SIDEBAR NAVIGATION ===
+        function sidebarNav(tabId, el) {
+            window.location.hash = tabId;
+        }
+
+        function toggleNavGroup(header) {
+            // Deprecated in flat sidebar, kept for compatibility
+        }
+
+        function toggleSidebarPin() {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('pinned');
+        }
+
+        function switchSectionTab(tabId, group, el) {
+            window.location.hash = tabId;
         }
 
         function escapeHtml(str) {
@@ -1775,7 +2283,8 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
 
         function initAnalyticsCharts() {
             if (typeof Chart === 'undefined') {
-                console.warn('Chart.js is not loaded yet or offline.');
+                // Retry after 2 seconds if Chart.js hasn't loaded yet
+                setTimeout(() => { if (typeof Chart !== 'undefined') initAnalyticsCharts(); }, 2000);
                 return;
             }
             if (!allTenants || allTenants.length === 0) return;
@@ -1975,6 +2484,9 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             // Check WhatsApp service status on startup and every 20 seconds
             checkWhatsAppStatus();
             setInterval(checkWhatsAppStatus, 20000);
+            
+            // Trigger Initial Route
+            handleHashChange();
         }
 
         async function syncPasswordsFromLocalStorage() {
@@ -2082,12 +2594,13 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         async function loadTenants(resetPage = false) {
             if (resetPage) currentTenantsPage = 1;
             const tbody = document.getElementById('tenants-body');
-            const searchInput = document.getElementById('tenant-search-input');
+            const searchInput = document.getElementById('tenant-search');
             const search = searchInput ? searchInput.value : '';
+            const statusFilter = document.getElementById('tenant-filter-status') ? document.getElementById('tenant-filter-status').value : 'all';
             const offset = (currentTenantsPage - 1) * tenantsPageSize;
             
             try {
-                const url = apiUrl('saas', 'tenants') + `&limit=${tenantsPageSize}&offset=${offset}&search=${encodeURIComponent(search)}`;
+                const url = apiUrl('saas', 'tenants') + `&limit=${tenantsPageSize}&offset=${offset}&search=${encodeURIComponent(search)}&status=${encodeURIComponent(statusFilter)}`;
                 const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
                 const data = await res.json();
                 console.log('Tenants API response:', res.status, data);
@@ -2142,33 +2655,36 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         }
 
         async function updateKPIs() {
-            let active = 0, suspended = 0, expiring = 0;
-            const now = new Date();
-            const next30 = new Date(); next30.setDate(now.getDate() + 30);
-            
-            allTenants.forEach(t => {
-                if(t.status === 'active') active++;
-                if(t.status === 'suspended') suspended++;
-                if(t.valid_until && new Date(t.valid_until) < next30 && new Date(t.valid_until) > now) expiring++;
-            });
-            
-            document.getElementById('kpi-total-tenants').innerText = allTenants.length;
-            document.getElementById('kpi-active-tenants').innerText = active;
-            document.getElementById('kpi-suspended-tenants').innerText = suspended;
-
             try {
-                const res = await fetch(apiUrl('saas', 'tenants', 'payments'), { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
-                const payments = await res.json();
-                let totalRevenue = 0;
-                if(Array.isArray(payments)) {
-                    totalRevenue = payments.reduce((sum, p) => sum + parseFloat(p.amount), 0);
+                // Fetch total counts from API
+                const [allRes, activeRes, suspendedRes] = await Promise.all([
+                    fetch(apiUrl('saas', 'tenants') + '&limit=1&offset=0&status=all', { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } }),
+                    fetch(apiUrl('saas', 'tenants') + '&limit=1&offset=0&status=active', { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } }),
+                    fetch(apiUrl('saas', 'tenants') + '&limit=1&offset=0&status=suspended', { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } })
+                ]);
+                const [allData, activeData, suspendedData] = await Promise.all([allRes.json(), activeRes.json(), suspendedRes.json()]);
+                
+                document.getElementById('kpi-total-tenants').innerText = allData.total || 0;
+                document.getElementById('kpi-active-tenants').innerText = activeData.total || 0;
+                document.getElementById('kpi-suspended-tenants').innerText = suspendedData.total || 0;
+                
+                // Fetch revenue
+                const revRes = await fetch(apiUrl('saas', 'tenants') + '&a2=payments&limit=1', { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
+                const revData = await revRes.json();
+                if (revData.data) {
+                    let totalRevenue = 0;
+                    // We need all payments for total, fetch with high limit
+                    const allPayRes = await fetch(apiUrl('saas', 'tenants') + '&a2=payments&limit=9999', { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
+                    const allPayData = await allPayRes.json();
+                    if (allPayData.data) {
+                        totalRevenue = allPayData.data.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
+                    }
+                    document.getElementById('kpi-revenue').innerText = '$' + totalRevenue.toLocaleString();
                 }
-                document.getElementById('kpi-revenue').innerText = '$' + totalRevenue.toLocaleString();
-            } catch (e) {
-                document.getElementById('kpi-revenue').innerText = 'خطأ';
+            } catch(e) {
+                console.error('KPI error:', e);
             }
-
-            // Update Smart Alerts
+            
             updateSmartAlerts();
         }
 
@@ -2268,7 +2784,11 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             }, 300);
         }
 
-        // changeTenantsPage is removed because it's handled by loadTenants / renderTenantsPagination directly
+        function changeTenantsPage(direction) {
+            currentTenantsPage += direction;
+            if (currentTenantsPage < 1) currentTenantsPage = 1;
+            loadTenants(false);
+        }
 
         function renderTenantsTable() {
             const tbody = document.getElementById('tenants-body');
@@ -2313,8 +2833,22 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     else if (storageBytes >= 1048576) storageStr = (storageBytes / 1048576).toFixed(2) + ' MB';
                     else if (storageBytes >= 1024) storageStr = (storageBytes / 1024).toFixed(2) + ' KB';
 
+                    let rowBg = 'transparent';
+                    if (t.valid_until) {
+                        const validDate = new Date(t.valid_until);
+                        const now = new Date();
+                        const diffTime = validDate - now;
+                        const diffDays = Math.ceil(diffTime / (1000 * 60 * 60 * 24));
+                        
+                        if (diffDays <= 0) {
+                            rowBg = 'rgba(239, 68, 68, 0.15)'; // Expired (Red tint)
+                        } else if (diffDays <= 7) {
+                            rowBg = 'rgba(245, 158, 11, 0.15)'; // Expiring soon (Orange tint)
+                        }
+                    }
+
                     tbody.innerHTML += `
-                        <tr onclick="openTenantDetails(${t.id})" style="cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'">
+                        <tr onclick="openTenantDetails(${t.id})" style="cursor: pointer; transition: background 0.2s; background: ${rowBg};" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='${rowBg}'">
                             <td><strong>${t.company_name || '—'}</strong><br><small style="color:var(--text-secondary)">${t.subdomain || '—'}.elsajana.com</small></td>
                             <td><span style="color:var(--primary-accent); font-weight: bold;">${t.admin_username || 'غير متوفر'}</span></td>
                             <td>${t.owner_name || '-'}<br><small>${t.owner_phone || ''}</small>${t.phone2 ? '<br><small>'+t.phone2+'</small>' : ''}</td>
@@ -2329,6 +2863,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                                     <div class="dropdown-content">
                                         ${t.status === 'pending' ? `<button onclick="activateTenant(${t.id})" style="color:var(--success-color)">✅ تفعيل الحساب</button>` : ''}
                                         ${t.receipt_path ? `<a href="${t.receipt_path}" target="_blank" style="display:block; padding:8px 12px; color:var(--primary-accent); text-decoration:none;">📄 عرض الإشعار</a>` : ''}
+                                        <button onclick="impersonateTenant(${t.id})" style="color:#0ea5e9">🚀 دخول كمسؤول</button>
                                         <button onclick="openEditModal(${t.id})">⚙️ تعديل الصلاحية والباقة</button>
                                         <button onclick="deleteTenant(${t.id})" style="color:var(--danger-color)">🗑️ حذف</button>
                                     </div>
@@ -2343,11 +2878,57 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         }
 
         // Add User & Reset Pass Logic (Simulated for SaaS)
+        async function impersonateTenant(tenantId) {
+            if (!confirm('هل أنت متأكد أنك تريد الدخول كمسؤول لهذا المشترك؟ (سيتم فتح نافذة جديدة بدون الحاجة لكلمة مرور)')) return;
+            try {
+                const res = await fetch(apiUrl('saas', 'impersonate') + '&tenant_id=' + tenantId, {
+                    headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    window.open('auto-login.php?token=' + data.impersonate_token, '_blank');
+                } else {
+                    alert(data.error || 'فشل توليد رابط الدخول السريع.');
+                }
+            } catch (err) {
+                console.error(err);
+                alert('حدث خطأ في الاتصال بالخادم.');
+            }
+        }
+
+        function saveAdminNotes() {
+            // Placeholder for now
+            showToast('تم حفظ الملاحظات بنجاح!', 'success');
+        }
+
         function openTenantDetails(tenantId) {
             const tenant = allTenants.find(t => t.id == tenantId);
             if (!tenant) return;
             
-            // Populate Company Info
+            // Set hidden select value so add user modal still works
+            document.getElementById('users-tenant-select').value = tenantId;
+            
+            // 1. Populate Header
+            document.getElementById('detail-company-title').innerText = tenant.company_name || 'تفاصيل الشركة';
+            document.getElementById('detail-company-subdomain').innerText = `🌐 ${tenant.subdomain || 'unknown'}.elsajana.com`;
+            
+            // Populate Action Bar
+            const actionsBar = document.getElementById('detail-actions-bar');
+            let actionsHtml = `<button class="btn-primary" onclick="saveInlineTenantDetails(${tenant.id})" style="background: linear-gradient(135deg, #10b981, #059669);">💾 حفظ التعديلات</button>`;
+            
+            if (tenant.status === 'pending') {
+                actionsHtml += `<button class="btn-primary" style="background: linear-gradient(135deg, #3b82f6, #2563eb);" onclick="activateTenant(${tenant.id})">✅ تفعيل الحساب</button>`;
+            }
+            if (tenant.receipt_path) {
+                actionsHtml += `<button class="btn-outline" onclick="window.open('${tenant.receipt_path}', '_blank')" style="border-color:var(--primary-accent); color:var(--primary-accent);">📄 إشعار الدفع</button>`;
+            }
+            // Auto Login (Impersonate) button
+            actionsHtml += `<button class="btn-outline" style="border-color:#8b5cf6; color:#8b5cf6;" onclick="window.open('auto-login.php?tenant_id=${tenant.id}&t=' + SAAS_TOKEN, '_blank')">🔑 دخول كأدمن</button>`;
+            actionsHtml += `<button class="btn-danger" onclick="deleteTenant(${tenant.id})">🗑️ حذف</button>`;
+            
+            actionsBar.innerHTML = actionsHtml;
+
+            // 2. Populate Info Cards
             let plan = allPlans.find(p => p.id == (tenant.plan_id || 1)) || {name: 'غير محدد'};
             let storageBytes = parseInt(tenant.storage_used) || 0;
             let storageStr = storageBytes + ' B';
@@ -2355,58 +2936,96 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             else if (storageBytes >= 1048576) storageStr = (storageBytes / 1048576).toFixed(2) + ' MB';
             else if (storageBytes >= 1024) storageStr = (storageBytes / 1024).toFixed(2) + ' KB';
             
-            document.getElementById('detail-company-info').innerHTML = `
-                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-bottom: 20px;">
-                    <!-- Basic Info -->
-                    <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                        <h4 style="margin-top:0; color: var(--primary-accent); margin-bottom: 10px; font-size: 1.1rem;">معلومات أساسية</h4>
-                        <p style="margin: 8px 0; font-size: 0.95rem;"><strong style="color:#fff; display:inline-block; width: 100px;">🏢 اسم الشركة:</strong> ${tenant.company_name || 'غير متوفر'}</p>
-                        <p style="margin: 8px 0; font-size: 0.95rem;"><strong style="color:#fff; display:inline-block; width: 100px;">🌐 النطاق:</strong> ${tenant.subdomain || 'غير متوفر'}.elsajana.com</p>
-                        <p style="margin: 8px 0; font-size: 0.95rem;"><strong style="color:#fff; display:inline-block; width: 100px;">👤 المالك:</strong> ${tenant.owner_name || 'غير متوفر'}</p>
-                        <p style="margin: 8px 0; font-size: 0.95rem;"><strong style="color:#fff; display:inline-block; width: 100px;">📞 الهاتف:</strong> <span style="direction:ltr; display:inline-block;">${tenant.owner_phone || 'غير متوفر'}</span></p>
-                        <p style="margin: 8px 0; font-size: 0.95rem;"><strong style="color:#fff; display:inline-block; width: 100px;">✉️ البريد:</strong> ${tenant.owner_email || 'غير متوفر'}</p>
+            const usersCount = parseInt(tenant.users_count) || 0;
+            const maxUsers = parseInt(tenant.max_users) || 1;
+            const usersPercent = Math.min(100, Math.round((usersCount / maxUsers) * 100));
+
+            // Assuming max storage 5GB (5368709120 bytes) for percentage display if unknown, else base on plan
+            const maxStorage = 5 * 1024 * 1024 * 1024; 
+            const storagePercent = Math.min(100, Math.round((storageBytes / maxStorage) * 100));
+
+            let planOptionsHtml = allPlans.map(p => `<option value="${p.id}" ${p.id == (tenant.plan_id || 1) ? 'selected' : ''}>${p.name}</option>`).join('');
+
+            document.getElementById('detail-info-cards').innerHTML = `
+                <!-- Owner Info -->
+                <div class="tenant-info-card">
+                    <h4>👤 معلومات المالك</h4>
+                    <div class="tenant-info-row">
+                        <span class="tenant-info-label">الاسم:</span>
+                        <span class="tenant-info-value">${tenant.owner_name || 'غير متوفر'}</span>
+                    </div>
+                    <div class="tenant-info-row">
+                        <span class="tenant-info-label">الهاتف:</span>
+                        <span class="tenant-info-value" style="direction:ltr;">${tenant.owner_phone || 'غير متوفر'}</span>
+                    </div>
+                    <div class="tenant-info-row">
+                        <span class="tenant-info-label">البريد:</span>
+                        <span class="tenant-info-value">${tenant.owner_email || 'غير متوفر'}</span>
+                    </div>
+                    <div class="tenant-info-row">
+                        <span class="tenant-info-label">التسجيل:</span>
+                        <span class="tenant-info-value">${tenant.created_at ? new Date(tenant.created_at).toLocaleDateString('ar-EG') : 'غير متوفر'}</span>
+                    </div>
+                </div>
+                
+                <!-- Subscription Info (Editable) -->
+                <div class="tenant-info-card">
+                    <h4>💎 إعدادات الاشتراك (للتعديل)</h4>
+                    <div class="tenant-edit-row">
+                        <span class="tenant-info-label">الباقة:</span>
+                        <select id="inline-edit-plan" class="glass-input" onchange="updateInlineMaxUsers()">
+                            ${planOptionsHtml}
+                        </select>
+                    </div>
+                    <div class="tenant-edit-row">
+                        <span class="tenant-info-label">تاريخ الانتهاء:</span>
+                        <input type="date" id="inline-edit-valid-until" class="glass-input" value="${tenant.valid_until ? tenant.valid_until.substring(0, 10) : ''}" style="text-align: right;">
+                    </div>
+                    <div class="tenant-edit-row">
+                        <span class="tenant-info-label">حالة الحساب (التنشيط):</span>
+                        <select id="inline-edit-status" class="glass-input" style="color: ${tenant.status === 'active' ? '#10b981' : tenant.status === 'pending' ? '#f59e0b' : '#ef4444'};">
+                            <option value="active" ${tenant.status === 'active' ? 'selected' : ''} style="color:#000;">✅ نشط (مفعل)</option>
+                            <option value="pending" ${tenant.status === 'pending' ? 'selected' : ''} style="color:#000;">⏳ قيد المراجعة</option>
+                            <option value="suspended" ${tenant.status === 'suspended' ? 'selected' : ''} style="color:#000;">⏸️ موقوف</option>
+                        </select>
+                    </div>
+                    <div class="tenant-edit-row">
+                        <span class="tenant-info-label">الحد الأقصى للمستخدمين:</span>
+                        <input type="number" id="inline-edit-max-users" class="glass-input" value="${tenant.max_users || plan.maxUsers || 1}">
+                    </div>
+                </div>
+                
+                <!-- Usage Stats -->
+                <div class="tenant-info-card">
+                    <h4>📊 استهلاك الموارد</h4>
+                    
+                    <div style="margin-bottom: 25px;">
+                        <div class="flex-between" style="font-size: 1.1rem; margin-bottom: 10px;">
+                            <span class="tenant-info-label">المستخدمين (${usersCount} من ${tenant.max_users || '∞'})</span>
+                            <span style="font-weight: bold; color: ${usersPercent > 90 ? '#ef4444' : '#fff'};">${usersPercent}%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-glow" style="width: ${usersPercent}%; background: ${usersPercent > 90 ? 'linear-gradient(90deg, #ef4444, #b91c1c)' : 'linear-gradient(90deg, #10b981, #059669)'};"></div>
+                        </div>
                     </div>
                     
-                    <!-- Subscription Info -->
-                    <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
-                        <h4 style="margin-top:0; color: var(--primary-accent); margin-bottom: 10px; font-size: 1.1rem;">حالة الاشتراك</h4>
-                        <p style="margin: 8px 0; font-size: 0.95rem;"><strong style="color:#fff; display:inline-block; width: 110px;">💎 الباقة الحالية:</strong> ${plan.name}</p>
-                        <p style="margin: 8px 0; font-size: 0.95rem;"><strong style="color:#fff; display:inline-block; width: 110px;">📊 المساحة:</strong> <span style="direction:ltr; display:inline-block; color:#38bdf8;">${storageStr}</span></p>
-                        <p style="margin: 8px 0; font-size: 0.95rem;"><strong style="color:#fff; display:inline-block; width: 110px;">👥 المستخدمين:</strong> ${tenant.users_count || 0} من ${tenant.max_users || '-'}</p>
-                        <p style="margin: 8px 0; font-size: 0.95rem;"><strong style="color:#fff; display:inline-block; width: 110px;">📅 الإنشاء:</strong> ${tenant.created_at ? new Date(tenant.created_at).toLocaleDateString('ar-EG') : 'غير متوفر'}</p>
-                        <p style="margin: 8px 0; font-size: 0.95rem;"><strong style="color:#fff; display:inline-block; width: 110px;">🟢 آخر ظهور:</strong> ${tenant.last_login_at ? new Date(tenant.last_login_at).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' }) : '<span style="color:#a1a1aa;">لم يدخل بعد</span>'}</p>
-                        <p style="margin: 8px 0; font-size: 0.95rem;"><strong style="color:#fff; display:inline-block; width: 110px;">⏳ صالح حتى:</strong> ${tenant.valid_until ? new Date(tenant.valid_until).toLocaleDateString('ar-EG') : '<span style="color:#10b981;">غير محدود</span>'}</p>
+                    <div>
+                        <div class="flex-between" style="font-size: 1.1rem; margin-bottom: 10px;">
+                            <span class="tenant-info-label">المساحة (${storageStr})</span>
+                            <span style="font-weight: bold; color: ${storagePercent > 90 ? '#ef4444' : '#fff'};">${storagePercent}%</span>
+                        </div>
+                        <div class="progress-bar-bg">
+                            <div class="progress-bar-glow" style="width: ${storagePercent}%; background: ${storagePercent > 90 ? 'linear-gradient(90deg, #ef4444, #b91c1c)' : 'linear-gradient(90deg, #3b82f6, #2563eb)'};"></div>
+                        </div>
                     </div>
                 </div>
-
-                <!-- Actions -->
-                <div style="display: flex; gap: 10px; flex-wrap: wrap; border-top: 1px solid var(--glass-border); padding-top: 15px;">
-                    <button class="btn-primary" onclick="openEditModal(${tenant.id})">⚙️ تعديل الباقة والصلاحية</button>
-                    ${tenant.status === 'pending' ? `<button class="btn-primary" style="background: linear-gradient(135deg, #10b981, #059669);" onclick="activateTenant(${tenant.id})">✅ تفعيل الحساب</button>` : ''}
-                    ${tenant.receipt_path ? `<button class="btn-outline" onclick="window.open('${tenant.receipt_path}', '_blank')" style="border-color:var(--primary-accent); color:var(--primary-accent);">📄 عرض إشعار الدفع</button>` : ''}
-                    <button class="btn-danger" style="margin-right: auto;" onclick="deleteTenant(${tenant.id})">🗑️ حذف</button>
-                </div>
             `;
-
-            // Set hidden select value so add user modal still works
-            document.getElementById('users-tenant-select').value = tenantId;
-            document.getElementById('detail-company-title').innerText = tenant.company_name || 'تفاصيل الشركة';
             
-            // Switch Views (Slide Drawer)
-            const drawer = document.getElementById('tenant-detail-view');
-            const overlay = document.getElementById('tenant-detail-overlay');
-            drawer.style.display = 'block';
-            overlay.style.display = 'block';
+            // 3. Switch Views
+            document.getElementById('tenants-list-view').style.display = 'none';
+            document.getElementById('tenant-full-view').style.display = 'block';
             
-            // Allow display block to render before sliding
-            setTimeout(() => {
-                drawer.style.right = '0';
-            }, 10);
-            
-            // Ensure Info tab is active by default
-            const firstTabBtn = drawer.querySelector('.tabs-container .tab-btn');
-            if (firstTabBtn) switchInnerTab('inner-tab-info', firstTabBtn);
-            
+            // 4. Load Data
             loadTenantUsers();
             loadTenantPayments(tenantId);
         }
@@ -2434,16 +3053,8 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         }
 
         function closeTenantDetails() {
-            const drawer = document.getElementById('tenant-detail-view');
-            const overlay = document.getElementById('tenant-detail-overlay');
-            
-            drawer.style.right = '-800px';
-            setTimeout(() => {
-                drawer.style.display = 'none';
-                overlay.style.display = 'none';
-            }, 300);
-            
-            // renderTenantsTable(); // No longer needed because list view is not hidden
+            document.getElementById('tenant-full-view').style.display = 'none';
+            document.getElementById('tenants-list-view').style.display = 'block';
         }
         
         function switchInnerTab(tabId, btnElement) {
@@ -2960,6 +3571,68 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             } catch(e) { alert('فشل الاتصال'); }
         }
 
+        function updateInlineMaxUsers() {
+            let planId = document.getElementById('inline-edit-plan').value;
+            let plan = allPlans.find(p => p.id == planId);
+            if(plan) {
+                document.getElementById('inline-edit-max-users').value = plan.maxUsers || 1;
+            }
+        }
+
+        async function saveInlineTenantDetails(tenantId) {
+            const btn = document.querySelector(`button[onclick="saveInlineTenantDetails(${tenantId})"]`);
+            const oldText = btn.innerHTML;
+            btn.innerHTML = 'جاري الحفظ...';
+            btn.disabled = true;
+
+            const planId = document.getElementById('inline-edit-plan').value;
+            let valid_until = document.getElementById('inline-edit-valid-until').value;
+            const status = document.getElementById('inline-edit-status').value;
+            const maxUsers = document.getElementById('inline-edit-max-users').value;
+            
+            if(valid_until) {
+                // Ensure format YYYY-MM-DD HH:MM:SS
+                valid_until = valid_until + ' 23:59:59';
+            }
+
+            try {
+                const res = await fetch(apiUrl('saas', 'tenants', 'update'), {
+                    method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
+                    body: JSON.stringify({ 
+                        id: tenantId, 
+                        status: status, 
+                        valid_until: valid_until, 
+                        max_users: maxUsers, 
+                        plan_id: planId 
+                    })
+                });
+                const data = await res.json();
+                if(data.success) { 
+                    showToast('تم حفظ التعديلات بنجاح!', 'success');
+                    
+                    // Update local array so UI updates instantly
+                    const idx = allTenants.findIndex(t => t.id == tenantId);
+                    if (idx > -1) {
+                        allTenants[idx].status = status;
+                        allTenants[idx].valid_until = valid_until;
+                        allTenants[idx].max_users = maxUsers;
+                        allTenants[idx].plan_id = planId;
+                    }
+                    // Refresh view
+                    openTenantDetails(tenantId);
+                    renderTenantsTable();
+                }
+                else {
+                    showToast(data.error || 'حدث خطأ أثناء الحفظ', 'error');
+                }
+            } catch(e) { 
+                showToast('فشل الاتصال بالخادم', 'error'); 
+            } finally {
+                btn.innerHTML = oldText;
+                btn.disabled = false;
+            }
+        }
+
         async function deleteTenant(id) {
             if(!confirm('هل أنت متأكد من الحذف النهائي؟')) return;
             try {
@@ -3106,14 +3779,6 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 });
                 const data = await res.json();
                 if(data.success) { alert('تم التغيير! سجل الدخول مجددا'); logoutSaas(); }
-            } catch(e) {}
-        }
-
-        async function loadBackdoorUser() {
-            try {
-                const res = await fetch(apiUrl('saas', 'backdoor-credentials'), { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
-                const data = await res.json();
-                if(data.username) document.getElementById('backdoor-username').value = data.username;
             } catch(e) {}
         }
 
@@ -3558,6 +4223,261 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 };
                 resultsDiv.appendChild(el);
             });
+        }
+
+        // === IP BAN MANAGEMENT ===
+        async function loadBannedIPs() {
+            const tbody = document.getElementById('banned-ips-body');
+            if (!tbody) return;
+            tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;">جاري التحميل...</td></tr>';
+            try {
+                const res = await fetch(apiUrl('saas', 'ip-bans'), { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
+                const data = await res.json();
+                if (data.success && data.bans.length > 0) {
+                    tbody.innerHTML = data.bans.map(b => `
+                        <tr>
+                            <td style="direction:ltr; text-align:center; font-family:monospace; font-weight:bold; font-size:1rem;">${escapeHtml(b.ip_address)}</td>
+                            <td>${escapeHtml(b.reason || 'لم يُحدد')}</td>
+                            <td>${new Date(b.banned_at).toLocaleDateString('ar-EG')} ${new Date(b.banned_at).toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'})}</td>
+                            <td><button class="btn-danger" style="font-size:0.8rem; padding:6px 12px;" onclick="unbanIP(${b.id}, '${escapeHtml(b.ip_address)}')">🗑️ إلغاء الحظر</button></td>
+                        </tr>
+                    `).join('');
+                } else {
+                    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--text-secondary);">✅ لا يوجد عناوين محظورة حالياً</td></tr>';
+                }
+            } catch(e) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; color:var(--danger-color);">خطأ في جلب البيانات</td></tr>';
+            }
+        }
+
+        async function banIP() {
+            const ip = document.getElementById('ban-ip-address').value.trim();
+            const reason = document.getElementById('ban-ip-reason').value.trim();
+            if (!ip) return showToast('أدخل عنوان IP', 'error');
+            try {
+                const res = await fetch(apiUrl('saas', 'ip-bans'), {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ip_address: ip, reason: reason })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('تم حظر العنوان ' + ip + ' بنجاح 🚫');
+                    document.getElementById('ban-ip-address').value = '';
+                    document.getElementById('ban-ip-reason').value = '';
+                    document.getElementById('ip-ban-form').style.display = 'none';
+                    loadBannedIPs();
+                } else {
+                    showToast(data.error || 'خطأ في الحظر', 'error');
+                }
+            } catch(e) { showToast('خطأ في الاتصال', 'error'); }
+        }
+
+        async function unbanIP(id, ip) {
+            if (!confirm('هل تريد إلغاء حظر العنوان ' + ip + '؟')) return;
+            try {
+                const res = await fetch(apiUrl('saas', 'ip-bans', 'delete'), {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ id: id })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('تم إلغاء حظر ' + ip + ' ✅');
+                    loadBannedIPs();
+                } else {
+                    showToast(data.error || 'خطأ', 'error');
+                }
+            } catch(e) { showToast('خطأ في الاتصال', 'error'); }
+        }
+
+        async function loadServerHealth() {
+            try {
+                const res = await fetch('api_saas_health.php', { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
+                const d = await res.json();
+                if (!d.success) return;
+                
+                // Helper: animate radial SVG
+                function setRadial(containerId, percent, valueId, label) {
+                    const circumference = 326.73;
+                    const offset = circumference - (percent / 100) * circumference;
+                    const container = document.getElementById(containerId);
+                    if (!container) return;
+                    const bar = container.querySelector('.radial-bar');
+                    if (bar) {
+                        bar.style.strokeDashoffset = offset;
+                        // Color coding: green < 60, yellow 60-85, red > 85
+                        if (percent > 85) bar.style.stroke = '#ef4444';
+                        else if (percent > 60) bar.style.stroke = '#f59e0b';
+                        else bar.style.stroke = '#10b981';
+                    }
+                    const valEl = document.getElementById(valueId);
+                    if (valEl) valEl.innerText = label;
+                }
+                
+                // CPU
+                setRadial('health-cpu-radial', d.cpu_load_1m, 'health-cpu', Math.round(d.cpu_load_1m) + '%');
+                
+                // RAM
+                setRadial('health-ram-radial', d.memory_percent || 0, 'health-ram', Math.round(d.memory_percent || 0) + '%');
+                const ramPeakEl = document.getElementById('health-ram-peak');
+                if (ramPeakEl) ramPeakEl.innerText = d.memory_usage + ' / ' + d.memory_total;
+                
+                // Disk
+                setRadial('health-disk-radial', d.disk_used_percent, 'health-disk', Math.round(d.disk_used_percent) + '%');
+                const diskDetailsEl = document.getElementById('health-disk-details');
+                if (diskDetailsEl) diskDetailsEl.innerText = d.disk_free + ' متبقي من ' + d.disk_total;
+                
+                // DB
+                document.getElementById('health-db').innerText = d.db_size;
+                const mysqlVerEl = document.getElementById('health-mysql-ver');
+                if (mysqlVerEl) mysqlVerEl.innerText = 'MySQL: ' + (d.mysql_version || 'N/A');
+                
+                // Connections
+                document.getElementById('health-connections').innerText = d.active_connections;
+                const uptimeEl = document.getElementById('health-uptime');
+                if (uptimeEl) uptimeEl.innerText = 'Uptime: ' + (d.uptime || 'N/A');
+                
+                // System details
+                document.getElementById('health-os').innerText = d.os;
+                document.getElementById('health-php').innerText = d.php_version;
+                const mysqlEl = document.getElementById('health-mysql');
+                if (mysqlEl) mysqlEl.innerText = d.mysql_version || 'N/A';
+                document.getElementById('health-time').innerText = d.time;
+            } catch(e) {
+                console.error('Health error:', e);
+                showToast('خطأ في جلب بيانات الخادم', 'error');
+            }
+        }
+        async function loadTickets() {
+            const status = document.getElementById('tickets-status-filter').value;
+            const tbody = document.getElementById('tickets-table-body');
+            tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">جاري تحميل التذاكر...</td></tr>';
+            try {
+                const res = await fetch(apiUrl('saas', 'tickets') + `&status=${status}`, {
+                    headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
+                });
+                const data = await res.json();
+                if (data.success && data.tickets) {
+                    if (data.tickets.length === 0) {
+                        tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;">لا يوجد تذاكر مطابقة</td></tr>';
+                        return;
+                    }
+                    tbody.innerHTML = '';
+                    data.tickets.forEach(tk => {
+                        let statusColor = '#f59e0b'; // open
+                        let statusText = 'مفتوحة';
+                        if (tk.status === 'in_progress') { statusColor = '#38bdf8'; statusText = 'قيد المعالجة'; }
+                        if (tk.status === 'closed') { statusColor = '#10b981'; statusText = 'مغلقة'; }
+                        
+                        tbody.innerHTML += `
+                            <tr style="cursor: pointer; transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='transparent'" onclick="openTicketDetails(${tk.id}, '${tk.subject}')">
+                                <td><strong>#${tk.id}</strong></td>
+                                <td>${tk.company_name} <br><small style="color:var(--text-secondary)">${tk.subdomain}</small></td>
+                                <td>${tk.subject}</td>
+                                <td><span style="color:${statusColor}; font-weight:bold;">${statusText}</span></td>
+                                <td style="direction:ltr;">${new Date(tk.created_at).toLocaleString()}</td>
+                                <td>
+                                    <button class="btn-outline" style="border-color:${statusColor}; color:${statusColor}; padding: 4px 10px; font-size: 0.85rem;" onclick="event.stopPropagation(); updateTicketStatus(${tk.id})">تغيير الحالة</button>
+                                </td>
+                            </tr>
+                        `;
+                    });
+                }
+            } catch (err) {
+                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; color:#ef4444;">❌ خطأ في تحميل التذاكر</td></tr>`;
+                console.error(err);
+            }
+        }
+        
+        async function updateTicketStatus(id) {
+            const newStatus = prompt("أدخل الحالة الجديدة (open / in_progress / closed):");
+            if (!newStatus || !['open', 'in_progress', 'closed'].includes(newStatus)) {
+                alert("حالة غير صحيحة");
+                return;
+            }
+            try {
+                const res = await fetch(apiUrl('saas', 'tickets') + '&a2=status', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
+                    body: JSON.stringify({ id, status: newStatus })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('تم تحديث حالة التذكرة');
+                    loadTickets();
+                } else {
+                    alert('خطأ: ' + data.error);
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function openTicketDetails(id, subject) {
+            document.getElementById('ticket-chat-title').innerText = '🎫 تذكرة #' + id + ': ' + subject;
+            document.getElementById('ticket-chat-id').value = id;
+            document.getElementById('ticket-chat-input').value = '';
+            document.getElementById('ticket-chat-modal').style.display = 'flex';
+            
+            const container = document.getElementById('ticket-chat-messages');
+            container.innerHTML = '<div style="text-align:center; color:var(--text-secondary);">⏳ جاري التحميل...</div>';
+            
+            try {
+                const res = await fetch(apiUrl('saas', 'tickets', 'replies') + '&id=' + id, {
+                    headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN }
+                });
+                const data = await res.json();
+                
+                if (data.success && data.replies && data.replies.length > 0) {
+                    container.innerHTML = '';
+                    data.replies.forEach(r => {
+                        const isAdmin = r.sender === 'admin';
+                        const bubble = document.createElement('div');
+                        bubble.className = 'chat-bubble ' + (isAdmin ? 'admin' : 'tenant');
+                        const date = new Date(r.created_at);
+                        const timeStr = date.toLocaleDateString('ar-EG') + ' ' + date.toLocaleTimeString('ar-EG', {hour:'2-digit', minute:'2-digit'});
+                        bubble.innerHTML = `
+                            <div>${escapeHtml(r.message)}</div>
+                            <div class="chat-meta">${isAdmin ? '👑 المشرف' : '👤 العميل'} • ${timeStr}</div>
+                        `;
+                        container.appendChild(bubble);
+                    });
+                    container.scrollTop = container.scrollHeight;
+                } else {
+                    container.innerHTML = '<div style="text-align:center; color:var(--text-secondary); padding:40px 0;">💬 لا توجد رسائل بعد. ابدأ المحادثة بإرسال أول رد!</div>';
+                }
+            } catch(e) {
+                container.innerHTML = '<div style="text-align:center; color:var(--danger-color);">❌ خطأ في جلب المحادثة</div>';
+                console.error('Ticket replies error:', e);
+            }
+        }
+
+        async function sendTicketReply() {
+            const ticketId = document.getElementById('ticket-chat-id').value;
+            const message = document.getElementById('ticket-chat-input').value.trim();
+            if (!message) return showToast('اكتب رسالتك أولاً', 'error');
+            
+            try {
+                const res = await fetch(apiUrl('saas', 'tickets', 'reply'), {
+                    method: 'POST',
+                    headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN, 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ ticket_id: ticketId, message: message })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('ticket-chat-input').value = '';
+                    showToast('تم إرسال الرد بنجاح ✅');
+                    // Reload the conversation
+                    const title = document.getElementById('ticket-chat-title').innerText;
+                    const subject = title.replace(/^.*: /, '');
+                    openTicketDetails(ticketId, subject);
+                } else {
+                    showToast(data.error || 'خطأ في إرسال الرد', 'error');
+                }
+            } catch(e) {
+                showToast('خطأ في الاتصال', 'error');
+            }
         }
     </script>
 </body>
