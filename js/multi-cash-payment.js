@@ -957,24 +957,6 @@ function formatInput(input) {
     calcTotal();
 }
 
-            element.innerText = fmtNum(current, targetDecimals);
-        }
-        
-        if (progress < 1) {
-            element._animId = window.requestAnimationFrame(step);
-        } else {
-            // ensure final exact value is set
-            if (element.tagName === 'INPUT') {
-                element.value = fmtNum(end, targetDecimals);
-            } else {
-                element.innerText = fmtNum(end, targetDecimals);
-            }
-            element._animId = null;
-        }
-    };
-    element._animId = window.requestAnimationFrame(step);
-}
-
 function calcTotal() {
     let total = 0;
 
@@ -990,8 +972,7 @@ function calcTotal() {
     const totalAmtEl = document.getElementById('total-amount');
     if (totalAmtEl) {
         const dec = totalAmtEl.getAttribute('data-decimals') !== null ? parseInt(totalAmtEl.getAttribute('data-decimals')) : null;
-        if (typeof animateValue === 'function') animateValue(totalAmtEl, total, 400, dec);
-        else totalAmtEl.innerText = fmtNum(total, dec);
+        totalAmtEl.innerText = fmtNum(total, dec);
     }
 
     const totalRowsEl = document.getElementById('total-rows');
@@ -1003,22 +984,17 @@ function calcTotal() {
     const localHdrEl = document.getElementById('amount-local-hdr');
     if (localHdrEl) {
         const dec = localHdrEl.getAttribute('data-decimals') !== null ? parseInt(localHdrEl.getAttribute('data-decimals')) : null;
-        if (typeof animateValue === 'function') animateValue(localHdrEl, total, 400, dec);
-        else localHdrEl.value = fmtNum(total, dec);
+        localHdrEl.value = fmtNum(total, dec);
     }
     if (rateEl && eqEl) {
         let rate = cleanNum(rateEl.value) || 1;
         let actualRateForForeign = rate;
         if (rate === 1 && typeof window.getExchangeRateForCurrency === 'function') {
             const globalRate = window.getExchangeRateForCurrency('USD');
-            if (globalRate && globalRate > 1) {
-                actualRateForForeign = globalRate;
-                rateEl.value = globalRate;
-            }
+            if (globalRate && globalRate > 1) actualRateForForeign = globalRate;
         }
         let eq = actualRateForForeign === 0 ? 0 : total / actualRateForForeign;
-        if (typeof animateValue === 'function') animateValue(eqEl, eq, 400);
-        else eqEl.value = fmtNum(eq);
+        eqEl.value = fmtNum(eq);
     }
     
     if (typeof window.applySystemNumberFormatting === 'function') {
@@ -3805,65 +3781,3 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 300);
 });
 
-// Intercept internal link clicks for a professional custom leave confirmation
-document.addEventListener('click', function(e) {
-    const link = e.target.closest('a');
-    if (formDirty && link && link.href && !link.href.includes('javascript:void(0)') && !link.href.startsWith('#') && link.target !== '_blank') {
-        e.preventDefault();
-        showLeaveConfirmationModal(link.href);
-    }
-});
-
-function showLeaveConfirmationModal(targetUrl) {
-    const existing = document.getElementById('leave-confirm-modal');
-    if (existing) existing.remove();
-    
-    const modal = document.createElement('div');
-    modal.id = 'leave-confirm-modal';
-    modal.style.cssText = 'position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(15, 23, 42, 0.7); backdrop-filter: blur(8px); z-index: 999999; display: flex; align-items: center; justify-content: center; direction: rtl; opacity: 0; transition: opacity 0.3s cubic-bezier(0.4, 0, 0.2, 1);';
-    
-    const box = document.createElement('div');
-    box.style.cssText = 'background: linear-gradient(145deg, #1e293b, #0f172a); border: 1px solid rgba(255, 255, 255, 0.1); padding: 40px; border-radius: 20px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5), 0 0 0 1px rgba(255,255,255,0.05); text-align: center; max-width: 450px; width: 90%; transform: scale(0.9) translateY(20px); transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);';
-    
-    box.innerHTML = `
-        <div style="width: 80px; height: 80px; background: rgba(245, 158, 11, 0.1); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto 20px; box-shadow: 0 0 20px rgba(245, 158, 11, 0.2);">
-            <span style="font-size: 3rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3));">⚠️</span>
-        </div>
-        <h2 style="color: #f8fafc; font-size: 1.5rem; font-weight: bold; margin-bottom: 12px; font-family: 'Cairo', sans-serif;">لديك تغييرات غير محفوظة!</h2>
-        <p style="color: #94a3b8; font-size: 1.1rem; line-height: 1.6; margin-bottom: 30px;">هل أنت متأكد أنك تريد المغادرة؟ أي بيانات قمت بإدخالها ستضيع ولن يتم حفظها.</p>
-        <div style="display: flex; gap: 15px; justify-content: center;">
-            <button id="btn-cancel-leave" style="flex: 1; padding: 12px 20px; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; color: #cbd5e1; font-size: 1.1rem; font-weight: bold; cursor: pointer; transition: all 0.2s; font-family: inherit;">البقاء في الصفحة</button>
-            <button id="btn-confirm-leave" style="flex: 1; padding: 12px 20px; background: linear-gradient(135deg, #ef4444, #b91c1c); border: none; border-radius: 10px; color: #fff; font-size: 1.1rem; font-weight: bold; cursor: pointer; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.3); transition: transform 0.1s, box-shadow 0.2s; font-family: inherit;">المغادرة الآن</button>
-        </div>
-    `;
-    
-    modal.appendChild(box);
-    document.body.appendChild(modal);
-    
-    // Hover effects
-    const btnCancel = document.getElementById('btn-cancel-leave');
-    const btnConfirm = document.getElementById('btn-confirm-leave');
-    
-    btnCancel.onmouseover = () => btnCancel.style.background = 'rgba(255,255,255,0.1)';
-    btnCancel.onmouseout = () => btnCancel.style.background = 'rgba(255,255,255,0.05)';
-    
-    btnConfirm.onmouseover = () => btnConfirm.style.transform = 'translateY(-2px)';
-    btnConfirm.onmouseout = () => btnConfirm.style.transform = 'none';
-    
-    // Animation in
-    setTimeout(() => {
-        modal.style.opacity = '1';
-        box.style.transform = 'scale(1) translateY(0)';
-    }, 10);
-    
-    btnCancel.onclick = () => {
-        modal.style.opacity = '0';
-        box.style.transform = 'scale(0.9) translateY(20px)';
-        setTimeout(() => modal.remove(), 300);
-    };
-    
-    btnConfirm.onclick = () => {
-        formDirty = false;
-        window.location.href = targetUrl;
-    };
-}
