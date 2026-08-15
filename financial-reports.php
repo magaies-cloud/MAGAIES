@@ -394,7 +394,7 @@
 
     </div>
 
-    <script defer src="js/app.js?v=<?= time() ?>"></script>
+    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
     <script>
         // Clock functionality for header
         function updateClock() {

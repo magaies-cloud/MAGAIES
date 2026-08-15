@@ -503,7 +503,7 @@
     <div class="toast-container" id="toast-container" style="position:fixed; bottom:20px; left:20px; z-index:99999; display:flex; flex-direction:column; gap:10px;"></div>
 
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=<?= time() ?>"></script>
+    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
     <script>
         let allPurchases = [];
         let itemsDb = [];
