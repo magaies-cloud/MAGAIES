@@ -374,7 +374,7 @@
                 <div class="neo-card-title" style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: space-between; align-items: center;">
                     <div style="display: flex; gap: 15px; align-items: center;">
                         <span id="hub-title-text">⏳ فواتير تحتوي على بضاعة قيد الاستلام</span>
-                        <button id="btn-toggle-hub" class="btn-action" style="padding: 6px 15px; font-size: 0.85rem; background: linear-gradient(135deg, #10b981, #059669); border-radius: 8px;" onclick="toggleHubView()">📜 الفواتير المستلمة</button>
+                        <button id="btn-toggle-hub" class="btn-action" style="padding: 6px 15px; font-size: 0.85rem; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 8px; transition: all 0.3s ease;" onclick="toggleHubView()">📜 الفواتير المستلمة</button>
                     </div>
                     <input type="text" id="search-inv" class="v-input" placeholder="ابحث برقم الفاتورة أو المورد..." style="width: 300px;" oninput="renderPendingInvoices()">
                 </div>
@@ -543,7 +543,7 @@
                 document.getElementById('hub-received-container').style.display = 'block';
                 document.getElementById('hub-title-text').innerHTML = '📜 أذونات الاستلام (الفواتير المستلمة)';
                 document.getElementById('btn-toggle-hub').innerHTML = '⏳ فواتير قيد الاستلام';
-                document.getElementById('btn-toggle-hub').style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+                document.getElementById('btn-toggle-hub').style.background = 'linear-gradient(135deg, #a855f7, #7e22ce)';
                 renderRecentGRNs();
             } else {
                 currentHubView = 'pending';
@@ -551,7 +551,7 @@
                 document.getElementById('hub-received-container').style.display = 'none';
                 document.getElementById('hub-title-text').innerHTML = '⏳ فواتير تحتوي على بضاعة قيد الاستلام';
                 document.getElementById('btn-toggle-hub').innerHTML = '📜 الفواتير المستلمة';
-                document.getElementById('btn-toggle-hub').style.background = 'linear-gradient(135deg, #10b981, #059669)';
+                document.getElementById('btn-toggle-hub').style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
             }
         }
 
