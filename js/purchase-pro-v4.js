@@ -3850,11 +3850,11 @@ function addBankTransferRow(existingData = null) {
         <div class="payment-row-item" id="${rowId}" style="display: flex; gap: 8px; align-items: center; width: 100%; flex-wrap: nowrap; margin-bottom: 6px;">
             ${labelHtml}
             <input type="number" class="v-input ctrl-input bt-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : ''}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="${amountStyle} flex: 1.5; min-width: 120px;">
-            <select class="v-input ctrl-input bt-bank-select" style="${inputStyle} flex: 1.5; min-width: 120px;">
+            <select class="v-input ctrl-input bt-bank-select" style="${inputStyle} flex: 1.2; min-width: 100px;">
                 ${banksHtml}
             </select>
-            <input type="text" maxlength="14" class="v-input ctrl-input bt-ref-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || existingData?.reference || ''}" placeholder="رقم التحويلة" style="${inputStyle} flex: 1.5; min-width: 120px;">
-            <input type="text" class="v-input ctrl-input bt-note-input" value="${existingData?.notes || ''}" placeholder="بيان التحويل" style="${inputStyle} flex: 2; min-width: 150px;">
+            <input type="text" maxlength="14" class="v-input ctrl-input bt-ref-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || existingData?.reference || ''}" placeholder="رقم التحويلة" style="${inputStyle} flex: 1.2; min-width: 100px;">
+            <input type="text" class="v-input ctrl-input bt-note-input" value="${existingData?.notes || ''}" placeholder="بيان التحويل" style="${inputStyle} flex: 2; min-width: 160px;">
             <div style="display: flex; justify-content: center; align-items: center; width: 30px; min-width: 30px; flex: none;">
                 ${actionBtn}
             </div>
@@ -3898,13 +3898,13 @@ function addChequeRow(existingData = null) {
     const rowHtml = `
         <div class="payment-row-item" id="${rowId}" style="display: flex; gap: 8px; align-items: center; width: 100%; flex-wrap: nowrap; margin-bottom: 6px;">
             ${labelHtml}
-            <input type="number" class="v-input ctrl-input ch-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : ''}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="${amountStyle} flex: 1.2; min-width: 100px;">
+            <input type="number" class="v-input ctrl-input ch-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : ''}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="${amountStyle} flex: 1.5; min-width: 120px;">
             <select class="v-input ctrl-input ch-bank-select" style="${inputStyle} flex: 1.2; min-width: 100px;">
                 ${banksHtml}
             </select>
             <input type="text" maxlength="14" class="v-input ctrl-input ch-no-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || ''}" placeholder="رقم الشيك" style="${inputStyle} flex: 1.2; min-width: 100px;">
-            <input type="date" class="v-input ctrl-input ch-date-input" value="${existingData?.dueDate || today}" placeholder="mm/dd/yyyy" style="${inputStyle} flex: 1.2; min-width: 120px;">
-            <input type="text" class="v-input ctrl-input bt-note-input" value="${existingData?.notes || ''}" placeholder="بيان الشيك" style="${inputStyle} flex: 1.5; min-width: 130px;">
+            <input type="date" class="v-input ctrl-input ch-date-input" value="${existingData?.dueDate || today}" placeholder="mm/dd/yyyy" style="${inputStyle} flex: 1; min-width: 100px;">
+            <input type="text" class="v-input ctrl-input bt-note-input" value="${existingData?.notes || ''}" placeholder="بيان الشيك" style="${inputStyle} flex: 1; min-width: 100px;">
             <div style="display: flex; justify-content: center; align-items: center; width: 30px; min-width: 30px; flex: none;">
                 ${actionBtn}
             </div>
