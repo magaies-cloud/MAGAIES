@@ -737,6 +737,24 @@
         color: white;
         box-shadow: 0 4px 15px rgba(14, 165, 233, 0.6);
     }
+
+    /* Supplier Name Input Customization */
+    #hdr-customer-search {
+        font-size: 1.15rem !important;
+        color: #fbbf24 !important; /* Beautiful Yellow / Amber */
+        font-weight: 900 !important;
+        text-shadow: 0 0 10px rgba(251, 191, 36, 0.5);
+    }
+    #hdr-customer-search::placeholder {
+        font-size: 0.9rem !important;
+        color: rgba(255, 255, 255, 0.4) !important;
+        font-weight: 500 !important;
+        text-shadow: none !important;
+    }
+    :root.light-theme #hdr-customer-search {
+        color: #d97706 !important; /* Darker amber for visibility in light mode */
+        text-shadow: none !important;
+    }
     
 </style>
 
