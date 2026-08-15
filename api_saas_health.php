@@ -222,6 +222,23 @@ try {
     $activeUsers = intval($stmt->fetchColumn());
 } catch (Exception $e) {}
 
+// === Billing Info ===
+$billingInfo = [
+    'provider' => 'DigitalOcean',
+    'cost' => '45.00',
+    'renewal_date' => date('Y-m-d', strtotime('+1 month')),
+    'plan' => 'Premium AMD 4GB'
+];
+try {
+    $stmt = $pdo->query("SELECT setting_value FROM global_settings WHERE setting_key = 'saas_billing'");
+    if ($row = $stmt->fetch(PDO::FETCH_ASSOC)) {
+        $dbBilling = json_decode($row['setting_value'], true);
+        if (is_array($dbBilling)) {
+            $billingInfo = array_merge($billingInfo, $dbBilling);
+        }
+    }
+} catch (Exception $e) {}
+
 echo json_encode([
     'success' => true,
     'overall_status' => $overallStatus,
@@ -245,5 +262,6 @@ echo json_encode([
     'network_rx' => formatBytes($rxBytes),
     'network_tx' => formatBytes($txBytes),
     'processes' => $processes,
+    'billing' => $billingInfo,
     'time' => date('Y-m-d H:i:s')
 ], JSON_UNESCAPED_UNICODE);

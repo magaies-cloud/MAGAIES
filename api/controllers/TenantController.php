@@ -541,6 +541,12 @@ class TenantController {
             jsonResponse(['success' => true]);
         }
         
+        if ($method === 'POST' && $action === 'settings' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'billing') {
+            $val = json_encode($input['billing'] ?? [], JSON_UNESCAPED_UNICODE);
+            $this->pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('saas_billing', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$val, $val]);
+            jsonResponse(['success' => true]);
+        }
+
         if ($method === 'POST' && $action === 'settings' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'partners') {
             $val = json_encode($input['partners'] ?? []);
             $this->pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('saas_partners', ?) ON DUPLICATE KEY UPDATE setting_value = ?")->execute([$val, $val]);

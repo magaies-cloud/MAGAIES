@@ -1482,7 +1482,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 <h3 style="margin:0; font-size: 1.3rem; color: #f8fafc; display: flex; align-items: center; gap: 10px;">
                     <i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i> بيانات اشتراك السيرفر (Server Billing)
                 </h3>
-                <button class="btn-primary" onclick="alert('سيتم إضافة نافذة تعديل بيانات الدفع قريباً');" style="background: rgba(255,255,255,0.05); color: #cbd5e1; padding: 8px 15px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; font-size: 0.9rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                <button class="btn-primary" onclick="openBillingModal();" style="background: rgba(255,255,255,0.05); color: #cbd5e1; padding: 8px 15px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; font-size: 0.9rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
                     <i class="fa-solid fa-pen"></i> تعديل
                 </button>
             </div>
@@ -1494,7 +1494,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     </div>
                     <div>
                         <div style="color: #64748b; font-size: 0.85rem; margin-bottom: 3px;">مزود الخدمة السحابية</div>
-                        <div style="color: #e2e8f0; font-weight: 800; font-size: 1.1rem;">DigitalOcean</div>
+                        <div id="health-billing-provider" style="color: #e2e8f0; font-weight: 800; font-size: 1.1rem;">--</div>
                     </div>
                 </div>
 
@@ -1504,7 +1504,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     </div>
                     <div>
                         <div style="color: #64748b; font-size: 0.85rem; margin-bottom: 3px;">التكلفة الشهرية (الاستهلاك)</div>
-                        <div style="color: #10b981; font-weight: 800; font-size: 1.1rem; font-family: monospace; direction: ltr;">$45.00 <span style="font-size:0.8rem; color:#64748b;">/ mo</span></div>
+                        <div style="color: #10b981; font-weight: 800; font-size: 1.1rem; font-family: monospace; direction: ltr;">$<span id="health-billing-cost">--</span> <span style="font-size:0.8rem; color:#64748b;">/ mo</span></div>
                     </div>
                 </div>
 
@@ -1514,7 +1514,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     </div>
                     <div>
                         <div style="color: #64748b; font-size: 0.85rem; margin-bottom: 3px;">تاريخ التجديد القادم</div>
-                        <div style="color: #e2e8f0; font-weight: 800; font-size: 1.1rem;">01 سبتمبر 2026</div>
+                        <div id="health-billing-renewal" style="color: #e2e8f0; font-weight: 800; font-size: 1.1rem;">--</div>
                     </div>
                 </div>
 
@@ -1524,7 +1524,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     </div>
                     <div>
                         <div style="color: #64748b; font-size: 0.85rem; margin-bottom: 3px;">خطة السيرفر الحالية</div>
-                        <div style="color: #e2e8f0; font-weight: 800; font-size: 1.1rem;">Premium AMD 4GB</div>
+                        <div id="health-billing-plan" style="color: #e2e8f0; font-weight: 800; font-size: 1.1rem;">--</div>
                     </div>
                 </div>
             </div>
@@ -1795,6 +1795,18 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
 
             <div class="form-group" style="margin-top: 15px;"><input type="checkbox" id="msg-show-once" checked> <label style="display:inline; margin-right: 5px;">عرض مرة واحدة</label></div>
             <div class="modal-actions"><button class="btn-primary" style="flex:1;" onclick="saveMessage()">حفظ</button></div>
+        </div>
+    </div>
+
+    <!-- Billing Modal -->
+    <div id="billing-modal" class="modal">
+        <div class="modal-content" style="max-width: 400px;">
+            <div class="modal-header"><h3>إعدادات اشتراك السيرفر</h3><button class="close-btn" onclick="closeModal('billing-modal')">&times;</button></div>
+            <div class="form-group"><label>مزود الخدمة</label><input type="text" id="billing-provider" placeholder="مثال: DigitalOcean"></div>
+            <div class="form-group"><label>التكلفة الشهرية ($)</label><input type="number" step="0.01" id="billing-cost" placeholder="مثال: 45.00"></div>
+            <div class="form-group"><label>تاريخ التجديد القادم</label><input type="date" id="billing-renewal"></div>
+            <div class="form-group"><label>خطة السيرفر</label><input type="text" id="billing-plan" placeholder="مثال: Premium AMD 4GB"></div>
+            <div class="modal-actions"><button class="btn-primary" style="flex:1;" onclick="saveBilling()">حفظ بيانات الاشتراك</button></div>
         </div>
     </div>
 
@@ -4960,6 +4972,18 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 if (mysqlEl) mysqlEl.innerText = d.mysql_version || 'N/A';
                 const timeEl = document.getElementById('health-time');
                 if (timeEl) timeEl.innerText = d.time || 'N/A';
+                
+                // Billing Info
+                if (d.billing) {
+                    const bp = document.getElementById('health-billing-provider');
+                    if (bp) bp.innerText = d.billing.provider || '--';
+                    const bc = document.getElementById('health-billing-cost');
+                    if (bc) bc.innerText = d.billing.cost || '0.00';
+                    const br = document.getElementById('health-billing-renewal');
+                    if (br) br.innerText = d.billing.renewal_date || '--';
+                    const bpl = document.getElementById('health-billing-plan');
+                    if (bpl) bpl.innerText = d.billing.plan || '--';
+                }
 
                 // Start auto-refresh if checkbox is checked
                 if (document.getElementById('health-auto-refresh')?.checked && !healthAutoRefreshTimer) {
@@ -4973,6 +4997,46 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 if (statusText) { statusText.innerText = '❌ فشل الاتصال بالخادم'; statusText.style.color = '#ef4444'; }
             }
         }
+        function openBillingModal() {
+            const bp = document.getElementById('health-billing-provider')?.innerText || '';
+            const bc = document.getElementById('health-billing-cost')?.innerText || '';
+            const br = document.getElementById('health-billing-renewal')?.innerText || '';
+            const bpl = document.getElementById('health-billing-plan')?.innerText || '';
+            
+            document.getElementById('billing-provider').value = bp === '--' ? '' : bp;
+            document.getElementById('billing-cost').value = bc === '--' ? '' : bc;
+            // Handle date format matching if needed, or leave empty if invalid
+            document.getElementById('billing-renewal').value = br === '--' ? '' : br;
+            document.getElementById('billing-plan').value = bpl === '--' ? '' : bpl;
+            
+            document.getElementById('billing-modal').classList.add('active');
+        }
+
+        async function saveBilling() {
+            const provider = document.getElementById('billing-provider').value;
+            const cost = document.getElementById('billing-cost').value;
+            const renewal = document.getElementById('billing-renewal').value;
+            const plan = document.getElementById('billing-plan').value;
+            
+            try {
+                const res = await fetch(apiUrl('saas', 'settings', 'billing'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
+                    body: JSON.stringify({ billing: { provider, cost, renewal_date: renewal, plan } })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showToast('تم حفظ بيانات الاشتراك', 'success');
+                    closeModal('billing-modal');
+                    loadServerHealth(); // refresh
+                } else {
+                    showToast('فشل الحفظ', 'error');
+                }
+            } catch(e) {
+                showToast('خطأ في الاتصال', 'error');
+            }
+        }
+
         async function loadTickets() {
             const status = document.getElementById('tickets-status-filter').value;
             const tbody = document.getElementById('tickets-table-body');
