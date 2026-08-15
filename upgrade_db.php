@@ -3,25 +3,25 @@
 require_once 'api/db.php';
 
 try {
-    $db = getDB();
+    // $pdo is defined in api/db.php
     
     // Check if base_currency exists in tenants table
-    $stmt = $db->query("SHOW COLUMNS FROM tenants LIKE 'base_currency'");
+    $stmt = $pdo->query("SHOW COLUMNS FROM tenants LIKE 'base_currency'");
     $hasBaseCurrency = $stmt->rowCount() > 0;
     
     if (!$hasBaseCurrency) {
-        $db->exec("ALTER TABLE tenants ADD COLUMN base_currency VARCHAR(10) DEFAULT 'SDG'");
+        $pdo->exec("ALTER TABLE tenants ADD COLUMN base_currency VARCHAR(10) DEFAULT 'SDG'");
         echo "✅ Column 'base_currency' added successfully to 'tenants' table.<br>";
     } else {
         echo "ℹ️ Column 'base_currency' already exists.<br>";
     }
     
     // Check if foreign_currency exists in tenants table
-    $stmt = $db->query("SHOW COLUMNS FROM tenants LIKE 'foreign_currency'");
+    $stmt = $pdo->query("SHOW COLUMNS FROM tenants LIKE 'foreign_currency'");
     $hasForeignCurrency = $stmt->rowCount() > 0;
     
     if (!$hasForeignCurrency) {
-        $db->exec("ALTER TABLE tenants ADD COLUMN foreign_currency VARCHAR(10) DEFAULT 'USD'");
+        $pdo->exec("ALTER TABLE tenants ADD COLUMN foreign_currency VARCHAR(10) DEFAULT 'USD'");
         echo "✅ Column 'foreign_currency' added successfully to 'tenants' table.<br>";
     } else {
         echo "ℹ️ Column 'foreign_currency' already exists.<br>";
