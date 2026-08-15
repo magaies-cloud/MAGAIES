@@ -1296,6 +1296,13 @@
                 return;
             }
 
+            if (!sessionStorage.getItem('dashboard_unlocked')) {
+                showUnifiedLock();
+                return;
+            }
+            
+            setupUnifiedAutoLogout();
+
             // Initialize Charts
             initProCharts();
 
@@ -1318,7 +1325,6 @@
                 companyTopEl.textContent = storedCompanyName;
             }
 
-            // Load Settings for Athkar
             try {
                 const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
                 if (cfg.showAthkar !== false) { // Default is true
@@ -1326,6 +1332,107 @@
                     if (athkarEl) athkarEl.style.display = 'flex';
                 }
             } catch (e) {}
+        }
+        
+        // --- Security Lock Modal & Auto Logout ---
+        function showUnifiedLock() {
+            let modal = document.getElementById('unified-lock-modal');
+            if (!modal) {
+                modal = document.createElement('div');
+                modal.id = 'unified-lock-modal';
+                modal.style.cssText = 'position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(15, 23, 42, 0.95); backdrop-filter:blur(10px); z-index:100000; display:flex; align-items:center; justify-content:center; direction:rtl;';
+                
+                let username = 'مستخدم النظام';
+                try {
+                    const user = JSON.parse(localStorage.getItem('user'));
+                    username = user.fullName || user.name || user.username || username;
+                } catch(e) {}
+                
+                modal.innerHTML = `
+                    <div style="width: 90%; max-width: 400px; text-align: center; padding: 40px 35px; border-radius: 20px; box-shadow: 0 25px 50px rgba(0,0,0,0.5); background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="width: 80px; height: 80px; background: linear-gradient(135deg, #f59e0b, #ea580c); border-radius: 20px; margin: 0 auto 20px auto; display: flex; justify-content: center; align-items: center; font-size: 2.5rem; box-shadow: 0 10px 25px rgba(245, 158, 11, 0.4);">🛡️</div>
+                        <h3 style="color: #fff; margin-bottom: 5px; font-weight: 700; font-family:'Tajawal',sans-serif;">${username}</h3>
+                        <p style="color: #a1a1aa; font-size: 0.9rem; margin-bottom: 25px; font-family:'Tajawal',sans-serif;">أدخل كلمة المرور للمتابعة</p>
+                        <input type="password" id="unified-lock-pass" placeholder="........" style="width: 100%; padding: 14px; border-radius: 10px; background: rgba(255,255,255,0.07); color: #fff; border: 1px solid rgba(255,255,255,0.1); font-size: 1.1rem; box-sizing: border-box; margin-bottom: 20px; font-family: 'Tajawal',sans-serif; text-align: center; outline: none;">
+                        <button onclick="unlockUnifiedDashboard()" style="width: 100%; font-family:'Tajawal',sans-serif; font-size: 1.1rem; padding: 12px; border-radius: 10px; background: linear-gradient(135deg, #f59e0b, #ea580c); border: none; color: white; cursor: pointer; transition: 0.2s;">تسجيل الدخول</button>
+                        <div id="unified-lock-error" style="color: #ef4444; margin-top: 15px; font-size: 0.9rem; display: none; font-family:'Tajawal',sans-serif;">كلمة المرور خاطئة</div>
+                    </div>
+                `;
+                document.body.appendChild(modal);
+                
+                document.getElementById('unified-lock-pass').addEventListener('keypress', function(e) {
+                    if (e.key === 'Enter') unlockUnifiedDashboard();
+                });
+            }
+            modal.style.display = 'flex';
+            setTimeout(() => document.getElementById('unified-lock-pass').focus(), 100);
+        }
+
+        async function unlockUnifiedDashboard() {
+            const passEl = document.getElementById('unified-lock-pass');
+            const pass = passEl.value.trim();
+            const errEl = document.getElementById('unified-lock-error');
+            if (!pass) { errEl.innerText = 'الرجاء إدخال كلمة المرور'; errEl.style.display = 'block'; return; }
+            
+            const btn = document.querySelector('#unified-lock-modal button');
+            const oldText = btn.innerText;
+            btn.innerText = 'جاري التحقق...';
+            btn.disabled = true;
+            errEl.style.display = 'none';
+
+            try {
+                const userStr = localStorage.getItem('user');
+                let username = '';
+                if (userStr) username = JSON.parse(userStr).username;
+                
+                const res = await fetch('api_index.php/auth/login', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ username: username, password: pass })
+                });
+                const data = await res.json().catch(() => ({}));
+                
+                if (res.ok && data.token) {
+                    sessionStorage.setItem('dashboard_unlocked', '1');
+                    document.getElementById('unified-lock-modal').style.display = 'none';
+                    initDashboardApp();
+                } else {
+                    errEl.innerText = data.error || data.message || 'كلمة المرور خاطئة';
+                    errEl.style.display = 'block';
+                }
+            } catch (e) { 
+                errEl.innerText = 'حدث خطأ في الاتصال';
+                errEl.style.display = 'block';
+            } finally {
+                btn.innerText = oldText;
+                btn.disabled = false;
+            }
+        }
+
+        let unifiedIdleTime = 0;
+        let unifiedIdleInterval = null;
+        function setupUnifiedAutoLogout() {
+            let autoLogoutValue = 0;
+            try {
+                const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+                autoLogoutValue = parseInt(cfg.autoLogoutTime) || 0;
+            } catch(e) {}
+            
+            if (autoLogoutValue > 0) {
+                if (unifiedIdleInterval) clearInterval(unifiedIdleInterval);
+                unifiedIdleInterval = setInterval(() => {
+                    unifiedIdleTime++;
+                    if (unifiedIdleTime >= autoLogoutValue) {
+                        sessionStorage.removeItem('dashboard_unlocked');
+                        window.location.reload(); 
+                    }
+                }, 60000);
+                
+                const resetIdle = () => unifiedIdleTime = 0;
+                ['mousemove', 'keypress', 'touchstart', 'scroll'].forEach(evt => {
+                    document.addEventListener(evt, resetIdle);
+                });
+            }
         }
 
         if (window.APP_READY) {

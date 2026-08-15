@@ -850,51 +850,68 @@
 
         <!-- Tab: UI -->
         <div class="tab-content" id="tab-ui">
-            <div class="glass-panel" id="panel-ui">
-                <!-- Language Section -->
-                <div class="setting-title" data-i18n="settings.langTitle">🌐 اللغة</div>
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label class="form-label" data-i18n="settings.selectLang">اختر لغة واجهة النظام</label>
-                    <div style="display: flex; gap: 15px; margin-top: 8px;">
-                        <button type="button" id="lang-btn-ar" onclick="switchLanguage('ar')" class="action-btn" style="flex:1; padding: 14px 20px; font-size: 1.05rem; font-weight: 800; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s; cursor: pointer;">
-                            🇸🇦 العربية
-                        </button>
-                        <button type="button" id="lang-btn-en" onclick="switchLanguage('en')" class="action-btn" style="flex:1; padding: 14px 20px; font-size: 1.05rem; font-weight: 800; border-radius: 14px; display: flex; align-items: center; justify-content: center; gap: 10px; transition: all 0.3s; cursor: pointer;">
-                            🇬🇧 English
-                        </button>
+            <!-- Language Card -->
+            <div class="glass-panel" style="margin-bottom: 25px; padding: 30px; border-radius: 20px; background: linear-gradient(145deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9)); border-left: 4px solid #3b82f6; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 20px;">
+                    <div style="width: 50px; height: 50px; background: rgba(59, 130, 246, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; border: 1px solid rgba(59, 130, 246, 0.3);">🌐</div>
+                    <div>
+                        <h3 style="margin: 0; color: #fff; font-size: 1.3rem; font-weight: 800;" data-i18n="settings.langTitle">إعدادات اللغة (Language)</h3>
+                        <p style="margin: 5px 0 0; color: #94a3b8; font-size: 0.95rem;" data-i18n="settings.selectLang">اختر لغة واجهة النظام المفضلة لديك</p>
+                    </div>
+                </div>
+                <div style="display: flex; gap: 20px;">
+                    <button type="button" id="lang-btn-ar" onclick="switchLanguage('ar')" class="action-btn" style="flex:1; padding: 18px; font-size: 1.2rem; font-weight: 800; border-radius: 16px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); transition: all 0.3s; cursor: pointer; color: #fff;">
+                        🇸🇦 العربية
+                    </button>
+                    <button type="button" id="lang-btn-en" onclick="switchLanguage('en')" class="action-btn" style="flex:1; padding: 18px; font-size: 1.2rem; font-weight: 800; border-radius: 16px; background: rgba(59, 130, 246, 0.1); border: 1px solid rgba(59, 130, 246, 0.3); transition: all 0.3s; cursor: pointer; color: #fff;">
+                        🇬🇧 English
+                    </button>
+                </div>
+            </div>
+
+            <!-- System Settings Card -->
+            <div class="glass-panel" style="padding: 30px; border-radius: 20px; background: linear-gradient(145deg, rgba(30, 41, 59, 0.7), rgba(15, 23, 42, 0.9)); border-left: 4px solid #10b981; box-shadow: 0 10px 30px rgba(0,0,0,0.3);">
+                <div style="display: flex; align-items: center; gap: 15px; margin-bottom: 25px;">
+                    <div style="width: 50px; height: 50px; background: rgba(16, 185, 129, 0.2); border-radius: 12px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; border: 1px solid rgba(16, 185, 129, 0.3);">⚙️</div>
+                    <div>
+                        <h3 style="margin: 0; color: #fff; font-size: 1.3rem; font-weight: 800;" data-i18n="settings.uiTitle">ضبط النظام والمظهر (System Settings)</h3>
+                        <p style="margin: 5px 0 0; color: #94a3b8; font-size: 0.95rem;">تخصيص الواجهة، أحجام الخطوط، وإعدادات الأمان</p>
                     </div>
                 </div>
 
-                <hr style="border-color: rgba(255,255,255,0.1); margin: 20px 0;">
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 25px;">
+                    <div class="form-group" style="margin: 0;">
+                        <label class="form-label" data-i18n="settings.fontSize" style="color: #cbd5e1; font-weight: 800; margin-bottom: 10px; display: block;">حجم الخط الرئيسي للنظام</label>
+                        <select class="form-select" id="cfg-font-size" onchange="previewFontSize(this.value)" style="width: 100%; padding: 14px; border-radius: 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-size: 1rem; outline: none;">
+                            <option value="14" data-i18n="settings.fontVerySmall">صغير جداً (14px)</option>
+                            <option value="16" selected data-i18n="settings.fontMedium">متوسط (16px - افتراضي)</option>
+                            <option value="18" data-i18n="settings.fontLarge">كبير (18px)</option>
+                            <option value="20" data-i18n="settings.fontVeryLarge">كبير جداً (20px)</option>
+                        </select>
+                    </div>
 
-                <div class="setting-title" data-i18n="settings.uiTitle">🎨 واجهة المستخدم والمظهر</div>
-                <div class="form-group">
-                    <label class="form-label" data-i18n="settings.fontSize">حجم الخط الرئيسي للنظام (Font Size)</label>
-                    <select class="form-select" id="cfg-font-size" onchange="previewFontSize(this.value)">
-                        <option value="14" data-i18n="settings.fontVerySmall">صغير جداً (14px)</option>
-                        <option value="16" selected data-i18n="settings.fontMedium">متوسط (16px - افتراضي)</option>
-                        <option value="18" data-i18n="settings.fontLarge">كبير (18px)</option>
-                        <option value="20" data-i18n="settings.fontVeryLarge">كبير جداً (20px)</option>
-                    </select>
+                    <div class="form-group" style="margin: 0;">
+                        <label class="form-label" data-i18n="settings.autoLogout" style="color: #cbd5e1; font-weight: 800; margin-bottom: 10px; display: block;">مدة الخروج التلقائي للأمان</label>
+                        <select class="form-select" id="cfg-auto-logout" style="width: 100%; padding: 14px; border-radius: 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-size: 1rem; outline: none;">
+                            <option value="0" selected>بدون (معطل)</option>
+                            <option value="30">30 ثانية</option>
+                            <option value="60">1 دقيقة</option>
+                            <option value="300">5 دقائق</option>
+                            <option value="600">10 دقائق</option>
+                            <option value="1800">30 دقيقة</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="setting-row">
-                    <span class="form-label" style="margin:0;" data-i18n="settings.autoDark">تفعيل الوضع التلقائي الغامق</span>
-                    <label class="switch"><input type="checkbox" id="cfg-auto-dark" checked><span class="slider"></span></label>
-                </div>
-                <div class="setting-row" style="margin-top: 15px;">
-                    <span class="form-label" style="margin:0;" data-i18n="settings.showShapes">إظهار الأشكال في الترويسة العليا</span>
-                    <label class="switch"><input type="checkbox" id="cfg-show-athkar" checked><span class="slider"></span></label>
-                </div>
-                <div class="form-group" style="margin-top: 15px;">
-                    <label class="form-label" data-i18n="settings.autoLogout">مدة تسجيل الخروج التلقائي عند عدم النشاط</label>
-                    <select class="form-select" id="cfg-auto-logout">
-                        <option value="0" selected>بدون (معطل)</option>
-                        <option value="30">30 ثانية</option>
-                        <option value="60">1 دقيقة</option>
-                        <option value="300">5 دقائق</option>
-                        <option value="600">10 دقائق</option>
-                        <option value="1800">30 دقيقة</option>
-                    </select>
+
+                <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 30px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.05);">
+                    <div class="setting-row" style="background: rgba(255,255,255,0.03); padding: 18px 25px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05);">
+                        <span class="form-label" style="margin:0; font-size: 1.05rem; color: #fff; font-weight: bold;" data-i18n="settings.autoDark">تفعيل الوضع التلقائي الغامق</span>
+                        <label class="switch"><input type="checkbox" id="cfg-auto-dark" checked><span class="slider"></span></label>
+                    </div>
+                    <div class="setting-row" style="background: rgba(255,255,255,0.03); padding: 18px 25px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05);">
+                        <span class="form-label" style="margin:0; font-size: 1.05rem; color: #fff; font-weight: bold;" data-i18n="settings.showShapes">إظهار الأشكال والزخارف في الترويسة العليا</span>
+                        <label class="switch"><input type="checkbox" id="cfg-show-athkar" checked><span class="slider"></span></label>
+                    </div>
                 </div>
             </div>
         </div>

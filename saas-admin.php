@@ -1897,7 +1897,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 .catch(function(err) { console.error('Service Worker registration failed:', err); });
         }
 
-        let SAAS_TOKEN = localStorage.getItem('saas_token');
+        let SAAS_TOKEN = sessionStorage.getItem('saas_token');
         if (SAAS_TOKEN === 'null' || SAAS_TOKEN === 'undefined' || !SAAS_TOKEN) {
             SAAS_TOKEN = null;
         }
@@ -1918,7 +1918,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             try {
                 const res = await originalFetch(...args);
                 if (res.status === 401 && SAAS_TOKEN) {
-                    localStorage.removeItem('saas_token');
+                    sessionStorage.removeItem('saas_token');
                     showToast('انتهت صلاحية الجلسة أو الرمز غير صحيح. يرجى تسجيل الدخول مرة أخرى.', 'error');
                     setTimeout(() => { location.reload(); }, 1500);
                 }
@@ -1986,7 +1986,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 
                 if (data.success) {
                     SAAS_TOKEN = data.token;
-                    localStorage.setItem('saas_token', SAAS_TOKEN);
+                    sessionStorage.setItem('saas_token', SAAS_TOKEN);
                     showToast("تم التحقق بنجاح! جاري تحويلك للوحة التحكم...", "success");
                     setTimeout(() => { location.reload(); }, 1200);
                 } else {
@@ -2000,7 +2000,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             }
         }
 
-        function logoutSaas() { localStorage.removeItem('saas_token'); document.getElementById('sidebar').style.display = 'none'; location.reload(); }
+        function logoutSaas() { sessionStorage.removeItem('saas_token'); document.getElementById('sidebar').style.display = 'none'; location.reload(); }
 
         function switchTab(tabId, btn) {
             window.location.hash = tabId;
