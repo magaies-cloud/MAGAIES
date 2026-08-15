@@ -2308,27 +2308,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     injectSidebar();
 
-    // --- Navigation Transition: Click-only overlay (no blocking on page load) ---
-    (function() {
-        const overlay = document.getElementById('nav-transition-overlay');
-        if (!overlay) return;
-
-        // Show overlay only when clicking a link to navigate away
-        document.querySelectorAll('.sidebar-item[data-href], a[href]').forEach(link => {
-            link.addEventListener('click', (e) => {
-                const href = link.getAttribute('data-href') || link.getAttribute('href');
-                const currentUrl = typeof currentPage !== 'undefined' ? currentPage : window.location.pathname.split('/').pop();
-                if (href && !href.startsWith('#') && !href.startsWith('javascript') && href !== currentUrl) {
-                    overlay.classList.add('navigating');
-                }
-            });
-        });
-
-        // Clear overlay on back/forward navigation
-        window.addEventListener('pageshow', () => {
-            overlay.classList.remove('navigating');
-        });
-    })();
 
     // --- 3. Fullscreen Control ---
     window.toggleFullScreen = function() {
