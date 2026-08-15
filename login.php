@@ -981,6 +981,7 @@
                 document.cookie = "session_active=true; path=/";
                 document.cookie = "saas_token=" + encodeURIComponent(ssoParams.get('sso_token')) + "; path=/; max-age=2592000; SameSite=Lax";
                 sessionStorage.setItem('session_active', 'true');
+                sessionStorage.setItem('dashboard_unlocked', '1');
                 window.location.replace(ssoParams.get('redirect') || 'dashboard-pro.php');
             }
         })();
@@ -1084,6 +1085,7 @@
                 document.cookie = "session_active=true; path=/";
                 document.cookie = "saas_token=" + encodeURIComponent(data.token) + "; path=/; max-age=2592000; SameSite=Lax";
                 sessionStorage.setItem('session_active', 'true');
+                sessionStorage.setItem('dashboard_unlocked', '1');
                 sessionStorage.removeItem('cloud_synced');
                 localStorage.setItem('authToken', data.token);
                 localStorage.setItem('user', JSON.stringify(data.user));
@@ -1125,6 +1127,7 @@
                     document.cookie = "session_active=true; path=/";
                     document.cookie = "saas_token=" + encodeURIComponent(offlineToken) + "; path=/; max-age=2592000; SameSite=Lax";
                     sessionStorage.setItem('session_active', 'true');
+                    sessionStorage.setItem('dashboard_unlocked', '1');
                     sessionStorage.setItem('cloud_synced', 'false');
                     localStorage.setItem('authToken', offlineToken);
                     localStorage.setItem('user', JSON.stringify(fallbackUser));
