@@ -1823,7 +1823,7 @@ document.addEventListener('DOMContentLoaded', () => {
             'reserved-sales.php': 'sales',
             'sales-delivery.php': 'sales',
             'purchase.php': 'purchase',
-            'purchase-order.html': 'purchase',
+            'purchase-receipt.php': 'purchase',
             'inventory-report.php': 'inventory',
             'warehouse-inventory.php': 'inventory',
             'inventory-movement.php': 'inventory',
@@ -1855,7 +1855,27 @@ document.addEventListener('DOMContentLoaded', () => {
             'users-roles.php': 'settings',
             'audit-log.php': 'settings',
             'audit-logs.php': 'settings',
-            'posting-accounts.php': 'posting_accounts'
+            'posting-accounts.php': 'posting_accounts',
+            'purchase-return.php': 'purchase',
+            'delivery-note.php': 'sales',
+            'bank-transfer.php': 'finance',
+            'safe-transfer.php': 'finance',
+            'cash-bank-statement.php': 'finance',
+            'journal.php': 'finance',
+            'general_ledger_v2.php': 'finance',
+            'trial-balance.php': 'reports',
+            'pl-statement.php': 'reports',
+            'mainbalances-report.php': 'reports',
+            'balances_modern_hub.php': 'reports',
+            'aging-report.php': 'reports',
+            'combined_receivables.php': 'reports',
+            'daily_master_report.php': 'reports',
+            'smart_inventory_report.php': 'inventory',
+            'magaiees_unified_dashboard.php': 'dashboard',
+            'customer-portfolio.php': 'sales',
+            'alarm.php': 'dashboard',
+            'engineering_tools.php': 'dashboard',
+            'backup.php': 'settings'
         };
 
         const currentModule = pageModuleMap[currentPage];

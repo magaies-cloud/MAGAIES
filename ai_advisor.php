@@ -176,7 +176,7 @@ if (isset($_POST['consult_ai'])) {
 <head>
     <meta charset="UTF-8">
     <title>مستشار الذكاء الاصطناعي التنبئي - MAGAIEES ERP</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="stylesheet" href="css/tailwind.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 </head>
 <body class="bg-slate-950 text-slate-100 min-h-screen font-sans p-6" style="background-color: #05080f;">
