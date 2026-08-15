@@ -635,6 +635,20 @@
             setTimeout(() => { t.style.opacity = '0'; setTimeout(()=>t.remove(), 300); }, 3000);
         }
 
+        // --- Pagination Logic ---
+        let pendingDisplayCount = 50;
+        let receivedDisplayCount = 50;
+
+        window.loadMorePending = function() {
+            pendingDisplayCount += 50;
+            renderPendingInvoices(false);
+        };
+
+        window.loadMoreReceived = function() {
+            receivedDisplayCount += 50;
+            renderRecentGRNs(false);
+        };
+
         let currentHubView = 'pending';
         function toggleHubViewBySwitch(isReceivedView) {
             if (isReceivedView) {
@@ -799,7 +813,9 @@
             return it ? it.name : 'صنف غير معروف';
         }
 
-        function renderPendingInvoices() {
+        function renderPendingInvoices(resetCount = true) {
+            if (resetCount) pendingDisplayCount = 50;
+            
             const tbody = document.getElementById('invoices-tbody');
             const search = document.getElementById('search-inv').value.toLowerCase();
             tbody.innerHTML = '';
@@ -816,6 +832,8 @@
 
             if (filteredIds.length === 0) {
                 document.getElementById('empty-hub').style.display = 'flex';
+                let btn = document.getElementById('pending-load-more');
+                if (btn) btn.style.display = 'none';
             } else {
                 document.getElementById('empty-hub').style.display = 'none';
                 
@@ -829,7 +847,9 @@
                     return tB - tA;
                 });
                 
-                filteredIds.forEach(id => {
+                const itemsToRender = filteredIds.slice(0, pendingDisplayCount);
+                
+                itemsToRender.forEach(id => {
                     const invData = pendingMap[id];
                     const supName = getSupplierName(invData.supplierId);
                     
@@ -847,6 +867,20 @@
                     `;
                     tbody.appendChild(tr);
                 });
+                
+                let loadMoreBtn = document.getElementById('pending-load-more');
+                if (!loadMoreBtn) {
+                    loadMoreBtn = document.createElement('div');
+                    loadMoreBtn.id = 'pending-load-more';
+                    loadMoreBtn.style = 'text-align: center; margin-top: 15px; margin-bottom: 20px;';
+                    loadMoreBtn.innerHTML = `<button class="btn-action" style="padding: 10px 30px; font-size: 1rem; border-radius: 30px; background: linear-gradient(135deg, #f59e0b, #d97706);" onclick="loadMorePending()">عرض 50 فاتورة أخرى ⬇️</button>`;
+                    document.getElementById('hub-pending-container').appendChild(loadMoreBtn);
+                }
+                if (filteredIds.length > pendingDisplayCount) {
+                    loadMoreBtn.style.display = 'block';
+                } else {
+                    loadMoreBtn.style.display = 'none';
+                }
             }
             
             if (currentHubView === 'pending') {
@@ -1228,7 +1262,9 @@
             }, 1500);
         }
 
-        function renderRecentGRNs(invoiceId) {
+        function renderRecentGRNs(resetCount = true) {
+            if (resetCount) receivedDisplayCount = 50;
+            
             const container = document.getElementById('recent-grns-container');
             if (!container) return;
 
@@ -1278,7 +1314,9 @@
                     <tbody>
             `;
 
-            grns.forEach(grn => {
+            const itemsToRender = grns.slice(0, receivedDisplayCount);
+
+            itemsToRender.forEach(grn => {
                 const isEditingThis = grn.id === editingGRNId;
                 const rowBg = isEditingThis ? 'background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4);' : '';
                 const editBadge = isEditingThis ? '<span style="background: #f59e0b; color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; margin-right: 8px;">قيد التعديل ✏️</span>' : '';
@@ -1322,6 +1360,13 @@
                     </tbody>
                 </table>
             `;
+            
+            if (grns.length > receivedDisplayCount) {
+                html += `
+                <div style="text-align: center; margin-top: 15px; margin-bottom: 20px;">
+                    <button class="btn-action" style="padding: 10px 30px; font-size: 1rem; border-radius: 30px; background: linear-gradient(135deg, #10b981, #059669);" onclick="loadMoreReceived()">عرض 50 إذن آخر ⬇️</button>
+                </div>`;
+            }
             container.innerHTML = html;
         }
 
