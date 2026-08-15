@@ -24,7 +24,7 @@ $passed = 0;
 // ============================================
 // CHECK 1: No Tailwind CDN in production files
 // ============================================
-echo "🔍 [1/8] Checking for Tailwind CDN usage...\n";
+echo "🔍 [1/9] Checking for Tailwind CDN usage...\n";
 $phpFiles = glob('*.php');
 foreach ($phpFiles as $file) {
     if (basename($file) === 'pre-deploy-check.php') continue;
@@ -41,7 +41,7 @@ if (empty(array_filter($errors, fn($e) => strpos($e, 'Tailwind') !== false))) {
 // ============================================
 // CHECK 2: No anti-caching headers in PHP files 
 // ============================================
-echo "🔍 [2/8] Checking for anti-caching headers...\n";
+echo "🔍 [2/9] Checking for anti-caching headers...\n";
 $mainFiles = ['index.php', 'saas-admin.php'];
 foreach ($mainFiles as $file) {
     if (!file_exists($file)) continue;
@@ -59,7 +59,7 @@ $passed++;
 // ============================================
 // CHECK 3: Service Worker excludes PHP/API
 // ============================================
-echo "🔍 [3/8] Checking Service Worker configuration...\n";
+echo "🔍 [3/9] Checking Service Worker configuration...\n";
 if (file_exists('sw.js')) {
     $sw = file_get_contents('sw.js');
     if (strpos($sw, '.php') === false || strpos($sw, '/api/') === false) {
@@ -75,7 +75,7 @@ if (file_exists('sw.js')) {
 // ============================================
 // CHECK 4: Large images (>500KB)
 // ============================================
-echo "🔍 [4/8] Checking for oversized images...\n";
+echo "🔍 [4/9] Checking for oversized images...\n";
 $imageExts = ['png', 'jpg', 'jpeg', 'gif', 'webp', 'svg'];
 $assetsDir = 'assets/';
 if (is_dir($assetsDir)) {
@@ -95,7 +95,7 @@ $passed++;
 // ============================================
 // CHECK 5: Heavy CSS blur filters
 // ============================================
-echo "🔍 [5/8] Checking for heavy blur filters...\n";
+echo "🔍 [5/9] Checking for heavy blur filters...\n";
 foreach (['index.php', 'saas-admin.php'] as $file) {
     if (!file_exists($file)) continue;
     $content = file_get_contents($file);
@@ -114,7 +114,7 @@ $passed++;
 // ============================================
 // CHECK 6: Broken navigation links
 // ============================================
-echo "🔍 [6/8] Checking for broken navigation links...\n";
+echo "🔍 [6/9] Checking for broken navigation links...\n";
 if (file_exists('js/app.js')) {
     $appJs = file_get_contents('js/app.js');
     preg_match_all("/href:\s*'([^']+\.(?:php|html))'/", $appJs, $matches);
@@ -132,7 +132,7 @@ $passed++;
 // ============================================
 // CHECK 7: localforage.min.js exists
 // ============================================
-echo "🔍 [7/8] Checking critical JS libraries...\n";
+echo "🔍 [7/9] Checking critical JS libraries...\n";
 $criticalJs = ['js/app.js', 'js/localforage.min.js', 'js/lang.js'];
 foreach ($criticalJs as $jsFile) {
     if (!file_exists($jsFile)) {
@@ -145,7 +145,7 @@ $passed++;
 // ============================================
 // CHECK 8: CSS files exist
 // ============================================
-echo "🔍 [8/8] Checking critical CSS files...\n";
+echo "🔍 [8/9] Checking critical CSS files...\n";
 $criticalCss = ['css/design-system.css', 'css/theme.css', 'css/components.css', 'css/tailwind.min.css'];
 foreach ($criticalCss as $cssFile) {
     if (!file_exists($cssFile)) {
@@ -156,11 +156,26 @@ echo "   ✅ CSS files check complete\n";
 $passed++;
 
 // ============================================
+// CHECK 9: No time() cache-busting on heavy JS files
+// ============================================
+echo "🔍 [9/9] Checking for cache-killing patterns...\n";
+$phpFiles2 = glob('*.php');
+foreach ($phpFiles2 as $file) {
+    if (basename($file) === 'pre-deploy-check.php') continue;
+    $content = file_get_contents($file);
+    if (preg_match('/app\.js\?v=.*time\(\)/', $content)) {
+        $errors[] = "❌ $file: Uses time() for app.js versioning - causes 340KB re-download on every page! Use filemtime() instead";
+    }
+}
+echo "   ✅ Cache pattern check complete\n";
+$passed++;
+
+// ============================================
 // RESULTS
 // ============================================
 echo "\n";
 echo "══════════════════════════════════════════════════\n";
-echo "  RESULTS: $passed/8 checks passed\n";
+echo "  RESULTS: $passed/9 checks passed\n";
 echo "══════════════════════════════════════════════════\n\n";
 
 if (!empty($errors)) {
