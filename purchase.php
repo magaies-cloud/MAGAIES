@@ -2008,20 +2008,14 @@
                             </div>
                         </div>
 
-                        <!-- Bank Transfers box (Toggled off by default) -->
-                        <div id="pay-bank-section" style="display: none; flex-direction: column; background: rgba(56, 189, 248, 0.18); border: 1px solid rgba(56, 189, 248, 0.6); border-radius: 12px; padding: 15px; margin-bottom: 10px; width: 100%;">
-                            <div style="color: #38bdf8; font-weight: bold; margin-bottom: 10px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
-                                <span>💳</span> <span>تحويل بنكي</span>
-                            </div>
-                            <div id="bank-transfers-list" style="display: flex; flex-direction: column; gap: 10px; width: 100%;"></div>
+                        <!-- Bank Transfers box -->
+                        <div id="pay-bank-section" style="display: none; flex-direction: column; background: #0b1520; border: 1.5px solid #085a70; border-radius: 8px; padding: 10px; margin-bottom: 10px; width: 100%;">
+                            <div id="bank-transfers-list" style="display: flex; flex-direction: column; gap: 0px; width: 100%;"></div>
                         </div>
 
-                        <!-- Cheques box (Toggled off by default) -->
-                        <div id="pay-cheque-section" style="display: none; flex-direction: column; background: rgba(245, 158, 11, 0.18); border: 1px solid rgba(245, 158, 11, 0.6); border-radius: 12px; padding: 15px; margin-bottom: 10px; width: 100%;">
-                            <div style="color: #f59e0b; font-weight: bold; margin-bottom: 10px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
-                                <span>📝</span> <span>شيكات</span>
-                            </div>
-                            <div id="cheques-list" style="display: flex; flex-direction: column; gap: 10px; width: 100%;"></div>
+                        <!-- Cheques box -->
+                        <div id="pay-cheque-section" style="display: none; flex-direction: column; background: #130a21; border: 1.5px solid #432168; border-radius: 8px; padding: 10px; margin-bottom: 10px; width: 100%;">
+                            <div id="cheques-list" style="display: flex; flex-direction: column; gap: 0px; width: 100%;"></div>
                         </div>
                     </div>
                 </div>

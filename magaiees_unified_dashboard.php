@@ -465,8 +465,10 @@
             transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1) !important;
             cursor: pointer !important;
             white-space: nowrap !important;
+            text-overflow: ellipsis !important;
             text-decoration: none !important;
             box-sizing: border-box !important;
+            flex: 0 0 auto !important; /* Prevent shrinking when in scrollable flex container */
         }
 
         /* Animated Light Wave Shimmer Effect */
@@ -973,7 +975,7 @@
             </div>
 
             <!-- Bottom Grid Row: 7 Custom Quick Action Master Buttons -->
-            <div id="qa-single-row-grid" style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 12px; width: 100%;">
+            <div id="qa-single-row-grid" style="display: flex; gap: 12px; width: 100%; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; -ms-overflow-style: none;">
                 <!-- Dynamic 7 Master Items rendered via JS -->
             </div>
         </div>
@@ -988,7 +990,7 @@
             </div>
             
             <!-- 7 Domain Specialty Buttons Grid -->
-            <div id="category-hubs-grid" style="display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 10px; width: 100%;">
+            <div id="category-hubs-grid" style="display: flex; gap: 10px; width: 100%; overflow-x: auto; padding-bottom: 8px; scrollbar-width: none; -ms-overflow-style: none;">
                 <!-- Rendered dynamically by renderCategoryHubs() -->
             </div>
         </div>
