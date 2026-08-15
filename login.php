@@ -1337,6 +1337,18 @@
                                             try { localStorage.setItem(pk, val); } catch(e) {}
                                         }
                                     });
+                                    
+                                    // Inject base and foreign currency from admin settings
+                                    if (userObj.base_currency || userObj.foreign_currency) {
+                                        const settingsKey = prefix + 'erp_settings_v1';
+                                        let settings = {};
+                                        try { settings = JSON.parse(localStorage.getItem(settingsKey) || localStorage.getItem('erp_settings_v1') || '{}'); } catch(e) {}
+                                        if (userObj.base_currency) settings.currency = userObj.base_currency;
+                                        if (userObj.foreign_currency) settings.foreignCurrency = userObj.foreign_currency;
+                                        localStorage.setItem(settingsKey, JSON.stringify(settings));
+                                        localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
+                                    }
+                                    
                                     sessionStorage.setItem('cloud_synced', 'true');
                                     console.log('Login pre-sync completed for tenant:', prefix);
                                 }

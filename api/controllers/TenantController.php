@@ -134,7 +134,7 @@ class TenantController {
                 $totalCount = $countStmt->fetchColumn();
 
                 // Get paginated tenants
-                $sql = "SELECT t.id, t.company_name, t.subdomain, t.owner_name, t.owner_phone, t.phone2, t.owner_email, t.status, t.receipt_path, t.valid_until, t.max_users, t.max_storage, t.plan_id, t.created_at, t.last_login_at, (SELECT username FROM users WHERE tenant_id = t.id AND role = 'admin' LIMIT 1) AS admin_username, (SELECT COUNT(*) FROM users WHERE tenant_id = t.id) AS users_count FROM tenants t $whereClause ORDER BY t.created_at DESC LIMIT $limit OFFSET $offset";
+                $sql = "SELECT t.id, t.company_name, t.subdomain, t.owner_name, t.owner_phone, t.phone2, t.owner_email, t.status, t.receipt_path, t.valid_until, t.max_users, t.max_storage, t.plan_id, t.created_at, t.last_login_at, t.base_currency, t.foreign_currency, (SELECT username FROM users WHERE tenant_id = t.id AND role = 'admin' LIMIT 1) AS admin_username, (SELECT COUNT(*) FROM users WHERE tenant_id = t.id) AS users_count FROM tenants t $whereClause ORDER BY t.created_at DESC LIMIT $limit OFFSET $offset";
                 $stmt = $this->pdo->prepare($sql);
                 $stmt->execute($params);
                 $tenants = $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -172,10 +172,21 @@ class TenantController {
             $planId = isset($input['plan_id']) && $input['plan_id'] !== '' ? intval($input['plan_id']) : null;
             if (!$tenantId) jsonResponse(['error' => 'معرّف الشركة مطلوب'], 400);
             
-            if (array_key_exists('valid_until', $input)) {
-                $this->pdo->prepare("UPDATE tenants SET status = ?, valid_until = ?, max_users = ?, max_storage = ?, plan_id = ? WHERE id = ?")->execute([$newStatus, $input['valid_until'], $maxUsers, $maxStorage, $planId, $tenantId]);
+            $baseCurrency = isset($input['base_currency']) ? $input['base_currency'] : null;
+            $foreignCurrency = isset($input['foreign_currency']) ? $input['foreign_currency'] : null;
+            
+            if ($baseCurrency && $foreignCurrency) {
+                if (array_key_exists('valid_until', $input)) {
+                    $this->pdo->prepare("UPDATE tenants SET status = ?, valid_until = ?, max_users = ?, max_storage = ?, plan_id = ?, base_currency = ?, foreign_currency = ? WHERE id = ?")->execute([$newStatus, $input['valid_until'], $maxUsers, $maxStorage, $planId, $baseCurrency, $foreignCurrency, $tenantId]);
+                } else {
+                    $this->pdo->prepare("UPDATE tenants SET status = ?, max_users = ?, max_storage = ?, plan_id = ?, base_currency = ?, foreign_currency = ? WHERE id = ?")->execute([$newStatus, $maxUsers, $maxStorage, $planId, $baseCurrency, $foreignCurrency, $tenantId]);
+                }
             } else {
-                $this->pdo->prepare("UPDATE tenants SET status = ?, max_users = ?, max_storage = ?, plan_id = ? WHERE id = ?")->execute([$newStatus, $maxUsers, $maxStorage, $planId, $tenantId]);
+                if (array_key_exists('valid_until', $input)) {
+                    $this->pdo->prepare("UPDATE tenants SET status = ?, valid_until = ?, max_users = ?, max_storage = ?, plan_id = ? WHERE id = ?")->execute([$newStatus, $input['valid_until'], $maxUsers, $maxStorage, $planId, $tenantId]);
+                } else {
+                    $this->pdo->prepare("UPDATE tenants SET status = ?, max_users = ?, max_storage = ?, plan_id = ? WHERE id = ?")->execute([$newStatus, $maxUsers, $maxStorage, $planId, $tenantId]);
+                }
             }
             $this->logSaaSAction('تعديل خطة المشترك', 'تعديل الباقة والحدود للمشترك معرّف ' . $tenantId . ' للحالة ' . $newStatus);
 

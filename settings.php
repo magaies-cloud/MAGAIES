@@ -510,8 +510,6 @@
                                 <option value="USD">الدولار الأمريكي (USD)</option>
                                 <option value="SAR">الريال السعودي (SAR)</option>
                                 <option value="AED">الدرهم الإماراتي (AED)</option>
-                                <option value="EGP">الجنيه المصري (EGP)</option>
-                                <option value="QAR">الريال القطري (QAR)</option>
                             </select>
                             <span id="cfg-base-select-lock" style="display:none; position:absolute; left:12px; top:50%; transform:translateY(-50%); pointer-events:none; font-size:1.1rem;">🔒</span>
                         </div>
@@ -529,7 +527,6 @@
                                 <option value="USD" selected>الدولار الأمريكي (USD)</option>
                                 <option value="SAR">الريال السعودي (SAR)</option>
                                 <option value="AED">الدرهم الإماراتي (AED)</option>
-                                <option value="EGP">الجنيه المصري (EGP)</option>
                                 <option value="SDG">الجنيه السوداني (SDG)</option>
                             </select>
                             <span id="cfg-foreign-select-lock" style="display:none; position:absolute; left:12px; top:50%; transform:translateY(-50%); pointer-events:none; font-size:1.1rem;">🔒</span>
@@ -984,9 +981,7 @@ function highlightLangBtn(lang) {
                 'SDG': 'الجنيه السوداني (SDG)',
                 'USD': 'الدولار الأمريكي (USD)',
                 'SAR': 'الريال السعودي (SAR)',
-                'AED': 'الدرهم الإماراتي (AED)',
-                'EGP': 'الجنيه المصري (EGP)',
-                'QAR': 'الريال القطري (QAR)'
+                'AED': 'الدرهم الإماراتي (AED)'
             };
             return labels[code] || code;
         }

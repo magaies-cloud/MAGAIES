@@ -1296,24 +1296,40 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             </select>
         </div>
         
-        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
-            <div class="form-group" style="margin: 0;">
-                <label style="color: #cbd5e1;">💵 الدولار الأمريكي (USD)</label>
-                <input type="number" id="global-exchange-rate" step="0.01" style="width: 100%; padding: 12px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+        <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 20px; align-items: end; margin-bottom: 25px;">
+            
+            <!-- USD -->
+            <div class="form-group" style="margin: 0; background: rgba(251, 191, 36, 0.1); padding: 15px; border-radius: 12px; border: 2px solid rgba(251, 191, 36, 0.4);">
+                <label style="color: #fbbf24; font-weight: bold; font-size: 1.1rem; margin-bottom: 10px; display: block; text-align: center;">💵 الدولار الأمريكي (USD)</label>
+                <input type="number" id="global-exchange-rate" step="0.01" oninput="calculateCurrencies()" placeholder="أدخل سعر الدولار" style="width: 100%; padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.6); border: 2px solid #fbbf24; color: #fbbf24; font-size: 2rem; font-weight: 900; text-align: center; outline: none; box-shadow: inset 0 2px 10px rgba(0,0,0,0.5);">
             </div>
-            <div class="form-group" style="margin: 0;">
-                <label style="color: #cbd5e1;">🇸🇦 الريال السعودي (SAR)</label>
-                <input type="number" id="global-exchange-sar" step="0.01" style="width: 100%; padding: 12px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+
+            <!-- SAR -->
+            <div class="form-group" style="margin: 0; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                <label style="color: #e2e8f0; font-weight: bold; font-size: 1rem; margin-bottom: 10px; display: block; text-align: center;">🇸🇦 الريال السعودي (SAR)</label>
+                <input type="number" id="global-exchange-sar" step="0.01" style="width: 100%; padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 1.5rem; font-weight: bold; text-align: center;">
             </div>
-            <div class="form-group" style="margin: 0;">
-                <label style="color: #cbd5e1;">🇦🇪 الدرهم الإماراتي (AED)</label>
-                <input type="number" id="global-exchange-aed" step="0.01" style="width: 100%; padding: 12px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+
+            <!-- AED -->
+            <div class="form-group" style="margin: 0; background: rgba(255,255,255,0.02); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1);">
+                <label style="color: #e2e8f0; font-weight: bold; font-size: 1rem; margin-bottom: 10px; display: block; text-align: center;">🇦🇪 الدرهم الإماراتي (AED)</label>
+                <input type="number" id="global-exchange-aed" step="0.01" style="width: 100%; padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.2); color: #fff; font-size: 1.5rem; font-weight: bold; text-align: center;">
             </div>
-            <div class="form-group" style="margin: 0;">
-                <label style="color: #cbd5e1;">🇪🇺 اليورو (EUR)</label>
-                <input type="number" id="global-exchange-eur" step="0.01" style="width: 100%; padding: 12px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
-            </div>
+
         </div>
+        
+        <script>
+            function calculateCurrencies() {
+                let usdRate = parseFloat(document.getElementById('global-exchange-rate').value) || 0;
+                if(usdRate > 0) {
+                    document.getElementById('global-exchange-sar').value = (usdRate / 3.75).toFixed(2);
+                    document.getElementById('global-exchange-aed').value = (usdRate / 3.67).toFixed(2);
+                } else {
+                    document.getElementById('global-exchange-sar').value = '';
+                    document.getElementById('global-exchange-aed').value = '';
+                }
+            }
+        </script>
         
         <div class="setting-row" style="background: rgba(255,255,255,0.03); padding: 18px 25px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); margin-top: 25px;">
             <span class="form-label" style="margin:0; font-size: 1.05rem; color: #fff; font-weight: bold;">👁️ إظهار الأسعار للمشتركين</span>
@@ -2138,6 +2154,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 else if (hash === 'tab-health') loadServerHealth();
                 else if (hash === 'tab-tickets') loadTickets();
                 else if (hash === 'tab-security') loadBannedIPs();
+                else if (hash === 'tab-settings' || hash.startsWith('settings-')) loadGlobalSettings();
                 
                 if (hash === 'tab-tenants') {
                     if (qs && qs.has('id')) {
@@ -3511,6 +3528,29 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     </div>
                 </div>
                 
+                <!-- Currency Info (Editable) -->
+                <div class="tenant-info-card">
+                    <h4>💱 إعدادات العملات للصرف</h4>
+                    <div class="tenant-edit-row">
+                        <span class="tenant-info-label">العملة الافتراضية المحلية (Base):</span>
+                        <select id="inline-edit-base-currency" class="glass-input">
+                            <option value="SDG" ${tenant.base_currency === 'SDG' || !tenant.base_currency ? 'selected' : ''}>الجنيه السوداني (SDG)</option>
+                            <option value="USD" ${tenant.base_currency === 'USD' ? 'selected' : ''}>الدولار الأمريكي (USD)</option>
+                            <option value="SAR" ${tenant.base_currency === 'SAR' ? 'selected' : ''}>الريال السعودي (SAR)</option>
+                            <option value="AED" ${tenant.base_currency === 'AED' ? 'selected' : ''}>الدرهم الإماراتي (AED)</option>
+                        </select>
+                    </div>
+                    <div class="tenant-edit-row">
+                        <span class="tenant-info-label">العملة الأجنبية النشطة (Foreign):</span>
+                        <select id="inline-edit-foreign-currency" class="glass-input">
+                            <option value="USD" ${tenant.foreign_currency === 'USD' || !tenant.foreign_currency ? 'selected' : ''}>الدولار الأمريكي (USD)</option>
+                            <option value="SDG" ${tenant.foreign_currency === 'SDG' ? 'selected' : ''}>الجنيه السوداني (SDG)</option>
+                            <option value="SAR" ${tenant.foreign_currency === 'SAR' ? 'selected' : ''}>الريال السعودي (SAR)</option>
+                            <option value="AED" ${tenant.foreign_currency === 'AED' ? 'selected' : ''}>الدرهم الإماراتي (AED)</option>
+                        </select>
+                    </div>
+                </div>
+                
                 <!-- Usage Stats -->
                 <div class="tenant-info-card">
                     <h4>📊 استهلاك الموارد</h4>
@@ -4353,8 +4393,9 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     document.getElementById('global-exchange-rate').value = data.rate || 1.0;
                     if(data.other_rates) {
                         document.getElementById('global-exchange-sar').value = data.other_rates.SAR || '';
-                        document.getElementById('global-exchange-aed').value = data.other_rates.AED || '';
-                        document.getElementById('global-exchange-eur').value = data.other_rates.EUR || '';
+                        document.getElementById('global-exchange-aed').value = data.other_rates.AED || ''; 
+                    } else { 
+                        calculateCurrencies(); 
                     }
                     if(data.pricing_method) {
                         document.getElementById('global-pricing-method').value = data.pricing_method;
@@ -4392,7 +4433,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             const rate = document.getElementById('global-exchange-rate').value;
             const sar = document.getElementById('global-exchange-sar').value;
             const aed = document.getElementById('global-exchange-aed').value;
-            const eur = document.getElementById('global-exchange-eur').value;
+            const eur = null;
             const pricing_method = document.getElementById('global-pricing-method').value;
             const visible = document.getElementById('global-exchange-visible').checked;
             const activation_delay_hours = document.getElementById('global-activation-delay').value;
