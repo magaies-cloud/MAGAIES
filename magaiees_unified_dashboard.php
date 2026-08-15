@@ -71,7 +71,7 @@
         }
 
         .orb {
-            position: absolute; border-radius: 50%; filter: blur(80px); opacity: 0.12;
+            position: absolute; border-radius: 50%; filter: blur(30px); opacity: 0.12;
             animation: floatOrb 20s infinite alternate ease-in-out;
             will-change: transform;
             contain: layout style paint;
@@ -171,7 +171,7 @@
 
         /* Compact Glass Panels */
         .glass-panel {
-            background: var(--surface); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            background: var(--surface); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
             border: 1px solid var(--border); border-radius: 18px; padding: 18px;
             box-shadow: 0 10px 25px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.03);
             transition: all 0.4s ease;
@@ -257,7 +257,7 @@
             padding: 10px 14px; border-radius: 12px; text-decoration: none; font-weight: 800; font-size: 0.9rem;
             color: #fff; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255,255,255,0.08);
             box-shadow: 0 3px 10px rgba(0,0,0,0.2), inset 0 0 0 1px rgba(255,255,255,0.05);
-            backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
             transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); position: relative; overflow: hidden;
             font-family: 'Tajawal', sans-serif;
         }
@@ -359,7 +359,7 @@
             display: inline-flex; align-items: center; gap: 8px;
             padding: 8px 16px; border-radius: 20px; text-decoration: none; font-weight: 800; font-size: 0.85rem;
             color: #fff; background: rgba(15, 23, 42, 0.4); border: 1.5px solid rgba(255,255,255,0.08);
-            backdrop-filter: blur(15px); -webkit-backdrop-filter: blur(15px);
+            backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px);
             transition: all 0.3s cubic-bezier(0.25, 1, 0.5, 1); cursor: pointer;
             font-family: 'Tajawal', sans-serif;
             box-shadow: inset 0 0 10px rgba(255,255,255,0.01), 0 4px 10px rgba(0,0,0,0.15);
@@ -461,7 +461,7 @@
             background: rgba(15, 23, 42, 0.78) !important;
             border: 1.5px solid rgba(255, 255, 255, 0.14) !important;
             box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35), inset 0 1px 0 rgba(255, 255, 255, 0.12);
-            backdrop-filter: blur(14px);
+            backdrop-filter: blur(8px);
             transition: all 0.35s cubic-bezier(0.25, 1, 0.5, 1) !important;
             cursor: pointer !important;
             white-space: nowrap !important;
@@ -1235,7 +1235,7 @@
     </div>
 
     <!-- Notifications Modal Overlay -->
-    <div id="notifications-dropdown" style="display:none; position:fixed; top:0; left:0; width: 100%; height:100vh; background:rgba(5,3,8,0.85); backdrop-filter:blur(10px); z-index:9999; justify-content:center; align-items:center; opacity:0; transition: opacity 0.3s ease;" onclick="toggleNotifications()">
+    <div id="notifications-dropdown" style="display:none; position:fixed; top:0; left:0; width: 100%; height:100vh; background:rgba(5,3,8,0.85); backdrop-filter:blur(8px); z-index:9999; justify-content:center; align-items:center; opacity:0; transition: opacity 0.3s ease;" onclick="toggleNotifications()">
         <div class="glass-panel" style="width:90%; max-width:450px; max-height:80vh; overflow-y:auto; padding:25px; border:1px solid rgba(255,255,255,0.1); border-radius:20px; position:relative; box-shadow: 0 25px 50px rgba(0,0,0,0.5);" onclick="event.stopPropagation()">
             <h3 style="margin:0 0 15px 0; padding-bottom:15px; border-bottom:1px dashed rgba(255,255,255,0.1); color:#fff; font-size:1.1rem; text-align:center; font-weight: 800; justify-content: center;"><i class="fa-solid fa-bell text-rose-400" style="margin-left: 8px;"></i> إشعارات المديونيات</h3>
             <div id="notif-list" style="display:flex; flex-direction:column; gap:12px;">
@@ -2034,7 +2034,7 @@
                 border = '1px solid rgba(251,191,36,0.4)';
                 color = '#fbbf24';
             }
-            toast.style.cssText = `padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem; display:flex; align-items:center; gap:8px; pointer-events:auto; backdrop-filter:blur(20px); box-shadow:0 12px 40px rgba(0,0,0,0.5); color:${color}; background:${bg}; border:${border}; font-family:'Tajawal',sans-serif; animation: toastIn 0.4s cubic-bezier(0.16,1,0.3,1) both;`;
+            toast.style.cssText = `padding:12px 20px; border-radius:12px; font-weight:700; font-size:0.85rem; display:flex; align-items:center; gap:8px; pointer-events:auto; backdrop-filter:blur(8px); box-shadow:0 12px 40px rgba(0,0,0,0.5); color:${color}; background:${bg}; border:${border}; font-family:'Tajawal',sans-serif; animation: toastIn 0.4s cubic-bezier(0.16,1,0.3,1) both;`;
             toast.innerHTML = `<span>${type === 'error' ? '🔴' : (type === 'warning' ? '🟡' : '🟢')}</span> ${message}`;
             container.appendChild(toast);
             setTimeout(() => {
@@ -2601,7 +2601,7 @@
         <!-- Client Support Tickets FAB (Removed as per user request to integrate into AI menu) -->
 
         <!-- Client Support Modal -->
-        <div id="client-support-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); z-index: 10000; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+        <div id="client-support-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(8px); z-index: 10000; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
             <div class="glass-panel" style="width: 100%; max-width: 600px; max-height: 90vh; display: flex; flex-direction: column; padding: 0; overflow: hidden; border-radius: 20px;">
                 <div style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2);">
                     <h3 style="margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; color: white;">
