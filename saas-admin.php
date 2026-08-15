@@ -1893,7 +1893,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
     </div>
 
     <!-- Billing Modal -->
-    <div id="billing-modal" class="modal" onclick="if(event.target===this) closeModal('billing-modal')">
+    <div id="billing-modal" class="modal-overlay" onclick="if(event.target===this) closeModal('billing-modal')">
         <div class="modal-content" style="max-width: 400px;">
             <div class="modal-header"><h3>إعدادات اشتراك السيرفر</h3></div>
             <div class="form-group"><label>مزود الخدمة</label><input type="text" id="billing-provider" placeholder="مثال: DigitalOcean"></div>
