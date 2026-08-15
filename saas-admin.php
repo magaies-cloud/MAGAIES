@@ -38,7 +38,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         }
         body { background-color: var(--bg-color); color: var(--text-primary); font-family: 'Inter', 'Tajawal', sans-serif; margin: 0; padding: 0; min-height: 100vh; overflow-x: hidden; }
         .ambient-bg { position: fixed; top: 0; left: 0; width: 100%; height: 100vh; overflow: hidden; z-index: -1; pointer-events: none; background: radial-gradient(circle at 50% 50%, #0c0812 0%, #000000 100%); }
-        .orb { position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.15; animation: floatOrb 20s infinite alternate ease-in-out; }
+        .orb { position: absolute; border-radius: 50%; filter: blur(40px); opacity: 0.15; animation: floatOrb 20s infinite alternate ease-in-out; }
         .orb-1 { width: 500px; height: 500px; background: #f59e0b; top: -5%; right: -5%; }
         .orb-2 { width: 450px; height: 450px; background: #a855f7; bottom: -10%; left: -5%; animation-delay: -7s; }
         .orb-3 { width: 600px; height: 600px; background: #ea580c; top: 30%; left: 30%; }
@@ -48,7 +48,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         .app-layout { display: flex; min-height: 100vh; direction: rtl; }
         .sidebar {
             position: fixed; top: 0; right: 0; height: 100vh; width: 72px; z-index: 1000;
-            background: rgba(12, 10, 18, 0.95); backdrop-filter: blur(30px);
+            background: rgba(12, 10, 18, 0.95); backdrop-filter: blur(8px);
             border-left: 1px solid var(--glass-border);
             transition: width 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             overflow-x: hidden; overflow-y: auto;
@@ -183,7 +183,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
 
         .premium-header {
             background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(168, 85, 247, 0.15));
-            backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 15px 25px;
+            backdrop-filter: blur(8px); border: 1px solid rgba(255, 255, 255, 0.15); border-radius: 20px; padding: 15px 25px;
             display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;
             box-shadow: 0 15px 30px rgba(0,0,0,0.4);
         }
@@ -193,7 +193,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         .brand-text p { margin: 0; font-size: 0.85rem; color: #cbd5e1; }
         
         .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 25px; }
-        .glass-panel { background: var(--surface-color); backdrop-filter: blur(20px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; transition: all 0.3s; }
+        .glass-panel { background: var(--surface-color); backdrop-filter: blur(8px); border: 1px solid var(--glass-border); border-radius: 16px; padding: 20px; transition: all 0.3s; }
         .glass-panel:hover { border-color: rgba(255,255,255,0.15); box-shadow: 0 10px 25px rgba(0,0,0,0.4); }
         .kpi-card { padding: 10px 15px !important; border-radius: 12px !important; }
         .kpi-title { font-size: 0.8rem; color: var(--text-secondary); font-weight: 600; display: flex; justify-content: space-between; margin-bottom: 5px; }
@@ -229,7 +229,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         .form-group label { display: block; margin-bottom: 8px; color: var(--text-secondary); font-size: 0.9rem; }
         .form-group input, .form-group select, .form-group textarea { width: 100%; padding: 12px; border-radius: 10px; border: 1px solid var(--glass-border); background: rgba(0,0,0,0.3); color: white; box-sizing: border-box; }
 
-        #login-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(15px); }
+        #login-modal { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(15, 23, 42, 0.9); z-index: 9999; display: flex; align-items: center; justify-content: center; backdrop-filter: blur(8px); }
         .login-box { width: 90%; max-width: 400px; text-align: center; padding: 40px 35px; }
         .login-box input { width: 100%; padding: 14px; border-radius: 10px; background: rgba(255,255,255,0.07); color: #fff; border: 1px solid var(--glass-border); font-size: 1.1rem; box-sizing: border-box; margin-bottom: 15px; font-family: 'Tajawal',sans-serif; }
         .login-box input:focus { outline: none; border-color: var(--primary-accent); }
@@ -248,7 +248,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         /* تخصيص Flatpickr ليتناسب مع التصميم الداكن الفخم */
         .flatpickr-calendar {
             background: rgba(20, 20, 22, 0.98) !important;
-            backdrop-filter: blur(20px);
+            backdrop-filter: blur(8px);
             border: 1px solid var(--glass-border) !important;
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.7) !important;
             font-family: 'Tajawal', 'Inter', sans-serif !important;
@@ -402,7 +402,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         }
         .toast-notification {
             position: fixed; bottom: 30px; left: 50%; transform: translateX(-50%) translateY(100px);
-            background: rgba(20, 20, 22, 0.95); backdrop-filter: blur(20px);
+            background: rgba(20, 20, 22, 0.95); backdrop-filter: blur(8px);
             border: 1px solid rgba(255,255,255,0.15); border-radius: 12px;
             padding: 14px 28px; color: #fff; font-weight: 600; font-size: 0.95rem;
             z-index: 99999; opacity: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1);

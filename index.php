@@ -34,7 +34,7 @@
             background-attachment: fixed;
         }
 
-        .glass-panel { background: var(--surface-color); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px); border: 1px solid var(--glass-border); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
+        .glass-panel { background: var(--surface-color); backdrop-filter: blur(8px); -webkit-backdrop-filter: blur(8px); border: 1px solid var(--glass-border); box-shadow: 0 4px 30px rgba(0, 0, 0, 0.1); }
 
         nav { position: sticky; top: 0; width: 100%; z-index: 1000; display: flex; justify-content: space-between; align-items: center; padding: 1.2rem 5%; border-bottom: 1px solid var(--glass-border); transition: all 0.3s ease; }
         .logo { font-size: 1.6rem; font-weight: 900; display: flex; align-items: center; gap: 12px; color: #fff; text-decoration: none; }
@@ -46,7 +46,7 @@
 
         /* Hero */
         .hero { position: relative; min-height: calc(100vh - 350px); display: flex; align-items: center; padding: 50px 5% 50px; overflow: hidden; }
-        .hero-bg-img { position: absolute; top: 0; right: 0; width: 100%; height: 100%; object-fit: cover; opacity: 0.15; z-index: -1; filter: saturate(1.5); }
+        .hero-bg-img { position: absolute; top: 0; right: 0; width: 100%; height: 100%; background: radial-gradient(circle at center, rgba(59,130,246,0.15) 0%, transparent 70%); z-index: -1; }
         
         .hero-content { flex: 1; max-width: 600px; z-index: 2; }
         .hero-badge { display: inline-block; padding: 8px 16px; background: rgba(59,130,246,0.15); border: 1px solid rgba(59,130,246,0.3); border-radius: 20px; color: #60a5fa; font-weight: 700; margin-bottom: 20px; font-size: 0.9rem; letter-spacing: 1px; }
@@ -99,13 +99,7 @@
         }
         
         .features-glow-line {
-            position: absolute;
-            top: 40%; left: -50%; width: 200%; height: 2px;
-            background: linear-gradient(90deg, transparent, rgba(59, 130, 246, 0.15), rgba(139, 92, 246, 0.15), transparent);
-            transform: rotate(-12deg);
-            animation: lineFlow 12s linear infinite;
-            z-index: 1;
-            pointer-events: none;
+            display: none; /* Disabled for performance */
         }
         
         @keyframes lineFlow {
@@ -172,36 +166,18 @@
             z-index: 1;
             pointer-events: none;
         }
-        .shooting-star-purple {
-            background: linear-gradient(90deg, rgba(255,255,255,0.9), rgba(139, 92, 246, 0.4), transparent);
-            filter: drop-shadow(0 0 6px var(--secondary-accent));
-        }
-        .shooting-star-green {
-            background: linear-gradient(90deg, rgba(255,255,255,0.9), rgba(16, 185, 129, 0.4), transparent);
-            filter: drop-shadow(0 0 6px var(--success-color));
-        }
+        .shooting-star { display: none; }
+        .shooting-star-purple { display: none; }
+        .shooting-star-green { display: none; }
         
-        .shooting-star:nth-child(1) { top: 15%; left: -100px; animation: meteor 6s linear infinite; animation-delay: 0s; }
-        .shooting-star:nth-child(2) { top: 40%; left: -100px; animation: meteor 9s linear infinite; animation-delay: 2.5s; }
-        .shooting-star:nth-child(3) { top: 65%; left: -100px; animation: meteor 7s linear infinite; animation-delay: 4s; }
-        .shooting-star:nth-child(4) { top: 85%; left: -100px; animation: meteor 11s linear infinite; animation-delay: 1.2s; }
+        .shooting-star:nth-child(1) { display: none; }
+        .shooting-star:nth-child(2) { display: none; }
+        .shooting-star:nth-child(3) { display: none; }
+        .shooting-star:nth-child(4) { display: none; }
 
         @keyframes meteor {
-            0% {
-                transform: translateX(0) translateY(0) rotate(-15deg) scale(0.5);
-                opacity: 0;
-            }
-            8% {
-                opacity: 1;
-            }
-            25% {
-                transform: translateX(1100px) translateY(295px) rotate(-15deg) scale(1.2);
-                opacity: 0;
-            }
-            100% {
-                transform: translateX(1100px) translateY(295px) rotate(-15deg) scale(1.2);
-                opacity: 0;
-            }
+            0% { opacity: 0; }
+            100% { opacity: 0; }
         }
 
         footer { padding: 40px 5%; text-align: center; border-top: 1px solid var(--glass-border); background: #020617; }
@@ -342,8 +318,8 @@
         /* Light Mode mockup container */
         .dash-mockup {
             background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(25px);
-            -webkit-backdrop-filter: blur(25px);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
             border: 1px solid rgba(255, 255, 255, 0.8);
             border-radius: 20px;
             overflow: hidden;
@@ -823,7 +799,7 @@
 </head>
 <body>
 
-    <img src="assets/ai_bg.png" alt="AI Background" class="hero-bg-img" loading="lazy" onerror="this.style.display='none'">
+    <div class="hero-bg-img"></div>
 
     <!-- Ads Banner Section -->
     <div class="ads-banner" id="ads-banner">
