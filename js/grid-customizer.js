@@ -1,4 +1,4 @@
-alert("تم تفعيل خصائص الأعمدة بنجاح! إذا ظهرت لك هذه الرسالة يعني أن التحديثات وصلت للمتصفح.");
+// Grid Customizer Logic
 /**
  * Grid Customizer
  * Handles column resizing, context menus, and configuration saving to DB.
