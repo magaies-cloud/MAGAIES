@@ -427,6 +427,34 @@
 .uiverse-switch.demo3 input:checked ~ label i:before {
   content: "مستلم"; right: 135%; color: #82a06a; text-shadow: 0 1px 0 #afcb9b, 0 -1px 0 #111311;
 }
+
+@keyframes popInBouncy {
+    0% { transform: translate(-50%, -50%) scale(0.3); opacity: 0; }
+    50% { transform: translate(-50%, -50%) scale(1.15); opacity: 1; }
+    100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+}
+@keyframes popInBouncyRelative {
+    0% { transform: scale(0.3); opacity: 0; }
+    50% { transform: scale(1.15); opacity: 1; }
+    100% { transform: scale(1); opacity: 1; }
+}
+.counter-animate-abs {
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+    animation: popInBouncy 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    z-index: 10;
+}
+@media (max-width: 1100px) {
+    .counter-animate-abs {
+        position: relative;
+        left: auto;
+        top: auto;
+        transform: none;
+        animation: popInBouncyRelative 0.6s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+    }
+}
 </style>
 
     <div class="dash-main">
@@ -437,15 +465,18 @@
         <div class="view-container active" id="view-hub">
 
             <div class="neo-card">
-                <div class="neo-card-title" style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: space-between; align-items: center;">
-                    <div style="display: flex; gap: 15px; align-items: center;">
+                <div class="neo-card-title" style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: space-between; align-items: center; position: relative;">
+                    <div style="display: flex; gap: 15px; align-items: center; z-index: 2;">
                         <span id="hub-title-text">⏳ فواتير تحتوي على بضاعة قيد الاستلام</span>
                         <div class="uiverse-switch demo3">
                             <input type="checkbox" id="uiverse-toggle" onchange="toggleHubViewBySwitch(this.checked)">
                             <label><i></i></label>
                         </div>
                     </div>
-                    <input type="text" id="search-inv" class="v-input" placeholder="ابحث برقم الفاتورة أو المورد..." style="width: 300px;" oninput="renderPendingInvoices()">
+                    
+                    <div id="hub-counter-badge"></div>
+                    
+                    <input type="text" id="search-inv" class="v-input" placeholder="ابحث برقم الفاتورة أو المورد..." style="width: 300px; z-index: 2;" oninput="renderPendingInvoices()">
                 </div>
                 
                 <div id="hub-pending-container">
@@ -818,7 +849,12 @@
             }
             
             if (currentHubView === 'pending') {
-                document.getElementById('hub-title-text').innerHTML = `⏳ فواتير تحتوي على بضاعة قيد الاستلام <span style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 2px 10px; border-radius: 20px; font-size: 0.85rem; margin-right: 10px; box-shadow: 0 0 12px rgba(245, 158, 11, 0.4); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease;">${filteredIds.length} فاتورة</span>`;
+                document.getElementById('hub-title-text').innerHTML = `⏳ فواتير تحتوي على بضاعة قيد الاستلام`;
+                const counterContainer = document.getElementById('hub-counter-badge');
+                counterContainer.innerHTML = '';
+                setTimeout(() => {
+                    counterContainer.innerHTML = `<span class="counter-animate-abs" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 6px 30px; border-radius: 40px; font-size: 1.6rem; font-weight: 900; box-shadow: 0 10px 25px rgba(245, 158, 11, 0.5), inset 0 2px 5px rgba(255,255,255,0.3); border: 2px solid rgba(255,255,255,0.2); font-family: 'Outfit', 'Tajawal', sans-serif; white-space: nowrap; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">${filteredIds.length} فاتورة</span>`;
+                }, 10);
             }
         }
 
@@ -1208,7 +1244,12 @@
             });
             
             if (currentHubView === 'received') {
-                document.getElementById('hub-title-text').innerHTML = `📜 أذونات الاستلام (الفواتير المستلمة) <span style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; padding: 2px 10px; border-radius: 20px; font-size: 0.85rem; margin-right: 10px; box-shadow: 0 0 12px rgba(16, 185, 129, 0.4); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease;">${grns.length} إذن</span>`;
+                document.getElementById('hub-title-text').innerHTML = `📜 أذونات الاستلام (الفواتير المستلمة)`;
+                const counterContainer = document.getElementById('hub-counter-badge');
+                counterContainer.innerHTML = '';
+                setTimeout(() => {
+                    counterContainer.innerHTML = `<span class="counter-animate-abs" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; padding: 6px 30px; border-radius: 40px; font-size: 1.6rem; font-weight: 900; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.5), inset 0 2px 5px rgba(255,255,255,0.3); border: 2px solid rgba(255,255,255,0.2); font-family: 'Outfit', 'Tajawal', sans-serif; white-space: nowrap; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">${grns.length} إذن</span>`;
+                }, 10);
             }
             
             if (grns.length === 0) {
