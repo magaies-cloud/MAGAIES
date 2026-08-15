@@ -1790,7 +1790,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 <label>صورة الشعار (اختيار ملف)</label>
                 <input type="file" id="partner-logo-upload" accept="image/*">
                 <div id="partner-logo-preview" style="display:none; margin-top:10px; text-align:center;">
-                    <img src="" alt="شعار الشريك" loading="lazy" style="max-height:60px; border-radius:8px;">
+                    <img id="partner-img-tag" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="شعار الشريك" loading="lazy" style="max-height:60px; border-radius:8px;">
                 </div>
             </div>
             <div class="form-group" style="margin-top:15px; display:flex; align-items:center; gap:10px;">
@@ -1953,7 +1953,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             <div class="form-group" style="margin-top: 15px;">
                 <p id="admin-wa-status-text" style="font-weight: bold; color: #fff; margin-bottom: 10px;">جاري فحص الاتصال...</p>
                 <div id="admin-wa-qr-container" style="background: #fff; padding: 15px; border-radius: 12px; display: inline-block; min-width: 200px; min-height: 200px; margin-top: 10px;">
-                    <img id="admin-wa-qr-image" src="" alt="QR Code" style="width: 100%; display: none;" />
+                    <img id="admin-wa-qr-image" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///yH5BAEAAAAALAAAAAABAAEAAAIBRAA7" alt="QR Code" style="width: 100%; display: none;" />
                     <div id="admin-wa-loading" style="color: #000; margin-top: 80px;">⏳ جاري التوليد...</div>
                 </div>
                 
@@ -4002,7 +4002,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 tbody.innerHTML += `
                     <tr>
                         <td><strong>${p.name}</strong></td>
-                        <td><img src="${p.logo}" height="30" alt="logo" style="border-radius:4px; max-height:40px;"></td>
+                        <td>${p.logo ? `<img src="${p.logo}" height="30" alt="logo" style="border-radius:4px; max-height:40px;">` : `<div style="width:30px;height:30px;background:rgba(255,255,255,0.1);border-radius:4px;"></div>`}</td>
                         <td>${statusHtml}</td>
                         <td>
                             <button class="btn-primary" style="padding:4px 8px; font-size:0.8rem;" onclick="editPartner(${p.id})">تعديل</button>
@@ -4694,7 +4694,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 const statusHtml = ad.active ? '<span style="color:#10b981;">نشط</span>' : '<span style="color:#ef4444;">غير نشط</span>';
                 tbody.innerHTML += `
                     <tr>
-                        <td><img src="${ad.image}" alt="${ad.companyName}" loading="lazy" style="max-height: 40px; border-radius: 4px;"></td>
+                        <td>${ad.image ? `<img src="${ad.image}" alt="${ad.companyName}" loading="lazy" style="max-height: 40px; border-radius: 4px;">` : `<div style="width:40px;height:40px;background:rgba(255,255,255,0.1);border-radius:4px;"></div>`}</td>
                         <td><strong>${ad.companyName || 'بدون اسم'}</strong></td>
                         <td>${statusHtml}</td>
                         <td>
