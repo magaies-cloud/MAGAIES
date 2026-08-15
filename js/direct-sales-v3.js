@@ -85,20 +85,34 @@ function getSortedSalesInvoices() {
 // ════════════════════════════════════════
 //  HELPERS
 // ════════════════════════════════════════
-function fmtNum(n) {
+function fmtNum(n, colId = null) {
     if (n === 0 || n === '0' || !n) return '0';
-    let decimals = 2;
-    try {
-        const stored = localStorage.getItem('erp_grid_customizer_v1');
-        if (stored) {
-            const settings = JSON.parse(stored);
-            if (settings.decimalPlaces !== undefined) decimals = parseInt(settings.decimalPlaces);
-        }
-    } catch(e) {}
-    return Number(n).toLocaleString('en-US', {
-        minimumFractionDigits: decimals,
-        maximumFractionDigits: decimals
-    });
+    
+    const prefs = JSON.parse(localStorage.getItem('num_format_prefs') || '{}');
+    let decimals = prefs.decimals !== undefined ? prefs.decimals : 2;
+    let separator = prefs.thousandSep !== undefined ? prefs.thousandSep : ',';
+    let decimalSep = prefs.decimalSep !== undefined ? prefs.decimalSep : '.';
+
+    // OVERRIDE WITH PER COLUMN SETTINGS if available
+    if (colId && window.CurrentGridConfig && window.CurrentGridConfig[colId]) {
+        const colCfg = window.CurrentGridConfig[colId];
+        if (colCfg.decimals !== undefined && colCfg.decimals !== '') decimals = parseInt(colCfg.decimals);
+        if (colCfg.thousandSep !== undefined && colCfg.thousandSep !== '') separator = colCfg.thousandSep;
+    }
+
+    let val = parseFloat(n);
+    if (isNaN(val)) val = 0;
+
+    let numStr = val.toFixed(decimals);
+    let parts = numStr.split('.');
+    let intPart = parts[0];
+    let decPart = parts.length > 1 ? decimalSep + parts[1] : '';
+
+    if (separator !== 'none' && separator !== '') {
+        intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, separator);
+    }
+
+    return intPart + decPart;
 }
 function parseNum(str) {
     return parseFloat(String(str).replace(/,/g, '')) || 0;
@@ -345,11 +359,23 @@ function initSalesApp() {
         initMultiPaymentSystem();
         initHeader();
         
-        if (rows.length === 0) {
-            addRow(true);
-            recalcAll();
+        if (typeof GridCustomizer !== 'undefined') {
+            GridCustomizer.init('sales_grid', 'pos-grid', () => {
+                if (rows.length === 0) {
+                    addRow(true);
+                    recalcAll();
+                } else {
+                    renderGrid();
+                }
+                if (typeof loadHubTransactions === 'function') loadHubTransactions();
+            });
+        } else {
+            if (rows.length === 0) {
+                addRow(true);
+                recalcAll();
+            }
+            if (typeof loadHubTransactions === 'function') loadHubTransactions();
         }
-        if (typeof loadHubTransactions === 'function') loadHubTransactions();
     } catch(globalErr) {
         console.error("Critical error during initSalesApp:", globalErr);
     }
@@ -1220,6 +1246,10 @@ function renderCustomerDropdown(filter = '') {
         item.onpointerdown = () => selectCustomer(c.id, c.name);
         listEl.appendChild(item);
     });
+    if (typeof GridCustomizer !== 'undefined') {
+        GridCustomizer.attachEvents();
+        GridCustomizer.applyStyles();
+    }
 }
 
 function showCustomerDropdown() {
@@ -1739,37 +1769,37 @@ function updateRowCalcs(id) {
     const fcPriceEl = document.querySelector(`[data-fcprice-input="${id}"]`);
     const totalFcEl = document.querySelector(`[data-total-fc="${id}"]`);
 
-    if (totalEl) totalEl.textContent = fmtNum(calcs.total);
-    if (baseEl && document.activeElement !== baseEl) baseEl.value = fmtNum(calcs.baseQty);
+    if (totalEl) totalEl.textContent = fmtNum(calcs.total, '11');
+    if (baseEl && document.activeElement !== baseEl) baseEl.value = fmtNum(calcs.baseQty, '5');
     if (bundleEl) bundleEl.textContent = fmtNum(calcs.bundles);
     if (shilaEl) shilaEl.textContent = fmtNum(calcs.shilaQty);
     if (shilaRemEl) shilaRemEl.textContent = fmtNum(calcs.shilaRem);
-    if (priceEl && document.activeElement !== priceEl) priceEl.value = fmtNum(row.price);
+    if (priceEl && document.activeElement !== priceEl) priceEl.value = fmtNum(row.price, '4');
 
     const isBaseSDG = document.getElementById('hdr-currency').value === 'SDG';
     const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
     let computedFcPrice = row.fcPrice !== undefined ? row.fcPrice : (isBaseSDG ? row.price / exRate : row.price * exRate);
     
-    if (fcPriceEl && document.activeElement !== fcPriceEl) fcPriceEl.value = fmtNum(computedFcPrice);
-    if (totalFcEl) totalFcEl.textContent = fmtNum(computedFcPrice * (row.quantity || 0));
+    if (fcPriceEl && document.activeElement !== fcPriceEl) fcPriceEl.value = fmtNum(computedFcPrice, '8');
+    if (totalFcEl) totalFcEl.textContent = fmtNum(computedFcPrice * (row.quantity || 0), '9');
 
     if (availEl) {
-        availEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty);
+        availEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty, '6');
         availEl.className = 'g-readonly ' + (calcs.availQty !== '—' && calcs.availQty < row.quantity ? 'warn-val' : 'avail-val');
     }
     if (remEl) {
-        remEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty - calcs.baseQty);
+        remEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty - calcs.baseQty, '7');
         remEl.className = 'g-readonly ' + (calcs.availQty !== '—' && (calcs.availQty - calcs.baseQty) < 0 ? 'warn-val' : 'rem-val');
     }
 
     // Mobile
     const mTotal = document.querySelector(`[data-m-total="${id}"]`);
-    if (mTotal) mTotal.textContent = fmtNum(calcs.total) + ' ' + getCurrency();
+    if (mTotal) mTotal.textContent = fmtNum(calcs.total, '11') + ' ' + getCurrency();
 
     const mFcPriceEl = document.querySelector(`[data-m-fcprice-input="${id}"]`);
     const mTotalFcEl = document.querySelector(`[data-m-total-fc="${id}"]`);
-    if (mFcPriceEl && document.activeElement !== mFcPriceEl) mFcPriceEl.value = fmtNum(computedFcPrice);
-    if (mTotalFcEl) mTotalFcEl.textContent = fmtNum(computedFcPrice * (row.quantity || 0));
+    if (mFcPriceEl && document.activeElement !== mFcPriceEl) mFcPriceEl.value = fmtNum(computedFcPrice, '8');
+    if (mTotalFcEl) mTotalFcEl.textContent = fmtNum(computedFcPrice * (row.quantity || 0), '9');
 
     const mShilaEl = document.querySelector(`[data-m-shila="${id}"]`);
     const mShilaRemEl = document.querySelector(`[data-m-shila-rem="${id}"]`);
@@ -1834,7 +1864,7 @@ function renderGrid() {
                 onblur="this.value=parseNum(this.value)||''; checkAutoAddRow(${row.id})"></td>
             <td>
                 <div style="display:flex; align-items:center; gap:4px;">
-                    <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price)}"
+                    <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price, '4')}"
                         onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
                         onblur="this.value=fmtNum(parseNum(this.value)); checkAutoAddRow(${row.id})" style="flex:1;">
                     <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'sales')" title="سجل أسعار الصنف للعميل" style="color:#38bdf8; background:rgba(56,189,248,0.1); border-radius:4px; padding:4px; border:1px solid rgba(56,189,248,0.2); cursor:pointer;">
@@ -1844,14 +1874,14 @@ function renderGrid() {
             </td>
             <td>
                 <div style="display:flex; align-items:center; gap:4px; justify-content:center;">
-                    <input type="text" inputmode="decimal" class="g-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty)}" placeholder="0"
+                    <input type="text" inputmode="decimal" class="g-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty, '5')}" placeholder="0"
                         onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
                         onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700; width:100%;" tabindex="-1">
                     <span style="font-size:11px; color:var(--text-muted); white-space:nowrap;">${item ? item.baseUnit : ''}</span>
                 </div>
             </td>
-            <td><span class="g-readonly" data-avail="${row.id}" style="color:#0ea5e9; font-weight:bold; display:block; text-align:center;">${calcs.availQty !== '—' ? fmtNum(calcs.availQty) : '—'}</span></td>
-            <td><span class="g-readonly" data-rem="${row.id}" style="color:#f59e0b; font-weight:bold; display:block; text-align:center;">${calcs.availQty !== '—' ? fmtNum(calcs.availQty - calcs.baseQty) : '—'}</span></td>
+            <td><span class="g-readonly" data-avail="${row.id}" style="color:#0ea5e9; font-weight:bold; display:block; text-align:center;">${calcs.availQty !== '—' ? fmtNum(calcs.availQty, '6') : '—'}</span></td>
+            <td><span class="g-readonly" data-rem="${row.id}" style="color:#f59e0b; font-weight:bold; display:block; text-align:center;">${calcs.availQty !== '—' ? fmtNum(calcs.availQty - calcs.baseQty, '7') : '—'}</span></td>
             <td>
                 <input type="text" inputmode="decimal" class="g-input" data-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}"
                     onfocus="this.select()" oninput="updateRow(${row.id},'fcPrice',this.value)"
@@ -1866,7 +1896,7 @@ function renderGrid() {
                 </select>
             </td>
 
-            <td><span class="g-readonly total-val" style="color:var(--gold-primary); font-weight:bold;" data-total="${row.id}">${fmtNum(calcs.total)}</span></td>
+            <td><span class="g-readonly total-val" style="color:var(--gold-primary); font-weight:bold;" data-total="${row.id}">${fmtNum(calcs.total, '11')}</span></td>
 
             <td>
                 <div style="display: flex; gap: 5px; justify-content: center;">
@@ -1935,7 +1965,7 @@ function renderGrid() {
                 <div class="ctrl-group">
                     <label class="label">السعر (محلي / أجنبي) <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'sales')" title="سجل أسعار الصنف للعميل" style="color:#38bdf8; background:none; border:none; cursor:pointer; padding:0; margin-right:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></button></label>
                     <div style="display:flex; gap:4px;">
-                        <input type="text" inputmode="decimal" class="ctrl-input" value="${fmtNum(row.price)}" placeholder="0"
+                        <input type="text" inputmode="decimal" class="ctrl-input" value="${fmtNum(row.price, '4')}" placeholder="0"
                             onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
                             onblur="this.value=fmtNum(parseNum(this.value)); checkAutoAddRow(${row.id})" style="flex:1;">
                         <input type="text" inputmode="decimal" class="ctrl-input" data-m-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}" placeholder="${document.getElementById('hdr-currency').value === 'SDG' ? 'أجنبي' : 'جنيه'}"
@@ -1949,7 +1979,7 @@ function renderGrid() {
                 </div>
                 <div class="ctrl-group">
                     <label class="label">عدد ${item ? item.baseUnit : ''}</label>
-                    <input type="text" inputmode="decimal" class="ctrl-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty)}" placeholder="0"
+                    <input type="text" inputmode="decimal" class="ctrl-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty, '5')}" placeholder="0"
                 onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
                 onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700;" tabindex="-1">
                 </div>
@@ -1978,7 +2008,7 @@ function renderGrid() {
                     </div>
                 </div>
             </div>
-            <div class="m-card-total" data-m-total="${row.id}">${fmtNum(calcs.total)} ${getCurrency()}</div>
+            <div class="m-card-total" data-m-total="${row.id}">${fmtNum(calcs.total, '11')} ${getCurrency()}</div>
         `;
 
     });
@@ -2246,14 +2276,16 @@ function addBankTransferRow(existingData = null) {
         : `<button type="button" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 6px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size:0.85rem;" title="حذف">✕</button>`;
         
     rowDiv.innerHTML = `
-        ${titleCol}
-        <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px;">
-            <input type="number" class="v-input ctrl-input bt-amount-input" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : '0.00'}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: none; width: 145px; min-width: 145px; height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size: 1.15rem; font-weight: 800; color: #60a5fa !important; text-align:center;">
-            <select class="v-input ctrl-input bt-bank-select" style="flex: 1.2; height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; padding: 0 4px;">
+        <div style="display: flex; gap: 10px; align-items: center; width: 100%; flex-wrap: nowrap;">
+            <input type="number" class="v-input ctrl-input bt-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : ''}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; text-align: center; font-size: 1.15rem; font-weight: 800; padding: 0 8px; color:#60a5fa !important;">
+            <select class="v-input ctrl-input bt-bank-select" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1.1rem; color: #fff; padding: 0 4px;">
                 ${banksHtml}
             </select>
-            <input type="text" class="v-input ctrl-input bt-ref-input" value="${existingData ? existingData.reference : ''}" placeholder="رقم المرجع..." style="flex: 1; height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
-            ${actionBtn}
+            <input type="text" class="v-input ctrl-input bt-ref-input dynamic-focus-input dynamic-focus-number" value="${existingData?.reference || ''}" placeholder="رقم التحويل" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; text-align: center; font-size: 1.1rem; font-weight: 800; padding: 0 8px; color:#60a5fa;">
+            <input type="text" class="v-input ctrl-input bt-note-input" value="${existingData?.notes || ''}" placeholder="الملحوظة" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1.1rem; color: #fff; padding: 0 8px;">
+            <div style="display: flex; justify-content: flex-end; width: 40px; min-width: 40px; flex: none;">
+                ${actionBtn}
+            </div>
         </div>
     `;
     
@@ -2290,16 +2322,16 @@ function addChequeRow(existingData = null) {
         : `<button type="button" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.3); color: #f87171; border-radius: 6px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size:0.85rem;" title="حذف">✕</button>`;
 
     rowDiv.innerHTML = `
-        ${titleCol}
-        <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
-            <input type="number" class="v-input ctrl-input ch-amount-input" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : '0.00'}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: none; width: 145px; min-width: 145px; height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size: 1.15rem; font-weight: 800; color: #c084fc !important; text-align:center;">
-            <input type="text" class="v-input ctrl-input ch-no-input" value="${existingData ? existingData.chequeNo : ''}" placeholder="رقم الشيك..." style="flex: 1; min-width: 90px; height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
-            <input type="text" class="v-input ctrl-input ch-bank-input" value="${existingData ? existingData.bankName : ''}" placeholder="اسم البنك..." style="flex: 1.2; min-width: 110px; height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; text-align:center;">
-            <div style="display:flex; align-items:center; gap:5px; flex: 1.3; min-width: 200px;">
-                <label style="font-size:0.75rem; color:#94a3b8; white-space:nowrap;">الاستحقاق:</label>
-                <input type="date" class="v-input ctrl-input ch-date-input" value="${existingData && existingData.dueDate ? existingData.dueDate : today}" style="height: 36px; background: rgba(15,23,42,0.8); border: 1px solid rgba(255,255,255,0.1); font-size:0.85rem; padding: 0 4px; width: 100%;">
+        <div style="display: flex; gap: 10px; align-items: center; width: 100%; flex-wrap: nowrap;">
+            <input type="number" class="v-input ctrl-input ch-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : ''}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; text-align: center; font-size: 1.15rem; font-weight: 800; padding: 0 8px; color:#fbbf24 !important;">
+            <select class="v-input ctrl-input ch-bank-select" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1.1rem; color: #fff; padding: 0 4px;">
+                ${banksHtml}
+            </select>
+            <input type="text" maxlength="14" class="v-input ctrl-input ch-no-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || ''}" placeholder="رقم الشيك" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; text-align: center; font-size: 1.1rem; font-weight: 800; padding: 0 8px; color:#fbbf24;">
+            <input type="date" class="v-input ctrl-input ch-date-input" value="${existingData?.dueDate || today}" placeholder="الملحوظة (التاريخ)" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1.1rem; color: #fff; padding: 0 8px;">
+            <div style="display: flex; justify-content: flex-end; width: 40px; min-width: 40px; flex: none;">
+                ${actionBtn}
             </div>
-            ${actionBtn}
         </div>
     `;
     
@@ -3755,7 +3787,7 @@ function _legacyBuildPrintArea(type) {
                 <td style="padding:8px; text-align:center;">${r.selectedUnit || ''}</td>
                 <td style="padding:8px; text-align:center;">${r.quantity}</td>
                 <td style="padding:8px; text-align:center;">${fmtNum(r.price)}</td>
-                <td style="padding:8px; text-align:center;">${fmtNum(calcs.total)}</td>
+                <td style="padding:8px; text-align:center;">${fmtNum(calcs.total, '11')}</td>
             </tr>
         `;
     });

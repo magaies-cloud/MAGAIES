@@ -149,7 +149,7 @@
         }
         .h-form-group:focus-within .h-label {
             color: #38bdf8 !important;
-            text-shadow: 0 0 8px rgba(56, 189, 248, 0.3) !important;
+            text-shadow: 0 0 8px rgba(56, 189, 248, 0.6) !important;
         }
 
         /* ═══ MULTI-COLOR VISUAL CODING & GLASSMORPHISM ═══ */
@@ -811,10 +811,10 @@
         /* ── Theme-aware Card Styling (Dark Mode Defaults with Magical Glassy Borders & Glow) ── */
         .card-orange {
             background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(180, 83, 9, 0.08)) !important;
-            border: 1px solid rgba(245, 158, 11, 0.3) !important; /* Translucent orange border */
+            border: 1px solid rgba(245, 158, 11, 0.6) !important; /* Translucent orange border */
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
         }
-        .card-orange .icon { color: #f59e0b; background: rgba(245, 158, 11, 0.08); }
+        .card-orange .icon { color: #f59e0b; background: rgba(245, 158, 11, 0.18); }
         .card-orange .title { color: #f59e0b !important; }
         .card-orange .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
         .card-orange:hover {
@@ -828,7 +828,7 @@
             border: 1px solid rgba(14, 165, 233, 0.3) !important; /* Translucent blue border */
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
         }
-        .card-blue .icon { color: #38bdf8; background: rgba(56, 189, 248, 0.08); }
+        .card-blue .icon { color: #38bdf8; background: rgba(56, 189, 248, 0.18); }
         .card-blue .title { color: #38bdf8 !important; }
         .card-blue .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
         .card-blue:hover {
@@ -871,11 +871,11 @@
             border: 1px solid rgba(245, 158, 11, 0.28) !important; /* Translucent orange glassy border */
             box-shadow: 0 8px 32px 0 rgba(245, 158, 11, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.6) !important;
         }
-        :root.light-theme .card-orange .icon { color: #d97706 !important; background: rgba(245, 158, 11, 0.08) !important; }
+        :root.light-theme .card-orange .icon { color: #d97706 !important; background: rgba(245, 158, 11, 0.18) !important; }
         :root.light-theme .card-orange .title { color: #d97706 !important; }
         :root.light-theme .card-orange .subtitle { color: rgba(217, 119, 6, 0.8) !important; }
         :root.light-theme .card-orange:hover {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(251, 191, 36, 0.1)) !important;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.6), rgba(251, 191, 36, 0.1)) !important;
             border-color: rgba(245, 158, 11, 0.6) !important; /* Glowing orange glass border */
             box-shadow: 0 12px 40px 0 rgba(245, 158, 11, 0.22), inset 0 0 15px rgba(245, 158, 11, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.75) !important;
         }
@@ -1018,7 +1018,7 @@
 
         /* Hover effect on rows - Dynamic Elevation */
         .pos-grid tbody tr:hover td {
-            background-color: rgba(56, 189, 248, 0.08) !important;
+            background-color: rgba(56, 189, 248, 0.18) !important;
             box-shadow: inset 0 1px 0 rgba(255,255,255,0.1), inset 0 -1px 0 rgba(255,255,255,0.1);
         }
         
@@ -1033,7 +1033,7 @@
         .pos-grid .g-input:focus, .pos-grid .g-select:focus {
             background: rgba(15, 23, 42, 0.9) !important;
             border-color: #38bdf8 !important;
-            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.4), 0 0 15px rgba(56, 189, 248, 0.3) !important;
+            box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.4), 0 0 15px rgba(56, 189, 248, 0.6) !important;
             transform: scale(1.02);
             z-index: 10;
         }
@@ -1295,10 +1295,10 @@
         /* ── Theme-aware Card Styling (Dark Mode Defaults with Magical Glassy Borders & Glow) ── */
         .card-orange {
             background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(180, 83, 9, 0.08)) !important;
-            border: 1px solid rgba(245, 158, 11, 0.3) !important; /* Translucent orange border */
+            border: 1px solid rgba(245, 158, 11, 0.6) !important; /* Translucent orange border */
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
         }
-        .card-orange .icon { color: #f59e0b; background: rgba(245, 158, 11, 0.08); }
+        .card-orange .icon { color: #f59e0b; background: rgba(245, 158, 11, 0.18); }
         .card-orange .title { color: #f59e0b !important; }
         .card-orange .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
         .card-orange:hover {
@@ -1312,7 +1312,7 @@
             border: 1px solid rgba(14, 165, 233, 0.3) !important; /* Translucent blue border */
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
         }
-        .card-blue .icon { color: #38bdf8; background: rgba(56, 189, 248, 0.08); }
+        .card-blue .icon { color: #38bdf8; background: rgba(56, 189, 248, 0.18); }
         .card-blue .title { color: #38bdf8 !important; }
         .card-blue .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
         .card-blue:hover {
@@ -1355,11 +1355,11 @@
             border: 1px solid rgba(245, 158, 11, 0.28) !important; /* Translucent orange glassy border */
             box-shadow: 0 8px 32px 0 rgba(245, 158, 11, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.6) !important;
         }
-        :root.light-theme .card-orange .icon { color: #d97706 !important; background: rgba(245, 158, 11, 0.08) !important; }
+        :root.light-theme .card-orange .icon { color: #d97706 !important; background: rgba(245, 158, 11, 0.18) !important; }
         :root.light-theme .card-orange .title { color: #d97706 !important; }
         :root.light-theme .card-orange .subtitle { color: rgba(217, 119, 6, 0.8) !important; }
         :root.light-theme .card-orange:hover {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(251, 191, 36, 0.1)) !important;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.6), rgba(251, 191, 36, 0.1)) !important;
             border-color: rgba(245, 158, 11, 0.6) !important; /* Glowing orange glass border */
             box-shadow: 0 12px 40px 0 rgba(245, 158, 11, 0.22), inset 0 0 15px rgba(245, 158, 11, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.75) !important;
         }
@@ -1655,7 +1655,7 @@
                     
                     <!-- RIGHT: Financial Strip -->
                     <div id="customer-financial-card" class="fin-strip-inline" style="flex: 0; width: 0; opacity: 0; overflow: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); display: flex;">
-                        <div style="width: 100%; background: linear-gradient(90deg, rgba(15,23,42,0.4), rgba(30,58,138,0.2)); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 4px 10px; display: flex; align-items: center; justify-content: space-around; gap: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); min-width: 500px;">
+                        <div style="width: 100%; background: linear-gradient(90deg, rgba(15,23,42,0.4), rgba(30,58,138,0.2)); border: 1px solid rgba(56, 189, 248, 0.6); border-radius: 12px; padding: 4px 10px; display: flex; align-items: center; justify-content: space-around; gap: 5px; box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); min-width: 500px;">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <span style="font-size: 1.2rem;">📊</span>
                                 <div style="display:flex; flex-direction:column;">
@@ -1819,7 +1819,7 @@
                 </tbody>
             </table>
 
-            <div class="tot-grand" style="margin-top: auto; background: rgba(56, 189, 248, 0.1); padding: 10px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3); display: flex; flex-direction: column; gap: 5px;">
+            <div class="tot-grand" style="margin-top: auto; background: rgba(56, 189, 248, 0.1); padding: 10px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.6); display: flex; flex-direction: column; gap: 5px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
                     <span class="lbl" id="lbl-grand-local" style="font-weight: 800; color: #38bdf8; font-size:0.9rem;">صافي محلي</span>
                     <span class="val amount" id="t-grand-local" style="font-size: 1.2rem; color: #fff;">0</span>
@@ -1989,33 +1989,38 @@
                                     <input type="date" class="v-input ctrl-input" id="pay-credit-due-date" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 4px; width: 100%;">
                                 </div>
                                 
-                                <button type="button" class="btn-action" onclick="previewCurrentPromissoryNote()" style="flex: 0.8; min-width: 120px; height: 38px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #f59e0b; padding: 0 10px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight: bold; transition: 0.2s;" onmouseover="this.style.background='rgba(245, 158, 11, 0.25)';" onmouseout="this.style.background='rgba(245, 158, 11, 0.15)';">📄 معاينة الكمبيالة</button>
+                                <button type="button" class="btn-action" onclick="previewCurrentPromissoryNote()" style="flex: 0.8; min-width: 120px; height: 38px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.6); color: #f59e0b; padding: 0 10px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight: bold; transition: 0.2s;" onmouseover="this.style.background='rgba(245, 158, 11, 0.25)';" onmouseout="this.style.background='rgba(245, 158, 11, 0.15)';">📄 معاينة الكمبيالة</button>
                             </div>
                         </div>
 
                         <!-- Cash payment box (Visible by default) -->
-                        <div id="pay-cash-section" class="payment-method-box" style="background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.18); border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
-                            <div style="display: flex; align-items: center; gap: 8px; min-width: 200px; width: 200px; flex: none;">
-                                <span style="font-size: 1.2rem;">💵</span>
-                                <span style="font-weight: 800; color: #34d399; font-size: 0.95rem;">الدفع النقدي (كاش)</span>
+                        <div id="pay-cash-section" style="background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.6); border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; flex-direction: column; width: 100%;">
+                            <div style="color: #34d399; font-weight: bold; margin-bottom: 10px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                                <span>💵</span> <span>نقد كاش</span>
                             </div>
-                            <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px;">
-                                <input type="number" class="v-input ctrl-input" id="pay-cash-amount" value="0.00" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: none; width: 145px; min-width: 145px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; text-align: center; font-size: 1.15rem; font-weight: 800; color: #34d399 !important;">
-                                <select class="v-input ctrl-input" id="hdr-payment-account" style="flex: 1.2; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px;">
-                                    <!-- Populated dynamically -->
+                            <div style="display: flex; gap: 10px; align-items: center; width: 100%;">
+                                <input type="number" class="v-input ctrl-input" id="pay-cash-amount" value="0.00" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; text-align: center; font-size: 1.15rem; font-weight: 800; padding: 0 8px; color: #34d399 !important;">
+                                <select class="v-input ctrl-input" id="hdr-payment-account" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1.1rem; color: #fff; padding: 0 4px;">
                                 </select>
+                                <input type="text" class="v-input ctrl-input" id="pay-cash-ref" placeholder="رقم المرجع" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; text-align: center; font-size: 1.1rem; font-weight: 800; padding: 0 8px; color: #34d399;">
+                                <input type="text" class="v-input ctrl-input" id="pay-cash-note" placeholder="الملحوظة" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1.1rem; color: #fff; padding: 0 8px;">
+                                <div style="width: 40px; min-width: 40px; flex: none;"></div>
                             </div>
                         </div>
 
                         <!-- Bank Transfers box (Toggled off by default) -->
-                        <div id="pay-bank-section" style="display: none; width: 100%;">
-                            <!-- Dynamic bank transfers rows -->
+                        <div id="pay-bank-section" style="display: none; flex-direction: column; background: rgba(56, 189, 248, 0.18); border: 1px solid rgba(56, 189, 248, 0.6); border-radius: 12px; padding: 15px; margin-bottom: 10px; width: 100%;">
+                            <div style="color: #38bdf8; font-weight: bold; margin-bottom: 10px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                                <span>💳</span> <span>تحويل بنكي</span>
+                            </div>
                             <div id="bank-transfers-list" style="display: flex; flex-direction: column; gap: 10px; width: 100%;"></div>
                         </div>
 
                         <!-- Cheques box (Toggled off by default) -->
-                        <div id="pay-cheque-section" style="display: none; width: 100%;">
-                            <!-- Dynamic cheque rows -->
+                        <div id="pay-cheque-section" style="display: none; flex-direction: column; background: rgba(245, 158, 11, 0.18); border: 1px solid rgba(245, 158, 11, 0.6); border-radius: 12px; padding: 15px; margin-bottom: 10px; width: 100%;">
+                            <div style="color: #f59e0b; font-weight: bold; margin-bottom: 10px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                                <span>📝</span> <span>شيكات</span>
+                            </div>
                             <div id="cheques-list" style="display: flex; flex-direction: column; gap: 10px; width: 100%;"></div>
                         </div>
                     </div>
@@ -2057,7 +2062,7 @@
                         <div style="height: 1px; background: linear-gradient(90deg, transparent, rgba(139, 92, 246, 0.2), transparent); margin: 4px 12px;"></div>
                         <!-- Email Option -->
                         <button type="button" onclick="closeShareMenu(); sendCurrentInvoiceEmail();" style="width: 100%; display: flex; align-items: center; gap: 12px; padding: 12px 16px; background: transparent; border: none; border-radius: 12px; color: #e2e8f0; font-size: 0.95rem; font-weight: 600; cursor: pointer; transition: all 0.2s; font-family: 'Tajawal', sans-serif; direction: rtl;" onmouseover="this.style.background='rgba(245, 158, 11, 0.12)'; this.style.color='#f59e0b';" onmouseout="this.style.background='transparent'; this.style.color='#e2e8f0';">
-                            <span style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 3px 10px rgba(245, 158, 11, 0.3);">
+                            <span style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #f59e0b, #d97706); display: flex; align-items: center; justify-content: center; flex-shrink: 0; box-shadow: 0 3px 10px rgba(245, 158, 11, 0.6);">
                                 <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
                             </span>
                             <div style="display: flex; flex-direction: column; align-items: flex-start; gap: 2px;">
@@ -2092,6 +2097,7 @@
 
     </div>
 </div>
+    <script defer src="js/grid-customizer.js?v=<?php echo time(); ?>"></script>
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/html2pdf.bundle.min.js"></script>
     <script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>

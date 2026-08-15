@@ -1237,36 +1237,134 @@ function loadData() {
                     }
                 });
             }
-        } else if (inv.paymentMethod !== 'credit') {
-            const paymentAcct = inv.paymentAccountId || 'safe-001';
+        } else 
+        if (inv.paymentMethod !== 'credit') {
+            const pms = inv.paymentMethods || [inv.paymentMethod];
+            let cashAmt = parseFloat(inv.cashAmount) || 0;
+            let bankAmt = parseFloat(inv.bankTransfers ? inv.bankTransfers.reduce((s, b) => s + (parseFloat(b.amount) || 0), 0) : inv.bankAmount) || 0;
+            let chequeAmt = parseFloat(inv.cheques ? inv.cheques.reduce((s, c) => s + (parseFloat(c.amount) || 0), 0) : inv.chequeAmount) || 0;
             
-            const debFull = isReturn ? 0 : amtLoc;
-            const credFull = isReturn ? amtLoc : 0;
-            const debFullFc = isReturn ? 0 : amtFc;
-            const credFullFc = isReturn ? amtFc : 0;
+            const totalForFallback = typeof totalAmt !== 'undefined' ? totalAmt.fc : (typeof amtFc !== 'undefined' ? amtFc : 0);
             
-            txns.push({
-                date: inv.date, time: time, ref: refNo + '-PAID', type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
-                account: paymentAcct, counterAccount: customerAcct,
-                statement: isReturn ? 'سداد مرتجع نقدي/بنكي' : 'استلام نقدية',
-                additionalNote: isReturn ? 'صرف مبالغ المرتجع' : 'سداد نقدي مع الفاتورة',
-                debit: debFull, credit: credFull, 
-                debitForeign: debFullFc, creditForeign: credFullFc,
-                costCenter, currency,
-                exchangeRate: effRate,
-                isPosted: isPosted
-            });
-            txns.push({
-                date: inv.date, time: time, ref: refNo + '-PAID', type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
-                account: customerAcct, counterAccount: paymentAcct,
-                statement: isReturn ? 'سداد مرتجع نقدي/بنكي' : 'استلام نقدية',
-                additionalNote: isReturn ? 'صرف مبالغ المرتجع' : 'سداد نقدي مع الفاتورة',
-                debit: credFull, credit: debFull, 
-                debitForeign: credFullFc, creditForeign: debFullFc,
-                costCenter, currency,
-                exchangeRate: effRate,
-                isPosted: isPosted
-            });
+            if (totalForFallback > 0 && cashAmt <= 0 && bankAmt <= 0 && chequeAmt <= 0) {
+                if (pms.includes('bank')) bankAmt = totalForFallback;
+                else if (pms.includes('cheque')) chequeAmt = totalForFallback;
+                else cashAmt = totalForFallback;
+            }
+
+            // Cash
+            if (cashAmt > 0) {
+                const cLoc = typeof isBaseSDG !== 'undefined' && isBaseSDG ? cashAmt : cashAmt * effRate;
+                const cFc = typeof isBaseSDG !== 'undefined' && isBaseSDG ? (cashAmt / effRate) : cashAmt;
+                const paymentAcct = inv.paymentAccountId || 'safe-001';
+                
+                let safeName = 'الخزينة';
+                try {
+                    const allSafes = JSON.parse(localStorage.getItem('erp_safes_v1') || '[]');
+                    const sObj = allSafes.find(s => String(s.id) === String(paymentAcct));
+                    if (sObj) safeName = sObj.name;
+                } catch(e) {}
+                
+                const stmt = isReturn ? 'سداد مرتجع نقدي' : 'استلام نقدية';
+                const addNote = isReturn ? `صرف مبالغ المرتجع من [${safeName}]` : `سداد نقدي مبيعات (${refNo})`;
+
+                txns.push({
+                    date: inv.date, time: time, ref: refNo + '-SAL-PAID-C', type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
+                    account: paymentAcct, counterAccount: customerAcct,
+                    statement: stmt, additionalNote: addNote,
+                    transferNo: safeName,
+                    debit: isReturn ? 0 : cLoc, credit: isReturn ? cLoc : 0,
+                    debitForeign: isReturn ? 0 : cFc, creditForeign: isReturn ? cFc : 0,
+                    costCenter, currency, exchangeRate: effRate, isPosted
+                });
+                txns.push({
+                    date: inv.date, time: time, ref: refNo + '-SAL-PAID-C', type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
+                    account: customerAcct, counterAccount: paymentAcct,
+                    statement: stmt, additionalNote: addNote,
+                    transferNo: safeName,
+                    debit: isReturn ? cLoc : 0, credit: isReturn ? 0 : cLoc,
+                    debitForeign: isReturn ? cFc : 0, creditForeign: isReturn ? 0 : cFc,
+                    costCenter, currency, exchangeRate: effRate, isPosted
+                });
+            }
+
+            // Bank
+            if (bankAmt > 0 && inv.bankTransfers && inv.bankTransfers.length > 0) {
+                let allBanks = [];
+                try { allBanks = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]'); } catch(e) {}
+                inv.bankTransfers.forEach((bt, idx) => {
+                    const btFc = parseFloat(bt.amount) || 0;
+                    if (btFc <= 0) return;
+                    const btLoc = typeof isBaseSDG !== 'undefined' && isBaseSDG ? btFc : btFc * effRate;
+                    
+                    let bankName = 'البنك';
+                    const bObj = allBanks.find(b => String(b.id) === String(bt.bankAccountId));
+                    if (bObj) bankName = bObj.name;
+                    
+                    const stmt = isReturn ? 'سداد مرتجع تحويل بنكي' : 'استلام تحويل بنكي';
+                    const addNote = `سداد تحويلة مبيعات (${refNo})`;
+                    const trNum = bt.reference || bt.transferNo || '';
+
+                    txns.push({
+                        date: inv.date, time: time, ref: refNo + '-SAL-PAID-B' + idx, type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
+                        account: bt.bankAccountId || 'bank-001', counterAccount: customerAcct,
+                        statement: stmt, additionalNote: addNote,
+                        transferNo: trNum, bankName: bankName,
+                        debit: isReturn ? 0 : btLoc, credit: isReturn ? btLoc : 0,
+                        debitForeign: isReturn ? 0 : btFc, creditForeign: isReturn ? btFc : 0,
+                        costCenter, currency, exchangeRate: effRate, isPosted
+                    });
+                    txns.push({
+                        date: inv.date, time: time, ref: refNo + '-SAL-PAID-B' + idx, type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
+                        account: customerAcct, counterAccount: bt.bankAccountId || 'bank-001',
+                        statement: stmt, additionalNote: addNote,
+                        transferNo: trNum, bankName: bankName,
+                        debit: isReturn ? btLoc : 0, credit: isReturn ? 0 : btLoc,
+                        debitForeign: isReturn ? btFc : 0, creditForeign: isReturn ? 0 : btFc,
+                        costCenter, currency, exchangeRate: effRate, isPosted
+                    });
+                });
+            }
+
+            // Cheque
+            if (chequeAmt > 0 && inv.cheques && inv.cheques.length > 0) {
+                let allBanks = [];
+                try { allBanks = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]'); } catch(e) {}
+                inv.cheques.forEach((ch, idx) => {
+                    const chFc = parseFloat(ch.amount) || 0;
+                    if (chFc <= 0) return;
+                    const chLoc = typeof isBaseSDG !== 'undefined' && isBaseSDG ? chFc : chFc * effRate;
+                    
+                    let bankName = ch.bankName || 'البنك';
+                    if (!ch.bankName || ch.bankName === 'بنك غير محدد') {
+                        const bObj = allBanks.find(b => String(b.id) === String(ch.bankAccountId));
+                        if (bObj) bankName = bObj.name;
+                    }
+                    
+                    const stmt = isReturn ? 'سداد مرتجع شيك' : 'استلام شيك';
+                    const addNote = `سداد شيك مبيعات (${refNo})`;
+                    const trNum = `شيك (${ch.chequeNo || ''})`;
+
+                    txns.push({
+                        date: inv.date, time: time, ref: refNo + '-SAL-PAID-Q' + idx, type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
+                        account: ch.bankAccountId || 'cheques-receivable', counterAccount: customerAcct,
+                        statement: stmt, additionalNote: addNote,
+                        transferNo: trNum, bankName: bankName,
+                        debit: isReturn ? 0 : chLoc, credit: isReturn ? chLoc : 0,
+                        debitForeign: isReturn ? 0 : chFc, creditForeign: isReturn ? chFc : 0,
+                        costCenter, currency, exchangeRate: effRate, isPosted
+                    });
+                    txns.push({
+                        date: inv.date, time: time, ref: refNo + '-SAL-PAID-Q' + idx, type: isReturn ? 'payment' : 'receipt', typeLabel: isReturn ? 'سداد مرتجع' : 'سداد فاتورة',
+                        account: customerAcct, counterAccount: ch.bankAccountId || 'cheques-receivable',
+                        statement: stmt, additionalNote: addNote,
+                        transferNo: trNum, bankName: bankName,
+                        debit: isReturn ? chLoc : 0, credit: isReturn ? 0 : chLoc,
+                        debitForeign: isReturn ? chFc : 0, creditForeign: isReturn ? 0 : chFc,
+                        costCenter, currency, exchangeRate: effRate, isPosted
+                    });
+                });
+            }
         }
     });
 
@@ -1348,30 +1446,134 @@ function loadData() {
             isPosted: isPosted
         });
 
+        
         if (inv.paymentMethod !== 'credit') {
-            const paymentAcct = inv.paymentAccountId || 'safe-001';
-            txns.push({
-                date: inv.date, time: time, ref: refNo + '-PAID', type: 'payment', typeLabel: 'سداد مشتريات',
-                account: paymentAcct, counterAccount: supplierAcct,
-                statement: 'صرف نقدية',
-                additionalNote: 'سداد نقدي مع الفاتورة',
-                debit: 0, credit: amtLoc,
-                debitForeign: 0, creditForeign: amtFc,
-                costCenter, currency,
-                exchangeRate: effRate,
-                isPosted: isPosted
-            });
-            txns.push({
-                date: inv.date, time: time, ref: refNo + '-PAID', type: 'payment', typeLabel: 'سداد مشتريات',
-                account: supplierAcct, counterAccount: paymentAcct,
-                statement: 'صرف نقدية',
-                additionalNote: 'سداد نقدي مع الفاتورة',
-                debit: amtLoc, credit: 0,
-                debitForeign: amtFc, creditForeign: 0,
-                costCenter, currency,
-                exchangeRate: effRate,
-                isPosted: isPosted
-            });
+            const pms = inv.paymentMethods || [inv.paymentMethod];
+            let cashAmt = parseFloat(inv.cashAmount) || 0;
+            let bankAmt = parseFloat(inv.bankTransfers ? inv.bankTransfers.reduce((s, b) => s + (parseFloat(b.amount) || 0), 0) : inv.bankAmount) || 0;
+            let chequeAmt = parseFloat(inv.cheques ? inv.cheques.reduce((s, c) => s + (parseFloat(c.amount) || 0), 0) : inv.chequeAmount) || 0;
+
+            const totalForFallback = typeof totalAmt !== 'undefined' ? totalAmt.fc : (typeof amtFc !== 'undefined' ? amtFc : 0);
+            
+            if (totalForFallback > 0 && cashAmt <= 0 && bankAmt <= 0 && chequeAmt <= 0) {
+                if (pms.includes('bank')) bankAmt = totalForFallback;
+                else if (pms.includes('cheque')) chequeAmt = totalForFallback;
+                else cashAmt = totalForFallback;
+            }
+
+            // Cash Portion
+            if (cashAmt > 0) {
+                const cLoc = typeof isBaseSDG !== 'undefined' && isBaseSDG ? cashAmt : cashAmt * effRate;
+                const cFc = typeof isBaseSDG !== 'undefined' && isBaseSDG ? (cashAmt / effRate) : cashAmt;
+                const paymentAcct = inv.paymentAccountId || 'safe-001';
+                
+                let safeName = 'الخزينة';
+                try {
+                    const allSafes = JSON.parse(localStorage.getItem('erp_safes_v1') || '[]');
+                    const sObj = allSafes.find(s => String(s.id) === String(paymentAcct));
+                    if (sObj) safeName = sObj.name;
+                } catch(e) {}
+                
+                const stmt = (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد نقدية' : 'صرف نقدية';
+                const addNote = (typeof isReturn !== 'undefined' && isReturn) ? `استرداد نقدي مع مرتجع الفاتورة من [${safeName}]` : `سداد نقدي مشتريات (${refNo})`;
+
+                txns.push({
+                    date: inv.date, time: time, ref: refNo + '-PUR-PAID-C', type: (typeof isReturn !== 'undefined' && isReturn) ? 'receipt' : 'payment', typeLabel: (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد مشتريات' : 'سداد مشتريات',
+                    account: paymentAcct, counterAccount: supplierAcct,
+                    statement: stmt, additionalNote: addNote,
+                    transferNo: safeName,
+                    debit: (typeof isReturn !== 'undefined' && isReturn) ? cLoc : 0, credit: (typeof isReturn !== 'undefined' && isReturn) ? 0 : cLoc,
+                    debitForeign: (typeof isReturn !== 'undefined' && isReturn) ? cFc : 0, creditForeign: (typeof isReturn !== 'undefined' && isReturn) ? 0 : cFc,
+                    costCenter, currency, exchangeRate: effRate, isPosted
+                });
+                txns.push({
+                    date: inv.date, time: time, ref: refNo + '-PUR-PAID-C', type: (typeof isReturn !== 'undefined' && isReturn) ? 'receipt' : 'payment', typeLabel: (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد مشتريات' : 'سداد مشتريات',
+                    account: supplierAcct, counterAccount: paymentAcct,
+                    statement: stmt, additionalNote: addNote,
+                    transferNo: safeName,
+                    debit: (typeof isReturn !== 'undefined' && isReturn) ? 0 : cLoc, credit: (typeof isReturn !== 'undefined' && isReturn) ? cLoc : 0,
+                    debitForeign: (typeof isReturn !== 'undefined' && isReturn) ? 0 : cFc, creditForeign: (typeof isReturn !== 'undefined' && isReturn) ? cFc : 0,
+                    costCenter, currency, exchangeRate: effRate, isPosted
+                });
+            }
+
+            // Bank Transfers
+            if (bankAmt > 0 && inv.bankTransfers && inv.bankTransfers.length > 0) {
+                let allBanks = [];
+                try { allBanks = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]'); } catch(e) {}
+                inv.bankTransfers.forEach((bt, idx) => {
+                    const btFc = parseFloat(bt.amount) || 0;
+                    if (btFc <= 0) return;
+                    const btLoc = typeof isBaseSDG !== 'undefined' && isBaseSDG ? btFc : btFc * effRate;
+                    
+                    let bankName = 'البنك';
+                    const bObj = allBanks.find(b => String(b.id) === String(bt.bankAccountId));
+                    if (bObj) bankName = bObj.name;
+                    
+                    const stmt = (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد تحويل بنكي' : 'صرف تحويل بنكي';
+                    const addNote = `سداد تحويلة مشتريات (${refNo})`;
+                    const trNum = bt.reference || bt.transferNo || '';
+
+                    txns.push({
+                        date: inv.date, time: time, ref: refNo + '-PUR-PAID-B' + idx, type: (typeof isReturn !== 'undefined' && isReturn) ? 'receipt' : 'payment', typeLabel: (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد مشتريات' : 'سداد مشتريات',
+                        account: bt.bankAccountId || 'bank-001', counterAccount: supplierAcct,
+                        statement: stmt, additionalNote: addNote,
+                        transferNo: trNum, bankName: bankName,
+                        debit: (typeof isReturn !== 'undefined' && isReturn) ? btLoc : 0, credit: (typeof isReturn !== 'undefined' && isReturn) ? 0 : btLoc,
+                        debitForeign: (typeof isReturn !== 'undefined' && isReturn) ? btFc : 0, creditForeign: (typeof isReturn !== 'undefined' && isReturn) ? 0 : btFc,
+                        costCenter, currency, exchangeRate: effRate, isPosted
+                    });
+                    txns.push({
+                        date: inv.date, time: time, ref: refNo + '-PUR-PAID-B' + idx, type: (typeof isReturn !== 'undefined' && isReturn) ? 'receipt' : 'payment', typeLabel: (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد مشتريات' : 'سداد مشتريات',
+                        account: supplierAcct, counterAccount: bt.bankAccountId || 'bank-001',
+                        statement: stmt, additionalNote: addNote,
+                        transferNo: trNum, bankName: bankName,
+                        debit: (typeof isReturn !== 'undefined' && isReturn) ? 0 : btLoc, credit: (typeof isReturn !== 'undefined' && isReturn) ? btLoc : 0,
+                        debitForeign: (typeof isReturn !== 'undefined' && isReturn) ? 0 : btFc, creditForeign: (typeof isReturn !== 'undefined' && isReturn) ? btFc : 0,
+                        costCenter, currency, exchangeRate: effRate, isPosted
+                    });
+                });
+            }
+
+            // Cheques
+            if (chequeAmt > 0 && inv.cheques && inv.cheques.length > 0) {
+                let allBanks = [];
+                try { allBanks = JSON.parse(localStorage.getItem('erp_banks_v1') || '[]'); } catch(e) {}
+                inv.cheques.forEach((ch, idx) => {
+                    const chFc = parseFloat(ch.amount) || 0;
+                    if (chFc <= 0) return;
+                    const chLoc = typeof isBaseSDG !== 'undefined' && isBaseSDG ? chFc : chFc * effRate;
+                    
+                    let bankName = ch.bankName || 'البنك';
+                    if (!ch.bankName || ch.bankName === 'بنك غير محدد') {
+                        const bObj = allBanks.find(b => String(b.id) === String(ch.bankAccountId));
+                        if (bObj) bankName = bObj.name;
+                    }
+                    
+                    const stmt = (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد شيك' : 'صرف شيك';
+                    const addNote = `سداد شيك مشتريات (${refNo})`;
+                    const trNum = `شيك (${ch.chequeNo || ''})`;
+
+                    txns.push({
+                        date: inv.date, time: time, ref: refNo + '-PUR-PAID-Q' + idx, type: (typeof isReturn !== 'undefined' && isReturn) ? 'receipt' : 'payment', typeLabel: (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد مشتريات' : 'سداد مشتريات',
+                        account: ch.bankAccountId || 'cheques-payable', counterAccount: supplierAcct,
+                        statement: stmt, additionalNote: addNote,
+                        transferNo: trNum, bankName: bankName,
+                        debit: (typeof isReturn !== 'undefined' && isReturn) ? chLoc : 0, credit: (typeof isReturn !== 'undefined' && isReturn) ? 0 : chLoc,
+                        debitForeign: (typeof isReturn !== 'undefined' && isReturn) ? chFc : 0, creditForeign: (typeof isReturn !== 'undefined' && isReturn) ? 0 : chFc,
+                        costCenter, currency, exchangeRate: effRate, isPosted
+                    });
+                    txns.push({
+                        date: inv.date, time: time, ref: refNo + '-PUR-PAID-Q' + idx, type: (typeof isReturn !== 'undefined' && isReturn) ? 'receipt' : 'payment', typeLabel: (typeof isReturn !== 'undefined' && isReturn) ? 'استرداد مشتريات' : 'سداد مشتريات',
+                        account: supplierAcct, counterAccount: ch.bankAccountId || 'cheques-payable',
+                        statement: stmt, additionalNote: addNote,
+                        transferNo: trNum, bankName: bankName,
+                        debit: (typeof isReturn !== 'undefined' && isReturn) ? 0 : chLoc, credit: (typeof isReturn !== 'undefined' && isReturn) ? chLoc : 0,
+                        debitForeign: (typeof isReturn !== 'undefined' && isReturn) ? 0 : chFc, creditForeign: (typeof isReturn !== 'undefined' && isReturn) ? chFc : 0,
+                        costCenter, currency, exchangeRate: effRate, isPosted
+                    });
+                });
+            }
         }
     });
 
