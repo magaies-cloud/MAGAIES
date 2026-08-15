@@ -2299,7 +2299,8 @@ document.addEventListener('DOMContentLoaded', () => {
         document.querySelectorAll('.sidebar-item[data-href], a[href]').forEach(link => {
             link.addEventListener('click', (e) => {
                 const href = link.getAttribute('data-href') || link.getAttribute('href');
-                if (href && !href.startsWith('#') && !href.startsWith('javascript') && href !== currentPage) {
+                const currentUrl = typeof currentPage !== 'undefined' ? currentPage : window.location.pathname.split('/').pop();
+                if (href && !href.startsWith('#') && !href.startsWith('javascript') && href !== currentUrl) {
                     overlay.style.opacity = '1';
                     overlay.style.pointerEvents = 'all';
                 }
