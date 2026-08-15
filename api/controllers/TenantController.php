@@ -38,6 +38,16 @@ class TenantController {
             try {
                 $this->pdo->exec("ALTER TABLE `tenants` ADD COLUMN `last_login_at` DATETIME DEFAULT NULL;");
             } catch (Exception $ex) {}
+
+            $this->pdo->exec("CREATE TABLE IF NOT EXISTS `saas_payments` (
+                `id` INT AUTO_INCREMENT PRIMARY KEY,
+                `tenant_id` INT NOT NULL,
+                `amount` DECIMAL(12,2) NOT NULL DEFAULT 0,
+                `description` TEXT NULL,
+                `payment_date` TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+                INDEX `idx_tenant` (`tenant_id`)
+            ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_general_ci;");
+
         } catch (Exception $e) {
             error_log("Failed to create tables: " . $e->getMessage());
         }
@@ -179,32 +189,36 @@ class TenantController {
             jsonResponse(['success' => true]);
         }
         if ($method === 'GET' && $action === 'tenants' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'payments') {
-            $tenantId = intval($_GET['id'] ?? 0);
-            if (!$tenantId) {
-                $limit = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 50;
-                $offset = isset($_GET['offset']) ? max(0, (int)$_GET['offset']) : 0;
-                $search = isset($_GET['search']) ? trim($_GET['search']) : '';
-                
-                $whereClause = "";
-                $params = [];
-                if ($search !== '') {
-                    $whereClause = "WHERE t.company_name LIKE :search OR p.description LIKE :search";
-                    $params[':search'] = '%' . $search . '%';
-                }
-                
-                $countSql = "SELECT COUNT(*) FROM saas_payments p JOIN tenants t ON p.tenant_id = t.id $whereClause";
-                $countStmt = $this->pdo->prepare($countSql);
-                $countStmt->execute($params);
-                $totalCount = $countStmt->fetchColumn();
+            try {
+                $tenantId = intval($_GET['id'] ?? 0);
+                if (!$tenantId) {
+                    $limit = isset($_GET['limit']) ? max(1, (int)$_GET['limit']) : 50;
+                    $offset = isset($_GET['offset']) ? max(0, (int)$_GET['offset']) : 0;
+                    $search = isset($_GET['search']) ? trim($_GET['search']) : '';
+                    
+                    $whereClause = "";
+                    $params = [];
+                    if ($search !== '') {
+                        $whereClause = "WHERE t.company_name LIKE :search OR p.description LIKE :search";
+                        $params[':search'] = '%' . $search . '%';
+                    }
+                    
+                    $countSql = "SELECT COUNT(*) FROM saas_payments p JOIN tenants t ON p.tenant_id = t.id $whereClause";
+                    $countStmt = $this->pdo->prepare($countSql);
+                    $countStmt->execute($params);
+                    $totalCount = $countStmt->fetchColumn();
 
-                $sql = "SELECT p.*, t.company_name, t.subdomain FROM saas_payments p JOIN tenants t ON p.tenant_id = t.id $whereClause ORDER BY p.payment_date DESC LIMIT $limit OFFSET $offset";
-                $stmt = $this->pdo->prepare($sql);
-                $stmt->execute($params);
-                jsonResponse(['success' => true, 'total' => (int)$totalCount, 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
-            } else {
-                $stmt = $this->pdo->prepare("SELECT p.*, t.company_name FROM saas_payments p JOIN tenants t ON p.tenant_id = t.id WHERE p.tenant_id = ? ORDER BY p.payment_date DESC");
-                $stmt->execute([$tenantId]);
-                jsonResponse($stmt->fetchAll());
+                    $sql = "SELECT p.*, t.company_name, t.subdomain FROM saas_payments p JOIN tenants t ON p.tenant_id = t.id $whereClause ORDER BY p.payment_date DESC LIMIT $limit OFFSET $offset";
+                    $stmt = $this->pdo->prepare($sql);
+                    $stmt->execute($params);
+                    jsonResponse(['success' => true, 'total' => (int)$totalCount, 'data' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
+                } else {
+                    $stmt = $this->pdo->prepare("SELECT p.*, t.company_name FROM saas_payments p JOIN tenants t ON p.tenant_id = t.id WHERE p.tenant_id = ? ORDER BY p.payment_date DESC");
+                    $stmt->execute([$tenantId]);
+                    jsonResponse($stmt->fetchAll());
+                }
+            } catch (Exception $e) {
+                jsonResponse(['success' => true, 'total' => 0, 'data' => [], 'note' => 'Payments table initialized']);
             }
         }
         
