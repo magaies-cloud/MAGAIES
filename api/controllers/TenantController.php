@@ -694,7 +694,20 @@ class TenantController {
         }
 
         // --- SUPPORT TICKETS ---
-        if ($method === 'GET' && $action === 'tickets') {
+        if ($method === 'GET' && $action === 'tickets' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'replies') {
+            $ticketId = intval($_GET['id'] ?? 0);
+            if (!$ticketId) jsonResponse(['error' => 'Ticket ID required'], 400);
+            
+            try {
+                $stmt = $this->pdo->prepare("SELECT * FROM saas_ticket_replies WHERE ticket_id = ? ORDER BY created_at ASC");
+                $stmt->execute([$ticketId]);
+                jsonResponse(['success' => true, 'replies' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
+            } catch (Exception $e) {
+                jsonResponse(['error' => $e->getMessage()], 500);
+            }
+        }
+
+        if ($method === 'GET' && $action === 'tickets' && !isset($requestUri[$base_index + 3])) {
             $status = isset($_GET['status']) ? trim($_GET['status']) : 'all';
             
             $whereClause = "";
@@ -732,18 +745,7 @@ class TenantController {
             }
         }
         
-        if ($method === 'GET' && $action === 'tickets' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'replies') {
-            $ticketId = intval($_GET['id'] ?? 0);
-            if (!$ticketId) jsonResponse(['error' => 'Ticket ID required'], 400);
-            
-            try {
-                $stmt = $this->pdo->prepare("SELECT * FROM saas_ticket_replies WHERE ticket_id = ? ORDER BY created_at ASC");
-                $stmt->execute([$ticketId]);
-                jsonResponse(['success' => true, 'replies' => $stmt->fetchAll(PDO::FETCH_ASSOC)]);
-            } catch (Exception $e) {
-                jsonResponse(['error' => $e->getMessage()], 500);
-            }
-        }
+
         
         if ($method === 'POST' && $action === 'tickets' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'reply') {
             $ticketId = intval($input['ticket_id'] ?? 0);

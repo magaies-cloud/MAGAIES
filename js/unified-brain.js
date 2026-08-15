@@ -101,6 +101,23 @@ const UnifiedBrain = {
                     <p>عرض الجداول الشاملة، مؤشرات الأداء والرسوم البيانية التفاعلية</p>
                 </div>
             </a>
+
+            <!-- Option 4: Client Support Tickets -->
+            <div class="ai-hub-item ai-hub-item-support" onclick="UnifiedBrain.closeMenu(); if(typeof openClientSupportModal === 'function') openClientSupportModal(); else console.error('Support function not found');">
+                <div class="ai-hub-icon" style="background: linear-gradient(135deg, #f43f5e 0%, #e11d48 100%); color: #ffffff; box-shadow: 0 6px 20px rgba(225, 29, 72, 0.6);">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="#ffffff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 18v-6a9 9 0 0 1 18 0v6"/>
+                        <path d="M21 19a2 2 0 0 1-2 2h-1a2 2 0 0 1-2-2v-3a2 2 0 0 1 2-2h3zM3 19a2 2 0 0 0 2 2h1a2 2 0 0 0 2-2v-3a2 2 0 0 0-2-2H3z"/>
+                    </svg>
+                </div>
+                <div class="ai-hub-text">
+                    <h4>
+                        طلب دعم فني
+                        <span class="ai-hub-badge-mini" style="background: rgba(225, 29, 72, 0.25); color: #fda4af; border: 1px solid rgba(225, 29, 72, 0.4);">🎧 تذاكر</span>
+                    </h4>
+                    <p>فتح تذكرة دعم فني جديدة أو متابعة التذاكر السابقة الخاصة بك</p>
+                </div>
+            </div>
         `;
         document.body.appendChild(hubMenu);
 

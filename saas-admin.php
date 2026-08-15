@@ -489,7 +489,180 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             .tenant-info-row { flex-direction: column; align-items: flex-start; gap: 8px; }
             .glass-input { width: 100%; }
         }
-    </style>
+/* From Uiverse.io by preet_7613 */ 
+.switch {
+  display: block;
+  position: relative;
+  width: 100px;
+  height: 60px;
+  cursor: pointer;
+  -webkit-tap-highlight-color: transparent;
+  transform: scale(0.65); /* Scaled down slightly to fit table better */
+  transform-origin: center center;
+}
+
+.switch__base-outer,
+.switch__base-inner {
+  display: block;
+  position: absolute;
+}
+
+.switch__base-outer {
+  border-radius: 25px;
+  box-shadow:
+    -2px -2px 4px hsl(223, 10%, 30%),
+    2px 2px 2px hsl(223, 10%, 30%) inset,
+    2px 2px 4px hsl(0, 0%, 0%),
+    -2px -2px 2px hsl(223, 10%, 5%) inset;
+  top: 2.5px;
+  left: 2.5px;
+  width: 95px;
+  height: 55px;
+}
+
+.switch__base-inner {
+  border-radius: 21px;
+  box-shadow:
+    -4px -4px 4px hsl(223, 10%, 30%) inset,
+    1px 1px 2px hsla(223, 10%, 30%, 1),
+    2px 4px 4px hsl(223, 10%, 5%) inset,
+    -1px -1px 2px hsla(223, 10%, 5%, 1);
+  top: 7.5px;
+  left: 7.5px;
+  width: 85px;
+  height: 45px;
+}
+
+.switch__input {
+  outline: transparent;
+  position: relative;
+  width: 100%;
+  height: 100%;
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+}
+
+.switch__knob-container {
+  border-radius: 20px;
+  display: block;
+  position: absolute;
+  overflow: hidden;
+  top: 10px;
+  left: 10px;
+  width: 80px;
+  height: 40px;
+}
+
+.switch__knob {
+  border-radius: 20px;
+  display: block;
+  position: absolute;
+  left: 0;
+  background-color: hsl(223, 10%, 15%);
+  background-image: radial-gradient(
+      88% 88% at 50% 50%,
+      hsl(223, 10%, 20%) 47%,
+      hsla(223, 10%, 20%, 0) 50%
+    ),
+    radial-gradient(
+      88% 88% at 47% 47%,
+      hsl(223, 10%, 85%) 45%,
+      hsla(223, 10%, 85%, 0) 50%
+    ),
+    radial-gradient(
+      65% 70% at 40% 60%,
+      hsl(223, 10%, 20%) 46%,
+      hsla(223, 10%, 20%, 0) 50%
+    );
+  box-shadow:
+    -1px -1px 1px hsl(223, 10%, 15%) inset,
+    -2px -2px 1px hsl(223, 10%, 5%) inset,
+    12px 4px 2px hsla(0, 0%, 0%, 0.8);
+  width: 40px;
+  height: 40px;
+  transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.switch__knob-shadow {
+  border-radius: 50%;
+  box-shadow: 2px 2px 2px hsla(0, 0%, 0%, 0.9);
+  display: block;
+  position: absolute;
+  top: 10px;
+  left: 10px;
+  width: 40px;
+  height: 40px;
+  transition: transform 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.switch__led {
+  background-color: hsl(3, 90%, 70%);
+  border-radius: 50%;
+  box-shadow:
+    0 -1px 1px hsl(3, 90%, 40%) inset,
+    0 0 2px hsla(3, 90%, 70%, 0.3),
+    2px 2px 2px hsla(0, 0%, 0%, 0.5);
+  display: block;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 5px;
+  height: 5px;
+  transition:
+    background-color 0.6s cubic-bezier(0.65, 0, 0.35, 1),
+    box-shadow 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+}
+
+.switch__input:checked ~ .switch__led {
+  background-color: hsl(123, 90%, 70%);
+  box-shadow:
+    0 -1px 1px hsl(123, 90%, 40%) inset,
+    0 -2px 2px hsla(123, 90%, 70%, 0.3),
+    0 2px 2px hsla(123, 90%, 70%, 0.3),
+    2px 2px 2px hsla(0, 0%, 0%, 0.5);
+}
+
+.switch__input:checked ~ .switch__knob-shadow,
+.switch__input:checked ~ .switch__knob-container .switch__knob {
+  transform: translateX(40px);
+}
+
+/* Missing Neon Animation CSS */
+.switch__base-neon {
+  display: block;
+  overflow: visible;
+  position: absolute;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: auto;
+}
+.switch__base-neon path {
+  stroke-dasharray: 0 104.26 0;
+  transition: stroke-dasharray 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.switch__knob-neon {
+  display: block;
+  width: 40px;
+  height: auto;
+}
+.switch__knob-neon circle {
+  opacity: 0;
+  stroke-dasharray: 0 90.32 0 54.19;
+  transition:
+    opacity 0.6s steps(1, end),
+    stroke-dasharray 0.6s cubic-bezier(0.65, 0, 0.35, 1);
+}
+.switch__input:checked ~ .switch__base-neon path {
+  stroke-dasharray: 52.13 0 52.13;
+}
+.switch__input:checked ~ .switch__knob-container .switch__knob-neon circle {
+  opacity: 1;
+  stroke-dasharray: 45.16 0 45.16 54.19;
+  transition-timing-function: steps(1, start), cubic-bezier(0.65, 0, 0.35, 1);
+}
+</style>
 </head>
 <body>
     <div id="global-search-overlay" onclick="if(event.target===this) toggleGlobalSearch()">
@@ -858,37 +1031,70 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         <!-- TAB: GLOBAL PAYMENTS -->
         <div id="tab-global-payments" class="tab-content">
             <div class="section-inner-tabs" data-group="financial">
-                <div class="section-inner-tab active" onclick="switchSectionTab('tab-global-payments', 'financial', this)">&#x1F4B3; الفواتير والمدفوعات</div>
+                <div class="section-inner-tab active" onclick="switchSectionTab('tab-global-payments', 'financial', this)">&#x1F4B3; سجل المدفوعات والفواتير</div>
                 <div class="section-inner-tab" onclick="switchSectionTab('tab-plans', 'financial', this)">&#x1F48E; الباقات (Plans)</div>
             </div>
-            <div class="glass-panel">
-                <div class="flex-between" style="margin-bottom: 20px;">
-                    <h3>سجل المدفوعات والفواتير (جميع الشركات)</h3>
-                    <div style="display:flex; gap:10px;">
-                        <input type="text" id="global-payments-search" placeholder="بحث بالشركة أو البيان..." style="padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.3); color:#fff; border: 1px solid var(--glass-border); width: 300px;" onkeyup="filterGlobalPayments()">
+
+            <!-- Financial KPIs for Payments -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                <div class="kpi-card" style="background: linear-gradient(135deg, rgba(16,185,129,0.1) 0%, rgba(5,150,105,0.2) 100%); border-color: rgba(16,185,129,0.3);">
+                    <div class="kpi-icon" style="background: rgba(16,185,129,0.2); color: #34d399;">&#x1F4B0;</div>
+                    <div class="kpi-info">
+                        <div class="kpi-val" id="gpayments-total-rev">$0</div>
+                        <div class="kpi-desc" style="color:#a7f3d0;">إجمالي الإيرادات</div>
                     </div>
                 </div>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
+                <div class="kpi-card" style="background: linear-gradient(135deg, rgba(56,189,248,0.1) 0%, rgba(2,132,199,0.2) 100%); border-color: rgba(56,189,248,0.3);">
+                    <div class="kpi-icon" style="background: rgba(56,189,248,0.2); color: #7dd3fc;">&#x1F4CA;</div>
+                    <div class="kpi-info">
+                        <div class="kpi-val" id="gpayments-count">0</div>
+                        <div class="kpi-desc" style="color:#bae6fd;">إجمالي عدد العمليات</div>
+                    </div>
+                </div>
+                <div class="kpi-card" style="background: linear-gradient(135deg, rgba(245,158,11,0.1) 0%, rgba(217,119,6,0.2) 100%); border-color: rgba(245,158,11,0.3);">
+                    <div class="kpi-icon" style="background: rgba(245,158,11,0.2); color: #fcd34d;">&#x23F1;</div>
+                    <div class="kpi-info">
+                        <div class="kpi-val" id="gpayments-recent">$0</div>
+                        <div class="kpi-desc" style="color:#fef3c7;">إيرادات آخر 30 يوم</div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="glass-panel" style="padding: 25px; border-radius: 16px;">
+                <div class="flex-between" style="margin-bottom: 25px; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px;">
+                    <div>
+                        <h3 style="margin:0; font-size: 1.25rem; font-weight: 800; color: #fff;">سجل المدفوعات المجمّع</h3>
+                        <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: #94a3b8;">يعرض جميع عمليات الدفع وتجديد الاشتراكات لكل الشركات المسجلة</p>
+                    </div>
+                    <div style="display:flex; gap:12px; align-items: center;">
+                        <div style="position: relative;">
+                            <span style="position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #64748b;">🔍</span>
+                            <input type="text" id="global-payments-search" placeholder="بحث بالشركة أو البيان..." style="padding: 10px 35px 10px 15px; border-radius: 10px; background: rgba(15,23,42,0.6); color:#f8fafc; border: 1px solid rgba(255,255,255,0.1); width: 320px; font-size: 0.9rem; transition: all 0.3s;" onkeyup="filterGlobalPayments()" onfocus="this.style.borderColor='var(--primary-accent)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'">
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="table-responsive" style="border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+                    <table style="margin: 0;">
+                        <thead style="background: rgba(15,23,42,0.8);">
                             <tr>
-                                <th>تاريخ الدفع</th>
-                                <th>اسم الشركة</th>
-                                <th>النطاق</th>
-                                <th>المبلغ</th>
-                                <th>البيان</th>
+                                <th style="padding: 15px; font-weight: 700; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.05);">تاريخ الدفع</th>
+                                <th style="padding: 15px; font-weight: 700; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.05);">الشركة المشتركة</th>
+                                <th style="padding: 15px; font-weight: 700; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.05);">النطاق (Subdomain)</th>
+                                <th style="padding: 15px; font-weight: 700; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.05);">المبلغ المالي</th>
+                                <th style="padding: 15px; font-weight: 700; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.05);">البيان / الملاحظات</th>
                             </tr>
                         </thead>
                         <tbody id="global-payments-body">
-                            <tr><td colspan="5" style="text-align:center;">جاري التحميل...</td></tr>
+                            <tr><td colspan="5" style="text-align:center; padding: 30px; color: #94a3b8;"><i class="fa-solid fa-circle-notch fa-spin"></i> جاري جلب البيانات...</td></tr>
                         </tbody>
                     </table>
                 </div>
                 
-                <div class="flex-between" style="margin-top:20px;">
-                    <button class="btn-primary" id="btn-gpayments-prev" onclick="changeGlobalPaymentsPage(-1)" style="padding: 8px 16px;">السابق</button>
-                    <span id="gpayments-page-indicator" style="color: var(--text-secondary); font-weight: bold;">الصفحة 1 من 1</span>
-                    <button class="btn-primary" id="btn-gpayments-next" onclick="changeGlobalPaymentsPage(1)" style="padding: 8px 16px;">التالي</button>
+                <div class="flex-between" style="margin-top:25px; padding-top: 15px; border-top: 1px solid rgba(255,255,255,0.05);">
+                    <button class="btn-primary" id="btn-gpayments-prev" onclick="changeGlobalPaymentsPage(-1)" style="padding: 8px 20px; border-radius: 8px; background: rgba(255,255,255,0.05); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1);">السابق</button>
+                    <span id="gpayments-page-indicator" style="color: #94a3b8; font-size: 0.9rem; font-weight: 600; background: rgba(0,0,0,0.2); padding: 6px 15px; border-radius: 20px;">الصفحة 1 من 1</span>
+                    <button class="btn-primary" id="btn-gpayments-next" onclick="changeGlobalPaymentsPage(1)" style="padding: 8px 20px; border-radius: 8px; background: rgba(255,255,255,0.05); color: #e2e8f0; border: 1px solid rgba(255,255,255,0.1);">التالي</button>
                 </div>
             </div>
         </div>
@@ -896,24 +1102,29 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         <!-- TAB: PLANS -->
         <div id="tab-plans" class="tab-content">
             <div class="section-inner-tabs" data-group="financial">
-                <div class="section-inner-tab" onclick="switchSectionTab('tab-global-payments', 'financial', this)">&#x1F4B3; الفواتير والمدفوعات</div>
+                <div class="section-inner-tab" onclick="switchSectionTab('tab-global-payments', 'financial', this)">&#x1F4B3; سجل المدفوعات والفواتير</div>
                 <div class="section-inner-tab active" onclick="switchSectionTab('tab-plans', 'financial', this)">&#x1F48E; الباقات (Plans)</div>
             </div>
-            <div class="glass-panel">
-                <div class="flex-between" style="margin-bottom: 20px;">
-                    <h3>الباقات (Plans)</h3>
-                    <button class="btn-primary" onclick="openPlanModal()">+ باقة جديدة</button>
+            
+            <div class="glass-panel" style="padding: 25px; border-radius: 16px;">
+                <div class="flex-between" style="margin-bottom: 25px; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.05); padding-bottom: 15px;">
+                    <div>
+                        <h3 style="margin:0; font-size: 1.25rem; font-weight: 800; color: #fff;">باقات الاشتراك (Plans)</h3>
+                        <p style="margin: 5px 0 0 0; font-size: 0.85rem; color: #94a3b8;">إدارة باقات النظام وأسعارها وخصائص كل باقة</p>
+                    </div>
+                    <button class="btn-primary" onclick="openPlanModal()" style="padding: 10px 20px; border-radius: 8px; font-weight: 600; font-size: 0.95rem; display: flex; align-items: center; gap: 8px;">
+                        <i class="fa-solid fa-plus"></i> إضافة باقة جديدة
+                    </button>
                 </div>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
+                
+                <div class="table-responsive" style="border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+                    <table style="margin: 0;">
+                        <thead style="background: rgba(15,23,42,0.8);">
                             <tr>
-                                <th>الاسم</th>
-                                <th>السعر ($)</th>
-                                <th>المدة</th>
-                                <th>الحد الأقصى للمستخدمين</th>
-                                <th>المساحة</th>
-                                <th>إجراءات</th>
+                                <th style="padding: 15px; font-weight: 700; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.05); width: 25%;">اسم الباقة</th>
+                                <th style="padding: 15px; font-weight: 700; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center;">السعر / المدة</th>
+                                <th style="padding: 15px; font-weight: 700; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center;">الخصائص</th>
+                                <th style="padding: 15px; font-weight: 700; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center;">إجراءات</th>
                             </tr>
                         </thead>
                         <tbody id="plans-body">
@@ -961,60 +1172,80 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         <!-- TAB: BROADCASTS -->
         <!-- TAB: BROADCASTS -->
         <div id="tab-broadcasts" class="tab-content">
+            <!-- Big Toggle Buttons -->
+            <div style="display: flex; gap: 20px; margin-bottom: 25px;">
+                <div id="btn-bc-whatsapp" onclick="toggleBroadcastView('whatsapp')" style="flex: 1; background: rgba(16,185,129,0.1); border: 1px solid rgba(16,185,129,0.3); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s; color: #10b981;">
+                    <i class="fa-brands fa-whatsapp" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                    <span style="font-size: 1.1rem; font-weight: 800;">رسائل الواتساب</span>
+                </div>
+                <div id="btn-bc-system" onclick="toggleBroadcastView('system')" style="flex: 1; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.05); border-radius: 12px; padding: 20px; text-align: center; cursor: pointer; transition: all 0.3s; color: #cbd5e1;">
+                    <i class="fa-solid fa-bell" style="font-size: 2rem; margin-bottom: 10px; display: block;"></i>
+                    <span style="font-size: 1.1rem; font-weight: 800;">رسائل النظام (لوحة التحكم)</span>
+                </div>
+            </div>
+
             <!-- Panel 1: WhatsApp Broadcasting -->
-            <div class="glass-panel" style="margin-bottom: 25px;">
-                <h3 style="margin-top:0; margin-bottom: 15px; display:flex; align-items:center; gap:8px;">💬 إرسال رسائل واتساب للمشتركين (WhatsApp Broadcast)</h3>
-                <p style="color: var(--text-secondary); font-size: 0.9rem; margin-bottom: 20px;">
-                    يمكنك إرسال رسالة واتساب فورية إما لمشترك محدد منفرد أو لجميع المشتركين معاً (رسالة جماعية) للتنبيه بانتهاء الاشتراك أو إرسال تحديثات عامة.
+            <div id="view-bc-whatsapp" class="glass-panel" style="margin-bottom: 25px; padding: 30px;">
+                <h3 style="margin-top:0; margin-bottom: 15px; display:flex; align-items:center; gap:12px; font-size: 1.5rem; font-weight: 800; color: #10b981;">
+                    <i class="fa-brands fa-whatsapp"></i> إرسال رسائل واتساب للمشتركين (WhatsApp Broadcast)
+                </h3>
+                <p style="color: #cbd5e1; font-size: 1.05rem; line-height: 1.6; margin-bottom: 30px; max-width: 800px;">
+                    يمكنك إرسال رسالة واتساب فورية إما لمشترك محدد منفرد أو لجميع المشتركين معاً (رسالة جماعية) للتنبيه بانتهاء الاشتراك أو إرسال تحديثات هامة.
                 </p>
                 
-                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 20px;">
-                    <div class="form-group">
-                        <label style="color:#fff; font-weight:bold;">المستلم (الشركة/المشترك)</label>
-                        <select id="wa-target-tenant" onchange="applyWaTemplate(document.getElementById('wa-message-template').value)" style="padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.3); color:#fff; border: 1px solid var(--glass-border); width: 100%; font-family: Tajawal;">
-                            <option value="all">📢 إرسال لجميع المشتركين (رسالة جماعية)</option>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 25px; margin-bottom: 25px;">
+                    <div class="form-group" style="margin: 0;">
+                        <label style="color:#e2e8f0; font-weight:700; font-size: 1.05rem; margin-bottom: 10px; display: block;">المستلم (الشركة/المشترك)</label>
+                        <select id="wa-target-tenant" onchange="applyWaTemplate(document.getElementById('wa-message-template').value)" style="padding: 12px 15px; border-radius: 10px; background: rgba(0,0,0,0.4); color:#fff; border: 1px solid rgba(255,255,255,0.1); width: 100%; font-family: Tajawal; font-size: 1.05rem; outline: none; transition: all 0.3s;" onfocus="this.style.borderColor='#10b981'; this.style.boxShadow='0 0 0 3px rgba(16,185,129,0.2)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.boxShadow='none'">
+                            <option value="all" style="background: #1e293b; color: #10b981; font-weight: bold;">📢 إرسال لجميع المشتركين (رسالة جماعية)</option>
                             <!-- Will be populated dynamically with tenants -->
                         </select>
                     </div>
-                    <div class="form-group">
-                        <label style="color:#fff; font-weight:bold;">قالب الرسائل الجاهزة (اختياري)</label>
-                        <select id="wa-message-template" onchange="applyWaTemplate(this.value)" style="padding: 10px; border-radius: 8px; background: rgba(0,0,0,0.3); color:#fff; border: 1px solid var(--glass-border); width: 100%; font-family: Tajawal;">
-                            <option value="">-- اختر قالباً جاهزاً لتعبئة الرسالة --</option>
-                            <option value="expiry">⚠️ تنبيه بقرب انتهاء الاشتراك</option>
-                            <option value="welcome">🌸 ترحيب بمشترك جديد</option>
-                            <option value="maintenance">⚙️ تنبيه صيانة مجدولة للنظام</option>
+                    <div class="form-group" style="margin: 0;">
+                        <label style="color:#e2e8f0; font-weight:700; font-size: 1.05rem; margin-bottom: 10px; display: block;">قالب الرسائل الجاهزة (اختياري)</label>
+                        <select id="wa-message-template" onchange="applyWaTemplate(this.value)" style="padding: 12px 15px; border-radius: 10px; background: rgba(0,0,0,0.4); color:#fff; border: 1px solid rgba(255,255,255,0.1); width: 100%; font-family: Tajawal; font-size: 1.05rem; outline: none; transition: all 0.3s;" onfocus="this.style.borderColor='#10b981'; this.style.boxShadow='0 0 0 3px rgba(16,185,129,0.2)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.boxShadow='none'">
+                            <option value="" style="background: #1e293b; color: #fff;">-- اختر قالباً جاهزاً لتعبئة الرسالة --</option>
+                            <option value="expiry" style="background: #1e293b; color: #fff;">⚠️ تنبيه بقرب انتهاء الاشتراك</option>
+                            <option value="welcome" style="background: #1e293b; color: #fff;">🌸 ترحيب بمشترك جديد</option>
+                            <option value="maintenance" style="background: #1e293b; color: #fff;">⚙️ تنبيه صيانة مجدولة للنظام</option>
                         </select>
                     </div>
                 </div>
                 
-                <div class="form-group" style="margin-bottom: 20px;">
-                    <label style="color:#fff; font-weight:bold;">نص الرسالة</label>
-                    <textarea id="wa-message-body" rows="4" placeholder="اكتب نص الرسالة هنا... يمكنك استخدام المتغيرات {owner} للاسم و {company} للشركة في الرسائل الجماعية" style="padding: 12px; border-radius: 8px; background: rgba(0,0,0,0.3); color:#fff; border: 1px solid var(--glass-border); width: 100%; font-family: Tajawal; resize: vertical;"></textarea>
+                <div class="form-group" style="margin-bottom: 25px;">
+                    <label style="color:#e2e8f0; font-weight:700; font-size: 1.05rem; margin-bottom: 10px; display: block;">نص الرسالة</label>
+                    <textarea id="wa-message-body" rows="6" placeholder="اكتب نص الرسالة هنا... يمكنك استخدام المتغيرات {owner} للاسم و {company} للشركة في الرسائل الجماعية" style="padding: 15px; border-radius: 10px; background: rgba(0,0,0,0.4); color:#fff; border: 1px solid rgba(255,255,255,0.1); width: 100%; font-family: Tajawal; font-size: 1.1rem; line-height: 1.6; resize: vertical; outline: none; transition: all 0.3s;" onfocus="this.style.borderColor='#10b981'; this.style.boxShadow='0 0 0 3px rgba(16,185,129,0.2)'" onblur="this.style.borderColor='rgba(255,255,255,0.1)'; this.style.boxShadow='none'"></textarea>
                 </div>
                 
-                <button class="btn-primary" onclick="sendWhatsAppMessage()" style="padding: 12px 35px; font-weight: 700; background: linear-gradient(135deg, #10b981, #059669); border: none; box-shadow: 0 4px 12px rgba(16,185,129,0.3); display: inline-flex; align-items: center; gap: 8px;">
-                    <span>🚀 إرسال الرسالة عبر واتساب</span>
-                </button>
+                <div style="display: flex; justify-content: flex-end;">
+                    <button class="btn-primary" onclick="sendWhatsAppMessage()" style="padding: 15px 40px; font-weight: 800; font-size: 1.15rem; border-radius: 12px; background: linear-gradient(135deg, #10b981, #059669); border: none; box-shadow: 0 4px 15px rgba(16,185,129,0.4); display: inline-flex; align-items: center; gap: 10px; cursor: pointer; transition: transform 0.2s, box-shadow 0.2s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 6px 20px rgba(16,185,129,0.6)'" onmouseout="this.style.transform='none'; this.style.boxShadow='0 4px 15px rgba(16,185,129,0.4)'">
+                        <i class="fa-solid fa-paper-plane"></i> إرسال الرسالة عبر واتساب
+                    </button>
+                </div>
             </div>
 
             <!-- Panel 2: Dashboard System Messages -->
-            <div class="glass-panel">
-                <div class="flex-between" style="margin-bottom: 20px;">
-                    <h3>رسائل النظام في لوحة تحكم المشتركين</h3>
-                    <button class="btn-primary" onclick="openMessageModal()">+ رسالة لوحة تحكم جديدة</button>
+            <div id="view-bc-system" class="glass-panel" style="display: none; padding: 30px;">
+                <div class="flex-between" style="margin-bottom: 25px; align-items: center;">
+                    <h3 style="margin: 0; font-size: 1.4rem; font-weight: 800; color: #38bdf8; display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-bell"></i> إدارة رسائل النظام (إشعارات لوحة التحكم)
+                    </h3>
+                    <button class="btn-primary" onclick="openMessageModal()" style="padding: 12px 25px; font-weight: 700; border-radius: 10px; font-size: 1.05rem; display: flex; align-items: center; gap: 8px; background: linear-gradient(135deg, #38bdf8, #0284c7); border: none; box-shadow: 0 4px 15px rgba(56,189,248,0.3); cursor: pointer; transition: transform 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='none'">
+                        <i class="fa-solid fa-plus"></i> إنشاء رسالة جديدة
+                    </button>
                 </div>
-                <div class="table-responsive">
-                    <table>
-                        <thead>
+                <div class="table-responsive" style="border-radius: 12px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+                    <table style="margin: 0; width: 100%; border-collapse: collapse; text-align: right;">
+                        <thead style="background: rgba(15,23,42,0.8);">
                             <tr>
-                                <th>العنوان</th>
-                                <th>الجمهور</th>
-                                <th>اللون</th>
-                                <th>إجراءات</th>
+                                <th style="padding: 15px; font-weight: 700; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.05);">العنوان و المحتوى</th>
+                                <th style="padding: 15px; font-weight: 700; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.05);">الجمهور المستهدف</th>
+                                <th style="padding: 15px; font-weight: 700; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center;">نوع الرسالة (اللون)</th>
+                                <th style="padding: 15px; font-weight: 700; color: #cbd5e1; border-bottom: 1px solid rgba(255,255,255,0.05); text-align: center;">إجراءات</th>
                             </tr>
                         </thead>
                         <tbody id="messages-body">
-                            <tr><td colspan="4" style="text-align:center;">جاري التحميل...</td></tr>
+                            <tr><td colspan="4" style="text-align:center; padding: 30px; color: #94a3b8;">جاري التحميل...</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -1150,66 +1381,176 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             <div class="section-inner-tab" onclick="switchSectionTab('tab-audit', 'monitoring', this)">&#x1F4CB; السجل</div>
             <div class="section-inner-tab" onclick="switchSectionTab('tab-tickets', 'monitoring', this)">&#x1F3AB; التذاكر</div>
         </div>
-        <div class="header-actions">
-            <h2>🩺 حالة الخادم (Server Health)</h2>
-            <button class="btn-primary" onclick="loadServerHealth()">🔄 تحديث البيانات</button>
+        <!-- Overall Status Badge -->
+        <div id="health-status-badge" style="margin-bottom: 20px; padding: 16px 24px; border-radius: 12px; display: flex; align-items: center; justify-content: space-between; gap: 15px; background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); transition: all 0.5s ease;">
+            <div style="display: flex; align-items: center; gap: 12px;">
+                <div id="health-status-dot" style="width: 12px; height: 12px; border-radius: 50%; background: #10b981; animation: pulse-dot 2s infinite;"></div>
+                <span id="health-status-text" style="font-weight: 700; font-size: 1.05rem; color: #10b981;">جاري فحص الخادم...</span>
+            </div>
+            <div style="display: flex; align-items: center; gap: 8px; font-size: 0.85rem; color: #64748b;">
+                <i class="fa-regular fa-clock"></i>
+                <span id="health-last-update">--</span>
+            </div>
         </div>
-        <div class="grid-cards" style="grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px;" id="health-cards-container">
+        <style>
+            @keyframes pulse-dot { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.5; transform: scale(0.8); } }
+        </style>
+
+        <div class="header-actions" style="margin-bottom: 25px;">
+            <h2 style="font-size: 1.8rem; font-weight: 800; color: #f8fafc; margin: 0; display: flex; align-items: center; gap: 10px;">
+                <i class="fa-solid fa-server text-indigo-400"></i> حالة الخادم والموارد
+            </h2>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <label style="display: flex; align-items: center; gap: 6px; cursor: pointer; font-size: 0.85rem; color: #94a3b8;">
+                    <input type="checkbox" id="health-auto-refresh" checked onchange="toggleHealthAutoRefresh()" style="accent-color: #10b981; width: 16px; height: 16px; cursor: pointer;">
+                    تحديث تلقائي
+                </label>
+                <button class="btn-primary" onclick="loadServerHealth()" style="background: rgba(56,189,248,0.1); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); padding: 10px 20px; font-weight: 700; display: flex; align-items: center; gap: 8px; border-radius: 10px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.2)'" onmouseout="this.style.background='rgba(56,189,248,0.1)'">
+                    <i class="fa-solid fa-rotate-right"></i> تحديث مباشر
+                </button>
+            </div>
+        </div>
+
+        <!-- Main Resources -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px; margin-bottom: 20px;">
             <!-- CPU -->
-            <div class="card" style="text-align: center; padding: 20px;">
-                <h3 style="margin-bottom:15px;">المعالج (CPU)</h3>
-                <div class="radial-progress" id="health-cpu-radial" data-value="0">
-                    <svg viewBox="0 0 120 120" width="110" height="110">
-                        <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
-                        <circle class="radial-bar" cx="60" cy="60" r="52" fill="none" stroke="var(--primary-accent)" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73" transform="rotate(-90 60 60)" style="transition: stroke-dashoffset 1s ease, stroke 0.5s;"/>
-                    </svg>
-                    <span class="radial-value" id="health-cpu">0%</span>
+            <div class="glass-panel" style="padding: 25px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                    <span style="font-size: 1.1rem; font-weight: 700; color: #cbd5e1;"><i class="fa-solid fa-microchip text-sky-400"></i> المعالج (CPU)</span>
+                    <span id="health-cpu" style="font-size: 1.5rem; font-weight: 800; color: #fff;">0%</span>
+                </div>
+                <div style="background: rgba(0,0,0,0.3); height: 12px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05);">
+                    <div id="health-cpu-bar" style="height: 100%; width: 0%; background: #10b981; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1), background 0.5s;"></div>
                 </div>
             </div>
+
             <!-- RAM -->
-            <div class="card" style="text-align: center; padding: 20px;">
-                <h3 style="margin-bottom:15px;">الذاكرة (RAM)</h3>
-                <div class="radial-progress" id="health-ram-radial" data-value="0">
-                    <svg viewBox="0 0 120 120" width="110" height="110">
-                        <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
-                        <circle class="radial-bar" cx="60" cy="60" r="52" fill="none" stroke="#f59e0b" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73" transform="rotate(-90 60 60)" style="transition: stroke-dashoffset 1s ease, stroke 0.5s;"/>
-                    </svg>
-                    <span class="radial-value" id="health-ram">0%</span>
+            <div class="glass-panel" style="padding: 25px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                    <span style="font-size: 1.1rem; font-weight: 700; color: #cbd5e1;"><i class="fa-solid fa-memory text-amber-400"></i> الذاكرة (RAM)</span>
+                    <span id="health-ram" style="font-size: 1.5rem; font-weight: 800; color: #fff;">0%</span>
                 </div>
-                <small style="color:var(--text-secondary); display:block; margin-top:8px;" id="health-ram-peak">-- / --</small>
+                <div style="background: rgba(0,0,0,0.3); height: 12px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px;">
+                    <div id="health-ram-bar" style="height: 100%; width: 0%; background: #f59e0b; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1), background 0.5s;"></div>
+                </div>
+                <div style="text-align: left; font-size: 0.85rem; color: #94a3b8; font-family: monospace; direction: ltr;" id="health-ram-peak">-- / --</div>
             </div>
+
             <!-- Disk -->
-            <div class="card" style="text-align: center; padding: 20px;">
-                <h3 style="margin-bottom:15px;">مساحة القرص</h3>
-                <div class="radial-progress" id="health-disk-radial" data-value="0">
-                    <svg viewBox="0 0 120 120" width="110" height="110">
-                        <circle cx="60" cy="60" r="52" fill="none" stroke="rgba(255,255,255,0.06)" stroke-width="10"/>
-                        <circle class="radial-bar" cx="60" cy="60" r="52" fill="none" stroke="#10b981" stroke-width="10" stroke-linecap="round" stroke-dasharray="326.73" stroke-dashoffset="326.73" transform="rotate(-90 60 60)" style="transition: stroke-dashoffset 1s ease, stroke 0.5s;"/>
-                    </svg>
-                    <span class="radial-value" id="health-disk">0%</span>
+            <div class="glass-panel" style="padding: 25px;">
+                <div style="display: flex; justify-content: space-between; margin-bottom: 15px;">
+                    <span style="font-size: 1.1rem; font-weight: 700; color: #cbd5e1;"><i class="fa-solid fa-hard-drive text-emerald-400"></i> مساحة التخزين</span>
+                    <span id="health-disk" style="font-size: 1.5rem; font-weight: 800; color: #fff;">0%</span>
                 </div>
-                <small style="color:var(--text-secondary); display:block; margin-top:8px;" id="health-disk-details">-- / --</small>
-            </div>
-            <!-- DB -->
-            <div class="card" style="text-align: center; padding: 20px;">
-                <h3 style="margin-bottom:15px;">قاعدة البيانات</h3>
-                <div style="font-size:2.2rem; font-weight:bold; color:#8b5cf6; margin: 18px 0;" id="health-db">--</div>
-                <small style="color:var(--text-secondary);" id="health-mysql-ver">MySQL: --</small>
-            </div>
-            <!-- Connections -->
-            <div class="card" style="text-align: center; padding: 20px;">
-                <h3 style="margin-bottom:15px;">اتصالات نشطة</h3>
-                <div style="font-size:2.2rem; font-weight:bold; color:#38bdf8; margin: 18px 0;" id="health-connections">--</div>
-                <small style="color:var(--text-secondary);" id="health-uptime">Uptime: --</small>
+                <div style="background: rgba(0,0,0,0.3); height: 12px; border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); margin-bottom: 10px;">
+                    <div id="health-disk-bar" style="height: 100%; width: 0%; background: #10b981; transition: width 1s cubic-bezier(0.4, 0, 0.2, 1), background 0.5s;"></div>
+                </div>
+                <div style="text-align: left; font-size: 0.85rem; color: #94a3b8; font-family: monospace; direction: ltr;" id="health-disk-details">-- / --</div>
             </div>
         </div>
-        <div class="glass-panel" style="margin-top: 20px;">
-            <h3 style="margin-top:0;">تفاصيل النظام</h3>
-            <div style="display:flex; gap:20px; flex-wrap:wrap; color:var(--text-secondary);">
-                <div style="background:rgba(255,255,255,0.05); padding:10px 15px; border-radius:8px;"><strong>نظام التشغيل:</strong> <span id="health-os">--</span></div>
-                <div style="background:rgba(255,255,255,0.05); padding:10px 15px; border-radius:8px;"><strong>إصدار PHP:</strong> <span id="health-php">--</span></div>
-                <div style="background:rgba(255,255,255,0.05); padding:10px 15px; border-radius:8px;"><strong>إصدار MySQL:</strong> <span id="health-mysql">--</span></div>
-                <div style="background:rgba(255,255,255,0.05); padding:10px 15px; border-radius:8px;"><strong>آخر تحديث:</strong> <span id="health-time" style="direction:ltr;">--</span></div>
+
+        <!-- Secondary Metrics -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 20px; margin-bottom: 20px;">
+            <div class="glass-panel" style="padding: 20px; text-align: center; border-top: 3px solid #8b5cf6;">
+                <div style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 10px;">حجم قاعدة البيانات</div>
+                <div id="health-db" style="font-size: 2rem; font-weight: 800; color: #f8fafc; font-family: monospace;">--</div>
+                <div id="health-db-tables" style="font-size: 0.8rem; color: #64748b; margin-top: 6px;"></div>
+            </div>
+            
+            <div class="glass-panel" style="padding: 20px; text-align: center; border-top: 3px solid #38bdf8;">
+                <div style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 10px;">اتصالات قاعدة البيانات</div>
+                <div id="health-connections" style="font-size: 2rem; font-weight: 800; color: #f8fafc; font-family: monospace;">--</div>
+            </div>
+            
+            <div class="glass-panel" style="padding: 20px; text-align: center; border-top: 3px solid #10b981;">
+                <div style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 10px;">مدة التشغيل (Uptime)</div>
+                <div id="health-uptime" style="font-size: 1.3rem; font-weight: 800; color: #f8fafc; font-family: monospace; margin-top: 5px;">--</div>
+            </div>
+            
+            <div class="glass-panel" style="padding: 20px; text-align: center; border-top: 3px solid #f43f5e;">
+                <div style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 10px;">العمليات النشطة (Processes)</div>
+                <div id="health-processes" style="font-size: 2rem; font-weight: 800; color: #f8fafc; font-family: monospace;">--</div>
+            </div>
+            
+            <div class="glass-panel" style="padding: 20px; text-align: center; border-top: 3px solid #a855f7;">
+                <div style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 10px;">الشبكة (تنزيل / رفع)</div>
+                <div style="font-size: 1.3rem; font-weight: 800; color: #f8fafc; font-family: monospace; margin-top: 5px; direction: ltr;" id="health-network">-- / --</div>
+            </div>
+        </div>
+        <!-- Server Billing Info -->
+        <div class="glass-panel" style="margin-bottom: 20px; padding: 25px; border-right: 4px solid #10b981;">
+            <div class="flex-between" style="margin-bottom: 20px;">
+                <h3 style="margin:0; font-size: 1.3rem; color: #f8fafc; display: flex; align-items: center; gap: 10px;">
+                    <i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i> بيانات اشتراك السيرفر (Server Billing)
+                </h3>
+                <button class="btn-primary" onclick="alert('سيتم إضافة نافذة تعديل بيانات الدفع قريباً');" style="background: rgba(255,255,255,0.05); color: #cbd5e1; padding: 8px 15px; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; font-size: 0.9rem; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.1)'" onmouseout="this.style.background='rgba(255,255,255,0.05)'">
+                    <i class="fa-solid fa-pen"></i> تعديل
+                </button>
+            </div>
+            
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px;">
+                <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03); display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(56,189,248,0.1); color: #38bdf8; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                        <i class="fa-brands fa-digital-ocean"></i>
+                    </div>
+                    <div>
+                        <div style="color: #64748b; font-size: 0.85rem; margin-bottom: 3px;">مزود الخدمة السحابية</div>
+                        <div style="color: #e2e8f0; font-weight: 800; font-size: 1.1rem;">DigitalOcean</div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03); display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(16,185,129,0.1); color: #10b981; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                        <i class="fa-solid fa-money-bill-wave"></i>
+                    </div>
+                    <div>
+                        <div style="color: #64748b; font-size: 0.85rem; margin-bottom: 3px;">التكلفة الشهرية (الاستهلاك)</div>
+                        <div style="color: #10b981; font-weight: 800; font-size: 1.1rem; font-family: monospace; direction: ltr;">$45.00 <span style="font-size:0.8rem; color:#64748b;">/ mo</span></div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03); display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(245,158,11,0.1); color: #f59e0b; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                        <i class="fa-regular fa-calendar-check"></i>
+                    </div>
+                    <div>
+                        <div style="color: #64748b; font-size: 0.85rem; margin-bottom: 3px;">تاريخ التجديد القادم</div>
+                        <div style="color: #e2e8f0; font-weight: 800; font-size: 1.1rem;">01 سبتمبر 2026</div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03); display: flex; align-items: center; gap: 15px;">
+                    <div style="width: 40px; height: 40px; border-radius: 8px; background: rgba(139,92,246,0.1); color: #8b5cf6; display: flex; align-items: center; justify-content: center; font-size: 1.2rem;">
+                        <i class="fa-solid fa-server"></i>
+                    </div>
+                    <div>
+                        <div style="color: #64748b; font-size: 0.85rem; margin-bottom: 3px;">خطة السيرفر الحالية</div>
+                        <div style="color: #e2e8f0; font-weight: 800; font-size: 1.1rem;">Premium AMD 4GB</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- System Details -->
+        <div class="glass-panel" style="padding: 25px;">
+            <h3 style="margin-top:0; margin-bottom: 20px; font-size: 1.2rem; color: #e2e8f0;"><i class="fa-solid fa-circle-info text-indigo-400"></i> تفاصيل البيئة التشغيلية</h3>
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 15px;">
+                <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03);">
+                    <div style="color: #64748b; font-size: 0.85rem; margin-bottom: 5px;">نظام التشغيل</div>
+                    <div id="health-os" style="color: #e2e8f0; font-weight: 700; font-size: 1.1rem;">--</div>
+                </div>
+                <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03);">
+                    <div style="color: #64748b; font-size: 0.85rem; margin-bottom: 5px;">إصدار PHP</div>
+                    <div id="health-php" style="color: #e2e8f0; font-weight: 700; font-size: 1.1rem;">--</div>
+                </div>
+                <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03);">
+                    <div style="color: #64748b; font-size: 0.85rem; margin-bottom: 5px;">إصدار MySQL</div>
+                    <div id="health-mysql" style="color: #e2e8f0; font-weight: 700; font-size: 1.1rem;">--</div>
+                </div>
+                <div style="background: rgba(0,0,0,0.2); padding: 15px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.03);">
+                    <div style="color: #64748b; font-size: 0.85rem; margin-bottom: 5px;">آخر فحص للبيانات</div>
+                    <div id="health-time" style="color: #e2e8f0; font-weight: 700; font-size: 1rem; direction: ltr; text-align: right; font-family: monospace;">--</div>
+                </div>
             </div>
         </div>
     </div>
@@ -1311,10 +1652,14 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             <div id="ticket-chat-messages" style="flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:12px; background:rgba(0,0,0,0.2); border-radius:10px; margin:10px 0;">
                 <div style="text-align:center; color:var(--text-secondary);">جاري تحميل المحادثة...</div>
             </div>
-            <div style="flex-shrink:0; display:flex; gap:10px; padding-top:10px; border-top:1px solid var(--glass-border);">
+            <div style="flex-shrink:0; display:flex; gap:10px; padding:15px; border-top:1px solid var(--glass-border); align-items: center;">
                 <input type="hidden" id="ticket-chat-id">
-                <textarea id="ticket-chat-input" placeholder="اكتب ردك هنا..." style="flex:1; background:rgba(255,255,255,0.05); border:1px solid var(--glass-border); border-radius:10px; color:#fff; padding:12px; font-family:'Tajawal',sans-serif; resize:none; min-height:50px; max-height:100px;"></textarea>
-                <button class="btn-primary" onclick="sendTicketReply()" style="align-self:flex-end; padding:12px 20px;">إرسال ↩</button>
+                <input type="text" id="ticket-chat-input" placeholder="اكتب ردك هنا..." style="flex:1; padding:12px 15px; border-radius:20px; border:1px solid var(--glass-border); background:rgba(0,0,0,0.3); color:white; outline:none; font-family:'Tajawal',sans-serif; transition: border-color 0.2s;" onfocus="this.style.borderColor='var(--primary-color)'" onblur="this.style.borderColor='var(--glass-border)'" onkeypress="if(event.key==='Enter') sendTicketReply()">
+                <button onclick="sendTicketReply()" style="background: var(--primary-color); color: white; border: none; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding-right: 5px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                    <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="transform: rotate(180deg); pointer-events: none;">
+                        <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" style="pointer-events: none;"/>
+                    </svg>
+                </button>
             </div>
         </div>
     </div>
@@ -1929,6 +2274,38 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             }
             textarea.value = msg;
         }
+
+        function toggleBroadcastView(view) {
+            const btnWa = document.getElementById('btn-bc-whatsapp');
+            const btnSys = document.getElementById('btn-bc-system');
+            const viewWa = document.getElementById('view-bc-whatsapp');
+            const viewSys = document.getElementById('view-bc-system');
+            
+            if(view === 'whatsapp') {
+                btnWa.style.background = 'rgba(16,185,129,0.1)';
+                btnWa.style.borderColor = 'rgba(16,185,129,0.3)';
+                btnWa.style.color = '#10b981';
+                
+                btnSys.style.background = 'rgba(255,255,255,0.02)';
+                btnSys.style.borderColor = 'rgba(255,255,255,0.05)';
+                btnSys.style.color = '#cbd5e1';
+                
+                viewWa.style.display = 'block';
+                viewSys.style.display = 'none';
+            } else {
+                btnSys.style.background = 'rgba(56,189,248,0.1)';
+                btnSys.style.borderColor = 'rgba(56,189,248,0.3)';
+                btnSys.style.color = '#38bdf8';
+                
+                btnWa.style.background = 'rgba(255,255,255,0.02)';
+                btnWa.style.borderColor = 'rgba(255,255,255,0.05)';
+                btnWa.style.color = '#cbd5e1';
+                
+                viewSys.style.display = 'block';
+                viewWa.style.display = 'none';
+            }
+        }
+
 
         async function sendWhatsAppMessage() {
             const target = document.getElementById('wa-target-tenant').value;
@@ -3113,8 +3490,9 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             const search = searchInput ? searchInput.value : '';
             const offset = (currentGPaymentsPage - 1) * gPaymentsPageSize;
             
-            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">جاري التحميل...</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 30px; color: #94a3b8;"><i class="fa-solid fa-circle-notch fa-spin"></i> جاري جلب البيانات...</td></tr>';
             try {
+                // Fetch paginated table data
                 const url = apiUrl('saas', 'tenants', 'payments') + `&limit=${gPaymentsPageSize}&offset=${offset}&search=${encodeURIComponent(search)}`;
                 const res = await fetch(url, { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
                 const data = await res.json();
@@ -3123,23 +3501,52 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     totalGPaymentsCount = data.total || 0;
                     if (data.data.length > 0) {
                         tbody.innerHTML = data.data.map(p => `
-                            <tr>
-                                <td>${new Date(p.payment_date).toLocaleString('ar-EG', { dateStyle: 'short', timeStyle: 'short' })}</td>
-                                <td>${p.company_name || '—'}</td>
-                                <td>${p.subdomain || '—'}</td>
-                                <td style="color:#10b981; font-weight:bold;">$${p.amount}</td>
-                                <td>${p.description || '—'}</td>
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.02); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+                                <td style="padding: 12px 15px; color: #e2e8f0; font-size: 0.9rem;">${new Date(p.payment_date).toLocaleString('ar-EG', { dateStyle: 'medium', timeStyle: 'short' })}</td>
+                                <td style="padding: 12px 15px; font-weight: 600; color: #f8fafc;">
+                                    <div style="display:flex; align-items:center; gap:8px;">
+                                        <div style="width:28px; height:28px; border-radius:50%; background:rgba(56,189,248,0.1); color:#38bdf8; display:flex; align-items:center; justify-content:center; font-size:0.8rem;">
+                                            <i class="fa-solid fa-building"></i>
+                                        </div>
+                                        ${p.company_name || '—'}
+                                    </div>
+                                </td>
+                                <td style="padding: 12px 15px;"><span style="background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px; font-size: 0.85rem; color: #94a3b8;">${p.subdomain || '—'}.elsajana.com</span></td>
+                                <td style="padding: 12px 15px; color:#10b981; font-weight:800; font-size: 1.05rem;">$${parseFloat(p.amount).toLocaleString()}</td>
+                                <td style="padding: 12px 15px; color: #94a3b8; font-size: 0.9rem;">${p.description || '—'}</td>
                             </tr>
                         `).join('');
                     } else {
-                        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;">لا توجد مدفوعات مسجلة</td></tr>';
+                        tbody.innerHTML = '<tr><td colspan="5" style="text-align:center; padding: 40px; color: #64748b;"><i class="fa-solid fa-box-open" style="font-size:2rem; margin-bottom:10px; opacity:0.5;"></i><br>لا توجد مدفوعات مسجلة</td></tr>';
                     }
                     renderGlobalPaymentsPagination();
                 } else {
-                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#ef4444;">❌ خطأ: ${data.error || 'فشل الجلب'}</td></tr>`;
+                    tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px; color:#ef4444;">❌ خطأ: ${data.error || 'فشل الجلب'}</td></tr>`;
                 }
+
+                // Update KPIs if this is a fresh load
+                if (resetPage) {
+                    try {
+                        document.getElementById('gpayments-count').innerText = totalGPaymentsCount.toLocaleString();
+                        const allRes = await fetch(apiUrl('saas', 'tenants', 'payments') + `&limit=9999&offset=0`, { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
+                        const allData = await allRes.json();
+                        if (allData.success && Array.isArray(allData.data)) {
+                            const totalRev = allData.data.reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
+                            
+                            const thirtyDaysAgo = new Date();
+                            thirtyDaysAgo.setDate(thirtyDaysAgo.getDate() - 30);
+                            const recentRev = allData.data
+                                .filter(p => new Date(p.payment_date) >= thirtyDaysAgo)
+                                .reduce((sum, p) => sum + parseFloat(p.amount || 0), 0);
+
+                            document.getElementById('gpayments-total-rev').innerText = '$' + totalRev.toLocaleString();
+                            document.getElementById('gpayments-recent').innerText = '$' + recentRev.toLocaleString();
+                        }
+                    } catch (e) { console.error('Failed to update payment KPIs', e); }
+                }
+
             } catch(e) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; color:#ef4444;">❌ فشل الاتصال: ${e.message}</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding: 20px; color:#ef4444;">❌ فشل الاتصال: ${e.message}</td></tr>`;
             }
         }
         
@@ -3295,24 +3702,77 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         function renderPlans() {
             const tbody = document.getElementById('plans-body');
             tbody.innerHTML = '';
+            
+            if (allPlans.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="4" style="text-align:center; padding: 40px; color: #64748b;"><i class="fa-solid fa-box-open" style="font-size:2rem; margin-bottom:10px; opacity:0.5;"></i><br>لا توجد باقات مسجلة</td></tr>';
+            }
+            
             allPlans.forEach(p => {
-                let badge = p.isTrial ? '<span style="background:var(--primary-accent);color:#000;padding:2px 6px;border-radius:4px;font-size:0.7rem; margin-right:5px;">تجريبية</span>' : '';
-                let statusBadge = p.status === 'suspended' ? '<span style="background:#ef4444;color:#fff;padding:2px 6px;border-radius:4px;font-size:0.7rem;">موقوفة</span>' : '<span style="background:#10b981;color:#fff;padding:2px 6px;border-radius:4px;font-size:0.7rem;">نشطة</span>';
-                let durationTxt = p.duration ? `${p.duration} يوم` : 'غير محدد';
-                let actionBtnText = p.status === 'suspended' ? '✅ تفعيل' : '⏸️ إيقاف';
-                let actionBtnColor = p.status === 'suspended' ? '#10b981' : '#f59e0b';
+                let badge = p.isTrial ? '<span style="background:rgba(245, 158, 11, 0.2);color:#fcd34d;padding:4px 8px;border-radius:6px;font-size:0.75rem; font-weight:700;"><i class="fa-solid fa-star"></i> تجريبية</span>' : '';
+                let statusBadge = p.status === 'suspended' ? '<span style="background:rgba(239, 68, 68, 0.2);color:#fca5a5;padding:4px 8px;border-radius:6px;font-size:0.75rem; font-weight:700;"><i class="fa-solid fa-ban"></i> موقوفة</span>' : '<span style="background:rgba(16, 185, 129, 0.2);color:#6ee7b7;padding:4px 8px;border-radius:6px;font-size:0.75rem; font-weight:700;"><i class="fa-solid fa-check-circle"></i> نشطة</span>';
                 
                 tbody.innerHTML += `
-                    <tr>
-                        <td><strong style="color:var(--primary-accent)">${p.name}</strong><br>${badge} ${statusBadge}</td>
-                        <td>$${p.price}</td>
-                        <td>${durationTxt}</td>
-                        <td>${p.maxUsers} مستخدم</td>
-                        <td>${p.storage} GB</td>
-                        <td>
-                            <button class="btn-primary" style="padding:5px 10px; font-size:0.8rem; margin-bottom:5px;" onclick="editPlan(${p.id})">⚙️ تعديل</button>
-                            <button class="btn-outline" style="padding:5px 10px; font-size:0.8rem; color:${actionBtnColor}; border-color:${actionBtnColor}; margin-bottom:5px;" onclick="togglePlanStatus(${p.id})">${actionBtnText}</button>
-                            <button class="btn-danger" style="padding:5px 10px; font-size:0.8rem; margin-bottom:5px;" onclick="deletePlan(${p.id})">🗑️ حذف</button>
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.02); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+                        <td style="padding: 15px; vertical-align: middle;">
+                            <div style="display: flex; align-items: center; gap: 10px;">
+                                <input type="text" id="inline-name-${p.id}" value="${p.name}" style="font-size: 1.1rem; font-weight: 800; color: #38bdf8; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); padding: 6px 10px; border-radius: 6px; width: 100%; outline: none; transition: border 0.3s;" onfocus="this.style.borderColor='#38bdf8'" onblur="this.style.borderColor='rgba(255,255,255,0.05)'">
+                                <div style="display: flex; gap: 8px; flex-shrink: 0;">${badge} <span class="status-badge-container">${statusBadge}</span></div>
+                            </div>
+                        </td>
+                        <td style="padding: 15px; text-align: center; vertical-align: middle;">
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 20px; flex-wrap: nowrap;">
+                                <div style="display: flex; align-items: center; gap: 5px;">
+                                    <span style="font-size: 1.25rem; font-weight: 800; color: #f8fafc;">$</span>
+                                    <input type="number" id="inline-price-${p.id}" value="${p.price || 0}" style="font-size: 1.25rem; font-weight: 800; color: #f8fafc; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); padding: 4px 8px; border-radius: 6px; width: 70px; text-align: center; outline: none; transition: border 0.3s;" onfocus="this.style.borderColor='#f8fafc'" onblur="this.style.borderColor='rgba(255,255,255,0.05)'">
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 5px; color: #94a3b8; font-size: 0.85rem; background: rgba(255,255,255,0.05); padding: 4px 10px; border-radius: 6px;">
+                                    <i class="fa-regular fa-clock"></i> 
+                                    <input type="number" id="inline-duration-${p.id}" value="${p.duration || 30}" style="font-size: 0.85rem; font-weight: 700; color: #fff; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; width: 50px; text-align: center; outline: none; transition: border 0.3s;" onfocus="this.style.borderColor='#94a3b8'" onblur="this.style.borderColor='rgba(255,255,255,0.05)'"> يوم
+                                </div>
+                            </div>
+                        </td>
+                        <td style="padding: 15px; text-align: center; vertical-align: middle;">
+                            <div style="display: flex; align-items: center; justify-content: center; gap: 15px;">
+                                <div style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 8px;">
+                                    <i class="fa-solid fa-users text-sky-400"></i>
+                                    <span style="font-size: 0.8rem; color: #94a3b8;">المستخدمين:</span>
+                                    <input type="number" id="inline-users-${p.id}" value="${p.maxUsers}" style="font-size: 0.95rem; font-weight: 700; color: #e2e8f0; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; width: 60px; text-align: center; outline: none; transition: border 0.3s;" onfocus="this.style.borderColor='#38bdf8'" onblur="this.style.borderColor='rgba(255,255,255,0.05)'">
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 8px; background: rgba(255,255,255,0.05); padding: 4px 12px; border-radius: 8px;">
+                                    <i class="fa-solid fa-hard-drive text-amber-400"></i>
+                                    <span style="font-size: 0.8rem; color: #94a3b8;">المساحة (GB):</span>
+                                    <input type="number" id="inline-storage-${p.id}" value="${p.storage}" style="font-size: 0.95rem; font-weight: 700; color: #e2e8f0; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; width: 60px; text-align: center; outline: none; transition: border 0.3s;" onfocus="this.style.borderColor='#fbbf24'" onblur="this.style.borderColor='rgba(255,255,255,0.05)'">
+                                </div>
+                            </div>
+                        </td>
+                        <td style="padding: 15px; text-align: center; vertical-align: middle;">
+                            <div style="display: flex; justify-content: center; gap: 15px; align-items: center; flex-wrap: nowrap;">
+                                <div style="display: flex; align-items: center;">
+                                    <label class="switch" title="تفعيل/إيقاف الباقة">
+                                      <input class="switch__input" type="checkbox" onchange="togglePlanStatus(${p.id})" ${p.status !== 'suspended' ? 'checked' : ''}>
+                                      <span class="switch__base-outer"></span>
+                                      <span class="switch__base-inner"></span>
+                                      <svg class="switch__base-neon" viewBox="0 0 40 24" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; overflow: visible; pointer-events: none; filter: drop-shadow(0 0 2px hsl(123, 90%, 70%)) drop-shadow(0 0 4px hsl(123, 90%, 70%));">
+                                        <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10h16c5.52 0 10-4.48 10-10S33.52 2 28 2H12z" fill="none" stroke="hsl(123, 90%, 70%)" stroke-width="2" stroke-linecap="round" stroke-dasharray="0 104.26 0" stroke-dashoffset="0.01"></path>
+                                      </svg>
+                                      <span class="switch__knob-shadow"></span>
+                                      <span class="switch__knob-container">
+                                        <span class="switch__knob">
+                                          <svg class="switch__knob-neon" viewBox="0 0 40 40" style="width: 100%; height: 100%; position: absolute; top: 0; left: 0; overflow: visible; pointer-events: none; filter: drop-shadow(0 0 2px hsl(123, 90%, 70%));">
+                                            <circle cx="20" cy="20" r="18" fill="none" stroke="hsl(123, 90%, 70%)" stroke-width="1.5" stroke-linecap="round" transform="rotate(-90 20 20)" pathLength="144.51" stroke-dasharray="0 90.32 0 54.19" stroke-dashoffset="0.01"></circle>
+                                          </svg>
+                                        </span>
+                                      </span>
+                                      <span class="switch__led"></span>
+                                    </label>
+                                </div>
+                                <button onclick="saveInlinePlan(${p.id}, this)" style="background: rgba(16,185,129,0.1); color: #10b981; border: 1px solid rgba(16,185,129,0.3); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(16,185,129,0.2)'" onmouseout="this.style.background='rgba(16,185,129,0.1)'">
+                                    <i class="fa-solid fa-save"></i> حفظ
+                                </button>
+                                <button onclick="deletePlan(${p.id})" style="background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.2)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'">
+                                    <i class="fa-solid fa-trash"></i> حذف
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
@@ -3377,12 +3837,45 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             updateKPIs();
         }
 
+        async function saveInlinePlan(id, btn) {
+            let pIdx = allPlans.findIndex(x => x.id === id);
+            if(pIdx > -1) {
+                let p = allPlans[pIdx];
+                p.name = document.getElementById(`inline-name-${id}`).value;
+                p.price = document.getElementById(`inline-price-${id}`).value;
+                p.duration = document.getElementById(`inline-duration-${id}`).value;
+                p.maxUsers = document.getElementById(`inline-users-${id}`).value;
+                p.storage = document.getElementById(`inline-storage-${id}`).value;
+                
+                let originalText = btn.innerHTML;
+                btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري...';
+                
+                try { 
+                    await fetch(apiUrl('saas', 'settings', 'plans'), { 
+                        method: 'POST', 
+                        headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN }, 
+                        body: JSON.stringify({ plans: allPlans }) 
+                    });
+                    btn.innerHTML = '<i class="fa-solid fa-check"></i> تم الحفظ';
+                    btn.style.background = 'rgba(16,185,129,0.3)';
+                    if (typeof showToast === 'function') showToast('تم الحفظ بنجاح', 'success');
+                    setTimeout(() => {
+                        btn.innerHTML = '<i class="fa-solid fa-save"></i> حفظ';
+                        btn.style.background = 'rgba(16,185,129,0.1)';
+                    }, 2000);
+                } catch(e) {
+                    btn.innerHTML = originalText;
+                    if (typeof showToast === 'function') showToast('حدث خطأ أثناء الحفظ', 'error');
+                }
+            }
+        }
+
         async function togglePlanStatus(id) {
             let idx = allPlans.findIndex(x => x.id === id);
             if(idx > -1) {
                 allPlans[idx].status = (allPlans[idx].status === 'suspended') ? 'active' : 'suspended';
                 try { await fetch(apiUrl('saas', 'settings', 'plans'), { method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN }, body: JSON.stringify({ plans: allPlans }) }); } catch(e){}
-                renderPlans();
+                setTimeout(() => renderPlans(), 650);
             }
         }
 
@@ -3887,14 +4380,35 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                             targetText = companyNames.length > 0 ? companyNames.join('، ') : 'مشتركين محددين';
                         }
 
-                        tbody.innerHTML += `
-                            <tr>
-                                <td><strong>${m.title || 'بدون عنوان'}</strong><br><small style="color:var(--text-secondary);">${m.message || ''}</small></td>
-                                <td><span style="color:var(--primary-accent); font-weight:bold;">${targetText}</span></td>
-                                <td><span class="badge" style="background: rgba(255,255,255,0.05); color: #fff;">${m.theme || 'info'}</span></td>
-                                <td>
-                                    <button class="btn-outline" style="padding:4px 8px; font-size:0.8rem; margin-left: 5px; color: var(--primary-accent); border-color: var(--primary-accent);" onclick="openMessageModal(${m.id})">تعديل</button>
-                                    <button class="btn-danger" style="padding:4px 8px; font-size:0.8rem;" onclick="deleteMessage(${m.id})">حذف</button>
+                            const themeColors = { 'info': '#38bdf8', 'success': '#10b981', 'warning': '#fbbf24', 'danger': '#ef4444' };
+                            const themeColor = themeColors[m.theme] || '#38bdf8';
+                            const themeIcon = m.theme === 'success' ? 'check-circle' : m.theme === 'warning' ? 'triangle-exclamation' : m.theme === 'danger' ? 'circle-xmark' : 'circle-info';
+
+                            tbody.innerHTML += `
+                            <tr style="border-bottom: 1px solid rgba(255,255,255,0.02); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.03)'" onmouseout="this.style.background='transparent'">
+                                <td style="padding: 15px; vertical-align: middle;">
+                                    <div style="font-size: 1.05rem; font-weight: 800; color: #e2e8f0; margin-bottom: 5px;">${m.title || 'بدون عنوان'}</div>
+                                    <div style="font-size: 0.85rem; color: #94a3b8; line-height: 1.5; max-width: 400px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">${m.message || ''}</div>
+                                </td>
+                                <td style="padding: 15px; vertical-align: middle;">
+                                    <span style="background: rgba(255,255,255,0.05); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; color: #cbd5e1; display: inline-flex; align-items: center; gap: 6px;">
+                                        <i class="fa-solid ${targets.includes('all') ? 'fa-users' : 'fa-user-check'} text-sky-400"></i> ${targetText}
+                                    </span>
+                                </td>
+                                <td style="padding: 15px; text-align: center; vertical-align: middle;">
+                                    <span style="background: ${themeColor}20; color: ${themeColor}; padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 700; display: inline-flex; align-items: center; gap: 6px; border: 1px solid ${themeColor}40;">
+                                        <i class="fa-solid fa-${themeIcon}"></i> ${m.theme === 'info' ? 'تنبيه (معلومة)' : m.theme === 'success' ? 'نجاح' : m.theme === 'warning' ? 'تحذير' : 'هام جداً'}
+                                    </span>
+                                </td>
+                                <td style="padding: 15px; text-align: center; vertical-align: middle;">
+                                    <div style="display: flex; justify-content: center; gap: 10px;">
+                                        <button onclick="openMessageModal(${m.id})" style="background: rgba(56,189,248,0.1); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.2)'" onmouseout="this.style.background='rgba(56,189,248,0.1)'">
+                                            <i class="fa-solid fa-pen-to-square"></i> تعديل
+                                        </button>
+                                        <button onclick="deleteMessage(${m.id})" style="background: rgba(239,68,68,0.1); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); padding: 6px 12px; border-radius: 6px; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.2)'" onmouseout="this.style.background='rgba(239,68,68,0.1)'">
+                                            <i class="fa-solid fa-trash"></i> حذف
+                                        </button>
+                                    </div>
                                 </td>
                             </tr>`;
                     });
@@ -4324,62 +4838,138 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             } catch(e) { showToast('خطأ في الاتصال', 'error'); }
         }
 
-        async function loadServerHealth() {
+        let healthAutoRefreshTimer = null;
+        let healthLastFetchTime = null;
+
+        function toggleHealthAutoRefresh() {
+            const checked = document.getElementById('health-auto-refresh')?.checked;
+            if (checked) {
+                startHealthAutoRefresh();
+            } else {
+                stopHealthAutoRefresh();
+            }
+        }
+
+        function startHealthAutoRefresh() {
+            stopHealthAutoRefresh();
+            healthAutoRefreshTimer = setInterval(() => {
+                loadServerHealth(true);
+            }, 30000); // Every 30 seconds
+        }
+
+        function stopHealthAutoRefresh() {
+            if (healthAutoRefreshTimer) {
+                clearInterval(healthAutoRefreshTimer);
+                healthAutoRefreshTimer = null;
+            }
+        }
+
+        function updateHealthTimestamp() {
+            const el = document.getElementById('health-last-update');
+            if (!el || !healthLastFetchTime) return;
+            const diff = Math.round((Date.now() - healthLastFetchTime) / 1000);
+            if (diff < 5) el.innerText = 'الآن';
+            else if (diff < 60) el.innerText = 'منذ ' + diff + ' ثانية';
+            else el.innerText = 'منذ ' + Math.round(diff / 60) + ' دقيقة';
+        }
+        setInterval(updateHealthTimestamp, 5000);
+
+        async function loadServerHealth(silent = false) {
             try {
                 const res = await fetch('api_saas_health.php', { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
                 const d = await res.json();
-                if (!d.success) return;
+                if (!d.success) {
+                    if (!silent) showToast(d.error || 'خطأ في جلب بيانات الخادم', 'error');
+                    return;
+                }
+
+                healthLastFetchTime = Date.now();
+                updateHealthTimestamp();
                 
-                // Helper: animate radial SVG
-                function setRadial(containerId, percent, valueId, label) {
-                    const circumference = 326.73;
-                    const offset = circumference - (percent / 100) * circumference;
-                    const container = document.getElementById(containerId);
-                    if (!container) return;
-                    const bar = container.querySelector('.radial-bar');
+                // === Overall Status Badge ===
+                const badge = document.getElementById('health-status-badge');
+                const dot = document.getElementById('health-status-dot');
+                const statusText = document.getElementById('health-status-text');
+                if (badge && dot && statusText) {
+                    const status = d.overall_status || 'healthy';
+                    const colors = { healthy: '#10b981', warning: '#f59e0b', critical: '#ef4444' };
+                    const icons = { healthy: '✅', warning: '⚠️', critical: '🔴' };
+                    const c = colors[status] || colors.healthy;
+                    badge.style.background = c.replace(')', ', 0.08)').replace('rgb', 'rgba').replace('#', '');
+                    badge.style.background = `rgba(${parseInt(c.slice(1,3),16)}, ${parseInt(c.slice(3,5),16)}, ${parseInt(c.slice(5,7),16)}, 0.08)`;
+                    badge.style.borderColor = `rgba(${parseInt(c.slice(1,3),16)}, ${parseInt(c.slice(3,5),16)}, ${parseInt(c.slice(5,7),16)}, 0.25)`;
+                    dot.style.background = c;
+                    statusText.style.color = c;
+                    statusText.innerText = (icons[status] || '✅') + ' ' + (d.status_message || 'الخادم يعمل بشكل طبيعي');
+                }
+
+                // Helper: update linear bar with null check
+                function setLinearBar(barId, percent, valueId, label) {
+                    const bar = document.getElementById(barId);
                     if (bar) {
-                        bar.style.strokeDashoffset = offset;
-                        // Color coding: green < 60, yellow 60-85, red > 85
-                        if (percent > 85) bar.style.stroke = '#ef4444';
-                        else if (percent > 60) bar.style.stroke = '#f59e0b';
-                        else bar.style.stroke = '#10b981';
+                        bar.style.width = percent + '%';
+                        if (percent > 85) bar.style.background = '#ef4444';
+                        else if (percent > 60) bar.style.background = '#f59e0b';
+                        else bar.style.background = '#10b981';
                     }
                     const valEl = document.getElementById(valueId);
                     if (valEl) valEl.innerText = label;
                 }
                 
                 // CPU
-                setRadial('health-cpu-radial', d.cpu_load_1m, 'health-cpu', Math.round(d.cpu_load_1m) + '%');
+                setLinearBar('health-cpu-bar', Math.min(d.cpu_load_1m, 100), 'health-cpu', Math.round(d.cpu_load_1m) + '%');
                 
                 // RAM
-                setRadial('health-ram-radial', d.memory_percent || 0, 'health-ram', Math.round(d.memory_percent || 0) + '%');
+                setLinearBar('health-ram-bar', Math.min(d.memory_percent || 0, 100), 'health-ram', Math.round(d.memory_percent || 0) + '%');
                 const ramPeakEl = document.getElementById('health-ram-peak');
-                if (ramPeakEl) ramPeakEl.innerText = d.memory_usage + ' / ' + d.memory_total;
+                if (ramPeakEl) ramPeakEl.innerText = (d.memory_usage || '0') + ' مستخدم من ' + (d.memory_total || '0');
                 
                 // Disk
-                setRadial('health-disk-radial', d.disk_used_percent, 'health-disk', Math.round(d.disk_used_percent) + '%');
+                setLinearBar('health-disk-bar', Math.min(d.disk_used_percent || 0, 100), 'health-disk', Math.round(d.disk_used_percent || 0) + '%');
                 const diskDetailsEl = document.getElementById('health-disk-details');
-                if (diskDetailsEl) diskDetailsEl.innerText = d.disk_free + ' متبقي من ' + d.disk_total;
+                if (diskDetailsEl) diskDetailsEl.innerText = (d.disk_free || '0') + ' متبقي من ' + (d.disk_total || '0');
                 
-                // DB
-                document.getElementById('health-db').innerText = d.db_size;
-                const mysqlVerEl = document.getElementById('health-mysql-ver');
-                if (mysqlVerEl) mysqlVerEl.innerText = 'MySQL: ' + (d.mysql_version || 'N/A');
+                // DB Size + Tables Count
+                const dbEl = document.getElementById('health-db');
+                if (dbEl) dbEl.innerText = d.db_size || '0 B';
+                const dbTablesEl = document.getElementById('health-db-tables');
+                if (dbTablesEl && d.db_tables_count) dbTablesEl.innerText = d.db_tables_count + ' جدول';
                 
                 // Connections
-                document.getElementById('health-connections').innerText = d.active_connections;
+                const connEl = document.getElementById('health-connections');
+                if (connEl) connEl.innerText = d.active_connections || '0';
+                
+                // Uptime
                 const uptimeEl = document.getElementById('health-uptime');
-                if (uptimeEl) uptimeEl.innerText = 'Uptime: ' + (d.uptime || 'N/A');
+                if (uptimeEl) uptimeEl.innerText = d.uptime || 'N/A';
+                
+                // Network & Processes
+                const netEl = document.getElementById('health-network');
+                if (netEl) netEl.innerText = (d.network_rx || '0 B') + ' ↓ / ' + (d.network_tx || '0 B') + ' ↑';
+                
+                const procEl = document.getElementById('health-processes');
+                if (procEl) procEl.innerText = d.processes || '0';
                 
                 // System details
-                document.getElementById('health-os').innerText = d.os;
-                document.getElementById('health-php').innerText = d.php_version;
+                const osEl = document.getElementById('health-os');
+                if (osEl) osEl.innerText = d.os || 'N/A';
+                const phpEl = document.getElementById('health-php');
+                if (phpEl) phpEl.innerText = d.php_version || 'N/A';
                 const mysqlEl = document.getElementById('health-mysql');
                 if (mysqlEl) mysqlEl.innerText = d.mysql_version || 'N/A';
-                document.getElementById('health-time').innerText = d.time;
+                const timeEl = document.getElementById('health-time');
+                if (timeEl) timeEl.innerText = d.time || 'N/A';
+
+                // Start auto-refresh if checkbox is checked
+                if (document.getElementById('health-auto-refresh')?.checked && !healthAutoRefreshTimer) {
+                    startHealthAutoRefresh();
+                }
             } catch(e) {
                 console.error('Health error:', e);
-                showToast('خطأ في جلب بيانات الخادم', 'error');
+                if (!silent) showToast('خطأ في جلب بيانات الخادم', 'error');
+                // Update status badge to show error
+                const statusText = document.getElementById('health-status-text');
+                if (statusText) { statusText.innerText = '❌ فشل الاتصال بالخادم'; statusText.style.color = '#ef4444'; }
             }
         }
         async function loadTickets() {
@@ -4411,7 +5001,9 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                                 <td><span style="color:${statusColor}; font-weight:bold;">${statusText}</span></td>
                                 <td style="direction:ltr;">${new Date(tk.created_at).toLocaleString()}</td>
                                 <td>
-                                    <button class="btn-outline" style="border-color:${statusColor}; color:${statusColor}; padding: 4px 10px; font-size: 0.85rem;" onclick="event.stopPropagation(); updateTicketStatus(${tk.id})">تغيير الحالة</button>
+                                    <button class="btn-outline" style="background: ${statusColor}1A; border-color:${statusColor}40; color:${statusColor}; padding: 6px 12px; font-size: 0.85rem; border-radius: 8px; font-weight: bold; display: flex; align-items: center; gap: 8px;" onclick="event.stopPropagation(); toggleTicketStatusDropdown(event, ${tk.id})">
+                                        ${statusText} <i class="fa-solid fa-chevron-down" style="font-size: 0.7rem;"></i>
+                                    </button>
                                 </td>
                             </tr>
                         `;
@@ -4423,12 +5015,65 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             }
         }
         
-        async function updateTicketStatus(id) {
-            const newStatus = prompt("أدخل الحالة الجديدة (open / in_progress / closed):");
-            if (!newStatus || !['open', 'in_progress', 'closed'].includes(newStatus)) {
-                alert("حالة غير صحيحة");
+        let currentStatusUpdateId = null;
+        
+        function toggleTicketStatusDropdown(event, id) {
+            event.stopPropagation();
+            let dropdown = document.getElementById('status-inline-dropdown');
+            if (!dropdown) {
+                dropdown = document.createElement('div');
+                dropdown.id = 'status-inline-dropdown';
+                dropdown.style.position = 'absolute';
+                dropdown.style.zIndex = '99999';
+                dropdown.style.background = '#1e293b';
+                dropdown.style.border = '1px solid rgba(255,255,255,0.1)';
+                dropdown.style.borderRadius = '12px';
+                dropdown.style.boxShadow = '0 10px 25px rgba(0,0,0,0.5)';
+                dropdown.style.padding = '8px';
+                dropdown.style.display = 'none';
+                dropdown.style.flexDirection = 'column';
+                dropdown.style.gap = '4px';
+                dropdown.style.minWidth = '160px';
+                document.body.appendChild(dropdown);
+                
+                document.addEventListener('click', function(e) {
+                    if (dropdown.style.display === 'flex' && !dropdown.contains(e.target)) {
+                        dropdown.style.display = 'none';
+                    }
+                });
+            }
+            
+            if (dropdown.style.display === 'flex' && currentStatusUpdateId === id) {
+                dropdown.style.display = 'none';
+                currentStatusUpdateId = null;
                 return;
             }
+            
+            currentStatusUpdateId = id;
+            
+            dropdown.innerHTML = `
+                <button onclick="submitTicketStatus('open')" style="padding: 10px; background: transparent; border: none; border-radius: 8px; color: #f59e0b; font-weight: bold; cursor: pointer; text-align: right; transition: background 0.2s; display: flex; align-items: center; gap: 8px;" onmouseover="this.style.background='rgba(245, 158, 11, 0.1)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-envelope-open-text"></i> مفتوحة</button>
+                <button onclick="submitTicketStatus('in_progress')" style="padding: 10px; background: transparent; border: none; border-radius: 8px; color: #38bdf8; font-weight: bold; cursor: pointer; text-align: right; transition: background 0.2s; display: flex; align-items: center; gap: 8px;" onmouseover="this.style.background='rgba(56, 189, 248, 0.1)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-spinner"></i> قيد المعالجة</button>
+                <button onclick="submitTicketStatus('closed')" style="padding: 10px; background: transparent; border: none; border-radius: 8px; color: #10b981; font-weight: bold; cursor: pointer; text-align: right; transition: background 0.2s; display: flex; align-items: center; gap: 8px;" onmouseover="this.style.background='rgba(16, 185, 129, 0.1)'" onmouseout="this.style.background='transparent'"><i class="fa-solid fa-check-circle"></i> مغلقة</button>
+            `;
+            
+            dropdown.style.display = 'flex';
+            
+            const btnRect = event.currentTarget.getBoundingClientRect();
+            dropdown.style.top = (btnRect.bottom + window.scrollY + 5) + 'px';
+            dropdown.style.left = (btnRect.left + window.scrollX) + 'px'; 
+            
+            const rect = dropdown.getBoundingClientRect();
+            if (rect.bottom > window.innerHeight) {
+                dropdown.style.top = (btnRect.top + window.scrollY - rect.height - 5) + 'px';
+            }
+        }
+
+        async function submitTicketStatus(newStatus) {
+            if (!currentStatusUpdateId) return;
+            const id = currentStatusUpdateId;
+            const dropdown = document.getElementById('status-inline-dropdown');
+            if(dropdown) dropdown.style.display = 'none';
             try {
                 const res = await fetch(apiUrl('saas', 'tickets') + '&a2=status', {
                     method: 'POST',
@@ -4437,13 +5082,14 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 });
                 const data = await res.json();
                 if (data.success) {
-                    showToast('تم تحديث حالة التذكرة');
+                    showToast('تم تحديث حالة التذكرة بنجاح ✅');
                     loadTickets();
                 } else {
-                    alert('خطأ: ' + data.error);
+                    showToast('خطأ: ' + data.error, 'error');
                 }
             } catch (e) {
                 console.error(e);
+                showToast('خطأ في الاتصال بخادم التذاكر', 'error');
             }
         }
 

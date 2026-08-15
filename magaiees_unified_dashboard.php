@@ -2599,7 +2599,225 @@
         }
         </script>
     
+        <!-- Client Support Tickets FAB (Removed as per user request to integrate into AI menu) -->
+
+        <!-- Client Support Modal -->
+        <div id="client-support-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); backdrop-filter: blur(10px); z-index: 10000; align-items: center; justify-content: center; padding: 20px; box-sizing: border-box;">
+            <div class="glass-panel" style="width: 100%; max-width: 600px; max-height: 90vh; display: flex; flex-direction: column; padding: 0; overflow: hidden; border-radius: 20px;">
+                <div style="padding: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2);">
+                    <h3 style="margin: 0; font-size: 1.2rem; display: flex; align-items: center; gap: 10px; color: white;">
+                        <i class="fa-solid fa-headset" style="color: #60a5fa;"></i> مركز الدعم الفني
+                    </h3>
+                    <button onclick="closeClientSupportModal()" style="background: transparent; border: none; color: #ef4444; cursor: pointer; display: flex; align-items: center; justify-content: center; padding: 5px; border-radius: 50%; transition: background 0.2s;" onmouseover="this.style.backgroundColor='rgba(239, 68, 68, 0.1)'" onmouseout="this.style.backgroundColor='transparent'">
+                        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M18 6 6 18"/><path d="m6 6 12 12"/></svg>
+                    </button>
+                </div>
+                
+                <div style="display: flex; border-bottom: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.1);">
+                    <button onclick="switchSupportTab('list')" id="tab-btn-list" style="flex: 1; padding: 15px; background: transparent; border: none; color: white; cursor: pointer; border-bottom: 2px solid #3b82f6; font-weight: bold; outline: none; transition: all 0.2s;">تذاكري</button>
+                    <button onclick="switchSupportTab('new')" id="tab-btn-new" style="flex: 1; padding: 15px; background: transparent; border: none; color: #94a3b8; cursor: pointer; border-bottom: 2px solid transparent; font-weight: bold; outline: none; transition: all 0.2s;">تذكرة جديدة</button>
+                </div>
+
+                <!-- Tab: Ticket List -->
+                <div id="support-tab-list" style="padding: 20px; overflow-y: auto; flex: 1; min-height: 300px;">
+                    <div id="client-tickets-container" style="display: flex; flex-direction: column; gap: 10px;">
+                        <!-- Tickets load here -->
+                    </div>
+                </div>
+
+                <!-- Tab: New Ticket -->
+                <div id="support-tab-new" style="padding: 20px; display: none; overflow-y: auto; flex: 1; min-height: 300px;">
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; color: #cbd5e1; font-size: 0.9rem;">عنوان المشكلة / الطلب</label>
+                        <input type="text" id="new-ticket-subject" placeholder="مثال: مشكلة في طباعة الفاتورة" style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; outline: none; box-sizing: border-box; font-family: inherit;">
+                    </div>
+                    <div style="margin-bottom: 15px;">
+                        <label style="display: block; margin-bottom: 8px; color: #cbd5e1; font-size: 0.9rem;">التفاصيل</label>
+                        <textarea id="new-ticket-message" rows="5" placeholder="اشرح المشكلة بالتفصيل لمساعدتنا في حلها بسرعة..." style="width: 100%; padding: 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; outline: none; box-sizing: border-box; resize: vertical; font-family: inherit;"></textarea>
+                    </div>
+                    <button onclick="submitNewClientTicket()" style="width: 100%; padding: 14px; background: linear-gradient(135deg, #3b82f6, #8b5cf6); color: white; border: none; border-radius: 8px; font-weight: bold; cursor: pointer; transition: opacity 0.2s; font-family: inherit;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">إرسال التذكرة</button>
+                </div>
+                
+                <!-- Tab: Ticket Conversation -->
+                <div id="support-tab-chat" style="padding: 0; display: none; flex-direction: column; flex: 1; min-height: 300px;">
+                    <div style="padding: 15px; background: rgba(0,0,0,0.2); border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; gap: 10px;">
+                        <button onclick="switchSupportTab('list')" style="background: rgba(255,255,255,0.1); border: none; border-radius: 6px; color: white; width: 30px; height: 30px; cursor: pointer; display: flex; align-items: center; justify-content: center;"><i class="fa-solid fa-arrow-right"></i></button>
+                        <h4 id="chat-ticket-subject" style="margin: 0; color: white; flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">...</h4>
+                    </div>
+                    <div id="chat-messages-container" style="flex: 1; padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px; min-height: 250px;">
+                        <!-- Messages -->
+                    </div>
+                    <div style="padding: 15px; background: rgba(0,0,0,0.2); border-top: 1px solid rgba(255,255,255,0.1); display: flex; gap: 10px;">
+                        <input type="hidden" id="chat-ticket-id">
+                        <input type="text" id="chat-reply-input" placeholder="اكتب ردك هنا..." style="flex: 1; padding: 12px 15px; border-radius: 20px; border: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); color: white; outline: none; font-family: inherit;" onkeypress="if(event.key==='Enter') sendClientReply()">
+                        <button onclick="sendClientReply()" style="background: #10b981; color: white; border: none; border-radius: 50%; width: 45px; height: 45px; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; padding-right: 5px; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.1)'" onmouseout="this.style.transform='scale(1)'">
+                            <svg viewBox="0 0 24 24" width="22" height="22" fill="currentColor" style="transform: rotate(180deg); pointer-events: none;">
+                                <path d="M2.01 21L23 12 2.01 3 2 10l15 2-15 2z" style="pointer-events: none;"/>
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <script>
+        function openClientSupportModal() {
+            document.getElementById('client-support-modal').style.display = 'flex';
+            switchSupportTab('list');
+            loadClientTickets();
+        }
+
+        function closeClientSupportModal() {
+            document.getElementById('client-support-modal').style.display = 'none';
+        }
+
+        function switchSupportTab(tab) {
+            document.getElementById('support-tab-list').style.display = tab === 'list' ? 'block' : 'none';
+            document.getElementById('support-tab-new').style.display = tab === 'new' ? 'block' : 'none';
+            document.getElementById('support-tab-chat').style.display = tab === 'chat' ? 'flex' : 'none';
+            
+            document.getElementById('tab-btn-list').style.borderBottomColor = tab === 'list' ? '#3b82f6' : 'transparent';
+            document.getElementById('tab-btn-list').style.color = tab === 'list' ? 'white' : '#94a3b8';
+            document.getElementById('tab-btn-new').style.borderBottomColor = tab === 'new' ? '#3b82f6' : 'transparent';
+            document.getElementById('tab-btn-new').style.color = tab === 'new' ? 'white' : '#94a3b8';
+        }
+
+        async function loadClientTickets() {
+            const container = document.getElementById('client-tickets-container');
+            container.innerHTML = '<div style="text-align:center; padding: 20px; color: #94a3b8;"><i class="fa-solid fa-circle-notch fa-spin"></i> جاري التحميل...</div>';
+            try {
+                const res = await fetch('api_index.php?r=client-tickets', {
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('authToken') }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    if (data.tickets.length === 0) {
+                        container.innerHTML = '<div style="text-align:center; padding: 30px; color: #64748b;"><i class="fa-solid fa-inbox" style="font-size: 3rem; margin-bottom: 15px; opacity: 0.5;"></i><br>لا توجد تذاكر حالية</div>';
+                        return;
+                    }
+                    container.innerHTML = '';
+                    data.tickets.forEach(tk => {
+                        let statusColor = '#f59e0b'; let statusText = 'مفتوحة';
+                        if (tk.status === 'in_progress') { statusColor = '#38bdf8'; statusText = 'قيد المعالجة'; }
+                        if (tk.status === 'closed') { statusColor = '#10b981'; statusText = 'مغلقة'; }
+                        
+                        container.innerHTML += `
+                            <div onclick="openClientTicketChat(${tk.id}, '${tk.subject.replace(/'/g, "\\'")}')" style="background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.05); padding: 15px; border-radius: 12px; cursor: pointer; transition: all 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.05)'" onmouseout="this.style.background='rgba(0,0,0,0.3)'">
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                                    <strong style="color: white; font-size: 1.05rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 70%;">${tk.subject}</strong>
+                                    <span style="background: ${statusColor}20; color: ${statusColor}; padding: 4px 10px; border-radius: 20px; font-size: 0.75rem; font-weight: bold; border: 1px solid ${statusColor}40;">${statusText}</span>
+                                </div>
+                                <div style="color: #64748b; font-size: 0.8rem; display: flex; justify-content: space-between;">
+                                    <span>تذكرة #${tk.id}</span>
+                                    <span style="direction: ltr;">${new Date(tk.created_at).toLocaleString('ar-SA')}</span>
+                                </div>
+                            </div>
+                        `;
+                    });
+                }
+            } catch (e) {
+                container.innerHTML = '<div style="text-align:center; color: #ef4444;">❌ خطأ في تحميل التذاكر</div>';
+            }
+        }
+
+        async function submitNewClientTicket() {
+            const subject = document.getElementById('new-ticket-subject').value.trim();
+            const message = document.getElementById('new-ticket-message').value.trim();
+            if (!subject || !message) {
+                if (typeof showToast === 'function') showToast('يرجى كتابة عنوان وتفاصيل المشكلة', 'warning');
+                else alert('يرجى كتابة عنوان وتفاصيل المشكلة');
+                return;
+            }
+            try {
+                const res = await fetch('api_index.php?r=client-tickets', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('authToken') },
+                    body: JSON.stringify({ subject, message })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    document.getElementById('new-ticket-subject').value = '';
+                    document.getElementById('new-ticket-message').value = '';
+                    switchSupportTab('list');
+                    loadClientTickets();
+                    if (typeof showToast === 'function') showToast('✅ تم فتح التذكرة وإرسالها للدعم الفني', 'success');
+                }
+            } catch (e) {}
+        }
+
+        async function openClientTicketChat(id, subject) {
+            document.getElementById('chat-ticket-id').value = id;
+            document.getElementById('chat-ticket-subject').innerText = subject;
+            switchSupportTab('chat');
+            
+            const container = document.getElementById('chat-messages-container');
+            container.innerHTML = '<div style="text-align:center; padding: 20px; color: #94a3b8;"><i class="fa-solid fa-circle-notch fa-spin"></i> جاري التحميل...</div>';
+            
+            try {
+                const res = await fetch(`api_index.php?r=client-tickets&a=replies&id=${id}`, {
+                    headers: { 'Authorization': 'Bearer ' + localStorage.getItem('authToken') }
+                });
+                const data = await res.json();
+                if (data.success) {
+                    container.innerHTML = '';
+                    data.replies.forEach(rep => {
+                        const isClient = rep.sender === 'client';
+                        const align = isClient ? 'flex-start' : 'flex-end';
+                        const bg = isClient ? '#3b82f6' : 'rgba(255,255,255,0.1)';
+                        const color = isClient ? 'white' : '#cbd5e1';
+                        const radius = isClient ? '15px 15px 0 15px' : '15px 15px 15px 0';
+                        const name = isClient ? 'أنت' : 'الدعم الفني';
+                        const icon = isClient ? 'fa-user' : 'fa-headset';
+                        
+                        container.innerHTML += `
+                            <div style="align-self: ${align}; max-width: 85%; display: flex; flex-direction: column; gap: 5px;">
+                                <span style="font-size: 0.75rem; color: #64748b; margin: 0 5px; align-self: ${align}; display: flex; align-items: center; gap: 5px;"><i class="fa-solid ${icon}"></i> ${name}</span>
+                                <div style="background: ${bg}; color: ${color}; padding: 12px 18px; border-radius: ${radius}; font-size: 0.95rem; line-height: 1.6; border: 1px solid rgba(255,255,255,0.05);">
+                                    ${rep.message.replace(/\n/g, '<br>')}
+                                </div>
+                                <span style="font-size: 0.7rem; color: #475569; align-self: ${align}; direction: ltr;">${new Date(rep.created_at).toLocaleString('ar-SA')}</span>
+                            </div>
+                        `;
+                    });
+                    if (data.replies.length === 0) {
+                        container.innerHTML = '<div style="text-align:center; padding: 20px; color: #64748b;">لا توجد ردود حتى الآن</div>';
+                    }
+                    setTimeout(() => container.scrollTop = container.scrollHeight, 100);
+                }
+            } catch (e) {
+                container.innerHTML = '<div style="text-align:center; color: #ef4444;">❌ خطأ في تحميل الردود</div>';
+            }
+        }
+
+        async function sendClientReply() {
+            const id = document.getElementById('chat-ticket-id').value;
+            const input = document.getElementById('chat-reply-input');
+            const message = input.value.trim();
+            if (!message) return;
+            
+            input.disabled = true;
+            try {
+                const res = await fetch('api_index.php?r=client-tickets&a=reply', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + localStorage.getItem('authToken') },
+                    body: JSON.stringify({ id, message })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    input.value = '';
+                    openClientTicketChat(id, document.getElementById('chat-ticket-subject').innerText);
+                } else {
+                    if (typeof showToast === 'function') showToast(data.error || 'خطأ في إرسال الرد', 'error');
+                    else alert(data.error || 'خطأ في إرسال الرد');
+                }
+            } catch (e) {
+                console.error("Reply Error: ", e);
+                alert("حدث خطأ غير متوقع: " + e.message);
+            }
+            input.disabled = false;
+            input.focus();
+        }
+        </script>
 <script src="js/unified-brain.js?v=20260722"></script>
 </body>
 </html>
-

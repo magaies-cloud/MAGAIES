@@ -1143,6 +1143,76 @@ if ($resource === 'ping' && $method === 'POST') {
 }
 
 // ---------------------------------------------------------
+// CLIENT SUPPORT TICKETS (TENANT SIDE)
+// ---------------------------------------------------------
+if ($resource === 'client-tickets') {
+    $tenantId = $tenant_id;
+    
+    // Get tenant info for ticket creation
+    $stmtT = $pdo->prepare("SELECT company_name, subdomain FROM tenants WHERE id = ?");
+    $stmtT->execute([$tenantId]);
+    $tInfo = $stmtT->fetch();
+    if (!$tInfo) jsonResponse(['error' => 'Tenant not found'], 404);
+
+    if ($method === 'GET' && empty($action)) {
+        // Get all tickets for this tenant
+        $stmt = $pdo->prepare("SELECT * FROM saas_tickets WHERE tenant_id = ? ORDER BY id DESC");
+        $stmt->execute([$tenantId]);
+        jsonResponse(['success' => true, 'tickets' => $stmt->fetchAll()]);
+    }
+    
+    if ($method === 'POST' && empty($action)) {
+        // Create new ticket
+        $subject = $input['subject'] ?? 'بدون عنوان';
+        $message = $input['message'] ?? '';
+        
+        $pdo->prepare("INSERT INTO saas_tickets (tenant_id, subject, status) VALUES (?, ?, 'open')")
+            ->execute([$tenantId, $subject]);
+        
+        $ticketId = $pdo->lastInsertId();
+        
+        $pdo->prepare("INSERT INTO saas_ticket_replies (ticket_id, sender, message) VALUES (?, 'client', ?)")
+            ->execute([$ticketId, $message]);
+            
+        jsonResponse(['success' => true, 'ticket_id' => $ticketId]);
+    }
+    
+    if ($method === 'GET' && $action === 'replies' && isset($_GET['id'])) {
+        $ticketId = (int)$_GET['id'];
+        // Verify ownership
+        $chk = $pdo->prepare("SELECT id FROM saas_tickets WHERE id = ? AND tenant_id = ?");
+        $chk->execute([$ticketId, $tenantId]);
+        if (!$chk->fetchColumn()) jsonResponse(['error' => 'Access denied'], 403);
+        
+        $stmt = $pdo->prepare("SELECT * FROM saas_ticket_replies WHERE ticket_id = ? ORDER BY id ASC");
+        $stmt->execute([$ticketId]);
+        jsonResponse(['success' => true, 'replies' => $stmt->fetchAll()]);
+    }
+    
+    if ($method === 'POST' && $action === 'reply') {
+        $ticketId = $input['id'] ?? 0;
+        $message = $input['message'] ?? '';
+        
+        // Verify ownership
+        $chk = $pdo->prepare("SELECT status FROM saas_tickets WHERE id = ? AND tenant_id = ?");
+        $chk->execute([$ticketId, $tenantId]);
+        $tStatus = $chk->fetchColumn();
+        if ($tStatus === false) jsonResponse(['error' => 'Access denied'], 403);
+        if ($tStatus === 'closed') jsonResponse(['error' => 'Cannot reply to a closed ticket'], 400);
+        
+        $pdo->prepare("INSERT INTO saas_ticket_replies (ticket_id, sender, message) VALUES (?, 'client', ?)")
+            ->execute([$ticketId, $message]);
+            
+        // If ticket was closed or in progress, change to open (since client replied)
+        if ($tStatus !== 'open') {
+            $pdo->prepare("UPDATE saas_tickets SET status = 'open' WHERE id = ?")->execute([$ticketId]);
+        }
+            
+        jsonResponse(['success' => true]);
+    }
+}
+
+// ---------------------------------------------------------
 // SYSTEM MESSAGES (BROADCAST)
 // ---------------------------------------------------------
 if ($resource === 'system' && $method === 'GET' && isset($requestUri[$base_index + 2]) && $requestUri[$base_index + 2] === 'messages' && isset($requestUri[$base_index + 3]) && $requestUri[$base_index + 3] === 'active') {
