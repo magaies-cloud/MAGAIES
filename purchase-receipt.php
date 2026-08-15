@@ -1018,6 +1018,28 @@
             renderReceiptLines();
         }
 
+        function generateGRNNumber() {
+            const d = new Date();
+            const yy = d.getFullYear().toString().slice(-2);
+            const mm = (d.getMonth() + 1).toString().padStart(2, '0');
+            const prefix = `Z${yy}${mm}`;
+            
+            let maxSeq = -1;
+            if (window.allPurchases) {
+                allPurchases.forEach(p => {
+                    if (p.isGRN && p.id && p.id.startsWith(prefix)) {
+                        const seqStr = p.id.substring(prefix.length);
+                        const seqNum = parseInt(seqStr, 10);
+                        if (!isNaN(seqNum) && seqNum > maxSeq) {
+                            maxSeq = seqNum;
+                        }
+                    }
+                });
+            }
+            const nextSeq = maxSeq === -1 ? 0 : maxSeq + 1;
+            return prefix + nextSeq.toString().padStart(5, '0');
+        }
+
         function saveReceiptNote() {
             const receivingItems = receiptLines.filter(x => x.receiveQty > 0);
             if (receivingItems.length === 0) {
@@ -1058,7 +1080,7 @@
             const firstWh = receivingItems[0].warehouseId;
 
             const grnInv = {
-                id: 'GRN-' + Date.now(),
+                id: generateGRNNumber(),
                 isGRN: true,
                 originalInvoiceId: currentInvoiceId,
                 type: 'purchase',
