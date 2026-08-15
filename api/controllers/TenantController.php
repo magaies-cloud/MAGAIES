@@ -482,6 +482,8 @@ class TenantController {
             $activation_delay_hours = isset($input['activation_delay_hours']) ? (int)$input['activation_delay_hours'] : 12;
             $auto_logout_value = isset($input['auto_logout_value']) ? (int)$input['auto_logout_value'] : 30;
             $auto_logout_unit = isset($input['auto_logout_unit']) ? $input['auto_logout_unit'] : 'minutes';
+            $other_rates = isset($input['other_rates']) ? $input['other_rates'] : [];
+            $pricing_method = isset($input['pricing_method']) ? $input['pricing_method'] : 'central_bank';
             
             // --- Exchange Rate History Logic ---
             $history = [];
@@ -519,7 +521,7 @@ class TenantController {
                 $trend = 'up';
             }
 
-            $val = json_encode(['rate' => $rate, 'visible' => $visible, 'trend' => $trend, 'history' => $history]);
+            $val = json_encode(['rate' => $rate, 'other_rates' => $other_rates, 'pricing_method' => $pricing_method, 'visible' => $visible, 'trend' => $trend, 'history' => $history]);
             // --- End Exchange Rate History Logic ---
             
             try {

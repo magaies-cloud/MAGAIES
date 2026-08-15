@@ -1275,99 +1275,193 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         </div>
 
         <!-- TAB: SETTINGS -->
-        <div id="tab-settings" class="tab-content">
-            <div style="display:flex; gap:20px; flex-wrap:wrap;">
-                <div class="glass-panel" style="flex:1; min-width:300px;">
-                    <h3 style="color:var(--warning-color); margin-top:0; display:flex; align-items:center; gap:8px;">💱 إعدادات الصرف</h3>
-                    <div class="form-group">
-                        <label>💵 سعر الصرف (الدولار مقابل العملة المحلية)</label>
-                        <input type="number" id="global-exchange-rate" step="0.01">
-                    </div>
-                    <div class="form-group" style="display:flex; align-items:center; gap:10px;">
-                        <input type="checkbox" id="global-exchange-visible">
-                        <label style="margin:0;">👁️ إظهار السعر للمشتركين</label>
-                    </div>
-                    <button class="btn-primary" onclick="saveGlobalSettings()" style="width:100%; margin-top: 15px;">💾 حفظ إعدادات الصرف</button>
-                </div>
-                
-                <div class="glass-panel" style="flex:1; min-width:300px;">
-                    <h3 style="color:#3b82f6; margin-top:0; display:flex; align-items:center; gap:8px;">⏱️ إعدادات التفعيل</h3>
-                    <div class="form-group">
-                        <label>زمن التفعيل المتوقع (بالساعات)</label>
-                        <input type="number" id="global-activation-delay" value="12">
-                        <div style="font-size: 0.85em; color: #a1a1aa; margin-top: 8px; line-height: 1.5;">
-                            <strong>💡 ماذا يعني هذا الرقم؟</strong><br>
-                            عندما يسجل مستخدم جديد شركته، تكون حالته "قيد المراجعة". هذا الرقم سيظهر للمستخدم في رسالة الانتظار كالتالي: <br>
-                            <span style="color:#fbbf24;">"طلبك قيد المراجعة. سيتم تفعيل حسابك خلال [الرقم الذي تدخله هنا] ساعة كحد أقصى."</span>
-                        </div>
-                    </div>
-                    <button class="btn-primary" onclick="saveGlobalSettings()" style="width:100%; margin-top: 15px;">💾 حفظ زمن التفعيل</button>
-                </div>
-
-                <div class="glass-panel" style="flex:1; min-width:300px;">
-                    <h3 style="color:#10b981; margin-top:0; display:flex; align-items:center; gap:8px;">🔒 الخروج التلقائي للأمان</h3>
-                    <div class="form-group">
-                        <label>مدة عدم النشاط قبل الخروج</label>
-                        <div style="display:flex; gap:10px;">
-                            <input type="number" id="global-auto-logout-value" value="30" style="flex:2;">
-                            <select id="global-auto-logout-unit" style="flex:1;">
-                                <option value="minutes">دقائق</option>
-                                <option value="seconds">ثواني</option>
-                            </select>
-                        </div>
-                        <div style="font-size: 0.85em; color: #a1a1aa; margin-top: 8px;">
-                            سيتم تسجيل الخروج تلقائياً من لوحة التحكم هذه إذا لم تقم بأي نشاط لمدة التحديد (اكتب 0 لإلغاء الميزة).
-                        </div>
-                    </div>
-                    <button class="btn-primary" onclick="saveGlobalSettings()" style="width:100%; margin-top: 15px;">💾 حفظ إعدادات الأمان</button>
-                </div>
-                <div class="glass-panel" style="flex:1; min-width:300px;">
-                    <h3 style="color:var(--danger-color); margin-top:0; display:flex; align-items:center; gap:8px;">🔑 رمز المشرف العام</h3>
-                    <div style="font-size: 0.85em; color: #a1a1aa; margin-bottom: 15px;">هذا الرمز يُستخدم للدخول إلى لوحة التحكم الحالية (إدارة الشركات SaaS).</div>
-                    <div class="form-group">
-                        <label>الرمز الحالي</label>
-                        <div style="position: relative;">
-                            <input type="password" id="old-master-token" style="padding-left: 40px; width: 100%; box-sizing: border-box;">
-                            <span onclick="togglePasswordVisibility('old-master-token', this)" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #a1a1aa; font-size: 1.2em; user-select: none;">👁️</span>
-                        </div>
-                    </div>
-                    <div class="form-group">
-                        <label>الرمز الجديد</label>
-                        <div style="position: relative;">
-                            <input type="password" id="new-master-token" style="padding-left: 40px; width: 100%; box-sizing: border-box;">
-                            <span onclick="togglePasswordVisibility('new-master-token', this)" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #a1a1aa; font-size: 1.2em; user-select: none;">👁️</span>
-                        </div>
-                    </div>
-                    <button class="btn-danger" onclick="saveMasterToken()" style="width:100%;">🔄 تغيير الرمز</button>
-                </div>
-                <div class="glass-panel" style="flex:1; min-width:300px;">
-                    <h3 style="color:#a855f7; margin-top:0; display:flex; align-items:center; gap:8px;">🕵️‍♂️ حساب الدعم الفني (Backdoor)</h3>
-                    <div style="font-size: 0.85em; color: #a1a1aa; margin-bottom: 15px;">حساب خفي (Super Admin) يتيح لك الدخول لأي شركة مسجلة في النظام بصلاحيات مدير لحل مشاكلهم، دون أن يظهر اسمك في قائمة مستخدمي الشركة.</div>
-                    <div class="form-group"><label>اسم المستخدم السري</label><input type="text" id="backdoor-username" placeholder="مثال: MasterSupport"></div>
-                    <div class="form-group">
-                        <label>كلمة المرور السرية</label>
-                        <div style="position: relative;">
-                            <input type="password" id="backdoor-password" placeholder="أدخل كلمة مرور معقدة" style="padding-left: 40px; width: 100%; box-sizing: border-box;">
-                            <span onclick="togglePasswordVisibility('backdoor-password', this)" style="position: absolute; left: 12px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #a1a1aa; font-size: 1.2em; user-select: none;">👁️</span>
-                        </div>
-                    </div>
-                    <button class="btn-primary" onclick="saveBackdoorCredentials()" style="width:100%; background:#a855f7; border-color:#a855f7;">✨ حفظ وتفعيل</button>
-                </div>
-
-                <div class="glass-panel" style="flex:1; min-width:300px;">
-                    <h3 style="color:#0ea5e9; margin-top:0; display:flex; align-items:center; gap:8px;">🛠️ مُولد مفتاح استعادة النسخ</h3>
-                    <div style="font-size: 0.85em; color: #a1a1aa; margin-bottom: 15px;">يستخدم لتوليد رقم سري ديناميكي مخصص لفك تشفير نسخة احتياطية لعميل نسي رقمه السري.</div>
-                    <div class="form-group"><label>الرمز المرجعي للملف (refCode)</label><input type="text" id="recovery-ref-code" placeholder="مثال: REF-A1B2C3" style="text-transform: uppercase;"></div>
-                    <div class="form-group">
-                        <label>التوكن السري المستخرج</label>
-                        <input type="text" id="recovery-generated-token" readonly style="background: rgba(255,255,255,0.05); color: #0ea5e9; font-weight: bold; font-family: monospace; text-align: center; letter-spacing: 5px; font-size: 1.2rem; cursor: copy;" onclick="if(this.value) { navigator.clipboard.writeText(this.value); alert('تم نسخ التوكن!'); }" placeholder="------">
-                    </div>
-                    <button class="btn-primary" onclick="generateDynamicRecoveryToken()" style="width:100%; background:#0ea5e9; border-color:#0ea5e9;">⚙️ توليد التوكن الآن</button>
-                </div>
+        <div id="tab-settings" class="tab-content fade-in">
+    <div class="section-inner-tabs" data-group="settings">
+        <div class="section-inner-tab active" onclick="switchSectionTab('tab-settings', 'settings', this)">💱 إعدادات الصرف</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-activation', 'settings', this)">⏱️ إعدادات التفعيل</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-logout', 'settings', this)">🔒 الخروج للأمان</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-master-pin', 'settings', this)">🔑 المشرف العام</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-backdoor', 'settings', this)">🕵️‍♂️ الدعم الفني</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-recovery', 'settings', this)">🛠️ مفتاح الاستعادة</div>
+    </div>
+    <div class="glass-panel" style="padding: 30px;">
+        <h3 style="color:var(--warning-color); margin-top:0; margin-bottom: 25px; display:flex; align-items:center; gap:8px;">💱 إعدادات الصرف والتسعير</h3>
+        
+        <div class="form-group" style="margin-bottom: 25px;">
+            <label style="color: #cbd5e1; font-weight: bold; margin-bottom: 10px; display: block;">طريقة التسعير (Pricing Method)</label>
+            <select id="global-pricing-method" style="width: 100%; padding: 14px; border-radius: 12px; background: rgba(0,0,0,0.4); border: 1px solid rgba(255,255,255,0.1); color: #fff; font-size: 1.05rem; outline: none;">
+                <option value="central_bank">الاعتماد على السعر المركزي (البنك المركزي)</option>
+                <option value="black_market">السوق الموازي (الأسود)</option>
+                <option value="custom">تخصيص يدوي</option>
+            </select>
+        </div>
+        
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 20px;">
+            <div class="form-group" style="margin: 0;">
+                <label style="color: #cbd5e1;">💵 الدولار الأمريكي (USD)</label>
+                <input type="number" id="global-exchange-rate" step="0.01" style="width: 100%; padding: 12px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+            </div>
+            <div class="form-group" style="margin: 0;">
+                <label style="color: #cbd5e1;">🇸🇦 الريال السعودي (SAR)</label>
+                <input type="number" id="global-exchange-sar" step="0.01" style="width: 100%; padding: 12px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+            </div>
+            <div class="form-group" style="margin: 0;">
+                <label style="color: #cbd5e1;">🇦🇪 الدرهم الإماراتي (AED)</label>
+                <input type="number" id="global-exchange-aed" step="0.01" style="width: 100%; padding: 12px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+            </div>
+            <div class="form-group" style="margin: 0;">
+                <label style="color: #cbd5e1;">🇪🇺 اليورو (EUR)</label>
+                <input type="number" id="global-exchange-eur" step="0.01" style="width: 100%; padding: 12px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
             </div>
         </div>
+        
+        <div class="setting-row" style="background: rgba(255,255,255,0.03); padding: 18px 25px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05); margin-top: 25px;">
+            <span class="form-label" style="margin:0; font-size: 1.05rem; color: #fff; font-weight: bold;">👁️ إظهار الأسعار للمشتركين</span>
+            <label class="switch"><input type="checkbox" id="global-exchange-visible"><span class="slider"></span></label>
+        </div>
+        
+        <button class="btn-primary" onclick="saveGlobalSettings()" style="width:100%; margin-top: 25px; padding: 16px; font-size: 1.1rem; border-radius: 14px;">💾 حفظ إعدادات الصرف والتسعير</button>
+    </div>
+</div>
 
-    <!-- Health Tab -->
+<div id="settings-activation" class="tab-content fade-in">
+    <div class="section-inner-tabs" data-group="settings">
+        <div class="section-inner-tab" onclick="switchSectionTab('tab-settings', 'settings', this)">💱 إعدادات الصرف</div>
+        <div class="section-inner-tab active" onclick="switchSectionTab('settings-activation', 'settings', this)">⏱️ إعدادات التفعيل</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-logout', 'settings', this)">🔒 الخروج للأمان</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-master-pin', 'settings', this)">🔑 المشرف العام</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-backdoor', 'settings', this)">🕵️‍♂️ الدعم الفني</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-recovery', 'settings', this)">🛠️ مفتاح الاستعادة</div>
+    </div>
+    <div class="glass-panel" style="padding: 30px;">
+        <h3 style="color:#3b82f6; margin-top:0; display:flex; align-items:center; gap:8px;">⏱️ إعدادات التفعيل</h3>
+        <div class="form-group">
+            <label>زمن التفعيل المتوقع (بالساعات)</label>
+            <input type="number" id="global-activation-delay" value="12" style="width: 100%; padding: 12px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+            <div style="font-size: 0.95em; color: #94a3b8; margin-top: 12px; line-height: 1.6; background: rgba(59, 130, 246, 0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #3b82f6;">
+                <strong>💡 ماذا يعني هذا الرقم؟</strong><br>
+                عندما يسجل مستخدم جديد شركته، تكون حالته "قيد المراجعة". هذا الرقم سيظهر للمستخدم في رسالة الانتظار كالتالي: <br>
+                <span style="color:#fbbf24; margin-top: 5px; display: inline-block;">"طلبك قيد المراجعة. سيتم تفعيل حسابك خلال [الرقم الذي تدخله هنا] ساعة كحد أقصى."</span>
+            </div>
+        </div>
+        <button class="btn-primary" onclick="saveGlobalSettings()" style="width:100%; margin-top: 20px; padding: 16px; font-size: 1.1rem; border-radius: 14px;">💾 حفظ زمن التفعيل</button>
+    </div>
+</div>
+
+<div id="settings-logout" class="tab-content fade-in">
+    <div class="section-inner-tabs" data-group="settings">
+        <div class="section-inner-tab" onclick="switchSectionTab('tab-settings', 'settings', this)">💱 إعدادات الصرف</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-activation', 'settings', this)">⏱️ إعدادات التفعيل</div>
+        <div class="section-inner-tab active" onclick="switchSectionTab('settings-logout', 'settings', this)">🔒 الخروج للأمان</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-master-pin', 'settings', this)">🔑 المشرف العام</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-backdoor', 'settings', this)">🕵️‍♂️ الدعم الفني</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-recovery', 'settings', this)">🛠️ مفتاح الاستعادة</div>
+    </div>
+    <div class="glass-panel" style="padding: 30px;">
+        <h3 style="color:#10b981; margin-top:0; display:flex; align-items:center; gap:8px;">🔒 الخروج التلقائي للأمان</h3>
+        <div class="form-group">
+            <label>مدة عدم النشاط قبل الخروج</label>
+            <div style="display:flex; gap:15px;">
+                <input type="number" id="global-auto-logout-value" value="30" style="flex:2; padding: 12px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                <select id="global-auto-logout-unit" style="flex:1; padding: 12px; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
+                    <option value="minutes">دقائق</option>
+                    <option value="seconds">ثواني</option>
+                </select>
+            </div>
+            <div style="font-size: 0.95em; color: #94a3b8; margin-top: 12px; background: rgba(16, 185, 129, 0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #10b981;">
+                سيتم تسجيل الخروج تلقائياً من لوحة التحكم هذه (لوحة SaaS) إذا لم تقم بأي نشاط لمدة التحديد (اكتب 0 لإلغاء الميزة).
+            </div>
+        </div>
+        <button class="btn-primary" onclick="saveGlobalSettings()" style="width:100%; margin-top: 20px; padding: 16px; font-size: 1.1rem; border-radius: 14px;">💾 حفظ إعدادات الأمان</button>
+    </div>
+</div>
+
+<div id="settings-master-pin" class="tab-content fade-in">
+    <div class="section-inner-tabs" data-group="settings">
+        <div class="section-inner-tab" onclick="switchSectionTab('tab-settings', 'settings', this)">💱 إعدادات الصرف</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-activation', 'settings', this)">⏱️ إعدادات التفعيل</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-logout', 'settings', this)">🔒 الخروج للأمان</div>
+        <div class="section-inner-tab active" onclick="switchSectionTab('settings-master-pin', 'settings', this)">🔑 المشرف العام</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-backdoor', 'settings', this)">🕵️‍♂️ الدعم الفني</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-recovery', 'settings', this)">🛠️ مفتاح الاستعادة</div>
+    </div>
+    <div class="glass-panel" style="padding: 30px;">
+        <h3 style="color:var(--danger-color); margin-top:0; display:flex; align-items:center; gap:8px;">🔑 رمز المشرف العام</h3>
+        <div style="font-size: 0.95em; color: #94a3b8; margin-bottom: 25px;">هذا الرمز يُستخدم للدخول إلى لوحة التحكم الحالية (إدارة الشركات SaaS). يرجى المحافظة عليه آمناً.</div>
+        <div class="form-group">
+            <label>الرمز الحالي</label>
+            <div style="position: relative;">
+                <input type="password" id="old-master-token" style="padding: 12px; padding-left: 45px; width: 100%; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; box-sizing: border-box;">
+                <span onclick="togglePasswordVisibility('old-master-token', this)" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #a1a1aa; font-size: 1.2em; user-select: none;">👁️</span>
+            </div>
+        </div>
+        <div class="form-group">
+            <label>الرمز الجديد</label>
+            <div style="position: relative;">
+                <input type="password" id="new-master-token" style="padding: 12px; padding-left: 45px; width: 100%; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; box-sizing: border-box;">
+                <span onclick="togglePasswordVisibility('new-master-token', this)" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #a1a1aa; font-size: 1.2em; user-select: none;">👁️</span>
+            </div>
+        </div>
+        <button class="btn-danger" onclick="saveMasterToken()" style="width:100%; margin-top: 15px; padding: 16px; font-size: 1.1rem; border-radius: 14px;">🔄 تغيير الرمز</button>
+    </div>
+</div>
+
+<div id="settings-backdoor" class="tab-content fade-in">
+    <div class="section-inner-tabs" data-group="settings">
+        <div class="section-inner-tab" onclick="switchSectionTab('tab-settings', 'settings', this)">💱 إعدادات الصرف</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-activation', 'settings', this)">⏱️ إعدادات التفعيل</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-logout', 'settings', this)">🔒 الخروج للأمان</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-master-pin', 'settings', this)">🔑 المشرف العام</div>
+        <div class="section-inner-tab active" onclick="switchSectionTab('settings-backdoor', 'settings', this)">🕵️‍♂️ الدعم الفني</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-recovery', 'settings', this)">🛠️ مفتاح الاستعادة</div>
+    </div>
+    <div class="glass-panel" style="padding: 30px;">
+        <h3 style="color:#a855f7; margin-top:0; display:flex; align-items:center; gap:8px;">🕵️‍♂️ حساب الدعم الفني (Backdoor)</h3>
+        <div style="font-size: 0.95em; color: #94a3b8; margin-bottom: 25px; background: rgba(168, 85, 247, 0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #a855f7; line-height: 1.6;">
+            حساب خفي (Super Admin) يتيح لك الدخول لأي شركة مسجلة في النظام بصلاحيات مدير لحل مشاكلهم، دون أن يظهر اسمك في قائمة مستخدمي الشركة.
+        </div>
+        <div class="form-group">
+            <label>اسم المستخدم السري</label>
+            <input type="text" id="backdoor-username" placeholder="مثال: MasterSupport" style="padding: 12px; width: 100%; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; box-sizing: border-box;">
+        </div>
+        <div class="form-group">
+            <label>كلمة المرور السرية</label>
+            <div style="position: relative;">
+                <input type="password" id="backdoor-password" placeholder="أدخل كلمة مرور معقدة" style="padding: 12px; padding-left: 45px; width: 100%; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; box-sizing: border-box;">
+                <span onclick="togglePasswordVisibility('backdoor-password', this)" style="position: absolute; left: 15px; top: 50%; transform: translateY(-50%); cursor: pointer; color: #a1a1aa; font-size: 1.2em; user-select: none;">👁️</span>
+            </div>
+        </div>
+        <button class="btn-primary" onclick="saveBackdoorCredentials()" style="width:100%; margin-top: 15px; background:#a855f7; border-color:#a855f7; padding: 16px; font-size: 1.1rem; border-radius: 14px;">✨ حفظ وتفعيل حساب الدعم الفني</button>
+    </div>
+</div>
+
+<div id="settings-recovery" class="tab-content fade-in">
+    <div class="section-inner-tabs" data-group="settings">
+        <div class="section-inner-tab" onclick="switchSectionTab('tab-settings', 'settings', this)">💱 إعدادات الصرف</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-activation', 'settings', this)">⏱️ إعدادات التفعيل</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-logout', 'settings', this)">🔒 الخروج للأمان</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-master-pin', 'settings', this)">🔑 المشرف العام</div>
+        <div class="section-inner-tab" onclick="switchSectionTab('settings-backdoor', 'settings', this)">🕵️‍♂️ الدعم الفني</div>
+        <div class="section-inner-tab active" onclick="switchSectionTab('settings-recovery', 'settings', this)">🛠️ مفتاح الاستعادة</div>
+    </div>
+    <div class="glass-panel" style="padding: 30px;">
+        <h3 style="color:#0ea5e9; margin-top:0; display:flex; align-items:center; gap:8px;">🛠️ مُولد مفتاح استعادة النسخ</h3>
+        <div style="font-size: 0.95em; color: #94a3b8; margin-bottom: 25px; background: rgba(14, 165, 233, 0.1); padding: 15px; border-radius: 10px; border-left: 3px solid #0ea5e9; line-height: 1.6;">
+            يستخدم لتوليد رقم سري ديناميكي مخصص لفك تشفير نسخة احتياطية لعميل نسي رقمه السري.
+        </div>
+        <div class="form-group">
+            <label>الرمز المرجعي للملف (refCode)</label>
+            <input type="text" id="recovery-ref-code" placeholder="مثال: REF-A1B2C3" style="text-transform: uppercase; padding: 12px; width: 100%; border-radius: 10px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff; box-sizing: border-box;">
+        </div>
+        <div class="form-group">
+            <label>التوكن السري المستخرج</label>
+            <input type="text" id="recovery-generated-token" readonly style="background: rgba(0,0,0,0.5); color: #0ea5e9; font-weight: bold; font-family: monospace; text-align: center; letter-spacing: 5px; font-size: 1.4rem; padding: 15px; border: 1px dashed #0ea5e9; border-radius: 10px; cursor: copy; width: 100%; box-sizing: border-box;" onclick="if(this.value) { navigator.clipboard.writeText(this.value); alert('تم نسخ التوكن!'); }" placeholder="------">
+            <div style="font-size: 0.8rem; color: #64748b; text-align: center; margin-top: 8px;">انقر على التوكن لنسخه مباشرة</div>
+        </div>
+        <button class="btn-primary" onclick="generateDynamicRecoveryToken()" style="width:100%; margin-top: 15px; background:#0ea5e9; border-color:#0ea5e9; padding: 16px; font-size: 1.1rem; border-radius: 14px;">⚙️ توليد التوكن الآن</button>
+    </div>
+</div>
+<!-- Health Tab -->
     <div id="tab-health" class="tab-content fade-in">
         <div class="section-inner-tabs" data-group="monitoring">
             <div class="section-inner-tab active" onclick="switchSectionTab('tab-health', 'monitoring', this)">&#x1F5A5;&#xFE0F; حالة الخادم</div>
@@ -1642,11 +1736,11 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
     </div>
 
     <!-- Ticket Chat Modal -->
-    <div id="ticket-chat-modal" class="modal-overlay" style="display:none;">
+    <div id="ticket-chat-modal" class="modal-overlay" style="display:none;" onclick="if(event.target===this) closeModal('ticket-chat-modal')">
         <div class="glass-panel modal-content" style="max-width: 700px; height: 80vh; display: flex; flex-direction: column;">
             <div class="modal-header" style="flex-shrink:0;">
                 <h3 id="ticket-chat-title">محادثة التذكرة</h3>
-                <button class="close-btn" onclick="closeModal('ticket-chat-modal')">&times;</button>
+                
             </div>
             <div id="ticket-chat-messages" style="flex:1; overflow-y:auto; padding:15px; display:flex; flex-direction:column; gap:12px; background:rgba(0,0,0,0.2); border-radius:10px; margin:10px 0;">
                 <div style="text-align:center; color:var(--text-secondary);">جاري تحميل المحادثة...</div>
@@ -1665,9 +1759,9 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
 
     <!-- Modals -->
     <!-- Plan Modal -->
-    <div id="plan-modal" class="modal-overlay">
+    <div id="plan-modal" class="modal-overlay" onclick="if(event.target===this) closeModal('plan-modal')">
         <div class="glass-panel modal-content">
-            <div class="modal-header"><h3>إدارة باقة</h3><button class="close-btn" onclick="closeModal('plan-modal')">&times;</button></div>
+            <div class="modal-header"><h3>إدارة باقة</h3></div>
             <input type="hidden" id="plan-id">
             <div class="form-group"><label>اسم الباقة</label><input type="text" id="plan-name"></div>
             <div class="form-group"><label>السعر الشهري ($)</label><input type="number" id="plan-price"></div>
@@ -1686,9 +1780,9 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
 
     
     <!-- Partner Modal -->
-    <div id="partner-modal" class="modal-overlay">
+    <div id="partner-modal" class="modal-overlay" onclick="if(event.target===this) closeModal('partner-modal')">
         <div class="glass-panel modal-content">
-            <div class="modal-header"><h3>إدارة شريك</h3><button class="close-btn" onclick="closeModal('partner-modal')">&times;</button></div>
+            <div class="modal-header"><h3>إدارة شريك</h3></div>
             <input type="hidden" id="partner-id">
             <input type="hidden" id="partner-existing-logo">
             <div class="form-group"><label>الاسم</label><input type="text" id="partner-name"></div>
@@ -1710,9 +1804,9 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
     </div>
 
     <!-- User Modal (Add User / Reset Pass) -->
-    <div id="user-action-modal" class="modal-overlay">
+    <div id="user-action-modal" class="modal-overlay" onclick="if(event.target===this) closeModal('user-action-modal')">
         <div class="glass-panel modal-content">
-            <div class="modal-header"><h3 id="user-modal-title">إعادة تعيين كلمة المرور</h3><button class="close-btn" onclick="closeModal('user-action-modal')">&times;</button></div>
+            <div class="modal-header"><h3 id="user-modal-title">إعادة تعيين كلمة المرور</h3></div>
             <input type="hidden" id="target-user-id">
             <div class="form-group">
                 <label>اسم المستخدم</label>
@@ -1732,9 +1826,9 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         </div>
     </div>
     
-    <div id="add-user-modal" class="modal-overlay">
+    <div id="add-user-modal" class="modal-overlay" onclick="if(event.target===this) closeModal('add-user-modal')">
         <div class="glass-panel modal-content">
-            <div class="modal-header"><h3>إضافة مستخدم جديد لشركة</h3><button class="close-btn" onclick="closeModal('add-user-modal')">&times;</button></div>
+            <div class="modal-header"><h3>إضافة مستخدم جديد لشركة</h3></div>
             <div class="form-group"><label>اسم المستخدم (للدخول)</label><input type="text" id="new-user-username"></div>
             <div class="form-group"><label>الاسم الكامل</label><input type="text" id="new-user-fullname"></div>
             <div class="form-group"><label>كلمة المرور</label><input type="password" id="new-user-pass"></div>
@@ -1746,9 +1840,9 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
     </div>
 
     <!-- Edit Tenant Modal -->
-    <div id="edit-modal" class="modal-overlay">
+    <div id="edit-modal" class="modal-overlay" onclick="if(event.target===this) closeModal('edit-modal')">
         <div class="glass-panel modal-content">
-            <div class="modal-header"><h3>تعديل حالة المشترك</h3><button class="close-btn" onclick="closeModal('edit-modal')">&times;</button></div>
+            <div class="modal-header"><h3>تعديل حالة المشترك</h3></div>
             <input type="hidden" id="edit-tenant-id">
             <div class="form-group"><label>الباقة</label><select id="edit-tenant-plan" onchange="updateMaxUsersFromPlan()"></select></div>
             <div class="form-group"><label>الحد الأقصى للمستخدمين (مخصص)</label><input type="number" id="edit-tenant-max-users" placeholder="يتبع الباقة افتراضياً..."></div>
@@ -1770,9 +1864,9 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
     </div>
     
     <!-- Msg Modal -->
-    <div id="message-modal" class="modal-overlay">
+    <div id="message-modal" class="modal-overlay" onclick="if(event.target===this) closeModal('message-modal')">
         <div class="glass-panel modal-content">
-            <div class="modal-header"><h3>إنشاء رسالة</h3><button class="close-btn" onclick="closeModal('message-modal')">&times;</button></div>
+            <div class="modal-header"><h3>إنشاء رسالة</h3></div>
             <input type="hidden" id="msg-id" value="0">
             <div class="form-group"><label>العنوان</label><input type="text" id="msg-title"></div>
             <div class="form-group"><label>المحتوى</label><textarea id="msg-body" rows="3"></textarea></div>
@@ -1799,9 +1893,9 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
     </div>
 
     <!-- Billing Modal -->
-    <div id="billing-modal" class="modal">
+    <div id="billing-modal" class="modal" onclick="if(event.target===this) closeModal('billing-modal')">
         <div class="modal-content" style="max-width: 400px;">
-            <div class="modal-header"><h3>إعدادات اشتراك السيرفر</h3><button class="close-btn" onclick="closeModal('billing-modal')">&times;</button></div>
+            <div class="modal-header"><h3>إعدادات اشتراك السيرفر</h3></div>
             <div class="form-group"><label>مزود الخدمة</label><input type="text" id="billing-provider" placeholder="مثال: DigitalOcean"></div>
             <div class="form-group"><label>التكلفة الشهرية ($)</label><input type="number" step="0.01" id="billing-cost" placeholder="مثال: 45.00"></div>
             <div class="form-group"><label>تاريخ التجديد القادم</label><input type="date" id="billing-renewal"></div>
@@ -1812,9 +1906,9 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
 
     
     <!-- Ads Modal -->
-    <div id="ad-modal" class="modal-overlay">
+    <div id="ad-modal" class="modal-overlay" onclick="if(event.target===this) closeModal('ad-modal')">
         <div class="glass-panel modal-content">
-            <div class="modal-header"><h3>إضافة إعلان</h3><button class="close-btn" onclick="closeModal('ad-modal')">&times;</button></div>
+            <div class="modal-header"><h3>إضافة إعلان</h3></div>
             <div class="form-group">
                 <label>صورة الإعلان</label>
                 <div style="font-size: 0.85rem; color: #fbbf24; margin-bottom: 8px; background: rgba(251,191,36,0.1); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(251,191,36,0.2); line-height: 1.6;">
@@ -1845,7 +1939,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
     </div>
     
     <!-- Admin WhatsApp Modal -->
-    <div id="admin-wa-modal" class="modal-overlay">
+    <div id="admin-wa-modal" class="modal-overlay" onclick="if(event.target===this) closeModal('admin-wa-modal')">
         <div class="glass-panel modal-content" style="max-width: 400px; text-align: center;">
             <div class="modal-header">
                 <h3 style="color:#25d366; margin: 0; display: flex; align-items: center; justify-content: center; gap: 8px;">
@@ -1854,7 +1948,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     </svg>
                     ربط واتساب الإدارة العامة
                 </h3>
-                <button class="close-btn" onclick="closeModal('admin-wa-modal')">&times;</button>
+                
             </div>
             <div class="form-group" style="margin-top: 15px;">
                 <p id="admin-wa-status-text" style="font-weight: bold; color: #fff; margin-bottom: 10px;">جاري فحص الاتصال...</p>
@@ -4257,6 +4351,14 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 const data = await res.json();
                 if(data) {
                     document.getElementById('global-exchange-rate').value = data.rate || 1.0;
+                    if(data.other_rates) {
+                        document.getElementById('global-exchange-sar').value = data.other_rates.SAR || '';
+                        document.getElementById('global-exchange-aed').value = data.other_rates.AED || '';
+                        document.getElementById('global-exchange-eur').value = data.other_rates.EUR || '';
+                    }
+                    if(data.pricing_method) {
+                        document.getElementById('global-pricing-method').value = data.pricing_method;
+                    }
                     document.getElementById('global-exchange-visible').checked = data.visible === true || data.visible === 1;
                     if(data.activation_delay_hours !== undefined) {
                         document.getElementById('global-activation-delay').value = data.activation_delay_hours;
@@ -4288,6 +4390,10 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
 
         async function saveGlobalSettings() {
             const rate = document.getElementById('global-exchange-rate').value;
+            const sar = document.getElementById('global-exchange-sar').value;
+            const aed = document.getElementById('global-exchange-aed').value;
+            const eur = document.getElementById('global-exchange-eur').value;
+            const pricing_method = document.getElementById('global-pricing-method').value;
             const visible = document.getElementById('global-exchange-visible').checked;
             const activation_delay_hours = document.getElementById('global-activation-delay').value;
             const auto_logout_value = document.getElementById('global-auto-logout-value').value;
@@ -4296,12 +4402,12 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
             try {
                 const res = await fetch(apiUrl('saas', 'settings', 'exchange-rate'), {
                     method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
-                    body: JSON.stringify({ rate, visible, activation_delay_hours, auto_logout_value, auto_logout_unit })
+                    body: JSON.stringify({ rate, other_rates: { SAR: sar, AED: aed, EUR: eur }, pricing_method, visible, activation_delay_hours, auto_logout_value, auto_logout_unit })
                 });
                 autoLogoutValue = parseInt(auto_logout_value);
                 autoLogoutUnit = auto_logout_unit;
                 resetAutoLogout();
-                alert('تم حفظ الإعدادات');
+                alert('تم حفظ الإعدادات بنجاح');
             } catch(e) {}
         }
 
