@@ -945,7 +945,7 @@ JSON.parse = function(val) {
             syncChannel.postMessage({ type: 'SYNC_KEY', tenantKey: tenantKey, value: value });
 
             // Save asynchronously to IndexedDB
-            localforage.setItem(tenantKey, value);
+            if (typeof localforage !== 'undefined') localforage.setItem(tenantKey, value);
 
             // Always save to original localStorage as a robust synchronous fallback for WebKit/iOS
             try {
@@ -1196,7 +1196,7 @@ JSON.parse = function(val) {
             
             // Remove from proxy, IndexedDB, and localStorage
             delete window.DB_STORE[tenantKey];
-            localforage.removeItem(tenantKey);
+            if (typeof localforage !== 'undefined') localforage.removeItem(tenantKey);
             originalRemoveItem.call(localStorage, tenantKey);
             originalRemoveItem.call(localStorage, key); // Also clear non-prefixed if exists
         } else {
@@ -1526,7 +1526,7 @@ JSON.parse = function(val) {
 
                                 const valStr = typeof finalVal === 'string' ? finalVal : JSON.stringify(finalVal);
                                 window.DB_STORE[pk] = valStr;
-                                localforage.setItem(pk, valStr).catch(e=>{});
+                                if (typeof localforage !== 'undefined') localforage.setItem(pk, valStr).catch(e=>{});
                                 try { localSetItem(pk, valStr); } catch(e){}
                             } else {
                                 console.log(`Skipping overwrite of ${key}: server sent empty data but local has data.`);
@@ -2308,12 +2308,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
     injectSidebar();
 
-    // --- Navigation Transition: Instant fade overlay on page leave ---
+    // --- Navigation Transition: Use the static overlay from header.php ---
     (function() {
-        const overlay = document.createElement('div');
-        overlay.id = 'nav-transition-overlay';
-        overlay.style.cssText = 'position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(3,4,9,0.92);z-index:999999;opacity:0;pointer-events:none;transition:opacity 0.15s ease;';
-        document.body.appendChild(overlay);
+        const overlay = document.getElementById('nav-transition-overlay');
+        if (!overlay) return;
+        
+        // Fade out the loading overlay now that sidebar is ready
+        requestAnimationFrame(() => {
+            overlay.classList.add('loaded');
+        });
 
         // Show overlay instantly when navigating away
         document.querySelectorAll('.sidebar-item[data-href], a[href]').forEach(link => {
@@ -2321,16 +2324,14 @@ document.addEventListener('DOMContentLoaded', () => {
                 const href = link.getAttribute('data-href') || link.getAttribute('href');
                 const currentUrl = typeof currentPage !== 'undefined' ? currentPage : window.location.pathname.split('/').pop();
                 if (href && !href.startsWith('#') && !href.startsWith('javascript') && href !== currentUrl) {
-                    overlay.style.opacity = '1';
-                    overlay.style.pointerEvents = 'all';
+                    overlay.classList.remove('loaded');
                 }
             });
         });
 
         // Hide overlay when arriving at new page (back/forward navigation)
         window.addEventListener('pageshow', () => {
-            overlay.style.opacity = '0';
-            overlay.style.pointerEvents = 'none';
+            overlay.classList.add('loaded');
         });
     })();
 

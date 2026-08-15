@@ -2978,6 +2978,32 @@
     <script defer src="js/direct-sales-v3.js?v=<?php echo time(); ?>"></script>
 
     <script>
+        // Fallback definitions for fmtNum/parseNum in case direct-sales-v3.js hasn't loaded yet
+        if (typeof window.fmtNum !== 'function') {
+            window.fmtNum = function(val) {
+                const n = parseFloat(val) || 0;
+                if (n === 0) return '0';
+                let decimals = 2;
+                try {
+                    const stored = localStorage.getItem('erp_grid_customizer_v1');
+                    if (stored) {
+                        const settings = JSON.parse(stored);
+                        if (settings.decimalPlaces !== undefined) decimals = parseInt(settings.decimalPlaces);
+                    }
+                } catch(e) {}
+                return n.toLocaleString('en-US', { minimumFractionDigits: decimals, maximumFractionDigits: decimals });
+            };
+        }
+        if (typeof window.parseNum !== 'function') {
+            window.parseNum = function(val) {
+                if (!val) return 0;
+                return parseFloat(String(val).replace(/,/g, '')) || 0;
+            };
+        }
+        // Make them globally accessible for inline HTML onblur handlers
+        var fmtNum = window.fmtNum;
+        var parseNum = window.parseNum;
+
         // Sales Hub Logic
         let currentSalesView = 'hub'; // 'hub' or 'editor'
         let hubCurrentPage = 1;

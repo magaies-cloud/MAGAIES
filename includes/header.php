@@ -35,6 +35,18 @@
     });
 </script>
 <style>
+    #nav-transition-overlay {
+        position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+        background: rgba(3,4,9,0.95); z-index: 999999;
+        opacity: 1; pointer-events: all;
+        transition: opacity 0.25s ease;
+    }
+    #nav-transition-overlay.loaded {
+        opacity: 0; pointer-events: none;
+    }
+</style>
+<div id="nav-transition-overlay"></div>
+<style>
 @keyframes neonPulseHeader {
     0% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.2), inset 0 0 10px rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.3); }
     50% { box-shadow: 0 0 35px rgba(168, 85, 247, 0.5), inset 0 0 20px rgba(168, 85, 247, 0.25); border-color: rgba(192, 132, 252, 0.8); }
