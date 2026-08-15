@@ -3836,26 +3836,26 @@ function addBankTransferRow(existingData = null) {
     const isFirst = container.children.length === 0;
     
     const labelHtml = isFirst 
-        ? `<div style="width: 65px; min-width: 65px; display: flex; align-items: center; justify-content: flex-start; color: #fff; font-weight: bold; font-size: 0.95rem; gap: 4px;"><span>🏦</span> بنكي</div>`
-        : `<div style="width: 65px; min-width: 65px;"></div>`;
+        ? `<div style="display: flex; align-items: center; justify-content: flex-start; color: #fff; font-weight: bold; font-size: 0.95rem; gap: 4px;"><span>🏦</span> بنكي</div>`
+        : `<div></div>`;
 
     const actionBtn = isFirst
         ? `<button type="button" onclick="addBankTransferRow()" style="background: transparent; border: 1.5px solid #06b6d4; color: #06b6d4; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; padding: 0; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(6,182,212,0.1)'" onmouseout="this.style.background='transparent'">+</button>`
         : `<button type="button" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: transparent; border: 1.5px solid #ef4444; color: #ef4444; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; padding: 0; padding-bottom: 2px; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.background='transparent'">×</button>`;
 
-    const inputStyle = "background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 42px; outline: none; padding: 0 8px;";
-    const amountStyle = "background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; text-align: center; font-size: 1.4rem; font-weight: 700; color: #cbd5e1; height: 42px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif;";
+    const inputStyle = "background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 6px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 42px; outline: none; padding: 0 8px; width: 100%;";
+    const amountStyle = "background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 6px; text-align: center; font-size: 1.4rem; font-weight: 700; color: #38bdf8 !important; height: 42px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%;";
 
     const rowHtml = `
-        <div class="payment-row-item" id="${rowId}" style="display: flex; gap: 8px; align-items: center; width: 100%; flex-wrap: nowrap; margin-bottom: 6px;">
+        <div class="payment-row-item" id="${rowId}" style="display: grid; grid-template-columns: 85px 1.5fr 1.2fr 1.2fr 2fr 30px; gap: 8px; align-items: center; width: 100%; margin-bottom: 6px;">
             ${labelHtml}
-            <input type="number" class="v-input ctrl-input bt-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : ''}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="${amountStyle} flex: 1.5; min-width: 120px;">
-            <select class="v-input ctrl-input bt-bank-select" style="${inputStyle} flex: 1.2; min-width: 100px;">
+            <input type="number" class="v-input ctrl-input bt-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : ''}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="${amountStyle}">
+            <select class="v-input ctrl-input bt-bank-select" style="${inputStyle}">
                 ${banksHtml}
             </select>
-            <input type="text" maxlength="14" class="v-input ctrl-input bt-ref-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || existingData?.reference || ''}" placeholder="رقم التحويلة" style="${inputStyle} flex: 1.2; min-width: 100px;">
-            <input type="text" class="v-input ctrl-input bt-note-input" value="${existingData?.notes || ''}" placeholder="بيان التحويل" style="${inputStyle} flex: 2; min-width: 160px;">
-            <div style="display: flex; justify-content: center; align-items: center; width: 30px; min-width: 30px; flex: none;">
+            <input type="text" maxlength="14" class="v-input ctrl-input bt-ref-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || existingData?.reference || ''}" placeholder="رقم التحويلة" style="${inputStyle}">
+            <input type="text" class="v-input ctrl-input bt-note-input" value="${existingData?.notes || ''}" placeholder="بيان التحويل" style="${inputStyle}">
+            <div style="display: flex; justify-content: center; align-items: center; width: 100%;">
                 ${actionBtn}
             </div>
         </div>
@@ -3885,27 +3885,27 @@ function addChequeRow(existingData = null) {
     const isFirst = container.children.length === 0;
 
     const labelHtml = isFirst 
-        ? `<div style="width: 65px; min-width: 65px; display: flex; align-items: center; justify-content: flex-start; color: #fff; font-weight: bold; font-size: 0.95rem; gap: 4px;"><span>✍️</span> شيك</div>`
-        : `<div style="width: 65px; min-width: 65px;"></div>`;
+        ? `<div style="display: flex; align-items: center; justify-content: flex-start; color: #fff; font-weight: bold; font-size: 0.95rem; gap: 4px;"><span>✍️</span> شيك</div>`
+        : `<div></div>`;
 
     const actionBtn = isFirst
         ? `<button type="button" onclick="addChequeRow()" style="background: transparent; border: 1.5px solid #a855f7; color: #a855f7; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; padding: 0; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(168,85,247,0.1)'" onmouseout="this.style.background='transparent'">+</button>`
         : `<button type="button" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: transparent; border: 1.5px solid #ef4444; color: #ef4444; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; padding: 0; padding-bottom: 2px; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.background='transparent'">×</button>`;
 
-    const inputStyle = "background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 42px; outline: none; padding: 0 8px;";
-    const amountStyle = "background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; text-align: center; font-size: 1.4rem; font-weight: 700; color: #cbd5e1; height: 42px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif;";
+    const inputStyle = "background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 6px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 42px; outline: none; padding: 0 8px; width: 100%;";
+    const amountStyle = "background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 6px; text-align: center; font-size: 1.4rem; font-weight: 700; color: #c084fc !important; height: 42px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%;";
 
     const rowHtml = `
-        <div class="payment-row-item" id="${rowId}" style="display: flex; gap: 8px; align-items: center; width: 100%; flex-wrap: nowrap; margin-bottom: 6px;">
+        <div class="payment-row-item" id="${rowId}" style="display: grid; grid-template-columns: 85px 1.5fr 1.2fr 1.2fr 1fr 1fr 30px; gap: 8px; align-items: center; width: 100%; margin-bottom: 6px;">
             ${labelHtml}
-            <input type="number" class="v-input ctrl-input ch-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : ''}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="${amountStyle} flex: 1.5; min-width: 120px;">
-            <select class="v-input ctrl-input ch-bank-select" style="${inputStyle} flex: 1.2; min-width: 100px;">
+            <input type="number" class="v-input ctrl-input ch-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : ''}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="${amountStyle}">
+            <select class="v-input ctrl-input ch-bank-select" style="${inputStyle}">
                 ${banksHtml}
             </select>
-            <input type="text" maxlength="14" class="v-input ctrl-input ch-no-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || ''}" placeholder="رقم الشيك" style="${inputStyle} flex: 1.2; min-width: 100px;">
-            <input type="date" class="v-input ctrl-input ch-date-input" value="${existingData?.dueDate || today}" placeholder="mm/dd/yyyy" style="${inputStyle} flex: 1; min-width: 100px;">
-            <input type="text" class="v-input ctrl-input bt-note-input" value="${existingData?.notes || ''}" placeholder="بيان الشيك" style="${inputStyle} flex: 1; min-width: 100px;">
-            <div style="display: flex; justify-content: center; align-items: center; width: 30px; min-width: 30px; flex: none;">
+            <input type="text" maxlength="14" class="v-input ctrl-input ch-no-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || ''}" placeholder="رقم الشيك" style="${inputStyle}">
+            <input type="date" class="v-input ctrl-input ch-date-input" value="${existingData?.dueDate || today}" placeholder="mm/dd/yyyy" style="${inputStyle}">
+            <input type="text" class="v-input ctrl-input bt-note-input" value="${existingData?.notes || ''}" placeholder="بيان الشيك" style="${inputStyle}">
+            <div style="display: flex; justify-content: center; align-items: center; width: 100%;">
                 ${actionBtn}
             </div>
         </div>

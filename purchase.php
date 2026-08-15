@@ -1994,25 +1994,25 @@
                         </div>
 
                         <!-- Cash payment box (Visible by default) -->
-                        <div id="pay-cash-section" style="background: #061f14; border: 1.5px solid #065f46; border-radius: 8px; padding: 10px; margin-bottom: 10px; display: flex; flex-direction: column; width: 100%;">
-                            <div class="payment-row-item" style="display: flex; gap: 8px; align-items: center; width: 100%; flex-wrap: nowrap; margin-bottom: 0px;">
-                                <div style="width: 65px; min-width: 65px; display: flex; align-items: center; justify-content: flex-start; color: #fff; font-weight: bold; font-size: 0.95rem; gap: 4px;"><span>💵</span> كاش</div>
-                                <input type="number" class="v-input ctrl-input dynamic-focus-input dynamic-focus-amount" id="pay-cash-amount" value="0.00" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; text-align: center; font-size: 1.4rem; font-weight: 700; color: #34d399 !important; height: 42px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; flex: 1.5; min-width: 120px;">
-                                <select class="v-input ctrl-input" id="hdr-payment-account" style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 42px; outline: none; padding: 0 8px; flex: 1.2; min-width: 100px;">
+                        <div id="pay-cash-section" style="background: rgba(16, 185, 129, 0.12); border: 1.5px solid rgba(16, 185, 129, 0.4); box-shadow: 0 4px 20px rgba(16, 185, 129, 0.08); border-radius: 8px; padding: 10px; margin-bottom: 10px; display: flex; flex-direction: column; width: 100%;">
+                            <div class="payment-row-item" style="display: grid; grid-template-columns: 85px 1.5fr 1.2fr 1.2fr 2fr 30px; gap: 8px; align-items: center; width: 100%; margin-bottom: 0px;">
+                                <div style="display: flex; align-items: center; justify-content: flex-start; color: #fff; font-weight: bold; font-size: 0.95rem; gap: 4px;"><span>💵</span> كاش</div>
+                                <input type="number" class="v-input ctrl-input dynamic-focus-input dynamic-focus-amount" id="pay-cash-amount" value="0.00" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; text-align: center; font-size: 1.4rem; font-weight: 700; color: #34d399 !important; height: 42px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%;">
+                                <select class="v-input ctrl-input" id="hdr-payment-account" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 42px; outline: none; padding: 0 8px; width: 100%;">
                                 </select>
-                                <input type="text" class="v-input ctrl-input" id="pay-cash-ref" placeholder="رقم المرجع" style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 42px; outline: none; padding: 0 8px; flex: 1.2; min-width: 100px;">
-                                <input type="text" class="v-input ctrl-input" id="pay-cash-note" placeholder="الملحوظة" style="background: #0f172a; border: 1px solid #1e293b; border-radius: 6px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 42px; outline: none; padding: 0 8px; flex: 2; min-width: 160px;">
-                                <div style="display: flex; justify-content: center; align-items: center; width: 30px; min-width: 30px; flex: none;"></div>
+                                <input type="text" class="v-input ctrl-input" id="pay-cash-ref" placeholder="رقم المرجع" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 42px; outline: none; padding: 0 8px; width: 100%;">
+                                <input type="text" class="v-input ctrl-input" id="pay-cash-note" placeholder="الملحوظة" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 42px; outline: none; padding: 0 8px; width: 100%;">
+                                <div></div>
                             </div>
                         </div>
 
                         <!-- Bank Transfers box -->
-                        <div id="pay-bank-section" style="display: none; flex-direction: column; background: #0b1520; border: 1.5px solid #085a70; border-radius: 8px; padding: 10px; margin-bottom: 10px; width: 100%;">
+                        <div id="pay-bank-section" style="display: none; flex-direction: column; background: rgba(14, 165, 233, 0.12); border: 1.5px solid rgba(14, 165, 233, 0.4); box-shadow: 0 4px 20px rgba(14, 165, 233, 0.08); border-radius: 8px; padding: 10px; margin-bottom: 10px; width: 100%;">
                             <div id="bank-transfers-list" style="display: flex; flex-direction: column; gap: 0px; width: 100%;"></div>
                         </div>
 
                         <!-- Cheques box -->
-                        <div id="pay-cheque-section" style="display: none; flex-direction: column; background: #130a21; border: 1.5px solid #432168; border-radius: 8px; padding: 10px; margin-bottom: 10px; width: 100%;">
+                        <div id="pay-cheque-section" style="display: none; flex-direction: column; background: rgba(168, 85, 247, 0.12); border: 1.5px solid rgba(168, 85, 247, 0.4); box-shadow: 0 4px 20px rgba(168, 85, 247, 0.08); border-radius: 8px; padding: 10px; margin-bottom: 10px; width: 100%;">
                             <div id="cheques-list" style="display: flex; flex-direction: column; gap: 0px; width: 100%;"></div>
                         </div>
                     </div>
