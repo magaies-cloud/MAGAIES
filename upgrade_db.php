@@ -1,10 +1,9 @@
 <?php
 // Script to automatically upgrade the live database schema
-require_once 'api/config/database.php';
-require_once 'api/models/Tenant.php';
+require_once 'api/db.php';
 
 try {
-    $db = Database::getInstance()->getConnection();
+    $db = getDB();
     
     // Check if base_currency exists in tenants table
     $stmt = $db->query("SHOW COLUMNS FROM tenants LIKE 'base_currency'");
