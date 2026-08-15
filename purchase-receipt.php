@@ -682,6 +682,39 @@
             usersDb = loadKey('erp_users_v1');
             if(warehousesDb.length === 0) warehousesDb = [{ id:'w-main', name:'المخزن الرئيسي' }];
 
+            // Auto-migrate and fix any old GRN sequences or duplicates
+            if (!localStorage.getItem('grns_renumbered_clean_z2')) {
+                let allGrns = allPurchases.filter(p => p.isGRN);
+                if (allGrns.length > 0) {
+                    allGrns.sort((a,b) => new Date(a.date).getTime() - new Date(b.date).getTime());
+                    let c = {};
+                    let changed = false;
+                    allGrns.forEach(grn => {
+                        const d = new Date(grn.date);
+                        if(isNaN(d.getTime())) return;
+                        const yy = d.getFullYear().toString().slice(-2);
+                        const mm = (d.getMonth() + 1).toString().padStart(2, '0');
+                        const prefix = `Z${yy}${mm}`;
+                        if (!c[prefix]) c[prefix] = 0;
+                        const newId = prefix + c[prefix].toString().padStart(5, '0');
+                        c[prefix]++;
+                        
+                        if (grn.id !== newId) {
+                            const idx = allPurchases.findIndex(x => x.id === grn.id);
+                            if (idx > -1) {
+                                allPurchases[idx].id = newId;
+                                changed = true;
+                            }
+                        }
+                    });
+                    if (changed) {
+                        localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+                        if (typeof window.pushToCloud === 'function') window.pushToCloud(true);
+                    }
+                }
+                localStorage.setItem('grns_renumbered_clean_z2', 'true');
+            }
+
             populateWarehouseSelect();
             calculatePendingGoods();
             renderPendingInvoices();
@@ -1105,7 +1138,7 @@
             const prefix = `Z${yy}${mm}`;
             
             let maxSeq = -1;
-            if (window.allPurchases) {
+            if (typeof allPurchases !== 'undefined' && allPurchases) {
                 allPurchases.forEach(p => {
                     if (p.isGRN && p.id && p.id.startsWith(prefix)) {
                         const seqStr = p.id.substring(prefix.length);
