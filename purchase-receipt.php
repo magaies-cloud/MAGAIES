@@ -362,6 +362,72 @@
         <div class="orb orb-2"></div>
         <div class="orb orb-3"></div>
     </div>
+<style>
+/* Custom Switch from User Uiverse */
+.uiverse-switch {
+  position: relative;
+  display: inline-block;
+  margin: 5px 15px;
+}
+
+.uiverse-switch input {
+  top: 0; right: 0; bottom: 0; left: 0; opacity: 0; z-index: 100; position: absolute; width: 100%; height: 100%; cursor: pointer;
+}
+
+.uiverse-switch.demo3 {
+  width: 210px;
+  height: 42px;
+}
+
+.uiverse-switch.demo3 label {
+  display: block; width: 100%; height: 100%; background: #d8ba5f; border-radius: 50px;
+  box-shadow: inset 0 4px 8px 2px rgba(248, 6, 6, 0.2), 0 1px 0 rgba(255, 255, 255, 0.5);
+  transition: all 0.4s ease;
+}
+
+.uiverse-switch.demo3 label:after {
+  content: ""; position: absolute; z-index: -1; top: -6px; right: -6px; bottom: -6px; left: -6px;
+  border-radius: inherit; background: #ababab; background: linear-gradient(#f2f2f2, #ababab);
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.3), 0 1px 1px rgba(0, 0, 0, 0.25);
+}
+
+.uiverse-switch.demo3 label:before {
+  content: ""; position: absolute; z-index: -1; top: -12px; right: -12px; bottom: -12px; left: -12px;
+  border-radius: inherit; background: #eee; background: linear-gradient(#e5e7e6, #eee);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.5); filter: blur(1px);
+}
+
+.uiverse-switch.demo3 label i {
+  display: block; height: 100%; width: 45%; border-radius: inherit; background: silver;
+  position: absolute; z-index: 2; right: 55%; top: 0; background: linear-gradient(#f7f2f6, #b2ac9e);
+  box-shadow: inset 0 1px 0 white, 0 0 8px rgba(0, 0, 0, 0.3), 0 5px 5px rgba(0, 0, 0, 0.2);
+  transition: all 0.4s ease;
+}
+
+.uiverse-switch.demo3 label i:after {
+  content: ""; position: absolute; left: 15%; top: 25%; width: 70%; height: 50%;
+  background: #d2cbc3; background: linear-gradient(#cbc7bc, #d2cbc3); border-radius: inherit;
+}
+
+.uiverse-switch.demo3 label i:before {
+  content: "قيد الاستلام"; text-transform: uppercase; font-style: normal; font-weight: bold;
+  color: rgba(0, 0, 0, 0.6); text-shadow: 0 1px 0 #bcb8ae, 0 -1px 0 #97958e;
+  font-family: 'Tajawal', Helvetica, Arial, sans-serif; font-size: 15px; position: absolute;
+  top: 50%; margin-top: -11px; right: -115%; transition: all 0.4s ease;
+}
+
+.uiverse-switch.demo3 input:checked ~ label {
+  background: #9abb82;
+}
+
+.uiverse-switch.demo3 input:checked ~ label i {
+  right: -1%;
+}
+
+.uiverse-switch.demo3 input:checked ~ label i:before {
+  content: "مستلم"; right: 135%; color: #82a06a; text-shadow: 0 1px 0 #afcb9b, 0 -1px 0 #111311;
+}
+</style>
 
     <div class="dash-main">
         <?php $header_theme_class = 'header-theme-purchase'; ?>
@@ -374,7 +440,10 @@
                 <div class="neo-card-title" style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: space-between; align-items: center;">
                     <div style="display: flex; gap: 15px; align-items: center;">
                         <span id="hub-title-text">⏳ فواتير تحتوي على بضاعة قيد الاستلام</span>
-                        <button id="btn-toggle-hub" class="btn-action" style="padding: 6px 15px; font-size: 0.85rem; background: linear-gradient(135deg, #3b82f6, #2563eb); border-radius: 8px; transition: all 0.3s ease;" onclick="toggleHubView()">📜 الفواتير المستلمة</button>
+                        <div class="uiverse-switch demo3">
+                            <input type="checkbox" id="uiverse-toggle" onchange="toggleHubViewBySwitch(this.checked)">
+                            <label><i></i></label>
+                        </div>
                     </div>
                     <input type="text" id="search-inv" class="v-input" placeholder="ابحث برقم الفاتورة أو المورد..." style="width: 300px;" oninput="renderPendingInvoices()">
                 </div>
@@ -536,22 +605,18 @@
         }
 
         let currentHubView = 'pending';
-        function toggleHubView() {
-            if (currentHubView === 'pending') {
+        function toggleHubViewBySwitch(isReceivedView) {
+            if (isReceivedView) {
                 currentHubView = 'received';
                 document.getElementById('hub-pending-container').style.display = 'none';
                 document.getElementById('hub-received-container').style.display = 'block';
                 document.getElementById('hub-title-text').innerHTML = '📜 أذونات الاستلام (الفواتير المستلمة)';
-                document.getElementById('btn-toggle-hub').innerHTML = '⏳ فواتير قيد الاستلام';
-                document.getElementById('btn-toggle-hub').style.background = 'linear-gradient(135deg, #a855f7, #7e22ce)';
                 renderRecentGRNs();
             } else {
                 currentHubView = 'pending';
                 document.getElementById('hub-pending-container').style.display = 'block';
                 document.getElementById('hub-received-container').style.display = 'none';
                 document.getElementById('hub-title-text').innerHTML = '⏳ فواتير تحتوي على بضاعة قيد الاستلام';
-                document.getElementById('btn-toggle-hub').innerHTML = '📜 الفواتير المستلمة';
-                document.getElementById('btn-toggle-hub').style.background = 'linear-gradient(135deg, #3b82f6, #2563eb)';
             }
         }
 
