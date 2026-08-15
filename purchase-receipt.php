@@ -371,30 +371,43 @@
         <div class="view-container active" id="view-hub">
 
             <div class="neo-card">
-                <div class="neo-card-title">
-                    <span>⏳ فواتير تحتوي على بضاعة قيد الاستلام</span>
+                <div class="neo-card-title" style="display: flex; flex-wrap: wrap; gap: 15px; justify-content: space-between; align-items: center;">
+                    <div style="display: flex; gap: 15px; align-items: center;">
+                        <span id="hub-title-text">⏳ فواتير تحتوي على بضاعة قيد الاستلام</span>
+                        <button id="btn-toggle-hub" class="btn-action" style="padding: 6px 15px; font-size: 0.85rem; background: linear-gradient(135deg, #10b981, #059669); border-radius: 8px;" onclick="toggleHubView()">📜 الفواتير المستلمة</button>
+                    </div>
                     <input type="text" id="search-inv" class="v-input" placeholder="ابحث برقم الفاتورة أو المورد..." style="width: 300px;" oninput="renderPendingInvoices()">
                 </div>
                 
-                <div class="grid-scroll-wrap">
-                    <table class="pos-grid">
-                        <thead>
-                            <tr>
-                                <th style="text-align:right;">رقم الفاتورة الأصلي</th>
-                                <th style="text-align:right;">التاريخ</th>
-                                <th style="text-align:right;">المورد</th>
-                                <th style="text-align:center;">إجمالي الأصناف المعلقة</th>
-                                <th style="text-align:center;">إجراء</th>
-                            </tr>
-                        </thead>
-                        <tbody id="invoices-tbody">
-                            <!-- Populated by JS -->
-                        </tbody>
-                    </table>
-                    <div class="empty-state" id="empty-hub" style="display: none;">
-                        <div class="icon">✨</div>
-                        <h2>لا توجد بضاعة قيد الاستلام</h2>
-                        <p>جميع مشترياتك تم استلامها بالكامل وتم إدخالها في المخازن الفعلية.</p>
+                <div id="hub-pending-container">
+                    <div class="grid-scroll-wrap">
+                        <table class="pos-grid">
+                            <thead>
+                                <tr>
+                                    <th style="text-align:right;">رقم الفاتورة الأصلي</th>
+                                    <th style="text-align:right;">التاريخ</th>
+                                    <th style="text-align:right;">المورد</th>
+                                    <th style="text-align:center;">إجمالي الأصناف المعلقة</th>
+                                    <th style="text-align:center;">إجراء</th>
+                                </tr>
+                            </thead>
+                            <tbody id="invoices-tbody">
+                                <!-- Populated by JS -->
+                            </tbody>
+                        </table>
+                        <div class="empty-state" id="empty-hub" style="display: none;">
+                            <div class="icon">✨</div>
+                            <h2>لا توجد بضاعة قيد الاستلام</h2>
+                            <p>جميع مشترياتك تم استلامها بالكامل وتم إدخالها في المخازن الفعلية.</p>
+                        </div>
+                    </div>
+                </div>
+
+                <div id="hub-received-container" style="display: none;">
+                    <div class="grid-scroll-wrap" style="padding-top: 15px;">
+                        <div id="recent-grns-container" style="overflow-x: auto;">
+                            <!-- Populated dynamically by JS -->
+                        </div>
                     </div>
                 </div>
             </div>
@@ -486,15 +499,7 @@
                 </div>
             </div>
 
-            <!-- Recent Operations / Receipts History (Full Width!) -->
-            <div class="recent-receipts-card" style="background: rgba(30, 41, 59, 0.4); border: 1px solid rgba(255,255,255,0.05); padding: 15px 20px; border-radius: 16px; display: flex; flex-direction: column; gap: 10px; width: 100%;">
-                <h3 style="margin-top: 0; color: #fff; font-size: 0.95rem; margin-bottom: 5px; display: flex; align-items: center; gap: 8px;">
-                    <span>🕒</span> سجل عمليات الاستلام الأخيرة لهذه الفاتورة
-                </h3>
-                <div id="recent-grns-container" style="overflow-x: auto; max-height: 250px;">
-                    <!-- Populated dynamically by JS -->
-                </div>
-            </div>
+            <!-- Recent Operations moved to Hub View -->
         </div>
         </div>
     </div>
@@ -529,6 +534,27 @@
             container.appendChild(t);
             setTimeout(() => { t.style.opacity = '0'; setTimeout(()=>t.remove(), 300); }, 3000);
         }
+
+        let currentHubView = 'pending';
+        function toggleHubView() {
+            if (currentHubView === 'pending') {
+                currentHubView = 'received';
+                document.getElementById('hub-pending-container').style.display = 'none';
+                document.getElementById('hub-received-container').style.display = 'block';
+                document.getElementById('hub-title-text').innerHTML = '📜 أذونات الاستلام (الفواتير المستلمة)';
+                document.getElementById('btn-toggle-hub').innerHTML = '⏳ فواتير قيد الاستلام';
+                document.getElementById('btn-toggle-hub').style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+                renderRecentGRNs();
+            } else {
+                currentHubView = 'pending';
+                document.getElementById('hub-pending-container').style.display = 'block';
+                document.getElementById('hub-received-container').style.display = 'none';
+                document.getElementById('hub-title-text').innerHTML = '⏳ فواتير تحتوي على بضاعة قيد الاستلام';
+                document.getElementById('btn-toggle-hub').innerHTML = '📜 الفواتير المستلمة';
+                document.getElementById('btn-toggle-hub').style.background = 'linear-gradient(135deg, #10b981, #059669)';
+            }
+        }
+
 
         function initData() {
             function loadKey(key) {
