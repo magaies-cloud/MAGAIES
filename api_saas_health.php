@@ -215,6 +215,13 @@ if ($cpuLoad > 90 || $ramPercent > 90 || $diskPercent > 95) {
     $statusMessage = 'حمل عالٍ: ' . implode(' | ', $alerts);
 }
 
+// === Active Users (Last 5 mins) ===
+$activeUsers = 0;
+try {
+    $stmt = $pdo->query("SELECT COUNT(*) FROM users WHERE last_active >= DATE_SUB(NOW(), INTERVAL 5 MINUTE)");
+    $activeUsers = intval($stmt->fetchColumn());
+} catch (Exception $e) {}
+
 echo json_encode([
     'success' => true,
     'overall_status' => $overallStatus,
@@ -233,6 +240,7 @@ echo json_encode([
     'db_size' => formatBytes($dbSize),
     'db_tables_count' => $dbTablesCount,
     'active_connections' => $activeConnections,
+    'active_users' => $activeUsers,
     'uptime' => $uptime,
     'network_rx' => formatBytes($rxBytes),
     'network_tx' => formatBytes($txBytes),

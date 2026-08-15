@@ -1470,6 +1470,11 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 <div style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 10px;">الشبكة (تنزيل / رفع)</div>
                 <div style="font-size: 1.3rem; font-weight: 800; color: #f8fafc; font-family: monospace; margin-top: 5px; direction: ltr;" id="health-network">-- / --</div>
             </div>
+
+            <div class="glass-panel" style="padding: 20px; text-align: center; border-top: 3px solid #f59e0b;">
+                <div style="color: #94a3b8; font-size: 0.95rem; margin-bottom: 10px;">المستخدمون النشطون (الآن)</div>
+                <div id="health-active-users" style="font-size: 2rem; font-weight: 800; color: #f8fafc; font-family: monospace;">--</div>
+            </div>
         </div>
         <!-- Server Billing Info -->
         <div class="glass-panel" style="margin-bottom: 20px; padding: 25px; border-right: 4px solid #10b981;">
@@ -4929,9 +4934,11 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                 const dbTablesEl = document.getElementById('health-db-tables');
                 if (dbTablesEl && d.db_tables_count) dbTablesEl.innerText = d.db_tables_count + ' جدول';
                 
-                // Connections
+                // Connections & Users
                 const connEl = document.getElementById('health-connections');
                 if (connEl) connEl.innerText = d.active_connections || '0';
+                const actUsrEl = document.getElementById('health-active-users');
+                if (actUsrEl) actUsrEl.innerText = d.active_users || '0';
                 
                 // Uptime
                 const uptimeEl = document.getElementById('health-uptime');
