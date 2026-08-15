@@ -1,7 +1,4 @@
 <?php
-header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
-header("Cache-Control: post-check=0, pre-check=0", false);
-header("Pragma: no-cache");
 $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
 ?>
 <!DOCTYPE html>
@@ -16,9 +13,6 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="theme-color" content="#050505">
-    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
-    <meta http-equiv="Pragma" content="no-cache">
-    <meta http-equiv="Expires" content="0">
     <title>SaaS Super Admin - مقاييس (MAGAIEES)</title>
     <link rel="stylesheet" href="css/design-system.css?v=20260723_v14">
     <link rel="stylesheet" href="css/theme.css?v=20260723_v14">
