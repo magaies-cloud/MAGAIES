@@ -183,7 +183,7 @@
             transform: translateY(-50%) scale(1.08) !important;
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.35), rgba(59, 130, 246, 0.45)) !important;
             border-color: #38bdf8 !important;
-            box-shadow: 0 8px 25px rgba(56, 189, 248, 0.5), 0 0 15px rgba(16, 185, 129, 0.3), inset 0 2px 4px rgba(255, 255, 255, 0.35) !important;
+            box-shadow: 0 8px 25px rgba(56, 189, 248, 0.5), 0 0 15px rgba(16, 185, 129, 0.6), inset 0 2px 4px rgba(255, 255, 255, 0.35) !important;
             color: #fff !important;
         }
 
@@ -193,7 +193,7 @@
 
         #hdr-customer-ledger-btn:active {
             transform: translateY(-50%) scale(0.96) !important;
-            box-shadow: 0 4px 10px rgba(56, 189, 248, 0.3), inset 0 1px 2px rgba(0, 0, 0, 0.2) !important;
+            box-shadow: 0 4px 10px rgba(56, 189, 248, 0.6), inset 0 1px 2px rgba(0, 0, 0, 0.2) !important;
         }
 
         @keyframes pulseBlueGlow {
@@ -439,7 +439,7 @@
             max-height: 80px;
             opacity: 1;
             padding: 6px 15px;
-            border-color: rgba(56, 189, 248, 0.3);
+            border-color: rgba(56, 189, 248, 0.6);
             margin-bottom: 4px;
         }
         .fin-strip-card {
@@ -666,7 +666,7 @@
         .g-input:focus {
             border-color: #38bdf8 !important;
             background: rgba(15, 23, 42, 0.8) !important;
-            box-shadow: 0 0 8px rgba(56, 189, 248, 0.3);
+            box-shadow: 0 0 8px rgba(56, 189, 248, 0.6);
         }
         .del-btn { width: 26px; height: 26px; font-size: 0.85rem; }
         .row-num {
@@ -983,7 +983,7 @@
         overflow: hidden;
         white-space: nowrap;
         background: linear-gradient(180deg, rgba(15,23,42,0.8), rgba(30,58,138,0.4));
-        border: 1px solid rgba(56, 189, 248, 0.3);
+        border: 1px solid rgba(56, 189, 248, 0.6);
         border-top: 3px solid #38bdf8 !important;
         border-radius: 12px;
         padding: 15px;
@@ -1010,7 +1010,7 @@
     .tot-lbl { font-size: 0.75rem; font-weight: 700; color: #94a3b8; }
     .tot-val { font-size: 0.85rem; font-weight: 900; color: #fff; font-family: 'Outfit', sans-serif; }
     .tot-grand {
-        margin-top: 15px; background: rgba(56, 189, 248, 0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3); box-shadow: 0 0 15px rgba(56,189,248,0.2);
+        margin-top: 15px; background: rgba(56, 189, 248, 0.1); padding: 15px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.6); box-shadow: 0 0 15px rgba(56,189,248,0.2);
         display: flex; justify-content: space-between; align-items: center;
     }
     .tot-grand .lbl { font-size: 0.75rem; font-weight: 900; color: #38bdf8; }
@@ -1018,7 +1018,7 @@
     /* Table Context Menu Styling */
     .grid-context-menu {
         display: none; position: absolute; z-index: 100000; min-width: 200px;
-        background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(56, 189, 248, 0.3);
+        background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(56, 189, 248, 0.6);
         border-radius: 8px; padding: 10px; box-shadow: 0 10px 40px rgba(0,0,0,0.8);
         backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
     }
@@ -1104,7 +1104,7 @@
     }
     .h-form-group:focus-within .h-label {
         color: #38bdf8 !important;
-        text-shadow: 0 0 8px rgba(56, 189, 248, 0.3) !important;
+        text-shadow: 0 0 8px rgba(56, 189, 248, 0.6) !important;
     }
 
     /* Light Mode Controls Override */
@@ -1293,7 +1293,7 @@
             border: 1px solid rgba(14, 165, 233, 0.3) !important; /* Translucent blue border */
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
         }
-        .card-blue .icon { color: #38bdf8; background: rgba(56, 189, 248, 0.08); }
+        .card-blue .icon { color: #38bdf8; background: rgba(56, 189, 248, 0.18); }
         .card-blue .title { color: #38bdf8 !important; }
         .card-blue .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
         .card-blue:hover {
@@ -1318,10 +1318,10 @@
 
         .card-green {
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(4, 120, 87, 0.08)) !important;
-            border: 1px solid rgba(16, 185, 129, 0.3) !important; /* Translucent green border */
+            border: 1px solid rgba(16, 185, 129, 0.6) !important; /* Translucent green border */
             box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.3), inset 0 1px 0 0 rgba(255, 255, 255, 0.1) !important;
         }
-        .card-green .icon { color: #10b981; background: rgba(16, 185, 129, 0.08); }
+        .card-green .icon { color: #10b981; background: rgba(16, 185, 129, 0.18); }
         .card-green .title { color: #10b981 !important; }
         .card-green .subtitle { color: rgba(255, 255, 255, 0.7) !important; }
         .card-green:hover {
@@ -1378,11 +1378,11 @@
             border: 1px solid rgba(16, 185, 129, 0.28) !important; /* Translucent green glassy border */
             box-shadow: 0 8px 32px 0 rgba(16, 185, 129, 0.06), inset 0 1px 0 0 rgba(255, 255, 255, 0.6) !important;
         }
-        :root.light-theme .card-green .icon { color: #059669 !important; background: rgba(16, 185, 129, 0.08) !important; }
+        :root.light-theme .card-green .icon { color: #059669 !important; background: rgba(16, 185, 129, 0.18) !important; }
         :root.light-theme .card-green .title { color: #059669 !important; }
         :root.light-theme .card-green .subtitle { color: rgba(5, 150, 105, 0.8) !important; }
         :root.light-theme .card-green:hover {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.3), rgba(52, 211, 153, 0.1)) !important;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.6), rgba(52, 211, 153, 0.1)) !important;
             border-color: rgba(16, 185, 129, 0.6) !important; /* Glowing green glass border */
             box-shadow: 0 12px 40px 0 rgba(16, 185, 129, 0.22), inset 0 0 15px rgba(16, 185, 129, 0.35), inset 0 1px 0 0 rgba(255, 255, 255, 0.75) !important;
         }
@@ -1615,7 +1615,7 @@
         .ds-top-row textarea.ctrl-input,
         .pro-panel .ctrl-input {
             border: 1px solid #38bdf8 !important;
-            box-shadow: 0 0 3px rgba(56, 189, 248, 0.3) !important;
+            box-shadow: 0 0 3px rgba(56, 189, 248, 0.6) !important;
             background: rgba(30, 41, 59, 0.85) !important;
         }
         .ds-top-row .ctrl-input:focus, 
@@ -1632,15 +1632,15 @@
         #hdr-date {
             border: 1px solid #38bdf8 !important;
             color: #38bdf8 !important;
-            text-shadow: 0 0 5px rgba(56, 189, 248, 0.3) !important;
+            text-shadow: 0 0 5px rgba(56, 189, 248, 0.6) !important;
         }
         #hdr-date-label {
             color: #38bdf8 !important;
-            text-shadow: 0 0 5px rgba(56, 189, 248, 0.3) !important;
+            text-shadow: 0 0 5px rgba(56, 189, 248, 0.6) !important;
         }
         .date-icon-wrap {
             background: rgba(56, 189, 248, 0.1) !important;
-            border: 1px solid rgba(56, 189, 248, 0.3) !important;
+            border: 1px solid rgba(56, 189, 248, 0.6) !important;
         }
 
         .hub-table { width: 100%; border-collapse: separate !important; border-spacing: 0 8px !important; }
@@ -1653,7 +1653,7 @@
             text-align: center !important; 
             position: sticky; top: 0; z-index: 5;
             border-top: 1px solid rgba(56, 189, 248, 0.2) !important;
-            border-bottom: 2px solid rgba(56, 189, 248, 0.3) !important; 
+            border-bottom: 2px solid rgba(56, 189, 248, 0.6) !important; 
             text-transform: uppercase; 
             letter-spacing: 0.5px;
         }
@@ -1674,7 +1674,7 @@
             transition: all 0.3s ease !important;
         }
         .hub-table tbody tr:hover {
-            background: rgba(56, 189, 248, 0.08) !important; 
+            background: rgba(56, 189, 248, 0.18) !important; 
             transform: translateY(-2px) !important; 
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4) !important;
         }
@@ -1766,7 +1766,7 @@
             font-weight: 800 !important;
             color: #38bdf8 !important;
             border-top: 1px solid rgba(56, 189, 248, 0.2) !important;
-            border-bottom: 2px solid rgba(56, 189, 248, 0.3) !important;
+            border-bottom: 2px solid rgba(56, 189, 248, 0.6) !important;
         }
         #split-select-step table.pos-grid thead th:first-child {
             border-radius: 8px 0 0 8px !important;
@@ -1784,7 +1784,7 @@
             transition: all 0.3s ease !important;
         }
         #split-select-step table.pos-grid tbody tr:hover {
-            background: rgba(56, 189, 248, 0.08) !important;
+            background: rgba(56, 189, 248, 0.18) !important;
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(0,0,0,0.4);
         }
@@ -2378,7 +2378,7 @@
                 <!-- Summaries & Actions -->
                 <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 8px;">
                     <!-- Invoice A Card -->
-                    <div class="neo-card" style="border: 1px solid rgba(56, 189, 248, 0.3); background: rgba(56, 189, 248, 0.02); padding: 8px 12px; border-radius: 12px; position: relative; overflow: hidden; margin: 0;">
+                    <div class="neo-card" style="border: 1px solid rgba(56, 189, 248, 0.6); background: rgba(56, 189, 248, 0.02); padding: 8px 12px; border-radius: 12px; position: relative; overflow: hidden; margin: 0;">
                         <div style="position: absolute; top:0; right:0; width:4px; height:100%; background:#38bdf8;"></div>
                         <h4 style="color: #38bdf8; margin: 0 0 8px 0; display: flex; align-items: center; gap: 8px; font-size: 0.95rem;">
                             <span>📄</span> الفاتورة الفرعية الأولى (أ)
@@ -2506,7 +2506,7 @@
 
         <!-- RIGHT: Financial Strip -->
         <div id="fin-strip" class="fin-strip-inline" style="flex: 0; width: 0; opacity: 0; overflow: hidden; transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1); display: flex;">
-            <div style="width: 100%; background: linear-gradient(90deg, rgba(15,23,42,0.4), rgba(30,58,138,0.2)); border: 1px solid rgba(56, 189, 248, 0.3); border-radius: 12px; padding: 4px 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); min-width: auto;">
+            <div style="width: 100%; background: linear-gradient(90deg, rgba(15,23,42,0.4), rgba(30,58,138,0.2)); border: 1px solid rgba(56, 189, 248, 0.6); border-radius: 12px; padding: 4px 12px; display: flex; align-items: center; justify-content: space-between; gap: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.2), inset 0 2px 5px rgba(255,255,255,0.05); min-width: auto;">
                 <div style="display: flex; align-items: center; gap: 6px; flex-shrink: 0;">
                     <span style="font-size: 1.1rem;">📊</span>
                     <div style="display:flex; flex-direction:column;">
@@ -2689,7 +2689,7 @@
                 <div class="grid-scroll-wrap">
                     <table class="pos-grid" id="pos-grid">
                         <thead>
-                            <tr style="background: rgba(15, 23, 42, 0.8); border-bottom: 2px solid rgba(56, 189, 248, 0.3);">
+                            <tr style="background: rgba(15, 23, 42, 0.8); border-bottom: 2px solid rgba(56, 189, 248, 0.6);">
                                 <th data-col-id="0" class="th-num" style="width: 3%;">#</th>
                                 <th data-col-id="1" class="th-item" style="width: 18%;">الصنف</th>
                                 <th data-col-id="2" class="th-unit" style="width: 7%;">الوحدة</th>
@@ -2869,27 +2869,30 @@
                                     <input type="date" class="v-input ctrl-input" id="pay-credit-due-date" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 4px; width: 100%;">
                                 </div>
                                 
-                                <button type="button" class="btn-action" onclick="previewCurrentPromissoryNote()" style="flex: 0.8; min-width: 120px; height: 38px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.3); color: #f59e0b; padding: 0 10px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight: bold; transition: 0.2s;" onmouseover="this.style.background='rgba(245, 158, 11, 0.25)';" onmouseout="this.style.background='rgba(245, 158, 11, 0.15)';">📄 معاينة الكمبيالة</button>
+                                <button type="button" class="btn-action" onclick="previewCurrentPromissoryNote()" style="flex: 0.8; min-width: 120px; height: 38px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.6); color: #f59e0b; padding: 0 10px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight: bold; transition: 0.2s;" onmouseover="this.style.background='rgba(245, 158, 11, 0.25)';" onmouseout="this.style.background='rgba(245, 158, 11, 0.15)';">📄 معاينة الكمبيالة</button>
                             </div>
                         </div>
 
                         <!-- Cash payment box (Visible by default) -->
-                        <div id="pay-cash-section" class="payment-method-box" style="background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.18); border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
-                            <div style="display: flex; align-items: center; gap: 8px; min-width: 200px; width: 200px; flex: none;">
-                                <span style="font-size: 1.2rem;">💵</span>
-                                <span style="font-weight: 800; color: #34d399; font-size: 0.95rem;">الدفع النقدي (كاش)</span>
+                        <div id="pay-cash-section" style="background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.6); border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; flex-direction: column; width: 100%;">
+                            <div style="color: #34d399; font-weight: bold; margin-bottom: 10px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                                <span>💵</span> <span>نقد كاش</span>
                             </div>
-                            <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px;">
-                                <input type="number" class="v-input ctrl-input" id="pay-cash-amount" value="0.00" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ..." style="flex: none; width: 145px; min-width: 145px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; text-align: center; font-size: 1.15rem; font-weight: 800; color: #34d399 !important;">
-                                <select class="v-input ctrl-input" id="hdr-payment-account" style="flex: 1.2; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px;">
-                                    <!-- Populated dynamically -->
+                            <div style="display: flex; gap: 10px; align-items: center; width: 100%;">
+                                <input type="number" class="v-input ctrl-input" id="pay-cash-amount" value="0.00" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; text-align: center; font-size: 1.15rem; font-weight: 800; padding: 0 8px; color: #34d399 !important;">
+                                <select class="v-input ctrl-input" id="hdr-payment-account" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1.1rem; color: #fff; padding: 0 4px;">
                                 </select>
+                                <input type="text" class="v-input ctrl-input" id="pay-cash-ref" placeholder="رقم المرجع" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; text-align: center; font-size: 1.1rem; font-weight: 800; padding: 0 8px; color: #34d399;">
+                                <input type="text" class="v-input ctrl-input" id="pay-cash-note" placeholder="الملحوظة" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1.1rem; color: #fff; padding: 0 8px;">
+                                <div style="width: 40px; min-width: 40px; flex: none;"></div>
                             </div>
                         </div>
 
                         <!-- Bank Transfers box (Toggled off by default) -->
-                        <div id="pay-bank-section" style="display: none; width: 100%;">
-                            <!-- Dynamic bank transfers rows -->
+                        <div id="pay-bank-section" style="display: none; flex-direction: column; background: rgba(56, 189, 248, 0.18); border: 1px solid rgba(56, 189, 248, 0.6); border-radius: 12px; padding: 15px; margin-bottom: 10px; width: 100%;">
+                            <div style="color: #38bdf8; font-weight: bold; margin-bottom: 10px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
+                                <span>💳</span> <span>تحويل بنكي</span>
+                            </div>
                             <div id="bank-transfers-list" style="display: flex; flex-direction: column; gap: 10px; width: 100%;"></div>
                         </div>
 

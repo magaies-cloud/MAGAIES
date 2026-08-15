@@ -61,6 +61,13 @@ function fmtNum(n, colId = null) {
     let separator = prefs.thousandSep !== undefined ? prefs.thousandSep : ',';
     let decimalSep = prefs.decimalSep !== undefined ? prefs.decimalSep : '.';
 
+    // OVERRIDE WITH PER COLUMN SETTINGS if available
+    if (colId && window.CurrentGridConfig && window.CurrentGridConfig[colId]) {
+        const colCfg = window.CurrentGridConfig[colId];
+        if (colCfg.decimals !== undefined && colCfg.decimals !== '') decimals = parseInt(colCfg.decimals);
+        if (colCfg.thousandSep !== undefined && colCfg.thousandSep !== '') separator = colCfg.thousandSep;
+    }
+
     let val = parseFloat(n);
     if (isNaN(val)) val = 0;
 
@@ -270,10 +277,19 @@ function initPurchaseApp() {
 
         populateDropdowns();
         initHeader();
-        renderGrid();
-        recalcAll();
-        initMultiPaymentSystem();
-        if (typeof loadHubTransactions === 'function') loadHubTransactions();
+        if (typeof GridCustomizer !== 'undefined') {
+            GridCustomizer.init('purchase_grid', 'pos-grid', () => {
+                renderGrid();
+                recalcAll();
+                initMultiPaymentSystem();
+                if (typeof loadHubTransactions === 'function') loadHubTransactions();
+            });
+        } else {
+            renderGrid();
+            recalcAll();
+            initMultiPaymentSystem();
+            if (typeof loadHubTransactions === 'function') loadHubTransactions();
+        }
     };
 
     window.refreshAllMasterData();
@@ -1562,20 +1578,23 @@ function renderGridHead() {
 
     thead.innerHTML = `
         <tr>
-            <th style="width: 40px; text-align: center; font-size: 1.05rem;">م</th>
-            <th style="width: 25%; text-align: right; font-size: 1.25rem; font-weight: bold;">الصنف</th>
-            <th style="width: 110px; text-align: center; font-size: 1.25rem; font-weight: bold;">الوحدة</th>
-            <th style="width: 100px; text-align: center; font-size: 1.25rem; font-weight: bold;">الكمية</th>
-            <th style="width: 130px; text-align: center; font-size: 1.25rem; font-weight: bold;" title="الكمية المتوفرة بالمخزن تلقائياً">المتاح</th>
-            <th style="width: 140px; text-align: center; font-size: 1.25rem; font-weight: bold;">${priceHeader}</th>
-            <th style="width: 160px; text-align: center; font-size: 1.25rem; font-weight: bold;">${totalHeader}</th>
-            ${!isBaseSDG ? `<th style="width: 120px; text-align: center; font-size: 1.05rem;">سعر (جنيه)</th><th style="width: 120px; text-align: center; font-size: 1.05rem;">جملة (جنيه)</th>` : ''}
-            <th style="width: 120px; text-align: center; font-size: 1.05rem;">سعر البيع</th>
+            <th data-col-id="col_index" style="width: 40px; text-align: center; font-size: 1.05rem;">م</th>
+            <th data-col-id="available" style="width: 130px; text-align: center; font-size: 1.25rem; font-weight: bold;" title="الكمية المتوفرة بالمخزن تلقائياً">المتاح</th>
+            <th data-col-id="item" style="width: 25%; text-align: right; font-size: 1.25rem; font-weight: bold;">الصنف</th>
+            <th data-col-id="unit" style="width: 110px; text-align: center; font-size: 1.25rem; font-weight: bold;">الوحدة</th>
+            <th data-col-id="quantity" style="width: 100px; text-align: center; font-size: 1.25rem; font-weight: bold;">الكمية</th>
+            <th data-col-id="price" style="width: 140px; text-align: center; font-size: 1.25rem; font-weight: bold;">${priceHeader}</th>
+            <th data-col-id="total" style="width: 160px; text-align: center; font-size: 1.25rem; font-weight: bold;">${totalHeader}</th>
+            ${!isBaseSDG ? `<th data-col-id="fcprice" style="width: 120px; text-align: center; font-size: 1.05rem;">سعر (جنيه)</th><th data-col-id="fctotal" style="width: 120px; text-align: center; font-size: 1.05rem;">جملة (جنيه)</th>` : ''}
             <th style="width: 140px; text-align: center; font-size: 1.05rem;">المخزن</th>
             <th style="width: 120px; text-align: center; font-size: 1.25rem; font-weight: bold;">ملحوظة</th>
             <th style="width: 90px; text-align: center; font-size: 1.05rem;">إجراء</th>
         </tr>
     `;
+    if (typeof GridCustomizer !== 'undefined') {
+        GridCustomizer.attachEvents();
+        GridCustomizer.applyStyles();
+    }
 }
 
 function saveAdvancedColSettings() {
@@ -1724,6 +1743,11 @@ function renderGrid() {
         
         let trHtml = `
             <td style="text-align: center;"><div class="row-num">${idx + 1}</div></td>
+            <td style="text-align: center;">
+                <span class="g-readonly avail-val" data-avail="${row.id}" style="display: inline-block; width: 100%; text-align: center; background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 6px; padding: 5px 2px; font-size: 1.25rem; font-weight: bold; font-family: 'JetBrains Mono', monospace;" title="الكمية المتوفرة حالياً بالمخزن تلقائياً">
+                    ${row.availableQty !== undefined ? fmtNum(row.availableQty, 'available') : '0'}
+                </span>
+            </td>
             <td style="position:relative; text-align: right;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     ${item && item.image ? 
@@ -1753,11 +1777,6 @@ function renderGrid() {
                     onblur="this.value=parseNum(this.value)||''" style="text-align: center; width: 95%; margin: 0 auto; display: block; font-size: 1.25rem; font-weight: bold; color: #facc15;">
             </td>
             <td style="text-align: center;">
-                <span class="g-readonly avail-val" data-avail="${row.id}" style="display: inline-block; width: 100%; text-align: center; background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 6px; padding: 5px 2px; font-size: 1.25rem; font-weight: bold; font-family: 'JetBrains Mono', monospace;" title="الكمية المتوفرة حالياً بالمخزن تلقائياً">
-                    ${row.availableQty !== undefined ? fmtNum(row.availableQty, 'available') : '0'}
-                </span>
-            </td>
-            <td style="text-align: center;">
                 <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price, 'price')}"
                     onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
                     onblur="this.value=fmtNum(parseNum(this.value), 'price')" 
@@ -1776,9 +1795,6 @@ function renderGrid() {
                 <span class="g-readonly total-fc-val" style="color:#10b981; font-size: 1.1rem; font-weight: bold;" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)) * (row.quantity || 0), 'fctotal')}</span>
             </td>
             ` : ''}
-            <td style="text-align: center;">
-                <input type="text" inputmode="decimal" class="g-input" placeholder="0" value="${row.sellPrice !== undefined ? fmtNum(row.sellPrice, 'sell-price') : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'sellPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value), 'sell-price')" style="text-align: center; width: 100%; font-size: 1.05rem; font-weight: 600;">
-            </td>
             <td style="text-align: center;">
                 <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1" style="text-align: center; width: 100%; font-size: 1.05rem;">
                     <option value="">نفس الفاتورة ↩</option>
@@ -1799,7 +1815,6 @@ function renderGrid() {
                 </div>
             </td>
         `;
-
         const tr = document.createElement('tr');
         tr.innerHTML = trHtml;
         tbody.appendChild(tr);
@@ -1889,15 +1904,9 @@ function renderGrid() {
                     <label class="label">ملحوظة</label>
                     <input type="text" class="ctrl-input" placeholder="ملحوظة..." value="${row.note || ''}" oninput="updateRow(${row.id},'note',this.value)">
                 </div>
-                <div style="display:flex; gap:8px;">
-                    <div class="ctrl-group" style="flex:1;">
-                        <label class="label">سعر الشراء</label>
-                        <input type="text" inputmode="decimal" class="ctrl-input" placeholder="0" value="${row.buyPrice !== undefined ? fmtNum(row.buyPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'buyPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))">
-                    </div>
-                    <div class="ctrl-group" style="flex:1;">
-                        <label class="label">سعر البيع</label>
-                        <input type="text" inputmode="decimal" class="ctrl-input" placeholder="0" value="${row.sellPrice !== undefined ? fmtNum(row.sellPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'sellPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))">
-                    </div>
+                <div class="ctrl-group">
+                    <label class="label">سعر الشراء</label>
+                    <input type="text" inputmode="decimal" class="ctrl-input" placeholder="0" value="${row.buyPrice !== undefined ? fmtNum(row.buyPrice) : ''}" onfocus="this.select()" oninput="updateRow(${row.id},'buyPrice',this.value)" onblur="this.value=fmtNum(parseNum(this.value))">
                 </div>
             </div>
             <div class="m-card-total" data-m-total="${row.id}">${fmtNum(calcs.total)} ${getCurrency()}</div>
@@ -3806,6 +3815,7 @@ function addBankTransferRow(existingData = null) {
     if (!container) return;
     
     const rowId = 'bt-row-' + Date.now() + '-' + Math.random().toString(36).substring(2,5);
+    const today = new Date().toISOString().split('T')[0];
     
     let banksHtml = '';
     try {
@@ -3823,19 +3833,14 @@ function addBankTransferRow(existingData = null) {
         : `<button type="button" class="btn-action" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; border: none; font-size: 0.9rem;">✖</button>`;
 
     const rowHtml = `
-        <div class="payment-row-item payment-method-box" id="${rowId}" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; width: 100%;">
-            <div class="dynamic-focus-container" style="width: 324px; flex: none; display: flex; align-items: center; gap: 5px;">
-                <input type="number" class="v-input ctrl-input bt-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : ''}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 58px; font-size:2rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fbbf24; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900; text-align: center;">
-            </div>
-            <div style="flex: none; width: 200px; display: flex; align-items: center; gap: 5px;">
-                <select class="v-input ctrl-input bt-bank-select" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.1rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center;">
-                    ${banksHtml}
-                </select>
-            </div>
-            <div class="dynamic-focus-container transfer-no-container" style="flex: 1; min-width: 200px; display: flex; align-items: center; gap: 5px; transition: all 0.3s ease;">
-                <input type="text" maxlength="14" class="v-input ctrl-input bt-ref-input dynamic-focus-input dynamic-focus-number" value="${existingData?.reference || ''}" placeholder="رقم التحويلة (> 6 أرقام)" onfocus="this.parentElement.style.flex='15'; this.parentElement.style.minWidth='480px'; this.style.letterSpacing='1px';" onblur="this.parentElement.style.flex='1'; this.parentElement.style.minWidth='200px'; this.style.letterSpacing='normal';" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.5rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#2dd4bf; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900; transition: all 0.3s ease;">
-            </div>
-            <div style="display: flex; justify-content: flex-end; width: 40px; flex: none;">
+        <div class="payment-row-item" id="${rowId}" style="display: flex; gap: 10px; align-items: center; width: 100%; flex-wrap: nowrap; margin-bottom: 8px;">
+            <input type="number" class="v-input ctrl-input bt-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : ''}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; text-align: center; font-size: 1.15rem; font-weight: 800; padding: 0 8px; color:#38bdf8;">
+            <select class="v-input ctrl-input bt-bank-select" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1.1rem; color: #fff; padding: 0 4px;">
+                ${banksHtml}
+            </select>
+            <input type="text" maxlength="14" class="v-input ctrl-input bt-no-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || existingData?.reference || ''}" placeholder="رقم التحويل" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; text-align: center; font-size: 1.1rem; font-weight: 800; padding: 0 8px; color:#38bdf8;">
+            <input type="text" class="v-input ctrl-input bt-note-input" value="${existingData?.notes || ''}" placeholder="الملحوظة" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1.1rem; color: #fff; padding: 0 8px;">
+            <div style="display: flex; justify-content: flex-end; width: 40px; min-width: 40px; flex: none;">
                 ${actionBtn}
             </div>
         </div>
@@ -3869,23 +3874,14 @@ function addChequeRow(existingData = null) {
         : `<button type="button" class="btn-action" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; border: none; font-size: 0.9rem;">✖</button>`;
 
     const rowHtml = `
-        <div class="payment-row-item payment-method-box" id="${rowId}" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 8px; width: 100%;">
-            <div class="dynamic-focus-container" style="width: 324px; flex: none; display: flex; align-items: center; gap: 5px;">
-                <input type="number" class="v-input ctrl-input ch-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : ''}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 58px; font-size:2rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fbbf24; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900; text-align: center;">
-            </div>
-            <div style="flex: 1; min-width: 80px; display: flex; align-items: center; gap: 5px;">
-                <select class="v-input ctrl-input ch-bank-select" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.1rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center;">
-                    ${banksHtml}
-                </select>
-            </div>
-
-            <div class="dynamic-focus-container" style="flex: none; width: 270px; display: flex; align-items: center; gap: 5px;">
-                <input type="text" maxlength="14" class="v-input ctrl-input ch-no-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || ''}" placeholder="رقم الشيك" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.5rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#2dd4bf; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900;">
-            </div>
-            <div style="flex: 0.8; min-width: 120px; display: flex; align-items: center; gap: 5px;">
-                <input type="date" class="v-input ctrl-input ch-date-input" value="${existingData?.dueDate || today}" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.3rem; padding: 0 4px; width: 100%; border-radius: 6px; color:#fff;">
-            </div>
-            <div style="display: flex; justify-content: flex-end; width: 40px; flex: none;">
+        <div class="payment-row-item" id="${rowId}" style="display: flex; gap: 10px; align-items: center; width: 100%; flex-wrap: nowrap; margin-bottom: 8px;">
+            <input type="number" class="v-input ctrl-input ch-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : ''}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; text-align: center; font-size: 1.15rem; font-weight: 800; padding: 0 8px; color:#fbbf24;">
+            <select class="v-input ctrl-input ch-bank-select" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1.1rem; color: #fff; padding: 0 4px;">
+                ${banksHtml}
+            </select>
+            <input type="text" maxlength="14" class="v-input ctrl-input ch-no-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || ''}" placeholder="رقم الشيك" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; text-align: center; font-size: 1.1rem; font-weight: 800; padding: 0 8px; color:#fbbf24;">
+            <input type="date" class="v-input ctrl-input ch-date-input" value="${existingData?.dueDate || today}" placeholder="الملحوظة (التاريخ)" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1.1rem; color: #fff; padding: 0 8px;">
+            <div style="display: flex; justify-content: flex-end; width: 40px; min-width: 40px; flex: none;">
                 ${actionBtn}
             </div>
         </div>

@@ -1396,7 +1396,8 @@ function renderRecentTable(txns, startIndex = 0) {
                 if (displayDate.includes(' ')) displayDate = displayDate.split(' ')[0];
                 html += `<td data-col-id="date" data-is-num="false" title="${t.time || ''}" style="${cStyle}">${displayDate}</td>`;
             } else if (col.id === 'ref') {
-                html += `<td data-col-id="ref" data-is-num="true" style="${cStyle}">${t.isOpening ? '<span style="color:#3b82f6; font-weight:900;">📋 افتتاحي</span>' : '<strong style="color:#38bdf8; cursor:pointer;" onclick="navigateToOriginalVoucher(\'' + (t.type || '') + '\', \'' + (t.ref || '') + '\')" title="انقر للذهاب لأصل السند">' + (t.ref || '-') + '</strong>'}</td>`;
+                  let displayRef = t.ref ? String(t.ref).replace(/-(PUR|SAL)-PAID.*|-PAID.*|-BT\d+|-CH\d+$/i, '').trim() : '-';
+                  html += `<td data-col-id="ref" data-is-num="true" style="${cStyle}">${t.isOpening ? '<span style="color:#3b82f6; font-weight:900;">الرصيد الافتتاحي</span>' : '<strong style="color:#2563eb; text-decoration:underline; cursor:pointer;" onclick="navigateToOriginalVoucher(\'' + (t.type || '') + '\', \'' + (t.ref || '') + '\')" title="عرض تفاصيل السند الأساسي">' + displayRef + '</strong>'}</td>`;
             } else if (col.id === 'account') {
                 html += `<td data-col-id="account" data-is-num="false" style="${cStyle}"><span style="font-weight:700;">${mainAccName}</span></td>`;
             } else if (col.id === 'typeLabel') {
@@ -1476,16 +1477,27 @@ function renderRecentTable(txns, startIndex = 0) {
 /* ── Navigate to Original Voucher ── */
 window.navigateToOriginalVoucher = function(type, ref) {
     if (!ref || ref === '-' || ref === 'OPENING') {
-        showToast('لا يوجد سند مرتبط بـ هذه الحركة', 'warning');
+        showToast('لا يوجد سند مرتبط', 'warning');
         return;
     }
-    let cleanRef = String(ref).replace(/-PAID|-BT\d+|-CH\d+$/i, '').trim();
+    
+    let isPurchasePayment = String(ref).includes('-PUR-PAID');
+    let isSalesPayment = String(ref).includes('-SAL-PAID');
+    
+    // Clean all types of payment suffixes
+    let cleanRef = String(ref).replace(/-(PUR|SAL)-PAID.*|-PAID.*|-BT\d+|-CH\d+$/i, '').trim();
     let targetUrl = '';
     type = String(type || '').toLowerCase();
 
-    if (type === 'sales' || type === 'invoice' || type === 'direct-sales') targetUrl = `direct-sales.php?id=${cleanRef}`;
-    else if (type === 'purchase' || type === 'purchases') targetUrl = `purchase.php?id=${cleanRef}`;
-    else if (type === 'receipt' || type === 'single-receipt') targetUrl = `single-cash-receipt.php?id=${cleanRef}`;
+    if (isPurchasePayment) {
+        targetUrl = `purchase.php?id=${cleanRef}`;
+    } else if (isSalesPayment) {
+        targetUrl = `direct-sales.php?id=${cleanRef}`;
+    } else if (type === 'sales' || type === 'invoice' || type === 'direct-sales') {
+        targetUrl = `direct-sales.php?id=${cleanRef}`;
+    } else if (type === 'purchase' || type === 'purchases') {
+        targetUrl = `purchase.php?id=${cleanRef}`;
+    } else if (type === 'receipt' || type === 'single-receipt') targetUrl = `single-cash-receipt.php?id=${cleanRef}`;
     else if (type === 'payment' || type === 'single-payment') targetUrl = `single-cash-payment.php?id=${cleanRef}`;
     else if (type === 'multi-receipt') targetUrl = `multi-cash-payment.php?type=receipt&id=${cleanRef}`;
     else if (type === 'multi-payment') targetUrl = `multi-cash-payment.php?type=payment&id=${cleanRef}`;

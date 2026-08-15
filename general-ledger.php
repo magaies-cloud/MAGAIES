@@ -217,7 +217,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         }
 
         /* ── Magnified Number Audit Effect ── */
-        .pos-grid td.num-magnified {
+        table#recent-table tbody td.num-magnified, table#preview-table tbody td.num-magnified {
             font-size: 1.85rem !important;
             font-weight: 900 !important;
             background: linear-gradient(135deg, #1e3a8a, #172554) !important;
@@ -233,7 +233,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             padding: 8px 12px !important;
             display: table-cell !important;
         }
-        :root.light-theme .pos-grid td.num-magnified {
+        :root.light-theme table#recent-table tbody td.num-magnified, table#preview-table tbody td.num-magnified {
             background: linear-gradient(135deg, #1e3a8a, #172554) !important;
             color: #ffffff !important;
             border: 2px solid #3b82f6 !important;
