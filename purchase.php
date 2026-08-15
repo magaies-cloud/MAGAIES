@@ -1720,11 +1720,11 @@
                 <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 5px; width: 100%; align-items: center;">
                     <!-- 1. Supplier -->
                     <div class="h-form-group group-supplier" style="flex: 3.3; min-width: 390px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
-                          <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px;">👤 المورد</label>
+                          <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px; color: #fbbf24 !important; font-size: 1.25rem !important; font-weight: 900 !important; text-shadow: 0 0 10px rgba(251, 191, 36, 0.4) !important;">👤 المورد</label>
                           <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1;">
                               <div class="custom-dropdown" style="flex:1;">
                                   <div class="custom-dropdown-input-wrap" style="position: relative;">
-                                      <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم المورد..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; padding-left: 60px !important;" autocomplete="one-time-code">
+                                      <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم المورد..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; padding-left: 60px !important; color: #fbbf24 !important; font-size: 1.25rem !important; font-weight: 900 !important; background-color: rgba(251,191,36,0.05) !important;" autocomplete="one-time-code">
                                       <button type="button" id="hdr-customer-ledger-btn" onclick="openGeneralLedgerForAccount(document.getElementById('hdr-customer').value)" class="ledger-btn-2027" title="دفتر الأستاذ العام">أستاذ</button>
                                       <input type="hidden" id="hdr-customer" onchange="if(typeof onCustomerChange === 'function') onCustomerChange()">
                                       <div class="custom-dropdown-list" id="customer-dropdown-list">
