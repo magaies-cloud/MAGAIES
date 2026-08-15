@@ -825,6 +825,7 @@
                     let tB = new Date(pendingMap[b].date).getTime();
                     if(isNaN(tA)) tA = 0;
                     if(isNaN(tB)) tB = 0;
+                    if (tA === tB) return b.localeCompare(a);
                     return tB - tA;
                 });
                 
@@ -1240,6 +1241,7 @@
                 let tB = new Date(b.date).getTime();
                 if(isNaN(tA)) tA = 0;
                 if(isNaN(tB)) tB = 0;
+                if (tA === tB) return (b.id || "").localeCompare(a.id || "");
                 return tB - tA;
             });
             
