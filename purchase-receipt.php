@@ -610,13 +610,12 @@
                 currentHubView = 'received';
                 document.getElementById('hub-pending-container').style.display = 'none';
                 document.getElementById('hub-received-container').style.display = 'block';
-                document.getElementById('hub-title-text').innerHTML = '📜 أذونات الاستلام (الفواتير المستلمة)';
                 renderRecentGRNs();
             } else {
                 currentHubView = 'pending';
                 document.getElementById('hub-pending-container').style.display = 'block';
                 document.getElementById('hub-received-container').style.display = 'none';
-                document.getElementById('hub-title-text').innerHTML = '⏳ فواتير تحتوي على بضاعة قيد الاستلام';
+                renderPendingInvoices();
             }
         }
 
@@ -789,8 +788,14 @@
             } else {
                 document.getElementById('empty-hub').style.display = 'none';
                 
-                // Sort by date desc
-                filteredIds.sort((a,b) => new Date(pendingMap[b].date) - new Date(pendingMap[a].date));
+                // Sort by date desc (safely)
+                filteredIds.sort((a,b) => {
+                    let tA = new Date(pendingMap[a].date).getTime();
+                    let tB = new Date(pendingMap[b].date).getTime();
+                    if(isNaN(tA)) tA = 0;
+                    if(isNaN(tB)) tB = 0;
+                    return tB - tA;
+                });
                 
                 filteredIds.forEach(id => {
                     const invData = pendingMap[id];
@@ -810,6 +815,10 @@
                     `;
                     tbody.appendChild(tr);
                 });
+            }
+            
+            if (currentHubView === 'pending') {
+                document.getElementById('hub-title-text').innerHTML = `⏳ فواتير تحتوي على بضاعة قيد الاستلام <span style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 2px 10px; border-radius: 20px; font-size: 0.85rem; margin-right: 10px; box-shadow: 0 0 12px rgba(245, 158, 11, 0.4); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease;">${filteredIds.length} فاتورة</span>`;
             }
         }
 
@@ -1189,8 +1198,18 @@
             // Load all GRNs for all invoices
             const grns = allPurchases.filter(p => p.isGRN);
             
-            // Sort by date descending (newest first)
-            grns.sort((a, b) => new Date(b.date) - new Date(a.date));
+            // Sort by date descending (newest first - safely)
+            grns.sort((a, b) => {
+                let tA = new Date(a.date).getTime();
+                let tB = new Date(b.date).getTime();
+                if(isNaN(tA)) tA = 0;
+                if(isNaN(tB)) tB = 0;
+                return tB - tA;
+            });
+            
+            if (currentHubView === 'received') {
+                document.getElementById('hub-title-text').innerHTML = `📜 أذونات الاستلام (الفواتير المستلمة) <span style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; padding: 2px 10px; border-radius: 20px; font-size: 0.85rem; margin-right: 10px; box-shadow: 0 0 12px rgba(16, 185, 129, 0.4); border: 1px solid rgba(255,255,255,0.1); transition: all 0.3s ease;">${grns.length} إذن</span>`;
+            }
             
             if (grns.length === 0) {
                 container.innerHTML = `
