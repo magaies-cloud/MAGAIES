@@ -2308,30 +2308,25 @@ document.addEventListener('DOMContentLoaded', () => {
 
     injectSidebar();
 
-    // --- Navigation Transition: Use the static overlay from header.php ---
+    // --- Navigation Transition: Click-only overlay (no blocking on page load) ---
     (function() {
         const overlay = document.getElementById('nav-transition-overlay');
         if (!overlay) return;
-        
-        // Fade out the loading overlay now that sidebar is ready
-        requestAnimationFrame(() => {
-            overlay.classList.add('loaded');
-        });
 
-        // Show overlay instantly when navigating away
+        // Show overlay only when clicking a link to navigate away
         document.querySelectorAll('.sidebar-item[data-href], a[href]').forEach(link => {
             link.addEventListener('click', (e) => {
                 const href = link.getAttribute('data-href') || link.getAttribute('href');
                 const currentUrl = typeof currentPage !== 'undefined' ? currentPage : window.location.pathname.split('/').pop();
                 if (href && !href.startsWith('#') && !href.startsWith('javascript') && href !== currentUrl) {
-                    overlay.classList.remove('loaded');
+                    overlay.classList.add('navigating');
                 }
             });
         });
 
-        // Hide overlay when arriving at new page (back/forward navigation)
+        // Clear overlay on back/forward navigation
         window.addEventListener('pageshow', () => {
-            overlay.classList.add('loaded');
+            overlay.classList.remove('navigating');
         });
     })();
 

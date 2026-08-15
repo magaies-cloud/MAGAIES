@@ -37,12 +37,12 @@
 <style>
     #nav-transition-overlay {
         position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-        background: rgba(3,4,9,0.95); z-index: 999999;
-        opacity: 1; pointer-events: all;
-        transition: opacity 0.25s ease;
-    }
-    #nav-transition-overlay.loaded {
+        background: rgba(3,4,9,0.92); z-index: 999999;
         opacity: 0; pointer-events: none;
+        transition: opacity 0.12s ease;
+    }
+    #nav-transition-overlay.navigating {
+        opacity: 1; pointer-events: all;
     }
 </style>
 <div id="nav-transition-overlay"></div>
