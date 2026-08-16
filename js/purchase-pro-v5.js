@@ -1586,7 +1586,6 @@ function renderGridHead() {
             <th data-col-id="price" style="width: 140px; text-align: center; font-size: 1.25rem; font-weight: bold;">${priceHeader}</th>
             ${!isBaseSDG ? `<th data-col-id="fcprice" style="width: 120px; text-align: center; font-size: 1.05rem;">سعر (جنيه)</th>` : ''}
             <th style="width: 140px; text-align: center; font-size: 1.05rem;">المخزن</th>
-            <th style="width: 120px; text-align: center; font-size: 1.25rem; font-weight: bold;">ملحوظة</th>
             <th data-col-id="total" style="width: 160px; text-align: center; font-size: 1.25rem; font-weight: bold;">${totalHeader}</th>
             ${!isBaseSDG ? `<th data-col-id="fctotal" style="width: 120px; text-align: center; font-size: 1.05rem;">جملة (جنيه)</th>` : ''}
             <th style="width: 90px; text-align: center; font-size: 1.05rem;">إجراء</th>
@@ -1795,9 +1794,6 @@ function renderGrid() {
                     <option value="">نفس الفاتورة ↩</option>
                     ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
                 </select>
-            </td>
-            <td style="text-align: center;">
-                <input type="text" class="g-input" placeholder="ملحوظة..." value="${row.note || ''}" oninput="updateRow(${row.id},'note',this.value)" style="text-align: right; width: 100%; font-size: 1.25rem; font-weight: bold;">
             </td>
             <td style="text-align: center;">
                 <span class="g-readonly total-val" data-total="${row.id}" style="font-size: 1.6rem; font-weight: bold; color: #34d399;">${fmtNum(calcs.total, 'total')}</span>
