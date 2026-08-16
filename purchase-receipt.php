@@ -1051,8 +1051,8 @@
                 else if (remainingQty < 0) remainingColor = '#ef4444'; // Red (Error)
 
                 tr.innerHTML = `
-                    <td style="display:none; text-align:center; ${cellStyleNum}">${fmtGridNum(line.price)} SDG</td>
-                    <td style="display:none; text-align:center; ${cellStyleNum}; color:var(--gold-primary) !important;">${fmtGridNum(lineTotal)} SDG</td>
+                    <td style="display:none; text-align:center; ${getCellStyleNum()}">${fmtGridNum(line.price)} SDG</td>
+                    <td style="display:none; text-align:center; ${getCellStyleNum()}; color:var(--gold-primary) !important;">${fmtGridNum(lineTotal)} SDG</td>
                     <td style="text-align:right; font-weight:700; ${getStyle('item')} ${line.isSplit ? 'padding-right: 25px;' : ''}">
                         ${line.isSplit ? '↳ ' : ''}${getItemName(line.itemId)}
                     </td>
