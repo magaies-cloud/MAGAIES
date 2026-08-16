@@ -1387,6 +1387,7 @@
                             <th style="text-align:center; width:15%;">الفاتورة الأصلية</th>
                             <th style="text-align:center;">التاريخ والوقت</th>
                             <th style="text-align:right;">الأصناف المستلمة</th>
+                            <th style="text-align:right;">المورد</th>
                             <th style="text-align:center;">المستودع</th>
                             <th style="text-align:center;">إجمالي القيمة</th>
                             <th style="text-align:center;">بواسطة</th>
@@ -1406,6 +1407,7 @@
                 const positiveItems = grn.items.filter(item => item.quantity > 0);
                 let totalValue = 0;
                 let grnWarehouses = new Set();
+                const suppName = getSupplierName(grn.customerId || grn.supplierId);
 
                 let itemsSummary = positiveItems.map(item => {
                     const itemObj = itemsDb.find(i => i.id === item.itemId);
@@ -1445,6 +1447,7 @@
                         <td style="text-align:center; color: #fbbf24; font-weight: bold; font-family: 'Outfit'; cursor: pointer;" ondblclick="window.open('purchase.php?id=${grn.originalInvoiceId}', '_blank')" title="انقر مرتين لفتح الفاتورة">${grn.originalInvoiceId}</td>
                         <td style="text-align:center; font-family: 'Outfit';">${dateStr}</td>
                         <td style="color:#e2e8f0; line-height: 1.4;">${itemsSummary}</td>
+                        <td style="text-align:right; font-weight: 700; color: #e2e8f0;">${suppName}</td>
                         <td style="text-align:center; font-weight: 600; color: #94a3b8;">${warehouseStr}</td>
                         <td style="text-align:center; font-family: 'Outfit'; font-weight: 800; color: #fbbf24;">${fmtNum(totalValue)} SDG</td>
                         <td style="text-align:center; color:#a855f7; font-weight: 600;">${creatorName}</td>
