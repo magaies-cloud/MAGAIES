@@ -1,4 +1,4 @@
-﻿/* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
+/* â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ
    âڑ، MAGAIEES ERP 2026 - PURCHASE MODULE STYLESHEET (css/purchase-module.css)
    â•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گâ•گ */
 
@@ -39,7 +39,28 @@
 }
 
 .toast-container {
+    top: 50% !important;
+    transform: translate(-50%, -50%) !important;
     z-index: 1000000 !important;
+    align-items: center !important;
+}
+
+.toast {
+    font-size: 1.3rem !important;
+    padding: 16px 30px !important;
+    border: 1px solid rgba(255, 255, 255, 0.15) !important;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 30px rgba(0,0,0,0.5) !important;
+    text-align: center !important;
+    border-radius: 12px !important;
+    font-family: 'Tajawal', sans-serif !important;
+    animation: magicalInvoiceSlideUp 0.4s ease-out !important;
+}
+
+.toast.error-pink {
+    background: linear-gradient(135deg, #be185d, #9d174d) !important;
+    color: #fbcfe8 !important;
+    border-color: #f472b6 !important;
+    box-shadow: 0 15px 40px rgba(190, 24, 93, 0.5) !important;
 }
 
 .custom-dropdown-list {
@@ -479,46 +500,44 @@ table.pos-grid td {
     flex: none !important;
 }
 .dynamic-focus-input {
-    transition: font-size 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), letter-spacing 0.3s ease, height 0.3s ease, color 0.3s ease !important;
-    color: #ffffff !important;
+    font-size: 4.9rem !important;
+    color: #000000 !important;
+    height: 90px !important;
+    transition: font-size 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), letter-spacing 0.3s ease, height 0.3s ease, color 0.3s ease, width 0.3s ease !important;
 }
 .dynamic-focus-input:focus {
-    font-size: 5.5rem !important;
-    height: 100px !important;
-    min-width: 400px !important;
     position: relative !important;
     z-index: 1000 !important;
-    margin-right: -100px !important;
     font-weight: 900 !important;
-    letter-spacing: 3px !important;
+    letter-spacing: 2px !important;
     box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 25px rgba(251, 191, 36, 0.6) !important;
 }
 .dynamic-focus-amount:focus {
+    font-size: 3rem !important;
+    height: 80px !important;
+    width: 350px !important;
+    min-width: 350px !important;
     color: #fbbf24 !important; /* Yellow */
+    margin-right: -20px !important;
 }
 .dynamic-focus-number:focus {
-    color: #38bdf8 !important; /* Sky Blue for focus/comfort */
+    font-size: 3rem !important;
+    height: 80px !important;
+    width: 350px !important;
+    min-width: 350px !important;
+    color: #38bdf8 !important; /* Sky Blue */
+    margin-right: -20px !important;
 }
 .transfer-no.dynamic-focus-input:focus, .bt-ref-input.dynamic-focus-input:focus {
-    font-size: 1.7rem !important;
+    font-size: 3rem !important;
     height: 80px !important;
-    width: 500px !important;
+    width: 350px !important;
+    min-width: 350px !important;
     max-width: none !important;
-    margin-right: -50px !important;
+    margin-right: -20px !important;
     letter-spacing: 1px !important;
 }
 
-.transfer-amount:focus, .cheque-amount:focus, .bt-amount-input:focus, .ch-amount-input:focus {
-    font-size: 5.5rem !important;
-    height: 100px !important;
-    min-width: 400px !important;
-    position: relative !important;
-    z-index: 1000 !important;
-    margin-right: -100px !important;
-    border-color: #fbbf24 !important;
-    background: rgba(15, 23, 42, 0.98) !important;
-    color: #fbbf24 !important;
-    box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 25px rgba(251, 191, 36, 0.6) !important;
-}
+
 
 

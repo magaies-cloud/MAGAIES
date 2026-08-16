@@ -21,7 +21,7 @@
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <link rel="stylesheet" href="css/sales-invoice.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="css/print-invoice.css">
-    <link rel="stylesheet" href="css/purchase-module.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/purchase-module-v2.css?v=<?php echo time(); ?>">
     <style>
         @keyframes magicalInvoiceSlideUp {
             from { opacity: 0; transform: translateY(30px) scale(0.98); }
@@ -171,10 +171,10 @@
         }
 
         /* Group Specific Color Codings (Dark Mode Default) */
-        /* 1. Invoice No (Sky Blue) */
-        .group-invoice .h-label { color: #38bdf8 !important; }
-        .group-invoice .ctrl-input { border-color: rgba(56, 189, 248, 0.25) !important; color: #ffffff !important; }
-        .h-form-group.group-invoice:focus-within .h-label { text-shadow: 0 0 8px rgba(56, 189, 248, 0.4) !important; }
+        /* 1. Invoice No (White) */
+        .group-invoice .h-label { color: #ffffff !important; }
+        .group-invoice .ctrl-input { border-color: rgba(255, 255, 255, 0.25) !important; color: #ffffff !important; }
+        .h-form-group.group-invoice:focus-within .h-label { text-shadow: 0 0 8px rgba(255, 255, 255, 0.4) !important; }
         .group-invoice .ctrl-input:focus { border-color: #38bdf8 !important; box-shadow: 0 0 12px rgba(56, 189, 248, 0.45), inset 0 1px 2px rgba(0,0,0,0.6) !important; }
 
         /* 2. Date (Soft Rose/Red) */
@@ -195,16 +195,16 @@
         .h-form-group.group-currency:focus-within .h-label { text-shadow: 0 0 8px rgba(167, 139, 250, 0.4) !important; }
         .group-currency .ctrl-input:focus, .group-currency select.system-currency-select:focus { border-color: #a78bfa !important; box-shadow: 0 0 12px rgba(167, 139, 250, 0.45), inset 0 1px 2px rgba(0,0,0,0.6) !important; }
 
-        /* 5. Warehouse (Warm Orange) */
-        .group-warehouse .h-label { color: #fb923c !important; }
+        /* 5. Warehouse (Light Yellow) */
+        .group-warehouse .h-label { color: #fef08a !important; }
         .group-warehouse .ctrl-input { border-color: rgba(251, 146, 60, 0.25) !important; color: #ffffff !important; }
-        .h-form-group.group-warehouse:focus-within .h-label { text-shadow: 0 0 8px rgba(251, 146, 60, 0.4) !important; }
+        .h-form-group.group-warehouse:focus-within .h-label { text-shadow: 0 0 8px rgba(254, 240, 138, 0.4) !important; }
         .group-warehouse .ctrl-input:focus { border-color: #fb923c !important; box-shadow: 0 0 12px rgba(251, 146, 60, 0.45), inset 0 1px 2px rgba(0,0,0,0.6) !important; }
 
-        /* 6. Cost Center (Lime Green) */
-        .group-cost-center .h-label { color: #a3e635 !important; }
+        /* 6. Cost Center (Light Yellow) */
+        .group-cost-center .h-label { color: #fef08a !important; }
         .group-cost-center .ctrl-input { border-color: rgba(163, 230, 53, 0.25) !important; color: #ffffff !important; }
-        .h-form-group.group-cost-center:focus-within .h-label { text-shadow: 0 0 8px rgba(163, 230, 53, 0.4) !important; }
+        .h-form-group.group-cost-center:focus-within .h-label { text-shadow: 0 0 8px rgba(254, 240, 138, 0.4) !important; }
         .group-cost-center .ctrl-input:focus { border-color: #a3e635 !important; box-shadow: 0 0 12px rgba(163, 230, 53, 0.45), inset 0 1px 2px rgba(0,0,0,0.6) !important; }
 
         /* 7. Description (Slate/Gray) */
@@ -1720,7 +1720,7 @@
                 <div style="display: flex; gap: 15px; flex-wrap: wrap; margin-bottom: 5px; width: 100%; align-items: center;">
                     <!-- 1. Supplier -->
                     <div class="h-form-group group-supplier" style="flex: 3.3; min-width: 390px; display: flex; align-items: center; gap: 10px; flex-direction: row !important;">
-                          <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px; color: #fbbf24 !important; font-size: 1.25rem !important; font-weight: 900 !important; text-shadow: 0 0 10px rgba(251, 191, 36, 0.4) !important;">👤 المورد</label>
+                          <label class="h-label" style="margin: 0; white-space: nowrap; min-width: 60px; color: #fef08a !important; font-size: 1.25rem !important; font-weight: 900 !important; text-shadow: 0 0 10px rgba(254, 240, 138, 0.4) !important;">👤 المورد</label>
                           <div class="h-input-wrapper" style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1;">
                               <div class="custom-dropdown" style="flex:1;">
                                   <div class="custom-dropdown-input-wrap" style="position: relative;">
@@ -1839,12 +1839,12 @@
 
             <div class="tot-grand" style="margin-top: auto; background: rgba(56, 189, 248, 0.1); padding: 10px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.6); display: flex; flex-direction: column; gap: 5px;">
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="lbl" id="lbl-grand-local" style="font-weight: 800; color: #38bdf8; font-size:0.9rem;">صافي محلي</span>
-                    <span class="val amount" id="t-grand-local" style="font-size: 1.2rem; color: #fff;">0</span>
+                    <span class="lbl" id="lbl-grand-local" style="font-weight: 800; color: #ffffff !important; font-size:1rem;">صافي محلي</span>
+                    <span class="val amount" id="t-grand-local" style="font-size: 1.4rem; font-weight: bold; color: #ffffff !important;">0</span>
                 </div>
                 <div style="display:flex; justify-content:space-between; align-items:center;">
-                    <span class="lbl" id="lbl-grand-fc" style="font-weight: 800; color: #10b981; font-size:0.9rem;">صافي أجنبي</span>
-                    <span class="val amount" id="t-grand-fc" style="font-size: 1.2rem; color: #fff;">0</span>
+                    <span class="lbl" id="lbl-grand-fc" style="font-weight: 800; color: #ffffff !important; font-size:1rem;">صافي أجنبي</span>
+                    <span class="val amount" id="t-grand-fc" style="font-size: 1.4rem; font-weight: bold; color: #ffffff !important;">0</span>
                 </div>
             </div>
         </div>
@@ -1895,11 +1895,36 @@
                             border-color: rgba(234, 179, 8, 0.45) !important;
                         }
                     }
-                    .pay-toggle-btn.active {
-                        background: linear-gradient(135deg, #ff7300, #ff9100) !important;
-                        border-color: #ff7300 !important;
+                    .pay-toggle-btn {
+                        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+                    }
+                    .pay-toggle-btn:hover {
+                        filter: brightness(1.2);
+                        transform: translateY(-2px);
+                    }
+                    #toggle-credit.active {
+                        background: linear-gradient(135deg, #92400e, #b45309) !important;
+                        border-color: #b45309 !important;
                         color: #fff !important;
-                        box-shadow: 0 0 12px rgba(255, 115, 0, 0.4) !important;
+                        box-shadow: 0 6px 16px rgba(180, 83, 9, 0.5) !important;
+                    }
+                    #toggle-cash.active {
+                        background: linear-gradient(135deg, #047857, #059669) !important;
+                        border-color: #059669 !important;
+                        color: #fff !important;
+                        box-shadow: 0 6px 16px rgba(5, 150, 105, 0.5) !important;
+                    }
+                    #toggle-bank.active {
+                        background: linear-gradient(135deg, #0e7490, #0891b2) !important;
+                        border-color: #0891b2 !important;
+                        color: #fff !important;
+                        box-shadow: 0 6px 16px rgba(8, 145, 178, 0.5) !important;
+                    }
+                    #toggle-cheque.active {
+                        background: linear-gradient(135deg, #6d28d9, #7c3aed) !important;
+                        border-color: #7c3aed !important;
+                        color: #fff !important;
+                        box-shadow: 0 6px 16px rgba(124, 58, 237, 0.5) !important;
                     }
                     .payment-summary-card {
                         transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -1982,10 +2007,10 @@
                     </div>
 
                     <div class="payment-toggles" style="display: flex; gap: 8px; flex: none;">
-                        <button type="button" class="pay-toggle-btn" id="toggle-credit" onclick="togglePaymentSection('credit')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">💳 آجل</button>
-                        <button type="button" class="pay-toggle-btn" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">💵 نقدي</button>
-                        <button type="button" class="pay-toggle-btn" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">🏦 تحويل بنكي</button>
-                        <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">✍️ شيك</button>
+                        <button type="button" class="pay-toggle-btn" id="toggle-credit" onclick="togglePaymentSection('credit')" style="background: rgba(180, 83, 9, 0.1); border: 1px solid rgba(180, 83, 9, 0.35); color: #fcd34d; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">💳 آجل</button>
+                        <button type="button" class="pay-toggle-btn" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.35); color: #6ee7b7; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">💵 نقدي</button>
+                        <button type="button" class="pay-toggle-btn" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.35); color: #67e8f9; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">🏦 تحويل بنكي</button>
+                        <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(147, 51, 234, 0.1); border: 1px solid rgba(147, 51, 234, 0.35); color: #d8b4fe; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">✍️ شيك</button>
                     </div>
                 </div>
                 
@@ -1994,43 +2019,43 @@
                     <div class="payment-details-card" style="flex: 1; min-width: 100%; display: flex; flex-direction: column; gap: 10px;">
                         
                         <!-- Credit payment box (Toggled off by default) -->
-                        <div id="pay-credit-section" class="payment-method-box" style="background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.18); border-radius: 12px; padding: 12px 15px; display: none; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
+                        <div id="pay-credit-section" class="payment-method-box" style="background: radial-gradient(circle at top left, rgba(217, 119, 6, 0.35), rgba(180, 83, 9, 0.15)); border: 3px solid rgba(217, 119, 6, 0.9); box-shadow: 0 0 25px rgba(217, 119, 6, 0.4), inset 0 0 15px rgba(180, 83, 9, 0.3); border-radius: 12px; padding: 12px 15px; display: none; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
                             <div style="display: flex; align-items: center; gap: 8px; min-width: 200px; width: 200px; flex: none;">
                                 <span style="font-size: 1.2rem;">💳</span>
-                                <span style="font-weight: 800; color: #fbbf24; font-size: 0.95rem;">آجل على الحساب</span>
+                                <span style="font-weight: 800; color: #fcd34d; font-size: 0.95rem;">آجل على الحساب</span>
                             </div>
                             <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
-                                <input type="number" class="v-input ctrl-input" id="pay-credit-amount" value="0.00" step="any" readonly placeholder="المبلغ الآجل..." style="flex: none; width: 145px; min-width: 145px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; text-align: center; font-size: 1.15rem; font-weight: 800; color: #fbbf24 !important;">
+                                <input type="number" class="v-input ctrl-input" id="pay-credit-amount" value="0.00" step="any" readonly placeholder="المبلغ الآجل..." style="flex: none; width: 145px; min-width: 145px; background: rgba(15,23,42,0.8); border: 1px solid rgba(180, 83, 9, 0.5); height: 38px; text-align: center; font-size: 1.15rem; font-weight: 800; color: #fcd34d !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
                                 
                                 <div id="pay-credit-due-group" style="flex: 1.2; min-width: 180px; display: flex; align-items: center; gap: 5px;">
                                     <label style="font-size: 0.78rem; color: #94a3b8; white-space: nowrap;">تاريخ الاستحقاق:</label>
                                     <input type="date" class="v-input ctrl-input" id="pay-credit-due-date" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 4px; width: 100%;">
                                 </div>
                                 
-                                <button type="button" class="btn-action" onclick="previewCurrentPromissoryNote()" style="flex: 0.8; min-width: 120px; height: 38px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.6); color: #f59e0b; padding: 0 10px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight: bold; transition: 0.2s;" onmouseover="this.style.background='rgba(245, 158, 11, 0.25)';" onmouseout="this.style.background='rgba(245, 158, 11, 0.15)';">📄 معاينة الكمبيالة</button>
+                                <button type="button" class="btn-action" onclick="previewCurrentPromissoryNote()" style="flex: 0.8; min-width: 120px; height: 38px; background: linear-gradient(135deg, rgba(180, 83, 9, 0.2), rgba(146, 64, 14, 0.4)); border: 1px solid rgba(180, 83, 9, 0.6); color: #fcd34d; padding: 0 10px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight: bold; transition: 0.2s;" onmouseover="this.style.background='linear-gradient(135deg, rgba(180, 83, 9, 0.35), rgba(146, 64, 14, 0.5))';" onmouseout="this.style.background='linear-gradient(135deg, rgba(180, 83, 9, 0.2), rgba(146, 64, 14, 0.4))';">📄 معاينة الكمبيالة</button>
                             </div>
                         </div>
 
                         <!-- Cash payment box (Visible by default) -->
-                        <div id="pay-cash-section" style="background: rgba(16, 185, 129, 0.12); border: 1.5px solid rgba(16, 185, 129, 0.4); box-shadow: 0 4px 20px rgba(16, 185, 129, 0.08); border-radius: 8px; padding: 10px; margin-bottom: 10px; display: flex; flex-direction: column; width: 100%;">
+                        <div id="pay-cash-section" style="background: radial-gradient(circle at top left, rgba(16, 185, 129, 0.35), rgba(16, 185, 129, 0.15)); border: 3px solid rgba(16, 185, 129, 0.9); box-shadow: 0 0 25px rgba(16, 185, 129, 0.4), inset 0 0 15px rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; display: flex; flex-direction: column; width: 100%;">
                             <div class="payment-row-item" style="display: grid; grid-template-columns: 85px 1.5fr 1.2fr 1.2fr 2fr 30px; gap: 8px; align-items: center; width: 100%; margin-bottom: 0px;">
-                                <div style="display: flex; align-items: center; justify-content: flex-start; color: #fff; font-weight: bold; font-size: 0.95rem; gap: 4px;"><span>💵</span> كاش</div>
-                                <input type="number" class="v-input ctrl-input dynamic-focus-input dynamic-focus-amount" id="pay-cash-amount" value="0.00" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; text-align: center; font-size: 1.4rem; font-weight: 700; color: #34d399 !important; height: 42px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%;">
-                                <select class="v-input ctrl-input" id="hdr-payment-account" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 42px; outline: none; padding: 0 8px; width: 100%;">
+                                <div style="display: flex; align-items: center; justify-content: flex-start; color: #6ee7b7; font-weight: 900; font-size: 0.95rem; gap: 6px; text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);"><span>💵</span> كاش</div>
+                                <input type="number" class="v-input ctrl-input dynamic-focus-input dynamic-focus-amount" id="pay-cash-amount" value="0" step="1" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 8px; text-align: center; font-size: 4.9rem; font-weight: 800; color: #000000; height: 90px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
+                                <select class="v-input ctrl-input" id="hdr-payment-account" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%;">
                                 </select>
-                                <input type="text" class="v-input ctrl-input" id="pay-cash-ref" placeholder="رقم المرجع" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 42px; outline: none; padding: 0 8px; width: 100%;">
-                                <input type="text" class="v-input ctrl-input" id="pay-cash-note" placeholder="الملحوظة" style="background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(16, 185, 129, 0.3); border-radius: 6px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 42px; outline: none; padding: 0 8px; width: 100%;">
+                                <input type="text" class="v-input ctrl-input" id="pay-cash-ref" placeholder="رقم المرجع" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%;">
+                                <input type="text" class="v-input ctrl-input" id="pay-cash-note" placeholder="الملحوظة" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%;">
                                 <div></div>
                             </div>
                         </div>
 
                         <!-- Bank Transfers box -->
-                        <div id="pay-bank-section" style="display: none; flex-direction: column; background: rgba(14, 165, 233, 0.12); border: 1.5px solid rgba(14, 165, 233, 0.4); box-shadow: 0 4px 20px rgba(14, 165, 233, 0.08); border-radius: 8px; padding: 10px; margin-bottom: 10px; width: 100%;">
+                        <div id="pay-bank-section" style="display: none; flex-direction: column; background: radial-gradient(circle at top left, rgba(6, 182, 212, 0.35), rgba(6, 182, 212, 0.15)); border: 3px solid rgba(6, 182, 212, 0.9); box-shadow: 0 0 25px rgba(6, 182, 212, 0.4), inset 0 0 15px rgba(6, 182, 212, 0.3); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; width: 100%;">
                             <div id="bank-transfers-list" style="display: flex; flex-direction: column; gap: 0px; width: 100%;"></div>
                         </div>
 
                         <!-- Cheques box -->
-                        <div id="pay-cheque-section" style="display: none; flex-direction: column; background: rgba(168, 85, 247, 0.12); border: 1.5px solid rgba(168, 85, 247, 0.4); box-shadow: 0 4px 20px rgba(168, 85, 247, 0.08); border-radius: 8px; padding: 10px; margin-bottom: 10px; width: 100%;">
+                        <div id="pay-cheque-section" style="display: none; flex-direction: column; background: radial-gradient(circle at top left, rgba(168, 85, 247, 0.35), rgba(147, 51, 234, 0.15)); border: 3px solid rgba(168, 85, 247, 0.9); box-shadow: 0 0 25px rgba(168, 85, 247, 0.4), inset 0 0 15px rgba(147, 51, 234, 0.3); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; width: 100%;">
                             <div id="cheques-list" style="display: flex; flex-direction: column; gap: 0px; width: 100%;"></div>
                         </div>
                     </div>
@@ -2114,7 +2139,7 @@
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1.0.0'; ?>"></script>
     <script defer src="js/print-engine.js"></script>
     <script defer src="js/accounting-engine.js?v=<?php echo file_exists('js/accounting-engine.js') ? filemtime('js/accounting-engine.js') : '1.0.0'; ?>"></script>
-    <script defer src="js/purchase-pro-v4.js?v=<?php echo time(); ?>"></script>
+    <script defer src="js/purchase-pro-v5.js?v=<?php echo time(); ?>"></script>
 </div>
 
     <script>

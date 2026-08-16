@@ -487,6 +487,7 @@
                                     <th style="text-align:right;">رقم الفاتورة الأصلي</th>
                                     <th style="text-align:right;">التاريخ</th>
                                     <th style="text-align:right;">المورد</th>
+                                    <th style="text-align:center;">الصنف</th>
                                     <th style="text-align:center;">إجمالي الأصناف المعلقة</th>
                                     <th style="text-align:center;">إجراء</th>
                                 </tr>
@@ -544,7 +545,7 @@
                     </div>
                     
                     <div class="grid-scroll-wrap" style="flex:1; max-height: 420px; min-height: 220px; overflow-y: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); background: rgba(15, 23, 42, 0.4);">
-                        <table class="pos-grid" style="width: 100%;">
+                        <table class="pos-grid" style="width: 100%;" oncontextmenu="showGridContextMenu(event)">
                             <thead style="position: sticky; top: 0; z-index: 10; background: #0f172a;">
                                 <tr>
                                     <th style="text-align:right; width:20%;">الصنف</th>
@@ -592,8 +593,8 @@
                     </div>
 
                     <div style="display:flex; flex-direction:column; gap:10px;">
-                        <button class="btn-action" style="padding: 15px; font-size: 1.1rem; display:flex; align-items:center; justify-content:center; gap:10px; border-radius:12px; background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16,185,129,0.25);" onclick="saveReceiptNote()">
-                            <span>💾</span> حفظ مذكرة الاستلام (GRN)
+                        <button class="btn-action" style="padding: 15px; font-size: 1.2rem; display:flex; align-items:center; justify-content:center; gap:10px; border-radius:12px; background: linear-gradient(135deg, #10b981, #059669); box-shadow: 0 4px 15px rgba(16,185,129,0.25);" onclick="saveReceiptNote()">
+                            <span>💾</span> استلام
                         </button>
                     </div>
                 </div>
@@ -887,12 +888,14 @@
                     const supName = getSupplierName(invData.supplierId);
                     
                     const totalPendingItems = Object.values(invData.lines).length;
+                    const itemNames = Object.values(invData.lines).map(line => getItemName(line.itemId)).join('، ');
 
                     const tr = document.createElement('tr');
                     tr.innerHTML = `
-                        <td style="text-align:right; font-family:'Outfit'; color:#38bdf8; font-weight:700;">${id}</td>
+                        <td style="text-align:right; font-family:'Outfit'; color:#38bdf8; font-weight:700; cursor:pointer;" ondblclick="window.open('purchase.php?id=${id}', '_blank')" title="انقر مرتين لفتح الفاتورة">${id}</td>
                         <td style="text-align:right; font-family:'Outfit';">${new Date(invData.date).toLocaleDateString('en-GB')}</td>
                         <td style="text-align:right; font-weight:700;">${supName}</td>
+                        <td style="text-align:center; font-weight:600; font-size:0.85rem; max-width: 200px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;" title="${itemNames}">${itemNames}</td>
                         <td style="text-align:center; font-family:'Outfit'; font-weight:800;">${totalPendingItems} صنف</td>
                         <td style="text-align:center;">
                             <button class="btn-action" style="padding:6px 15px; font-size:0.8rem;" onclick="openReceiptEditor('${id}')">استلام البضاعة</button>
@@ -976,6 +979,24 @@
             const tbody = document.getElementById('items-tbody');
             tbody.innerHTML = '';
 
+            let gridPrefs = { font: 'Outfit', size: '14', color: '#ffffff', decimals: 2, thousands: true };
+            try {
+                const stored = localStorage.getItem('erp_grn_grid_prefs');
+                if (stored) gridPrefs = JSON.parse(stored);
+            } catch(e) {}
+            
+            function fmtGridNum(n) {
+                const num = Number(n) || 0;
+                if (gridPrefs.thousands) {
+                    return num.toLocaleString('en-US', {minimumFractionDigits: parseInt(gridPrefs.decimals), maximumFractionDigits: parseInt(gridPrefs.decimals)});
+                } else {
+                    return num.toFixed(parseInt(gridPrefs.decimals));
+                }
+            }
+
+            const cellStyleNum = `font-family: '${gridPrefs.font}', sans-serif; font-size: ${gridPrefs.size}px; color: ${gridPrefs.color}; font-weight: 800;`;
+            const inputStyleNum = `font-family: '${gridPrefs.font}', sans-serif; font-size: ${Math.max(14, parseInt(gridPrefs.size))}px; font-weight: 800;`;
+
             receiptLines.forEach(line => {
                 const tr = document.createElement('tr');
                 const lineTotal = (line.price || 0) * (line.receiveQty || 0);
@@ -1003,18 +1024,14 @@
                     <td style="text-align:right; font-weight:700; ${line.isSplit ? 'padding-right: 25px; color:#94a3b8;' : ''}">
                         ${line.isSplit ? '↳ ' : ''}${getItemName(line.itemId)}
                     </td>
-                    <td style="text-align:center; color:#94a3b8;">${line.unitName}</td>
-                    <td style="text-align:center; font-family:'Outfit';">${fmtNum(line.price)} SDG</td>
-                    <td style="text-align:center; font-family:'Outfit'; font-weight:800;">${line.isSplit ? '—' : line.maxPending}</td>
+                    <td style="text-align:center; color:#94a3b8; font-size: 0.9rem;">${line.unitName}</td>
+                    <td style="text-align:center; ${cellStyleNum}">${fmtGridNum(line.price)} SDG</td>
+                    <td style="text-align:center; ${cellStyleNum}">${line.isSplit ? '—' : fmtGridNum(line.maxPending)}</td>
                     <td style="text-align:center;">
-                        <div style="display: inline-flex; align-items: center; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; overflow: hidden; padding: 2px;">
-                            <button type="button" onclick="changeQtyStep('${line.id}', -1)" style="background: none; border: none; color: #ef4444; width: 26px; height: 26px; font-weight: 800; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.background='none'">-</button>
-                            <input type="text" class="qty-input" value="${line.receiveQty || 0}" style="width: 50px; border: none; background: none; text-align: center; color: #fff; font-weight: 800; font-family: 'Outfit'; font-size: 0.95rem; padding: 0; outline: none;" onfocus="this.select()" onchange="updateReceiveQty('${line.id}', this.value)">
-                            <button type="button" onclick="changeQtyStep('${line.id}', 1)" style="background: none; border: none; color: #10b981; width: 26px; height: 26px; font-weight: 800; cursor: pointer; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; transition: background 0.2s;" onmouseover="this.style.background='rgba(16,185,129,0.1)'" onmouseout="this.style.background='none'">+</button>
-                        </div>
+                        <input type="number" class="qty-input" value="${line.receiveQty || 0}" step="any" style="width: 100px; max-width: 100%; background: rgba(15,23,42,0.6); border: 1px solid #38bdf8; text-align: center; color: #fff; padding: 10px; border-radius: 8px; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); transition: all 0.2s; ${inputStyleNum}" onfocus="this.select(); this.style.borderColor='#10b981'; this.style.boxShadow='0 0 10px rgba(16,185,129,0.4)';" onblur="this.style.borderColor='#38bdf8'; this.style.boxShadow='inset 0 2px 4px rgba(0,0,0,0.3)';" onchange="updateReceiveQty('${line.id}', this.value)">
                     </td>
-                    <td style="text-align:center; font-family:'Outfit'; font-weight:800; color:${remainingColor};">${line.isSplit ? '—' : remainingQty}</td>
-                    <td style="text-align:center; font-family:'Outfit'; font-weight:700; color:var(--gold-primary);">${fmtNum(lineTotal)} SDG</td>
+                    <td style="text-align:center; ${cellStyleNum}; color:${remainingColor} !important;">${line.isSplit ? '—' : fmtGridNum(remainingQty)}</td>
+                    <td style="text-align:center; ${cellStyleNum}; color:var(--gold-primary) !important;">${fmtGridNum(lineTotal)} SDG</td>
                     <td style="text-align:center;">
                         <select class="wh-select" style="padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; width: 100%;" 
                                 onchange="updateLineWarehouse('${line.id}', this.value)">
@@ -1340,6 +1357,8 @@
                             <th style="text-align:center; width:15%;">الفاتورة الأصلية</th>
                             <th style="text-align:center;">التاريخ والوقت</th>
                             <th style="text-align:right;">الأصناف المستلمة</th>
+                            <th style="text-align:center;">المستودع</th>
+                            <th style="text-align:center;">إجمالي القيمة</th>
                             <th style="text-align:center;">بواسطة</th>
                             <th style="text-align:center; width: 120px;">الإجراءات</th>
                         </tr>
@@ -1355,11 +1374,29 @@
                 const editBadge = isEditingThis ? '<span style="background: #f59e0b; color: #000; padding: 2px 6px; border-radius: 4px; font-size: 0.65rem; font-weight: bold; margin-right: 8px;">قيد التعديل ✏️</span>' : '';
 
                 const positiveItems = grn.items.filter(item => item.quantity > 0);
+                let totalValue = 0;
+                let grnWarehouses = new Set();
+
                 let itemsSummary = positiveItems.map(item => {
                     const itemObj = itemsDb.find(i => i.id === item.itemId);
                     const name = itemObj ? itemObj.name : 'صنف غير معروف';
+                    
+                    totalValue += (parseFloat(item.price) || 0) * (parseFloat(item.quantity) || 0);
+                    
+                    if (item.warehouseId && item.warehouseId !== 'PENDING_RECEIPT') {
+                        const whObj = warehousesDb.find(w => w.id === item.warehouseId);
+                        if (whObj) grnWarehouses.add(whObj.name);
+                        else grnWarehouses.add(item.warehouseId);
+                    } else if (grn.warehouse) {
+                        const whObj = warehousesDb.find(w => w.id === grn.warehouse);
+                        if (whObj) grnWarehouses.add(whObj.name);
+                        else grnWarehouses.add(grn.warehouse);
+                    }
+
                     return `${name} (${item.quantity} ${item.unitName || 'وحدة'})`;
                 }).join('<br>');
+                
+                let warehouseStr = Array.from(grnWarehouses).join('، ') || 'المخزن الرئيسي';
 
                 let dateStr = '—';
                 try {
@@ -1375,9 +1412,11 @@
                 html += `
                     <tr style="border-bottom: 1px solid rgba(255,255,255,0.03); ${rowBg}">
                         <td style="color: #38bdf8; font-weight: 800; font-family: 'Outfit';">${grn.id} ${editBadge}</td>
-                        <td style="text-align:center; color: #fbbf24; font-weight: bold; font-family: 'Outfit';">${grn.originalInvoiceId}</td>
+                        <td style="text-align:center; color: #fbbf24; font-weight: bold; font-family: 'Outfit'; cursor: pointer;" ondblclick="window.open('purchase.php?id=${grn.originalInvoiceId}', '_blank')" title="انقر مرتين لفتح الفاتورة">${grn.originalInvoiceId}</td>
                         <td style="text-align:center; font-family: 'Outfit';">${dateStr}</td>
                         <td style="color:#e2e8f0; line-height: 1.4;">${itemsSummary}</td>
+                        <td style="text-align:center; font-weight: 600; color: #94a3b8;">${warehouseStr}</td>
+                        <td style="text-align:center; font-family: 'Outfit'; font-weight: 800; color: #fbbf24;">${fmtNum(totalValue)} SDG</td>
                         <td style="text-align:center; color:#a855f7; font-weight: 600;">${creatorName}</td>
                         <td style="text-align:center;">
                             <div style="display: flex; gap: 6px; justify-content: center;">
@@ -1493,7 +1532,95 @@
             renderReceiptLines();
         });
 
+        // --- Grid Formatting Context Menu ---
+        function showGridContextMenu(e) {
+            e.preventDefault();
+            const menu = document.getElementById('grid-context-menu');
+            menu.style.display = 'block';
+            menu.style.left = e.pageX + 'px';
+            menu.style.top = e.pageY + 'px';
+        }
+
+        document.addEventListener('click', function(e) {
+            const menu = document.getElementById('grid-context-menu');
+            if (menu && menu.style.display === 'block') {
+                menu.style.display = 'none';
+            }
+        });
+
+        function openGridSettings() {
+            let gridPrefs = { font: 'Outfit', size: '14', color: '#ffffff', decimals: 2, thousands: true };
+            try {
+                const stored = localStorage.getItem('erp_grn_grid_prefs');
+                if (stored) gridPrefs = JSON.parse(stored);
+            } catch(e) {}
+            
+            document.getElementById('grid-font-family').value = gridPrefs.font;
+            document.getElementById('grid-font-size').value = gridPrefs.size;
+            document.getElementById('grid-text-color').value = gridPrefs.color;
+            document.getElementById('grid-decimals').value = gridPrefs.decimals;
+            document.getElementById('grid-thousands-sep').checked = gridPrefs.thousands;
+            
+            document.getElementById('grid-settings-modal').style.display = 'flex';
+        }
+
+        function saveGridSettings() {
+            const prefs = {
+                font: document.getElementById('grid-font-family').value,
+                size: document.getElementById('grid-font-size').value,
+                color: document.getElementById('grid-text-color').value,
+                decimals: document.getElementById('grid-decimals').value,
+                thousands: document.getElementById('grid-thousands-sep').checked
+            };
+            localStorage.setItem('erp_grn_grid_prefs', JSON.stringify(prefs));
+            document.getElementById('grid-settings-modal').style.display = 'none';
+            renderReceiptLines();
+        }
     </script>
+
+    <!-- Context Menu HTML -->
+    <div id="grid-context-menu" style="display: none; position: absolute; z-index: 100000; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border: 1px solid #38bdf8; border-radius: 8px; box-shadow: 0 5px 15px rgba(0,0,0,0.5); padding: 5px; min-width: 150px;">
+        <div onclick="openGridSettings()" style="padding: 10px 15px; color: #fff; cursor: pointer; border-radius: 5px; transition: background 0.2s; font-size: 0.9rem;" onmouseover="this.style.background='rgba(56,189,248,0.2)'" onmouseout="this.style.background='none'">
+            🎨 تنسيق الأرقام والخلايا
+        </div>
+    </div>
+
+    <!-- Grid Settings Modal -->
+    <div class="modal-overlay" id="grid-settings-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); z-index: 100001; justify-content: center; align-items: center;">
+        <div class="modal-card" style="width: 400px; background: #0f172a; border: 1px solid #38bdf8; border-radius: 12px; padding: 20px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">
+                <h3 style="color: #38bdf8; margin: 0; font-family: 'Tajawal';">🎨 تنسيق الأرقام</h3>
+                <button onclick="document.getElementById('grid-settings-modal').style.display='none'" style="background: none; border: none; color: #fff; cursor: pointer; font-size: 1.2rem;">✕</button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 15px; font-family: 'Tajawal';">
+                <div>
+                    <label style="color: #94a3b8; font-size: 0.85rem; display: block; margin-bottom: 5px;">نوع الخط (للأرقام)</label>
+                    <select id="grid-font-family" class="v-input" style="width: 100%;">
+                        <option value="Outfit">Outfit</option>
+                        <option value="Tajawal">Tajawal</option>
+                        <option value="Arial">Arial</option>
+                    </select>
+                </div>
+                <div>
+                    <label style="color: #94a3b8; font-size: 0.85rem; display: block; margin-bottom: 5px;">حجم الخط (px)</label>
+                    <input type="number" id="grid-font-size" class="v-input" style="width: 100%;" value="14">
+                </div>
+                <div>
+                    <label style="color: #94a3b8; font-size: 0.85rem; display: block; margin-bottom: 5px;">لون النص للأرقام</label>
+                    <input type="color" id="grid-text-color" class="v-input" style="width: 100%; height: 40px; padding: 2px;" value="#ffffff">
+                </div>
+                <div>
+                    <label style="color: #94a3b8; font-size: 0.85rem; display: block; margin-bottom: 5px;">المنازل العشرية</label>
+                    <input type="number" id="grid-decimals" class="v-input" style="width: 100%;" value="2" min="0" max="4">
+                </div>
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <input type="checkbox" id="grid-thousands-sep" checked style="width: 18px; height: 18px;">
+                    <label style="color: #fff; font-size: 0.9rem;">استخدام الفاصلة الألفية (Thousand Separator)</label>
+                </div>
+                <button class="btn-action" style="margin-top: 10px; width: 100%; padding: 10px; font-size: 1rem;" onclick="saveGridSettings()">حفظ التنسيق</button>
+            </div>
+        </div>
+    </div>
 </body>
 </html>
 

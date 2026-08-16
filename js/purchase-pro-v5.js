@@ -2263,14 +2263,14 @@ function submitInvoice(ignoreWarnings = false) {
                 const amountEl = row.querySelector('.bt-amount-input');
                 const amount = amountEl ? parseNum(amountEl.value) : 0;
                 if (amount > 0) {
-                    if (reference.length <= 6) {
-                        showToast('❌ يجب أن يكون رقم التحويل أكثر من 6 أرقام', 'error', 5000);
+                    if (reference.length < 6) {
+                        showToast('❌ رقم التحويلة أقل من 6 أرقام! يرجى التأكد.', 'error-pink', 6000);
                         validationFailed = true;
                     } else {
-                        const last5 = reference.slice(-5);
-                        const isDuplicate = existingPayments.some(p => p.reference && String(p.reference).trim().slice(-5) === last5);
+                        const last6 = reference.slice(-6);
+                        const isDuplicate = existingPayments.some(p => p.reference && String(p.reference).trim().slice(-6) === last6);
                         if (isDuplicate) {
-                            showToast(`❌ رقم التحويل منتهي بـ (${last5}) مسجل مسبقاً في حوالة أخرى!`, 'error', 5000);
+                            showToast(`❌ رقم التحويل منتهي بـ (${last6}) مسجل مسبقاً في حوالة أخرى ولن يتكرر في النظام!`, 'error', 6000);
                             validationFailed = true;
                         }
                     }
@@ -2285,17 +2285,26 @@ function submitInvoice(ignoreWarnings = false) {
         }
         
         if (chequeActive) {
+            let validationFailed = false;
             document.querySelectorAll('#cheques-list .payment-row-item').forEach(row => {
-                const chequeNo = row.querySelector('.ch-no-input') ? row.querySelector('.ch-no-input').value : '';
+                const chequeNo = row.querySelector('.ch-no-input') ? row.querySelector('.ch-no-input').value.trim() : '';
                 const bankAccountId = row.querySelector('.ch-bank-select') ? row.querySelector('.ch-bank-select').value : '';
                 const dueDate = row.querySelector('.ch-date-input') ? row.querySelector('.ch-date-input').value : '';
                 const amountEl = row.querySelector('.ch-amount-input');
                 const amount = amountEl ? parseNum(amountEl.value) : 0;
                 if (amount > 0) {
+                    if (!chequeNo) {
+                        showToast('❌ رقم الشيك فاضي! يجب إدخال رقم الشيك لإتمام العملية.', 'error', 6000);
+                        validationFailed = true;
+                    }
                     cheques.push({ chequeNo, bankAccountId, dueDate, amount });
                     chequesSum += amount;
                 }
             });
+            if (validationFailed) {
+                window.isSubmitting = false;
+                return;
+            }
         }
 
         const totalPaid = cashAmt + creditAmt + transfersSum + chequesSum;
@@ -3843,13 +3852,13 @@ function addBankTransferRow(existingData = null) {
         ? `<button type="button" onclick="addBankTransferRow()" style="background: transparent; border: 1.5px solid #06b6d4; color: #06b6d4; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; padding: 0; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(6,182,212,0.1)'" onmouseout="this.style.background='transparent'">+</button>`
         : `<button type="button" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: transparent; border: 1.5px solid #ef4444; color: #ef4444; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; padding: 0; padding-bottom: 2px; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.background='transparent'">×</button>`;
 
-    const inputStyle = "background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 6px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 42px; outline: none; padding: 0 8px; width: 100%;";
-    const amountStyle = "background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 6px; text-align: center; font-size: 1.4rem; font-weight: 700; color: #38bdf8 !important; height: 42px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%;";
+    const inputStyle = "background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 6px; text-align: center; font-size: 4.9rem; font-weight: 800; color: #000000; height: 90px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%;";
+    const amountStyle = "background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 6px; text-align: center; font-size: 4.9rem; font-weight: 800; color: #000000; height: 90px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%;";
 
     const rowHtml = `
         <div class="payment-row-item" id="${rowId}" style="display: grid; grid-template-columns: 85px 1.5fr 1.2fr 1.2fr 2fr 30px; gap: 8px; align-items: center; width: 100%; margin-bottom: 6px;">
             ${labelHtml}
-            <input type="number" class="v-input ctrl-input bt-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : ''}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="${amountStyle}">
+            <input type="number" class="v-input ctrl-input bt-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? Math.round(parseFloat(existingData.amount)) : ''}" step="1" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="${amountStyle}">
             <select class="v-input ctrl-input bt-bank-select" style="${inputStyle}">
                 ${banksHtml}
             </select>
@@ -3892,13 +3901,13 @@ function addChequeRow(existingData = null) {
         ? `<button type="button" onclick="addChequeRow()" style="background: transparent; border: 1.5px solid #a855f7; color: #a855f7; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; padding: 0; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(168,85,247,0.1)'" onmouseout="this.style.background='transparent'">+</button>`
         : `<button type="button" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: transparent; border: 1.5px solid #ef4444; color: #ef4444; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; padding: 0; padding-bottom: 2px; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.background='transparent'">×</button>`;
 
-    const inputStyle = "background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 6px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 42px; outline: none; padding: 0 8px; width: 100%;";
-    const amountStyle = "background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 6px; text-align: center; font-size: 1.4rem; font-weight: 700; color: #c084fc !important; height: 42px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%;";
+    const inputStyle = "background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 6px; text-align: center; font-size: 4.9rem; font-weight: 800; color: #000000; height: 90px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%;";
+    const amountStyle = "background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 6px; text-align: center; font-size: 4.9rem; font-weight: 800; color: #000000; height: 90px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%;";
 
     const rowHtml = `
         <div class="payment-row-item" id="${rowId}" style="display: grid; grid-template-columns: 85px 1.5fr 1.2fr 1.2fr 1fr 1fr 30px; gap: 8px; align-items: center; width: 100%; margin-bottom: 6px;">
             ${labelHtml}
-            <input type="number" class="v-input ctrl-input ch-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? parseFloat(existingData.amount).toFixed(2) : ''}" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="${amountStyle}">
+            <input type="number" class="v-input ctrl-input ch-amount-input dynamic-focus-input dynamic-focus-amount" value="${existingData ? Math.round(parseFloat(existingData.amount)) : ''}" step="1" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="${amountStyle}">
             <select class="v-input ctrl-input ch-bank-select" style="${inputStyle}">
                 ${banksHtml}
             </select>
@@ -4025,7 +4034,7 @@ function recalcPaymentSummary(isRevertCall = false) {
     const creditAmt = Math.max(0, grand - (cashAmt + transfersSum + chequesSum));
     const creditInput = document.getElementById('pay-credit-amount');
     if (creditInput) {
-        creditInput.value = creditAmt.toFixed(2);
+        creditInput.value = Math.round(creditAmt);
     }
     
     // Collapse credit section if it becomes zero, showing it again if > 0
@@ -4186,16 +4195,16 @@ function autofillRemaining(type) {
     const remainingToFill = grand - currentTotalPaidExceptTarget;
     
     if (type === 'cash') {
-        document.getElementById('pay-cash-amount').value = Math.max(0, remainingToFill).toFixed(2);
+        document.getElementById('pay-cash-amount').value = Math.round(Math.max(0, remainingToFill));
     } else if (type === 'bank') {
         const firstAmtInput = document.querySelector('#bank-transfers-list .bt-amount-input');
         if (firstAmtInput) {
-            firstAmtInput.value = Math.max(0, remainingToFill).toFixed(2);
+            firstAmtInput.value = Math.round(Math.max(0, remainingToFill));
         }
     } else if (type === 'cheque') {
         const firstAmtInput = document.querySelector('#cheques-list .ch-amount-input');
         if (firstAmtInput) {
-            firstAmtInput.value = Math.max(0, remainingToFill).toFixed(2);
+            firstAmtInput.value = Math.round(Math.max(0, remainingToFill));
         }
     }
     
@@ -4468,7 +4477,7 @@ document.addEventListener('blur', function(event) {
     const input = event.target;
     if (input.id === 'pay-cash-amount' || input.classList.contains('bt-amount-input') || input.classList.contains('ch-amount-input')) {
         const val = parseFloat(input.value) || 0;
-        input.value = val.toFixed(2);
+        input.value = Math.round(val);
     }
 }, true);
 
