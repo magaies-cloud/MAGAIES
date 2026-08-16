@@ -539,11 +539,8 @@
             <div class="editor-layout" style="display: flex; gap: 20px; flex: 1; align-items: stretch; min-height: 0;">
                 <!-- Left: Items Table -->
                 <div class="editor-left" style="flex: 1; display: flex; flex-direction: column;">
-                    <div class="neo-card-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
-                        <div style="display: flex; align-items: center; gap: 10px;">
-                            <span>📦 قيد الاستلام</span>
-                            <button class="btn-action" style="padding: 4px 10px; font-size: 0.8rem; background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.2); color: #38bdf8;" onclick="openGrnSettings()">⚙️ إعدادات الجدول</button>
-                        </div>
+                    <div class="neo-card-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                        <span>📦 قائمة الأصناف المعلقة للفاتورة</span>
                         <button class="btn-action btn-cancel" style="padding: 6px 12px; font-size: 0.8rem;" onclick="showHub()">إلغاء وتراجع</button>
                     </div>
                     
@@ -551,13 +548,16 @@
                         <table class="pos-grid" style="width: 100%;">
                             <thead style="position: sticky; top: 0; z-index: 10; background: #0f172a;">
                                 <tr>
-                                    <th style="display:none; text-align:center; width:12%;">سعر الوحدة</th>
+                                                                        <th style="display:none; text-align:center; width:12%;">سعر الوحدة</th>
                                     <th style="display:none; text-align:center; width:12%;">القيمة المستلمة</th>
-                                    <th style="text-align:right; width:20%;">الصنف</th>
-                                    <th style="text-align:center; width:8%;">الوحدة</th>
-                                    <th style="text-align:center; width:10%;">الكمية</th>
-                                    <th style="text-align:center; width:150px; color:#38bdf8;">الكمية المستلمة (الآن)</th>
-                                    <th style="text-align:center; width:160px;">المستودع المُستلِم</th>
+                                    <th style="text-align:right; width:15%;">الصنف</th>
+                                    <th style="text-align:center; width:8%;">وحدة الشراء</th>
+                                    <th style="text-align:center; width:8%;">كمية الشراء</th>
+                                    <th style="text-align:center; width:8%;">التعادل</th>
+                                    <th style="text-align:center; width:10%;">الكمية بالوحدة الأساسية</th>
+                                    <th style="text-align:center; width:120px; color:#38bdf8;">الكمية المستلمة حسب الوحدة</th>
+                                    <th style="text-align:center; width:10%;">الكمية بالوحدة</th>
+                                    <th style="text-align:center; width:130px;">المستودع المُستلِم</th>
                                     <th style="text-align:center; width:60px;">تقسيم</th>
                                 </tr>
                             </thead>
@@ -694,7 +694,7 @@
                     // fallback to old global settings if no per-col
                     if (parsed.font && !parsed.col_0) return { ...defaultPrefs, font: parsed.font, size: parsed.size, color: parsed.color, align: parsed.align, decimals: parsed.decimals, thousands: parsed.thousands };
                 }
-            } catch(e) {} updateGrnStyles();
+            } catch(e) {}
             return defaultPrefs;
         }
 
@@ -958,7 +958,7 @@
                 const counterContainer = document.getElementById('hub-counter-badge');
                 counterContainer.innerHTML = '';
                 setTimeout(() => {
-                    counterContainer.innerHTML = `<span class="counter-animate-abs" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 6px 30px; border-radius: 40px; font-size: 1.6rem; font-weight: 900; box-shadow: 0 10px 25px rgba(245, 158, 11, 0.5), inset 0 2px 5px rgba(255,255,255,0.3); border: 2px solid rgba(255,255,255,0.2); font-family: 'Outfit', 'Tajawal', sans-serif; white-space: nowrap; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">${filteredIds.length} فاتورة غير مستلمة</span>`;
+                    counterContainer.innerHTML = `<span class="counter-animate-abs" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 6px 30px; border-radius: 40px; font-size: 1.6rem; font-weight: 900; box-shadow: 0 10px 25px rgba(245, 158, 11, 0.5), inset 0 2px 5px rgba(255,255,255,0.3); border: 2px solid rgba(255,255,255,0.2); font-family: 'Outfit', 'Tajawal', sans-serif; white-space: nowrap; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">${filteredIds.length} فاتورة</span>`;
                 }, 10);
             }
         }
@@ -1013,17 +1013,23 @@
             const tbody = document.getElementById('items-tbody');
             tbody.innerHTML = '';
 
-                        // Use global grnGridPrefs for per-column styles
+            let gridPrefs = { font: 'Outfit', size: '14', color: '#ffffff', decimals: 2, thousands: true };
+            try {
+                const stored = localStorage.getItem('erp_grn_grid_prefs');
+                if (stored) gridPrefs = JSON.parse(stored);
+            } catch(e) {}
+            
             function fmtGridNum(n) {
                 const num = Number(n) || 0;
-                if (grnGridPrefs.thousands) {
-                    return num.toLocaleString('en-US', {minimumFractionDigits: parseInt(grnGridPrefs.decimals), maximumFractionDigits: parseInt(grnGridPrefs.decimals)});
+                if (gridPrefs.thousands) {
+                    return num.toLocaleString('en-US', {minimumFractionDigits: parseInt(gridPrefs.decimals), maximumFractionDigits: parseInt(gridPrefs.decimals)});
                 } else {
-                    return num.toFixed(parseInt(grnGridPrefs.decimals));
+                    return num.toFixed(parseInt(gridPrefs.decimals));
                 }
             }
 
-            
+            const cellStyleNum = `font-family: '${gridPrefs.font}', sans-serif; font-size: ${gridPrefs.size}px; color: ${gridPrefs.color}; font-weight: 800;`;
+            const inputStyleNum = `font-family: '${gridPrefs.font}', sans-serif; font-size: ${Math.max(14, parseInt(gridPrefs.size))}px; font-weight: 800;`;
 
             receiptLines.forEach(line => {
                 const tr = document.createElement('tr');
@@ -1043,38 +1049,74 @@
                 const totalAssigned = otherSplits.reduce((acc, x) => acc + (x.receiveQty || 0), 0) + (line.receiveQty || 0);
                 const remainingQty = Math.round((line.maxPending - totalAssigned) * 100) / 100;
                 
-                // Styling for remaining
-                let remainingColor = '#10b981'; // Green (Fully Received)
-                if (remainingQty > 0) remainingColor = '#f59e0b'; // Orange (Partially Received)
-                else if (remainingQty < 0) remainingColor = '#ef4444'; // Red (Error)
-
+                // Style classes based on settings
+                let factor = 1;
+                if (line.factor) {
+                    factor = parseFloat(line.factor) || 1;
+                } else if (typeof itemsDb !== 'undefined') {
+                    const itemObj = itemsDb.find(i => i.id === line.itemId);
+                    if (itemObj) {
+                        const uName = line.unitName || line.unit || '';
+                        if (itemObj.units && Array.isArray(itemObj.units)) {
+                            const u = itemObj.units.find(x => (x.name && x.name === uName) || (x.unitName && x.unitName === uName) || (x.id && x.id === line.unitId));
+                            if (u && (u.factor || u.equiv)) factor = parseFloat(u.factor || u.equiv) || 1;
+                        }
+                    }
+                }
+                const baseQty = (line.maxPending * factor);
+                const rcvBaseQty = ((line.receiveQty || 0) * factor);
+                
                 tr.innerHTML = `
-                    <td style="display:none; text-align:center; font-family: 'Outfit', sans-serif; font-weight: 800;">${fmtGridNum(line.price)} SDG</td>
-                    <td style="display:none; text-align:center; font-family: 'Outfit', sans-serif; font-weight: 800; color:var(--gold-primary) !important;">${fmtGridNum(lineTotal)} SDG</td>
-                    <td class="grn-col-item" style="text-align:right; font-weight:700; ${line.isSplit ? 'padding-right: 25px;' : ''}">
-                        ${line.isSplit ? '↳ ' : ''}${getItemName(line.itemId)}
-                    </td>
-                    <td class="grn-col-unit" style="text-align:center;">${line.unitName}</td>
-                    <td class="grn-col-qty" style="text-align:center; font-family: 'Outfit', sans-serif; font-weight: 800;">${line.isSplit ? '—' : fmtGridNum(line.maxPending)}</td>
+                    <td style="display:none;" class="grn-col-item">${line.price}</td>
+                    <td style="display:none;" class="grn-col-item">${lineTotal}</td>
+                    <td style="text-align:right;" class="grn-col-item">${getItemName(line.itemId)}</td>
+                    <td style="text-align:center;" class="grn-col-unit">${line.unitName || line.unit || ''}</td>
+                    <td style="text-align:center;" class="grn-col-qty">${line.maxPending}</td>
+                    <td style="text-align:center;" class="grn-col-factor">${factor}</td>
+                    <td style="text-align:center;" class="grn-col-pendingBase">${baseQty.toLocaleString()}</td>
                     <td style="text-align:center;">
-                        <input type="number" class="qty-input grn-col-rcvQty" value="${line.receiveQty || 0}" step="any" style="width: 100px; max-width: 100%; background: rgba(15,23,42,0.6); border: 1px solid #38bdf8; text-align: center; color: #fff; padding: 10px; border-radius: 8px; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); transition: all 0.2s; font-family: 'Outfit', sans-serif; font-weight: 800;" onfocus="this.select(); this.style.borderColor='#10b981'; this.style.boxShadow='0 0 10px rgba(16,185,129,0.4)';" onblur="this.style.borderColor='#38bdf8'; this.style.boxShadow='inset 0 2px 4px rgba(0,0,0,0.3)';" onchange="updateReceiveQty('${line.id}', this.value)">
+                        <input type="number" class="qty-input grn-col-rcvQty" value="${line.receiveQty || 0}" step="any" style="width: 100px; padding: 5px; text-align: center; background: rgba(0,0,0,0.2); border: 1px solid #38bdf8; color: #fff; border-radius: 6px;" min="0" max="${remainingQty}">
                     </td>
+                    <td style="text-align:center;" class="base-rcv-qty grn-col-baseQty">${rcvBaseQty.toLocaleString()}</td>
                     <td style="text-align:center;">
-                        <select class="wh-select grn-col-warehouse" style="padding: 4px 8px; border-radius: 6px; width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.1);" 
-                                onchange="updateLineWarehouse('${line.id}', this.value)">
+                        <select class="wh-select grn-col-warehouse" style="width: 100%; padding: 5px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1); color: #fff; border-radius: 6px;">
                             ${whOptions}
                         </select>
                     </td>
-                    <td style="text-align:center; display: flex; gap: 4px; justify-content: center; align-items: center; border: none; padding-top: 12px;">
-                        <button type="button" class="btn-action" style="padding: 4px 8px; font-size: 0.8rem; background: rgba(56,189,248,0.2); border-color: rgba(56,189,248,0.3); color: #38bdf8;" 
-                                onclick="splitLine(event, '${line.id}')" title="تقسيم استلام هذا الصنف">➕</button>
-                        ${line.isSplit ? `<button type="button" class="btn-action" style="padding: 4px 8px; font-size: 0.8rem; background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.3); color: #ef4444;" onclick="removeSplit(event, '${line.id}')" title="حذف هذا التقسيم">❌</button>` : ''}
+                    <td style="text-align:center;">
+                        <button class="btn-action" style="padding: 4px 8px; font-size: 0.8rem; background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3);" onclick="splitLine('${line.id}')" title="تقسيم الكمية على مستودعات مختلفة">✂️</button>
                     </td>
                 `;
+
+                // Add events
+                const qtyInput = tr.querySelector('.qty-input');
+                const baseRcvCell = tr.querySelector('.base-rcv-qty');
+                qtyInput.addEventListener('input', function() {
+                    let val = parseFloat(this.value);
+                    if (isNaN(val) || val < 0) {
+                        this.value = '';
+                        val = 0;
+                    }
+                    if (val > remainingQty) {
+                        if(typeof showToast === 'function') showToast('لا يمكن تجاوز الكمية المتبقية!', 'error');
+                        this.value = remainingQty;
+                        val = remainingQty;
+                    }
+                    line.receiveQty = val;
+                    if (baseRcvCell) {
+                        baseRcvCell.textContent = (val * factor).toLocaleString();
+                    }
+                    updateSummary();
+                });
+
+                const whSelect = tr.querySelector('.wh-select');
+                whSelect.addEventListener('change', function() {
+                    line.warehouseId = this.value;
+                });
+
                 tbody.appendChild(tr);
             });
-
-            // Update summary details
+                // Update summary details
             let totalItems = 0;
             let totalQty = 0;
             let totalVal = 0;
@@ -1258,7 +1300,7 @@
             let currentInvData = [];
             try {
                 currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
-            } catch(e) {} updateGrnStyles();
+            } catch(e) {}
 
             if (editingGRNId) {
                 const oldGrn = allPurchases.find(p => p.id === editingGRNId);
@@ -1300,7 +1342,7 @@
             let freshPurchases = [];
             try {
                 freshPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
-            } catch(e) {} updateGrnStyles();
+            } catch(e) {}
 
             if (editingGRNId) {
                 // Edit mode: overwrite old GRN in freshPurchases
@@ -1363,7 +1405,7 @@
                 const counterContainer = document.getElementById('hub-counter-badge');
                 counterContainer.innerHTML = '';
                 setTimeout(() => {
-                    counterContainer.innerHTML = `<span class="counter-animate-abs" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; padding: 6px 30px; border-radius: 40px; font-size: 1.6rem; font-weight: 900; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.5), inset 0 2px 5px rgba(255,255,255,0.3); border: 2px solid rgba(255,255,255,0.2); font-family: 'Outfit', 'Tajawal', sans-serif; white-space: nowrap; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">${grns.length} فاتورة مستلمة</span>`;
+                    counterContainer.innerHTML = `<span class="counter-animate-abs" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; padding: 6px 30px; border-radius: 40px; font-size: 1.6rem; font-weight: 900; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.5), inset 0 2px 5px rgba(255,255,255,0.3); border: 2px solid rgba(255,255,255,0.2); font-family: 'Outfit', 'Tajawal', sans-serif; white-space: nowrap; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">${grns.length} إذن</span>`;
                 }, 10);
             }
             
@@ -1384,7 +1426,6 @@
                             <th style="text-align:center; width:15%;">الفاتورة الأصلية</th>
                             <th style="text-align:center;">التاريخ والوقت</th>
                             <th style="text-align:right;">الأصناف المستلمة</th>
-                            <th style="text-align:right;">المورد</th>
                             <th style="text-align:center;">المستودع</th>
                             <th style="text-align:center;">إجمالي القيمة</th>
                             <th style="text-align:center;">بواسطة</th>
@@ -1404,7 +1445,6 @@
                 const positiveItems = grn.items.filter(item => item.quantity > 0);
                 let totalValue = 0;
                 let grnWarehouses = new Set();
-                const suppName = getSupplierName(grn.customerId || grn.supplierId);
 
                 let itemsSummary = positiveItems.map(item => {
                     const itemObj = itemsDb.find(i => i.id === item.itemId);
@@ -1433,7 +1473,7 @@
                         year: 'numeric', month: 'numeric', day: 'numeric',
                         hour: '2-digit', minute: '2-digit'
                     });
-                } catch(e) {} updateGrnStyles();
+                } catch(e) {}
 
                 const creatorUser = usersDb.find(u => u.id === grn.createdBy || u.username === grn.createdBy);
                 const creatorName = creatorUser ? creatorUser.name : grn.createdBy || 'غير معروف';
@@ -1444,7 +1484,6 @@
                         <td style="text-align:center; color: #fbbf24; font-weight: bold; font-family: 'Outfit'; cursor: pointer;" ondblclick="window.open('purchase.php?id=${grn.originalInvoiceId}', '_blank')" title="انقر مرتين لفتح الفاتورة">${grn.originalInvoiceId}</td>
                         <td style="text-align:center; font-family: 'Outfit';">${dateStr}</td>
                         <td style="color:#e2e8f0; line-height: 1.4;">${itemsSummary}</td>
-                        <td style="text-align:right; font-weight: 700; color: #e2e8f0;">${suppName}</td>
                         <td style="text-align:center; font-weight: 600; color: #94a3b8;">${warehouseStr}</td>
                         <td style="text-align:center; font-family: 'Outfit'; font-weight: 800; color: #fbbf24;">${fmtNum(totalValue)} SDG</td>
                         <td style="text-align:center; color:#a855f7; font-weight: 600;">${creatorName}</td>
@@ -1484,7 +1523,7 @@
             let currentInvData = [];
             try {
                 currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
-            } catch(e) {} updateGrnStyles();
+            } catch(e) {}
 
             const positiveItems = grn.items.filter(item => item.quantity > 0);
             positiveItems.forEach(pItem => {
@@ -1583,7 +1622,7 @@
             try {
                 const stored = localStorage.getItem('erp_grn_grid_prefs');
                 if (stored) gridPrefs = JSON.parse(stored);
-            } catch(e) {} updateGrnStyles();
+            } catch(e) {}
             
             document.getElementById('grid-font-family').value = gridPrefs.font;
             document.getElementById('grid-font-size').value = gridPrefs.size;
@@ -1731,193 +1770,6 @@
             </div>
         </div>
     </div>
-
-<!-- GRN Grid Settings Modal -->
-<div id="grn-settings-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
-    <div style="background: #0f172a; padding: 25px; border-radius: 12px; width: 450px; border: 1px solid #38bdf8; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
-        <h3 style="color: #38bdf8; margin-top: 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">⚙️ إعدادات وتنسيق الجدول</h3>
-        
-        <div style="margin-bottom: 15px;">
-            <label style="display: block; color: #cbd5e1; margin-bottom: 5px; font-size: 0.9rem;">اختر العمود لتنسيقه:</label>
-            <select id="grn-col-select" style="width: 100%; padding: 8px; background: rgba(15, 23, 42, 0.6); color: #fff; border: 1px solid #475569; border-radius: 6px; outline: none;" onchange="loadColSettings()">
-                <option value="item">الصنف</option>
-                <option value="unit">الوحدة</option>
-                <option value="qty">الكمية</option>
-                <option value="rcvQty">الكمية المستلمة (الآن)</option>
-                <option value="warehouse">المستودع المُستلِم</option>
-            </select>
-        </div>
-
-        <div style="display: flex; gap: 15px; margin-bottom: 20px; align-items: center;">
-            <div style="flex: 1;">
-                <label style="display: block; color: #cbd5e1; margin-bottom: 5px; font-size: 0.9rem;">حجم الخط:</label>
-                <div style="display: flex; align-items: center; gap: 8px;">
-                    <button class="btn-action" style="padding: 4px 12px;" onclick="changeSelectedColSize(-1)">-</button>
-                    
-                    <span id="grn-col-size-val" style="color: #fff; font-weight: bold; width: 30px; text-align: center;">16</span>
-                    <button class="btn-action" style="padding: 4px 12px;" onclick="changeSelectedColSize(1)">+</button>
-                    <button id="grn-col-bold-btn" class="btn-action" style="padding: 4px 12px; font-weight: bold; margin-right: 10px;" onclick="toggleSelectedColBold()">B</button>
-
-                </div>
-            </div>
-            <div style="flex: 1;">
-                <label style="display: block; color: #cbd5e1; margin-bottom: 5px; font-size: 0.9rem;">لون الخط:</label>
-                <input type="color" id="grn-col-color" style="width: 100%; height: 35px; border: none; background: transparent; cursor: pointer;" onchange="updateSelectedColColor()">
-            </div>
-        </div>
-
-        <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; margin-bottom: 20px;">
-            <label style="font-size: 0.9rem; color: #cbd5e1; display:flex; align-items:center; gap:8px; margin-bottom: 10px; cursor:pointer;">
-                <input type="checkbox" id="grn-global-thousands" onchange="updateGrnGlobalPrefs()"> الفاصلة الألفية للأرقام
-            </label>
-            <label style="font-size: 0.9rem; color: #cbd5e1; display:flex; align-items:center; gap:8px;">
-                خانات عشرية للأرقام:
-                <input type="number" id="grn-global-decimals" min="0" max="4" style="width:60px; background: rgba(15, 23, 42, 0.6); border: 1px solid #475569; color: #fff; border-radius: 4px; text-align: center; padding: 4px;" onchange="updateGrnGlobalPrefs()">
-            </label>
-        </div>
-
-        <div style="display: flex; justify-content: flex-end; gap: 10px;">
-            <button class="btn-action" style="background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.3); color: #ef4444;" onclick="closeGrnSettings()">إغلاق</button>
-            <button class="btn-action" style="background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.3); color: #10b981;" onclick="saveGrnSettings()">حفظ الإعدادات</button>
-        </div>
-    </div>
-</div>
-
-<script>
-
-        // --- Column-Specific Grid Customization ---
-        let backupGrnGridPrefs = null;
-        let grnGridPrefs = {
-            decimals: 2,
-            thousands: true,
-            cols: {
-                item: { size: 14, color: '#ffffff', bold: false },
-                unit: { size: 12, color: '#94a3b8', bold: false },
-                qty: { size: 14, color: '#ffffff', bold: false },
-                rcvQty: { size: 14, color: '#ffffff', bold: false },
-                warehouse: { size: 13, color: '#ffffff', bold: false }
-            }
-        };
-
-        try {
-            const stored = localStorage.getItem('erp_grn_col_prefs');
-            if (stored) {
-                const parsed = JSON.parse(stored);
-                if (parsed.decimals !== undefined) grnGridPrefs.decimals = parsed.decimals;
-                if (parsed.thousands !== undefined) grnGridPrefs.thousands = parsed.thousands;
-                if (parsed.cols) {
-                    for (let c in grnGridPrefs.cols) {
-                        if (parsed.cols[c]) {
-                            if (parsed.cols[c].size !== undefined) grnGridPrefs.cols[c].size = parsed.cols[c].size;
-                            if (parsed.cols[c].color !== undefined) grnGridPrefs.cols[c].color = parsed.cols[c].color;
-                            if (parsed.cols[c].bold !== undefined) grnGridPrefs.cols[c].bold = parsed.cols[c].bold;
-                        }
-                    }
-                }
-            }
-        } catch(e) {} updateGrnStyles();
-
-        
-        function updateGrnStyles() {
-            let styleEl = document.getElementById('grn-dynamic-styles');
-            if (!styleEl) {
-                styleEl = document.createElement('style');
-                styleEl.id = 'grn-dynamic-styles';
-                document.head.appendChild(styleEl);
-            }
-            
-            let css = '';
-            const cols = grnGridPrefs.cols;
-            if(cols.item) css += `.grn-col-item { font-size: ${cols.item.size || 14}px !important; color: ${cols.item.color || '#ffffff'} !important; ${cols.item.bold ? 'font-weight: 900 !important;' : ''} }\n`;
-            if(cols.unit) css += `.grn-col-unit { font-size: ${cols.unit.size || 12}px !important; color: ${cols.unit.color || '#94a3b8'} !important; ${cols.unit.bold ? 'font-weight: 900 !important;' : ''} }\n`;
-            if(cols.qty) css += `.grn-col-qty { font-size: ${cols.qty.size || 14}px !important; color: ${cols.qty.color || '#ffffff'} !important; ${cols.qty.bold ? 'font-weight: 900 !important;' : ''} }\n`;
-            if(cols.rcvQty) css += `.grn-col-rcvQty { font-size: ${cols.rcvQty.size || 14}px !important; color: ${cols.rcvQty.color || '#ffffff'} !important; ${cols.rcvQty.bold ? 'font-weight: 900 !important;' : ''} }\n`;
-            if(cols.warehouse) css += `.grn-col-warehouse { font-size: ${cols.warehouse.size || 13}px !important; color: ${cols.warehouse.color || '#ffffff'} !important; ${cols.warehouse.bold ? 'font-weight: 900 !important;' : ''} }\n`;
-            
-            styleEl.innerHTML = css;
-        }
-
-        function openGrnSettings() {
-            document.getElementById('grn-settings-modal').style.display = 'flex';
-            document.getElementById('grn-global-thousands').checked = grnGridPrefs.thousands;
-            document.getElementById('grn-global-decimals').value = grnGridPrefs.decimals;
-            loadColSettings();
-        }
-
-        function closeGrnSettings() {
-            document.getElementById('grn-settings-modal').style.display = 'none';
-            if (backupGrnGridPrefs) {
-                grnGridPrefs = JSON.parse(JSON.stringify(backupGrnGridPrefs));
-                backupGrnGridPrefs = null;
-                updateGrnStyles();
-                renderReceiptLines();
-            }
-        }
-
-                function loadColSettings() {
-            const col = document.getElementById('grn-col-select').value;
-            const prefs = grnGridPrefs.cols[col] || { size: 14, color: '#ffffff', bold: false };
-            document.getElementById('grn-col-size-val').textContent = prefs.size;
-            document.getElementById('grn-col-color').value = prefs.color;
-            const boldBtn = document.getElementById('grn-col-bold-btn');
-            if (boldBtn) {
-                if (prefs.bold) {
-                    boldBtn.style.background = 'rgba(56, 189, 248, 0.3)';
-                    boldBtn.style.color = '#fff';
-                    boldBtn.style.borderColor = '#38bdf8';
-                } else {
-                    boldBtn.style.background = '';
-                    boldBtn.style.color = '';
-                    boldBtn.style.borderColor = '';
-                }
-            }
-        }
-
-        
-        function toggleSelectedColBold() {
-            const col = document.getElementById('grn-col-select').value;
-            if (grnGridPrefs.cols[col].bold === undefined) grnGridPrefs.cols[col].bold = false;
-            grnGridPrefs.cols[col].bold = !grnGridPrefs.cols[col].bold;
-            loadColSettings(); // update button ui
-            updateGrnStyles();
-        }
-
-        function changeSelectedColSize(delta) {
-            const col = document.getElementById('grn-col-select').value;
-            let currentSize = parseInt(grnGridPrefs.cols[col].size, 10);
-            if (isNaN(currentSize)) currentSize = 14;
-            currentSize = Math.max(10, Math.min(30, currentSize + delta));
-            grnGridPrefs.cols[col].size = currentSize;
-            document.getElementById('grn-col-size-val').textContent = currentSize;
-            updateGrnStyles();
-            renderReceiptLines();
-        }
-
-        function updateSelectedColColor() {
-            const col = document.getElementById('grn-col-select').value;
-            grnGridPrefs.cols[col].color = document.getElementById('grn-col-color').value;
-            updateGrnStyles();
-            renderReceiptLines();
-        }
-
-        function updateGrnGlobalPrefs() {
-            grnGridPrefs.thousands = document.getElementById('grn-global-thousands').checked;
-            grnGridPrefs.decimals = parseInt(document.getElementById('grn-global-decimals').value) || 0;
-            renderReceiptLines();
-        }
-
-        function saveGrnSettings() {
-            localStorage.setItem('erp_grn_col_prefs', JSON.stringify(grnGridPrefs));
-            closeGrnSettings();
-            if (typeof showToast === 'function') {
-                showToast('تم حفظ إعدادات الجدول بنجاح!', 'success');
-            } else {
-                alert('تم حفظ إعدادات الجدول بنجاح!');
-            }
-        }
-        // ------------------------------------------
-
-</script>
 </body>
 </html>
 
