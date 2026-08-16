@@ -951,11 +951,36 @@ JSON.parse = function(val) {
             try {
                 originalSetItem.call(localStorage, tenantKey, value);
             } catch (e) {
-                console.warn("localStorage quota exceeded for key", key, e);
-                // Alert the user so they know data might not be saved synchronously
-                if (!window._quotaAlertShown) {
-                    window._quotaAlertShown = true;
-                    alert("تحذير: مساحة التخزين المؤقتة للمتصفح ممتلئة! يرجى إبقاء الصفحة مفتوحة قليلاً لضمان حفظ البيانات في الخلفية، أو قم بتفريغ بعض البيانات القديمة.");
+                console.warn("localStorage quota exceeded for key", key, ". Auto-cleaning...");
+                // Auto-cleanup: find and remove largest non-essential localStorage entries
+                try {
+                    const protectedKeys = ['authToken', 'user', 'tenant_id', 'erp_settings_v1', 'session_active', 'tenant_currencies_locked'];
+                    const currentTenantKey = tenantKey; // don't delete what we're trying to save
+                    
+                    // Collect all entries with sizes
+                    let entries = [];
+                    for (let i = 0; i < localStorage.length; i++) {
+                        const k = localStorage.key(i);
+                        if (!k || protectedKeys.some(pk => k.includes(pk)) || k === currentTenantKey) continue;
+                        const val = originalGetItem.call(localStorage, k);
+                        entries.push({ key: k, size: val ? val.length : 0 });
+                    }
+                    
+                    // Sort by size descending — remove biggest items first
+                    entries.sort((a, b) => b.size - a.size);
+                    
+                    // Remove up to 30% of entries (the biggest ones)
+                    const removeCount = Math.max(3, Math.ceil(entries.length * 0.3));
+                    for (let i = 0; i < Math.min(removeCount, entries.length); i++) {
+                        originalRemoveItem.call(localStorage, entries[i].key);
+                        console.log("Auto-cleaned localStorage key:", entries[i].key, "size:", entries[i].size);
+                    }
+                    
+                    // Retry saving
+                    originalSetItem.call(localStorage, tenantKey, value);
+                    console.log("localStorage save succeeded after auto-cleanup");
+                } catch (retryErr) {
+                    console.warn("localStorage still full after cleanup, relying on IndexedDB", retryErr);
                 }
             }
 
