@@ -1786,6 +1786,7 @@
 <script>
 
         // --- Column-Specific Grid Customization ---
+        let backupGrnGridPrefs = null;
         let grnGridPrefs = {
             decimals: 2,
             thousands: true,
@@ -1835,6 +1836,12 @@
 
         function closeGrnSettings() {
             document.getElementById('grn-settings-modal').style.display = 'none';
+            if (backupGrnGridPrefs) {
+                grnGridPrefs = JSON.parse(JSON.stringify(backupGrnGridPrefs));
+                backupGrnGridPrefs = null;
+                updateGrnStyles();
+                renderReceiptLines();
+            }
         }
 
                 function loadColSettings() {
