@@ -1579,15 +1579,16 @@ function renderGridHead() {
     thead.innerHTML = `
         <tr>
             <th data-col-id="col_index" style="width: 40px; text-align: center; font-size: 1.05rem;">م</th>
-            <th data-col-id="available" style="width: 130px; text-align: center; font-size: 1.25rem; font-weight: bold;" title="الكمية المتوفرة بالمخزن تلقائياً">المتاح</th>
             <th data-col-id="item" style="width: 25%; text-align: right; font-size: 1.25rem; font-weight: bold;">الصنف</th>
             <th data-col-id="unit" style="width: 110px; text-align: center; font-size: 1.25rem; font-weight: bold;">الوحدة</th>
+            <th data-col-id="available" style="width: 130px; text-align: center; font-size: 1.25rem; font-weight: bold;" title="الكمية المتوفرة بالمخزن تلقائياً">المتاح</th>
             <th data-col-id="quantity" style="width: 100px; text-align: center; font-size: 1.25rem; font-weight: bold;">الكمية</th>
             <th data-col-id="price" style="width: 140px; text-align: center; font-size: 1.25rem; font-weight: bold;">${priceHeader}</th>
-            <th data-col-id="total" style="width: 160px; text-align: center; font-size: 1.25rem; font-weight: bold;">${totalHeader}</th>
-            ${!isBaseSDG ? `<th data-col-id="fcprice" style="width: 120px; text-align: center; font-size: 1.05rem;">سعر (جنيه)</th><th data-col-id="fctotal" style="width: 120px; text-align: center; font-size: 1.05rem;">جملة (جنيه)</th>` : ''}
+            ${!isBaseSDG ? `<th data-col-id="fcprice" style="width: 120px; text-align: center; font-size: 1.05rem;">سعر (جنيه)</th>` : ''}
             <th style="width: 140px; text-align: center; font-size: 1.05rem;">المخزن</th>
             <th style="width: 120px; text-align: center; font-size: 1.25rem; font-weight: bold;">ملحوظة</th>
+            <th data-col-id="total" style="width: 160px; text-align: center; font-size: 1.25rem; font-weight: bold;">${totalHeader}</th>
+            ${!isBaseSDG ? `<th data-col-id="fctotal" style="width: 120px; text-align: center; font-size: 1.05rem;">جملة (جنيه)</th>` : ''}
             <th style="width: 90px; text-align: center; font-size: 1.05rem;">إجراء</th>
         </tr>
     `;
@@ -1743,11 +1744,6 @@ function renderGrid() {
         
         let trHtml = `
             <td style="text-align: center;"><div class="row-num">${idx + 1}</div></td>
-            <td style="text-align: center;">
-                <span class="g-readonly avail-val" data-avail="${row.id}" style="display: inline-block; width: 100%; text-align: center; background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 6px; padding: 5px 2px; font-size: 1.25rem; font-weight: bold; font-family: 'JetBrains Mono', monospace;" title="الكمية المتوفرة حالياً بالمخزن تلقائياً">
-                    ${row.availableQty !== undefined ? fmtNum(row.availableQty, 'available') : '0'}
-                </span>
-            </td>
             <td style="position:relative; text-align: right;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     ${item && item.image ? 
@@ -1772,6 +1768,11 @@ function renderGrid() {
                 </select>
             </td>
             <td style="text-align: center;">
+                <span class="g-readonly avail-val" data-avail="${row.id}" style="display: inline-block; width: 100%; text-align: center; background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 6px; padding: 5px 2px; font-size: 1.25rem; font-weight: bold; font-family: 'JetBrains Mono', monospace;" title="الكمية المتوفرة حالياً بالمخزن تلقائياً">
+                    ${row.availableQty !== undefined ? fmtNum(row.availableQty, 'available') : '0'}
+                </span>
+            </td>
+            <td style="text-align: center;">
                 <input type="text" inputmode="decimal" class="g-input" data-qty-input="${row.id}" value="${Number.isInteger(row.quantity) ? row.quantity : parseFloat((row.quantity || 0).toFixed(4)) || ''}" placeholder="0"
                     onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)"
                     onblur="this.value=parseNum(this.value)||''" style="text-align: center; width: 95%; margin: 0 auto; display: block; font-size: 1.25rem; font-weight: bold; color: #facc15;">
@@ -1782,17 +1783,11 @@ function renderGrid() {
                     onblur="this.value=fmtNum(parseNum(this.value), 'price')" 
                     style="text-align: center; width: 100%; font-size: 1.6rem; font-weight: bold; color: #fff;">
             </td>
-            <td style="text-align: center;">
-                <span class="g-readonly total-val" data-total="${row.id}" style="font-size: 1.6rem; font-weight: bold; color: #34d399;">${fmtNum(calcs.total, 'total')}</span>
-            </td>
             ${!isBaseSDG ? `
             <td style="text-align: center;">
                 <input type="text" inputmode="decimal" class="g-input" data-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1), 'fcprice')}"
                     onfocus="this.select()" oninput="updateRow(${row.id},'fcPrice',this.value)"
                     onblur="this.value=fmtNum(parseNum(this.value), 'fcprice')" style="text-align: center; width: 100%; color:#10b981; font-size: 1.05rem;" tabindex="-1">
-            </td>
-            <td style="text-align: center;">
-                <span class="g-readonly total-fc-val" style="color:#10b981; font-size: 1.1rem; font-weight: bold;" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)) * (row.quantity || 0), 'fctotal')}</span>
             </td>
             ` : ''}
             <td style="text-align: center;">
@@ -1804,6 +1799,14 @@ function renderGrid() {
             <td style="text-align: center;">
                 <input type="text" class="g-input" placeholder="ملحوظة..." value="${row.note || ''}" oninput="updateRow(${row.id},'note',this.value)" style="text-align: right; width: 100%; font-size: 1.25rem; font-weight: bold;">
             </td>
+            <td style="text-align: center;">
+                <span class="g-readonly total-val" data-total="${row.id}" style="font-size: 1.6rem; font-weight: bold; color: #34d399;">${fmtNum(calcs.total, 'total')}</span>
+            </td>
+            ${!isBaseSDG ? `
+            <td style="text-align: center;">
+                <span class="g-readonly total-fc-val" style="color:#10b981; font-size: 1.1rem; font-weight: bold;" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)) * (row.quantity || 0), 'fctotal')}</span>
+            </td>
+            ` : ''}
             <td style="text-align: center;">
                 <div style="display: flex; gap: 5px; justify-content: center; align-items: center;">
                     <button type="button" class="add-row-btn" onclick="addRow()" title="إضافة سطر جديد" style="background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.35)); border: 1px solid rgba(16,185,129,0.5); color: #34d399; border-radius: 6px; padding: 6px 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
