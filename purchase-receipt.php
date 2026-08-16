@@ -1874,7 +1874,8 @@
 
         function changeSelectedColSize(delta) {
             const col = document.getElementById('grn-col-select').value;
-            let currentSize = grnGridPrefs.cols[col].size;
+            let currentSize = parseInt(grnGridPrefs.cols[col].size, 10);
+            if (isNaN(currentSize)) currentSize = 14;
             currentSize = Math.max(10, Math.min(30, currentSize + delta));
             grnGridPrefs.cols[col].size = currentSize;
             document.getElementById('grn-col-size-val').textContent = currentSize;
