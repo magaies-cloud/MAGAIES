@@ -539,8 +539,11 @@
             <div class="editor-layout" style="display: flex; gap: 20px; flex: 1; align-items: stretch; min-height: 0;">
                 <!-- Left: Items Table -->
                 <div class="editor-left" style="flex: 1; display: flex; flex-direction: column;">
-                    <div class="neo-card-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <span>📦 قيد الاستلام</span>
+                    <div class="neo-card-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span>📦 قيد الاستلام</span>
+                            <button class="btn-action" style="padding: 4px 10px; font-size: 0.8rem; background: rgba(56, 189, 248, 0.1); border-color: rgba(56, 189, 248, 0.2); color: #38bdf8;" onclick="openGrnSettings()">⚙️ إعدادات الجدول</button>
+                        </div>
                         <button class="btn-action btn-cancel" style="padding: 6px 12px; font-size: 0.8rem;" onclick="showHub()">إلغاء وتراجع</button>
                     </div>
                     
@@ -1010,23 +1013,19 @@
             const tbody = document.getElementById('items-tbody');
             tbody.innerHTML = '';
 
-            let gridPrefs = { font: 'Outfit', size: '14', color: '#ffffff', decimals: 2, thousands: true };
-            try {
-                const stored = localStorage.getItem('erp_grn_grid_prefs');
-                if (stored) gridPrefs = JSON.parse(stored);
-            } catch(e) {}
-            
+                        // Use global grnGridPrefs for per-column styles
             function fmtGridNum(n) {
                 const num = Number(n) || 0;
-                if (gridPrefs.thousands) {
-                    return num.toLocaleString('en-US', {minimumFractionDigits: parseInt(gridPrefs.decimals), maximumFractionDigits: parseInt(gridPrefs.decimals)});
+                if (grnGridPrefs.thousands) {
+                    return num.toLocaleString('en-US', {minimumFractionDigits: parseInt(grnGridPrefs.decimals), maximumFractionDigits: parseInt(grnGridPrefs.decimals)});
                 } else {
-                    return num.toFixed(parseInt(gridPrefs.decimals));
+                    return num.toFixed(parseInt(grnGridPrefs.decimals));
                 }
             }
 
-            const cellStyleNum = `font-family: '${gridPrefs.font}', sans-serif; font-size: ${gridPrefs.size}px; color: ${gridPrefs.color}; font-weight: 800;`;
-            const inputStyleNum = `font-family: '${gridPrefs.font}', sans-serif; font-size: ${Math.max(14, parseInt(gridPrefs.size))}px; font-weight: 800;`;
+            const getStyle = (col) => `font-size: ${grnGridPrefs.cols[col].size}px; color: ${grnGridPrefs.cols[col].color};`;
+            const getCellStyleNum = () => `font-family: 'Outfit', sans-serif; ${getStyle('qty')} font-weight: 800;`;
+            const getInputStyleNum = () => `font-family: 'Outfit', sans-serif; ${getStyle('rcvQty')} font-weight: 800;`;
 
             receiptLines.forEach(line => {
                 const tr = document.createElement('tr');
@@ -1054,16 +1053,16 @@
                 tr.innerHTML = `
                     <td style="display:none; text-align:center; ${cellStyleNum}">${fmtGridNum(line.price)} SDG</td>
                     <td style="display:none; text-align:center; ${cellStyleNum}; color:var(--gold-primary) !important;">${fmtGridNum(lineTotal)} SDG</td>
-                    <td style="text-align:right; font-weight:700; ${line.isSplit ? 'padding-right: 25px; color:#94a3b8;' : ''}">
+                    <td style="text-align:right; font-weight:700; ${getStyle('item')} ${line.isSplit ? 'padding-right: 25px;' : ''}">
                         ${line.isSplit ? '↳ ' : ''}${getItemName(line.itemId)}
                     </td>
-                    <td style="text-align:center; color:#94a3b8; font-size: 0.9rem;">${line.unitName}</td>
-                    <td style="text-align:center; ${cellStyleNum}">${line.isSplit ? '—' : fmtGridNum(line.maxPending)}</td>
+                    <td style="text-align:center; ${getStyle('unit')}">${line.unitName}</td>
+                    <td style="text-align:center; ${getCellStyleNum()}">${line.isSplit ? '—' : fmtGridNum(line.maxPending)}</td>
                     <td style="text-align:center;">
-                        <input type="number" class="qty-input" value="${line.receiveQty || 0}" step="any" style="width: 100px; max-width: 100%; background: rgba(15,23,42,0.6); border: 1px solid #38bdf8; text-align: center; color: #fff; padding: 10px; border-radius: 8px; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); transition: all 0.2s; ${inputStyleNum}" onfocus="this.select(); this.style.borderColor='#10b981'; this.style.boxShadow='0 0 10px rgba(16,185,129,0.4)';" onblur="this.style.borderColor='#38bdf8'; this.style.boxShadow='inset 0 2px 4px rgba(0,0,0,0.3)';" onchange="updateReceiveQty('${line.id}', this.value)">
+                        <input type="number" class="qty-input" value="${line.receiveQty || 0}" step="any" style="width: 100px; max-width: 100%; background: rgba(15,23,42,0.6); border: 1px solid #38bdf8; text-align: center; color: #fff; padding: 10px; border-radius: 8px; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); transition: all 0.2s; ${getInputStyleNum()}" onfocus="this.select(); this.style.borderColor='#10b981'; this.style.boxShadow='0 0 10px rgba(16,185,129,0.4)';" onblur="this.style.borderColor='#38bdf8'; this.style.boxShadow='inset 0 2px 4px rgba(0,0,0,0.3)';" onchange="updateReceiveQty('${line.id}', this.value)">
                     </td>
                     <td style="text-align:center;">
-                        <select class="wh-select" style="padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; width: 100%;" 
+                        <select class="wh-select" style="padding: 4px 8px; border-radius: 6px; ${getStyle('warehouse')} width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.1);" 
                                 onchange="updateLineWarehouse('${line.id}', this.value)">
                             ${whOptions}
                         </select>
@@ -1734,6 +1733,129 @@
             </div>
         </div>
     </div>
+
+<!-- GRN Grid Settings Modal -->
+<div id="grn-settings-modal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.7); z-index: 10000; justify-content: center; align-items: center; backdrop-filter: blur(5px);">
+    <div style="background: #0f172a; padding: 25px; border-radius: 12px; width: 450px; border: 1px solid #38bdf8; box-shadow: 0 10px 25px rgba(0,0,0,0.5);">
+        <h3 style="color: #38bdf8; margin-top: 0; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px;">⚙️ إعدادات وتنسيق الجدول</h3>
+        
+        <div style="margin-bottom: 15px;">
+            <label style="display: block; color: #cbd5e1; margin-bottom: 5px; font-size: 0.9rem;">اختر العمود لتنسيقه:</label>
+            <select id="grn-col-select" style="width: 100%; padding: 8px; background: rgba(15, 23, 42, 0.6); color: #fff; border: 1px solid #475569; border-radius: 6px; outline: none;" onchange="loadColSettings()">
+                <option value="item">الصنف</option>
+                <option value="unit">الوحدة</option>
+                <option value="qty">الكمية</option>
+                <option value="rcvQty">الكمية المستلمة (الآن)</option>
+                <option value="warehouse">المستودع المُستلِم</option>
+            </select>
+        </div>
+
+        <div style="display: flex; gap: 15px; margin-bottom: 20px; align-items: center;">
+            <div style="flex: 1;">
+                <label style="display: block; color: #cbd5e1; margin-bottom: 5px; font-size: 0.9rem;">حجم الخط:</label>
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <button class="btn-action" style="padding: 4px 12px;" onclick="changeSelectedColSize(-1)">-</button>
+                    <span id="grn-col-size-val" style="color: #fff; font-weight: bold; width: 30px; text-align: center;">16</span>
+                    <button class="btn-action" style="padding: 4px 12px;" onclick="changeSelectedColSize(1)">+</button>
+                </div>
+            </div>
+            <div style="flex: 1;">
+                <label style="display: block; color: #cbd5e1; margin-bottom: 5px; font-size: 0.9rem;">لون الخط:</label>
+                <input type="color" id="grn-col-color" style="width: 100%; height: 35px; border: none; background: transparent; cursor: pointer;" onchange="updateSelectedColColor()">
+            </div>
+        </div>
+
+        <div style="border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; margin-bottom: 20px;">
+            <label style="font-size: 0.9rem; color: #cbd5e1; display:flex; align-items:center; gap:8px; margin-bottom: 10px; cursor:pointer;">
+                <input type="checkbox" id="grn-global-thousands" onchange="updateGrnGlobalPrefs()"> الفاصلة الألفية للأرقام
+            </label>
+            <label style="font-size: 0.9rem; color: #cbd5e1; display:flex; align-items:center; gap:8px;">
+                خانات عشرية للأرقام:
+                <input type="number" id="grn-global-decimals" min="0" max="4" style="width:60px; background: rgba(15, 23, 42, 0.6); border: 1px solid #475569; color: #fff; border-radius: 4px; text-align: center; padding: 4px;" onchange="updateGrnGlobalPrefs()">
+            </label>
+        </div>
+
+        <div style="display: flex; justify-content: flex-end; gap: 10px;">
+            <button class="btn-action" style="background: rgba(239,68,68,0.2); border-color: rgba(239,68,68,0.3); color: #ef4444;" onclick="closeGrnSettings()">إغلاق</button>
+            <button class="btn-action" style="background: rgba(16, 185, 129, 0.2); border-color: rgba(16, 185, 129, 0.3); color: #10b981;" onclick="saveGrnSettings()">حفظ الإعدادات</button>
+        </div>
+    </div>
+</div>
+
+<script>
+
+        // --- Column-Specific Grid Customization ---
+        let grnGridPrefs = {
+            decimals: 2,
+            thousands: true,
+            cols: {
+                item: { size: 14, color: '#ffffff' },
+                unit: { size: 12, color: '#94a3b8' },
+                qty: { size: 14, color: '#ffffff' },
+                rcvQty: { size: 14, color: '#ffffff' },
+                warehouse: { size: 13, color: '#ffffff' }
+            }
+        };
+
+        try {
+            const stored = localStorage.getItem('erp_grn_col_prefs');
+            if (stored) {
+                const parsed = JSON.parse(stored);
+                grnGridPrefs = { ...grnGridPrefs, ...parsed };
+            }
+        } catch(e) {}
+
+        function openGrnSettings() {
+            document.getElementById('grn-settings-modal').style.display = 'flex';
+            document.getElementById('grn-global-thousands').checked = grnGridPrefs.thousands;
+            document.getElementById('grn-global-decimals').value = grnGridPrefs.decimals;
+            loadColSettings();
+        }
+
+        function closeGrnSettings() {
+            document.getElementById('grn-settings-modal').style.display = 'none';
+        }
+
+        function loadColSettings() {
+            const col = document.getElementById('grn-col-select').value;
+            const prefs = grnGridPrefs.cols[col] || { size: 14, color: '#ffffff' };
+            document.getElementById('grn-col-size-val').textContent = prefs.size;
+            document.getElementById('grn-col-color').value = prefs.color;
+        }
+
+        function changeSelectedColSize(delta) {
+            const col = document.getElementById('grn-col-select').value;
+            let currentSize = grnGridPrefs.cols[col].size;
+            currentSize = Math.max(10, Math.min(30, currentSize + delta));
+            grnGridPrefs.cols[col].size = currentSize;
+            document.getElementById('grn-col-size-val').textContent = currentSize;
+            renderReceiptLines();
+        }
+
+        function updateSelectedColColor() {
+            const col = document.getElementById('grn-col-select').value;
+            grnGridPrefs.cols[col].color = document.getElementById('grn-col-color').value;
+            renderReceiptLines();
+        }
+
+        function updateGrnGlobalPrefs() {
+            grnGridPrefs.thousands = document.getElementById('grn-global-thousands').checked;
+            grnGridPrefs.decimals = parseInt(document.getElementById('grn-global-decimals').value) || 0;
+            renderReceiptLines();
+        }
+
+        function saveGrnSettings() {
+            localStorage.setItem('erp_grn_col_prefs', JSON.stringify(grnGridPrefs));
+            closeGrnSettings();
+            if (typeof showToast === 'function') {
+                showToast('تم حفظ إعدادات الجدول بنجاح!', 'success');
+            } else {
+                alert('تم حفظ إعدادات الجدول بنجاح!');
+            }
+        }
+        // ------------------------------------------
+
+</script>
 </body>
 </html>
 
