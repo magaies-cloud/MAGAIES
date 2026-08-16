@@ -167,18 +167,21 @@ function setCopyLabel(val) {
 
 function toggleSettingsPanel() {
     const p = document.getElementById('settings-panel');
+    const icon = document.getElementById('ribbon-toggle-icon');
     if (!p) return;
     
     const isOpening = (p.style.display === 'none' || p.style.display === '');
     if (isOpening) {
         p.classList.add('show');
         p.style.display = 'flex';
+        if (icon) icon.innerText = '🔽';
         if (dsSelectedColIndex === null) {
             selectColumn(5); // Default to Price column
         }
     } else {
         p.classList.remove('show');
         p.style.display = 'none';
+        if (icon) icon.innerText = '▶️';
     }
 }
 

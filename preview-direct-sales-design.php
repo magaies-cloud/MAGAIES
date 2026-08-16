@@ -503,33 +503,47 @@
 </head>
 <body>
 
-<!-- Luxury Ribbon Toolbar -->
-<div class="ribbon no-print">
-    <!-- Right Side: 6 Presets -->
-    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-        <div id="presets-container" style="display:flex; gap:8px; flex-wrap: wrap;">
-            <!-- Preset buttons rendered via JS -->
+<!-- Sticky Toolbar Wrapper to hold Ribbon and Settings Panel -->
+<div class="sticky-toolbar-wrapper no-print" style="position: sticky; top: 0; z-index: 1000; width: 100%;">
+    
+    <!-- Luxury Ribbon Toolbar -->
+    <div class="ribbon">
+        <!-- Right Side: Title Input & Toggle Button & Presets -->
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            
+            <button id="ribbon-toggle-btn" class="ribbon-btn" onclick="toggleSettingsPanel()" style="background: linear-gradient(135deg, #334155, #0f172a); border: 1px solid #475569; padding: 6px 10px; box-shadow: none;" title="إظهار/إخفاء شريط الإعدادات">
+                <span id="ribbon-toggle-icon">🔽</span>
+            </button>
+
+            <!-- Copy Label Input moved to ribbon for MS Office Title Bar feel -->
+            <input type="text" id="copy-label-input" class="panel-input" 
+                    style="width: 140px; font-weight: 800; font-size: 0.9rem; color: #fff; border-color: rgba(255,255,255,0.3); background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 6px; outline: none;" 
+                    value="نسخة العميل" 
+                    oninput="setCopyLabel(this.value)"
+                    placeholder="مثال: نسخة العميل...">
+
+            <div id="presets-container" style="display:flex; gap:8px; flex-wrap: wrap;">
+                <!-- Preset buttons rendered via JS -->
+            </div>
+        </div>
+
+        <!-- Center/Left Side: Controls & Live Search -->
+        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
+            <!-- Live Quick Search Box -->
+            <input type="text" id="live-search-input" placeholder="🔍 بحث سريع..." oninput="filterTableRows(this.value)" style="padding: 6px 14px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.3); color: #fff; font-family: inherit; font-size: 0.85rem; outline: none; width: 140px;">
+
+            <button class="ribbon-btn" onclick="window.print()" style="background: linear-gradient(135deg, #0284c7, #0369a1); border:none; box-shadow:0 2px 8px rgba(3,105,161,0.4);">
+                🖨️ طباعة الفاتورة
+            </button>
+            <button class="ribbon-btn" onclick="toggleDarkMode()">🌙 عكس الألوان</button>
+            <button class="ribbon-btn" onclick="window.history.back()" style="color:#f87171; border-color:rgba(239,68,68,0.5);">❌ إغلاق / رجوع</button>
         </div>
     </div>
 
-    <!-- Center/Left Side: Controls & Live Search -->
-    <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-        <!-- Live Quick Search Box -->
-        <input type="text" id="live-search-input" placeholder="🔍 بحث سريع..." oninput="filterTableRows(this.value)" style="padding: 6px 14px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.3); color: #fff; font-family: inherit; font-size: 0.85rem; outline: none; width: 140px;">
-
-        <button class="ribbon-btn" onclick="window.print()" style="background: linear-gradient(135deg, #0284c7, #0369a1); border:none; box-shadow:0 2px 8px rgba(3,105,161,0.4);">
-            🖨️ طباعة الفاتورة
-        </button>
-        <button class="ribbon-btn" onclick="toggleSettingsPanel()" style="background: linear-gradient(135deg, #eab308, #ca8a04); border:none; box-shadow:0 2px 8px rgba(202,138,4,0.4);">
-            ⚙️ إعدادات الأعمدة
-        </button>
-        <button class="ribbon-btn" onclick="toggleDarkMode()">🌙 عكس الألوان</button>
-        <button class="ribbon-btn" onclick="window.history.back()" style="color:#f87171; border-color:rgba(239,68,68,0.5);">❌ إغلاق / رجوع</button>
-    </div>
+    <!-- Pro Studio Dropdown Panel (MS Office Ribbon Style) -->
+    <?php include 'includes/studio-settings-panel.php'; ?>
+    
 </div>
-
-<!-- Pro Studio Dropdown Panel with Slide Animation -->
-<?php include 'includes/studio-settings-panel.php'; ?>
 <!-- Print Area - Paper Sheet Layout View -->
 <div style="flex: 1; overflow-y: auto; padding: 30px; display: flex; flex-direction: column; align-items: center;">
     <div id="studio-live-preview-container" style="width: 100%; display: flex; flex-direction: column; align-items: center;">
