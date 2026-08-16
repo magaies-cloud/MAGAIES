@@ -1803,7 +1803,17 @@
             const stored = localStorage.getItem('erp_grn_col_prefs');
             if (stored) {
                 const parsed = JSON.parse(stored);
-                grnGridPrefs = { ...grnGridPrefs, ...parsed };
+                if (parsed.decimals !== undefined) grnGridPrefs.decimals = parsed.decimals;
+                if (parsed.thousands !== undefined) grnGridPrefs.thousands = parsed.thousands;
+                if (parsed.cols) {
+                    for (let c in grnGridPrefs.cols) {
+                        if (parsed.cols[c]) {
+                            if (parsed.cols[c].size !== undefined) grnGridPrefs.cols[c].size = parsed.cols[c].size;
+                            if (parsed.cols[c].color !== undefined) grnGridPrefs.cols[c].color = parsed.cols[c].color;
+                            if (parsed.cols[c].bold !== undefined) grnGridPrefs.cols[c].bold = parsed.cols[c].bold;
+                        }
+                    }
+                }
             }
         } catch(e) {} updateGrnStyles();
 
@@ -1818,11 +1828,11 @@
             
             let css = '';
             const cols = grnGridPrefs.cols;
-            if(cols.item) css += `.grn-col-item { font-size: ${cols.item.size}px !important; color: ${cols.item.color} !important; ${cols.item.bold ? 'font-weight: 900 !important;' : ''} }\n`;
-            if(cols.unit) css += `.grn-col-unit { font-size: ${cols.unit.size}px !important; color: ${cols.unit.color} !important; ${cols.unit.bold ? 'font-weight: 900 !important;' : ''} }\n`;
-            if(cols.qty) css += `.grn-col-qty { font-size: ${cols.qty.size}px !important; color: ${cols.qty.color} !important; ${cols.qty.bold ? 'font-weight: 900 !important;' : ''} }\n`;
-            if(cols.rcvQty) css += `.grn-col-rcvQty { font-size: ${cols.rcvQty.size}px !important; color: ${cols.rcvQty.color} !important; ${cols.rcvQty.bold ? 'font-weight: 900 !important;' : ''} }\n`;
-            if(cols.warehouse) css += `.grn-col-warehouse { font-size: ${cols.warehouse.size}px !important; color: ${cols.warehouse.color} !important; ${cols.warehouse.bold ? 'font-weight: 900 !important;' : ''} }\n`;
+            if(cols.item) css += `.grn-col-item { font-size: ${cols.item.size || 14}px !important; color: ${cols.item.color || '#ffffff'} !important; ${cols.item.bold ? 'font-weight: 900 !important;' : ''} }\n`;
+            if(cols.unit) css += `.grn-col-unit { font-size: ${cols.unit.size || 12}px !important; color: ${cols.unit.color || '#94a3b8'} !important; ${cols.unit.bold ? 'font-weight: 900 !important;' : ''} }\n`;
+            if(cols.qty) css += `.grn-col-qty { font-size: ${cols.qty.size || 14}px !important; color: ${cols.qty.color || '#ffffff'} !important; ${cols.qty.bold ? 'font-weight: 900 !important;' : ''} }\n`;
+            if(cols.rcvQty) css += `.grn-col-rcvQty { font-size: ${cols.rcvQty.size || 14}px !important; color: ${cols.rcvQty.color || '#ffffff'} !important; ${cols.rcvQty.bold ? 'font-weight: 900 !important;' : ''} }\n`;
+            if(cols.warehouse) css += `.grn-col-warehouse { font-size: ${cols.warehouse.size || 13}px !important; color: ${cols.warehouse.color || '#ffffff'} !important; ${cols.warehouse.bold ? 'font-weight: 900 !important;' : ''} }\n`;
             
             styleEl.innerHTML = css;
         }
