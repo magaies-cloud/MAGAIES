@@ -1049,8 +1049,8 @@
                 else if (remainingQty < 0) remainingColor = '#ef4444'; // Red (Error)
 
                 tr.innerHTML = `
-                    <td style="display:none; text-align:center; ${getCellStyleNum()}">${fmtGridNum(line.price)} SDG</td>
-                    <td style="display:none; text-align:center; ${getCellStyleNum()}; color:var(--gold-primary) !important;">${fmtGridNum(lineTotal)} SDG</td>
+                    <td style="display:none; text-align:center; font-family: 'Outfit', sans-serif; font-weight: 800;">${fmtGridNum(line.price)} SDG</td>
+                    <td style="display:none; text-align:center; font-family: 'Outfit', sans-serif; font-weight: 800; color:var(--gold-primary) !important;">${fmtGridNum(lineTotal)} SDG</td>
                     <td class="grn-col-item" style="text-align:right; font-weight:700; ${line.isSplit ? 'padding-right: 25px;' : ''}">
                         ${line.isSplit ? '↳ ' : ''}${getItemName(line.itemId)}
                     </td>
@@ -1753,8 +1753,11 @@
                 <label style="display: block; color: #cbd5e1; margin-bottom: 5px; font-size: 0.9rem;">حجم الخط:</label>
                 <div style="display: flex; align-items: center; gap: 8px;">
                     <button class="btn-action" style="padding: 4px 12px;" onclick="changeSelectedColSize(-1)">-</button>
+                    
                     <span id="grn-col-size-val" style="color: #fff; font-weight: bold; width: 30px; text-align: center;">16</span>
                     <button class="btn-action" style="padding: 4px 12px;" onclick="changeSelectedColSize(1)">+</button>
+                    <button id="grn-col-bold-btn" class="btn-action" style="padding: 4px 12px; font-weight: bold; margin-right: 10px;" onclick="toggleSelectedColBold()">B</button>
+
                 </div>
             </div>
             <div style="flex: 1;">
@@ -1787,11 +1790,11 @@
             decimals: 2,
             thousands: true,
             cols: {
-                item: { size: 14, color: '#ffffff' },
-                unit: { size: 12, color: '#94a3b8' },
-                qty: { size: 14, color: '#ffffff' },
-                rcvQty: { size: 14, color: '#ffffff' },
-                warehouse: { size: 13, color: '#ffffff' }
+                item: { size: 14, color: '#ffffff', bold: false },
+                unit: { size: 12, color: '#94a3b8', bold: false },
+                qty: { size: 14, color: '#ffffff', bold: false },
+                rcvQty: { size: 14, color: '#ffffff', bold: false },
+                warehouse: { size: 13, color: '#ffffff', bold: false }
             }
         };
 
@@ -1814,11 +1817,11 @@
             
             let css = '';
             const cols = grnGridPrefs.cols;
-            if(cols.item) css += `.grn-col-item { font-size: ${cols.item.size}px !important; color: ${cols.item.color} !important; }\n`;
-            if(cols.unit) css += `.grn-col-unit { font-size: ${cols.unit.size}px !important; color: ${cols.unit.color} !important; }\n`;
-            if(cols.qty) css += `.grn-col-qty { font-size: ${cols.qty.size}px !important; color: ${cols.qty.color} !important; }\n`;
-            if(cols.rcvQty) css += `.grn-col-rcvQty { font-size: ${cols.rcvQty.size}px !important; color: ${cols.rcvQty.color} !important; }\n`;
-            if(cols.warehouse) css += `.grn-col-warehouse { font-size: ${cols.warehouse.size}px !important; color: ${cols.warehouse.color} !important; }\n`;
+            if(cols.item) css += `.grn-col-item { font-size: ${cols.item.size}px !important; color: ${cols.item.color} !important; ${cols.item.bold ? 'font-weight: 900 !important;' : ''} }\n`;
+            if(cols.unit) css += `.grn-col-unit { font-size: ${cols.unit.size}px !important; color: ${cols.unit.color} !important; ${cols.unit.bold ? 'font-weight: 900 !important;' : ''} }\n`;
+            if(cols.qty) css += `.grn-col-qty { font-size: ${cols.qty.size}px !important; color: ${cols.qty.color} !important; ${cols.qty.bold ? 'font-weight: 900 !important;' : ''} }\n`;
+            if(cols.rcvQty) css += `.grn-col-rcvQty { font-size: ${cols.rcvQty.size}px !important; color: ${cols.rcvQty.color} !important; ${cols.rcvQty.bold ? 'font-weight: 900 !important;' : ''} }\n`;
+            if(cols.warehouse) css += `.grn-col-warehouse { font-size: ${cols.warehouse.size}px !important; color: ${cols.warehouse.color} !important; ${cols.warehouse.bold ? 'font-weight: 900 !important;' : ''} }\n`;
             
             styleEl.innerHTML = css;
         }
@@ -1834,11 +1837,32 @@
             document.getElementById('grn-settings-modal').style.display = 'none';
         }
 
-        function loadColSettings() {
+                function loadColSettings() {
             const col = document.getElementById('grn-col-select').value;
-            const prefs = grnGridPrefs.cols[col] || { size: 14, color: '#ffffff' };
+            const prefs = grnGridPrefs.cols[col] || { size: 14, color: '#ffffff', bold: false };
             document.getElementById('grn-col-size-val').textContent = prefs.size;
             document.getElementById('grn-col-color').value = prefs.color;
+            const boldBtn = document.getElementById('grn-col-bold-btn');
+            if (boldBtn) {
+                if (prefs.bold) {
+                    boldBtn.style.background = 'rgba(56, 189, 248, 0.3)';
+                    boldBtn.style.color = '#fff';
+                    boldBtn.style.borderColor = '#38bdf8';
+                } else {
+                    boldBtn.style.background = '';
+                    boldBtn.style.color = '';
+                    boldBtn.style.borderColor = '';
+                }
+            }
+        }
+
+        
+        function toggleSelectedColBold() {
+            const col = document.getElementById('grn-col-select').value;
+            if (grnGridPrefs.cols[col].bold === undefined) grnGridPrefs.cols[col].bold = false;
+            grnGridPrefs.cols[col].bold = !grnGridPrefs.cols[col].bold;
+            loadColSettings(); // update button ui
+            updateGrnStyles();
         }
 
         function changeSelectedColSize(delta) {
