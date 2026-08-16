@@ -171,67 +171,7 @@
             transform: scale(1.05);
         }
 
-        /* Studio Tabs Dark-Gold Header Bar */
-        .studio-tabs {
-            display: flex; justify-content: space-between; align-items: center;
-            background: linear-gradient(135deg, #ca8a04, #854d0e);
-            color: #ffffff; padding: 8px 14px; border-radius: 10px;
-            margin-bottom: 12px; box-shadow: 0 4px 12px rgba(133, 77, 14, 0.25);
-        }
-        body.dark-mode .studio-tabs {
-            background: linear-gradient(135deg, #854d0e, #451a03);
-        }
-        .studio-tab-btn {
-            background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3);
-            color: #ffffff !important; padding: 6px 18px; border-radius: 18px;
-            font-family: inherit; font-weight: 800; cursor: pointer; transition: all 0.25s; font-size: 0.88rem;
-        }
-        .studio-tab-btn.active {
-            background: #ffffff !important; color: #854d0e !important; font-weight: 900;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.25); border-color: #ffffff; transform: translateY(-1px);
-        }
-        .studio-tab-btn:hover:not(.active) {
-            background: rgba(255, 255, 255, 0.3); color: #ffffff !important;
-        }
-
-        /* Yellow Studio Dropdown Panel with Slide-Down Animation */
-        @keyframes studioSlideDown {
-            from { opacity: 0; transform: translateY(-12px); max-height: 0; }
-            to { opacity: 1; transform: translateY(0); max-height: 500px; }
-        }
-
-        .settings-panel {
-            background: #fef9c3; /* Yellow-100 */
-            color: #713f12; /* Yellow-900 */
-            padding: 14px 20px; border-bottom: 4px solid #eab308;
-            display: none; /* Hidden by default */
-            font-size: 0.95rem; font-weight: 800;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.18);
-            flex-direction: column; gap: 10px;
-            animation: studioSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            overflow: hidden;
-        }
-        body.dark-mode .settings-panel {
-            background: #1c1507; color: #fef08a; border-bottom-color: #ca8a04;
-        }
-        
-        .panel-card {
-            background: rgba(255,255,255,0.7);
-            border: 1px solid rgba(202, 138, 4, 0.4);
-            border-radius: 8px; padding: 10px 14px;
-            display: flex; flex-wrap: wrap; gap: 15px; align-items: center; justify-content: space-between;
-        }
-        body.dark-mode .panel-card {
-            background: rgba(0,0,0,0.4); border-color: rgba(202, 138, 4, 0.3);
-        }
-        
-        .panel-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-        .panel-group span { font-size: 0.95rem; font-weight: 900; }
-        .panel-input {
-            padding: 6px 12px; border-radius: 6px; border: 1px solid #ca8a04; font-family: inherit;
-            background: #ffffff; color: #000; font-weight: 800; font-size: 0.9rem; outline: none;
-        }
-        .panel-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2,132,199,0.2); }
+        /* Old panel styles removed - now controlled by css/studio-panel.css */
 
         /* Printable Area - Realistic Solid Paper Sheet Boundary */
         .print-area {
@@ -508,19 +448,14 @@
     
     <!-- Luxury Ribbon Toolbar -->
     <div class="ribbon">
-        <!-- Right Side: Title Input & Toggle Button & Presets -->
+        <!-- Right Side: Copy Label & Presets -->
         <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap;">
-            
-            <button id="ribbon-toggle-btn" class="ribbon-btn" onclick="toggleSettingsPanel()" style="background: linear-gradient(135deg, #334155, #0f172a); border: 1px solid #475569; padding: 6px 10px; box-shadow: none;" title="إظهار/إخفاء شريط الإعدادات">
-                <span id="ribbon-toggle-icon">🔽</span>
-            </button>
-
-            <!-- Copy Label Input moved to ribbon for MS Office Title Bar feel -->
+            <!-- Copy Label Input in ribbon -->
             <input type="text" id="copy-label-input" class="panel-input" 
                     style="width: 140px; font-weight: 800; font-size: 0.9rem; color: #fff; border-color: rgba(255,255,255,0.3); background: rgba(0,0,0,0.3); padding: 5px 10px; border-radius: 6px; outline: none;" 
                     value="نسخة العميل" 
                     oninput="setCopyLabel(this.value)"
-                    placeholder="مثال: نسخة العميل...">
+                    placeholder="عنوان النسخة...">
 
             <div id="presets-container" style="display:flex; gap:8px; flex-wrap: wrap;">
                 <!-- Preset buttons rendered via JS -->
@@ -534,6 +469,9 @@
 
             <button class="ribbon-btn" onclick="window.print()" style="background: linear-gradient(135deg, #0284c7, #0369a1); border:none; box-shadow:0 2px 8px rgba(3,105,161,0.4);">
                 🖨️ طباعة الفاتورة
+            </button>
+            <button class="ribbon-btn" onclick="toggleSettingsPanel()" style="background: linear-gradient(135deg, #eab308, #ca8a04); border:none; box-shadow:0 2px 8px rgba(202,138,4,0.4);">
+                ⚙️ إعدادات الأعمدة
             </button>
             <button class="ribbon-btn" onclick="toggleDarkMode()">🌙 عكس الألوان</button>
             <button class="ribbon-btn" onclick="window.history.back()" style="color:#f87171; border-color:rgba(239,68,68,0.5);">❌ إغلاق / رجوع</button>

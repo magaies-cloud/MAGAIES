@@ -174,14 +174,14 @@ function toggleSettingsPanel() {
     if (isOpening) {
         p.classList.add('show');
         p.style.display = 'flex';
-        if (icon) icon.innerText = '🔽';
+        if (icon) icon.innerText = '▲';
         if (dsSelectedColIndex === null) {
             selectColumn(5); // Default to Price column
         }
     } else {
         p.classList.remove('show');
         p.style.display = 'none';
-        if (icon) icon.innerText = '▶️';
+        if (icon) icon.innerText = '▼';
     }
 }
 
