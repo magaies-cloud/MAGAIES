@@ -353,47 +353,7 @@
         :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
         :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
         :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
-\n
-/* Column Settings Modal */
-.col-settings-overlay {
-    display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-    background: rgba(0,0,0,0.6); z-index: 10000; align-items: center; justify-content: center;
-    backdrop-filter: blur(4px);
-}
-.col-settings-modal {
-    background: #0f172a; border: 1px solid rgba(56,189,248,0.3); border-radius: 16px;
-    width: 450px; max-width: 90%; box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-    padding: 20px;
-}
-:root.light-theme .col-settings-modal { background: #fff; border-color: rgba(0,0,0,0.1); color: #000; }
-.col-settings-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 10px; margin-bottom: 15px; }
-.col-settings-title { font-weight: 700; font-size: 1.2rem; color: #38bdf8; }
-.col-settings-body { display: flex; flex-direction: column; gap: 12px; }
-.col-setting-row { display: flex; align-items: center; justify-content: space-between; gap: 15px; }
-.col-setting-row label { font-size: 0.95rem; font-weight: 500; min-width: 120px; }
-.col-setting-row input[type="text"], .col-setting-row input[type="number"], .col-setting-row select, .col-setting-row input[type="color"] {
-    flex: 1; padding: 8px 12px; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px; color: inherit; font-family: inherit; font-size: 0.95rem;
-}
-:root.light-theme .col-setting-row input, :root.light-theme .col-setting-row select { background: #f8fafc; border-color: #cbd5e1; }
-.col-settings-footer { display: flex; justify-content: flex-end; gap: 10px; margin-top: 20px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 15px; }
-.col-resizer {
-    position: absolute; top: 0; left: 0; width: 6px; height: 100%;
-    cursor: col-resize; z-index: 10000;
-}
-.col-resizer:hover, .col-resizer.active { background: rgba(56, 189, 248, 0.5); }
-.context-menu {
-    display: none; position: absolute; background: #1e293b; border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 8px; box-shadow: 0 4px 15px rgba(0,0,0,0.5); z-index: 10000;
-    min-width: 180px; padding: 5px 0;
-}
-:root.light-theme .context-menu { background: #fff; border-color: rgba(0,0,0,0.1); }
-.context-menu-item {
-    padding: 8px 15px; cursor: pointer; transition: 0.2s; font-size: 0.95rem;
-}
-.context-menu-item:hover { background: rgba(56,189,248,0.2); color: #38bdf8; }
-:root.light-theme .context-menu-item:hover { background: #f1f5f9; color: #0284c7; }
-</style>
+\n</style>
 </head>
 <body>
 
@@ -586,7 +546,18 @@
                     
                     <div class="grid-scroll-wrap" style="flex:1; max-height: 420px; min-height: 220px; overflow-y: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); background: rgba(15, 23, 42, 0.4);">
                         <table class="pos-grid" style="width: 100%;">
-                            <thead id="grn-table-head"></thead>
+                            <thead style="position: sticky; top: 0; z-index: 10; background: #0f172a;">
+                                <tr>
+                                    <th style="display:none; text-align:center; width:12%;">سعر الوحدة</th>
+                                    <th style="display:none; text-align:center; width:12%;">القيمة المستلمة</th>
+                                    <th style="text-align:right; width:20%;">الصنف</th>
+                                    <th style="text-align:center; width:8%;">الوحدة</th>
+                                    <th style="text-align:center; width:10%;">الكمية</th>
+                                    <th style="text-align:center; width:150px; color:#38bdf8;">الكمية المستلمة (الآن)</th>
+                                    <th style="text-align:center; width:160px;">المستودع المُستلِم</th>
+                                    <th style="text-align:center; width:60px;">تقسيم</th>
+                                </tr>
+                            </thead>
                             <tbody id="items-tbody">
                                 <!-- Populated by JS -->
                             </tbody>
@@ -647,187 +618,6 @@
         let pendingMap = {}; // originalInvoiceId -> array of pending items
         let currentInvoiceId = null;
         let receiptLines = [];
-
-// ================= Advanced Grid Settings ================= //
-const defaultColSettings = {
-    col_item: { defaultName: 'الصنف', customName: '', width: '20%', align: 'right', color: '', size: '', weight: '', visible: true },
-    col_unit: { defaultName: 'الوحدة', customName: '', width: '8%', align: 'center', color: '#94a3b8', size: '', weight: '', visible: true },
-    col_price: { defaultName: 'سعر الوحدة', customName: '', width: '12%', align: 'center', color: '', size: '', weight: '', visible: true },
-    col_pend: { defaultName: 'الكمية المعلقة', customName: '', width: '10%', align: 'center', color: '', size: '', weight: '', visible: true },
-    col_recv: { defaultName: 'الكمية المستلمة (الآن)', customName: '', width: '150px', align: 'center', color: '#38bdf8', size: '', weight: '', visible: true },
-    col_rem: { defaultName: 'المتبقي بعد الاستلام', customName: '', width: '10%', align: 'center', color: '#f59e0b', size: '', weight: '', visible: true },
-    col_val: { defaultName: 'قيمة المستلم', customName: '', width: '12%', align: 'center', color: '', size: '', weight: '', visible: true },
-    col_wh: { defaultName: 'مستودع الاستلام', customName: '', width: '160px', align: 'center', color: '', size: '', weight: '', visible: true },
-    col_act: { defaultName: 'أدوات', customName: '', width: '60px', align: 'center', color: '', size: '', weight: '', visible: true }
-};
-let colSettings = JSON.parse(JSON.stringify(defaultColSettings));
-let currentContextCol = null;
-
-async function loadColSettings() {
-    try {
-        const userId = document.getElementById('current-user-id')?.value || 'default';
-        const res = await fetch('api/get_user_settings.php?user_id=' + userId + '&setting_key=grn_columns');
-        const data = await res.json();
-        if (data.status === 'success' && data.data) {
-            const saved = JSON.parse(data.data);
-            for (let k in colSettings) {
-                if (saved[k]) {
-                    colSettings[k] = { ...colSettings[k], ...saved[k] };
-                }
-            }
-        }
-    } catch(e) { console.error('Error loading settings', e); }
-    renderTableHeaders();
-    renderReceiptLines();
-}
-
-function renderTableHeaders() {
-    const thead = document.getElementById('grn-table-head');
-    if (!thead) return;
-    thead.innerHTML = '';
-    
-    // Create header row
-    const tr = document.createElement('tr');
-    
-    for (let key in colSettings) {
-        const col = colSettings[key];
-        if (!col.visible) continue;
-        
-        const th = document.createElement('th');
-        th.dataset.colkey = key;
-        const nameToUse = (col.customName && col.customName.trim() !== '' && col.customName !== 'undefined') ? col.customName : col.defaultName;
-        th.innerText = nameToUse;
-        
-        // Sticky configuration must be applied to th
-        let css = 'position: sticky; top: 0; z-index: 9999; background: #0f172a; ';
-        css += 'text-align: ' + col.align + '; ';
-        css += 'width: ' + col.width + '; ';
-        if (col.color) css += 'color: ' + col.color + ' !important; ';
-        if (col.size) css += 'font-size: ' + col.size + 'px; ';
-        if (col.weight) css += 'font-weight: ' + col.weight + '; ';
-        th.style.cssText = css;
-        
-        const resizer = document.createElement('div');
-        resizer.className = 'col-resizer';
-        th.appendChild(resizer);
-        
-        tr.appendChild(th);
-    }
-    
-    thead.appendChild(tr);
-    initGridResizers();
-}
-
-function showGridContextMenu(e) {
-    let th = e.target.closest('th');
-    if (!th && e.target.closest('td')) {
-        const cellIndex = e.target.closest('td').cellIndex;
-        const thead = document.getElementById('grn-table-head');
-        if (thead && thead.rows[0]) th = thead.rows[0].cells[cellIndex];
-    }
-    
-    if (th && th.dataset.colkey) {
-        e.preventDefault();
-        currentContextCol = th.dataset.colkey;
-        const menu = document.getElementById('grid-context-menu');
-        menu.style.display = 'block';
-        menu.style.left = e.pageX + 'px';
-        menu.style.top = e.pageY + 'px';
-    }
-}
-
-document.addEventListener('click', function(e) {
-    const menu = document.getElementById('grid-context-menu');
-    if (menu) menu.style.display = 'none';
-});
-
-function openAdvancedGridSettings() {
-    if (!currentContextCol || !colSettings[currentContextCol]) return;
-    const col = colSettings[currentContextCol];
-    
-    document.getElementById('col-set-key').value = currentContextCol;
-    document.getElementById('col-set-defname').value = col.defaultName;
-    document.getElementById('col-set-name').value = (col.customName === 'undefined' ? '' : col.customName) || '';
-    document.getElementById('col-set-width').value = col.width;
-    document.getElementById('col-set-align').value = col.align;
-    document.getElementById('col-set-color').value = col.color || '#ffffff';
-    document.getElementById('col-set-size').value = col.size || '14';
-    document.getElementById('col-set-weight').value = col.weight || 'normal';
-    document.getElementById('col-set-visible').value = col.visible ? 'true' : 'false';
-    
-    document.getElementById('col-settings-modal').style.display = 'flex';
-}
-
-async function saveAdvancedGridSettings() {
-    const key = document.getElementById('col-set-key').value;
-    if (!key) return;
-    
-    colSettings[key].customName = document.getElementById('col-set-name').value;
-    colSettings[key].width = document.getElementById('col-set-width').value;
-    colSettings[key].align = document.getElementById('col-set-align').value;
-    colSettings[key].color = document.getElementById('col-set-color').value;
-    colSettings[key].size = document.getElementById('col-set-size').value;
-    colSettings[key].weight = document.getElementById('col-set-weight').value;
-    colSettings[key].visible = document.getElementById('col-set-visible').value === 'true';
-    
-    document.getElementById('col-settings-modal').style.display = 'none';
-    renderTableHeaders();
-    renderReceiptLines();
-    
-    // Save to DB
-    const userId = document.getElementById('current-user-id')?.value || 'default';
-    try {
-        await fetch('api/save_user_settings.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                user_id: userId,
-                setting_key: 'grn_columns',
-                setting_value: JSON.stringify(colSettings)
-            })
-        });
-    } catch(e) { console.error('Save failed', e); }
-}
-
-function initGridResizers() {
-    const thead = document.getElementById('grn-table-head');
-    if (!thead) return;
-    const ths = thead.querySelectorAll('th');
-    let activeTh = null;
-    let startX, startW;
-
-    ths.forEach(th => {
-        const resizer = th.querySelector('.col-resizer');
-        if (!resizer) return;
-        resizer.addEventListener('mousedown', function(e) {
-            activeTh = th;
-            startX = e.pageX;
-            startW = th.offsetWidth;
-            resizer.classList.add('active');
-            e.stopPropagation();
-            e.preventDefault();
-        });
-    });
-
-    document.addEventListener('mousemove', function(e) {
-        if (!activeTh) return;
-        const key = activeTh.dataset.colkey;
-        if (!key) return;
-        // Reversed calculation because of RTL
-        const newW = startW + (startX - e.pageX);
-        activeTh.style.width = newW + 'px';
-        colSettings[key].width = newW + 'px';
-    });
-
-    document.addEventListener('mouseup', function(e) {
-        if (activeTh) {
-            const resizer = activeTh.querySelector('.col-resizer');
-            if (resizer) resizer.classList.remove('active');
-            activeTh = null;
-        }
-    });
-}
-// ========================================================= //
         let editingGRNId = null; // Currently edited GRN ID
 
         // Formatting utilities
@@ -888,21 +678,6 @@ function initGridResizers() {
                     }
                 }
             } catch(e) { console.error('Error loading prefs', e); }
-        }
-        
-        let gridPrefs = {};
-        function getColPrefs(colId, defaultAlign) {
-            let defaultPrefs = { font: 'Outfit', size: 14, color: '#ffffff', align: defaultAlign, decimals: 2, thousands: true };
-            try {
-                const stored = localStorage.getItem('erp_grn_grid_prefs');
-                if (stored) {
-                    const parsed = JSON.parse(stored);
-                    if (parsed[colId]) return { ...defaultPrefs, ...parsed[colId] };
-                    // fallback to old global settings if no per-col
-                    if (parsed.font && !parsed.col_0) return { ...defaultPrefs, font: parsed.font, size: parsed.size, color: parsed.color, align: parsed.align, decimals: parsed.decimals, thousands: parsed.thousands };
-                }
-            } catch(e) {}
-            return defaultPrefs;
         }
         
         let gridPrefs = {};
@@ -1953,71 +1728,6 @@ function initGridResizers() {
                     <label style="color: #fff; font-size: 0.9rem;">استخدام الفاصلة الألفية (Thousand Separator)</label>
                 </div>
                 <button class="btn-action" style="margin-top: 10px; width: 100%; padding: 10px; font-size: 1rem;" onclick="saveGridSettings()">حفظ التنسيق</button>
-            </div>
-        </div>
-    </div>
-
-    <!-- Context Menu -->
-    <div id="grid-context-menu" class="context-menu">
-        <div class="context-menu-item" onclick="openAdvancedGridSettings()">إعدادات الأعمدة المتقدمة...</div>
-    </div>
-
-    <!-- Advanced Settings Modal -->
-    <div id="col-settings-modal" class="col-settings-overlay">
-        <div class="col-settings-modal">
-            <div class="col-settings-header">
-                <div class="col-settings-title">إعدادات العمود</div>
-                <button class="btn-action" style="padding: 2px 8px;" onclick="document.getElementById('col-settings-modal').style.display='none'">✕</button>
-            </div>
-            <div class="col-settings-body">
-                <input type="hidden" id="col-set-key">
-                <div class="col-setting-row">
-                    <label>الاسم الافتراضي</label>
-                    <input type="text" id="col-set-defname" disabled style="opacity:0.7">
-                </div>
-                <div class="col-setting-row">
-                    <label>الاسم المخصص</label>
-                    <input type="text" id="col-set-name" placeholder="اتركه فارغاً لاستخدام الافتراضي">
-                </div>
-                <div class="col-setting-row">
-                    <label>عرض العمود</label>
-                    <input type="text" id="col-set-width" placeholder="مثال: 120px أو 15%">
-                </div>
-                <div class="col-setting-row">
-                    <label>المحاذاة</label>
-                    <select id="col-set-align">
-                        <option value="right">يمين</option>
-                        <option value="center">وسط</option>
-                        <option value="left">يسار</option>
-                    </select>
-                </div>
-                <div class="col-setting-row">
-                    <label>لون النص</label>
-                    <input type="color" id="col-set-color">
-                </div>
-                <div class="col-setting-row">
-                    <label>حجم الخط</label>
-                    <input type="number" id="col-set-size" min="10" max="30" step="1">
-                </div>
-                <div class="col-setting-row">
-                    <label>سُمك الخط</label>
-                    <select id="col-set-weight">
-                        <option value="normal">عادي</option>
-                        <option value="bold">عريض (Bold)</option>
-                        <option value="900">عريض جداً (Black)</option>
-                    </select>
-                </div>
-                <div class="col-setting-row">
-                    <label>إظهار العمود</label>
-                    <select id="col-set-visible">
-                        <option value="true">نعم</option>
-                        <option value="false">لا</option>
-                    </select>
-                </div>
-            </div>
-            <div class="col-settings-footer">
-                <button class="btn-primary" style="background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2);" onclick="document.getElementById('col-settings-modal').style.display='none'">إلغاء</button>
-                <button class="btn-primary" onclick="saveAdvancedGridSettings()">حفظ الإعدادات</button>
             </div>
         </div>
     </div>
