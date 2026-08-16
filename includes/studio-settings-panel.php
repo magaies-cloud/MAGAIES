@@ -21,7 +21,7 @@
         <div class="ms-ribbon-group">
             <!-- Row 1: Font Name + Size -->
             <div class="ms-ribbon-row">
-                <select id="col-font-select" class="ms-ribbon-input lg" style="width:140px;" onchange="updateSelectedCol('fontFamily', this.value)">
+                <select id="col-font-select" class="ms-ribbon-input lg" style="flex:2 1 160px;" onchange="updateSelectedCol('fontFamily', this.value)">
                     <option value="inherit">الافتراضي</option>
                     <option value="'Inter', sans-serif">Inter</option>
                     <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans</option>
@@ -44,7 +44,7 @@
             </div>
             <!-- Row 2: Weight + Colors -->
             <div class="ms-ribbon-row">
-                <select id="col-fw-select" class="ms-ribbon-input" style="width:90px;" onchange="updateSelectedCol('fontWeight', this.value)" title="وزن الخط">
+                <select id="col-fw-select" class="ms-ribbon-input" style="flex:1 1 100px;" onchange="updateSelectedCol('fontWeight', this.value)" title="وزن الخط">
                     <option value="400">عادي 400</option>
                     <option value="500">متوسط 500</option>
                     <option value="600">بارز 600</option>
@@ -74,15 +74,12 @@
         <div class="ms-ribbon-group">
             <!-- Row 1: Text Alignment -->
             <div class="ms-ribbon-row">
-                <select id="col-align-select" class="ms-ribbon-input" style="width:100px;" onchange="updateSelectedCol('align', this.value)" title="محاذاة النص">
+                <select id="col-align-select" class="ms-ribbon-input" onchange="updateSelectedCol('align', this.value)" title="محاذاة النص">
                     <option value="right">➡ محاذاة يمين</option>
                     <option value="center" selected>☰ توسيط</option>
                     <option value="left">⬅ محاذاة يسار</option>
                 </select>
-            </div>
-            <!-- Row 2: Number Font -->
-            <div class="ms-ribbon-row">
-                <select id="num-font-select" class="ms-ribbon-input" style="width:100px;" onchange="setNumberFont(this.value)" title="خط الأرقام">
+                <select id="num-font-select" class="ms-ribbon-input" onchange="setNumberFont(this.value)" title="خط الأرقام">
                     <option value="font-ultra" selected>أرقام Inter</option>
                     <option value="font-jakarta">أرقام Jakarta</option>
                     <option value="font-roboto">أرقام Roboto</option>
@@ -97,8 +94,8 @@
         <div class="ms-ribbon-group">
             <!-- Row 1: Column select + Label + Show -->
             <div class="ms-ribbon-row">
-                <select id="selected-col-select" class="ms-ribbon-input lg" style="width:120px; color:#60a5fa; font-weight:700;" onchange="selectColumn(parseInt(this.value))" title="العمود المحدد"></select>
-                <input type="text" id="col-label-input" class="ms-ribbon-input" style="width:90px;" placeholder="تسمية العمود..." oninput="updateSelectedCol('label', this.value)">
+                <select id="selected-col-select" class="ms-ribbon-input lg" style="flex:1 1 130px; color:#60a5fa; font-weight:700;" onchange="selectColumn(parseInt(this.value))" title="العمود المحدد"></select>
+                <input type="text" id="col-label-input" class="ms-ribbon-input" style="flex:1 1 100px;" placeholder="تسمية العمود..." oninput="updateSelectedCol('label', this.value)">
                 <label style="display:flex; align-items:center; gap:3px; font-size:0.82rem; cursor:pointer; color:#d4d4d4;">
                     <input type="checkbox" id="col-visible-chk" checked onchange="updateSelectedCol('visible', this.checked)" style="accent-color:#4fc3f7;">
                     إظهار
@@ -112,7 +109,7 @@
                 <button class="ms-icon-btn" style="font-size:0.7rem;" onclick="updateSelectedCol('width', ''); document.getElementById('col-width-input').value=''; document.getElementById('col-width-range').value=15;" title="عرض تلقائي">تلقائي</button>
                 <button class="ms-icon-btn" onclick="moveSelectedCol(-1)" title="تحريك يمين">➡</button>
                 <button class="ms-icon-btn" onclick="moveSelectedCol(1)" title="تحريك يسار">⬅</button>
-                <select id="restore-hidden-col-select" class="ms-ribbon-input" style="width:90px;" onchange="restoreHiddenColumn(this.value)"><option value="">👁 مخفية (0)</option></select>
+                <select id="restore-hidden-col-select" class="ms-ribbon-input" style="flex:1 1 100px;" onchange="restoreHiddenColumn(this.value)"><option value="">👁 مخفية (0)</option></select>
             </div>
             <span class="ms-ribbon-group-title">العمود (Column)</span>
         </div>
@@ -121,31 +118,31 @@
         <div class="ms-ribbon-group">
             <!-- Row 1: Separators -->
             <div class="ms-ribbon-row">
-                <select id="col-sep-select" class="ms-ribbon-input" style="width:76px;" onchange="updateSelectedCol('thousandSep', this.value)" title="الفاصلة الألفية">
-                    <option value="," selected>1,000</option>
-                    <option value=".">1.000</option>
-                    <option value=" ">1 000</option>
-                    <option value="'">1'000</option>
+                <select id="col-sep-select" class="ms-ribbon-input" onchange="updateSelectedCol('thousandSep', this.value)" title="الفاصلة الألفية">
+                    <option value="," selected>1,000 (كومة)</option>
+                    <option value=".">1.000 (نقطة)</option>
+                    <option value=" ">1 000 (مسافة)</option>
+                    <option value="'">1'000 (اقتباس)</option>
                 </select>
-                <select id="col-dec-select" class="ms-ribbon-input" style="width:60px;" onchange="updateSelectedCol('decimals', parseInt(this.value))" title="الخانات العشرية">
-                    <option value="0">بدون</option>
-                    <option value="1">.0</option>
-                    <option value="2" selected>.00</option>
-                    <option value="3">.000</option>
-                    <option value="4">.0000</option>
+                <select id="col-dec-select" class="ms-ribbon-input" onchange="updateSelectedCol('decimals', parseInt(this.value))" title="الخانات العشرية">
+                    <option value="0">بدون كسور</option>
+                    <option value="1">.0 (خانة)</option>
+                    <option value="2" selected>.00 (خانتان)</option>
+                    <option value="3">.000 (ثلاث)</option>
+                    <option value="4">.0000 (أربع)</option>
                 </select>
             </div>
             <!-- Row 2: Rounding + Decimal Sep -->
             <div class="ms-ribbon-row">
-                <select id="col-rounding-select" class="ms-ribbon-input" style="width:82px;" onchange="updateSelectedCol('rounding', this.value)" title="التقريب">
+                <select id="col-rounding-select" class="ms-ribbon-input" onchange="updateSelectedCol('rounding', this.value)" title="التقريب">
                     <option value="nearest" selected>تقريب عادي</option>
-                    <option value="up">للأعلى ↑</option>
-                    <option value="down">للأسفل ↓</option>
+                    <option value="up">تقريب للأعلى ↑</option>
+                    <option value="down">تقريب للأسفل ↓</option>
                     <option value="cut">قطع الكسر</option>
                 </select>
-                <label style="display:flex; align-items:center; gap:3px; font-size:0.82rem; cursor:pointer; color:#d4d4d4;">
+                <label style="display:flex; align-items:center; gap:4px; font-size:0.85rem; cursor:pointer; color:#d4d4d4; flex-shrink:0;">
                     <input type="checkbox" id="col-dec-sep-chk" checked onchange="updateSelectedCol('showDecSep', this.checked)" style="accent-color:#4fc3f7;">
-                    فاصلة
+                    فاصلة الكسور
                 </label>
             </div>
             <span class="ms-ribbon-group-title">أرقام (Number)</span>
@@ -155,8 +152,8 @@
         <div class="ms-ribbon-group">
             <!-- Row 1: Theme + Layout -->
             <div class="ms-ribbon-row">
-                <select id="table-theme-select" class="ms-ribbon-input" style="width:120px;" onchange="setTableTheme(this.value)" title="نمط الألوان">
-                    <option value="">⚪ الأساسي</option>
+                <select id="table-theme-select" class="ms-ribbon-input" onchange="setTableTheme(this.value)" title="نمط الألوان">
+                    <option value="">⚪ النمط الأساسي</option>
                     <option value="theme-classic-navy">🔷 أزرق كلاسيكي</option>
                     <option value="theme-emerald-pro">💚 زمردي راقي</option>
                     <option value="theme-modern-slate">🩶 رمادي عصري</option>
@@ -166,8 +163,8 @@
                     <option value="theme-slate">⚪ رمادي كلاسيك</option>
                     <option value="theme-luxury-black">🖤 أسود فاخر</option>
                 </select>
-                <select id="layout-theme-select" class="ms-ribbon-input" style="width:110px;" onchange="setLayoutTheme(this.value)" title="هيكل الفاتورة">
-                    <option value="">📑 كلاسيكي</option>
+                <select id="layout-theme-select" class="ms-ribbon-input" onchange="setLayoutTheme(this.value)" title="هيكل الفاتورة">
+                    <option value="">📑 هيكل كلاسيكي</option>
                     <option value="layout-modern">🏢 مودرن مبسط</option>
                     <option value="layout-split">🗂 منفصل (شركات)</option>
                     <option value="layout-compact">📋 مضغوط (مراجعات)</option>
@@ -175,9 +172,9 @@
             </div>
             <!-- Row 2: Table Width -->
             <div class="ms-ribbon-row">
-                <span style="font-size:0.78rem; color:#a0a0a0;">عرض الجدول:</span>
-                <input type="range" id="table-width-range" min="50" max="100" step="5" value="100" oninput="setTableWidth(this.value)" style="width:80px; height:16px; accent-color:#4fc3f7;">
-                <span id="table-width-label" style="font-size:0.82rem; font-weight:700; min-width:32px; color:#e0e0e0;">100%</span>
+                <span style="font-size:0.82rem; color:#a0a0a0; flex-shrink:0;">عرض الجدول:</span>
+                <input type="range" id="table-width-range" min="50" max="100" step="5" value="100" oninput="setTableWidth(this.value)" style="flex:1; height:16px; accent-color:#4fc3f7;">
+                <span id="table-width-label" style="font-size:0.85rem; font-weight:700; min-width:36px; color:#e0e0e0;">100%</span>
             </div>
             <span class="ms-ribbon-group-title">أنماط (Styles)</span>
         </div>

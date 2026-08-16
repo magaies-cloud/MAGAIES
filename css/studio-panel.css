@@ -63,9 +63,11 @@
     flex-wrap: nowrap;
     align-items: stretch;
     gap: 0;
-    padding: 5px 6px 2px 6px;
+    padding: 6px 8px 2px 8px;
     overflow-x: auto;
     min-height: 82px;
+    width: 100%;
+    box-sizing: border-box;
 }
 
 /* ===== Ribbon Group ===== */
@@ -73,16 +75,17 @@
     display: flex;
     flex-direction: column;
     justify-content: flex-start;
-    align-items: flex-start;
-    padding: 0 14px;
-    gap: 4px;
+    align-items: stretch;
+    padding: 0 16px;
+    gap: 5px;
     position: relative;
     border-right: 1px solid #3c3c3c;
-    flex-shrink: 0;
+    flex: 1 1 0;
+    min-width: 0;
 }
 .ms-ribbon-group:first-child {
-    padding-right: 14px;
-    padding-left: 6px;
+    padding-right: 16px;
+    padding-left: 8px;
 }
 .ms-ribbon-group:last-child {
     border-right: none;
@@ -105,7 +108,7 @@
 .ms-ribbon-row {
     display: flex;
     align-items: center;
-    gap: 3px;
+    gap: 5px;
     white-space: nowrap;
 }
 
@@ -113,15 +116,17 @@
 .ms-ribbon-input {
     border: 1px solid #3c3c3c;
     border-radius: 3px;
-    padding: 3px 6px;
-    font-size: 0.82rem;
+    padding: 4px 8px;
+    font-size: 0.85rem;
     background: #2d2d2d;
     color: #e0e0e0;
     outline: none;
     font-family: inherit;
     font-weight: 600;
-    height: 26px;
+    height: 28px;
     box-sizing: border-box;
+    flex: 1 1 auto;
+    min-width: 0;
 }
 .ms-ribbon-input:hover {
     border-color: #555;
@@ -133,16 +138,17 @@
 
 /* Large dropdown (font name style) */
 .ms-ribbon-input.lg {
-    height: 28px;
-    font-size: 0.88rem;
-    padding: 3px 8px;
+    height: 30px;
+    font-size: 0.9rem;
+    padding: 4px 10px;
 }
 
 /* Small number input (font size style) */
 .ms-ribbon-input.sm {
-    width: 44px;
+    width: 52px;
     text-align: center;
     font-weight: 700;
+    flex: 0 0 52px;
 }
 
 /* ===== Icon Button (B, I, U style) ===== */
@@ -150,17 +156,18 @@
     background: transparent;
     border: 1px solid transparent;
     border-radius: 3px;
-    width: 28px;
-    height: 26px;
+    width: 30px;
+    height: 28px;
     display: flex;
     align-items: center;
     justify-content: center;
     cursor: pointer;
     color: #d4d4d4;
-    font-size: 0.9rem;
+    font-size: 0.92rem;
     transition: all 0.12s;
     padding: 0;
     font-family: inherit;
+    flex-shrink: 0;
 }
 .ms-icon-btn:hover {
     background: #383838;
