@@ -1862,92 +1862,93 @@
                 display: inline-block;
             }
         </style>
-        <div id="inline-totals-container" style="margin-top: 15px; display: flex; flex-direction: column; gap: 0; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 15px;">
+        <div id="inline-totals-container" style="margin-top: 15px; display: flex; justify-content: space-between; align-items: flex-start; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 12px; padding: 15px;">
             
-            <!-- Toggles + Grand Total in ONE row -->
-            <div id="toggles-row" style="display: flex; flex-wrap: wrap; gap: 10px; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255, 255, 255, 0.05); padding-bottom: 10px; margin-bottom: 10px;">
-                <!-- Left: Toggle buttons -->
-                <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center;">
-                    <span style="color: #94a3b8; font-size: 0.85rem; margin-left: 10px;">إضافة مصاريف:</span>
-                    <button type="button" class="tot-toggle-btn" onclick="toggleTotRow('transport')" id="btn-toggle-transport">🚚 ترحيل</button>
-                    <button type="button" class="tot-toggle-btn" onclick="toggleTotRow('labor')" id="btn-toggle-labor">👷‍♂️ عمالة</button>
-                    <button type="button" class="tot-toggle-btn" onclick="toggleTotRow('additions')" id="btn-toggle-additions">➕ إضافات</button>
-                    <button type="button" class="tot-toggle-btn" onclick="toggleTotRow('tax')" id="btn-toggle-tax">💰 ضريبة</button>
-                    <button type="button" class="tot-toggle-btn" onclick="toggleTotRow('discount')" id="btn-toggle-discount">➖ خصم</button>
-                </div>
-                
-                <!-- Right: Grand Total (inline, aligned under الجملة) -->
-                <div id="grand-total-row" style="display: flex; align-items: baseline; gap: 10px;">
-                    <span id="lbl-grand-dynamic" style="font-size: 1.1rem; color: #ffffff !important; font-weight: bold;">الإجمالي الكلي محلي:</span>
-                    <span class="val amount" id="t-grand-dynamic" style="font-size: 1.8rem; font-weight: 900; color: #ffffff !important; min-width: 120px; text-align: center;">0</span>
-                </div>
+            <!-- Left Side (Visual Right in RTL): Toggles -->
+            <div id="toggles-area" style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; max-width: 50%;">
+                <span style="color: #94a3b8; font-size: 0.85rem; margin-left: 10px;">إضافة مصاريف:</span>
+                <button type="button" class="tot-toggle-btn" onclick="toggleTotRow('transport')" id="btn-toggle-transport">🚚 ترحيل</button>
+                <button type="button" class="tot-toggle-btn" onclick="toggleTotRow('labor')" id="btn-toggle-labor">👷‍♂️ عمالة</button>
+                <button type="button" class="tot-toggle-btn" onclick="toggleTotRow('additions')" id="btn-toggle-additions">➕ إضافات</button>
+                <button type="button" class="tot-toggle-btn" onclick="toggleTotRow('tax')" id="btn-toggle-tax">💰 ضريبة</button>
+                <button type="button" class="tot-toggle-btn" onclick="toggleTotRow('discount')" id="btn-toggle-discount">➖ خصم</button>
             </div>
 
-            <!-- Expense Inputs container -->
-            <div id="tot-inputs-area" style="display: flex; flex-direction: column; gap: 8px;">
-                <!-- Transport -->
-                <div class="tot-row" id="row-tot-transport" style="display: none; align-items: center; justify-content: flex-end; gap: 10px; background: rgba(249, 115, 22, 0.05); padding: 8px 15px; border-radius: 8px; border: 1px dashed rgba(249, 115, 22, 0.3);">
-                    <span style="color: #f97316; font-size: 0.9rem; font-weight: bold; min-width: 140px; text-align: left;">الترحيل</span>
-                    <div style="display: flex; align-items: center; gap: 5px;" class="loc-input-group">
-                        <span style="font-size: 0.75rem; color: #94a3b8;">محلي:</span>
-                        <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-transport" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('transport')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 120px; text-align: center; background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.4); border-radius: 4px; color: #fff; font-size: 0.9rem;">
+            <!-- Right Side (Visual Left in RTL): Amounts Stack (Expenses + Grand Total) -->
+            <div id="amounts-area" style="display: flex; flex-direction: column; gap: 8px; align-items: flex-end;">
+                
+                <!-- Expense Inputs container -->
+                <div id="tot-inputs-area" style="display: flex; flex-direction: column; gap: 8px; width: 100%;">
+                    <!-- Transport -->
+                    <div class="tot-row" id="row-tot-transport" style="display: none; align-items: center; justify-content: flex-end; gap: 10px; background: rgba(249, 115, 22, 0.05); padding: 8px 15px; border-radius: 8px; border: 1px dashed rgba(249, 115, 22, 0.3);">
+                        <span style="color: #f97316; font-size: 0.9rem; font-weight: bold; min-width: 140px; text-align: left;">الترحيل</span>
+                        <div style="display: flex; align-items: center; gap: 5px;" class="loc-input-group">
+                            <span style="font-size: 0.75rem; color: #94a3b8;">محلي:</span>
+                            <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-transport" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('transport')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 120px; text-align: center; background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.4); border-radius: 4px; color: #fff; font-size: 0.9rem;">
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;" class="fc-input-group">
+                            <span style="font-size: 0.75rem; color: #94a3b8;">أجنبي:</span>
+                            <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-transport-fc" value="0" onfocus="this.select()" oninput="if(typeof syncLocal==='function')syncLocal('transport')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 120px; text-align: center; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 4px; color: #fff; font-size: 0.9rem;">
+                        </div>
                     </div>
-                    <div style="display: flex; align-items: center; gap: 5px;" class="fc-input-group">
-                        <span style="font-size: 0.75rem; color: #94a3b8;">أجنبي:</span>
-                        <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-transport-fc" value="0" onfocus="this.select()" oninput="if(typeof syncLocal==='function')syncLocal('transport')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 120px; text-align: center; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 4px; color: #fff; font-size: 0.9rem;">
+
+                    <!-- Labor -->
+                    <div class="tot-row" id="row-tot-labor" style="display: none; align-items: center; justify-content: flex-end; gap: 10px; background: rgba(249, 115, 22, 0.05); padding: 8px 15px; border-radius: 8px; border: 1px dashed rgba(249, 115, 22, 0.3);">
+                        <span style="color: #f97316; font-size: 0.9rem; font-weight: bold; min-width: 140px; text-align: left;">العمالة</span>
+                        <div style="display: flex; align-items: center; gap: 5px;" class="loc-input-group">
+                            <span style="font-size: 0.75rem; color: #94a3b8;">محلي:</span>
+                            <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-labor" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('labor')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 120px; text-align: center; background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.4); border-radius: 4px; color: #fff; font-size: 0.9rem;">
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;" class="fc-input-group">
+                            <span style="font-size: 0.75rem; color: #94a3b8;">أجنبي:</span>
+                            <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-labor-fc" value="0" onfocus="this.select()" oninput="if(typeof syncLocal==='function')syncLocal('labor')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 120px; text-align: center; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 4px; color: #fff; font-size: 0.9rem;">
+                        </div>
+                    </div>
+
+                    <!-- Additions -->
+                    <div class="tot-row" id="row-tot-additions" style="display: none; align-items: center; justify-content: flex-end; gap: 10px; background: rgba(234, 179, 8, 0.05); padding: 8px 15px; border-radius: 8px; border: 1px dashed rgba(234, 179, 8, 0.3);">
+                        <span style="color: #eab308; font-size: 0.9rem; font-weight: bold; min-width: 140px; text-align: left;">إضافات</span>
+                        <div style="display: flex; align-items: center; gap: 5px;" class="loc-input-group">
+                            <span style="font-size: 0.75rem; color: #94a3b8;">محلي:</span>
+                            <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-additions-loc" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('additions')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 120px; text-align: center; background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.4); border-radius: 4px; color: #fff; font-size: 0.9rem;">
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;" class="fc-input-group">
+                            <span style="font-size: 0.75rem; color: #94a3b8;">أجنبي:</span>
+                            <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-additions-fc" value="0" onfocus="this.select()" oninput="if(typeof syncLocal==='function')syncLocal('additions')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 120px; text-align: center; background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.4); border-radius: 4px; color: #fff; font-size: 0.9rem;">
+                        </div>
+                    </div>
+
+                    <!-- Tax -->
+                    <div class="tot-row" id="row-tot-tax" style="display: none; align-items: center; justify-content: flex-end; gap: 10px; background: rgba(239, 68, 68, 0.05); padding: 8px 15px; border-radius: 8px; border: 1px dashed rgba(239, 68, 68, 0.3);">
+                        <span style="color: #ef4444; font-size: 0.9rem; font-weight: bold; min-width: 140px; text-align: left;">الضريبة</span>
+                        <div style="display: flex; align-items: center; gap: 5px;" class="loc-input-group">
+                            <span style="font-size: 0.75rem; color: #94a3b8;">محلي:</span>
+                            <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-tax-loc" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('tax')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 120px; text-align: center; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 4px; color: #fff; font-size: 0.9rem;">
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;" class="fc-input-group">
+                            <span style="font-size: 0.75rem; color: #94a3b8;">أجنبي:</span>
+                            <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-tax-fc" value="0" onfocus="this.select()" oninput="if(typeof syncLocal==='function')syncLocal('tax')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 120px; text-align: center; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 4px; color: #fff; font-size: 0.9rem;">
+                        </div>
+                    </div>
+
+                    <!-- Discount -->
+                    <div class="tot-row" id="row-tot-discount" style="display: none; align-items: center; justify-content: flex-end; gap: 10px; background: rgba(34, 197, 94, 0.05); padding: 8px 15px; border-radius: 8px; border: 1px dashed rgba(34, 197, 94, 0.3);">
+                        <span style="color: #22c55e; font-size: 0.9rem; font-weight: bold; min-width: 140px; text-align: left;">خصم</span>
+                        <div style="display: flex; align-items: center; gap: 5px;" class="loc-input-group">
+                            <span style="font-size: 0.75rem; color: #94a3b8;">محلي:</span>
+                            <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-discount-loc" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('discount')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 120px; text-align: center; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 4px; color: #fff; font-size: 0.9rem;">
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 5px;" class="fc-input-group">
+                            <span style="font-size: 0.75rem; color: #94a3b8;">أجنبي:</span>
+                            <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-discount-fc" value="0" onfocus="this.select()" oninput="if(typeof syncLocal==='function')syncLocal('discount')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 120px; text-align: center; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 4px; color: #fff; font-size: 0.9rem;">
+                        </div>
                     </div>
                 </div>
 
-                <!-- Labor -->
-                <div class="tot-row" id="row-tot-labor" style="display: none; align-items: center; justify-content: flex-end; gap: 10px; background: rgba(249, 115, 22, 0.05); padding: 8px 15px; border-radius: 8px; border: 1px dashed rgba(249, 115, 22, 0.3);">
-                    <span style="color: #f97316; font-size: 0.9rem; font-weight: bold; min-width: 140px; text-align: left;">العمالة</span>
-                    <div style="display: flex; align-items: center; gap: 5px;" class="loc-input-group">
-                        <span style="font-size: 0.75rem; color: #94a3b8;">محلي:</span>
-                        <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-labor" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('labor')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 120px; text-align: center; background: rgba(249, 115, 22, 0.1); border: 1px solid rgba(249, 115, 22, 0.4); border-radius: 4px; color: #fff; font-size: 0.9rem;">
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 5px;" class="fc-input-group">
-                        <span style="font-size: 0.75rem; color: #94a3b8;">أجنبي:</span>
-                        <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-labor-fc" value="0" onfocus="this.select()" oninput="if(typeof syncLocal==='function')syncLocal('labor')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 120px; text-align: center; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.4); border-radius: 4px; color: #fff; font-size: 0.9rem;">
-                    </div>
-                </div>
-
-                <!-- Additions -->
-                <div class="tot-row" id="row-tot-additions" style="display: none; align-items: center; justify-content: flex-end; gap: 10px; background: rgba(234, 179, 8, 0.05); padding: 8px 15px; border-radius: 8px; border: 1px dashed rgba(234, 179, 8, 0.3);">
-                    <span style="color: #eab308; font-size: 0.9rem; font-weight: bold; min-width: 140px; text-align: left;">إضافات</span>
-                    <div style="display: flex; align-items: center; gap: 5px;" class="loc-input-group">
-                        <span style="font-size: 0.75rem; color: #94a3b8;">محلي:</span>
-                        <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-additions-loc" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('additions')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 120px; text-align: center; background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.4); border-radius: 4px; color: #fff; font-size: 0.9rem;">
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 5px;" class="fc-input-group">
-                        <span style="font-size: 0.75rem; color: #94a3b8;">أجنبي:</span>
-                        <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-additions-fc" value="0" onfocus="this.select()" oninput="if(typeof syncLocal==='function')syncLocal('additions')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 120px; text-align: center; background: rgba(234, 179, 8, 0.1); border: 1px solid rgba(234, 179, 8, 0.4); border-radius: 4px; color: #fff; font-size: 0.9rem;">
-                    </div>
-                </div>
-
-                <!-- Tax -->
-                <div class="tot-row" id="row-tot-tax" style="display: none; align-items: center; justify-content: flex-end; gap: 10px; background: rgba(239, 68, 68, 0.05); padding: 8px 15px; border-radius: 8px; border: 1px dashed rgba(239, 68, 68, 0.3);">
-                    <span style="color: #ef4444; font-size: 0.9rem; font-weight: bold; min-width: 140px; text-align: left;">الضريبة</span>
-                    <div style="display: flex; align-items: center; gap: 5px;" class="loc-input-group">
-                        <span style="font-size: 0.75rem; color: #94a3b8;">محلي:</span>
-                        <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-tax-loc" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('tax')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 120px; text-align: center; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 4px; color: #fff; font-size: 0.9rem;">
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 5px;" class="fc-input-group">
-                        <span style="font-size: 0.75rem; color: #94a3b8;">أجنبي:</span>
-                        <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-tax-fc" value="0" onfocus="this.select()" oninput="if(typeof syncLocal==='function')syncLocal('tax')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 120px; text-align: center; background: rgba(239, 68, 68, 0.1); border: 1px solid rgba(239, 68, 68, 0.4); border-radius: 4px; color: #fff; font-size: 0.9rem;">
-                    </div>
-                </div>
-
-                <!-- Discount -->
-                <div class="tot-row" id="row-tot-discount" style="display: none; align-items: center; justify-content: flex-end; gap: 10px; background: rgba(34, 197, 94, 0.05); padding: 8px 15px; border-radius: 8px; border: 1px dashed rgba(34, 197, 94, 0.3);">
-                    <span style="color: #22c55e; font-size: 0.9rem; font-weight: bold; min-width: 140px; text-align: left;">خصم</span>
-                    <div style="display: flex; align-items: center; gap: 5px;" class="loc-input-group">
-                        <span style="font-size: 0.75rem; color: #94a3b8;">محلي:</span>
-                        <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-discount-loc" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('discount')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 120px; text-align: center; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 4px; color: #fff; font-size: 0.9rem;">
-                    </div>
-                    <div style="display: flex; align-items: center; gap: 5px;" class="fc-input-group">
-                        <span style="font-size: 0.75rem; color: #94a3b8;">أجنبي:</span>
-                        <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-discount-fc" value="0" onfocus="this.select()" oninput="if(typeof syncLocal==='function')syncLocal('discount')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 120px; text-align: center; background: rgba(34, 197, 94, 0.1); border: 1px solid rgba(34, 197, 94, 0.4); border-radius: 4px; color: #fff; font-size: 0.9rem;">
-                    </div>
+                <!-- Grand Total -->
+                <div id="grand-total-row" style="display: flex; align-items: baseline; gap: 10px; justify-content: flex-end; width: 100%;">
+                    <span id="lbl-grand-dynamic" style="font-size: 1.1rem; color: #ffffff !important; font-weight: bold;">الإجمالي الكلي محلي:</span>
+                    <span class="val amount" id="t-grand-dynamic" style="font-size: 1.8rem; font-weight: 900; color: #ffffff !important; min-width: 120px; text-align: center;">0</span>
                 </div>
             </div>
 
@@ -3545,39 +3546,23 @@ function playScanBeep() {
         repositionGrandTotal();
     };
 
-    // Dynamically move grand total: inline with toggles when no expenses, bottom row when expenses visible
+    // Dynamically update grand total border when expenses are visible
     window.repositionGrandTotal = function() {
         const grandRow = document.getElementById('grand-total-row');
-        const togglesRow = document.getElementById('toggles-row');
-        const container = document.getElementById('inline-totals-container');
-        const hiddenSpans = document.getElementById('hidden-recalc-spans');
-        if (!grandRow || !togglesRow || !container) return;
+        if (!grandRow) return;
 
-        // Check if any expense row is visible
         const visibleRows = document.querySelectorAll('#tot-inputs-area .tot-row');
         let anyVisible = false;
         visibleRows.forEach(r => { if (r.style.display === 'flex') anyVisible = true; });
 
         if (anyVisible) {
-            // Move grand total to bottom of container (before hidden spans)
             grandRow.style.borderTop = '1px solid rgba(255, 255, 255, 0.08)';
-            grandRow.style.marginTop = '10px';
-            grandRow.style.paddingTop = '10px';
-            grandRow.style.justifyContent = 'flex-end';
-            grandRow.style.width = '100%';
-            if (hiddenSpans) {
-                container.insertBefore(grandRow, hiddenSpans);
-            } else {
-                container.appendChild(grandRow);
-            }
+            grandRow.style.marginTop = '8px';
+            grandRow.style.paddingTop = '8px';
         } else {
-            // Move grand total back inline with toggles row
             grandRow.style.borderTop = 'none';
             grandRow.style.marginTop = '0';
             grandRow.style.paddingTop = '0';
-            grandRow.style.justifyContent = '';
-            grandRow.style.width = '';
-            togglesRow.appendChild(grandRow);
         }
     };
 
