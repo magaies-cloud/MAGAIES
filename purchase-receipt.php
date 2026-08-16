@@ -540,21 +540,20 @@
                 <!-- Left: Items Table -->
                 <div class="editor-left" style="flex: 1; display: flex; flex-direction: column;">
                     <div class="neo-card-title" style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
-                        <span>📦 قائمة الأصناف المعلقة للفاتورة</span>
+                        <span>📦 قيد الاستلام</span>
                         <button class="btn-action btn-cancel" style="padding: 6px 12px; font-size: 0.8rem;" onclick="showHub()">إلغاء وتراجع</button>
                     </div>
                     
                     <div class="grid-scroll-wrap" style="flex:1; max-height: 420px; min-height: 220px; overflow-y: auto; border-radius: 12px; border: 1px solid rgba(255,255,255,0.06); background: rgba(15, 23, 42, 0.4);">
-                        <table class="pos-grid" style="width: 100%;" oncontextmenu="showGridContextMenu(event)">
+                        <table class="pos-grid" style="width: 100%;">
                             <thead style="position: sticky; top: 0; z-index: 10; background: #0f172a;">
                                 <tr>
+                                    <th style="display:none; text-align:center; width:12%;">سعر الوحدة</th>
+                                    <th style="display:none; text-align:center; width:12%;">القيمة المستلمة</th>
                                     <th style="text-align:right; width:20%;">الصنف</th>
                                     <th style="text-align:center; width:8%;">الوحدة</th>
-                                    <th style="text-align:center; width:12%;">سعر الوحدة</th>
-                                    <th style="text-align:center; width:10%;">الكمية المعلقة</th>
+                                    <th style="text-align:center; width:10%;">الكمية</th>
                                     <th style="text-align:center; width:150px; color:#38bdf8;">الكمية المستلمة (الآن)</th>
-                                    <th style="text-align:center; width:10%; color:#f59e0b;">المتبقي بعد الاستلام</th>
-                                    <th style="text-align:center; width:12%;">القيمة المستلمة</th>
                                     <th style="text-align:center; width:160px;">المستودع المُستلِم</th>
                                     <th style="text-align:center; width:60px;">تقسيم</th>
                                 </tr>
@@ -666,7 +665,39 @@
         }
 
 
+        
+        async function loadGridPrefsFromDB() {
+            try {
+                const userId = (JSON.parse(localStorage.getItem('user')) || {}).id || 'default';
+                const res = await fetch('api/get_user_settings.php?user_id=' + userId + '&setting_key=grn_simple_grid_prefs');
+                const data = await res.json();
+                if (data.status === 'success' && data.data) {
+                    localStorage.setItem('erp_grn_grid_prefs', data.data);
+                    if (document.getElementById('view-editor').classList.contains('active')) {
+                        renderReceiptLines();
+                    }
+                }
+            } catch(e) { console.error('Error loading prefs', e); }
+        }
+        
+        let gridPrefs = {};
+        function getColPrefs(colId, defaultAlign) {
+            let defaultPrefs = { font: 'Outfit', size: 14, color: '#ffffff', align: defaultAlign, decimals: 2, thousands: true };
+            try {
+                const stored = localStorage.getItem('erp_grn_grid_prefs');
+                if (stored) {
+                    const parsed = JSON.parse(stored);
+                    if (parsed[colId]) return { ...defaultPrefs, ...parsed[colId] };
+                    // fallback to old global settings if no per-col
+                    if (parsed.font && !parsed.col_0) return { ...defaultPrefs, font: parsed.font, size: parsed.size, color: parsed.color, align: parsed.align, decimals: parsed.decimals, thousands: parsed.thousands };
+                }
+            } catch(e) {}
+            return defaultPrefs;
+        }
+
         function initData() {
+            loadGridPrefsFromDB();
+
             function loadKey(key) {
                 let raw = localStorage.getItem(key);
                 if (typeof raw === 'string') {
@@ -924,7 +955,7 @@
                 const counterContainer = document.getElementById('hub-counter-badge');
                 counterContainer.innerHTML = '';
                 setTimeout(() => {
-                    counterContainer.innerHTML = `<span class="counter-animate-abs" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 6px 30px; border-radius: 40px; font-size: 1.6rem; font-weight: 900; box-shadow: 0 10px 25px rgba(245, 158, 11, 0.5), inset 0 2px 5px rgba(255,255,255,0.3); border: 2px solid rgba(255,255,255,0.2); font-family: 'Outfit', 'Tajawal', sans-serif; white-space: nowrap; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">${filteredIds.length} فاتورة</span>`;
+                    counterContainer.innerHTML = `<span class="counter-animate-abs" style="background: linear-gradient(135deg, #f59e0b, #d97706); color: #fff; padding: 6px 30px; border-radius: 40px; font-size: 1.6rem; font-weight: 900; box-shadow: 0 10px 25px rgba(245, 158, 11, 0.5), inset 0 2px 5px rgba(255,255,255,0.3); border: 2px solid rgba(255,255,255,0.2); font-family: 'Outfit', 'Tajawal', sans-serif; white-space: nowrap; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">${filteredIds.length} فاتورة غير مستلمة</span>`;
                 }, 10);
             }
         }
@@ -1021,17 +1052,16 @@
                 else if (remainingQty < 0) remainingColor = '#ef4444'; // Red (Error)
 
                 tr.innerHTML = `
+                    <td style="display:none; text-align:center; ${cellStyleNum}">${fmtGridNum(line.price)} SDG</td>
+                    <td style="display:none; text-align:center; ${cellStyleNum}; color:var(--gold-primary) !important;">${fmtGridNum(lineTotal)} SDG</td>
                     <td style="text-align:right; font-weight:700; ${line.isSplit ? 'padding-right: 25px; color:#94a3b8;' : ''}">
                         ${line.isSplit ? '↳ ' : ''}${getItemName(line.itemId)}
                     </td>
                     <td style="text-align:center; color:#94a3b8; font-size: 0.9rem;">${line.unitName}</td>
-                    <td style="text-align:center; ${cellStyleNum}">${fmtGridNum(line.price)} SDG</td>
                     <td style="text-align:center; ${cellStyleNum}">${line.isSplit ? '—' : fmtGridNum(line.maxPending)}</td>
                     <td style="text-align:center;">
                         <input type="number" class="qty-input" value="${line.receiveQty || 0}" step="any" style="width: 100px; max-width: 100%; background: rgba(15,23,42,0.6); border: 1px solid #38bdf8; text-align: center; color: #fff; padding: 10px; border-radius: 8px; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); transition: all 0.2s; ${inputStyleNum}" onfocus="this.select(); this.style.borderColor='#10b981'; this.style.boxShadow='0 0 10px rgba(16,185,129,0.4)';" onblur="this.style.borderColor='#38bdf8'; this.style.boxShadow='inset 0 2px 4px rgba(0,0,0,0.3)';" onchange="updateReceiveQty('${line.id}', this.value)">
                     </td>
-                    <td style="text-align:center; ${cellStyleNum}; color:${remainingColor} !important;">${line.isSplit ? '—' : fmtGridNum(remainingQty)}</td>
-                    <td style="text-align:center; ${cellStyleNum}; color:var(--gold-primary) !important;">${fmtGridNum(lineTotal)} SDG</td>
                     <td style="text-align:center;">
                         <select class="wh-select" style="padding: 4px 8px; border-radius: 6px; font-size: 0.85rem; width: 100%;" 
                                 onchange="updateLineWarehouse('${line.id}', this.value)">
@@ -1336,7 +1366,7 @@
                 const counterContainer = document.getElementById('hub-counter-badge');
                 counterContainer.innerHTML = '';
                 setTimeout(() => {
-                    counterContainer.innerHTML = `<span class="counter-animate-abs" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; padding: 6px 30px; border-radius: 40px; font-size: 1.6rem; font-weight: 900; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.5), inset 0 2px 5px rgba(255,255,255,0.3); border: 2px solid rgba(255,255,255,0.2); font-family: 'Outfit', 'Tajawal', sans-serif; white-space: nowrap; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">${grns.length} إذن</span>`;
+                    counterContainer.innerHTML = `<span class="counter-animate-abs" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; padding: 6px 30px; border-radius: 40px; font-size: 1.6rem; font-weight: 900; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.5), inset 0 2px 5px rgba(255,255,255,0.3); border: 2px solid rgba(255,255,255,0.2); font-family: 'Outfit', 'Tajawal', sans-serif; white-space: nowrap; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">${grns.length} فاتورة مستلمة</span>`;
                 }, 10);
             }
             
@@ -1560,6 +1590,7 @@
             document.getElementById('grid-text-color').value = gridPrefs.color;
             document.getElementById('grid-decimals').value = gridPrefs.decimals;
             document.getElementById('grid-thousands-sep').checked = gridPrefs.thousands;
+            document.getElementById('grid-text-align').value = gridPrefs.align || 'center';
             
             document.getElementById('grid-settings-modal').style.display = 'flex';
         }
@@ -1576,6 +1607,76 @@
             document.getElementById('grid-settings-modal').style.display = 'none';
             renderReceiptLines();
         }
+    </script>
+
+    <!-- Column Resizer Script -->
+    <script>
+        function initSimpleResizers() {
+            const editorTable = document.querySelector('#items-tbody').closest('table');
+            if (!editorTable) return;
+            const cols = editorTable.querySelectorAll('thead th');
+            
+            cols.forEach(col => {
+                if(col.querySelector('.simple-resizer')) return; // already added
+
+                const resizer = document.createElement('div');
+                resizer.className = 'simple-resizer';
+                resizer.style.width = '6px';
+                resizer.style.height = '100%';
+                resizer.style.position = 'absolute';
+                resizer.style.left = '0'; // Left edge for RTL
+                resizer.style.top = '0';
+                resizer.style.cursor = 'col-resize';
+                resizer.style.userSelect = 'none';
+                resizer.style.zIndex = '100';
+                
+                // Add hover effect via JS since it's inline
+                resizer.addEventListener('mouseover', () => resizer.style.backgroundColor = 'rgba(56, 189, 248, 0.4)');
+                resizer.addEventListener('mouseout', () => { if(!resizer.isDragging) resizer.style.backgroundColor = 'transparent'; });
+                
+                if (window.getComputedStyle(col).position === 'static') {
+                    col.style.position = 'relative';
+                }
+                
+                col.appendChild(resizer);
+                
+                let startX, startWidth;
+                
+                resizer.addEventListener('mousedown', function(e) {
+                    resizer.isDragging = true;
+                    startX = e.pageX;
+                    startWidth = col.offsetWidth;
+                    resizer.style.backgroundColor = 'rgba(56, 189, 248, 0.8)';
+                    
+                    const onMouseMove = function(e) {
+                        const diff = startX - e.pageX; // RTL difference
+                        col.style.width = (startWidth + diff) + 'px';
+                    };
+                    
+                    const onMouseUp = function(e) {
+                        resizer.isDragging = false;
+                        resizer.style.backgroundColor = 'transparent';
+                        document.removeEventListener('mousemove', onMouseMove);
+                        document.removeEventListener('mouseup', onMouseUp);
+                    };
+                    
+                    document.addEventListener('mousemove', onMouseMove);
+                    document.addEventListener('mouseup', onMouseUp);
+                    e.stopPropagation();
+                    e.preventDefault();
+                });
+            });
+        }
+        
+        // Re-initialize resizers when the view is opened or headers are re-rendered
+        const observer = new MutationObserver((mutations) => {
+            initSimpleResizers();
+        });
+        observer.observe(document.getElementById('items-tbody'), { childList: true });
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            setTimeout(initSimpleResizers, 1000);
+        });
     </script>
 
     <!-- Context Menu HTML -->
@@ -1610,7 +1711,16 @@
                     <input type="color" id="grid-text-color" class="v-input" style="width: 100%; height: 40px; padding: 2px;" value="#ffffff">
                 </div>
                 <div>
-                    <label style="color: #94a3b8; font-size: 0.85rem; display: block; margin-bottom: 5px;">المنازل العشرية</label>
+                    
+                <div>
+                    <label style="color: #94a3b8; font-size: 0.85rem; display: block; margin-bottom: 5px;">المحاذاة (Alignment)</label>
+                    <select id="grid-text-align" class="v-input" style="width: 100%;">
+                        <option value="center">في المنتصف (Center)</option>
+                        <option value="right">على اليمين (Right)</option>
+                        <option value="left">على اليسار (Left)</option>
+                    </select>
+                </div>
+                <label style="color: #94a3b8; font-size: 0.85rem; display: block; margin-bottom: 5px;">المنازل العشرية</label>
                     <input type="number" id="grid-decimals" class="v-input" style="width: 100%;" value="2" min="0" max="4">
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px;">
