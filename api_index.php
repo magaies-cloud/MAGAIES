@@ -203,6 +203,23 @@ if ($resource === 'wa-tenant' || $action === 'wa-proxy') {
 }
 
 // ---------------------------------------------------------
+// SMTP SETTINGS
+// ---------------------------------------------------------
+if ($resource === 'smtp_settings' && $method === 'POST') {
+    $payload = $input['payload'] ?? null;
+    if ($payload) {
+        $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES (?, ?) ON DUPLICATE KEY UPDATE setting_value = ?");
+        $stmt->execute(['smtp_server', $payload['smtpServer'] ?? '', $payload['smtpServer'] ?? '']);
+        $stmt->execute(['smtp_port', $payload['smtpPort'] ?? '', $payload['smtpPort'] ?? '']);
+        $stmt->execute(['smtp_user', $payload['smtpUser'] ?? '', $payload['smtpUser'] ?? '']);
+        if (!empty($payload['smtpPass']) && $payload['smtpPass'] !== '********') {
+            $stmt->execute(['smtp_pass', $payload['smtpPass'], $payload['smtpPass']]);
+        }
+    }
+    jsonResponse(['success' => true]);
+}
+
+// ---------------------------------------------------------
 // EXCHANGE RATE (PUBLIC)
 // ---------------------------------------------------------
 if ($resource === 'exchange-rate' && $method === 'GET') {
@@ -215,7 +232,7 @@ if ($resource === 'exchange-rate' && $method === 'GET') {
     jsonResponse($ex_rate);
 }
 
-// ---------------------------------------------------------
+// ----------------------------------------------------------------------------------
 // TENANT EXCHANGE RATE
 // ---------------------------------------------------------
 if ($resource === 'tenant-exchange-rate') {

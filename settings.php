@@ -1835,6 +1835,15 @@ document.addEventListener('DOMContentLoaded', function() {
             if (window.saveToDB) {
                 window.saveToDB('erp_settings_v1', cfg);
             }
+            
+            // Send SMTP settings to backend
+            try {
+                fetch('api_index.php?r=smtp_settings', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ payload: { smtpServer: cfg.smtpServer, smtpPort: cfg.smtpPort, smtpUser: cfg.smtpUser, smtpPass: cfg.smtpPass } })
+                }).catch(e => console.error('SMTP sync error:', e));
+            } catch(e) {}
 
             if (cfg.fontSize) {
                 document.documentElement.style.fontSize = cfg.fontSize + 'px';
