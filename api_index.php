@@ -215,6 +215,7 @@ if ($resource === 'smtp_settings' && $method === 'POST') {
         if (!empty($payload['smtpPass']) && $payload['smtpPass'] !== '********') {
             $stmt->execute(['smtp_pass', $payload['smtpPass'], $payload['smtpPass']]);
         }
+        $stmt->execute(['backup_email', $payload['backupEmail'] ?? '', $payload['backupEmail'] ?? '']);
     }
     jsonResponse(['success' => true]);
 }

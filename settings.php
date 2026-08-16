@@ -817,6 +817,11 @@
                 <div class="form-group"><label class="form-label">المنفذ (Port)</label><input type="number" class="form-input" id="cfg-smtp-port" placeholder="مثال: 587 أو 465"></div>
                 <div class="form-group"><label class="form-label">بريد المرسل (Email Username)</label><input type="email" class="form-input" id="cfg-smtp-user" placeholder="billing@yourcompany.com"></div>
                 <div class="form-group"><label class="form-label">كلمة المرور (App Password)</label><input type="password" class="form-input" id="cfg-smtp-pass" placeholder="كلمة المرور أو App Password"></div>
+                
+                <hr style="border: none; border-top: 1px solid rgba(255,255,255,0.05); margin: 20px 0;">
+                <div class="setting-title">🛡️ النسخ الاحتياطي السحابي (Cloud Backups)</div>
+                <p style="color: #94a3b8; font-size: 0.9rem; margin-top: 0; line-height: 1.6;">أدخل البريد الإلكتروني الذي سيستقبل النسخة الاحتياطية لقاعدة البيانات يومياً (مضغوطة بصيغة ZIP).</p>
+                <div class="form-group"><label class="form-label">إيميل النسخ الاحتياطي (Backup Email)</label><input type="email" class="form-input" id="cfg-backup-email" placeholder="backup@yourcompany.com"></div>
             </div>
         </div>
 
@@ -1650,6 +1655,7 @@ document.addEventListener('DOMContentLoaded', function() {
         if (cfg.smtpPort) safeSetVal('cfg-smtp-port', cfg.smtpPort);
         if (cfg.smtpUser) safeSetVal('cfg-smtp-user', cfg.smtpUser);
         if (cfg.smtpPass) safeSetVal('cfg-smtp-pass', cfg.smtpPass);
+        if (cfg.backupEmail) safeSetVal('cfg-backup-email', cfg.backupEmail);
 
         // UI
         if (cfg.fontSize) safeSetVal('cfg-font-size', cfg.fontSize);
@@ -1738,11 +1744,12 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
 
-                // SMTP
+                // SMTP & Backups
                 smtpServer:        getVal('cfg-smtp-server', ''),
                 smtpPort:          getVal('cfg-smtp-port', ''),
                 smtpUser:          getVal('cfg-smtp-user', ''),
                 smtpPass:          getVal('cfg-smtp-pass', ''),
+                backupEmail:       getVal('cfg-backup-email', ''),
 
                 // UI
                 fontSize:          getVal('cfg-font-size', '16'),
@@ -1836,12 +1843,12 @@ document.addEventListener('DOMContentLoaded', function() {
                 window.saveToDB('erp_settings_v1', cfg);
             }
             
-            // Send SMTP settings to backend
+            // Send SMTP & Backup settings to backend
             try {
                 fetch('api_index.php?r=smtp_settings', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ payload: { smtpServer: cfg.smtpServer, smtpPort: cfg.smtpPort, smtpUser: cfg.smtpUser, smtpPass: cfg.smtpPass } })
+                    body: JSON.stringify({ payload: { smtpServer: cfg.smtpServer, smtpPort: cfg.smtpPort, smtpUser: cfg.smtpUser, smtpPass: cfg.smtpPass, backupEmail: cfg.backupEmail } })
                 }).catch(e => console.error('SMTP sync error:', e));
             } catch(e) {}
 
