@@ -1878,8 +1878,8 @@
                 
                 <!-- Right: Grand Total (inline, aligned under الجملة) -->
                 <div id="grand-total-row" style="display: flex; align-items: baseline; gap: 10px;">
-                    <span id="lbl-grand-dynamic" style="font-size: 1.1rem; color: #94a3b8; font-weight: bold;">الإجمالي الكلي محلي:</span>
-                    <span class="val amount" id="t-grand-dynamic" style="font-size: 1.6rem; font-weight: 900; color: #ffffff; min-width: 120px; text-align: center;">0</span>
+                    <span id="lbl-grand-dynamic" style="font-size: 1.1rem; color: #ffffff !important; font-weight: bold;">الإجمالي الكلي محلي:</span>
+                    <span class="val amount" id="t-grand-dynamic" style="font-size: 1.8rem; font-weight: 900; color: #ffffff !important; min-width: 120px; text-align: center;">0</span>
                 </div>
             </div>
 
@@ -3610,11 +3610,11 @@ function playScanBeep() {
             if (isSDG) {
                 dynamicLbl.textContent = 'الإجمالي الكلي محلي:';
                 newVal = tLocal.textContent;
-                dynamicVal.style.color = '#ffffff';
+                dynamicVal.style.setProperty('color', '#ffffff', 'important');
             } else {
                 dynamicLbl.textContent = 'الإجمالي الكلي أجنبي:';
                 newVal = tFc.textContent;
-                dynamicVal.style.color = '#ffffff';
+                dynamicVal.style.setProperty('color', '#ffffff', 'important');
             }
             
             if (oldVal !== newVal) {
