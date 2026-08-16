@@ -694,7 +694,7 @@
                     // fallback to old global settings if no per-col
                     if (parsed.font && !parsed.col_0) return { ...defaultPrefs, font: parsed.font, size: parsed.size, color: parsed.color, align: parsed.align, decimals: parsed.decimals, thousands: parsed.thousands };
                 }
-            } catch(e) {}
+            } catch(e) {} updateGrnStyles();
             return defaultPrefs;
         }
 
@@ -1023,9 +1023,7 @@
                 }
             }
 
-            const getStyle = (col) => `font-size: ${grnGridPrefs.cols[col].size}px; color: ${grnGridPrefs.cols[col].color};`;
-            const getCellStyleNum = () => `font-family: 'Outfit', sans-serif; ${getStyle('qty')} font-weight: 800;`;
-            const getInputStyleNum = () => `font-family: 'Outfit', sans-serif; ${getStyle('rcvQty')} font-weight: 800;`;
+            
 
             receiptLines.forEach(line => {
                 const tr = document.createElement('tr');
@@ -1053,16 +1051,16 @@
                 tr.innerHTML = `
                     <td style="display:none; text-align:center; ${getCellStyleNum()}">${fmtGridNum(line.price)} SDG</td>
                     <td style="display:none; text-align:center; ${getCellStyleNum()}; color:var(--gold-primary) !important;">${fmtGridNum(lineTotal)} SDG</td>
-                    <td style="text-align:right; font-weight:700; ${getStyle('item')} ${line.isSplit ? 'padding-right: 25px;' : ''}">
+                    <td class="grn-col-item" style="text-align:right; font-weight:700; ${line.isSplit ? 'padding-right: 25px;' : ''}">
                         ${line.isSplit ? '↳ ' : ''}${getItemName(line.itemId)}
                     </td>
-                    <td style="text-align:center; ${getStyle('unit')}">${line.unitName}</td>
-                    <td style="text-align:center; ${getCellStyleNum()}">${line.isSplit ? '—' : fmtGridNum(line.maxPending)}</td>
+                    <td class="grn-col-unit" style="text-align:center;">${line.unitName}</td>
+                    <td class="grn-col-qty" style="text-align:center; font-family: 'Outfit', sans-serif; font-weight: 800;">${line.isSplit ? '—' : fmtGridNum(line.maxPending)}</td>
                     <td style="text-align:center;">
-                        <input type="number" class="qty-input" value="${line.receiveQty || 0}" step="any" style="width: 100px; max-width: 100%; background: rgba(15,23,42,0.6); border: 1px solid #38bdf8; text-align: center; color: #fff; padding: 10px; border-radius: 8px; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); transition: all 0.2s; ${getInputStyleNum()}" onfocus="this.select(); this.style.borderColor='#10b981'; this.style.boxShadow='0 0 10px rgba(16,185,129,0.4)';" onblur="this.style.borderColor='#38bdf8'; this.style.boxShadow='inset 0 2px 4px rgba(0,0,0,0.3)';" onchange="updateReceiveQty('${line.id}', this.value)">
+                        <input type="number" class="qty-input grn-col-rcvQty" value="${line.receiveQty || 0}" step="any" style="width: 100px; max-width: 100%; background: rgba(15,23,42,0.6); border: 1px solid #38bdf8; text-align: center; color: #fff; padding: 10px; border-radius: 8px; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); transition: all 0.2s; font-family: 'Outfit', sans-serif; font-weight: 800;" onfocus="this.select(); this.style.borderColor='#10b981'; this.style.boxShadow='0 0 10px rgba(16,185,129,0.4)';" onblur="this.style.borderColor='#38bdf8'; this.style.boxShadow='inset 0 2px 4px rgba(0,0,0,0.3)';" onchange="updateReceiveQty('${line.id}', this.value)">
                     </td>
                     <td style="text-align:center;">
-                        <select class="wh-select" style="padding: 4px 8px; border-radius: 6px; ${getStyle('warehouse')} width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.1);" 
+                        <select class="wh-select grn-col-warehouse" style="padding: 4px 8px; border-radius: 6px; width: 100%; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255,255,255,0.1);" 
                                 onchange="updateLineWarehouse('${line.id}', this.value)">
                             ${whOptions}
                         </select>
@@ -1260,7 +1258,7 @@
             let currentInvData = [];
             try {
                 currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
-            } catch(e) {}
+            } catch(e) {} updateGrnStyles();
 
             if (editingGRNId) {
                 const oldGrn = allPurchases.find(p => p.id === editingGRNId);
@@ -1302,7 +1300,7 @@
             let freshPurchases = [];
             try {
                 freshPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
-            } catch(e) {}
+            } catch(e) {} updateGrnStyles();
 
             if (editingGRNId) {
                 // Edit mode: overwrite old GRN in freshPurchases
@@ -1435,7 +1433,7 @@
                         year: 'numeric', month: 'numeric', day: 'numeric',
                         hour: '2-digit', minute: '2-digit'
                     });
-                } catch(e) {}
+                } catch(e) {} updateGrnStyles();
 
                 const creatorUser = usersDb.find(u => u.id === grn.createdBy || u.username === grn.createdBy);
                 const creatorName = creatorUser ? creatorUser.name : grn.createdBy || 'غير معروف';
@@ -1486,7 +1484,7 @@
             let currentInvData = [];
             try {
                 currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
-            } catch(e) {}
+            } catch(e) {} updateGrnStyles();
 
             const positiveItems = grn.items.filter(item => item.quantity > 0);
             positiveItems.forEach(pItem => {
@@ -1585,7 +1583,7 @@
             try {
                 const stored = localStorage.getItem('erp_grn_grid_prefs');
                 if (stored) gridPrefs = JSON.parse(stored);
-            } catch(e) {}
+            } catch(e) {} updateGrnStyles();
             
             document.getElementById('grid-font-family').value = gridPrefs.font;
             document.getElementById('grid-font-size').value = gridPrefs.size;
@@ -1803,7 +1801,27 @@
                 const parsed = JSON.parse(stored);
                 grnGridPrefs = { ...grnGridPrefs, ...parsed };
             }
-        } catch(e) {}
+        } catch(e) {} updateGrnStyles();
+
+        
+        function updateGrnStyles() {
+            let styleEl = document.getElementById('grn-dynamic-styles');
+            if (!styleEl) {
+                styleEl = document.createElement('style');
+                styleEl.id = 'grn-dynamic-styles';
+                document.head.appendChild(styleEl);
+            }
+            
+            let css = '';
+            const cols = grnGridPrefs.cols;
+            if(cols.item) css += `.grn-col-item { font-size: ${cols.item.size}px !important; color: ${cols.item.color} !important; }\n`;
+            if(cols.unit) css += `.grn-col-unit { font-size: ${cols.unit.size}px !important; color: ${cols.unit.color} !important; }\n`;
+            if(cols.qty) css += `.grn-col-qty { font-size: ${cols.qty.size}px !important; color: ${cols.qty.color} !important; }\n`;
+            if(cols.rcvQty) css += `.grn-col-rcvQty { font-size: ${cols.rcvQty.size}px !important; color: ${cols.rcvQty.color} !important; }\n`;
+            if(cols.warehouse) css += `.grn-col-warehouse { font-size: ${cols.warehouse.size}px !important; color: ${cols.warehouse.color} !important; }\n`;
+            
+            styleEl.innerHTML = css;
+        }
 
         function openGrnSettings() {
             document.getElementById('grn-settings-modal').style.display = 'flex';
@@ -1829,12 +1847,14 @@
             currentSize = Math.max(10, Math.min(30, currentSize + delta));
             grnGridPrefs.cols[col].size = currentSize;
             document.getElementById('grn-col-size-val').textContent = currentSize;
+            updateGrnStyles();
             renderReceiptLines();
         }
 
         function updateSelectedColColor() {
             const col = document.getElementById('grn-col-select').value;
             grnGridPrefs.cols[col].color = document.getElementById('grn-col-color').value;
+            updateGrnStyles();
             renderReceiptLines();
         }
 
