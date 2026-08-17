@@ -1403,6 +1403,10 @@ JSON.parse = function(val) {
             }).then(res => {
                 resStatus = res.status;
                 if (res.status === 401) {
+                    if (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')) {
+                        console.warn("Localhost mode: ignoring 401 push error");
+                        return null;
+                    }
                     alert('انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.');
                     if (typeof window.logout === 'function') window.logout(true);
                     else window.location.href = 'login.php';
@@ -1414,6 +1418,10 @@ JSON.parse = function(val) {
                 if (!data) return;
                 
                 if (data.error && (resStatus === 401 || data.error.includes('الجلسة') || data.error.includes('تسجيل الدخول'))) {
+                    if (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')) {
+                        console.warn("Localhost mode: ignoring session error in push");
+                        return;
+                    }
                     alert('انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.');
                     if (typeof window.logout === 'function') window.logout(true);
                     else window.location.href = 'login.php';
@@ -1470,6 +1478,10 @@ JSON.parse = function(val) {
         return fetch(SYNC_PULL_URL, { headers: getAuthHeaders() })
             .then(res => {
                 if (res.status === 401) {
+                    if (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')) {
+                        console.warn("Localhost mode: ignoring 401 in pull");
+                        return { success: false, offline: true };
+                    }
                     alert('انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.');
                     window.logout(true);
                     throw new Error("Unauthorized");
@@ -3817,7 +3829,7 @@ document.addEventListener('DOMContentLoaded', () => {
             _cacheTimestamp = now;
         }
         
-        if (_cachedAutoLogoutTime > 0 && !window.location.pathname.includes('login.php')) {
+        if (_cachedAutoLogoutTime > 0 && !window.location.pathname.includes('login.php') && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
             activityTimer = setTimeout(() => {
                 alert('تم تسجيل الخروج التلقائي بسبب عدم النشاط للحفاظ على الأمان.');
                 if (window.logout) window.logout(true);
