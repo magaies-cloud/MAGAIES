@@ -319,12 +319,12 @@
         
         <div class="input-group">
             <label>اسم المستخدم</label>
-            <input type="text" class="input-field" id="username" placeholder="أدخل اسم المستخدم" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')">
+            <input type="text" class="input-field" id="username" placeholder="أدخل اسم المستخدم" autocomplete="username" autocapitalize="none" autocorrect="off" spellcheck="false">
         </div>
         
         <div class="input-group" style="position: relative; margin-bottom: 8px;">
             <label>كلمة المرور</label>
-            <input type="password" class="input-field" id="password" placeholder="أدخل كلمة المرور" autocomplete="off" readonly onfocus="this.removeAttribute('readonly')" style="padding-left: 50px;">
+            <input type="password" class="input-field" id="password" placeholder="أدخل كلمة المرور" autocomplete="current-password" autocapitalize="none" autocorrect="off" style="padding-left: 50px;">
             <button type="button" class="toggle-pwd-btn" onclick="togglePassword()" title="إظهار/إخفاء كلمة المرور" id="toggle-pwd-icon">👁️</button>
         </div>
 

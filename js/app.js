@@ -2773,6 +2773,10 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // Check if backup is needed (once per day)
     function checkAutoBackup() {
+        const tk = typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_settings_v1') : 'erp_settings_v1';
+        const settings = JSON.parse(localStorage.getItem(tk) || '{}');
+        if (settings.autoBackup === false) return; // User disabled auto backup
+
         const lastBackup = localStorage.getItem('erp_last_backup');
         if (!lastBackup) { takeSnapshot(); return; }
 

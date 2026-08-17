@@ -907,6 +907,10 @@
 
                 <div style="display: flex; flex-direction: column; gap: 15px; margin-top: 30px; padding-top: 25px; border-top: 1px solid rgba(255,255,255,0.05);">
                     <div class="setting-row" style="background: rgba(255,255,255,0.03); padding: 18px 25px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05);">
+                        <span class="form-label" style="margin:0; font-size: 1.05rem; color: #fff; font-weight: bold;" data-i18n="settings.autoBackup">النسخ الاحتياطي التلقائي اليومي</span>
+                        <label class="switch"><input type="checkbox" id="cfg-auto-backup" checked><span class="slider"></span></label>
+                    </div>
+                    <div class="setting-row" style="background: rgba(255,255,255,0.03); padding: 18px 25px; border-radius: 14px; display: flex; justify-content: space-between; align-items: center; border: 1px solid rgba(255,255,255,0.05);">
                         <span class="form-label" style="margin:0; font-size: 1.05rem; color: #fff; font-weight: bold;" data-i18n="settings.autoDark">تفعيل الوضع التلقائي الغامق</span>
                         <label class="switch"><input type="checkbox" id="cfg-auto-dark" checked><span class="slider"></span></label>
                     </div>
@@ -1659,6 +1663,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         // UI
         if (cfg.fontSize) safeSetVal('cfg-font-size', cfg.fontSize);
+        safeSetCheck('cfg-auto-backup', cfg.autoBackup !== false);
         safeSetCheck('cfg-auto-dark', cfg.autoDark !== false);
         safeSetCheck('cfg-show-athkar', cfg.showAthkar !== false);
         if (cfg.autoLogoutTime !== undefined) safeSetVal('cfg-auto-logout', cfg.autoLogoutTime);
@@ -1753,6 +1758,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
                 // UI
                 fontSize:          getVal('cfg-font-size', '16'),
+                autoBackup:        getBool('cfg-auto-backup', true),
                 autoDark:          getBool('cfg-auto-dark', true),
                 showAthkar:        getBool('cfg-show-athkar', true),
                 autoLogoutTime:    getVal('cfg-auto-logout', '0'),
