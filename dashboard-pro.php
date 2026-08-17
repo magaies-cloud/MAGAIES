@@ -146,6 +146,7 @@
                 localStorage.setItem('user', JSON.stringify({ username: user || 'admin', fullName: 'الباشمهندس' }));
                 document.cookie = "session_active=true; path=/";
                 sessionStorage.setItem('session_active', 'true');
+                sessionStorage.setItem('dashboard_unlocked', '1');
 
                 // 1. إخفاء صندوق الدخول (اليوزر والباسورد) بحركة تراجع انسيابية
                 document.getElementById('loginCard').classList.add('collapse-card');
