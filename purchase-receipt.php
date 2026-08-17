@@ -1049,7 +1049,19 @@
                 const totalAssigned = otherSplits.reduce((acc, x) => acc + (x.receiveQty || 0), 0) + (line.receiveQty || 0);
                 const remainingQty = Math.round((line.maxPending - totalAssigned) * 100) / 100;
                 
-                const factor = line.factor || 1;
+                let factor = 1;
+                if (line.factor) {
+                    factor = parseFloat(line.factor) || 1;
+                } else if (typeof itemsDb !== 'undefined') {
+                    const itemObj = itemsDb.find(i => i.id === line.itemId);
+                    if (itemObj) {
+                        const uName = line.unitName || line.unit || '';
+                        if (itemObj.units && Array.isArray(itemObj.units)) {
+                            const u = itemObj.units.find(x => (x.name && x.name === uName) || (x.unitName && x.unitName === uName) || (x.id && x.id === line.unitId));
+                            if (u && (u.factor || u.equiv)) factor = parseFloat(u.factor || u.equiv) || 1;
+                        }
+                    }
+                }
                 const baseQty = (line.maxPending * factor);
                 const rcvBaseQty = ((line.receiveQty || 0) * factor);
                 

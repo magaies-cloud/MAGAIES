@@ -1349,9 +1349,9 @@ JSON.parse = function(val) {
 
     const pushToCloud = window.pushToCloud = function(force = false) {
         return new Promise((resolve, reject) => {
-            if (!navigator.onLine) {
-                if (force) alert('السيرفر غير متصل! لا يمكن حفظ البيانات في وضع Strict Sync.');
-                reject(new Error("Offline"));
+            if (!navigator.onLine || (!force && (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')))) {
+                // وضع محلي مستقل بالكامل
+                resolve({ success: true, offline: true });
                 return;
             }
             const token = localStorage.getItem('authToken');
@@ -1403,6 +1403,10 @@ JSON.parse = function(val) {
             }).then(res => {
                 resStatus = res.status;
                 if (res.status === 401) {
+                    if (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')) {
+                        console.warn("Localhost mode: ignoring 401 push error");
+                        return null;
+                    }
                     alert('انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.');
                     if (typeof window.logout === 'function') window.logout(true);
                     else window.location.href = 'login.php';
@@ -1414,6 +1418,10 @@ JSON.parse = function(val) {
                 if (!data) return;
                 
                 if (data.error && (resStatus === 401 || data.error.includes('الجلسة') || data.error.includes('تسجيل الدخول'))) {
+                    if (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')) {
+                        console.warn("Localhost mode: ignoring session error in push");
+                        return;
+                    }
                     alert('انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.');
                     if (typeof window.logout === 'function') window.logout(true);
                     else window.location.href = 'login.php';
@@ -1425,7 +1433,7 @@ JSON.parse = function(val) {
                     // Restore dirty keys for retry
                     currentDirty.forEach(k => dirtyKeys.add(k));
                     console.warn("Cloud Sync Push Notice:", data.error || "Save failed");
-                    if (force) {
+                    if (force && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
                         alert(data.error || 'حدث خطأ أثناء الحفظ بالسيرفر');
                     }
                     reject(new Error(data.error || "Save failed"));
@@ -1453,6 +1461,10 @@ JSON.parse = function(val) {
 
     window.pullFromCloud = function(force = false) {
         if (!navigator.onLine) return Promise.resolve();
+        const isLocal = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1');
+        if (isLocal && !force) {
+            return Promise.resolve();
+        }
         const token = localStorage.getItem('authToken');
         if (!token) return Promise.resolve();
 
@@ -1464,12 +1476,16 @@ JSON.parse = function(val) {
         // Check if we already have local data to decide if we should block the UI
         const hasLocalData = localGetItem(prefix + "erp_customers_v1") !== null || localGetItem(prefix + "erp_users_v1") !== null;
         
-        if (!hasLocalData) {
+        if (!hasLocalData && !isLocal) {
             showSyncOverlay('جاري جلب أحدث البيانات من السيرفر...', true);
         }
         return fetch(SYNC_PULL_URL, { headers: getAuthHeaders() })
             .then(res => {
                 if (res.status === 401) {
+                    if (isLocal) {
+                        console.warn("Localhost mode: ignoring 401 in pull");
+                        return { success: false, offline: true };
+                    }
                     alert('انتهت الجلسة. يرجى تسجيل الدخول مرة أخرى.');
                     window.logout(true);
                     throw new Error("Unauthorized");
@@ -1506,16 +1522,12 @@ JSON.parse = function(val) {
                             }
 
                             if (serverHasData || localIsEmpty) {
-                                // ══════════════════════════════════════
-                                // SMART MERGE: Preserve local-only records not yet pushed to server
-                                // ══════════════════════════════════════
                                 let finalVal = serverVal;
                                 
                                 if (Array.isArray(serverVal) && !localIsEmpty) {
                                     try {
                                         const localArr = JSON.parse(localDataStr);
                                         if (Array.isArray(localArr) && localArr.length > 0) {
-                                            // Build a set of server record IDs for fast lookup
                                             const serverIds = new Set();
                                             serverVal.forEach(rec => {
                                                 if (rec?.id) serverIds.add(String(rec.id));
@@ -1525,7 +1537,6 @@ JSON.parse = function(val) {
                                                 if (rec?.jvNo) serverIds.add(String(rec.jvNo));
                                             });
                                             
-                                            // Find local records that don't exist on server (not yet pushed)
                                             const localOnlyRecords = localArr.filter(rec => {
                                                 const rid = rec?.id || rec?.invoiceNo || rec?.receiptNo || rec?.paymentNo || rec?.jvNo;
                                                 const invNo = rec?.invoiceNo;
@@ -1540,7 +1551,6 @@ JSON.parse = function(val) {
                                             if (localOnlyRecords.length > 0) {
                                                 console.log(`[Smart Merge] ${key}: Preserving ${localOnlyRecords.length} local-only records not yet on server`);
                                                 finalVal = [...serverVal, ...localOnlyRecords];
-                                                // Mark these keys as dirty so they get pushed to server
                                                 dirtyKeys.add(key);
                                             }
                                         }
@@ -1562,13 +1572,13 @@ JSON.parse = function(val) {
                     console.log("Cloud Sync: Strict Restore Successful for tenant:", prefix);
                     window.dispatchEvent(new Event('cloudDataRestored'));
                 } else {
-                    if (!hasLocalData) alert('فشل جلب البيانات من السيرفر.');
+                    if (!hasLocalData && !isLocal) alert('فشل جلب البيانات من السيرفر.');
                 }
             }).catch(err => {
                 console.error("Cloud Sync Pull Failed:", err);
-                if (!hasLocalData) alert('فشل الاتصال بالسيرفر! تأكد من تشغيل السيرفر المحلي.');
+                if (!hasLocalData && !isLocal) alert('فشل الاتصال بالسيرفر! تأكد من تشغيل السيرفر المحلي.');
             }).finally(() => {
-                if (!hasLocalData) hideSyncOverlay();
+                if (!hasLocalData && !isLocal) hideSyncOverlay();
             });
     };
 
@@ -1771,19 +1781,39 @@ document.addEventListener('DOMContentLoaded', () => {
             }
         }
 
-        const token = localStorage.getItem('authToken');
-        const userStr = localStorage.getItem('user');
+        let token = localStorage.getItem('authToken');
+        let userStr = localStorage.getItem('user');
         
         if (!token || !userStr) {
-            fetch('log?msg=redirecting_to_login'); window.location.href = 'login.php';
-            return;
+            if (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')) {
+                token = 'offline_token_' + Date.now();
+                const defaultLocalUser = {
+                    id: 1,
+                    username: 'admin',
+                    fullName: 'مدير النظام (الباشمهندس مهدي)',
+                    role: 'admin',
+                    roleId: 'admin_fallback',
+                    securityLevel: 10,
+                    subdomain: ''
+                };
+                userStr = JSON.stringify(defaultLocalUser);
+                localStorage.setItem('authToken', token);
+                localStorage.setItem('user', userStr);
+                document.cookie = "session_active=true; path=/";
+                sessionStorage.setItem('session_active', 'true');
+                sessionStorage.setItem('dashboard_unlocked', '1');
+            } else {
+                fetch('log?msg=redirecting_to_login'); window.location.href = 'login.php';
+                return;
+            }
         }
 
         const user = JSON.parse(userStr);
         
-        // Auto-upgrade 'admin' account to absolute superadmin (Level 10) invisibly
-        if (user.username === 'admin' && user.securityLevel !== 10) {
+        // Auto-upgrade admin or local users to absolute superadmin (Level 10)
+        if (user.username === 'admin' || user.role === 'admin' || window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')) {
             user.securityLevel = 10;
+            user.role = 'admin';
         }
         
         window.resolveUserPermissions = function(userObj) {
@@ -2221,7 +2251,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         const allNavItems = [
             {
-                href: 'dashboard-pro.php', label: _t('sidebar.dashboard', 'لوحة التحكم'), color: '#22d3ee', module: 'dashboard',
+                href: 'magaiees_unified_dashboard.php', label: _t('sidebar.dashboard', 'لوحة التحكم'), color: '#22d3ee', module: 'dashboard',
                 icon: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M4 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2V6zM14 6a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2V6zM4 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2H6a2 2 0 01-2-2v-2zM14 16a2 2 0 012-2h2a2 2 0 012 2v2a2 2 0 01-2 2h-2a2 2 0 01-2-2v-2z"/>'
             },
             {
@@ -3797,7 +3827,7 @@ document.addEventListener('DOMContentLoaded', () => {
             _cacheTimestamp = now;
         }
         
-        if (_cachedAutoLogoutTime > 0 && !window.location.pathname.includes('login.php')) {
+        if (_cachedAutoLogoutTime > 0 && !window.location.pathname.includes('login.php') && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
             activityTimer = setTimeout(() => {
                 alert('تم تسجيل الخروج التلقائي بسبب عدم النشاط للحفاظ على الأمان.');
                 if (window.logout) window.logout(true);

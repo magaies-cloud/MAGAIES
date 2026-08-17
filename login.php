@@ -982,7 +982,7 @@
                 document.cookie = "saas_token=" + encodeURIComponent(ssoParams.get('sso_token')) + "; path=/; max-age=2592000; SameSite=Lax";
                 sessionStorage.setItem('session_active', 'true');
                 sessionStorage.setItem('dashboard_unlocked', '1');
-                window.location.replace(ssoParams.get('redirect') || 'dashboard-pro.php');
+                window.location.replace(ssoParams.get('redirect') || 'magaiees_unified_dashboard.php');
             }
         })();
 
@@ -1145,14 +1145,14 @@
             btn.style.pointerEvents = 'none';
 
             // --- START SSO REDIRECT ---
-            let targetUrl = 'dashboard-pro.php';
+            let targetUrl = 'magaiees_unified_dashboard.php';
 
             if (userSubdomain && window.location.hostname !== userSubdomain + '.elsajana.com' && !window.location.hostname.includes('localhost') && !window.location.hostname.includes('127.0.0.1')) {
                 const subdomainUrl = `https://${userSubdomain}.elsajana.com`;
                 if (token) {
-                    targetUrl = `${subdomainUrl}/login.php?sso_token=${encodeURIComponent(token)}&sso_user=${encodeURIComponent(userStr || '')}&redirect=dashboard-pro.php`;
+                    targetUrl = `${subdomainUrl}/login.php?sso_token=${encodeURIComponent(token)}&sso_user=${encodeURIComponent(userStr || '')}&redirect=magaiees_unified_dashboard.php`;
                 } else {
-                    targetUrl = `${subdomainUrl}/dashboard-pro.php`;
+                    targetUrl = `${subdomainUrl}/magaiees_unified_dashboard.php`;
                 }
             }
             // --- END SSO REDIRECT ---
