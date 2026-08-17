@@ -1298,9 +1298,9 @@
                 return;
             }
 
+            // إذا كان المستخدم مسجلاً دخوله (authToken موجود)، نفتح القفل تلقائياً
             if (!sessionStorage.getItem('dashboard_unlocked')) {
-                showUnifiedLock();
-                return;
+                sessionStorage.setItem('dashboard_unlocked', '1');
             }
             
             setupUnifiedAutoLogout();
