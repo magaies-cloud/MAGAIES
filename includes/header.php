@@ -295,7 +295,7 @@
                 
                 // Exclude home/dashboard and login screens
                 const path = window.location.pathname.toLowerCase();
-                if (path.includes('dashboard-pro') || path.includes('login') || path.includes('index') || path === '/' || path.endsWith('/magaees') || path.endsWith('/magaees/')) {
+                if (path.includes('dashboard') || path.includes('login') || path.includes('index') || path === '/' || path.endsWith('/magaees') || path.endsWith('/magaees/')) {
                     return;
                 }
 
