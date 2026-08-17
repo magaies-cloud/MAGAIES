@@ -1293,12 +1293,31 @@
 
         // Check Authentication & Initialize Dashboard App
         function initDashboardApp() {
-            if (!localStorage.getItem('authToken')) {
-                window.location.href = 'dashboard-pro.php';
-                return;
+            let token = localStorage.getItem('authToken');
+            if (!token) {
+                // في البيئة المحلية، تأسيس الجلسة تلقائياً لمنع أي حلقة تحويل
+                if (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')) {
+                    token = 'offline_token_' + Date.now();
+                    localStorage.setItem('authToken', token);
+                    localStorage.setItem('user', JSON.stringify({
+                        id: 1,
+                        username: 'admin',
+                        fullName: 'مدير النظام (الباشمهندس مهدي)',
+                        role: 'admin',
+                        roleId: 'admin_fallback',
+                        securityLevel: 10,
+                        subdomain: ''
+                    }));
+                    document.cookie = "session_active=true; path=/";
+                    sessionStorage.setItem('session_active', 'true');
+                    sessionStorage.setItem('dashboard_unlocked', '1');
+                } else {
+                    window.location.href = 'login.php';
+                    return;
+                }
             }
 
-            // إذا كان المستخدم مسجلاً دخوله (authToken موجود)، نفتح القفل تلقائياً
+            // تأكيد فتح القفل الموحد
             if (!sessionStorage.getItem('dashboard_unlocked')) {
                 sessionStorage.setItem('dashboard_unlocked', '1');
             }

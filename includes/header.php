@@ -328,7 +328,7 @@
                 if (document.referrer) {
                     window.history.back();
                 } else {
-                    window.location.href = 'dashboard-pro.php';
+                    window.location.href = 'magaiees_unified_dashboard.php';
                 }
             } catch (err) {
                 console.error('Error in backdrop click:', err);
