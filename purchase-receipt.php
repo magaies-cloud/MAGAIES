@@ -476,7 +476,7 @@
                     
                     <div id="hub-counter-badge"></div>
                     
-                    <input type="text" id="search-inv" class="v-input" placeholder="ابحث برقم الفاتورة أو المورد..." style="width: 300px; z-index: 2;" oninput="if(currentHubView === 'pending') renderPendingInvoices(true); else renderRecentGRNs(true);">
+                    <input type="text" id="search-inv" class="v-input" placeholder="ابحث برقم الفاتورة أو المورد..." style="width: 300px; z-index: 2;" oninput="renderPendingInvoices()">
                 </div>
                 
                 <div id="hub-pending-container">
@@ -1380,11 +1380,6 @@
             }, 1500);
         }
 
-        function handleSearch() {
-            if(currentHubView === 'pending') renderPendingInvoices(false);
-            else renderRecentGRNs(false);
-        }
-
         function renderRecentGRNs(resetCount = true) {
             if (resetCount) receivedDisplayCount = 50;
             
@@ -1393,8 +1388,6 @@
 
             // Load all GRNs for all invoices
             const grns = allPurchases.filter(p => p.isGRN);
-            
-            
             
             // Sort by date descending (newest first - safely)
             grns.sort((a, b) => {
@@ -1406,48 +1399,16 @@
                 return tB - tA;
             });
             
-            const search = document.getElementById('search-inv').value.toLowerCase();
-            let filteredGrns = grns.filter(grn => {
-                if (!search) return true;
-                const grnId = (grn.id || "").toLowerCase();
-                const invId = (grn.originalInvoiceId || "").toLowerCase();
-                let supName2 = "";
-                if (grn.supplierId) {
-                    supName2 = getSupplierName(grn.supplierId).toLowerCase();
-                } else if (grn.originalInvoiceId) {
-                    const origInv = allPurchases.find(p => p.id === grn.originalInvoiceId);
-                    if (origInv && origInv.supplierId) supName2 = getSupplierName(origInv.supplierId).toLowerCase();
-                }
-                return grnId.includes(search) || invId.includes(search) || supName2.includes(search);
-            });
-
-            
-            const search = document.getElementById('search-inv').value.toLowerCase();
-            let filteredGrns = grns.filter(grn => {
-                if (!search) return true;
-                const grnId = (grn.id || "").toLowerCase();
-                const invId = (grn.originalInvoiceId || "").toLowerCase();
-                let supName2 = "";
-                if (grn.supplierId) {
-                    supName2 = getSupplierName(grn.supplierId).toLowerCase();
-                } else if (grn.originalInvoiceId) {
-                    const origInv = allPurchases.find(p => p.id === grn.originalInvoiceId);
-                    if (origInv && origInv.supplierId) supName2 = getSupplierName(origInv.supplierId).toLowerCase();
-                }
-                return grnId.includes(search) || invId.includes(search) || supName2.includes(search);
-            });
-
-            
             if (currentHubView === 'received') {
                 document.getElementById('hub-title-text').innerHTML = `📜 أذونات الاستلام (الفواتير المستلمة)`;
                 const counterContainer = document.getElementById('hub-counter-badge');
                 counterContainer.innerHTML = '';
                 setTimeout(() => {
-                    counterContainer.innerHTML = `<span class="counter-animate-abs" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; padding: 6px 30px; border-radius: 40px; font-size: 1.6rem; font-weight: 900; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.5), inset 0 2px 5px rgba(255,255,255,0.3); border: 2px solid rgba(255,255,255,0.2); font-family: 'Outfit', 'Tajawal', sans-serif; white-space: nowrap; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">${filteredGrns.length} إذن</span>`;
+                    counterContainer.innerHTML = `<span class="counter-animate-abs" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; padding: 6px 30px; border-radius: 40px; font-size: 1.6rem; font-weight: 900; box-shadow: 0 10px 25px rgba(16, 185, 129, 0.5), inset 0 2px 5px rgba(255,255,255,0.3); border: 2px solid rgba(255,255,255,0.2); font-family: 'Outfit', 'Tajawal', sans-serif; white-space: nowrap; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">${grns.length} إذن</span>`;
                 }, 10);
             }
             
-            if (filteredGrns.length === 0) {
+            if (grns.length === 0) {
                 container.innerHTML = `
                     <div style="text-align: center; color: #64748b; padding: 20px; font-size: 0.85rem;">
                         لا توجد عمليات استلام سابقة في النظام.
@@ -1463,7 +1424,6 @@
                             <th style="text-align:right;">رقم الاستلام</th>
                             <th style="text-align:center; width:15%;">الفاتورة الأصلية</th>
                             <th style="text-align:center;">التاريخ والوقت</th>
-                            <th style="text-align:right;">المورد</th>
                             <th style="text-align:right;">الأصناف المستلمة</th>
                             <th style="text-align:center;">المستودع</th>
                             <th style="text-align:center;">إجمالي القيمة</th>
@@ -1474,7 +1434,7 @@
                     <tbody>
             `;
 
-            const itemsToRender = filteredGrns.slice(0, receivedDisplayCount);
+            const itemsToRender = grns.slice(0, receivedDisplayCount);
 
             itemsToRender.forEach(grn => {
                 const isEditingThis = grn.id === editingGRNId;
@@ -1514,35 +1474,14 @@
                     });
                 } catch(e) {}
 
-                
-                
                 const creatorUser = usersDb.find(u => u.id === grn.createdBy || u.username === grn.createdBy);
                 const creatorName = creatorUser ? creatorUser.name : grn.createdBy || 'غير معروف';
-
-                let supName = 'غير معروف';
-                if (grn.supplierId) {
-                    supName = getSupplierName(grn.supplierId);
-                } else if (grn.originalInvoiceId) {
-                    const origInv = allPurchases.find(p => p.id === grn.originalInvoiceId);
-                    if (origInv && origInv.supplierId) supName = getSupplierName(origInv.supplierId);
-                }
-
-
-                let supName = 'غير معروف';
-                if (grn.supplierId) {
-                    supName = getSupplierName(grn.supplierId);
-                } else if (grn.originalInvoiceId) {
-                    const origInv = allPurchases.find(p => p.id === grn.originalInvoiceId);
-                    if (origInv && origInv.supplierId) supName = getSupplierName(origInv.supplierId);
-                }
-
 
                 html += `
                     <tr style="border-bottom: 1px solid rgba(255,255,255,0.03); ${rowBg}">
                         <td style="color: #38bdf8; font-weight: 800; font-family: 'Outfit';">${grn.id} ${editBadge}</td>
                         <td style="text-align:center; color: #fbbf24; font-weight: bold; font-family: 'Outfit'; cursor: pointer;" ondblclick="window.open('purchase.php?id=${grn.originalInvoiceId}', '_blank')" title="انقر مرتين لفتح الفاتورة">${grn.originalInvoiceId}</td>
                         <td style="text-align:center; font-family: 'Outfit';">${dateStr}</td>
-                        <td style="text-align:right; font-weight: 700;">${supName}</td>
                         <td style="color:#e2e8f0; line-height: 1.4;">${itemsSummary}</td>
                         <td style="text-align:center; font-weight: 600; color: #94a3b8;">${warehouseStr}</td>
                         <td style="text-align:center; font-family: 'Outfit'; font-weight: 800; color: #fbbf24;">${fmtNum(totalValue)} SDG</td>
@@ -1562,7 +1501,7 @@
                 </table>
             `;
             
-            if (filteredGrns.length > receivedDisplayCount) {
+            if (grns.length > receivedDisplayCount) {
                 html += `
                 <div style="text-align: center; margin-top: 15px; margin-bottom: 20px;">
                     <button class="btn-action" style="padding: 10px 30px; font-size: 1rem; border-radius: 30px; background: linear-gradient(135deg, #10b981, #059669);" onclick="loadMoreReceived()">عرض 50 إذن آخر ⬇️</button>
