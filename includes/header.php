@@ -56,7 +56,7 @@
         brand: '<path stroke-linecap="round" stroke-linejoin="round" stroke-width="1.8" d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4"/>'
     };
     var items = [
-        ['dashboard-pro.php','لوحة التحكم','#22d3ee','dash'],
+        ['magaiees_unified_dashboard.php','لوحة التحكم','#22d3ee','dash'],
         ['purchase.php','المشتريات','#fb923c','pur'],
         ['direct-sales.php','المبيعات','#34d399','sal'],
         ['vouchers-hub.php','المعاملات المالية','#fbbf24','fin'],
