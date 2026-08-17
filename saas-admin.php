@@ -3846,6 +3846,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         // Plans Logic
         function renderPlans() {
             const tbody = document.getElementById('plans-body');
+            if (!tbody) return;
             tbody.innerHTML = '';
             
             if (allPlans.length === 0) {
@@ -4036,6 +4037,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         
         function renderPartners() {
             const tbody = document.getElementById('partners-body');
+            if (!tbody) return;
             tbody.innerHTML = '';
             allPartners.forEach(p => {
                 const statusHtml = (p.active !== false) ? '<span style="color:#10b981;">نشط</span>' : '<span style="color:#ef4444;">غير نشط</span>';
@@ -4509,10 +4511,10 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
 
         async function loadMessages() {
             try {
+                const tbody = document.getElementById('messages-body');
+                if (!tbody) return;
                 const res = await fetch(apiUrl('saas', 'messages'), { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
                 const data = await res.json();
-                
-                const tbody = document.getElementById('messages-body');
                 tbody.innerHTML = '';
                 
                 if (data.error) {
@@ -4726,6 +4728,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
 
         function renderAds() {
             const tbody = document.getElementById('ads-body');
+            if (!tbody) return;
             tbody.innerHTML = '';
             if (allAds.length === 0) {
                 tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">لا توجد إعلانات</td></tr>';
