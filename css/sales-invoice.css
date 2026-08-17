@@ -484,7 +484,7 @@ body {
 
 /* Column widths — compact to fit all columns on one row */
 .th-num     { width: 28px;  min-width: 28px; }
-.th-item    { width: 100px; min-width: 90px; }
+.th-item    { width: auto; min-width: 90px; }
 .th-unit    { width: 60px;  min-width: 54px; }
 .th-factor  { width: 68px;  min-width: 58px; }
 .th-qty     { width: 72px;  min-width: 62px; }
