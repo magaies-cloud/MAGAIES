@@ -1579,9 +1579,9 @@ function renderGridHead() {
     thead.innerHTML = `
         <tr>
             <th data-col-id="col_index" style="width: 40px; text-align: center; font-size: 1.05rem;">م</th>
+            <th data-col-id="available" style="width: 130px; text-align: center; font-size: 1.25rem; font-weight: bold;" title="الكمية المتوفرة بالمخزن تلقائياً">المتاح</th>
             <th data-col-id="item" style="width: 25%; text-align: right; font-size: 1.25rem; font-weight: bold;">الصنف</th>
             <th data-col-id="unit" style="width: 110px; text-align: center; font-size: 1.25rem; font-weight: bold;">الوحدة</th>
-            <th data-col-id="available" style="width: 130px; text-align: center; font-size: 1.25rem; font-weight: bold;" title="الكمية المتوفرة بالمخزن تلقائياً">المتاح</th>
             <th data-col-id="quantity" style="width: 100px; text-align: center; font-size: 1.25rem; font-weight: bold;">الكمية</th>
             <th data-col-id="price" style="width: 140px; text-align: center; font-size: 1.25rem; font-weight: bold;">${priceHeader}</th>
             ${!isBaseSDG ? `<th data-col-id="fcprice" style="width: 120px; text-align: center; font-size: 1.05rem;">سعر (جنيه)</th>` : ''}
@@ -1743,6 +1743,11 @@ function renderGrid() {
         
         let trHtml = `
             <td style="text-align: center;"><div class="row-num">${idx + 1}</div></td>
+            <td style="text-align: center;">
+                <span class="g-readonly avail-val" data-avail="${row.id}" style="display: inline-block; width: 100%; text-align: center; background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 6px; padding: 5px 2px; font-size: 1.25rem; font-weight: bold; font-family: 'JetBrains Mono', monospace;" title="الكمية المتوفرة حالياً بالمخزن تلقائياً">
+                    ${row.availableQty !== undefined ? fmtNum(row.availableQty, 'available') : '0'}
+                </span>
+            </td>
             <td style="position:relative; text-align: right;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     ${item && item.image ? 
@@ -1766,11 +1771,7 @@ function renderGrid() {
                     ${itemUnitsHtml}
                 </select>
             </td>
-            <td style="text-align: center;">
-                <span class="g-readonly avail-val" data-avail="${row.id}" style="display: inline-block; width: 100%; text-align: center; background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 6px; padding: 5px 2px; font-size: 1.25rem; font-weight: bold; font-family: 'JetBrains Mono', monospace;" title="الكمية المتوفرة حالياً بالمخزن تلقائياً">
-                    ${row.availableQty !== undefined ? fmtNum(row.availableQty, 'available') : '0'}
-                </span>
-            </td>
+            
             <td style="text-align: center;">
                 <input type="text" inputmode="decimal" class="g-input" data-qty-input="${row.id}" value="${Number.isInteger(row.quantity) ? row.quantity : parseFloat((row.quantity || 0).toFixed(4)) || ''}" placeholder="0"
                     onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)"
