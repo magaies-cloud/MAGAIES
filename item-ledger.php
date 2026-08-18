@@ -281,13 +281,13 @@
                     <span style="font-size:0.7rem; opacity:0.8;">⚖️ متعدد الوحدات</span>
                 </label>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
-                    <select id="unit-select-1" onchange="onUnit1Change()" title="الوحدة الأولى (الرئيسية)" style="padding: 10px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.3);">
+                    <select id="unit-select-1" onfocus="onUnit1Focus()" onchange="onUnit1Change()" title="الوحدة الأولى (الرئيسية)" style="padding: 10px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.3);">
                         <option value="">الوحدة 1 (الأساسية)</option>
                     </select>
-                    <select id="unit-select-2" onchange="onUnit2Change()" title="الوحدة الثانية (اختياري)" style="padding: 10px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.2);">
+                    <select id="unit-select-2" onfocus="onUnit2Focus()" onchange="onUnit2Change()" title="الوحدة الثانية (اختياري)" style="padding: 10px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.2);">
                         <option value="">الوحدة 2 (اختياري)</option>
                     </select>
-                    <select id="unit-select-3" onchange="onUnit3Change()" title="الوحدة الثالثة (اختياري)" style="padding: 10px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.2);">
+                    <select id="unit-select-3" onfocus="onUnit3Focus()" onchange="onUnit3Change()" title="الوحدة الثالثة (اختياري)" style="padding: 10px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.2);">
                         <option value="">الوحدة 3 (اختياري)</option>
                     </select>
                 </div>
@@ -583,6 +583,12 @@
         // ═══════════════════════════════════════════════════════════
         // ⚖️ ITEM UNITS HANDLING & CONVERSION ENGINE
         // ═══════════════════════════════════════════════════════════
+        function getSelectedItemObj() {
+            const itemId = document.getElementById('item-select')?.value;
+            if (!itemId) return null;
+            return itemsDb.find(i => i.id === itemId) || null;
+        }
+
         function getItemUnitsList(item) {
             if (!item) return [];
             let list = [];
@@ -590,11 +596,14 @@
             // 1. From item.units matrix
             if (Array.isArray(item.units) && item.units.length > 0) {
                 item.units.forEach(u => {
-                    if (u && (u.unitName || u.name)) {
-                        list.push({
-                            name: (u.unitName || u.name).trim(),
-                            factor: parseFloat(u.factor) || 1
-                        });
+                    if (u) {
+                        const uName = (u.unitName || u.name || u.unit || '').trim();
+                        if (uName) {
+                            list.push({
+                                name: uName,
+                                factor: parseFloat(u.factor || u.conversionFactor) || 1
+                            });
+                        }
                     }
                 });
             }
@@ -606,12 +615,46 @@
             }
 
             // 3. Secondary / Sub-unit fallback if defined on item
-            if (item.subUnit && !list.some(u => u.name === item.subUnit.trim())) {
-                list.push({ name: item.subUnit.trim(), factor: parseFloat(item.conversionFactor || item.bundleFactor) || 1 });
-            }
-            if (item.thirdUnit && !list.some(u => u.name === item.thirdUnit.trim())) {
-                list.push({ name: item.thirdUnit.trim(), factor: parseFloat(item.thirdFactor) || 1 });
-            }
+            ['subUnit', 'secondaryUnit', 'unit2', 'thirdUnit', 'unit3'].forEach(key => {
+                if (item[key] && typeof item[key] === 'string' && item[key].trim()) {
+                    const name = item[key].trim();
+                    if (!list.some(u => u.name === name)) {
+                        let factor = 1;
+                        if (key === 'subUnit' || key === 'secondaryUnit' || key === 'unit2') {
+                            factor = parseFloat(item.conversionFactor || item.bundleFactor || item.factor2) || 1;
+                        } else if (key === 'thirdUnit' || key === 'unit3') {
+                            factor = parseFloat(item.thirdFactor || item.factor3) || 1;
+                        }
+                        list.push({ name, factor });
+                    }
+                }
+            });
+
+            // 4. Scan transactions for any additional unit names used for this item
+            try {
+                const purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
+                purchases.forEach(inv => {
+                    (inv.items || inv.lines || []).forEach(line => {
+                        if ((line.itemId === item.id || line.productId === item.id) && line.unit) {
+                            const uName = line.unit.trim();
+                            if (uName && !list.some(u => u.name === uName)) {
+                                list.push({ name: uName, factor: parseFloat(line.customFactor || line.factor) || 1 });
+                            }
+                        }
+                    });
+                });
+                const sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+                sales.forEach(inv => {
+                    (inv.items || []).forEach(line => {
+                        if (line.itemId === item.id && line.unit) {
+                            const uName = line.unit.trim();
+                            if (uName && !list.some(u => u.name === uName)) {
+                                list.push({ name: uName, factor: parseFloat(line.customFactor || line.factor) || 1 });
+                            }
+                        }
+                    });
+                });
+            } catch(e) {}
 
             if (list.length === 0) {
                 list.push({ name: 'وحدة أساسية', factor: 1 });
@@ -628,14 +671,22 @@
         }
 
         function onItemSelected() {
-            const itemId = document.getElementById('item-select').value;
-            const item = itemsDb.find(i => i.id === itemId);
+            const item = getSelectedItemObj();
+            const u1 = document.getElementById('unit-select-1');
+            const u2 = document.getElementById('unit-select-2');
+            const u3 = document.getElementById('unit-select-3');
+
+            if (!item) {
+                if (u1) u1.innerHTML = '<option value="">الوحدة 1</option>';
+                if (u2) u2.innerHTML = '<option value="">(بدون وحدة 2)</option>';
+                if (u3) u3.innerHTML = '<option value="">(بدون وحدة 3)</option>';
+                loadLedger();
+                return;
+            }
+
             const units = getItemUnitsList(item);
 
-            const u1 = document.getElementById('unit-select-1');
-            if (!u1) return;
-
-            // 1. Populate Unit 1 with all available units of the item
+            // 1. Populate Unit 1 with all units
             u1.innerHTML = '';
             units.forEach((u) => {
                 const opt = document.createElement('option');
@@ -650,28 +701,61 @@
             }
 
             // 2. Cascade down to populate Unit 2 & Unit 3
-            refreshUnit2Dropdown(units);
-            refreshUnit3Dropdown(units);
+            refreshUnit2Dropdown(units, true);
+            refreshUnit3Dropdown(units, true);
 
             loadLedger();
         }
 
+        function onUnit1Focus() {
+            const item = getSelectedItemObj();
+            if (!item) return;
+            const units = getItemUnitsList(item);
+            const u1 = document.getElementById('unit-select-1');
+            if (!u1) return;
+            const curVal = u1.value;
+            u1.innerHTML = '';
+            units.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.name;
+                opt.text = u.name;
+                u1.appendChild(opt);
+            });
+            if (curVal && units.some(u => u.name === curVal)) {
+                u1.value = curVal;
+            } else if (units.length > 0) {
+                u1.value = units[0].name;
+            }
+        }
+
+        function onUnit2Focus() {
+            const item = getSelectedItemObj();
+            if (!item) return;
+            const units = getItemUnitsList(item);
+            refreshUnit2Dropdown(units, false);
+        }
+
+        function onUnit3Focus() {
+            const item = getSelectedItemObj();
+            if (!item) return;
+            const units = getItemUnitsList(item);
+            refreshUnit3Dropdown(units, false);
+        }
+
         function onUnit1Change() {
-            const itemId = document.getElementById('item-select').value;
-            const item = itemsDb.find(i => i.id === itemId);
+            const item = getSelectedItemObj();
             const units = getItemUnitsList(item);
 
-            refreshUnit2Dropdown(units);
-            refreshUnit3Dropdown(units);
+            refreshUnit2Dropdown(units, true);
+            refreshUnit3Dropdown(units, true);
             loadLedger();
         }
 
         function onUnit2Change() {
-            const itemId = document.getElementById('item-select').value;
-            const item = itemsDb.find(i => i.id === itemId);
+            const item = getSelectedItemObj();
             const units = getItemUnitsList(item);
 
-            refreshUnit3Dropdown(units);
+            refreshUnit3Dropdown(units, true);
             loadLedger();
         }
 
@@ -679,8 +763,8 @@
             loadLedger();
         }
 
-        function refreshUnit2Dropdown(units) {
-            const u1Val = document.getElementById('unit-select-1')?.value;
+        function refreshUnit2Dropdown(units, isAutoPick = false) {
+            const u1Val = document.getElementById('unit-select-1')?.value || '';
             const u2 = document.getElementById('unit-select-2');
             if (!u2) return;
 
@@ -696,19 +780,19 @@
                 u2.appendChild(opt);
             });
 
-            // Keep previous selection if still valid; otherwise pick first available or empty
+            // Keep previous selection if still valid; otherwise pick default or empty
             if (prevU2Val && availableForU2.some(u => u.name === prevU2Val)) {
                 u2.value = prevU2Val;
-            } else if (availableForU2.length > 0 && !prevU2Val) {
+            } else if (isAutoPick && availableForU2.length > 0 && !prevU2Val) {
                 u2.value = availableForU2[0].name;
             } else {
                 u2.value = '';
             }
         }
 
-        function refreshUnit3Dropdown(units) {
-            const u1Val = document.getElementById('unit-select-1')?.value;
-            const u2Val = document.getElementById('unit-select-2')?.value;
+        function refreshUnit3Dropdown(units, isAutoPick = false) {
+            const u1Val = document.getElementById('unit-select-1')?.value || '';
+            const u2Val = document.getElementById('unit-select-2')?.value || '';
             const u3 = document.getElementById('unit-select-3');
             if (!u3) return;
 
@@ -724,10 +808,10 @@
                 u3.appendChild(opt);
             });
 
-            // Keep previous selection if still valid; otherwise pick first available if u2 was set
+            // Keep previous selection if still valid; otherwise pick default or empty
             if (prevU3Val && availableForU3.some(u => u.name === prevU3Val)) {
                 u3.value = prevU3Val;
-            } else if (availableForU3.length > 0 && !prevU3Val && u2Val) {
+            } else if (isAutoPick && availableForU3.length > 0 && !prevU3Val && u2Val) {
                 u3.value = availableForU3[0].name;
             } else {
                 u3.value = '';
