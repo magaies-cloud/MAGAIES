@@ -261,8 +261,8 @@
             </div>
 
             <div class="dash-controls" style="margin: 0; display: flex; gap: 8px;">
-                <button class="btn-action" onclick="openReportPreview('تقرير حركة الصنف التفصيلي', '#report-table-wrap')" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white; border: none; padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(13,148,136,0.2);">👁️ معاينة</button>
-                <button class="btn-action btn-print" onclick="printReportDirectly('تقرير حركة الصنف التفصيلي', '#report-table-wrap')" style="background: rgba(255,255,255,0.05); color: var(--text-primary); border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer;">🖨️ طباعة</button>
+                <button class="btn-action" onclick="openItemLedgerPreview()" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white; border: none; padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(13,148,136,0.2);">👁️ معاينة وتصميم التقرير</button>
+                <button class="btn-action btn-print" onclick="printItemLedgerDirectly()" style="background: rgba(255,255,255,0.05); color: var(--text-primary); border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer;">🖨️ طباعة</button>
                 <button class="btn-icon-nav" onclick="history.back()" title="رجوع" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; color: var(--text-primary); cursor: pointer; transition: 0.3s;">↩</button>
             </div>
         </div>
@@ -336,12 +336,219 @@
 
     </div>
 
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- 🎨 ITEM LEDGER PREVIEW & DESIGN STUDIO MODAL                -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="item-ledger-preview-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 15, 30, 0.92); z-index: 12000; align-items: center; justify-content: center; direction: rtl; backdrop-filter: blur(12px);">
+        <div class="glass-panel" style="width: 96%; max-width: 1420px; height: 94vh; display: flex; flex-direction: column; padding: 18px 22px; border: 1px solid rgba(255,255,255,0.12); background: #0b1120; border-radius: 18px; color: #fff; box-shadow: 0 25px 60px rgba(0,0,0,0.6); overflow: hidden;">
+            
+            <!-- Top Toolbar Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 12px;" class="no-print">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.4rem;">👁️</span>
+                    <div>
+                        <h3 style="margin: 0; font-weight: 900; color: #38bdf8; font-size: 1.15rem;">معاينة وتخصيص تصميم كارت حركة الصنف</h3>
+                        <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: #94a3b8;">استوديو التصميم: يمكنك تعديل الألوان، الخطوط، الأعمدة، والتعديل المباشر على النصوص</p>
+                    </div>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <!-- Studio Design Toggle -->
+                    <button type="button" id="btn-toggle-design-studio" onclick="toggleDesignStudioDrawer()" class="btn-action" style="background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.4); color: #38bdf8; padding: 7px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <span>🎨</span> تخصيص التصميم
+                    </button>
+                    <!-- Live Edit Mode Toggle -->
+                    <button type="button" id="btn-toggle-live-edit" onclick="toggleLiveEditMode()" class="btn-action" style="background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); color: #fbbf24; padding: 7px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <span>✏️</span> تعديل النصوص مباشرة
+                    </button>
+                    <!-- Print Button -->
+                    <button type="button" onclick="printItemLedgerSheet()" class="btn-action" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 7px 18px; font-weight: 800; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
+                        <span>🖨️</span> طباعة التقرير
+                    </button>
+                    <!-- Close Button -->
+                    <button type="button" onclick="closeItemLedgerPreview()" class="btn-action" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #e2e8f0; padding: 7px 14px; border-radius: 8px; cursor: pointer;">
+                        ✕ إغلاق
+                    </button>
+                </div>
+            </div>
+
+            <!-- Design Studio Toolbar (Collapsible / Active) -->
+            <div id="item-ledger-studio-drawer" class="no-print" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: center; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 12px 18px; margin-bottom: 14px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);">
+                <!-- 1. Color Palette / Theme -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">🎨 نمط الألوان والثيم:</label>
+                    <select id="studio-theme-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 5px 10px; font-size: 0.8rem;">
+                        <option value="corporate">🔷 أزرق نيلي شركات (Corporate)</option>
+                        <option value="emerald">🟢 أخضر زمردي مخزني (Emerald)</option>
+                        <option value="gold">🟡 ذهبي كلاسيكي فاخر (Royal Gold)</option>
+                        <option value="cyan">🔵 سيان عصري (Modern Cyan)</option>
+                        <option value="purple">🟣 بنفسجي تقني (Purple Tech)</option>
+                        <option value="classic">⚫ رمادي أحادي رسمي (Monochrome)</option>
+                    </select>
+                </div>
+
+                <!-- 2. Font Family -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">🔤 نوع الخط العربي:</label>
+                    <select id="studio-font-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 5px 10px; font-size: 0.8rem;">
+                        <option value="'Tajawal', sans-serif">تجوّل (Tajawal)</option>
+                        <option value="'Cairo', sans-serif">القاهرة (Cairo)</option>
+                        <option value="'Almarai', sans-serif">المراعي (Almarai)</option>
+                        <option value="'Traditional Arabic', 'Segoe UI', serif">عربي تقليدي (Traditional)</option>
+                        <option value="'Segoe UI', Tahoma, sans-serif">عصري نظامي (Segoe UI)</option>
+                    </select>
+                </div>
+
+                <!-- 3. Font Size -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">📏 حجم الخط والجدول:</label>
+                    <select id="studio-size-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 5px 10px; font-size: 0.8rem;">
+                        <option value="compact">مدمج صغير (Compact - 11px)</option>
+                        <option value="medium" selected>متوازن قياسي (Medium - 13px)</option>
+                        <option value="large">كبير واضح (Large - 15px)</option>
+                    </select>
+                </div>
+
+                <!-- 4. Paper Orientation -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">📑 اتجاه الورقة (A4):</label>
+                    <select id="studio-orientation-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 5px 10px; font-size: 0.8rem;">
+                        <option value="landscape" selected>↔️ أفقي (Landscape - مناسب للجداول)</option>
+                        <option value="portrait">↕️ طولي (Portrait)</option>
+                    </select>
+                </div>
+
+                <!-- 5. Sections Toggles -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">👁️ إظهار الأقسام:</label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <label style="font-size: 0.75rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+                            <input type="checkbox" id="chk-show-header" checked onchange="applyStudioDesign()"> الترويسة
+                        </label>
+                        <label style="font-size: 0.75rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+                            <input type="checkbox" id="chk-show-meta" checked onchange="applyStudioDesign()"> بيانات الصنف
+                        </label>
+                        <label style="font-size: 0.75rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+                            <input type="checkbox" id="chk-show-kpis" checked onchange="applyStudioDesign()"> ملخص الأرصدة
+                        </label>
+                        <label style="font-size: 0.75rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+                            <input type="checkbox" id="chk-show-signatures" checked onchange="applyStudioDesign()"> التوقيعات
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 6. Columns Customizer Checkboxes -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">📋 أعمدة الجدول المعروضة:</label>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="0" checked onchange="applyStudioDesign()"> التاريخ</label>
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="1" checked onchange="applyStudioDesign()"> نوع الحركة</label>
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="2" checked onchange="applyStudioDesign()"> رقم الإذن</label>
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="3" checked onchange="applyStudioDesign()"> رقم الاستلام</label>
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="4" checked onchange="applyStudioDesign()"> الوارد</label>
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="5" checked onchange="applyStudioDesign()"> المنصرف</label>
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="6" checked onchange="applyStudioDesign()"> الرصيد</label>
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="7" checked onchange="applyStudioDesign()"> ملحوظة الحركة</label>
+                    </div>
+                </div>
+
+                <!-- 7. Save & Reset Presets -->
+                <div style="display: flex; align-items: flex-end; gap: 6px; margin-right: auto;">
+                    <button type="button" onclick="saveStudioDesignPreset()" style="background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.4); color: #34d399; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
+                        💾 حفظ التصميم
+                    </button>
+                    <button type="button" onclick="resetStudioDesignPreset()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: #cbd5e1; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; cursor: pointer;">
+                        🔄 استعادة
+                    </button>
+                </div>
+            </div>
+
+            <!-- Scrollable Sheet Container -->
+            <div style="flex: 1; overflow-y: auto; background: #0f172a; padding: 25px 15px; display: flex; justify-content: center; border-radius: 12px; box-shadow: inset 0 2px 15px rgba(0,0,0,0.5);" class="preview-scroll-container">
+                <div id="item-ledger-sheet" style="width: 100%; max-width: 1180px; background: #ffffff; color: #0f172a; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); border-radius: 6px; min-height: fit-content; box-sizing: border-box; overflow-x: auto; transition: all 0.3s ease;">
+                    <!-- Dynamically rendered sheet content -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Print CSS Injection -->
+    <style id="item-ledger-print-style">
+        #item-ledger-preview-modal.print-direct-mode {
+            display: none !important;
+        }
+        @media print {
+            #item-ledger-preview-modal.print-direct-mode {
+                display: block !important;
+            }
+            body > *:not(#item-ledger-preview-modal) {
+                display: none !important;
+            }
+            #item-ledger-preview-modal {
+                position: absolute !important;
+                left: 0 !important;
+                top: 0 !important;
+                width: 100% !important;
+                height: auto !important;
+                background: #fff !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                display: block !important;
+                overflow: visible !important;
+                z-index: 9999999 !important;
+            }
+            #item-ledger-preview-modal .glass-panel {
+                width: 100% !important;
+                max-width: 100% !important;
+                height: auto !important;
+                border: none !important;
+                background: #fff !important;
+                padding: 0 !important;
+                box-shadow: none !important;
+                margin: 0 !important;
+                overflow: visible !important;
+            }
+            .global-sidebar, .no-print, .btn-action, .dash-controls {
+                display: none !important;
+            }
+            #item-ledger-preview-modal .preview-scroll-container {
+                background: #fff !important;
+                padding: 0 !important;
+                overflow: visible !important;
+            }
+            #item-ledger-sheet {
+                box-shadow: none !important;
+                padding: 0 !important;
+                margin: 0 !important;
+                border: none !important;
+                width: 100% !important;
+                max-width: 100% !important;
+            }
+            /* Clean table vector styling for paper */
+            #item-ledger-sheet table {
+                width: 100% !important;
+                border-collapse: collapse !important;
+                table-layout: auto !important;
+            }
+            #item-ledger-sheet th, #item-ledger-sheet td {
+                border: 1px solid #cbd5e1 !important;
+                page-break-inside: avoid;
+            }
+            .live-editable-active {
+                outline: none !important;
+                border-color: inherit !important;
+            }
+        }
+    </style>
+
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
     <script>
         const ITEMS_STORAGE_KEY = 'erp_items_v1';
         let itemsDb = [];
         let warehousesDb = [];
+        let isLiveEditActive = false;
 
         function fmtNum(n) {
             if (n === undefined || n === null || isNaN(n)) return '0';
@@ -702,7 +909,518 @@
             document.getElementById('sum-out').innerText = sumOut.toLocaleString();
             document.getElementById('sum-balance').innerText = actualCurrentStock.toLocaleString();
         }
+
+        // ═══════════════════════════════════════════════════════════
+        // 🎨 ITEM LEDGER PREVIEW & DESIGN STUDIO LOGIC
+        // ═══════════════════════════════════════════════════════════
+        const DESIGN_STORAGE_KEY = 'item_ledger_preview_design_v2';
+
+        const THEMES_CONFIG = {
+            corporate: { primary: '#1e3a8a', secondary: '#0284c7', bgBadge: '#e0f2fe', textBadge: '#0369a1', headerBg: '#f8fafc', rowAlt: '#f8fafc', border: '#cbd5e1' },
+            emerald:   { primary: '#065f46', secondary: '#10b981', bgBadge: '#d1fae5', textBadge: '#047857', headerBg: '#f0fdf4', rowAlt: '#f7fee7', border: '#a7f3d0' },
+            gold:      { primary: '#854d0e', secondary: '#d97706', bgBadge: '#fef3c7', textBadge: '#b45309', headerBg: '#fffbeb', rowAlt: '#fffdf5', border: '#fde68a' },
+            cyan:      { primary: '#0e7490', secondary: '#06b6d4', bgBadge: '#cffafe', textBadge: '#0891b2', headerBg: '#ecfeff', rowAlt: '#f0fdfa', border: '#a5f3fc' },
+            purple:    { primary: '#581c87', secondary: '#9333ea', bgBadge: '#f3e8ff', textBadge: '#7e22ce', headerBg: '#faf5ff', rowAlt: '#fbf7ff', border: '#e9d5ff' },
+            classic:   { primary: '#0f172a', secondary: '#475569', bgBadge: '#f1f5f9', textBadge: '#334155', headerBg: '#f8fafc', rowAlt: '#ffffff', border: '#94a3b8' }
+        };
+
+        function getSavedDesign() {
+            try {
+                const saved = localStorage.getItem(DESIGN_STORAGE_KEY);
+                if (saved) return JSON.parse(saved);
+            } catch(e) {}
+            return {
+                theme: 'corporate',
+                font: "'Tajawal', sans-serif",
+                size: 'medium',
+                orientation: 'landscape',
+                showHeader: true,
+                showMeta: true,
+                showKPIs: true,
+                showSignatures: true,
+                columns: [true, true, true, true, true, true, true, true]
+            };
+        }
+
+        function toggleDesignStudioDrawer() {
+            const drawer = document.getElementById('item-ledger-studio-drawer');
+            if (drawer) {
+                drawer.style.display = (drawer.style.display === 'none' ? 'flex' : 'none');
+            }
+        }
+
+        function toggleLiveEditMode() {
+            isLiveEditActive = !isLiveEditActive;
+            const btn = document.getElementById('btn-toggle-live-edit');
+            const sheet = document.getElementById('item-ledger-sheet');
+            
+            if (btn) {
+                if (isLiveEditActive) {
+                    btn.style.background = 'linear-gradient(135deg, #f59e0b, #d97706)';
+                    btn.style.color = '#fff';
+                    btn.innerHTML = '<span>✅</span> جاري التعديل (انقر على أي نص)';
+                } else {
+                    btn.style.background = 'rgba(245,158,11,0.15)';
+                    btn.style.color = '#fbbf24';
+                    btn.innerHTML = '<span>✏️</span> تعديل النصوص مباشرة';
+                }
+            }
+
+            if (sheet) {
+                const editables = sheet.querySelectorAll('h2, h3, h4, p, span, td, th, div.editable-text');
+                editables.forEach(el => {
+                    el.contentEditable = isLiveEditActive ? 'true' : 'false';
+                    if (isLiveEditActive) {
+                        el.classList.add('live-editable-active');
+                        el.style.outline = '1px dashed #38bdf8';
+                        el.style.padding = '2px 4px';
+                        el.style.borderRadius = '3px';
+                    } else {
+                        el.classList.remove('live-editable-active');
+                        el.style.outline = 'none';
+                        el.style.padding = '';
+                    }
+                });
+            }
+        }
+
+        function saveStudioDesignPreset() {
+            const design = {
+                theme: document.getElementById('studio-theme-select').value,
+                font: document.getElementById('studio-font-select').value,
+                size: document.getElementById('studio-size-select').value,
+                orientation: document.getElementById('studio-orientation-select').value,
+                showHeader: document.getElementById('chk-show-header').checked,
+                showMeta: document.getElementById('chk-show-meta').checked,
+                showKPIs: document.getElementById('chk-show-kpis').checked,
+                showSignatures: document.getElementById('chk-show-signatures').checked,
+                columns: Array.from(document.querySelectorAll('.col-toggle')).map(c => c.checked)
+            };
+            localStorage.setItem(DESIGN_STORAGE_KEY, JSON.stringify(design));
+            alert('تم حفظ وتثبيت تصميم التقرير المخصص بنجاح! 🎉');
+        }
+
+        function resetStudioDesignPreset() {
+            localStorage.removeItem(DESIGN_STORAGE_KEY);
+            const defaults = getSavedDesign();
+            loadDesignIntoControls(defaults);
+            applyStudioDesign();
+            alert('تمت استعادة التنسيق الافتراضي بنجاح! 🔄');
+        }
+
+        function loadDesignIntoControls(d) {
+            if (document.getElementById('studio-theme-select')) document.getElementById('studio-theme-select').value = d.theme || 'corporate';
+            if (document.getElementById('studio-font-select')) document.getElementById('studio-font-select').value = d.font || "'Tajawal', sans-serif";
+            if (document.getElementById('studio-size-select')) document.getElementById('studio-size-select').value = d.size || 'medium';
+            if (document.getElementById('studio-orientation-select')) document.getElementById('studio-orientation-select').value = d.orientation || 'landscape';
+            
+            if (document.getElementById('chk-show-header')) document.getElementById('chk-show-header').checked = d.showHeader !== false;
+            if (document.getElementById('chk-show-meta')) document.getElementById('chk-show-meta').checked = d.showMeta !== false;
+            if (document.getElementById('chk-show-kpis')) document.getElementById('chk-show-kpis').checked = d.showKPIs !== false;
+            if (document.getElementById('chk-show-signatures')) document.getElementById('chk-show-signatures').checked = d.showSignatures !== false;
+
+            const colToggles = document.querySelectorAll('.col-toggle');
+            colToggles.forEach((chk, idx) => {
+                if (d.columns && d.columns[idx] !== undefined) {
+                    chk.checked = d.columns[idx];
+                } else {
+                    chk.checked = true;
+                }
+            });
+        }
+
+        function openItemLedgerPreview() {
+            const itemId = document.getElementById('item-select').value;
+            if (!itemId) {
+                alert('يرجى اختيار صنف أولاً لعرض ومعاينة حركته التفصيلية!');
+                return;
+            }
+
+            const item = itemsDb.find(i => i.id === itemId);
+            const itemName = item ? item.name : 'الصنف';
+            const itemCode = itemId;
+            const itemCat = item ? (item.category || 'عام') : '-';
+            const itemUnit = item ? (item.unit || item.baseUnit || 'وحدة') : 'وحدة';
+
+            const whSelect = document.getElementById('warehouse-select');
+            const whName = whSelect.options[whSelect.selectedIndex]?.text || 'جميع المخازن';
+            
+            const fromDateStr = document.getElementById('date-from').value;
+            const toDateStr = document.getElementById('date-to').value;
+            const periodStr = (fromDateStr || toDateStr) ? `من: ${fromDateStr || 'البداية'} إلى: ${toDateStr || 'اليوم'}` : 'كلي (جميع الفترات)';
+
+            // Build fresh history data
+            let history = buildRealHistory(itemId);
+            const filterWh = document.getElementById('warehouse-select').value;
+            if (filterWh && filterWh !== 'ALL') {
+                history = history.filter(h => getWarehouseId(h.warehouse) === getWarehouseId(filterWh) || h.typeCode === 'open');
+            }
+            history.sort((a, b) => new Date(a.date) - new Date(b.date));
+
+            let running = 0;
+            history.forEach(row => {
+                running += (row.in - row.out);
+                row.runningBalance = running;
+            });
+            const actualCurrentStock = running;
+
+            let filteredHistory = history.map(h => ({ ...h, date: new Date(h.date) }));
+            if (fromDateStr) {
+                let d = new Date(fromDateStr); d.setHours(0,0,0,0);
+                filteredHistory = filteredHistory.filter(h => h.date >= d);
+            }
+            if (toDateStr) {
+                let d = new Date(toDateStr); d.setHours(23,59,59,999);
+                filteredHistory = filteredHistory.filter(h => h.date <= d);
+            }
+
+            let sumIn = 0;
+            let sumOut = 0;
+            let sumOpen = 0;
+
+            if (filteredHistory.length > 0) {
+                const firstFilteredIndex = history.findIndex(h => h.date >= new Date(fromDateStr || '1970-01-01'));
+                if (firstFilteredIndex > 0) {
+                    sumOpen = history[firstFilteredIndex - 1].runningBalance;
+                }
+            }
+
+            // Company info
+            const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const companyName = cfg.companyName || user.company_name || localStorage.getItem('companyName') || 'مؤسسة مقاييس للأعمال';
+            const companyPhone = cfg.phone || cfg.whatsapp || user.phone || '—';
+            const companyAddress = cfg.address || user.address || '—';
+            const companyReg = cfg.regNumber || user.reg_number || '';
+            const companyTax = cfg.taxNumber || user.tax_number || user.vat_number || '';
+            const logoUrl = cfg.logoBase64 || localStorage.getItem('company_logo_base64') || user.logo || user.logo_url || '';
+            const printedAt = new Date().toLocaleString('ar-SD-u-nu-latn');
+            const userName = user.fullName || user.username || 'المسؤول';
+
+            // Generate Table Rows HTML
+            let rowsHtml = '';
+            if (filteredHistory.length === 0) {
+                rowsHtml = `<tr><td colspan="8" style="text-align:center; padding:35px; color:#64748b; font-size:1.05rem;">لا توجد حركات مسجلة لهذا الصنف في هذه الفترة</td></tr>`;
+            } else {
+                filteredHistory.forEach((row, idx) => {
+                    if (row.typeCode === 'in') sumIn += row.in;
+                    if (row.typeCode === 'out') sumOut += row.out;
+
+                    const dStr = row.date.toISOString().split('T')[0];
+                    const permitDisplay = (row.permitNo && row.permitNo !== '-') ? row.permitNo : '-';
+                    const receiptDisplay = row.ref || row.receiptNo || '-';
+                    const noteDisplay = (row.notes && row.notes !== '-' && row.notes.trim()) ? row.notes : '-';
+
+                    rowsHtml += `
+                        <tr class="ledger-sheet-row">
+                            <td class="col-0" style="font-weight:600; text-align:center;">${dStr}</td>
+                            <td class="col-1" style="text-align:center;"><span class="sheet-badge badge-${row.typeCode}">${row.typeName}</span></td>
+                            <td class="col-2" style="font-weight:700; text-align:center; color:#0369a1;">📄 ${permitDisplay}</td>
+                            <td class="col-3" style="font-weight:700; text-align:center; color:#0f172a;">${receiptDisplay}</td>
+                            <td class="col-4" style="text-align:right; font-weight:700; color:#047857; background:rgba(16,185,129,0.03);">${row.in > 0 ? fmtNum(row.in) : '-'}</td>
+                            <td class="col-5" style="text-align:right; font-weight:700; color:#be185d; background:rgba(236,72,153,0.03);">${row.out > 0 ? fmtNum(row.out) : '-'}</td>
+                            <td class="col-6" style="text-align:right; font-weight:900; color:#b45309; background:rgba(245,158,11,0.04); font-size:1.05rem;">${fmtNum(row.runningBalance)}</td>
+                            <td class="col-7" style="text-align:right; color:#334155; font-size:0.88rem;">${noteDisplay !== '-' ? '📝 ' + noteDisplay : '-'}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Assemble Full Sheet HTML
+            const sheetHtml = `
+                <!-- 1. Header Section -->
+                <div id="sheet-header-block" style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px double #0f172a; padding-bottom:16px; margin-bottom:20px; direction:rtl;">
+                    <div style="display:flex; align-items:center; gap:14px; width:35%;">
+                        ${logoUrl ? `<img src="${logoUrl}" style="max-height:65px; max-width:90px; object-fit:contain; border-radius:8px;">` : ''}
+                        <div>
+                            <h2 style="margin:0; font-size:1.35rem; font-weight:900; color:#0f172a;" class="editable-text">${companyName}</h2>
+                            <div style="font-size:0.75rem; color:#475569; margin-top:3px;">
+                                ${companyReg ? `<span>س.ت: ${companyReg}</span> · ` : ''}
+                                ${companyTax ? `<span>ر.ض: ${companyTax}</span>` : ''}
+                            </div>
+                            <div style="font-size:0.75rem; color:#475569;">${companyAddress} · هاتف: ${companyPhone}</div>
+                        </div>
+                    </div>
+
+                    <div style="text-align:center; width:30%;">
+                        <div class="sheet-title-box" style="border:2px solid #0f172a; padding:8px 20px; border-radius:8px; background:#f8fafc; display:inline-block;">
+                            <h3 style="margin:0; font-size:1.2rem; font-weight:900; color:#0f172a; white-space:nowrap;" class="editable-text">📑 كشف حركة الصنف التفصيلي</h3>
+                            <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">(كارت الصنف والمستودع)</div>
+                        </div>
+                    </div>
+
+                    <div style="text-align:left; width:35%; font-size:0.78rem; color:#475569; line-height:1.6;">
+                        <div>تاريخ التقرير: <strong>${printedAt}</strong></div>
+                        <div>المستخدم / الطابع: <strong>${userName}</strong></div>
+                        <div>الفرع / المستودع: <strong>${whName}</strong></div>
+                    </div>
+                </div>
+
+                <!-- 2. Item & Filter Metadata Card -->
+                <div id="sheet-meta-block" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:12px 18px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; font-size:0.85rem;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:1.2rem;">📦</span>
+                        <div>
+                            <span style="color:#64748b; font-size:0.75rem;">اسم وكود الصنف:</span><br>
+                            <strong style="color:#0f172a; font-size:1rem;">[${itemCode}] ${itemName}</strong>
+                        </div>
+                    </div>
+                    <div>
+                        <span style="color:#64748b; font-size:0.75rem;">التصنيف:</span><br>
+                        <strong style="color:#0f172a;">${itemCat}</strong>
+                    </div>
+                    <div>
+                        <span style="color:#64748b; font-size:0.75rem;">الوحدة الأساسية:</span><br>
+                        <strong style="color:#0f172a;">${itemUnit}</strong>
+                    </div>
+                    <div>
+                        <span style="color:#64748b; font-size:0.75rem;">الفترة المحددة:</span><br>
+                        <strong style="color:#0f172a;">${periodStr}</strong>
+                    </div>
+                </div>
+
+                <!-- 3. KPI Balance Cards -->
+                <div id="sheet-kpis-block" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; margin-bottom:20px;">
+                    <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:10px 14px; text-align:center;">
+                        <div style="font-size:0.75rem; color:#0369a1; font-weight:700;">الرصيد الافتتاحي (أول المدة) 📋</div>
+                        <div style="font-size:1.25rem; font-weight:900; color:#0284c7; margin-top:4px;">${sumOpen.toLocaleString()}</div>
+                    </div>
+                    <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 14px; text-align:center;">
+                        <div style="font-size:0.75rem; color:#15803d; font-weight:700;">إجمالي الوارد (مشتريات/استلام) ⚖️</div>
+                        <div style="font-size:1.25rem; font-weight:900; color:#16a34a; margin-top:4px;">${sumIn.toLocaleString()}</div>
+                    </div>
+                    <div style="background:#fdf2f8; border:1px solid #fbcfe8; border-radius:8px; padding:10px 14px; text-align:center;">
+                        <div style="font-size:0.75rem; color:#be185d; font-weight:700;">إجمالي المنصرف (مبيعات/تسليم) 💰</div>
+                        <div style="font-size:1.25rem; font-weight:900; color:#db2777; margin-top:4px;">${sumOut.toLocaleString()}</div>
+                    </div>
+                    <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:10px 14px; text-align:center;">
+                        <div style="font-size:0.75rem; color:#b45309; font-weight:700;">الرصيد الفعلي الحالي ⚠️</div>
+                        <div style="font-size:1.25rem; font-weight:900; color:#d97706; margin-top:4px;">${actualCurrentStock.toLocaleString()}</div>
+                    </div>
+                </div>
+
+                <!-- 4. Detailed Movement Table -->
+                <div id="sheet-table-block" style="margin-bottom:25px;">
+                    <table class="ledger-sheet-table" style="width:100%; border-collapse:collapse; text-align:right; font-size:0.85rem; direction:rtl;">
+                        <thead>
+                            <tr class="ledger-sheet-thead-row">
+                                <th class="col-0" style="padding:10px 8px; text-align:center; font-weight:800; border:1px solid #94a3b8; width:95px;">التاريخ</th>
+                                <th class="col-1" style="padding:10px 8px; text-align:center; font-weight:800; border:1px solid #94a3b8; width:130px;">نوع الحركة</th>
+                                <th class="col-2" style="padding:10px 8px; text-align:center; font-weight:800; border:1px solid #94a3b8; width:120px;">رقم الإذن</th>
+                                <th class="col-3" style="padding:10px 8px; text-align:center; font-weight:800; border:1px solid #94a3b8; width:120px;">رقم الاستلام</th>
+                                <th class="col-4" style="padding:10px 8px; text-align:right; font-weight:800; border:1px solid #94a3b8; width:110px;">الوارد (داخل)</th>
+                                <th class="col-5" style="padding:10px 8px; text-align:right; font-weight:800; border:1px solid #94a3b8; width:110px;">المنصرف (خارج)</th>
+                                <th class="col-6" style="padding:10px 8px; text-align:right; font-weight:900; border:1px solid #94a3b8; width:120px;">الرصيد التراكمي</th>
+                                <th class="col-7" style="padding:10px 8px; text-align:right; font-weight:800; border:1px solid #94a3b8;">ملحوظة الحركة</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                        </tbody>
+                        <tfoot>
+                            <tr style="background:#f8fafc; font-weight:900; border-top:2px solid #0f172a;">
+                                <td colspan="4" style="padding:10px; text-align:left; border:1px solid #94a3b8;">إجمالي حركة الفترة والرصيد الختامي:</td>
+                                <td class="col-4" style="padding:10px; text-align:right; color:#047857; border:1px solid #94a3b8;">${sumIn.toLocaleString()}</td>
+                                <td class="col-5" style="padding:10px; text-align:right; color:#be185d; border:1px solid #94a3b8;">${sumOut.toLocaleString()}</td>
+                                <td class="col-6" style="padding:10px; text-align:right; color:#b45309; border:1px solid #94a3b8; font-size:1.1rem;">${actualCurrentStock.toLocaleString()}</td>
+                                <td class="col-7" style="border:1px solid #94a3b8;">-</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <!-- 5. Signatures Section -->
+                <div id="sheet-signatures-block" style="margin-top:35px; border-top:1px dashed #cbd5e1; padding-top:20px; display:grid; grid-template-columns: repeat(4, 1fr); gap:15px; text-align:center; font-size:0.82rem; color:#334155;">
+                    <div style="border:1px solid #e2e8f0; border-radius:6px; padding:10px; background:#fafafa;">
+                        <strong style="color:#0f172a;">✍️ أمين المستودع</strong>
+                        <div style="margin-top:28px; border-top:1px solid #cbd5e1; padding-top:4px;">الاسم والتوقيع</div>
+                    </div>
+                    <div style="border:1px solid #e2e8f0; border-radius:6px; padding:10px; background:#fafafa;">
+                        <strong style="color:#0f172a;">🚚 المستلم / المندوب</strong>
+                        <div style="margin-top:28px; border-top:1px solid #cbd5e1; padding-top:4px;">الاسم والتوقيع</div>
+                    </div>
+                    <div style="border:1px solid #e2e8f0; border-radius:6px; padding:10px; background:#fafafa;">
+                        <strong style="color:#0f172a;">📊 المحاسب المختص</strong>
+                        <div style="margin-top:28px; border-top:1px solid #cbd5e1; padding-top:4px;">الاسم والتوقيع</div>
+                    </div>
+                    <div style="border:1px solid #e2e8f0; border-radius:6px; padding:10px; background:#fafafa;">
+                        <strong style="color:#0f172a;">🏢 اعتماد الإدارة والختم</strong>
+                        <div style="margin-top:28px; border-top:1px solid #cbd5e1; padding-top:4px;">الختم الرسمي</div>
+                    </div>
+                </div>
+
+                <!-- 6. Footer Disclaimer -->
+                <div style="margin-top:25px; border-top:1px solid #e2e8f0; padding-top:8px; display:flex; justify-content:space-between; font-size:0.72rem; color:#94a3b8; direction:rtl;">
+                    <div>تم استخراج وطباعة هذا التقرير تلقائياً عبر نظام مقاييس ERP المتكامل · MAGAIEES CLOUD</div>
+                    <div>صفحة 1 من 1</div>
+                </div>
+            `;
+
+            const sheet = document.getElementById('item-ledger-sheet');
+            sheet.innerHTML = sheetHtml;
+
+            // Load Saved or Default Design
+            const design = getSavedDesign();
+            loadDesignIntoControls(design);
+            applyStudioDesign();
+
+            // Show Modal
+            const modal = document.getElementById('item-ledger-preview-modal');
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeItemLedgerPreview() {
+            const modal = document.getElementById('item-ledger-preview-modal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function applyStudioDesign() {
+            const sheet = document.getElementById('item-ledger-sheet');
+            if (!sheet) return;
+
+            const themeKey = document.getElementById('studio-theme-select')?.value || 'corporate';
+            const theme = THEMES_CONFIG[themeKey] || THEMES_CONFIG.corporate;
+            const font = document.getElementById('studio-font-select')?.value || "'Tajawal', sans-serif";
+            const size = document.getElementById('studio-size-select')?.value || 'medium';
+            const orientation = document.getElementById('studio-orientation-select')?.value || 'landscape';
+
+            const showHeader = document.getElementById('chk-show-header')?.checked;
+            const showMeta = document.getElementById('chk-show-meta')?.checked;
+            const showKPIs = document.getElementById('chk-show-kpis')?.checked;
+            const showSignatures = document.getElementById('chk-show-signatures')?.checked;
+
+            // Apply Font
+            sheet.style.fontFamily = font;
+
+            // Apply Size / Density
+            if (size === 'compact') {
+                sheet.style.fontSize = '0.76rem';
+                sheet.querySelectorAll('th, td').forEach(c => c.style.padding = '5px 4px');
+            } else if (size === 'large') {
+                sheet.style.fontSize = '0.94rem';
+                sheet.querySelectorAll('th, td').forEach(c => c.style.padding = '12px 10px');
+            } else {
+                sheet.style.fontSize = '0.85rem';
+                sheet.querySelectorAll('th, td').forEach(c => c.style.padding = '8px 6px');
+            }
+
+            // Apply Orientation Style
+            if (orientation === 'portrait') {
+                sheet.style.maxWidth = '850px';
+            } else {
+                sheet.style.maxWidth = '1180px';
+            }
+
+            // Update Dynamic Print Page Size CSS
+            const printStyle = document.getElementById('item-ledger-print-style');
+            if (printStyle) {
+                printStyle.innerHTML = `
+                    #item-ledger-preview-modal.print-direct-mode { display: none !important; }
+                    @page { size: ${orientation}; margin: 8mm; }
+                    @media print {
+                        #item-ledger-preview-modal.print-direct-mode { display: block !important; }
+                        body > *:not(#item-ledger-preview-modal) { display: none !important; }
+                        #item-ledger-preview-modal { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; height: auto !important; background: #fff !important; padding: 0 !important; margin: 0 !important; display: block !important; overflow: visible !important; }
+                        #item-ledger-preview-modal .glass-panel { width: 100% !important; max-width: 100% !important; height: auto !important; border: none !important; background: #fff !important; padding: 0 !important; box-shadow: none !important; margin: 0 !important; }
+                        .global-sidebar, .no-print, .btn-action, .dash-controls { display: none !important; }
+                        #item-ledger-preview-modal .preview-scroll-container { background: #fff !important; padding: 0 !important; overflow: visible !important; }
+                        #item-ledger-sheet { box-shadow: none !important; padding: 0 !important; margin: 0 !important; border: none !important; width: 100% !important; max-width: 100% !important; }
+                        #item-ledger-sheet table { width: 100% !important; border-collapse: collapse !important; table-layout: auto !important; }
+                        #item-ledger-sheet th, #item-ledger-sheet td { border: 1px solid #94a3b8 !important; page-break-inside: avoid; }
+                    }
+                `;
+            }
+
+            // Apply Theme Palette to Header & Table Elements
+            const titleBox = sheet.querySelector('.sheet-title-box');
+            if (titleBox) {
+                titleBox.style.borderColor = theme.primary;
+                titleBox.style.background = theme.headerBg;
+                const h3 = titleBox.querySelector('h3');
+                if (h3) h3.style.color = theme.primary;
+            }
+
+            const theadRows = sheet.querySelectorAll('.ledger-sheet-thead-row th');
+            theadRows.forEach(th => {
+                th.style.background = theme.primary;
+                th.style.color = '#ffffff';
+                th.style.borderColor = theme.border;
+            });
+
+            const badges = sheet.querySelectorAll('.sheet-badge');
+            badges.forEach(b => {
+                b.style.padding = '3px 8px';
+                b.style.borderRadius = '4px';
+                b.style.fontSize = '0.78rem';
+                b.style.fontWeight = '700';
+                b.style.display = 'inline-block';
+                if (b.classList.contains('badge-in')) {
+                    b.style.background = '#dcfce7';
+                    b.style.color = '#15803d';
+                    b.style.border = '1px solid #86efac';
+                } else if (b.classList.contains('badge-out')) {
+                    b.style.background = '#fce7f3';
+                    b.style.color = '#be185d';
+                    b.style.border = '1px solid #f9a8d4';
+                } else {
+                    b.style.background = theme.bgBadge;
+                    b.style.color = theme.textBadge;
+                    b.style.border = `1px solid ${theme.border}`;
+                }
+            });
+
+            // Toggle Sections
+            const hBlock = document.getElementById('sheet-header-block');
+            if (hBlock) hBlock.style.display = showHeader ? 'flex' : 'none';
+
+            const mBlock = document.getElementById('sheet-meta-block');
+            if (mBlock) mBlock.style.display = showMeta ? 'flex' : 'none';
+
+            const kBlock = document.getElementById('sheet-kpis-block');
+            if (kBlock) kBlock.style.display = showKPIs ? 'grid' : 'none';
+
+            const sBlock = document.getElementById('sheet-signatures-block');
+            if (sBlock) sBlock.style.display = showSignatures ? 'grid' : 'none';
+
+            // Toggle Columns
+            const colToggles = document.querySelectorAll('.col-toggle');
+            colToggles.forEach(chk => {
+                const colIdx = chk.getAttribute('data-col');
+                const isChecked = chk.checked;
+                sheet.querySelectorAll(`.col-${colIdx}`).forEach(el => {
+                    el.style.display = isChecked ? '' : 'none';
+                });
+            });
+        }
+
+        function printItemLedgerSheet() {
+            // If live editing is active, disable outlines before printing
+            if (isLiveEditActive) {
+                toggleLiveEditMode();
+            }
+            setTimeout(() => {
+                window.print();
+            }, 100);
+        }
+
+        function printItemLedgerDirectly() {
+            openItemLedgerPreview();
+            const modal = document.getElementById('item-ledger-preview-modal');
+            if (modal) modal.classList.add('print-direct-mode');
+
+            const cleanup = () => {
+                if (modal) modal.classList.remove('print-direct-mode');
+                closeItemLedgerPreview();
+                window.removeEventListener('afterprint', cleanup);
+            };
+            window.addEventListener('afterprint', cleanup);
+
+            setTimeout(() => {
+                window.print();
+            }, 200);
+        }
     </script>
 </body>
 </html>
+
 
