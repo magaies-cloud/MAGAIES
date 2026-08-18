@@ -589,6 +589,15 @@
             return itemsDb.find(i => i.id === itemId) || null;
         }
 
+        function safeString(val) {
+            if (!val) return '';
+            if (typeof val === 'string') return val.trim();
+            if (val.name) return val.name.trim();
+            if (val.unitName) return val.unitName.trim();
+            if (val.unit) return safeString(val.unit);
+            return String(val).trim();
+        }
+
         function getItemUnitsList(item) {
             if (!item) return [];
             let list = [];
@@ -597,7 +606,7 @@
             if (Array.isArray(item.units) && item.units.length > 0) {
                 item.units.forEach(u => {
                     if (u) {
-                        const uName = (u.unitName || u.name || u.unit || '').trim();
+                        const uName = safeString(u.unitName || u.name || u.unit || '');
                         if (uName) {
                             list.push({
                                 name: uName,
@@ -609,7 +618,7 @@
             }
 
             // 2. Base unit fallback
-            const base = (item.baseUnit || item.unit || item.selectedUnit || '').trim();
+            const base = safeString(item.baseUnit || item.unit || item.selectedUnit || '');
             if (base && !list.some(u => u.name === base)) {
                 list.unshift({ name: base, factor: 1 });
             }
@@ -636,7 +645,7 @@
                 purchases.forEach(inv => {
                     (inv.items || inv.lines || []).forEach(line => {
                         if ((line.itemId === item.id || line.productId === item.id) && line.unit) {
-                            const uName = line.unit.trim();
+                            const uName = safeString(line.unit);
                             if (uName && !list.some(u => u.name === uName)) {
                                 list.push({ name: uName, factor: parseFloat(line.customFactor || line.factor) || 1 });
                             }
@@ -647,7 +656,7 @@
                 sales.forEach(inv => {
                     (inv.items || []).forEach(line => {
                         if (line.itemId === item.id && line.unit) {
-                            const uName = line.unit.trim();
+                            const uName = safeString(line.unit);
                             if (uName && !list.some(u => u.name === uName)) {
                                 list.push({ name: uName, factor: parseFloat(line.customFactor || line.factor) || 1 });
                             }
@@ -890,7 +899,7 @@
         function buildRealHistory(itemId) {
             let history = [];
             const itemObj = itemsDb.find(i => i.id === itemId);
-            const itemBaseUnit = itemObj ? (itemObj.baseUnit || itemObj.unit || '') : '';
+            const itemBaseUnit = safeString(itemObj ? (itemObj.baseUnit || itemObj.unit || '') : '');
             
             // 1. Get Purchases
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
@@ -905,7 +914,7 @@
 
                         // ─── Original transaction unit data (BEFORE conversion) ───
                         const origQty    = parseFloat(line.quantity) || 0;
-                        const origUnit   = (line.unit || line.selectedUnit || itemBaseUnit || '').trim();
+                        const origUnit   = safeString(line.unit || line.selectedUnit || itemBaseUnit || '');
                         const origFactor = parseFloat(line.customFactor !== undefined ? line.customFactor : (line.factor || 1));
 
                         let baseQty = 0;
@@ -1004,7 +1013,7 @@
                         
                         // ─── Original transaction unit data (BEFORE conversion) ───
                         const origQty    = parseFloat(line.quantity) || 0;
-                        const origUnit   = (line.unit || line.selectedUnit || itemBaseUnit || '').trim();
+                        const origUnit   = safeString(line.unit || line.selectedUnit || itemBaseUnit || '');
                         const origFactor = parseFloat(line.customFactor !== undefined ? line.customFactor : (line.factor || 1));
 
                         let baseQty = 0;
