@@ -268,7 +268,7 @@
         </div>
 
         <!-- Filters -->
-        <div class="filters-bar" style="grid-template-columns: 1.4fr 1.8fr 1.1fr 1fr 1fr; align-items: end; gap: 15px;">
+        <div class="filters-bar" style="grid-template-columns: 1.2fr 1.6fr 1.1fr 1fr 1fr; align-items: end; gap: 15px;">
             <div class="input-group">
                 <label>1. اختر الصنف المراد جرده</label>
                 <select id="item-select" onchange="onItemSelected()">
@@ -281,13 +281,13 @@
                     <span style="font-size:0.7rem; opacity:0.8;">⚖️ متعدد الوحدات</span>
                 </label>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
-                    <select id="unit-select-1" onchange="loadLedger()" title="الوحدة الأولى (الرئيسية)" style="padding: 10px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.3);">
+                    <select id="unit-select-1" onchange="onUnit1Change()" title="الوحدة الأولى (الرئيسية)" style="padding: 10px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.3);">
                         <option value="">الوحدة 1 (الأساسية)</option>
                     </select>
-                    <select id="unit-select-2" onchange="loadLedger()" title="الوحدة الثانية (اختياري)" style="padding: 10px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.2);">
+                    <select id="unit-select-2" onchange="onUnit2Change()" title="الوحدة الثانية (اختياري)" style="padding: 10px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.2);">
                         <option value="">الوحدة 2 (اختياري)</option>
                     </select>
-                    <select id="unit-select-3" onchange="loadLedger()" title="الوحدة الثالثة (اختياري)" style="padding: 10px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.2);">
+                    <select id="unit-select-3" onchange="onUnit3Change()" title="الوحدة الثالثة (اختياري)" style="padding: 10px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.2);">
                         <option value="">الوحدة 3 (اختياري)</option>
                     </select>
                 </div>
@@ -633,40 +633,105 @@
             const units = getItemUnitsList(item);
 
             const u1 = document.getElementById('unit-select-1');
-            const u2 = document.getElementById('unit-select-2');
-            const u3 = document.getElementById('unit-select-3');
+            if (!u1) return;
 
+            // 1. Populate Unit 1 with all available units of the item
             u1.innerHTML = '';
-            u2.innerHTML = '<option value="">(بدون وحدة 2)</option>';
-            u3.innerHTML = '<option value="">(بدون وحدة 3)</option>';
-
             units.forEach((u) => {
-                const fText = (u.factor !== 1) ? ` [معامل: ${u.factor}]` : ' [أساسية]';
-                
-                const opt1 = document.createElement('option');
-                opt1.value = u.name;
-                opt1.text = `الوحدة 1: ${u.name}${fText}`;
-                u1.appendChild(opt1);
-
-                const opt2 = document.createElement('option');
-                opt2.value = u.name;
-                opt2.text = `الوحدة 2: ${u.name}${fText}`;
-                u2.appendChild(opt2);
-
-                const opt3 = document.createElement('option');
-                opt3.value = u.name;
-                opt3.text = `الوحدة 3: ${u.name}${fText}`;
-                u3.appendChild(opt3);
+                const opt = document.createElement('option');
+                opt.value = u.name;
+                opt.text = u.name;
+                u1.appendChild(opt);
             });
 
-            // Smart defaults for up to 3 units
-            if (units.length > 0) u1.value = units[0].name;
-            if (units.length > 1) u2.value = units[1].name;
-            else u2.value = '';
-            if (units.length > 2) u3.value = units[2].name;
-            else u3.value = '';
+            // Default Unit 1 to the first unit (base unit)
+            if (units.length > 0) {
+                u1.value = units[0].name;
+            }
+
+            // 2. Cascade down to populate Unit 2 & Unit 3
+            refreshUnit2Dropdown(units);
+            refreshUnit3Dropdown(units);
 
             loadLedger();
+        }
+
+        function onUnit1Change() {
+            const itemId = document.getElementById('item-select').value;
+            const item = itemsDb.find(i => i.id === itemId);
+            const units = getItemUnitsList(item);
+
+            refreshUnit2Dropdown(units);
+            refreshUnit3Dropdown(units);
+            loadLedger();
+        }
+
+        function onUnit2Change() {
+            const itemId = document.getElementById('item-select').value;
+            const item = itemsDb.find(i => i.id === itemId);
+            const units = getItemUnitsList(item);
+
+            refreshUnit3Dropdown(units);
+            loadLedger();
+        }
+
+        function onUnit3Change() {
+            loadLedger();
+        }
+
+        function refreshUnit2Dropdown(units) {
+            const u1Val = document.getElementById('unit-select-1')?.value;
+            const u2 = document.getElementById('unit-select-2');
+            if (!u2) return;
+
+            const prevU2Val = u2.value;
+            u2.innerHTML = '<option value="">(بدون وحدة 2)</option>';
+
+            // Available for Unit 2: All item units EXCEPT Unit 1
+            const availableForU2 = units.filter(u => u.name !== u1Val);
+            availableForU2.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.name;
+                opt.text = u.name;
+                u2.appendChild(opt);
+            });
+
+            // Keep previous selection if still valid; otherwise pick first available or empty
+            if (prevU2Val && availableForU2.some(u => u.name === prevU2Val)) {
+                u2.value = prevU2Val;
+            } else if (availableForU2.length > 0 && !prevU2Val) {
+                u2.value = availableForU2[0].name;
+            } else {
+                u2.value = '';
+            }
+        }
+
+        function refreshUnit3Dropdown(units) {
+            const u1Val = document.getElementById('unit-select-1')?.value;
+            const u2Val = document.getElementById('unit-select-2')?.value;
+            const u3 = document.getElementById('unit-select-3');
+            if (!u3) return;
+
+            const prevU3Val = u3.value;
+            u3.innerHTML = '<option value="">(بدون وحدة 3)</option>';
+
+            // Available for Unit 3: All item units EXCEPT Unit 1 AND Unit 2
+            const availableForU3 = units.filter(u => u.name !== u1Val && u.name !== u2Val);
+            availableForU3.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.name;
+                opt.text = u.name;
+                u3.appendChild(opt);
+            });
+
+            // Keep previous selection if still valid; otherwise pick first available if u2 was set
+            if (prevU3Val && availableForU3.some(u => u.name === prevU3Val)) {
+                u3.value = prevU3Val;
+            } else if (availableForU3.length > 0 && !prevU3Val && u2Val) {
+                u3.value = availableForU3[0].name;
+            } else {
+                u3.value = '';
+            }
         }
 
         function getActiveSelectedUnits(item) {
@@ -703,13 +768,13 @@
         }
         
         document.addEventListener('DBReady', () => {
-            // Load Items to Select
+            // Load Items to Select - Show Item Name ONLY to maximize UI space
             itemsDb = JSON.parse(localStorage.getItem(ITEMS_STORAGE_KEY)) || [];
             const select = document.getElementById('item-select');
             itemsDb.forEach(item => {
                 const opt = document.createElement('option');
                 opt.value = item.id;
-                opt.text = `[${item.id}] ${item.name} - ${item.category}`;
+                opt.text = item.name;
                 select.appendChild(opt);
             });
 
