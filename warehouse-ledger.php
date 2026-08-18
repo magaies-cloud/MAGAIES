@@ -243,17 +243,75 @@
         <?php $header_theme_class = 'header-theme-inventory'; ?>
         <?php include 'includes/header.php'; ?>
 
-        <!-- Navigation and Actions Row -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; flex-wrap: wrap; gap: 15px;">
-            <div class="nav-tabs" style="margin-bottom: 0;">
-                <a data-href="inventory-report.php" onclick="window.location.href='inventory-report.php'" class="nav-tab">📦 جرد الأرصدة العام</a>
-                <a data-href="warehouse-inventory.php" onclick="window.location.href='warehouse-inventory.php'" class="nav-tab">🏢 جرد المخزن</a>
-                <a data-href="inventory-summary.php" onclick="window.location.href='inventory-summary.php'" class="nav-tab">📊 ملخص الحركات</a>
-                <a data-href="inventory-analytics.php" onclick="window.location.href='inventory-analytics.php'" class="nav-tab">🧠 التحليل الاستراتيجي</a>
-                <a data-href="item-ledger.php" onclick="window.location.href='item-ledger.php'" class="nav-tab">📑 حركة الصنف</a>
-                <a data-href="warehouse-ledger.php" onclick="window.location.href='warehouse-ledger.php'" class="nav-tab active">🏭 حركة المخزن</a>
-                <a data-href="ai_goods_advisor.php" onclick="window.location.href='ai_goods_advisor.php'" class="nav-tab">🤖 مستشار الـ AI للبضائع</a>
-                <a data-href="smart_inventory_report.php" onclick="window.location.href='smart_inventory_report.php'" class="nav-tab">📊 تقارير المخازن الذكية</a>
+        <!-- Top Navigation Row (Clustered Smart Hub + Action Buttons) -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 10px; flex-wrap: nowrap;">
+            <div class="nav-tabs" style="margin-bottom: 0; flex: 1;">
+                
+                <!-- Cluster 1: نظام الجرد -->
+                <div class="nav-cluster">
+                    <a href="inventory-report.php" class="nav-tab" title="نظام الجرد الشامل بجميع المخازن">
+                        <span>📦</span> <span>الجرد الشامل للمخازن</span>
+                    </a>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- Cluster 2: حركات البضائع -->
+                <div class="nav-cluster nav-dropdown active">
+                    <div class="nav-tab active" title="حركات البضائع">
+                        <span>📑</span> <span>حركات البضائع (حركة المخازن)</span>
+                        <span style="font-size: 0.7rem; margin-right: 2px;">▼</span>
+                    </div>
+                    <div class="nav-dropdown-content">
+                        <a href="item-ledger.php" class="nav-dropdown-item" title="كشف حركة صنف محدد">
+                            <span>📑</span> حركة الأصناف
+                        </a>
+                        <a href="warehouse-ledger.php" class="nav-dropdown-item active" style="color: #38bdf8; background: rgba(56,189,248,0.1);" title="كشف حركة مخزن محدد">
+                            <span>🏭</span> حركة المخازن (الحالية)
+                        </a>
+                        <a href="inventory-summary.php" class="nav-dropdown-item" title="ملخص الوارد والمنصرف">
+                            <span>📊</span> ملخص الحركات
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- Cluster 3: مركز الذكاء الاصطناعي (AI Suite) -->
+                <div class="nav-cluster nav-dropdown">
+                    <div class="nav-tab nav-tab-ai" title="أدوات الذكاء الاصطناعي">
+                        <span>🤖</span> <span>أدوات الذكاء الاصطناعي</span>
+                        <span class="nav-ai-badge">AI</span>
+                        <span style="font-size: 0.7rem; margin-right: 2px;">▼</span>
+                    </div>
+                    <div class="nav-dropdown-content">
+                        <a href="ai_goods_advisor.php" class="nav-dropdown-item" title="توصيات الشراء واستراتيجيات التخزين">
+                            <span>💡</span> مستشار الـ AI للبضائع
+                        </a>
+                        <a href="smart_inventory_report.php" class="nav-dropdown-item" title="تقارير تفاعلية ذكية للمخزون">
+                            <span>🧠</span> تقارير المخازن الذكية
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- Cluster 4: التحليلات المرئية -->
+                <div class="nav-cluster nav-dropdown">
+                    <div class="nav-tab" title="المخططات والرسوم البيانية">
+                        <span>📈</span> <span style="font-weight: 800; color: #f8fafc;">التحليلات المرئية</span>
+                        <span style="font-size: 0.7rem; margin-right: 2px;">▼</span>
+                    </div>
+                    <div class="nav-dropdown-content">
+                        <a href="visual-analytics.php#pie" class="nav-dropdown-item" title="النسب المئوية لتوزيع البضائع في المخازن">
+                            <span>🍕</span> توزيع المخزون (مخطط دائري)
+                        </a>
+                        <a href="visual-analytics.php#donut" class="nav-dropdown-item" title="حالة الأرصدة (آمن، نواقص، الخ)">
+                            <span>🍩</span> مستويات الأمان والتنبيهات
+                        </a>
+                    </div>
+                </div>
+
             </div>
 
             <div class="dash-controls" style="margin: 0; display: flex; gap: 8px;">
@@ -263,13 +321,37 @@
             </div>
         </div>
 
+        <!-- KPIs Strip -->
+        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 12px;">
+            <div style="background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.25); border-radius: 12px; padding: 12px 16px;">
+                <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 700;">عدد الحركات المسجلة 📋</div>
+                <div id="kpi-wh-count" style="font-size: 1.3rem; font-weight: 900; color: #38bdf8; margin-top: 4px;">0</div>
+            </div>
+            <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); border-radius: 12px; padding: 12px 16px;">
+                <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 700;">إجمالي الوارد (دخول) ⚖️</div>
+                <div id="kpi-wh-in" style="font-size: 1.3rem; font-weight: 900; color: #10b981; margin-top: 4px;">0</div>
+            </div>
+            <div style="background: rgba(236,72,153,0.08); border: 1px solid rgba(236,72,153,0.25); border-radius: 12px; padding: 12px 16px;">
+                <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 700;">إجمالي المنصرف (خروج) 💰</div>
+                <div id="kpi-wh-out" style="font-size: 1.3rem; font-weight: 900; color: #ec4899; margin-top: 4px;">0</div>
+            </div>
+            <div style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); border-radius: 12px; padding: 12px 16px;">
+                <div style="font-size: 0.75rem; color: #94a3b8; font-weight: 700;">صافي تدفق المخزن 🔄</div>
+                <div id="kpi-wh-net" style="font-size: 1.3rem; font-weight: 900; color: #fbbf24; margin-top: 4px;">0</div>
+            </div>
+        </div>
+
         <!-- Filters -->
         <div class="filters-bar">
             <div class="input-group" style="grid-column: span 2;">
-                <label>اختر المخزن</label>
+                <label>المخزن المستهدف</label>
                 <select id="warehouse-select" onchange="loadLedger()">
-                    <option value="">-- يرجى اختيار مخزن --</option>
+                    <option value="ALL">جميع المخازن (كافة الحركات)</option>
                 </select>
+            </div>
+            <div class="input-group">
+                <label>بحث بالصنف / الكود / البيان</label>
+                <input type="text" id="search-filter" placeholder="اكتب للبحث السريع..." oninput="loadLedger()">
             </div>
             <div class="input-group">
                 <label>من تاريخ</label>
@@ -287,16 +369,18 @@
                 <table class="dash-table" id="warehouse-ledger-table">
                     <thead>
                         <tr>
-                            <th data-col-idx="0">التاريخ<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
-                            <th data-col-idx="1">نوع الحركة<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
-                            <th data-col-idx="2">المستند / البيان<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
-                            <th data-col-idx="3">الصنف<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
-                            <th data-col-idx="4" style="color:#10b981; background:rgba(16,185,129,0.05); text-align: right;">وارد (دخول)<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
-                            <th data-col-idx="5" style="color:#ec4899; background:rgba(236,72,153,0.05); text-align: right;">منصرف (خروج)<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                            <th data-col-idx="0">التاريخ<div class="resizer" title="اسحب لتغيير عرض العمود"></div></th>
+                            <th data-col-idx="1">نوع الحركة<div class="resizer" title="اسحب لتغيير عرض العمود"></div></th>
+                            <th data-col-idx="2">المخزن<div class="resizer" title="اسحب لتغيير عرض العمود"></div></th>
+                            <th data-col-idx="3">المستند / الإذن<div class="resizer" title="اسحب لتغيير عرض العمود"></div></th>
+                            <th data-col-idx="4">الصنف والبيان<div class="resizer" title="اسحب لتغيير عرض العمود"></div></th>
+                            <th data-col-idx="5" style="color:#10b981; background:rgba(16,185,129,0.05); text-align: right;">وارد (دخول)<div class="resizer" title="اسحب لتغيير عرض العمود"></div></th>
+                            <th data-col-idx="6" style="color:#ec4899; background:rgba(236,72,153,0.05); text-align: right;">منصرف (خروج)<div class="resizer" title="اسحب لتغيير عرض العمود"></div></th>
+                            <th data-col-idx="7">إجراء<div class="resizer" title="اسحب لتغيير عرض العمود"></div></th>
                         </tr>
                     </thead>
                     <tbody id="ledger-tbody">
-                        <tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-secondary);">الرجاء اختيار مخزن وتحديد الفترة للبحث</td></tr>
+                        <tr><td colspan="8" style="text-align:center; padding:30px; color:var(--text-secondary);">الرجاء تحديد المخزن والفترة للبحث</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -307,53 +391,86 @@
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
     <script>
-        document.addEventListener('DBReady', () => {
+        function fmtNum(n) {
+            if (n === undefined || n === null || isNaN(n)) return '0';
+            const num = Number(n);
+            const dec = (num % 1 === 0) ? 0 : (num % 0.01 === 0 ? 2 : 3);
+            return num.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: dec});
+        }
+
+        function initWarehouseLedger() {
             // Load Warehouses
             const whSelect = document.getElementById('warehouse-select');
-            let warehousesDb = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
-            warehousesDb.forEach(wh => {
-                const opt = document.createElement('option');
-                opt.value = wh.id;
-                opt.text = wh.name;
-                whSelect.appendChild(opt);
-            });
+            if (whSelect && whSelect.options.length <= 1) {
+                whSelect.innerHTML = '<option value="ALL">جميع المخازن (كافة الحركات)</option>';
+                let warehousesDb = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
+                const displayWh = [{ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام' }, ...warehousesDb];
+                displayWh.forEach(wh => {
+                    const opt = document.createElement('option');
+                    opt.value = wh.id;
+                    opt.text = wh.name;
+                    whSelect.appendChild(opt);
+                });
+            }
 
             const today = new Date();
-            document.getElementById('date-to').valueAsDate = today;
-        });
+            const dateTo = document.getElementById('date-to');
+            if (dateTo && !dateTo.value) {
+                dateTo.valueAsDate = today;
+            }
+
+            // Check URL param ?warehouse=ID or ?wh=ID
+            const urlParams = new URLSearchParams(window.location.search);
+            const whParam = urlParams.get('warehouse') || urlParams.get('wh');
+            if (whParam && whSelect) {
+                whSelect.value = whParam;
+            }
+
+            loadLedger();
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initWarehouseLedger);
+        } else {
+            initWarehouseLedger();
+        }
+        document.addEventListener('DBReady', initWarehouseLedger);
 
         function buildRealWarehouseHistory(warehouseId) {
             let history = [];
             
-            // Get item names dictionary for faster lookup
             let itemsDb = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
-            let getItemName = (id) => {
-                let item = itemsDb.find(i => i.id === id);
-                return item ? item.name : 'صنف غير معروف';
+            let getItem = (id) => {
+                return itemsDb.find(i => String(i.id) === String(id)) || null;
             };
 
             let warehousesDb = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
+            let getWarehouseName = (nameOrId) => {
+                if (!nameOrId) return 'مخزن غير محدد';
+                const wh = warehousesDb.find(w => String(w.id) === String(nameOrId) || w.name === nameOrId);
+                return wh ? wh.name : nameOrId;
+            };
             let getWarehouseId = (nameOrId) => {
                 if (!nameOrId) return '';
-                const wh = warehousesDb.find(w => w.id === nameOrId || w.name === nameOrId);
+                const wh = warehousesDb.find(w => String(w.id) === String(nameOrId) || w.name === nameOrId);
                 return wh ? wh.id : nameOrId;
             };
 
-            // 1. Get Purchases
+            // 1. Get Purchases & Adjustments
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
             purchases = purchases.filter(x => !x.deleted);
             purchases.forEach(inv => {
                 (inv.items || inv.lines || []).forEach(line => {
                     let wh = getWarehouseId(line.warehouseId || inv.warehouseId || inv.warehouse);
-                    if (wh === warehouseId) {
+                    if (warehouseId === 'ALL' || String(wh) === String(warehouseId)) {
                         let itemId = line.itemId || line.productId;
+                        let itemObj = getItem(itemId);
                         let baseQty = 0;
                         if (line.customBaseQty !== undefined) {
-                            baseQty = line.customBaseQty;
+                            baseQty = parseFloat(line.customBaseQty) || 0;
                         } else {
-                            let item = itemsDb.find(i => i.id === itemId);
-                            let factor = line.customFactor !== undefined ? line.customFactor : 1;
-                            let conv = item ? (item.conversionFactor || 1) : 1;
+                            let factor = parseFloat(line.customFactor || line.factor) || 1;
+                            let conv = itemObj ? (itemObj.conversionFactor || 1) : 1;
                             baseQty = (parseFloat(line.quantity) || 0) * factor * conv;
                         }
 
@@ -362,7 +479,19 @@
                         let valIn = baseQty;
                         let valOut = 0;
 
-                        if (inv.isReturn) {
+                        if (inv.isAdjustment) {
+                            if (baseQty >= 0) {
+                                typeName = 'تسوية جردية (إضافة)';
+                                typeCode = 'in';
+                                valIn = baseQty;
+                                valOut = 0;
+                            } else {
+                                typeName = 'تسوية جردية (عجز)';
+                                typeCode = 'out';
+                                valIn = 0;
+                                valOut = Math.abs(baseQty);
+                            }
+                        } else if (inv.isReturn) {
                             typeName = 'مردودات مشتريات';
                             typeCode = 'out';
                             valIn = 0;
@@ -371,22 +500,24 @@
                             typeName = 'مذكرة استلام مخزني';
                         }
                         
-                        // Handle negative quantities (e.g. taking items OUT of PENDING_RECEIPT during a GRN)
-                        if (baseQty < 0 && !inv.isReturn) {
-                            typeCode = 'out';
-                            valIn = 0;
-                            valOut = Math.abs(baseQty);
-                        }
+                        let permitNo = inv.originalInvoiceId || inv.poNumber || inv.orderNo || inv.invoiceNo || inv.id || '-';
+                        let docTarget = inv.isGRN ? `purchase-receipt.php?id=${inv.id}` : `purchase.php?id=${inv.id || inv.invoiceNo}`;
 
                         history.push({
                             date: new Date(inv.date || inv.receiveDate || Date.now()),
                             typeCode: typeCode,
                             typeName: typeName,
-                            ref: inv.invoiceNo || inv.poNumber || inv.id,
-                            docId: inv.invoiceNo || inv.id, // Fixed docId for drill-down
-                            itemName: getItemName(itemId), // Support new schema
+                            warehouseName: getWarehouseName(wh),
+                            ref: inv.invoiceNo || inv.id || '-',
+                            permitNo: permitNo,
+                            docId: inv.id || inv.invoiceNo,
+                            docTarget: docTarget,
+                            itemId: itemId,
+                            itemName: itemObj ? itemObj.name : (line.name || 'صنف غير معروف'),
+                            unit: line.unit || (itemObj ? (itemObj.baseUnit || itemObj.unit) : 'وحدة'),
                             in: valIn,
-                            out: valOut
+                            out: valOut,
+                            notes: line.notes || inv.notes || ''
                         });
                     }
                 });
@@ -394,38 +525,105 @@
 
             // 2. Get Sales
             let sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
-            sales = sales.filter(x => !x.deleted);
+            sales = sales.filter(x => !x.deleted && x.status !== 'draft' && x.status !== 'preliminary');
             sales.forEach(inv => {
                 let hdrWh = inv.warehouse;
                 
                 (inv.items || []).forEach(line => {
-                    let lineWh = getWarehouseId(line.warehouseId || hdrWh);
+                    let lineWh = getWarehouseId(inv.deliveryWarehouse || line.warehouseId || hdrWh);
                     
-                    if (lineWh === warehouseId) {
+                    if (warehouseId === 'ALL' || String(lineWh) === String(warehouseId)) {
                         if (inv.saleType === 'reserved' && inv.deliveryStatus !== 'delivered') {
-                            return; // Skip if reserved but not delivered yet
+                            return;
                         }
 
                         let itemId = line.itemId;
+                        let itemObj = getItem(itemId);
                         let baseQty = 0;
                         if (line.customBaseQty !== undefined) {
-                            baseQty = line.customBaseQty;
+                            baseQty = parseFloat(line.customBaseQty) || 0;
                         } else {
-                            let item = itemsDb.find(i => i.id === itemId);
-                            let factor = line.customFactor !== undefined ? line.customFactor : 1;
-                            let conv = item ? (item.conversionFactor || 1) : 1;
+                            let factor = parseFloat(line.customFactor || line.factor) || 1;
+                            let conv = itemObj ? (itemObj.conversionFactor || 1) : 1;
                             baseQty = (parseFloat(line.quantity) || 0) * factor * conv;
                         }
+
+                        let permitNo = inv.orderNo || inv.soNumber || inv.quotationNo || inv.dispatchOrderNo || inv.permitNo || inv.invoiceNo || '-';
+                        let docTarget = `sales-invoice.php?id=${inv.id || inv.invoiceNo}`;
 
                         history.push({
                             date: new Date(inv.date || Date.now()),
                             typeCode: 'out',
                             typeName: 'فاتورة مبيعات',
-                            ref: inv.invoiceNo || 'INV',
-                            docId: inv.invoiceNo || inv.id, // Fixed docId for drill-down
-                            itemName: getItemName(itemId),
+                            warehouseName: getWarehouseName(lineWh),
+                            ref: inv.invoiceNo || inv.id || '-',
+                            permitNo: permitNo,
+                            docId: inv.id || inv.invoiceNo,
+                            docTarget: docTarget,
+                            itemId: itemId,
+                            itemName: itemObj ? itemObj.name : (line.name || 'صنف غير معروف'),
+                            unit: line.unit || (itemObj ? (itemObj.baseUnit || itemObj.unit) : 'وحدة'),
                             in: 0,
-                            out: baseQty
+                            out: baseQty,
+                            notes: line.notes || inv.notes || ''
+                        });
+                    }
+                });
+            });
+
+            // 3. Get Warehouse Transfers
+            let transfers = JSON.parse(localStorage.getItem('erp_warehouse_transfers_v1')) || [];
+            transfers = transfers.filter(x => !x.deleted && x.status !== 'cancelled');
+            transfers.forEach(tr => {
+                let fromWh = getWarehouseId(tr.fromWarehouse);
+                let toWh = getWarehouseId(tr.toWarehouse);
+                let fromWhName = tr.fromWarehouseName || getWarehouseName(fromWh);
+                let toWhName = tr.toWarehouseName || getWarehouseName(toWh);
+
+                (tr.items || []).forEach(line => {
+                    let itemId = line.itemId;
+                    let itemObj = getItem(itemId);
+                    let origQty = parseFloat(line.quantity) || 0;
+                    let resolvedFactor = parseFloat(line.customFactor || line.factor) || 1;
+                    let baseQty = (line.customBaseQty !== undefined) ? parseFloat(line.customBaseQty) : (origQty * resolvedFactor);
+
+                    // If viewing all or viewing fromWh
+                    if (warehouseId === 'ALL' || String(fromWh) === String(warehouseId)) {
+                        history.push({
+                            date: new Date(tr.date || tr.createdAt || Date.now()),
+                            typeCode: 'out',
+                            typeName: `تحويل صادر (إلى ${toWhName})`,
+                            warehouseName: fromWhName,
+                            ref: tr.transferNo || tr.id || '-',
+                            permitNo: tr.transferNo || '-',
+                            docId: tr.id,
+                            docTarget: `warehouse-transfers.php?id=${tr.id}`,
+                            itemId: itemId,
+                            itemName: itemObj ? itemObj.name : (line.name || 'صنف غير معروف'),
+                            unit: line.unitName || line.unit || (itemObj ? (itemObj.baseUnit || itemObj.unit) : 'وحدة'),
+                            in: 0,
+                            out: baseQty,
+                            notes: tr.notes || line.notes || ''
+                        });
+                    }
+
+                    // If viewing all or viewing toWh
+                    if (warehouseId === 'ALL' || String(toWh) === String(warehouseId)) {
+                        history.push({
+                            date: new Date(tr.date || tr.createdAt || Date.now()),
+                            typeCode: 'in',
+                            typeName: `تحويل وارد (من ${fromWhName})`,
+                            warehouseName: toWhName,
+                            ref: tr.transferNo || tr.id || '-',
+                            permitNo: tr.transferNo || '-',
+                            docId: tr.id,
+                            docTarget: `warehouse-transfers.php?id=${tr.id}`,
+                            itemId: itemId,
+                            itemName: itemObj ? itemObj.name : (line.name || 'صنف غير معروف'),
+                            unit: line.unitName || line.unit || (itemObj ? (itemObj.baseUnit || itemObj.unit) : 'وحدة'),
+                            in: baseQty,
+                            out: 0,
+                            notes: tr.notes || line.notes || ''
                         });
                     }
                 });
@@ -435,18 +633,14 @@
         }
 
         function loadLedger() {
-            const wh = document.getElementById('warehouse-select').value;
+            const wh = document.getElementById('warehouse-select')?.value || 'ALL';
             const tbody = document.getElementById('ledger-tbody');
+            const searchVal = (document.getElementById('search-filter')?.value || '').toLowerCase().trim();
             
-            if (!wh) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-secondary);">الرجاء اختيار مخزن وتحديد الفترة للبحث</td></tr>`;
-                return;
-            }
-
             let history = buildRealWarehouseHistory(wh);
 
-            const fromDateStr = document.getElementById('date-from').value;
-            const toDateStr = document.getElementById('date-to').value;
+            const fromDateStr = document.getElementById('date-from')?.value;
+            const toDateStr = document.getElementById('date-to')?.value;
             
             if (fromDateStr) {
                 let d = new Date(fromDateStr); d.setHours(0,0,0,0);
@@ -457,13 +651,25 @@
                 history = history.filter(h => h.date <= d);
             }
 
+            if (searchVal) {
+                history = history.filter(h => {
+                    const searchSource = `${h.itemName} ${h.itemId} ${h.ref} ${h.permitNo} ${h.warehouseName} ${h.typeName} ${h.notes}`.toLowerCase();
+                    return searchSource.includes(searchVal);
+                });
+            }
+
             tbody.innerHTML = '';
+            let sumIn = 0;
+            let sumOut = 0;
 
             if (history.length === 0) {
-                 tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-secondary);">لا توجد حركات لهذا المخزن في هذه الفترة</td></tr>`;
+                 tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:35px; color:var(--text-secondary); font-size:1.05rem;">لا توجد حركات مطابقة لبحثك في هذه الفترة</td></tr>`;
             }
 
             history.forEach(row => {
+                sumIn += row.in;
+                sumOut += row.out;
+
                 let typeBadge = row.typeCode === 'in' 
                     ? `<span class="type-badge type-in">${row.typeName}</span>`
                     : `<span class="type-badge type-out">${row.typeName}</span>`;
@@ -471,38 +677,46 @@
                 const dStr = row.date.toISOString().split('T')[0];
 
                 const tr = document.createElement('tr');
-                let target = '';
-                if (row.typeCode === 'out') target = `sales-invoice.php?id=${row.docId}`;
-                else if (row.typeCode === 'in') target = `purchase.php?id=${row.docId}`;
-
                 let refHtml = row.ref;
-                if (row.docId && target) {
-                    tr.style.cursor = 'pointer';
-                    tr.title = 'عرض تفاصيل المستند الأصلي';
-                    tr.onclick = () => { window.open(target, '_blank'); };
-                    tr.onmouseover = () => tr.style.background = 'rgba(236, 72, 153, 0.05)';
-                    tr.onmouseout = () => tr.style.background = '';
-                    
+                if (row.docId && row.docTarget) {
                     refHtml = `
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <span>${row.ref}</span>
-                            <button onclick="event.stopPropagation(); window.open('${target}', '_blank')" style="background:rgba(236,72,153,0.1); color:#ec4899; border:1px solid rgba(236,72,153,0.3); border-radius:6px; padding:3px 8px; cursor:pointer; font-size:0.75rem; font-weight:bold; display:flex; align-items:center; gap:4px; transition:all 0.2s;" onmouseover="this.style.background='#ec4899'; this.style.color='#fff';" onmouseout="this.style.background='rgba(236,72,153,0.1)'; this.style.color='#ec4899';">
-                                🔗 عرض الأصل
+                        <div style="display:flex; align-items:center; gap:6px;">
+                            <span style="font-weight:700;">${row.ref}</span>
+                            <button onclick="event.stopPropagation(); window.open('${row.docTarget}', '_blank')" style="background:rgba(236,72,153,0.1); color:#ec4899; border:1px solid rgba(236,72,153,0.3); border-radius:6px; padding:2px 7px; cursor:pointer; font-size:0.75rem; font-weight:bold; display:flex; align-items:center; gap:3px;">
+                                🔗 المستند
                             </button>
                         </div>
                     `;
                 }
 
                 tr.innerHTML = `
-                    <td>${dStr}</td>
+                    <td style="white-space:nowrap;">${dStr}</td>
                     <td>${typeBadge}</td>
+                    <td><span style="background:rgba(255,255,255,0.06); padding:3px 8px; border-radius:6px; font-weight:700; color:#38bdf8;">${row.warehouseName}</span></td>
                     <td style="font-weight:600;">${refHtml}</td>
-                    <td style="color:#fbbf24; font-weight:700;">${row.itemName}</td>
-                    <td style="color:#10b981; font-weight:700;">${row.in > 0 ? '+ ' + row.in : '-'}</td>
-                    <td style="color:#ec4899; font-weight:700;">${row.out > 0 ? '- ' + row.out : '-'}</td>
+                    <td>
+                        <div style="display:flex; flex-direction:column;">
+                            <strong style="color:#fbbf24; font-size:0.95rem;">${row.itemName}</strong>
+                            <small style="color:#94a3b8;">كود: ${row.itemId} ${row.notes ? ' · 📝 ' + row.notes : ''}</small>
+                        </div>
+                    </td>
+                    <td style="color:#10b981; font-weight:800; text-align:right; background:rgba(16,185,129,0.02);">${row.in > 0 ? '+ ' + fmtNum(row.in) + ' ' + row.unit : '-'}</td>
+                    <td style="color:#ec4899; font-weight:800; text-align:right; background:rgba(236,72,153,0.02);">${row.out > 0 ? '- ' + fmtNum(row.out) + ' ' + row.unit : '-'}</td>
+                    <td style="text-align:center;">
+                        <a href="item-ledger.php?item=${row.itemId}" class="btn-action" style="padding:4px 8px; font-size:0.75rem; text-decoration:none; display:inline-flex; background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); border-radius:6px; font-weight:700;" title="كشف حساب الصنف التفصيلي">
+                            📑 كشف الصنف
+                        </a>
+                    </td>
                 `;
                 tbody.appendChild(tr);
             });
+
+            // Update KPIs
+            document.getElementById('kpi-wh-count').innerText = fmtNum(history.length);
+            document.getElementById('kpi-wh-in').innerText = fmtNum(sumIn);
+            document.getElementById('kpi-wh-out').innerText = fmtNum(sumOut);
+            const netFlow = sumIn - sumOut;
+            document.getElementById('kpi-wh-net').innerHTML = `<span style="color:${netFlow >= 0 ? '#10b981' : '#ec4899'}">${netFlow >= 0 ? '+' : ''}${fmtNum(netFlow)}</span>`;
 
             initWarehouseLedgerResizers();
         }
@@ -589,6 +803,17 @@
             });
         }
         document.addEventListener('DOMContentLoaded', initWarehouseLedgerResizers);
+
+        // Nav Dropdowns Click & Touch Toggle
+        document.addEventListener('click', function(e) {
+            const clickedDropdown = e.target.closest('.nav-dropdown');
+            document.querySelectorAll('.nav-dropdown').forEach(dd => {
+                if (dd !== clickedDropdown) dd.classList.remove('active');
+            });
+            if (clickedDropdown && e.target.closest('.nav-tab')) {
+                clickedDropdown.classList.toggle('active');
+            }
+        });
     </script>
 </body>
 </html>

@@ -206,19 +206,24 @@
         /* Nav Dropdown for Extra Reports */
         .nav-dropdown { position: relative; display: inline-block; }
         .nav-dropdown-content {
-            display: none; position: absolute; top: calc(100% + 6px); right: 0; min-width: 240px;
-            background: rgba(15, 23, 42, 0.96); backdrop-filter: blur(25px);
+            display: none; position: absolute; top: calc(100% + 6px); right: 0; min-width: 250px;
+            background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(25px);
             border: 1px solid var(--glass-border); border-radius: 12px;
-            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.65); padding: 5px; z-index: 1000;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.65); padding: 6px; z-index: 10000;
             animation: dropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        @keyframes dropdownFadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
-        .nav-dropdown:hover .nav-dropdown-content, .nav-dropdown:focus-within .nav-dropdown-content { display: block; }
-        .nav-dropdown-item {
-            display: flex; align-items: center; gap: 8px; padding: 8px 12px; color: #cbd5e1;
-            text-decoration: none; font-size: 0.84rem; font-weight: 700; border-radius: 8px; transition: all 0.2s ease;
+        .nav-dropdown-content::before {
+            content: ''; position: absolute; top: -10px; left: 0; right: 0; height: 10px; background: transparent;
         }
-        .nav-dropdown-item:hover { background: rgba(236, 72, 153, 0.15); color: #f472b6; transform: translateX(-3px); }
+        @keyframes dropdownFadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+        .nav-dropdown:hover .nav-dropdown-content, 
+        .nav-dropdown:focus-within .nav-dropdown-content,
+        .nav-dropdown.active .nav-dropdown-content { display: block; }
+        .nav-dropdown-item {
+            display: flex; align-items: center; gap: 10px; padding: 10px 14px; color: #cbd5e1;
+            text-decoration: none; font-size: 0.86rem; font-weight: 700; border-radius: 8px; transition: all 0.2s ease;
+        }
+        .nav-dropdown-item:hover { background: rgba(56, 189, 248, 0.15); color: #38bdf8; transform: translateX(-3px); }
 
         /* Unified Filter Hub (Streamlined Single Row) */
         .filters-hub {
@@ -2430,8 +2435,6 @@
                     .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#ec4899">$1</strong>')
                     .replace(/⚠️/g, '<span style="font-size:1.2em; color:#f59e0b;">⚠️</span>')
                     .replace(/📦/g, '<span style="font-size:1.2em; color:#3b82f6;">📦</span>')
-                    .replace(/💡/g, '<span style="font-size:1.2em; color:#10b981;">💡</span>')
-                    .replace(/\n/g, '<br>');
                 if (contentEl) contentEl.innerHTML = formatted;
             } else {
                 if (contentEl) contentEl.innerHTML = '<span style="color:#ef4444">حدث خطأ أثناء التحليل: ' + (data.error || 'استجابة غير متوقعة') + '</span>';
@@ -2441,6 +2444,17 @@
             if (contentEl) contentEl.innerHTML = '<span style="color:#ef4444">تعذر الاتصال بالخادم الذكي.</span>';
         });
     }
+
+    // Nav Dropdowns Click & Touch Toggle
+    document.addEventListener('click', function(e) {
+        const clickedDropdown = e.target.closest('.nav-dropdown');
+        document.querySelectorAll('.nav-dropdown').forEach(dd => {
+            if (dd !== clickedDropdown) dd.classList.remove('active');
+        });
+        if (clickedDropdown && e.target.closest('.nav-tab')) {
+            clickedDropdown.classList.toggle('active');
+        }
+    });
     </script>
 </body>
 </html>
