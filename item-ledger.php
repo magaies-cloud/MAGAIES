@@ -319,6 +319,7 @@
                         <tr>
                             <th>التاريخ</th>
                             <th>نوع الحركة</th>
+                            <th style="color:#38bdf8;">رقم الإذن</th>
                             <th>رقم الاستلام</th>
                             <th style="color:#10b981; background:rgba(16,185,129,0.05); text-align: right;">الوارد (داخل)</th>
                             <th style="color:#ec4899; background:rgba(236,72,153,0.05); text-align: right;">المنصرف (خارج)</th>
@@ -326,7 +327,7 @@
                         </tr>
                     </thead>
                     <tbody id="ledger-tbody">
-                        <tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-secondary);">يرجى اختيار صنف لعرض حركته التفصيلية</td></tr>
+                        <tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-secondary);">يرجى اختيار صنف لعرض حركته التفصيلية</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -426,11 +427,15 @@
                             typeName = 'مذكرة استلام مخزني';
                         }
 
+                        let permitNo = inv.poNumber || inv.orderNo || inv.permitNo || inv.orderReference || inv.quotationNo || '-';
+                        let receiptNo = inv.invoiceNo || inv.grnNumber || inv.receiptNo || inv.id || '-';
+
                         history.push({
                             date: new Date(inv.date || inv.receiveDate || Date.now()),
                             typeCode: typeCode,
                             typeName: typeName,
-                            ref: inv.invoiceNo || inv.poNumber || inv.id,
+                            permitNo: permitNo,
+                            ref: receiptNo,
                             docId: inv.invoiceNo || inv.id,
                             warehouse: wh,
                             in: valIn,
@@ -467,11 +472,15 @@
                             baseQty = (parseFloat(line.quantity) || 0) * factor * conv;
                         }
 
+                        let permitNo = inv.orderNo || inv.soNumber || inv.permitNo || inv.quotationNo || inv.dispatchOrderNo || '-';
+                        let receiptNo = inv.invoiceNo || inv.receiptNo || inv.id || 'INV';
+
                         history.push({
                             date: new Date(inv.date || Date.now()),
                             typeCode: 'out',
                             typeName: 'فاتورة مبيعات',
-                            ref: inv.invoiceNo || 'INV',
+                            permitNo: permitNo,
+                            ref: receiptNo,
                             docId: inv.invoiceNo || inv.id,
                             warehouse: lineWh,
                             in: 0,
@@ -491,7 +500,7 @@
             const tbody = document.getElementById('ledger-tbody');
             
             if (!itemId) {
-                tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-secondary);">يرجى اختيار صنف لعرض حركته التفصيلية</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-secondary);">يرجى اختيار صنف لعرض حركته التفصيلية</td></tr>`;
                 document.getElementById('sum-open').innerText = '0';
                 document.getElementById('sum-in').innerText = '0';
                 document.getElementById('sum-out').innerText = '0';
@@ -544,7 +553,7 @@
             let sumOpen = 0;
 
             if (filteredHistory.length === 0) {
-                 tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:30px; color:var(--text-secondary);">لا توجد حركات لهذا الصنف في هذه الفترة</td></tr>`;
+                 tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-secondary);">لا توجد حركات لهذا الصنف في هذه الفترة</td></tr>`;
             } else {
                  // The "opening balance" of the filtered period is the running balance just before the first filtered row
                  const firstFilteredIndex = history.findIndex(h => h.date >= new Date(fromDateStr || '1970-01-01'));
@@ -589,9 +598,14 @@
                     `;
                 }
 
+                const permitHtml = (row.permitNo && row.permitNo !== '-') ? 
+                    `<span style="background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.25); color:#38bdf8; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:700; font-family:monospace; display:inline-flex; align-items:center; gap:4px;">📄 ${row.permitNo}</span>` : 
+                    `<span style="color:#64748b; font-weight:600;">-</span>`;
+
                 tr.innerHTML = `
                     <td>${dStr}</td>
                     <td>${typeBadge}</td>
+                    <td style="font-weight:700;">${permitHtml}</td>
                     <td style="font-weight:600;">${refHtml}</td>
                     <td style="color:#10b981; font-weight:700; background:rgba(16,185,129,0.02);">${row.in > 0 ? fmtNum(row.in) : '-'}</td>
                     <td style="color:#ec4899; font-weight:700; background:rgba(236,72,153,0.02);">${row.out > 0 ? fmtNum(row.out) : '-'}</td>
