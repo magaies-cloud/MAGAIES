@@ -586,15 +586,16 @@
                                 <tr>
                                     <th style="display:none;">سعر الوحدة</th>
                                     <th style="display:none;">القيمة المستلمة</th>
-                                    <th style="text-align:center; width:10%; color:#e2e8f0; font-weight:700; font-size:0.95rem; padding: 12px 5px;">كمية الشراء</th>
-                                    <th style="text-align:right; width:22%; color:#e2e8f0; font-weight:700; font-size:0.95rem; padding: 12px 10px;">الصنف</th>
-                                    <th style="text-align:center; width:9%; color:#e2e8f0; font-weight:700; font-size:0.95rem; padding: 12px 5px;">وحدة الشراء</th>
-                                    <th style="text-align:center; width:9%; color:#e2e8f0; font-weight:700; font-size:0.95rem; padding: 12px 5px;">الكمية المتبقية</th>
-                                    <th style="text-align:center; width:7%; color:#e2e8f0; font-weight:700; font-size:0.95rem; padding: 12px 5px;">التعادل</th>
-                                    <th style="text-align:center; width:11%; color:#e2e8f0; font-weight:700; font-size:0.95rem; padding: 12px 5px;">الكمية بالوحدة الأساسية</th>
-                                    <th style="text-align:center; width:14%; color:#38bdf8; font-weight:800; font-size:0.95rem; padding: 12px 5px; cursor: pointer; user-select: none;" onclick="openGridSettings('rcvQty')" title="انقر لتعديل حجم الخط ولون الخط للكمية المستلمة"><span style="display:inline-flex; align-items:center; gap:5px; background: rgba(56, 189, 248, 0.12); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3);">✍️ الكمية المستلمة (اكتب هنا) ⚙️</span></th>
-                                    <th style="text-align:center; width:9%; color:#e2e8f0; font-weight:700; font-size:0.95rem; padding: 12px 5px;">الكمية بالوحدة</th>
+                                    <th style="text-align:center; width:9%; color:#e2e8f0; font-weight:700; font-size:0.95rem; padding: 12px 5px;">كمية الشراء</th>
+                                    <th style="text-align:right; width:19%; color:#e2e8f0; font-weight:700; font-size:0.95rem; padding: 12px 10px;">الصنف</th>
+                                    <th style="text-align:center; width:8%; color:#e2e8f0; font-weight:700; font-size:0.95rem; padding: 12px 5px;">وحدة الشراء</th>
+                                    <th style="text-align:center; width:8%; color:#e2e8f0; font-weight:700; font-size:0.95rem; padding: 12px 5px;">الكمية المتبقية</th>
+                                    <th style="text-align:center; width:6%; color:#e2e8f0; font-weight:700; font-size:0.95rem; padding: 12px 5px;">التعادل</th>
+                                    <th style="text-align:center; width:10%; color:#e2e8f0; font-weight:700; font-size:0.95rem; padding: 12px 5px;">الكمية بالوحدة الأساسية</th>
+                                    <th style="text-align:center; width:13%; color:#38bdf8; font-weight:800; font-size:0.95rem; padding: 12px 5px; cursor: pointer; user-select: none;" onclick="openGridSettings('rcvQty')" title="انقر لتعديل حجم الخط ولون الخط للكمية المستلمة"><span style="display:inline-flex; align-items:center; gap:5px; background: rgba(56, 189, 248, 0.12); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3);">✍️ الكمية المستلمة (اكتب هنا) ⚙️</span></th>
+                                    <th style="text-align:center; width:8%; color:#e2e8f0; font-weight:700; font-size:0.95rem; padding: 12px 5px;">الكمية بالوحدة</th>
                                     <th style="text-align:center; width:9%; color:#e2e8f0; font-weight:700; font-size:0.95rem; padding: 12px 5px;">المستودع المُستلِم</th>
+                                    <th style="text-align:center; width:10%; color:#38bdf8; font-weight:700; font-size:0.95rem; padding: 12px 5px;">📝 ملحوظة الاستلام</th>
                                 </tr>
                             </thead>
                             <tbody id="items-tbody">
@@ -1241,6 +1242,9 @@
                     <td style="padding: 4px 3px;">
                         <select class="wh-select grn-col-warehouse" style="width: 100%; height: 48px; padding: 0 8px; background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255,255,255,0.15); font-family: '${whCol.font}', 'Tajawal', sans-serif !important; color: ${whCol.color} !important; font-size: ${whCol.size}px !important; font-weight: ${whCol.weight} !important; text-align: ${whCol.align} !important; border-radius: 9px; outline: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2);">${whOptions}</select>
                     </td>
+                    <td style="padding: 4px 3px;">
+                        <input type="text" class="notes-input" value="${line.notes || ''}" placeholder="ملحوظة الاستلام..." style="width: 100%; height: 48px; padding: 0 10px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255,255,255,0.15); font-family: 'Tajawal', sans-serif; color: #f8fafc; font-size: 13px; font-weight: 600; border-radius: 9px; outline: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); transition: border-color 0.2s;" onfocus="this.style.borderColor='#38bdf8'; this.style.boxShadow='0 0 8px rgba(56,189,248,0.3)';" onblur="this.style.borderColor='rgba(255,255,255,0.15)'; this.style.boxShadow='inset 0 1px 3px rgba(0,0,0,0.2)';">
+                    </td>
                 `;
                 const qtyInput = tr.querySelector('.qty-input');
                 const baseRcvCell = tr.querySelector('.base-rcv-qty');
@@ -1271,6 +1275,13 @@
                 whSelect.addEventListener('change', function() {
                     line.warehouseId = this.value;
                 });
+
+                const notesInput = tr.querySelector('.notes-input');
+                if (notesInput) {
+                    notesInput.addEventListener('input', function() {
+                        line.notes = this.value;
+                    });
+                }
 
                 tbody.appendChild(tr);
             });
@@ -1423,6 +1434,7 @@
                     warehouseId: 'PENDING_RECEIPT',
                     price: line.price || 0,
                     taxRate: 0,
+                    notes: line.notes || '',
                     total: -((line.price || 0) * line.receiveQty)
                 });
                 // Positive (Put into ACTUAL)
@@ -1436,11 +1448,16 @@
                     warehouseId: line.warehouseId,
                     price: line.price || 0,
                     taxRate: 0,
+                    notes: line.notes || '',
                     total: (line.price || 0) * line.receiveQty
                 });
             });
 
             const firstWh = receivingItems[0].warehouseId;
+
+            // Generate combined notes
+            const lineNotesList = receivingItems.map(l => l.notes ? `${getItemName(l.itemId)}: ${l.notes}` : '').filter(Boolean);
+            const notesSummary = lineNotesList.length > 0 ? ` (${lineNotesList.join(' | ')})` : '';
 
             const grnInv = {
                 id: generateGRNNumber(),
@@ -1456,7 +1473,7 @@
                 grandTotal: 0,
                 items: newItems,
                 status: 'completed',
-                notes: `مذكرة استلام بضاعة للفاتورة ${currentInvoiceId}`,
+                notes: `مذكرة استلام بضاعة للفاتورة ${currentInvoiceId}${notesSummary}`,
                 createdBy: (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown'
             };
 
@@ -1648,7 +1665,8 @@
                         else grnWarehouses.add(grn.warehouse);
                     }
 
-                    return `${name} (${item.quantity} ${item.unitName || 'وحدة'})`;
+                    const notePart = item.notes ? ` <span style="color:#38bdf8; font-size:0.75rem; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.3); padding:1px 6px; border-radius:5px; font-weight:600;">📝 ${item.notes}</span>` : '';
+                    return `${name} (${item.quantity} ${item.unitName || 'وحدة'})${notePart}`;
                 }).join('<br>');
                 
                 let warehouseStr = Array.from(grnWarehouses).join('، ') || 'المخزن الرئيسي';
@@ -1773,6 +1791,7 @@
                     if (line) {
                         line.receiveQty = pItem.quantity;
                         line.warehouseId = pItem.warehouseId;
+                        line.notes = pItem.notes || '';
                     }
                 });
                 renderReceiptLines();
