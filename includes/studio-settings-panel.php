@@ -22,71 +22,70 @@
 
     <!-- TAB 1: Columns & Formatting -->
     <div id="studio-tab-cols">
-        <!-- Row 0: Copy Label -->
-        <div class="panel-card" style="margin-bottom: 8px; background: linear-gradient(135deg, rgba(59,130,246,0.08), rgba(14,165,233,0.08)); border-color: rgba(59,130,246,0.3);">
-            <div class="panel-group">
-                <span>📝 عنوان النسخة:</span>
-                <input type="text" id="copy-label-input" class="panel-input" 
-                    style="width:200px; font-weight:900; font-size:1rem; color:#1e3a5f; border-color:#3b82f6; background:#fff;" 
-                    value="نسخة العميل" 
-                    oninput="setCopyLabel(this.value)"
-                    placeholder="مثال: نسخة العميل، كشف حساب...">
-            </div>
-        </div>
-
-        <!-- Row 1: Column Selection & Reordering -->
-        <div class="panel-card" style="margin-bottom: 8px;">
-            <div class="panel-group">
-                <span>العمود المحدد:</span>
-                <select id="selected-col-select" class="panel-input" style="color:#dc2626; font-size:0.95rem; font-weight:900; border-color:#dc2626; background:#ffffff;" onchange="selectColumn(parseInt(this.value))">
+        <!-- Row 1: Unified Super Toolbar (All Column Controls in 1 Compact Line) -->
+        <div class="panel-card studio-super-row" style="margin-bottom: 8px; padding: 6px 12px; gap: 8px; display: flex; align-items: center; justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto;">
+            
+            <!-- Group A: Selection & Visibility -->
+            <div class="studio-group-pill">
+                <span style="color:#dc2626; font-size:0.85rem; font-weight:900;">🎯 العمود:</span>
+                <select id="selected-col-select" class="panel-input" style="color:#dc2626; font-size:0.85rem; font-weight:900; border-color:#dc2626; background:#ffffff; padding: 4px 8px;" onchange="selectColumn(parseInt(this.value))">
                     <!-- Column options populated dynamically via JS -->
                 </select>
-                
-                <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
+                <label style="display:flex; align-items:center; gap:3px; cursor:pointer; font-size:0.82rem; font-weight:800;" title="إظهار أو إخفاء العمود">
                     <input type="checkbox" id="col-visible-chk" checked onchange="updateSelectedCol('visible', this.checked)">
                     إظهار
                 </label>
-
-                <!-- Restore Hidden Columns Dropdown -->
-                <select id="restore-hidden-col-select" class="panel-input" style="background:#fffeb3; border-color:#d97706;" onchange="restoreHiddenColumn(this.value)">
-                    <option value="">👁️ الأعمدة المخفية (0)</option>
+                <select id="restore-hidden-col-select" class="panel-input" style="background:#fffeb3; border-color:#d97706; font-size:0.82rem; padding: 4px 6px;" onchange="restoreHiddenColumn(this.value)" title="استعادة الأعمدة المخفية">
+                    <option value="">👁️ المخفي (0)</option>
                 </select>
             </div>
 
-            <div class="panel-group">
-                <span>إعادة تسمية الترويسة:</span>
-                <input type="text" id="col-label-input" class="panel-input" style="width:130px;" oninput="updateSelectedCol('label', this.value)">
-                
-                <span>الترتيب:</span>
-                <button class="ribbon-btn" style="padding:3px 10px; color:#000; background:#fff; border-color:#ca8a04;" onclick="moveSelectedCol(-1)">➡️ يمين</button>
-                <button class="ribbon-btn" style="padding:3px 10px; color:#000; background:#fff; border-color:#ca8a04;" onclick="moveSelectedCol(1)">⬅️ يسار</button>
+            <div class="studio-pill-divider"></div>
+
+            <!-- Group B: Header Label & Ordering -->
+            <div class="studio-group-pill">
+                <span style="font-size:0.85rem;">✏️ التسمية:</span>
+                <input type="text" id="col-label-input" class="panel-input" style="width:115px; font-size:0.85rem; padding: 4px 8px;" oninput="updateSelectedCol('label', this.value)">
+                <span style="font-size:0.85rem;">الترتيب:</span>
+                <button class="ribbon-btn studio-mini-btn" onclick="moveSelectedCol(-1)" title="تحريك لليمين">➡️</button>
+                <button class="ribbon-btn studio-mini-btn" onclick="moveSelectedCol(1)" title="تحريك لليسار">⬅️</button>
             </div>
 
-            <div class="panel-group">
-                <span>المحاذاة:</span>
-                <select id="col-align-select" class="panel-input" onchange="updateSelectedCol('align', this.value)">
+            <div class="studio-pill-divider"></div>
+
+            <!-- Group C: Alignment -->
+            <div class="studio-group-pill">
+                <span style="font-size:0.85rem;">المحاذاة:</span>
+                <select id="col-align-select" class="panel-input" style="font-size:0.85rem; padding: 4px 8px;" onchange="updateSelectedCol('align', this.value)">
                     <option value="right">يمين ➡️</option>
                     <option value="center" selected>وسط 🟢</option>
                     <option value="left">يسار ⬅️</option>
                 </select>
             </div>
 
-            <div class="panel-group">
-                <span>📏 عرض العمود (%):</span>
-                <input type="range" id="col-width-range" min="5" max="60" step="1" value="15" 
+            <div class="studio-pill-divider"></div>
+
+            <!-- Group D: Column Width -->
+            <div class="studio-group-pill">
+                <span style="font-size:0.85rem;" title="عرض العمود كنسبة مئوية">📏 العرض:</span>
+                <input type="range" id="col-width-range" min="5" max="60" step="1" value="15" style="width:75px;"
                     oninput="document.getElementById('col-width-input').value=this.value; updateSelectedCol('width', this.value)">
-                <input type="number" id="col-width-input" class="panel-input" style="width:60px;" min="5" max="60" placeholder="%" 
+                <input type="number" id="col-width-input" class="panel-input" style="width:48px; font-size:0.85rem; padding: 4px;" min="5" max="60" placeholder="%" 
                     oninput="if(document.getElementById('col-width-range')) document.getElementById('col-width-range').value=this.value; updateSelectedCol('width', this.value)">
-                <button class="ribbon-btn" style="padding:3px 10px; color:#000; background:#fff; border-color:#ca8a04; font-size:0.8rem;" 
-                    onclick="updateSelectedCol('width', ''); document.getElementById('col-width-input').value=''; document.getElementById('col-width-range').value=15;">🔄 تلقائي</button>
+                <button class="ribbon-btn studio-mini-btn" style="font-size:0.75rem; padding: 4px 6px;" 
+                    onclick="updateSelectedCol('width', ''); document.getElementById('col-width-input').value=''; document.getElementById('col-width-range').value=15;" title="ضبط العرض التلقائي">🔄 تلقائي</button>
             </div>
 
-            <div class="panel-group">
-                <span>📐 عرض الجدول الكلي:</span>
-                <input type="range" id="table-width-range" min="50" max="100" step="5" value="100" 
+            <div class="studio-pill-divider"></div>
+
+            <!-- Group E: Table Width -->
+            <div class="studio-group-pill">
+                <span style="font-size:0.85rem;">📐 عرض الجدول:</span>
+                <input type="range" id="table-width-range" min="50" max="100" step="5" value="100" style="width:75px;"
                     oninput="setTableWidth(this.value)">
-                <span id="table-width-label" style="font-weight:900; min-width:40px; text-align:center;">100%</span>
+                <span id="table-width-label" style="font-weight:900; font-size:0.85rem; min-width:35px; text-align:center;">100%</span>
             </div>
+
         </div>
 
         <!-- Row 2: Colors, Font Sizes, Font Weights & Global Themes -->

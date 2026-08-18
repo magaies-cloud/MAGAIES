@@ -386,55 +386,51 @@
             </div>
 
             <!-- Design Studio Toolbar (Collapsible / Active) -->
-            <div id="item-ledger-studio-drawer" class="no-print" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: center; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 12px 18px; margin-bottom: 14px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);">
-                <!-- 1. Color Palette / Theme -->
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">🎨 نمط الألوان والثيم:</label>
-                    <select id="studio-theme-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 5px 10px; font-size: 0.8rem;">
-                        <option value="corporate">🔷 أزرق نيلي شركات (Corporate)</option>
-                        <option value="emerald">🟢 أخضر زمردي مخزني (Emerald)</option>
-                        <option value="gold">🟡 ذهبي كلاسيكي فاخر (Royal Gold)</option>
-                        <option value="cyan">🔵 سيان عصري (Modern Cyan)</option>
-                        <option value="purple">🟣 بنفسجي تقني (Purple Tech)</option>
-                        <option value="classic">⚫ رمادي أحادي رسمي (Monochrome)</option>
-                    </select>
-                </div>
+            <div id="item-ledger-studio-drawer" class="no-print" style="display: flex; flex-direction: column; gap: 8px; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);">
+                
+                <!-- Row 1: Global Theme, Font, Size, Paper & Sections -->
+                <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 700;">🎨 الثيم:</span>
+                        <select id="studio-theme-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem;">
+                            <option value="corporate">🔷 أزرق نيلي شركات (Corporate)</option>
+                            <option value="emerald">🟢 أخضر زمردي مخزني (Emerald)</option>
+                            <option value="gold">🟡 ذهبي كلاسيكي فاخر (Royal Gold)</option>
+                            <option value="cyan">🔵 سيان عصري (Modern Cyan)</option>
+                            <option value="purple">🟣 بنفسجي تقني (Purple Tech)</option>
+                            <option value="classic">⚫ رمادي أحادي رسمي (Monochrome)</option>
+                        </select>
+                    </div>
 
-                <!-- 2. Font Family -->
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">🔤 نوع الخط العربي:</label>
-                    <select id="studio-font-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 5px 10px; font-size: 0.8rem;">
-                        <option value="'Tajawal', sans-serif">تجوّل (Tajawal)</option>
-                        <option value="'Cairo', sans-serif">القاهرة (Cairo)</option>
-                        <option value="'Almarai', sans-serif">المراعي (Almarai)</option>
-                        <option value="'Traditional Arabic', 'Segoe UI', serif">عربي تقليدي (Traditional)</option>
-                        <option value="'Segoe UI', Tahoma, sans-serif">عصري نظامي (Segoe UI)</option>
-                    </select>
-                </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 700;">🔤 الخط:</span>
+                        <select id="studio-font-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem;">
+                            <option value="'Tajawal', sans-serif">تجوّل (Tajawal)</option>
+                            <option value="'Cairo', sans-serif">القاهرة (Cairo)</option>
+                            <option value="'Almarai', sans-serif">المراعي (Almarai)</option>
+                            <option value="'Inter', sans-serif">إنتـر المريح (Inter)</option>
+                            <option value="'Traditional Arabic', serif">عربي تقليدي (Traditional)</option>
+                        </select>
+                    </div>
 
-                <!-- 3. Font Size -->
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">📏 حجم الخط والجدول:</label>
-                    <select id="studio-size-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 5px 10px; font-size: 0.8rem;">
-                        <option value="compact">مدمج صغير (Compact - 11px)</option>
-                        <option value="medium" selected>متوازن قياسي (Medium - 13px)</option>
-                        <option value="large">كبير واضح (Large - 15px)</option>
-                    </select>
-                </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 700;">📏 الكثافة:</span>
+                        <select id="studio-size-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem;">
+                            <option value="compact">مدمج صغير (Compact)</option>
+                            <option value="medium" selected>متوازن قياسي (Medium)</option>
+                            <option value="large">كبير واضح (Large)</option>
+                        </select>
+                    </div>
 
-                <!-- 4. Paper Orientation -->
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">📑 اتجاه الورقة (A4):</label>
-                    <select id="studio-orientation-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 5px 10px; font-size: 0.8rem;">
-                        <option value="landscape" selected>↔️ أفقي (Landscape - مناسب للجداول)</option>
-                        <option value="portrait">↕️ طولي (Portrait)</option>
-                    </select>
-                </div>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 700;">📑 الاتجاه:</span>
+                        <select id="studio-orientation-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem;">
+                            <option value="landscape" selected>↔️ أفقي (Landscape)</option>
+                            <option value="portrait">↕️ طولي (Portrait)</option>
+                        </select>
+                    </div>
 
-                <!-- 5. Sections Toggles -->
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">👁️ إظهار الأقسام:</label>
-                    <div style="display: flex; gap: 8px; align-items: center;">
+                    <div style="display: flex; align-items: center; gap: 8px;">
                         <label style="font-size: 0.75rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 3px;">
                             <input type="checkbox" id="chk-show-header" checked onchange="applyStudioDesign()"> الترويسة
                         </label>
@@ -448,31 +444,82 @@
                             <input type="checkbox" id="chk-show-signatures" checked onchange="applyStudioDesign()"> التوقيعات
                         </label>
                     </div>
-                </div>
 
-                <!-- 6. Columns Customizer Checkboxes -->
-                <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">📋 أعمدة الجدول المعروضة:</label>
-                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="date" checked onchange="applyStudioDesign()"> التاريخ</label>
-                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="type" checked onchange="applyStudioDesign()"> نوع الحركة</label>
-                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="permit" checked onchange="applyStudioDesign()"> رقم الإذن</label>
-                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="receipt" checked onchange="applyStudioDesign()"> رقم الاستلام</label>
-                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="in" checked onchange="applyStudioDesign()"> الوارد</label>
-                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="out" checked onchange="applyStudioDesign()"> المنصرف</label>
-                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="balance" checked onchange="applyStudioDesign()"> الرصيد</label>
-                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="notes" checked onchange="applyStudioDesign()"> ملحوظة الحركة</label>
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <button type="button" onclick="saveStudioDesignPreset()" style="background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.4); color: #34d399; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
+                            💾 حفظ
+                        </button>
+                        <button type="button" onclick="resetStudioDesignPreset()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: #cbd5e1; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer;">
+                            🔄 استعادة
+                        </button>
                     </div>
                 </div>
 
-                <!-- 7. Save & Reset Presets -->
-                <div style="display: flex; align-items: flex-end; gap: 6px; margin-right: auto;">
-                    <button type="button" onclick="saveStudioDesignPreset()" style="background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.4); color: #34d399; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
-                        💾 حفظ التصميم
-                    </button>
-                    <button type="button" onclick="resetStudioDesignPreset()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: #cbd5e1; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; cursor: pointer;">
-                        🔄 استعادة
-                    </button>
+                <!-- Row 2: Unified Single-Row Column Super-Toolbar -->
+                <div class="panel-card studio-super-row" style="margin-bottom: 0; padding: 6px 12px; gap: 8px; display: flex; align-items: center; justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; background: rgba(255, 255, 255, 0.08) !important; border: 1px solid rgba(56, 189, 248, 0.3) !important;">
+                    
+                    <!-- Group A: Column Selection & Visibility -->
+                    <div class="studio-group-pill">
+                        <span style="color:#38bdf8; font-size:0.82rem; font-weight:900;">🎯 العمود:</span>
+                        <select id="item-selected-col-select" class="panel-input" style="color:#38bdf8; font-size:0.82rem; font-weight:900; border-color:#38bdf8; background:#1e293b; padding: 3px 6px;" onchange="selectItemLedgerCol(this.value)">
+                            <option value="date" selected>التاريخ</option>
+                            <option value="type">نوع الحركة</option>
+                            <option value="permit">رقم الإذن</option>
+                            <option value="receipt">رقم الاستلام</option>
+                            <option value="in">الوارد</option>
+                            <option value="out">المنصرف</option>
+                            <option value="balance">الرصيد التراكمي</option>
+                            <option value="notes">ملحوظة الحركة</option>
+                        </select>
+                        <label style="display:flex; align-items:center; gap:3px; cursor:pointer; font-size:0.8rem; font-weight:800;" title="إظهار أو إخفاء العمود">
+                            <input type="checkbox" id="item-col-visible-chk" checked onchange="updateSelectedItemLedgerCol('visible', this.checked)">
+                            إظهار
+                        </label>
+                    </div>
+
+                    <div class="studio-pill-divider"></div>
+
+                    <!-- Group B: Header Label & Ordering -->
+                    <div class="studio-group-pill">
+                        <span style="font-size:0.82rem;">✏️ التسمية:</span>
+                        <input type="text" id="item-col-label-input" class="panel-input" style="width:110px; font-size:0.82rem; padding: 3px 6px; background:#1e293b; color:#fff; border-color:#475569;" oninput="updateSelectedItemLedgerCol('label', this.value)">
+                    </div>
+
+                    <div class="studio-pill-divider"></div>
+
+                    <!-- Group C: Alignment -->
+                    <div class="studio-group-pill">
+                        <span style="font-size:0.82rem;">المحاذاة:</span>
+                        <select id="item-col-align-select" class="panel-input" style="font-size:0.82rem; padding: 3px 6px; background:#1e293b; color:#fff; border-color:#475569;" onchange="updateSelectedItemLedgerCol('align', this.value)">
+                            <option value="right">يمين ➡️</option>
+                            <option value="center" selected>وسط 🟢</option>
+                            <option value="left">يسار ⬅️</option>
+                        </select>
+                    </div>
+
+                    <div class="studio-pill-divider"></div>
+
+                    <!-- Group D: Column Width -->
+                    <div class="studio-group-pill">
+                        <span style="font-size:0.82rem;" title="عرض العمود كنسبة مئوية">📏 العرض:</span>
+                        <input type="range" id="item-col-width-range" min="5" max="50" step="1" value="15" style="width:70px;"
+                            oninput="document.getElementById('item-col-width-input').value=this.value; updateSelectedItemLedgerCol('width', this.value)">
+                        <input type="number" id="item-col-width-input" class="panel-input" style="width:45px; font-size:0.82rem; padding: 3px; background:#1e293b; color:#fff; border-color:#475569;" min="5" max="50" placeholder="%" 
+                            oninput="if(document.getElementById('item-col-width-range')) document.getElementById('item-col-width-range').value=this.value; updateSelectedItemLedgerCol('width', this.value)">
+                        <button class="ribbon-btn studio-mini-btn" style="font-size:0.75rem; padding: 3px 6px;" 
+                            onclick="updateSelectedItemLedgerCol('width', ''); document.getElementById('item-col-width-input').value=''; document.getElementById('item-col-width-range').value=15;" title="ضبط العرض التلقائي">🔄 تلقائي</button>
+                    </div>
+
+                    <div class="studio-pill-divider"></div>
+
+                    <!-- Group E: Table Width -->
+                    <div class="studio-group-pill">
+                        <span style="font-size:0.82rem;">📐 عرض الجدول:</span>
+                        <input type="range" id="item-table-width-range" min="60" max="100" step="5" value="100" style="width:70px;"
+                            oninput="setItemTableWidth(this.value)">
+                        <span id="item-table-width-label" style="font-weight:900; font-size:0.82rem; min-width:32px; text-align:center; color:#38bdf8;">100%</span>
+                    </div>
+
                 </div>
             </div>
 
@@ -1894,6 +1941,50 @@
                     el.style.display = isChecked ? '' : 'none';
                 });
             });
+        }
+
+        let currentSelectedLedgerCol = 'date';
+        function selectItemLedgerCol(colKey) {
+            currentSelectedLedgerCol = colKey;
+            const sheet = document.getElementById('item-ledger-sheet');
+            if (!sheet) return;
+            const firstCell = sheet.querySelector(`.col-${colKey}`);
+            const isVis = firstCell ? (firstCell.style.display !== 'none') : true;
+            const chk = document.getElementById('item-col-visible-chk');
+            if (chk) chk.checked = isVis;
+
+            const headerCell = sheet.querySelector(`th.col-${colKey}`);
+            const lblInput = document.getElementById('item-col-label-input');
+            if (lblInput && headerCell) lblInput.value = headerCell.innerText.trim();
+        }
+
+        function updateSelectedItemLedgerCol(prop, val) {
+            const sheet = document.getElementById('item-ledger-sheet');
+            if (!sheet) return;
+            if (prop === 'visible') {
+                sheet.querySelectorAll(`.col-${currentSelectedLedgerCol}`).forEach(el => {
+                    el.style.display = val ? '' : 'none';
+                });
+            } else if (prop === 'label') {
+                const headerCell = sheet.querySelector(`th.col-${currentSelectedLedgerCol}`);
+                if (headerCell) headerCell.innerText = val;
+            } else if (prop === 'align') {
+                sheet.querySelectorAll(`.col-${currentSelectedLedgerCol}`).forEach(el => {
+                    el.style.textAlign = val;
+                });
+            } else if (prop === 'width') {
+                sheet.querySelectorAll(`.col-${currentSelectedLedgerCol}`).forEach(el => {
+                    el.style.width = val ? (val + '%') : 'auto';
+                });
+            }
+        }
+
+        function setItemTableWidth(val) {
+            const sheet = document.getElementById('item-ledger-sheet');
+            const tbl = sheet ? sheet.querySelector('table') : null;
+            const lbl = document.getElementById('item-table-width-label');
+            if (tbl) tbl.style.width = val + '%';
+            if (lbl) lbl.textContent = val + '%';
         }
 
         function printItemLedgerSheet() {

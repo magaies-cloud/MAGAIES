@@ -534,10 +534,13 @@
 
             </div>
 
-            <!-- Far Left Controls: Studio Button + Back Button -->
+            <!-- Far Left Controls: Preview & Studio Buttons + Back Button -->
             <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                <button class="btn-action" onclick="openInventoryReportPreview()" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white; border: none; padding: 7px 15px; border-radius: 10px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(13,148,136,0.25); display: flex; align-items: center; gap: 6px;">
+                    <span>👁️</span> <span>معاينة وتصميم التقرير</span>
+                </button>
                 <button class="btn-studio-top" onclick="openCustomReportStudio()" title="تخصيص وتصميم تقارير الجرد المتقدمة بالكامل">
-                    <span>🎛️</span> <span>مصمم التقارير</span>
+                    <span>🎛️</span> <span>الضبط المتقدم</span>
                 </button>
                 <button class="btn-icon-nav" onclick="history.back()" title="رجوع">↩</button>
             </div>
@@ -2444,6 +2447,558 @@
         .catch(err => {
             if (contentEl) contentEl.innerHTML = '<span style="color:#ef4444">تعذر الاتصال بالخادم الذكي.</span>';
         });
+    }
+    </script>
+
+    <style id="inventory-report-print-style"></style>
+
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <!-- 🎨 INVENTORY REPORT PREVIEW & DESIGN STUDIO MODAL           -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="inventory-report-preview-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 15, 30, 0.92); z-index: 12000; align-items: center; justify-content: center; direction: rtl; backdrop-filter: blur(12px);">
+        <div class="glass-panel" style="width: 96%; max-width: 1440px; height: 94vh; display: flex; flex-direction: column; padding: 18px 22px; border: 1px solid rgba(255,255,255,0.12); background: #0b1120; border-radius: 18px; color: #fff; box-shadow: 0 25px 60px rgba(0,0,0,0.6); overflow: hidden;">
+            
+            <!-- Top Toolbar Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 10px;" class="no-print">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.4rem;">👁️</span>
+                    <div>
+                        <h3 style="margin: 0; font-weight: 900; color: #38bdf8; font-size: 1.15rem;">معاينة وتخصيص تصميم تقرير الجرد العام للمخازن</h3>
+                        <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: #94a3b8;">استوديو التصميم: يمكنك التحكم بالأعمدة، الألوان، الخطوط، وتنسيق ورقة الطباعة A4</p>
+                    </div>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <!-- Studio Design Toggle -->
+                    <button type="button" id="btn-toggle-inv-studio" onclick="toggleInvStudioDrawer()" class="btn-action" style="background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.4); color: #38bdf8; padding: 7px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <span>🎨</span> شريط الضبط السريع
+                    </button>
+                    <!-- Live Edit Mode Toggle -->
+                    <button type="button" id="btn-toggle-inv-live-edit" onclick="toggleInvLiveEditMode()" class="btn-action" style="background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); color: #fbbf24; padding: 7px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <span>✏️</span> تعديل النصوص مباشرة
+                    </button>
+                    <!-- Print Button -->
+                    <button type="button" onclick="printInventoryReportSheet()" class="btn-action" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 7px 18px; font-weight: 800; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
+                        <span>🖨️</span> طباعة التقرير
+                    </button>
+                    <!-- Close Button -->
+                    <button type="button" onclick="closeInventoryReportPreview()" class="btn-action" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #e2e8f0; padding: 7px 14px; border-radius: 8px; cursor: pointer;">
+                        ✕ إغلاق
+                    </button>
+                </div>
+            </div>
+
+            <!-- Design Studio Toolbar (Collapsible / Active) -->
+            <div id="inv-studio-drawer" class="no-print" style="display: flex; flex-direction: column; gap: 8px; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 10px 14px; margin-bottom: 10px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);">
+                
+                <!-- Row 1: Global Theme, Font, Size, Paper & Sections -->
+                <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 700;">🎨 الثيم:</span>
+                        <select id="inv-studio-theme-select" onchange="applyInvStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem;">
+                            <option value="corporate">🔷 أزرق نيلي كلاسيكي (Corporate)</option>
+                            <option value="emerald">💚 أخضر زمردي راقي (Emerald Pro)</option>
+                            <option value="gold">🟡 ذهبي كلاسيكي فاخر (Luxury Gold)</option>
+                            <option value="slate">🩶 رمادي عصري (Modern Slate)</option>
+                            <option value="black">🖤 أسود رسمي فاخر (Luxury Black)</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 700;">🔤 الخط:</span>
+                        <select id="inv-studio-font-select" onchange="applyInvStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem;">
+                            <option value="'Tajawal', sans-serif">تجوّل (Tajawal)</option>
+                            <option value="'Cairo', sans-serif">القاهرة (Cairo)</option>
+                            <option value="'Almarai', sans-serif">المراعي (Almarai)</option>
+                            <option value="'Inter', sans-serif">إنتـر المريح (Inter)</option>
+                            <option value="'Traditional Arabic', serif">عربي تقليدي (Traditional)</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 700;">📏 الكثافة:</span>
+                        <select id="inv-studio-size-select" onchange="applyInvStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem;">
+                            <option value="compact">مدمج صغير (Compact)</option>
+                            <option value="medium" selected>متوازن قياسي (Medium)</option>
+                            <option value="large">كبير واضح (Large)</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 700;">📑 الاتجاه:</span>
+                        <select id="inv-studio-orientation-select" onchange="applyInvStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem;">
+                            <option value="landscape" selected>↔️ أفقي (Landscape)</option>
+                            <option value="portrait">↕️ طولي (Portrait)</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <label style="font-size: 0.75rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+                            <input type="checkbox" id="chk-inv-show-header" checked onchange="applyInvStudioDesign()"> الترويسة
+                        </label>
+                        <label style="font-size: 0.75rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+                            <input type="checkbox" id="chk-inv-show-kpis" checked onchange="applyInvStudioDesign()"> ملخص الأرصدة
+                        </label>
+                        <label style="font-size: 0.75rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+                            <input type="checkbox" id="chk-inv-show-signatures" checked onchange="applyInvStudioDesign()"> التوقيعات
+                        </label>
+                    </div>
+                </div>
+
+                <!-- Row 2: Unified Single-Row Column Super-Toolbar -->
+                <div class="panel-card studio-super-row" style="margin-bottom: 0; padding: 6px 12px; gap: 8px; display: flex; align-items: center; justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; background: rgba(255, 255, 255, 0.08) !important; border: 1px solid rgba(56, 189, 248, 0.3) !important;">
+                    
+                    <!-- Group A: Column Selection & Visibility -->
+                    <div class="studio-group-pill">
+                        <span style="color:#38bdf8; font-size:0.82rem; font-weight:900;">🎯 العمود:</span>
+                        <select id="inv-selected-col-select" class="panel-input" style="color:#38bdf8; font-size:0.82rem; font-weight:900; border-color:#38bdf8; background:#1e293b; padding: 3px 6px;" onchange="selectInvColumn(this.value)">
+                            <option value="code">كود الصنف</option>
+                            <option value="item" selected>اسم الصنف</option>
+                            <option value="category">فئة الصنف</option>
+                            <option value="warehouse">المخزن</option>
+                            <option value="actualQty">الرصيد الفعلي</option>
+                            <option value="reservedQty">الرصيد المحجوز</option>
+                            <option value="availQty">الرصيد المتاح</option>
+                            <option value="minQty">حد الطلب</option>
+                            <option value="costPrice">سعر التكلفة</option>
+                            <option value="cashPrice">سعر البيع</option>
+                            <option value="totalValue">القيمة الإجمالية</option>
+                            <option value="status">حالة الرصيد</option>
+                        </select>
+                        <label style="display:flex; align-items:center; gap:3px; cursor:pointer; font-size:0.8rem; font-weight:800;" title="إظهار أو إخفاء العمود">
+                            <input type="checkbox" id="inv-col-visible-chk" checked onchange="updateSelectedInvCol('visible', this.checked)">
+                            إظهار
+                        </label>
+                    </div>
+
+                    <div class="studio-pill-divider"></div>
+
+                    <!-- Group B: Header Label & Ordering -->
+                    <div class="studio-group-pill">
+                        <span style="font-size:0.82rem;">✏️ التسمية:</span>
+                        <input type="text" id="inv-col-label-input" class="panel-input" style="width:110px; font-size:0.82rem; padding: 3px 6px; background:#1e293b; color:#fff; border-color:#475569;" oninput="updateSelectedInvCol('label', this.value)">
+                        <span style="font-size:0.82rem;">الترتيب:</span>
+                        <button class="ribbon-btn studio-mini-btn" onclick="moveSelectedInvCol(-1)" title="تحريك لليمين">➡️</button>
+                        <button class="ribbon-btn studio-mini-btn" onclick="moveSelectedInvCol(1)" title="تحريك لليسار">⬅️</button>
+                    </div>
+
+                    <div class="studio-pill-divider"></div>
+
+                    <!-- Group C: Alignment -->
+                    <div class="studio-group-pill">
+                        <span style="font-size:0.82rem;">المحاذاة:</span>
+                        <select id="inv-col-align-select" class="panel-input" style="font-size:0.82rem; padding: 3px 6px; background:#1e293b; color:#fff; border-color:#475569;" onchange="updateSelectedInvCol('align', this.value)">
+                            <option value="right">يمين ➡️</option>
+                            <option value="center" selected>وسط 🟢</option>
+                            <option value="left">يسار ⬅️</option>
+                        </select>
+                    </div>
+
+                    <div class="studio-pill-divider"></div>
+
+                    <!-- Group D: Column Width -->
+                    <div class="studio-group-pill">
+                        <span style="font-size:0.82rem;" title="عرض العمود كنسبة مئوية">📏 العرض:</span>
+                        <input type="range" id="inv-col-width-range" min="5" max="50" step="1" value="15" style="width:70px;"
+                            oninput="document.getElementById('inv-col-width-input').value=this.value; updateSelectedInvCol('width', this.value)">
+                        <input type="number" id="inv-col-width-input" class="panel-input" style="width:45px; font-size:0.82rem; padding: 3px; background:#1e293b; color:#fff; border-color:#475569;" min="5" max="50" placeholder="%" 
+                            oninput="if(document.getElementById('inv-col-width-range')) document.getElementById('inv-col-width-range').value=this.value; updateSelectedInvCol('width', this.value)">
+                        <button class="ribbon-btn studio-mini-btn" style="font-size:0.75rem; padding: 3px 6px;" 
+                            onclick="updateSelectedInvCol('width', ''); document.getElementById('inv-col-width-input').value=''; document.getElementById('inv-col-width-range').value=15;" title="ضبط العرض التلقائي">🔄 تلقائي</button>
+                    </div>
+
+                    <div class="studio-pill-divider"></div>
+
+                    <!-- Group E: Table Width -->
+                    <div class="studio-group-pill">
+                        <span style="font-size:0.82rem;">📐 عرض الجدول:</span>
+                        <input type="range" id="inv-table-width-range" min="60" max="100" step="5" value="100" style="width:70px;"
+                            oninput="setInvTableWidth(this.value)">
+                        <span id="inv-table-width-label" style="font-weight:900; font-size:0.82rem; min-width:32px; text-align:center; color:#38bdf8;">100%</span>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Preview Scroll Area -->
+            <div class="preview-scroll-container" style="flex: 1; overflow-y: auto; overflow-x: auto; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 12px; display: flex; justify-content: center;">
+                <div id="inventory-report-sheet" class="paper-landscape" style="background: #ffffff; color: #0f172a; width: 100%; max-width: 1200px; padding: 35px 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); border-radius: 4px; box-sizing: border-box; transition: all 0.3s ease; font-family: 'Tajawal', sans-serif;">
+                    <!-- Live rendered sheet content -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+    // ═════════════════════════════════════════════════════════════════
+    // 🎨 INVENTORY REPORT PREVIEW & STUDIO ENGINE (Pro Edition)
+    // ═════════════════════════════════════════════════════════════════
+    const INV_THEMES_CONFIG = {
+        corporate: { headerBg: '#1e3a8a', headerColor: '#ffffff', border: '#cbd5e1', zebra: '#f8fafc', accent: '#3b82f6' },
+        emerald: { headerBg: '#065f46', headerColor: '#ffffff', border: '#cbd5e1', zebra: '#f0fdf4', accent: '#10b981' },
+        gold: { headerBg: '#78350f', headerColor: '#ffffff', border: '#fde68a', zebra: '#fffbeb', accent: '#d97706' },
+        slate: { headerBg: '#334155', headerColor: '#ffffff', border: '#cbd5e1', zebra: '#f1f5f9', accent: '#64748b' },
+        black: { headerBg: '#0a0a0a', headerColor: '#ffffff', border: '#404040', zebra: '#fafafa', accent: '#171717' }
+    };
+
+    let invPreviewCols = [
+        { id: 'index', label: '#', visible: true, align: 'center', width: '40px' },
+        { id: 'code', label: 'كود الصنف', visible: true, align: 'center', width: '90px' },
+        { id: 'item', label: 'اسم الصنف والتعبئة', visible: true, align: 'right', width: 'auto' },
+        { id: 'category', label: 'الفئة', visible: true, align: 'center', width: '100px' },
+        { id: 'warehouse', label: 'المخزن', visible: true, align: 'center', width: '110px' },
+        { id: 'actualQty', label: 'الرصيد الفعلي', visible: true, align: 'center', width: '120px' },
+        { id: 'reservedQty', label: 'المحجوز', visible: false, align: 'center', width: '100px' },
+        { id: 'availQty', label: 'المتاح للبيع', visible: true, align: 'center', width: '120px' },
+        { id: 'minQty', label: 'حد الطلب', visible: false, align: 'center', width: '90px' },
+        { id: 'costPrice', label: 'سعر التكلفة', visible: true, align: 'left', width: '100px' },
+        { id: 'cashPrice', label: 'سعر البيع', visible: false, align: 'left', width: '100px' },
+        { id: 'totalValue', label: 'إجمالي القيمة', visible: true, align: 'left', width: '130px' },
+        { id: 'status', label: 'حالة الرصيد', visible: true, align: 'center', width: '100px' }
+    ];
+
+    let currentSelectedInvColId = 'item';
+
+    function openInventoryReportPreview() {
+        const sourceData = (window.currentFilteredData && window.currentFilteredData.length > 0) 
+            ? window.currentFilteredData 
+            : (window.currentReportData || []);
+
+        const whSelect = document.getElementById('filter-warehouse');
+        const whName = (whSelect && whSelect.value !== 'ALL') ? whSelect.options[whSelect.selectedIndex]?.text : 'جميع المخازن (جرد شامل)';
+        const catSelect = document.getElementById('filter-category');
+        const catName = (catSelect && catSelect.value !== 'ALL') ? catSelect.value : 'جميع الفئات';
+
+        const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+        const user = JSON.parse(localStorage.getItem('user') || '{}');
+        const companyName = cfg.companyName || user.company_name || localStorage.getItem('companyName') || 'مؤسسة مقاييس للأعمال';
+        const companyPhone = cfg.phone || cfg.whatsapp || user.phone || '—';
+        const companyAddress = cfg.address || user.address || '—';
+        const companyReg = cfg.regNumber || user.reg_number || '';
+        const companyTax = cfg.taxNumber || user.tax_number || user.vat_number || '';
+        const logoUrl = cfg.logoBase64 || localStorage.getItem('company_logo_base64') || user.logo || user.logo_url || '';
+        const printedAt = new Date().toLocaleString('ar-SD-u-nu-latn');
+        const userName = user.fullName || user.username || 'المسؤول';
+
+        let sumActual = 0;
+        let sumAvail = 0;
+        let sumValue = 0;
+        let alertCount = 0;
+
+        let rowsHtml = '';
+        if (sourceData.length === 0) {
+            rowsHtml = `<tr><td colspan="${invPreviewCols.filter(c => c.visible).length}" style="text-align:center; padding:35px; color:#64748b; font-size:1.05rem;">لا توجد أصناف مطابقة للبحث أو التصفية الحالية</td></tr>`;
+        } else {
+            sourceData.forEach((row, idx) => {
+                const actualQty = Number(row.qty) || 0;
+                const reservedQty = Number(row.reservedQuantity) || 0;
+                const availQty = actualQty - reservedQty;
+                const price = Number(row.price) || 0;
+                const totalCost = availQty * price;
+                const statusInfo = getStatusInfo(availQty, row.minQty);
+                const unitsList = getItemUnitsList(row.rawItem);
+
+                sumActual += actualQty;
+                sumAvail += availQty;
+                sumValue += totalCost;
+                if (statusInfo.code !== 'OK') alertCount++;
+
+                let tds = '';
+                invPreviewCols.forEach(col => {
+                    if (!col.visible) return;
+                    const align = col.align || 'center';
+                    const w = col.width ? `width:${col.width};` : '';
+
+                    if (col.id === 'index') {
+                        tds += `<td style="text-align:${align}; ${w} font-weight:700; color:#64748b;">${idx + 1}</td>`;
+                    } else if (col.id === 'code') {
+                        tds += `<td style="text-align:${align}; ${w} font-weight:700; color:#3b82f6;">${row.itemId}</td>`;
+                    } else if (col.id === 'item') {
+                        tds += `<td style="text-align:${align}; ${w} font-weight:800; color:#0f172a;">
+                            <div>${row.itemName}</div>
+                            <small style="font-size:0.72rem; color:#64748b;">الوحدة: <strong>${unitsList[0].name}</strong></small>
+                        </td>`;
+                    } else if (col.id === 'category') {
+                        tds += `<td style="text-align:${align}; ${w}">${row.category || '-'}</td>`;
+                    } else if (col.id === 'warehouse') {
+                        tds += `<td style="text-align:${align}; ${w} font-weight:700; color:#0284c7;">${row.warehouse}</td>`;
+                    } else if (col.id === 'actualQty') {
+                        tds += `<td style="text-align:${align}; ${w} font-weight:700;">${renderMultiUnitQty(actualQty, unitsList, '#0284c7')}</td>`;
+                    } else if (col.id === 'reservedQty') {
+                        tds += `<td style="text-align:${align}; ${w} font-weight:700; color:#b45309;">${reservedQty > 0 ? renderMultiUnitQty(reservedQty, unitsList, '#b45309') : '-'}</td>`;
+                    } else if (col.id === 'availQty') {
+                        tds += `<td style="text-align:${align}; ${w} font-weight:800;">${renderMultiUnitQty(availQty, unitsList, statusInfo.color)}</td>`;
+                    } else if (col.id === 'minQty') {
+                        tds += `<td style="text-align:${align}; ${w} color:#64748b;">${row.minQty || 0}</td>`;
+                    } else if (col.id === 'costPrice') {
+                        tds += `<td style="text-align:${align}; ${w} font-weight:700; direction:ltr;">${fmtNum(price)}</td>`;
+                    } else if (col.id === 'cashPrice') {
+                        const cp = (row.rawItem && row.rawItem.cashPrice) ? Number(row.rawItem.cashPrice) : price;
+                        tds += `<td style="text-align:${align}; ${w} font-weight:700; direction:ltr; color:#0284c7;">${fmtNum(cp)}</td>`;
+                    } else if (col.id === 'totalValue') {
+                        tds += `<td style="text-align:${align}; ${w} font-weight:900; direction:ltr; color:#0f172a;">${fmtNum(totalCost)} <small style="font-size:0.75rem; color:#64748b;">SDG</small></td>`;
+                    } else if (col.id === 'status') {
+                        tds += `<td style="text-align:${align}; ${w}"><span class="status-badge ${statusInfo.cssClass}">${statusInfo.icon} ${statusInfo.text}</span></td>`;
+                    }
+                });
+
+                rowsHtml += `<tr>${tds}</tr>`;
+            });
+        }
+
+        // Build Table Header
+        let thsHtml = '';
+        invPreviewCols.forEach(col => {
+            if (!col.visible) return;
+            const align = col.align || 'center';
+            const w = col.width ? `width:${col.width};` : '';
+            thsHtml += `<th style="padding:8px 10px; border:1px solid #cbd5e1; text-align:${align}; ${w}">${col.label}</th>`;
+        });
+
+        const sheetHtml = `
+            <!-- 1. Company Header -->
+            <div id="inv-sheet-header-block" style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 14px;">
+                <div style="flex: 1; text-align: right;">
+                    <h2 style="margin: 0 0 4px 0; font-size: 1.45rem; font-weight: 900; color: #0f172a;">${companyName}</h2>
+                    <p style="margin: 0 0 2px 0; font-size: 0.85rem; color: #475569;">📍 ${companyAddress}</p>
+                    <p style="margin: 0 0 2px 0; font-size: 0.85rem; color: #475569;">📞 هاتف / واتساب: ${companyPhone}</p>
+                    ${companyReg ? `<p style="margin:0; font-size:0.8rem; color:#64748b;">س.ت: ${companyReg} ${companyTax ? ' | ضريبي: ' + companyTax : ''}</p>` : ''}
+                </div>
+                <div style="flex: 1; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
+                    <h3 style="margin: 0; padding: 6px 18px; background: rgba(0,0,0,0.04); border-radius: 8px; border: 1.5px solid #0f172a; font-size: 1.3rem; font-weight: 900; color: #0f172a;">تقرير جرد وتقييم المخزون العام</h3>
+                    <div style="font-size: 0.8rem; color: #64748b; margin-top: 4px;">تاريخ الطباعة: ${printedAt}</div>
+                </div>
+                <div style="flex: 1; text-align: left; display: flex; justify-content: flex-end; align-items: center;">
+                    ${logoUrl ? `<img src="${logoUrl}" style="max-height: 80px; max-width: 160px; object-fit: contain;">` : '<div style="width:70px; height:70px; border:1px dashed #cbd5e1; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; color:#94a3b8;">شعار الشركة</div>'}
+                </div>
+            </div>
+
+            <!-- 2. Subheader Meta Info -->
+            <div id="inv-sheet-meta-block" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; font-size: 0.85rem;">
+                <div><span style="color:#64748b;">المستودع المستهدف:</span> <strong style="color:#0f172a;">${whName}</strong></div>
+                <div><span style="color:#64748b;">فئة الأصناف:</span> <strong style="color:#0f172a;">${catName}</strong></div>
+                <div><span style="color:#64748b;">المستخدم المستخرج:</span> <strong style="color:#0f172a;">${userName}</strong></div>
+                <div><span style="color:#64748b;">عدد الأصناف المطابقة:</span> <strong style="color:#0284c7;">${sourceData.length} صنف</strong></div>
+            </div>
+
+            <!-- 3. Summary KPIs Strip -->
+            <div id="inv-sheet-kpis-block" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px;">
+                <div style="background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.25); border-radius: 8px; padding: 8px 12px;">
+                    <div style="font-size: 0.75rem; color: #64748b; font-weight: 700;">إجمالي الأصناف 📦</div>
+                    <div style="font-size: 1.2rem; font-weight: 900; color: #0284c7;">${fmtNum(sourceData.length)}</div>
+                </div>
+                <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); border-radius: 8px; padding: 8px 12px;">
+                    <div style="font-size: 0.75rem; color: #64748b; font-weight: 700;">إجمالي الرصيد الفعلي ⚖️</div>
+                    <div style="font-size: 1.2rem; font-weight: 900; color: #059669;">${fmtNum(sumActual)}</div>
+                </div>
+                <div style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); border-radius: 8px; padding: 8px 12px;">
+                    <div style="font-size: 0.75rem; color: #64748b; font-weight: 700;">إجمالي المتاح للبيع 🟢</div>
+                    <div style="font-size: 1.2rem; font-weight: 900; color: #d97706;">${fmtNum(sumAvail)}</div>
+                </div>
+                <div style="background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.25); border-radius: 8px; padding: 8px 12px;">
+                    <div style="font-size: 0.75rem; color: #64748b; font-weight: 700;">القيمة التقديرية الإجمالية 💰</div>
+                    <div style="font-size: 1.2rem; font-weight: 900; color: #4338ca;">${fmtNum(sumValue)} SDG</div>
+                </div>
+            </div>
+
+            <!-- 4. Excel Sheet Table -->
+            <div style="overflow-x: auto;">
+                <table id="inv-sheet-table" style="width: 100%; border-collapse: collapse; font-size: 0.85rem; background: #ffffff;">
+                    <thead>
+                        <tr id="inv-sheet-thead-row" style="background: #1e3a8a; color: #ffffff; font-weight: 800;">
+                            ${thsHtml}
+                        </tr>
+                    </thead>
+                    <tbody id="inv-sheet-tbody">
+                        ${rowsHtml}
+                    </tbody>
+                    <tfoot>
+                        <tr style="background: #f1f5f9; font-weight: 900; border-top: 2px solid #cbd5e1;">
+                            <td colspan="4" style="padding: 10px; text-align: center; color: #0f172a;">الإجماليات العامة للمخزون</td>
+                            <td style="padding: 10px; text-align: center; color: #0284c7;">${fmtNum(sumActual)}</td>
+                            <td style="padding: 10px; text-align: center; color: #059669;">${fmtNum(sumAvail)}</td>
+                            <td colspan="2" style="padding: 10px; text-align: left; color: #0f172a; direction: ltr;">${fmtNum(sumValue)} SDG</td>
+                            <td></td>
+                        </tr>
+                    </tfoot>
+                </table>
+            </div>
+
+            <!-- 5. Signatures Block -->
+            <div id="inv-sheet-signatures-block" style="margin-top:30px; border-top:1px dashed #cbd5e1; padding-top:18px; display:grid; grid-template-columns: repeat(4, 1fr); gap:15px; text-align:center; font-size:0.82rem; color:#334155;">
+                <div style="border:1px solid #e2e8f0; border-radius:6px; padding:10px; background:#fafafa;">
+                    <strong style="color:#0f172a;">✍️ أمين المستودع</strong>
+                    <div style="margin-top:28px; border-top:1px solid #cbd5e1; padding-top:4px;">الاسم والتوقيع</div>
+                </div>
+                <div style="border:1px solid #e2e8f0; border-radius:6px; padding:10px; background:#fafafa;">
+                    <strong style="color:#0f172a;">🔍 لجنة الجرد والتدقيق</strong>
+                    <div style="margin-top:28px; border-top:1px solid #cbd5e1; padding-top:4px;">الاسم والتوقيع</div>
+                </div>
+                <div style="border:1px solid #e2e8f0; border-radius:6px; padding:10px; background:#fafafa;">
+                    <strong style="color:#0f172a;">📊 المحاسب المالي</strong>
+                    <div style="margin-top:28px; border-top:1px solid #cbd5e1; padding-top:4px;">الاسم والتوقيع</div>
+                </div>
+                <div style="border:1px solid #e2e8f0; border-radius:6px; padding:10px; background:#fafafa;">
+                    <strong style="color:#0f172a;">🏢 اعتماد الإدارة والختم</strong>
+                    <div style="margin-top:28px; border-top:1px solid #cbd5e1; padding-top:4px;">الختم الرسمي</div>
+                </div>
+            </div>
+
+            <!-- 6. Footer Disclaimer -->
+            <div style="margin-top:20px; border-top:1px solid #e2e8f0; padding-top:6px; display:flex; justify-content:space-between; font-size:0.72rem; color:#94a3b8; direction:rtl;">
+                <div>تم استخراج وطباعة هذا التقرير تلقائياً عبر نظام مقاييس ERP المتكامل · MAGAIEES CLOUD</div>
+                <div>صفحة 1 من 1</div>
+            </div>
+        `;
+
+        const sheet = document.getElementById('inventory-report-sheet');
+        if (sheet) sheet.innerHTML = sheetHtml;
+
+        applyInvStudioDesign();
+
+        const modal = document.getElementById('inventory-report-preview-modal');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeInventoryReportPreview() {
+        const modal = document.getElementById('inventory-report-preview-modal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    function applyInvStudioDesign() {
+        const sheet = document.getElementById('inventory-report-sheet');
+        if (!sheet) return;
+
+        const themeKey = document.getElementById('inv-studio-theme-select')?.value || 'corporate';
+        const theme = INV_THEMES_CONFIG[themeKey] || INV_THEMES_CONFIG.corporate;
+        const font = document.getElementById('inv-studio-font-select')?.value || "'Tajawal', sans-serif";
+        const size = document.getElementById('inv-studio-size-select')?.value || 'medium';
+        const orientation = document.getElementById('inv-studio-orientation-select')?.value || 'landscape';
+
+        const showHeader = document.getElementById('chk-inv-show-header')?.checked;
+        const showKPIs = document.getElementById('chk-inv-show-kpis')?.checked;
+        const showSignatures = document.getElementById('chk-inv-show-signatures')?.checked;
+
+        sheet.style.fontFamily = font;
+
+        if (size === 'compact') {
+            sheet.style.fontSize = '0.78rem';
+            sheet.querySelectorAll('th, td').forEach(c => c.style.padding = '5px 4px');
+        } else if (size === 'large') {
+            sheet.style.fontSize = '0.94rem';
+            sheet.querySelectorAll('th, td').forEach(c => c.style.padding = '12px 8px');
+        } else {
+            sheet.style.fontSize = '0.85rem';
+            sheet.querySelectorAll('th, td').forEach(c => c.style.padding = '8px 6px');
+        }
+
+        if (orientation === 'portrait') {
+            sheet.style.maxWidth = '850px';
+        } else {
+            sheet.style.maxWidth = '1200px';
+        }
+
+        const hdrBlock = document.getElementById('inv-sheet-header-block');
+        if (hdrBlock) hdrBlock.style.display = showHeader ? 'flex' : 'none';
+        const kpisBlock = document.getElementById('inv-sheet-kpis-block');
+        if (kpisBlock) kpisBlock.style.display = showKPIs ? 'grid' : 'none';
+        const sigBlock = document.getElementById('inv-sheet-signatures-block');
+        if (sigBlock) sigBlock.style.display = showSignatures ? 'grid' : 'none';
+
+        const theadRow = document.getElementById('inv-sheet-thead-row');
+        if (theadRow) {
+            theadRow.style.background = theme.headerBg;
+            theadRow.style.color = theme.headerColor;
+        }
+
+        // Print Stylesheet update
+        const printStyle = document.getElementById('inventory-report-print-style');
+        if (printStyle) {
+            printStyle.innerHTML = `
+                @page { size: ${orientation}; margin: 8mm; }
+                @media print {
+                    #inventory-report-preview-modal.print-direct-mode { display: block !important; }
+                    body > *:not(#inventory-report-preview-modal) { display: none !important; }
+                    #inventory-report-preview-modal { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; height: auto !important; background: #fff !important; padding: 0 !important; margin: 0 !important; display: block !important; overflow: visible !important; }
+                    #inventory-report-preview-modal .glass-panel { width: 100% !important; max-width: 100% !important; height: auto !important; border: none !important; background: #fff !important; padding: 0 !important; box-shadow: none !important; margin: 0 !important; }
+                    .global-sidebar, .no-print, .btn-action, .dash-controls { display: none !important; }
+                    #inventory-report-preview-modal .preview-scroll-container { background: #fff !important; padding: 0 !important; overflow: visible !important; }
+                    #inventory-report-sheet { box-shadow: none !important; padding: 0 !important; margin: 0 !important; border: none !important; width: 100% !important; max-width: 100% !important; }
+                }
+            `;
+        }
+    }
+
+    function printInventoryReportSheet() {
+        const modal = document.getElementById('inventory-report-preview-modal');
+        if (!modal) return;
+        modal.classList.add('print-direct-mode');
+        window.print();
+        setTimeout(() => { modal.classList.remove('print-direct-mode'); }, 1000);
+    }
+
+    function toggleInvStudioDrawer() {
+        const drawer = document.getElementById('inv-studio-drawer');
+        if (!drawer) return;
+        drawer.style.display = (drawer.style.display === 'none') ? 'flex' : 'none';
+    }
+
+    function toggleInvLiveEditMode() {
+        const sheet = document.getElementById('inventory-report-sheet');
+        const btn = document.getElementById('btn-toggle-inv-live-edit');
+        if (!sheet) return;
+        const isEditing = sheet.contentEditable === 'true';
+        sheet.contentEditable = isEditing ? 'false' : 'true';
+        if (!isEditing) {
+            sheet.style.outline = '2px dashed #fbbf24';
+            if (btn) btn.style.background = '#fbbf24';
+            if (btn) btn.style.color = '#000';
+        } else {
+            sheet.style.outline = 'none';
+            if (btn) btn.style.background = 'rgba(245,158,11,0.15)';
+            if (btn) btn.style.color = '#fbbf24';
+        }
+    }
+
+    function selectInvColumn(colId) {
+        currentSelectedInvColId = colId;
+        const col = invPreviewCols.find(c => c.id === colId);
+        if (!col) return;
+        const visChk = document.getElementById('inv-col-visible-chk');
+        if (visChk) visChk.checked = col.visible;
+        const lblInput = document.getElementById('inv-col-label-input');
+        if (lblInput) lblInput.value = col.label;
+        const alignSelect = document.getElementById('inv-col-align-select');
+        if (alignSelect) alignSelect.value = col.align || 'center';
+    }
+
+    function updateSelectedInvCol(prop, val) {
+        const col = invPreviewCols.find(c => c.id === currentSelectedInvColId);
+        if (!col) return;
+        if (prop === 'visible') col.visible = Boolean(val);
+        if (prop === 'label') col.label = val;
+        if (prop === 'align') col.align = val;
+        if (prop === 'width') col.width = val ? (val + '%') : 'auto';
+        openInventoryReportPreview();
+    }
+
+    function moveSelectedInvCol(dir) {
+        const idx = invPreviewCols.findIndex(c => c.id === currentSelectedInvColId);
+        if (idx === -1) return;
+        const newIdx = idx + dir;
+        if (newIdx < 0 || newIdx >= invPreviewCols.length) return;
+        const temp = invPreviewCols[idx];
+        invPreviewCols[idx] = invPreviewCols[newIdx];
+        invPreviewCols[newIdx] = temp;
+        openInventoryReportPreview();
+    }
+
+    function setInvTableWidth(val) {
+        const tbl = document.getElementById('inv-sheet-table');
+        const lbl = document.getElementById('inv-table-width-label');
+        if (tbl) tbl.style.width = val + '%';
+        if (lbl) lbl.textContent = val + '%';
     }
 
     // Nav Dropdowns Click & Touch Toggle
