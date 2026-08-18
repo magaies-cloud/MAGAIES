@@ -724,8 +724,9 @@
             warehousesDb.unshift({ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام' });
 
             let getWarehouseName = (id) => {
-                let w = warehousesDb.find(w => w.id === id || w.name === id);
-                return w ? w.name : 'المخزن الرئيسي';
+                if (!id) return 'المخزن الرئيسي';
+                let w = warehousesDb.find(w => String(w.id) === String(id) || w.name === id);
+                return w ? w.name : id;
             };
 
             items.forEach(item => {
