@@ -268,25 +268,42 @@
         </div>
 
         <!-- Filters -->
-        <div class="filters-bar">
+        <div class="filters-bar" style="grid-template-columns: 1.4fr 1.8fr 1.1fr 1fr 1fr; align-items: end; gap: 15px;">
             <div class="input-group">
-                <label>اختر الصنف المراد جرده</label>
-                <select id="item-select" onchange="loadLedger()">
+                <label>1. اختر الصنف المراد جرده</label>
+                <select id="item-select" onchange="onItemSelected()">
                     <option value="">-- يرجى اختيار صنف --</option>
                 </select>
             </div>
             <div class="input-group">
-                <label>المخزن (اختياري)</label>
+                <label style="color:#38bdf8; display:flex; justify-content:space-between;">
+                    <span>2. وحدات التقرير (أقصى حد 3 وحدات)</span>
+                    <span style="font-size:0.7rem; opacity:0.8;">⚖️ متعدد الوحدات</span>
+                </label>
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
+                    <select id="unit-select-1" onchange="loadLedger()" title="الوحدة الأولى (الرئيسية)" style="padding: 10px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.3);">
+                        <option value="">الوحدة 1 (الأساسية)</option>
+                    </select>
+                    <select id="unit-select-2" onchange="loadLedger()" title="الوحدة الثانية (اختياري)" style="padding: 10px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.2);">
+                        <option value="">الوحدة 2 (اختياري)</option>
+                    </select>
+                    <select id="unit-select-3" onchange="loadLedger()" title="الوحدة الثالثة (اختياري)" style="padding: 10px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.2);">
+                        <option value="">الوحدة 3 (اختياري)</option>
+                    </select>
+                </div>
+            </div>
+            <div class="input-group">
+                <label>3. المخزن (اختياري)</label>
                 <select id="warehouse-select" onchange="loadLedger()">
                     <option value="ALL">جميع المخازن</option>
                 </select>
             </div>
             <div class="input-group">
-                <label>من تاريخ</label>
+                <label>4. من تاريخ</label>
                 <input type="date" id="date-from" onchange="loadLedger()">
             </div>
             <div class="input-group">
-                <label>إلى تاريخ</label>
+                <label>5. إلى تاريخ</label>
                 <input type="date" id="date-to" onchange="loadLedger()">
             </div>
         </div>
@@ -348,7 +365,7 @@
                     <span style="font-size: 1.4rem;">👁️</span>
                     <div>
                         <h3 style="margin: 0; font-weight: 900; color: #38bdf8; font-size: 1.15rem;">معاينة وتخصيص تصميم كارت حركة الصنف</h3>
-                        <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: #94a3b8;">استوديو التصميم: يمكنك تعديل الألوان، الخطوط، الأعمدة، والتعديل المباشر على النصوص</p>
+                        <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: #94a3b8;">استوديو التصميم: يمكنك تعديل الألوان، الخطوط، وحدات التقرير، والتعديل المباشر على النصوص</p>
                     </div>
                 </div>
                 
@@ -439,16 +456,16 @@
 
                 <!-- 6. Columns Customizer Checkboxes -->
                 <div style="display: flex; flex-direction: column; gap: 4px;">
-                    <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">📋 أعمدة الجدول المعروضة:</label>
+                    <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">📋 تحكم الأعمدة الأساسية:</label>
                     <div style="display: flex; gap: 6px; flex-wrap: wrap;">
-                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="0" checked onchange="applyStudioDesign()"> التاريخ</label>
-                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="1" checked onchange="applyStudioDesign()"> نوع الحركة</label>
-                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="2" checked onchange="applyStudioDesign()"> رقم الإذن</label>
-                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="3" checked onchange="applyStudioDesign()"> رقم الاستلام</label>
-                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="4" checked onchange="applyStudioDesign()"> الوارد</label>
-                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="5" checked onchange="applyStudioDesign()"> المنصرف</label>
-                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="6" checked onchange="applyStudioDesign()"> الرصيد</label>
-                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="7" checked onchange="applyStudioDesign()"> ملحوظة الحركة</label>
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="date" checked onchange="applyStudioDesign()"> التاريخ</label>
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="type" checked onchange="applyStudioDesign()"> نوع الحركة</label>
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="permit" checked onchange="applyStudioDesign()"> رقم الإذن</label>
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="receipt" checked onchange="applyStudioDesign()"> رقم الاستلام</label>
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="in" checked onchange="applyStudioDesign()"> الوارد</label>
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="out" checked onchange="applyStudioDesign()"> المنصرف</label>
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="balance" checked onchange="applyStudioDesign()"> الرصيد</label>
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="notes" checked onchange="applyStudioDesign()"> ملحوظة الحركة</label>
                     </div>
                 </div>
 
@@ -550,15 +567,139 @@
         let warehousesDb = [];
         let isLiveEditActive = false;
 
-        function fmtNum(n) {
+        function fmtNum(n, decimals = 2) {
             if (n === undefined || n === null || isNaN(n)) return '0';
-            return Number(n).toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: 2});
+            const num = Number(n);
+            const dec = (num % 1 === 0) ? 0 : (num % 0.01 === 0 ? 2 : 3);
+            return num.toLocaleString('en-US', {minimumFractionDigits: 0, maximumFractionDigits: dec});
         }
 
         function getWarehouseId(nameOrId) {
             if (!nameOrId) return '';
             const wh = warehousesDb.find(w => w.id === nameOrId || w.name === nameOrId);
             return wh ? wh.id : nameOrId;
+        }
+
+        // ═══════════════════════════════════════════════════════════
+        // ⚖️ ITEM UNITS HANDLING & CONVERSION ENGINE
+        // ═══════════════════════════════════════════════════════════
+        function getItemUnitsList(item) {
+            if (!item) return [];
+            let list = [];
+            
+            // 1. From item.units matrix
+            if (Array.isArray(item.units) && item.units.length > 0) {
+                item.units.forEach(u => {
+                    if (u && (u.unitName || u.name)) {
+                        list.push({
+                            name: (u.unitName || u.name).trim(),
+                            factor: parseFloat(u.factor) || 1
+                        });
+                    }
+                });
+            }
+
+            // 2. Base unit fallback
+            const base = (item.baseUnit || item.unit || item.selectedUnit || '').trim();
+            if (base && !list.some(u => u.name === base)) {
+                list.unshift({ name: base, factor: 1 });
+            }
+
+            // 3. Secondary / Sub-unit fallback if defined on item
+            if (item.subUnit && !list.some(u => u.name === item.subUnit.trim())) {
+                list.push({ name: item.subUnit.trim(), factor: parseFloat(item.conversionFactor || item.bundleFactor) || 1 });
+            }
+            if (item.thirdUnit && !list.some(u => u.name === item.thirdUnit.trim())) {
+                list.push({ name: item.thirdUnit.trim(), factor: parseFloat(item.thirdFactor) || 1 });
+            }
+
+            if (list.length === 0) {
+                list.push({ name: 'وحدة أساسية', factor: 1 });
+            }
+
+            // Ensure unique unit names
+            const uniqueMap = new Map();
+            list.forEach(u => {
+                if (!uniqueMap.has(u.name)) {
+                    uniqueMap.set(u.name, u);
+                }
+            });
+            return Array.from(uniqueMap.values());
+        }
+
+        function onItemSelected() {
+            const itemId = document.getElementById('item-select').value;
+            const item = itemsDb.find(i => i.id === itemId);
+            const units = getItemUnitsList(item);
+
+            const u1 = document.getElementById('unit-select-1');
+            const u2 = document.getElementById('unit-select-2');
+            const u3 = document.getElementById('unit-select-3');
+
+            u1.innerHTML = '';
+            u2.innerHTML = '<option value="">(بدون وحدة 2)</option>';
+            u3.innerHTML = '<option value="">(بدون وحدة 3)</option>';
+
+            units.forEach((u) => {
+                const fText = (u.factor !== 1) ? ` [معامل: ${u.factor}]` : ' [أساسية]';
+                
+                const opt1 = document.createElement('option');
+                opt1.value = u.name;
+                opt1.text = `الوحدة 1: ${u.name}${fText}`;
+                u1.appendChild(opt1);
+
+                const opt2 = document.createElement('option');
+                opt2.value = u.name;
+                opt2.text = `الوحدة 2: ${u.name}${fText}`;
+                u2.appendChild(opt2);
+
+                const opt3 = document.createElement('option');
+                opt3.value = u.name;
+                opt3.text = `الوحدة 3: ${u.name}${fText}`;
+                u3.appendChild(opt3);
+            });
+
+            // Smart defaults for up to 3 units
+            if (units.length > 0) u1.value = units[0].name;
+            if (units.length > 1) u2.value = units[1].name;
+            else u2.value = '';
+            if (units.length > 2) u3.value = units[2].name;
+            else u3.value = '';
+
+            loadLedger();
+        }
+
+        function getActiveSelectedUnits(item) {
+            const unitsList = getItemUnitsList(item);
+            const u1Val = document.getElementById('unit-select-1')?.value;
+            const u2Val = document.getElementById('unit-select-2')?.value;
+            const u3Val = document.getElementById('unit-select-3')?.value;
+
+            let selected = [];
+            if (u1Val) {
+                const obj = unitsList.find(u => u.name === u1Val) || { name: u1Val, factor: 1 };
+                selected.push(obj);
+            }
+            if (u2Val && u2Val !== u1Val) {
+                const obj = unitsList.find(u => u.name === u2Val) || { name: u2Val, factor: 1 };
+                selected.push(obj);
+            }
+            if (u3Val && u3Val !== u1Val && u3Val !== u2Val) {
+                const obj = unitsList.find(u => u.name === u3Val) || { name: u3Val, factor: 1 };
+                selected.push(obj);
+            }
+
+            if (selected.length === 0) {
+                selected.push(unitsList[0] || { name: 'وحدة', factor: 1 });
+            }
+            return selected.slice(0, 3); // Maximum 3 units
+        }
+
+        function formatQtyInUnit(baseQty, unitObj) {
+            if (baseQty === undefined || baseQty === null || isNaN(baseQty) || baseQty === 0) return '-';
+            const factor = (unitObj && unitObj.factor > 0) ? unitObj.factor : 1;
+            const val = baseQty / factor;
+            return fmtNum(val);
         }
         
         document.addEventListener('DBReady', () => {
@@ -593,7 +734,7 @@
             const itemId = urlParams.get('item');
             if (itemId) {
                 select.value = itemId;
-                loadLedger();
+                onItemSelected();
             }
         });
 
@@ -757,12 +898,73 @@
             return history;
         }
 
+        function renderLedgerTableHeader(activeUnits) {
+            const thead = document.querySelector('.dash-table thead');
+            if (!thead) return;
+
+            if (activeUnits.length === 1) {
+                const uName = activeUnits[0].name;
+                thead.innerHTML = `
+                    <tr>
+                        <th>التاريخ</th>
+                        <th>نوع الحركة</th>
+                        <th style="color:#38bdf8;">رقم الإذن</th>
+                        <th>رقم الاستلام</th>
+                        <th style="color:#10b981; background:rgba(16,185,129,0.05); text-align: right;">الوارد (${uName})</th>
+                        <th style="color:#ec4899; background:rgba(236,72,153,0.05); text-align: right;">المنصرف (${uName})</th>
+                        <th style="color:#fbbf24; background:rgba(251,191,36,0.05); text-align: right;">الرصيد (${uName})</th>
+                        <th style="color:#38bdf8;">ملحوظة الحركة</th>
+                    </tr>
+                `;
+            } else {
+                const numCols = activeUnits.length;
+                let uHeadersIn = activeUnits.map(u => `<th style="color:#10b981; background:rgba(16,185,129,0.08); text-align:right; font-size:0.75rem; padding:8px 10px;">${u.name}</th>`).join('');
+                let uHeadersOut = activeUnits.map(u => `<th style="color:#ec4899; background:rgba(236,72,153,0.08); text-align:right; font-size:0.75rem; padding:8px 10px;">${u.name}</th>`).join('');
+                let uHeadersBal = activeUnits.map(u => `<th style="color:#fbbf24; background:rgba(251,191,36,0.08); text-align:right; font-size:0.75rem; padding:8px 10px;">${u.name}</th>`).join('');
+
+                thead.innerHTML = `
+                    <tr>
+                        <th rowspan="2" style="vertical-align:middle;">التاريخ</th>
+                        <th rowspan="2" style="vertical-align:middle;">نوع الحركة</th>
+                        <th rowspan="2" style="color:#38bdf8; vertical-align:middle;">رقم الإذن</th>
+                        <th rowspan="2" style="vertical-align:middle;">رقم الاستلام</th>
+                        <th colspan="${numCols}" style="color:#10b981; background:rgba(16,185,129,0.05); text-align: center; border-bottom:1px solid rgba(16,185,129,0.2);">الوارد (داخل)</th>
+                        <th colspan="${numCols}" style="color:#ec4899; background:rgba(236,72,153,0.05); text-align: center; border-bottom:1px solid rgba(236,72,153,0.2);">المنصرف (خارج)</th>
+                        <th colspan="${numCols}" style="color:#fbbf24; background:rgba(251,191,36,0.05); text-align: center; border-bottom:1px solid rgba(251,191,36,0.2);">الرصيد التراكمي</th>
+                        <th rowspan="2" style="color:#38bdf8; vertical-align:middle;">ملحوظة الحركة</th>
+                    </tr>
+                    <tr>
+                        ${uHeadersIn}
+                        ${uHeadersOut}
+                        ${uHeadersBal}
+                    </tr>
+                `;
+            }
+        }
+
+        function renderKpis(sumOpen, sumIn, sumOut, actualCurrentStock, activeUnits) {
+            function formatKpiDisplay(val, units) {
+                if (!units || units.length === 0) return '0';
+                const main = `${formatQtyInUnit(val, units[0])} <span style="font-size:0.85rem; font-weight:700; opacity:0.85;">${units[0].name}</span>`;
+                if (units.length > 1) {
+                    const subs = units.slice(1).map(u => `${formatQtyInUnit(val, u)} ${u.name}`).join(' | ');
+                    return `<div style="display:flex; flex-direction:column; align-items:baseline;"><div>${main}</div><div style="font-size:0.78rem; font-weight:800; opacity:0.85; margin-top:3px; color:#38bdf8; font-family:monospace; background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:6px;">${subs}</div></div>`;
+                }
+                return main;
+            }
+
+            document.getElementById('sum-open').innerHTML = formatKpiDisplay(sumOpen, activeUnits);
+            document.getElementById('sum-in').innerHTML = formatKpiDisplay(sumIn, activeUnits);
+            document.getElementById('sum-out').innerHTML = formatKpiDisplay(sumOut, activeUnits);
+            document.getElementById('sum-balance').innerHTML = formatKpiDisplay(actualCurrentStock, activeUnits);
+        }
+
         function loadLedger() {
             const itemId = document.getElementById('item-select').value;
             const tbody = document.getElementById('ledger-tbody');
             
             if (!itemId) {
-                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--text-secondary);">يرجى اختيار صنف لعرض حركته التفصيلية</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="14" style="text-align:center; padding:30px; color:var(--text-secondary);">يرجى اختيار صنف لعرض حركته التفصيلية</td></tr>`;
                 document.getElementById('sum-open').innerText = '0';
                 document.getElementById('sum-in').innerText = '0';
                 document.getElementById('sum-out').innerText = '0';
@@ -771,6 +973,8 @@
             }
 
             const item = itemsDb.find(i => i.id === itemId);
+            const activeUnits = getActiveSelectedUnits(item);
+            renderLedgerTableHeader(activeUnits);
             
             // 1. Build history
             let history = buildRealHistory(itemId);
@@ -814,10 +1018,11 @@
             let sumOut = 0;
             let sumOpen = 0;
 
+            const totalCols = 5 + (activeUnits.length * 3);
+
             if (filteredHistory.length === 0) {
-                 tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--text-secondary);">لا توجد حركات لهذا الصنف في هذه الفترة</td></tr>`;
+                 tbody.innerHTML = `<tr><td colspan="${totalCols}" style="text-align:center; padding:30px; color:var(--text-secondary);">لا توجد حركات لهذا الصنف في هذه الفترة</td></tr>`;
             } else {
-                 // The "opening balance" of the filtered period is the running balance just before the first filtered row
                  const firstFilteredIndex = history.findIndex(h => h.date >= new Date(fromDateStr || '1970-01-01'));
                  if (firstFilteredIndex > 0) {
                      sumOpen = history[firstFilteredIndex - 1].runningBalance;
@@ -891,23 +1096,25 @@
                     `<span style="background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.25); color:#bae6fd; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:600; display:inline-flex; align-items:center; gap:4px; max-width:240px; white-space:normal; text-align:right;">📝 ${row.notes}</span>` :
                     `<span style="color:#64748b;">-</span>`;
 
+                // Multi-unit cells
+                let inCells = activeUnits.map(u => `<td style="color:#10b981; font-weight:700; background:rgba(16,185,129,0.02); text-align:right;">${row.in > 0 ? formatQtyInUnit(row.in, u) : '-'}</td>`).join('');
+                let outCells = activeUnits.map(u => `<td style="color:#ec4899; font-weight:700; background:rgba(236,72,153,0.02); text-align:right;">${row.out > 0 ? formatQtyInUnit(row.out, u) : '-'}</td>`).join('');
+                let balCells = activeUnits.map(u => `<td style="color:#fbbf24; font-weight:900; background:rgba(251,191,36,0.02); font-size:1.05rem; text-align:right;">${formatQtyInUnit(row.runningBalance, u)}</td>`).join('');
+
                 tr.innerHTML = `
                     <td>${dStr}</td>
                     <td>${typeBadge}</td>
                     <td style="font-weight:700;">${permitHtml}</td>
                     <td style="font-weight:600;">${refHtml}</td>
-                    <td style="color:#10b981; font-weight:700; background:rgba(16,185,129,0.02);">${row.in > 0 ? fmtNum(row.in) : '-'}</td>
-                    <td style="color:#ec4899; font-weight:700; background:rgba(236,72,153,0.02);">${row.out > 0 ? fmtNum(row.out) : '-'}</td>
-                    <td style="color:#fbbf24; font-weight:900; background:rgba(251,191,36,0.02); font-size:1.1rem;">${fmtNum(row.runningBalance)}</td>
+                    ${inCells}
+                    ${outCells}
+                    ${balCells}
                     <td>${noteHtml}</td>
                 `;
                 tbody.appendChild(tr);
             });
 
-            document.getElementById('sum-open').innerText = sumOpen.toLocaleString();
-            document.getElementById('sum-in').innerText = sumIn.toLocaleString();
-            document.getElementById('sum-out').innerText = sumOut.toLocaleString();
-            document.getElementById('sum-balance').innerText = actualCurrentStock.toLocaleString();
+            renderKpis(sumOpen, sumIn, sumOut, actualCurrentStock, activeUnits);
         }
 
         // ═══════════════════════════════════════════════════════════
@@ -1040,7 +1247,7 @@
             const itemName = item ? item.name : 'الصنف';
             const itemCode = itemId;
             const itemCat = item ? (item.category || 'عام') : '-';
-            const itemUnit = item ? (item.unit || item.baseUnit || 'وحدة') : 'وحدة';
+            const activeUnits = getActiveSelectedUnits(item);
 
             const whSelect = document.getElementById('warehouse-select');
             const whName = whSelect.options[whSelect.selectedIndex]?.text || 'جميع المخازن';
@@ -1097,12 +1304,54 @@
             const printedAt = new Date().toLocaleString('ar-SD-u-nu-latn');
             const userName = user.fullName || user.username || 'المسؤول';
 
+            // Generate Preview Table Header with Multi-Units
+            let tableHeaderHtml = '';
+            const numUnits = activeUnits.length;
+            if (numUnits === 1) {
+                const uName = activeUnits[0].name;
+                tableHeaderHtml = `
+                    <tr class="ledger-sheet-thead-row">
+                        <th class="col-date" style="padding:10px 8px; text-align:center; font-weight:800; border:1px solid #94a3b8; width:95px;">التاريخ</th>
+                        <th class="col-type" style="padding:10px 8px; text-align:center; font-weight:800; border:1px solid #94a3b8; width:130px;">نوع الحركة</th>
+                        <th class="col-permit" style="padding:10px 8px; text-align:center; font-weight:800; border:1px solid #94a3b8; width:120px;">رقم الإذن</th>
+                        <th class="col-receipt" style="padding:10px 8px; text-align:center; font-weight:800; border:1px solid #94a3b8; width:120px;">رقم الاستلام</th>
+                        <th class="col-in" style="padding:10px 8px; text-align:right; font-weight:800; border:1px solid #94a3b8; width:110px;">الوارد (${uName})</th>
+                        <th class="col-out" style="padding:10px 8px; text-align:right; font-weight:800; border:1px solid #94a3b8; width:110px;">المنصرف (${uName})</th>
+                        <th class="col-balance" style="padding:10px 8px; text-align:right; font-weight:900; border:1px solid #94a3b8; width:120px;">الرصيد (${uName})</th>
+                        <th class="col-notes" style="padding:10px 8px; text-align:right; font-weight:800; border:1px solid #94a3b8;">ملحوظة الحركة</th>
+                    </tr>
+                `;
+            } else {
+                let uHeadersIn = activeUnits.map(u => `<th class="col-in" style="padding:7px 8px; text-align:right; font-size:0.75rem; border:1px solid #94a3b8;">${u.name}</th>`).join('');
+                let uHeadersOut = activeUnits.map(u => `<th class="col-out" style="padding:7px 8px; text-align:right; font-size:0.75rem; border:1px solid #94a3b8;">${u.name}</th>`).join('');
+                let uHeadersBal = activeUnits.map(u => `<th class="col-balance" style="padding:7px 8px; text-align:right; font-size:0.75rem; border:1px solid #94a3b8;">${u.name}</th>`).join('');
+
+                tableHeaderHtml = `
+                    <tr class="ledger-sheet-thead-row">
+                        <th class="col-date" rowspan="2" style="padding:10px 8px; text-align:center; font-weight:800; border:1px solid #94a3b8; width:95px; vertical-align:middle;">التاريخ</th>
+                        <th class="col-type" rowspan="2" style="padding:10px 8px; text-align:center; font-weight:800; border:1px solid #94a3b8; width:125px; vertical-align:middle;">نوع الحركة</th>
+                        <th class="col-permit" rowspan="2" style="padding:10px 8px; text-align:center; font-weight:800; border:1px solid #94a3b8; width:115px; vertical-align:middle;">رقم الإذن</th>
+                        <th class="col-receipt" rowspan="2" style="padding:10px 8px; text-align:center; font-weight:800; border:1px solid #94a3b8; width:115px; vertical-align:middle;">رقم الاستلام</th>
+                        <th class="col-in" colspan="${numUnits}" style="padding:7px 8px; text-align:center; font-weight:800; border:1px solid #94a3b8;">الوارد (داخل)</th>
+                        <th class="col-out" colspan="${numUnits}" style="padding:7px 8px; text-align:center; font-weight:800; border:1px solid #94a3b8;">المنصرف (خارج)</th>
+                        <th class="col-balance" colspan="${numUnits}" style="padding:7px 8px; text-align:center; font-weight:900; border:1px solid #94a3b8;">الرصيد التراكمي</th>
+                        <th class="col-notes" rowspan="2" style="padding:10px 8px; text-align:right; font-weight:800; border:1px solid #94a3b8; vertical-align:middle;">ملحوظة الحركة</th>
+                    </tr>
+                    <tr class="ledger-sheet-thead-subrow">
+                        ${uHeadersIn}
+                        ${uHeadersOut}
+                        ${uHeadersBal}
+                    </tr>
+                `;
+            }
+
             // Generate Table Rows HTML
             let rowsHtml = '';
+            const totalCols = 5 + (activeUnits.length * 3);
             if (filteredHistory.length === 0) {
-                rowsHtml = `<tr><td colspan="8" style="text-align:center; padding:35px; color:#64748b; font-size:1.05rem;">لا توجد حركات مسجلة لهذا الصنف في هذه الفترة</td></tr>`;
+                rowsHtml = `<tr><td colspan="${totalCols}" style="text-align:center; padding:35px; color:#64748b; font-size:1.05rem;">لا توجد حركات مسجلة لهذا الصنف في هذه الفترة</td></tr>`;
             } else {
-                filteredHistory.forEach((row, idx) => {
+                filteredHistory.forEach((row) => {
                     if (row.typeCode === 'in') sumIn += row.in;
                     if (row.typeCode === 'out') sumOut += row.out;
 
@@ -1111,19 +1360,36 @@
                     const receiptDisplay = row.ref || row.receiptNo || '-';
                     const noteDisplay = (row.notes && row.notes !== '-' && row.notes.trim()) ? row.notes : '-';
 
+                    let inCells = activeUnits.map(u => `<td class="col-in" style="text-align:right; font-weight:700; color:#047857; background:rgba(16,185,129,0.03);">${row.in > 0 ? formatQtyInUnit(row.in, u) : '-'}</td>`).join('');
+                    let outCells = activeUnits.map(u => `<td class="col-out" style="text-align:right; font-weight:700; color:#be185d; background:rgba(236,72,153,0.03);">${row.out > 0 ? formatQtyInUnit(row.out, u) : '-'}</td>`).join('');
+                    let balCells = activeUnits.map(u => `<td class="col-balance" style="text-align:right; font-weight:900; color:#b45309; background:rgba(245,158,11,0.04); font-size:1.05rem;">${formatQtyInUnit(row.runningBalance, u)}</td>`).join('');
+
                     rowsHtml += `
                         <tr class="ledger-sheet-row">
-                            <td class="col-0" style="font-weight:600; text-align:center;">${dStr}</td>
-                            <td class="col-1" style="text-align:center;"><span class="sheet-badge badge-${row.typeCode}">${row.typeName}</span></td>
-                            <td class="col-2" style="font-weight:700; text-align:center; color:#0369a1;">📄 ${permitDisplay}</td>
-                            <td class="col-3" style="font-weight:700; text-align:center; color:#0f172a;">${receiptDisplay}</td>
-                            <td class="col-4" style="text-align:right; font-weight:700; color:#047857; background:rgba(16,185,129,0.03);">${row.in > 0 ? fmtNum(row.in) : '-'}</td>
-                            <td class="col-5" style="text-align:right; font-weight:700; color:#be185d; background:rgba(236,72,153,0.03);">${row.out > 0 ? fmtNum(row.out) : '-'}</td>
-                            <td class="col-6" style="text-align:right; font-weight:900; color:#b45309; background:rgba(245,158,11,0.04); font-size:1.05rem;">${fmtNum(row.runningBalance)}</td>
-                            <td class="col-7" style="text-align:right; color:#334155; font-size:0.88rem;">${noteDisplay !== '-' ? '📝 ' + noteDisplay : '-'}</td>
+                            <td class="col-date" style="font-weight:600; text-align:center;">${dStr}</td>
+                            <td class="col-type" style="text-align:center;"><span class="sheet-badge badge-${row.typeCode}">${row.typeName}</span></td>
+                            <td class="col-permit" style="font-weight:700; text-align:center; color:#0369a1;">📄 ${permitDisplay}</td>
+                            <td class="col-receipt" style="font-weight:700; text-align:center; color:#0f172a;">${receiptDisplay}</td>
+                            ${inCells}
+                            ${outCells}
+                            ${balCells}
+                            <td class="col-notes" style="text-align:right; color:#334155; font-size:0.88rem;">${noteDisplay !== '-' ? '📝 ' + noteDisplay : '-'}</td>
                         </tr>
                     `;
                 });
+            }
+
+            // Footer Multi-unit Totals
+            let footerInCells = activeUnits.map(u => `<td class="col-in" style="padding:10px; text-align:right; color:#047857; border:1px solid #94a3b8; font-weight:900;">${formatQtyInUnit(sumIn, u)}</td>`).join('');
+            let footerOutCells = activeUnits.map(u => `<td class="col-out" style="padding:10px; text-align:right; color:#be185d; border:1px solid #94a3b8; font-weight:900;">${formatQtyInUnit(sumOut, u)}</td>`).join('');
+            let footerBalCells = activeUnits.map(u => `<td class="col-balance" style="padding:10px; text-align:right; color:#b45309; border:1px solid #94a3b8; font-size:1.05rem; font-weight:900;">${formatQtyInUnit(actualCurrentStock, u)}</td>`).join('');
+
+            // Units display pill
+            const unitsPillsHtml = activeUnits.map((u, i) => `<span style="background:rgba(56,189,248,0.12); color:#0284c7; border:1px solid rgba(56,189,248,0.3); padding:2px 8px; border-radius:6px; font-weight:800; font-size:0.78rem;">الوحدة ${i+1}: ${u.name} (معامل: ${u.factor})</span>`).join(' ');
+
+            // KPI multi-unit text
+            function getKpiText(val) {
+                return activeUnits.map(u => `<strong>${formatQtyInUnit(val, u)}</strong> <small>${u.name}</small>`).join(' | ');
             }
 
             // Assemble Full Sheet HTML
@@ -1170,8 +1436,8 @@
                         <strong style="color:#0f172a;">${itemCat}</strong>
                     </div>
                     <div>
-                        <span style="color:#64748b; font-size:0.75rem;">الوحدة الأساسية:</span><br>
-                        <strong style="color:#0f172a;">${itemUnit}</strong>
+                        <span style="color:#64748b; font-size:0.75rem;">الوحدات المعتمدة في التقرير:</span><br>
+                        <div style="margin-top:2px;">${unitsPillsHtml}</div>
                     </div>
                     <div>
                         <span style="color:#64748b; font-size:0.75rem;">الفترة المحددة:</span><br>
@@ -1183,19 +1449,19 @@
                 <div id="sheet-kpis-block" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; margin-bottom:20px;">
                     <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:10px 14px; text-align:center;">
                         <div style="font-size:0.75rem; color:#0369a1; font-weight:700;">الرصيد الافتتاحي (أول المدة) 📋</div>
-                        <div style="font-size:1.25rem; font-weight:900; color:#0284c7; margin-top:4px;">${sumOpen.toLocaleString()}</div>
+                        <div style="font-size:1.05rem; font-weight:900; color:#0284c7; margin-top:4px;">${getKpiText(sumOpen)}</div>
                     </div>
                     <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 14px; text-align:center;">
                         <div style="font-size:0.75rem; color:#15803d; font-weight:700;">إجمالي الوارد (مشتريات/استلام) ⚖️</div>
-                        <div style="font-size:1.25rem; font-weight:900; color:#16a34a; margin-top:4px;">${sumIn.toLocaleString()}</div>
+                        <div style="font-size:1.05rem; font-weight:900; color:#16a34a; margin-top:4px;">${getKpiText(sumIn)}</div>
                     </div>
                     <div style="background:#fdf2f8; border:1px solid #fbcfe8; border-radius:8px; padding:10px 14px; text-align:center;">
                         <div style="font-size:0.75rem; color:#be185d; font-weight:700;">إجمالي المنصرف (مبيعات/تسليم) 💰</div>
-                        <div style="font-size:1.25rem; font-weight:900; color:#db2777; margin-top:4px;">${sumOut.toLocaleString()}</div>
+                        <div style="font-size:1.05rem; font-weight:900; color:#db2777; margin-top:4px;">${getKpiText(sumOut)}</div>
                     </div>
                     <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:10px 14px; text-align:center;">
                         <div style="font-size:0.75rem; color:#b45309; font-weight:700;">الرصيد الفعلي الحالي ⚠️</div>
-                        <div style="font-size:1.25rem; font-weight:900; color:#d97706; margin-top:4px;">${actualCurrentStock.toLocaleString()}</div>
+                        <div style="font-size:1.05rem; font-weight:900; color:#d97706; margin-top:4px;">${getKpiText(actualCurrentStock)}</div>
                     </div>
                 </div>
 
@@ -1203,16 +1469,7 @@
                 <div id="sheet-table-block" style="margin-bottom:25px;">
                     <table class="ledger-sheet-table" style="width:100%; border-collapse:collapse; text-align:right; font-size:0.85rem; direction:rtl;">
                         <thead>
-                            <tr class="ledger-sheet-thead-row">
-                                <th class="col-0" style="padding:10px 8px; text-align:center; font-weight:800; border:1px solid #94a3b8; width:95px;">التاريخ</th>
-                                <th class="col-1" style="padding:10px 8px; text-align:center; font-weight:800; border:1px solid #94a3b8; width:130px;">نوع الحركة</th>
-                                <th class="col-2" style="padding:10px 8px; text-align:center; font-weight:800; border:1px solid #94a3b8; width:120px;">رقم الإذن</th>
-                                <th class="col-3" style="padding:10px 8px; text-align:center; font-weight:800; border:1px solid #94a3b8; width:120px;">رقم الاستلام</th>
-                                <th class="col-4" style="padding:10px 8px; text-align:right; font-weight:800; border:1px solid #94a3b8; width:110px;">الوارد (داخل)</th>
-                                <th class="col-5" style="padding:10px 8px; text-align:right; font-weight:800; border:1px solid #94a3b8; width:110px;">المنصرف (خارج)</th>
-                                <th class="col-6" style="padding:10px 8px; text-align:right; font-weight:900; border:1px solid #94a3b8; width:120px;">الرصيد التراكمي</th>
-                                <th class="col-7" style="padding:10px 8px; text-align:right; font-weight:800; border:1px solid #94a3b8;">ملحوظة الحركة</th>
-                            </tr>
+                            ${tableHeaderHtml}
                         </thead>
                         <tbody>
                             ${rowsHtml}
@@ -1220,10 +1477,10 @@
                         <tfoot>
                             <tr style="background:#f8fafc; font-weight:900; border-top:2px solid #0f172a;">
                                 <td colspan="4" style="padding:10px; text-align:left; border:1px solid #94a3b8;">إجمالي حركة الفترة والرصيد الختامي:</td>
-                                <td class="col-4" style="padding:10px; text-align:right; color:#047857; border:1px solid #94a3b8;">${sumIn.toLocaleString()}</td>
-                                <td class="col-5" style="padding:10px; text-align:right; color:#be185d; border:1px solid #94a3b8;">${sumOut.toLocaleString()}</td>
-                                <td class="col-6" style="padding:10px; text-align:right; color:#b45309; border:1px solid #94a3b8; font-size:1.1rem;">${actualCurrentStock.toLocaleString()}</td>
-                                <td class="col-7" style="border:1px solid #94a3b8;">-</td>
+                                ${footerInCells}
+                                ${footerOutCells}
+                                ${footerBalCells}
+                                <td class="col-notes" style="border:1px solid #94a3b8;">-</td>
                             </tr>
                         </tfoot>
                     </table>
@@ -1340,7 +1597,7 @@
                 if (h3) h3.style.color = theme.primary;
             }
 
-            const theadRows = sheet.querySelectorAll('.ledger-sheet-thead-row th');
+            const theadRows = sheet.querySelectorAll('.ledger-sheet-thead-row th, .ledger-sheet-thead-subrow th');
             theadRows.forEach(th => {
                 th.style.background = theme.primary;
                 th.style.color = '#ffffff';
@@ -1385,9 +1642,9 @@
             // Toggle Columns
             const colToggles = document.querySelectorAll('.col-toggle');
             colToggles.forEach(chk => {
-                const colIdx = chk.getAttribute('data-col');
+                const colKey = chk.getAttribute('data-col');
                 const isChecked = chk.checked;
-                sheet.querySelectorAll(`.col-${colIdx}`).forEach(el => {
+                sheet.querySelectorAll(`.col-${colKey}`).forEach(el => {
                     el.style.display = isChecked ? '' : 'none';
                 });
             });
