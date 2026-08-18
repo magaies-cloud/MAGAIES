@@ -64,55 +64,90 @@
             padding: 20px 30px; box-sizing: border-box; max-width: 1600px; margin: 0 auto;
         }
 
-        /* Nav Tabs */
+        /* Navigation Bar (Ultra-Compact Segmented Clusters) */
         .nav-tabs { 
-            display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
-            background: rgba(15, 23, 42, 0.7); padding: 12px 15px; border-radius: 16px; 
-            border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: inset 0 2px 20px rgba(0,0,0,0.4);
-            backdrop-filter: blur(15px);
+            display: flex; gap: 6px; flex-wrap: wrap; overflow: visible;
+            background: var(--surface-card, rgba(15, 23, 42, 0.7)); padding: 6px 10px; border-radius: 14px; 
+            border: 1px solid var(--glass-border); box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            backdrop-filter: blur(20px); align-items: center; width: 100%; z-index: 100; position: relative;
+            min-height: 48px; box-sizing: border-box;
         }
         .nav-tabs::-webkit-scrollbar { display: none; }
-        .nav-tab {
-            padding: 12px 25px; border-radius: 12px; text-decoration: none; font-weight: 700;
-            color: #94a3b8; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.03);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 8px; font-size: 0.95rem;
-            position: relative; overflow: hidden; white-space: nowrap; flex-shrink: 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        .nav-cluster {
+            display: flex; align-items: center; gap: 4px;
         }
-        .nav-tab::before { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); transform: skewX(-20deg); transition: 0.5s; }
-        .nav-tab:hover::before { left: 150%; }
+        .nav-divider {
+            width: 1px; height: 24px; background: rgba(255, 255, 255, 0.12); margin: 0 4px; flex-shrink: 0;
+        }
+        .nav-tab {
+            padding: 8px 15px; border-radius: 9px; text-decoration: none; font-weight: 700;
+            color: var(--text-secondary); background: transparent; border: 1px solid transparent;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 6px; font-size: 0.88rem;
+            position: relative; white-space: nowrap; flex-shrink: 0; cursor: pointer; height: 38px; box-sizing: border-box;
+        }
+        .nav-tab:hover {
+            color: #fff; background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+        .nav-tab.active {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(37, 99, 235, 0.18));
+            border-color: rgba(56, 189, 248, 0.45); color: #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+        }
 
-        /* Button hover/active colors */
-        .nav-tab:nth-child(1):hover { background: rgba(59, 130, 246, 0.1); color: #fff; border-color: rgba(59, 130, 246, 0.3); transform: translateY(-2px); }
-        .nav-tab:nth-child(1).active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.2)); border-color: rgba(59, 130, 246, 0.5); color: #60a5fa; box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
-        .nav-tab:nth-child(2):hover { background: rgba(16, 185, 129, 0.1); color: #fff; border-color: rgba(16, 185, 129, 0.3); transform: translateY(-2px); }
-        .nav-tab:nth-child(2).active { background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2)); border-color: rgba(16, 185, 129, 0.5); color: #34d399; box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
-        .nav-tab:nth-child(3):hover { background: rgba(245, 158, 11, 0.1); color: #fff; border-color: rgba(245, 158, 11, 0.3); transform: translateY(-2px); }
-        .nav-tab:nth-child(3).active { background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2)); border-color: rgba(245, 158, 11, 0.5); color: #fbbf24; box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
-        .nav-tab:nth-child(4):hover { background: rgba(139, 92, 246, 0.1); color: #fff; border-color: rgba(139, 92, 246, 0.3); transform: translateY(-2px); }
-        .nav-tab:nth-child(4).active { background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(109, 40, 217, 0.2)); border-color: rgba(139, 92, 246, 0.5); color: #c084fc; box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
-        .nav-tab:nth-child(5):hover { background: rgba(244, 63, 94, 0.1); color: #fff; border-color: rgba(244, 63, 94, 0.3); transform: translateY(-2px); }
-        .nav-tab:nth-child(5).active { background: linear-gradient(135deg, rgba(244, 63, 94, 0.2), rgba(225, 29, 72, 0.2)); border-color: rgba(244, 63, 94, 0.5); color: #fb7185; box-shadow: 0 0 20px rgba(244, 63, 94, 0.3); }
-        .nav-tab:nth-child(6):hover { background: rgba(6, 182, 212, 0.1); color: #fff; border-color: rgba(6, 182, 212, 0.3); transform: translateY(-2px); }
-        .nav-tab:nth-child(6).active { background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(8, 145, 178, 0.2)); border-color: rgba(6, 182, 212, 0.5); color: #22d3ee; box-shadow: 0 0 20px rgba(6, 182, 212, 0.3); }
+        /* AI Suite Special Pill */
+        .nav-tab-ai {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(139, 92, 246, 0.15));
+            border: 1px solid rgba(236, 72, 153, 0.4); color: #f472b6 !important;
+            box-shadow: 0 0 10px rgba(236, 72, 153, 0.2);
+        }
+        .nav-tab-ai:hover {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.25), rgba(139, 92, 246, 0.25));
+            border-color: rgba(236, 72, 153, 0.6); color: #fff !important;
+            box-shadow: 0 0 15px rgba(236, 72, 153, 0.35);
+        }
+        .nav-ai-badge {
+            background: #ec4899; color: #fff; font-size: 0.68rem; padding: 2px 5px; border-radius: 8px; font-weight: 900;
+        }
 
-        /* Light Mode Styling for tabs */
-        :root.light-theme .nav-tabs { background: rgba(248, 250, 252, 0.85); border: 1px solid rgba(0,0,0,0.06); box-shadow: inset 0 2px 10px rgba(0,0,0,0.02); }
-        :root.light-theme .nav-tab { color: #64748b; background: rgba(255,255,255,0.7); border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-        :root.light-theme .nav-tab::before { background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent); }
+        /* Nav Dropdown for Extra Reports */
+        .nav-dropdown { position: relative; display: inline-block; }
+        .nav-dropdown-content {
+            display: none; position: absolute; top: calc(100% + 6px); right: 0; min-width: 240px;
+            background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border); border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.65); padding: 6px; z-index: 10000;
+            animation: dropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .nav-dropdown-content::before {
+            content: ''; position: absolute; top: -10px; left: 0; right: 0; height: 10px; background: transparent;
+        }
+        @keyframes dropdownFadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+        .nav-dropdown:hover .nav-dropdown-content, 
+        .nav-dropdown:focus-within .nav-dropdown-content {
+            display: flex; flex-direction: column; gap: 4px;
+        }
+        .nav-dropdown-item {
+            padding: 9px 12px; border-radius: 8px; text-decoration: none;
+            color: #cbd5e1; font-size: 0.82rem; font-weight: 700;
+            display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;
+        }
+        .nav-dropdown-item:hover {
+            background: rgba(56, 189, 248, 0.12); color: #38bdf8;
+            transform: translateX(-3px);
+        }
+        .nav-dropdown-item.active {
+            background: rgba(56, 189, 248, 0.18); color: #38bdf8;
+        }
 
-        :root.light-theme .nav-tab:nth-child(1):hover { background: #fff; color: #1e3a8a; border-color: #3b82f6; box-shadow: 0 5px 15px rgba(59, 130, 246, 0.2); transform: translateY(-2px); }
-        :root.light-theme .nav-tab:nth-child(1).active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); color: #2563eb; border-color: #3b82f6; box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
-        :root.light-theme .nav-tab:nth-child(2):hover { background: #fff; color: #064e3b; border-color: #10b981; box-shadow: 0 5px 15px rgba(16, 185, 129, 0.2); transform: translateY(-2px); }
-        :root.light-theme .nav-tab:nth-child(2).active { background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1)); color: #059669; border-color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
-        :root.light-theme .nav-tab:nth-child(3):hover { background: #fff; color: #78350f; border-color: #f59e0b; box-shadow: 0 5px 15px rgba(245, 158, 11, 0.2); transform: translateY(-2px); }
-        :root.light-theme .nav-tab:nth-child(3).active { background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1)); color: #d97706; border-color: #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
-        :root.light-theme .nav-tab:nth-child(4):hover { background: #fff; color: #4c1d95; border-color: #8b5cf6; box-shadow: 0 5px 15px rgba(139, 92, 246, 0.2); transform: translateY(-2px); }
-        :root.light-theme .nav-tab:nth-child(4).active { background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(109, 40, 217, 0.1)); color: #7c3aed; border-color: #8b5cf6; box-shadow: 0 0 20px rgba(139, 92, 246, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
-        :root.light-theme .nav-tab:nth-child(5):hover { background: #fff; color: #881337; border-color: #f43f5e; box-shadow: 0 5px 15px rgba(244, 63, 94, 0.2); transform: translateY(-2px); }
-        :root.light-theme .nav-tab:nth-child(5).active { background: linear-gradient(135deg, rgba(244, 63, 94, 0.1), rgba(225, 29, 72, 0.1)); color: #e11d48; border-color: #f43f5e; box-shadow: 0 0 20px rgba(244, 63, 94, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
-        :root.light-theme .nav-tab:nth-child(6):hover { background: #fff; color: #164e63; border-color: #06b6d4; box-shadow: 0 5px 15px rgba(6, 182, 212, 0.2); transform: translateY(-2px); }
-        :root.light-theme .nav-tab:nth-child(6).active { background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(8, 145, 178, 0.1)); color: #0891b2; border-color: #06b6d4; box-shadow: 0 0 20px rgba(6, 182, 212, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
+        /* Light Mode Styling for clusters and dropdowns */
+        :root.light-theme .nav-tabs { background: rgba(248, 250, 252, 0.95); border: 1px solid rgba(0,0,0,0.08); }
+        :root.light-theme .nav-tab { color: #475569; }
+        :root.light-theme .nav-tab:hover { color: #0f172a; background: rgba(0,0,0,0.04); }
+        :root.light-theme .nav-divider { background: rgba(0, 0, 0, 0.1); }
+        :root.light-theme .nav-dropdown-content { background: #ffffff; border: 1px solid #cbd5e1; box-shadow: 0 10px 30px rgba(0,0,0,0.12); }
+        :root.light-theme .nav-dropdown-item { color: #334155; }
+        :root.light-theme .nav-dropdown-item:hover { background: #f1f5f9; color: #0284c7; }
 
         /* Controls / Buttons */
         .dash-controls { display: flex; align-items: center; gap: 12px; }
@@ -257,16 +292,16 @@
                 <div class="nav-divider"></div>
 
                 <!-- Cluster 2: حركات البضائع -->
-                <div class="nav-cluster nav-dropdown active">
+                <div class="nav-cluster nav-dropdown">
                     <div class="nav-tab active" title="حركات البضائع">
-                        <span>📑</span> <span>حركات البضائع (حركة المخازن)</span>
+                        <span>📑</span> <span>حركات البضائع</span>
                         <span style="font-size: 0.7rem; margin-right: 2px;">▼</span>
                     </div>
                     <div class="nav-dropdown-content">
                         <a href="item-ledger.php" class="nav-dropdown-item" title="كشف حركة صنف محدد">
                             <span>📑</span> حركة الأصناف
                         </a>
-                        <a href="warehouse-ledger.php" class="nav-dropdown-item active" style="color: #38bdf8; background: rgba(56,189,248,0.1);" title="كشف حركة مخزن محدد">
+                        <a href="warehouse-ledger.php" class="nav-dropdown-item active" title="كشف حركة مخزن محدد">
                             <span>🏭</span> حركة المخازن (الحالية)
                         </a>
                         <a href="inventory-summary.php" class="nav-dropdown-item" title="ملخص الوارد والمنصرف">
@@ -296,7 +331,7 @@
 
                 <div class="nav-divider"></div>
 
-                <!-- Cluster 4: التحليلات المرئية -->
+                <!-- Cluster 4: التحليلات المرئية (Charts & Dashboards) -->
                 <div class="nav-cluster nav-dropdown">
                     <div class="nav-tab" title="المخططات والرسوم البيانية">
                         <span>📈</span> <span style="font-weight: 800; color: #f8fafc;">التحليلات المرئية</span>
@@ -307,16 +342,23 @@
                             <span>🍕</span> توزيع المخزون (مخطط دائري)
                         </a>
                         <a href="visual-analytics.php#donut" class="nav-dropdown-item" title="حالة الأرصدة (آمن، نواقص، الخ)">
-                            <span>🍩</span> مستويات الأمان والتنبيهات
+                            <span>🍩</span> حالة الأرصدة (كعكة مفرغة)
+                        </a>
+                        <a href="visual-analytics.php#bar" class="nav-dropdown-item" title="إجمالي القيمة المالية لكل صنف ومخزن">
+                            <span>📊</span> قيمة المخزون (أعمدة مصمتة)
                         </a>
                     </div>
                 </div>
 
             </div>
 
-            <div class="dash-controls" style="margin: 0; display: flex; gap: 8px;">
-                <button class="btn-action" onclick="openReportPreview('تقرير حركة المخزن التفصيلي', '#report-table-wrap')" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white; border: none; padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(13,148,136,0.2);">👁️ معاينة</button>
-                <button class="btn-action btn-print" onclick="printReportDirectly('تقرير حركة المخزن التفصيلي', '#report-table-wrap')" style="background: rgba(255,255,255,0.05); color: var(--text-primary); border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer;">🖨️ طباعة</button>
+            <div class="dash-controls" style="margin: 0; display: flex; gap: 8px; flex-shrink: 0;">
+                <button class="btn-action" onclick="openWarehouseLedgerPreview()" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white; border: none; padding: 7px 15px; border-radius: 10px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(13,148,136,0.25); display: flex; align-items: center; gap: 6px;">
+                    <span>👁️</span> <span>معاينة وتصميم التقرير</span>
+                </button>
+                <button class="btn-action btn-print" onclick="printWarehouseLedgerSheet()" style="background: rgba(255,255,255,0.05); color: var(--text-primary); border: 1px solid var(--glass-border); padding: 7px 14px; border-radius: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                    <span>🖨️</span> <span>طباعة</span>
+                </button>
                 <button class="btn-icon-nav" onclick="history.back()" title="رجوع" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; color: var(--text-primary); cursor: pointer; transition: 0.3s;">↩</button>
             </div>
         </div>
@@ -388,9 +430,211 @@
 
     </div>
 
+    <!-- 🎨 WAREHOUSE LEDGER PREVIEW & DESIGN STUDIO MODAL                -->
+    <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="warehouse-ledger-preview-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 15, 30, 0.92); z-index: 12000; align-items: center; justify-content: center; direction: rtl; backdrop-filter: blur(12px);">
+        <div class="glass-panel" style="width: 96%; max-width: 1420px; height: 94vh; display: flex; flex-direction: column; padding: 18px 22px; border: 1px solid rgba(255,255,255,0.12); background: #0b1120; border-radius: 18px; color: #fff; box-shadow: 0 25px 60px rgba(0,0,0,0.6); overflow: hidden;">
+            
+            <!-- Top Toolbar Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 12px;" class="no-print">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.4rem;">👁️</span>
+                    <div>
+                        <h3 style="margin: 0; font-weight: 900; color: #38bdf8; font-size: 1.15rem;">معاينة وتخصيص تصميم كشف حركة المخزن</h3>
+                        <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: #94a3b8;">استوديو التصميم: يمكنك تعديل الألوان، الخطوط، الأعمدة، والتعديل المباشر على النصوص</p>
+                    </div>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <!-- Studio Design Toggle -->
+                    <button type="button" id="btn-toggle-design-studio" onclick="toggleDesignStudioDrawer()" class="btn-action" style="background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.4); color: #38bdf8; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; height: 28px;">
+                        <span>🎨</span> الضبط
+                    </button>
+                    <!-- Live Edit Mode Toggle -->
+                    <button type="button" id="btn-toggle-live-edit" onclick="toggleLiveEditMode()" class="btn-action" style="background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); color: #fbbf24; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; height: 28px;">
+                        <span>✏️</span> تعديل النصوص
+                    </button>
+                    <!-- Print Button -->
+                    <button type="button" onclick="printWarehouseLedgerSheet()" class="btn-action" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 4px 14px; font-size: 0.8rem; font-weight: 800; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(16,185,129,0.3); height: 28px;">
+                        <span>🖨️</span> طباعة
+                    </button>
+                    <!-- Close Button -->
+                    <button type="button" onclick="closeWarehouseLedgerPreview()" class="btn-action" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #e2e8f0; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; height: 28px;">
+                        ✕ إغلاق
+                    </button>
+                </div>
+            </div>
+
+            <!-- Design Studio Toolbar (Collapsible / Active) -->
+            <div id="warehouse-ledger-studio-drawer" class="no-print" style="display: flex; flex-direction: column; gap: 6px; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 6px 10px; margin-bottom: 6px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);">
+                
+                <!-- Row 1: Global Theme, Font, Size, Paper & Sections -->
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">🎨 الثيم:</span>
+                        <select id="studio-theme-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 5px; padding: 2px 6px; font-size: 0.8rem; height: 26px;">
+                            <option value="corporate">🔷 أزرق نيلي (Corporate)</option>
+                            <option value="emerald">🟢 أخضر زمردي (Emerald)</option>
+                            <option value="gold">🟡 ذهبي كلاسيكي (Royal Gold)</option>
+                            <option value="cyan">🔵 سيان عصري (Modern Cyan)</option>
+                            <option value="purple">🟣 بنفسجي تقني (Purple Tech)</option>
+                            <option value="classic">⚫ رمادي أحادي رسمي (Monochrome)</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">🔤 الخط:</span>
+                        <select id="studio-font-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 5px; padding: 2px 6px; font-size: 0.8rem; height: 26px;">
+                            <option value="'Tajawal', sans-serif">تجوّل (Tajawal)</option>
+                            <option value="'Cairo', sans-serif">القاهرة (Cairo)</option>
+                            <option value="'Almarai', sans-serif">المراعي (Almarai)</option>
+                            <option value="'Inter', sans-serif">إنتـر المريح (Inter)</option>
+                            <option value="'Traditional Arabic', serif">عربي تقليدي (Traditional)</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">📏 الكثافة:</span>
+                        <select id="studio-size-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 5px; padding: 2px 6px; font-size: 0.8rem; height: 26px;">
+                            <option value="compact">مدمج صغير (Compact)</option>
+                            <option value="medium" selected>متوازن قياسي (Medium)</option>
+                            <option value="large">كبير واضح (Large)</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">📑 الاتجاه:</span>
+                        <select id="studio-orientation-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 5px; padding: 2px 6px; font-size: 0.8rem; height: 26px;">
+                            <option value="landscape" selected>↔️ أفقي (Landscape)</option>
+                            <option value="portrait">↕️ طولي (Portrait)</option>
+                        </select>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <label style="font-size: 0.8rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 2px;">
+                            <input type="checkbox" id="chk-show-header" checked onchange="applyStudioDesign()"> الترويسة
+                        </label>
+                        <label style="font-size: 0.8rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 2px;">
+                            <input type="checkbox" id="chk-show-meta" checked onchange="applyStudioDesign()"> بيانات المخزن
+                        </label>
+                        <label style="font-size: 0.8rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 2px;">
+                            <input type="checkbox" id="chk-show-kpis" checked onchange="applyStudioDesign()"> ملخص الأرصدة
+                        </label>
+                        <label style="font-size: 0.8rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 2px;">
+                            <input type="checkbox" id="chk-show-signatures" checked onchange="applyStudioDesign()"> التوقيعات
+                        </label>
+                    </div>
+
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <button type="button" onclick="saveStudioDesignPreset()" style="background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.4); color: #34d399; padding: 2px 8px; border-radius: 5px; font-size: 0.78rem; font-weight: 700; cursor: pointer; height: 26px;">
+                            💾 حفظ
+                        </button>
+                        <button type="button" onclick="resetStudioDesignPreset()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: #cbd5e1; padding: 2px 8px; border-radius: 5px; font-size: 0.78rem; cursor: pointer; height: 26px;">
+                            🔄 استعادة
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Row 2: Unified Single-Row Column Super-Toolbar -->
+                <div class="panel-card studio-super-row" style="margin-bottom: 0; padding: 4px 8px; gap: 6px; display: flex; align-items: center; justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; background: rgba(255, 255, 255, 0.08) !important; border: 1px solid rgba(56, 189, 248, 0.3) !important;">
+                    
+                    <!-- Group A: Column Selection & Visibility -->
+                    <div class="studio-group-pill">
+                        <span style="color:#38bdf8; font-size:0.8rem; font-weight:900;">🎯 العمود:</span>
+                        <select id="item-selected-col-select" class="panel-input" style="color:#38bdf8; font-size:0.8rem; font-weight:900; border-color:#38bdf8; background:#1e293b; padding: 2px 6px; height: 26px;" onchange="selectWarehouseLedgerCol(this.value)">
+                            <option value="date" selected>التاريخ</option>
+                            <option value="type">نوع الحركة</option>
+                            <option value="permit">رقم الإذن</option>
+                            <option value="receipt">رقم الاستلام</option>
+                            <option value="in">الوارد</option>
+                            <option value="out">المنصرف</option>
+                            <option value="balance">الرصيد التراكمي</option>
+                            <option value="notes">ملحوظة الحركة</option>
+                        </select>
+                        <label style="display:flex; align-items:center; gap:2px; cursor:pointer; font-size:0.8rem; font-weight:800;" title="إظهار أو إخفاء العمود">
+                            <input type="checkbox" id="warehouse-col-visible-chk" checked onchange="updateSelectedWarehouseLedgerCol('visible', this.checked)">
+                            إظهار
+                        </label>
+                    </div>
+
+                    <div class="studio-pill-divider"></div>
+
+                    <!-- Group B: Header Label & Ordering -->
+                    <div class="studio-group-pill">
+                        <span style="font-size:0.8rem;">✏️ التسمية:</span>
+                        <input type="text" id="warehouse-col-label-input" class="panel-input" style="width:105px; font-size:0.8rem; padding: 2px 6px; background:#1e293b; color:#fff; border-color:#475569; height: 26px;" oninput="updateSelectedWarehouseLedgerCol('label', this.value)">
+                    </div>
+
+                    <div class="studio-pill-divider"></div>
+
+                    <!-- Group C: Alignment -->
+                    <div class="studio-group-pill">
+                        <span style="font-size:0.8rem;">المحاذاة:</span>
+                        <select id="warehouse-col-align-select" class="panel-input" style="font-size:0.8rem; padding: 2px 6px; background:#1e293b; color:#fff; border-color:#475569; height: 26px;" onchange="updateSelectedWarehouseLedgerCol('align', this.value)">
+                            <option value="right">يمين ➡️</option>
+                            <option value="center" selected>وسط 🟢</option>
+                            <option value="left">يسار ⬅️</option>
+                        </select>
+                    </div>
+
+                    <div class="studio-pill-divider"></div>
+
+                    <!-- Group D: Column Width -->
+                    <div class="studio-group-pill">
+                        <span style="font-size:0.8rem;" title="عرض العمود كنسبة مئوية">📏 العرض:</span>
+                        <input type="range" id="warehouse-col-width-range" min="5" max="50" step="1" value="15" style="width:65px;"
+                            oninput="document.getElementById('warehouse-col-width-input').value=this.value; updateSelectedWarehouseLedgerCol('width', this.value)">
+                        <input type="number" id="warehouse-col-width-input" class="panel-input" style="width:42px; font-size:0.8rem; padding: 2px; background:#1e293b; color:#fff; border-color:#475569; height: 26px;" min="5" max="50" placeholder="%" 
+                            oninput="if(document.getElementById('warehouse-col-width-range')) document.getElementById('warehouse-col-width-range').value=this.value; updateSelectedInvCol('width', this.value)">
+                        <button class="ribbon-btn studio-mini-btn" style="font-size:0.75rem; padding: 2px 5px;" 
+                            onclick="updateSelectedWarehouseLedgerCol('width', ''); document.getElementById('warehouse-col-width-input').value=''; document.getElementById('warehouse-col-width-range').value=15;" title="ضبط العرض التلقائي">🔄 تلقائي</button>
+                    </div>
+
+                    <div class="studio-pill-divider"></div>
+
+                    <!-- Group E: Table Width -->
+                    <div class="studio-group-pill">
+                        <span style="font-size:0.8rem;">📐 عرض الجدول:</span>
+                        <input type="range" id="warehouse-table-width-range" min="60" max="100" step="5" value="100" style="width:65px;"
+                            oninput="setItemTableWidth(this.value)">
+                        <span id="warehouse-table-width-label" style="font-weight:900; font-size:0.8rem; min-width:32px; text-align:center; color:#38bdf8;">100%</span>
+                    </div>
+
+                </div>
+            </div>
+
+            <!-- Scrollable Sheet Container -->
+            <div style="flex: 1; overflow-y: auto; background: #0f172a; padding: 25px 15px; display: flex; justify-content: center; border-radius: 12px; box-shadow: inset 0 2px 15px rgba(0,0,0,0.5);" class="preview-scroll-container">
+                <div id="warehouse-ledger-sheet" style="width: 100%; max-width: 1180px; background: #ffffff; color: #0f172a; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); border-radius: 6px; min-height: fit-content; box-sizing: border-box; overflow-x: auto; transition: all 0.3s ease;">
+                    <!-- Dynamically rendered sheet content -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Print CSS Injection -->
+    <style id="warehouse-ledger-print-style">
+        #warehouse-ledger-preview-modal.print-direct-mode { display: none !important; }
+        @page { size: landscape; margin: 8mm; }
+        @media print {
+            #warehouse-ledger-preview-modal.print-direct-mode { display: block !important; }
+            body > *:not(#warehouse-ledger-preview-modal) { display: none !important; }
+            #warehouse-ledger-preview-modal { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; height: auto !important; background: #fff !important; padding: 0 !important; margin: 0 !important; display: block !important; overflow: visible !important; }
+            #warehouse-ledger-preview-modal .glass-panel { width: 100% !important; max-width: 100% !important; height: auto !important; border: none !important; background: #fff !important; padding: 0 !important; box-shadow: none !important; margin: 0 !important; }
+            .global-sidebar, .no-print, .btn-action, .dash-controls { display: none !important; }
+            #warehouse-ledger-preview-modal .preview-scroll-container { background: #fff !important; padding: 0 !important; overflow: visible !important; }
+            #warehouse-ledger-sheet { box-shadow: none !important; padding: 0 !important; margin: 0 !important; border: none !important; width: 100% !important; max-width: 100% !important; }
+            #warehouse-ledger-sheet table { width: 100% !important; border-collapse: collapse !important; table-layout: auto !important; }
+            #warehouse-ledger-sheet th, #warehouse-ledger-sheet td { border: 1px solid #94a3b8 !important; page-break-inside: avoid; }
+        }
+    </style>
+
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
     <script>
+                let isLiveEditActive = false;
+
         function fmtNum(n) {
             if (n === undefined || n === null || isNaN(n)) return '0';
             const num = Number(n);
@@ -419,7 +663,6 @@
                 dateTo.valueAsDate = today;
             }
 
-            // Check URL param ?warehouse=ID or ?wh=ID
             const urlParams = new URLSearchParams(window.location.search);
             const whParam = urlParams.get('warehouse') || urlParams.get('wh');
             if (whParam && whSelect) {
@@ -455,6 +698,34 @@
                 const wh = warehousesDb.find(w => String(w.id) === String(nameOrId) || w.name === nameOrId);
                 return wh ? wh.id : nameOrId;
             };
+
+            // 0. Opening Balances
+            itemsDb.forEach(itemObj => {
+                if (itemObj.openingBalance) {
+                    let wh = getWarehouseId(itemObj.openingBalanceWarehouseId || itemObj.warehouseId);
+                    if (warehouseId === 'ALL' || String(wh) === String(warehouseId)) {
+                        let baseQty = parseFloat(itemObj.openingBalance) || 0;
+                        if (baseQty > 0) {
+                            history.push({
+                                date: new Date(itemObj.createdAt || 0),
+                                typeCode: 'in',
+                                typeName: 'رصيد افتتاحي (أول المدة)',
+                                warehouseName: getWarehouseName(wh),
+                                ref: 'OPENING',
+                                permitNo: 'OPENING',
+                                docId: itemObj.id,
+                                docTarget: `item-ledger.php?item=${itemObj.id}`,
+                                itemId: itemObj.id,
+                                itemName: itemObj.name,
+                                unit: itemObj.baseUnit || itemObj.unit || 'وحدة',
+                                in: baseQty,
+                                out: 0,
+                                notes: 'رصيد أول المدة مسجل في بطاقة الصنف'
+                            });
+                        }
+                    }
+                }
+            });
 
             // 1. Get Purchases & Adjustments
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
@@ -551,10 +822,22 @@
                         let permitNo = inv.orderNo || inv.soNumber || inv.quotationNo || inv.dispatchOrderNo || inv.permitNo || inv.invoiceNo || '-';
                         let docTarget = `sales-invoice.php?id=${inv.id || inv.invoiceNo}`;
 
+                        let typeCode = 'out';
+                        let typeName = 'فاتورة مبيعات';
+                        let valIn = 0;
+                        let valOut = baseQty;
+
+                        if (inv.isReturn === true) {
+                            typeCode = 'in';
+                            typeName = 'مردودات مبيعات';
+                            valIn = baseQty;
+                            valOut = 0;
+                        }
+
                         history.push({
                             date: new Date(inv.date || Date.now()),
-                            typeCode: 'out',
-                            typeName: 'فاتورة مبيعات',
+                            typeCode: typeCode,
+                            typeName: typeName,
                             warehouseName: getWarehouseName(lineWh),
                             ref: inv.invoiceNo || inv.id || '-',
                             permitNo: permitNo,
@@ -563,8 +846,8 @@
                             itemId: itemId,
                             itemName: itemObj ? itemObj.name : (line.name || 'صنف غير معروف'),
                             unit: line.unit || (itemObj ? (itemObj.baseUnit || itemObj.unit) : 'وحدة'),
-                            in: 0,
-                            out: baseQty,
+                            in: valIn,
+                            out: valOut,
                             notes: line.notes || inv.notes || ''
                         });
                     }
@@ -587,7 +870,6 @@
                     let resolvedFactor = parseFloat(line.customFactor || line.factor) || 1;
                     let baseQty = (line.customBaseQty !== undefined) ? parseFloat(line.customBaseQty) : (origQty * resolvedFactor);
 
-                    // If viewing all or viewing fromWh
                     if (warehouseId === 'ALL' || String(fromWh) === String(warehouseId)) {
                         history.push({
                             date: new Date(tr.date || tr.createdAt || Date.now()),
@@ -607,7 +889,6 @@
                         });
                     }
 
-                    // If viewing all or viewing toWh
                     if (warehouseId === 'ALL' || String(toWh) === String(warehouseId)) {
                         history.push({
                             date: new Date(tr.date || tr.createdAt || Date.now()),
@@ -631,6 +912,10 @@
 
             return history.sort((a,b) => a.date - b.date);
         }
+
+        let currentHistory = [];
+        let currentSumIn = 0;
+        let currentSumOut = 0;
 
         function loadLedger() {
             const wh = document.getElementById('warehouse-select')?.value || 'ALL';
@@ -657,6 +942,8 @@
                     return searchSource.includes(searchVal);
                 });
             }
+
+            currentHistory = history;
 
             tbody.innerHTML = '';
             let sumIn = 0;
@@ -711,6 +998,9 @@
                 tbody.appendChild(tr);
             });
 
+            currentSumIn = sumIn;
+            currentSumOut = sumOut;
+
             // Update KPIs
             document.getElementById('kpi-wh-count').innerText = fmtNum(history.length);
             document.getElementById('kpi-wh-in').innerText = fmtNum(sumIn);
@@ -722,6 +1012,7 @@
         }
 
         function initWarehouseLedgerResizers() {
+            // ... omitting for brevity if not strictly needed, but let's keep the old table resizer logic 
             const table = document.getElementById('warehouse-ledger-table');
             if (!table) return;
             const resizers = table.querySelectorAll('.resizer');
@@ -814,7 +1105,456 @@
                 clickedDropdown.classList.toggle('active');
             }
         });
-    </script>
+
+        // =======================================================================
+        // 🎨 PREVIEW STUDIO JS FOR WAREHOUSE LEDGER
+        // =======================================================================
+
+        const THEMES_CONFIG = {
+            corporate: { primary: '#1e3a8a', headerBg: '#eff6ff', border: '#bfdbfe', bgBadge: '#dbeafe', textBadge: '#1e40af' },
+            emerald:   { primary: '#064e3b', headerBg: '#f0fdf4', border: '#a7f3d0', bgBadge: '#d1fae5', textBadge: '#065f46' },
+            gold:      { primary: '#78350f', headerBg: '#fffbeb', border: '#fde68a', bgBadge: '#fef3c7', textBadge: '#92400e' },
+            cyan:      { primary: '#164e63', headerBg: '#ecfeff', border: '#a5f3fc', bgBadge: '#cffafe', textBadge: '#155e75' },
+            purple:    { primary: '#4c1d95', headerBg: '#f5f3ff', border: '#ddd6fe', bgBadge: '#ede9fe', textBadge: '#5b21b6' },
+            classic:   { primary: '#1e293b', headerBg: '#f8fafc', border: '#cbd5e1', bgBadge: '#f1f5f9', textBadge: '#334155' }
+        };
+
+        function getSavedDesign() {
+            try {
+                const s = localStorage.getItem('warehouse_ledger_studio_design_v1');
+                if (s) return JSON.parse(s);
+            } catch (e) {}
+            return null;
+        }
+        function saveStudioDesignPreset() {
+            const state = {
+                theme: document.getElementById('studio-theme-select')?.value || 'corporate',
+                font: document.getElementById('studio-font-select')?.value || "'Tajawal', sans-serif",
+                size: document.getElementById('studio-size-select')?.value || 'medium',
+                orientation: document.getElementById('studio-orientation-select')?.value || 'landscape',
+                showHeader: document.getElementById('chk-show-header')?.checked ?? true,
+                showMeta: document.getElementById('chk-show-meta')?.checked ?? true,
+                showKPIs: document.getElementById('chk-show-kpis')?.checked ?? true,
+                showSignatures: document.getElementById('chk-show-signatures')?.checked ?? true,
+                colsWidths: {},
+                colsAligns: {},
+                colsLabels: {},
+                colsVis: {},
+                tableWidth: document.getElementById('warehouse-table-width-range')?.value || 100
+            };
+            const sheet = document.getElementById('warehouse-ledger-sheet');
+            if (sheet) {
+                const colKeys = ['date', 'type', 'warehouse', 'doc', 'item', 'in', 'out'];
+                colKeys.forEach(k => {
+                    const firstCell = sheet.querySelector(`.col-${k}`);
+                    if (firstCell) {
+                        state.colsWidths[k] = firstCell.style.width || 'auto';
+                        state.colsAligns[k] = firstCell.style.textAlign || 'center';
+                        state.colsVis[k] = firstCell.style.display !== 'none';
+                    }
+                    const th = sheet.querySelector(`th.col-${k}`);
+                    if (th) {
+                        state.colsLabels[k] = th.innerText.trim();
+                    }
+                });
+            }
+            localStorage.setItem('warehouse_ledger_studio_design_v1', JSON.stringify(state));
+            alert('تم حفظ إعدادات التصميم بنجاح.');
+        }
+
+        function resetStudioDesignPreset() {
+            localStorage.removeItem('warehouse_ledger_studio_design_v1');
+            location.reload();
+        }
+
+        function loadDesignIntoControls(design) {
+            if (!design) return;
+            if (document.getElementById('studio-theme-select')) document.getElementById('studio-theme-select').value = design.theme;
+            if (document.getElementById('studio-font-select')) document.getElementById('studio-font-select').value = design.font;
+            if (document.getElementById('studio-size-select')) document.getElementById('studio-size-select').value = design.size;
+            if (document.getElementById('studio-orientation-select')) document.getElementById('studio-orientation-select').value = design.orientation;
+            
+            if (document.getElementById('chk-show-header')) document.getElementById('chk-show-header').checked = design.showHeader;
+            if (document.getElementById('chk-show-meta')) document.getElementById('chk-show-meta').checked = design.showMeta;
+            if (document.getElementById('chk-show-kpis')) document.getElementById('chk-show-kpis').checked = design.showKPIs;
+            if (document.getElementById('chk-show-signatures')) document.getElementById('chk-show-signatures').checked = design.showSignatures;
+            
+            if (document.getElementById('warehouse-table-width-range')) {
+                document.getElementById('warehouse-table-width-range').value = design.tableWidth;
+                document.getElementById('warehouse-table-width-label').innerText = design.tableWidth + '%';
+            }
+
+            const sheet = document.getElementById('warehouse-ledger-sheet');
+            if (sheet && design.colsVis) {
+                Object.keys(design.colsVis).forEach(k => {
+                    sheet.querySelectorAll(`.col-${k}`).forEach(el => {
+                        el.style.display = design.colsVis[k] ? '' : 'none';
+                    });
+                });
+                Object.keys(design.colsWidths || {}).forEach(k => {
+                    sheet.querySelectorAll(`.col-${k}`).forEach(el => el.style.width = design.colsWidths[k]);
+                });
+                Object.keys(design.colsAligns || {}).forEach(k => {
+                    sheet.querySelectorAll(`.col-${k}`).forEach(el => el.style.textAlign = design.colsAligns[k]);
+                });
+                Object.keys(design.colsLabels || {}).forEach(k => {
+                    const th = sheet.querySelector(`th.col-${k}`);
+                    if (th) th.innerText = design.colsLabels[k];
+                });
+            }
+        }
+
+        function toggleDesignStudioDrawer() {
+            const drawer = document.getElementById('warehouse-ledger-studio-drawer');
+            if (drawer) drawer.style.display = (drawer.style.display === 'none') ? 'flex' : 'none';
+        }
+
+        function toggleLiveEditMode() {
+            isLiveEditActive = !isLiveEditActive;
+            const btn = document.getElementById('btn-toggle-live-edit');
+            const sheet = document.getElementById('warehouse-ledger-sheet');
+            
+            if (isLiveEditActive) {
+                btn.style.background = 'rgba(245,158,11,0.3)';
+                btn.innerHTML = '<span>✅</span> إنهاء التعديل';
+                if (sheet) {
+                    sheet.querySelectorAll('.editable-text').forEach(el => {
+                        el.setAttribute('contenteditable', 'true');
+                        el.style.borderBottom = '1px dashed #fbbf24';
+                        el.style.outline = 'none';
+                    });
+                }
+            } else {
+                btn.style.background = 'rgba(245,158,11,0.15)';
+                btn.innerHTML = '<span>✏️</span> تعديل النصوص';
+                if (sheet) {
+                    sheet.querySelectorAll('.editable-text').forEach(el => {
+                        el.removeAttribute('contenteditable');
+                        el.style.borderBottom = 'none';
+                    });
+                }
+            }
+        }
+
+        function openWarehouseLedgerPreview() {
+            const whSelect = document.getElementById('warehouse-select');
+            const whName = whSelect && whSelect.options[whSelect.selectedIndex] ? whSelect.options[whSelect.selectedIndex].text : 'جميع المخازن';
+            
+            let cmpName = localStorage.getItem('erp_company_name') || 'مؤسسة أطياف التقنية للتجارة';
+            let cmpReg = localStorage.getItem('erp_company_reg') || '';
+            let cmpTax = localStorage.getItem('erp_company_tax') || '';
+            let cmpPhone = localStorage.getItem('erp_company_phone') || '0500000000';
+            let cmpAddress = localStorage.getItem('erp_company_address') || 'الرياض، المملكة العربية السعودية';
+            let cmpLogo = localStorage.getItem('erp_company_logo') || '';
+            let printedAt = new Date().toLocaleString('en-US', {hour12: true});
+            
+            const fromDateStr = document.getElementById('date-from')?.value;
+            const toDateStr = document.getElementById('date-to')?.value;
+            let periodStr = 'الكل';
+            if (fromDateStr && toDateStr) periodStr = `من ${fromDateStr} إلى ${toDateStr}`;
+            else if (fromDateStr) periodStr = `من ${fromDateStr}`;
+            else if (toDateStr) periodStr = `حتى ${toDateStr}`;
+
+            let rowsHtml = '';
+            let runningBalance = 0;
+
+            currentHistory.forEach((row, i) => {
+                runningBalance += (row.in - row.out);
+                let badgeClass = row.typeCode === 'in' ? 'badge-in' : 'badge-out';
+                
+                rowsHtml += `
+                    <tr>
+                        <td class="col-date editable-text" style="padding:8px 6px; border:1px solid #94a3b8; text-align:center;">${row.date.toISOString().split('T')[0]}</td>
+                        <td class="col-type editable-text" style="padding:8px 6px; border:1px solid #94a3b8; text-align:center;">
+                            <span class="sheet-badge ${badgeClass}">${row.typeName}</span>
+                        </td>
+                        <td class="col-warehouse editable-text" style="padding:8px 6px; border:1px solid #94a3b8; text-align:center;">${row.warehouseName}</td>
+                        <td class="col-doc editable-text" style="padding:8px 6px; border:1px solid #94a3b8; text-align:center; font-weight:700;">${row.ref}</td>
+                        <td class="col-item editable-text" style="padding:8px 6px; border:1px solid #94a3b8; text-align:right;">
+                            <strong style="color:#0f172a;">${row.itemName}</strong><br>
+                            <small style="color:#64748b;">${row.itemId}</small>
+                        </td>
+                        <td class="col-in editable-text" style="padding:8px 6px; border:1px solid #94a3b8; text-align:center; font-weight:800; color:#15803d; background:#f0fdf4;">${row.in > 0 ? fmtNum(row.in) + ' ' + row.unit : '-'}</td>
+                        <td class="col-out editable-text" style="padding:8px 6px; border:1px solid #94a3b8; text-align:center; font-weight:800; color:#be185d; background:#fdf2f8;">${row.out > 0 ? fmtNum(row.out) + ' ' + row.unit : '-'}</td>
+                    </tr>
+                `;
+            });
+
+            if (currentHistory.length === 0) {
+                rowsHtml = `<tr><td colspan="7" style="padding:30px; text-align:center; color:#64748b;">لا توجد حركات لهذه الفترة.</td></tr>`;
+            }
+
+            const headerHtml = `
+                <tr class="ledger-sheet-thead-row" style="background:#1e3a8a; color:#fff;">
+                    <th class="col-date editable-text" style="padding:10px 6px; border:1px solid #bfdbfe; font-weight:800; text-align:center;">التاريخ</th>
+                    <th class="col-type editable-text" style="padding:10px 6px; border:1px solid #bfdbfe; font-weight:800; text-align:center;">نوع الحركة</th>
+                    <th class="col-warehouse editable-text" style="padding:10px 6px; border:1px solid #bfdbfe; font-weight:800; text-align:center;">المخزن</th>
+                    <th class="col-doc editable-text" style="padding:10px 6px; border:1px solid #bfdbfe; font-weight:800; text-align:center;">المستند / الإذن</th>
+                    <th class="col-item editable-text" style="padding:10px 6px; border:1px solid #bfdbfe; font-weight:800; text-align:right;">الصنف والبيان</th>
+                    <th class="col-in editable-text" style="padding:10px 6px; border:1px solid #bfdbfe; font-weight:800; text-align:center;">وارد (دخول)</th>
+                    <th class="col-out editable-text" style="padding:10px 6px; border:1px solid #bfdbfe; font-weight:800; text-align:center;">منصرف (خروج)</th>
+                </tr>
+            `;
+
+            const sheetHtml = `
+                <div id="sheet-header-block" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:25px; border-bottom:3px solid #1e293b; padding-bottom:15px;">
+                    <div style="display:flex; gap:15px; align-items:center; width:35%;">
+                        ${cmpLogo ? `<img src="${cmpLogo}" style="height:60px; max-width:140px; object-fit:contain; border-radius:4px;">` : `<div style="width:50px; height:50px; background:#e2e8f0; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🏢</div>`}
+                        <div>
+                            <h2 style="margin:0; font-size:1.1rem; color:#0f172a; font-weight:900;" class="editable-text">${cmpName}</h2>
+                            <div style="font-size:0.75rem; color:#475569; margin-top:3px;">
+                                ${cmpReg ? `<span>س.ت: ${cmpReg}</span> · ` : ''}
+                                ${cmpTax ? `<span>ر.ض: ${cmpTax}</span>` : ''}
+                            </div>
+                            <div style="font-size:0.75rem; color:#475569;">${cmpAddress} · هاتف: ${cmpPhone}</div>
+                        </div>
+                    </div>
+
+                    <div style="text-align:center; width:30%;">
+                        <div class="sheet-title-box" style="border:2px solid #0f172a; padding:8px 20px; border-radius:8px; background:#f8fafc; display:inline-block;">
+                            <h3 style="margin:0; font-size:1.2rem; font-weight:900; color:#0f172a; white-space:nowrap;" class="editable-text">📑 كشف حركة المخازن التفصيلي</h3>
+                            <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">(مراقبة تدفق البضائع للمخزن)</div>
+                        </div>
+                    </div>
+
+                    <div style="text-align:left; width:35%; font-size:0.78rem; color:#475569; line-height:1.6;">
+                        <div>تاريخ التقرير: <strong>${printedAt}</strong></div>
+                        <div>الفترة المحددة: <strong>${periodStr}</strong></div>
+                        <div>المخزن: <strong>${whName}</strong></div>
+                    </div>
+                </div>
+
+                <div id="sheet-kpis-block" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-bottom:20px;">
+                    <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 14px; text-align:center;">
+                        <div style="font-size:0.75rem; color:#15803d; font-weight:700;">إجمالي الوارد (مشتريات/استلام/تحويل) ⚖️</div>
+                        <div style="font-size:1.05rem; font-weight:900; color:#16a34a; margin-top:4px;">${fmtNum(currentSumIn)}</div>
+                    </div>
+                    <div style="background:#fdf2f8; border:1px solid #fbcfe8; border-radius:8px; padding:10px 14px; text-align:center;">
+                        <div style="font-size:0.75rem; color:#be185d; font-weight:700;">إجمالي المنصرف (مبيعات/تسليم/تحويل) 💰</div>
+                        <div style="font-size:1.05rem; font-weight:900; color:#db2777; margin-top:4px;">${fmtNum(currentSumOut)}</div>
+                    </div>
+                    <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:10px 14px; text-align:center;">
+                        <div style="font-size:0.75rem; color:#b45309; font-weight:700;">صافي الحركة 🔄</div>
+                        <div style="font-size:1.05rem; font-weight:900; color:#d97706; margin-top:4px;">${fmtNum(currentSumIn - currentSumOut)}</div>
+                    </div>
+                </div>
+
+                <div id="sheet-table-block" style="margin-bottom:25px;">
+                    <table class="ledger-sheet-table" style="width:100%; border-collapse:collapse; text-align:right; font-size:0.85rem; direction:rtl;">
+                        <thead>
+                            ${headerHtml}
+                        </thead>
+                        <tbody>
+                            ${rowsHtml}
+                        </tbody>
+                        <tfoot>
+                            <tr style="background:#f8fafc; font-weight:900; border-top:2px solid #0f172a;">
+                                <td colspan="5" style="padding:10px; text-align:left; border:1px solid #94a3b8;">الإجمالي:</td>
+                                <td class="col-in" style="border:1px solid #94a3b8; text-align:center; color:#15803d;">${fmtNum(currentSumIn)}</td>
+                                <td class="col-out" style="border:1px solid #94a3b8; text-align:center; color:#be185d;">${fmtNum(currentSumOut)}</td>
+                            </tr>
+                        </tfoot>
+                    </table>
+                </div>
+
+                <div id="sheet-signatures-block" style="margin-top:35px; border-top:1px dashed #cbd5e1; padding-top:20px; display:grid; grid-template-columns: repeat(3, 1fr); gap:15px; text-align:center; font-size:0.82rem; color:#334155;">
+                    <div style="border:1px solid #e2e8f0; border-radius:6px; padding:10px; background:#fafafa;">
+                        <strong style="color:#0f172a;">✍️ أمين المستودع</strong>
+                        <div style="margin-top:28px; border-top:1px solid #cbd5e1; padding-top:4px;">الاسم والتوقيع</div>
+                    </div>
+                    <div style="border:1px solid #e2e8f0; border-radius:6px; padding:10px; background:#fafafa;">
+                        <strong style="color:#0f172a;">📊 المحاسب المختص</strong>
+                        <div style="margin-top:28px; border-top:1px solid #cbd5e1; padding-top:4px;">الاسم والتوقيع</div>
+                    </div>
+                    <div style="border:1px solid #e2e8f0; border-radius:6px; padding:10px; background:#fafafa;">
+                        <strong style="color:#0f172a;">🏢 اعتماد الإدارة والختم</strong>
+                        <div style="margin-top:28px; border-top:1px solid #cbd5e1; padding-top:4px;">الختم الرسمي</div>
+                    </div>
+                </div>
+
+                <div style="margin-top:25px; border-top:1px solid #e2e8f0; padding-top:8px; display:flex; justify-content:space-between; font-size:0.72rem; color:#94a3b8; direction:rtl;">
+                    <div>تم استخراج وطباعة هذا التقرير تلقائياً عبر نظام مقاييس ERP المتكامل · MAGAIEES CLOUD</div>
+                    <div>صفحة 1 من 1</div>
+                </div>
+            `;
+
+            const sheet = document.getElementById('warehouse-ledger-sheet');
+            sheet.innerHTML = sheetHtml;
+
+            const design = getSavedDesign();
+            loadDesignIntoControls(design);
+            applyStudioDesign();
+
+            const modal = document.getElementById('warehouse-ledger-preview-modal');
+            if (modal) modal.style.display = 'flex';
+        }
+
+        function closeWarehouseLedgerPreview() {
+            const modal = document.getElementById('warehouse-ledger-preview-modal');
+            if (modal) modal.style.display = 'none';
+        }
+
+        function applyStudioDesign() {
+            const sheet = document.getElementById('warehouse-ledger-sheet');
+            if (!sheet) return;
+
+            const themeKey = document.getElementById('studio-theme-select')?.value || 'corporate';
+            const theme = THEMES_CONFIG[themeKey] || THEMES_CONFIG.corporate;
+            const font = document.getElementById('studio-font-select')?.value || "'Tajawal', sans-serif";
+            const size = document.getElementById('studio-size-select')?.value || 'medium';
+            const orientation = document.getElementById('studio-orientation-select')?.value || 'landscape';
+
+            const showHeader = document.getElementById('chk-show-header')?.checked;
+            const showMeta = document.getElementById('chk-show-meta')?.checked;
+            const showKPIs = document.getElementById('chk-show-kpis')?.checked;
+            const showSignatures = document.getElementById('chk-show-signatures')?.checked;
+
+            sheet.style.fontFamily = font;
+
+            if (size === 'compact') {
+                sheet.style.fontSize = '0.76rem';
+                sheet.querySelectorAll('th, td').forEach(c => c.style.padding = '5px 4px');
+            } else if (size === 'large') {
+                sheet.style.fontSize = '0.94rem';
+                sheet.querySelectorAll('th, td').forEach(c => c.style.padding = '12px 10px');
+            } else {
+                sheet.style.fontSize = '0.85rem';
+                sheet.querySelectorAll('th, td').forEach(c => c.style.padding = '8px 6px');
+            }
+
+            if (orientation === 'portrait') {
+                sheet.style.maxWidth = '850px';
+            } else {
+                sheet.style.maxWidth = '1180px';
+            }
+
+            const printStyle = document.getElementById('warehouse-ledger-print-style');
+            if (printStyle) {
+                printStyle.innerHTML = `
+                    #warehouse-ledger-preview-modal.print-direct-mode { display: none !important; }
+                    @page { size: ${orientation}; margin: 8mm; }
+                    @media print {
+                        #warehouse-ledger-preview-modal.print-direct-mode { display: block !important; }
+                        body > *:not(#warehouse-ledger-preview-modal) { display: none !important; }
+                        #warehouse-ledger-preview-modal { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; height: auto !important; background: #fff !important; padding: 0 !important; margin: 0 !important; display: block !important; overflow: visible !important; }
+                        #warehouse-ledger-preview-modal .glass-panel { width: 100% !important; max-width: 100% !important; height: auto !important; border: none !important; background: #fff !important; padding: 0 !important; box-shadow: none !important; margin: 0 !important; }
+                        .global-sidebar, .no-print, .btn-action, .dash-controls { display: none !important; }
+                        #warehouse-ledger-preview-modal .preview-scroll-container { background: #fff !important; padding: 0 !important; overflow: visible !important; }
+                        #warehouse-ledger-sheet { box-shadow: none !important; padding: 0 !important; margin: 0 !important; border: none !important; width: 100% !important; max-width: 100% !important; }
+                        #warehouse-ledger-sheet table { width: 100% !important; border-collapse: collapse !important; table-layout: auto !important; }
+                        #warehouse-ledger-sheet th, #warehouse-ledger-sheet td { border: 1px solid #94a3b8 !important; page-break-inside: avoid; }
+                    }
+                `;
+            }
+
+            const titleBox = sheet.querySelector('.sheet-title-box');
+            if (titleBox) {
+                titleBox.style.borderColor = theme.primary;
+                titleBox.style.background = theme.headerBg;
+                const h3 = titleBox.querySelector('h3');
+                if (h3) h3.style.color = theme.primary;
+            }
+
+            const theadRows = sheet.querySelectorAll('.ledger-sheet-thead-row th');
+            theadRows.forEach(th => {
+                th.style.background = theme.primary;
+                th.style.color = '#ffffff';
+                th.style.borderColor = theme.border;
+            });
+
+            const badges = sheet.querySelectorAll('.sheet-badge');
+            badges.forEach(b => {
+                b.style.padding = '3px 8px';
+                b.style.borderRadius = '4px';
+                b.style.fontSize = '0.78rem';
+                b.style.fontWeight = '700';
+                b.style.display = 'inline-block';
+                if (b.classList.contains('badge-in')) {
+                    b.style.background = '#dcfce7';
+                    b.style.color = '#15803d';
+                    b.style.border = '1px solid #86efac';
+                } else if (b.classList.contains('badge-out')) {
+                    b.style.background = '#fce7f3';
+                    b.style.color = '#be185d';
+                    b.style.border = '1px solid #f9a8d4';
+                } else {
+                    b.style.background = theme.bgBadge;
+                    b.style.color = theme.textBadge;
+                    b.style.border = `1px solid ${theme.border}`;
+                }
+            });
+
+            const hBlock = document.getElementById('sheet-header-block');
+            if (hBlock) hBlock.style.display = showHeader ? 'flex' : 'none';
+
+            const kBlock = document.getElementById('sheet-kpis-block');
+            if (kBlock) kBlock.style.display = showKPIs ? 'grid' : 'none';
+
+            const sBlock = document.getElementById('sheet-signatures-block');
+            if (sBlock) sBlock.style.display = showSignatures ? 'grid' : 'none';
+
+            const colToggles = document.querySelectorAll('.col-toggle');
+            colToggles.forEach(chk => {
+                const colKey = chk.getAttribute('data-col');
+                const isChecked = chk.checked;
+                sheet.querySelectorAll(`.col-${colKey}`).forEach(el => {
+                    el.style.display = isChecked ? '' : 'none';
+                });
+            });
+        }
+
+        let currentSelectedWarehouseLedgerCol = 'date';
+        function selectWarehouseLedgerCol(colKey) {
+            currentSelectedWarehouseLedgerCol = colKey;
+            const sheet = document.getElementById('warehouse-ledger-sheet');
+            if (!sheet) return;
+            const firstCell = sheet.querySelector(`.col-${colKey}`);
+            const isVis = firstCell ? (firstCell.style.display !== 'none') : true;
+            const chk = document.getElementById('warehouse-col-visible-chk');
+            if (chk) chk.checked = isVis;
+
+            const headerCell = sheet.querySelector(`th.col-${colKey}`);
+            const lblInput = document.getElementById('warehouse-col-label-input');
+            if (lblInput && headerCell) lblInput.value = headerCell.innerText.trim();
+        }
+
+        function updateSelectedWarehouseLedgerCol(prop, val) {
+            const sheet = document.getElementById('warehouse-ledger-sheet');
+            if (!sheet) return;
+            if (prop === 'visible') {
+                sheet.querySelectorAll(`.col-${currentSelectedWarehouseLedgerCol}`).forEach(el => {
+                    el.style.display = val ? '' : 'none';
+                });
+            } else if (prop === 'label') {
+                const headerCell = sheet.querySelector(`th.col-${currentSelectedWarehouseLedgerCol}`);
+                if (headerCell) headerCell.innerText = val;
+            } else if (prop === 'align') {
+                sheet.querySelectorAll(`.col-${currentSelectedWarehouseLedgerCol}`).forEach(el => {
+                    el.style.textAlign = val;
+                });
+            } else if (prop === 'width') {
+                sheet.querySelectorAll(`.col-${currentSelectedWarehouseLedgerCol}`).forEach(el => {
+                    el.style.width = val ? (val + '%') : 'auto';
+                });
+            }
+        }
+
+        function setItemTableWidth(val) {
+            const sheet = document.getElementById('warehouse-ledger-sheet');
+            const tbl = sheet ? sheet.querySelector('table') : null;
+            const lbl = document.getElementById('warehouse-table-width-label');
+            if (tbl) tbl.style.width = val + '%';
+            if (lbl) lbl.textContent = val + '%';
+        }
+
+        function printWarehouseLedgerSheet() {
+            if (isLiveEditActive) {
+                toggleLiveEditMode();
+            }
+            setTimeout(() => {
+                window.print();
+            }, 100);
+        }</script>
 </body>
 </html>
 
