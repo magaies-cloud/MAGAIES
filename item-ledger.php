@@ -356,6 +356,156 @@
     <!-- ═══════════════════════════════════════════════════════════ -->
     <!-- 🎨 ITEM LEDGER PREVIEW & DESIGN STUDIO MODAL                -->
     <!-- ═══════════════════════════════════════════════════════════ -->
+    <div id="item-ledger-preview-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 15, 30, 0.92); z-index: 12000; align-items: center; justify-content: center; direction: rtl; backdrop-filter: blur(12px);">
+        <div class="glass-panel" style="width: 96%; max-width: 1420px; height: 94vh; display: flex; flex-direction: column; padding: 18px 22px; border: 1px solid rgba(255,255,255,0.12); background: #0b1120; border-radius: 18px; color: #fff; box-shadow: 0 25px 60px rgba(0,0,0,0.6); overflow: hidden;">
+            
+            <!-- Top Toolbar Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 12px;" class="no-print">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.4rem;">👁️</span>
+                    <div>
+                        <h3 style="margin: 0; font-weight: 900; color: #38bdf8; font-size: 1.15rem;">معاينة وتخصيص تصميم كارت حركة الصنف</h3>
+                        <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: #94a3b8;">استوديو التصميم: يمكنك تعديل الألوان، الخطوط، الأعمدة، والتعديل المباشر على النصوص</p>
+                    </div>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <!-- Studio Design Toggle -->
+                    <button type="button" id="btn-toggle-design-studio" onclick="toggleDesignStudioDrawer()" class="btn-action" style="background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.4); color: #38bdf8; padding: 7px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <span>🎨</span> تخصيص التصميم
+                    </button>
+                    <!-- Live Edit Mode Toggle -->
+                    <button type="button" id="btn-toggle-live-edit" onclick="toggleLiveEditMode()" class="btn-action" style="background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); color: #fbbf24; padding: 7px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
+                        <span>✏️</span> تعديل النصوص مباشرة
+                    </button>
+                    <!-- Print Button -->
+                    <button type="button" onclick="printItemLedgerSheet()" class="btn-action" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 7px 18px; font-weight: 800; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
+                        <span>🖨️</span> طباعة التقرير
+                    </button>
+                    <!-- Close Button -->
+                    <button type="button" onclick="closeItemLedgerPreview()" class="btn-action" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #e2e8f0; padding: 7px 14px; border-radius: 8px; cursor: pointer;">
+                        ✕ إغلاق
+                    </button>
+                </div>
+            </div>
+
+            <!-- Design Studio Toolbar (Collapsible / Active) -->
+            <div id="item-ledger-studio-drawer" class="no-print" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: center; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 12px 18px; margin-bottom: 14px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);">
+                <!-- 1. Color Palette / Theme -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">🎨 نمط الألوان والثيم:</label>
+                    <select id="studio-theme-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 5px 10px; font-size: 0.8rem;">
+                        <option value="corporate">🔷 أزرق نيلي شركات (Corporate)</option>
+                        <option value="emerald">🟢 أخضر زمردي مخزني (Emerald)</option>
+                        <option value="gold">🟡 ذهبي كلاسيكي فاخر (Royal Gold)</option>
+                        <option value="cyan">🔵 سيان عصري (Modern Cyan)</option>
+                        <option value="purple">🟣 بنفسجي تقني (Purple Tech)</option>
+                        <option value="classic">⚫ رمادي أحادي رسمي (Monochrome)</option>
+                    </select>
+                </div>
+
+                <!-- 2. Font Family -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">🔤 نوع الخط العربي:</label>
+                    <select id="studio-font-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 5px 10px; font-size: 0.8rem;">
+                        <option value="'Tajawal', sans-serif">تجوّل (Tajawal)</option>
+                        <option value="'Cairo', sans-serif">القاهرة (Cairo)</option>
+                        <option value="'Almarai', sans-serif">المراعي (Almarai)</option>
+                        <option value="'Traditional Arabic', 'Segoe UI', serif">عربي تقليدي (Traditional)</option>
+                        <option value="'Segoe UI', Tahoma, sans-serif">عصري نظامي (Segoe UI)</option>
+                    </select>
+                </div>
+
+                <!-- 3. Font Size -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">📏 حجم الخط والجدول:</label>
+                    <select id="studio-size-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 5px 10px; font-size: 0.8rem;">
+                        <option value="compact">مدمج صغير (Compact - 11px)</option>
+                        <option value="medium" selected>متوازن قياسي (Medium - 13px)</option>
+                        <option value="large">كبير واضح (Large - 15px)</option>
+                    </select>
+                </div>
+
+                <!-- 4. Paper Orientation -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">📑 اتجاه الورقة (A4):</label>
+                    <select id="studio-orientation-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 5px 10px; font-size: 0.8rem;">
+                        <option value="landscape" selected>↔️ أفقي (Landscape - مناسب للجداول)</option>
+                        <option value="portrait">↕️ طولي (Portrait)</option>
+                    </select>
+                </div>
+
+                <!-- 5. Sections Toggles -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">👁️ إظهار الأقسام:</label>
+                    <div style="display: flex; gap: 8px; align-items: center;">
+                        <label style="font-size: 0.75rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+                            <input type="checkbox" id="chk-show-header" checked onchange="applyStudioDesign()"> الترويسة
+                        </label>
+                        <label style="font-size: 0.75rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+                            <input type="checkbox" id="chk-show-meta" checked onchange="applyStudioDesign()"> بيانات الصنف
+                        </label>
+                        <label style="font-size: 0.75rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+                            <input type="checkbox" id="chk-show-kpis" checked onchange="applyStudioDesign()"> ملخص الأرصدة
+                        </label>
+                        <label style="font-size: 0.75rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+                            <input type="checkbox" id="chk-show-signatures" checked onchange="applyStudioDesign()"> التوقيعات
+                        </label>
+                    </div>
+                </div>
+
+                <!-- 6. Columns Customizer Checkboxes -->
+                <div style="display: flex; flex-direction: column; gap: 4px;">
+                    <label style="font-size: 0.72rem; color: #94a3b8; font-weight: 700;">📋 أعمدة الجدول المعروضة:</label>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="date" checked onchange="applyStudioDesign()"> التاريخ</label>
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="type" checked onchange="applyStudioDesign()"> نوع الحركة</label>
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="permit" checked onchange="applyStudioDesign()"> رقم الإذن</label>
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="receipt" checked onchange="applyStudioDesign()"> رقم الاستلام</label>
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="in" checked onchange="applyStudioDesign()"> الوارد</label>
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="out" checked onchange="applyStudioDesign()"> المنصرف</label>
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="balance" checked onchange="applyStudioDesign()"> الرصيد</label>
+                        <label style="font-size: 0.72rem; background: rgba(255,255,255,0.05); padding: 2px 6px; border-radius: 4px; cursor: pointer;"><input type="checkbox" class="col-toggle" data-col="notes" checked onchange="applyStudioDesign()"> ملحوظة الحركة</label>
+                    </div>
+                </div>
+
+                <!-- 7. Save & Reset Presets -->
+                <div style="display: flex; align-items: flex-end; gap: 6px; margin-right: auto;">
+                    <button type="button" onclick="saveStudioDesignPreset()" style="background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.4); color: #34d399; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
+                        💾 حفظ التصميم
+                    </button>
+                    <button type="button" onclick="resetStudioDesignPreset()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: #cbd5e1; padding: 6px 12px; border-radius: 6px; font-size: 0.75rem; cursor: pointer;">
+                        🔄 استعادة
+                    </button>
+                </div>
+            </div>
+
+            <!-- Scrollable Sheet Container -->
+            <div style="flex: 1; overflow-y: auto; background: #0f172a; padding: 25px 15px; display: flex; justify-content: center; border-radius: 12px; box-shadow: inset 0 2px 15px rgba(0,0,0,0.5);" class="preview-scroll-container">
+                <div id="item-ledger-sheet" style="width: 100%; max-width: 1180px; background: #ffffff; color: #0f172a; padding: 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.3); border-radius: 6px; min-height: fit-content; box-sizing: border-box; overflow-x: auto; transition: all 0.3s ease;">
+                    <!-- Dynamically rendered sheet content -->
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Print CSS Injection -->
+    <style id="item-ledger-print-style">
+        #item-ledger-preview-modal.print-direct-mode { display: none !important; }
+        @page { size: landscape; margin: 8mm; }
+        @media print {
+            #item-ledger-preview-modal.print-direct-mode { display: block !important; }
+            body > *:not(#item-ledger-preview-modal) { display: none !important; }
+            #item-ledger-preview-modal { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; height: auto !important; background: #fff !important; padding: 0 !important; margin: 0 !important; display: block !important; overflow: visible !important; }
+            #item-ledger-preview-modal .glass-panel { width: 100% !important; max-width: 100% !important; height: auto !important; border: none !important; background: #fff !important; padding: 0 !important; box-shadow: none !important; margin: 0 !important; }
+            .global-sidebar, .no-print, .btn-action, .dash-controls { display: none !important; }
+            #item-ledger-preview-modal .preview-scroll-container { background: #fff !important; padding: 0 !important; overflow: visible !important; }
+            #item-ledger-sheet { box-shadow: none !important; padding: 0 !important; margin: 0 !important; border: none !important; width: 100% !important; max-width: 100% !important; }
+            #item-ledger-sheet table { width: 100% !important; border-collapse: collapse !important; table-layout: auto !important; }
+            #item-ledger-sheet th, #item-ledger-sheet td { border: 1px solid #94a3b8 !important; page-break-inside: avoid; }
+        }
+    </style>
 
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
@@ -658,66 +808,78 @@
             return fmtNum(val);
         }
         
-        document.addEventListener('DBReady', () => {
-            // Load Items to Select - Show Item Name ONLY to maximize UI space
+        function initItemLedger() {
             itemsDb = JSON.parse(localStorage.getItem(ITEMS_STORAGE_KEY)) || [];
             const select = document.getElementById('item-select');
-            itemsDb.forEach(item => {
-                const opt = document.createElement('option');
-                opt.value = item.id;
-                opt.text = item.name;
-                select.appendChild(opt);
-            });
+            if (select && select.options.length <= 1) {
+                select.innerHTML = '<option value="">-- يرجى اختيار صنف --</option>';
+                itemsDb.forEach(item => {
+                    const opt = document.createElement('option');
+                    opt.value = item.id;
+                    opt.text = item.name;
+                    select.appendChild(opt);
+                });
+            }
 
             // Load Warehouses
             const whSelect = document.getElementById('warehouse-select');
-            warehousesDb = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
-            const displayWh = [{ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام' }, ...warehousesDb];
-            displayWh.forEach(wh => {
-                const opt = document.createElement('option');
-                opt.value = wh.id;
-                opt.text = wh.name;
-                whSelect.appendChild(opt);
-            });
+            if (whSelect && whSelect.options.length <= 1) {
+                whSelect.innerHTML = '<option value="ALL">جميع المخازن</option>';
+                warehousesDb = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
+                const displayWh = [{ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام' }, ...warehousesDb];
+                displayWh.forEach(wh => {
+                    const opt = document.createElement('option');
+                    opt.value = wh.id;
+                    opt.text = wh.name;
+                    whSelect.appendChild(opt);
+                });
+            }
 
-            // Set default dates (1st of month to today)
-            const today = new Date();
-            const firstDay = new Date(today.getFullYear(), today.getMonth(), 1);
-            document.getElementById('date-to').valueAsDate = today;
+            // Set default dates if empty
+            const dateTo = document.getElementById('date-to');
+            if (dateTo && !dateTo.value) {
+                dateTo.valueAsDate = new Date();
+            }
 
-            // Check if URL has ?item=ID
+            // Check URL param ?item=ID
             const urlParams = new URLSearchParams(window.location.search);
             const itemId = urlParams.get('item');
-            if (itemId) {
+            if (itemId && select && select.value !== itemId) {
                 select.value = itemId;
                 onItemSelected();
             }
-        });
+        }
+
+        if (document.readyState === 'loading') {
+            document.addEventListener('DOMContentLoaded', initItemLedger);
+        } else {
+            initItemLedger();
+        }
+        document.addEventListener('DBReady', initItemLedger);
 
         function buildRealHistory(itemId) {
             let history = [];
-            const itemObj = itemsDb.find(i => i.id === itemId);
+            const itemObj = itemsDb.find(i => String(i.id) === String(itemId));
             const itemBaseUnit = safeString(itemObj ? (itemObj.baseUnit || itemObj.unit || '') : '');
             
-            // 1. Get Purchases
+            // 1. Get Purchases & Adjustments
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
             purchases = purchases.filter(x => !x.deleted);
             purchases.forEach(inv => {
                 (inv.items || inv.lines || []).forEach(line => {
-                    if (line.itemId === itemId || line.productId === itemId) {
+                    if (String(line.itemId) === String(itemId) || String(line.productId) === String(itemId)) {
                         let wh = getWarehouseId(line.warehouseId || inv.warehouseId || inv.warehouse);
                         if (wh === 'PENDING_RECEIPT') {
-                            return; // Skip pending items (not in actual warehouse yet)
+                            return; // Skip pending items
                         }
 
-                        // ─── Original transaction unit data (BEFORE conversion) ───
                         const origQty    = parseFloat(line.quantity) || 0;
                         const origUnit   = safeString(line.unit || line.selectedUnit || itemBaseUnit || '');
                         const origFactor = parseFloat(line.customFactor !== undefined ? line.customFactor : (line.factor || 1));
 
                         let baseQty = 0;
                         if (line.customBaseQty !== undefined) {
-                            baseQty = line.customBaseQty;
+                            baseQty = parseFloat(line.customBaseQty) || 0;
                         } else {
                             let factor = origFactor;
                             let conv = itemObj ? (itemObj.conversionFactor || 1) : 1;
@@ -729,7 +891,19 @@
                         let valIn = baseQty;
                         let valOut = 0;
 
-                        if (inv.isReturn) {
+                        if (inv.isAdjustment) {
+                            if (baseQty >= 0) {
+                                typeName = 'تسوية جردية (إضافة)';
+                                typeCode = 'in';
+                                valIn = baseQty;
+                                valOut = 0;
+                            } else {
+                                typeName = 'تسوية جردية (عجز)';
+                                typeCode = 'out';
+                                valIn = 0;
+                                valOut = Math.abs(baseQty);
+                            }
+                        } else if (inv.isReturn) {
                             typeName = 'مردودات مشتريات';
                             typeCode = 'out';
                             valIn = 0;
@@ -744,20 +918,17 @@
                         let receiptDocId = inv.id || inv.invoiceNo || '';
 
                         if (inv.isGRN) {
-                            // مذكرة استلام بضاعة: رقم الإذن = الفاتورة الأصلية (e.g. 26080015)
                             permitNo = inv.originalInvoiceId || inv.invoiceNo || inv.poNumber || inv.orderNo || '-';
                             receiptNo = inv.id || inv.grnNumber || inv.receiptNo || '-';
                             permitDocId = inv.originalInvoiceId || inv.invoiceNo || '';
                             receiptDocId = inv.id || '';
                         } else {
-                            // فاتورة مشتريات عادية: رقم الإذن / الفاتورة = 26080015
                             permitNo = inv.originalInvoiceId || inv.poNumber || inv.orderNo || inv.permitNo || inv.invoiceNo || inv.id || '-';
                             receiptNo = inv.receiptNo || inv.invoiceNo || inv.id || '-';
                             permitDocId = permitNo !== '-' ? permitNo : (inv.invoiceNo || inv.id);
                             receiptDocId = inv.invoiceNo || inv.id;
                         }
 
-                        // Capture Note for Goods Receipt / Purchase
                         let noteText = '';
                         if (line.notes && line.notes.trim()) {
                             noteText = line.notes.trim();
@@ -782,7 +953,6 @@
                             notes: noteText,
                             in: valIn,
                             out: valOut,
-                            // ─── Original unit data (preserved for display) ───
                             origQty: typeCode === 'out' ? -origQty : origQty,
                             origUnit: origUnit,
                             origFactor: origFactor,
@@ -799,24 +969,23 @@
                 let hdrWh = inv.warehouse;
                 
                 (inv.items || []).forEach(line => {
-                    if (line.itemId === itemId) {
+                    if (String(line.itemId) === String(itemId)) {
                         if (inv.saleType === 'reserved' && inv.deliveryStatus !== 'delivered') {
-                            return; // Skip if reserved but not delivered yet
+                            return; // Skip if reserved and not delivered
                         }
 
                         let lineWh = getWarehouseId(inv.deliveryWarehouse || line.warehouseId || hdrWh);
                         if (lineWh === 'PENDING_RECEIPT') {
-                            return; // Skip pending delivery items
+                            return;
                         }
                         
-                        // ─── Original transaction unit data (BEFORE conversion) ───
                         const origQty    = parseFloat(line.quantity) || 0;
                         const origUnit   = safeString(line.unit || line.selectedUnit || itemBaseUnit || '');
                         const origFactor = parseFloat(line.customFactor !== undefined ? line.customFactor : (line.factor || 1));
 
                         let baseQty = 0;
                         if (line.customBaseQty !== undefined) {
-                            baseQty = line.customBaseQty;
+                            baseQty = parseFloat(line.customBaseQty) || 0;
                         } else {
                             let factor = origFactor;
                             let conv = itemObj ? (itemObj.conversionFactor || 1) : 1;
@@ -828,7 +997,6 @@
                         let permitDocId = permitNo !== '-' ? permitNo : (inv.invoiceNo || inv.id);
                         let receiptDocId = inv.invoiceNo || inv.id;
 
-                        // Capture Note for Sales / Delivery Note
                         let noteText = '';
                         if (line.notes && line.notes.trim()) {
                             noteText = line.notes.trim();
@@ -859,11 +1027,72 @@
                             notes: noteText,
                             in: 0,
                             out: baseQty,
-                            // ─── Original unit data (preserved for display) ───
                             origQty: origQty,
                             origUnit: origUnit,
                             origFactor: origFactor,
                             origIsSameAsBase: (origUnit === itemBaseUnit || origFactor === 1)
+                        });
+                    }
+                });
+            });
+
+            // 3. Get Warehouse Transfers
+            let transfers = JSON.parse(localStorage.getItem('erp_warehouse_transfers_v1')) || [];
+            transfers = transfers.filter(x => !x.deleted && x.status !== 'cancelled');
+            transfers.forEach(tr => {
+                let fromWh = getWarehouseId(tr.fromWarehouse);
+                let toWh = getWarehouseId(tr.toWarehouse);
+                let fromWhName = tr.fromWarehouseName || tr.fromWarehouse || 'المخزن';
+                let toWhName = tr.toWarehouseName || tr.toWarehouse || 'المخزن';
+                (tr.items || []).forEach(line => {
+                    if (String(line.itemId) === String(itemId)) {
+                        const origQty = parseFloat(line.quantity) || 0;
+                        const origUnit = safeString(line.unitName || line.unit || itemBaseUnit || '');
+                        let resolvedFactor = parseFloat(line.customFactor || line.factor) || 1;
+                        let baseQty = (line.customBaseQty !== undefined) ? parseFloat(line.customBaseQty) : (origQty * resolvedFactor);
+
+                        // Outward from source warehouse
+                        history.push({
+                            date: new Date(tr.date || tr.createdAt || Date.now()),
+                            typeCode: 'out',
+                            typeName: `تحويل مخزني (صادر إلى ${toWhName})`,
+                            permitNo: tr.transferNo || tr.id || '-',
+                            permitDocId: tr.id || '',
+                            receiptNo: tr.transferNo || tr.id || '-',
+                            receiptDocId: tr.id || '',
+                            isGRN: false,
+                            ref: tr.transferNo || tr.id,
+                            docId: tr.id,
+                            warehouse: fromWh,
+                            notes: tr.notes || line.notes || '',
+                            in: 0,
+                            out: baseQty,
+                            origQty: origQty,
+                            origUnit: origUnit,
+                            origFactor: resolvedFactor,
+                            origIsSameAsBase: (origUnit === itemBaseUnit || resolvedFactor === 1)
+                        });
+
+                        // Inward to destination warehouse
+                        history.push({
+                            date: new Date(tr.date || tr.createdAt || Date.now()),
+                            typeCode: 'in',
+                            typeName: `تحويل مخزني (وارد من ${fromWhName})`,
+                            permitNo: tr.transferNo || tr.id || '-',
+                            permitDocId: tr.id || '',
+                            receiptNo: tr.transferNo || tr.id || '-',
+                            receiptDocId: tr.id || '',
+                            isGRN: false,
+                            ref: tr.transferNo || tr.id,
+                            docId: tr.id,
+                            warehouse: toWh,
+                            notes: tr.notes || line.notes || '',
+                            in: baseQty,
+                            out: 0,
+                            origQty: origQty,
+                            origUnit: origUnit,
+                            origFactor: resolvedFactor,
+                            origIsSameAsBase: (origUnit === itemBaseUnit || resolvedFactor === 1)
                         });
                     }
                 });
@@ -878,8 +1107,6 @@
             const thead = document.querySelector('.dash-table thead');
             if (!thead) return;
 
-            // Always show: Date | Type | Permit | Receipt | Orig Operation | → base-unit cols | Balance cols | Notes
-            // Orig Operation = the quantity in its original unit as recorded in the invoice
             const baseUnitName = activeUnits.length > 0 ? activeUnits[0].name : 'وحدة';
             const numBalCols   = activeUnits.length;
 
@@ -957,14 +1184,14 @@
                 return;
             }
 
-            const item = itemsDb.find(i => i.id === itemId);
+            const item = itemsDb.find(i => String(i.id) === String(itemId));
             const activeUnits = getActiveSelectedUnits(item);
             renderLedgerTableHeader(activeUnits);
             
             // 1. Build history
             let history = buildRealHistory(itemId);
 
-            // 2. Filter by warehouse first to calculate the correct running balance for this warehouse
+            // 2. Filter by warehouse
             const filterWh = document.getElementById('warehouse-select').value;
             if (filterWh && filterWh !== 'ALL') {
                 history = history.filter(h => getWarehouseId(h.warehouse) === getWarehouseId(filterWh) || h.typeCode === 'open');
@@ -973,14 +1200,12 @@
             // 3. Sort chronologically
             history.sort((a, b) => new Date(a.date) - new Date(b.date));
 
-            // 4. Calculate true running balances chronologically (unfiltered by date)
+            // 4. Calculate true running balances
             let running = 0;
             history.forEach(row => {
                 running += (row.in - row.out);
                 row.runningBalance = running;
             });
-
-            // Keep track of the final overall balance (actual current stock)
             const actualCurrentStock = running;
 
             // 5. Apply Date Filters for display
@@ -1016,7 +1241,7 @@
                  }
             }
 
-            filteredHistory.forEach((row, index) => {
+            filteredHistory.forEach((row) => {
                 if (row.typeCode === 'in') sumIn += row.in;
                 if (row.typeCode === 'out') sumOut += row.out;
 
@@ -1029,7 +1254,7 @@
 
                 const tr = document.createElement('tr');
 
-                // Permit (Original Invoice / Order) rendering
+                // Permit rendering
                 let permitTarget = '';
                 if (row.typeCode === 'out') permitTarget = `sales-invoice.php?id=${row.permitDocId}`;
                 else if (row.typeCode === 'in') permitTarget = `purchase.php?id=${row.permitDocId}`;
@@ -1051,7 +1276,7 @@
                     permitHtml = `<span style="color:#64748b; font-weight:600;">-</span>`;
                 }
 
-                // Receipt Note / Document rendering
+                // Receipt Note rendering
                 let receiptTarget = '';
                 if (row.typeCode === 'out') receiptTarget = `sales-invoice.php?id=${row.receiptDocId || row.docId}`;
                 else if (row.typeCode === 'in') {
@@ -1081,10 +1306,7 @@
                     `<span style="background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.25); color:#bae6fd; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:600; display:inline-flex; align-items:center; gap:4px; max-width:240px; white-space:normal; text-align:right;">📝 ${row.notes}</span>` :
                     `<span style="color:#64748b;">-</span>`;
 
-                // ── Helper: build the "original unit" quantity display for in or out ──
-                // Shows: "1 طن" in bold, then "(= 135 سيخ)" in grey if the unit differs from base
                 function buildOrigQtyCell(qty, direction) {
-                    // direction: 'in' or 'out'
                     const isIn = direction === 'in';
                     if ((isIn && row.in <= 0) || (!isIn && row.out <= 0)) {
                         return `<td style="${isIn ? 'color:#10b981' : 'color:#ec4899'}; font-weight:700; background:${isIn ? 'rgba(16,185,129,0.02)' : 'rgba(236,72,153,0.02)'}; text-align:right;">-</td>`;
@@ -1093,21 +1315,18 @@
                     const baseQty     = isIn ? row.in : row.out;
                     const origQtyAbs  = Math.abs(row.origQty || 0);
                     const origUnit    = row.origUnit || '';
-                    const origFactor  = row.origFactor || 1;
                     const isSameBase  = row.origIsSameAsBase;
                     const baseUnitObj = activeUnits[0];
                     const baseFormatted = formatQtyInUnit(baseQty, baseUnitObj);
 
                     let html = '';
                     if (origUnit && !isSameBase && origQtyAbs > 0) {
-                        // Movement was in a non-base unit → show both
                         html = `
                             <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
                                 <span style="font-size:1rem; font-weight:900; letter-spacing:-0.3px;">${fmtNum(origQtyAbs)} <span style="font-size:0.85rem; font-weight:700; color:${isIn ? '#6ee7b7' : '#f9a8d4'};">${origUnit}</span></span>
                                 <span style="font-size:0.72rem; color:#94a3b8; font-family:monospace;">(= ${baseFormatted} ${baseUnitObj ? baseUnitObj.name : ''})</span>
                             </div>`;
                     } else {
-                        // Movement was in base unit (or unknown) → show base qty
                         html = `<span style="font-size:1rem; font-weight:800;">${baseFormatted} <span style="font-size:0.82rem; font-weight:600; opacity:0.75;">${baseUnitObj ? baseUnitObj.name : ''}</span></span>`;
                     }
 
@@ -1117,7 +1336,6 @@
                 const inCell  = buildOrigQtyCell(row.in, 'in');
                 const outCell = buildOrigQtyCell(row.out, 'out');
 
-                // Balance columns — one per selected unit
                 let balCells = activeUnits.map(u => `<td style="color:#fbbf24; font-weight:900; background:rgba(251,191,36,0.02); font-size:1.0rem; text-align:right; vertical-align:middle;">${formatQtyInUnit(row.runningBalance, u)} <span style="font-size:0.75rem; font-weight:600; opacity:0.7;">${u.name}</span></td>`).join('');
 
                 tr.innerHTML = `
@@ -1262,7 +1480,7 @@
                 return;
             }
 
-            const item = itemsDb.find(i => i.id === itemId);
+            const item = itemsDb.find(i => String(i.id) === String(itemId));
             const activeUnits = getActiveSelectedUnits(item);
 
             const whSelect = document.getElementById('warehouse-select');
@@ -1270,6 +1488,7 @@
             
             const fromDateStr = document.getElementById('date-from').value;
             const toDateStr = document.getElementById('date-to').value;
+            const periodStr = (fromDateStr || toDateStr) ? `من: ${fromDateStr || 'البداية'} إلى: ${toDateStr || 'اليوم'}` : 'كلي (جميع الفترات)';
 
             // Build fresh history data
             let history = buildRealHistory(itemId);
@@ -1307,6 +1526,182 @@
                 }
             }
 
+            const itemName = item ? item.name : 'الصنف';
+            const itemCode = itemId;
+            const itemCat = item ? (item.category || 'عام') : '-';
+
+            // Company info
+            const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+            const user = JSON.parse(localStorage.getItem('user') || '{}');
+            const companyName = cfg.companyName || user.company_name || localStorage.getItem('companyName') || 'مؤسسة مقاييس للأعمال';
+            const companyPhone = cfg.phone || cfg.whatsapp || user.phone || '—';
+            const companyAddress = cfg.address || user.address || '—';
+            const companyReg = cfg.regNumber || user.reg_number || '';
+            const companyTax = cfg.taxNumber || user.tax_number || user.vat_number || '';
+            const logoUrl = cfg.logoBase64 || localStorage.getItem('company_logo_base64') || user.logo || user.logo_url || '';
+            const printedAt = new Date().toLocaleString('ar-SD-u-nu-latn');
+            const userName = user.fullName || user.username || 'المسؤول';
+
+            // Units display pill
+            const unitsPillsHtml = activeUnits.map((u, i) => `<span style="background:rgba(56,189,248,0.12); color:#0284c7; border:1px solid rgba(56,189,248,0.3); padding:2px 8px; border-radius:6px; font-weight:800; font-size:0.78rem;">الوحدة ${i+1}: ${u.name} (معامل: ${u.factor})</span>`).join(' ');
+
+            // KPI multi-unit text
+            function getKpiText(val) {
+                return activeUnits.map(u => `<strong>${formatQtyInUnit(val, u)}</strong> <small>${u.name}</small>`).join(' | ');
+            }
+
+            // Headers
+            let tableHeaderHtml = '';
+            const baseUnitName = activeUnits.length > 0 ? activeUnits[0].name : 'وحدة';
+            if (activeUnits.length === 1) {
+                tableHeaderHtml = `
+                    <tr class="ledger-sheet-thead-row" style="background:#1e3a8a; color:#fff; font-weight:800; font-size:0.82rem;">
+                        <th class="col-date" style="padding:10px; border:1px solid #94a3b8; text-align:center; width:95px;">التاريخ</th>
+                        <th class="col-type" style="padding:10px; border:1px solid #94a3b8; text-align:center; width:110px;">نوع الحركة</th>
+                        <th class="col-permit" style="padding:10px; border:1px solid #94a3b8; text-align:center; width:110px;">رقم الإذن</th>
+                        <th class="col-receipt" style="padding:10px; border:1px solid #94a3b8; text-align:center; width:110px;">رقم الاستلام</th>
+                        <th class="col-in" style="padding:10px; border:1px solid #94a3b8; text-align:right;">الوارد</th>
+                        <th class="col-out" style="padding:10px; border:1px solid #94a3b8; text-align:right;">المنصرف</th>
+                        <th class="col-balance" style="padding:10px; border:1px solid #94a3b8; text-align:right;">الرصيد (${baseUnitName})</th>
+                        <th class="col-notes" style="padding:10px; border:1px solid #94a3b8; text-align:right;">ملحوظة الحركة</th>
+                    </tr>
+                `;
+            } else {
+                let uHeadersBal = activeUnits.map(u => `<th class="col-balance" style="padding:8px; border:1px solid #94a3b8; text-align:right; font-size:0.75rem;">${u.name}</th>`).join('');
+                tableHeaderHtml = `
+                    <tr class="ledger-sheet-thead-row" style="background:#1e3a8a; color:#fff; font-weight:800; font-size:0.82rem;">
+                        <th rowspan="2" class="col-date" style="padding:10px; border:1px solid #94a3b8; text-align:center; vertical-align:middle; width:95px;">التاريخ</th>
+                        <th rowspan="2" class="col-type" style="padding:10px; border:1px solid #94a3b8; text-align:center; vertical-align:middle; width:110px;">نوع الحركة</th>
+                        <th rowspan="2" class="col-permit" style="padding:10px; border:1px solid #94a3b8; text-align:center; vertical-align:middle; width:110px;">رقم الإذن</th>
+                        <th rowspan="2" class="col-receipt" style="padding:10px; border:1px solid #94a3b8; text-align:center; vertical-align:middle; width:110px;">رقم الاستلام</th>
+                        <th rowspan="2" class="col-in" style="padding:10px; border:1px solid #94a3b8; text-align:right; vertical-align:middle;">الوارد</th>
+                        <th rowspan="2" class="col-out" style="padding:10px; border:1px solid #94a3b8; text-align:right; vertical-align:middle;">المنصرف</th>
+                        <th colspan="${activeUnits.length}" class="col-balance" style="padding:8px; border:1px solid #94a3b8; text-align:center;">الرصيد التراكمي</th>
+                        <th rowspan="2" class="col-notes" style="padding:10px; border:1px solid #94a3b8; text-align:right; vertical-align:middle;">ملحوظة الحركة</th>
+                    </tr>
+                    <tr class="ledger-sheet-thead-subrow" style="background:#1e3a8a; color:#fff; font-weight:800;">
+                        ${uHeadersBal}
+                    </tr>
+                `;
+            }
+
+            // Table Rows HTML
+            let rowsHtml = '';
+            if (filteredHistory.length === 0) {
+                rowsHtml = `<tr><td colspan="${7 + activeUnits.length}" style="text-align:center; padding:35px; color:#64748b; font-size:1.05rem;">لا توجد حركات مسجلة لهذا الصنف في هذه الفترة</td></tr>`;
+            } else {
+                filteredHistory.forEach((row) => {
+                    if (row.typeCode === 'in') sumIn += row.in;
+                    if (row.typeCode === 'out') sumOut += row.out;
+
+                    const dStr = row.date.toISOString().split('T')[0];
+                    const permitDisplay = (row.permitNo && row.permitNo !== '-') ? row.permitNo : '-';
+                    const receiptDisplay = row.ref || row.receiptNo || '-';
+                    const noteDisplay = (row.notes && row.notes !== '-' && row.notes.trim()) ? row.notes : '-';
+
+                    const baseUnitObj = activeUnits[0];
+                    let inDisplay = '-';
+                    if (row.in > 0) {
+                        const inBase = formatQtyInUnit(row.in, baseUnitObj);
+                        if (row.origUnit && !row.origIsSameAsBase && Math.abs(row.origQty || 0) > 0) {
+                            inDisplay = `${fmtNum(Math.abs(row.origQty))} ${row.origUnit} <small style="color:#64748b;">(= ${inBase} ${baseUnitObj.name})</small>`;
+                        } else {
+                            inDisplay = `${inBase} ${baseUnitObj.name}`;
+                        }
+                    }
+
+                    let outDisplay = '-';
+                    if (row.out > 0) {
+                        const outBase = formatQtyInUnit(row.out, baseUnitObj);
+                        if (row.origUnit && !row.origIsSameAsBase && Math.abs(row.origQty || 0) > 0) {
+                            outDisplay = `${fmtNum(Math.abs(row.origQty))} ${row.origUnit} <small style="color:#64748b;">(= ${outBase} ${baseUnitObj.name})</small>`;
+                        } else {
+                            outDisplay = `${outBase} ${baseUnitObj.name}`;
+                        }
+                    }
+
+                    let balCells = activeUnits.map(u => `<td class="col-balance" style="text-align:right; font-weight:900; color:#b45309; background:rgba(245,158,11,0.04);">${formatQtyInUnit(row.runningBalance, u)} <small style="font-size:0.75rem; color:#64748b;">${u.name}</small></td>`).join('');
+
+                    rowsHtml += `
+                        <tr class="ledger-sheet-row">
+                            <td class="col-date" style="font-weight:600; text-align:center;">${dStr}</td>
+                            <td class="col-type" style="text-align:center;"><span class="sheet-badge badge-${row.typeCode}">${row.typeName}</span></td>
+                            <td class="col-permit" style="font-weight:700; text-align:center; color:#0369a1;">📄 ${permitDisplay}</td>
+                            <td class="col-receipt" style="font-weight:700; text-align:center; color:#0f172a;">${receiptDisplay}</td>
+                            <td class="col-in" style="text-align:right; font-weight:700; color:#047857; background:rgba(16,185,129,0.03);">${inDisplay}</td>
+                            <td class="col-out" style="text-align:right; font-weight:700; color:#be185d; background:rgba(236,72,153,0.03);">${outDisplay}</td>
+                            ${balCells}
+                            <td class="col-notes" style="text-align:right; color:#334155; font-size:0.88rem;">${noteDisplay !== '-' ? '📝 ' + noteDisplay : '-'}</td>
+                        </tr>
+                    `;
+                });
+            }
+
+            // Footer Multi-unit Totals
+            let footerInCells = `<td class="col-in" style="padding:10px; text-align:right; color:#047857; border:1px solid #94a3b8; font-weight:900;">${getKpiText(sumIn)}</td>`;
+            let footerOutCells = `<td class="col-out" style="padding:10px; text-align:right; color:#be185d; border:1px solid #94a3b8; font-weight:900;">${getKpiText(sumOut)}</td>`;
+            let footerBalCells = activeUnits.map(u => `<td class="col-balance" style="padding:10px; text-align:right; color:#b45309; border:1px solid #94a3b8; font-size:1.05rem; font-weight:900;">${formatQtyInUnit(actualCurrentStock, u)} <small>${u.name}</small></td>`).join('');
+
+            // Assemble Full Sheet HTML
+            const sheetHtml = `
+                <!-- 1. Header Section -->
+                <div id="sheet-header-block" style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px double #0f172a; padding-bottom:16px; margin-bottom:20px; direction:rtl;">
+                    <div style="display:flex; align-items:center; gap:14px; width:35%;">
+                        ${logoUrl ? `<img src="${logoUrl}" style="max-height:65px; max-width:90px; object-fit:contain; border-radius:8px;">` : ''}
+                        <div>
+                            <h2 style="margin:0; font-size:1.35rem; font-weight:900; color:#0f172a;" class="editable-text">${companyName}</h2>
+                            <div style="font-size:0.75rem; color:#475569; margin-top:3px;">
+                                ${companyReg ? `<span>س.ت: ${companyReg}</span> · ` : ''}
+                                ${companyTax ? `<span>ر.ض: ${companyTax}</span>` : ''}
+                            </div>
+                            <div style="font-size:0.75rem; color:#475569;">${companyAddress} · هاتف: ${companyPhone}</div>
+                        </div>
+                    </div>
+
+                    <div style="text-align:center; width:30%;">
+                        <div class="sheet-title-box" style="border:2px solid #0f172a; padding:8px 20px; border-radius:8px; background:#f8fafc; display:inline-block;">
+                            <h3 style="margin:0; font-size:1.2rem; font-weight:900; color:#0f172a; white-space:nowrap;" class="editable-text">📑 كشف حركة الصنف التفصيلي</h3>
+                            <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">(كارت الصنف والمستودع)</div>
+                        </div>
+                    </div>
+
+                    <div style="text-align:left; width:35%; font-size:0.78rem; color:#475569; line-height:1.6;">
+                        <div>تاريخ التقرير: <strong>${printedAt}</strong></div>
+                        <div>المستخدم / الطابع: <strong>${userName}</strong></div>
+                        <div>الفرع / المستودع: <strong>${whName}</strong></div>
+                    </div>
+                </div>
+
+                <!-- 2. Item & Filter Metadata Card -->
+                <div id="sheet-meta-block" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:12px 18px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; font-size:0.85rem;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:1.2rem;">📦</span>
+                        <div>
+                            <span style="color:#64748b; font-size:0.75rem;">اسم وكود الصنف:</span><br>
+                            <strong style="color:#0f172a; font-size:1rem;">[${itemCode}] ${itemName}</strong>
+                        </div>
+                    </div>
+                    <div>
+                        <span style="color:#64748b; font-size:0.75rem;">التصنيف:</span><br>
+                        <strong style="color:#0f172a;">${itemCat}</strong>
+                    </div>
+                    <div>
+                        <span style="color:#64748b; font-size:0.75rem;">الوحدات المعتمدة في التقرير:</span><br>
+                        <div style="margin-top:2px;">${unitsPillsHtml}</div>
+                    </div>
+                    <div>
+                        <span style="color:#64748b; font-size:0.75rem;">الفترة المحددة:</span><br>
+                        <strong style="color:#0f172a;">${periodStr}</strong>
+                    </div>
+                </div>
+
+                <!-- 3. KPI Balance Cards -->
+                <div id="sheet-kpis-block" style="display:grid; grid-template-columns: repeat(4, 1fr); gap:12px; margin-bottom:20px;">
+                    <div style="background:#f0f9ff; border:1px solid #bae6fd; border-radius:8px; padding:10px 14px; text-align:center;">
+                        <div style="font-size:0.75rem; color:#0369a1; font-weight:700;">الرصيد الافتتاحي (أول المدة) 📋</div>
+                        <div style="font-size:1.05rem; font-weight:900; color:#0284c7; margin-top:4px;">${getKpiText(sumOpen)}</div>
+                    </div>
+                    <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 14px; text-align:center;">
                         <div style="font-size:0.75rem; color:#15803d; font-weight:700;">إجمالي الوارد (مشتريات/استلام) ⚖️</div>
                         <div style="font-size:1.05rem; font-weight:900; color:#16a34a; margin-top:4px;">${getKpiText(sumIn)}</div>
                     </div>
@@ -1506,7 +1901,6 @@
         }
 
         function printItemLedgerSheet() {
-            // If live editing is active, disable outlines before printing
             if (isLiveEditActive) {
                 toggleLiveEditMode();
             }
