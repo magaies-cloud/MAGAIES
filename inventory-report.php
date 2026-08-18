@@ -75,32 +75,33 @@
 
         /* Navigation Bar (Ultra-Compact Segmented Clusters) */
         .nav-tabs { 
-            display: flex; gap: 5px; flex-wrap: wrap; overflow: visible;
-            background: var(--surface-card); padding: 4px 6px; border-radius: 12px; 
+            display: flex; gap: 6px; flex-wrap: wrap; overflow: visible;
+            background: var(--surface-card); padding: 6px 10px; border-radius: 14px; 
             border: 1px solid var(--glass-border); box-shadow: 0 4px 15px rgba(0,0,0,0.2);
             backdrop-filter: blur(20px); align-items: center; width: 100%; z-index: 100; position: relative;
+            min-height: 48px; box-sizing: border-box;
         }
         .nav-tabs::-webkit-scrollbar { display: none; }
         .nav-cluster {
-            display: flex; align-items: center; gap: 3px;
+            display: flex; align-items: center; gap: 4px;
         }
         .nav-divider {
-            width: 1px; height: 18px; background: rgba(255, 255, 255, 0.1); margin: 0 3px; flex-shrink: 0;
+            width: 1px; height: 24px; background: rgba(255, 255, 255, 0.12); margin: 0 4px; flex-shrink: 0;
         }
         .nav-tab {
-            padding: 5px 12px; border-radius: 8px; text-decoration: none; font-weight: 700;
+            padding: 8px 15px; border-radius: 9px; text-decoration: none; font-weight: 700;
             color: var(--text-secondary); background: transparent; border: 1px solid transparent;
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 5px; font-size: 0.82rem;
-            position: relative; white-space: nowrap; flex-shrink: 0; cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 6px; font-size: 0.88rem;
+            position: relative; white-space: nowrap; flex-shrink: 0; cursor: pointer; height: 38px; box-sizing: border-box;
         }
         .nav-tab:hover {
-            color: #fff; background: rgba(255, 255, 255, 0.05); border-color: rgba(255, 255, 255, 0.08);
+            color: #fff; background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.1);
             transform: translateY(-1px);
         }
         .nav-tab.active {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.15), rgba(37, 99, 235, 0.15));
-            border-color: rgba(56, 189, 248, 0.4); color: #38bdf8;
-            box-shadow: 0 0 12px rgba(56, 189, 248, 0.2);
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(37, 99, 235, 0.18));
+            border-color: rgba(56, 189, 248, 0.45); color: #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
         }
 
         /* AI Suite Special Pill */
@@ -115,7 +116,29 @@
             box-shadow: 0 0 15px rgba(236, 72, 153, 0.35);
         }
         .nav-ai-badge {
-            background: #ec4899; color: #fff; font-size: 0.65rem; padding: 1px 4px; border-radius: 8px; font-weight: 900;
+            background: #ec4899; color: #fff; font-size: 0.68rem; padding: 2px 5px; border-radius: 8px; font-weight: 900;
+        }
+
+        /* Top Studio Button on the Far Left */
+        .btn-studio-top {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6);
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
+            border: 1px solid rgba(255, 255, 255, 0.25);
+            padding: 8px 18px; border-radius: 10px; color: #fff; font-weight: 800; font-size: 0.88rem;
+            cursor: pointer; display: inline-flex; align-items: center; gap: 7px; height: 38px; box-sizing: border-box;
+            transition: all 0.25s ease; white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,0.3);
+        }
+        .btn-studio-top:hover {
+            transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+            border-color: rgba(255, 255, 255, 0.4);
+        }
+        .btn-icon-nav {
+            background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border);
+            display: flex; align-items: center; justify-content: center; width: 38px; height: 38px;
+            border-radius: 10px; color: var(--text-main); cursor: pointer; transition: 0.25s; font-size: 1.1rem;
+        }
+        .btn-icon-nav:hover {
+            background: rgba(255,255,255,0.1); color: #fff; transform: translateY(-1px);
         }
 
         /* Nav Dropdown for Extra Reports */
@@ -137,44 +160,44 @@
 
         /* Unified Filter Hub (Streamlined Single Row) */
         .filters-hub {
-            background: var(--surface-card); backdrop-filter: blur(20px); border-radius: 12px;
-            border: 1px solid var(--glass-border); padding: 8px 14px;
+            background: var(--surface-card); backdrop-filter: blur(20px); border-radius: 14px;
+            border: 1px solid var(--glass-border); padding: 10px 16px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.18);
         }
         .filters-main-row {
-            display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
+            display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
         }
         .f-search-wrapper { position: relative; flex: 1.8; min-width: 220px; display: flex; align-items: center; }
-        .f-search-icon { position: absolute; right: 10px; font-size: 0.9rem; color: #64748b; pointer-events: none; }
+        .f-search-icon { position: absolute; right: 12px; font-size: 1rem; color: #64748b; pointer-events: none; }
         .f-search-clear {
-            position: absolute; left: 8px; font-size: 0.8rem; color: #64748b; cursor: pointer;
-            background: rgba(255,255,255,0.08); border-radius: 50%; width: 18px; height: 18px;
+            position: absolute; left: 10px; font-size: 0.85rem; color: #64748b; cursor: pointer;
+            background: rgba(255,255,255,0.08); border-radius: 50%; width: 20px; height: 20px;
             display: none; align-items: center; justify-content: center; transition: 0.2s;
         }
         .f-search-clear:hover { background: rgba(255,255,255,0.2); color: #fff; }
         .f-input {
-            background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); border-radius: 8px;
-            color: var(--text-primary); padding: 8px 34px 8px 12px; font-size: 0.85rem; outline: none; transition: 0.2s;
-            font-family: inherit; width: 100%; box-sizing: border-box; height: 38px; font-weight: 600;
+            background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); border-radius: 10px;
+            color: var(--text-primary); padding: 10px 38px 10px 14px; font-size: 0.9rem; outline: none; transition: 0.2s;
+            font-family: inherit; width: 100%; box-sizing: border-box; height: 42px; font-weight: 600;
         }
         .f-input:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.15); background: rgba(0,0,0,0.4); }
         .f-select {
-            padding: 0 28px 0 12px; cursor: pointer; appearance: none;
+            padding: 0 32px 0 14px; cursor: pointer; appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: left 10px center; background-size: 14px;
+            background-repeat: no-repeat; background-position: left 12px center; background-size: 14px;
         }
-        .f-select option { background: #0f172a; color: #f8fafc; padding: 6px; }
+        .f-select option { background: #0f172a; color: #f8fafc; padding: 8px; }
         .f-select-quick {
-            border-color: rgba(56, 189, 248, 0.35); background-color: rgba(56, 189, 248, 0.04);
+            border-color: rgba(56, 189, 248, 0.4); background-color: rgba(56, 189, 248, 0.05);
             color: #38bdf8; font-weight: 700;
         }
         .f-select-quick:focus {
             border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25);
         }
         .filter-badge-pill {
-            font-size: 0.82rem; font-weight: 800; color: #38bdf8; background: rgba(56,189,248,0.08);
-            padding: 6px 14px; border-radius: 8px; border: 1px solid rgba(56,189,248,0.25);
-            white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; height: 38px; box-sizing: border-box;
+            font-size: 0.88rem; font-weight: 800; color: #38bdf8; background: rgba(56,189,248,0.08);
+            padding: 8px 16px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.25);
+            white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; height: 42px; box-sizing: border-box;
         }
 
         /* Executive Data Table (Maximized Visible Height) */
@@ -249,11 +272,11 @@
             box-shadow: 0 6px 25px rgba(0,0,0,0.25); backdrop-filter: blur(20px); flex-wrap: wrap; gap: 10px;
         }
         .btn-action-tool {
-            padding: 8px 16px; border-radius: 10px; font-weight: 700; font-size: 0.84rem; cursor: pointer;
+            padding: 12px 26px; border-radius: 12px; font-weight: 800; font-size: 0.95rem; cursor: pointer;
             border: 1px solid transparent; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            display: inline-flex; align-items: center; gap: 7px; color: #fff;
+            display: inline-flex; align-items: center; gap: 8px; color: #fff; height: 46px; box-sizing: border-box;
         }
-        .btn-action-tool:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .btn-action-tool:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.35); }
 
         /* Summary Strip Hub (Clean Linear Summary Bar - No Bulky Boxes) */
         .summary-strip-hub {
@@ -367,9 +390,9 @@
                 <?php $header_theme_class = 'header-theme-inventory'; ?>
         <?php include 'includes/header.php'; ?>
 
-        <!-- Top Navigation Row (Clustered Smart Hub) -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 4px; gap: 10px; flex-wrap: nowrap;">
-            <div class="nav-tabs" style="margin-bottom: 0;">
+        <!-- Top Navigation Row (Clustered Smart Hub + Studio Button on Far Left) -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 10px; flex-wrap: nowrap;">
+            <div class="nav-tabs" style="margin-bottom: 0; flex: 1;">
                 
                 <!-- Cluster 1: نظام الجرد -->
                 <div class="nav-cluster">
@@ -444,8 +467,12 @@
 
             </div>
 
-            <div>
-                <button class="btn-icon-nav" onclick="history.back()" title="رجوع" style="background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border); display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 10px; color: var(--text-main); cursor: pointer; transition: 0.25s;">↩</button>
+            <!-- Far Left Controls: Studio Button + Back Button -->
+            <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
+                <button class="btn-studio-top" onclick="openCustomReportStudio()" title="تخصيص وتصميم تقارير الجرد المتقدمة بالكامل">
+                    <span>🎛️</span> <span>مصمم التقارير المخصص</span>
+                </button>
+                <button class="btn-icon-nav" onclick="history.back()" title="رجوع">↩</button>
             </div>
         </div>
 
@@ -549,22 +576,18 @@
 
         <!-- 3. Glass Action Island (Under Summary Strip & Above Charts) -->
         <div class="action-island" style="margin-bottom: 12px; justify-content: center; background: rgba(15, 23, 42, 0.4);">
-            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
-                <button class="btn-action-tool" onclick="openCustomReportStudio()" title="تخصيص وتصميم تقارير الجرد المتقدمة بالكامل" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); box-shadow: 0 4px 18px rgba(99, 102, 241, 0.4); padding: 10px 24px; font-size: 0.95rem; font-weight: 800; color: #fff; border: 1px solid rgba(255,255,255,0.2);">
-                    <span>🎛️</span> مصمم التقارير المخصص
-                </button>
-                <div style="width: 1px; height: 30px; background: rgba(255,255,255,0.1); margin: 0 4px;"></div>
-                <button class="btn-action-tool" onclick="openStocktakeModal()" title="تعديل الأرصدة وتسوية الفروقات الجردية" style="background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25); padding: 10px 24px; font-size: 0.95rem;">
+            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;">
+                <button class="btn-action-tool" onclick="openStocktakeModal()" title="تعديل الأرصدة وتسوية الفروقات الجردية" style="background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);">
                     <span>⚙️</span> إجراء تسوية جردية
                 </button>
                 <div style="width: 1px; height: 30px; background: rgba(255,255,255,0.1); margin: 0 4px;"></div>
-                <button class="btn-action-tool" onclick="openReportPreview('تقرير جرد الأرصدة العام', '#report-table-wrap')" style="background: linear-gradient(135deg, #0d9488, #0f766e); box-shadow: 0 4px 15px rgba(13, 148, 136, 0.35); padding: 10px 24px; font-size: 0.95rem;">
+                <button class="btn-action-tool" onclick="openReportPreview('تقرير جرد الأرصدة العام', '#report-table-wrap')" style="background: linear-gradient(135deg, #0d9488, #0f766e); box-shadow: 0 4px 15px rgba(13, 148, 136, 0.35);">
                     <span>👁️</span> معاينة
                 </button>
-                <button class="btn-action-tool" onclick="printReportDirectly('تقرير جرد الأرصدة العام', '#report-table-wrap')" style="background: rgba(255,255,255,0.08); border-color: var(--glass-border); color: var(--text-primary); padding: 10px 24px; font-size: 0.95rem;">
+                <button class="btn-action-tool" onclick="printReportDirectly('تقرير جرد الأرصدة العام', '#report-table-wrap')" style="background: rgba(255,255,255,0.08); border-color: var(--glass-border); color: var(--text-primary);">
                     <span>🖨️</span> طباعة
                 </button>
-                <button class="btn-action-tool" onclick="window.openExportModal(exportExcel, {element: document.getElementById('report-table-wrap'), filename: 'inventory-report.pdf', orientation: 'landscape'})" style="background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 4px 15px rgba(5, 150, 105, 0.35); padding: 10px 24px; font-size: 0.95rem;">
+                <button class="btn-action-tool" onclick="window.openExportModal(exportExcel, {element: document.getElementById('report-table-wrap'), filename: 'inventory-report.pdf', orientation: 'landscape'})" style="background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 4px 15px rgba(5, 150, 105, 0.35);">
                     <span>📥</span> تصدير
                 </button>
             </div>
