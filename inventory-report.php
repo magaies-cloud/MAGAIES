@@ -135,16 +135,16 @@
         }
         .nav-dropdown-item:hover { background: rgba(236, 72, 153, 0.15); color: #f472b6; transform: translateX(-3px); }
 
-        /* Unified Filter Hub (Ultra-Compact Single Unit) */
+        /* Unified Filter Hub (Streamlined Single Row) */
         .filters-hub {
             background: var(--surface-card); backdrop-filter: blur(20px); border-radius: 12px;
-            border: 1px solid var(--glass-border); padding: 8px 12px; display: flex; flex-direction: column; gap: 6px;
+            border: 1px solid var(--glass-border); padding: 8px 14px;
             box-shadow: 0 4px 15px rgba(0,0,0,0.18);
         }
         .filters-main-row {
-            display: grid; grid-template-columns: 1.8fr 1fr 1fr 1.2fr; gap: 8px; align-items: center;
+            display: flex; gap: 8px; align-items: center; flex-wrap: wrap;
         }
-        .f-search-wrapper { position: relative; width: 100%; display: flex; align-items: center; }
+        .f-search-wrapper { position: relative; flex: 1.8; min-width: 220px; display: flex; align-items: center; }
         .f-search-icon { position: absolute; right: 10px; font-size: 0.9rem; color: #64748b; pointer-events: none; }
         .f-search-clear {
             position: absolute; left: 8px; font-size: 0.8rem; color: #64748b; cursor: pointer;
@@ -159,25 +159,23 @@
         }
         .f-input:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.15); background: rgba(0,0,0,0.4); }
         .f-select {
-            padding: 0 14px; cursor: pointer; appearance: none;
+            padding: 0 28px 0 12px; cursor: pointer; appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: left 12px center; background-size: 14px;
+            background-repeat: no-repeat; background-position: left 10px center; background-size: 14px;
         }
-        .f-select option { background: #0f172a; color: #f8fafc; }
-
-        /* Quick Filter Pills Row */
-        .quick-pills-row {
-            display: flex; align-items: center; gap: 8px; flex-wrap: wrap; padding-top: 4px;
-            border-top: 1px solid var(--glass-border-subtle);
+        .f-select option { background: #0f172a; color: #f8fafc; padding: 6px; }
+        .f-select-quick {
+            border-color: rgba(56, 189, 248, 0.35); background-color: rgba(56, 189, 248, 0.04);
+            color: #38bdf8; font-weight: 700;
         }
-        .quick-pill-label { font-size: 0.75rem; font-weight: 800; color: var(--text-muted); display: flex; align-items: center; gap: 4px; }
-        .quick-pill {
-            padding: 4px 12px; border-radius: 20px; font-size: 0.78rem; font-weight: 700; cursor: pointer;
-            background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); color: var(--text-secondary);
-            transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 5px;
+        .f-select-quick:focus {
+            border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25);
         }
-        .quick-pill:hover { background: rgba(255,255,255,0.08); color: #fff; transform: translateY(-1px); }
-        .quick-pill.active { background: rgba(56, 189, 248, 0.15); border-color: rgba(56, 189, 248, 0.4); color: #38bdf8; font-weight: 800; }
+        .filter-badge-pill {
+            font-size: 0.82rem; font-weight: 800; color: #38bdf8; background: rgba(56,189,248,0.08);
+            padding: 6px 14px; border-radius: 8px; border: 1px solid rgba(56,189,248,0.25);
+            white-space: nowrap; display: inline-flex; align-items: center; gap: 5px; height: 38px; box-sizing: border-box;
+        }
 
         /* Executive Data Table (Maximized Visible Height) */
         .table-panel {
@@ -296,6 +294,39 @@
             .filters-main-row { grid-template-columns: 1fr; }
             .action-island { flex-direction: column; align-items: stretch; }
             .summary-strip-hub { flex-direction: column; align-items: stretch; }
+        }
+
+        /* Custom Report Studio Styles */
+        .studio-card-grid {
+            display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px;
+        }
+        .studio-chip {
+            background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 10px;
+            padding: 9px 12px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px;
+            color: #cbd5e1; user-select: none; font-size: 0.85rem; font-weight: 700;
+        }
+        .studio-chip:hover {
+            background: rgba(255,255,255,0.07); border-color: rgba(99, 102, 241, 0.4); color: #fff;
+        }
+        .studio-chip input[type="checkbox"], .studio-chip input[type="radio"] {
+            accent-color: #8b5cf6; width: 16px; height: 16px; cursor: pointer;
+        }
+        .studio-chip.checked {
+            background: rgba(99, 102, 241, 0.15); border-color: rgba(139, 92, 246, 0.5); color: #c084fc;
+        }
+        .studio-section-title {
+            color: #c084fc; font-weight: 800; font-size: 0.95rem; margin-bottom: 10px;
+            display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(139, 92, 246, 0.2);
+            padding-bottom: 6px;
+        }
+        .studio-tab-btn {
+            padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer;
+            background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border); color: var(--text-secondary);
+            transition: 0.2s;
+        }
+        .studio-tab-btn.active {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; border-color: transparent;
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
         }
     </style>
     <style>
@@ -418,7 +449,7 @@
             </div>
         </div>
 
-        <!-- Unified Filter Hub (Single Line + Quick Filter Chips) -->
+        <!-- Unified Filter Hub (Single Line Cohesive Bar) -->
         <div class="filters-hub">
             <div class="filters-main-row">
                 <div class="f-search-wrapper">
@@ -426,44 +457,36 @@
                     <input type="text" class="f-input" id="filter-search" placeholder="بحث بالاسم أو الكود (اكتب للبحث الفوري...)" oninput="onSearchInput(this)">
                     <span class="f-search-clear" id="search-clear-btn" onclick="clearSearch()" title="مسح">✕</span>
                 </div>
-                <div>
+                <div style="flex: 1.3; min-width: 200px;">
+                    <select class="f-input f-select f-select-quick" id="filter-status" onchange="applyFilters()" title="التصفية السريعة لحالة الرصيد">
+                        <option value="ACTIVE" selected>⚡ الأصناف المتوفرة فقط</option>
+                        <option value="ALL_WITH_ZERO">🌐 عرض الكل (شامل الصفر)</option>
+                        <option value="OK">🟢 رصيد آمن (فوق الحد)</option>
+                        <option value="WARNING">⚠️ تحت حد الطلب (منخفض)</option>
+                        <option value="DANGER">🚨 توفير النواقص (نافذ / سالب)</option>
+                    </select>
+                </div>
+                <div style="flex: 1.1; min-width: 165px;">
                     <select class="f-input f-select" id="filter-warehouse" onchange="applyFilters()">
                         <option value="ALL">🏢 جميع المخازن (الجرد العام)</option>
                     </select>
                 </div>
-                <div>
+                <div style="flex: 1.1; min-width: 155px;">
                     <select class="f-input f-select" id="filter-category" onchange="applyFilters()">
                         <option value="ALL">🏷️ تصفية بالفئة (جميع الفئات)</option>
                     </select>
                 </div>
-                <div>
-                    <select class="f-input f-select" id="filter-status" onchange="syncStatusFromSelect()">
-                        <option value="ACTIVE" selected>📊 حالة الرصيد: بها بضائع فقط</option>
-                        <option value="ALL_WITH_ZERO">📊 حالة الرصيد: عرض الكل (بما فيها الصفرية)</option>
-                        <option value="OK">📊 حالة الرصيد: متوفر (رصيد آمن)</option>
-                        <option value="WARNING">📊 حالة الرصيد: تحت حد الطلب</option>
-                        <option value="DANGER">📊 حالة الرصيد: نافذ / سالب</option>
-                    </select>
+                <div style="margin-right: auto;">
+                    <span id="filtered-matches-badge" class="filter-badge-pill">0 صنف</span>
                 </div>
-            </div>
-
-            <!-- Quick Status Filter Pills -->
-            <div class="quick-pills-row">
-                <span class="quick-pill-label"><span>⚡</span> التصفية السريعة:</span>
-                <button class="quick-pill" onclick="setQuickFilter('ALL_WITH_ZERO', this)" type="button">عرض الكل (شامل الصفر)</button>
-                <button class="quick-pill active" onclick="setQuickFilter('ACTIVE', this)" type="button"><span>📦</span> الأصناف المتوفرة فقط</button>
-                <button class="quick-pill" onclick="setQuickFilter('OK', this)" type="button"><span>🟢</span> رصيد آمن</button>
-                <button class="quick-pill" onclick="setQuickFilter('WARNING', this)" type="button"><span>⚠️</span> تحت حد الطلب</button>
-                <button class="quick-pill" onclick="setQuickFilter('DANGER', this)" type="button"><span>🚨</span> نواقص / نافذ</button>
-                <span id="filtered-matches-badge" style="margin-right: auto; font-size: 0.78rem; font-weight: 700; color: var(--text-muted); background: rgba(255,255,255,0.04); padding: 3px 10px; border-radius: 20px; border: 1px solid var(--glass-border);">0 صنف</span>
             </div>
         </div>
 
         <!-- 1. Data Table (Primary Focus - Top of Screen) -->
         <div class="table-panel">
             <div class="table-wrapper" id="report-table-wrap">
-                <table class="dash-table">
-                    <thead>
+                <table class="dash-table" id="inventory-main-table">
+                    <thead id="inventory-thead">
                         <tr>
                             <th>الاسم والمواصفات</th>
                             <th>المخزن</th>
@@ -527,6 +550,10 @@
         <!-- 3. Glass Action Island (Under Summary Strip & Above Charts) -->
         <div class="action-island" style="margin-bottom: 12px; justify-content: center; background: rgba(15, 23, 42, 0.4);">
             <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap;">
+                <button class="btn-action-tool" onclick="openCustomReportStudio()" title="تخصيص وتصميم تقارير الجرد المتقدمة بالكامل" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); box-shadow: 0 4px 18px rgba(99, 102, 241, 0.4); padding: 10px 24px; font-size: 0.95rem; font-weight: 800; color: #fff; border: 1px solid rgba(255,255,255,0.2);">
+                    <span>🎛️</span> مصمم التقارير المخصص
+                </button>
+                <div style="width: 1px; height: 30px; background: rgba(255,255,255,0.1); margin: 0 4px;"></div>
                 <button class="btn-action-tool" onclick="openStocktakeModal()" title="تعديل الأرصدة وتسوية الفروقات الجردية" style="background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25); padding: 10px 24px; font-size: 0.95rem;">
                     <span>⚙️</span> إجراء تسوية جردية
                 </button>
@@ -864,30 +891,104 @@
             return num * factor;
         }
 
-        // Helper: Render quantity in all configured units (Compound Hierarchical Display)
+        // =========================================================================
+        // Custom Report Studio Configuration & State
+        // =========================================================================
+        const COLUMN_DEFS = {
+            item: { title: 'الاسم والمواصفات', align: 'right' },
+            code: { title: 'كود الصنف', align: 'center' },
+            category: { title: 'فئة الصنف', align: 'center' },
+            warehouse: { title: 'المخزن', align: 'right' },
+            actualQty: { title: 'الرصيد الفعلي', align: 'center' },
+            reservedQty: { title: 'الرصيد المحجوز', align: 'center' },
+            availQty: { title: 'المتاح للبيع', align: 'center' },
+            minQty: { title: 'حد الطلب', align: 'center' },
+            costPrice: { title: 'سعر التكلفة', align: 'right' },
+            cashPrice: { title: 'سعر نقدي', align: 'right' },
+            wholesalePrice: { title: 'سعر جملة', align: 'right' },
+            retailPrice: { title: 'سعر قطاعي', align: 'right' },
+            totalValue: { title: 'إجمالي القيمة', align: 'right' },
+            status: { title: 'حالة المخزون', align: 'center' },
+            actions: { title: 'إجراءات', align: 'center' }
+        };
+
+        let customReportConfig = {
+            cols: {
+                item: true,
+                code: true,
+                category: true,
+                warehouse: true,
+                actualQty: true,
+                reservedQty: true,
+                availQty: true,
+                minQty: false,
+                costPrice: true,
+                cashPrice: false,
+                wholesalePrice: false,
+                retailPrice: false,
+                totalValue: true,
+                status: true,
+                actions: true
+            },
+            unitMode: 'compound', // 'compound', 'base', 'smallest'
+            showUnitRelations: true,
+            qtyDecimals: 2,
+            priceDecimals: 2,
+            showCurrencySymbol: true,
+            fontSize: '14px',
+            rowDensity: 'normal', // 'compact', 'normal', 'spacious'
+            highlightColor: '#38bdf8',
+            sortBy: 'default'
+        };
+
+        // Load saved custom preset if available
+        try {
+            const savedPreset = localStorage.getItem('erp_custom_report_preset_v1');
+            if (savedPreset) {
+                const parsed = JSON.parse(savedPreset);
+                customReportConfig = { ...customReportConfig, ...parsed, cols: { ...customReportConfig.cols, ...(parsed.cols || {}) } };
+            }
+        } catch(e) {}
+
+        // Helper: Render quantity in all configured units (Compound Hierarchical / Single Unit Display)
         function renderMultiUnitQty(baseQty, unitsList, themeColor = '#38bdf8') {
             if (baseQty === undefined || baseQty === null) baseQty = 0;
             const num = Number(baseQty) || 0;
             const baseUnit = (unitsList && unitsList.length > 0) ? unitsList[0] : { name: 'وحدة', factor: 1 };
+            const qDec = (typeof customReportConfig !== 'undefined' && customReportConfig.qtyDecimals !== undefined) ? customReportConfig.qtyDecimals : 2;
+            const unitMode = (typeof customReportConfig !== 'undefined' && customReportConfig.unitMode) ? customReportConfig.unitMode : 'compound';
             
-            const formattedBase = parseFloat(num.toFixed(3)).toLocaleString('en-US');
-            
-            // Single unit item
-            if (!unitsList || unitsList.length <= 1) {
+            const isNegative = num < 0;
+            const minusSign = isNegative ? `<span style="color:#ef4444; font-weight:900; font-size:1.2rem; margin-left: 2px;">-</span>` : '';
+            const absNum = Math.abs(num);
+            const formattedBase = absNum.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: qDec });
+
+            // 1. Base Unit Only Mode
+            if (unitMode === 'base' || !unitsList || unitsList.length <= 1) {
                 return `<div style="display:inline-flex; align-items:baseline; justify-content:center; gap:4px;" title="إجمالي الرصيد: ${formattedBase} ${baseUnit.name}">
-                    <span style="font-size:1.15rem; font-weight:900; color:${themeColor};">${formattedBase}</span>
+                    ${minusSign}<span style="font-size:1.15rem; font-weight:900; color:${themeColor};">${formattedBase}</span>
                     <span style="font-size:0.75rem; font-weight:800; color:#cbd5e1; background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:4px;">${baseUnit.name}</span>
                 </div>`;
             }
 
-            // --- Compound Units Logic ---
+            // 2. Smallest Unit Only Mode
+            if (unitMode === 'smallest') {
+                const smallestUnit = unitsList[unitsList.length - 1];
+                const smallestFactor = parseFloat(smallestUnit.factor) || 1;
+                const totalInSmallest = absNum * smallestFactor;
+                const formattedSmallest = totalInSmallest.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: qDec });
+                return `<div style="display:inline-flex; align-items:baseline; justify-content:center; gap:4px;" title="الرصيد بوحدة التجزئة: ${formattedSmallest} ${smallestUnit.name}">
+                    ${minusSign}<span style="font-size:1.15rem; font-weight:900; color:${themeColor};">${formattedSmallest}</span>
+                    <span style="font-size:0.75rem; font-weight:800; color:#cbd5e1; background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:4px;">${smallestUnit.name}</span>
+                </div>`;
+            }
+
+            // 3. Smart Compound Units Logic
             const baseIsLarge = isLargeUnitName(baseUnit.name);
             const baseIsSmall = isSmallUnitName(baseUnit.name);
             
-            // 🚨 Check if units represent continuous measurement (weight, length, volume)
-            // If they do, breaking them down into compound discrete units (like remainders) doesn't make sense.
             const isContinuous = unitsList.some(u => {
-                const n = u.name.trim();
+                const n = (u.name || '').trim();
                 return n.includes('وزن') || n.includes('كيلو') || n.includes('كجم') || n.includes('جرام') || n.includes('لتر') || n.includes('متر') || n === 'طن';
             });
             
@@ -912,17 +1013,14 @@
             normalized.sort((a, b) => b.atomicMultiplier - a.atomicMultiplier);
 
             const baseUnitNormalized = normalized.find(u => u.isBase) || normalized[0];
-            
             let badges = [];
-            let isNegative = num < 0;
-            let minusSign = isNegative ? `<span style="color:#ef4444; font-weight:900; font-size:1.2rem; margin-left: 2px;">-</span>` : '';
 
             if (isContinuous) {
                 // Stacked Independent Display for Weights/Measurements
                 let stackHtml = '';
                 normalized.forEach((unit, i) => {
-                    let totalInThisUnit = (Math.abs(num) * baseUnitNormalized.atomicMultiplier) / unit.atomicMultiplier;
-                    let formattedQty = parseFloat(totalInThisUnit.toFixed(3)).toLocaleString('en-US');
+                    let totalInThisUnit = (absNum * baseUnitNormalized.atomicMultiplier) / unit.atomicMultiplier;
+                    let formattedQty = totalInThisUnit.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: qDec });
                     
                     if (i === 0) {
                         stackHtml += `<div style="font-size: 1.15rem; font-weight: 900; color: ${themeColor}; line-height: 1.1; text-shadow: 0 0 10px ${themeColor}40;">
@@ -940,7 +1038,7 @@
                 </div>`;
             } else {
                 // Compound Discrete Display (e.g. 2 tons AND 16 rebars)
-                let remainingAtomicQty = Math.abs(num) * baseUnitNormalized.atomicMultiplier;
+                let remainingAtomicQty = absNum * baseUnitNormalized.atomicMultiplier;
                 for (let i = 0; i < normalized.length; i++) {
                     let unit = normalized[i];
                     let qty;
@@ -953,14 +1051,14 @@
                     }
                     
                     if (qty > 0.0001 || (i === normalized.length - 1 && badges.length === 0)) {
-                        let formattedQty = parseFloat(qty.toFixed(2)).toLocaleString('en-US');
+                        let formattedQty = qty.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: qDec });
                         badges.push(`<span style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); padding: 3px 8px; border-radius: 6px; display: inline-flex; align-items: baseline; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
                             <strong style="color:${themeColor}; font-size:1.05rem; text-shadow: 0 0 10px ${themeColor}40;">${formattedQty}</strong>
                             <span style="color:#cbd5e1; font-size:0.75rem; font-weight:700;">${unit.name}</span>
                         </span>`);
                     }
                 }
-                return `<div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px;" title="إجمالي الرصيد بالوحدة الأساسية: ${formattedBase} ${baseUnit.name}">
+                return `<div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px;" title="إجمالي الرصيد: ${formattedBase} ${baseUnit.name}">
                     ${minusSign}
                     ${badges.join(' ')}
                 </div>`;
@@ -1019,14 +1117,47 @@
             }
         }
 
+        // =========================================================================
+        // Dynamic Executive Data Table Rendering
+        // =========================================================================
         function applyFilters() {
-            const fWh = document.getElementById('filter-warehouse').value;
-            const fCat = document.getElementById('filter-category').value;
-            const fStatus = document.getElementById('filter-status').value;
-            const fSearch = document.getElementById('filter-search').value.toLowerCase().trim();
+            const fWh = document.getElementById('filter-warehouse') ? document.getElementById('filter-warehouse').value : 'ALL';
+            const fCat = document.getElementById('filter-category') ? document.getElementById('filter-category').value : 'ALL';
+            const fStatus = document.getElementById('filter-status') ? document.getElementById('filter-status').value : 'ACTIVE';
+            const fSearch = document.getElementById('filter-search') ? document.getElementById('filter-search').value.toLowerCase().trim() : '';
 
+            const mainTable = document.getElementById('inventory-main-table') || document.querySelector('.dash-table');
+            const thead = document.getElementById('inventory-thead') || (mainTable ? mainTable.querySelector('thead') : null);
             const tbody = document.getElementById('inventory-tbody');
+            if (!tbody) return;
             tbody.innerHTML = '';
+
+            // Apply font size and row density
+            if (mainTable) {
+                mainTable.style.fontSize = customReportConfig.fontSize || '14px';
+                if (customReportConfig.rowDensity === 'compact') {
+                    mainTable.style.setProperty('--row-padding', '5px 8px');
+                } else if (customReportConfig.rowDensity === 'spacious') {
+                    mainTable.style.setProperty('--row-padding', '14px 16px');
+                } else {
+                    mainTable.style.setProperty('--row-padding', '10px 14px');
+                }
+            }
+
+            // Dynamically Render THEAD based on customReportConfig.cols
+            let visibleColCount = 0;
+            if (thead) {
+                let thsHtml = '';
+                for (const [colKey, isVisible] of Object.entries(customReportConfig.cols)) {
+                    if (isVisible && COLUMN_DEFS[colKey]) {
+                        visibleColCount++;
+                        const col = COLUMN_DEFS[colKey];
+                        const alignStyle = col.align === 'center' ? 'text-align: center;' : (col.align === 'left' ? 'text-align: left;' : 'text-align: right;');
+                        thsHtml += `<th style="${alignStyle} padding: ${customReportConfig.rowDensity === 'compact' ? '7px 10px' : '11px 14px'};">${col.title}</th>`;
+                    }
+                }
+                thead.innerHTML = `<tr>${thsHtml}</tr>`;
+            }
 
             let totalItems = 0; let totalQty = 0; let totalValue = 0; let totalAlerts = 0;
 
@@ -1044,7 +1175,7 @@
                 }
             });
 
-            const filteredData = reportData.filter(row => {
+            let filteredData = reportData.filter(row => {
                 if (fWh !== 'ALL' && row.warehouse !== fWh) return false;
                 if (fCat !== 'ALL' && row.category !== fCat) return false;
                 if (fSearch && !row.itemName.toLowerCase().includes(fSearch) && !row.itemId.toLowerCase().includes(fSearch)) return false;
@@ -1053,7 +1184,6 @@
                 let reservedQty = Number(row.reservedQuantity) || 0;
                 let availQty = actualQty - reservedQty;
 
-                // Check if all balances (actual, reserved, available) are zero
                 const isZeroStock = (Math.abs(actualQty) < 0.0001 && Math.abs(reservedQty) < 0.0001 && Math.abs(availQty) < 0.0001);
 
                 if (fStatus === 'ALL_WITH_ZERO') {
@@ -1066,11 +1196,29 @@
                     return statusInfo.code === 'WARNING' && !isZeroStock;
                 } else if (fStatus === 'DANGER') {
                     let statusInfo = getStatusInfo(availQty, row.minQty);
-                    return statusInfo.code === 'DANGER' && !isZeroStock;
+                    return statusInfo.code === 'DANGER' || isZeroStock || availQty <= 0;
                 } else {
                     return !isZeroStock;
                 }
             });
+
+            // Sorting
+            if (customReportConfig.sortBy === 'value_desc') {
+                filteredData.sort((a, b) => ((b.qty - (b.reservedQuantity || 0)) * b.price) - ((a.qty - (a.reservedQuantity || 0)) * a.price));
+            } else if (customReportConfig.sortBy === 'qty_desc') {
+                filteredData.sort((a, b) => (Number(b.qty) || 0) - (Number(a.qty) || 0));
+            } else if (customReportConfig.sortBy === 'qty_asc') {
+                filteredData.sort((a, b) => (Number(a.qty) || 0) - (Number(b.qty) || 0));
+            } else if (customReportConfig.sortBy === 'name_asc') {
+                filteredData.sort((a, b) => (a.itemName || '').localeCompare(b.itemName || '', 'ar'));
+            } else if (customReportConfig.sortBy === 'code_asc') {
+                filteredData.sort((a, b) => (a.itemId || '').localeCompare(b.itemId || ''));
+            }
+
+            const pDec = customReportConfig.priceDecimals !== undefined ? customReportConfig.priceDecimals : 2;
+            const qDec = customReportConfig.qtyDecimals !== undefined ? customReportConfig.qtyDecimals : 2;
+            const activeHighlightColor = customReportConfig.highlightColor || '#38bdf8';
+            const cellPad = customReportConfig.rowDensity === 'compact' ? 'padding: 6px 10px;' : (customReportConfig.rowDensity === 'spacious' ? 'padding: 14px 16px;' : 'padding: 10px 14px;');
 
             filteredData.forEach((row, index) => {
                 let actualQty = Number(row.qty) || 0;
@@ -1097,36 +1245,78 @@
                             return `1 ${u.name} ⇄ ${factor} ${baseUnitName}`;
                         }
                     }).join(' | ');
-                    unitsRelationInfo = `<div style="font-size:0.72rem; color:#38bdf8; margin-top:3px; font-weight:700;">⚖️ ${rels}</div>`;
+                    unitsRelationInfo = `<div style="font-size:0.72rem; color:${activeHighlightColor}; margin-top:3px; font-weight:700;">⚖️ ${rels}</div>`;
+                }
+
+                let tdsHtml = '';
+                for (const [colKey, isVisible] of Object.entries(customReportConfig.cols)) {
+                    if (!isVisible) continue;
+
+                    if (colKey === 'item') {
+                        tdsHtml += `<td style="${cellPad} font-weight:700; color:var(--text-primary);">
+                            <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
+                                ${!customReportConfig.cols.code ? `<span class="code-pill" onclick="copyItemCode('${row.itemId}', event)" title="انقر لنسخ الكود" style="font-size: 0.7rem; padding: 2px 6px;">📋 ${row.itemId}</span>` : ''}
+                                ${!customReportConfig.cols.category ? `<span style="background:rgba(255,255,255,0.04); padding:2px 6px; border-radius:6px; font-weight:600; font-size:0.7rem; border:1px solid var(--glass-border); color: #94a3b8;">${row.category}</span>` : ''}
+                            </div>
+                            <div style="font-size:0.95rem; color:#f8fafc;">${row.itemName}</div>
+                            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">الوحدة الرئيسية: <strong style="color:#cbd5e1;">${unitsList[0].name}</strong></div>
+                            ${customReportConfig.showUnitRelations ? unitsRelationInfo : ''}
+                        </td>`;
+                    } else if (colKey === 'code') {
+                        tdsHtml += `<td style="${cellPad} text-align:center;"><span class="code-pill" onclick="copyItemCode('${row.itemId}', event)" title="انقر لنسخ الكود">📋 ${row.itemId}</span></td>`;
+                    } else if (colKey === 'category') {
+                        tdsHtml += `<td style="${cellPad} text-align:center;"><span style="background:rgba(255,255,255,0.05); padding:3px 8px; border-radius:6px; font-weight:700; font-size:0.78rem; border:1px solid var(--glass-border); color:#94a3b8;">${row.category}</span></td>`;
+                    } else if (colKey === 'warehouse') {
+                        tdsHtml += `<td style="${cellPad}"><span style="font-weight:700; color:#cbd5e1;">${row.warehouse}</span></td>`;
+                    } else if (colKey === 'actualQty') {
+                        tdsHtml += `<td style="${cellPad} text-align:center;">${renderMultiUnitQty(actualQty, unitsList, '#38bdf8')}</td>`;
+                    } else if (colKey === 'reservedQty') {
+                        tdsHtml += `<td style="${cellPad} text-align:center;">${reservedQty > 0 ? renderMultiUnitQty(reservedQty, unitsList, '#fbbf24') : '<span style="color:var(--text-muted); font-weight:700;">-</span>'}</td>`;
+                    } else if (colKey === 'availQty') {
+                        tdsHtml += `<td style="${cellPad} text-align:center;">${renderMultiUnitQty(availQty, unitsList, statusInfo.color)}</td>`;
+                    } else if (colKey === 'minQty') {
+                        const minFormatted = (row.minQty || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: qDec });
+                        tdsHtml += `<td style="${cellPad} text-align:center; font-weight:700; color:#94a3b8;">${minFormatted} <span style="font-size:0.75rem;">${unitsList[0].name}</span></td>`;
+                    } else if (colKey === 'costPrice') {
+                        const costFormatted = (row.price || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: pDec });
+                        tdsHtml += `<td style="${cellPad} font-weight:700; color:#cbd5e1; direction:ltr; text-align:left;">${costFormatted}</td>`;
+                    } else if (colKey === 'cashPrice') {
+                        const cp = (row.rawItem && row.rawItem.cashPrice) ? Number(row.rawItem.cashPrice) : (row.price || 0);
+                        const cpFormatted = cp.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: pDec });
+                        tdsHtml += `<td style="${cellPad} font-weight:700; color:#38bdf8; direction:ltr; text-align:left;">${cpFormatted}</td>`;
+                    } else if (colKey === 'wholesalePrice') {
+                        const wp = (row.rawItem && row.rawItem.wholesalePrice) ? Number(row.rawItem.wholesalePrice) : 0;
+                        const wpFormatted = wp.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: pDec });
+                        tdsHtml += `<td style="${cellPad} font-weight:700; color:#a78bfa; direction:ltr; text-align:left;">${wpFormatted}</td>`;
+                    } else if (colKey === 'retailPrice') {
+                        const rp = (row.rawItem && row.rawItem.retailPrice) ? Number(row.rawItem.retailPrice) : 0;
+                        const rpFormatted = rp.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: pDec });
+                        tdsHtml += `<td style="${cellPad} font-weight:700; color:#f472b6; direction:ltr; text-align:left;">${rpFormatted}</td>`;
+                    } else if (colKey === 'totalValue') {
+                        const curr = customReportConfig.showCurrencySymbol ? '<span style="font-size:0.75rem; color:#64748b; font-weight:600;">SDG</span>' : '';
+                        const valFormatted = rowValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: pDec });
+                        tdsHtml += `<td style="${cellPad}" class="val-td">${valFormatted} ${curr}</td>`;
+                    } else if (colKey === 'status') {
+                        tdsHtml += `<td style="${cellPad} text-align:center;"><span class="status-badge ${statusInfo.cssClass}">${statusInfo.icon} ${statusInfo.text}</span></td>`;
+                    } else if (colKey === 'actions') {
+                        tdsHtml += `<td style="${cellPad} text-align:center;"><a data-href="item-ledger.php?item=${row.itemId}" onclick="window.location.href='item-ledger.php?item=${row.itemId}'" class="btn-link"><span>📑</span> كشف حركة</a></td>`;
+                    }
                 }
 
                 const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td style="font-weight:700; color:var(--text-primary);">
-                        <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
-                            <span class="code-pill" onclick="copyItemCode('${row.itemId}', event)" title="انقر لنسخ الكود" style="font-size: 0.7rem; padding: 2px 6px;">📋 ${row.itemId}</span>
-                            <span style="background:rgba(255,255,255,0.04); padding:2px 6px; border-radius:6px; font-weight:600; font-size:0.7rem; border:1px solid var(--glass-border); color: #94a3b8;">${row.category}</span>
-                        </div>
-                        <div style="font-size:0.95rem; color:#f8fafc;">${row.itemName}</div>
-                        <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">الوحدة الرئيسية: <strong style="color:#cbd5e1;">${unitsList[0].name}</strong></div>
-                        ${unitsRelationInfo}
-                    </td>
-                    <td><span style="font-weight:700; color:#cbd5e1;">${row.warehouse}</span></td>
-                    <td style="text-align:center;">${renderMultiUnitQty(actualQty, unitsList, '#38bdf8')}</td>
-                    <td style="text-align:center;">${reservedQty > 0 ? renderMultiUnitQty(reservedQty, unitsList, '#fbbf24') : '<span style="color:var(--text-muted); font-weight:700;">-</span>'}</td>
-                    <td style="text-align:center;">${renderMultiUnitQty(availQty, unitsList, statusInfo.color)}</td>
-                    <td style="font-weight:700; color:#cbd5e1;">${row.price.toLocaleString()}</td>
-                    <td class="val-td">${rowValue.toLocaleString()} <span style="font-size:0.75rem; color:#64748b; font-weight:600;">SDG</span></td>
-                    <td><span class="status-badge ${statusInfo.cssClass}">${statusInfo.icon} ${statusInfo.text}</span></td>
-                    <td style="text-align:center;"><a data-href="item-ledger.php?item=${row.itemId}" onclick="window.location.href='item-ledger.php?item=${row.itemId}'" class="btn-link"><span>📑</span> كشف حركة</a></td>
-                `;
+                tr.innerHTML = tdsHtml;
                 tbody.appendChild(tr);
             });
 
-            document.getElementById('kpi-count').innerHTML = `${totalItems.toLocaleString()} <span>صنف</span>`;
-            document.getElementById('kpi-qty').innerHTML = `${totalQty.toLocaleString()} <span>وحدة</span>`;
-            document.getElementById('kpi-value').innerHTML = `${totalValue.toLocaleString()} <span>SDG</span>`;
-            document.getElementById('kpi-alerts').innerHTML = `${totalAlerts.toLocaleString()} <span>تنبيه</span>`;
+            // Update Summary KPI Strip
+            const kpiCount = document.getElementById('kpi-count');
+            if (kpiCount) kpiCount.innerHTML = `${totalItems.toLocaleString()} <span>صنف</span>`;
+            const kpiQty = document.getElementById('kpi-qty');
+            if (kpiQty) kpiQty.innerHTML = `${totalQty.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: qDec })} <span>وحدة</span>`;
+            const kpiValue = document.getElementById('kpi-value');
+            if (kpiValue) kpiValue.innerHTML = `${totalValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: pDec })} <span>SDG</span>`;
+            const kpiAlerts = document.getElementById('kpi-alerts');
+            if (kpiAlerts) kpiAlerts.innerHTML = `${totalAlerts.toLocaleString()} <span>تنبيه</span>`;
 
             const matchesBadge = document.getElementById('filtered-matches-badge');
             if (matchesBadge) {
@@ -1135,7 +1325,7 @@
 
             if (filteredData.length === 0) {
                 const whName = fWh === 'ALL' ? 'جميع المخازن' : fWh;
-                tbody.innerHTML = `<tr><td colspan="9" style="text-align:center; padding:60px 20px; color:var(--text-secondary);">
+                tbody.innerHTML = `<tr><td colspan="${visibleColCount || 9}" style="text-align:center; padding:60px 20px; color:var(--text-secondary);">
                     <div style="font-size: 2.5rem; margin-bottom: 10px;">📦</div>
                     <div style="font-size: 1.1rem; font-weight: 800; color: #f8fafc; margin-bottom: 5px;">لا توجد أصناف مطابقة للبحث أو التصفية</div>
                     <div style="font-size: 0.85rem; color: #64748b;">جرب تغيير خيارات التصفية أو مسح البحث لعرض البضائع في (${whName})</div>
@@ -1149,8 +1339,317 @@
             return { code: 'OK', text: 'رصيد آمن', color: 'var(--emerald-accent)', cssClass: 'status-ok', icon: '✅' };
         }
 
+        // =========================================================================
+        // Custom Report Studio Modal Logic & Actions
+        // =========================================================================
+        function toggleChipClass(input) {
+            if (!input) return;
+            const parent = input.closest('.studio-chip');
+            if (parent) {
+                if (input.checked) parent.classList.add('checked');
+                else parent.classList.remove('checked');
+            }
+        }
+
+        function openCustomReportStudio() {
+            // Populate Warehouses
+            const crWh = document.getElementById('cr-warehouse');
+            const srcWh = document.getElementById('filter-warehouse');
+            if (crWh && srcWh) {
+                crWh.innerHTML = srcWh.innerHTML;
+                crWh.value = srcWh.value;
+            }
+
+            // Populate Categories
+            const crCat = document.getElementById('cr-category');
+            const srcCat = document.getElementById('filter-category');
+            if (crCat && srcCat) {
+                crCat.innerHTML = srcCat.innerHTML;
+                crCat.value = srcCat.value;
+            }
+
+            // Sync Status
+            const crStatus = document.getElementById('cr-status');
+            const srcStatus = document.getElementById('filter-status');
+            if (crStatus && srcStatus) {
+                crStatus.value = srcStatus.value;
+            }
+
+            // Sync Column Checkboxes
+            for (const [colKey, isVisible] of Object.entries(customReportConfig.cols)) {
+                const el = document.getElementById(`col-${colKey}`);
+                if (el) {
+                    el.checked = isVisible;
+                    toggleChipClass(el);
+                }
+            }
+
+            // Sync Unit Mode
+            const unitRadio = document.querySelector(`input[name="cr-unit-mode"][value="${customReportConfig.unitMode}"]`);
+            if (unitRadio) {
+                unitRadio.checked = true;
+                document.querySelectorAll('input[name="cr-unit-mode"]').forEach(r => toggleChipClass(r));
+            }
+
+            // Sync other options
+            const showRels = document.getElementById('cr-show-unit-rels');
+            if (showRels) { showRels.checked = customReportConfig.showUnitRelations; toggleChipClass(showRels); }
+
+            const qDec = document.getElementById('cr-qty-decimals');
+            if (qDec) qDec.value = customReportConfig.qtyDecimals;
+
+            const pDec = document.getElementById('cr-price-decimals');
+            if (pDec) pDec.value = customReportConfig.priceDecimals;
+
+            const showCurr = document.getElementById('cr-show-currency');
+            if (showCurr) { showCurr.checked = customReportConfig.showCurrencySymbol; toggleChipClass(showCurr); }
+
+            const fontSize = document.getElementById('cr-font-size');
+            if (fontSize) fontSize.value = customReportConfig.fontSize;
+
+            const density = document.getElementById('cr-row-density');
+            if (density) density.value = customReportConfig.rowDensity;
+
+            const color = document.getElementById('cr-highlight-color');
+            if (color) color.value = customReportConfig.highlightColor;
+
+            const sortEl = document.getElementById('cr-sort');
+            if (sortEl) sortEl.value = customReportConfig.sortBy || 'default';
+
+            document.getElementById('custom-report-modal').style.display = 'flex';
+        }
+
+        function closeCustomReportStudio() {
+            document.getElementById('custom-report-modal').style.display = 'none';
+        }
+
+        function setAllStudioCols(checked) {
+            for (const colKey of Object.keys(COLUMN_DEFS)) {
+                const el = document.getElementById(`col-${colKey}`);
+                if (el) {
+                    el.checked = checked;
+                    toggleChipClass(el);
+                }
+            }
+        }
+
+        function setStudioPreset(preset) {
+            const presets = {
+                standard: { item: true, code: true, category: true, warehouse: true, actualQty: true, reservedQty: true, availQty: true, minQty: false, costPrice: true, cashPrice: false, wholesalePrice: false, retailPrice: false, totalValue: true, status: true, actions: true },
+                financial: { item: true, code: true, category: true, warehouse: true, actualQty: false, reservedQty: false, availQty: true, minQty: false, costPrice: true, cashPrice: true, wholesalePrice: true, retailPrice: false, totalValue: true, status: false, actions: true },
+                quantities: { item: true, code: true, category: false, warehouse: true, actualQty: true, reservedQty: true, availQty: true, minQty: true, costPrice: false, cashPrice: false, wholesalePrice: false, retailPrice: false, totalValue: false, status: true, actions: true }
+            };
+
+            const selectedPreset = presets[preset] || presets.standard;
+            for (const [colKey, isVisible] of Object.entries(selectedPreset)) {
+                const el = document.getElementById(`col-${colKey}`);
+                if (el) {
+                    el.checked = isVisible;
+                    toggleChipClass(el);
+                }
+            }
+        }
+
+        function readStudioConfigFromModal() {
+            // Read Columns
+            for (const colKey of Object.keys(COLUMN_DEFS)) {
+                const el = document.getElementById(`col-${colKey}`);
+                if (el) {
+                    customReportConfig.cols[colKey] = el.checked;
+                }
+            }
+
+            // Read Unit Mode
+            const activeUnitRadio = document.querySelector('input[name="cr-unit-mode"]:checked');
+            if (activeUnitRadio) customReportConfig.unitMode = activeUnitRadio.value;
+
+            // Read options
+            const showRels = document.getElementById('cr-show-unit-rels');
+            if (showRels) customReportConfig.showUnitRelations = showRels.checked;
+
+            const qDec = document.getElementById('cr-qty-decimals');
+            if (qDec) customReportConfig.qtyDecimals = parseInt(qDec.value, 10);
+
+            const pDec = document.getElementById('cr-price-decimals');
+            if (pDec) customReportConfig.priceDecimals = parseInt(pDec.value, 10);
+
+            const showCurr = document.getElementById('cr-show-currency');
+            if (showCurr) customReportConfig.showCurrencySymbol = showCurr.checked;
+
+            const fontSize = document.getElementById('cr-font-size');
+            if (fontSize) customReportConfig.fontSize = fontSize.value;
+
+            const density = document.getElementById('cr-row-density');
+            if (density) customReportConfig.rowDensity = density.value;
+
+            const color = document.getElementById('cr-highlight-color');
+            if (color) customReportConfig.highlightColor = color.value;
+
+            const sortEl = document.getElementById('cr-sort');
+            if (sortEl) customReportConfig.sortBy = sortEl.value;
+
+            // Sync Scope Filters to main bar
+            const crWh = document.getElementById('cr-warehouse');
+            const srcWh = document.getElementById('filter-warehouse');
+            if (crWh && srcWh && crWh.value !== srcWh.value) {
+                srcWh.value = crWh.value;
+            }
+
+            const crCat = document.getElementById('cr-category');
+            const srcCat = document.getElementById('filter-category');
+            if (crCat && srcCat && crCat.value !== srcCat.value) {
+                srcCat.value = crCat.value;
+            }
+
+            const crStatus = document.getElementById('cr-status');
+            const srcStatus = document.getElementById('filter-status');
+            if (crStatus && srcStatus && crStatus.value !== srcStatus.value) {
+                srcStatus.value = crStatus.value;
+            }
+        }
+
+        function applyStudioReport() {
+            readStudioConfigFromModal();
+            applyFilters();
+            closeCustomReportStudio();
+            if (typeof showToast === 'function') {
+                showToast('تم تطبيق وتوليد التقرير المخصص بنجاح! 🚀', 'success');
+            }
+        }
+
+        function saveStudioPreset() {
+            readStudioConfigFromModal();
+            localStorage.setItem('erp_custom_report_preset_v1', JSON.stringify(customReportConfig));
+            if (typeof showToast === 'function') {
+                showToast('تم حفظ قالب التقرير المخصص بنجاح كافتراضي! 💾', 'success');
+            }
+        }
+
+        function resetStudioConfig() {
+            customReportConfig = {
+                cols: {
+                    item: true, code: true, category: true, warehouse: true,
+                    actualQty: true, reservedQty: true, availQty: true, minQty: false,
+                    costPrice: true, cashPrice: false, wholesalePrice: false, retailPrice: false,
+                    totalValue: true, status: true, actions: true
+                },
+                unitMode: 'compound',
+                showUnitRelations: true,
+                qtyDecimals: 2,
+                priceDecimals: 2,
+                showCurrencySymbol: true,
+                fontSize: '14px',
+                rowDensity: 'normal',
+                highlightColor: '#38bdf8',
+                sortBy: 'default'
+            };
+            localStorage.removeItem('erp_custom_report_preset_v1');
+            openCustomReportStudio();
+            applyFilters();
+            if (typeof showToast === 'function') {
+                showToast('تم استعادة الإعدادات الافتراضية للتقرير 🔄', 'info');
+            }
+        }
+
+        // =========================================================================
+        // Custom Report Printing & Excel Export
+        // =========================================================================
+        function printStudioReport() {
+            readStudioConfigFromModal();
+            applyFilters();
+
+            const table = document.getElementById('inventory-main-table');
+            if (!table) return;
+
+            const printWindow = window.open('', '_blank');
+            const now = new Date();
+            const dateStr = now.toLocaleDateString('ar-EG', { year:'numeric', month:'long', day:'numeric' });
+            const timeStr = now.toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' });
+            const whVal = document.getElementById('filter-warehouse') ? document.getElementById('filter-warehouse').selectedOptions[0].text : 'جميع المخازن';
+            const statusVal = document.getElementById('filter-status') ? document.getElementById('filter-status').selectedOptions[0].text : 'عام';
+
+            const printHtml = `
+            <!DOCTYPE html>
+            <html dir="rtl" lang="ar">
+            <head>
+                <meta charset="UTF-8">
+                <title>تقرير المخزون المخصص - ELSAJANA</title>
+                <style>
+                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fff; color: #000; padding: 20px; direction: rtl; }
+                    .print-header { border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
+                    .print-title { font-size: 1.4rem; font-weight: 900; margin: 0 0 5px; }
+                    .print-meta { font-size: 0.85rem; color: #555; display: flex; gap: 15px; }
+                    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: ${customReportConfig.fontSize || '12px'}; }
+                    th { background: #f1f5f9; color: #000; border: 1px solid #cbd5e1; padding: 8px 10px; font-weight: 800; }
+                    td { border: 1px solid #e2e8f0; padding: 8px 10px; }
+                    .val-td { direction: ltr; text-align: left; font-weight: 800; }
+                    .code-pill { font-family: monospace; font-weight: 700; background: #eee; padding: 2px 5px; border-radius: 4px; }
+                    .status-badge { font-weight: 700; }
+                    .btn-link { display: none; }
+                    @media print {
+                        body { padding: 0; }
+                        @page { margin: 1.5cm; size: landscape; }
+                    }
+                </style>
+            </head>
+            <body>
+                <div class="print-header">
+                    <div>
+                        <h1 class="print-title">🏢 شركة السجانة العالمية للتجارة والخدمات</h1>
+                        <div style="font-size: 1.1rem; font-weight: 800; color: #1e293b;">تقرير جرد وتقييم المخزون المخصص</div>
+                    </div>
+                    <div style="text-align: left;">
+                        <div class="print-meta"><span>📅 التاريخ: ${dateStr}</span> <span>⏰ الوقت: ${timeStr}</span></div>
+                        <div style="font-size: 0.82rem; color: #475569; margin-top: 4px;">النطاق: <strong>${whVal}</strong> | الحالة: <strong>${statusVal}</strong></div>
+                    </div>
+                </div>
+                ${table.outerHTML}
+                <div style="margin-top: 20px; display: flex; justify-content: space-between; font-size: 0.85rem; border-top: 1px solid #ccc; padding-top: 10px;">
+                    <div>توقيع أمين المخزن: ..............................</div>
+                    <div>توقيع المدير المالي: ..............................</div>
+                    <div>الختم الرسمي: ..............................</div>
+                </div>
+                <script>
+                    window.onload = function() { window.print(); };
+                <\/script>
+            </body>
+            </html>`;
+
+            printWindow.document.write(printHtml);
+            printWindow.document.close();
+        }
+
+        function exportStudioExcel() {
+            readStudioConfigFromModal();
+            applyFilters();
+
+            const table = document.getElementById('inventory-main-table');
+            if (!table) return;
+
+            let html = `
+            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
+            <head><meta charset="utf-8" /><style>table, th, td { border: 1px solid #000; font-family: Segoe UI, Tahoma; text-align: right; } th { background-color: #f2f2f2; }</style></head>
+            <body dir="rtl">
+            <h2>تقرير جرد المخزون المخصص - شركة السجانة</h2>
+            <p>تاريخ الاستخراج: ${new Date().toLocaleString('ar-EG')}</p>
+            ${table.outerHTML}
+            </body></html>`;
+
+            const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
+            const link = document.createElement('a');
+            link.href = URL.createObjectURL(blob);
+            link.download = `تقرير_المخزون_المخصص_${new Date().toISOString().slice(0,10)}.xls`;
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+
+            if (typeof showToast === 'function') {
+                showToast('تم تصدير ملف Excel بنجاح! 📥', 'success');
+            }
+        }
+
         function exportExcel() {
-            alert('وظيفة تصدير Excel قيد التطوير!');
+            exportStudioExcel();
         }
 
         // Stocktake / Adjustment Functions
@@ -1388,6 +1887,219 @@
             });
         }
     </script>
+
+        <!-- Custom Report Studio Modal (مصمم تقارير المخزون المخصص) -->
+        <div id="custom-report-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center; direction: rtl; backdrop-filter: blur(8px);">
+            <div class="glass-panel" style="width: 95%; max-width: 1050px; max-height: 92vh; display: flex; flex-direction: column; padding: 25px; position: relative; border: 1px solid rgba(139, 92, 246, 0.4); background: #0f172a; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.7);">
+                
+                <!-- Modal Header -->
+                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid rgba(139, 92, 246, 0.2); padding-bottom: 12px; margin-bottom: 15px;">
+                    <div>
+                        <h3 style="color: #c084fc; margin: 0 0 4px 0; font-weight: 900; font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
+                            <span style="font-size: 1.6rem;">🎛️</span> مصمم ومخصص تقارير المخزون الشامل (Report Studio)
+                        </h3>
+                        <p style="margin: 0; font-size: 0.82rem; color: #94a3b8;">
+                            تحكم كامل في أعمدة التقرير، وحدات القياس، الأسعار، الفواصل العشرية، ونمط العرض والطباعة والتصدير
+                        </p>
+                    </div>
+                    <button onclick="closeCustomReportStudio()" style="background: none; border: none; color: #94a3b8; font-size: 1.8rem; cursor: pointer; transition: 0.3s; line-height: 1;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">&times;</button>
+                </div>
+
+                <!-- Modal Body (Scrollable) -->
+                <div style="flex: 1; overflow-y: auto; padding-right: 5px; display: flex; flex-direction: column; gap: 16px;">
+                    
+                    <!-- Section 1: نطاق التقرير والترتيب -->
+                    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 12px; padding: 14px;">
+                        <div class="studio-section-title">
+                            <span>🎯</span> 1. نطاق بيانات التقرير والترتيب (Scope & Sorting)
+                        </div>
+                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
+                            <div>
+                                <label style="font-size: 0.76rem; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 4px;">تحديد المخزن</label>
+                                <select id="cr-warehouse" class="f-input f-select" style="height: 36px;">
+                                    <option value="ALL">🏢 جميع المخازن (جرد عام)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.76rem; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 4px;">تحديد الفئة</label>
+                                <select id="cr-category" class="f-input f-select" style="height: 36px;">
+                                    <option value="ALL">🏷️ جميع الفئات</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.76rem; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 4px;">تصفية حالة الرصيد</label>
+                                <select id="cr-status" class="f-input f-select" style="height: 36px;">
+                                    <option value="ACTIVE" selected>⚡ الأصناف المتوفرة فقط</option>
+                                    <option value="ALL_WITH_ZERO">🌐 شامل الصفر (الكل)</option>
+                                    <option value="OK">🟢 رصيد آمن فقط</option>
+                                    <option value="WARNING">⚠️ تحت حد الطلب</option>
+                                    <option value="DANGER">🚨 توفير النواقص (نافذ / صفر)</option>
+                                </select>
+                            </div>
+                            <div>
+                                <label style="font-size: 0.76rem; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 4px;">ترتيب الأصناف بالتقرير</label>
+                                <select id="cr-sort" class="f-input f-select" style="height: 36px;">
+                                    <option value="default">الترتيب الافتراضي</option>
+                                    <option value="value_desc">الأعلى قيمة مالية أولاً 💰</option>
+                                    <option value="qty_desc">الأكثر كمية متوفرة 📦</option>
+                                    <option value="qty_asc">الأقل كمية (الأقرب للنفاذ) ⚠️</option>
+                                    <option value="name_asc">أبجدياً حسب اسم الصنف (أ-ي)</option>
+                                    <option value="code_asc">حسب كود الصنف</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Section 2: إظهار وإخفاء الأعمدة -->
+                    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 12px; padding: 14px;">
+                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                            <div class="studio-section-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
+                                <span>👁️</span> 2. اختيار وإظهار/إخفاء الأعمدة (Columns Visibility)
+                            </div>
+                            <div style="display: flex; gap: 6px;">
+                                <button type="button" onclick="setAllStudioCols(true)" style="background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border); border-radius: 6px; padding: 3px 8px; font-size: 0.72rem; color: #38bdf8; cursor: pointer;">تحديد الكل</button>
+                                <button type="button" onclick="setStudioPreset('standard')" style="background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border); border-radius: 6px; padding: 3px 8px; font-size: 0.72rem; color: #cbd5e1; cursor: pointer;">الافتراضي</button>
+                                <button type="button" onclick="setStudioPreset('financial')" style="background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border); border-radius: 6px; padding: 3px 8px; font-size: 0.72rem; color: #10b981; cursor: pointer;">موجز مالي</button>
+                                <button type="button" onclick="setStudioPreset('quantities')" style="background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border); border-radius: 6px; padding: 3px 8px; font-size: 0.72rem; color: #fbbf24; cursor: pointer;">جرد كميات</button>
+                            </div>
+                        </div>
+                        <div class="studio-card-grid" id="studio-cols-grid">
+                            <label class="studio-chip checked"><input type="checkbox" id="col-item" onchange="toggleChipClass(this)" checked> <span>📦 اسم الصنف</span></label>
+                            <label class="studio-chip checked"><input type="checkbox" id="col-code" onchange="toggleChipClass(this)" checked> <span>📋 كود الصنف</span></label>
+                            <label class="studio-chip checked"><input type="checkbox" id="col-category" onchange="toggleChipClass(this)" checked> <span>🏷️ فئة الصنف</span></label>
+                            <label class="studio-chip checked"><input type="checkbox" id="col-warehouse" onchange="toggleChipClass(this)" checked> <span>🏢 المخزن</span></label>
+                            <label class="studio-chip checked"><input type="checkbox" id="col-actualQty" onchange="toggleChipClass(this)" checked> <span>📊 الرصيد الفعلي</span></label>
+                            <label class="studio-chip checked"><input type="checkbox" id="col-reservedQty" onchange="toggleChipClass(this)" checked> <span>🔒 الرصيد المحجوز</span></label>
+                            <label class="studio-chip checked"><input type="checkbox" id="col-availQty" onchange="toggleChipClass(this)" checked> <span>🟢 الرصيد المتاح للبيع</span></label>
+                            <label class="studio-chip"><input type="checkbox" id="col-minQty" onchange="toggleChipClass(this)"> <span>⚠️ حد الطلب الأدنى</span></label>
+                            <label class="studio-chip checked"><input type="checkbox" id="col-costPrice" onchange="toggleChipClass(this)" checked> <span>💵 سعر التكلفة/المتوسط</span></label>
+                            <label class="studio-chip"><input type="checkbox" id="col-cashPrice" onchange="toggleChipClass(this)"> <span>🏷️ سعر البيع النقدي</span></label>
+                            <label class="studio-chip"><input type="checkbox" id="col-wholesalePrice" onchange="toggleChipClass(this)"> <span>💼 سعر البيع جملة</span></label>
+                            <label class="studio-chip"><input type="checkbox" id="col-retailPrice" onchange="toggleChipClass(this)"> <span>🛍️ سعر البيع قطاعي</span></label>
+                            <label class="studio-chip checked"><input type="checkbox" id="col-totalValue" onchange="toggleChipClass(this)" checked> <span>💰 إجمالي القيمة</span></label>
+                            <label class="studio-chip checked"><input type="checkbox" id="col-status" onchange="toggleChipClass(this)" checked> <span>🚦 حالة المخزون</span></label>
+                            <label class="studio-chip checked"><input type="checkbox" id="col-actions" onchange="toggleChipClass(this)" checked> <span>📑 زر كشف الحركة</span></label>
+                        </div>
+                    </div>
+
+                    <!-- Section 3: التحكم في الوحدات + الفواصل العشرية + المظهر -->
+                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
+                        
+                        <!-- Units Control -->
+                        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 12px; padding: 14px;">
+                            <div class="studio-section-title">
+                                <span>⚖️</span> 3. طريقة عرض الوحدات
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 8px;">
+                                <label class="studio-chip checked" style="padding: 6px 10px;">
+                                    <input type="radio" name="cr-unit-mode" value="compound" checked>
+                                    <span>🌟 عرض مركب ذكي (طن+سيخ / كرتونة+حبة)</span>
+                                </label>
+                                <label class="studio-chip" style="padding: 6px 10px;">
+                                    <input type="radio" name="cr-unit-mode" value="base">
+                                    <span>📦 الوحدة الأساسية الكبرى فقط</span>
+                                </label>
+                                <label class="studio-chip" style="padding: 6px 10px;">
+                                    <input type="radio" name="cr-unit-mode" value="smallest">
+                                    <span>🔹 الوحدة الصغرى (التجزئة) فقط</span>
+                                </label>
+                                <label class="studio-chip checked" style="padding: 6px 10px; margin-top: 4px;">
+                                    <input type="checkbox" id="cr-show-unit-rels" onchange="toggleChipClass(this)" checked>
+                                    <span style="font-size: 0.78rem;">إظهار معادلات التحويل أسفل الصنف</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Decimals & Precision -->
+                        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 12px; padding: 14px;">
+                            <div class="studio-section-title">
+                                <span>🔢</span> 4. الفاصلة العشرية والعملة
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div>
+                                    <label style="font-size: 0.76rem; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 3px;">خانات الكميات العشرية</label>
+                                    <select id="cr-qty-decimals" class="f-input f-select" style="height: 34px;">
+                                        <option value="0">0 (أرقام صحيحة بدون كسور)</option>
+                                        <option value="1">1 (مثال: 12.5)</option>
+                                        <option value="2" selected>2 (مثال: 12.50)</option>
+                                        <option value="3">3 (للأوزان والأطنان: 12.550)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.76rem; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 3px;">خانات الأسعار والمبالغ</label>
+                                    <select id="cr-price-decimals" class="f-input f-select" style="height: 34px;">
+                                        <option value="0">0 (بدون كسور: 50,000)</option>
+                                        <option value="2" selected>2 (خانتي سنت: 50,000.00)</option>
+                                        <option value="3">3 (ثلاث خانات)</option>
+                                    </select>
+                                </div>
+                                <label class="studio-chip checked" style="padding: 6px 10px;">
+                                    <input type="checkbox" id="cr-show-currency" onchange="toggleChipClass(this)" checked>
+                                    <span style="font-size: 0.78rem;">إظهار رمز العملة (SDG)</span>
+                                </label>
+                            </div>
+                        </div>
+
+                        <!-- Appearance & Sizing -->
+                        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 12px; padding: 14px;">
+                            <div class="studio-section-title">
+                                <span>🎨</span> 5. مقاسات الخطوط والمظهر
+                            </div>
+                            <div style="display: flex; flex-direction: column; gap: 10px;">
+                                <div>
+                                    <label style="font-size: 0.76rem; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 3px;">مقاس خط الجدول</label>
+                                    <select id="cr-font-size" class="f-input f-select" style="height: 34px;">
+                                        <option value="12px">صغير مدمج (12px)</option>
+                                        <option value="14px" selected>قياسي متناسق (14px)</option>
+                                        <option value="16px">كبير مريح (16px)</option>
+                                        <option value="18px">بارز عريض (18px)</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.76rem; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 3px;">كثافة تباعد الأسطر</label>
+                                    <select id="cr-row-density" class="f-input f-select" style="height: 34px;">
+                                        <option value="compact">مضغوط Compact (أكبر عدد بيانات)</option>
+                                        <option value="normal" selected>قياسي مريح Normal</option>
+                                        <option value="spacious">واسع Spacious</option>
+                                    </select>
+                                </div>
+                                <div>
+                                    <label style="font-size: 0.76rem; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 3px;">لون تمييز الرصيد المتاح</label>
+                                    <select id="cr-highlight-color" class="f-input f-select" style="height: 34px;">
+                                        <option value="#38bdf8" selected>🔵 أزرق سماوي نيون (Sky Blue)</option>
+                                        <option value="#10b981">🟢 أخضر زمردي (Emerald Green)</option>
+                                        <option value="#8b5cf6">🟣 بنفسجي ملكي (Purple)</option>
+                                        <option value="#fbbf24">🟡 ذهبي كلاسيكي (Gold)</option>
+                                    </select>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+
+                </div>
+
+                <!-- Modal Footer Actions -->
+                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(139, 92, 246, 0.2); padding-top: 15px; margin-top: 15px; flex-wrap: wrap; gap: 10px;">
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" onclick="resetStudioConfig()" class="btn-action" style="background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border); color: #94a3b8; padding: 8px 16px;">🔄 استعادة الافتراضي</button>
+                        <button type="button" onclick="saveStudioPreset()" class="btn-action" style="background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.4); color: #c084fc; padding: 8px 16px;">💾 حفظ كقالب دائم</button>
+                    </div>
+                    <div style="display: flex; gap: 8px;">
+                        <button type="button" onclick="exportStudioExcel()" class="btn-action" style="background: linear-gradient(135deg, #059669, #047857); color: #fff; border: none; padding: 9px 20px; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35);">
+                            <span>📥</span> تصدير Excel مخصص
+                        </button>
+                        <button type="button" onclick="printStudioReport()" class="btn-action" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff; border: none; padding: 9px 20px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);">
+                            <span>🖨️</span> طباعة التقرير المخصص (A4)
+                        </button>
+                        <button type="button" onclick="applyStudioReport()" class="btn-action" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; border: none; padding: 9px 24px; font-weight: 800; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);">
+                            <span>⚡</span> تطبيق التقرير على الشاشة الآن
+                        </button>
+                    </div>
+                </div>
+
+            </div>
+        </div>
 
         <!-- AI Inventory Modal -->
         <div id="aiInv-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center; direction: rtl; backdrop-filter: blur(8px);">
