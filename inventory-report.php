@@ -2468,45 +2468,45 @@
                     </div>
                 </div>
                 
-                <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
                     <!-- Studio Design Toggle -->
-                    <button type="button" id="btn-toggle-inv-studio" onclick="toggleInvStudioDrawer()" class="btn-action" style="background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.4); color: #38bdf8; padding: 7px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                        <span>🎨</span> شريط الضبط السريع
+                    <button type="button" id="btn-toggle-inv-studio" onclick="toggleInvStudioDrawer()" class="btn-action" style="background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.4); color: #38bdf8; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; height: 28px;">
+                        <span>🎨</span> الضبط
                     </button>
                     <!-- Live Edit Mode Toggle -->
-                    <button type="button" id="btn-toggle-inv-live-edit" onclick="toggleInvLiveEditMode()" class="btn-action" style="background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); color: #fbbf24; padding: 7px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                        <span>✏️</span> تعديل النصوص مباشرة
+                    <button type="button" id="btn-toggle-inv-live-edit" onclick="toggleInvLiveEditMode()" class="btn-action" style="background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); color: #fbbf24; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; height: 28px;">
+                        <span>✏️</span> تعديل النصوص
                     </button>
                     <!-- Print Button -->
-                    <button type="button" onclick="printInventoryReportSheet()" class="btn-action" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 7px 18px; font-weight: 800; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
-                        <span>🖨️</span> طباعة التقرير
+                    <button type="button" onclick="printInventoryReportSheet()" class="btn-action" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 4px 14px; font-size: 0.8rem; font-weight: 800; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(16,185,129,0.3); height: 28px;">
+                        <span>🖨️</span> طباعة
                     </button>
                     <!-- Close Button -->
-                    <button type="button" onclick="closeInventoryReportPreview()" class="btn-action" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #e2e8f0; padding: 7px 14px; border-radius: 8px; cursor: pointer;">
+                    <button type="button" onclick="closeInventoryReportPreview()" class="btn-action" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #e2e8f0; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; height: 28px;">
                         ✕ إغلاق
                     </button>
                 </div>
             </div>
 
             <!-- Design Studio Toolbar (Collapsible / Active) -->
-            <div id="inv-studio-drawer" class="no-print" style="display: flex; flex-direction: column; gap: 8px; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 10px 14px; margin-bottom: 10px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);">
+            <div id="inv-studio-drawer" class="no-print" style="display: flex; flex-direction: column; gap: 6px; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 6px 10px; margin-bottom: 6px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);">
                 
                 <!-- Row 1: Global Theme, Font, Size, Paper & Sections -->
-                <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;">
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 700;">🎨 الثيم:</span>
-                        <select id="inv-studio-theme-select" onchange="applyInvStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem;">
-                            <option value="corporate">🔷 أزرق نيلي كلاسيكي (Corporate)</option>
-                            <option value="emerald">💚 أخضر زمردي راقي (Emerald Pro)</option>
-                            <option value="gold">🟡 ذهبي كلاسيكي فاخر (Luxury Gold)</option>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">🎨 الثيم:</span>
+                        <select id="inv-studio-theme-select" onchange="applyInvStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 5px; padding: 2px 6px; font-size: 0.8rem; height: 26px;">
+                            <option value="corporate">🔷 أزرق نيلي (Corporate)</option>
+                            <option value="emerald">💚 أخضر زمردي (Emerald Pro)</option>
+                            <option value="gold">🟡 ذهبي كلاسيكي (Luxury Gold)</option>
                             <option value="slate">🩶 رمادي عصري (Modern Slate)</option>
-                            <option value="black">🖤 أسود رسمي فاخر (Luxury Black)</option>
+                            <option value="black">🖤 أسود رسمي (Luxury Black)</option>
                         </select>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 700;">🔤 الخط:</span>
-                        <select id="inv-studio-font-select" onchange="applyInvStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">🔤 الخط:</span>
+                        <select id="inv-studio-font-select" onchange="applyInvStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 5px; padding: 2px 6px; font-size: 0.8rem; height: 26px;">
                             <option value="'Tajawal', sans-serif">تجوّل (Tajawal)</option>
                             <option value="'Cairo', sans-serif">القاهرة (Cairo)</option>
                             <option value="'Almarai', sans-serif">المراعي (Almarai)</option>
@@ -2515,43 +2515,43 @@
                         </select>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 700;">📏 الكثافة:</span>
-                        <select id="inv-studio-size-select" onchange="applyInvStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">📏 الكثافة:</span>
+                        <select id="inv-studio-size-select" onchange="applyInvStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 5px; padding: 2px 6px; font-size: 0.8rem; height: 26px;">
                             <option value="compact">مدمج صغير (Compact)</option>
                             <option value="medium" selected>متوازن قياسي (Medium)</option>
                             <option value="large">كبير واضح (Large)</option>
                         </select>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 700;">📑 الاتجاه:</span>
-                        <select id="inv-studio-orientation-select" onchange="applyInvStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">📑 الاتجاه:</span>
+                        <select id="inv-studio-orientation-select" onchange="applyInvStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 5px; padding: 2px 6px; font-size: 0.8rem; height: 26px;">
                             <option value="landscape" selected>↔️ أفقي (Landscape)</option>
                             <option value="portrait">↕️ طولي (Portrait)</option>
                         </select>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <label style="font-size: 0.75rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <label style="font-size: 0.8rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 2px;">
                             <input type="checkbox" id="chk-inv-show-header" checked onchange="applyInvStudioDesign()"> الترويسة
                         </label>
-                        <label style="font-size: 0.75rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+                        <label style="font-size: 0.8rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 2px;">
                             <input type="checkbox" id="chk-inv-show-kpis" checked onchange="applyInvStudioDesign()"> ملخص الأرصدة
                         </label>
-                        <label style="font-size: 0.75rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+                        <label style="font-size: 0.8rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 2px;">
                             <input type="checkbox" id="chk-inv-show-signatures" checked onchange="applyInvStudioDesign()"> التوقيعات
                         </label>
                     </div>
                 </div>
 
                 <!-- Row 2: Unified Single-Row Column Super-Toolbar -->
-                <div class="panel-card studio-super-row" style="margin-bottom: 0; padding: 6px 12px; gap: 8px; display: flex; align-items: center; justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; background: rgba(255, 255, 255, 0.08) !important; border: 1px solid rgba(56, 189, 248, 0.3) !important;">
+                <div class="panel-card studio-super-row" style="margin-bottom: 0; padding: 4px 8px; gap: 6px; display: flex; align-items: center; justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; background: rgba(255, 255, 255, 0.08) !important; border: 1px solid rgba(56, 189, 248, 0.3) !important;">
                     
                     <!-- Group A: Column Selection & Visibility -->
                     <div class="studio-group-pill">
-                        <span style="color:#38bdf8; font-size:0.82rem; font-weight:900;">🎯 العمود:</span>
-                        <select id="inv-selected-col-select" class="panel-input" style="color:#38bdf8; font-size:0.82rem; font-weight:900; border-color:#38bdf8; background:#1e293b; padding: 3px 6px;" onchange="selectInvColumn(this.value)">
+                        <span style="color:#38bdf8; font-size:0.8rem; font-weight:900;">🎯 العمود:</span>
+                        <select id="inv-selected-col-select" class="panel-input" style="color:#38bdf8; font-size:0.8rem; font-weight:900; border-color:#38bdf8; background:#1e293b; padding: 2px 6px; height: 26px;" onchange="selectInvColumn(this.value)">
                             <option value="code">كود الصنف</option>
                             <option value="item" selected>اسم الصنف</option>
                             <option value="category">فئة الصنف</option>
@@ -2565,7 +2565,7 @@
                             <option value="totalValue">القيمة الإجمالية</option>
                             <option value="status">حالة الرصيد</option>
                         </select>
-                        <label style="display:flex; align-items:center; gap:3px; cursor:pointer; font-size:0.8rem; font-weight:800;" title="إظهار أو إخفاء العمود">
+                        <label style="display:flex; align-items:center; gap:2px; cursor:pointer; font-size:0.8rem; font-weight:800;" title="إظهار أو إخفاء العمود">
                             <input type="checkbox" id="inv-col-visible-chk" checked onchange="updateSelectedInvCol('visible', this.checked)">
                             إظهار
                         </label>
@@ -2575,9 +2575,9 @@
 
                     <!-- Group B: Header Label & Ordering -->
                     <div class="studio-group-pill">
-                        <span style="font-size:0.82rem;">✏️ التسمية:</span>
-                        <input type="text" id="inv-col-label-input" class="panel-input" style="width:110px; font-size:0.82rem; padding: 3px 6px; background:#1e293b; color:#fff; border-color:#475569;" oninput="updateSelectedInvCol('label', this.value)">
-                        <span style="font-size:0.82rem;">الترتيب:</span>
+                        <span style="font-size:0.8rem;">✏️ التسمية:</span>
+                        <input type="text" id="inv-col-label-input" class="panel-input" style="width:105px; font-size:0.8rem; padding: 2px 6px; background:#1e293b; color:#fff; border-color:#475569; height: 26px;" oninput="updateSelectedInvCol('label', this.value)">
+                        <span style="font-size:0.8rem;">الترتيب:</span>
                         <button class="ribbon-btn studio-mini-btn" onclick="moveSelectedInvCol(-1)" title="تحريك لليمين">➡️</button>
                         <button class="ribbon-btn studio-mini-btn" onclick="moveSelectedInvCol(1)" title="تحريك لليسار">⬅️</button>
                     </div>
@@ -2586,8 +2586,8 @@
 
                     <!-- Group C: Alignment -->
                     <div class="studio-group-pill">
-                        <span style="font-size:0.82rem;">المحاذاة:</span>
-                        <select id="inv-col-align-select" class="panel-input" style="font-size:0.82rem; padding: 3px 6px; background:#1e293b; color:#fff; border-color:#475569;" onchange="updateSelectedInvCol('align', this.value)">
+                        <span style="font-size:0.8rem;">المحاذاة:</span>
+                        <select id="inv-col-align-select" class="panel-input" style="font-size:0.8rem; padding: 2px 6px; background:#1e293b; color:#fff; border-color:#475569; height: 26px;" onchange="updateSelectedInvCol('align', this.value)">
                             <option value="right">يمين ➡️</option>
                             <option value="center" selected>وسط 🟢</option>
                             <option value="left">يسار ⬅️</option>
@@ -2598,12 +2598,12 @@
 
                     <!-- Group D: Column Width -->
                     <div class="studio-group-pill">
-                        <span style="font-size:0.82rem;" title="عرض العمود كنسبة مئوية">📏 العرض:</span>
-                        <input type="range" id="inv-col-width-range" min="5" max="50" step="1" value="15" style="width:70px;"
+                        <span style="font-size:0.8rem;" title="عرض العمود كنسبة مئوية">📏 العرض:</span>
+                        <input type="range" id="inv-col-width-range" min="5" max="50" step="1" value="15" style="width:65px;"
                             oninput="document.getElementById('inv-col-width-input').value=this.value; updateSelectedInvCol('width', this.value)">
-                        <input type="number" id="inv-col-width-input" class="panel-input" style="width:45px; font-size:0.82rem; padding: 3px; background:#1e293b; color:#fff; border-color:#475569;" min="5" max="50" placeholder="%" 
+                        <input type="number" id="inv-col-width-input" class="panel-input" style="width:42px; font-size:0.8rem; padding: 2px; background:#1e293b; color:#fff; border-color:#475569; height: 26px;" min="5" max="50" placeholder="%" 
                             oninput="if(document.getElementById('inv-col-width-range')) document.getElementById('inv-col-width-range').value=this.value; updateSelectedInvCol('width', this.value)">
-                        <button class="ribbon-btn studio-mini-btn" style="font-size:0.75rem; padding: 3px 6px;" 
+                        <button class="ribbon-btn studio-mini-btn" style="font-size:0.75rem; padding: 2px 5px;" 
                             onclick="updateSelectedInvCol('width', ''); document.getElementById('inv-col-width-input').value=''; document.getElementById('inv-col-width-range').value=15;" title="ضبط العرض التلقائي">🔄 تلقائي</button>
                     </div>
 
@@ -2611,10 +2611,10 @@
 
                     <!-- Group E: Table Width -->
                     <div class="studio-group-pill">
-                        <span style="font-size:0.82rem;">📐 عرض الجدول:</span>
-                        <input type="range" id="inv-table-width-range" min="60" max="100" step="5" value="100" style="width:70px;"
+                        <span style="font-size:0.8rem;">📐 عرض الجدول:</span>
+                        <input type="range" id="inv-table-width-range" min="60" max="100" step="5" value="100" style="width:65px;"
                             oninput="setInvTableWidth(this.value)">
-                        <span id="inv-table-width-label" style="font-weight:900; font-size:0.82rem; min-width:32px; text-align:center; color:#38bdf8;">100%</span>
+                        <span id="inv-table-width-label" style="font-weight:900; font-size:0.8rem; min-width:32px; text-align:center; color:#38bdf8;">100%</span>
                     </div>
 
                 </div>

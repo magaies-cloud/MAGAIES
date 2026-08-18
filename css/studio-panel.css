@@ -1,21 +1,21 @@
-﻿/* Studio Settings Panel Shared CSS - Pro Edition */
+﻿/* Studio Settings Panel Shared CSS - Ultra Compact Pro Edition (0.8rem) */
 .studio-tabs {
     display: flex; justify-content: space-between; align-items: center;
     background: linear-gradient(135deg, #ca8a04, #854d0e);
-    color: #ffffff; padding: 8px 14px; border-radius: 10px;
-    margin-bottom: 12px; box-shadow: 0 4px 12px rgba(133, 77, 14, 0.25);
+    color: #ffffff; padding: 5px 12px; border-radius: 8px;
+    margin-bottom: 8px; box-shadow: 0 2px 8px rgba(133, 77, 14, 0.2);
 }
 body.dark-mode .studio-tabs {
     background: linear-gradient(135deg, #854d0e, #451a03);
 }
 .studio-tab-btn {
     background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3);
-    color: #ffffff !important; padding: 6px 18px; border-radius: 18px;
-    font-family: inherit; font-weight: 800; cursor: pointer; transition: all 0.25s; font-size: 0.88rem;
+    color: #ffffff !important; padding: 4px 12px; border-radius: 14px;
+    font-family: inherit; font-weight: 800; cursor: pointer; transition: all 0.2s; font-size: 0.8rem;
 }
 .studio-tab-btn.active {
     background: #ffffff !important; color: #854d0e !important; font-weight: 900;
-    box-shadow: 0 3px 10px rgba(0,0,0,0.25); border-color: #ffffff; transform: translateY(-1px);
+    box-shadow: 0 2px 6px rgba(0,0,0,0.2); border-color: #ffffff; transform: translateY(-1px);
 }
 .studio-tab-btn:hover:not(.active) {
     background: rgba(255, 255, 255, 0.3); color: #ffffff !important;
@@ -23,19 +23,19 @@ body.dark-mode .studio-tabs {
 
 /* Studio Dropdown Panel with Slide-Down Animation */
 @keyframes studioSlideDown {
-    from { opacity: 0; transform: translateY(-12px); max-height: 0; }
-    to { opacity: 1; transform: translateY(0); max-height: 600px; }
+    from { opacity: 0; transform: translateY(-8px); max-height: 0; }
+    to { opacity: 1; transform: translateY(0); max-height: 500px; }
 }
 
 .settings-panel {
     background: #fef9c3; /* Yellow-100 */
     color: #713f12; /* Yellow-900 */
-    padding: 12px 18px; border-bottom: 4px solid #eab308;
+    padding: 8px 12px; border-bottom: 3px solid #eab308;
     display: none; /* Hidden by default */
-    font-size: 0.92rem; font-weight: 800;
-    box-shadow: 0 10px 25px rgba(0,0,0,0.18);
-    flex-direction: column; gap: 8px;
-    animation: studioSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+    font-size: 0.8rem; font-weight: 800;
+    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
+    flex-direction: column; gap: 6px;
+    animation: studioSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
     overflow: hidden;
 }
 .settings-panel.show {
@@ -47,20 +47,21 @@ body.dark-mode .settings-panel {
 }
 
 .panel-card {
-    background: rgba(255,255,255,0.75);
+    background: rgba(255,255,255,0.78);
     border: 1px solid rgba(202, 138, 4, 0.4);
-    border-radius: 8px; padding: 8px 12px;
-    display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;
+    border-radius: 6px; padding: 5px 10px;
+    display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;
 }
 body.dark-mode .panel-card {
     background: rgba(0,0,0,0.45); border-color: rgba(202, 138, 4, 0.3);
 }
 
-.panel-group { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; }
-.panel-group span { font-size: 0.9rem; font-weight: 900; }
+.panel-group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
+.panel-group span { font-size: 0.8rem; font-weight: 900; }
 .panel-input {
-    padding: 5px 10px; border-radius: 6px; border: 1px solid #ca8a04; font-family: inherit;
-    background: #ffffff; color: #000; font-weight: 800; font-size: 0.88rem; outline: none;
+    padding: 3px 8px; border-radius: 5px; border: 1px solid #ca8a04; font-family: inherit;
+    background: #ffffff; color: #000; font-weight: 800; font-size: 0.8rem; outline: none;
+    height: 28px; box-sizing: border-box;
 }
 .panel-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2,132,199,0.2); }
 
@@ -70,7 +71,8 @@ body.dark-mode .panel-card {
     overflow-x: auto;
     background: rgba(255, 255, 255, 0.9) !important;
     border: 1px solid rgba(202, 138, 4, 0.5) !important;
-    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
+    padding: 4px 8px !important;
 }
 body.dark-mode .studio-super-row {
     background: rgba(15, 23, 42, 0.85) !important;
@@ -79,27 +81,34 @@ body.dark-mode .studio-super-row {
 .studio-group-pill {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
+    gap: 5px;
     white-space: nowrap;
     flex-shrink: 0;
+    font-size: 0.8rem;
+}
+.studio-group-pill span, .studio-group-pill label {
+    font-size: 0.8rem !important;
 }
 .studio-pill-divider {
     width: 1px;
-    height: 22px;
+    height: 18px;
     background: rgba(202, 138, 4, 0.35);
-    margin: 0 4px;
+    margin: 0 3px;
     flex-shrink: 0;
 }
 .studio-mini-btn {
-    padding: 3px 8px !important;
-    font-size: 0.8rem !important;
-    height: auto !important;
-    border-radius: 8px !important;
+    padding: 2px 6px !important;
+    font-size: 0.78rem !important;
+    height: 24px !important;
+    border-radius: 6px !important;
     background: #ffffff !important;
     color: #000000 !important;
     border: 1px solid #ca8a04 !important;
     cursor: pointer;
     transition: all 0.2s ease;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
 }
 .studio-mini-btn:hover {
     background: #fef08a !important;

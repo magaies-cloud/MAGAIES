@@ -1,41 +1,41 @@
 <link rel="stylesheet" href="css/studio-panel.css?v=<?php echo file_exists('css/studio-panel.css') ? filemtime('css/studio-panel.css') : time(); ?>">
 <div class="settings-panel no-print" id="settings-panel">
     <!-- Studio Tabs Header -->
-    <div class="studio-tabs" id="studio-tabs-bar" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ca8a04; margin-bottom: 10px; padding-bottom: 6px;">
-        <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+    <div class="studio-tabs" id="studio-tabs-bar" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ca8a04; margin-bottom: 6px; padding-bottom: 4px;">
+        <div style="display: flex; gap: 5px; flex-wrap: wrap;">
             <button class="studio-tab-btn active" id="tab-btn-cols" onclick="switchStudioTab('cols')">📊 إعدادات الأعمدة والتنسيق</button>
             <button class="studio-tab-btn" id="tab-btn-paper" onclick="switchStudioTab('paper')">📄 إعدادات الورقة والطباعة</button>
             <button class="studio-tab-btn" id="tab-btn-presets" onclick="switchStudioTab('presets')">💎 التخصيصات الجاهزة</button>
         </div>
 
-        <div style="display: flex; gap: 8px; align-items: center;">
-            <button id="reset-design-btn" class="ribbon-btn" style="background: linear-gradient(135deg, #64748b, #475569); color:#fff; border:none; padding:5px 16px; font-size:0.85rem; font-weight:800; border-radius:18px; box-shadow: 0 2px 8px rgba(71,85,105,0.3); position: relative; overflow: hidden; display: flex; align-items: center; gap: 4px; cursor: pointer; user-select: none;">
+        <div style="display: flex; gap: 6px; align-items: center;">
+            <button id="reset-design-btn" class="ribbon-btn" style="background: linear-gradient(135deg, #64748b, #475569); color:#fff; border:none; padding:4px 12px; font-size:0.8rem; font-weight:800; border-radius:12px; box-shadow: 0 2px 6px rgba(71,85,105,0.3); position: relative; overflow: hidden; display: flex; align-items: center; gap: 3px; cursor: pointer; user-select: none; height: 28px;">
                 <span class="btn-progress" style="position: absolute; right: 0; top: 0; bottom: 0; width: 0%; background: rgba(255,255,255,0.25); transition: none; pointer-events: none;"></span>
                 <span class="btn-text">🔄 إعادة ضبط</span>
             </button>
-            <button id="save-settings-btn-main" class="ribbon-btn" onclick="saveCurrentPreset()" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:5px 16px; font-size:0.85rem; font-weight:800; border-radius:18px; box-shadow: 0 2px 8px rgba(16,185,129,0.3);">
+            <button id="save-settings-btn-main" class="ribbon-btn" onclick="saveCurrentPreset()" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:4px 12px; font-size:0.8rem; font-weight:800; border-radius:12px; box-shadow: 0 2px 6px rgba(16,185,129,0.3); height: 28px;">
                 💾 حفظ الإعدادات
             </button>
-            <button type="button" class="btn-close-modal" onclick="toggleSettingsPanel()" title="إغلاق الاستوديو" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 8px 20px; border-radius: 8px; font-weight: bold; cursor: pointer;">❌ إغلاق</button>
+            <button type="button" class="btn-close-modal" onclick="toggleSettingsPanel()" title="إغلاق الاستوديو" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 4px 12px; border-radius: 6px; font-size:0.8rem; font-weight: bold; cursor: pointer; height: 28px;">❌ إغلاق</button>
         </div>
     </div>
 
     <!-- TAB 1: Columns & Formatting -->
     <div id="studio-tab-cols">
         <!-- Row 1: Unified Super Toolbar (All Column Controls in 1 Compact Line) -->
-        <div class="panel-card studio-super-row" style="margin-bottom: 8px; padding: 6px 12px; gap: 8px; display: flex; align-items: center; justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto;">
+        <div class="panel-card studio-super-row" style="margin-bottom: 6px; padding: 4px 8px; gap: 6px; display: flex; align-items: center; justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto;">
             
             <!-- Group A: Selection & Visibility -->
             <div class="studio-group-pill">
-                <span style="color:#dc2626; font-size:0.85rem; font-weight:900;">🎯 العمود:</span>
-                <select id="selected-col-select" class="panel-input" style="color:#dc2626; font-size:0.85rem; font-weight:900; border-color:#dc2626; background:#ffffff; padding: 4px 8px;" onchange="selectColumn(parseInt(this.value))">
+                <span style="color:#dc2626; font-size:0.8rem; font-weight:900;">🎯 العمود:</span>
+                <select id="selected-col-select" class="panel-input" style="color:#dc2626; font-size:0.8rem; font-weight:900; border-color:#dc2626; background:#ffffff; padding: 2px 6px; height: 26px;" onchange="selectColumn(parseInt(this.value))">
                     <!-- Column options populated dynamically via JS -->
                 </select>
-                <label style="display:flex; align-items:center; gap:3px; cursor:pointer; font-size:0.82rem; font-weight:800;" title="إظهار أو إخفاء العمود">
+                <label style="display:flex; align-items:center; gap:2px; cursor:pointer; font-size:0.8rem; font-weight:800;" title="إظهار أو إخفاء العمود">
                     <input type="checkbox" id="col-visible-chk" checked onchange="updateSelectedCol('visible', this.checked)">
                     إظهار
                 </label>
-                <select id="restore-hidden-col-select" class="panel-input" style="background:#fffeb3; border-color:#d97706; font-size:0.82rem; padding: 4px 6px;" onchange="restoreHiddenColumn(this.value)" title="استعادة الأعمدة المخفية">
+                <select id="restore-hidden-col-select" class="panel-input" style="background:#fffeb3; border-color:#d97706; font-size:0.78rem; padding: 2px 4px; height: 26px;" onchange="restoreHiddenColumn(this.value)" title="استعادة الأعمدة المخفية">
                     <option value="">👁️ المخفي (0)</option>
                 </select>
             </div>
@@ -44,9 +44,9 @@
 
             <!-- Group B: Header Label & Ordering -->
             <div class="studio-group-pill">
-                <span style="font-size:0.85rem;">✏️ التسمية:</span>
-                <input type="text" id="col-label-input" class="panel-input" style="width:115px; font-size:0.85rem; padding: 4px 8px;" oninput="updateSelectedCol('label', this.value)">
-                <span style="font-size:0.85rem;">الترتيب:</span>
+                <span style="font-size:0.8rem;">✏️ التسمية:</span>
+                <input type="text" id="col-label-input" class="panel-input" style="width:105px; font-size:0.8rem; padding: 2px 6px; height: 26px;" oninput="updateSelectedCol('label', this.value)">
+                <span style="font-size:0.8rem;">الترتيب:</span>
                 <button class="ribbon-btn studio-mini-btn" onclick="moveSelectedCol(-1)" title="تحريك لليمين">➡️</button>
                 <button class="ribbon-btn studio-mini-btn" onclick="moveSelectedCol(1)" title="تحريك لليسار">⬅️</button>
             </div>
@@ -55,8 +55,8 @@
 
             <!-- Group C: Alignment -->
             <div class="studio-group-pill">
-                <span style="font-size:0.85rem;">المحاذاة:</span>
-                <select id="col-align-select" class="panel-input" style="font-size:0.85rem; padding: 4px 8px;" onchange="updateSelectedCol('align', this.value)">
+                <span style="font-size:0.8rem;">المحاذاة:</span>
+                <select id="col-align-select" class="panel-input" style="font-size:0.8rem; padding: 2px 6px; height: 26px;" onchange="updateSelectedCol('align', this.value)">
                     <option value="right">يمين ➡️</option>
                     <option value="center" selected>وسط 🟢</option>
                     <option value="left">يسار ⬅️</option>
@@ -67,12 +67,12 @@
 
             <!-- Group D: Column Width -->
             <div class="studio-group-pill">
-                <span style="font-size:0.85rem;" title="عرض العمود كنسبة مئوية">📏 العرض:</span>
-                <input type="range" id="col-width-range" min="5" max="60" step="1" value="15" style="width:75px;"
+                <span style="font-size:0.8rem;" title="عرض العمود كنسبة مئوية">📏 العرض:</span>
+                <input type="range" id="col-width-range" min="5" max="60" step="1" value="15" style="width:65px;"
                     oninput="document.getElementById('col-width-input').value=this.value; updateSelectedCol('width', this.value)">
-                <input type="number" id="col-width-input" class="panel-input" style="width:48px; font-size:0.85rem; padding: 4px;" min="5" max="60" placeholder="%" 
+                <input type="number" id="col-width-input" class="panel-input" style="width:42px; font-size:0.8rem; padding: 2px; height: 26px;" min="5" max="60" placeholder="%" 
                     oninput="if(document.getElementById('col-width-range')) document.getElementById('col-width-range').value=this.value; updateSelectedCol('width', this.value)">
-                <button class="ribbon-btn studio-mini-btn" style="font-size:0.75rem; padding: 4px 6px;" 
+                <button class="ribbon-btn studio-mini-btn" style="font-size:0.75rem; padding: 2px 5px;" 
                     onclick="updateSelectedCol('width', ''); document.getElementById('col-width-input').value=''; document.getElementById('col-width-range').value=15;" title="ضبط العرض التلقائي">🔄 تلقائي</button>
             </div>
 
@@ -80,10 +80,10 @@
 
             <!-- Group E: Table Width -->
             <div class="studio-group-pill">
-                <span style="font-size:0.85rem;">📐 عرض الجدول:</span>
-                <input type="range" id="table-width-range" min="50" max="100" step="5" value="100" style="width:75px;"
+                <span style="font-size:0.8rem;">📐 عرض الجدول:</span>
+                <input type="range" id="table-width-range" min="50" max="100" step="5" value="100" style="width:65px;"
                     oninput="setTableWidth(this.value)">
-                <span id="table-width-label" style="font-weight:900; font-size:0.85rem; min-width:35px; text-align:center;">100%</span>
+                <span id="table-width-label" style="font-weight:900; font-size:0.8rem; min-width:32px; text-align:center;">100%</span>
             </div>
 
         </div>
