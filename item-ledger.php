@@ -324,10 +324,11 @@
                             <th style="color:#10b981; background:rgba(16,185,129,0.05); text-align: right;">الوارد (داخل)</th>
                             <th style="color:#ec4899; background:rgba(236,72,153,0.05); text-align: right;">المنصرف (خارج)</th>
                             <th style="color:#fbbf24; background:rgba(251,191,36,0.05); text-align: right;">الرصيد التراكمي</th>
+                            <th style="color:#38bdf8;">ملحوظة الحركة</th>
                         </tr>
                     </thead>
                     <tbody id="ledger-tbody">
-                        <tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-secondary);">يرجى اختيار صنف لعرض حركته التفصيلية</td></tr>
+                        <tr><td colspan="8" style="text-align:center; padding:30px; color:var(--text-secondary);">يرجى اختيار صنف لعرض حركته التفصيلية</td></tr>
                     </tbody>
                 </table>
             </div>
@@ -446,6 +447,16 @@
                             receiptDocId = inv.invoiceNo || inv.id;
                         }
 
+                        // Capture Note for Goods Receipt / Purchase
+                        let noteText = '';
+                        if (line.notes && line.notes.trim()) {
+                            noteText = line.notes.trim();
+                        } else if (inv.notes) {
+                            let cleanNote = inv.notes.replace(/^مذكرة استلام بضاعة للفاتورة\s+[^\s]+\s*/, '').replace(/^\(|\)$/g, '').trim();
+                            if (cleanNote) noteText = cleanNote;
+                        }
+                        if (!noteText && inv.remarks) noteText = inv.remarks.trim();
+
                         history.push({
                             date: new Date(inv.date || inv.receiveDate || Date.now()),
                             typeCode: typeCode,
@@ -458,6 +469,7 @@
                             ref: receiptNo,
                             docId: receiptDocId,
                             warehouse: wh,
+                            notes: noteText,
                             in: valIn,
                             out: valOut
                         });
@@ -497,6 +509,22 @@
                         let permitDocId = permitNo !== '-' ? permitNo : (inv.invoiceNo || inv.id);
                         let receiptDocId = inv.invoiceNo || inv.id;
 
+                        // Capture Note for Sales / Delivery Note
+                        let noteText = '';
+                        if (line.notes && line.notes.trim()) {
+                            noteText = line.notes.trim();
+                        } else if (inv.warehouseNotes && inv.warehouseNotes.trim()) {
+                            noteText = inv.warehouseNotes.trim();
+                        } else if (inv.deliveryNotes && inv.deliveryNotes.trim()) {
+                            noteText = inv.deliveryNotes.trim();
+                        } else if (inv.personalNotes && inv.personalNotes.trim()) {
+                            noteText = inv.personalNotes.trim();
+                        } else if (inv.notes && inv.notes.trim()) {
+                            noteText = inv.notes.trim();
+                        } else if (inv.remarks && inv.remarks.trim()) {
+                            noteText = inv.remarks.trim();
+                        }
+
                         history.push({
                             date: new Date(inv.date || Date.now()),
                             typeCode: 'out',
@@ -509,6 +537,7 @@
                             ref: receiptNo,
                             docId: receiptDocId,
                             warehouse: lineWh,
+                            notes: noteText,
                             in: 0,
                             out: baseQty
                         });
@@ -526,7 +555,7 @@
             const tbody = document.getElementById('ledger-tbody');
             
             if (!itemId) {
-                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-secondary);">يرجى اختيار صنف لعرض حركته التفصيلية</td></tr>`;
+                tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--text-secondary);">يرجى اختيار صنف لعرض حركته التفصيلية</td></tr>`;
                 document.getElementById('sum-open').innerText = '0';
                 document.getElementById('sum-in').innerText = '0';
                 document.getElementById('sum-out').innerText = '0';
@@ -579,7 +608,7 @@
             let sumOpen = 0;
 
             if (filteredHistory.length === 0) {
-                 tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:var(--text-secondary);">لا توجد حركات لهذا الصنف في هذه الفترة</td></tr>`;
+                 tbody.innerHTML = `<tr><td colspan="8" style="text-align:center; padding:30px; color:var(--text-secondary);">لا توجد حركات لهذا الصنف في هذه الفترة</td></tr>`;
             } else {
                  // The "opening balance" of the filtered period is the running balance just before the first filtered row
                  const firstFilteredIndex = history.findIndex(h => h.date >= new Date(fromDateStr || '1970-01-01'));
@@ -651,6 +680,10 @@
                     `;
                 }
 
+                const noteHtml = (row.notes && row.notes !== '-' && row.notes.trim()) ?
+                    `<span style="background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.25); color:#bae6fd; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:600; display:inline-flex; align-items:center; gap:4px; max-width:240px; white-space:normal; text-align:right;">📝 ${row.notes}</span>` :
+                    `<span style="color:#64748b;">-</span>`;
+
                 tr.innerHTML = `
                     <td>${dStr}</td>
                     <td>${typeBadge}</td>
@@ -659,6 +692,7 @@
                     <td style="color:#10b981; font-weight:700; background:rgba(16,185,129,0.02);">${row.in > 0 ? fmtNum(row.in) : '-'}</td>
                     <td style="color:#ec4899; font-weight:700; background:rgba(236,72,153,0.02);">${row.out > 0 ? fmtNum(row.out) : '-'}</td>
                     <td style="color:#fbbf24; font-weight:900; background:rgba(251,191,36,0.02); font-size:1.1rem;">${fmtNum(row.runningBalance)}</td>
+                    <td>${noteHtml}</td>
                 `;
                 tbody.appendChild(tr);
             });
