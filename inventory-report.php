@@ -470,7 +470,7 @@
             <!-- Far Left Controls: Studio Button + Back Button -->
             <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
                 <button class="btn-studio-top" onclick="openCustomReportStudio()" title="تخصيص وتصميم تقارير الجرد المتقدمة بالكامل">
-                    <span>🎛️</span> <span>مصمم التقارير المخصص</span>
+                    <span>🎛️</span> <span>مصمم التقارير</span>
                 </button>
                 <button class="btn-icon-nav" onclick="history.back()" title="رجوع">↩</button>
             </div>
