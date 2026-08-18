@@ -1094,15 +1094,12 @@
                 }
                 if (item) {
                     const uName = String(line.unitName || line.unit || line.selectedUnit || '').trim();
-                    const unitsList = [];
-                    if (Array.isArray(item.units)) unitsList.push(...item.units);
-                    if (Array.isArray(item.unitsArray)) unitsList.push(...item.unitsArray);
-                    const matched = unitsList.find(u => {
-                        const n = String(u.unitName || u.name || '').trim();
-                        return n && n === uName;
-                    });
-                    if (matched && parseFloat(matched.factor || matched.equiv) > 0) {
-                        return parseFloat(matched.factor || matched.equiv);
+                    if (uName) {
+                        const list = getItemUnitsList(item);
+                        const matched = list.find(u => u.name === uName);
+                        if (matched && parseFloat(matched.factor) > 0) {
+                            return parseFloat(matched.factor);
+                        }
                     }
                     if (item.conversionFactor && parseFloat(item.conversionFactor) > 0 && uName !== itemBaseUnit) {
                         return parseFloat(item.conversionFactor);
@@ -1402,20 +1399,24 @@
         }
 
         function renderKpis(sumOpen, sumIn, sumOut, actualCurrentStock, activeUnits) {
+            const item = getSelectedItemObj();
+            const allUnits = (activeUnits && activeUnits.length > 1) ? activeUnits : getItemUnitsList(item);
+
             function formatKpiDisplay(val, units) {
                 if (!units || units.length === 0) return '0';
-                const main = `${formatQtyInUnit(val, units[0])} <span style="font-size:0.85rem; font-weight:700; opacity:0.85;">${units[0].name}</span>`;
-                if (units.length > 1) {
-                    const subs = units.slice(1).map(u => `${formatQtyInUnit(val, u)} ${u.name}`).join(' | ');
-                    return `<div style="display:flex; flex-direction:column; align-items:baseline;"><div>${main}</div><div style="font-size:0.78rem; font-weight:800; opacity:0.85; margin-top:3px; color:#38bdf8; font-family:monospace; background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:6px;">${subs}</div></div>`;
+                const main = `<span style="font-size:1.25rem; font-weight:900;">${formatQtyInUnit(val, units[0])}</span> <span style="font-size:0.85rem; font-weight:700; opacity:0.85;">${units[0].name}</span>`;
+                const otherUnits = units.filter((u, i) => i > 0 && u.factor > 0 && u.factor !== units[0].factor);
+                if (otherUnits.length > 0) {
+                    const subs = otherUnits.map(u => `<strong style="color:#38bdf8; font-weight:800;">${formatQtyInUnit(val, u)}</strong> <small style="opacity:0.85;">${u.name}</small>`).join(' <span style="opacity:0.4;">|</span> ');
+                    return `<div style="display:flex; flex-direction:column; align-items:baseline;"><div>${main}</div><div style="font-size:0.78rem; font-weight:800; opacity:0.9; margin-top:4px; color:#38bdf8; font-family:monospace; background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">${subs}</div></div>`;
                 }
                 return main;
             }
 
-            document.getElementById('sum-open').innerHTML = formatKpiDisplay(sumOpen, activeUnits);
-            document.getElementById('sum-in').innerHTML = formatKpiDisplay(sumIn, activeUnits);
-            document.getElementById('sum-out').innerHTML = formatKpiDisplay(sumOut, activeUnits);
-            document.getElementById('sum-balance').innerHTML = formatKpiDisplay(actualCurrentStock, activeUnits);
+            document.getElementById('sum-open').innerHTML = formatKpiDisplay(sumOpen, allUnits);
+            document.getElementById('sum-in').innerHTML = formatKpiDisplay(sumIn, allUnits);
+            document.getElementById('sum-out').innerHTML = formatKpiDisplay(sumOut, allUnits);
+            document.getElementById('sum-balance').innerHTML = formatKpiDisplay(actualCurrentStock, allUnits);
         }
 
         function loadLedger() {
@@ -1563,27 +1564,90 @@
                     const origQtyAbs  = Math.abs(row.origQty || 0);
                     const origUnit    = row.origUnit || '';
                     const isSameBase  = row.origIsSameAsBase;
-                    const baseUnitObj = activeUnits[0];
+                    const baseUnitObj = activeUnits[0] || { name: 'وحدة', factor: 1 };
                     const baseFormatted = formatQtyInUnit(baseQty, baseUnitObj);
+
+                    // Determine other available units to calculate conversion equivalent
+                    const allUnits = (activeUnits.length > 1) ? activeUnits : getItemUnitsList(item);
+                    const otherUnits = allUnits.filter(u => u.name !== baseUnitObj.name && u.factor > 0 && u.factor !== 1);
 
                     let html = '';
                     if (origUnit && !isSameBase && origQtyAbs > 0) {
+                        // Movement came in non-base unit (e.g. 5 طن)
+                        let subText = `(= ${baseFormatted} ${baseUnitObj.name})`;
+                        const extraUnits = otherUnits.filter(u => u.name !== origUnit);
+                        if (extraUnits.length > 0) {
+                            const extraFormatted = extraUnits.map(u => `${formatQtyInUnit(baseQty, u)} ${u.name}`).join(' | ');
+                            subText += ` · ${extraFormatted}`;
+                        }
+
                         html = `
-                            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
-                                <span style="font-size:1rem; font-weight:900; letter-spacing:-0.3px;">${fmtNum(origQtyAbs)} <span style="font-size:0.85rem; font-weight:700; color:${isIn ? '#6ee7b7' : '#f9a8d4'};">${origUnit}</span></span>
-                                <span style="font-size:0.72rem; color:#94a3b8; font-family:monospace;">(= ${baseFormatted} ${baseUnitObj ? baseUnitObj.name : ''})</span>
+                            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
+                                <div style="display:inline-flex; align-items:baseline; gap:4px;">
+                                    <span style="font-size:1.05rem; font-weight:900; letter-spacing:-0.3px; color:${isIn ? '#10b981' : '#ec4899'};">${fmtNum(origQtyAbs)}</span>
+                                    <span style="font-size:0.82rem; font-weight:800; color:${isIn ? '#34d399' : '#f472b6'}; background:${isIn ? 'rgba(16,185,129,0.12)' : 'rgba(236,72,153,0.12)'}; padding:1px 6px; border-radius:4px;">${origUnit}</span>
+                                </div>
+                                <div style="font-size:0.75rem; color:#94a3b8; font-family:monospace; background:rgba(255,255,255,0.04); padding:2px 8px; border-radius:5px; border:1px solid rgba(255,255,255,0.07);">
+                                    ${subText}
+                                </div>
                             </div>`;
                     } else {
-                        html = `<span style="font-size:1rem; font-weight:800;">${baseFormatted} <span style="font-size:0.82rem; font-weight:600; opacity:0.75;">${baseUnitObj ? baseUnitObj.name : ''}</span></span>`;
+                        // Movement came in base unit (e.g. 667 سيخة)
+                        let subHtml = '';
+                        if (otherUnits.length > 0) {
+                            const subs = otherUnits.map(u => `<span style="color:#38bdf8; font-weight:800;">${formatQtyInUnit(baseQty, u)}</span> <span style="opacity:0.8;">${u.name}</span>`).join(' <span style="opacity:0.4;">|</span> ');
+                            subHtml = `
+                                <div style="font-size:0.75rem; color:#bae6fd; font-family:monospace; background:rgba(56,189,248,0.08); padding:2px 8px; border-radius:5px; border:1px solid rgba(56,189,248,0.2);">
+                                    (= ${subs})
+                                </div>`;
+                        }
+
+                        html = `
+                            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
+                                <div style="display:inline-flex; align-items:baseline; gap:4px;">
+                                    <span style="font-size:1.05rem; font-weight:900; letter-spacing:-0.3px; color:${isIn ? '#10b981' : '#ec4899'};">${baseFormatted}</span>
+                                    <span style="font-size:0.82rem; font-weight:800; opacity:0.85;">${baseUnitObj.name}</span>
+                                </div>
+                                ${subHtml}
+                            </div>`;
                     }
 
-                    return `<td style="${isIn ? 'color:#10b981' : 'color:#ec4899'}; font-weight:700; background:${isIn ? 'rgba(16,185,129,0.02)' : 'rgba(236,72,153,0.02)'}; text-align:right; vertical-align:middle;">${html}</td>`;
+                    return `<td style="font-weight:700; background:${isIn ? 'rgba(16,185,129,0.02)' : 'rgba(236,72,153,0.02)'}; text-align:right; vertical-align:middle;">${html}</td>`;
                 }
 
                 const inCell  = buildOrigQtyCell(row.in, 'in');
                 const outCell = buildOrigQtyCell(row.out, 'out');
 
-                let balCells = activeUnits.map(u => `<td style="color:#fbbf24; font-weight:900; background:rgba(251,191,36,0.02); font-size:1.0rem; text-align:right; vertical-align:middle;">${formatQtyInUnit(row.runningBalance, u)} <span style="font-size:0.75rem; font-weight:600; opacity:0.7;">${u.name}</span></td>`).join('');
+                let balCells = '';
+                if (activeUnits.length === 1) {
+                    const allUnits = getItemUnitsList(item);
+                    const otherUnits = allUnits.filter(u => u.name !== activeUnits[0].name && u.factor > 0 && u.factor !== 1);
+                    let subBal = '';
+                    if (otherUnits.length > 0) {
+                        const subs = otherUnits.map(u => `<span style="color:#fbbf24; font-weight:800;">${formatQtyInUnit(row.runningBalance, u)}</span> <span style="opacity:0.8;">${u.name}</span>`).join(' <span style="opacity:0.4;">|</span> ');
+                        subBal = `
+                            <div style="font-size:0.75rem; color:#fde68a; font-family:monospace; background:rgba(251,191,36,0.08); padding:2px 8px; border-radius:5px; border:1px solid rgba(251,191,36,0.2);">
+                                (= ${subs})
+                            </div>`;
+                    }
+                    balCells = `
+                        <td style="color:#fbbf24; font-weight:900; background:rgba(251,191,36,0.02); text-align:right; vertical-align:middle;">
+                            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
+                                <div style="display:inline-flex; align-items:baseline; gap:4px;">
+                                    <span style="font-size:1.05rem; font-weight:900;">${formatQtyInUnit(row.runningBalance, activeUnits[0])}</span>
+                                    <span style="font-size:0.8rem; font-weight:700; opacity:0.8;">${activeUnits[0].name}</span>
+                                </div>
+                                ${subBal}
+                            </div>
+                        </td>`;
+                } else {
+                    balCells = activeUnits.map(u => `
+                        <td style="color:#fbbf24; font-weight:900; background:rgba(251,191,36,0.02); font-size:1.0rem; text-align:right; vertical-align:middle;">
+                            <span style="font-size:1.05rem; font-weight:900;">${formatQtyInUnit(row.runningBalance, u)}</span>
+                            <span style="font-size:0.75rem; font-weight:600; opacity:0.7;">${u.name}</span>
+                        </td>
+                    `).join('');
+                }
 
                 tr.innerHTML = `
                     <td style="white-space:nowrap;">${dStr}</td>
@@ -1846,12 +1910,18 @@
                     const receiptDisplay = row.ref || row.receiptNo || '-';
                     const noteDisplay = (row.notes && row.notes !== '-' && row.notes.trim()) ? row.notes : '-';
 
-                    const baseUnitObj = activeUnits[0];
+                    const baseUnitObj = activeUnits[0] || { name: 'وحدة', factor: 1 };
+                    const allUnits = (activeUnits.length > 1) ? activeUnits : getItemUnitsList(item);
+                    const otherUnits = allUnits.filter(u => u.name !== baseUnitObj.name && u.factor > 0 && u.factor !== 1);
+
                     let inDisplay = '-';
                     if (row.in > 0) {
                         const inBase = formatQtyInUnit(row.in, baseUnitObj);
                         if (row.origUnit && !row.origIsSameAsBase && Math.abs(row.origQty || 0) > 0) {
-                            inDisplay = `${fmtNum(Math.abs(row.origQty))} ${row.origUnit} <small style="color:#64748b;">(= ${inBase} ${baseUnitObj.name})</small>`;
+                            inDisplay = `<b>${fmtNum(Math.abs(row.origQty))} ${row.origUnit}</b> <small style="color:#64748b;">(= ${inBase} ${baseUnitObj.name})</small>`;
+                        } else if (otherUnits.length > 0) {
+                            const subText = otherUnits.map(u => `${formatQtyInUnit(row.in, u)} ${u.name}`).join(' | ');
+                            inDisplay = `<b>${inBase} ${baseUnitObj.name}</b> <small style="color:#0284c7;">(= ${subText})</small>`;
                         } else {
                             inDisplay = `${inBase} ${baseUnitObj.name}`;
                         }
@@ -1861,13 +1931,22 @@
                     if (row.out > 0) {
                         const outBase = formatQtyInUnit(row.out, baseUnitObj);
                         if (row.origUnit && !row.origIsSameAsBase && Math.abs(row.origQty || 0) > 0) {
-                            outDisplay = `${fmtNum(Math.abs(row.origQty))} ${row.origUnit} <small style="color:#64748b;">(= ${outBase} ${baseUnitObj.name})</small>`;
+                            outDisplay = `<b>${fmtNum(Math.abs(row.origQty))} ${row.origUnit}</b> <small style="color:#64748b;">(= ${outBase} ${baseUnitObj.name})</small>`;
+                        } else if (otherUnits.length > 0) {
+                            const subText = otherUnits.map(u => `${formatQtyInUnit(row.out, u)} ${u.name}`).join(' | ');
+                            outDisplay = `<b>${outBase} ${baseUnitObj.name}</b> <small style="color:#be185d;">(= ${subText})</small>`;
                         } else {
                             outDisplay = `${outBase} ${baseUnitObj.name}`;
                         }
                     }
 
-                    let balCells = activeUnits.map(u => `<td class="col-balance" style="text-align:right; font-weight:900; color:#b45309; background:rgba(245,158,11,0.04);">${formatQtyInUnit(row.runningBalance, u)} <small style="font-size:0.75rem; color:#64748b;">${u.name}</small></td>`).join('');
+                    let balCells = '';
+                    if (activeUnits.length === 1 && otherUnits.length > 0) {
+                        const subBal = otherUnits.map(u => `${formatQtyInUnit(row.runningBalance, u)} ${u.name}`).join(' | ');
+                        balCells = `<td class="col-balance" style="text-align:right; font-weight:900; color:#b45309; background:rgba(245,158,11,0.04);"><b>${formatQtyInUnit(row.runningBalance, baseUnitObj)} ${baseUnitObj.name}</b> <small style="font-size:0.75rem; color:#64748b;">(= ${subBal})</small></td>`;
+                    } else {
+                        balCells = activeUnits.map(u => `<td class="col-balance" style="text-align:right; font-weight:900; color:#b45309; background:rgba(245,158,11,0.04);">${formatQtyInUnit(row.runningBalance, u)} <small style="font-size:0.75rem; color:#64748b;">${u.name}</small></td>`).join('');
+                    }
 
                     rowsHtml += `
                         <tr class="ledger-sheet-row">
