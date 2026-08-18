@@ -889,6 +889,8 @@
 
         function buildRealHistory(itemId) {
             let history = [];
+            const itemObj = itemsDb.find(i => i.id === itemId);
+            const itemBaseUnit = itemObj ? (itemObj.baseUnit || itemObj.unit || '') : '';
             
             // 1. Get Purchases
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
@@ -901,14 +903,18 @@
                             return; // Skip pending items (not in actual warehouse yet)
                         }
 
+                        // ─── Original transaction unit data (BEFORE conversion) ───
+                        const origQty    = parseFloat(line.quantity) || 0;
+                        const origUnit   = (line.unit || line.selectedUnit || itemBaseUnit || '').trim();
+                        const origFactor = parseFloat(line.customFactor !== undefined ? line.customFactor : (line.factor || 1));
+
                         let baseQty = 0;
                         if (line.customBaseQty !== undefined) {
                             baseQty = line.customBaseQty;
                         } else {
-                            let item = itemsDb.find(i => i.id === itemId);
-                            let factor = line.customFactor !== undefined ? line.customFactor : 1;
-                            let conv = item ? (item.conversionFactor || 1) : 1;
-                            baseQty = (parseFloat(line.quantity) || 0) * factor * conv;
+                            let factor = origFactor;
+                            let conv = itemObj ? (itemObj.conversionFactor || 1) : 1;
+                            baseQty = origQty * factor * conv;
                         }
 
                         let typeName = 'فاتورة مشتريات';
@@ -968,7 +974,12 @@
                             warehouse: wh,
                             notes: noteText,
                             in: valIn,
-                            out: valOut
+                            out: valOut,
+                            // ─── Original unit data (preserved for display) ───
+                            origQty: typeCode === 'out' ? -origQty : origQty,
+                            origUnit: origUnit,
+                            origFactor: origFactor,
+                            origIsSameAsBase: (origUnit === itemBaseUnit || origFactor === 1)
                         });
                     }
                 });
@@ -991,14 +1002,18 @@
                             return; // Skip pending delivery items
                         }
                         
+                        // ─── Original transaction unit data (BEFORE conversion) ───
+                        const origQty    = parseFloat(line.quantity) || 0;
+                        const origUnit   = (line.unit || line.selectedUnit || itemBaseUnit || '').trim();
+                        const origFactor = parseFloat(line.customFactor !== undefined ? line.customFactor : (line.factor || 1));
+
                         let baseQty = 0;
                         if (line.customBaseQty !== undefined) {
                             baseQty = line.customBaseQty;
                         } else {
-                            let item = itemsDb.find(i => i.id === itemId);
-                            let factor = line.customFactor !== undefined ? line.customFactor : 1;
-                            let conv = item ? (item.conversionFactor || 1) : 1;
-                            baseQty = (parseFloat(line.quantity) || 0) * factor * conv;
+                            let factor = origFactor;
+                            let conv = itemObj ? (itemObj.conversionFactor || 1) : 1;
+                            baseQty = origQty * factor * conv;
                         }
 
                         let permitNo = inv.orderNo || inv.soNumber || inv.quotationNo || inv.dispatchOrderNo || inv.permitNo || inv.invoiceNo || inv.id || '-';
@@ -1036,7 +1051,12 @@
                             warehouse: lineWh,
                             notes: noteText,
                             in: 0,
-                            out: baseQty
+                            out: baseQty,
+                            // ─── Original unit data (preserved for display) ───
+                            origQty: origQty,
+                            origUnit: origUnit,
+                            origFactor: origFactor,
+                            origIsSameAsBase: (origUnit === itemBaseUnit || origFactor === 1)
                         });
                     }
                 });
@@ -1051,40 +1071,49 @@
             const thead = document.querySelector('.dash-table thead');
             if (!thead) return;
 
+            // Always show: Date | Type | Permit | Receipt | Orig Operation | → base-unit cols | Balance cols | Notes
+            // Orig Operation = the quantity in its original unit as recorded in the invoice
+            const baseUnitName = activeUnits.length > 0 ? activeUnits[0].name : 'وحدة';
+            const numBalCols   = activeUnits.length;
+
             if (activeUnits.length === 1) {
-                const uName = activeUnits[0].name;
                 thead.innerHTML = `
                     <tr>
-                        <th>التاريخ</th>
+                        <th style="white-space:nowrap;">التاريخ</th>
                         <th>نوع الحركة</th>
                         <th style="color:#38bdf8;">رقم الإذن</th>
                         <th>رقم الاستلام</th>
-                        <th style="color:#10b981; background:rgba(16,185,129,0.05); text-align: right;">الوارد (${uName})</th>
-                        <th style="color:#ec4899; background:rgba(236,72,153,0.05); text-align: right;">المنصرف (${uName})</th>
-                        <th style="color:#fbbf24; background:rgba(251,191,36,0.05); text-align: right;">الرصيد (${uName})</th>
+                        <th style="color:#10b981; background:rgba(16,185,129,0.07); text-align:right; white-space:nowrap;">
+                            الوارد<br><span style="font-size:0.75rem; font-weight:600; opacity:0.75;">(بوحدة الحركة)</span>
+                        </th>
+                        <th style="color:#ec4899; background:rgba(236,72,153,0.07); text-align:right; white-space:nowrap;">
+                            المنصرف<br><span style="font-size:0.75rem; font-weight:600; opacity:0.75;">(بوحدة الحركة)</span>
+                        </th>
+                        <th style="color:#fbbf24; background:rgba(251,191,36,0.07); text-align:right; white-space:nowrap;">
+                            الرصيد<br><span style="font-size:0.75rem; font-weight:600; opacity:0.75;">(${baseUnitName})</span>
+                        </th>
                         <th style="color:#38bdf8;">ملحوظة الحركة</th>
                     </tr>
                 `;
             } else {
-                const numCols = activeUnits.length;
-                let uHeadersIn = activeUnits.map(u => `<th style="color:#10b981; background:rgba(16,185,129,0.08); text-align:right; font-size:0.75rem; padding:8px 10px;">${u.name}</th>`).join('');
-                let uHeadersOut = activeUnits.map(u => `<th style="color:#ec4899; background:rgba(236,72,153,0.08); text-align:right; font-size:0.75rem; padding:8px 10px;">${u.name}</th>`).join('');
                 let uHeadersBal = activeUnits.map(u => `<th style="color:#fbbf24; background:rgba(251,191,36,0.08); text-align:right; font-size:0.75rem; padding:8px 10px;">${u.name}</th>`).join('');
 
                 thead.innerHTML = `
                     <tr>
-                        <th rowspan="2" style="vertical-align:middle;">التاريخ</th>
+                        <th rowspan="2" style="vertical-align:middle; white-space:nowrap;">التاريخ</th>
                         <th rowspan="2" style="vertical-align:middle;">نوع الحركة</th>
                         <th rowspan="2" style="color:#38bdf8; vertical-align:middle;">رقم الإذن</th>
                         <th rowspan="2" style="vertical-align:middle;">رقم الاستلام</th>
-                        <th colspan="${numCols}" style="color:#10b981; background:rgba(16,185,129,0.05); text-align: center; border-bottom:1px solid rgba(16,185,129,0.2);">الوارد (داخل)</th>
-                        <th colspan="${numCols}" style="color:#ec4899; background:rgba(236,72,153,0.05); text-align: center; border-bottom:1px solid rgba(236,72,153,0.2);">المنصرف (خارج)</th>
-                        <th colspan="${numCols}" style="color:#fbbf24; background:rgba(251,191,36,0.05); text-align: center; border-bottom:1px solid rgba(251,191,36,0.2);">الرصيد التراكمي</th>
+                        <th rowspan="2" style="color:#10b981; background:rgba(16,185,129,0.07); vertical-align:middle; text-align:right; white-space:nowrap;">
+                            الوارد<br><span style="font-size:0.72rem; opacity:0.75;">(بوحدة الحركة)</span>
+                        </th>
+                        <th rowspan="2" style="color:#ec4899; background:rgba(236,72,153,0.07); vertical-align:middle; text-align:right; white-space:nowrap;">
+                            المنصرف<br><span style="font-size:0.72rem; opacity:0.75;">(بوحدة الحركة)</span>
+                        </th>
+                        <th colspan="${numBalCols}" style="color:#fbbf24; background:rgba(251,191,36,0.05); text-align:center; border-bottom:1px solid rgba(251,191,36,0.25);">الرصيد التراكمي</th>
                         <th rowspan="2" style="color:#38bdf8; vertical-align:middle;">ملحوظة الحركة</th>
                     </tr>
                     <tr>
-                        ${uHeadersIn}
-                        ${uHeadersOut}
                         ${uHeadersBal}
                     </tr>
                 `;
@@ -1245,18 +1274,52 @@
                     `<span style="background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.25); color:#bae6fd; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:600; display:inline-flex; align-items:center; gap:4px; max-width:240px; white-space:normal; text-align:right;">📝 ${row.notes}</span>` :
                     `<span style="color:#64748b;">-</span>`;
 
-                // Multi-unit cells
-                let inCells = activeUnits.map(u => `<td style="color:#10b981; font-weight:700; background:rgba(16,185,129,0.02); text-align:right;">${row.in > 0 ? formatQtyInUnit(row.in, u) : '-'}</td>`).join('');
-                let outCells = activeUnits.map(u => `<td style="color:#ec4899; font-weight:700; background:rgba(236,72,153,0.02); text-align:right;">${row.out > 0 ? formatQtyInUnit(row.out, u) : '-'}</td>`).join('');
-                let balCells = activeUnits.map(u => `<td style="color:#fbbf24; font-weight:900; background:rgba(251,191,36,0.02); font-size:1.05rem; text-align:right;">${formatQtyInUnit(row.runningBalance, u)}</td>`).join('');
+                // ── Helper: build the "original unit" quantity display for in or out ──
+                // Shows: "1 طن" in bold, then "(= 135 سيخ)" in grey if the unit differs from base
+                function buildOrigQtyCell(qty, direction) {
+                    // direction: 'in' or 'out'
+                    const isIn = direction === 'in';
+                    if ((isIn && row.in <= 0) || (!isIn && row.out <= 0)) {
+                        return `<td style="${isIn ? 'color:#10b981' : 'color:#ec4899'}; font-weight:700; background:${isIn ? 'rgba(16,185,129,0.02)' : 'rgba(236,72,153,0.02)'}; text-align:right;">-</td>`;
+                    }
+
+                    const baseQty     = isIn ? row.in : row.out;
+                    const origQtyAbs  = Math.abs(row.origQty || 0);
+                    const origUnit    = row.origUnit || '';
+                    const origFactor  = row.origFactor || 1;
+                    const isSameBase  = row.origIsSameAsBase;
+                    const baseUnitObj = activeUnits[0];
+                    const baseFormatted = formatQtyInUnit(baseQty, baseUnitObj);
+
+                    let html = '';
+                    if (origUnit && !isSameBase && origQtyAbs > 0) {
+                        // Movement was in a non-base unit → show both
+                        html = `
+                            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:2px;">
+                                <span style="font-size:1rem; font-weight:900; letter-spacing:-0.3px;">${fmtNum(origQtyAbs)} <span style="font-size:0.85rem; font-weight:700; color:${isIn ? '#6ee7b7' : '#f9a8d4'};">${origUnit}</span></span>
+                                <span style="font-size:0.72rem; color:#94a3b8; font-family:monospace;">(= ${baseFormatted} ${baseUnitObj ? baseUnitObj.name : ''})</span>
+                            </div>`;
+                    } else {
+                        // Movement was in base unit (or unknown) → show base qty
+                        html = `<span style="font-size:1rem; font-weight:800;">${baseFormatted} <span style="font-size:0.82rem; font-weight:600; opacity:0.75;">${baseUnitObj ? baseUnitObj.name : ''}</span></span>`;
+                    }
+
+                    return `<td style="${isIn ? 'color:#10b981' : 'color:#ec4899'}; font-weight:700; background:${isIn ? 'rgba(16,185,129,0.02)' : 'rgba(236,72,153,0.02)'}; text-align:right; vertical-align:middle;">${html}</td>`;
+                }
+
+                const inCell  = buildOrigQtyCell(row.in, 'in');
+                const outCell = buildOrigQtyCell(row.out, 'out');
+
+                // Balance columns — one per selected unit
+                let balCells = activeUnits.map(u => `<td style="color:#fbbf24; font-weight:900; background:rgba(251,191,36,0.02); font-size:1.0rem; text-align:right; vertical-align:middle;">${formatQtyInUnit(row.runningBalance, u)} <span style="font-size:0.75rem; font-weight:600; opacity:0.7;">${u.name}</span></td>`).join('');
 
                 tr.innerHTML = `
-                    <td>${dStr}</td>
+                    <td style="white-space:nowrap;">${dStr}</td>
                     <td>${typeBadge}</td>
                     <td style="font-weight:700;">${permitHtml}</td>
                     <td style="font-weight:600;">${refHtml}</td>
-                    ${inCells}
-                    ${outCells}
+                    ${inCell}
+                    ${outCell}
                     ${balCells}
                     <td>${noteHtml}</td>
                 `;
