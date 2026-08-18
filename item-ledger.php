@@ -427,16 +427,36 @@
                             typeName = 'مذكرة استلام مخزني';
                         }
 
-                        let permitNo = inv.poNumber || inv.orderNo || inv.permitNo || inv.orderReference || inv.quotationNo || '-';
-                        let receiptNo = inv.invoiceNo || inv.grnNumber || inv.receiptNo || inv.id || '-';
+                        let permitNo = '-';
+                        let receiptNo = inv.invoiceNo || inv.id || '-';
+                        let permitDocId = '';
+                        let receiptDocId = inv.id || inv.invoiceNo || '';
+
+                        if (inv.isGRN) {
+                            // مذكرة استلام بضاعة: رقم الإذن = الفاتورة الأصلية (e.g. 26080015)
+                            permitNo = inv.originalInvoiceId || inv.invoiceNo || inv.poNumber || inv.orderNo || '-';
+                            receiptNo = inv.id || inv.grnNumber || inv.receiptNo || '-';
+                            permitDocId = inv.originalInvoiceId || inv.invoiceNo || '';
+                            receiptDocId = inv.id || '';
+                        } else {
+                            // فاتورة مشتريات عادية: رقم الإذن / الفاتورة = 26080015
+                            permitNo = inv.originalInvoiceId || inv.poNumber || inv.orderNo || inv.permitNo || inv.invoiceNo || inv.id || '-';
+                            receiptNo = inv.receiptNo || inv.invoiceNo || inv.id || '-';
+                            permitDocId = permitNo !== '-' ? permitNo : (inv.invoiceNo || inv.id);
+                            receiptDocId = inv.invoiceNo || inv.id;
+                        }
 
                         history.push({
                             date: new Date(inv.date || inv.receiveDate || Date.now()),
                             typeCode: typeCode,
                             typeName: typeName,
                             permitNo: permitNo,
+                            permitDocId: permitDocId,
+                            receiptNo: receiptNo,
+                            receiptDocId: receiptDocId,
+                            isGRN: !!inv.isGRN,
                             ref: receiptNo,
-                            docId: inv.invoiceNo || inv.id,
+                            docId: receiptDocId,
                             warehouse: wh,
                             in: valIn,
                             out: valOut
@@ -472,16 +492,22 @@
                             baseQty = (parseFloat(line.quantity) || 0) * factor * conv;
                         }
 
-                        let permitNo = inv.orderNo || inv.soNumber || inv.permitNo || inv.quotationNo || inv.dispatchOrderNo || '-';
+                        let permitNo = inv.orderNo || inv.soNumber || inv.quotationNo || inv.dispatchOrderNo || inv.permitNo || inv.invoiceNo || inv.id || '-';
                         let receiptNo = inv.invoiceNo || inv.receiptNo || inv.id || 'INV';
+                        let permitDocId = permitNo !== '-' ? permitNo : (inv.invoiceNo || inv.id);
+                        let receiptDocId = inv.invoiceNo || inv.id;
 
                         history.push({
                             date: new Date(inv.date || Date.now()),
                             typeCode: 'out',
                             typeName: 'فاتورة مبيعات',
                             permitNo: permitNo,
+                            permitDocId: permitDocId,
+                            receiptNo: receiptNo,
+                            receiptDocId: receiptDocId,
+                            isGRN: false,
                             ref: receiptNo,
-                            docId: inv.invoiceNo || inv.id,
+                            docId: receiptDocId,
                             warehouse: lineWh,
                             in: 0,
                             out: baseQty
@@ -576,31 +602,54 @@
                 const dStr = row.date.toISOString().split('T')[0];
 
                 const tr = document.createElement('tr');
-                let target = '';
-                if (row.typeCode === 'out') target = `sales-invoice.php?id=${row.docId}`;
-                else if (row.typeCode === 'in') target = `purchase.php?id=${row.docId}`;
 
-                let refHtml = row.ref;
-                if (row.docId && target) {
+                // Permit (Original Invoice / Order) rendering
+                let permitTarget = '';
+                if (row.typeCode === 'out') permitTarget = `sales-invoice.php?id=${row.permitDocId}`;
+                else if (row.typeCode === 'in') permitTarget = `purchase.php?id=${row.permitDocId}`;
+
+                let permitHtml = '-';
+                if (row.permitNo && row.permitNo !== '-') {
+                    if (row.permitDocId && permitTarget) {
+                        permitHtml = `
+                            <div style="display:flex; align-items:center; gap:6px;">
+                                <span style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); color:#38bdf8; padding:3px 8px; border-radius:6px; font-size:0.82rem; font-weight:800; font-family:monospace; display:inline-flex; align-items:center; gap:4px; cursor:pointer;" onclick="event.stopPropagation(); window.open('${permitTarget}', '_blank')" title="انقر لفتح الفاتورة / الإذن الأصلي (${row.permitNo})">
+                                    📄 ${row.permitNo}
+                                </span>
+                            </div>
+                        `;
+                    } else {
+                        permitHtml = `<span style="background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.25); color:#38bdf8; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:700; font-family:monospace;">📄 ${row.permitNo}</span>`;
+                    }
+                } else {
+                    permitHtml = `<span style="color:#64748b; font-weight:600;">-</span>`;
+                }
+
+                // Receipt Note / Document rendering
+                let receiptTarget = '';
+                if (row.typeCode === 'out') receiptTarget = `sales-invoice.php?id=${row.receiptDocId || row.docId}`;
+                else if (row.typeCode === 'in') {
+                    if (row.isGRN) receiptTarget = `purchase-receipt.php?id=${row.receiptDocId || row.docId}`;
+                    else receiptTarget = `purchase.php?id=${row.receiptDocId || row.docId}`;
+                }
+
+                let refHtml = row.ref || row.receiptNo;
+                if (row.receiptDocId && receiptTarget) {
                     tr.style.cursor = 'pointer';
-                    tr.title = 'انقر لفتح المستند الأصلي';
-                    tr.onclick = () => { window.open(target, '_blank'); };
+                    tr.title = 'انقر لفتح المستند';
+                    tr.onclick = () => { window.open(receiptTarget, '_blank'); };
                     tr.onmouseover = () => tr.style.background = 'rgba(236, 72, 153, 0.05)';
                     tr.onmouseout = () => tr.style.background = '';
                     
                     refHtml = `
                         <div style="display:flex; align-items:center; gap:8px;">
-                            <span>${row.ref}</span>
-                            <button onclick="event.stopPropagation(); window.open('${target}', '_blank')" style="background:rgba(236,72,153,0.1); color:#ec4899; border:1px solid rgba(236,72,153,0.3); border-radius:6px; padding:3px 8px; cursor:pointer; font-size:0.75rem; font-weight:bold; display:flex; align-items:center; gap:4px; transition:all 0.2s;" onmouseover="this.style.background='#ec4899'; this.style.color='#fff';" onmouseout="this.style.background='rgba(236,72,153,0.1)'; this.style.color='#ec4899';">
+                            <span style="font-weight:700;">${row.ref}</span>
+                            <button onclick="event.stopPropagation(); window.open('${receiptTarget}', '_blank')" style="background:rgba(236,72,153,0.1); color:#ec4899; border:1px solid rgba(236,72,153,0.3); border-radius:6px; padding:3px 8px; cursor:pointer; font-size:0.75rem; font-weight:bold; display:flex; align-items:center; gap:4px; transition:all 0.2s;" onmouseover="this.style.background='#ec4899'; this.style.color='#fff';" onmouseout="this.style.background='rgba(236,72,153,0.1)'; this.style.color='#ec4899';">
                                 🔗 عرض الأصل
                             </button>
                         </div>
                     `;
                 }
-
-                const permitHtml = (row.permitNo && row.permitNo !== '-') ? 
-                    `<span style="background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.25); color:#38bdf8; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:700; font-family:monospace; display:inline-flex; align-items:center; gap:4px;">📄 ${row.permitNo}</span>` : 
-                    `<span style="color:#64748b; font-weight:600;">-</span>`;
 
                 tr.innerHTML = `
                     <td>${dStr}</td>
