@@ -64,58 +64,93 @@
             padding: 20px 30px; box-sizing: border-box; max-width: 1600px; margin: 0 auto;
         }
 
-        /* Nav Tabs */
+        /* Navigation Bar (Ultra-Compact Segmented Clusters) */
         .nav-tabs { 
-            display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
-            background: rgba(15, 23, 42, 0.7); padding: 12px 15px; border-radius: 16px; 
-            border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: inset 0 2px 20px rgba(0,0,0,0.4);
-            backdrop-filter: blur(15px);
+            display: flex; gap: 6px; flex-wrap: wrap; overflow: visible;
+            background: var(--surface-card, rgba(15, 23, 42, 0.7)); padding: 6px 10px; border-radius: 14px; 
+            border: 1px solid var(--glass-border); box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            backdrop-filter: blur(20px); align-items: center; width: 100%; z-index: 100; position: relative;
+            min-height: 48px; box-sizing: border-box;
         }
         .nav-tabs::-webkit-scrollbar { display: none; }
-        .nav-tab {
-            padding: 12px 25px; border-radius: 12px; text-decoration: none; font-weight: 700;
-            color: #94a3b8; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.03);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 8px; font-size: 0.95rem;
-            position: relative; overflow: hidden; white-space: nowrap; flex-shrink: 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+        .nav-cluster {
+            display: flex; align-items: center; gap: 4px;
         }
-        .nav-tab::before { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); transform: skewX(-20deg); transition: 0.5s; }
-        .nav-tab:hover::before { left: 150%; }
+        .nav-divider {
+            width: 1px; height: 24px; background: rgba(255, 255, 255, 0.12); margin: 0 4px; flex-shrink: 0;
+        }
+        .nav-tab {
+            padding: 8px 15px; border-radius: 9px; text-decoration: none; font-weight: 700;
+            color: var(--text-secondary); background: transparent; border: 1px solid transparent;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 6px; font-size: 0.88rem;
+            position: relative; white-space: nowrap; flex-shrink: 0; cursor: pointer; height: 38px; box-sizing: border-box;
+        }
+        .nav-tab:hover {
+            color: #fff; background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+        .nav-tab.active {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(37, 99, 235, 0.18));
+            border-color: rgba(56, 189, 248, 0.45); color: #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+        }
 
-        /* Button hover/active colors */
-        .nav-tab:nth-child(1):hover { background: rgba(59, 130, 246, 0.1); color: #fff; border-color: rgba(59, 130, 246, 0.3); transform: translateY(-2px); }
-        .nav-tab:nth-child(1).active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.2)); border-color: rgba(59, 130, 246, 0.5); color: #60a5fa; box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
-        .nav-tab:nth-child(2):hover { background: rgba(16, 185, 129, 0.1); color: #fff; border-color: rgba(16, 185, 129, 0.3); transform: translateY(-2px); }
-        .nav-tab:nth-child(2).active { background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2)); border-color: rgba(16, 185, 129, 0.5); color: #34d399; box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
-        .nav-tab:nth-child(3):hover { background: rgba(245, 158, 11, 0.1); color: #fff; border-color: rgba(245, 158, 11, 0.3); transform: translateY(-2px); }
-        .nav-tab:nth-child(3).active { background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2)); border-color: rgba(245, 158, 11, 0.5); color: #fbbf24; box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
-        .nav-tab:nth-child(4):hover { background: rgba(139, 92, 246, 0.1); color: #fff; border-color: rgba(139, 92, 246, 0.3); transform: translateY(-2px); }
-        .nav-tab:nth-child(4).active { background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(109, 40, 217, 0.2)); border-color: rgba(139, 92, 246, 0.5); color: #c084fc; box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
-        .nav-tab:nth-child(5):hover { background: rgba(244, 63, 94, 0.1); color: #fff; border-color: rgba(244, 63, 94, 0.3); transform: translateY(-2px); }
-        .nav-tab:nth-child(5).active { background: linear-gradient(135deg, rgba(244, 63, 94, 0.2), rgba(225, 29, 72, 0.2)); border-color: rgba(244, 63, 94, 0.5); color: #fb7185; box-shadow: 0 0 20px rgba(244, 63, 94, 0.3); }
-        .nav-tab:nth-child(6):hover { background: rgba(6, 182, 212, 0.1); color: #fff; border-color: rgba(6, 182, 212, 0.3); transform: translateY(-2px); }
-        .nav-tab:nth-child(6).active { background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(8, 145, 178, 0.2)); border-color: rgba(6, 182, 212, 0.5); color: #22d3ee; box-shadow: 0 0 20px rgba(6, 182, 212, 0.3); }
+        /* AI Suite Special Pill */
+        .nav-tab-ai {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(139, 92, 246, 0.15));
+            border: 1px solid rgba(236, 72, 153, 0.4); color: #f472b6 !important;
+            box-shadow: 0 0 10px rgba(236, 72, 153, 0.2);
+        }
+        .nav-tab-ai:hover {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.25), rgba(139, 92, 246, 0.25));
+            border-color: rgba(236, 72, 153, 0.6); color: #fff !important;
+            box-shadow: 0 0 15px rgba(236, 72, 153, 0.35);
+        }
+        .nav-ai-badge {
+            background: #ec4899; color: #fff; font-size: 0.68rem; padding: 2px 5px; border-radius: 8px; font-weight: 900;
+        }
 
-        /* Light Mode Styling for tabs */
-        :root.light-theme .nav-tabs { background: rgba(248, 250, 252, 0.85); border: 1px solid rgba(0,0,0,0.06); box-shadow: inset 0 2px 10px rgba(0,0,0,0.02); }
-        :root.light-theme .nav-tab { color: #64748b; background: rgba(255,255,255,0.7); border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-        :root.light-theme .nav-tab::before { background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent); }
+        /* Nav Dropdown for Extra Reports */
+        .nav-dropdown { position: relative; display: inline-block; }
+        .nav-dropdown-content {
+            display: none; position: absolute; top: calc(100% + 6px); right: 0; min-width: 240px;
+            background: rgba(15, 23, 42, 0.98); backdrop-filter: blur(25px);
+            border: 1px solid var(--glass-border); border-radius: 12px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.65); padding: 6px; z-index: 10000;
+            animation: dropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        .nav-dropdown-content::before {
+            content: ''; position: absolute; top: -10px; left: 0; right: 0; height: 10px; background: transparent;
+        }
+        @keyframes dropdownFadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
+        .nav-dropdown:hover .nav-dropdown-content, 
+        .nav-dropdown:focus-within .nav-dropdown-content {
+            display: flex; flex-direction: column; gap: 4px;
+        }
+        .nav-dropdown-item {
+            padding: 9px 12px; border-radius: 8px; text-decoration: none;
+            color: #cbd5e1; font-size: 0.82rem; font-weight: 700;
+            display: flex; align-items: center; gap: 8px; transition: all 0.2s ease;
+        }
+        .nav-dropdown-item:hover {
+            background: rgba(56, 189, 248, 0.12); color: #38bdf8;
+            transform: translateX(-3px);
+        }
+        .nav-dropdown-item.active {
+            background: rgba(56, 189, 248, 0.18); color: #38bdf8;
+        }
 
-        :root.light-theme .nav-tab:nth-child(1):hover { background: #fff; color: #1e3a8a; border-color: #3b82f6; box-shadow: 0 5px 15px rgba(59, 130, 246, 0.2); transform: translateY(-2px); }
-        :root.light-theme .nav-tab:nth-child(1).active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); color: #2563eb; border-color: #3b82f6; box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
-        :root.light-theme .nav-tab:nth-child(2):hover { background: #fff; color: #064e3b; border-color: #10b981; box-shadow: 0 5px 15px rgba(16, 185, 129, 0.2); transform: translateY(-2px); }
-        :root.light-theme .nav-tab:nth-child(2).active { background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1)); color: #059669; border-color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
-        :root.light-theme .nav-tab:nth-child(3):hover { background: #fff; color: #78350f; border-color: #f59e0b; box-shadow: 0 5px 15px rgba(245, 158, 11, 0.2); transform: translateY(-2px); }
-        :root.light-theme .nav-tab:nth-child(3).active { background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1)); color: #d97706; border-color: #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
-        :root.light-theme .nav-tab:nth-child(4):hover { background: #fff; color: #4c1d95; border-color: #8b5cf6; box-shadow: 0 5px 15px rgba(139, 92, 246, 0.2); transform: translateY(-2px); }
-        :root.light-theme .nav-tab:nth-child(4).active { background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(109, 40, 217, 0.1)); color: #7c3aed; border-color: #8b5cf6; box-shadow: 0 0 20px rgba(139, 92, 246, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
-        :root.light-theme .nav-tab:nth-child(5):hover { background: #fff; color: #881337; border-color: #f43f5e; box-shadow: 0 5px 15px rgba(244, 63, 94, 0.2); transform: translateY(-2px); }
-        :root.light-theme .nav-tab:nth-child(5).active { background: linear-gradient(135deg, rgba(244, 63, 94, 0.1), rgba(225, 29, 72, 0.1)); color: #e11d48; border-color: #f43f5e; box-shadow: 0 0 20px rgba(244, 63, 94, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
-        :root.light-theme .nav-tab:nth-child(6):hover { background: #fff; color: #164e63; border-color: #06b6d4; box-shadow: 0 5px 15px rgba(6, 182, 212, 0.2); transform: translateY(-2px); }
-        :root.light-theme .nav-tab:nth-child(6).active { background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(8, 145, 178, 0.1)); color: #0891b2; border-color: #06b6d4; box-shadow: 0 0 20px rgba(6, 182, 212, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
+        /* Light Mode Styling for clusters and dropdowns */
+        :root.light-theme .nav-tabs { background: rgba(248, 250, 252, 0.95); border: 1px solid rgba(0,0,0,0.08); }
+        :root.light-theme .nav-tab { color: #475569; }
+        :root.light-theme .nav-tab:hover { color: #0f172a; background: rgba(0,0,0,0.04); }
+        :root.light-theme .nav-divider { background: rgba(0, 0, 0, 0.1); }
+        :root.light-theme .nav-dropdown-content { background: #ffffff; border: 1px solid #cbd5e1; box-shadow: 0 10px 30px rgba(0,0,0,0.12); }
+        :root.light-theme .nav-dropdown-item { color: #334155; }
+        :root.light-theme .nav-dropdown-item:hover { background: #f1f5f9; color: #0284c7; }
 
         /* Controls / Buttons */
-        .dash-controls { display: flex; align-items: center; gap: 12px; }
+        .dash-controls { display: flex; align-items: center; gap: 8px; }
         .btn-action {
             padding: 10px 18px; border-radius: 10px; font-weight: 700; font-size: 0.85rem; cursor: pointer; border: none; transition: 0.3s;
             display: flex; align-items: center; gap: 8px;
@@ -247,29 +282,107 @@
         <?php $header_theme_class = 'header-theme-inventory'; ?>
         <?php include 'includes/header.php'; ?>
 
-        <!-- Navigation and Actions Row -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; flex-wrap: wrap; gap: 15px;">
-            <div class="nav-tabs" style="margin-bottom: 0;">
-                <a data-href="inventory-summary.php" onclick="window.location.href='inventory-summary.php'" class="nav-tab">📊 ملخص الحركات</a>
-                <a data-href="inventory-analytics.php" onclick="window.location.href='inventory-analytics.php'" class="nav-tab">🧠 التحليل الاستراتيجي</a>
-                <a data-href="item-ledger.php" onclick="window.location.href='item-ledger.php'" class="nav-tab active">📑 حركة الصنف</a>
-                <a data-href="ai_goods_advisor.php" onclick="window.location.href='ai_goods_advisor.php'" class="nav-tab">🤖 مستشار الـ AI للبضائع</a>
+        <!-- Top Navigation Row (Clustered Smart Hub + Preview Action Buttons) -->
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 10px; flex-wrap: nowrap;">
+            <div class="nav-tabs" style="margin-bottom: 0; flex: 1;">
+                
+                <!-- Cluster 1: نظام الجرد -->
+                <div class="nav-cluster">
+                    <a href="inventory-report.php" class="nav-tab" title="نظام الجرد الشامل بجميع المخازن">
+                        <span>📦</span> <span>الجرد الشامل للمخازن</span>
+                    </a>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- Cluster 2: حركات البضائع -->
+                <div class="nav-cluster nav-dropdown">
+                    <div class="nav-tab active" title="حركات البضائع">
+                        <span>📑</span> <span>حركات البضائع</span>
+                        <span style="font-size: 0.7rem; margin-right: 2px;">▼</span>
+                    </div>
+                    <div class="nav-dropdown-content">
+                        <a href="item-ledger.php" class="nav-dropdown-item active" title="كشف حركة صنف محدد">
+                            <span>📑</span> حركة الأصناف (الحالية)
+                        </a>
+                        <a href="warehouse-ledger.php" class="nav-dropdown-item" title="كشف حركة مخزن محدد">
+                            <span>🏭</span> حركة المخازن
+                        </a>
+                        <a href="inventory-summary.php" class="nav-dropdown-item" title="ملخص الوارد والمنصرف">
+                            <span>📊</span> ملخص الحركات
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- Cluster 3: مركز الذكاء الاصطناعي (AI Suite) -->
+                <div class="nav-cluster nav-dropdown">
+                    <div class="nav-tab nav-tab-ai" title="أدوات الذكاء الاصطناعي">
+                        <span>🤖</span> <span>أدوات الذكاء الاصطناعي</span>
+                        <span class="nav-ai-badge">AI</span>
+                        <span style="font-size: 0.7rem; margin-right: 2px;">▼</span>
+                    </div>
+                    <div class="nav-dropdown-content">
+                        <a href="ai_goods_advisor.php" class="nav-dropdown-item" title="توصيات الشراء واستراتيجيات التخزين">
+                            <span>💡</span> مستشار الـ AI للبضائع
+                        </a>
+                        <a href="smart_inventory_report.php" class="nav-dropdown-item" title="تقارير تفاعلية ذكية للمخزون">
+                            <span>🧠</span> تقارير المخازن الذكية
+                        </a>
+                    </div>
+                </div>
+
+                <div class="nav-divider"></div>
+
+                <!-- Cluster 4: التحليلات المرئية (Charts & Dashboards) -->
+                <div class="nav-cluster nav-dropdown">
+                    <div class="nav-tab" title="المخططات والرسوم البيانية">
+                        <span>📈</span> <span style="font-weight: 800; color: #f8fafc;">التحليلات المرئية</span>
+                        <span style="font-size: 0.7rem; margin-right: 2px;">▼</span>
+                    </div>
+                    <div class="nav-dropdown-content">
+                        <a href="visual-analytics.php#pie" class="nav-dropdown-item" title="النسب المئوية لتوزيع البضائع في المخازن">
+                            <span>🍕</span> توزيع المخزون (مخطط دائري)
+                        </a>
+                        <a href="visual-analytics.php#donut" class="nav-dropdown-item" title="حالة الأرصدة (آمن، نواقص، الخ)">
+                            <span>🍩</span> حالة الأرصدة (كعكة مفرغة)
+                        </a>
+                        <a href="visual-analytics.php#bar" class="nav-dropdown-item" title="إجمالي القيمة المالية لكل صنف ومخزن">
+                            <span>📊</span> قيمة المخزون (أعمدة مصمتة)
+                        </a>
+                    </div>
+                </div>
+
             </div>
 
-            <div class="dash-controls" style="margin: 0; display: flex; gap: 8px;">
-                <button class="btn-action" onclick="openItemLedgerPreview()" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white; border: none; padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(13,148,136,0.2);">👁️ معاينة وتصميم التقرير</button>
-                <button class="btn-action btn-print" onclick="printItemLedgerDirectly()" style="background: rgba(255,255,255,0.05); color: var(--text-primary); border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer;">🖨️ طباعة</button>
+            <!-- Far Left Controls: Preview & Action Buttons -->
+            <div class="dash-controls" style="margin: 0; display: flex; gap: 8px; flex-shrink: 0;">
+                <button class="btn-action" onclick="openItemLedgerPreview()" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white; border: none; padding: 7px 15px; border-radius: 10px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(13,148,136,0.25); display: flex; align-items: center; gap: 6px;">
+                    <span>👁️</span> <span>معاينة وتصميم التقرير</span>
+                </button>
+                <button class="btn-action btn-print" onclick="printItemLedgerDirectly()" style="background: rgba(255,255,255,0.05); color: var(--text-primary); border: 1px solid var(--glass-border); padding: 7px 14px; border-radius: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                    <span>🖨️</span> <span>طباعة</span>
+                </button>
                 <button class="btn-icon-nav" onclick="history.back()" title="رجوع" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; color: var(--text-primary); cursor: pointer; transition: 0.3s;">↩</button>
             </div>
         </div>
 
         <!-- Filters -->
-        <div class="filters-bar" style="grid-template-columns: 1.2fr 1.6fr 1.1fr 1fr 1fr; align-items: end; gap: 15px;">
+        <div class="filters-bar" style="grid-template-columns: 1.3fr 1.5fr 1.1fr 1fr 1fr; align-items: end; gap: 12px; padding: 14px 18px; margin-bottom: 6px;">
             <div class="input-group">
-                <label>1. اختر الصنف المراد جرده</label>
-                <select id="item-select" onchange="onItemSelected()">
-                    <option value="">-- يرجى اختيار صنف --</option>
-                </select>
+                <label style="display: flex; justify-content: space-between; align-items: center;">
+                    <span>1. اختر الصنف المراد جرده</span>
+                    <span id="item-count-badge" style="font-size: 0.72rem; color: #38bdf8; font-weight: 800;">(0 صنف)</span>
+                </label>
+                <div style="display: flex; gap: 6px;">
+                    <div style="position: relative; flex: 1;">
+                        <select id="item-select" onchange="onItemSelected()" style="width: 100%; font-weight: 800; color: #38bdf8; border-color: rgba(56,189,248,0.4); padding: 9px 12px; font-size: 0.88rem;">
+                            <option value="">-- يرجى اختيار صنف --</option>
+                        </select>
+                    </div>
+                    <input type="text" id="item-quick-filter" placeholder="🔍 بحث..." oninput="filterItemDropdown(this.value)" style="width: 80px; padding: 8px 8px; font-size: 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: #fff;" title="اكتب لفلترة قائمة الأصناف سريعاً">
+                </div>
             </div>
             <div class="input-group">
                 <label style="color:#38bdf8; display:flex; justify-content:space-between;">
@@ -277,21 +390,21 @@
                     <span style="font-size:0.7rem; opacity:0.8;">⚖️ متعدد الوحدات</span>
                 </label>
                 <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
-                    <select id="unit-select-1" onfocus="onUnit1Focus()" onchange="onUnit1Change()" title="الوحدة الأولى (الرئيسية)" style="padding: 10px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.3);">
+                    <select id="unit-select-1" onfocus="onUnit1Focus()" onchange="onUnit1Change()" title="الوحدة الأولى (الرئيسية)" style="padding: 9px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.3);">
                         <option value="">الوحدة 1 (الأساسية)</option>
                     </select>
-                    <select id="unit-select-2" onfocus="onUnit2Focus()" onchange="onUnit2Change()" title="الوحدة الثانية (اختياري)" style="padding: 10px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.2);">
+                    <select id="unit-select-2" onfocus="onUnit2Focus()" onchange="onUnit2Change()" title="الوحدة الثانية (اختياري)" style="padding: 9px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.2);">
                         <option value="">الوحدة 2 (اختياري)</option>
                     </select>
-                    <select id="unit-select-3" onfocus="onUnit3Focus()" onchange="onUnit3Change()" title="الوحدة الثالثة (اختياري)" style="padding: 10px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.2);">
+                    <select id="unit-select-3" onfocus="onUnit3Focus()" onchange="onUnit3Change()" title="الوحدة الثالثة (اختياري)" style="padding: 9px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.2);">
                         <option value="">الوحدة 3 (اختياري)</option>
                     </select>
                 </div>
             </div>
             <div class="input-group">
                 <label>3. المخزن (اختياري)</label>
-                <select id="warehouse-select" onchange="loadLedger()">
-                    <option value="ALL">جميع المخازن</option>
+                <select id="warehouse-select" onchange="loadLedger()" style="padding: 9px 12px; font-size: 0.88rem;">
+                    <option value="ALL">🏢 جميع المخازن</option>
                 </select>
             </div>
             <div class="input-group">
@@ -365,46 +478,46 @@
                     </div>
                 </div>
                 
-                <div style="display: flex; align-items: center; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 6px;">
                     <!-- Studio Design Toggle -->
-                    <button type="button" id="btn-toggle-design-studio" onclick="toggleDesignStudioDrawer()" class="btn-action" style="background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.4); color: #38bdf8; padding: 7px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                        <span>🎨</span> تخصيص التصميم
+                    <button type="button" id="btn-toggle-design-studio" onclick="toggleDesignStudioDrawer()" class="btn-action" style="background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.4); color: #38bdf8; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; height: 28px;">
+                        <span>🎨</span> الضبط
                     </button>
                     <!-- Live Edit Mode Toggle -->
-                    <button type="button" id="btn-toggle-live-edit" onclick="toggleLiveEditMode()" class="btn-action" style="background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); color: #fbbf24; padding: 7px 14px; border-radius: 8px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 6px;">
-                        <span>✏️</span> تعديل النصوص مباشرة
+                    <button type="button" id="btn-toggle-live-edit" onclick="toggleLiveEditMode()" class="btn-action" style="background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); color: #fbbf24; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; height: 28px;">
+                        <span>✏️</span> تعديل النصوص
                     </button>
                     <!-- Print Button -->
-                    <button type="button" onclick="printItemLedgerSheet()" class="btn-action" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 7px 18px; font-weight: 800; border-radius: 8px; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
-                        <span>🖨️</span> طباعة التقرير
+                    <button type="button" onclick="printItemLedgerSheet()" class="btn-action" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 4px 14px; font-size: 0.8rem; font-weight: 800; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(16,185,129,0.3); height: 28px;">
+                        <span>🖨️</span> طباعة
                     </button>
                     <!-- Close Button -->
-                    <button type="button" onclick="closeItemLedgerPreview()" class="btn-action" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #e2e8f0; padding: 7px 14px; border-radius: 8px; cursor: pointer;">
+                    <button type="button" onclick="closeItemLedgerPreview()" class="btn-action" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #e2e8f0; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; height: 28px;">
                         ✕ إغلاق
                     </button>
                 </div>
             </div>
 
             <!-- Design Studio Toolbar (Collapsible / Active) -->
-            <div id="item-ledger-studio-drawer" class="no-print" style="display: flex; flex-direction: column; gap: 8px; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 12px; padding: 10px 14px; margin-bottom: 12px; box-shadow: inset 0 2px 10px rgba(0,0,0,0.3);">
+            <div id="item-ledger-studio-drawer" class="no-print" style="display: flex; flex-direction: column; gap: 6px; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 6px 10px; margin-bottom: 6px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);">
                 
                 <!-- Row 1: Global Theme, Font, Size, Paper & Sections -->
-                <div style="display: flex; flex-wrap: wrap; gap: 12px; align-items: center; justify-content: space-between;">
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 700;">🎨 الثيم:</span>
-                        <select id="studio-theme-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem;">
-                            <option value="corporate">🔷 أزرق نيلي شركات (Corporate)</option>
-                            <option value="emerald">🟢 أخضر زمردي مخزني (Emerald)</option>
-                            <option value="gold">🟡 ذهبي كلاسيكي فاخر (Royal Gold)</option>
+                <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">🎨 الثيم:</span>
+                        <select id="studio-theme-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 5px; padding: 2px 6px; font-size: 0.8rem; height: 26px;">
+                            <option value="corporate">🔷 أزرق نيلي (Corporate)</option>
+                            <option value="emerald">🟢 أخضر زمردي (Emerald)</option>
+                            <option value="gold">🟡 ذهبي كلاسيكي (Royal Gold)</option>
                             <option value="cyan">🔵 سيان عصري (Modern Cyan)</option>
                             <option value="purple">🟣 بنفسجي تقني (Purple Tech)</option>
                             <option value="classic">⚫ رمادي أحادي رسمي (Monochrome)</option>
                         </select>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 700;">🔤 الخط:</span>
-                        <select id="studio-font-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">🔤 الخط:</span>
+                        <select id="studio-font-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 5px; padding: 2px 6px; font-size: 0.8rem; height: 26px;">
                             <option value="'Tajawal', sans-serif">تجوّل (Tajawal)</option>
                             <option value="'Cairo', sans-serif">القاهرة (Cairo)</option>
                             <option value="'Almarai', sans-serif">المراعي (Almarai)</option>
@@ -413,55 +526,55 @@
                         </select>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 700;">📏 الكثافة:</span>
-                        <select id="studio-size-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">📏 الكثافة:</span>
+                        <select id="studio-size-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 5px; padding: 2px 6px; font-size: 0.8rem; height: 26px;">
                             <option value="compact">مدمج صغير (Compact)</option>
                             <option value="medium" selected>متوازن قياسي (Medium)</option>
                             <option value="large">كبير واضح (Large)</option>
                         </select>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 700;">📑 الاتجاه:</span>
-                        <select id="studio-orientation-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 6px; padding: 4px 8px; font-size: 0.78rem;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">📑 الاتجاه:</span>
+                        <select id="studio-orientation-select" onchange="applyStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 5px; padding: 2px 6px; font-size: 0.8rem; height: 26px;">
                             <option value="landscape" selected>↔️ أفقي (Landscape)</option>
                             <option value="portrait">↕️ طولي (Portrait)</option>
                         </select>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 8px;">
-                        <label style="font-size: 0.75rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <label style="font-size: 0.8rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 2px;">
                             <input type="checkbox" id="chk-show-header" checked onchange="applyStudioDesign()"> الترويسة
                         </label>
-                        <label style="font-size: 0.75rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+                        <label style="font-size: 0.8rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 2px;">
                             <input type="checkbox" id="chk-show-meta" checked onchange="applyStudioDesign()"> بيانات الصنف
                         </label>
-                        <label style="font-size: 0.75rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+                        <label style="font-size: 0.8rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 2px;">
                             <input type="checkbox" id="chk-show-kpis" checked onchange="applyStudioDesign()"> ملخص الأرصدة
                         </label>
-                        <label style="font-size: 0.75rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 3px;">
+                        <label style="font-size: 0.8rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 2px;">
                             <input type="checkbox" id="chk-show-signatures" checked onchange="applyStudioDesign()"> التوقيعات
                         </label>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <button type="button" onclick="saveStudioDesignPreset()" style="background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.4); color: #34d399; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; font-weight: 700; cursor: pointer;">
+                    <div style="display: flex; align-items: center; gap: 4px;">
+                        <button type="button" onclick="saveStudioDesignPreset()" style="background: rgba(16,185,129,0.2); border: 1px solid rgba(16,185,129,0.4); color: #34d399; padding: 2px 8px; border-radius: 5px; font-size: 0.78rem; font-weight: 700; cursor: pointer; height: 26px;">
                             💾 حفظ
                         </button>
-                        <button type="button" onclick="resetStudioDesignPreset()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: #cbd5e1; padding: 4px 10px; border-radius: 6px; font-size: 0.75rem; cursor: pointer;">
+                        <button type="button" onclick="resetStudioDesignPreset()" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.2); color: #cbd5e1; padding: 2px 8px; border-radius: 5px; font-size: 0.78rem; cursor: pointer; height: 26px;">
                             🔄 استعادة
                         </button>
                     </div>
                 </div>
 
                 <!-- Row 2: Unified Single-Row Column Super-Toolbar -->
-                <div class="panel-card studio-super-row" style="margin-bottom: 0; padding: 6px 12px; gap: 8px; display: flex; align-items: center; justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; background: rgba(255, 255, 255, 0.08) !important; border: 1px solid rgba(56, 189, 248, 0.3) !important;">
+                <div class="panel-card studio-super-row" style="margin-bottom: 0; padding: 4px 8px; gap: 6px; display: flex; align-items: center; justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; background: rgba(255, 255, 255, 0.08) !important; border: 1px solid rgba(56, 189, 248, 0.3) !important;">
                     
                     <!-- Group A: Column Selection & Visibility -->
                     <div class="studio-group-pill">
-                        <span style="color:#38bdf8; font-size:0.82rem; font-weight:900;">🎯 العمود:</span>
-                        <select id="item-selected-col-select" class="panel-input" style="color:#38bdf8; font-size:0.82rem; font-weight:900; border-color:#38bdf8; background:#1e293b; padding: 3px 6px;" onchange="selectItemLedgerCol(this.value)">
+                        <span style="color:#38bdf8; font-size:0.8rem; font-weight:900;">🎯 العمود:</span>
+                        <select id="item-selected-col-select" class="panel-input" style="color:#38bdf8; font-size:0.8rem; font-weight:900; border-color:#38bdf8; background:#1e293b; padding: 2px 6px; height: 26px;" onchange="selectItemLedgerCol(this.value)">
                             <option value="date" selected>التاريخ</option>
                             <option value="type">نوع الحركة</option>
                             <option value="permit">رقم الإذن</option>
@@ -471,7 +584,7 @@
                             <option value="balance">الرصيد التراكمي</option>
                             <option value="notes">ملحوظة الحركة</option>
                         </select>
-                        <label style="display:flex; align-items:center; gap:3px; cursor:pointer; font-size:0.8rem; font-weight:800;" title="إظهار أو إخفاء العمود">
+                        <label style="display:flex; align-items:center; gap:2px; cursor:pointer; font-size:0.8rem; font-weight:800;" title="إظهار أو إخفاء العمود">
                             <input type="checkbox" id="item-col-visible-chk" checked onchange="updateSelectedItemLedgerCol('visible', this.checked)">
                             إظهار
                         </label>
@@ -481,16 +594,16 @@
 
                     <!-- Group B: Header Label & Ordering -->
                     <div class="studio-group-pill">
-                        <span style="font-size:0.82rem;">✏️ التسمية:</span>
-                        <input type="text" id="item-col-label-input" class="panel-input" style="width:110px; font-size:0.82rem; padding: 3px 6px; background:#1e293b; color:#fff; border-color:#475569;" oninput="updateSelectedItemLedgerCol('label', this.value)">
+                        <span style="font-size:0.8rem;">✏️ التسمية:</span>
+                        <input type="text" id="item-col-label-input" class="panel-input" style="width:105px; font-size:0.8rem; padding: 2px 6px; background:#1e293b; color:#fff; border-color:#475569; height: 26px;" oninput="updateSelectedItemLedgerCol('label', this.value)">
                     </div>
 
                     <div class="studio-pill-divider"></div>
 
                     <!-- Group C: Alignment -->
                     <div class="studio-group-pill">
-                        <span style="font-size:0.82rem;">المحاذاة:</span>
-                        <select id="item-col-align-select" class="panel-input" style="font-size:0.82rem; padding: 3px 6px; background:#1e293b; color:#fff; border-color:#475569;" onchange="updateSelectedItemLedgerCol('align', this.value)">
+                        <span style="font-size:0.8rem;">المحاذاة:</span>
+                        <select id="item-col-align-select" class="panel-input" style="font-size:0.8rem; padding: 2px 6px; background:#1e293b; color:#fff; border-color:#475569; height: 26px;" onchange="updateSelectedItemLedgerCol('align', this.value)">
                             <option value="right">يمين ➡️</option>
                             <option value="center" selected>وسط 🟢</option>
                             <option value="left">يسار ⬅️</option>
@@ -501,12 +614,12 @@
 
                     <!-- Group D: Column Width -->
                     <div class="studio-group-pill">
-                        <span style="font-size:0.82rem;" title="عرض العمود كنسبة مئوية">📏 العرض:</span>
-                        <input type="range" id="item-col-width-range" min="5" max="50" step="1" value="15" style="width:70px;"
+                        <span style="font-size:0.8rem;" title="عرض العمود كنسبة مئوية">📏 العرض:</span>
+                        <input type="range" id="item-col-width-range" min="5" max="50" step="1" value="15" style="width:65px;"
                             oninput="document.getElementById('item-col-width-input').value=this.value; updateSelectedItemLedgerCol('width', this.value)">
-                        <input type="number" id="item-col-width-input" class="panel-input" style="width:45px; font-size:0.82rem; padding: 3px; background:#1e293b; color:#fff; border-color:#475569;" min="5" max="50" placeholder="%" 
-                            oninput="if(document.getElementById('item-col-width-range')) document.getElementById('item-col-width-range').value=this.value; updateSelectedItemLedgerCol('width', this.value)">
-                        <button class="ribbon-btn studio-mini-btn" style="font-size:0.75rem; padding: 3px 6px;" 
+                        <input type="number" id="item-col-width-input" class="panel-input" style="width:42px; font-size:0.8rem; padding: 2px; background:#1e293b; color:#fff; border-color:#475569; height: 26px;" min="5" max="50" placeholder="%" 
+                            oninput="if(document.getElementById('item-col-width-range')) document.getElementById('item-col-width-range').value=this.value; updateSelectedInvCol('width', this.value)">
+                        <button class="ribbon-btn studio-mini-btn" style="font-size:0.75rem; padding: 2px 5px;" 
                             onclick="updateSelectedItemLedgerCol('width', ''); document.getElementById('item-col-width-input').value=''; document.getElementById('item-col-width-range').value=15;" title="ضبط العرض التلقائي">🔄 تلقائي</button>
                     </div>
 
@@ -514,10 +627,10 @@
 
                     <!-- Group E: Table Width -->
                     <div class="studio-group-pill">
-                        <span style="font-size:0.82rem;">📐 عرض الجدول:</span>
-                        <input type="range" id="item-table-width-range" min="60" max="100" step="5" value="100" style="width:70px;"
+                        <span style="font-size:0.8rem;">📐 عرض الجدول:</span>
+                        <input type="range" id="item-table-width-range" min="60" max="100" step="5" value="100" style="width:65px;"
                             oninput="setItemTableWidth(this.value)">
-                        <span id="item-table-width-label" style="font-weight:900; font-size:0.82rem; min-width:32px; text-align:center; color:#38bdf8;">100%</span>
+                        <span id="item-table-width-label" style="font-weight:900; font-size:0.8rem; min-width:32px; text-align:center; color:#38bdf8;">100%</span>
                     </div>
 
                 </div>
@@ -577,7 +690,7 @@
         function getSelectedItemObj() {
             const itemId = document.getElementById('item-select')?.value;
             if (!itemId) return null;
-            return itemsDb.find(i => i.id === itemId) || null;
+            return itemsDb.find(i => String(i.id) === String(itemId)) || null;
         }
 
         function safeString(val) {
@@ -852,22 +965,13 @@
         }
         
         function initItemLedger() {
-            itemsDb = JSON.parse(localStorage.getItem(ITEMS_STORAGE_KEY)) || [];
-            const select = document.getElementById('item-select');
-            if (select && select.options.length <= 1) {
-                select.innerHTML = '<option value="">-- يرجى اختيار صنف --</option>';
-                itemsDb.forEach(item => {
-                    const opt = document.createElement('option');
-                    opt.value = item.id;
-                    opt.text = item.name;
-                    select.appendChild(opt);
-                });
-            }
+            itemsDb = JSON.parse(localStorage.getItem('erp_items_v1')) || JSON.parse(localStorage.getItem('erp_items')) || [];
+            populateItemDropdown();
 
             // Load Warehouses
             const whSelect = document.getElementById('warehouse-select');
             if (whSelect && whSelect.options.length <= 1) {
-                whSelect.innerHTML = '<option value="ALL">جميع المخازن</option>';
+                whSelect.innerHTML = '<option value="ALL">🏢 جميع المخازن (الجرد العام)</option>';
                 warehousesDb = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
                 const displayWh = [{ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام' }, ...warehousesDb];
                 displayWh.forEach(wh => {
@@ -887,8 +991,52 @@
             // Check URL param ?item=ID
             const urlParams = new URLSearchParams(window.location.search);
             const itemId = urlParams.get('item');
-            if (itemId && select && select.value !== itemId) {
+            const select = document.getElementById('item-select');
+            if (itemId && select) {
                 select.value = itemId;
+                onItemSelected();
+            }
+        }
+
+        function populateItemDropdown(filterText = '') {
+            const select = document.getElementById('item-select');
+            if (!select) return;
+            const curVal = select.value;
+            select.innerHTML = '<option value="">-- يرجى اختيار صنف --</option>';
+
+            const query = (filterText || '').trim().toLowerCase();
+            let count = 0;
+
+            itemsDb.forEach(item => {
+                const code = String(item.code || item.id || '');
+                const name = String(item.name || '');
+                const cat = String(item.category || '');
+                const searchStr = `${code} ${name} ${cat}`.toLowerCase();
+
+                if (!query || searchStr.includes(query)) {
+                    const opt = document.createElement('option');
+                    opt.value = item.id;
+                    opt.text = `[${code}] ${name}${cat ? ' (' + cat + ')' : ''}`;
+                    select.appendChild(opt);
+                    count++;
+                }
+            });
+
+            const countBadge = document.getElementById('item-count-badge');
+            if (countBadge) {
+                countBadge.textContent = `(${count} صنف)`;
+            }
+
+            if (curVal && Array.from(select.options).some(o => String(o.value) === String(curVal))) {
+                select.value = curVal;
+            }
+        }
+
+        function filterItemDropdown(query) {
+            populateItemDropdown(query);
+            const select = document.getElementById('item-select');
+            if (select && select.options.length > 1 && query.trim()) {
+                select.selectedIndex = 1;
                 onItemSelected();
             }
         }
@@ -899,11 +1047,69 @@
             initItemLedger();
         }
         document.addEventListener('DBReady', initItemLedger);
+        window.addEventListener('load', initItemLedger);
 
         function buildRealHistory(itemId) {
             let history = [];
             const itemObj = itemsDb.find(i => String(i.id) === String(itemId));
             const itemBaseUnit = safeString(itemObj ? (itemObj.baseUnit || itemObj.unit || '') : '');
+
+            // 0. Initial Opening Balance (from item record if created with stock)
+            if (itemObj) {
+                let initBal = parseFloat(itemObj.openingBalance || itemObj.openBalance || itemObj.initialBalance || itemObj.openingQty) || 0;
+                if (initBal > 0) {
+                    history.push({
+                        date: new Date(itemObj.createdAt || '2020-01-01T00:00:00'),
+                        typeCode: 'open',
+                        typeName: 'رصيد افتتاحي (أول المدة)',
+                        permitNo: 'OPEN',
+                        permitDocId: '',
+                        receiptNo: 'OPEN',
+                        receiptDocId: '',
+                        isGRN: false,
+                        ref: 'رصيد أول المدة',
+                        docId: '',
+                        warehouse: 'ALL',
+                        notes: 'الرصيد الافتتاحي عند تعريف الصنف في النظام',
+                        in: initBal,
+                        out: 0,
+                        origQty: initBal,
+                        origUnit: itemBaseUnit,
+                        origFactor: 1,
+                        origIsSameAsBase: true
+                    });
+                }
+            }
+
+            // Helper to resolve unit factor accurately matching inventory-report.php
+            function resolveUnitFactor(line, item) {
+                if (line.customBaseQty !== undefined && parseFloat(line.quantity) > 0) {
+                    return parseFloat(line.customBaseQty) / parseFloat(line.quantity);
+                }
+                if (line.customFactor && parseFloat(line.customFactor) > 0) {
+                    return parseFloat(line.customFactor);
+                }
+                if (line.factor && parseFloat(line.factor) > 0) {
+                    return parseFloat(line.factor);
+                }
+                if (item) {
+                    const uName = String(line.unitName || line.unit || line.selectedUnit || '').trim();
+                    const unitsList = [];
+                    if (Array.isArray(item.units)) unitsList.push(...item.units);
+                    if (Array.isArray(item.unitsArray)) unitsList.push(...item.unitsArray);
+                    const matched = unitsList.find(u => {
+                        const n = String(u.unitName || u.name || '').trim();
+                        return n && n === uName;
+                    });
+                    if (matched && parseFloat(matched.factor || matched.equiv) > 0) {
+                        return parseFloat(matched.factor || matched.equiv);
+                    }
+                    if (item.conversionFactor && parseFloat(item.conversionFactor) > 0 && uName !== itemBaseUnit) {
+                        return parseFloat(item.conversionFactor);
+                    }
+                }
+                return 1;
+            }
             
             // 1. Get Purchases & Adjustments
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
@@ -918,16 +1124,9 @@
 
                         const origQty    = parseFloat(line.quantity) || 0;
                         const origUnit   = safeString(line.unit || line.selectedUnit || itemBaseUnit || '');
-                        const origFactor = parseFloat(line.customFactor !== undefined ? line.customFactor : (line.factor || 1));
+                        const origFactor = resolveUnitFactor(line, itemObj);
 
-                        let baseQty = 0;
-                        if (line.customBaseQty !== undefined) {
-                            baseQty = parseFloat(line.customBaseQty) || 0;
-                        } else {
-                            let factor = origFactor;
-                            let conv = itemObj ? (itemObj.conversionFactor || 1) : 1;
-                            baseQty = origQty * factor * conv;
-                        }
+                        let baseQty = (line.customBaseQty !== undefined) ? (parseFloat(line.customBaseQty) || 0) : (origQty * origFactor);
 
                         let typeName = 'فاتورة مشتريات';
                         let typeCode = 'in';
@@ -1024,16 +1223,9 @@
                         
                         const origQty    = parseFloat(line.quantity) || 0;
                         const origUnit   = safeString(line.unit || line.selectedUnit || itemBaseUnit || '');
-                        const origFactor = parseFloat(line.customFactor !== undefined ? line.customFactor : (line.factor || 1));
+                        const origFactor = resolveUnitFactor(line, itemObj);
 
-                        let baseQty = 0;
-                        if (line.customBaseQty !== undefined) {
-                            baseQty = parseFloat(line.customBaseQty) || 0;
-                        } else {
-                            let factor = origFactor;
-                            let conv = itemObj ? (itemObj.conversionFactor || 1) : 1;
-                            baseQty = origQty * factor * conv;
-                        }
+                        let baseQty = (line.customBaseQty !== undefined) ? (parseFloat(line.customBaseQty) || 0) : (origQty * origFactor);
 
                         let permitNo = inv.orderNo || inv.soNumber || inv.quotationNo || inv.dispatchOrderNo || inv.permitNo || inv.invoiceNo || inv.id || '-';
                         let receiptNo = inv.invoiceNo || inv.receiptNo || inv.id || 'INV';
@@ -1055,10 +1247,22 @@
                             noteText = inv.remarks.trim();
                         }
 
+                        let typeCode = 'out';
+                        let typeName = 'فاتورة مبيعات';
+                        let valIn = 0;
+                        let valOut = baseQty;
+
+                        if (inv.isReturn === true) {
+                            typeCode = 'in';
+                            typeName = 'مردودات مبيعات';
+                            valIn = baseQty;
+                            valOut = 0;
+                        }
+
                         history.push({
                             date: new Date(inv.date || Date.now()),
-                            typeCode: 'out',
-                            typeName: 'فاتورة مبيعات',
+                            typeCode: typeCode,
+                            typeName: typeName,
                             permitNo: permitNo,
                             permitDocId: permitDocId,
                             receiptNo: receiptNo,
@@ -1068,9 +1272,9 @@
                             docId: receiptDocId,
                             warehouse: lineWh,
                             notes: noteText,
-                            in: 0,
-                            out: baseQty,
-                            origQty: origQty,
+                            in: valIn,
+                            out: valOut,
+                            origQty: typeCode === 'in' ? origQty : -origQty,
                             origUnit: origUnit,
                             origFactor: origFactor,
                             origIsSameAsBase: (origUnit === itemBaseUnit || origFactor === 1)
@@ -1091,7 +1295,7 @@
                     if (String(line.itemId) === String(itemId)) {
                         const origQty = parseFloat(line.quantity) || 0;
                         const origUnit = safeString(line.unitName || line.unit || itemBaseUnit || '');
-                        let resolvedFactor = parseFloat(line.customFactor || line.factor) || 1;
+                        let resolvedFactor = resolveUnitFactor(line, itemObj);
                         let baseQty = (line.customBaseQty !== undefined) ? parseFloat(line.customBaseQty) : (origQty * resolvedFactor);
 
                         // Outward from source warehouse
@@ -1110,7 +1314,7 @@
                             notes: tr.notes || line.notes || '',
                             in: 0,
                             out: baseQty,
-                            origQty: origQty,
+                            origQty: -origQty,
                             origUnit: origUnit,
                             origFactor: resolvedFactor,
                             origIsSameAsBase: (origUnit === itemBaseUnit || resolvedFactor === 1)
