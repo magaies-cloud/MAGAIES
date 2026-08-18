@@ -1786,6 +1786,18 @@
                 suppliers = [];
             }
             suppliers = suppliers.filter(s => !s.deleted);
+            if (suppliers.length === 0) {
+                suppliers = [
+    { id: 'SUP-001', code: 'SUP-001', name: 'شركة مصنع الأسعد للحديد والصلب', phone: '0123456789', currentBalance: 0, creditLimit: 50000000, status: 'active', securityLevel: 1 },
+    { id: 'SUP-002', code: 'SUP-002', name: 'شركة أوميغا للصناعات والصلب', phone: '0912345678', currentBalance: 0, creditLimit: 30000000, status: 'active', securityLevel: 1 },
+    { id: 'SUP-003', code: 'SUP-003', name: 'شركة أسمنت عطبرة المحدودة', phone: '0112345678', currentBalance: 0, creditLimit: 20000000, status: 'active', securityLevel: 1 },
+    { id: 'SUP-004', code: 'SUP-004', name: 'مجمع جياد الصناعي', phone: '0901234567', currentBalance: 0, creditLimit: 100000000, status: 'active', securityLevel: 1 },
+    { id: 'SUP-005', code: 'SUP-005', name: 'مؤسسة الهدى للتجارة والتوريدات', phone: '0123987654', currentBalance: 0, creditLimit: 15000000, status: 'active', securityLevel: 1 },
+    { id: 'SUP-006', code: 'SUP-006', name: 'شركة أسمنت بربر المحدودة', phone: '0912987654', currentBalance: 0, creditLimit: 25000000, status: 'active', securityLevel: 1 },
+    { id: 'SUP-007', code: 'SUP-007', name: 'مصنع الراجحي للحديد والصلب', phone: '0123112233', currentBalance: 0, creditLimit: 40000000, status: 'active', securityLevel: 1 }
+];
+                try { localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers)); } catch(e){}
+            }
             tbody.innerHTML = '';
             suppliers.forEach(s => {
                 const statusMap = {'vip': '<span style="background:rgba(168,85,247,0.15); color:#a855f7; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:700;">🌟 VIP</span>', 'blacklisted': '<span style="background:rgba(239,68,68,0.15); color:#ef4444; padding:2px 8px; border-radius:10px; font-size:0.8rem; font-weight:700;">🔴 محظور</span>'};

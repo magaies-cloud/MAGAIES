@@ -2127,7 +2127,7 @@
                         <div id="pay-cash-section" style="background: radial-gradient(circle at top left, rgba(16, 185, 129, 0.35), rgba(16, 185, 129, 0.15)); border: 3px solid rgba(16, 185, 129, 0.9); box-shadow: 0 0 25px rgba(16, 185, 129, 0.4), inset 0 0 15px rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; display: flex; flex-direction: column; width: 100%;">
                             <div class="payment-row-item" style="display: grid; grid-template-columns: 85px 1.5fr 1.2fr 1.2fr 2fr 30px; gap: 8px; align-items: center; width: 100%; margin-bottom: 0px;">
                                 <div style="display: flex; align-items: center; justify-content: flex-start; color: #6ee7b7; font-weight: 900; font-size: 0.95rem; gap: 6px; text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);"><span>💵</span> كاش</div>
-                                <input type="number" class="v-input ctrl-input dynamic-focus-input dynamic-focus-amount" id="pay-cash-amount" value="0" step="1" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 8px; text-align: center; font-size: 4.9rem; font-weight: 800; color: #000000; height: 90px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
+                                <input type="number" class="v-input ctrl-input dynamic-focus-input dynamic-focus-amount" id="pay-cash-amount" value="0" step="1" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 8px; text-align: center; font-size: 2.25rem; font-weight: 800; color: #ffffff; height: 60px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
                                 <select class="v-input ctrl-input" id="hdr-payment-account" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%;">
                                 </select>
                                 <input type="text" class="v-input ctrl-input" id="pay-cash-ref" placeholder="رقم المرجع" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%;">
@@ -3678,6 +3678,56 @@ function playScanBeep() {
 
 </script>
 
+<script>
+document.addEventListener('DOMContentLoaded', () => {
+    // 1. Mouse move first time: focus on Supplier (hdr-customer-search)
+    const initialFocusHandler = () => {
+        const supInput = document.getElementById('hdr-customer-search');
+        if (supInput && document.activeElement !== supInput) {
+            supInput.focus();
+            if (typeof showCustomerDropdown === 'function') {
+                showCustomerDropdown();
+            }
+        }
+        document.removeEventListener('mousemove', initialFocusHandler);
+    };
+    document.addEventListener('mousemove', initialFocusHandler);
+
+    // 2. Keyboard flow
+    document.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter') {
+            const target = e.target;
+            
+            // From Supplier -> Item Code (Bypassing Warehouse)
+            if (target.id === 'hdr-customer-search') {
+                e.preventDefault();
+                setTimeout(() => {
+                    if (typeof rows !== 'undefined' && rows.length > 0) {
+                        const firstSearch = document.getElementById('item-search-' + rows[0].id) || document.getElementById('m-item-search-' + rows[0].id);
+                        if (firstSearch) {
+                            firstSearch.focus();
+                        }
+                    }
+                }, 100);
+            }
+            // From Warehouse -> Item Code (If they click it manually)
+            else if (target.id === 'hdr-warehouse') {
+                e.preventDefault();
+                setTimeout(() => {
+                    if (typeof rows !== 'undefined' && rows.length > 0) {
+                        const firstSearch = document.getElementById('item-search-' + rows[0].id) || document.getElementById('m-item-search-' + rows[0].id);
+                        if (firstSearch) {
+                            firstSearch.focus();
+                        }
+                    }
+                }, 100);
+            }
+        }
+    });
+});
+</script>
 </body>
 </html>
+
+
 

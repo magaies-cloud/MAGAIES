@@ -211,13 +211,12 @@
 
     function renderDashboard(table, tableData) {
         // Find container to append to
-        const container = table.closest('.container') || table.closest('.glass-panel') || table.closest('.pos-wrapper') || table.closest('.dash-main') || table.parentNode;
+        const targetSlot = document.getElementById('auto-charts-slot') || document.querySelector('.auto-charts-slot');
+        const container = targetSlot || table.closest('.dashboard-container') || table.closest('.container') || table.closest('.glass-panel') || table.closest('.pos-wrapper') || table.closest('.dash-main') || table.parentNode;
 
         // Remove existing dashboard if any to prevent duplicates on mutation updates
-        const existing = container.querySelector('.auto-chart-dashboard');
-        if (existing) {
-            existing.remove();
-        }
+        const existing = document.querySelectorAll('.auto-chart-dashboard');
+        existing.forEach(el => el.remove());
 
         // Build HTML
         const dashboard = document.createElement('div');

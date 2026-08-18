@@ -190,17 +190,35 @@ function initPurchaseApp() {
 
         let supps = [];
         try {
-            supps = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
+            const rawSupps = localStorage.getItem('erp_suppliers_v1') || (window.getTenantKey ? localStorage.getItem(window.getTenantKey('erp_suppliers_v1')) : null);
+            supps = (JSON.parse(rawSupps) || []).filter(x => !x.deleted);
         } catch(e) { supps = []; }
-        
+
+        if (!supps || supps.length === 0) {
+            supps = [
+                { id: 'SUP-001', code: 'SUP-001', name: 'شركة مصنع الأسعد للحديد والصلب', phone: '0123456789', currentBalance: 0, creditLimit: 50000000 },
+                { id: 'SUP-002', code: 'SUP-002', name: 'شركة أوميغا للصناعات والصلب', phone: '0912345678', currentBalance: 0, creditLimit: 30000000 },
+                { id: 'SUP-003', code: 'SUP-003', name: 'شركة أسمنت عطبرة المحدودة', phone: '0112345678', currentBalance: 0, creditLimit: 20000000 },
+                { id: 'SUP-004', code: 'SUP-004', name: 'مجمع جياد الصناعي', phone: '0901234567', currentBalance: 0, creditLimit: 100000000 },
+                { id: 'SUP-005', code: 'SUP-005', name: 'مؤسسة الهدى للتجارة والتوريدات', phone: '0123987654', currentBalance: 0, creditLimit: 15000000 },
+                { id: 'SUP-006', code: 'SUP-006', name: 'شركة أسمنت بربر المحدودة', phone: '0912987654', currentBalance: 0, creditLimit: 25000000 },
+                { id: 'SUP-007', code: 'SUP-007', name: 'مصنع الراجحي للحديد والصلب', phone: '0123112233', currentBalance: 0, creditLimit: 40000000 }
+            ];
+            try { localStorage.setItem('erp_suppliers_v1', JSON.stringify(supps)); } catch(e){}
+        }
+
         // For Purchase Invoices, we only want Suppliers, NOT Customers.
         const uniquePartners = Array.from(new Map(supps.map(item => [item.id, item])).values());
         
-        VENDORS = uniquePartners.map(s => ({
-            id: s.id, name: s.name,
-            ledger: parseFloat(s.currentBalance) || 0, checks: 0,
-            creditLimit: s.creditLimit || 0
-        }));
+        VENDORS = [
+            { id: 'walk-in', name: 'مورد نقدي عام (Walk-in)', phone: '', code: 'SUP-CASH', ledger: 0, checks: 0, creditLimit: 0 },
+            ...uniquePartners.map(s => ({
+                id: s.id, name: s.name,
+                phone: s.phone || '', code: s.code || '',
+                ledger: parseFloat(s.currentBalance) || 0, checks: 0,
+                creditLimit: s.creditLimit || 0
+            }))
+        ];
 
         try {
             UOMS = JSON.parse(localStorage.getItem('erp_uoms_v1')) || [
@@ -412,10 +430,19 @@ function initPurchaseApp() {
                         }
                     }
                     setTimeout(() => {
-                        const qtyInput = document.querySelector(`[data-qty-input="${rowId}"]`);
-                        if (qtyInput) { qtyInput.focus(); qtyInput.select(); }
+                        const unitSelect = document.querySelector(`[data-unit-select="${rowId}"]`);
+                        if (unitSelect) { unitSelect.focus(); }
+                        else {
+                            const qtyInput = document.querySelector(`[data-qty-input="${rowId}"]`);
+                            if (qtyInput) { qtyInput.focus(); qtyInput.select(); }
+                        }
                     }, 50);
                 } 
+                else if (target.hasAttribute('data-unit-select')) {
+                    const rowId = target.getAttribute('data-unit-select');
+                    const qtyInput = document.querySelector(`[data-qty-input="${rowId}"]`);
+                    if (qtyInput) { qtyInput.focus(); qtyInput.select(); }
+                }
                 else if (target.hasAttribute('data-qty-input')) {
                     const rowId = target.getAttribute('data-qty-input');
                     const priceInput = document.querySelector(`[data-price-input="${rowId}"]`);
@@ -517,9 +544,11 @@ function setSaleType(type) {
 // ════════════════════════════════════════
 function onCustomerChange() {
     updateLedgerButton();
-    const id = document.getElementById('hdr-customer').value;
+    const idEl = document.getElementById('hdr-customer');
+    if (!idEl) return;
+    const id = idEl.value;
     const cust = VENDORS.find(c => String(c.id) === String(id));
-    const cur = document.getElementById('hdr-currency').value;
+    const cur = (document.getElementById('hdr-currency') ? document.getElementById('hdr-currency').value : 'SDG') || 'SDG';
 
     if (!cust || id === '') {
         const invBox = document.getElementById('invoice-info-box');
@@ -528,7 +557,7 @@ function onCustomerChange() {
         if(finCard) {
             finCard.style.flex = "0";
             finCard.style.opacity = "0";
-            setTimeout(() => { if(finCard.style.opacity === "0") finCard.style.display = 'none'; }, 400);
+            setTimeout(() => { if(finCard && finCard.style.opacity === "0") finCard.style.display = 'none'; }, 400);
         }
         
         // Restore fonts
@@ -543,7 +572,7 @@ function onCustomerChange() {
         
         ['fin-ledger','fin-checks','fin-total-debt','fin-credit-limit','fin-remaining'].forEach(el => {
             const dom = document.getElementById(el);
-            if(dom) dom.textContent = '0';
+            if(dom) dom.textContent = '0 ' + cur;
         });
         const msg = document.getElementById('fin-status-msg');
         if(msg) msg.innerHTML = '<span class="status-dot neutral"></span> لم يتم اختيار مورد';
@@ -555,10 +584,12 @@ function onCustomerChange() {
     if (invBox && finCard) {
         finCard.style.display = 'flex';
         setTimeout(() => {
-            invBox.style.flex = "0.7";
-            finCard.style.flex = "1";
-            finCard.style.opacity = "1";
-            finCard.style.paddingLeft = "10px";
+            if (invBox) invBox.style.flex = "0.7";
+            if (finCard) {
+                finCard.style.flex = "1";
+                finCard.style.opacity = "1";
+                finCard.style.paddingLeft = "10px";
+            }
             
             // Shrink fonts
             const invLbl = document.getElementById('hdr-inv-label');
@@ -572,14 +603,17 @@ function onCustomerChange() {
         }, 10);
     }
 
-    const totalDebt = cust.ledger + cust.checks;
-    const remaining = cust.creditLimit - totalDebt;
+    const cLedger = parseFloat(cust.ledger) || 0;
+    const cChecks = parseFloat(cust.checks) || 0;
+    const cCreditLimit = parseFloat(cust.creditLimit) || 0;
+    const totalDebt = cLedger + cChecks;
+    const remaining = cCreditLimit - totalDebt;
 
     const els = {
-        'fin-ledger': fmtNum(cust.ledger) + ' ' + cur,
-        'fin-checks': fmtNum(cust.checks) + ' ' + cur,
+        'fin-ledger': fmtNum(cLedger) + ' ' + cur,
+        'fin-checks': fmtNum(cChecks) + ' ' + cur,
         'fin-total-debt': fmtNum(totalDebt) + ' ' + cur,
-        'fin-credit-limit': fmtNum(cust.creditLimit) + ' ' + cur,
+        'fin-credit-limit': fmtNum(cCreditLimit) + ' ' + cur,
         'fin-remaining': fmtNum(remaining) + ' ' + cur
     };
 
@@ -597,6 +631,7 @@ function onCustomerChange() {
         }
     }
 }
+window.onCustomerChange = onCustomerChange;
 
 function addNewCustomer() {
     const name = document.getElementById('new-cust-name').value.trim();
@@ -849,17 +884,37 @@ async function renderCustomerDropdown(filter = '') {
     if (!listEl) return;
     
     listEl.innerHTML = '';
-    const term = filter.toLowerCase().trim();
+    const term = (filter || '').toLowerCase().trim();
     const normalizedTerm = normalizeArabic(term);
     
     try {
-        // Sync VENDORS with localStorage live safely
+        // Ensure VENDORS is populated with storage and defaults
         let supps = [];
         try {
-            supps = (JSON.parse(localStorage.getItem('erp_suppliers_v1')) || []).filter(x => !x.deleted);
+            const rawSupps = localStorage.getItem('erp_suppliers_v1') || (window.getTenantKey ? localStorage.getItem(window.getTenantKey('erp_suppliers_v1')) : null);
+            supps = (JSON.parse(rawSupps) || []).filter(x => !x.deleted);
             if (!Array.isArray(supps)) supps = [];
         } catch (e) {
             supps = [];
+        }
+
+        if (supps.length === 0) {
+            supps = [
+                { id: 'SUP-001', code: 'SUP-001', name: 'شركة مصنع الأسعد للحديد والصلب', phone: '0123456789', currentBalance: 0, creditLimit: 50000000 },
+                { id: 'SUP-002', code: 'SUP-002', name: 'شركة أوميغا للصناعات والصلب', phone: '0912345678', currentBalance: 0, creditLimit: 30000000 },
+                { id: 'SUP-003', code: 'SUP-003', name: 'شركة أسمنت عطبرة المحدودة', phone: '0112345678', currentBalance: 0, creditLimit: 20000000 },
+                { id: 'SUP-004', code: 'SUP-004', name: 'مجمع جياد الصناعي', phone: '0901234567', currentBalance: 0, creditLimit: 100000000 },
+                { id: 'SUP-005', code: 'SUP-005', name: 'مؤسسة الهدى للتجارة والتوريدات', phone: '0123987654', currentBalance: 0, creditLimit: 15000000 },
+                { id: 'SUP-006', code: 'SUP-006', name: 'شركة أسمنت بربر المحدودة', phone: '0912987654', currentBalance: 0, creditLimit: 25000000 },
+                { id: 'SUP-007', code: 'SUP-007', name: 'مصنع الراجحي للحديد والصلب', phone: '0123112233', currentBalance: 0, creditLimit: 40000000 }
+            ];
+            try { localStorage.setItem('erp_suppliers_v1', JSON.stringify(supps)); } catch(e){}
+        }
+
+        if (!VENDORS || VENDORS.length === 0) {
+            VENDORS = [
+                { id: 'walk-in', name: 'مورد نقدي عام (Walk-in)', phone: '', code: 'SUP-CASH', ledger: 0, checks: 0, creditLimit: 0 }
+            ];
         }
 
         supps.forEach(s => {
@@ -869,11 +924,13 @@ async function renderCustomerDropdown(filter = '') {
                 existing.phone = s.phone || '';
                 existing.code = s.code || '';
                 existing.name = s.name || 'بدون اسم';
+                existing.ledger = parseFloat(s.currentBalance) || 0;
+                existing.creditLimit = parseFloat(s.creditLimit) || 0;
             } else {
                 VENDORS.push({
                     id: s.id, name: s.name || 'بدون اسم', phone: s.phone || '', code: s.code || '',
                     ledger: parseFloat(s.currentBalance) || 0, checks: 0,
-                    creditLimit: s.creditLimit || 0
+                    creditLimit: parseFloat(s.creditLimit) || 0
                 });
             }
         });
@@ -887,7 +944,6 @@ async function renderCustomerDropdown(filter = '') {
                 const normPhone = String(c.phone || '');
                 const normCode = String(c.code || '').toLowerCase();
                 
-                // Smart Filter: Every word typed must be present in EITHER name, phone, or code
                 return searchWords.every(word => 
                     normName.includes(word) || 
                     normPhone.includes(word) || 
@@ -896,7 +952,7 @@ async function renderCustomerDropdown(filter = '') {
             });
         }
 
-        const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values()).slice(0, 50);
+        const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values()).slice(0, 100);
 
         listEl.innerHTML = '';
         if (finalMatches.length === 0) {
@@ -907,14 +963,43 @@ async function renderCustomerDropdown(filter = '') {
         finalMatches.forEach(c => {
             const item = document.createElement('div');
             item.className = 'custom-dropdown-item';
+            item.setAttribute('data-id', c.id);
+            item.setAttribute('data-name', c.name);
+            item.style.padding = '10px 14px';
+            item.style.cursor = 'pointer';
+            item.style.borderBottom = '1px solid rgba(255, 255, 255, 0.05)';
+            item.style.transition = 'background 0.2s';
+            
+            item.onmouseenter = () => item.style.background = 'rgba(251, 191, 36, 0.15)';
+            item.onmouseleave = () => item.style.background = 'transparent';
             
             const nameH = window.highlightSearchMatches ? window.highlightSearchMatches(c.name, filter) : c.name;
             const phoneH = c.phone ? (window.highlightSearchMatches ? window.highlightSearchMatches(String(c.phone), filter) : c.phone) : '';
             const codeH = c.code ? (window.highlightSearchMatches ? window.highlightSearchMatches(String(c.code), filter) : c.code) : '';
 
-            item.innerHTML = `<div style="display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: right; dir: rtl;"><div style="display: inline-flex; align-items: center; gap: 6px; flex-wrap: wrap;"><span style="font-weight: bold; color: #fff;">${nameH}</span>${phoneH ? `<span style="font-size:0.8rem; color:#94a3b8;">(${phoneH})</span>` : ''}${codeH ? `<span style="font-size:0.8rem; color:#64748b;">[${codeH}]</span>` : ''}</div></div>`;
-            item.onmousedown = () => selectCustomer(c.id, c.name); 
-            item.onpointerdown = () => selectCustomer(c.id, c.name);
+            item.innerHTML = `
+                <div style="display: flex; justify-content: space-between; align-items: center; width: 100%; text-align: right; dir: rtl; pointer-events: none;">
+                    <div style="display: inline-flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+                        <span style="font-weight: bold; color: #fff; font-size: 1.05rem;">👤 ${nameH}</span>
+                        ${phoneH ? `<span style="font-size:0.8rem; color:#94a3b8; font-family: monospace;">(${phoneH})</span>` : ''}
+                        ${codeH ? `<span style="font-size:0.75rem; color:#38bdf8; background: rgba(56,189,248,0.1); padding: 1px 6px; border-radius: 4px; font-family: monospace;">[${codeH}]</span>` : ''}
+                    </div>
+                    <span style="font-size:0.75rem; background:rgba(244,114,182,0.15); color:#f472b6; padding: 3px 10px; border-radius: 12px; font-weight: bold;">مورد</span>
+                </div>
+            `;
+
+            const triggerSelect = (e) => {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                selectCustomer(c.id, c.name);
+            };
+
+            item.addEventListener('mousedown', triggerSelect);
+            item.addEventListener('touchstart', triggerSelect, { passive: false });
+            item.addEventListener('click', triggerSelect);
+
             listEl.appendChild(item);
         });
     } catch (e) {
@@ -924,10 +1009,17 @@ async function renderCustomerDropdown(filter = '') {
 }
 
 function showCustomerDropdown() {
-    renderCustomerDropdown(document.getElementById('hdr-customer-search').value);
+    if (hideDropdownTimeout) {
+        clearTimeout(hideDropdownTimeout);
+        hideDropdownTimeout = null;
+    }
+    const searchInp = document.getElementById('hdr-customer-search');
+    const filterVal = searchInp ? searchInp.value : '';
+    renderCustomerDropdown(filterVal);
     const listEl = document.getElementById('customer-dropdown-list');
     if (listEl) {
         listEl.classList.add('show');
+        listEl.style.display = 'flex';
         const wrap = listEl.closest('.custom-dropdown-input-wrap') || listEl.closest('.custom-dropdown') || listEl.closest('.h-form-group');
         if (wrap) {
             wrap.style.zIndex = '9999999';
@@ -936,10 +1028,10 @@ function showCustomerDropdown() {
     }
 }
 
-let hideDropdownTimeout;
+let hideDropdownTimeout = null;
 
 function hideCustomerDropdownDelayed() {
-    clearTimeout(hideDropdownTimeout);
+    if (hideDropdownTimeout) clearTimeout(hideDropdownTimeout);
     hideDropdownTimeout = setTimeout(() => {
         // If the user is still focused on the search input, do NOT close the dropdown
         if (document.activeElement && document.activeElement.id === 'hdr-customer-search') {
@@ -947,47 +1039,75 @@ function hideCustomerDropdownDelayed() {
         }
 
         const listEl = document.getElementById('customer-dropdown-list');
-        if(listEl) {
+        if (listEl) {
             listEl.classList.remove('show');
+            listEl.style.display = 'none';
             const wrap = listEl.closest('.custom-dropdown-input-wrap') || listEl.closest('.custom-dropdown') || listEl.closest('.h-form-group');
             if (wrap) {
                 wrap.style.zIndex = '';
             }
         }
         
-        const idVal = document.getElementById('hdr-customer').value;
-        const searchVal = document.getElementById('hdr-customer-search').value.trim();
+        const idVal = document.getElementById('hdr-customer') ? document.getElementById('hdr-customer').value : '';
+        const searchVal = document.getElementById('hdr-customer-search') ? document.getElementById('hdr-customer-search').value.trim() : '';
         if (idVal) {
             const cust = VENDORS.find(c => String(c.id) === String(idVal));
-            if (cust && cust.name !== searchVal) {
+            if (cust && cust.name) {
                 document.getElementById('hdr-customer-search').value = cust.name;
             }
         } else if (searchVal) {
-            const exactMatch = VENDORS.find(c => c.name === searchVal);
+            const exactMatch = VENDORS.find(c => c.name === searchVal || (c.name && c.name.trim().toLowerCase() === searchVal.toLowerCase()));
             if (exactMatch) {
                 selectCustomer(exactMatch.id, exactMatch.name);
             }
-        } else {
-            document.getElementById('hdr-customer-search').value = '';
         }
-    }, 250);
+    }, 200);
 }
 
 function filterCustomerDropdown() {
     document.getElementById('hdr-customer').value = '';
     updateLedgerButton();
-    onCustomerChange();
+    try { onCustomerChange(); } catch(e){}
     renderCustomerDropdown(document.getElementById('hdr-customer-search').value);
-    document.getElementById('customer-dropdown-list').classList.add('show');
+    const listEl = document.getElementById('customer-dropdown-list');
+    if (listEl) {
+        listEl.classList.add('show');
+        listEl.style.display = 'flex';
+    }
 }
 
 function selectCustomer(id, name) {
-    document.getElementById('hdr-customer').value = id;
-    document.getElementById('hdr-customer-search').value = name;
-    document.getElementById('customer-dropdown-list').classList.remove('show');
+    if (hideDropdownTimeout) {
+        clearTimeout(hideDropdownTimeout);
+        hideDropdownTimeout = null;
+    }
+    const hiddenInp = document.getElementById('hdr-customer');
+    const searchInp = document.getElementById('hdr-customer-search');
+    const listEl = document.getElementById('customer-dropdown-list');
+    
+    if (hiddenInp) hiddenInp.value = id || '';
+    if (searchInp) searchInp.value = name || '';
+    
+    if (listEl) {
+        listEl.classList.remove('show');
+        listEl.style.display = 'none';
+        const wrap = listEl.closest('.custom-dropdown-input-wrap') || listEl.closest('.custom-dropdown') || listEl.closest('.h-form-group');
+        if (wrap) {
+            wrap.style.zIndex = '';
+        }
+    }
+    
     updateLedgerButton();
-    onCustomerChange();
+    try {
+        onCustomerChange();
+    } catch(e) {
+        console.warn('onCustomerChange error:', e);
+    }
 }
+window.selectCustomer = selectCustomer;
+window.showCustomerDropdown = showCustomerDropdown;
+window.hideCustomerDropdownDelayed = hideCustomerDropdownDelayed;
+window.filterCustomerDropdown = filterCustomerDropdown;
 
 function updateLedgerButton() {
     const custVal = document.getElementById('hdr-customer') ? document.getElementById('hdr-customer').value : '';
@@ -1578,16 +1698,16 @@ function renderGridHead() {
 
     thead.innerHTML = `
         <tr>
-            <th data-col-id="col_index" style="width: 40px; text-align: center; font-size: 1.05rem;">م</th>
-            <th data-col-id="available" style="width: 130px; text-align: center; font-size: 1.25rem; font-weight: bold;" title="الكمية المتوفرة بالمخزن تلقائياً">المتاح</th>
+            <th data-col-id="col_index" style="width: 45px; text-align: center; font-size: 1.1rem; font-weight: bold;">العدد</th>
+            <th data-col-id="available" style="width: 120px; text-align: center; font-size: 1.25rem; font-weight: bold;" title="الكمية المتوفرة بالمخزن تلقائياً">المتاح</th>
             <th data-col-id="item" style="width: 25%; text-align: right; font-size: 1.25rem; font-weight: bold;">الصنف</th>
             <th data-col-id="unit" style="width: 110px; text-align: center; font-size: 1.25rem; font-weight: bold;">الوحدة</th>
-            <th data-col-id="quantity" style="width: 100px; text-align: center; font-size: 1.25rem; font-weight: bold;">الكمية</th>
+            <th data-col-id="quantity" style="width: 105px; text-align: center; font-size: 1.25rem; font-weight: bold;">الكمية</th>
             <th data-col-id="price" style="width: 140px; text-align: center; font-size: 1.25rem; font-weight: bold;">${priceHeader}</th>
             ${!isBaseSDG ? `<th data-col-id="fcprice" style="width: 120px; text-align: center; font-size: 1.05rem;">سعر (جنيه)</th>` : ''}
-            <th style="width: 140px; text-align: center; font-size: 1.05rem;">المخزن</th>
             <th data-col-id="total" style="width: 160px; text-align: center; font-size: 1.25rem; font-weight: bold;">${totalHeader}</th>
             ${!isBaseSDG ? `<th data-col-id="fctotal" style="width: 120px; text-align: center; font-size: 1.05rem;">جملة (جنيه)</th>` : ''}
+            <th style="width: 140px; text-align: center; font-size: 1.1rem; font-weight: bold;">المخزن</th>
             <th style="width: 90px; text-align: center; font-size: 1.05rem;">إجراء</th>
         </tr>
     `;
@@ -1767,7 +1887,7 @@ function renderGrid() {
                 </div>
             </td>
             <td style="text-align: center;">
-                <select class="g-select" style="width: 100%; font-size: 1.4rem; font-weight: bold;" onchange="updateRow(${row.id},'selectedUnit',this.value); renderGrid();" tabindex="-1">
+                <select class="g-select" data-unit-select="${row.id}" style="width: 100%; font-size: 1.4rem; font-weight: bold;" onchange="updateRow(${row.id},'selectedUnit',this.value); renderGrid();">
                     ${itemUnitsHtml}
                 </select>
             </td>
@@ -1791,12 +1911,6 @@ function renderGrid() {
             </td>
             ` : ''}
             <td style="text-align: center;">
-                <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1" style="text-align: center; width: 100%; font-size: 1.05rem;">
-                    <option value="">نفس الفاتورة ↩</option>
-                    ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
-                </select>
-            </td>
-            <td style="text-align: center;">
                 <span class="g-readonly total-val" data-total="${row.id}" style="font-size: 1.6rem; font-weight: bold; color: #34d399;">${fmtNum(calcs.total, 'total')}</span>
             </td>
             ${!isBaseSDG ? `
@@ -1804,6 +1918,12 @@ function renderGrid() {
                 <span class="g-readonly total-fc-val" style="color:#10b981; font-size: 1.1rem; font-weight: bold;" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)) * (row.quantity || 0), 'fctotal')}</span>
             </td>
             ` : ''}
+            <td style="text-align: center;">
+                <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1" style="text-align: center; width: 100%; font-size: 1.05rem;">
+                    <option value="">نفس الفاتورة ↩</option>
+                    ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
+                </select>
+            </td>
             <td style="text-align: center;">
                 <div style="display: flex; gap: 5px; justify-content: center; align-items: center;">
                     <button type="button" class="add-row-btn" onclick="addRow()" title="إضافة سطر جديد" style="background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.35)); border: 1px solid rgba(16,185,129,0.5); color: #34d399; border-radius: 6px; padding: 6px 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
@@ -3691,30 +3811,80 @@ window.clearPriceHold = function() {
 //  MULTI-PAYMENT (HYBRID) SYSTEM FOR PURCHASES
 // ════════════════════════════════════════
 
+const DEFAULT_ERP_SAFES = [
+    { id: 'safe-001', code: 'SAFE-01', name: 'الخزينة الرئيسية (نقدية المركز)', type: 'safe', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+    { id: 'safe-002', code: 'SAFE-02', name: 'خزينة مبيعات الصالة (كاش)', type: 'safe', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+    { id: 'safe-003', code: 'SAFE-03', name: 'صندوق العهد والمصروفات النثرية', type: 'safe', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+    { id: 'safe-004', code: 'SAFE-04', name: 'خزينة فرع بحري', type: 'safe', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' }
+];
+
+const DEFAULT_ERP_BANKS = [
+    { id: 'bank-001', code: 'BNK-01', name: 'بنك الخرطوم (بنكك - Bankak)', accountNumber: '1234567', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+    { id: 'bank-002', code: 'BNK-02', name: 'بنك فيصل الإسلامي (فوري - Fawry)', accountNumber: '2345678', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+    { id: 'bank-003', code: 'BNK-03', name: 'بنك أمدرمان الوطني (أوكاش - O-Cash)', accountNumber: '3456789', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+    { id: 'bank-004', code: 'BNK-04', name: 'بنك النيل (سريع)', accountNumber: '4567890', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+    { id: 'bank-005', code: 'BNK-05', name: 'بنك العمال الوطني', accountNumber: '5678901', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+    { id: 'bank-006', code: 'BNK-06', name: 'بنك البركة السوداني', accountNumber: '6789012', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' }
+];
+
+function getAvailableSafes() {
+    try {
+        const getTKey = window.getTenantKey || ((k) => k);
+        let safes = JSON.parse(localStorage.getItem(getTKey('erp_safes_v1')) || localStorage.getItem('erp_safes_v1') || '[]');
+        safes = (Array.isArray(safes) ? safes : []).filter(s => s && !s.deleted);
+        if (safes.length > 0) return safes;
+    } catch(e) {}
+    return DEFAULT_ERP_SAFES;
+}
+
+function getAvailableBanks() {
+    try {
+        const getTKey = window.getTenantKey || ((k) => k);
+        let banks = JSON.parse(localStorage.getItem(getTKey('erp_banks_v1')) || localStorage.getItem('erp_banks_v1') || '[]');
+        banks = (Array.isArray(banks) ? banks : []).filter(b => b && !b.deleted);
+        if (banks.length > 0) return banks;
+    } catch(e) {}
+    return DEFAULT_ERP_BANKS;
+}
+
 function populatePaymentAccounts() {
     const select = document.getElementById('hdr-payment-account');
     if (!select) return;
+    const currentVal = select.value;
     select.innerHTML = '';
     
-    let banks = [];
-    let safes = [];
-    try {
-        banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
-        safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
-    } catch(e) {}
+    const safes = getAvailableSafes();
+    const banks = getAvailableBanks();
     
-    safes.forEach(s => {
-        const o = document.createElement('option');
-        o.value = s.id || s.code; 
-        o.textContent = `💰 ${s.name}`;
-        select.appendChild(o);
-    });
-    banks.forEach(b => {
-        const o = document.createElement('option');
-        o.value = b.id || b.code; 
-        o.textContent = `🏦 ${b.name}`;
-        select.appendChild(o);
-    });
+    if (safes.length > 0) {
+        const optGroupSafes = document.createElement('optgroup');
+        optGroupSafes.label = '💰 الخزن والصناديق النقدية';
+        safes.forEach(s => {
+            const o = document.createElement('option');
+            o.value = s.id || s.code; 
+            o.textContent = `💰 ${s.name}`;
+            optGroupSafes.appendChild(o);
+        });
+        select.appendChild(optGroupSafes);
+    }
+    
+    if (banks.length > 0) {
+        const optGroupBanks = document.createElement('optgroup');
+        optGroupBanks.label = '🏦 الحسابات البنكية';
+        banks.forEach(b => {
+            const o = document.createElement('option');
+            o.value = b.id || b.code; 
+            o.textContent = `🏦 ${b.name}`;
+            optGroupBanks.appendChild(o);
+        });
+        select.appendChild(optGroupBanks);
+    }
+    
+    if (currentVal && Array.from(select.options).some(o => o.value === currentVal)) {
+        select.value = currentVal;
+    } else if (safes.length > 0) {
+        select.value = safes[0].id || safes[0].code;
+    }
 }
 
 function initMultiPaymentSystem() {
@@ -3833,27 +4003,28 @@ function addBankTransferRow(existingData = null) {
     const rowId = 'bt-row-' + Date.now() + '-' + Math.random().toString(36).substring(2,5);
     const today = new Date().toISOString().split('T')[0];
     
-    let banksHtml = '<option value="" disabled selected>اسم البنك</option>';
-    try {
-        const banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
-        banks.forEach(b => {
-            const selected = (existingData && existingData.bankAccountId === (b.id || b.code)) ? 'selected' : '';
-            banksHtml += `<option value="${b.id || b.code}" ${selected}>${b.name}</option>`;
-        });
-    } catch(e) {}
+    const banks = getAvailableBanks();
+    let banksHtml = '';
+    banks.forEach(b => {
+        const selected = (existingData && (existingData.bankAccountId === (b.id || b.code) || existingData.bankName === b.name)) ? 'selected' : '';
+        banksHtml += `<option value="${b.id || b.code}" ${selected}>🏦 ${b.name}</option>`;
+    });
+    if (!banksHtml) {
+        banksHtml = '<option value="">-- لا توجد بنوك --</option>';
+    }
     
     const isFirst = container.children.length === 0;
     
     const labelHtml = isFirst 
-        ? `<div style="display: flex; align-items: center; justify-content: flex-start; color: #fff; font-weight: bold; font-size: 0.95rem; gap: 4px;"><span>🏦</span> بنكي</div>`
+        ? `<div style="display: flex; align-items: center; justify-content: flex-start; color: #67e8f9; font-weight: 900; font-size: 0.95rem; gap: 6px; text-shadow: 0 0 8px rgba(6, 182, 212, 0.4);"><span>🏦</span> بنكي</div>`
         : `<div></div>`;
 
     const actionBtn = isFirst
-        ? `<button type="button" onclick="addBankTransferRow()" style="background: transparent; border: 1.5px solid #06b6d4; color: #06b6d4; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; padding: 0; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(6,182,212,0.1)'" onmouseout="this.style.background='transparent'">+</button>`
-        : `<button type="button" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: transparent; border: 1.5px solid #ef4444; color: #ef4444; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; padding: 0; padding-bottom: 2px; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.background='transparent'">×</button>`;
+        ? `<button type="button" onclick="addBankTransferRow()" style="background: rgba(6,182,212,0.15); border: 1.5px solid #06b6d4; color: #06b6d4; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; padding: 0; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(6,182,212,0.3)'" onmouseout="this.style.background='rgba(6,182,212,0.15)'" title="إضافة تحويل بنكي">+</button>`
+        : `<button type="button" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: rgba(239,68,68,0.15); border: 1.5px solid #ef4444; color: #ef4444; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; padding: 0; padding-bottom: 2px; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.3)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'" title="حذف">×</button>`;
 
-    const inputStyle = "background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 6px; text-align: center; font-size: 2.25rem; font-weight: 800; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; transition: all 0.3s ease;";
-    const amountStyle = "background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(14, 165, 233, 0.3); border-radius: 6px; text-align: center; font-size: 2.25rem; font-weight: 800; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; transition: all 0.3s ease;";
+    const inputStyle = "background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(6, 182, 212, 0.4); border-radius: 8px; text-align: center; font-size: 1.05rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%; transition: all 0.3s ease;";
+    const amountStyle = "background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(6, 182, 212, 0.5); border-radius: 8px; text-align: center; font-size: 2.25rem; font-weight: 800; color: #fff; height: 60px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; transition: all 0.3s ease;";
 
     const rowHtml = `
         <div class="payment-row-item" id="${rowId}" style="display: grid; grid-template-columns: 85px 1.5fr 1.2fr 1.2fr 2fr 30px; gap: 8px; align-items: center; width: 100%; margin-bottom: 6px;">
@@ -3862,7 +4033,7 @@ function addBankTransferRow(existingData = null) {
             <select class="v-input ctrl-input bt-bank-select" style="${inputStyle}">
                 ${banksHtml}
             </select>
-            <input type="text" maxlength="14" class="v-input ctrl-input bt-ref-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || existingData?.reference || ''}" placeholder="رقم التحويلة" style="${inputStyle}">
+            <input type="text" maxlength="20" class="v-input ctrl-input bt-ref-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || existingData?.reference || ''}" placeholder="رقم التحويلة" style="${inputStyle}">
             <input type="text" class="v-input ctrl-input bt-note-input" value="${existingData?.notes || ''}" placeholder="بيان التحويل" style="${inputStyle}">
             <div style="display: flex; justify-content: center; align-items: center; width: 100%;">
                 ${actionBtn}
@@ -3870,6 +4041,15 @@ function addBankTransferRow(existingData = null) {
         </div>
     `;
     container.insertAdjacentHTML('beforeend', rowHtml);
+
+    const newRow = document.getElementById(rowId);
+    if (newRow) {
+        const bankSelect = newRow.querySelector('.bt-bank-select');
+        if (bankSelect && !existingData && banks.length > 0) {
+            bankSelect.value = banks[0].id || banks[0].code;
+        }
+    }
+
     if (!existingData) {
         onPaymentAmountInput();
     }
@@ -3882,27 +4062,28 @@ function addChequeRow(existingData = null) {
     const rowId = 'ch-row-' + Date.now() + '-' + Math.random().toString(36).substring(2,5);
     const today = new Date().toISOString().split('T')[0];
     
-    let banksHtml = '<option value="" disabled selected>اسم البنك</option>';
-    try {
-        const banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
-        banks.forEach(b => {
-            const selected = (existingData && existingData.bankAccountId === (b.id || b.code)) ? 'selected' : '';
-            banksHtml += `<option value="${b.id || b.code}" ${selected}>${b.name}</option>`;
-        });
-    } catch(e) {}
+    const banks = getAvailableBanks();
+    let banksHtml = '';
+    banks.forEach(b => {
+        const selected = (existingData && (existingData.bankAccountId === (b.id || b.code) || existingData.bankName === b.name)) ? 'selected' : '';
+        banksHtml += `<option value="${b.id || b.code}" ${selected}>🏦 ${b.name}</option>`;
+    });
+    if (!banksHtml) {
+        banksHtml = '<option value="">-- لا توجد بنوك --</option>';
+    }
 
     const isFirst = container.children.length === 0;
 
     const labelHtml = isFirst 
-        ? `<div style="display: flex; align-items: center; justify-content: flex-start; color: #fff; font-weight: bold; font-size: 0.95rem; gap: 4px;"><span>✍️</span> شيك</div>`
+        ? `<div style="display: flex; align-items: center; justify-content: flex-start; color: #d8b4fe; font-weight: 900; font-size: 0.95rem; gap: 6px; text-shadow: 0 0 8px rgba(168, 85, 247, 0.4);"><span>✍️</span> شيك</div>`
         : `<div></div>`;
 
     const actionBtn = isFirst
-        ? `<button type="button" onclick="addChequeRow()" style="background: transparent; border: 1.5px solid #a855f7; color: #a855f7; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; padding: 0; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(168,85,247,0.1)'" onmouseout="this.style.background='transparent'">+</button>`
-        : `<button type="button" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: transparent; border: 1.5px solid #ef4444; color: #ef4444; border-radius: 50%; width: 22px; height: 22px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1rem; padding: 0; padding-bottom: 2px; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.1)'" onmouseout="this.style.background='transparent'">×</button>`;
+        ? `<button type="button" onclick="addChequeRow()" style="background: rgba(168,85,247,0.15); border: 1.5px solid #a855f7; color: #a855f7; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; padding: 0; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(168,85,247,0.3)'" onmouseout="this.style.background='rgba(168,85,247,0.15)'" title="إضافة شيك">+</button>`
+        : `<button type="button" onclick="document.getElementById('${rowId}').remove(); onPaymentAmountInput();" style="background: rgba(239,68,68,0.15); border: 1.5px solid #ef4444; color: #ef4444; border-radius: 50%; width: 26px; height: 26px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem; padding: 0; padding-bottom: 2px; outline: none; transition: 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.3)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'" title="حذف">×</button>`;
 
-    const inputStyle = "background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 6px; text-align: center; font-size: 2.25rem; font-weight: 800; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; transition: all 0.3s ease;";
-    const amountStyle = "background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 6px; text-align: center; font-size: 2.25rem; font-weight: 800; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; transition: all 0.3s ease;";
+    const inputStyle = "background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(168, 85, 247, 0.4); border-radius: 8px; text-align: center; font-size: 1.05rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%; transition: all 0.3s ease;";
+    const amountStyle = "background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(168, 85, 247, 0.5); border-radius: 8px; text-align: center; font-size: 2.25rem; font-weight: 800; color: #fff; height: 60px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; transition: all 0.3s ease;";
 
     const rowHtml = `
         <div class="payment-row-item" id="${rowId}" style="display: grid; grid-template-columns: 85px 1.5fr 1.2fr 1.2fr 1fr 1fr 30px; gap: 8px; align-items: center; width: 100%; margin-bottom: 6px;">
@@ -3911,7 +4092,7 @@ function addChequeRow(existingData = null) {
             <select class="v-input ctrl-input ch-bank-select" style="${inputStyle}">
                 ${banksHtml}
             </select>
-            <input type="text" maxlength="14" class="v-input ctrl-input ch-no-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || ''}" placeholder="رقم الشيك" style="${inputStyle}">
+            <input type="text" maxlength="20" class="v-input ctrl-input ch-no-input dynamic-focus-input dynamic-focus-number" value="${existingData?.chequeNo || ''}" placeholder="رقم الشيك" style="${inputStyle}">
             <input type="date" class="v-input ctrl-input ch-date-input" value="${existingData?.dueDate || today}" placeholder="mm/dd/yyyy" style="${inputStyle}">
             <input type="text" class="v-input ctrl-input bt-note-input" value="${existingData?.notes || ''}" placeholder="بيان الشيك" style="${inputStyle}">
             <div style="display: flex; justify-content: center; align-items: center; width: 100%;">
@@ -3920,6 +4101,15 @@ function addChequeRow(existingData = null) {
         </div>
     `;
     container.insertAdjacentHTML('beforeend', rowHtml);
+
+    const newRow = document.getElementById(rowId);
+    if (newRow) {
+        const bankSelect = newRow.querySelector('.ch-bank-select');
+        if (bankSelect && !existingData && banks.length > 0) {
+            bankSelect.value = banks[0].id || banks[0].code;
+        }
+    }
+
     if (!existingData) {
         onPaymentAmountInput();
     }
@@ -4491,3 +4681,4 @@ document.addEventListener('focus', function(event) {
         }
     }
 }, true);
+

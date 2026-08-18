@@ -2033,6 +2033,18 @@ function buildAccountsArray() {
         const tKey = getTenantKey(store.key);
         let data = JSON.parse(localStorage.getItem(tKey) || localStorage.getItem(store.key) || '[]');
         if (!Array.isArray(data)) data = Object.values(data);
+        if (store.key === 'erp_suppliers_v1' && (!data || data.length === 0)) {
+            data = [
+        { id: 'SUP-001', code: 'SUP-001', name: 'شركة مصنع الأسعد للحديد والصلب', phone: '0123456789', currentBalance: 0, creditLimit: 50000000 },
+        { id: 'SUP-002', code: 'SUP-002', name: 'شركة أوميغا للصناعات والصلب', phone: '0912345678', currentBalance: 0, creditLimit: 30000000 },
+        { id: 'SUP-003', code: 'SUP-003', name: 'شركة أسمنت عطبرة المحدودة', phone: '0112345678', currentBalance: 0, creditLimit: 20000000 },
+        { id: 'SUP-004', code: 'SUP-004', name: 'مجمع جياد الصناعي', phone: '0901234567', currentBalance: 0, creditLimit: 100000000 },
+        { id: 'SUP-005', code: 'SUP-005', name: 'مؤسسة الهدى للتجارة والتوريدات', phone: '0123987654', currentBalance: 0, creditLimit: 15000000 },
+        { id: 'SUP-006', code: 'SUP-006', name: 'شركة أسمنت بربر المحدودة', phone: '0912987654', currentBalance: 0, creditLimit: 25000000 },
+        { id: 'SUP-007', code: 'SUP-007', name: 'مصنع الراجحي للحديد والصلب', phone: '0123112233', currentBalance: 0, creditLimit: 40000000 }
+    ];
+            try { localStorage.setItem(tKey, JSON.stringify(data)); localStorage.setItem(store.key, JSON.stringify(data)); } catch(e){}
+        }
         
         data.forEach(item => {
             if (item.deleted) return;

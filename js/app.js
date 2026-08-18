@@ -870,6 +870,104 @@ JSON.parse = function(val) {
         }
         }
 
+        // ═════════════════════════════════════════════════════════════════════
+        //  ENSURE DEFAULT SUPPLIERS ARE SEEDED IF MISSING
+        // ═════════════════════════════════════════════════════════════════════
+        try {
+            const suppTenantKey = window.getTenantKey('erp_suppliers_v1');
+            let currentSuppsRaw = window.DB_STORE[suppTenantKey] || localGetItem(suppTenantKey) || localGetItem('erp_suppliers_v1');
+            let parsedSupps = [];
+            try { parsedSupps = JSON.parse(currentSuppsRaw || '[]'); } catch(e) { parsedSupps = []; }
+            if (!Array.isArray(parsedSupps)) parsedSupps = [];
+            parsedSupps = parsedSupps.filter(s => s && !s.deleted);
+
+            if (parsedSupps.length === 0) {
+                const defaultSuppliers = [
+                    { id: 'SUP-001', code: 'SUP-001', name: 'شركة مصنع الأسعد للحديد والصلب', phone: '0123456789', whatsapp: '0123456789', email: 'alasaad@steel.sd', address: 'المنطقة الصناعية - الخرطوم بحري', currency: 'SDG', currentBalance: 0, creditLimit: 50000000, securityLevel: 1, status: 'active', notes: 'المورد الرئيسي لقضبان التسليح' },
+                    { id: 'SUP-002', code: 'SUP-002', name: 'شركة أوميغا للصناعات والصلب', phone: '0912345678', whatsapp: '0912345678', email: 'omega@steel.sd', address: 'سوبا الصناعية', currency: 'SDG', currentBalance: 0, creditLimit: 30000000, securityLevel: 1, status: 'active', notes: 'توريد زوايا ومواسير وحديد مبوم' },
+                    { id: 'SUP-003', code: 'SUP-003', name: 'شركة أسمنت عطبرة المحدودة', phone: '0112345678', whatsapp: '0112345678', email: 'atbara@cement.sd', address: 'عطبرة - ولاية نهر النيل', currency: 'SDG', currentBalance: 0, creditLimit: 20000000, securityLevel: 1, status: 'active', notes: 'توريد أسمنت بورتلاندي عادي ومقاوم' },
+                    { id: 'SUP-004', code: 'SUP-004', name: 'مجمع جياد الصناعي', phone: '0901234567', whatsapp: '0901234567', email: 'giad@giad.com', address: 'مدينة جياد الصناعية', currency: 'SDG', currentBalance: 0, creditLimit: 100000000, securityLevel: 1, status: 'active', notes: 'توريد الصاج والألواح والمواسير المجلفنة' },
+                    { id: 'SUP-005', code: 'SUP-005', name: 'مؤسسة الهدى للتجارة والتوريدات', phone: '0123987654', whatsapp: '0123987654', email: 'alhuda@supply.sd', address: 'السجانة - السوق المركزي', currency: 'SDG', currentBalance: 0, creditLimit: 15000000, securityLevel: 1, status: 'active', notes: 'مستلزمات البناء والتشييد' },
+                    { id: 'SUP-006', code: 'SUP-006', name: 'شركة أسمنت بربر المحدودة', phone: '0912987654', whatsapp: '0912987654', email: 'berber@cement.sd', address: 'بربر - ولاية نهر النيل', currency: 'SDG', currentBalance: 0, creditLimit: 25000000, securityLevel: 1, status: 'active', notes: 'توريد أسمنت صخر السودان' },
+                    { id: 'SUP-007', code: 'SUP-007', name: 'مصنع الراجحي للحديد والصلب', phone: '0123112233', whatsapp: '0123112233', email: 'alrajhi@steel.sd', address: 'المنطقة الحرة - قري', currency: 'SDG', currentBalance: 0, creditLimit: 40000000, securityLevel: 1, status: 'active', notes: 'حديد تسليح عالي المقاومة' }
+                ];
+                const suppStr = JSON.stringify(defaultSuppliers);
+                window.DB_STORE[suppTenantKey] = suppStr;
+                window.DB_STORE['erp_suppliers_v1'] = suppStr;
+                localSetItem(suppTenantKey, suppStr);
+                localSetItem('erp_suppliers_v1', suppStr);
+                if (typeof localforage !== 'undefined') {
+                    localforage.setItem(suppTenantKey, suppStr).catch(e => {});
+                    localforage.setItem('erp_suppliers_v1', suppStr).catch(e => {});
+                }
+            }
+        } catch(suppErr) {
+            console.warn('Auto-seed suppliers failed:', suppErr);
+        }
+
+        // ═════════════════════════════════════════════════════════════════════
+        //  ENSURE DEFAULT SAFES & BANKS ARE SEEDED IF MISSING
+        // ═════════════════════════════════════════════════════════════════════
+        try {
+            const safesTenantKey = window.getTenantKey('erp_safes_v1');
+            let currentSafesRaw = window.DB_STORE[safesTenantKey] || localGetItem(safesTenantKey) || localGetItem('erp_safes_v1');
+            let parsedSafes = [];
+            try { parsedSafes = JSON.parse(currentSafesRaw || '[]'); } catch(e) { parsedSafes = []; }
+            if (!Array.isArray(parsedSafes)) parsedSafes = [];
+            parsedSafes = parsedSafes.filter(s => s && !s.deleted);
+
+            if (parsedSafes.length === 0) {
+                const defaultSafes = [
+                    { id: 'safe-001', code: 'SAFE-01', name: 'الخزينة الرئيسية (نقدية المركز)', type: 'safe', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+                    { id: 'safe-002', code: 'SAFE-02', name: 'خزينة مبيعات الصالة (كاش)', type: 'safe', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+                    { id: 'safe-003', code: 'SAFE-03', name: 'صندوق العهد والمصروفات النثرية', type: 'safe', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+                    { id: 'safe-004', code: 'SAFE-04', name: 'خزينة فرع بحري', type: 'safe', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' }
+                ];
+                const safesStr = JSON.stringify(defaultSafes);
+                window.DB_STORE[safesTenantKey] = safesStr;
+                window.DB_STORE['erp_safes_v1'] = safesStr;
+                localSetItem(safesTenantKey, safesStr);
+                localSetItem('erp_safes_v1', safesStr);
+                if (typeof localforage !== 'undefined') {
+                    localforage.setItem(safesTenantKey, safesStr).catch(e => {});
+                    localforage.setItem('erp_safes_v1', safesStr).catch(e => {});
+                }
+            }
+        } catch(safesErr) {
+            console.warn('Auto-seed safes failed:', safesErr);
+        }
+
+        try {
+            const banksTenantKey = window.getTenantKey('erp_banks_v1');
+            let currentBanksRaw = window.DB_STORE[banksTenantKey] || localGetItem(banksTenantKey) || localGetItem('erp_banks_v1');
+            let parsedBanks = [];
+            try { parsedBanks = JSON.parse(currentBanksRaw || '[]'); } catch(e) { parsedBanks = []; }
+            if (!Array.isArray(parsedBanks)) parsedBanks = [];
+            parsedBanks = parsedBanks.filter(b => b && !b.deleted);
+
+            if (parsedBanks.length === 0) {
+                const defaultBanks = [
+                    { id: 'bank-001', code: 'BNK-01', name: 'بنك الخرطوم (بنكك - Bankak)', accountNumber: '1234567', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+                    { id: 'bank-002', code: 'BNK-02', name: 'بنك فيصل الإسلامي (فوري - Fawry)', accountNumber: '2345678', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+                    { id: 'bank-003', code: 'BNK-03', name: 'بنك أمدرمان الوطني (أوكاش - O-Cash)', accountNumber: '3456789', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+                    { id: 'bank-004', code: 'BNK-04', name: 'بنك النيل (سريع)', accountNumber: '4567890', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+                    { id: 'bank-005', code: 'BNK-05', name: 'بنك العمال الوطني', accountNumber: '5678901', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' },
+                    { id: 'bank-006', code: 'BNK-06', name: 'بنك البركة السوداني', accountNumber: '6789012', type: 'bank', currency: 'SDG', openingBalance: 0, currentBalance: 0, status: 'active' }
+                ];
+                const banksStr = JSON.stringify(defaultBanks);
+                window.DB_STORE[banksTenantKey] = banksStr;
+                window.DB_STORE['erp_banks_v1'] = banksStr;
+                localSetItem(banksTenantKey, banksStr);
+                localSetItem('erp_banks_v1', banksStr);
+                if (typeof localforage !== 'undefined') {
+                    localforage.setItem(banksTenantKey, banksStr).catch(e => {});
+                    localforage.setItem('erp_banks_v1', banksStr).catch(e => {});
+                }
+            }
+        } catch(banksErr) {
+            console.warn('Auto-seed banks failed:', banksErr);
+        }
+
         window.APP_READY = true;
         document.dispatchEvent(new Event('DBReady'));
     }
