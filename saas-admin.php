@@ -1250,21 +1250,61 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         <!-- TAB: ADS -->
         <div id="tab-ads" class="tab-content">
             <div class="section-inner-tabs" data-group="marketing">
-                <div class="section-inner-tab active" onclick="switchSectionTab('tab-ads', 'marketing', this)">&#x1F4E2; الإعلانات المدفوعة</div>
-                <div class="section-inner-tab" onclick="switchSectionTab('tab-partners', 'marketing', this)">&#x1F91D; الشركاء والعملاء</div>
+                <div class="section-inner-tab active" onclick="switchSectionTab('tab-ads', 'marketing', this)">📢 الإعلانات المدفوعة</div>
+                <div class="section-inner-tab" onclick="switchSectionTab('tab-partners', 'marketing', this)">🤝 الشركاء والعملاء</div>
             </div>
+
+            <!-- Summary KPI Cards for Ads -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 15px; margin-bottom: 20px;">
+                <div class="glass-panel" style="padding: 16px; border-left: 4px solid #38bdf8;">
+                    <div style="color: #94a3b8; font-size: 0.85rem; font-weight: bold; margin-bottom: 6px;">📊 إجمالي الإعلانات</div>
+                    <div id="ads-stat-total" style="font-size: 1.6rem; font-weight: 800; color: #fff;">0</div>
+                </div>
+                <div class="glass-panel" style="padding: 16px; border-left: 4px solid #10b981;">
+                    <div style="color: #94a3b8; font-size: 0.85rem; font-weight: bold; margin-bottom: 6px;">🟢 إعلانات سارية ونشطة</div>
+                    <div id="ads-stat-active" style="font-size: 1.6rem; font-weight: 800; color: #10b981;">0</div>
+                </div>
+                <div class="glass-panel" style="padding: 16px; border-left: 4px solid #f59e0b;">
+                    <div style="color: #94a3b8; font-size: 0.85rem; font-weight: bold; margin-bottom: 6px;">⏳ تنتهي قريباً (أقل من 7 أيام)</div>
+                    <div id="ads-stat-expiring" style="font-size: 1.6rem; font-weight: 800; color: #f59e0b;">0</div>
+                </div>
+                <div class="glass-panel" style="padding: 16px; border-left: 4px solid #ef4444;">
+                    <div style="color: #94a3b8; font-size: 0.85rem; font-weight: bold; margin-bottom: 6px;">🔴 إعلانات منتهية الصلاحية</div>
+                    <div id="ads-stat-expired" style="font-size: 1.6rem; font-weight: 800; color: #ef4444;">0</div>
+                </div>
+            </div>
+
             <div class="glass-panel">
-                <div class="flex-between" style="margin-bottom: 20px;">
-                    <h3>إدارة الإعلانات (الصفحة الرئيسية)</h3>
-                    <button class="btn-primary" onclick="openAdModal()">+ إضافة إعلان جديد</button>
+                <div class="flex-between" style="margin-bottom: 20px; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <h3 style="margin: 0; font-size: 1.3rem;">إدارة الإعلانات وتتبع الصلاحية</h3>
+                        <small style="color: var(--text-secondary);">متابعة وتحديد فترات ظهور إعلانات الشركات في الصفحة الرئيسية للمشتركين</small>
+                    </div>
+                    <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                        <input type="text" id="ads-search-input" placeholder="بحث بالشركة أو الملاحظات..." oninput="renderAds()" style="padding: 8px 14px; border-radius: 8px; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid var(--glass-border); width: 220px; outline: none;">
+                        <select id="ads-filter-status" onchange="renderAds()" style="padding: 8px 12px; border-radius: 8px; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid var(--glass-border); outline: none;">
+                            <option value="all">كل الحالات</option>
+                            <option value="active">🟢 سارية ونشطة فقط</option>
+                            <option value="expiring">⏳ تنتهي قريباً</option>
+                            <option value="expired">🔴 منتهية الصلاحية</option>
+                            <option value="inactive">⏸️ موقوفة يدوياً</option>
+                        </select>
+                        <button class="btn-primary" onclick="openAdModal()" style="display: flex; align-items: center; gap: 6px;">
+                            <i class="fa-solid fa-plus"></i> إضافة إعلان جديد
+                        </button>
+                    </div>
                 </div>
                 <div class="table-responsive">
                     <table>
                         <thead>
                             <tr>
-                                <th>صورة الإعلان</th>
-                                <th>الحالة</th>
-                                <th>إجراءات</th>
+                                <th style="width: 140px;">معاينة الإعلان</th>
+                                <th>الشركة المعلنة والرابط</th>
+                                <th>تاريخ البدء</th>
+                                <th>تاريخ الانتهاء</th>
+                                <th>المدة المتبقية / الحالة</th>
+                                <th style="text-align: center;">العرض</th>
+                                <th style="text-align: center;">إجراءات وتمديد</th>
                             </tr>
                         </thead>
                         <tbody id="ads-body">
@@ -1923,33 +1963,91 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
     
     <!-- Ads Modal -->
     <div id="ad-modal" class="modal-overlay" onclick="if(event.target===this) closeModal('ad-modal')">
-        <div class="glass-panel modal-content">
-            <div class="modal-header"><h3>إضافة إعلان</h3></div>
-            <div class="form-group">
-                <label>صورة الإعلان</label>
-                <div style="font-size: 0.85rem; color: #fbbf24; margin-bottom: 8px; background: rgba(251,191,36,0.1); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(251,191,36,0.2); line-height: 1.6;">
-                    📐 <strong>المقاس القياسي الموحد (نسبة 10 : 1):</strong><br>
-                    • **دقة 4K الفائقة (4K UHD):** <strong>3840 × 384 بكسل</strong><br>
-                    • **دقة Full HD القياسية:** <strong>1920 × 192 بكسل</strong><br>
-                    • **نسبة الأبعاد الموحدة:** <strong>10 : 1 (الارتفاع 1 والعرض 10)</strong><br>
-                    • **الصيغ المدعومة:** <strong>PNG, WEBP, JPG</strong>
-                </div>
-                <input type="file" id="ad-image-upload" accept="image/*" style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; width: 100%; color: #fff;">
-                <div id="ad-image-preview" style="margin-top:10px; max-height:100px; overflow:hidden; display:none; border-radius:8px;">
-                    <img src="" alt="معاينة الإعلان" loading="lazy" style="width:100%; object-fit:cover;">
-                </div>
+        <div class="glass-panel modal-content" style="max-width: 650px; max-height: 90vh; overflow-y: auto;">
+            <div class="modal-header">
+                <h3 id="ad-modal-title" style="margin: 0; display: flex; align-items: center; gap: 8px;">
+                    <i class="fa-solid fa-bullhorn text-amber-400"></i> إضافة إعلان جديد
+                </h3>
             </div>
-            <div class="form-group" style="display:flex; align-items:center; gap:10px; cursor:pointer;">
-                <input type="checkbox" id="ad-active" checked> <label style="margin:0;">تفعيل الإعلان وعرضه للزوار</label>
-            </div>
-            <div class="modal-actions">
-                <button class="btn-primary" style="flex:1;" onclick="saveAd()" id="ad-save-btn">حفظ الإعلان</button>
-            </div>
+            
             <input type="hidden" id="ad-id">
             <input type="hidden" id="ad-existing-image">
-            <div class="form-group">
-                <label>اسم الشركة المعلنة (التفاصيل)</label>
-                <input type="text" id="ad-company" placeholder="مثال: مصنع الأسعد للحديد">
+
+            <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 15px;">
+                <div class="form-group" style="margin: 0;">
+                    <label style="font-weight: 700; color: #cbd5e1; font-size: 0.9rem;">اسم الشركة / الجهة المعلنة <span style="color:#ef4444;">*</span></label>
+                    <input type="text" id="ad-company" placeholder="مثال: مصنع الأسعد للحديد" style="width: 100%; padding: 10px 12px; border-radius: 8px; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid var(--glass-border); outline: none;">
+                </div>
+                <div class="form-group" style="margin: 0;">
+                    <label style="font-weight: 700; color: #cbd5e1; font-size: 0.9rem;">رابط التوجيه عند النقر (اختياري)</label>
+                    <input type="url" id="ad-link" placeholder="https://example.com" style="width: 100%; padding: 10px 12px; border-radius: 8px; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid var(--glass-border); outline: none; direction: ltr; text-align: left;">
+                </div>
+            </div>
+
+            <!-- Ad Duration Management Section -->
+            <div style="background: rgba(0,0,0,0.25); border: 1px solid rgba(255,255,255,0.08); border-radius: 12px; padding: 15px; margin: 15px 0;">
+                <div style="color: var(--primary-accent); font-weight: 800; font-size: 0.95rem; margin-bottom: 12px; display: flex; align-items: center; gap: 6px;">
+                    <i class="fa-solid fa-calendar-days"></i> إدارة مدة وصلاحية الإعلان
+                </div>
+
+                <!-- Quick presets -->
+                <div style="margin-bottom: 12px;">
+                    <label style="color: #94a3b8; font-size: 0.8rem; display: block; margin-bottom: 6px;">اختيار سريع للمدة:</label>
+                    <div style="display: flex; gap: 6px; flex-wrap: wrap;">
+                        <button type="button" class="btn-outline" onclick="setAdDurationPreset(7)" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 6px;">7 أيام</button>
+                        <button type="button" class="btn-outline" onclick="setAdDurationPreset(15)" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 6px;">15 يوم</button>
+                        <button type="button" class="btn-outline" onclick="setAdDurationPreset(30)" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 6px;">30 يوم (شهر)</button>
+                        <button type="button" class="btn-outline" onclick="setAdDurationPreset(60)" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 6px;">60 يوم</button>
+                        <button type="button" class="btn-outline" onclick="setAdDurationPreset(90)" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 6px;">90 يوم (3 أشهر)</button>
+                        <button type="button" class="btn-outline" onclick="setAdDurationPreset(180)" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 6px;">6 أشهر</button>
+                        <button type="button" class="btn-outline" onclick="setAdDurationPreset(365)" style="padding: 4px 10px; font-size: 0.8rem; border-radius: 6px;">سنة كاملة</button>
+                    </div>
+                </div>
+
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px;">
+                    <div class="form-group" style="margin: 0;">
+                        <label style="color: #cbd5e1; font-size: 0.85rem; font-weight: bold;">تاريخ بدء الإعلان</label>
+                        <input type="date" id="ad-start-date" onchange="onAdStartDateChange()" style="width: 100%; padding: 8px 10px; border-radius: 8px; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid var(--glass-border); outline: none;">
+                    </div>
+                    <div class="form-group" style="margin: 0;">
+                        <label style="color: #cbd5e1; font-size: 0.85rem; font-weight: bold;">المدة (بالأيام)</label>
+                        <input type="number" id="ad-duration-days" min="1" value="30" oninput="onAdDurationDaysChange()" style="width: 100%; padding: 8px 10px; border-radius: 8px; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid var(--glass-border); outline: none; text-align: center; font-weight: bold;">
+                    </div>
+                    <div class="form-group" style="margin: 0;">
+                        <label style="color: #cbd5e1; font-size: 0.85rem; font-weight: bold;">تاريخ انتهاء الإعلان</label>
+                        <input type="date" id="ad-end-date" onchange="onAdEndDateChange()" style="width: 100%; padding: 8px 10px; border-radius: 8px; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid var(--glass-border); outline: none;">
+                    </div>
+                </div>
+            </div>
+
+            <!-- Ad Image Section -->
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="font-weight: 700; color: #cbd5e1; font-size: 0.9rem;">صورة الإعلان (البانر)</label>
+                <div style="font-size: 0.8rem; color: #fbbf24; margin-bottom: 8px; background: rgba(251,191,36,0.08); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(251,191,36,0.2); line-height: 1.5;">
+                    📐 <strong>المقاس القياسي الموحد (نسبة 10 : 1):</strong><br>
+                    • **دقة 4K الفائقة:** <strong>3840 × 384 بكسل</strong> &nbsp;|&nbsp; • **Full HD:** <strong>1920 × 192 بكسل</strong> &nbsp;|&nbsp; • **الصيغ:** PNG, WEBP, JPG
+                </div>
+                <input type="file" id="ad-image-upload" accept="image/*" onchange="previewAdImage(this)" style="background: rgba(0,0,0,0.2); padding: 10px; border-radius: 8px; width: 100%; color: #fff; border: 1px dashed rgba(255,255,255,0.2);">
+                <div id="ad-image-preview" style="margin-top: 10px; max-height: 120px; overflow: hidden; display: none; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); background: #000;">
+                    <img src="" alt="معاينة الإعلان" loading="lazy" style="width: 100%; max-height: 120px; object-fit: contain;">
+                </div>
+            </div>
+
+            <div class="form-group" style="margin-bottom: 15px;">
+                <label style="font-weight: 700; color: #cbd5e1; font-size: 0.85rem;">ملاحظات داخلية / تفاصيل التعاقد (اختياري)</label>
+                <textarea id="ad-notes" rows="2" placeholder="اكتب أي ملاحظات إدارية هنا مثل: رقم هاتف المعلن، قيمة الدفعة، شروط خاصة..." style="width: 100%; padding: 8px 12px; border-radius: 8px; background: rgba(0,0,0,0.3); color: #fff; border: 1px solid var(--glass-border); outline: none; resize: vertical;"></textarea>
+            </div>
+
+            <div class="form-group" style="display: flex; align-items: center; gap: 10px; cursor: pointer; margin-bottom: 20px; background: rgba(255,255,255,0.03); padding: 10px 14px; border-radius: 8px;">
+                <input type="checkbox" id="ad-active" checked style="width: 18px; height: 18px; cursor: pointer;"> 
+                <label for="ad-active" style="margin: 0; cursor: pointer; color: #e2e8f0; font-weight: 600;">تفعيل الإعلان وعرضه للمشتركين</label>
+            </div>
+
+            <div class="modal-actions" style="display: flex; gap: 10px;">
+                <button class="btn-primary" style="flex: 2; padding: 12px;" onclick="saveAd()" id="ad-save-btn">
+                    <i class="fa-solid fa-save"></i> حفظ الإعلان
+                </button>
+                <button class="btn-outline" style="flex: 1; padding: 12px;" onclick="closeModal('ad-modal')">إلغاء</button>
             </div>
         </div>
     </div>
@@ -3846,6 +3944,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         // Plans Logic
         function renderPlans() {
             const tbody = document.getElementById('plans-body');
+            if (!tbody) return;
             tbody.innerHTML = '';
             
             if (allPlans.length === 0) {
@@ -4036,6 +4135,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         
         function renderPartners() {
             const tbody = document.getElementById('partners-body');
+            if (!tbody) return;
             tbody.innerHTML = '';
             allPartners.forEach(p => {
                 const statusHtml = (p.active !== false) ? '<span style="color:#10b981;">نشط</span>' : '<span style="color:#ef4444;">غير نشط</span>';
@@ -4509,10 +4609,10 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
 
         async function loadMessages() {
             try {
+                const tbody = document.getElementById('messages-body');
+                if (!tbody) return;
                 const res = await fetch(apiUrl('saas', 'messages'), { headers: { 'Authorization': 'Bearer ' + SAAS_TOKEN } });
                 const data = await res.json();
-                
-                const tbody = document.getElementById('messages-body');
                 tbody.innerHTML = '';
                 
                 if (data.error) {
@@ -4720,39 +4820,232 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         }
     
         // ==========================================
-        // ADS MANAGEMENT
+        // ADS MANAGEMENT & DURATION TRACKING
         // ==========================================
         let allAds = [];
 
         function renderAds() {
             const tbody = document.getElementById('ads-body');
+            if (!tbody) return;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let statTotal = allAds.length;
+            let statActive = 0;
+            let statExpiring = 0;
+            let statExpired = 0;
+
+            allAds.forEach(ad => {
+                const startDate = ad.start_date ? new Date(ad.start_date) : null;
+                const endDate = ad.end_date ? new Date(ad.end_date) : null;
+                const isExpired = endDate && (endDate < today);
+                const diffDays = endDate ? Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)) : null;
+
+                if (isExpired) {
+                    statExpired++;
+                } else if (ad.active) {
+                    if (!startDate || startDate <= today) {
+                        statActive++;
+                        if (diffDays !== null && diffDays <= 7 && diffDays >= 0) {
+                            statExpiring++;
+                        }
+                    }
+                }
+            });
+
+            // Update KPI elements if available
+            const elTotal = document.getElementById('ads-stat-total');
+            const elActive = document.getElementById('ads-stat-active');
+            const elExpiring = document.getElementById('ads-stat-expiring');
+            const elExpired = document.getElementById('ads-stat-expired');
+            if (elTotal) elTotal.innerText = statTotal;
+            if (elActive) elActive.innerText = statActive;
+            if (elExpiring) elExpiring.innerText = statExpiring;
+            if (elExpired) elExpired.innerText = statExpired;
+
+            // Search and Status Filters
+            const searchInput = document.getElementById('ads-search-input');
+            const searchQuery = searchInput ? searchInput.value.trim().toLowerCase() : '';
+            const statusFilter = document.getElementById('ads-filter-status') ? document.getElementById('ads-filter-status').value : 'all';
+
+            const filtered = allAds.filter(ad => {
+                const name = (ad.companyName || '').toLowerCase();
+                const notes = (ad.notes || '').toLowerCase();
+                const link = (ad.link || '').toLowerCase();
+                const matchesSearch = !searchQuery || name.includes(searchQuery) || notes.includes(searchQuery) || link.includes(searchQuery);
+                if (!matchesSearch) return false;
+
+                const startDate = ad.start_date ? new Date(ad.start_date) : null;
+                const endDate = ad.end_date ? new Date(ad.end_date) : null;
+                const isExpired = endDate && (endDate < today);
+                const diffDays = endDate ? Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)) : null;
+
+                if (statusFilter === 'active') {
+                    return ad.active && (!endDate || !isExpired) && (!startDate || startDate <= today);
+                } else if (statusFilter === 'expiring') {
+                    return ad.active && !isExpired && diffDays !== null && diffDays <= 7 && diffDays >= 0;
+                } else if (statusFilter === 'expired') {
+                    return isExpired;
+                } else if (statusFilter === 'inactive') {
+                    return !ad.active;
+                }
+                return true;
+            });
+
             tbody.innerHTML = '';
-            if (allAds.length === 0) {
-                tbody.innerHTML = '<tr><td colspan="3" style="text-align:center;">لا توجد إعلانات</td></tr>';
+            if (filtered.length === 0) {
+                tbody.innerHTML = '<tr><td colspan="7" style="text-align:center; padding: 30px; color: #64748b;"><i class="fa-solid fa-box-open" style="font-size: 2rem; margin-bottom: 8px; opacity: 0.5;"></i><br>لا توجد إعلانات تطابق المعايير المحددة</td></tr>';
                 return;
             }
-            allAds.forEach(ad => {
-                const statusHtml = ad.active ? '<span style="color:#10b981;">نشط</span>' : '<span style="color:#ef4444;">غير نشط</span>';
+
+            filtered.forEach(ad => {
+                const startDate = ad.start_date ? new Date(ad.start_date) : null;
+                const endDate = ad.end_date ? new Date(ad.end_date) : null;
+                const isExpired = endDate && (endDate < today);
+                const diffDays = endDate ? Math.ceil((endDate - today) / (1000 * 60 * 60 * 24)) : null;
+
+                let statusBadge = '';
+                let rowBg = 'transparent';
+
+                if (!ad.active) {
+                    statusBadge = '<span style="background: rgba(148, 163, 184, 0.15); color: #94a3b8; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: bold;"><i class="fa-solid fa-pause"></i> موقوف يدوياً</span>';
+                } else if (startDate && startDate > today) {
+                    const daysToStart = Math.ceil((startDate - today) / (1000 * 60 * 60 * 24));
+                    statusBadge = `<span style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: bold;"><i class="fa-regular fa-clock"></i> يبدأ بعد ${daysToStart} يوم</span>`;
+                } else if (isExpired) {
+                    const daysExpired = Math.abs(diffDays);
+                    rowBg = 'rgba(239, 68, 68, 0.06)';
+                    statusBadge = `<span style="background: rgba(239, 68, 68, 0.15); color: #ef4444; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: bold;"><i class="fa-solid fa-triangle-exclamation"></i> منتهي (منذ ${daysExpired} يوم)</span>`;
+                } else if (diffDays !== null && diffDays <= 7) {
+                    rowBg = 'rgba(245, 158, 11, 0.06)';
+                    statusBadge = `<span style="background: rgba(245, 158, 11, 0.15); color: #f59e0b; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: bold;"><i class="fa-solid fa-hourglass-half"></i> ينتهي قريباً (متبقي ${diffDays} يوم)</span>`;
+                } else if (diffDays !== null) {
+                    statusBadge = `<span style="background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: bold;"><i class="fa-solid fa-circle-check"></i> ساري (متبقي ${diffDays} يوم)</span>`;
+                } else {
+                    statusBadge = '<span style="background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: bold;"><i class="fa-solid fa-infinity"></i> دائم / غير محدد</span>';
+                }
+
+                const startDateStr = ad.start_date || '<span style="color:#64748b;">غير محدد</span>';
+                const endDateStr = ad.end_date || '<span style="color:#64748b;">دائم</span>';
+                const linkHtml = ad.link ? `<a href="${ad.link}" target="_blank" rel="noopener noreferrer" style="color: #38bdf8; font-size: 0.8rem; text-decoration: none; display: flex; align-items: center; gap: 4px; margin-top: 3px;"><i class="fa-solid fa-arrow-up-right-from-square"></i> ${escapeHtml(ad.link)}</a>` : '';
+                const notesHtml = ad.notes ? `<div style="color: #64748b; font-size: 0.75rem; margin-top: 2px;">📝 ${escapeHtml(ad.notes)}</div>` : '';
+
                 tbody.innerHTML += `
-                    <tr>
-                        <td>${ad.image ? `<img src="${ad.image}" alt="${ad.companyName}" loading="lazy" style="max-height: 40px; border-radius: 4px;">` : `<div style="width:40px;height:40px;background:rgba(255,255,255,0.1);border-radius:4px;"></div>`}</td>
-                        <td><strong>${ad.companyName || 'بدون اسم'}</strong></td>
-                        <td>${statusHtml}</td>
-                        <td>
-                            <button class="btn-primary" style="padding:4px 8px; font-size:0.8rem;" onclick="editAd(${ad.id})">تعديل</button>
-                            <button class="btn-danger" style="padding:4px 8px; font-size:0.8rem;" onclick="deleteAd(${ad.id})">حذف</button>
+                    <tr style="background: ${rowBg}; border-bottom: 1px solid rgba(255,255,255,0.03); transition: background 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.04)'" onmouseout="this.style.background='${rowBg}'">
+                        <td style="vertical-align: middle; padding: 12px 10px;">
+                            ${ad.image ? `<a href="${ad.image}" target="_blank" title="عرض الحجم الكامل"><img src="${ad.image}" alt="${escapeHtml(ad.companyName || '')}" loading="lazy" style="max-width: 130px; max-height: 45px; object-fit: contain; border-radius: 6px; border: 1px solid rgba(255,255,255,0.1); background: #000;"></a>` : `<div style="width:100px; height:35px; background:rgba(255,255,255,0.05); border-radius:6px; display:flex; align-items:center; justify-content:center; color:#64748b; font-size:0.75rem;">بدون صورة</div>`}
+                        </td>
+                        <td style="vertical-align: middle; padding: 12px 10px;">
+                            <strong style="color: #fff; font-size: 0.95rem;">${escapeHtml(ad.companyName || 'بدون اسم')}</strong>
+                            ${linkHtml}
+                            ${notesHtml}
+                        </td>
+                        <td style="vertical-align: middle; font-family: monospace; font-size: 0.85rem; color: #cbd5e1; direction: ltr; text-align: right;">
+                            ${startDateStr}
+                        </td>
+                        <td style="vertical-align: middle; font-family: monospace; font-size: 0.85rem; color: ${isExpired ? '#ef4444' : '#cbd5e1'}; font-weight: ${isExpired ? 'bold' : 'normal'}; direction: ltr; text-align: right;">
+                            ${endDateStr}
+                        </td>
+                        <td style="vertical-align: middle; text-align: center;">
+                            ${statusBadge}
+                        </td>
+                        <td style="vertical-align: middle; text-align: center;">
+                            <label style="cursor: pointer; display: inline-flex; align-items: center; position: relative;" title="تفعيل / إيقاف الإعلان">
+                                <input type="checkbox" onchange="toggleAdActive(${ad.id})" ${ad.active ? 'checked' : ''} style="cursor: pointer; width: 18px; height: 18px; accent-color: #10b981;">
+                            </label>
+                        </td>
+                        <td style="vertical-align: middle; text-align: center;">
+                            <div style="display: inline-flex; align-items: center; gap: 6px; flex-wrap: nowrap;">
+                                <button class="btn-outline" onclick="editAd(${ad.id})" title="تعديل بيانات وفترة الإعلان" style="padding: 5px 10px; font-size: 0.8rem; border-color: rgba(255,255,255,0.15);">
+                                    <i class="fa-solid fa-pen-to-square"></i> تعديل
+                                </button>
+                                <button class="btn-outline" onclick="quickExtendAd(${ad.id}, 30)" title="تمديد سريع لمدة 30 يوم" style="padding: 5px 10px; font-size: 0.8rem; border-color: rgba(245,158,11,0.4); color: #f59e0b; background: rgba(245,158,11,0.08);">
+                                    <i class="fa-solid fa-clock-rotate-left"></i> +30 يوم
+                                </button>
+                                <button class="btn-danger" onclick="deleteAd(${ad.id})" title="حذف الإعلان نهائياً" style="padding: 5px 8px; font-size: 0.8rem;">
+                                    <i class="fa-solid fa-trash"></i>
+                                </button>
+                            </div>
                         </td>
                     </tr>
                 `;
             });
         }
 
+        function setAdDurationPreset(days) {
+            document.getElementById('ad-duration-days').value = days;
+            onAdDurationDaysChange();
+        }
+
+        function onAdStartDateChange() {
+            const startVal = document.getElementById('ad-start-date').value;
+            const days = parseInt(document.getElementById('ad-duration-days').value) || 30;
+            if (startVal) {
+                const startDate = new Date(startVal);
+                const endDate = new Date(startDate);
+                endDate.setDate(startDate.getDate() + days);
+                document.getElementById('ad-end-date').value = endDate.toISOString().split('T')[0];
+            }
+        }
+
+        function onAdDurationDaysChange() {
+            const days = parseInt(document.getElementById('ad-duration-days').value) || 0;
+            let startVal = document.getElementById('ad-start-date').value;
+            if (!startVal) {
+                startVal = new Date().toISOString().split('T')[0];
+                document.getElementById('ad-start-date').value = startVal;
+            }
+            const startDate = new Date(startVal);
+            const endDate = new Date(startDate);
+            endDate.setDate(startDate.getDate() + days);
+            document.getElementById('ad-end-date').value = endDate.toISOString().split('T')[0];
+        }
+
+        function onAdEndDateChange() {
+            const startVal = document.getElementById('ad-start-date').value;
+            const endVal = document.getElementById('ad-end-date').value;
+            if (startVal && endVal) {
+                const start = new Date(startVal);
+                const end = new Date(endVal);
+                const diffTime = end - start;
+                const diffDays = Math.round(diffTime / (1000 * 60 * 60 * 24));
+                document.getElementById('ad-duration-days').value = Math.max(1, diffDays);
+            }
+        }
+
+        function previewAdImage(input) {
+            const preview = document.getElementById('ad-image-preview');
+            if (input.files && input.files[0]) {
+                const reader = new FileReader();
+                reader.onload = function(e) {
+                    preview.style.display = 'block';
+                    preview.querySelector('img').src = e.target.result;
+                };
+                reader.readAsDataURL(input.files[0]);
+            }
+        }
+
         function openAdModal() {
+            const modalTitle = document.getElementById('ad-modal-title');
+            if (modalTitle) modalTitle.innerHTML = '<i class="fa-solid fa-bullhorn text-amber-400"></i> إضافة إعلان جديد';
+            
             document.getElementById('ad-id').value = '';
             document.getElementById('ad-image-upload').value = '';
             document.getElementById('ad-active').checked = true;
             document.getElementById('ad-existing-image').value = '';
             document.getElementById('ad-company').value = '';
+            document.getElementById('ad-link').value = '';
+            document.getElementById('ad-notes').value = '';
+            
+            const todayStr = new Date().toISOString().split('T')[0];
+            document.getElementById('ad-start-date').value = todayStr;
+            document.getElementById('ad-duration-days').value = 30;
+            
+            const endDate = new Date();
+            endDate.setDate(endDate.getDate() + 30);
+            document.getElementById('ad-end-date').value = endDate.toISOString().split('T')[0];
+
             document.getElementById('ad-image-preview').style.display = 'none';
             document.getElementById('ad-modal').style.display = 'flex';
         }
@@ -4760,29 +5053,119 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
         function editAd(id) {
             const ad = allAds.find(a => a.id == id);
             if (!ad) return;
+            
+            const modalTitle = document.getElementById('ad-modal-title');
+            if (modalTitle) modalTitle.innerHTML = '<i class="fa-solid fa-pen-to-square text-amber-400"></i> تعديل الإعلان';
+
             document.getElementById('ad-id').value = ad.id;
             document.getElementById('ad-image-upload').value = ''; 
-            document.getElementById('ad-active').checked = ad.active;
-            document.getElementById('ad-existing-image').value = ad.image;
+            document.getElementById('ad-active').checked = ad.active !== false;
+            document.getElementById('ad-existing-image').value = ad.image || '';
             document.getElementById('ad-company').value = ad.companyName || '';
+            document.getElementById('ad-link').value = ad.link || '';
+            document.getElementById('ad-notes').value = ad.notes || '';
+            
+            const startVal = ad.start_date || new Date().toISOString().split('T')[0];
+            document.getElementById('ad-start-date').value = startVal;
+            
+            if (ad.end_date) {
+                document.getElementById('ad-end-date').value = ad.end_date;
+                const start = new Date(startVal);
+                const end = new Date(ad.end_date);
+                const diffDays = Math.max(1, Math.round((end - start) / (1000 * 60 * 60 * 24)));
+                document.getElementById('ad-duration-days').value = ad.duration_days || diffDays;
+            } else {
+                document.getElementById('ad-duration-days').value = ad.duration_days || 30;
+                onAdDurationDaysChange();
+            }
             
             const preview = document.getElementById('ad-image-preview');
-            preview.style.display = 'block';
-            preview.querySelector('img').src = ad.image;
+            if (ad.image) {
+                preview.style.display = 'block';
+                preview.querySelector('img').src = ad.image;
+            } else {
+                preview.style.display = 'none';
+            }
             
             document.getElementById('ad-modal').style.display = 'flex';
+        }
+
+        async function toggleAdActive(id) {
+            const ad = allAds.find(a => a.id == id);
+            if (!ad) return;
+            ad.active = !ad.active;
+            try {
+                await fetch(apiUrl('saas', 'settings', 'ads'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
+                    body: JSON.stringify({ ads: allAds })
+                });
+                renderAds();
+                if (typeof showToast === 'function') {
+                    showToast(ad.active ? 'تم تفعيل الإعلان' : 'تم إيقاف الإعلان', 'info');
+                }
+            } catch (e) {
+                console.error(e);
+            }
+        }
+
+        async function quickExtendAd(id, days) {
+            const ad = allAds.find(a => a.id == id);
+            if (!ad) return;
+
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+
+            let currentEnd = ad.end_date ? new Date(ad.end_date) : null;
+            let baseDate = (currentEnd && currentEnd > today) ? currentEnd : today;
+
+            const newEnd = new Date(baseDate);
+            newEnd.setDate(baseDate.getDate() + days);
+
+            ad.end_date = newEnd.toISOString().split('T')[0];
+            if (!ad.start_date) ad.start_date = today.toISOString().split('T')[0];
+
+            const start = new Date(ad.start_date);
+            ad.duration_days = Math.max(1, Math.round((newEnd - start) / (1000 * 60 * 60 * 24)));
+            ad.active = true;
+
+            try {
+                await fetch(apiUrl('saas', 'settings', 'ads'), {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + SAAS_TOKEN },
+                    body: JSON.stringify({ ads: allAds })
+                });
+                renderAds();
+                if (typeof showToast === 'function') {
+                    showToast(`تم تمديد الإعلان (${ad.companyName || ''}) لـ ${days} يوم بنجاح!`, 'success');
+                } else {
+                    alert(`تم تمديد الإعلان لـ ${days} يوم حتى ${ad.end_date}`);
+                }
+            } catch (e) {
+                alert('فشل تمديد الإعلان: ' + e.message);
+            }
         }
 
         async function saveAd() {
             const id = document.getElementById('ad-id').value;
             const fileInput = document.getElementById('ad-image-upload');
             const active = document.getElementById('ad-active').checked;
-            const companyName = document.getElementById('ad-company').value;
+            const companyName = document.getElementById('ad-company').value.trim();
+            const link = document.getElementById('ad-link').value.trim();
+            const startDate = document.getElementById('ad-start-date').value;
+            const durationDays = parseInt(document.getElementById('ad-duration-days').value) || 30;
+            const endDate = document.getElementById('ad-end-date').value;
+            const notes = document.getElementById('ad-notes').value.trim();
             let imageUrl = document.getElementById('ad-existing-image').value;
+
+            if (!companyName) {
+                alert('الرجاء إدخال اسم الشركة أو الجهة المعلنة!');
+                return;
+            }
 
             const btn = document.getElementById('ad-save-btn');
             btn.disabled = true;
-            btn.innerText = 'جاري الحفظ...';
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> جاري الحفظ...';
 
             try {
                 if (fileInput.files.length > 0) {
@@ -4805,20 +5188,26 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
 
                 if (!imageUrl) throw new Error('يجب اختيار صورة للإعلان');
 
+                const adPayload = {
+                    id: id ? (isNaN(id) ? id : Number(id)) : Date.now(),
+                    image: imageUrl,
+                    active: active,
+                    companyName: companyName,
+                    link: link,
+                    start_date: startDate,
+                    duration_days: durationDays,
+                    end_date: endDate,
+                    notes: notes,
+                    updated_at: new Date().toISOString()
+                };
+
                 if (id) {
                     const index = allAds.findIndex(a => a.id == id);
                     if (index !== -1) {
-                        allAds[index].image = imageUrl;
-                        allAds[index].active = active;
-                        allAds[index].companyName = companyName;
+                        allAds[index] = Object.assign({}, allAds[index], adPayload);
                     }
                 } else {
-                    allAds.push({
-                        id: Date.now(),
-                        image: imageUrl,
-                        active: active,
-                        companyName: companyName
-                    });
+                    allAds.push(adPayload);
                 }
 
                 const saveRes = await fetch(apiUrl('saas', 'settings', 'ads'), {
@@ -4842,16 +5231,17 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
 
                 closeModal('ad-modal');
                 renderAds();
+                if (typeof showToast === 'function') showToast('تم حفظ الإعلان بنجاح', 'success');
             } catch (e) {
                 alert('خطأ: ' + e.message);
             } finally {
                 btn.disabled = false;
-                btn.innerText = 'حفظ الإعلان';
+                btn.innerHTML = '<i class="fa-solid fa-save"></i> حفظ الإعلان';
             }
         }
 
         async function deleteAd(id) {
-            if (!confirm('هل أنت متأكد من الحذف؟')) return;
+            if (!confirm('هل أنت متأكد من حذف هذا الإعلان نهائياً؟')) return;
             allAds = allAds.filter(a => a.id != id);
             try {
                 await fetch(apiUrl('saas', 'settings', 'ads'), {
@@ -4860,6 +5250,7 @@ $page_title = 'SaaS Super Admin - مقاييس (MAGAIEES)';
                     body: JSON.stringify({ ads: allAds })
                 });
                 renderAds();
+                if (typeof showToast === 'function') showToast('تم حذف الإعلان', 'info');
             } catch (e) {}
         }
 

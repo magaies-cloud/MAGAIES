@@ -1344,19 +1344,29 @@
                     };
                 }
                 
-                // Ads Logic
+                // Ads Logic (Filtered by Active status and Validity timeframe)
                 if (data && data.ads && data.ads.length > 0) {
-                    const activeAds = data.ads.filter(ad => ad.active);
+                    const todayStr = new Date().toISOString().split('T')[0];
+                    const activeAds = data.ads.filter(ad => {
+                        if (!ad.active) return false;
+                        if (ad.start_date && ad.start_date > todayStr) return false;
+                        if (ad.end_date && ad.end_date < todayStr) return false;
+                        return true;
+                    });
+
                     if (activeAds.length > 0) {
                         const banner = document.getElementById('ads-banner');
                         if (banner) {
                             banner.style.display = 'block';
+                            banner.innerHTML = '';
                             
                             activeAds.forEach((ad, index) => {
                                 const slide = document.createElement('div');
                                 slide.className = 'ad-slide' + (index === 0 ? ' active' : '');
-                                const detailsHtml = ad.companyName ? `<div class="ad-badge">إعلان: ${ad.companyName}</div>` : '';
-                                slide.innerHTML = `<img src="${ad.image}" alt="إعلان">${detailsHtml}`;
+                                const safeCompanyName = (typeof escapeHtml === 'function') ? escapeHtml(ad.companyName) : (ad.companyName || '');
+                                const detailsHtml = ad.companyName ? `<div class="ad-badge">إعلان: ${safeCompanyName}</div>` : '';
+                                const imgHtml = `<img src="${ad.image}" alt="${ad.companyName || 'إعلان'}" loading="lazy">${detailsHtml}`;
+                                slide.innerHTML = ad.link ? `<a href="${ad.link}" target="_blank" rel="noopener noreferrer" style="display:block; width:100%; height:100%; text-decoration:none;">${imgHtml}</a>` : imgHtml;
                                 banner.appendChild(slide);
                             });
 

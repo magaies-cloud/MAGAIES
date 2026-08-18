@@ -1249,9 +1249,16 @@ function renderGrid() {
                 </select>
             </td>
             <td><span class="g-readonly total-val" data-total="${row.id}">${fmtNum(calcs.total)}</span></td>
-            <td><button class="del-btn" onclick="removeRow(${row.id})" title="حذف السطر">
-                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
-            </button></td>
+            <td>
+                <div style="display: flex; gap: 5px; justify-content: center; align-items: center;">
+                    <button type="button" class="add-row-btn" onclick="addRow()" title="إضافة سطر جديد" style="background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.35)); border: 1px solid rgba(16,185,129,0.5); color: #34d399; border-radius: 6px; padding: 6px 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
+                    </button>
+                    <button class="del-btn" onclick="removeRow(${row.id})" title="حذف السطر" style="display: flex; align-items: center; justify-content: center;">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
+                    </button>
+                </div>
+            </td>
         `;
         tbody.appendChild(tr);
 
@@ -1351,32 +1358,96 @@ function onAdjAmtChange(type) {
 // ════════════════════════════════════════
 //  GRAND TOTAL CALCULATION
 // ════════════════════════════════════════
+function toggleTotRow(type) {
+    const row = document.getElementById('row-tot-' + type);
+    const btn = document.getElementById('btn-toggle-' + type);
+    if (!row || !btn) return;
+
+    if (row.style.display === 'none') {
+        row.style.display = 'table-row';
+        btn.classList.add('active');
+        row.querySelector('.tot-input').focus();
+    } else {
+        row.style.display = 'none';
+        btn.classList.remove('active');
+        const inputLoc = document.getElementById('t-' + type + '-loc') || document.getElementById('t-' + type);
+        const inputFc = document.getElementById('t-' + type + '-fc');
+        if(inputLoc) inputLoc.value = '0';
+        if(inputFc) inputFc.value = '0';
+        recalcAll();
+    }
+    syncTotalsVisibility();
+}
+
+function syncTotalsVisibility() {
+    const active = document.querySelectorAll('.tot-toggle-btn.active').length > 0;
+    const gRow = document.getElementById('grand-total-row');
+    if (gRow) gRow.style.background = active ? 'rgba(255, 255, 255, 0.03)' : 'transparent';
+}
+
+function syncLocal(type) {
+    let locInput = document.getElementById('t-' + type + '-loc') || document.getElementById('t-' + type);
+    let fcInput = document.getElementById('t-' + type + '-fc');
+    if (!locInput || !fcInput) return;
+    const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
+    let fcVal = parseNum(fcInput.value);
+    locInput.value = fmtNum(fcVal * exRate);
+}
+
+function syncFc(type) {
+    let locInput = document.getElementById('t-' + type + '-loc') || document.getElementById('t-' + type);
+    let fcInput = document.getElementById('t-' + type + '-fc');
+    if (!locInput || !fcInput) return;
+    const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
+    let locVal = parseNum(locInput.value);
+    fcInput.value = fmtNum(locVal / exRate);
+}
+
 function recalcAll() {
     const cur = getCurrency();
-    const invTotal = getInvoiceTotal();
-    const labor = parseNum(document.getElementById('t-labor').value);
-    const transport = parseNum(document.getElementById('t-transport').value);
-    const discountAmt = parseNum(document.getElementById('discount-amt').value);
-    const taxAmt = parseNum(document.getElementById('tax-amt').value);
-    const additionAmt = parseNum(document.getElementById('addition-amt').value);
+    const invTotalLoc = getInvoiceTotal(); // Local currency total
+    const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
+    const invTotalFc = invTotalLoc / exRate;
+    
+    // Add expenses
+    const transportLoc = parseNum(document.getElementById('t-transport')?.value || 0);
+    const laborLoc = parseNum(document.getElementById('t-labor')?.value || 0);
+    const additionsLoc = parseNum(document.getElementById('t-additions-loc')?.value || 0);
+    const taxLoc = parseNum(document.getElementById('t-tax-loc')?.value || 0);
+    const discountLoc = parseNum(document.getElementById('t-discount-loc')?.value || 0);
 
-    const grand = invTotal + labor + transport + additionAmt + taxAmt - discountAmt;
+    const transportFc = parseNum(document.getElementById('t-transport-fc')?.value || 0);
+    const laborFc = parseNum(document.getElementById('t-labor-fc')?.value || 0);
+    const additionsFc = parseNum(document.getElementById('t-additions-fc')?.value || 0);
+    const taxFc = parseNum(document.getElementById('t-tax-fc')?.value || 0);
+    const discountFc = parseNum(document.getElementById('t-discount-fc')?.value || 0);
 
-    // Update totals display
-    if (typeof window.animateValue === 'function') {
-        window.animateValue(document.getElementById('t-invoice-total'), invTotal, 600, 2, (n, d) => fmtNum(n) + ' ' + cur);
-        window.animateValue(document.getElementById('t-additions'), additionAmt, 600, 2, (n, d) => '+ ' + fmtNum(n) + ' ' + cur);
-        window.animateValue(document.getElementById('t-tax'), taxAmt, 600, 2, (n, d) => '+ ' + fmtNum(n) + ' ' + cur);
-        window.animateValue(document.getElementById('t-discount'), discountAmt, 600, 2, (n, d) => '- ' + fmtNum(n) + ' ' + cur);
-        window.animateValue(document.getElementById('t-grand'), grand, 600, 2, (n, d) => fmtNum(n) + ' ' + cur);
-        window.animateValue(document.getElementById('footer-grand'), grand, 600, 2, (n, d) => fmtNum(n) + ' ' + cur);
-    } else {
-        document.getElementById('t-invoice-total').textContent = fmtNum(invTotal) + ' ' + cur;
-        document.getElementById('t-additions').textContent = '+ ' + fmtNum(additionAmt) + ' ' + cur;
-        document.getElementById('t-tax').textContent = '+ ' + fmtNum(taxAmt) + ' ' + cur;
-        document.getElementById('t-discount').textContent = '- ' + fmtNum(discountAmt) + ' ' + cur;
-        document.getElementById('t-grand').textContent = fmtNum(grand) + ' ' + cur;
-        document.getElementById('footer-grand').textContent = fmtNum(grand) + ' ' + cur;
+    const grandLoc = invTotalLoc + transportLoc + laborLoc + additionsLoc + taxLoc - discountLoc;
+    const grandFc = invTotalFc + transportFc + laborFc + additionsFc + taxFc - discountFc;
+
+    // Update UI
+    const grandLocEl = document.getElementById('t-grand-dynamic-loc');
+    const grandFcEl = document.getElementById('t-grand-dynamic-fc');
+    const footerGrand = document.getElementById('footer-grand');
+
+    if (grandLocEl) {
+        if (typeof window.animateValue === 'function') {
+            window.animateValue(grandLocEl, grandLoc, 600, 2, (n, d) => fmtNum(n));
+        } else {
+            grandLocEl.textContent = fmtNum(grandLoc);
+        }
+    }
+    
+    if (grandFcEl) {
+        if (typeof window.animateValue === 'function') {
+            window.animateValue(grandFcEl, grandFc, 600, 2, (n, d) => fmtNum(n));
+        } else {
+            grandFcEl.textContent = fmtNum(grandFc);
+        }
+    }
+
+    if (footerGrand) {
+        footerGrand.textContent = fmtNum(grandLoc) + ' ' + (cur === 'SDG' ? 'SDG' : 'SDG'); // the footer often shows local currency
     }
 }
 
@@ -1481,7 +1552,8 @@ function submitInvoice(ignoreWarnings = false) {
         if (cust && cust.id !== 'walk-in' && cust.creditLimit > 0) {
             const totalDebt = cust.ledger + cust.checks;
             const remaining = cust.creditLimit - totalDebt;
-            const grand = parseNum(document.getElementById('t-grand').textContent);
+            const grandLocEl = document.getElementById('t-grand-dynamic-loc');
+            const grand = grandLocEl ? parseNum(grandLocEl.textContent) : 0;
             if (grand > remaining) {
                 const diff = grand - remaining;
                 const cur = getCurrency();
@@ -1511,7 +1583,8 @@ function submitInvoice(ignoreWarnings = false) {
         committedNo = commitInvoiceNumber(currentSaleType); // increment
     }
     const cur = getCurrency();
-    const grandTotal = document.getElementById('t-grand').textContent;
+    const grandLocEl = document.getElementById('t-grand-dynamic-loc');
+    const grandTotal = grandLocEl ? parseNum(grandLocEl.textContent) : 0;
 
     // Save invoice data
     let dueDateValue = null;
@@ -1539,10 +1612,15 @@ function submitInvoice(ignoreWarnings = false) {
         description: document.getElementById('hdr-description').value,
         items: rows.map(r => ({...r})),
         notes: document.getElementById('inv-notes').value,
-        subTotal: parseNum(document.getElementById('t-subtotal').textContent),
-        discount: parseNum(document.getElementById('t-discount').value || 0),
-        vatAmount: parseNum(document.getElementById('t-vat').textContent),
-        grandTotal: parseNum(grandTotal),
+        
+        // New totals mapping
+        subTotal: getInvoiceTotal(),
+        transportAmt: parseNum(document.getElementById('t-transport')?.value || 0),
+        laborAmt: parseNum(document.getElementById('t-labor')?.value || 0),
+        additionAmt: parseNum(document.getElementById('t-additions-loc')?.value || 0),
+        vatAmount: parseNum(document.getElementById('t-tax-loc')?.value || 0),
+        discount: parseNum(document.getElementById('t-discount-loc')?.value || 0),
+        grandTotal: grandTotal,
         status: 'confirmed'
     };
 
