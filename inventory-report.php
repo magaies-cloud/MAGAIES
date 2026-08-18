@@ -49,6 +49,68 @@
             --text-muted: #94a3b8;
             --glass-border: rgba(0, 0, 0, 0.08);
             --glass-border-subtle: rgba(0, 0, 0, 0.04);
+            --text-main: #0f172a;
+        }
+
+        :root.light-theme .dash-table th {
+            background: #f1f5f9;
+            color: #0f172a;
+            border-bottom: 2px solid #cbd5e1;
+        }
+        :root.light-theme .dash-table td {
+            color: #1e293b;
+            border-bottom: 1px solid #e2e8f0;
+        }
+        :root.light-theme .dash-table tbody tr:hover td {
+            background: rgba(56, 189, 248, 0.08);
+        }
+        :root.light-theme .code-pill {
+            background: #f1f5f9;
+            color: #475569;
+            border-color: #cbd5e1;
+        }
+        :root.light-theme .f-input {
+            background: #ffffff;
+            color: #0f172a;
+            border-color: #cbd5e1;
+        }
+        :root.light-theme .f-select option {
+            background: #ffffff;
+            color: #0f172a;
+        }
+        :root.light-theme .nav-dropdown-content {
+            background: #ffffff;
+            border-color: #cbd5e1;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+        }
+        :root.light-theme .nav-dropdown-item {
+            color: #334155;
+        }
+        :root.light-theme .nav-dropdown-item:hover {
+            background: #f1f5f9;
+            color: #0284c7;
+        }
+        :root.light-theme .studio-chip {
+            background: #f8fafc;
+            border-color: #e2e8f0;
+            color: #334155;
+        }
+        :root.light-theme .studio-chip:hover {
+            background: #f1f5f9;
+        }
+        :root.light-theme .studio-chip.checked {
+            background: #ede9fe;
+            border-color: #a78bfa;
+            color: #6d28d9;
+        }
+        :root.light-theme .glass-panel {
+            background: #ffffff !important;
+            color: #0f172a !important;
+        }
+        :root.light-theme .btn-link {
+            background: #f1f5f9;
+            color: #334155;
+            border-color: #cbd5e1;
         }
 
         body {
@@ -1346,6 +1408,9 @@
                 matchesBadge.textContent = `المطابق: ${filteredData.length} من ${reportData.length} صنف`;
             }
 
+            window.currentReportData = reportData;
+            window.currentFilteredData = filteredData;
+
             if (filteredData.length === 0) {
                 const whName = fWh === 'ALL' ? 'جميع المخازن' : fWh;
                 tbody.innerHTML = `<tr><td colspan="${visibleColCount || 9}" style="text-align:center; padding:60px 20px; color:var(--text-secondary);">
@@ -1359,7 +1424,7 @@
         function getStatusInfo(qty, minQty) {
             if (qty <= 0) return { code: 'DANGER', text: 'نافذ / سالب', color: '#ef4444', cssClass: 'status-danger', icon: '🚨' };
             if (qty <= minQty) return { code: 'WARNING', text: 'تحت الطلب', color: '#fbbf24', cssClass: 'status-warn', icon: '⚠️' };
-            return { code: 'OK', text: 'رصيد آمن', color: 'var(--emerald-accent)', cssClass: 'status-ok', icon: '✅' };
+            return { code: 'OK', text: 'رصيد آمن', color: '#10b981', cssClass: 'status-ok', icon: '✅' };
         }
 
         // =========================================================================
@@ -1585,6 +1650,15 @@
             if (!table) return;
 
             const printWindow = window.open('', '_blank');
+            if (!printWindow) {
+                if (typeof showToast === 'function') {
+                    showToast('يرجى السماح بالنوافذ المنبثقة للطباعة!', 'warning');
+                } else {
+                    alert('يرجى السماح بالنوافذ المنبثقة للطباعة!');
+                }
+                return;
+            }
+
             const now = new Date();
             const dateStr = now.toLocaleDateString('ar-EG', { year:'numeric', month:'long', day:'numeric' });
             const timeStr = now.toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' });
@@ -1649,13 +1723,19 @@
             const table = document.getElementById('inventory-main-table');
             if (!table) return;
 
+            const clone = table.cloneNode(true);
+            clone.querySelectorAll('.btn-link, .code-pill, button').forEach(el => {
+                const text = el.innerText.replace(/[📋📑👁️🖨️📥]/g, '').trim();
+                el.replaceWith(document.createTextNode(text));
+            });
+
             let html = `
             <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
             <head><meta charset="utf-8" /><style>table, th, td { border: 1px solid #000; font-family: Segoe UI, Tahoma; text-align: right; } th { background-color: #f2f2f2; }</style></head>
             <body dir="rtl">
             <h2>تقرير جرد المخزون المخصص - شركة السجانة</h2>
             <p>تاريخ الاستخراج: ${new Date().toLocaleString('ar-EG')}</p>
-            ${table.outerHTML}
+            ${clone.outerHTML}
             </body></html>`;
 
             const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
@@ -1721,11 +1801,11 @@
             }
 
             whInv.forEach((row, index) => {
-                const item = itemsDb.find(i => i.id === row.itemId);
+                const item = itemsDb.find(i => String(i.id) === String(row.itemId));
                 if (!item) return;
 
-                let baseUnit = item.units && item.units.length > 0 ? item.units[0].unitName : (item.unit || 'وحدة');
-                let price = item.units && item.units.length > 0 ? item.units[0].cashPrice : (item.price || 0);
+                let baseUnit = item.units && item.units.length > 0 ? (item.units[0].unitName || item.units[0].name) : (item.unit || item.baseUnit || 'وحدة');
+                let price = item.units && item.units.length > 0 ? (item.units[0].cashPrice || item.units[0].costPrice || item.price || 0) : (item.price || item.buyPrice || item.costPrice || 0);
                 price = parseFloat((price || 0).toString().replace(/,/g, '')) || 0;
 
                 const bookQty = row.qty || 0;
@@ -1754,10 +1834,10 @@
         }
 
         function calculateStocktakeDiff(itemId) {
-            const row = stocktakeData.find(d => d.itemId === itemId);
+            const row = stocktakeData.find(d => String(d.itemId) === String(itemId));
             if (!row) return;
 
-            const rate = parseFloat(document.getElementById('adj-exchange-rate').value) || 1;
+            const rate = parseFloat(document.getElementById('adj-exchange-rate') ? document.getElementById('adj-exchange-rate').value : 1) || 1;
 
             const physInput = document.getElementById(`phys-${itemId}`);
             const physQty = parseFloat(physInput.value) || 0;
@@ -1782,32 +1862,38 @@
 
             let totalAdjVal = 0;
             stocktakeData.forEach(d => {
-                const pQty = parseFloat(document.getElementById(`phys-${d.itemId}`).value) || 0;
+                const pInput = document.getElementById(`phys-${d.itemId}`);
+                const pQty = pInput ? (parseFloat(pInput.value) || 0) : d.bookQty;
                 totalAdjVal += (pQty - d.bookQty) * d.price;
             });
 
             const totalAdjValForeign = totalAdjVal / rate;
 
             const totalEl = document.getElementById('adj-total-val');
-            totalEl.textContent = totalAdjValForeign.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-            if (totalAdjValForeign > 0) {
-                totalEl.style.color = '#10b981';
-            } else if (totalAdjValForeign < 0) {
-                totalEl.style.color = '#ef4444';
-            } else {
-                totalEl.style.color = '#fbbf24';
+            if (totalEl) {
+                totalEl.textContent = totalAdjValForeign.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+                if (totalAdjValForeign > 0) {
+                    totalEl.style.color = '#10b981';
+                } else if (totalAdjValForeign < 0) {
+                    totalEl.style.color = '#ef4444';
+                } else {
+                    totalEl.style.color = '#fbbf24';
+                }
             }
         }
 
         function saveStocktake() {
-            const wh = document.getElementById('adj-warehouse').value;
-            const notes = document.getElementById('adj-notes').value.trim();
+            const wh = document.getElementById('adj-warehouse') ? document.getElementById('adj-warehouse').value : '';
+            const notes = document.getElementById('adj-notes') ? document.getElementById('adj-notes').value.trim() : '';
+            const currency = document.getElementById('adj-currency') ? document.getElementById('adj-currency').value : 'SDG';
+            const rate = parseFloat(document.getElementById('adj-exchange-rate') ? document.getElementById('adj-exchange-rate').value : 1) || 1;
 
             const itemsToAdjust = [];
             let totalAdjVal = 0;
 
             stocktakeData.forEach(d => {
-                const physQty = parseFloat(document.getElementById(`phys-${d.itemId}`).value) || 0;
+                const physInput = document.getElementById(`phys-${d.itemId}`);
+                const physQty = physInput ? (parseFloat(physInput.value) || 0) : d.bookQty;
                 const diff = physQty - d.bookQty;
                 if (diff !== 0) {
                     itemsToAdjust.push({
@@ -1815,6 +1901,8 @@
                         unitId: 'base',
                         unitName: d.unit,
                         quantity: diff,
+                        customBaseQty: diff,
+                        customFactor: 1,
                         price: d.price / rate,
                         taxRate: 0,
                         total: (diff * d.price) / rate
@@ -1824,7 +1912,11 @@
             });
 
             if (itemsToAdjust.length === 0) {
-                showToast('لم يتم إجراء أي تعديل على الكميات لتسويتها!', 'warning');
+                if (typeof showToast === 'function') {
+                    showToast('لم يتم إجراء أي تعديل على الكميات لتسويتها!', 'warning');
+                } else {
+                    alert('لم يتم إجراء أي تعديل على الكميات لتسويتها!');
+                }
                 return;
             }
 
@@ -1854,7 +1946,7 @@
 
             let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
             itemsToAdjust.forEach(adj => {
-                let entry = currentInvData.find(inv => inv.itemId === adj.itemId && inv.warehouse === wh);
+                let entry = currentInvData.find(inv => String(inv.itemId) === String(adj.itemId) && inv.warehouse === wh);
                 if (entry) {
                     entry.qty = (parseFloat(entry.qty) || 0) + adj.quantity;
                 } else {
@@ -1868,12 +1960,14 @@
             });
             localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
 
-            showToast('تم ترحيل التسوية وتوليد القيود بنجاح!', 'success');
+            if (typeof showToast === 'function') {
+                showToast('تم ترحيل التسوية وتوليد القيود بنجاح!', 'success');
+            }
             closeStocktakeModal();
 
             setTimeout(() => {
                 window.location.reload();
-            }, 1000);
+            }, 800);
         }
 
         function onCurrencyChange() {
@@ -1886,7 +1980,8 @@
                 rateInput.value = '1.00';
             } else {
                 rateGroup.style.display = 'block';
-                if (curr === 'USD') rateInput.value = '600.00';
+                const dedicatedUSD = parseFloat(localStorage.getItem('erp_rate_usd')) || 600.00;
+                if (curr === 'USD') rateInput.value = dedicatedUSD.toFixed(2);
                 else if (curr === 'SAR') rateInput.value = '160.00';
                 else if (curr === 'AED') rateInput.value = '163.00';
             }
@@ -2202,6 +2297,7 @@
                     </div>
                 </div>
             </div>
+        </div>
         <style>@keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
         
         /* Universal Light Theme Overrides for Internal Screens */
@@ -2282,38 +2378,45 @@
 
     <script>
     function runAIInventory() {
-        document.getElementById('aiInv-modal').style.display = 'flex';
-        document.getElementById('aiInv-content').innerHTML = `
-            <div style="text-align: center; padding: 40px 0;">
-                <div style="font-size: 3rem; margin-bottom: 15px; animation: pulse 1.5s infinite;">📦</div>
-                <div style="color: #94a3b8;">جاري جرد وتقييم الأصناف لمعرفة التكدس والنواقص... يرجى الانتظار</div>
-            </div>`;
+        const modal = document.getElementById('aiInv-modal');
+        if (modal) modal.style.display = 'flex';
+        const contentEl = document.getElementById('aiInv-content');
+        if (contentEl) {
+            contentEl.innerHTML = `
+                <div style="text-align: center; padding: 40px 0;">
+                    <div style="font-size: 3rem; margin-bottom: 15px; animation: pulse 1.5s infinite;">📦</div>
+                    <div style="color: #94a3b8;">جاري جرد وتقييم الأصناف لمعرفة التكدس والنواقص... يرجى الانتظار</div>
+                </div>`;
+        }
+        
+        const sourceData = (window.currentFilteredData && window.currentFilteredData.length > 0) 
+            ? window.currentFilteredData 
+            : (window.currentReportData || []);
         
         let inventoryData = [];
-        let rows = document.querySelectorAll('#inventory-tbody tr');
-        let limit = Math.min(rows.length, 100); 
+        const limit = Math.min(sourceData.length, 120); 
         
-        for(let i=0; i<limit; i++) {
-            let cols = rows[i].querySelectorAll('td');
-            if(cols.length >= 6) {
-                let name = cols[1].innerText.trim();
-                let qty = cols[2].innerText.trim();
-                let cost = cols[3].innerText.trim();
-                let totalCost = cols[5].innerText.trim();
-                if(name) {
-                    inventoryData.push(`الصنف: ${name} | الكمية المتوفرة: ${qty} | سعر التكلفة: ${cost} | الإجمالي: ${totalCost}`);
-                }
-            }
+        for (let i = 0; i < limit; i++) {
+            const row = sourceData[i];
+            const actualQty = Number(row.qty) || 0;
+            const reservedQty = Number(row.reservedQuantity) || 0;
+            const availQty = actualQty - reservedQty;
+            const price = Number(row.price) || 0;
+            const totalCost = availQty * price;
+            const statusInfo = getStatusInfo(availQty, row.minQty);
+            const unitName = (row.unit || 'وحدة');
+            
+            inventoryData.push(`الصنف: ${row.itemName} (كود: ${row.itemId}) | المخزن: ${row.warehouse} | المتاح: ${availQty.toLocaleString()} ${unitName} | حد الطلب: ${row.minQty || 0} | التكلفة: ${price.toLocaleString()} SDG | إجمالي القيمة: ${totalCost.toLocaleString()} SDG | الحالة: ${statusInfo.text}`);
         }
 
-        if(inventoryData.length === 0) {
-            document.getElementById('aiInv-content').innerHTML = '<span style="color:#ef4444">الجدول فارغ أو لا توجد أرصدة للتحليل.</span>';
+        if (inventoryData.length === 0) {
+            if (contentEl) contentEl.innerHTML = '<span style="color:#ef4444">الجدول فارغ أو لا توجد أرصدة للتحليل.</span>';
             return;
         }
 
-        let context = "تقرير جرد المخزون الحالي:\n" + inventoryData.join("\n");
+        const context = "تقرير جرد المخزون الحالي:\n" + inventoryData.join("\n");
 
-        let promptMsg = "أنت مستشار إدارة مخزون وسلاسل إمداد (Supply Chain & Inventory Advisor). قم بقراءة تقرير الجرد المرفق واستخرج التالي:\n1. ⚠️ الأصناف التي تقترب من النفاذ (أرصدة منخفضة جداً).\n2. 📦 الأصناف المكدسة (أرصدة عالية جداً وقيمتها النقدية مجمدة كبير).\n3. 💡 مقترحات سريعة لتسييل البضاعة المكدسة (عروض ترويجية، تجميع أصناف).\nاكتب التقرير بشكل احترافي، مباشر، ومنسق بنقاط وأيقونات.";
+        const promptMsg = "أنت مستشار إدارة مخزون وسلاسل إمداد (Supply Chain & Inventory Advisor). قم بقراءة تقرير الجرد المرفق واستخرج التالي:\n1. ⚠️ الأصناف التي تقترب من النفاذ (أرصدة منخفضة جداً أو سالبة).\n2. 📦 الأصناف المكدسة (أرصدة عالية جداً وقيمتها النقدية مجمدة).\n3. 💡 مقترحات سريعة لتسييل البضاعة المكدسة (عروض ترويجية، تجميع أصناف).\nاكتب التقرير بشكل احترافي، مباشر، ومنسق بنقاط وأيقونات.";
 
         fetch('api/ai-assistant.php', {
             method: 'POST',
@@ -2322,20 +2425,20 @@
         })
         .then(res => res.json())
         .then(data => {
-            if (data.reply) {
+            if (data && data.reply) {
                 let formatted = data.reply
                     .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#ec4899">$1</strong>')
                     .replace(/⚠️/g, '<span style="font-size:1.2em; color:#f59e0b;">⚠️</span>')
                     .replace(/📦/g, '<span style="font-size:1.2em; color:#3b82f6;">📦</span>')
                     .replace(/💡/g, '<span style="font-size:1.2em; color:#10b981;">💡</span>')
                     .replace(/\n/g, '<br>');
-                document.getElementById('aiInv-content').innerHTML = formatted;
+                if (contentEl) contentEl.innerHTML = formatted;
             } else {
-                document.getElementById('aiInv-content').innerHTML = '<span style="color:#ef4444">حدث خطأ أثناء التحليل.</span>';
+                if (contentEl) contentEl.innerHTML = '<span style="color:#ef4444">حدث خطأ أثناء التحليل: ' + (data.error || 'استجابة غير متوقعة') + '</span>';
             }
         })
         .catch(err => {
-            document.getElementById('aiInv-content').innerHTML = '<span style="color:#ef4444">تعذر الاتصال بالخادم.</span>';
+            if (contentEl) contentEl.innerHTML = '<span style="color:#ef4444">تعذر الاتصال بالخادم الذكي.</span>';
         });
     }
     </script>

@@ -1177,14 +1177,17 @@
         }
 
         function saveStocktake() {
-            const wh = document.getElementById('adj-warehouse').value;
-            const notes = document.getElementById('adj-notes').value.trim();
+            const wh = document.getElementById('adj-warehouse') ? document.getElementById('adj-warehouse').value : '';
+            const notes = document.getElementById('adj-notes') ? document.getElementById('adj-notes').value.trim() : '';
+            const currency = document.getElementById('adj-currency') ? document.getElementById('adj-currency').value : 'SDG';
+            const rate = parseFloat(document.getElementById('adj-exchange-rate') ? document.getElementById('adj-exchange-rate').value : 1) || 1;
 
             const itemsToAdjust = [];
             let totalAdjVal = 0;
 
             stocktakeData.forEach(d => {
-                const physQty = parseFloat(document.getElementById(`phys-${d.itemId}`).value) || 0;
+                const physInput = document.getElementById(`phys-${d.itemId}`);
+                const physQty = physInput ? (parseFloat(physInput.value) || 0) : d.bookQty;
                 const diff = physQty - d.bookQty;
                 if (diff !== 0) {
                     itemsToAdjust.push({
@@ -1192,6 +1195,8 @@
                         unitId: 'base',
                         unitName: d.unit,
                         quantity: diff,
+                        customBaseQty: diff,
+                        customFactor: 1,
                         price: d.price / rate,
                         taxRate: 0,
                         total: (diff * d.price) / rate
@@ -1201,7 +1206,11 @@
             });
 
             if (itemsToAdjust.length === 0) {
-                showToast('لم يتم إجراء أي تعديل على الكميات لتسويتها!', 'warning');
+                if (typeof showToast === 'function') {
+                    showToast('لم يتم إجراء أي تعديل على الكميات لتسويتها!', 'warning');
+                } else {
+                    alert('لم يتم إجراء أي تعديل على الكميات لتسويتها!');
+                }
                 return;
             }
 
@@ -1231,7 +1240,7 @@
 
             let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
             itemsToAdjust.forEach(adj => {
-                let entry = currentInvData.find(inv => inv.itemId === adj.itemId && inv.warehouse === wh);
+                let entry = currentInvData.find(inv => String(inv.itemId) === String(adj.itemId) && inv.warehouse === wh);
                 if (entry) {
                     entry.qty = (parseFloat(entry.qty) || 0) + adj.quantity;
                 } else {
@@ -1245,12 +1254,14 @@
             });
             localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
 
-            showToast('تم ترحيل التسوية وتوليد القيود بنجاح!', 'success');
+            if (typeof showToast === 'function') {
+                showToast('تم ترحيل التسوية وتوليد القيود بنجاح!', 'success');
+            }
             closeStocktakeModal();
 
             setTimeout(() => {
                 window.location.reload();
-            }, 1000);
+            }, 800);
         }
 
         function onCurrencyChange() {
@@ -1263,7 +1274,8 @@
                 rateInput.value = '1.00';
             } else {
                 rateGroup.style.display = 'block';
-                if (curr === 'USD') rateInput.value = '600.00';
+                const dedicatedUSD = parseFloat(localStorage.getItem('erp_rate_usd')) || 600.00;
+                if (curr === 'USD') rateInput.value = dedicatedUSD.toFixed(2);
                 else if (curr === 'SAR') rateInput.value = '160.00';
                 else if (curr === 'AED') rateInput.value = '163.00';
             }
@@ -1366,6 +1378,7 @@
                     </div>
                 </div>
             </div>
+        </div>
         <style>@keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
         
         /* Universal Light Theme Overrides for Internal Screens */
