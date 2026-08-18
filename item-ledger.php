@@ -319,7 +319,7 @@
                         <tr>
                             <th>التاريخ</th>
                             <th>نوع الحركة</th>
-                            <th>المرجع / المستند</th>
+                            <th>رقم الاستلام</th>
                             <th style="color:#10b981; background:rgba(16,185,129,0.05); text-align: right;">الوارد (داخل)</th>
                             <th style="color:#ec4899; background:rgba(236,72,153,0.05); text-align: right;">المنصرف (خارج)</th>
                             <th style="color:#fbbf24; background:rgba(251,191,36,0.05); text-align: right;">الرصيد التراكمي</th>
