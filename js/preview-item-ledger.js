@@ -78,21 +78,25 @@ function getRawFieldValue(row, field) {
 function getDefaultConfigs() {
     let conf = {};
     baseColumns.forEach(c => {
-        let label = c.defaultLabel;
-        if (c.group === 'u1' && window.activeUnitsConfig && window.activeUnitsConfig[0]) {
-            label = label.replace('(الأساسية)', `(بـ ${window.activeUnitsConfig[0].name})`);
-        }
-        columnConfigs[c.field] = {
-            visible: columnOrder.includes(c.idx),
-            label: label,
-            width: null,
-            align: c.isNum ? 'right' : 'left'
+        conf[c.idx] = {
+            label: c.defaultLabel,
+            visible: c.visible !== false,
+            fs: 0.9,
+            fontWeight: '',
+            fontFamily: 'inherit',
+            color: '',
+            bgColor: '',
+            align: c.isNum ? 'right' : 'center',
+            thousandSep: ',',
+            decimals: 2,
+            showDecSep: true,
+            rounding: 'nearest'
         };
     });
     return conf;
 }
 
-let columnOrder = [0, 1, 2, 3, 17, 4, 5, 6, 16];
+let columnOrder = [0, 1, 2, 3, 17, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 let columnConfigs = {};
 
 function loadCompanyHeader() {
@@ -831,7 +835,7 @@ function setAllColumnsVisibility(isVisible) {
 }
 
 function resetDefaultColumnOrder() {
-    columnOrder = [0, 1, 2, 3, 17, 4, 5, 6, 16];
+    columnOrder = [0, 1, 2, 3, 17, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
     baseColumns.forEach(c => {
         if (!columnConfigs[c.idx]) columnConfigs[c.idx] = getDefaultConfigs()[c.idx];
         columnConfigs[c.idx].visible = (c.visible !== false);
@@ -1375,7 +1379,7 @@ function showToast(message, type = 'success') {
 
 function applyDesignState(state) {
     columnConfigs = state.configs || getDefaultConfigs();
-    columnOrder = state.order || [0, 1, 2, 3, 17, 4, 5, 6, 16];
+    columnOrder = state.order || [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12];
 
     // Migration for old configs that didn't have exchange rate (column 11 missing)
     if (!columnOrder.includes(12)) {

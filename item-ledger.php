@@ -772,21 +772,9 @@
 
         function onItemSelected() {
             const item = getSelectedItemObj();
-            const uSelect = document.getElementById('display-unit-select');
-            
-            if (uSelect) {
-                uSelect.innerHTML = '';
-                if (!item) {
-                    uSelect.innerHTML = '<option value="">-- الوحدة الأساسية --</option>';
-                } else {
-                    const units = getItemUnitsList(item);
-                    units.forEach(u => {
-                        const opt = document.createElement('option');
-                        opt.value = u.name;
-                        opt.text = u.name;
-                        uSelect.appendChild(opt);
-                    });
-                }
+            if (!item) {
+                loadLedger();
+                return;
             }
             loadLedger();
         }
@@ -948,15 +936,12 @@
         }
 
         function getActiveSelectedUnits(item) {
-            if (!item) return [];
             const unitsList = getItemUnitsList(item);
-            const selectedUnitName = document.getElementById('display-unit-select')?.value;
-            
-            if (selectedUnitName) {
-                const matched = unitsList.find(u => u.name === selectedUnitName);
-                if (matched) return [matched];
+            let selected = [];
+            for (let i = 0; i < Math.min(3, unitsList.length); i++) {
+                selected.push(unitsList[i]);
             }
-            return unitsList.length > 0 ? [unitsList[0]] : [{ name: 'وحدة', factor: 1 }];
+            return selected;
         }
 
         function formatQtyInUnit(baseQty, unitObj) {
@@ -1357,16 +1342,26 @@
             const numBalCols   = activeUnits.length;
 
             if (activeUnits.length === 1) {
-                    balCells = `
-                        <td style="color:#fbbf24; font-weight:900; background:rgba(251,191,36,0.02); text-align:right; vertical-align:middle;">
-                            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
-                                <div style="display:inline-flex; align-items:baseline; gap:4px;">
-                                    <span style="font-size:1.05rem; font-weight:900;">${formatQtyInUnit(row.runningBalance, activeUnits[0])}</span>
-                                    <span style="font-size:0.8rem; font-weight:700; opacity:0.8;">${activeUnits[0].name}</span>
-                                </div>
-                            </div>
-                        </td>`;
-                } else {
+                thead.innerHTML = `
+                    <tr>
+                        <th style="white-space:nowrap;">التاريخ</th>
+                        <th>نوع الحركة</th>
+                        <th style="color:#38bdf8;">رقم الإذن</th>
+                        <th>رقم الاستلام</th>
+                        <th style="color:#8b5cf6; background:rgba(139,92,246,0.05); text-align:right;">الكمية الأصلية للحركة</th>
+                        <th style="color:#10b981; background:rgba(16,185,129,0.07); text-align:right; white-space:nowrap;">
+                            الوارد<br><span style="font-size:0.75rem; font-weight:600; opacity:0.75;">(بوحدة الحركة)</span>
+                        </th>
+                        <th style="color:#ec4899; background:rgba(236,72,153,0.07); text-align:right; white-space:nowrap;">
+                            المنصرف<br><span style="font-size:0.75rem; font-weight:600; opacity:0.75;">(بوحدة الحركة)</span>
+                        </th>
+                        <th style="color:#fbbf24; background:rgba(251,191,36,0.07); text-align:right; white-space:nowrap;">
+                            الرصيد<br><span style="font-size:0.75rem; font-weight:600; opacity:0.75;">(${baseUnitName})</span>
+                        </th>
+                        <th style="color:#38bdf8;">ملحوظة الحركة</th>
+                    </tr>
+                `;
+            } else {
                 let uHeadersBal = activeUnits.map(u => `<th style="color:#fbbf24; background:rgba(251,191,36,0.08); text-align:right; font-size:0.75rem; padding:8px 10px;">${u.name}</th>`).join('');
 
                 thead.innerHTML = `
@@ -1394,13 +1389,7 @@
 
         function renderKpis(sumOpen, sumIn, sumOut, actualCurrentStock, activeUnits) {
             const item = getSelectedItemObj();
-            const itemUnits = getItemUnitsList(item);
-            const selectedUnitName = activeUnits[0] ? activeUnits[0].name : '';
-            // Ensure the selected unit is first
-            const allUnits = [
-                ...activeUnits,
-                ...itemUnits.filter(u => u.name !== selectedUnitName)
-            ];
+            const allUnits = (activeUnits && activeUnits.length > 1) ? activeUnits : getItemUnitsList(item);
 
             function formatKpiDisplay(val, units) {
                 if (!units || units.length === 0) return '0';
@@ -1593,6 +1582,21 @@
                     const allUnits = getItemUnitsList(item);
                     const otherUnits = allUnits.filter(u => u.name !== activeUnits[0].name && u.factor > 0 && u.factor !== 1);
                     let subBal = '';
+                    if (otherUnits.length > 0) {
+                        const subs = otherUnits.map(u => `<span style="color:#fbbf24; font-weight:800;">${formatQtyInUnit(row.runningBalance, u)}</span> <span style="opacity:0.8;">${u.name}</span>`).join(' <span style="opacity:0.4;">|</span> ');
+                        subBal = `
+                            <div style="font-size:0.75rem; color:#fde68a; font-family:monospace; background:rgba(251,191,36,0.08); padding:2px 8px; border-radius:5px; border:1px solid rgba(251,191,36,0.2);">
+                                (= ${subs})
+                            </div>`;
+                    }
+                    balCells = `
+                        <td style="color:#fbbf24; font-weight:900; background:rgba(251,191,36,0.02); text-align:right; vertical-align:middle;">
+                            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
+                                <div style="display:inline-flex; align-items:baseline; gap:4px;">
+                                    <span style="font-size:1.05rem; font-weight:900;">${formatQtyInUnit(row.runningBalance, activeUnits[0])}</span>
+                                    <span style="font-size:0.8rem; font-weight:700; opacity:0.8;">${activeUnits[0].name}</span>
+                                </div>
+                                ${subBal}
                             </div>
                         </td>`;
                 } else {
