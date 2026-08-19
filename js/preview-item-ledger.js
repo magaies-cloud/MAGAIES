@@ -21,6 +21,7 @@ const baseColumns = [
     { idx: 1, defaultLabel: "نوع الحركة", field: "type", isNum: false, group: "general" },
     { idx: 2, defaultLabel: "رقم الإذن", field: "permitNo", isNum: false, group: "general" },
     { idx: 3, defaultLabel: "رقم الاستلام", field: "receiptNo", isNum: false, group: "general" },
+    { idx: 17, defaultLabel: "الكمية الأصلية للحركة", field: "origQtyStr", isNum: false, group: "general" },
     { idx: 4, defaultLabel: "الوارد (الأساسية)", field: "in1", isNum: true, group: "u1" },
     { idx: 5, defaultLabel: "المنصرف (الأساسية)", field: "out1", isNum: true, group: "u1" },
     { idx: 6, defaultLabel: "الرصيد (الأساسية)", field: "bal1", isNum: true, group: "u1" },
@@ -48,6 +49,11 @@ function getRawFieldValue(row, field) {
     if (field === "type") return row.typeName || row.typeCode || "-";
     if (field === "permitNo") return row.permitNo || "-";
     if (field === "receiptNo") return row.ref || row.receiptNo || "-";
+    if (field === "origQtyStr") {
+        const origQtyAbs = Math.abs(row.origQty || (row.in > 0 ? row.in : row.out) || 0);
+        const origUnitStr = row.origUnit || (window.activeUnitsConfig[0] ? window.activeUnitsConfig[0].name : "");
+        return origQtyAbs > 0 ? `${origQtyAbs} ${origUnitStr}` : "-";
+    }
     if (field === "notes") return row.notes || "-";
     
     if (field === "in1") return row.in1 || 0;
@@ -90,7 +96,7 @@ function getDefaultConfigs() {
     return conf;
 }
 
-let columnOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+let columnOrder = [0, 1, 2, 3, 17, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 let columnConfigs = {};
 
 function loadCompanyHeader() {
@@ -829,7 +835,7 @@ function setAllColumnsVisibility(isVisible) {
 }
 
 function resetDefaultColumnOrder() {
-    columnOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+    columnOrder = [0, 1, 2, 3, 17, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
     baseColumns.forEach(c => {
         if (!columnConfigs[c.idx]) columnConfigs[c.idx] = getDefaultConfigs()[c.idx];
         columnConfigs[c.idx].visible = (c.visible !== false);
@@ -1697,7 +1703,7 @@ function restoreFactoryReset() {
 function restoreToFactoryDefault() {
     const factoryState = {
         configs: getDefaultConfigs(),
-        order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        order: [0, 1, 2, 3, 17, 4, 5, 6, 7, 8, 9, 10, 11, 12],
         theme: '',
         font: 'font-newsons',
         paperSize: 'A4',

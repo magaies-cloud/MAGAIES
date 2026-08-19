@@ -431,7 +431,8 @@
                             <th>نوع الحركة</th>
                             <th style="color:#38bdf8;">رقم الإذن</th>
                             <th>رقم الاستلام</th>
-                            <th style="color:#10b981; background:rgba(16,185,129,0.05); text-align: right;">الوارد (داخل)</th>
+                        <th style="color:#8b5cf6; background:rgba(139,92,246,0.05); text-align:right;">الكمية الأصلية للحركة</th>
+                        <th style="color:#10b981; background:rgba(16,185,129,0.05); text-align: right;">الوارد (داخل)</th>
                             <th style="color:#ec4899; background:rgba(236,72,153,0.05); text-align: right;">المنصرف (خارج)</th>
                             <th style="color:#fbbf24; background:rgba(251,191,36,0.05); text-align: right;">الرصيد التراكمي</th>
                             <th style="color:#38bdf8;">ملحوظة الحركة</th>
@@ -1368,6 +1369,7 @@
                         <th rowspan="2" style="vertical-align:middle;">نوع الحركة</th>
                         <th rowspan="2" style="color:#38bdf8; vertical-align:middle;">رقم الإذن</th>
                         <th rowspan="2" style="vertical-align:middle;">رقم الاستلام</th>
+                        <th rowspan="2" style="color:#8b5cf6; background:rgba(139,92,246,0.05); vertical-align:middle; text-align:right;">الكمية الأصلية للحركة</th>
                         <th rowspan="2" style="color:#10b981; background:rgba(16,185,129,0.07); vertical-align:middle; text-align:right; white-space:nowrap;">
                             الوارد<br><span style="font-size:0.72rem; opacity:0.75;">(بوحدة الحركة)</span>
                         </th>
@@ -1540,69 +1542,39 @@
                     `<span style="background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.25); color:#bae6fd; padding:3px 8px; border-radius:6px; font-size:0.8rem; font-weight:600; display:inline-flex; align-items:center; gap:4px; max-width:240px; white-space:normal; text-align:right;">📝 ${row.notes}</span>` :
                     `<span style="color:#64748b;">-</span>`;
 
-                function buildOrigQtyCell(qty, direction) {
+                function buildSimpleQtyCell(qty, direction) {
                     const isIn = direction === 'in';
                     if ((isIn && row.in <= 0) || (!isIn && row.out <= 0)) {
                         return `<td style="${isIn ? 'color:#10b981' : 'color:#ec4899'}; font-weight:700; background:${isIn ? 'rgba(16,185,129,0.02)' : 'rgba(236,72,153,0.02)'}; text-align:right;">-</td>`;
                     }
-
-                    const baseQty     = isIn ? row.in : row.out;
-                    const origQtyAbs  = Math.abs(row.origQty || 0);
-                    const origUnit    = row.origUnit || '';
-                    const isSameBase  = row.origIsSameAsBase;
+                    const baseQty = isIn ? row.in : row.out;
                     const baseUnitObj = activeUnits[0] || { name: 'وحدة', factor: 1 };
-                    const baseFormatted = formatQtyInUnit(baseQty, baseUnitObj);
-
-                    // Determine other available units to calculate conversion equivalent
-                    const allUnits = (activeUnits.length > 1) ? activeUnits : getItemUnitsList(item);
-                    const otherUnits = allUnits.filter(u => u.name !== baseUnitObj.name && u.factor > 0 && u.factor !== 1);
-
-                    let html = '';
-                    if (origUnit && !isSameBase && origQtyAbs > 0) {
-                        // Movement came in non-base unit (e.g. 5 طن)
-                        let subText = `(= ${baseFormatted} ${baseUnitObj.name})`;
-                        const extraUnits = otherUnits.filter(u => u.name !== origUnit);
-                        if (extraUnits.length > 0) {
-                            const extraFormatted = extraUnits.map(u => `${formatQtyInUnit(baseQty, u)} ${u.name}`).join(' | ');
-                            subText += ` · ${extraFormatted}`;
-                        }
-
-                        html = `
-                            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
-                                <div style="display:inline-flex; align-items:baseline; gap:4px;">
-                                    <span style="font-size:1.05rem; font-weight:900; letter-spacing:-0.3px; color:${isIn ? '#10b981' : '#ec4899'};">${fmtNum(origQtyAbs)}</span>
-                                    <span style="font-size:0.82rem; font-weight:800; color:${isIn ? '#34d399' : '#f472b6'}; background:${isIn ? 'rgba(16,185,129,0.12)' : 'rgba(236,72,153,0.12)'}; padding:1px 6px; border-radius:4px;">${origUnit}</span>
-                                </div>
-                                <div style="font-size:0.75rem; color:#94a3b8; font-family:monospace; background:rgba(255,255,255,0.04); padding:2px 8px; border-radius:5px; border:1px solid rgba(255,255,255,0.07);">
-                                    ${subText}
-                                </div>
-                            </div>`;
-                    } else {
-                        // Movement came in base unit (e.g. 667 سيخة)
-                        let subHtml = '';
-                        if (otherUnits.length > 0) {
-                            const subs = otherUnits.map(u => `<span style="color:#38bdf8; font-weight:800;">${formatQtyInUnit(baseQty, u)}</span> <span style="opacity:0.8;">${u.name}</span>`).join(' <span style="opacity:0.4;">|</span> ');
-                            subHtml = `
-                                <div style="font-size:0.75rem; color:#bae6fd; font-family:monospace; background:rgba(56,189,248,0.08); padding:2px 8px; border-radius:5px; border:1px solid rgba(56,189,248,0.2);">
-                                    (= ${subs})
-                                </div>`;
-                        }
-
-                        html = `
-                            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
-                                <div style="display:inline-flex; align-items:baseline; gap:4px;">
-                                    <span style="font-size:1.05rem; font-weight:900; letter-spacing:-0.3px; color:${isIn ? '#10b981' : '#ec4899'};">${baseFormatted}</span>
-                                    <span style="font-size:0.82rem; font-weight:800; opacity:0.85;">${baseUnitObj.name}</span>
-                                </div>
-                                ${subHtml}
-                            </div>`;
-                    }
-
-                    return `<td style="font-weight:700; background:${isIn ? 'rgba(16,185,129,0.02)' : 'rgba(236,72,153,0.02)'}; text-align:right; vertical-align:middle;">${html}</td>`;
+                    const formatted = formatQtyInUnit(baseQty, baseUnitObj);
+                    
+                    return `<td style="font-weight:900; color:${isIn ? '#10b981' : '#ec4899'}; background:${isIn ? 'rgba(16,185,129,0.02)' : 'rgba(236,72,153,0.02)'}; text-align:right; vertical-align:middle;">
+                        <span style="font-size:1.05rem;">${formatted}</span>
+                        <span style="font-size:0.75rem; font-weight:600; opacity:0.8;">${baseUnitObj.name}</span>
+                    </td>`;
                 }
 
-                const inCell  = buildOrigQtyCell(row.in, 'in');
-                const outCell = buildOrigQtyCell(row.out, 'out');
+                // New logic for the specific Original Transaction Quantity column
+                const origQtyAbs = Math.abs(row.origQty || (row.in > 0 ? row.in : row.out));
+                const origUnitStr = row.origUnit || (activeUnits[0] ? activeUnits[0].name : '');
+                const isInTx = (row.in > 0);
+                
+                let origBadgeHtml = '-';
+                if (origQtyAbs > 0) {
+                    origBadgeHtml = `
+                        <div style="display:inline-flex; align-items:baseline; gap:4px; justify-content:flex-end; width:100%;">
+                            <span style="font-size:1.0rem; font-weight:900; color:#8b5cf6;">${fmtNum(origQtyAbs)}</span>
+                            <span style="font-size:0.8rem; font-weight:700; color:#8b5cf6; background:rgba(139,92,246,0.1); padding:2px 6px; border-radius:4px; border:1px solid rgba(139,92,246,0.2);">${origUnitStr}</span>
+                        </div>
+                    `;
+                }
+                const origCell = `<td style="background:rgba(139,92,246,0.02); vertical-align:middle; text-align:right;">${origBadgeHtml}</td>`;
+
+                const inCell  = buildSimpleQtyCell(row.in, 'in');
+                const outCell = buildSimpleQtyCell(row.out, 'out');
 
                 let balCells = '';
                 if (activeUnits.length === 1) {
@@ -1640,6 +1612,7 @@
                     <td>${typeBadge}</td>
                     <td style="font-weight:700;">${permitHtml}</td>
                     <td style="font-weight:600;">${refHtml}</td>
+                    ${origCell}
                     ${inCell}
                     ${outCell}
                     ${balCells}
