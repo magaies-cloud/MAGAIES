@@ -1727,6 +1727,7 @@
                  tbody.innerHTML = `<tr><td colspan="${totalCols}" style="text-align:center; padding:30px; color:var(--text-secondary); font-weight:700;">لا توجد حركات لهذا الصنف في الفترة المحددة</td></tr>`;
             }
 
+            filteredHistory.forEach(row => {
                 let typeBadge = '';
                 if (row.typeCode === 'in') typeBadge = `<span class="type-badge type-in">${row.typeName}</span>`;
                 else if (row.typeCode === 'out') typeBadge = `<span class="type-badge type-out">${row.typeName}</span>`;
