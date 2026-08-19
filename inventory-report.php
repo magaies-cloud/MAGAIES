@@ -89,53 +89,6 @@ $header_theme_class = "header-theme-inventory";
         .hub-btn .title { font-size: 1.15rem; font-weight: 900; text-align: center; color: var(--btn-color, #38bdf8); }
         .hub-btn .desc { font-size: 0.8rem; color: var(--text-secondary); text-align: center; font-weight: 600; line-height: 1.4; }
 
-        /* Left Side Panel (Cumulative Offcanvas) */
-        .side-panel-overlay {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0,0,0,0.65); backdrop-filter: blur(5px);
-            z-index: 9998; opacity: 0; visibility: hidden; transition: 0.4s;
-        }
-        .side-panel-overlay.active { opacity: 1; visibility: visible; }
-        
-        .side-panel {
-            position: fixed; top: 0; left: -100vw; width: 92vw; max-width: 1500px; height: 100vh;
-            background: var(--bg-page); border-right: 1px solid rgba(255,255,255,0.1);
-            z-index: 9999; box-shadow: 25px 0 60px rgba(0,0,0,0.6);
-            transition: left 0.5s cubic-bezier(0.16, 1, 0.3, 1);
-            display: flex; flex-direction: column; overflow: hidden;
-        }
-        .side-panel.active { left: 0; }
-        
-        .side-panel-header {
-            background: rgba(15, 23, 42, 0.98); padding: 15px 25px; border-bottom: 1px solid rgba(255,255,255,0.08);
-            display: flex; justify-content: space-between; align-items: center; box-shadow: 0 4px 15px rgba(0,0,0,0.3);
-            z-index: 10;
-        }
-        .side-panel-title { font-size: 1.35rem; font-weight: 900; color: #fff; margin: 0; display: flex; align-items: center; gap: 12px; }
-        .btn-close-panel {
-            background: rgba(239, 68, 68, 0.15); border: 1px solid rgba(239, 68, 68, 0.4);
-            color: #f87171; width: 42px; height: 42px; border-radius: 12px;
-            display: flex; align-items: center; justify-content: center; font-size: 1.4rem;
-            cursor: pointer; transition: 0.2s; font-weight: bold;
-        }
-        .btn-close-panel:hover { background: #ef4444; color: #fff; transform: scale(1.05); }
-        
-        .side-panel-content { flex: 1; width: 100%; background: var(--bg-page); position: relative; }
-        .side-panel-iframe { width: 100%; height: 100%; border: none; background: transparent; }
-
-        .panel-loader {
-            position: absolute; top: 50%; left: 50%; transform: translate(-50%, -50%);
-            display: flex; flex-direction: column; align-items: center; gap: 15px;
-            color: var(--primary-accent); font-weight: 900; font-size: 1.2rem;
-            opacity: 0; pointer-events: none; transition: 0.3s;
-        }
-        .panel-loader.active { opacity: 1; pointer-events: all; }
-        .spinner {
-            width: 45px; height: 45px; border: 5px solid rgba(56, 189, 248, 0.2);
-            border-top-color: var(--primary-accent); border-radius: 50%;
-            animation: spin 1s linear infinite;
-        }
-        @keyframes spin { 100% { transform: rotate(360deg); } }
     </style>
 </head>
 <body class="no-page-transition">
@@ -144,7 +97,51 @@ $header_theme_class = "header-theme-inventory";
     <div class="dashboard-container">
         <?php include 'includes/header.php'; ?>
 
-        <!-- Massive Unified Chart -->
+        <!-- Interactive Hub Buttons (Top) -->
+        <div class="hub-buttons-grid">
+            <a href="inventory-movement.php" class="hub-btn" style="--btn-color: #38bdf8;">
+                <div class="icon">📦</div>
+                <div class="title">حركات البضائع</div>
+                <div class="desc">تفاصيل حركة البضاعة بالكميات والقيم</div>
+            </a>
+            <a href="item-ledger.php" class="hub-btn" style="--btn-color: #34d399;">
+                <div class="icon">🏷️</div>
+                <div class="title">حركة الأصناف</div>
+                <div class="desc">كارت حركة الصنف التفصيلي والتراكمي</div>
+            </a>
+            <a href="warehouse-ledger.php" class="hub-btn" style="--btn-color: #fbbf24;">
+                <div class="icon">🏢</div>
+                <div class="title">حركة المخازن</div>
+                <div class="desc">كشف حركة المستودعات والجرد الفرعي</div>
+            </a>
+            <a href="inventory-summary.php" class="hub-btn" style="--btn-color: #a78bfa;">
+                <div class="icon">📊</div>
+                <div class="title">ملخص الحركات</div>
+                <div class="desc">نظرة عامة على الكميات والحركات المجمعة</div>
+            </a>
+            <a href="inventory-analytics.php" class="hub-btn" style="--btn-color: #f472b6;">
+                <div class="icon">📈</div>
+                <div class="title">التحليلات المرئية</div>
+                <div class="desc">مؤشرات ورسوم بيانية وتقييم ABC</div>
+            </a>
+            <a href="inventory-stocktake.php" class="hub-btn" style="--btn-color: #f87171;">
+                <div class="icon">🔍</div>
+                <div class="title">الجرد الشامل</div>
+                <div class="desc">مراجعة وتدقيق الكميات الفعلية</div>
+            </a>
+            <a href="inventory-adjustment.php" class="hub-btn" style="--btn-color: #f97316;">
+                <div class="icon">⚖️</div>
+                <div class="title">تسوية جردية</div>
+                <div class="desc">إجراء تسويات الجرد لمعالجة العجز والزيادة</div>
+            </a>
+            <a href="inventory-ai.php" class="hub-btn" style="--btn-color: #22d3ee;">
+                <div class="icon">🤖</div>
+                <div class="title">الذكاء الاصطناعي</div>
+                <div class="desc">توقعات الطلب وتحليل راكد المخزون</div>
+            </a>
+        </div>
+
+        <!-- Massive Unified Chart (Bottom) -->
         <div class="chart-container">
             <div class="chart-header">
                 <h2 class="chart-title">📊 المخطط الشامل لحركة المخزون (تراكمي)</h2>
@@ -161,63 +158,6 @@ $header_theme_class = "header-theme-inventory";
                 <canvas id="unifiedInventoryChart"></canvas>
             </div>
         </div>
-
-        <!-- Interactive Hub Buttons -->
-        <div class="hub-buttons-grid">
-            <div class="hub-btn" style="--btn-color: #38bdf8;" onclick="openPanel('inventory-movement.php', '📦 حركات البضائع', '#38bdf8')">
-                <div class="icon">📦</div>
-                <div class="title">حركات البضائع</div>
-                <div class="desc">تفاصيل حركة البضاعة بالكميات والقيم</div>
-            </div>
-            <div class="hub-btn" style="--btn-color: #34d399;" onclick="openPanel('item-ledger.php', '🏷️ حركة الأصناف (كارت الصنف)', '#34d399')">
-                <div class="icon">🏷️</div>
-                <div class="title">حركة الأصناف</div>
-                <div class="desc">كارت حركة الصنف التفصيلي والتراكمي</div>
-            </div>
-            <div class="hub-btn" style="--btn-color: #fbbf24;" onclick="openPanel('warehouse-ledger.php', '🏢 حركة المخازن', '#fbbf24')">
-                <div class="icon">🏢</div>
-                <div class="title">حركة المخازن</div>
-                <div class="desc">كشف حركة المستودعات والجرد الفرعي</div>
-            </div>
-            <div class="hub-btn" style="--btn-color: #a78bfa;" onclick="openPanel('inventory-summary.php', '📊 ملخص الحركات', '#a78bfa')">
-                <div class="icon">📊</div>
-                <div class="title">ملخص الحركات</div>
-                <div class="desc">نظرة عامة على الكميات والحركات المجمعة</div>
-            </div>
-            <div class="hub-btn" style="--btn-color: #f472b6;" onclick="openPanel('inventory-analytics.php', '📈 التحليلات المرئية', '#f472b6')">
-                <div class="icon">📈</div>
-                <div class="title">التحليلات المرئية</div>
-                <div class="desc">مؤشرات ورسوم بيانية وتقييم ABC</div>
-            </div>
-            <div class="hub-btn" style="--btn-color: #f87171;" onclick="openPanel('inventory-stocktake.php', '🔍 الجرد الشامل للمخازن', '#f87171')">
-                <div class="icon">🔍</div>
-                <div class="title">الجرد الشامل</div>
-                <div class="desc">تسويات جردية وتدقيق الكميات الفعلية</div>
-            </div>
-            <div class="hub-btn" style="--btn-color: #22d3ee;" onclick="openPanel('inventory-ai.php', '🤖 أدوات الذكاء الاصطناعي', '#22d3ee')">
-                <div class="icon">🤖</div>
-                <div class="title">الذكاء الاصطناعي</div>
-                <div class="desc">توقعات الطلب وتحليل راكد المخزون</div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Side Panel Overlay -->
-    <div class="side-panel-overlay" id="panel-overlay" onclick="closePanel()"></div>
-    
-    <!-- Side Panel -->
-    <div class="side-panel" id="side-panel">
-        <div class="side-panel-header">
-            <h2 class="side-panel-title" id="panel-title">عنوان النافذة</h2>
-            <button class="btn-close-panel" onclick="closePanel()" title="إغلاق النافذة (Esc)">✕</button>
-        </div>
-        <div class="side-panel-content">
-            <div class="panel-loader" id="panel-loader">
-                <div class="spinner"></div>
-                <div>جاري التجهيز والتحميل...</div>
-            </div>
-            <iframe id="panel-iframe" class="side-panel-iframe" onload="iframeLoaded()"></iframe>
-        </div>
     </div>
 
     <script src="js/app.js"></script>
@@ -231,69 +171,7 @@ $header_theme_class = "header-theme-inventory";
                 document.addEventListener('DBReady', renderUnifiedChart);
                 window.addEventListener('load', renderUnifiedChart);
             }
-
-            document.addEventListener('keydown', (e) => {
-                if (e.key === 'Escape' && document.getElementById('side-panel').classList.contains('active')) {
-                    closePanel();
-                }
-            });
         });
-
-        function openPanel(url, title, color) {
-            const overlay = document.getElementById('panel-overlay');
-            const panel = document.getElementById('side-panel');
-            const iframe = document.getElementById('panel-iframe');
-            const titleEl = document.getElementById('panel-title');
-            const loader = document.getElementById('panel-loader');
-
-            titleEl.innerHTML = title;
-            titleEl.style.color = color || '#fff';
-            
-            const fullUrl = url + (url.includes('?') ? '&' : '?') + 'is_panel=true';
-            
-            iframe.style.opacity = '0';
-            loader.classList.add('active');
-            
-            overlay.classList.add('active');
-            panel.classList.add('active');
-            
-            setTimeout(() => {
-                iframe.src = fullUrl;
-            }, 300);
-        }
-
-        function iframeLoaded() {
-            const iframe = document.getElementById('panel-iframe');
-            const loader = document.getElementById('panel-loader');
-            
-            try {
-                // Inject CSS into the iframe to hide standard navigation and sidebar
-                const style = document.createElement('style');
-                style.innerHTML = `
-                    header, .top-navbar, .sidebar, #sidebar, .nav-tabs, .nav-cluster { display: none !important; }
-                    html.has-sidebar, body.has-sidebar { padding: 0 !important; margin: 0 !important; }
-                    .dashboard-container { padding-top: 10px !important; }
-                `;
-                iframe.contentDocument.head.appendChild(style);
-            } catch(e) {
-                console.error('Cannot inject styles into iframe (CORS or structured differently):', e);
-            }
-
-            setTimeout(() => {
-                loader.classList.remove('active');
-                iframe.style.opacity = '1';
-                iframe.style.transition = 'opacity 0.3s ease';
-            }, 200);
-        }
-
-        function closePanel() {
-            document.getElementById('panel-overlay').classList.remove('active');
-            document.getElementById('side-panel').classList.remove('active');
-            
-            setTimeout(() => {
-                document.getElementById('panel-iframe').src = 'about:blank';
-            }, 500);
-        }
 
         function getStorageData(key) {
             try {
