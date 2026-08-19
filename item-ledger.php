@@ -1596,7 +1596,7 @@
                     const formatted = formatQtyInUnit(baseQty, baseUnitObj);
                     
                     return `<td style="font-weight:900; color:${isIn ? '#10b981' : '#ec4899'}; background:${isIn ? 'rgba(16,185,129,0.02)' : 'rgba(236,72,153,0.02)'}; text-align:center; vertical-align:middle;">
-                        <span style="font-size:0.92rem; font-weight:900;">${formatted}</span> <span style="font-size:0.72rem; font-weight:700; opacity:0.85;">${baseUnitObj.name}</span>
+                        <span style="font-size:0.95rem; font-weight:900;">${formatted}</span>
                     </td>`;
                 }
 
@@ -1622,15 +1622,12 @@
                 if (activeUnits.length === 1) {
                     balCells = `
                         <td style="color:#fbbf24; font-weight:900; background:rgba(251,191,36,0.02); text-align:center; vertical-align:middle;">
-                            <div style="display:inline-flex; align-items:baseline; gap:4px; justify-content:center;">
-                                <span style="font-size:0.95rem; font-weight:900;">${formatQtyInUnit(row.runningBalance, activeUnits[0])}</span> <span style="font-size:0.75rem; font-weight:700; opacity:0.85;">${activeUnits[0].name}</span>
-                            </div>
+                            <span style="font-size:0.95rem; font-weight:900;">${formatQtyInUnit(row.runningBalance, activeUnits[0])}</span>
                         </td>`;
                 } else {
                     balCells = activeUnits.map(u => `
                         <td style="color:#fbbf24; font-weight:900; background:rgba(251,191,36,0.02); font-size:0.95rem; text-align:center; vertical-align:middle;">
                             <span style="font-size:0.95rem; font-weight:900;">${formatQtyInUnit(row.runningBalance, u)}</span>
-                            <span style="font-size:0.72rem; font-weight:700; opacity:0.85;">${u.name}</span>
                         </td>
                     `).join('');
                 }
