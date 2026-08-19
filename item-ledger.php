@@ -1566,22 +1566,20 @@
                     else receiptTarget = `purchase.php?id=${row.receiptDocId || row.docId}`;
                 }
 
-                let refHtml = row.ref || row.receiptNo;
-                if (row.receiptDocId && receiptTarget) {
-                    tr.style.cursor = 'pointer';
-                    tr.title = 'انقر لفتح المستند';
-                    tr.onclick = () => { window.open(receiptTarget, '_blank'); };
-                    tr.onmouseover = () => tr.style.background = 'rgba(236, 72, 153, 0.05)';
-                    tr.onmouseout = () => tr.style.background = '';
-                    
-                    refHtml = `
-                        <div style="display:flex; align-items:center; gap:8px;">
-                            <span style="font-weight:700;">${row.ref}</span>
-                            <button onclick="event.stopPropagation(); window.open('${receiptTarget}', '_blank')" style="background:rgba(236,72,153,0.1); color:#ec4899; border:1px solid rgba(236,72,153,0.3); border-radius:6px; padding:3px 8px; cursor:pointer; font-size:0.75rem; font-weight:bold; display:flex; align-items:center; gap:4px; transition:all 0.2s;" onmouseover="this.style.background='#ec4899'; this.style.color='#fff';" onmouseout="this.style.background='rgba(236,72,153,0.1)'; this.style.color='#ec4899';">
-                                🔗 عرض الأصل
-                            </button>
-                        </div>
-                    `;
+                let rawRef = row.ref || row.receiptNo || '-';
+                let refHtml = '-';
+                if (rawRef && rawRef !== '-') {
+                    if (row.receiptDocId && receiptTarget) {
+                        refHtml = `
+                            <span style="background:rgba(236,72,153,0.1); border:1px solid rgba(236,72,153,0.3); color:#f472b6; padding:3px 8px; border-radius:6px; font-size:0.82rem; font-weight:800; font-family:monospace; display:inline-flex; align-items:center; cursor:pointer;" onclick="event.stopPropagation(); window.open('${receiptTarget}', '_blank')" title="انقر لفتح الفاتورة / السند الأصلي (${rawRef})">
+                                ${rawRef}
+                            </span>
+                        `;
+                    } else {
+                        refHtml = `<span style="font-weight:700; font-size:0.82rem;">${rawRef}</span>`;
+                    }
+                } else {
+                    refHtml = `<span style="color:#64748b; font-weight:600;">-</span>`;
                 }
 
                 const noteHtml = (row.notes && row.notes !== '-' && row.notes.trim()) ?
@@ -1598,8 +1596,7 @@
                     const formatted = formatQtyInUnit(baseQty, baseUnitObj);
                     
                     return `<td style="font-weight:900; color:${isIn ? '#10b981' : '#ec4899'}; background:${isIn ? 'rgba(16,185,129,0.02)' : 'rgba(236,72,153,0.02)'}; text-align:right; vertical-align:middle;">
-                        <span style="font-size:1.05rem;">${formatted}</span>
-                        <span style="font-size:0.75rem; font-weight:600; opacity:0.8;">${baseUnitObj.name}</span>
+                        <span style="font-size:0.92rem; font-weight:900;">${formatted}</span> <span style="font-size:0.72rem; font-weight:700; opacity:0.85;">${baseUnitObj.name}</span>
                     </td>`;
                 }
 
@@ -1612,8 +1609,7 @@
                 if (origQtyAbs > 0) {
                     origBadgeHtml = `
                         <div style="display:inline-flex; align-items:baseline; gap:4px; justify-content:flex-end; width:100%;">
-                            <span style="font-size:1.0rem; font-weight:900; color:#8b5cf6;">${fmtNum(origQtyAbs)}</span>
-                            <span style="font-size:0.8rem; font-weight:700; color:#8b5cf6; background:rgba(139,92,246,0.1); padding:2px 6px; border-radius:4px; border:1px solid rgba(139,92,246,0.2);">${origUnitStr}</span>
+                            <span style="font-size:0.92rem; font-weight:900; color:#a78bfa;">${fmtNum(origQtyAbs)}</span> <span style="font-size:0.72rem; font-weight:700; color:#c4b5fd; background:rgba(139,92,246,0.12); padding:2px 5px; border-radius:4px; border:1px solid rgba(139,92,246,0.25);">${origUnitStr}</span>
                         </div>
                     `;
                 }
@@ -1638,8 +1634,7 @@
                         <td style="color:#fbbf24; font-weight:900; background:rgba(251,191,36,0.02); text-align:right; vertical-align:middle;">
                             <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
                                 <div style="display:inline-flex; align-items:baseline; gap:4px;">
-                                    <span style="font-size:1.05rem; font-weight:900;">${formatQtyInUnit(row.runningBalance, activeUnits[0])}</span>
-                                    <span style="font-size:0.8rem; font-weight:700; opacity:0.8;">${activeUnits[0].name}</span>
+                                    <span style="font-size:0.95rem; font-weight:900;">${formatQtyInUnit(row.runningBalance, activeUnits[0])}</span> <span style="font-size:0.75rem; font-weight:700; opacity:0.85;">${activeUnits[0].name}</span>
                                 </div>
                                 ${subBal}
                             </div>
