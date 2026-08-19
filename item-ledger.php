@@ -174,23 +174,23 @@
         }
         .input-group select:focus, .input-group input:focus { border-color: var(--pink-accent); box-shadow: 0 0 0 3px rgba(236,72,153,0.15); background: rgba(0,0,0,0.5); }
 
-        /* Ultra-compact, elegant KPI Grid */
+        /* Ultra-compact, prominent bold KPI Grid */
         .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 8px; }
         .kpi-card {
-            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.85) 100%);
-            backdrop-filter: blur(15px); border-radius: 10px; padding: 7px 12px;
-            border: 1px solid var(--glass-border); display: flex; flex-direction: column; justify-content: center;
-            position: relative; overflow: hidden; transition: 0.2s; box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+            backdrop-filter: blur(15px); border-radius: 10px; padding: 8px 12px;
+            border: 1.5px solid rgba(255, 255, 255, 0.14); display: flex; flex-direction: column; justify-content: center;
+            position: relative; overflow: hidden; transition: 0.2s; box-shadow: 0 3px 12px rgba(0,0,0,0.25);
         }
-        .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
-        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2.5px; }
+        .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 5px 18px rgba(0,0,0,0.35); }
+        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
         .kpi-card.c-pink::before { background: var(--pink-accent); box-shadow: 0 0 10px var(--pink-glow); }
         .kpi-card.c-emerald::before { background: var(--emerald-accent); box-shadow: 0 0 10px var(--emerald-glow); }
         .kpi-card.c-blue::before { background: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
         .kpi-card.c-amber::before { background: #fbbf24; box-shadow: 0 0 10px rgba(251, 191, 36, 0.4); }
 
-        .kpi-title { font-size: 0.74rem; font-weight: 800; color: #94a3b8; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; line-height: 1.1; }
-        .kpi-val { font-size: 1.1rem; font-weight: 900; margin: 0; width: 100%; display: flex; align-items: center; }
+        .kpi-title { font-size: 0.78rem; font-weight: 900; color: #e2e8f0; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; line-height: 1.1; }
+        .kpi-val { font-size: 1.15rem; font-weight: 900; margin: 0; width: 100%; display: flex; align-items: center; }
 
         /* Data Table style matching inventory-report */
         .table-panel {
@@ -362,51 +362,51 @@
         </div>
 
         <!-- Filters -->
-        <div class="filters-bar" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 8px 14px; margin-bottom: 8px; flex-wrap: wrap; background: linear-gradient(135deg, rgba(30, 41, 59, 0.75) 0%, rgba(15, 23, 42, 0.9) 100%); backdrop-filter: blur(16px); border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 15px rgba(0,0,0,0.2);">
+        <div class="filters-bar" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 15px; margin-bottom: 8px; flex-wrap: wrap; background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%); backdrop-filter: blur(16px); border-radius: 12px; border: 1.5px solid rgba(255, 255, 255, 0.12); box-shadow: 0 4px 18px rgba(0,0,0,0.3);">
             
-            <!-- 1. الصنف (تم إنقاص مساحة القائمة بنسبة 30% وزيادة مساحة حقل البحث) -->
-            <div style="display: flex; align-items: center; gap: 6px; flex: 2.0; min-width: 270px;">
-                <label style="color: #38bdf8; font-size: 0.85rem; font-weight: 800; white-space: nowrap; margin: 0;">
+            <!-- 1. الصنف -->
+            <div style="display: flex; align-items: center; gap: 6px; flex: 2.0; min-width: 280px;">
+                <label style="color: #38bdf8; font-size: 0.9rem; font-weight: 900; white-space: nowrap; margin: 0; letter-spacing: 0.2px;">
                     الصنف:
                 </label>
                 <div style="display: flex; gap: 6px; flex: 1; min-width: 0;">
-                    <select id="item-select" onchange="onItemSelected()" style="flex: 1; min-width: 0; font-weight: 800; color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); padding: 7px 10px; font-size: 0.88rem; border-radius: 8px; background: rgba(15, 23, 42, 0.7); box-shadow: inset 0 1px 3px rgba(0,0,0,0.3); outline: none; cursor: pointer;">
+                    <select id="item-select" onchange="onItemSelected()" style="flex: 1; min-width: 0; font-weight: 900; color: #38bdf8; border: 1.5px solid rgba(56, 189, 248, 0.45); padding: 8px 12px; font-size: 0.92rem; border-radius: 8px; background: rgba(15, 23, 42, 0.85); box-shadow: inset 0 2px 4px rgba(0,0,0,0.35); outline: none; cursor: pointer;">
                         <option value="">-- يرجى اختيار صنف --</option>
                     </select>
                     <div style="position: relative; width: 140px; flex-shrink: 0;">
-                        <input type="text" id="item-quick-filter" placeholder="🔍 بحث عن صنف..." oninput="filterItemDropdown(this.value)" style="width: 100%; padding: 7px 10px; font-size: 0.82rem; border-radius: 8px; border: 1px solid rgba(56, 189, 248, 0.3); background: rgba(15, 23, 42, 0.85); color: #fff; outline: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);" title="اكتب لفلترة قائمة الأصناف سريعاً">
+                        <input type="text" id="item-quick-filter" placeholder="🔍 بحث عن صنف..." oninput="filterItemDropdown(this.value)" style="width: 100%; padding: 8px 10px; font-size: 0.85rem; font-weight: 800; border-radius: 8px; border: 1.5px solid rgba(56, 189, 248, 0.4); background: rgba(15, 23, 42, 0.9); color: #fff; outline: none; box-shadow: inset 0 2px 4px rgba(0,0,0,0.35);" title="اكتب لفلترة قائمة الأصناف سريعاً">
                     </div>
                 </div>
             </div>
             
-            <!-- 2. الوحدات (مساحة متسعة ومريحة) -->
+            <!-- 2. الوحدات -->
             <div style="display: flex; align-items: center; gap: 6px; flex: 2.4; min-width: 190px; max-width: 280px;">
-                <label style="color: #10b981; font-size: 0.85rem; font-weight: 800; white-space: nowrap; margin: 0;">
+                <label style="color: #10b981; font-size: 0.9rem; font-weight: 900; white-space: nowrap; margin: 0; letter-spacing: 0.2px;">
                     الوحدات:
                 </label>
-                <select id="display-unit-select" onchange="loadLedger()" style="width: 100%; min-width: 0; padding: 7px 10px; font-size: 0.88rem; font-weight: 800; color: #10b981; border: 1px solid rgba(16, 185, 129, 0.4); background: rgba(16, 185, 129, 0.08); border-radius: 8px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.3); outline: none; cursor: pointer;">
+                <select id="display-unit-select" onchange="loadLedger()" style="width: 100%; min-width: 0; padding: 8px 12px; font-size: 0.92rem; font-weight: 900; color: #10b981; border: 1.5px solid rgba(16, 185, 129, 0.5); background: rgba(16, 185, 129, 0.1); border-radius: 8px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.35); outline: none; cursor: pointer;">
                     <option value="">-- الأساسية --</option>
                 </select>
             </div>
 
             <!-- 3. المخزن -->
-            <div style="display: flex; align-items: center; gap: 6px; flex: 1.6; min-width: 150px;">
-                <label style="color: #cbd5e1; font-size: 0.85rem; font-weight: 800; white-space: nowrap; margin: 0;">
+            <div style="display: flex; align-items: center; gap: 6px; flex: 1.6; min-width: 155px;">
+                <label style="color: #e2e8f0; font-size: 0.9rem; font-weight: 900; white-space: nowrap; margin: 0; letter-spacing: 0.2px;">
                     المخزن:
                 </label>
-                <select id="warehouse-select" onchange="loadLedger()" style="width: 100%; min-width: 0; padding: 7px 10px; font-size: 0.85rem; font-weight: 600; border-radius: 8px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.12); color: #e2e8f0; outline: none; cursor: pointer;">
+                <select id="warehouse-select" onchange="loadLedger()" style="width: 100%; min-width: 0; padding: 8px 12px; font-size: 0.88rem; font-weight: 900; border-radius: 8px; background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(255, 255, 255, 0.18); color: #fff; box-shadow: inset 0 2px 4px rgba(0,0,0,0.35); outline: none; cursor: pointer;">
                     <option value="ALL">جميع المخازن</option>
                 </select>
             </div>
 
             <!-- 4. التاريخ -->
-            <div style="display: flex; align-items: center; gap: 4px; flex-shrink: 0;">
-                <label style="color: #cbd5e1; font-size: 0.85rem; font-weight: 800; white-space: nowrap; margin: 0; margin-left: 2px;">
+            <div style="display: flex; align-items: center; gap: 5px; flex-shrink: 0;">
+                <label style="color: #e2e8f0; font-size: 0.9rem; font-weight: 900; white-space: nowrap; margin: 0; margin-left: 2px;">
                     التاريخ:
                 </label>
-                <input type="date" id="date-from" onchange="loadLedger()" style="width: 116px; padding: 6px 4px; font-size: 0.78rem; border-radius: 8px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.12); color: #fff; outline: none; text-align: center;" title="من تاريخ">
-                <span style="font-size: 0.76rem; color: #94a3b8; font-weight: 800; padding: 0 1px;">إلى</span>
-                <input type="date" id="date-to" onchange="loadLedger()" style="width: 116px; padding: 6px 4px; font-size: 0.78rem; border-radius: 8px; background: rgba(15, 23, 42, 0.7); border: 1px solid rgba(255, 255, 255, 0.12); color: #fff; outline: none; text-align: center;" title="إلى تاريخ">
+                <input type="date" id="date-from" onchange="loadLedger()" style="width: 122px; padding: 7px 5px; font-size: 0.84rem; font-weight: 900; border-radius: 8px; background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(255, 255, 255, 0.18); color: #fff; outline: none; text-align: center;" title="من تاريخ">
+                <span style="font-size: 0.8rem; color: #cbd5e1; font-weight: 900; padding: 0 1px;">إلى</span>
+                <input type="date" id="date-to" onchange="loadLedger()" style="width: 122px; padding: 7px 5px; font-size: 0.84rem; font-weight: 900; border-radius: 8px; background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(255, 255, 255, 0.18); color: #fff; outline: none; text-align: center;" title="إلى تاريخ">
             </div>
 
         </div>
@@ -1434,9 +1434,9 @@
                 if (!units || units.length === 0) return '0';
                 
                 const unitsHtml = units.filter(u => u.factor > 0).map(u => `
-                    <div style="display:flex; flex-direction:column; align-items:center; text-align:center; padding: 3px 6px; background: rgba(0,0,0,0.25); border-radius: 6px; border: 1px solid rgba(255,255,255,0.04); flex: 1; min-width: 50px;">
-                        <span style="font-size:0.65rem; font-weight:700; color:#94a3b8; line-height:1.1; margin-bottom: 1px;">${u.name}</span>
-                        <strong style="font-size:0.98rem; font-weight:900; color:${themeColor}; font-family: 'Courier New', Courier, monospace; letter-spacing: -0.5px; line-height:1.1;">${formatQtyInUnit(val, u)}</strong>
+                    <div style="display:flex; flex-direction:column; align-items:center; text-align:center; padding: 3px 7px; background: rgba(0,0,0,0.35); border-radius: 7px; border: 1.5px solid rgba(255,255,255,0.08); flex: 1; min-width: 55px; box-shadow: inset 0 1px 3px rgba(0,0,0,0.3);">
+                        <span style="font-size:0.68rem; font-weight:800; color:#cbd5e1; line-height:1.1; margin-bottom: 2px;">${u.name}</span>
+                        <strong style="font-size:1.05rem; font-weight:900; color:${themeColor}; font-family: 'Courier New', Courier, monospace; letter-spacing: -0.5px; line-height:1.1;">${formatQtyInUnit(val, u)}</strong>
                     </div>
                 `).join('');
 
