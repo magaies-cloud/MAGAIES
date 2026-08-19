@@ -407,6 +407,7 @@
                 <input type="date" id="date-from" onchange="loadLedger()" style="width: 122px; padding: 7px 5px; font-size: 0.84rem; font-weight: 900; border-radius: 8px; background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(255, 255, 255, 0.18); color: #fff; outline: none; text-align: center;" title="من تاريخ">
                 <span style="font-size: 0.8rem; color: #cbd5e1; font-weight: 900; padding: 0 1px;">إلى</span>
                 <input type="date" id="date-to" onchange="loadLedger()" style="width: 122px; padding: 7px 5px; font-size: 0.84rem; font-weight: 900; border-radius: 8px; background: rgba(15, 23, 42, 0.85); border: 1.5px solid rgba(255, 255, 255, 0.18); color: #fff; outline: none; text-align: center;" title="إلى تاريخ">
+                <button type="button" onclick="document.getElementById('date-from').value=''; document.getElementById('date-to').value=''; loadLedger();" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; border-radius: 8px; padding: 6px 9px; font-size: 0.78rem; font-weight: 800; cursor: pointer; transition: 0.2s;" title="عرض كل الحركات التاريخية">كل الحركات</button>
             </div>
 
         </div>
@@ -796,7 +797,6 @@
                     uSelect.innerHTML = '<option value="">-- الوحدة الأساسية --</option>';
                 } else {
                     const units = getItemUnitsList(item);
-                    console.log("Units for item:", item.name, units);
                     units.forEach(u => {
                         const opt = document.createElement('option');
                         opt.value = u.name;
@@ -812,7 +812,6 @@
             const item = getSelectedItemObj();
             if (!item) return;
             const units = getItemUnitsList(item);
-                    console.log("Units for item:", item.name, units);
             const u1 = document.getElementById('unit-select-1');
             if (!u1) return;
             const curVal = u1.value;
@@ -834,7 +833,6 @@
             const item = getSelectedItemObj();
             if (!item) return;
             const units = getItemUnitsList(item);
-                    console.log("Units for item:", item.name, units);
             refreshUnit2Dropdown(units, false);
         }
 
@@ -842,7 +840,6 @@
             const item = getSelectedItemObj();
             if (!item) return;
             const units = getItemUnitsList(item);
-                    console.log("Units for item:", item.name, units);
             refreshUnit3Dropdown(units, false);
         }
 
@@ -850,14 +847,12 @@
             const item = getSelectedItemObj();
             if (!item) return;
             const units = getItemUnitsList(item);
-                    console.log("Units for item:", item.name, units);
             refreshUnit4Dropdown(units, false);
         }
 
         function onUnit1Change() {
             const item = getSelectedItemObj();
             const units = getItemUnitsList(item);
-                    console.log("Units for item:", item.name, units);
 
             refreshUnit2Dropdown(units, true);
             refreshUnit3Dropdown(units, true);
@@ -868,7 +863,6 @@
         function onUnit2Change() {
             const item = getSelectedItemObj();
             const units = getItemUnitsList(item);
-                    console.log("Units for item:", item.name, units);
 
             refreshUnit3Dropdown(units, true);
             refreshUnit4Dropdown(units, true);
@@ -878,7 +872,6 @@
         function onUnit3Change() {
             const item = getSelectedItemObj();
             const units = getItemUnitsList(item);
-                    console.log("Units for item:", item.name, units);
 
             refreshUnit4Dropdown(units, true);
             loadLedger();
@@ -993,11 +986,25 @@
         function getAllItemsFromStorage() {
             let items = [];
             // 1. Try DB_STORE
-            if (window.DB_STORE && window.getTenantKey) {
-                const tk = window.getTenantKey('erp_items_v1');
-                if (window.DB_STORE[tk]) {
+            if (window.DB_STORE) {
+                if (window.getTenantKey) {
+                    const tk = window.getTenantKey('erp_items_v1');
+                    if (window.DB_STORE[tk]) {
+                        try {
+                            const parsed = typeof window.DB_STORE[tk] === 'string' ? JSON.parse(window.DB_STORE[tk]) : window.DB_STORE[tk];
+                            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                        } catch(e){}
+                    }
+                }
+                if (window.DB_STORE['erp_items_v1']) {
                     try {
-                        const parsed = typeof window.DB_STORE[tk] === 'string' ? JSON.parse(window.DB_STORE[tk]) : window.DB_STORE[tk];
+                        const parsed = typeof window.DB_STORE['erp_items_v1'] === 'string' ? JSON.parse(window.DB_STORE['erp_items_v1']) : window.DB_STORE['erp_items_v1'];
+                        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                    } catch(e){}
+                }
+                if (window.DB_STORE['erp_items']) {
+                    try {
+                        const parsed = typeof window.DB_STORE['erp_items'] === 'string' ? JSON.parse(window.DB_STORE['erp_items']) : window.DB_STORE['erp_items'];
                         if (Array.isArray(parsed) && parsed.length > 0) return parsed;
                     } catch(e){}
                 }
@@ -1045,11 +1052,19 @@
         }
 
         function getStorageList(key) {
-            if (window.DB_STORE && window.getTenantKey) {
-                const tk = window.getTenantKey(key);
-                if (window.DB_STORE[tk]) {
+            if (window.DB_STORE) {
+                if (window.getTenantKey) {
+                    const tk = window.getTenantKey(key);
+                    if (window.DB_STORE[tk]) {
+                        try {
+                            const parsed = typeof window.DB_STORE[tk] === 'string' ? JSON.parse(window.DB_STORE[tk]) : window.DB_STORE[tk];
+                            if (Array.isArray(parsed)) return parsed;
+                        } catch(e){}
+                    }
+                }
+                if (window.DB_STORE[key]) {
                     try {
-                        const parsed = typeof window.DB_STORE[tk] === 'string' ? JSON.parse(window.DB_STORE[tk]) : window.DB_STORE[tk];
+                        const parsed = typeof window.DB_STORE[key] === 'string' ? JSON.parse(window.DB_STORE[key]) : window.DB_STORE[key];
                         if (Array.isArray(parsed)) return parsed;
                     } catch(e){}
                 }
@@ -1077,27 +1092,56 @@
         function initItemLedger() {
             itemsDb = getAllItemsFromStorage();
             
-            // Load caches once instead of on every keystroke
+            // Load caches
             cachedPurchases = getStorageList('erp_purchase_invoices_v1');
             cachedSales = getStorageList('erp_sales_invoices_v1');
             cachedTransfers = getStorageList('erp_warehouse_transfers_v1');
 
             populateItemDropdown();
 
-            // Auto retry if items were still loading in DB_STORE
-            if (itemsDb.length === 0) {
-                let retries = 0;
-                const retryInterval = setInterval(() => {
-                    retries++;
-                    itemsDb = getAllItemsFromStorage();
-                    if (itemsDb.length > 0 || retries > 15) {
-                        clearInterval(retryInterval);
-                        populateItemDropdown();
-                        checkUrlSelection();
+            // Direct localforage fallback if itemsDb is still empty
+            if (itemsDb.length === 0 && typeof localforage !== 'undefined') {
+                const tk = typeof window.getTenantKey === 'function' ? window.getTenantKey('erp_items_v1') : 'erp_items_v1';
+                localforage.getItem(tk).then(val => {
+                    if (val) {
+                        try {
+                            const parsed = typeof val === 'string' ? JSON.parse(val) : val;
+                            if (Array.isArray(parsed) && parsed.length > 0) {
+                                itemsDb = parsed;
+                                populateItemDropdown();
+                                checkUrlSelection();
+                            }
+                        } catch(e){}
                     }
-                }, 200);
-            } else {
-                checkUrlSelection();
+                }).catch(e=>{});
+            }
+
+            // Auto retry poller
+            let retries = 0;
+            const retryInterval = setInterval(() => {
+                retries++;
+                const newItems = getAllItemsFromStorage();
+                if (newItems.length > 0 && newItems.length !== itemsDb.length) {
+                    itemsDb = newItems;
+                    populateItemDropdown();
+                    checkUrlSelection();
+                }
+                if (itemsDb.length > 0 || retries > 20) {
+                    clearInterval(retryInterval);
+                }
+            }, 200);
+
+            // Bind focus/click auto-population on item select
+            const itemSelect = document.getElementById('item-select');
+            if (itemSelect) {
+                const ensurePopulated = () => {
+                    if (itemSelect.options.length <= 1) {
+                        itemsDb = getAllItemsFromStorage();
+                        populateItemDropdown();
+                    }
+                };
+                itemSelect.addEventListener('focus', ensurePopulated);
+                itemSelect.addEventListener('mousedown', ensurePopulated);
             }
 
             // Load Warehouses
@@ -1114,11 +1158,14 @@
                 });
             }
 
-            // Set default dates if empty
-            const dateTo = document.getElementById('date-to');
-            if (dateTo && !dateTo.value) {
-                dateTo.valueAsDate = new Date();
-            }
+            // URL params
+            const urlParams = new URLSearchParams(window.location.search);
+            const dateFromParam = urlParams.get('from') || urlParams.get('dateFrom');
+            const dateToParam = urlParams.get('to') || urlParams.get('dateTo');
+            if (dateFromParam) document.getElementById('date-from').value = dateFromParam;
+            if (dateToParam) document.getElementById('date-to').value = dateToParam;
+
+            checkUrlSelection();
         }
 
         function checkUrlSelection() {
@@ -1195,12 +1242,22 @@
         } else {
             initItemLedger();
         }
-        document.addEventListener('DBReady', initItemLedger);
-        window.addEventListener('load', initItemLedger);
+        document.addEventListener('DBReady', () => {
+            itemsDb = getAllItemsFromStorage();
+            populateItemDropdown();
+            checkUrlSelection();
+        });
+        window.addEventListener('load', () => {
+            if (itemsDb.length === 0) {
+                itemsDb = getAllItemsFromStorage();
+                populateItemDropdown();
+                checkUrlSelection();
+            }
+        });
 
         function buildRealHistory(itemId) {
             let history = [];
-            const itemObj = itemsDb.find(i => String(i.id) === String(itemId));
+            const itemObj = itemsDb.find(i => String(i.id) === String(itemId) || String(i.code) === String(itemId) || i.name === itemId);
             const itemBaseUnit = safeString(itemObj ? (itemObj.baseUnit || itemObj.unit || '') : '');
 
             // 0. Initial Opening Balance (from item record if created with stock)
@@ -1211,14 +1268,14 @@
                         date: new Date(itemObj.createdAt || '2020-01-01T00:00:00'),
                         typeCode: 'open',
                         typeName: 'رصيد افتتاحي (أول المدة)',
-                        permitNo: 'OPEN',
+                        permitNo: '-',
                         permitDocId: '',
                         receiptNo: 'OPEN',
                         receiptDocId: '',
                         isGRN: false,
                         ref: 'رصيد أول المدة',
                         docId: '',
-                        warehouse: 'ALL',
+                        warehouse: itemObj.openingBalanceWarehouseId || itemObj.warehouseId || itemObj.warehouse || 'ALL',
                         notes: 'الرصيد الافتتاحي عند تعريف الصنف في النظام',
                         in: initBal,
                         out: 0,
@@ -1256,13 +1313,21 @@
                 }
                 return 1;
             }
+
+            function isItemMatch(line) {
+                if (!line) return false;
+                const lId = String(line.itemId || line.productId || line.item_id || line.id || '');
+                const lCode = String(line.code || line.itemCode || '');
+                const targetId = String(itemId);
+                const targetCode = itemObj ? String(itemObj.code || '') : '';
+                return lId === targetId || (targetCode && (lId === targetCode || lCode === targetCode || lCode === targetId));
+            }
             
             // 1. Get Purchases & Adjustments
-            let purchases = cachedPurchases || [];
-            purchases = purchases.filter(x => !x.deleted);
+            let purchases = getStorageList('erp_purchase_invoices_v1').filter(x => !x.deleted);
             purchases.forEach(inv => {
                 (inv.items || inv.lines || []).forEach(line => {
-                    if (String(line.itemId) === String(itemId) || String(line.productId) === String(itemId)) {
+                    if (isItemMatch(line)) {
                         let wh = getWarehouseId(line.warehouseId || inv.warehouseId || inv.warehouse);
                         if (wh === 'PENDING_RECEIPT') {
                             return; // Skip pending items
@@ -1356,13 +1421,12 @@
             });
 
             // 2. Get Sales
-            let sales = cachedSales || [];
-            sales = sales.filter(x => !x.deleted && x.status !== 'draft' && x.status !== 'preliminary' && x.status !== 'pending_delivery');
+            let sales = getStorageList('erp_sales_invoices_v1').filter(x => !x.deleted && x.status !== 'draft' && x.status !== 'preliminary' && x.status !== 'pending_delivery');
             sales.forEach(inv => {
                 let hdrWh = inv.warehouse;
                 
                 (inv.items || []).forEach(line => {
-                    if (String(line.itemId) === String(itemId)) {
+                    if (isItemMatch(line)) {
                         if (inv.saleType === 'reserved' && inv.deliveryStatus !== 'delivered') {
                             return; // Skip if reserved and not delivered
                         }
@@ -1435,15 +1499,14 @@
             });
 
             // 3. Get Warehouse Transfers
-            let transfers = cachedTransfers || [];
-            transfers = transfers.filter(x => !x.deleted && x.status !== 'cancelled');
+            let transfers = getStorageList('erp_warehouse_transfers_v1').filter(x => !x.deleted && x.status !== 'cancelled');
             transfers.forEach(tr => {
                 let fromWh = getWarehouseId(tr.fromWarehouse);
                 let toWh = getWarehouseId(tr.toWarehouse);
                 let fromWhName = tr.fromWarehouseName || tr.fromWarehouse || 'المخزن';
                 let toWhName = tr.toWarehouseName || tr.toWarehouse || 'المخزن';
                 (tr.items || []).forEach(line => {
-                    if (String(line.itemId) === String(itemId)) {
+                    if (isItemMatch(line)) {
                         const origQty = parseFloat(line.quantity) || 0;
                         const origUnit   = safeString(line.unitName || line.unit || line.selectedUnit || itemBaseUnit || '');
                         let resolvedFactor = resolveUnitFactor(line, itemObj);
@@ -1540,12 +1603,14 @@
                         <th rowspan="2" style="color:#38bdf8; vertical-align:middle; text-align:center;">ملحوظة الحركة</th>
                         <th rowspan="2" style="color:#8b5cf6; background:rgba(139,92,246,0.05); vertical-align:middle; text-align:center;">وحدة وكمية الوارد والصادر</th>
                         <th rowspan="2" style="color:#10b981; background:rgba(16,185,129,0.07); vertical-align:middle; text-align:center; white-space:nowrap;">
-                            الوارد<br><span style="font-size:0.72rem; opacity:0.75;">(بوحدة الحركة)</span>
+                            الوارد<br><span style="font-size:0.75rem; font-weight:600; opacity:0.75;">(بـ ${baseUnitName})</span>
                         </th>
                         <th rowspan="2" style="color:#ec4899; background:rgba(236,72,153,0.07); vertical-align:middle; text-align:center; white-space:nowrap;">
-                            المنصرف<br><span style="font-size:0.72rem; opacity:0.75;">(بوحدة الحركة)</span>
+                            المنصرف<br><span style="font-size:0.75rem; font-weight:600; opacity:0.75;">(بـ ${baseUnitName})</span>
                         </th>
-                        <th colspan="${numBalCols}" style="color:#fbbf24; background:rgba(251,191,36,0.05); text-align:center; border-bottom:1px solid rgba(251,191,36,0.25);">الرصيد التراكمي</th>
+                        <th colspan="${numBalCols}" style="color:#fbbf24; background:rgba(251,191,36,0.08); text-align:center;">
+                            الرصيد
+                        </th>
                     </tr>
                     <tr>
                         ${uHeadersBal}
@@ -1607,7 +1672,7 @@
             if (btnPreview) btnPreview.style.display = 'flex';
             if (btnPrint) btnPrint.style.display = 'flex';
 
-            const item = itemsDb.find(i => String(i.id) === String(itemId));
+            const item = itemsDb.find(i => String(i.id) === String(itemId) || String(i.code) === String(itemId) || i.name === itemId);
             const activeUnits = getActiveSelectedUnits(item);
             renderLedgerTableHeader(activeUnits);
             
@@ -1631,42 +1696,36 @@
             });
             const actualCurrentStock = running;
 
-            // 5. Apply Date Filters for display
+            // 5. Apply Date Filters
             const fromDateStr = document.getElementById('date-from').value;
             const toDateStr = document.getElementById('date-to').value;
             
-            let filteredHistory = history.map(h => ({ ...h, date: new Date(h.date) }));
+            const fromDate = fromDateStr ? new Date(fromDateStr + 'T00:00:00') : null;
+            const toDate = toDateStr ? new Date(toDateStr + 'T23:59:59.999') : null;
 
-            if (fromDateStr) {
-                let d = new Date(fromDateStr); d.setHours(0,0,0,0);
-                filteredHistory = filteredHistory.filter(h => h.date >= d);
-            }
-            if (toDateStr) {
-                let d = new Date(toDateStr); d.setHours(23,59,59,999);
-                filteredHistory = filteredHistory.filter(h => h.date <= d);
-            }
-
-            tbody.innerHTML = '';
+            let filteredHistory = [];
+            let sumOpen = 0;
             let sumIn = 0;
             let sumOut = 0;
-            let sumOpen = 0;
 
+            history.forEach(row => {
+                const rowDate = new Date(row.date);
+                if (fromDate && rowDate < fromDate) {
+                    sumOpen += (row.in - row.out);
+                } else if ((!fromDate || rowDate >= fromDate) && (!toDate || rowDate <= toDate)) {
+                    filteredHistory.push(row);
+                    if (row.typeCode === 'in') sumIn += row.in;
+                    else if (row.typeCode === 'out') sumOut += row.out;
+                    else if (row.typeCode === 'open') sumOpen += row.in;
+                }
+            });
+
+            tbody.innerHTML = '';
             const totalCols = 5 + (activeUnits.length * 3);
 
             if (filteredHistory.length === 0) {
-                 tbody.innerHTML = `<tr><td colspan="${totalCols}" style="text-align:center; padding:30px; color:var(--text-secondary);">لا توجد حركات لهذا الصنف في هذه الفترة</td></tr>`;
-            } else {
-                 const firstFilteredIndex = history.findIndex(h => h.date >= new Date(fromDateStr || '1970-01-01'));
-                 if (firstFilteredIndex > 0) {
-                     sumOpen = history[firstFilteredIndex - 1].runningBalance;
-                 } else {
-                     sumOpen = 0;
-                 }
+                 tbody.innerHTML = `<tr><td colspan="${totalCols}" style="text-align:center; padding:30px; color:var(--text-secondary); font-weight:700;">لا توجد حركات لهذا الصنف في الفترة المحددة</td></tr>`;
             }
-
-            filteredHistory.forEach((row) => {
-                if (row.typeCode === 'in') sumIn += row.in;
-                if (row.typeCode === 'out') sumOut += row.out;
 
                 let typeBadge = '';
                 if (row.typeCode === 'in') typeBadge = `<span class="type-badge type-in">${row.typeName}</span>`;
