@@ -174,30 +174,23 @@
         }
         .input-group select:focus, .input-group input:focus { border-color: var(--pink-accent); box-shadow: 0 0 0 3px rgba(236,72,153,0.15); background: rgba(0,0,0,0.5); }
 
-        /* KPI Grid & KPI Cards style matching inventory-report */
-        .kpi-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; }
+        /* Ultra-compact, elegant KPI Grid */
+        .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 8px; }
         .kpi-card {
-            background: var(--panel-bg); backdrop-filter: blur(15px); border-radius: 16px; padding: 20px;
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.85) 100%);
+            backdrop-filter: blur(15px); border-radius: 10px; padding: 7px 12px;
             border: 1px solid var(--glass-border); display: flex; flex-direction: column; justify-content: center;
-            position: relative; overflow: hidden; transition: 0.3s;
+            position: relative; overflow: hidden; transition: 0.2s; box-shadow: 0 2px 10px rgba(0,0,0,0.2);
         }
-        .kpi-card:hover { transform: translateY(-5px); }
-        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; }
-        .kpi-card.c-pink::before { background: var(--pink-accent); box-shadow: 0 0 15px var(--pink-glow); }
-        .kpi-card.c-emerald::before { background: var(--emerald-accent); box-shadow: 0 0 15px var(--emerald-glow); animation: breathGlowEmerald 3s infinite; }
-        .kpi-card.c-blue::before { background: #38bdf8; box-shadow: 0 0 15px rgba(56, 189, 248, 0.4); }
-        .kpi-card.c-amber::before { background: #fbbf24; box-shadow: 0 0 15px rgba(251, 191, 36, 0.4); }
+        .kpi-card:hover { transform: translateY(-2px); box-shadow: 0 4px 15px rgba(0,0,0,0.3); }
+        .kpi-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2.5px; }
+        .kpi-card.c-pink::before { background: var(--pink-accent); box-shadow: 0 0 10px var(--pink-glow); }
+        .kpi-card.c-emerald::before { background: var(--emerald-accent); box-shadow: 0 0 10px var(--emerald-glow); }
+        .kpi-card.c-blue::before { background: #38bdf8; box-shadow: 0 0 10px rgba(56, 189, 248, 0.4); }
+        .kpi-card.c-amber::before { background: #fbbf24; box-shadow: 0 0 10px rgba(251, 191, 36, 0.4); }
 
-        @keyframes breathGlowEmerald { 0%,100% { box-shadow: 0 0 5px var(--emerald-glow); } 50% { box-shadow: 0 0 25px var(--emerald-glow); } }
-        @keyframes breathGlowAmber { 0%,100% { opacity: 0.8; } 50% { opacity: 1; text-shadow: 0 0 15px rgba(251,191,36,0.6); } }
-
-        .kpi-title { font-size: 0.8rem; font-weight: 700; color: var(--text-secondary); margin-bottom: 10px; display: flex; justify-content: space-between; align-items: center; }
-        .kpi-val { font-size: 2.2rem; font-weight: 900; margin: 0; display: flex; align-items: baseline; gap: 8px; }
-        .kpi-val span { font-size: 1rem; font-weight: 600; color: var(--text-secondary); }
-        .kpi-card.c-pink .kpi-val { color: var(--pink-accent); }
-        .kpi-card.c-emerald .kpi-val { color: var(--emerald-accent); }
-        .kpi-card.c-blue .kpi-val { color: #38bdf8; }
-        .kpi-card.c-amber .kpi-val { color: #fbbf24; animation: breathGlowAmber 2s infinite; }
+        .kpi-title { font-size: 0.74rem; font-weight: 800; color: #94a3b8; margin-bottom: 4px; display: flex; justify-content: space-between; align-items: center; line-height: 1.1; }
+        .kpi-val { font-size: 1.1rem; font-weight: 900; margin: 0; width: 100%; display: flex; align-items: center; }
 
         /* Data Table style matching inventory-report */
         .table-panel {
@@ -1441,14 +1434,14 @@
                 if (!units || units.length === 0) return '0';
                 
                 const unitsHtml = units.filter(u => u.factor > 0).map(u => `
-                    <div style="display:flex; flex-direction:column; align-items:center; text-align:center; padding: 4px 8px; background: rgba(0,0,0,0.15); border-radius: 8px; flex: 1; min-width: 60px;">
-                        <span style="font-size:0.7rem; font-weight:700; color:#cbd5e1; opacity:0.9; margin-bottom: 2px;">${u.name}</span>
-                        <strong style="font-size:1.15rem; font-weight:900; color:${themeColor}; font-family: 'Courier New', Courier, monospace; letter-spacing: -0.5px;">${formatQtyInUnit(val, u)}</strong>
+                    <div style="display:flex; flex-direction:column; align-items:center; text-align:center; padding: 3px 6px; background: rgba(0,0,0,0.25); border-radius: 6px; border: 1px solid rgba(255,255,255,0.04); flex: 1; min-width: 50px;">
+                        <span style="font-size:0.65rem; font-weight:700; color:#94a3b8; line-height:1.1; margin-bottom: 1px;">${u.name}</span>
+                        <strong style="font-size:0.98rem; font-weight:900; color:${themeColor}; font-family: 'Courier New', Courier, monospace; letter-spacing: -0.5px; line-height:1.1;">${formatQtyInUnit(val, u)}</strong>
                     </div>
                 `).join('');
 
                 return `
-                    <div style="display:flex; flex-direction:row; flex-wrap:wrap; gap: 8px; width: 100%; justify-content: flex-start; margin-top: 5px;">
+                    <div style="display:flex; flex-direction:row; flex-wrap:wrap; gap: 5px; width: 100%; justify-content: flex-start;">
                         ${unitsHtml}
                     </div>
                 `;
