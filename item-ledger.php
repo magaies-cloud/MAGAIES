@@ -1107,7 +1107,7 @@
                         }
 
                         const origQty    = parseFloat(line.quantity) || 0;
-                        const origUnit   = safeString(line.unit || line.selectedUnit || itemBaseUnit || '');
+                        const origUnit   = safeString(line.unitName || line.unit || line.selectedUnit || itemBaseUnit || '');
                         const origFactor = resolveUnitFactor(line, itemObj);
 
                         let baseQty = (line.customBaseQty !== undefined) ? (parseFloat(line.customBaseQty) || 0) : (origQty * origFactor);
@@ -1206,7 +1206,7 @@
                         }
                         
                         const origQty    = parseFloat(line.quantity) || 0;
-                        const origUnit   = safeString(line.unit || line.selectedUnit || itemBaseUnit || '');
+                        const origUnit   = safeString(line.unitName || line.unit || line.selectedUnit || itemBaseUnit || '');
                         const origFactor = resolveUnitFactor(line, itemObj);
 
                         let baseQty = (line.customBaseQty !== undefined) ? (parseFloat(line.customBaseQty) || 0) : (origQty * origFactor);
@@ -1278,7 +1278,7 @@
                 (tr.items || []).forEach(line => {
                     if (String(line.itemId) === String(itemId)) {
                         const origQty = parseFloat(line.quantity) || 0;
-                        const origUnit = safeString(line.unitName || line.unit || itemBaseUnit || '');
+                        const origUnit   = safeString(line.unitName || line.unit || line.selectedUnit || itemBaseUnit || '');
                         let resolvedFactor = resolveUnitFactor(line, itemObj);
                         let baseQty = (line.customBaseQty !== undefined) ? parseFloat(line.customBaseQty) : (origQty * resolvedFactor);
 
