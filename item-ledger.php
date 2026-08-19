@@ -1348,6 +1348,7 @@
                         <th>نوع الحركة</th>
                         <th style="color:#38bdf8;">رقم الإذن</th>
                         <th>رقم الاستلام</th>
+                        <th style="color:#8b5cf6; background:rgba(139,92,246,0.05); text-align:right;">الكمية الأصلية للحركة</th>
                         <th style="color:#10b981; background:rgba(16,185,129,0.07); text-align:right; white-space:nowrap;">
                             الوارد<br><span style="font-size:0.75rem; font-weight:600; opacity:0.75;">(بوحدة الحركة)</span>
                         </th>
