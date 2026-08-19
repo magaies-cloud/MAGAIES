@@ -1032,7 +1032,7 @@
                 if (!query || searchStr.includes(query)) {
                     const opt = document.createElement('option');
                     opt.value = item.id;
-                    opt.text = `[${code}] ${name}${cat ? ' (' + cat + ')' : ''}`;
+                    opt.text = name;
                     select.appendChild(opt);
                     count++;
                 }
@@ -2005,7 +2005,7 @@
                         <span style="font-size:1.2rem;">📦</span>
                         <div>
                             <span style="color:#64748b; font-size:0.75rem;">اسم وكود الصنف:</span><br>
-                            <strong style="color:#0f172a; font-size:1rem;">[${itemCode}] ${itemName}</strong>
+                            <strong style="color:#0f172a; font-size:1rem;">${itemName}</strong>
                         </div>
                     </div>
                     <div>
