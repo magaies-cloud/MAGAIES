@@ -369,42 +369,46 @@
         </div>
 
         <!-- Filters -->
-        <div class="filters-bar" style="grid-template-columns: 1.3fr 1.2fr 1.5fr 1.1fr 1.1fr; align-items: end; gap: 12px; padding: 14px 18px; margin-bottom: 6px;">
-            <div class="input-group">
-                <label style="display: flex; justify-content: space-between; align-items: center;">
-                    <span>1. اختر الصنف المراد جرده</span>
-                    <span id="item-count-badge" style="font-size: 0.72rem; color: #38bdf8; font-weight: 800;">(0 صنف)</span>
+        <div class="filters-bar" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px; margin-bottom: 8px; flex-wrap: wrap; background: var(--panel-bg); backdrop-filter: blur(15px); border-radius: 14px; border: 1px solid var(--glass-border);">
+            
+            <!-- 1. الصنف (مساحة واسعة وكبيرة) -->
+            <div style="display: flex; align-items: center; gap: 8px; flex: 3.5; min-width: 280px;">
+                <label style="font-size: 0.85rem; font-weight: 800; color: #38bdf8; white-space: nowrap; margin: 0; display: flex; align-items: center; gap: 4px;">
+                    <span>الصنف:</span>
+                    <span id="item-count-badge" style="font-size: 0.72rem; color: #94a3b8; font-weight: 600;">(0)</span>
                 </label>
-                <div style="display: flex; gap: 6px;">
-                    <div style="position: relative; flex: 1;">
-                        <select id="item-select" onchange="onItemSelected()" style="width: 100%; font-weight: 800; color: #38bdf8; border-color: rgba(56,189,248,0.4); padding: 9px 12px; font-size: 0.88rem;">
-                            <option value="">-- يرجى اختيار صنف --</option>
-                        </select>
-                    </div>
-                    <input type="text" id="item-quick-filter" placeholder="🔍 بحث..." oninput="filterItemDropdown(this.value)" style="width: 80px; padding: 8px 8px; font-size: 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: #fff;" title="اكتب لفلترة قائمة الأصناف سريعاً">
+                <div style="display: flex; gap: 5px; flex: 1; min-width: 0;">
+                    <select id="item-select" onchange="onItemSelected()" style="flex: 1; min-width: 0; font-weight: 800; color: #38bdf8; border-color: rgba(56,189,248,0.4); padding: 7px 10px; font-size: 0.88rem; border-radius: 8px; background: rgba(0,0,0,0.3);">
+                        <option value="">-- يرجى اختيار صنف --</option>
+                    </select>
+                    <input type="text" id="item-quick-filter" placeholder="🔍 بحث" oninput="filterItemDropdown(this.value)" style="width: 60px; padding: 7px 6px; font-size: 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: #fff; text-align: center;" title="اكتب لفلترة قائمة الأصناف سريعاً">
                 </div>
             </div>
             
-            <div class="input-group">
-                <label>2. الوحدات <span style="font-size:0.6rem; color:#64748b;">(محدث)</span></label>
-                <select id="display-unit-select" onchange="loadLedger()" style="padding: 9px 12px; font-size: 0.88rem; font-weight:800; color:#10b981; border-color:rgba(16,185,129,0.4); background:rgba(16,185,129,0.05);">
-                    <option value="">-- الوحدة الأساسية --</option>
+            <!-- 2. الوحدات (مساحة مقتصدة بنسبة 40%) -->
+            <div style="display: flex; align-items: center; gap: 6px; flex: 1.2; min-width: 130px; max-width: 190px;">
+                <label style="font-size: 0.85rem; font-weight: 800; color: #10b981; white-space: nowrap; margin: 0;">الوحدات:</label>
+                <select id="display-unit-select" onchange="loadLedger()" style="width: 100%; min-width: 0; padding: 7px 8px; font-size: 0.85rem; font-weight: 800; color: #10b981; border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.05); border-radius: 8px;">
+                    <option value="">-- الأساسية --</option>
                 </select>
             </div>
-            <div class="input-group">
-                <label>3. المخزن (اختياري)</label>
-                <select id="warehouse-select" onchange="loadLedger()" style="padding: 9px 12px; font-size: 0.88rem;">
+
+            <!-- 3. المخازن -->
+            <div style="display: flex; align-items: center; gap: 6px; flex: 1.8; min-width: 160px;">
+                <label style="font-size: 0.85rem; font-weight: 800; color: #cbd5e1; white-space: nowrap; margin: 0;">المخازن:</label>
+                <select id="warehouse-select" onchange="loadLedger()" style="width: 100%; min-width: 0; padding: 7px 10px; font-size: 0.85rem; border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
                     <option value="ALL">🏢 جميع المخازن</option>
                 </select>
             </div>
-            <div class="input-group">
-                <label>4. من تاريخ</label>
-                <input type="date" id="date-from" onchange="loadLedger()">
+
+            <!-- 4. التاريخ (مساحة مقتصدة بنسبة 50% في سطر واحد) -->
+            <div style="display: flex; align-items: center; gap: 6px; flex: 2.2; min-width: 250px;">
+                <label style="font-size: 0.85rem; font-weight: 800; color: #cbd5e1; white-space: nowrap; margin: 0;">التاريخ:</label>
+                <input type="date" id="date-from" onchange="loadLedger()" style="flex: 1; min-width: 0; padding: 6px 8px; font-size: 0.82rem; border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff;" title="من تاريخ">
+                <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 700;">إلى</span>
+                <input type="date" id="date-to" onchange="loadLedger()" style="flex: 1; min-width: 0; padding: 6px 8px; font-size: 0.82rem; border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff;" title="إلى تاريخ">
             </div>
-            <div class="input-group">
-                <label>5. إلى تاريخ</label>
-                <input type="date" id="date-to" onchange="loadLedger()">
-            </div>
+
         </div>
 
         <!-- KPI Cards -->
