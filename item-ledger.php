@@ -369,7 +369,7 @@
         </div>
 
         <!-- Filters -->
-        <div class="filters-bar" style="grid-template-columns: 1.3fr 1.5fr 1.1fr 1fr 1fr; align-items: end; gap: 12px; padding: 14px 18px; margin-bottom: 6px;">
+        <div class="filters-bar" style="grid-template-columns: 1.3fr 1.2fr 1.5fr 1.1fr 1.1fr; align-items: end; gap: 12px; padding: 14px 18px; margin-bottom: 6px;">
             <div class="input-group">
                 <label style="display: flex; justify-content: space-between; align-items: center;">
                     <span>1. اختر الصنف المراد جرده</span>
@@ -386,17 +386,23 @@
             </div>
             
             <div class="input-group">
-                <label>2. المخزن (اختياري)</label>
+                <label>2. الوحدات <span style="font-size:0.6rem; color:#64748b;">(محدث)</span></label>
+                <select id="display-unit-select" onchange="loadLedger()" style="padding: 9px 12px; font-size: 0.88rem; font-weight:800; color:#10b981; border-color:rgba(16,185,129,0.4); background:rgba(16,185,129,0.05);">
+                    <option value="">-- الوحدة الأساسية --</option>
+                </select>
+            </div>
+            <div class="input-group">
+                <label>3. المخزن (اختياري)</label>
                 <select id="warehouse-select" onchange="loadLedger()" style="padding: 9px 12px; font-size: 0.88rem;">
                     <option value="ALL">🏢 جميع المخازن</option>
                 </select>
             </div>
             <div class="input-group">
-                <label>2. من تاريخ</label>
+                <label>4. من تاريخ</label>
                 <input type="date" id="date-from" onchange="loadLedger()">
             </div>
             <div class="input-group">
-                <label>3. إلى تاريخ</label>
+                <label>5. إلى تاريخ</label>
                 <input type="date" id="date-to" onchange="loadLedger()">
             </div>
         </div>
@@ -780,6 +786,7 @@
                     uSelect.innerHTML = '<option value="">-- الوحدة الأساسية --</option>';
                 } else {
                     const units = getItemUnitsList(item);
+                    console.log("Units for item:", item.name, units);
                     units.forEach(u => {
                         const opt = document.createElement('option');
                         opt.value = u.name;
@@ -795,6 +802,7 @@
             const item = getSelectedItemObj();
             if (!item) return;
             const units = getItemUnitsList(item);
+                    console.log("Units for item:", item.name, units);
             const u1 = document.getElementById('unit-select-1');
             if (!u1) return;
             const curVal = u1.value;
@@ -816,6 +824,7 @@
             const item = getSelectedItemObj();
             if (!item) return;
             const units = getItemUnitsList(item);
+                    console.log("Units for item:", item.name, units);
             refreshUnit2Dropdown(units, false);
         }
 
@@ -823,6 +832,7 @@
             const item = getSelectedItemObj();
             if (!item) return;
             const units = getItemUnitsList(item);
+                    console.log("Units for item:", item.name, units);
             refreshUnit3Dropdown(units, false);
         }
 
@@ -830,12 +840,14 @@
             const item = getSelectedItemObj();
             if (!item) return;
             const units = getItemUnitsList(item);
+                    console.log("Units for item:", item.name, units);
             refreshUnit4Dropdown(units, false);
         }
 
         function onUnit1Change() {
             const item = getSelectedItemObj();
             const units = getItemUnitsList(item);
+                    console.log("Units for item:", item.name, units);
 
             refreshUnit2Dropdown(units, true);
             refreshUnit3Dropdown(units, true);
@@ -846,6 +858,7 @@
         function onUnit2Change() {
             const item = getSelectedItemObj();
             const units = getItemUnitsList(item);
+                    console.log("Units for item:", item.name, units);
 
             refreshUnit3Dropdown(units, true);
             refreshUnit4Dropdown(units, true);
@@ -855,6 +868,7 @@
         function onUnit3Change() {
             const item = getSelectedItemObj();
             const units = getItemUnitsList(item);
+                    console.log("Units for item:", item.name, units);
 
             refreshUnit4Dropdown(units, true);
             loadLedger();
