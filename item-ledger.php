@@ -741,7 +741,7 @@
                 const purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
                 purchases.forEach(inv => {
                     (inv.items || inv.lines || []).forEach(line => {
-                        if ((String(line.itemId) === String(item.id) || String(line.productId) === String(item.id)) && (line.unit || line.unitName)) {
+                        if (item.id && (String(line.itemId) === String(item.id) || String(line.productId) === String(item.id)) && (line.unit || line.unitName)) {
                             const uName = safeString(line.unit || line.unitName);
                             if (uName && !list.some(u => u.name === uName)) {
                                 list.push({ name: uName, factor: parseFloat(line.customFactor || line.factor) || 1 });
