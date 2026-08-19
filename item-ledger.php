@@ -1658,11 +1658,11 @@
                     <td>${typeBadge}</td>
                     <td style="font-weight:700;">${permitHtml}</td>
                     <td style="font-weight:600;">${refHtml}</td>
+                    <td>${noteHtml}</td>
                     ${origCell}
                     ${inCell}
                     ${outCell}
                     ${balCells}
-                    <td>${noteHtml}</td>
                 `;
                 tbody.appendChild(tr);
             });
