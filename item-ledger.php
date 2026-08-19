@@ -1429,34 +1429,18 @@
             function formatKpiDisplay(val, units, themeColor) {
                 if (!units || units.length === 0) return '0';
                 
-                // Primary Unit Display
-                const main = `
-                    <div style="display:flex; align-items:baseline; gap: 6px;">
-                        <span style="font-size:1.7rem; font-weight:900; line-height: 1;">${formatQtyInUnit(val, units[0])}</span>
-                        <span style="font-size:0.9rem; font-weight:700; opacity:0.85; color: ${themeColor};">${units[0].name}</span>
+                const unitsHtml = units.filter(u => u.factor > 0).map(u => `
+                    <div style="display:flex; flex-direction:column; align-items:center; text-align:center; padding: 4px 8px; background: rgba(0,0,0,0.15); border-radius: 8px; flex: 1; min-width: 60px;">
+                        <span style="font-size:0.7rem; font-weight:700; color:#cbd5e1; opacity:0.9; margin-bottom: 2px;">${u.name}</span>
+                        <strong style="font-size:1.15rem; font-weight:900; color:${themeColor}; font-family: 'Courier New', Courier, monospace; letter-spacing: -0.5px;">${formatQtyInUnit(val, u)}</strong>
+                    </div>
+                `).join('');
+
+                return `
+                    <div style="display:flex; flex-direction:row; flex-wrap:wrap; gap: 8px; width: 100%; justify-content: flex-start; margin-top: 5px;">
+                        ${unitsHtml}
                     </div>
                 `;
-
-                const otherUnits = units.filter((u, i) => i > 0 && u.factor > 0);
-                if (otherUnits.length > 0) {
-                    // Elegant horizontal pills for secondary units
-                    const subs = otherUnits.map(u => `
-                        <div style="display:inline-flex; align-items:center; gap: 4px; padding: 3px 8px; background: rgba(0,0,0,0.25); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); white-space:nowrap;">
-                            <strong style="font-size:0.88rem; font-weight:800; color:${themeColor}; font-family: 'Courier New', Courier, monospace; letter-spacing:-0.5px;">${formatQtyInUnit(val, u)}</strong>
-                            <span style="font-size:0.72rem; font-weight:600; color:#cbd5e1; opacity:0.9;">${u.name}</span>
-                        </div>
-                    `).join('');
-
-                    return `
-                        <div style="display:flex; flex-direction:column; width: 100%;">
-                            ${main}
-                            <div style="display:flex; flex-direction:row; flex-wrap:wrap; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.1);">
-                                ${subs}
-                            </div>
-                        </div>
-                    `;
-                }
-                return main;
             }
 
             document.getElementById('sum-open').innerHTML = formatKpiDisplay(sumOpen, allUnits, '#60a5fa');
