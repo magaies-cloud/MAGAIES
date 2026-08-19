@@ -879,11 +879,15 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function toggleSettingsPanel() {
     const p = document.getElementById('settings-panel');
+    if (!p) return;
     const isOpening = (p.style.display === 'none' || p.style.display === '');
     p.style.display = isOpening ? 'flex' : 'none';
 
-    if (isOpening && selectedColIndex === null) {
-        selectColumn(6); // Default select "مدين محلي"
+    if (isOpening) {
+        renderColumnManagerChips();
+        if (selectedColIndex === null) {
+            selectColumn(0); // Default select first column
+        }
     }
 }
 
@@ -896,24 +900,25 @@ function switchStudioTab(tab) {
     const contentPaper = document.getElementById('studio-tab-paper');
     const contentPresets = document.getElementById('studio-tab-presets');
 
-    btnCols.classList.remove('active');
-    btnPaper.classList.remove('active');
+    if (btnCols) btnCols.classList.remove('active');
+    if (btnPaper) btnPaper.classList.remove('active');
     if (btnPresets) btnPresets.classList.remove('active');
 
-    contentCols.style.display = 'none';
-    contentPaper.style.display = 'none';
+    if (contentCols) contentCols.style.display = 'none';
+    if (contentPaper) contentPaper.style.display = 'none';
     if (contentPresets) contentPresets.style.display = 'none';
 
     if (tab === 'cols') {
-        btnCols.classList.add('active');
-        contentCols.style.display = 'block';
+        if (btnCols) btnCols.classList.add('active');
+        if (contentCols) contentCols.style.display = 'block';
+        renderColumnManagerChips();
     } else if (tab === 'paper') {
-        btnPaper.classList.add('active');
-        contentPaper.style.display = 'block';
+        if (btnPaper) btnPaper.classList.add('active');
+        if (contentPaper) contentPaper.style.display = 'block';
     } else if (tab === 'presets') {
         if (btnPresets) btnPresets.classList.add('active');
         if (contentPresets) contentPresets.style.display = 'block';
-        renderPresetsManagementList();
+        if (typeof renderPresetsManagementList === 'function') renderPresetsManagementList();
     }
 }
 
