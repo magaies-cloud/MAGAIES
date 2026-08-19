@@ -1429,7 +1429,7 @@
             function formatKpiDisplay(val, units) {
                 if (!units || units.length === 0) return '0';
                 const main = `<span style="font-size:1.25rem; font-weight:900;">${formatQtyInUnit(val, units[0])}</span> <span style="font-size:0.85rem; font-weight:700; opacity:0.85;">${units[0].name}</span>`;
-                const otherUnits = units.filter((u, i) => i > 0 && u.factor > 0 && u.factor !== units[0].factor);
+                const otherUnits = units.filter((u, i) => i > 0 && u.factor > 0);
                 if (otherUnits.length > 0) {
                     const subs = otherUnits.map(u => `<strong style="color:#38bdf8; font-weight:800;">${formatQtyInUnit(val, u)}</strong> <small style="opacity:0.85;">${u.name}</small>`).join(' <span style="opacity:0.4;">|</span> ');
                     return `<div style="display:flex; flex-direction:column; align-items:baseline;"><div>${main}</div><div style="font-size:0.78rem; font-weight:800; opacity:0.9; margin-top:4px; color:#38bdf8; font-family:monospace; background:rgba(255,255,255,0.05); padding:2px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.08);">${subs}</div></div>`;
@@ -1615,7 +1615,7 @@
                 let balCells = '';
                 if (activeUnits.length === 1) {
                     const allUnits = getItemUnitsList(item);
-                    const otherUnits = allUnits.filter(u => u.name !== activeUnits[0].name && u.factor > 0 && u.factor !== 1);
+                    const otherUnits = allUnits.filter(u => u.name !== activeUnits[0].name && u.factor > 0 );
                     let subBal = '';
                     if (otherUnits.length > 0) {
                         const subs = otherUnits.map(u => `<span style="color:#fbbf24; font-weight:800;">${formatQtyInUnit(row.runningBalance, u)}</span> <span style="opacity:0.8;">${u.name}</span>`).join(' <span style="opacity:0.4;">|</span> ');
@@ -1907,7 +1907,7 @@
 
                     const baseUnitObj = activeUnits[0] || { name: 'وحدة', factor: 1 };
                     const allUnits = (activeUnits.length > 1) ? activeUnits : getItemUnitsList(item);
-                    const otherUnits = allUnits.filter(u => u.name !== baseUnitObj.name && u.factor > 0 && u.factor !== 1);
+                    const otherUnits = allUnits.filter(u => u.name !== baseUnitObj.name && u.factor > 0 );
 
                     let inDisplay = '-';
                     if (row.in > 0) {
