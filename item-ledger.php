@@ -772,9 +772,21 @@
 
         function onItemSelected() {
             const item = getSelectedItemObj();
-            if (!item) {
-                loadLedger();
-                return;
+            const uSelect = document.getElementById('display-unit-select');
+            
+            if (uSelect) {
+                uSelect.innerHTML = '';
+                if (!item) {
+                    uSelect.innerHTML = '<option value="">-- الوحدة الأساسية --</option>';
+                } else {
+                    const units = getItemUnitsList(item);
+                    units.forEach(u => {
+                        const opt = document.createElement('option');
+                        opt.value = u.name;
+                        opt.text = u.name;
+                        uSelect.appendChild(opt);
+                    });
+                }
             }
             loadLedger();
         }
@@ -936,12 +948,15 @@
         }
 
         function getActiveSelectedUnits(item) {
+            if (!item) return [];
             const unitsList = getItemUnitsList(item);
-            let selected = [];
-            for (let i = 0; i < Math.min(3, unitsList.length); i++) {
-                selected.push(unitsList[i]);
+            const selectedUnitName = document.getElementById('display-unit-select')?.value;
+            
+            if (selectedUnitName) {
+                const matched = unitsList.find(u => u.name === selectedUnitName);
+                if (matched) return [matched];
             }
-            return selected;
+            return unitsList.length > 0 ? [unitsList[0]] : [{ name: 'وحدة', factor: 1 }];
         }
 
         function formatQtyInUnit(baseQty, unitObj) {
@@ -1350,10 +1365,10 @@
                         <th>رقم الاستلام</th>
                         <th style="color:#8b5cf6; background:rgba(139,92,246,0.05); text-align:right;">وحدة وكمية الوارد والصادر</th>
                         <th style="color:#10b981; background:rgba(16,185,129,0.07); text-align:right; white-space:nowrap;">
-                            الوارد<br><span style="font-size:0.75rem; font-weight:600; opacity:0.75;">(بوحدة الحركة)</span>
+                            الوارد<br><span style="font-size:0.75rem; font-weight:600; opacity:0.75;">(بـ ${baseUnitName})</span>
                         </th>
                         <th style="color:#ec4899; background:rgba(236,72,153,0.07); text-align:right; white-space:nowrap;">
-                            المنصرف<br><span style="font-size:0.75rem; font-weight:600; opacity:0.75;">(بوحدة الحركة)</span>
+                            المنصرف<br><span style="font-size:0.75rem; font-weight:600; opacity:0.75;">(بـ ${baseUnitName})</span>
                         </th>
                         <th style="color:#fbbf24; background:rgba(251,191,36,0.07); text-align:right; white-space:nowrap;">
                             الرصيد<br><span style="font-size:0.75rem; font-weight:600; opacity:0.75;">(${baseUnitName})</span>
@@ -1389,7 +1404,13 @@
 
         function renderKpis(sumOpen, sumIn, sumOut, actualCurrentStock, activeUnits) {
             const item = getSelectedItemObj();
-            const allUnits = (activeUnits && activeUnits.length > 1) ? activeUnits : getItemUnitsList(item);
+            const itemUnits = getItemUnitsList(item);
+            const selectedUnitName = activeUnits[0] ? activeUnits[0].name : '';
+            // Ensure the selected unit is always the primary (first) unit shown in KPI
+            const allUnits = [
+                ...activeUnits,
+                ...itemUnits.filter(u => u.name !== selectedUnitName)
+            ];
 
             function formatKpiDisplay(val, units) {
                 if (!units || units.length === 0) return '0';
