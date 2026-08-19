@@ -369,44 +369,52 @@
         </div>
 
         <!-- Filters -->
-        <div class="filters-bar" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 10px 16px; margin-bottom: 8px; flex-wrap: wrap; background: var(--panel-bg); backdrop-filter: blur(15px); border-radius: 14px; border: 1px solid var(--glass-border);">
+        <div class="filters-bar" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 14px; margin-bottom: 8px; flex-wrap: wrap; background: linear-gradient(135deg, rgba(30, 41, 59, 0.7) 0%, rgba(15, 23, 42, 0.85) 100%); backdrop-filter: blur(16px); border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: 0 4px 20px rgba(0,0,0,0.25);">
             
-            <!-- 1. الصنف (مساحة واسعة وكبيرة) -->
-            <div style="display: flex; align-items: center; gap: 8px; flex: 3.5; min-width: 280px;">
-                <label style="font-size: 0.85rem; font-weight: 800; color: #38bdf8; white-space: nowrap; margin: 0; display: flex; align-items: center; gap: 4px;">
-                    <span>الصنف:</span>
-                    <span id="item-count-badge" style="font-size: 0.72rem; color: #94a3b8; font-weight: 600;">(0)</span>
+            <!-- 1. الصنف + البحث السريع (تنسيق فائق الأناقة مع توسيع حقل البحث) -->
+            <div style="display: flex; align-items: center; gap: 8px; flex: 2.6; min-width: 290px;">
+                <label style="display: inline-flex; align-items: center; gap: 4px; padding: 5px 9px; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.28); border-radius: 8px; color: #38bdf8; font-size: 0.82rem; font-weight: 800; white-space: nowrap; margin: 0; letter-spacing: 0.3px;">
+                    <span>📦 الصنف</span>
+                    <span id="item-count-badge" style="font-size: 0.7rem; color: #7dd3fc; font-weight: 700; background: rgba(0,0,0,0.25); padding: 1px 5px; border-radius: 5px;">0</span>
                 </label>
-                <div style="display: flex; gap: 5px; flex: 1; min-width: 0;">
-                    <select id="item-select" onchange="onItemSelected()" style="flex: 1; min-width: 0; font-weight: 800; color: #38bdf8; border-color: rgba(56,189,248,0.4); padding: 7px 10px; font-size: 0.88rem; border-radius: 8px; background: rgba(0,0,0,0.3);">
+                <div style="display: flex; gap: 6px; flex: 1; min-width: 0;">
+                    <select id="item-select" onchange="onItemSelected()" style="flex: 1; min-width: 0; font-weight: 800; color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.35); padding: 8px 12px; font-size: 0.88rem; border-radius: 9px; background: rgba(15, 23, 42, 0.6); box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); outline: none; cursor: pointer;">
                         <option value="">-- يرجى اختيار صنف --</option>
                     </select>
-                    <input type="text" id="item-quick-filter" placeholder="🔍 بحث" oninput="filterItemDropdown(this.value)" style="width: 60px; padding: 7px 6px; font-size: 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: #fff; text-align: center;" title="اكتب لفلترة قائمة الأصناف سريعاً">
+                    <div style="position: relative; width: 115px; flex-shrink: 0;">
+                        <input type="text" id="item-quick-filter" placeholder="🔍 بحث سريع..." oninput="filterItemDropdown(this.value)" style="width: 100%; padding: 8px 10px; font-size: 0.8rem; border-radius: 9px; border: 1px solid rgba(56, 189, 248, 0.25); background: rgba(15, 23, 42, 0.7); color: #fff; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); outline: none;" title="اكتب لفلترة قائمة الأصناف سريعاً">
+                    </div>
                 </div>
             </div>
             
-            <!-- 2. الوحدات (مساحة مقتصدة بنسبة 40%) -->
-            <div style="display: flex; align-items: center; gap: 6px; flex: 1.2; min-width: 130px; max-width: 190px;">
-                <label style="font-size: 0.85rem; font-weight: 800; color: #10b981; white-space: nowrap; margin: 0;">الوحدات:</label>
-                <select id="display-unit-select" onchange="loadLedger()" style="width: 100%; min-width: 0; padding: 7px 8px; font-size: 0.85rem; font-weight: 800; color: #10b981; border-color: rgba(16,185,129,0.4); background: rgba(16,185,129,0.05); border-radius: 8px;">
+            <!-- 2. الوحدات (مساحة أوسع وتنسيق زمردي أنيق) -->
+            <div style="display: flex; align-items: center; gap: 8px; flex: 1.6; min-width: 160px; max-width: 220px;">
+                <label style="display: inline-flex; align-items: center; gap: 4px; padding: 5px 9px; background: rgba(16, 185, 129, 0.12); border: 1px solid rgba(16, 185, 129, 0.28); border-radius: 8px; color: #10b981; font-size: 0.82rem; font-weight: 800; white-space: nowrap; margin: 0;">
+                    <span>⚖️ الوحدات</span>
+                </label>
+                <select id="display-unit-select" onchange="loadLedger()" style="width: 100%; min-width: 0; padding: 8px 10px; font-size: 0.86rem; font-weight: 800; color: #10b981; border: 1px solid rgba(16, 185, 129, 0.35); background: rgba(16, 185, 129, 0.06); border-radius: 9px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); outline: none; cursor: pointer;">
                     <option value="">-- الأساسية --</option>
                 </select>
             </div>
 
             <!-- 3. المخازن -->
-            <div style="display: flex; align-items: center; gap: 6px; flex: 1.8; min-width: 160px;">
-                <label style="font-size: 0.85rem; font-weight: 800; color: #cbd5e1; white-space: nowrap; margin: 0;">المخازن:</label>
-                <select id="warehouse-select" onchange="loadLedger()" style="width: 100%; min-width: 0; padding: 7px 10px; font-size: 0.85rem; border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff;">
-                    <option value="ALL">🏢 جميع المخازن</option>
+            <div style="display: flex; align-items: center; gap: 8px; flex: 1.5; min-width: 155px;">
+                <label style="display: inline-flex; align-items: center; gap: 4px; padding: 5px 9px; background: rgba(148, 163, 184, 0.1); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 8px; color: #cbd5e1; font-size: 0.82rem; font-weight: 800; white-space: nowrap; margin: 0;">
+                    <span>🏢 المخزن</span>
+                </label>
+                <select id="warehouse-select" onchange="loadLedger()" style="width: 100%; min-width: 0; padding: 8px 10px; font-size: 0.85rem; font-weight: 600; border-radius: 9px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); color: #e2e8f0; box-shadow: inset 0 2px 4px rgba(0,0,0,0.2); outline: none; cursor: pointer;">
+                    <option value="ALL">جميع المخازن</option>
                 </select>
             </div>
 
-            <!-- 4. التاريخ (مساحة مقتصدة بنسبة 50% في سطر واحد) -->
-            <div style="display: flex; align-items: center; gap: 6px; flex: 2.2; min-width: 250px;">
-                <label style="font-size: 0.85rem; font-weight: 800; color: #cbd5e1; white-space: nowrap; margin: 0;">التاريخ:</label>
-                <input type="date" id="date-from" onchange="loadLedger()" style="flex: 1; min-width: 0; padding: 6px 8px; font-size: 0.82rem; border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff;" title="من تاريخ">
-                <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 700;">إلى</span>
-                <input type="date" id="date-to" onchange="loadLedger()" style="flex: 1; min-width: 0; padding: 6px 8px; font-size: 0.82rem; border-radius: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); color: #fff;" title="إلى تاريخ">
+            <!-- 4. التاريخ -->
+            <div style="display: flex; align-items: center; gap: 6px; flex: 2.1; min-width: 245px;">
+                <label style="display: inline-flex; align-items: center; gap: 4px; padding: 5px 8px; background: rgba(148, 163, 184, 0.1); border: 1px solid rgba(148, 163, 184, 0.22); border-radius: 8px; color: #cbd5e1; font-size: 0.82rem; font-weight: 800; white-space: nowrap; margin: 0;">
+                    <span>📅 التاريخ</span>
+                </label>
+                <input type="date" id="date-from" onchange="loadLedger()" style="flex: 1; min-width: 0; padding: 7px 8px; font-size: 0.82rem; border-radius: 8px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; outline: none;" title="من تاريخ">
+                <span style="font-size: 0.78rem; color: #94a3b8; font-weight: 800;">إلى</span>
+                <input type="date" id="date-to" onchange="loadLedger()" style="flex: 1; min-width: 0; padding: 7px 8px; font-size: 0.82rem; border-radius: 8px; background: rgba(15, 23, 42, 0.6); border: 1px solid rgba(255, 255, 255, 0.1); color: #fff; outline: none;" title="إلى تاريخ">
             </div>
 
         </div>
