@@ -7,7 +7,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ط§ظ„طھط­ظ„ظٹظ„ط§طھ ط§ظ„ظ…ط±ط¦ظٹط© ظ„ظ„ظ…ط®ط²ظˆظ† - ELSAJANA</title>
+    <title>التحليلات المرئية للمخزون - ELSAJANA</title>
     <!-- Chart.js Library -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <style>
@@ -177,22 +177,22 @@
 <body>
 
     <div class="header">
-        <h1><span>ًں“ˆ</span> ط§ظ„ظ…ظ†طµط© ط§ظ„طھط­ظ„ظٹظ„ظٹط© ط§ظ„ط°ظƒظٹط© (Visual Analytics)</h1>
-        <a href="inventory-report.php" class="btn-back"><span>â†©</span> ط§ظ„ط¹ظˆط¯ط© ظ„ظ„طھظ‚ط±ظٹط±</a>
+        <h1><span>📈</span> المنصة التحليلية الذكية (Visual Analytics)</h1>
+        <a href="inventory-report.php" class="btn-back"><span>↩</span> العودة للتقرير</a>
     </div>
 
     <!-- KPI Summary -->
     <div class="stat-cards" id="kpi-container">
         <div class="stat-card">
-            <div class="stat-label">ط¥ط¬ظ…ط§ظ„ظٹ ظ‚ظٹظ…ط© ط§ظ„ظ…ط®ط²ظˆظ† (SDG)</div>
+            <div class="stat-label">إجمالي قيمة المخزون (SDG)</div>
             <div class="stat-value" id="kpi-total-value">0</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ط£طµظ†ط§ظپ</div>
+            <div class="stat-label">إجمالي الأصناف</div>
             <div class="stat-value" id="kpi-total-items" style="color: var(--accent-purple);">0</div>
         </div>
         <div class="stat-card">
-            <div class="stat-label">ط§ظ„ط£طµظ†ط§ظپ طھط­طھ ط§ظ„ط®ط·ط± (ظ†ظˆط§ظ‚طµ)</div>
+            <div class="stat-label">الأصناف تحت الخطر (نواقص)</div>
             <div class="stat-value" id="kpi-danger-items" style="color: var(--accent-red);">0</div>
         </div>
     </div>
@@ -202,10 +202,10 @@
         <!-- Pie Chart -->
         <div class="chart-card" id="pie">
             <div class="chart-header">
-                <div class="chart-icon">ًںچ•</div>
+                <div class="chart-icon">🍕</div>
                 <div class="chart-title">
-                    <h2>طھظˆط²ظٹط¹ ظ‚ظٹظ…ط© ط§ظ„ظ…ط®ط²ظˆظ† ط¹ظ„ظ‰ ط§ظ„ظ…ط®ط§ط²ظ†</h2>
-                    <p>ظ…ط®ط·ط· ط¯ط§ط¦ط±ظٹ (Pie Chart) ظٹظˆط¶ط­ ط§ظ„ظ†ط³ط¨ط© ط§ظ„ظ…ط¦ظˆظٹط© ظ„ظ„ط£ظ…ظˆط§ظ„ ط§ظ„ظ…ط³طھط«ظ…ط±ط© ظپظٹ ظƒظ„ ظ…ط®ط²ظ†</p>
+                    <h2>توزيع قيمة المخزون على المخازن</h2>
+                    <p>مخطط دائري (Pie Chart) يوضح النسبة المئوية للأموال المستثمرة في كل مخزن</p>
                 </div>
             </div>
             <div class="chart-container">
@@ -216,10 +216,10 @@
         <!-- Donut Chart -->
         <div class="chart-card" id="donut">
             <div class="chart-header">
-                <div class="chart-icon">ًںچ©</div>
+                <div class="chart-icon">🍩</div>
                 <div class="chart-title">
-                    <h2>ط­ط§ظ„ط© ط§ظ„ط£ط±طµط¯ط© ظˆط§ظ„ظ…ط®ط§ط·ط±</h2>
-                    <p>ظƒط¹ظƒط© ظ…ظپط±ط؛ط© (Donut Chart) طھظˆط¶ط­ ط­ط§ظ„ط© ط§ظ„طھظˆظپط± ظˆط§ظ„ظ†ظˆط§ظ‚طµ ظ„ظ„ط£طµظ†ط§ظپ</p>
+                    <h2>حالة الأرصدة والمخاطر</h2>
+                    <p>كعكة مفرغة (Donut Chart) توضح حالة التوفر والنواقص للأصناف</p>
                 </div>
             </div>
             <div class="chart-container">
@@ -230,68 +230,14 @@
         <!-- Bar Chart -->
         <div class="chart-card full-width" id="bar">
             <div class="chart-header">
-                <div class="chart-icon">ًں“ٹ</div>
+                <div class="chart-icon">📊</div>
                 <div class="chart-title">
-                    <h2>ط£ط¹ظ„ظ‰ 10 ط£طµظ†ط§ظپ ظ…ظ† ط­ظٹط« ط§ظ„ظ‚ظٹظ…ط© ط§ظ„ظ…ط§ظ„ظٹط©</h2>
-                    <p>ظ…ط®ط·ط· ط£ط¹ظ…ط¯ط© (Bar Chart) ظ…طµظ…طھ ظٹظˆط¶ط­ ط£ظٹظ† ظٹطھط±ظƒط² ط±ط£ط³ ط§ظ„ظ…ط§ظ„</p>
+                    <h2>أعلى 10 أصناف من حيث القيمة المالية</h2>
+                    <p>مخطط أعمدة (Bar Chart) مصمت يوضح أين يتركز رأس المال</p>
                 </div>
             </div>
             <div class="chart-container large">
                 <canvas id="topItemsBarChart"></canvas>
-            </div>
-        </div>        <!-- علاقة الأصناف وكمياتها -->
-        <div class="chart-card" id="relation">
-            <div class="chart-header">
-                <div class="chart-icon">🍕</div>
-                <div class="chart-title">
-                    <h2>علاقة الأصناف وكمياتها</h2>
-                    <p>مخطط كعكة مدمجة لنسبة كميات الأصناف</p>
-                </div>
-            </div>
-            <div class="chart-container">
-                <canvas id="itemRelationChart"></canvas>
-            </div>
-        </div>
-
-        <!-- عمر الصنف -->
-        <div class="chart-card" id="aging">
-            <div class="chart-header">
-                <div class="chart-icon">⏳</div>
-                <div class="chart-title">
-                    <h2>عمر الأصناف في المخزون</h2>
-                    <p>مخطط شريطي (Bar Chart) لأقدم الأصناف بناءً على تاريخ الإدخال</p>
-                </div>
-            </div>
-            <div class="chart-container">
-                <canvas id="itemAgeChart"></canvas>
-            </div>
-        </div>
-
-        <!-- ركود الصنف -->
-        <div class="chart-card" id="stagnation">
-            <div class="chart-header">
-                <div class="chart-icon">🧊</div>
-                <div class="chart-title">
-                    <h2>ركود الأصناف</h2>
-                    <p>مخطط كعكة مفرغة (Donut) للأصناف الراكدة حسب آخر حركة</p>
-                </div>
-            </div>
-            <div class="chart-container">
-                <canvas id="itemStagnationChart"></canvas>
-            </div>
-        </div>
-
-        <!-- حركة الصنف -->
-        <div class="chart-card full-width" id="velocity">
-            <div class="chart-header">
-                <div class="chart-icon">🚀</div>
-                <div class="chart-title">
-                    <h2>حركة الأصناف (التداول)</h2>
-                    <p>مخطط شريطي (Bar Chart) لعدد الحركات والنشاط لكل صنف</p>
-                </div>
-            </div>
-            <div class="chart-container large">
-                <canvas id="itemVelocityChart"></canvas>
             </div>
         </div>
 
@@ -339,7 +285,7 @@
                 // Group by warehouse
                 const whGroups = {};
                 itemMoves.forEach(m => {
-                    const wh = m.warehouse || 'ط§ظ„ظ…ط®ط²ظ† ط§ظ„ط±ط¦ظٹط³ظٹ';
+                    const wh = m.warehouse || 'المخزن الرئيسي';
                     if (!whGroups[wh]) whGroups[wh] = { in:0, out:0, res:0 };
                     
                     if (m.type === 'PURCHASE' || m.type === 'TRANSFER_IN' || m.type === 'OPENING_BALANCE' || m.type === 'ADJUSTMENT_ADD') {
@@ -355,7 +301,7 @@
 
                 // Default warehouse if no moves
                 if (Object.keys(whGroups).length === 0) {
-                    whGroups['ط§ظ„ظ…ط®ط²ظ† ط§ظ„ط±ط¦ظٹط³ظٹ'] = { in:0, out:0, res:0 };
+                    whGroups['المخزن الرئيسي'] = { in:0, out:0, res:0 };
                 }
 
                 for (const wh in whGroups) {
@@ -446,7 +392,7 @@
             new Chart(document.getElementById('statusDonutChart'), {
                 type: 'doughnut',
                 data: {
-                    labels: ['ط±طµظٹط¯ ط¢ظ…ظ† (OK)', 'طھط­طھ ط­ط¯ ط§ظ„ط·ظ„ط¨ (Warning)', 'ظ†ط§ظپط°/ظ†ظˆط§ظ‚طµ (Danger)'],
+                    labels: ['رصيد آمن (OK)', 'تحت حد الطلب (Warning)', 'نافذ/نواقص (Danger)'],
                     datasets: [{
                         data: [statusCounts.OK, statusCounts.WARNING, statusCounts.DANGER],
                         backgroundColor: [colors.green, colors.orange, colors.red],
@@ -487,7 +433,7 @@
                 data: {
                     labels: barLabels,
                     datasets: [{
-                        label: 'ط¥ط¬ظ…ط§ظ„ظٹ ط§ظ„ظ‚ظٹظ…ط© (SDG)',
+                        label: 'إجمالي القيمة (SDG)',
                         data: barValues,
                         backgroundColor: 'rgba(56, 189, 248, 0.7)',
                         borderColor: 'rgba(56, 189, 248, 1)',
@@ -528,136 +474,6 @@
                     }
                 }
             });
-            // 5. Item Relation Chart (Quantities)
-            const qtyTotals = {};
-            data.forEach(row => {
-                if(row.actualQty > 0) {
-                    qtyTotals[row.itemName] = (qtyTotals[row.itemName] || 0) + row.actualQty;
-                }
-            });
-            const topQtyItems = Object.entries(qtyTotals).sort((a,b)=>b[1]-a[1]).slice(0,10);
-            if(document.getElementById('itemRelationChart')) {
-                new Chart(document.getElementById('itemRelationChart'), {
-                    type: 'pie',
-                    data: {
-                        labels: topQtyItems.map(i=>i[0]),
-                        datasets: [{
-                            data: topQtyItems.map(i=>i[1]),
-                            backgroundColor: colorPalette,
-                            borderColor: 'rgba(15, 23, 42, 0.8)',
-                            borderWidth: 2
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'right' } } }
-                });
-            }
-
-            // Parse raw inventory for aging, stagnation, velocity
-            let rawInv = [];
-            let rawItems = [];
-            try {
-                rawInv = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
-                rawItems = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
-            } catch(e) {}
-            
-            const now = new Date();
-            
-            // 6. Velocity (Most active items by transaction count)
-            const itemTxCount = {};
-            rawInv.forEach(m => {
-                itemTxCount[m.itemId] = (itemTxCount[m.itemId] || 0) + 1;
-            });
-            const topVelocity = Object.entries(itemTxCount)
-                .sort((a,b)=>b[1]-a[1]).slice(0, 10)
-                .map(([id, count]) => {
-                    const item = rawItems.find(i=>i.id===id);
-                    return { name: item ? item.name : id, count };
-                });
-            if(document.getElementById('itemVelocityChart')) {
-                new Chart(document.getElementById('itemVelocityChart'), {
-                    type: 'bar',
-                    data: {
-                        labels: topVelocity.map(i=>i.name),
-                        datasets: [{
-                            label: 'عدد الحركات',
-                            data: topVelocity.map(i=>i.count),
-                            backgroundColor: colors.purple,
-                            borderRadius: 4
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: {display: false} } }
-                });
-            }
-
-            // 7. Stagnation (Days since last OUT movement)
-            let stagCounts = { '< 30 days': 0, '30-90 days': 0, '> 90 days': 0 };
-            const lastMove = {};
-            rawInv.forEach(m => {
-                if(m.type === 'SALE' || m.type === 'TRANSFER_OUT') {
-                    if(!lastMove[m.itemId] || new Date(m.date) > new Date(lastMove[m.itemId])) {
-                        lastMove[m.itemId] = m.date;
-                    }
-                }
-            });
-            rawItems.forEach(item => {
-                if(!lastMove[item.id]) {
-                    stagCounts['> 90 days']++;
-                } else {
-                    const days = (now - new Date(lastMove[item.id])) / (1000*60*60*24);
-                    if(days < 30) stagCounts['< 30 days']++;
-                    else if(days <= 90) stagCounts['30-90 days']++;
-                    else stagCounts['> 90 days']++;
-                }
-            });
-            if(document.getElementById('itemStagnationChart')) {
-                new Chart(document.getElementById('itemStagnationChart'), {
-                    type: 'doughnut',
-                    data: {
-                        labels: ['نشط (<30 يوم)', 'متوسط (30-90 يوم)', 'راكد (>90 يوم)'],
-                        datasets: [{
-                            data: [stagCounts['< 30 days'], stagCounts['30-90 days'], stagCounts['> 90 days']],
-                            backgroundColor: [colors.green, colors.yellow, colors.red],
-                            borderColor: 'rgba(15, 23, 42, 0.8)',
-                            borderWidth: 2,
-                            cutout: '60%'
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false, plugins: { legend: {position: 'right'} } }
-                });
-            }
-
-            // 8. Aging (Days since first IN movement)
-            const firstMove = {};
-            rawInv.forEach(m => {
-                if(m.type === 'PURCHASE' || m.type === 'OPENING_BALANCE') {
-                    if(!firstMove[m.itemId] || new Date(m.date) < new Date(firstMove[m.itemId])) {
-                        firstMove[m.itemId] = m.date;
-                    }
-                }
-            });
-            const agingArr = Object.entries(firstMove).map(([id, date]) => {
-                const item = rawItems.find(i=>i.id===id);
-                return {
-                    name: item ? item.name : id,
-                    days: Math.floor((now - new Date(date)) / (1000*60*60*24))
-                };
-            }).sort((a,b)=>b.days - a.days).slice(0,10);
-            
-            if(document.getElementById('itemAgeChart')) {
-                new Chart(document.getElementById('itemAgeChart'), {
-                    type: 'bar',
-                    data: {
-                        labels: agingArr.map(i=>i.name),
-                        datasets: [{
-                            label: 'عمر الصنف بالمخزون (يوم)',
-                            data: agingArr.map(i=>i.days),
-                            backgroundColor: colors.orange,
-                            borderRadius: 4
-                        }]
-                    },
-                    options: { responsive: true, maintainAspectRatio: false, indexAxis: 'y', plugins: { legend: {display: false} } }
-                });
-            }
         }
 
         document.addEventListener('DOMContentLoaded', initDashboard);
