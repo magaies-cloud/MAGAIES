@@ -92,7 +92,7 @@ function getDefaultConfigs() {
     return conf;
 }
 
-let columnOrder = [0, 1, 2, 3, 17, 4, 5, 6, 16];
+let columnOrder = [0, 1, 2, 3, 16, 17, 4, 5, 6];
 let columnConfigs = {};
 
 function loadCompanyHeader() {
@@ -831,7 +831,7 @@ function setAllColumnsVisibility(isVisible) {
 }
 
 function resetDefaultColumnOrder() {
-    columnOrder = [0, 1, 2, 3, 17, 4, 5, 6, 16];
+    columnOrder = [0, 1, 2, 3, 16, 17, 4, 5, 6];
     baseColumns.forEach(c => {
         if (!columnConfigs[c.idx]) columnConfigs[c.idx] = getDefaultConfigs()[c.idx];
         columnConfigs[c.idx].visible = (c.visible !== false);
@@ -1375,7 +1375,7 @@ function showToast(message, type = 'success') {
 
 function applyDesignState(state) {
     columnConfigs = state.configs || getDefaultConfigs();
-    columnOrder = state.order || [0, 1, 2, 3, 17, 4, 5, 6, 16];
+    columnOrder = state.order || [0, 1, 2, 3, 16, 17, 4, 5, 6];
 
     // Migration for old configs that didn't have exchange rate (column 11 missing)
     if (!columnOrder.includes(12)) {
