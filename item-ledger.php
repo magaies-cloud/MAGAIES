@@ -384,38 +384,19 @@
                     <input type="text" id="item-quick-filter" placeholder="🔍 بحث..." oninput="filterItemDropdown(this.value)" style="width: 80px; padding: 8px 8px; font-size: 0.8rem; border-radius: 8px; border: 1px solid rgba(255,255,255,0.15); background: rgba(0,0,0,0.3); color: #fff;" title="اكتب لفلترة قائمة الأصناف سريعاً">
                 </div>
             </div>
+            
             <div class="input-group">
-                <label style="color:#38bdf8; display:flex; justify-content:space-between;">
-                    <span>2. وحدات التقرير (حتى 4 وحدات)</span>
-                    <span style="font-size:0.7rem; opacity:0.8;">⚖️ متعدد الوحدات</span>
-                </label>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px;">
-                    <select id="unit-select-1" onfocus="onUnit1Focus()" onchange="onUnit1Change()" title="الوحدة الأولى (الأساسية)" style="padding: 8px 4px; font-size: 0.78rem; font-weight: 700; border-color:rgba(56,189,248,0.3);">
-                        <option value="">الوحدة 1 (الأساسية)</option>
-                    </select>
-                    <select id="unit-select-2" onfocus="onUnit2Focus()" onchange="onUnit2Change()" title="الوحدة الثانية (اختياري)" style="padding: 8px 4px; font-size: 0.78rem; font-weight: 700; border-color:rgba(56,189,248,0.2);">
-                        <option value="">الوحدة 2 (اختياري)</option>
-                    </select>
-                    <select id="unit-select-3" onfocus="onUnit3Focus()" onchange="onUnit3Change()" title="الوحدة الثالثة (اختياري)" style="padding: 8px 4px; font-size: 0.78rem; font-weight: 700; border-color:rgba(56,189,248,0.2);">
-                        <option value="">الوحدة 3 (اختياري)</option>
-                    </select>
-                    <select id="unit-select-4" onfocus="onUnit4Focus()" onchange="onUnit4Change()" title="الوحدة الرابعة (اختياري)" style="padding: 8px 4px; font-size: 0.78rem; font-weight: 700; border-color:rgba(56,189,248,0.2);">
-                        <option value="">الوحدة 4 (اختياري)</option>
-                    </select>
-                </div>
-            </div>
-            <div class="input-group">
-                <label>3. المخزن (اختياري)</label>
+                <label>2. المخزن (اختياري)</label>
                 <select id="warehouse-select" onchange="loadLedger()" style="padding: 9px 12px; font-size: 0.88rem;">
                     <option value="ALL">🏢 جميع المخازن</option>
                 </select>
             </div>
             <div class="input-group">
-                <label>4. من تاريخ</label>
+                <label>2. من تاريخ</label>
                 <input type="date" id="date-from" onchange="loadLedger()">
             </div>
             <div class="input-group">
-                <label>5. إلى تاريخ</label>
+                <label>3. إلى تاريخ</label>
                 <input type="date" id="date-to" onchange="loadLedger()">
             </div>
         </div>
@@ -790,43 +771,10 @@
 
         function onItemSelected() {
             const item = getSelectedItemObj();
-            const u1 = document.getElementById('unit-select-1');
-            const u2 = document.getElementById('unit-select-2');
-            const u3 = document.getElementById('unit-select-3');
-            const u4 = document.getElementById('unit-select-4');
-
             if (!item) {
-                if (u1) u1.innerHTML = '<option value="">الوحدة 1 (الأساسية)</option>';
-                if (u2) u2.innerHTML = '<option value="">(بدون وحدة 2)</option>';
-                if (u3) u3.innerHTML = '<option value="">(بدون وحدة 3)</option>';
-                if (u4) u4.innerHTML = '<option value="">(بدون وحدة 4)</option>';
                 loadLedger();
                 return;
             }
-
-            const units = getItemUnitsList(item);
-
-            // 1. Populate Unit 1 with all units
-            if (u1) {
-                u1.innerHTML = '';
-                units.forEach((u) => {
-                    const opt = document.createElement('option');
-                    opt.value = u.name;
-                    opt.text = u.name;
-                    u1.appendChild(opt);
-                });
-
-                // Default Unit 1 to the first unit (base unit)
-                if (units.length > 0) {
-                    u1.value = units[0].name;
-                }
-            }
-
-            // 2. Cascade down to populate Unit 2, Unit 3 & Unit 4
-            refreshUnit2Dropdown(units, true);
-            refreshUnit3Dropdown(units, true);
-            refreshUnit4Dropdown(units, true);
-
             loadLedger();
         }
 
@@ -988,33 +936,11 @@
 
         function getActiveSelectedUnits(item) {
             const unitsList = getItemUnitsList(item);
-            const u1Val = document.getElementById('unit-select-1')?.value;
-            const u2Val = document.getElementById('unit-select-2')?.value;
-            const u3Val = document.getElementById('unit-select-3')?.value;
-            const u4Val = document.getElementById('unit-select-4')?.value;
-
             let selected = [];
-            if (u1Val) {
-                const obj = unitsList.find(u => u.name === u1Val) || { name: u1Val, factor: 1 };
-                selected.push(obj);
+            for (let i = 0; i < Math.min(3, unitsList.length); i++) {
+                selected.push(unitsList[i]);
             }
-            if (u2Val && u2Val !== u1Val) {
-                const obj = unitsList.find(u => u.name === u2Val) || { name: u2Val, factor: 1 };
-                selected.push(obj);
-            }
-            if (u3Val && u3Val !== u1Val && u3Val !== u2Val) {
-                const obj = unitsList.find(u => u.name === u3Val) || { name: u3Val, factor: 1 };
-                selected.push(obj);
-            }
-            if (u4Val && u4Val !== u1Val && u4Val !== u2Val && u4Val !== u3Val) {
-                const obj = unitsList.find(u => u.name === u4Val) || { name: u4Val, factor: 1 };
-                selected.push(obj);
-            }
-
-            if (selected.length === 0) {
-                selected.push(unitsList[0] || { name: 'وحدة', factor: 1 });
-            }
-            return selected.slice(0, 4); // Up to 4 units
+            return selected;
         }
 
         function formatQtyInUnit(baseQty, unitObj) {
