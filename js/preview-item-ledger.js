@@ -21,7 +21,7 @@ const baseColumns = [
     { idx: 1, defaultLabel: "نوع الحركة", field: "type", isNum: false, group: "general" },
     { idx: 2, defaultLabel: "رقم الإذن", field: "permitNo", isNum: false, group: "general" },
     { idx: 3, defaultLabel: "رقم الاستلام", field: "receiptNo", isNum: false, group: "general" },
-    { idx: 17, defaultLabel: "وحدات وكمية الوارد", field: "origQtyStr", isNum: false, group: "general" },
+    { idx: 17, defaultLabel: "وحدة وكمية الوارد والصادر", field: "origQtyStr", isNum: false, group: "general" },
     { idx: 4, defaultLabel: "الوارد (الأساسية)", field: "in1", isNum: true, group: "u1" },
     { idx: 5, defaultLabel: "المنصرف (الأساسية)", field: "out1", isNum: true, group: "u1" },
     { idx: 6, defaultLabel: "الرصيد (الأساسية)", field: "bal1", isNum: true, group: "u1" },

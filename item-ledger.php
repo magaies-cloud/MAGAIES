@@ -431,7 +431,7 @@
                             <th>نوع الحركة</th>
                             <th style="color:#38bdf8;">رقم الإذن</th>
                             <th>رقم الاستلام</th>
-                        <th style="color:#8b5cf6; background:rgba(139,92,246,0.05); text-align:right;">وحدات وكمية الوارد</th>
+                        <th style="color:#8b5cf6; background:rgba(139,92,246,0.05); text-align:right;">وحدة وكمية الوارد والصادر</th>
                         <th style="color:#10b981; background:rgba(16,185,129,0.05); text-align: right;">الوارد (داخل)</th>
                             <th style="color:#ec4899; background:rgba(236,72,153,0.05); text-align: right;">المنصرف (خارج)</th>
                             <th style="color:#fbbf24; background:rgba(251,191,36,0.05); text-align: right;">الرصيد التراكمي</th>
@@ -1348,7 +1348,7 @@
                         <th>نوع الحركة</th>
                         <th style="color:#38bdf8;">رقم الإذن</th>
                         <th>رقم الاستلام</th>
-                        <th style="color:#8b5cf6; background:rgba(139,92,246,0.05); text-align:right;">وحدات وكمية الوارد</th>
+                        <th style="color:#8b5cf6; background:rgba(139,92,246,0.05); text-align:right;">وحدة وكمية الوارد والصادر</th>
                         <th style="color:#10b981; background:rgba(16,185,129,0.07); text-align:right; white-space:nowrap;">
                             الوارد<br><span style="font-size:0.75rem; font-weight:600; opacity:0.75;">(بوحدة الحركة)</span>
                         </th>
@@ -1370,7 +1370,7 @@
                         <th rowspan="2" style="vertical-align:middle;">نوع الحركة</th>
                         <th rowspan="2" style="color:#38bdf8; vertical-align:middle;">رقم الإذن</th>
                         <th rowspan="2" style="vertical-align:middle;">رقم الاستلام</th>
-                        <th rowspan="2" style="color:#8b5cf6; background:rgba(139,92,246,0.05); vertical-align:middle; text-align:right;">وحدات وكمية الوارد</th>
+                        <th rowspan="2" style="color:#8b5cf6; background:rgba(139,92,246,0.05); vertical-align:middle; text-align:right;">وحدة وكمية الوارد والصادر</th>
                         <th rowspan="2" style="color:#10b981; background:rgba(16,185,129,0.07); vertical-align:middle; text-align:right; white-space:nowrap;">
                             الوارد<br><span style="font-size:0.72rem; opacity:0.75;">(بوحدة الحركة)</span>
                         </th>
