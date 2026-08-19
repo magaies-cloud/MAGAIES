@@ -504,7 +504,7 @@
                 <button class="btn-action-tool" onclick="printReportDirectly('تقرير جرد الأرصدة العام', '#report-table-wrap')" style="background: rgba(255,255,255,0.08); border-color: var(--glass-border); color: var(--text-primary); padding: 10px 24px; font-size: 0.95rem;">
                     <span>🖨️</span> طباعة
                 </button>
-                <button class="btn-action-tool" onclick="window.openExportModal(exportExcel, {element: document.getElementById('report-table-wrap'), filename: 'inventory-report.pdf', orientation: 'landscape'})" style="background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 4px 15px rgba(5, 150, 105, 0.35); padding: 10px 24px; font-size: 0.95rem;">
+                <button class="btn-action-tool" onclick="window.openExportModal(exportExcel, {element: document.getElementById('report-table-wrap'), filename: 'warehouse-inventory', orientation: 'landscape'})" style="background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 4px 15px rgba(5, 150, 105, 0.35); padding: 10px 24px; font-size: 0.95rem;">
                     <span>📥</span> تصدير
                 </button>
             </div>
@@ -584,6 +584,12 @@
                     actualStockMap[key] = 0;
                     reservedStockMap[key] = 0;
                 });
+                let openBal = parseFloat(item.openingBalance || item.opening_balance || 0);
+                if (openBal > 0) {
+                    let whName = getWarehouseName(item.warehouseId || item.warehouse || 'w-main');
+                    let key = String(item.id) + '|' + whName;
+                    actualStockMap[key] = (actualStockMap[key] || 0) + openBal;
+                }
             });
 
             // 1. ADD Purchases (Inward) — SUBTRACT if Return
@@ -1472,11 +1478,11 @@
         
         for(let i=0; i<limit; i++) {
             let cols = rows[i].querySelectorAll('td');
-            if(cols.length >= 6) {
+            if(cols.length >= 9) {
                 let name = cols[1].innerText.trim();
-                let qty = cols[2].innerText.trim();
-                let cost = cols[3].innerText.trim();
-                let totalCost = cols[5].innerText.trim();
+                let qty = cols[4].innerText.trim();
+                let cost = cols[7].innerText.trim();
+                let totalCost = cols[8].innerText.trim();
                 if(name) {
                     inventoryData.push(`الصنف: ${name} | الكمية المتوفرة: ${qty} | سعر التكلفة: ${cost} | الإجمالي: ${totalCost}`);
                 }

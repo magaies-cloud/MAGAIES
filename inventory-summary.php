@@ -19,72 +19,45 @@ $header_theme_class = "header-theme-inventory";
     <style>
         .dashboard-container { display: flex; flex-direction: column; gap: 20px; padding: 20px 30px; box-sizing: border-box; max-width: 1600px; margin: 0 auto; }
         
-                /* Unified Nav Tabs Container */
+        /* Navigation Bar (Ultra-Compact Segmented Clusters) */
         .nav-tabs { 
-            display: flex; gap: 12px; margin-bottom: 20px; flex-wrap: nowrap; overflow-x: auto; scrollbar-width: none;
-            background: rgba(15, 23, 42, 0.7); padding: 12px 15px; border-radius: 16px; 
-            border: 1px solid rgba(255, 255, 255, 0.08); box-shadow: inset 0 2px 20px rgba(0,0,0,0.4);
-            backdrop-filter: blur(15px);
+            display: flex; gap: 6px; flex-wrap: wrap; overflow: visible;
+            background: var(--surface-card, rgba(15, 23, 42, 0.7)); padding: 6px 10px; border-radius: 14px; 
+            border: 1px solid var(--glass-border, rgba(255, 255, 255, 0.1)); box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            backdrop-filter: blur(20px); align-items: center; width: 100%; z-index: 100; position: relative;
+            min-height: 48px; box-sizing: border-box;
         }
         .nav-tabs::-webkit-scrollbar { display: none; }
+        .nav-cluster { display: flex; align-items: center; gap: 4px; }
+        .nav-divider { width: 1px; height: 24px; background: rgba(255, 255, 255, 0.12); margin: 0 4px; flex-shrink: 0; }
         .nav-tab {
-            padding: 12px 25px; border-radius: 12px; text-decoration: none; font-weight: 700;
-            color: #94a3b8; background: rgba(255,255,255,0.02); border: 1px solid rgba(255,255,255,0.03);
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 8px; font-size: 0.95rem;
-            position: relative; overflow: hidden; white-space: nowrap; flex-shrink: 0;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+            padding: 8px 15px; border-radius: 9px; text-decoration: none; font-weight: 700;
+            color: var(--text-secondary, #94a3b8); background: transparent; border: 1px solid transparent;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 6px; font-size: 0.88rem;
+            position: relative; white-space: nowrap; flex-shrink: 0; cursor: pointer; height: 38px; box-sizing: border-box;
         }
-        /* Kinetic Hover Effect */
-        .nav-tab::before { content: ''; position: absolute; top: 0; left: -100%; width: 50%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.1), transparent); transform: skewX(-20deg); transition: 0.5s; }
-        .nav-tab:hover::before { left: 150%; }
-
-        /* Button 1: Blue */
-        .nav-tab:nth-child(1):hover { background: rgba(59, 130, 246, 0.1); color: #fff; border-color: rgba(59, 130, 246, 0.3); transform: translateY(-2px); }
-        .nav-tab:nth-child(1).active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.2), rgba(37, 99, 235, 0.2)); border-color: rgba(59, 130, 246, 0.5); color: #60a5fa; box-shadow: 0 0 20px rgba(59, 130, 246, 0.3); }
-
-        /* Button 2: Emerald */
-        .nav-tab:nth-child(2):hover { background: rgba(16, 185, 129, 0.1); color: #fff; border-color: rgba(16, 185, 129, 0.3); transform: translateY(-2px); }
-        .nav-tab:nth-child(2).active { background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.2)); border-color: rgba(16, 185, 129, 0.5); color: #34d399; box-shadow: 0 0 20px rgba(16, 185, 129, 0.3); }
-
-        /* Button 3: Amber */
-        .nav-tab:nth-child(3):hover { background: rgba(245, 158, 11, 0.1); color: #fff; border-color: rgba(245, 158, 11, 0.3); transform: translateY(-2px); }
-        .nav-tab:nth-child(3).active { background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(217, 119, 6, 0.2)); border-color: rgba(245, 158, 11, 0.5); color: #fbbf24; box-shadow: 0 0 20px rgba(245, 158, 11, 0.3); }
-
-        /* Button 4: Purple */
-        .nav-tab:nth-child(4):hover { background: rgba(139, 92, 246, 0.1); color: #fff; border-color: rgba(139, 92, 246, 0.3); transform: translateY(-2px); }
-        .nav-tab:nth-child(4).active { background: linear-gradient(135deg, rgba(139, 92, 246, 0.2), rgba(109, 40, 217, 0.2)); border-color: rgba(139, 92, 246, 0.5); color: #c084fc; box-shadow: 0 0 20px rgba(139, 92, 246, 0.3); }
-
-        /* Button 5: Rose */
-        .nav-tab:nth-child(5):hover { background: rgba(244, 63, 94, 0.1); color: #fff; border-color: rgba(244, 63, 94, 0.3); transform: translateY(-2px); }
-        .nav-tab:nth-child(5).active { background: linear-gradient(135deg, rgba(244, 63, 94, 0.2), rgba(225, 29, 72, 0.2)); border-color: rgba(244, 63, 94, 0.5); color: #fb7185; box-shadow: 0 0 20px rgba(244, 63, 94, 0.3); }
-
-        /* Button 6: Cyan */
-        .nav-tab:nth-child(6):hover { background: rgba(6, 182, 212, 0.1); color: #fff; border-color: rgba(6, 182, 212, 0.3); transform: translateY(-2px); }
-        .nav-tab:nth-child(6).active { background: linear-gradient(135deg, rgba(6, 182, 212, 0.2), rgba(8, 145, 178, 0.2)); border-color: rgba(6, 182, 212, 0.5); color: #22d3ee; box-shadow: 0 0 20px rgba(6, 182, 212, 0.3); }
-
-        /* Light Mode Styling */
-        :root.light-theme .nav-tabs { background: rgba(248, 250, 252, 0.85); border: 1px solid rgba(0,0,0,0.06); box-shadow: inset 0 2px 10px rgba(0,0,0,0.02); }
-        :root.light-theme .nav-tab { color: #64748b; background: rgba(255,255,255,0.7); border: 1px solid rgba(0,0,0,0.06); box-shadow: 0 2px 8px rgba(0,0,0,0.03); }
-        :root.light-theme .nav-tab::before { background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.5), transparent); }
-        
-        /* Light Mode active/hover states per button (Neon effect) */
-        :root.light-theme .nav-tab:nth-child(1):hover { background: #fff; color: #1e3a8a; border-color: #3b82f6; box-shadow: 0 5px 15px rgba(59, 130, 246, 0.2); transform: translateY(-2px); }
-        :root.light-theme .nav-tab:nth-child(1).active { background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(37, 99, 235, 0.1)); color: #2563eb; border-color: #3b82f6; box-shadow: 0 0 20px rgba(59, 130, 246, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
-
-        :root.light-theme .nav-tab:nth-child(2):hover { background: #fff; color: #064e3b; border-color: #10b981; box-shadow: 0 5px 15px rgba(16, 185, 129, 0.2); transform: translateY(-2px); }
-        :root.light-theme .nav-tab:nth-child(2).active { background: linear-gradient(135deg, rgba(16, 185, 129, 0.1), rgba(5, 150, 105, 0.1)); color: #059669; border-color: #10b981; box-shadow: 0 0 20px rgba(16, 185, 129, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
-
-        :root.light-theme .nav-tab:nth-child(3):hover { background: #fff; color: #78350f; border-color: #f59e0b; box-shadow: 0 5px 15px rgba(245, 158, 11, 0.2); transform: translateY(-2px); }
-        :root.light-theme .nav-tab:nth-child(3).active { background: linear-gradient(135deg, rgba(245, 158, 11, 0.1), rgba(217, 119, 6, 0.1)); color: #d97706; border-color: #f59e0b; box-shadow: 0 0 20px rgba(245, 158, 11, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
-
-        :root.light-theme .nav-tab:nth-child(4):hover { background: #fff; color: #4c1d95; border-color: #8b5cf6; box-shadow: 0 5px 15px rgba(139, 92, 246, 0.2); transform: translateY(-2px); }
-        :root.light-theme .nav-tab:nth-child(4).active { background: linear-gradient(135deg, rgba(139, 92, 246, 0.1), rgba(109, 40, 217, 0.1)); color: #7c3aed; border-color: #8b5cf6; box-shadow: 0 0 20px rgba(139, 92, 246, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
-
-        :root.light-theme .nav-tab:nth-child(5):hover { background: #fff; color: #881337; border-color: #f43f5e; box-shadow: 0 5px 15px rgba(244, 63, 94, 0.2); transform: translateY(-2px); }
-        :root.light-theme .nav-tab:nth-child(5).active { background: linear-gradient(135deg, rgba(244, 63, 94, 0.1), rgba(225, 29, 72, 0.1)); color: #e11d48; border-color: #f43f5e; box-shadow: 0 0 20px rgba(244, 63, 94, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
-
-        :root.light-theme .nav-tab:nth-child(6):hover { background: #fff; color: #164e63; border-color: #06b6d4; box-shadow: 0 5px 15px rgba(6, 182, 212, 0.2); transform: translateY(-2px); }
-        :root.light-theme .nav-tab:nth-child(6).active { background: linear-gradient(135deg, rgba(6, 182, 212, 0.1), rgba(8, 145, 178, 0.1)); color: #0891b2; border-color: #06b6d4; box-shadow: 0 0 20px rgba(6, 182, 212, 0.5), inset 0 0 10px rgba(255,255,255,0.9); }
+        .nav-tab:hover {
+            color: #fff; background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.1);
+            transform: translateY(-1px);
+        }
+        .nav-tab.active {
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(37, 99, 235, 0.18));
+            border-color: rgba(56, 189, 248, 0.45); color: #38bdf8;
+            box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
+        }
+        .nav-tab-ai {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(139, 92, 246, 0.15));
+            border: 1px solid rgba(236, 72, 153, 0.4); color: #f472b6 !important;
+            box-shadow: 0 0 10px rgba(236, 72, 153, 0.2);
+        }
+        .nav-tab-ai:hover {
+            background: linear-gradient(135deg, rgba(236, 72, 153, 0.25), rgba(139, 92, 246, 0.25));
+            border-color: rgba(236, 72, 153, 0.6); color: #fff !important;
+            box-shadow: 0 0 15px rgba(236, 72, 153, 0.35);
+        }
+        .nav-ai-badge {
+            background: #ec4899; color: #fff; font-size: 0.68rem; padding: 2px 5px; border-radius: 8px; font-weight: 900;
+        }
 
         .filters-bar { background: rgba(15, 23, 42, 0.6); padding: 20px; border-radius: 16px; border: 1px solid var(--glass-border); display: grid; gap: 15px; margin-bottom: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); backdrop-filter: blur(10px); }
         .f-group label { display: block; font-size: 0.85rem; color: #94a3b8; margin-bottom: 8px; font-weight: 700; }
@@ -124,16 +97,12 @@ $header_theme_class = "header-theme-inventory";
         @keyframes dropdownFadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
         .nav-dropdown:hover .nav-dropdown-content, 
         .nav-dropdown:focus-within .nav-dropdown-content,
-        .nav-dropdown.active .nav-dropdown-content { display: block; }
+        .nav-dropdown.active .nav-dropdown-content { display: flex; flex-direction: column; gap: 4px; }
         .nav-dropdown-item {
             display: flex; align-items: center; gap: 10px; padding: 10px 14px; color: #cbd5e1;
             text-decoration: none; font-size: 0.86rem; font-weight: 700; border-radius: 8px; transition: all 0.2s ease;
         }
         .nav-dropdown-item:hover { background: rgba(56, 189, 248, 0.15); color: #38bdf8; transform: translateX(-3px); }
-        .nav-cluster { display: inline-flex; align-items: center; }
-        .nav-divider { width: 1px; height: 26px; background: rgba(255,255,255,0.1); margin: 0 4px; }
-        .nav-tab-ai { border-color: rgba(168, 85, 247, 0.4) !important; background: linear-gradient(135deg, rgba(168,85,247,0.1), rgba(59,130,246,0.1)) !important; }
-        .nav-ai-badge { background: linear-gradient(135deg, #a855f7, #6366f1); color: #fff; font-size: 0.65rem; font-weight: 900; padding: 2px 6px; border-radius: 6px; }
         .btn-action { padding: 8px 16px; border-radius: 10px; font-weight: 700; cursor: pointer; border: none; display: flex; align-items: center; gap: 6px; }
 
         /* Universal Light Theme Overrides for Internal Screens */
@@ -170,7 +139,7 @@ $header_theme_class = "header-theme-inventory";
                 <div class="nav-divider"></div>
 
                 <!-- Cluster 2: حركات البضائع -->
-                <div class="nav-cluster nav-dropdown active">
+                <div class="nav-cluster nav-dropdown">
                     <div class="nav-tab active" title="حركات البضائع">
                         <span>📑</span> <span>حركات البضائع (ملخص الحركات)</span>
                         <span style="font-size: 0.7rem; margin-right: 2px;">▼</span>
@@ -321,6 +290,25 @@ $header_theme_class = "header-theme-inventory";
             if (dateFrom && !dateFrom.value) dateFrom.valueAsDate = firstDay;
             if (dateTo && !dateTo.value) dateTo.valueAsDate = today;
 
+            // Check URL parameters
+            const urlParams = new URLSearchParams(window.location.search);
+            const whParam = urlParams.get('warehouse') || urlParams.get('wh');
+            const whSelect = document.getElementById('filter-warehouse');
+            if (whParam && whSelect) {
+                for (let i = 0; i < whSelect.options.length; i++) {
+                    if (whSelect.options[i].value === whParam || whSelect.options[i].text === whParam) {
+                        whSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            const itemParam = urlParams.get('item') || urlParams.get('search');
+            const searchInput = document.getElementById('filter-search');
+            if (itemParam && searchInput) {
+                searchInput.value = itemParam;
+            }
+
             loadData();
             applyFilters();
         }
@@ -372,8 +360,9 @@ $header_theme_class = "header-theme-inventory";
             const allWarehouses = [{ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام' }, ...warehousesDb];
 
             let getWarehouseName = (id) => {
+                if (!id) return 'المخزن الرئيسي';
                 let w = allWarehouses.find(w => String(w.id) === String(id) || w.name === id);
-                return w ? w.name : 'المخزن الرئيسي';
+                return w ? w.name : id;
             };
 
             items.forEach(item => {
@@ -381,6 +370,21 @@ $header_theme_class = "header-theme-inventory";
                     let key = String(item.id) + '|' + wh.name;
                     summaryMap[key] = { opening: 0, inward: 0, outward: 0, closing: 0 };
                 });
+
+                // Add Master Data Opening Balance from Item Record
+                let openQty = parseFloat(item.openingBalance || item.opening_balance || 0);
+                if (openQty > 0) {
+                    let targetWhName = getWarehouseName(item.openingBalanceWarehouseId || item.warehouseId || item.warehouse);
+                    let key = String(item.id) + '|' + targetWhName;
+                    if (!summaryMap[key]) {
+                        summaryMap[key] = { opening: 0, inward: 0, outward: 0, closing: 0 };
+                    }
+                    let itemDate = new Date(item.createdAt || item.date || 0);
+                    if (itemDate <= endDate) {
+                        summaryMap[key].opening += openQty;
+                        summaryMap[key].closing += openQty;
+                    }
+                }
             });
 
             let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
@@ -406,7 +410,7 @@ $header_theme_class = "header-theme-inventory";
                     }
 
                     let item = items.find(i => String(i.id) === itemId);
-                    let baseQty = line.customBaseQty !== undefined ? parseFloat(line.customBaseQty) : ((parseFloat(line.quantity) || 0) * (parseFloat(line.customFactor || line.factor) || 1) * (item ? (item.conversionFactor || 1) : 1));
+                    let baseQty = line.customBaseQty !== undefined ? parseFloat(line.customBaseQty) : ((parseFloat(line.quantity) || 0) * (parseFloat(line.customFactor || line.factor) || 1));
                     
                     let isOutward = isReturn || (isAdjustment && baseQty < 0);
                     let effectiveQty = Math.abs(baseQty);
@@ -447,7 +451,7 @@ $header_theme_class = "header-theme-inventory";
                     }
 
                     let item = items.find(i => String(i.id) === itemId);
-                    let baseQty = line.customBaseQty !== undefined ? parseFloat(line.customBaseQty) : ((parseFloat(line.quantity) || 0) * (parseFloat(line.customFactor || line.factor) || 1) * (item ? (item.conversionFactor || 1) : 1));
+                    let baseQty = line.customBaseQty !== undefined ? parseFloat(line.customBaseQty) : ((parseFloat(line.quantity) || 0) * (parseFloat(line.customFactor || line.factor) || 1));
                     
                     if (invDate < startDate) {
                         if (isReturn) {
@@ -486,7 +490,7 @@ $header_theme_class = "header-theme-inventory";
                     if (!summaryMap[toKey]) summaryMap[toKey] = { opening: 0, inward: 0, outward: 0, closing: 0 };
                     
                     let item = items.find(i => String(i.id) === itemId);
-                    let baseQty = line.customBaseQty !== undefined ? parseFloat(line.customBaseQty) : ((parseFloat(line.quantity) || 0) * (parseFloat(line.customFactor || line.factor) || 1) * (item ? (item.conversionFactor || 1) : 1));
+                    let baseQty = line.customBaseQty !== undefined ? parseFloat(line.customBaseQty) : ((parseFloat(line.quantity) || 0) * (parseFloat(line.customFactor || line.factor) || 1));
                     
                     if (transferDate < startDate) {
                         summaryMap[fromKey].opening -= baseQty;
@@ -508,7 +512,7 @@ $header_theme_class = "header-theme-inventory";
             for (let key in summaryMap) {
                 let [itemId, warehouse] = key.split('|');
                 let itemData = items.find(i => String(i.id) === itemId);
-                let cost = itemData && itemData.costPrice ? parseFloat(itemData.costPrice) : 0;
+                let cost = itemData ? (parseFloat(itemData.costPrice || itemData.buyPrice || itemData.price) || 0) : 0;
                 
                 generated.push({
                     itemId: itemId,

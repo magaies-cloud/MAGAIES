@@ -351,10 +351,10 @@
 
             <!-- Far Left Controls: Preview & Action Buttons -->
             <div class="dash-controls" style="margin: 0; display: flex; gap: 8px; flex-shrink: 0;">
-                <button class="btn-action" onclick="openItemLedgerPreview()" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white; border: none; padding: 7px 15px; border-radius: 10px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(13,148,136,0.25); display: flex; align-items: center; gap: 6px;">
+                <button id="btn-preview-report" class="btn-action" onclick="openItemLedgerPreview()" style="display: none; background: linear-gradient(135deg, #0d9488, #0f766e); color: white; border: none; padding: 7px 15px; border-radius: 10px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(13,148,136,0.25); align-items: center; gap: 6px;">
                     <span>👁️</span> <span>معاينة وتصميم التقرير</span>
                 </button>
-                <button class="btn-action btn-print" onclick="printItemLedgerDirectly()" style="background: rgba(255,255,255,0.05); color: var(--text-primary); border: 1px solid var(--glass-border); padding: 7px 14px; border-radius: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                <button id="btn-print-report" class="btn-action btn-print" onclick="printItemLedgerDirectly()" style="display: none; background: rgba(255,255,255,0.05); color: var(--text-primary); border: 1px solid var(--glass-border); padding: 7px 14px; border-radius: 10px; font-weight: 700; cursor: pointer; align-items: center; gap: 5px;">
                     <span>🖨️</span> <span>طباعة</span>
                 </button>
                 <button class="btn-icon-nav" onclick="history.back()" title="رجوع" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; color: var(--text-primary); cursor: pointer; transition: 0.3s;">↩</button>
@@ -461,7 +461,7 @@
     <!-- 🎨 ITEM LEDGER PREVIEW & DESIGN STUDIO MODAL                -->
     <!-- ═══════════════════════════════════════════════════════════ -->
     <div id="item-ledger-preview-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 15, 30, 0.92); z-index: 12000; align-items: center; justify-content: center; direction: rtl; backdrop-filter: blur(12px);">
-        <div class="glass-panel" style="width: 96%; max-width: 1420px; height: 94vh; display: flex; flex-direction: column; padding: 18px 22px; border: 1px solid rgba(255,255,255,0.12); background: #0b1120; border-radius: 18px; color: #fff; box-shadow: 0 25px 60px rgba(0,0,0,0.6); overflow: hidden;">
+        <div class="glass-panel" style="width: 100%; max-width: 100%; height: 100vh; display: flex; flex-direction: column; padding: 18px 22px; border: none; background: #0b1120; border-radius: 0; color: #fff; box-shadow: 0 25px 60px rgba(0,0,0,0.6); overflow: hidden;">
             
             <!-- Top Toolbar Header -->
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 12px;" class="no-print">
@@ -665,6 +665,12 @@
         let itemsDb = [];
         let warehousesDb = [];
         let isLiveEditActive = false;
+        
+        // Cache variables to prevent UI freezing during typing
+        let cachedPurchases = null;
+        let cachedSales = null;
+        let cachedTransfers = null;
+        let filterTimeout = null;
 
         function fmtNum(n, decimals = 2) {
             if (n === undefined || n === null || isNaN(n)) return '0';
@@ -742,7 +748,7 @@
 
             // 4. Scan transactions for any additional unit names used for this item
             try {
-                const purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
+                const purchases = cachedPurchases || [];
                 purchases.forEach(inv => {
                     (inv.items || inv.lines || []).forEach(line => {
                         if (item.id && (String(line.itemId) === String(item.id) || String(line.productId) === String(item.id)) && (line.unit || line.unitName)) {
@@ -753,7 +759,7 @@
                         }
                     });
                 });
-                const sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+                const sales = cachedSales || [];
                 sales.forEach(inv => {
                     (inv.items || []).forEach(line => {
                         if (line.itemId === item.id && line.unit) {
@@ -984,15 +990,121 @@
             return fmtNum(val);
         }
         
+        function getAllItemsFromStorage() {
+            let items = [];
+            // 1. Try DB_STORE
+            if (window.DB_STORE && window.getTenantKey) {
+                const tk = window.getTenantKey('erp_items_v1');
+                if (window.DB_STORE[tk]) {
+                    try {
+                        const parsed = typeof window.DB_STORE[tk] === 'string' ? JSON.parse(window.DB_STORE[tk]) : window.DB_STORE[tk];
+                        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                    } catch(e){}
+                }
+            }
+            // 2. Try Tenant Key from localStorage
+            if (typeof window.getTenantKey === 'function') {
+                try {
+                    const tk = window.getTenantKey('erp_items_v1');
+                    const raw = localStorage.getItem(tk);
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                    }
+                } catch(e){}
+            }
+            // 3. Try standard keys
+            const possibleKeys = ['erp_items_v1', 'erp_items', 'items_v1', 'items'];
+            for (let k of possibleKeys) {
+                try {
+                    const raw = localStorage.getItem(k);
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                        if (parsed && typeof parsed === 'object') {
+                            const arr = Array.isArray(parsed.items) ? parsed.items : Object.values(parsed);
+                            if (arr.length > 0) return arr;
+                        }
+                    }
+                } catch(e){}
+            }
+            // 4. Scan all localStorage keys
+            try {
+                for (let i = 0; i < localStorage.length; i++) {
+                    const lk = localStorage.key(i);
+                    if (lk && (lk.includes('erp_items') || lk.endsWith('_items_v1') || lk === 'items')) {
+                        const raw = localStorage.getItem(lk);
+                        if (raw) {
+                            const parsed = JSON.parse(raw);
+                            if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                        }
+                    }
+                }
+            } catch(e){}
+            return [];
+        }
+
+        function getStorageList(key) {
+            if (window.DB_STORE && window.getTenantKey) {
+                const tk = window.getTenantKey(key);
+                if (window.DB_STORE[tk]) {
+                    try {
+                        const parsed = typeof window.DB_STORE[tk] === 'string' ? JSON.parse(window.DB_STORE[tk]) : window.DB_STORE[tk];
+                        if (Array.isArray(parsed)) return parsed;
+                    } catch(e){}
+                }
+            }
+            if (typeof window.getTenantKey === 'function') {
+                try {
+                    const tk = window.getTenantKey(key);
+                    const raw = localStorage.getItem(tk);
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed)) return parsed;
+                    }
+                } catch(e){}
+            }
+            try {
+                const raw = localStorage.getItem(key);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) return parsed;
+                }
+            } catch(e){}
+            return [];
+        }
+
         function initItemLedger() {
-            itemsDb = JSON.parse(localStorage.getItem('erp_items_v1')) || JSON.parse(localStorage.getItem('erp_items')) || [];
+            itemsDb = getAllItemsFromStorage();
+            
+            // Load caches once instead of on every keystroke
+            cachedPurchases = getStorageList('erp_purchase_invoices_v1');
+            cachedSales = getStorageList('erp_sales_invoices_v1');
+            cachedTransfers = getStorageList('erp_warehouse_transfers_v1');
+
             populateItemDropdown();
+
+            // Auto retry if items were still loading in DB_STORE
+            if (itemsDb.length === 0) {
+                let retries = 0;
+                const retryInterval = setInterval(() => {
+                    retries++;
+                    itemsDb = getAllItemsFromStorage();
+                    if (itemsDb.length > 0 || retries > 15) {
+                        clearInterval(retryInterval);
+                        populateItemDropdown();
+                        checkUrlSelection();
+                    }
+                }, 200);
+            } else {
+                checkUrlSelection();
+            }
 
             // Load Warehouses
             const whSelect = document.getElementById('warehouse-select');
             if (whSelect && whSelect.options.length <= 1) {
                 whSelect.innerHTML = '<option value="ALL">🏢 جميع المخازن (الجرد العام)</option>';
-                warehousesDb = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
+                warehousesDb = getStorageList('erp_warehouses_v1');
                 const displayWh = [{ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام' }, ...warehousesDb];
                 displayWh.forEach(wh => {
                     const opt = document.createElement('option');
@@ -1007,18 +1119,28 @@
             if (dateTo && !dateTo.value) {
                 dateTo.valueAsDate = new Date();
             }
+        }
 
-            // Check URL param ?item=ID
+        function checkUrlSelection() {
             const urlParams = new URLSearchParams(window.location.search);
-            const itemId = urlParams.get('item');
+            const itemId = urlParams.get('item') || urlParams.get('id') || urlParams.get('itemId');
             const select = document.getElementById('item-select');
             if (itemId && select) {
-                select.value = itemId;
-                onItemSelected();
+                const foundItem = itemsDb.find(i => String(i.id) === String(itemId) || String(i.code) === String(itemId) || i.name === itemId);
+                if (foundItem) {
+                    select.value = foundItem.id;
+                    onItemSelected();
+                } else if (Array.from(select.options).some(o => String(o.value) === String(itemId))) {
+                    select.value = itemId;
+                    onItemSelected();
+                }
             }
         }
 
         function populateItemDropdown(filterText = '') {
+            if (!itemsDb || itemsDb.length === 0) {
+                itemsDb = getAllItemsFromStorage();
+            }
             const select = document.getElementById('item-select');
             if (!select) return;
             const curVal = select.value;
@@ -1027,16 +1149,20 @@
             const query = (filterText || '').trim().toLowerCase();
             let count = 0;
 
-            itemsDb.forEach(item => {
-                const code = String(item.code || item.id || '');
-                const name = String(item.name || '');
-                const cat = String(item.category || '');
-                const searchStr = `${code} ${name} ${cat}`.toLowerCase();
+            (itemsDb || []).forEach(item => {
+                if (!item || item.deleted) return;
+                const id = String(item.id || item._id || item.itemId || '');
+                const code = String(item.code || item.barcode || id);
+                const name = String(item.name || item.itemName || item.productName || item.title || 'صنف بدون اسم');
+                const cat = String(item.category || item.cat || '');
+                const searchStr = `${code} ${name} ${cat} ${id}`.toLowerCase();
 
                 if (!query || searchStr.includes(query)) {
                     const opt = document.createElement('option');
-                    opt.value = item.id;
-                    opt.text = name;
+                    opt.value = id;
+                    const codePrefix = item.code ? `[${item.code}] ` : '';
+                    const catSuffix = cat ? ` - ${cat}` : '';
+                    opt.text = `${codePrefix}${name}${catSuffix}`;
                     select.appendChild(opt);
                     count++;
                 }
@@ -1053,12 +1179,15 @@
         }
 
         function filterItemDropdown(query) {
-            populateItemDropdown(query);
-            const select = document.getElementById('item-select');
-            if (select && select.options.length > 1 && query.trim()) {
-                select.selectedIndex = 1;
-                onItemSelected();
-            }
+            if (filterTimeout) clearTimeout(filterTimeout);
+            filterTimeout = setTimeout(() => {
+                populateItemDropdown(query);
+                const select = document.getElementById('item-select');
+                if (select && select.options.length === 2 && query.trim()) {
+                    select.selectedIndex = 1;
+                    onItemSelected();
+                }
+            }, 200);
         }
 
         if (document.readyState === 'loading') {
@@ -1129,7 +1258,7 @@
             }
             
             // 1. Get Purchases & Adjustments
-            let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
+            let purchases = cachedPurchases || [];
             purchases = purchases.filter(x => !x.deleted);
             purchases.forEach(inv => {
                 (inv.items || inv.lines || []).forEach(line => {
@@ -1176,7 +1305,12 @@
                         let permitDocId = '';
                         let receiptDocId = inv.id || inv.invoiceNo || '';
 
-                        if (inv.isGRN) {
+                        if (inv.isAdjustment) {
+                            permitNo = '-';
+                            receiptNo = inv.id || '-';
+                            permitDocId = '';
+                            receiptDocId = '';
+                        } else if (inv.isGRN) {
                             permitNo = inv.originalInvoiceId || inv.invoiceNo || inv.poNumber || inv.orderNo || '-';
                             receiptNo = inv.id || inv.grnNumber || inv.receiptNo || '-';
                             permitDocId = inv.originalInvoiceId || inv.invoiceNo || '';
@@ -1222,7 +1356,7 @@
             });
 
             // 2. Get Sales
-            let sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+            let sales = cachedSales || [];
             sales = sales.filter(x => !x.deleted && x.status !== 'draft' && x.status !== 'preliminary' && x.status !== 'pending_delivery');
             sales.forEach(inv => {
                 let hdrWh = inv.warehouse;
@@ -1301,7 +1435,7 @@
             });
 
             // 3. Get Warehouse Transfers
-            let transfers = JSON.parse(localStorage.getItem('erp_warehouse_transfers_v1')) || [];
+            let transfers = cachedTransfers || [];
             transfers = transfers.filter(x => !x.deleted && x.status !== 'cancelled');
             transfers.forEach(tr => {
                 let fromWh = getWarehouseId(tr.fromWarehouse);
@@ -1456,6 +1590,8 @@
         function loadLedger() {
             const itemId = document.getElementById('item-select').value;
             const tbody = document.getElementById('ledger-tbody');
+            const btnPreview = document.getElementById('btn-preview-report');
+            const btnPrint = document.getElementById('btn-print-report');
             
             if (!itemId) {
                 tbody.innerHTML = `<tr><td colspan="14" style="text-align:center; padding:30px; color:var(--text-secondary);">يرجى اختيار صنف لعرض حركته التفصيلية</td></tr>`;
@@ -1463,8 +1599,13 @@
                 document.getElementById('sum-in').innerText = '0';
                 document.getElementById('sum-out').innerText = '0';
                 document.getElementById('sum-balance').innerText = '0';
+                if (btnPreview) btnPreview.style.display = 'none';
+                if (btnPrint) btnPrint.style.display = 'none';
                 return;
             }
+
+            if (btnPreview) btnPreview.style.display = 'flex';
+            if (btnPrint) btnPrint.style.display = 'flex';
 
             const item = itemsDb.find(i => String(i.id) === String(itemId));
             const activeUnits = getActiveSelectedUnits(item);

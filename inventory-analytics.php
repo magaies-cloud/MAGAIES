@@ -336,7 +336,7 @@ $header_theme_class = "header-theme-inventory";
                         }
                         
                         let safeSubtotal = invSubtotal > 0 ? invSubtotal : (lineTotal > 0 ? lineTotal : 1);
-                        let ratio = lineTotal / safeSubtotal;
+                        let ratio = invSubtotal <= 0 ? (1 / (inv.items || inv.lines || []).length) : (lineTotal / safeSubtotal);
                         let apportionedExpenses = totalAdditions * ratio;
                         
                         let landedTotal = lineTotal + apportionedExpenses;
@@ -371,6 +371,11 @@ $header_theme_class = "header-theme-inventory";
                 });
             });
             inventoryDb = actualStockMap;
+
+            itemsDb.forEach(item => {
+                let openBal = parseFloat(item.openingBalance || item.opening_balance || 0);
+                if (openBal > 0) { inventoryDb[item.id] = (inventoryDb[item.id] || 0) + openBal; }
+            });
 
             runProfitabilityAnalysis();
             runAgingAnalysis();
@@ -425,7 +430,7 @@ $header_theme_class = "header-theme-inventory";
                         let lineRev = parseFloat(String(line.total != null ? line.total : 0).replace(/,/g, ''));
                         if (isNaN(lineRev) || lineRev === 0) {
                             let linePrice = parseFloat(String(line.price != null ? line.price : 0).replace(/,/g, '')) || 0;
-                            lineRev = baseQty * linePrice;
+                            lineRev = (parseFloat(line.quantity) || 0) * linePrice;
                         }
                         
                         if (isReturn) {
@@ -518,7 +523,7 @@ $header_theme_class = "header-theme-inventory";
                     status = 'slow'; cSlow++;
                 } else {
                     status = 'dead'; cDead++;
-                    frozenVal = curStock * (parseFloat(item.costPrice) || 0);
+                    frozenVal = curStock * (lastPurchasePriceMap[item.id] || parseFloat(item.costPrice || item.buyPrice || item.price || 0));
                     vFrozen += frozenVal;
                 }
 
@@ -576,10 +581,8 @@ $header_theme_class = "header-theme-inventory";
                         let lineRev = parseFloat(String(line.total != null ? line.total : 0).replace(/,/g, ''));
                         if (isNaN(lineRev) || lineRev === 0) {
                             let linePrice = parseFloat(String(line.price != null ? line.price : 0).replace(/,/g, '')) || 0;
-                            // Estimate base quantity to recalculate lineRev
-                            let item = itemsDb.find(i => String(i.id) === itemId);
-                            let baseQty = line.customBaseQty !== undefined ? line.customBaseQty : ((parseFloat(line.quantity) || 0) * (line.customFactor || 1) * (item ? (item.conversionFactor || 1) : 1));
-                            lineRev = baseQty * linePrice;
+                            // Recalculate lineRev using sales quantity
+                            lineRev = (parseFloat(line.quantity) || 0) * linePrice;
                         }
 
                         if (isReturn) {
@@ -601,6 +604,10 @@ $header_theme_class = "header-theme-inventory";
             
             const tbody = document.getElementById('tb-abc');
             tbody.innerHTML = '';
+
+            if (totalRev <= 0) {
+                return;
+            }
 
             abcArray.forEach((row, idx) => {
                 cumulativeRev += row.rev;

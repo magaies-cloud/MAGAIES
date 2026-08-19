@@ -124,7 +124,8 @@
         }
         @keyframes dropdownFadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
         .nav-dropdown:hover .nav-dropdown-content, 
-        .nav-dropdown:focus-within .nav-dropdown-content {
+        .nav-dropdown:focus-within .nav-dropdown-content,
+        .nav-dropdown.active .nav-dropdown-content {
             display: flex; flex-direction: column; gap: 4px;
         }
         .nav-dropdown-item {
@@ -433,7 +434,7 @@
     <!-- 🎨 WAREHOUSE LEDGER PREVIEW & DESIGN STUDIO MODAL                -->
     <!-- ═══════════════════════════════════════════════════════════ -->
     <div id="warehouse-ledger-preview-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 15, 30, 0.92); z-index: 12000; align-items: center; justify-content: center; direction: rtl; backdrop-filter: blur(12px);">
-        <div class="glass-panel" style="width: 96%; max-width: 1420px; height: 94vh; display: flex; flex-direction: column; padding: 18px 22px; border: 1px solid rgba(255,255,255,0.12); background: #0b1120; border-radius: 18px; color: #fff; box-shadow: 0 25px 60px rgba(0,0,0,0.6); overflow: hidden;">
+        <div class="glass-panel" style="width: 100%; max-width: 100%; height: 100vh; display: flex; flex-direction: column; padding: 18px 22px; border: none; background: #0b1120; border-radius: 0; color: #fff; box-shadow: 0 25px 60px rgba(0,0,0,0.6); overflow: hidden;">
             
             <!-- Top Toolbar Header -->
             <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 12px;" class="no-print">
@@ -544,12 +545,11 @@
                         <select id="item-selected-col-select" class="panel-input" style="color:#38bdf8; font-size:0.8rem; font-weight:900; border-color:#38bdf8; background:#1e293b; padding: 2px 6px; height: 26px;" onchange="selectWarehouseLedgerCol(this.value)">
                             <option value="date" selected>التاريخ</option>
                             <option value="type">نوع الحركة</option>
-                            <option value="permit">رقم الإذن</option>
-                            <option value="receipt">رقم الاستلام</option>
-                            <option value="in">الوارد</option>
-                            <option value="out">المنصرف</option>
-                            <option value="balance">الرصيد التراكمي</option>
-                            <option value="notes">ملحوظة الحركة</option>
+                            <option value="warehouse">المخزن</option>
+                            <option value="doc">المستند / الإذن</option>
+                            <option value="item">الصنف والبيان</option>
+                            <option value="in">وارد (دخول)</option>
+                            <option value="out">منصرف (خروج)</option>
                         </select>
                         <label style="display:flex; align-items:center; gap:2px; cursor:pointer; font-size:0.8rem; font-weight:800;" title="إظهار أو إخفاء العمود">
                             <input type="checkbox" id="warehouse-col-visible-chk" checked onchange="updateSelectedWarehouseLedgerCol('visible', this.checked)">
@@ -585,7 +585,7 @@
                         <input type="range" id="warehouse-col-width-range" min="5" max="50" step="1" value="15" style="width:65px;"
                             oninput="document.getElementById('warehouse-col-width-input').value=this.value; updateSelectedWarehouseLedgerCol('width', this.value)">
                         <input type="number" id="warehouse-col-width-input" class="panel-input" style="width:42px; font-size:0.8rem; padding: 2px; background:#1e293b; color:#fff; border-color:#475569; height: 26px;" min="5" max="50" placeholder="%" 
-                            oninput="if(document.getElementById('warehouse-col-width-range')) document.getElementById('warehouse-col-width-range').value=this.value; updateSelectedInvCol('width', this.value)">
+                            oninput="if(document.getElementById('warehouse-col-width-range')) document.getElementById('warehouse-col-width-range').value=this.value; updateSelectedWarehouseLedgerCol('width', this.value)">
                         <button class="ribbon-btn studio-mini-btn" style="font-size:0.75rem; padding: 2px 5px;" 
                             onclick="updateSelectedWarehouseLedgerCol('width', ''); document.getElementById('warehouse-col-width-input').value=''; document.getElementById('warehouse-col-width-range').value=15;" title="ضبط العرض التلقائي">🔄 تلقائي</button>
                     </div>
@@ -645,7 +645,7 @@
         function initWarehouseLedger() {
             // Load Warehouses
             const whSelect = document.getElementById('warehouse-select');
-            if (whSelect && whSelect.options.length <= 1) {
+            if (whSelect) {
                 whSelect.innerHTML = '<option value="ALL">جميع المخازن (كافة الحركات)</option>';
                 let warehousesDb = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
                 const displayWh = [{ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام' }, ...warehousesDb];
@@ -666,7 +666,12 @@
             const urlParams = new URLSearchParams(window.location.search);
             const whParam = urlParams.get('warehouse') || urlParams.get('wh');
             if (whParam && whSelect) {
-                whSelect.value = whParam;
+                for (let i = 0; i < whSelect.options.length; i++) {
+                    if (whSelect.options[i].value === whParam || whSelect.options[i].text === whParam || String(whSelect.options[i].value).toLowerCase() === String(whParam).toLowerCase()) {
+                        whSelect.selectedIndex = i;
+                        break;
+                    }
+                }
             }
 
             loadLedger();
@@ -678,6 +683,32 @@
             initWarehouseLedger();
         }
         document.addEventListener('DBReady', initWarehouseLedger);
+
+        function resolveWarehouseUnitFactor(line, itemObj) {
+            if (line.customBaseQty !== undefined && parseFloat(line.quantity) > 0) {
+                return parseFloat(line.customBaseQty) / parseFloat(line.quantity);
+            }
+            if (line.customFactor && parseFloat(line.customFactor) > 0) {
+                return parseFloat(line.customFactor);
+            }
+            if (line.factor && parseFloat(line.factor) > 0) {
+                return parseFloat(line.factor);
+            }
+            if (itemObj) {
+                const uName = String(line.unitName || line.unit || line.selectedUnit || '').trim();
+                if (uName) {
+                    const list = (itemObj.units || []).concat(itemObj.unitsArray || []);
+                    const matched = list.find(u => (u.unitName || u.name) === uName);
+                    if (matched && parseFloat(matched.factor || matched.conversionFactor) > 0) {
+                        return parseFloat(matched.factor || matched.conversionFactor);
+                    }
+                }
+                if (itemObj.conversionFactor && parseFloat(itemObj.conversionFactor) > 0) {
+                    return parseFloat(itemObj.conversionFactor);
+                }
+            }
+            return 1;
+        }
 
         function buildRealWarehouseHistory(warehouseId) {
             let history = [];
@@ -699,11 +730,19 @@
                 return wh ? wh.id : nameOrId;
             };
 
+            let isWarehouseMatch = (targetId, currentWh) => {
+                if (!targetId || targetId === 'ALL') return true;
+                const cId = getWarehouseId(currentWh);
+                const cName = getWarehouseName(currentWh);
+                const tName = getWarehouseName(targetId);
+                return String(cId) === String(targetId) || cName === targetId || cName === tName || String(currentWh) === String(targetId);
+            };
+
             // 0. Opening Balances
             itemsDb.forEach(itemObj => {
                 if (itemObj.openingBalance) {
                     let wh = getWarehouseId(itemObj.openingBalanceWarehouseId || itemObj.warehouseId);
-                    if (warehouseId === 'ALL' || String(wh) === String(warehouseId)) {
+                    if (isWarehouseMatch(warehouseId, wh)) {
                         let baseQty = parseFloat(itemObj.openingBalance) || 0;
                         if (baseQty > 0) {
                             history.push({
@@ -733,17 +772,12 @@
             purchases.forEach(inv => {
                 (inv.items || inv.lines || []).forEach(line => {
                     let wh = getWarehouseId(line.warehouseId || inv.warehouseId || inv.warehouse);
-                    if (warehouseId === 'ALL' || String(wh) === String(warehouseId)) {
+                    if (isWarehouseMatch(warehouseId, wh)) {
                         let itemId = line.itemId || line.productId;
                         let itemObj = getItem(itemId);
-                        let baseQty = 0;
-                        if (line.customBaseQty !== undefined) {
-                            baseQty = parseFloat(line.customBaseQty) || 0;
-                        } else {
-                            let factor = parseFloat(line.customFactor || line.factor) || 1;
-                            let conv = itemObj ? (itemObj.conversionFactor || 1) : 1;
-                            baseQty = (parseFloat(line.quantity) || 0) * factor * conv;
-                        }
+                        const origQty = parseFloat(line.quantity) || 0;
+                        const origFactor = resolveWarehouseUnitFactor(line, itemObj);
+                        let baseQty = (line.customBaseQty !== undefined) ? (parseFloat(line.customBaseQty) || 0) : (origQty * origFactor);
 
                         let typeName = 'فاتورة مشتريات';
                         let typeCode = 'in';
@@ -803,21 +837,16 @@
                 (inv.items || []).forEach(line => {
                     let lineWh = getWarehouseId(inv.deliveryWarehouse || line.warehouseId || hdrWh);
                     
-                    if (warehouseId === 'ALL' || String(lineWh) === String(warehouseId)) {
+                    if (isWarehouseMatch(warehouseId, lineWh)) {
                         if (inv.saleType === 'reserved' && inv.deliveryStatus !== 'delivered') {
                             return;
                         }
 
                         let itemId = line.itemId;
                         let itemObj = getItem(itemId);
-                        let baseQty = 0;
-                        if (line.customBaseQty !== undefined) {
-                            baseQty = parseFloat(line.customBaseQty) || 0;
-                        } else {
-                            let factor = parseFloat(line.customFactor || line.factor) || 1;
-                            let conv = itemObj ? (itemObj.conversionFactor || 1) : 1;
-                            baseQty = (parseFloat(line.quantity) || 0) * factor * conv;
-                        }
+                        const origQty = parseFloat(line.quantity) || 0;
+                        const origFactor = resolveWarehouseUnitFactor(line, itemObj);
+                        let baseQty = (line.customBaseQty !== undefined) ? (parseFloat(line.customBaseQty) || 0) : (origQty * origFactor);
 
                         let permitNo = inv.orderNo || inv.soNumber || inv.quotationNo || inv.dispatchOrderNo || inv.permitNo || inv.invoiceNo || '-';
                         let docTarget = `sales-invoice.php?id=${inv.id || inv.invoiceNo}`;
@@ -1548,6 +1577,7 @@
         }
 
         function printWarehouseLedgerSheet() {
+            openWarehouseLedgerPreview();
             if (isLiveEditActive) {
                 toggleLiveEditMode();
             }

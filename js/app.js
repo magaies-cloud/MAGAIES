@@ -4244,7 +4244,7 @@ window.openReportPreview = function(title, targetSelector) {
             justify-content: center; direction: rtl; backdrop-filter: blur(8px);
         `);
         modal.innerHTML = `
-            <div class="glass-panel" style="width: 95%; max-width: 1300px; height: 90vh; display: flex; flex-direction: column; padding: 25px; border: 1px solid rgba(255,255,255,0.1); background: #0f172a; border-radius: 16px; color:#fff; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
+            <div class="glass-panel" style="width: 100%; max-width: 100%; height: 100vh; display: flex; flex-direction: column; padding: 18px 22px; border: none; background: #0b1120; border-radius: 0; color:#fff; box-shadow: 0 20px 50px rgba(0,0,0,0.5);">
                 <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:15px; margin-bottom:15px;" class="no-print">
                     <h3 style="margin:0; font-weight:900; color:#38bdf8; display:flex; align-items:center; gap:10px; font-size:1.25rem;">
                         <span>👁️</span> معاينة الطباعة الاحترافية

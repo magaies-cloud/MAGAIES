@@ -1,141 +1,60 @@
-<?php $page_title = 'المخازن'; ?>
+<?php 
+$page_title = "الجرد الشامل للمخازن"; 
+$header_theme_class = "header-theme-inventory";
+?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
-<script src="js/lang.js"></script>
-<script>
-(function(){
-    var l = localStorage.getItem('erp_lang') || 'ar';
-    if(l==='en') {
-        document.documentElement.setAttribute('dir','ltr');
-        document.documentElement.setAttribute('lang','en');
-    }
-})();
-</script>
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مقاييس (MAGAIEES) - تقارير وجرد المخازن</title>
-    <link rel="stylesheet" href="css/design-system.css?v=<?php echo time(); ?>">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title><?php echo $page_title; ?> - نظام مقاييس</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&display=swap" rel="stylesheet">
+    
+    <!-- Base CSS -->
     <link rel="stylesheet" href="css/theme.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="css/components.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/inventory.css?v=<?php echo time(); ?>">
+    
     <style>
         :root {
-            /* World-Class Executive ERP Theme */
-            --bg-dark: #090d16;
+            --bg-page: #0b1120;
             --surface-card: rgba(15, 23, 42, 0.75);
-            --surface-card-hover: rgba(30, 41, 59, 0.85);
-            --panel-bg: rgba(15, 23, 42, 0.75);
-            --cyan-accent: #06b6d4;
-            --sky-accent: #38bdf8;
-            --pink-accent: #f43f5e;
+            --glass-border: rgba(255, 255, 255, 0.08);
+            --primary-accent: #38bdf8;
             --emerald-accent: #10b981;
             --amber-accent: #f59e0b;
+            --rose-accent: #f43f5e;
             --purple-accent: #8b5cf6;
-            --glass-border: rgba(255, 255, 255, 0.09);
-            --glass-border-subtle: rgba(255, 255, 255, 0.05);
-            --text-primary: #f8fafc;
+            --text-main: #f8fafc;
             --text-secondary: #94a3b8;
-            --text-muted: #64748b;
-        }
-
-        :root.light-theme {
-            --bg-dark: #f8fafc;
-            --surface-card: #ffffff;
-            --surface-card-hover: #f1f5f9;
-            --panel-bg: rgba(255, 255, 255, 0.95);
-            --text-primary: #0f172a;
-            --text-secondary: #475569;
-            --text-muted: #94a3b8;
-            --glass-border: rgba(0, 0, 0, 0.08);
-            --glass-border-subtle: rgba(0, 0, 0, 0.04);
-            --text-main: #0f172a;
-        }
-
-        :root.light-theme .dash-table th {
-            background: #f1f5f9;
-            color: #0f172a;
-            border-bottom: 2px solid #cbd5e1;
-        }
-        :root.light-theme .dash-table td {
-            color: #1e293b;
-            border-bottom: 1px solid #e2e8f0;
-        }
-        :root.light-theme .dash-table tbody tr:hover td {
-            background: rgba(56, 189, 248, 0.08);
-        }
-        :root.light-theme .code-pill {
-            background: #f1f5f9;
-            color: #475569;
-            border-color: #cbd5e1;
-        }
-        :root.light-theme .f-input {
-            background: #ffffff;
-            color: #0f172a;
-            border-color: #cbd5e1;
-        }
-        :root.light-theme .f-select option {
-            background: #ffffff;
-            color: #0f172a;
-        }
-        :root.light-theme .nav-dropdown-content {
-            background: #ffffff;
-            border-color: #cbd5e1;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1);
-        }
-        :root.light-theme .nav-dropdown-item {
-            color: #334155;
-        }
-        :root.light-theme .nav-dropdown-item:hover {
-            background: #f1f5f9;
-            color: #0284c7;
-        }
-        :root.light-theme .studio-chip {
-            background: #f8fafc;
-            border-color: #e2e8f0;
-            color: #334155;
-        }
-        :root.light-theme .studio-chip:hover {
-            background: #f1f5f9;
-        }
-        :root.light-theme .studio-chip.checked {
-            background: #ede9fe;
-            border-color: #a78bfa;
-            color: #6d28d9;
-        }
-        :root.light-theme .glass-panel {
-            background: #ffffff !important;
-            color: #0f172a !important;
-        }
-        :root.light-theme .btn-link {
-            background: #f1f5f9;
-            color: #334155;
-            border-color: #cbd5e1;
         }
 
         body {
-            background-color: var(--bg-dark);
-            color: var(--text-primary);
-            font-family: 'Inter', 'Tajawal', sans-serif;
+            font-family: 'Tajawal', sans-serif;
+            background-color: var(--bg-page);
+            color: var(--text-main);
             margin: 0; padding: 0;
             background-image: radial-gradient(circle at 90% 10%, rgba(56, 189, 248, 0.04), transparent 40%),
                               radial-gradient(circle at 10% 90%, rgba(16, 185, 129, 0.04), transparent 40%);
             min-height: 100vh;
-            letter-spacing: -0.01em;
         }
 
-        /* Custom Modern Scrollbar */
-        ::-webkit-scrollbar { width: 6px; height: 6px; }
-        ::-webkit-scrollbar-track { background: transparent; }
-        ::-webkit-scrollbar-thumb { background: rgba(255, 255, 255, 0.15); border-radius: 10px; }
-        ::-webkit-scrollbar-thumb:hover { background: rgba(255, 255, 255, 0.25); }
+        /* Ambient Orbs */
+        .ambient-bg { position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; pointer-events: none; z-index: 0; overflow: hidden; }
+        .orb { position: absolute; border-radius: 50%; filter: blur(90px); opacity: 0.25; animation: floatOrb 18s ease-in-out infinite alternate; }
+        .orb-1 { width: 450px; height: 450px; background: #0284c7; top: -80px; left: -80px; }
+        .orb-2 { width: 500px; height: 500px; background: #059669; bottom: -100px; right: -100px; animation-duration: 22s; }
+        @keyframes floatOrb { 0% { transform: translate(0, 0) scale(1); } 100% { transform: translate(60px, 40px) scale(1.08); } }
 
         .dashboard-container {
-            display: flex; flex-direction: column; gap: 8px;
-            padding: 8px 18px; box-sizing: border-box; max-width: 1720px; margin: 0 auto;
+            display: flex; flex-direction: column; gap: 10px;
+            padding: 10px 20px; box-sizing: border-box; max-width: 1720px; margin: 0 auto;
+            position: relative; z-index: 1;
         }
 
-        /* Navigation Bar (Ultra-Compact Segmented Clusters) */
+        /* Navigation Bar (Clustered Smart Hub) */
         .nav-tabs { 
             display: flex; gap: 6px; flex-wrap: wrap; overflow: visible;
             background: var(--surface-card); padding: 6px 10px; border-radius: 14px; 
@@ -143,67 +62,30 @@
             backdrop-filter: blur(20px); align-items: center; width: 100%; z-index: 100; position: relative;
             min-height: 48px; box-sizing: border-box;
         }
-        .nav-tabs::-webkit-scrollbar { display: none; }
-        .nav-cluster {
-            display: flex; align-items: center; gap: 4px;
-        }
-        .nav-divider {
-            width: 1px; height: 24px; background: rgba(255, 255, 255, 0.12); margin: 0 4px; flex-shrink: 0;
-        }
+        .nav-cluster { display: flex; align-items: center; gap: 4px; }
+        .nav-divider { width: 1px; height: 24px; background: rgba(255, 255, 255, 0.12); margin: 0 4px; flex-shrink: 0; }
+        
         .nav-tab {
             padding: 8px 15px; border-radius: 9px; text-decoration: none; font-weight: 700;
             color: var(--text-secondary); background: transparent; border: 1px solid transparent;
             transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 6px; font-size: 0.88rem;
             position: relative; white-space: nowrap; flex-shrink: 0; cursor: pointer; height: 38px; box-sizing: border-box;
         }
-        .nav-tab:hover {
-            color: #fff; background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.1);
-            transform: translateY(-1px);
-        }
+        .nav-tab:hover { color: #fff; background: rgba(255, 255, 255, 0.06); border-color: rgba(255, 255, 255, 0.1); transform: translateY(-1px); }
         .nav-tab.active {
             background: linear-gradient(135deg, rgba(56, 189, 248, 0.18), rgba(37, 99, 235, 0.18));
-            border-color: rgba(56, 189, 248, 0.45); color: #38bdf8;
+            border-color: rgba(56, 189, 248, 0.45); color: var(--primary-accent);
             box-shadow: 0 0 12px rgba(56, 189, 248, 0.25);
         }
-
-        /* AI Suite Special Pill */
         .nav-tab-ai {
             background: linear-gradient(135deg, rgba(236, 72, 153, 0.15), rgba(139, 92, 246, 0.15));
             border: 1px solid rgba(236, 72, 153, 0.4); color: #f472b6 !important;
             box-shadow: 0 0 10px rgba(236, 72, 153, 0.2);
         }
-        .nav-tab-ai:hover {
-            background: linear-gradient(135deg, rgba(236, 72, 153, 0.25), rgba(139, 92, 246, 0.25));
-            border-color: rgba(236, 72, 153, 0.6); color: #fff !important;
-            box-shadow: 0 0 15px rgba(236, 72, 153, 0.35);
-        }
-        .nav-ai-badge {
-            background: #ec4899; color: #fff; font-size: 0.68rem; padding: 2px 5px; border-radius: 8px; font-weight: 900;
-        }
+        .nav-tab-ai:hover { background: linear-gradient(135deg, rgba(236, 72, 153, 0.25), rgba(139, 92, 246, 0.25)); border-color: rgba(236, 72, 153, 0.6); color: #fff !important; }
+        .nav-ai-badge { background: #ec4899; color: #fff; font-size: 0.68rem; padding: 2px 5px; border-radius: 8px; font-weight: 900; }
 
-        /* Top Studio Button on the Far Left */
-        .btn-studio-top {
-            background: linear-gradient(135deg, #6366f1, #8b5cf6);
-            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35);
-            border: 1px solid rgba(255, 255, 255, 0.25);
-            padding: 8px 18px; border-radius: 10px; color: #fff; font-weight: 800; font-size: 0.88rem;
-            cursor: pointer; display: inline-flex; align-items: center; gap: 7px; height: 38px; box-sizing: border-box;
-            transition: all 0.25s ease; white-space: nowrap; text-shadow: 0 1px 2px rgba(0,0,0,0.3);
-        }
-        .btn-studio-top:hover {
-            transform: translateY(-2px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
-            border-color: rgba(255, 255, 255, 0.4);
-        }
-        .btn-icon-nav {
-            background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border);
-            display: flex; align-items: center; justify-content: center; width: 38px; height: 38px;
-            border-radius: 10px; color: var(--text-main); cursor: pointer; transition: 0.25s; font-size: 1.1rem;
-        }
-        .btn-icon-nav:hover {
-            background: rgba(255,255,255,0.1); color: #fff; transform: translateY(-1px);
-        }
-
-        /* Nav Dropdown for Extra Reports */
+        /* Nav Dropdown */
         .nav-dropdown { position: relative; display: inline-block; }
         .nav-dropdown-content {
             display: none; position: absolute; top: calc(100% + 6px); right: 0; min-width: 250px;
@@ -212,29 +94,47 @@
             box-shadow: 0 15px 35px rgba(0, 0, 0, 0.65); padding: 6px; z-index: 10000;
             animation: dropdownFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
         }
-        .nav-dropdown-content::before {
-            content: ''; position: absolute; top: -10px; left: 0; right: 0; height: 10px; background: transparent;
-        }
+        .nav-dropdown-content::before { content: ''; position: absolute; top: -10px; left: 0; right: 0; height: 10px; background: transparent; }
         @keyframes dropdownFadeIn { from { opacity: 0; transform: translateY(-6px); } to { opacity: 1; transform: translateY(0); } }
         .nav-dropdown:hover .nav-dropdown-content, 
         .nav-dropdown:focus-within .nav-dropdown-content,
-        .nav-dropdown.active .nav-dropdown-content { display: block; }
+        .nav-dropdown.active .nav-dropdown-content { display: flex; flex-direction: column; gap: 4px; }
         .nav-dropdown-item {
             display: flex; align-items: center; gap: 10px; padding: 10px 14px; color: #cbd5e1;
             text-decoration: none; font-size: 0.86rem; font-weight: 700; border-radius: 8px; transition: all 0.2s ease;
         }
-        .nav-dropdown-item:hover { background: rgba(56, 189, 248, 0.15); color: #38bdf8; transform: translateX(-3px); }
+        .nav-dropdown-item:hover { background: rgba(56, 189, 248, 0.15); color: var(--primary-accent); transform: translateX(-3px); }
 
-        /* Unified Filter Hub (Streamlined Single Row) */
+        /* Action Buttons */
+        .btn-action-top {
+            padding: 7px 15px; border-radius: 10px; font-weight: 700; cursor: pointer; border: none;
+            display: flex; align-items: center; gap: 6px; font-size: 0.85rem; height: 38px; box-sizing: border-box;
+            transition: all 0.2s ease;
+        }
+        .btn-preview-top {
+            background: linear-gradient(135deg, #0d9488, #0f766e); color: white;
+            box-shadow: 0 4px 10px rgba(13,148,136,0.25);
+        }
+        .btn-preview-top:hover { transform: translateY(-1px); box-shadow: 0 6px 15px rgba(13,148,136,0.4); }
+        .btn-studio-top {
+            background: linear-gradient(135deg, #6366f1, #8b5cf6); color: white;
+            box-shadow: 0 4px 15px rgba(99, 102, 241, 0.35); border: 1px solid rgba(255, 255, 255, 0.25);
+        }
+        .btn-studio-top:hover { transform: translateY(-1px); box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5); }
+        .btn-icon-nav {
+            background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border);
+            display: flex; align-items: center; justify-content: center; width: 38px; height: 38px;
+            border-radius: 10px; color: var(--text-main); cursor: pointer; transition: 0.25s; font-size: 1.1rem;
+        }
+        .btn-icon-nav:hover { background: rgba(255,255,255,0.1); color: #fff; transform: translateY(-1px); }
+
+        /* Unified Single-Row Filter Hub */
         .filters-hub {
             background: var(--surface-card); backdrop-filter: blur(20px); border-radius: 14px;
-            border: 1px solid var(--glass-border); padding: 10px 16px;
-            box-shadow: 0 4px 15px rgba(0,0,0,0.18);
+            border: 1px solid var(--glass-border); padding: 10px 16px; box-shadow: 0 4px 15px rgba(0,0,0,0.18);
         }
-        .filters-main-row {
-            display: flex; gap: 10px; align-items: center; flex-wrap: wrap;
-        }
-        .f-search-wrapper { position: relative; flex: 1.8; min-width: 220px; display: flex; align-items: center; }
+        .filters-main-row { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; }
+        .f-search-wrapper { position: relative; flex: 2.0; min-width: 240px; display: flex; align-items: center; }
         .f-search-icon { position: absolute; right: 12px; font-size: 1rem; color: #64748b; pointer-events: none; }
         .f-search-clear {
             position: absolute; left: 10px; font-size: 0.85rem; color: #64748b; cursor: pointer;
@@ -244,222 +144,101 @@
         .f-search-clear:hover { background: rgba(255,255,255,0.2); color: #fff; }
         .f-input {
             background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); border-radius: 10px;
-            color: var(--text-primary); padding: 10px 38px 10px 14px; font-size: 0.9rem; outline: none; transition: 0.2s;
-            font-family: inherit; width: 100%; box-sizing: border-box; height: 42px; font-weight: 600;
+            color: var(--text-main); padding: 8px 38px 8px 14px; font-size: 0.9rem; outline: none; transition: 0.2s;
+            font-family: inherit; width: 100%; box-sizing: border-box; height: 40px; font-weight: 600;
         }
-        .f-input:focus { border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.15); background: rgba(0,0,0,0.4); }
+        .f-input:focus { border-color: var(--primary-accent); box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.15); background: rgba(0,0,0,0.4); }
         .f-select {
-            padding: 0 32px 0 14px; cursor: pointer; appearance: none;
-            background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2394a3b8'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'%3E%3C/path%3E%3C/svg%3E");
-            background-repeat: no-repeat; background-position: left 12px center; background-size: 14px;
-        }
-        .f-select option { background: #0f172a; color: #f8fafc; padding: 8px; }
-        .f-select-quick {
-            border-color: rgba(56, 189, 248, 0.4); background-color: rgba(56, 189, 248, 0.05);
-            color: #38bdf8; font-weight: 700;
-        }
-        .f-select-quick:focus {
-            border-color: #38bdf8; box-shadow: 0 0 0 2px rgba(56, 189, 248, 0.25);
-        }
-        .filter-badge-pill {
-            font-size: 0.88rem; font-weight: 800; color: #38bdf8; background: rgba(56,189,248,0.08);
-            padding: 8px 16px; border-radius: 10px; border: 1px solid rgba(56,189,248,0.25);
-            white-space: nowrap; display: inline-flex; align-items: center; gap: 6px; height: 42px; box-sizing: border-box;
+            padding: 8px 12px; font-size: 0.88rem; font-weight: 700; border-radius: 10px;
+            background: rgba(0,0,0,0.25); border: 1px solid var(--glass-border); color: var(--text-main);
+            outline: none; cursor: pointer; height: 40px; box-sizing: border-box; flex: 1.2; min-width: 170px;
         }
 
-        /* Executive Data Table (Maximized Visible Height) */
+        /* KPI Row */
+        .kpi-row { display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px; margin-bottom: 2px; }
+        .kpi-card {
+            background: var(--surface-card); border: 1px solid var(--glass-border); padding: 14px 18px;
+            border-radius: 14px; display: flex; flex-direction: column; gap: 6px; position: relative;
+            overflow: hidden; backdrop-filter: blur(15px); box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+        }
+        .kpi-card::before { content: ''; position: absolute; top: 0; right: 0; width: 4px; height: 100%; }
+        .kpi-card.c-blue::before { background: var(--primary-accent); }
+        .kpi-card.c-emerald::before { background: var(--emerald-accent); }
+        .kpi-card.c-amber::before { background: var(--amber-accent); }
+        .kpi-card.c-rose::before { background: var(--rose-accent); }
+        .kpi-title { font-size: 0.8rem; color: var(--text-secondary); font-weight: 700; }
+        .kpi-val { font-size: 1.4rem; font-weight: 900; color: #fff; }
+        .kpi-val span { font-size: 0.8rem; color: var(--text-secondary); font-weight: 500; }
+
+        /* Data Table */
         .table-panel {
-            background: var(--surface-card); backdrop-filter: blur(20px); border-radius: 14px;
-            border: 1px solid var(--glass-border); box-shadow: 0 8px 30px rgba(0,0,0,0.3);
-            overflow: hidden; display: flex; flex-direction: column;
+            background: var(--surface-card); border: 1px solid var(--glass-border);
+            border-radius: 14px; overflow: hidden; backdrop-filter: blur(15px);
+            box-shadow: 0 4px 20px rgba(0,0,0,0.25);
         }
-        .table-wrapper { overflow-x: auto; overflow-y: auto; max-height: 64vh; scrollbar-width: thin; }
-        .dash-table { width: 100%; border-collapse: separate; border-spacing: 0; min-width: 1100px; }
-        .dash-table thead { position: sticky; top: 0; z-index: 10; }
-        .dash-table th {
-            background: rgba(15, 23, 42, 0.98); padding: 11px 14px; text-align: right;
-            font-size: 0.74rem; font-weight: 800; color: var(--text-secondary); border-bottom: 2px solid var(--glass-border);
-            text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap; backdrop-filter: blur(10px);
+        .table-wrapper { overflow-x: auto; max-height: calc(100vh - 350px); }
+        .report-table { width: 100%; border-collapse: collapse; min-width: 1100px; text-align: right; }
+        .report-table th {
+            background: rgba(0,0,0,0.35); padding: 12px 14px; color: var(--text-secondary);
+            font-weight: 800; font-size: 0.84rem; border-bottom: 1px solid rgba(255,255,255,0.08);
+            position: sticky; top: 0; z-index: 10; white-space: nowrap;
         }
-        .dash-table td {
-            padding: 10px 14px; font-size: 0.85rem; border-bottom: 1px solid var(--glass-border-subtle);
-            vertical-align: middle; transition: all 0.15s ease;
+        .report-table td {
+            padding: 10px 14px; border-bottom: 1px solid rgba(255,255,255,0.04);
+            color: #cbd5e1; font-size: 0.88rem; vertical-align: middle;
         }
-        .dash-table tbody tr {
-            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
-            position: relative;
-        }
-        .dash-table tbody tr:hover td {
-            background: rgba(56, 189, 248, 0.03);
-        }
-        .dash-table tbody tr:hover td:first-child {
-            box-shadow: inset 3px 0 0 #38bdf8;
-        }
+        .report-table tr:hover td { background: rgba(255,255,255,0.02); }
 
-        .code-pill {
-            background: rgba(255,255,255,0.04); padding: 4px 8px; border-radius: 6px;
-            font-family: 'JetBrains Mono', monospace; font-size: 0.8rem; border: 1px solid var(--glass-border);
-            color: #94a3b8; font-weight: 700; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 4px;
-        }
-        .code-pill:hover { background: rgba(56,189,248,0.15); color: #38bdf8; border-color: rgba(56,189,248,0.3); }
-
-        .qty-badge-dual {
-            display: inline-flex; flex-direction: column; align-items: center; gap: 3px;
-        }
-        .qty-val-main { font-size: 1.15rem; font-weight: 900; }
-        .qty-sub-unit {
-            background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2);
-            padding: 2px 8px; border-radius: 6px; font-weight: 800; font-size: 0.78rem; display: inline-flex; align-items: center; gap: 4px;
-        }
-
-        .val-td { font-size: 0.95rem; font-weight: 900; color: #10b981; direction: ltr; text-align: left; }
-        
+        /* Badges */
         .status-badge {
-            padding: 5px 12px; border-radius: 20px; font-size: 0.76rem; font-weight: 800;
-            display: inline-flex; align-items: center; gap: 6px; white-space: nowrap;
+            display: inline-flex; align-items: center; gap: 5px; padding: 3px 9px;
+            border-radius: 6px; font-size: 0.76rem; font-weight: 800;
         }
-        .status-ok { background: rgba(16, 185, 129, 0.12); color: #10b981; border: 1px solid rgba(16, 185, 129, 0.25); }
-        .status-warn { background: rgba(245, 158, 11, 0.12); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.25); }
-        .status-danger { background: rgba(244, 63, 94, 0.12); color: #f43f5e; border: 1px solid rgba(244, 63, 94, 0.25); }
+        .status-badge.ok { background: rgba(16, 185, 129, 0.15); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.3); }
+        .status-badge.warning { background: rgba(245, 158, 11, 0.15); color: #fbbf24; border: 1px solid rgba(245, 158, 11, 0.3); }
+        .status-badge.danger { background: rgba(239, 68, 68, 0.15); color: #f87171; border: 1px solid rgba(239, 68, 68, 0.3); }
 
-        .btn-link {
-            background: rgba(255, 255, 255, 0.04); color: #cbd5e1; padding: 6px 12px; border-radius: 8px;
-            text-decoration: none; font-size: 0.78rem; font-weight: 700; border: 1px solid var(--glass-border);
-            transition: all 0.2s ease; display: inline-flex; align-items: center; gap: 6px;
-        }
-        .btn-link:hover {
-            background: linear-gradient(135deg, rgba(56, 189, 248, 0.2), rgba(37, 99, 235, 0.2));
-            color: #38bdf8; border-color: rgba(56, 189, 248, 0.4); transform: translateY(-1px);
-        }
-
-        /* Glass Action Island (Under Table) */
-        .action-island {
-            display: flex; justify-content: space-between; align-items: center; background: var(--surface-card);
-            border: 1px solid var(--glass-border); border-radius: 14px; padding: 10px 18px;
-            box-shadow: 0 6px 25px rgba(0,0,0,0.25); backdrop-filter: blur(20px); flex-wrap: wrap; gap: 10px;
-        }
-        .btn-action-tool {
-            padding: 12px 26px; border-radius: 12px; font-weight: 800; font-size: 0.95rem; cursor: pointer;
-            border: 1px solid transparent; transition: all 0.25s cubic-bezier(0.4, 0, 0.2, 1);
-            display: inline-flex; align-items: center; gap: 8px; color: #fff; height: 46px; box-sizing: border-box;
-        }
-        .btn-action-tool:hover { transform: translateY(-2px); box-shadow: 0 6px 20px rgba(0,0,0,0.35); }
-
-        /* Summary Strip Hub (Clean Linear Summary Bar - No Bulky Boxes) */
-        .summary-strip-hub {
-            background: var(--surface-card); backdrop-filter: blur(20px); border-radius: 14px;
-            border: 1px solid var(--glass-border); padding: 12px 20px;
-            box-shadow: 0 4px 20px rgba(0,0,0,0.25); display: flex; align-items: center; justify-content: space-between;
-            flex-wrap: wrap; gap: 12px; margin-bottom: 8px;
-        }
-        .summary-strip-item {
-            display: flex; align-items: center; gap: 12px; flex: 1; min-width: 200px; justify-content: center;
-        }
-        .summary-strip-icon {
-            width: 40px; height: 40px; border-radius: 10px; display: flex; align-items: center; justify-content: center;
-            font-size: 1.15rem; flex-shrink: 0; border: 1px solid var(--glass-border);
-        }
-        .summary-strip-info {
-            display: flex; flex-direction: column; gap: 2px;
-        }
-        .summary-strip-label {
-            font-size: 0.76rem; font-weight: 700; color: var(--text-secondary);
-        }
-        .summary-strip-value {
-            font-size: 1.45rem; font-weight: 900; line-height: 1.1; display: flex; align-items: baseline; gap: 6px;
-        }
-        .summary-strip-value span {
-            font-size: 0.8rem; font-weight: 600; color: var(--text-secondary);
-        }
-        .summary-strip-divider {
-            width: 1px; height: 36px; background: rgba(255, 255, 255, 0.08); flex-shrink: 0;
-        }
-        :root.light-theme .summary-strip-divider { background: rgba(0, 0, 0, 0.08); }
-
-        @media (max-width: 1200px) {
-            .filters-main-row { grid-template-columns: 1fr 1fr; }
-            .summary-strip-divider { display: none; }
-        }
-        @media (max-width: 768px) {
-            .filters-main-row { grid-template-columns: 1fr; }
-            .action-island { flex-direction: column; align-items: stretch; }
-            .summary-strip-hub { flex-direction: column; align-items: stretch; }
+        /* Floating Bottom Action Island */
+        .floating-action-island {
+            position: sticky; bottom: 12px; z-index: 99;
+            background: rgba(15, 23, 42, 0.9); backdrop-filter: blur(20px);
+            border: 1px solid var(--glass-border); border-radius: 14px;
+            padding: 8px 16px; display: flex; justify-content: space-between; align-items: center;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.5); margin-top: 4px;
         }
 
-        /* Custom Report Studio Styles */
-        .studio-card-grid {
-            display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 10px;
+        /* Modal Overlay & Panels */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(5, 10, 20, 0.92); backdrop-filter: blur(10px);
+            z-index: 12000; display: none; align-items: center; justify-content: center;
         }
-        .studio-chip {
-            background: rgba(255,255,255,0.03); border: 1px solid var(--glass-border); border-radius: 10px;
-            padding: 9px 12px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px;
-            color: #cbd5e1; user-select: none; font-size: 0.85rem; font-weight: 700;
+        .modal-card {
+            background: #0f172a; border: 1px solid var(--glass-border);
+            border-radius: 16px; color: #fff; box-shadow: 0 25px 60px rgba(0,0,0,0.7);
+            display: flex; flex-direction: column; overflow: hidden;
         }
-        .studio-chip:hover {
-            background: rgba(255,255,255,0.07); border-color: rgba(99, 102, 241, 0.4); color: #fff;
+
+        /* Light Theme Overrides */
+        :root.light-theme body { background-color: #f8fafc; color: #0f172a; }
+        :root.light-theme .nav-tabs, :root.light-theme .filters-hub, :root.light-theme .kpi-card, :root.light-theme .table-panel {
+            background: #ffffff !important; border-color: rgba(0,0,0,0.08) !important; box-shadow: 0 4px 15px rgba(0,0,0,0.05) !important;
         }
-        .studio-chip input[type="checkbox"], .studio-chip input[type="radio"] {
-            accent-color: #8b5cf6; width: 16px; height: 16px; cursor: pointer;
-        }
-        .studio-chip.checked {
-            background: rgba(99, 102, 241, 0.15); border-color: rgba(139, 92, 246, 0.5); color: #c084fc;
-        }
-        .studio-section-title {
-            color: #c084fc; font-weight: 800; font-size: 0.95rem; margin-bottom: 10px;
-            display: flex; align-items: center; gap: 8px; border-bottom: 1px solid rgba(139, 92, 246, 0.2);
-            padding-bottom: 6px;
-        }
-        .studio-tab-btn {
-            padding: 8px 16px; border-radius: 8px; font-weight: 700; font-size: 0.85rem; cursor: pointer;
-            background: rgba(255,255,255,0.04); border: 1px solid var(--glass-border); color: var(--text-secondary);
-            transition: 0.2s;
-        }
-        .studio-tab-btn.active {
-            background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; border-color: transparent;
-            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.35);
-        }
+        :root.light-theme .f-input, :root.light-theme .f-select { background: #f1f5f9 !important; border-color: #cbd5e1 !important; color: #0f172a !important; }
+        :root.light-theme .report-table th { background: #f1f5f9 !important; color: #334155 !important; border-bottom: 2px solid #cbd5e1 !important; }
+        :root.light-theme .report-table td { color: #1e293b !important; border-bottom: 1px solid rgba(0,0,0,0.06) !important; }
+        :root.light-theme .kpi-val { color: #0f172a !important; }
     </style>
-    <style>
-        :root.light-theme {
-            --bg-color: #f1f5f9;
-            --surface: #ffffff;
-            --text-main: #0f172a;
-            --text-secondary: #475569;
-            --border-color: #e2e8f0;
-        }
-        :root.light-theme body { background-color: var(--bg-color); color: var(--text-main); }
-        :root.light-theme .premium-header {
-            background: linear-gradient(135deg, rgba(255,255,255,0.9), rgba(241,245,249,0.9));
-            border: 1px solid rgba(0,0,0,0.1);
-            box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-        }
-        :root.light-theme .header-center h2 { background: linear-gradient(to right, #0f172a, #334155); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        :root.light-theme .brand-text h1 { color: #0f172a; text-shadow: none; }
-        :root.light-theme .brand-text p { color: #475569; text-shadow: none; }
-
-        :root.light-theme .online-users { background: rgba(16,185,129,0.1) !important; border-color: rgba(16,185,129,0.2) !important; }
-    </style>
-    
 </head>
 <body class="no-page-transition">
-
-    <!-- Ambient Animated Background -->
-    <div class="ambient-bg">
-        <div class="orb orb-1"></div>
-        <div class="orb orb-2"></div>
-        <div class="orb orb-3"></div>
-    </div>
-
-
+    <div class="ambient-bg"><div class="orb orb-1"></div><div class="orb orb-2"></div></div>
+    
     <div class="dashboard-container">
-
-        <!-- Premium Header for Inventory -->
-                <?php $header_theme_class = 'header-theme-inventory'; ?>
         <?php include 'includes/header.php'; ?>
 
-        <!-- Top Navigation Row (Clustered Smart Hub + Studio Button on Far Left) -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; gap: 10px; flex-wrap: nowrap;">
-            <div class="nav-tabs" style="margin-bottom: 0; flex: 1;">
+        <!-- Top Navigation Smart Hub -->
+        <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: nowrap;">
+            <div class="nav-tabs" style="flex: 1;">
                 
                 <!-- Cluster 1: نظام الجرد -->
                 <div class="nav-cluster">
@@ -505,183 +284,436 @@
                         <a href="smart_inventory_report.php" class="nav-dropdown-item" title="تقارير تفاعلية ذكية للمخزون">
                             <span>🧠</span> تقارير المخازن الذكية
                         </a>
-                        <a href="javascript:void(0)" onclick="runAIInventory()" class="nav-dropdown-item" title="تحليل فوري للتكدس والنواقص">
-                            <span>⚡</span> محلل المخازن الـ AI
+                        <a href="javascript:void(0)" onclick="runAIInventory()" class="nav-dropdown-item" style="color: #ec4899;" title="تحليل فوري للمخزون">
+                            <span>⚡</span> فاحص المخزون الذكي
                         </a>
                     </div>
                 </div>
 
                 <div class="nav-divider"></div>
 
-                <!-- Cluster 4: التحليلات المرئية (Charts & Dashboards) -->
+                <!-- Cluster 4: التحليلات المرئية -->
                 <div class="nav-cluster nav-dropdown">
                     <div class="nav-tab" title="المخططات والرسوم البيانية">
-                        <span>📈</span> <span style="font-weight: 800; color: #f8fafc;">التحليلات المرئية</span>
+                        <span>📈</span> <span>التحليلات المرئية</span>
                         <span style="font-size: 0.7rem; margin-right: 2px;">▼</span>
                     </div>
                     <div class="nav-dropdown-content">
-                        <a href="visual-analytics.php#pie" class="nav-dropdown-item" title="النسب المئوية لتوزيع البضائع في المخازن">
-                            <span>🍕</span> توزيع المخزون (مخطط دائري)
+                        <a href="visual-analytics.php#pie" class="nav-dropdown-item" title="النسب المئوية لتوزيع البضائع">
+                            <span>🍕</span> توزيع المخزون (دائري)
                         </a>
-                        <a href="visual-analytics.php#donut" class="nav-dropdown-item" title="حالة الأرصدة (آمن، نواقص، الخ)">
-                            <span>🍩</span> حالة الأرصدة (كعكة مفرغة)
+                        <a href="visual-analytics.php#donut" class="nav-dropdown-item" title="حالة الأرصدة ومستويات الأمان">
+                            <span>🍩</span> مستويات الأمان والتنبيهات
                         </a>
-                        <a href="visual-analytics.php#bar" class="nav-dropdown-item" title="إجمالي القيمة المالية لكل صنف ومخزن">
-                            <span>📊</span> قيمة المخزون (أعمدة مصمتة)
+                        <a href="visual-analytics.php#bar" class="nav-dropdown-item" title="القيمة المالية للأصناف والمخازن">
+                            <span>📊</span> قيمة المخزون (أعمدة)
                         </a>
                     </div>
                 </div>
 
             </div>
 
-            <!-- Far Left Controls: Preview & Studio Buttons + Back Button -->
-            <div style="display: flex; align-items: center; gap: 8px; flex-shrink: 0;">
-                <button class="btn-action" onclick="openInventoryReportPreview()" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white; border: none; padding: 7px 15px; border-radius: 10px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(13,148,136,0.25); display: flex; align-items: center; gap: 6px;">
+            <!-- Top Action Controls -->
+            <div style="display: flex; gap: 8px; flex-shrink: 0; align-items: center;">
+                <button class="btn-action-top btn-preview-top" onclick="openInventoryReportPreview()">
                     <span>👁️</span> <span>معاينة وتصميم التقرير</span>
                 </button>
-                <button class="btn-studio-top" onclick="openCustomReportStudio()" title="تخصيص وتصميم تقارير الجرد المتقدمة بالكامل">
+                <button class="btn-action-top btn-studio-top" onclick="openCustomReportStudio()">
                     <span>🎛️</span> <span>الضبط المتقدم</span>
                 </button>
                 <button class="btn-icon-nav" onclick="history.back()" title="رجوع">↩</button>
             </div>
         </div>
 
-        <!-- Unified Filter Hub (Single Line Cohesive Bar) -->
+        <!-- Single-Row Streamlined Filters Hub -->
         <div class="filters-hub">
             <div class="filters-main-row">
                 <div class="f-search-wrapper">
                     <span class="f-search-icon">🔍</span>
-                    <input type="text" class="f-input" id="filter-search" placeholder="بحث بالاسم أو الكود (اكتب للبحث الفوري...)" oninput="onSearchInput(this)">
-                    <span class="f-search-clear" id="search-clear-btn" onclick="clearSearch()" title="مسح">✕</span>
+                    <input type="text" id="filter-search" class="f-input" placeholder="بحث ذكي بالاسم، الكود، الباركود، المواصفات..." oninput="onSearchInput(this)">
+                    <span id="search-clear-btn" class="f-search-clear" onclick="clearSearch()">✕</span>
                 </div>
-                <div style="flex: 1.3; min-width: 200px;">
-                    <select class="f-input f-select f-select-quick" id="filter-status" onchange="applyFilters()" title="التصفية السريعة لحالة الرصيد">
-                        <option value="ACTIVE" selected>⚡ الأصناف المتوفرة فقط</option>
-                        <option value="ALL_WITH_ZERO">🌐 عرض الكل (شامل الصفر)</option>
-                        <option value="OK">🟢 رصيد آمن (فوق الحد)</option>
-                        <option value="WARNING">⚠️ تحت حد الطلب (منخفض)</option>
-                        <option value="DANGER">🚨 توفير النواقص (نافذ / سالب)</option>
-                    </select>
-                </div>
-                <div style="flex: 1.1; min-width: 165px;">
-                    <select class="f-input f-select" id="filter-warehouse" onchange="applyFilters()">
-                        <option value="ALL">🏢 جميع المخازن (الجرد العام)</option>
-                    </select>
-                </div>
-                <div style="flex: 1.1; min-width: 155px;">
-                    <select class="f-input f-select" id="filter-category" onchange="applyFilters()">
-                        <option value="ALL">🏷️ تصفية بالفئة (جميع الفئات)</option>
-                    </select>
-                </div>
-                <div style="margin-right: auto;">
-                    <span id="filtered-matches-badge" class="filter-badge-pill">0 صنف</span>
+
+                <select id="filter-status" class="f-select" onchange="applyFilters()">
+                    <option value="ALL">📦 جميع الحالات (عرض كل الأصناف)</option>
+                    <option value="AVAILABLE" selected>✅ المتوفر بالمخزن فقط (الرصيد > 0)</option>
+                    <option value="OK">🟢 رصيد آمن (فوق حد الطلب)</option>
+                    <option value="WARNING">🟡 تحت حد الطلب (يحتاج توريد)</option>
+                    <option value="DANGER">🔴 نواقص / رصيد صفري وعجز</option>
+                </select>
+
+                <select id="filter-warehouse" class="f-select" onchange="applyFilters()">
+                    <option value="ALL">🏢 جميع المخازن (الجرد العام)</option>
+                </select>
+
+                <select id="filter-category" class="f-select" onchange="applyFilters()">
+                    <option value="ALL">🏷️ جميع التصنيفات</option>
+                </select>
+
+                <div id="filtered-matches-badge" style="font-size: 0.8rem; font-weight: 800; color: #38bdf8; background: rgba(56,189,248,0.1); padding: 8px 12px; border-radius: 8px; border: 1px solid rgba(56,189,248,0.25); white-space: nowrap;">
+                    مطابقة: 0 صنف
                 </div>
             </div>
         </div>
 
-        <!-- 1. Data Table (Primary Focus - Top of Screen) -->
+        <!-- KPIs Strip -->
+        <div class="kpi-row">
+            <div class="kpi-card c-blue">
+                <div class="kpi-title">عدد الأصناف المطابقة للجرد</div>
+                <div class="kpi-val" id="kpi-count">0 <span>صنف</span></div>
+            </div>
+            <div class="kpi-card c-emerald">
+                <div class="kpi-title">إجمالي الكميات الفعلية الحالية</div>
+                <div class="kpi-val" id="kpi-qty">0 <span>وحدة</span></div>
+            </div>
+            <div class="kpi-card c-amber">
+                <div class="kpi-title">القيمة الإجمالية للمخزون (بسعر التكلفة)</div>
+                <div class="kpi-val" id="kpi-value" style="color: #f59e0b;">0 <span>SDG</span></div>
+            </div>
+            <div class="kpi-card c-rose">
+                <div class="kpi-title">أصناف تتطلب إعادة طلب أو معالجة عجز</div>
+                <div class="kpi-val" id="kpi-alerts" style="color: #fb7185;">0 <span>تنبيه</span></div>
+            </div>
+        </div>
+
+        <!-- Main Data Table Panel -->
         <div class="table-panel">
             <div class="table-wrapper" id="report-table-wrap">
-                <table class="dash-table" id="inventory-main-table">
+                <table class="report-table" id="inventory-main-table">
                     <thead id="inventory-thead">
-                        <tr>
-                            <th>الاسم والمواصفات</th>
-                            <th>المخزن</th>
-                            <th style="text-align: center;">الرصيد الفعلي</th>
-                            <th style="text-align: center;">الرصيد المحجوز</th>
-                            <th style="text-align: center;">المتاح للبيع</th>
-                            <th>متوسط السعر</th>
-                            <th>إجمالي القيمة</th>
-                            <th>حالة المخزون</th>
-                            <th style="text-align: center;">إجراءات</th>
-                        </tr>
+                        <!-- Populated Dynamically via applyFilters() -->
                     </thead>
                     <tbody id="inventory-tbody">
-                        <!-- Populated by JS -->
+                        <tr><td colspan="15" style="text-align:center; padding:40px; color:var(--text-secondary);">جاري احتساب وتحميل بيانات المخزون...</td></tr>
                     </tbody>
                 </table>
             </div>
         </div>
 
-        <!-- 2. Integrated Summary Strip (Directly Under Table) -->
-        <div class="summary-strip-hub">
-            <div class="summary-strip-item">
-                <div class="summary-strip-icon" style="color: #38bdf8; background: rgba(56, 189, 248, 0.1);">📋</div>
-                <div class="summary-strip-info">
-                    <span class="summary-strip-label">إجمالي الأصناف بالتقرير</span>
-                    <div class="summary-strip-value" style="color: #38bdf8;" id="kpi-count">0 <span>صنف</span></div>
-                </div>
-            </div>
-
-            <div class="summary-strip-divider"></div>
-
-            <div class="summary-strip-item">
-                <div class="summary-strip-icon" style="color: #f43f5e; background: rgba(244, 63, 94, 0.1);">⚖️</div>
-                <div class="summary-strip-info">
-                    <span class="summary-strip-label">إجمالي كميات المخزون</span>
-                    <div class="summary-strip-value" style="color: #f43f5e;" id="kpi-qty">0 <span>وحدة</span></div>
-                </div>
-            </div>
-
-            <div class="summary-strip-divider"></div>
-
-            <div class="summary-strip-item">
-                <div class="summary-strip-icon" style="color: #10b981; background: rgba(16, 185, 129, 0.1);">💰</div>
-                <div class="summary-strip-info">
-                    <span class="summary-strip-label">إجمالي القيمة النقدية الحية</span>
-                    <div class="summary-strip-value" style="color: #10b981;" id="kpi-value">0 <span>SDG</span></div>
-                </div>
-            </div>
-
-            <div class="summary-strip-divider"></div>
-
-            <div class="summary-strip-item">
-                <div class="summary-strip-icon" style="color: #fbbf24; background: rgba(251, 191, 36, 0.1);">⚠️</div>
-                <div class="summary-strip-info">
-                    <span class="summary-strip-label">تنبيهات ونواقص المخزون</span>
-                    <div class="summary-strip-value" style="color: #fbbf24;" id="kpi-alerts">0 <span>تنبيه</span></div>
-                </div>
-            </div>
-        </div>
-
-        <!-- 3. Glass Action Island (Under Summary Strip & Above Charts) -->
-        <div class="action-island" style="margin-bottom: 12px; justify-content: center; background: rgba(15, 23, 42, 0.4);">
-            <div style="display: flex; align-items: center; gap: 12px; flex-wrap: wrap; justify-content: center;">
-                <button class="btn-action-tool" onclick="openStocktakeModal()" title="تعديل الأرصدة وتسوية الفروقات الجردية" style="background: linear-gradient(135deg, #f59e0b, #d97706); box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);">
-                    <span>⚙️</span> إجراء تسوية جردية
+        <!-- Bottom Floating Action Island -->
+        <div class="floating-action-island">
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <button class="btn-action-top" onclick="openStocktakeModal()" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; box-shadow: 0 4px 12px rgba(16,185,129,0.3);">
+                    <span>⚖️</span> <span>إجراء تسوية جردية للمخزن</span>
                 </button>
-                <div style="width: 1px; height: 30px; background: rgba(255,255,255,0.1); margin: 0 4px;"></div>
-                <button class="btn-action-tool" onclick="openReportPreview('تقرير جرد الأرصدة العام', '#report-table-wrap')" style="background: linear-gradient(135deg, #0d9488, #0f766e); box-shadow: 0 4px 15px rgba(13, 148, 136, 0.35);">
-                    <span>👁️</span> معاينة
+            </div>
+            <div style="display: flex; gap: 8px; align-items: center;">
+                <button class="btn-action-top" onclick="openReportPreview('تقرير جرد المخزون العام', '#report-table-wrap')" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white;">
+                    <span>👁️</span> <span>معاينة</span>
                 </button>
-                <button class="btn-action-tool" onclick="printReportDirectly('تقرير جرد الأرصدة العام', '#report-table-wrap')" style="background: rgba(255,255,255,0.08); border-color: var(--glass-border); color: var(--text-primary);">
-                    <span>🖨️</span> طباعة
+                <button class="btn-action-top" onclick="printReportDirectly('تقرير جرد المخزون العام', '#report-table-wrap')" style="background: rgba(255,255,255,0.06); color: var(--text-main); border: 1px solid var(--glass-border);">
+                    <span>🖨️</span> <span>طباعة</span>
                 </button>
-                <button class="btn-action-tool" onclick="window.openExportModal(exportExcel, {element: document.getElementById('report-table-wrap'), filename: 'inventory-report.pdf', orientation: 'landscape'})" style="background: linear-gradient(135deg, #059669, #047857); box-shadow: 0 4px 15px rgba(5, 150, 105, 0.35);">
-                    <span>📥</span> تصدير
+                <button class="btn-action-top" onclick="window.openExportModal ? window.openExportModal(exportExcel, 'تقرير جرد المخزون العام') : exportExcel()" style="background: rgba(255,255,255,0.06); color: var(--text-main); border: 1px solid var(--glass-border);">
+                    <span>📥</span> <span>تصدير Excel</span>
                 </button>
             </div>
         </div>
 
-        <!-- 4. Visual Analytics Dashboard (Bottom of Page) -->
-        <div id="auto-charts-slot" class="auto-charts-slot" style="width: 100%; margin-top: 10px;"></div>
+    </div>
 
+    <!-- ========================================================================= -->
+    <!-- 🎛️ MODAL 1: CUSTOM REPORT STUDIO (الضبط المتقدم)                          -->
+    <!-- ========================================================================= -->
+    <div id="custom-report-modal" class="modal-overlay">
+        <div class="modal-card" style="width: 92%; max-width: 900px; max-height: 90vh;">
+            <div style="padding: 16px 22px; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.4rem;">🎛️</span>
+                    <div>
+                        <h3 style="margin: 0; color: #38bdf8; font-size: 1.15rem; font-weight: 900;">استوديو الضبط المتقدم لتقرير الجرد</h3>
+                        <p style="margin: 2px 0 0; font-size: 0.78rem; color: var(--text-secondary);">تخصيص الأعمدة، ترتيب البيانات، وحدات القياس، والخيارات المحاسبية</p>
+                    </div>
+                </div>
+                <button onclick="closeCustomReportStudio()" style="background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer;">✕</button>
+            </div>
+
+            <div style="padding: 20px 24px; overflow-y: auto; display: flex; flex-direction: column; gap: 18px;">
+                <!-- Presets Quick Switch -->
+                <div>
+                    <label style="font-size: 0.85rem; font-weight: 800; color: #38bdf8; margin-bottom: 8px; display: block;">نماذج وتقارير جاهزة بنقرة واحدة:</label>
+                    <div style="display: flex; gap: 8px; flex-wrap: wrap;">
+                        <button type="button" class="btn-action-top" onclick="setStudioPreset('standard')" style="background: rgba(56,189,248,0.15); border: 1px solid #38bdf8; color:#fff;">📋 الافتراضي الشامل</button>
+                        <button type="button" class="btn-action-top" onclick="setStudioPreset('financial')" style="background: rgba(245,158,11,0.15); border: 1px solid #f59e0b; color:#fff;">💰 تقرير مالي وقيم المخزون</button>
+                        <button type="button" class="btn-action-top" onclick="setStudioPreset('quantities')" style="background: rgba(16,185,129,0.15); border: 1px solid #10b981; color:#fff;">📦 جرد كميات وأرصدة ومتاح</button>
+                    </div>
+                </div>
+
+                <!-- Columns Selection Grid -->
+                <div>
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+                        <label style="font-size: 0.85rem; font-weight: 800; color: #38bdf8;">الأعمدة المعروضة في الجدول والطباعة:</label>
+                        <div style="display: flex; gap: 8px;">
+                            <button type="button" onclick="setAllStudioCols(true)" style="background:none; border:none; color:#38bdf8; font-size:0.78rem; font-weight:700; cursor:pointer;">تحديد الكل</button>
+                            <span style="color:#64748b;">|</span>
+                            <button type="button" onclick="setAllStudioCols(false)" style="background:none; border:none; color:#fb7185; font-size:0.78rem; font-weight:700; cursor:pointer;">إلغاء الكل</button>
+                        </div>
+                    </div>
+                    <div id="cr-cols-checkboxes" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 8px; background: rgba(0,0,0,0.25); padding: 12px; border-radius: 10px; border: 1px solid var(--glass-border);">
+                        <!-- Rendered dynamically -->
+                    </div>
+                </div>
+
+                <!-- Unit & Display Settings -->
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 12px;">
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 800; color: #cbd5e1; margin-bottom: 6px; display: block;">طريقة عرض الكميات متعددة الوحدات:</label>
+                        <select id="cr-unit-mode" class="f-input" style="height: 38px;">
+                            <option value="compound">📊 وحدات تفصيلية مركبة (طن + سيخ / كرتونة + حبة)</option>
+                            <option value="base">📦 الوحدة الأساسية فقط</option>
+                            <option value="smallest">🔹 أصغر وحدة قياس فقط</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label style="font-size: 0.85rem; font-weight: 800; color: #cbd5e1; margin-bottom: 6px; display: block;">كثافة الأسطر وحجم العرض:</label>
+                        <select id="cr-row-density" class="f-input" style="height: 38px;">
+                            <option value="compact">مضغوط (Compact - يظهر بيانات أكثر)</option>
+                            <option value="normal" selected>عادي (Normal - متوازن)</option>
+                            <option value="spacious">مريح (Spacious - خطوط أكبر)</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+
+            <div style="padding: 14px 22px; border-top: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.2);">
+                <button type="button" onclick="resetStudioConfig()" style="background: none; border: 1px solid rgba(255,255,255,0.15); color: #94a3b8; padding: 7px 14px; border-radius: 8px; font-weight: 700; cursor: pointer;">إعادة ضبط للمصنع</button>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" onclick="applyStudioReport()" class="btn-action-top" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff;">تطبيق فوري</button>
+                    <button type="button" onclick="saveStudioPreset()" class="btn-action-top" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff;">حفظ كإعداد دائم</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- ⚖️ MODAL 2: PHYSICAL STOCKTAKE (تسوية وجرد المخزون)                        -->
+    <!-- ========================================================================= -->
+    <div id="stocktake-modal" class="modal-overlay">
+        <div class="modal-card" style="width: 95%; max-width: 1100px; height: 90vh;">
+            <div style="padding: 16px 22px; border-bottom: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center;">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.4rem;">⚖️</span>
+                    <div>
+                        <h3 style="margin: 0; color: #10b981; font-size: 1.15rem; font-weight: 900;">تسوية وجرد المخزون الفعلي</h3>
+                        <p style="margin: 2px 0 0; font-size: 0.78rem; color: var(--text-secondary);">مطابقة الأرصدة الدفترية مع الجرد الفعلي على أرض الواقع وإصدار إذن تسوية تلقائي</p>
+                    </div>
+                </div>
+                <button onclick="closeStocktakeModal()" style="background: none; border: none; color: #94a3b8; font-size: 1.2rem; cursor: pointer;">✕</button>
+            </div>
+
+            <div style="padding: 16px 22px; display: flex; gap: 12px; align-items: center; border-bottom: 1px solid var(--glass-border); background: rgba(0,0,0,0.2);">
+                <label style="font-weight: 800; color: #38bdf8; font-size: 0.9rem;">المخزن المستهدف للتسوية:</label>
+                <select id="stocktake-warehouse-select" class="f-select" style="max-width: 250px;" onchange="loadStocktakeItems()">
+                    <!-- Populated via JS -->
+                </select>
+                <input type="date" id="stocktake-date" class="f-input" style="max-width: 170px; height: 38px;">
+            </div>
+
+            <div style="flex: 1; overflow-y: auto; padding: 16px 22px;">
+                <table class="report-table" id="stocktake-table">
+                    <thead>
+                        <tr>
+                            <th>#</th>
+                            <th>كود الصنف</th>
+                            <th>اسم الصنف</th>
+                            <th>الرصيد الدفتري الحالي</th>
+                            <th style="color:#10b981;">الرصيد الفعلي المعدود</th>
+                            <th>فرق الكمية</th>
+                            <th>فرق القيمة (SDG)</th>
+                        </tr>
+                    </thead>
+                    <tbody id="stocktake-tbody">
+                        <!-- Populated via JS -->
+                    </tbody>
+                </table>
+            </div>
+
+            <div style="padding: 14px 22px; border-top: 1px solid var(--glass-border); display: flex; justify-content: space-between; align-items: center; background: rgba(0,0,0,0.3);">
+                <div id="stocktake-summary-badge" style="font-weight: 800; font-size: 0.9rem; color: #cbd5e1;">
+                    إجمالي الفروقات: 0.00 SDG
+                </div>
+                <div style="display: flex; gap: 8px;">
+                    <button type="button" onclick="closeStocktakeModal()" style="background: none; border: 1px solid rgba(255,255,255,0.15); color: #94a3b8; padding: 7px 14px; border-radius: 8px; font-weight: 700; cursor: pointer;">إلغاء</button>
+                    <button type="button" onclick="saveStocktake()" class="btn-action-top" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff;">ترحيل وحفظ التسوية الجردية</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- ========================================================================= -->
+    <!-- 👁️ MODAL 3: FULLSCREEN REPORT PREVIEW & LIVE DESIGN STUDIO                     -->
+    <!-- ========================================================================= -->
+    <div id="inventory-report-preview-modal" class="modal-overlay" style="display: none; z-index: 12500;">
+        <div class="glass-panel" style="width: 100%; max-width: 100%; height: 100vh; display: flex; flex-direction: column; padding: 18px 22px; border: none; background: #0b1120; border-radius: 0; color: #fff; box-shadow: 0 25px 60px rgba(0,0,0,0.6); overflow: hidden; box-sizing: border-box;">
+            
+            <!-- Top Toolbar Header -->
+            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 12px;" class="no-print">
+                <div style="display: flex; align-items: center; gap: 10px;">
+                    <span style="font-size: 1.4rem;">👁️</span>
+                    <div>
+                        <h3 style="margin: 0; font-weight: 900; color: #38bdf8; font-size: 1.15rem;">معاينة وتخصيص تصميم تقرير الجرد العام</h3>
+                        <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: #94a3b8;">استوديو التصميم المتكامل: يمكنك تعديل الألوان، الخطوط، الأعمدة، والتعديل المباشر على النصوص</p>
+                    </div>
+                </div>
+                
+                <div style="display: flex; align-items: center; gap: 6px;">
+                    <button type="button" onclick="printInventoryReportSheet()" class="btn-action-top" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff;">
+                        <span>🖨️</span> طباعة الآن
+                    </button>
+                    <button type="button" onclick="closeInventoryReportPreview()" class="btn-icon-nav" style="width:34px; height:34px;">✕</button>
+                </div>
+            </div>
+
+            <!-- Preview Sheet Scroll Container -->
+            <div style="flex: 1; overflow-y: auto; display: flex; justify-content: center; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 12px;">
+                <div id="inv-preview-sheet" style="width: 100%; max-width: 1200px; background: #ffffff; color: #0f172a; padding: 30px; border-radius: 8px; box-shadow: 0 10px 30px rgba(0,0,0,0.4); box-sizing: border-box; direction: rtl;">
+                    <!-- Rendered Dynamically via openInventoryReportPreview() -->
+                </div>
+            </div>
+        </div>
     </div>
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
+
     <script>
-        const ITEMS_STORAGE_KEY = 'erp_items_v1';
-        const INVENTORY_STORAGE_KEY = 'erp_inventory_v1';
+        // =======================================================================
+        // 🚀 INVENTORY MASTER ENGINE (MODULAR CLEAN ARCHITECTURE)
+        // =======================================================================
+
+        const AVAILABLE_COLUMNS = [
+            { id: 'name',           title: 'اسم ومواصفات الصنف',     default: true,  align: 'right', isNum: false },
+            { id: 'code',           title: 'كود الصنف',              default: true,  align: 'center', isNum: false },
+            { id: 'category',       title: 'التصنيف',                default: true,  align: 'right', isNum: false },
+            { id: 'warehouse',      title: 'المخزن',                 default: true,  align: 'right', isNum: false },
+            { id: 'actualQty',      title: 'الرصيد الفعلي',          default: true,  align: 'center', isNum: true },
+            { id: 'reservedQty',    title: 'الرصيد المحجوز',         default: false, align: 'center', isNum: true },
+            { id: 'availQty',       title: 'الرصيد المتاح للبيع',    default: true,  align: 'center', isNum: true },
+            { id: 'minQty',         title: 'حد إعادة الطلب',         default: false, align: 'center', isNum: true },
+            { id: 'costPrice',      title: 'متوسط سعر التكلفة',       default: true,  align: 'center', isNum: true },
+            { id: 'cashPrice',      title: 'سعر البيع نقدي',         default: false, align: 'center', isNum: true },
+            { id: 'wholesalePrice', title: 'سعر الجملة',             default: false, align: 'center', isNum: true },
+            { id: 'retailPrice',    title: 'سعر التجزئة',            default: false, align: 'center', isNum: true },
+            { id: 'totalValue',     title: 'القيمة الإجمالية (SDG)',  default: true,  align: 'center', isNum: true },
+            { id: 'status',         title: 'حالة المخزون',           default: true,  align: 'center', isNum: false },
+            { id: 'action',         title: 'كشف الحركة',             default: true,  align: 'center', isNum: false }
+        ];
+
+        let customReportConfig = {
+            cols: ['name', 'code', 'category', 'warehouse', 'actualQty', 'availQty', 'costPrice', 'totalValue', 'status', 'action'],
+            unitDisplayMode: 'compound', // compound | base | smallest
+            rowDensity: 'normal',        // compact | normal | spacious
+            sortBy: 'value_desc'
+        };
 
         let itemsDb = [];
         let invDb = [];
 
+        function fmtNum(n, decimals = 2) {
+            if (n === undefined || n === null || isNaN(n)) return '0';
+            return Number(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: decimals });
+        }
+
+        // Universal Storage Reader Supporting Multi-Tenancy & DB_STORE Proxy
+        function getAllItemsFromStorage() {
+            let items = [];
+            if (window.DB_STORE && window.getTenantKey) {
+                const tk = window.getTenantKey('erp_items_v1');
+                if (window.DB_STORE[tk]) {
+                    try {
+                        const parsed = typeof window.DB_STORE[tk] === 'string' ? JSON.parse(window.DB_STORE[tk]) : window.DB_STORE[tk];
+                        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                    } catch(e){}
+                }
+            }
+            if (typeof window.getTenantKey === 'function') {
+                try {
+                    const tk = window.getTenantKey('erp_items_v1');
+                    const raw = localStorage.getItem(tk);
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                    }
+                } catch(e){}
+            }
+            const possibleKeys = ['erp_items_v1', 'erp_items', 'items_v1', 'items'];
+            for (let k of possibleKeys) {
+                try {
+                    const raw = localStorage.getItem(k);
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed) && parsed.length > 0) return parsed;
+                        if (parsed && typeof parsed === 'object') {
+                            const arr = Array.isArray(parsed.items) ? parsed.items : Object.values(parsed);
+                            if (arr.length > 0) return arr;
+                        }
+                    }
+                } catch(e){}
+            }
+            return [];
+        }
+
+        function getStorageList(key) {
+            if (window.DB_STORE && window.getTenantKey) {
+                const tk = window.getTenantKey(key);
+                if (window.DB_STORE[tk]) {
+                    try {
+                        const parsed = typeof window.DB_STORE[tk] === 'string' ? JSON.parse(window.DB_STORE[tk]) : window.DB_STORE[tk];
+                        if (Array.isArray(parsed)) return parsed;
+                    } catch(e){}
+                }
+            }
+            if (typeof window.getTenantKey === 'function') {
+                try {
+                    const tk = window.getTenantKey(key);
+                    const raw = localStorage.getItem(tk);
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed)) return parsed;
+                    }
+                } catch(e){}
+            }
+            try {
+                const raw = localStorage.getItem(key);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) return parsed;
+                }
+            } catch(e){}
+            return [];
+        }
+
+        // =======================================================================
+        // 🔄 INITIALIZATION & LIFECYCLE
+        // =======================================================================
+
         function initInventoryReport() {
+            loadSavedStudioPreset();
             populateWarehouseFilter();
-            loadData();
             populateCategoryFilter();
+
+            // Read URL Search params if present
+            const urlParams = new URLSearchParams(window.location.search);
+            const whParam = urlParams.get('warehouse') || urlParams.get('wh');
+            const whSelect = document.getElementById('filter-warehouse');
+            if (whParam && whSelect) {
+                for (let i = 0; i < whSelect.options.length; i++) {
+                    if (whSelect.options[i].value === whParam || whSelect.options[i].text === whParam) {
+                        whSelect.selectedIndex = i;
+                        break;
+                    }
+                }
+            }
+
+            const searchParam = urlParams.get('search') || urlParams.get('item');
+            const searchInput = document.getElementById('filter-search');
+            if (searchParam && searchInput) {
+                searchInput.value = searchParam;
+                onSearchInput(searchInput);
+            }
+
+            loadData();
             applyFilters();
         }
 
@@ -693,15 +725,25 @@
         document.addEventListener('DBReady', initInventoryReport);
         window.addEventListener('load', initInventoryReport);
 
+        function loadSavedStudioPreset() {
+            try {
+                const saved = localStorage.getItem('erp_custom_report_preset_v1');
+                if (saved) {
+                    const parsed = JSON.parse(saved);
+                    customReportConfig = { ...customReportConfig, ...parsed };
+                }
+            } catch(e){}
+        }
+
         function populateWarehouseFilter() {
             const select = document.getElementById('filter-warehouse');
+            if (!select) return;
             select.innerHTML = '<option value="ALL">🏢 جميع المخازن (الجرد العام)</option>';
-            let warehousesDb = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
-            if (warehousesDb.length === 0) {
-                warehousesDb = [{ id:'w-main', name:'المخزن الرئيسي' }];
-            }
-            warehousesDb.unshift({ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام' });
-            warehousesDb.forEach(wh => {
+            let warehousesDb = getStorageList('erp_warehouses_v1');
+            if (warehousesDb.length === 0) warehousesDb = [{ id: 'w-main', name: 'المخزن الرئيسي' }];
+            
+            const displayWh = [{ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام' }, ...warehousesDb];
+            displayWh.forEach(wh => {
                 const opt = document.createElement('option');
                 opt.value = wh.name;
                 opt.text = wh.name;
@@ -709,2309 +751,743 @@
             });
         }
 
-        function loadData() {
-            itemsDb = JSON.parse(localStorage.getItem(ITEMS_STORAGE_KEY)) || [];
-            invDb = buildRealInventory(itemsDb);
+        function populateCategoryFilter() {
+            const select = document.getElementById('filter-category');
+            if (!select) return;
+            select.innerHTML = '<option value="ALL">🏷️ جميع التصنيفات</option>';
+            const cats = new Set();
+            (itemsDb || []).forEach(item => {
+                if (item && item.category && item.category.trim()) cats.add(item.category.trim());
+            });
+            cats.forEach(c => {
+                const opt = document.createElement('option');
+                opt.value = c;
+                opt.text = c;
+                select.appendChild(opt);
+            });
         }
 
-        // The core accounting & inventory calculation engine
+        function loadData() {
+            itemsDb = getAllItemsFromStorage();
+            invDb = buildRealInventory(itemsDb);
+            populateCategoryFilter();
+        }
+
+        // =======================================================================
+        // 📊 CORE ACCOUNTING CALCULATION ENGINE
+        // =======================================================================
+
+        function resolveUnitFactor(line, item) {
+            if (line.customBaseQty !== undefined && parseFloat(line.quantity) > 0) {
+                return parseFloat(line.customBaseQty) / parseFloat(line.quantity);
+            }
+            if (line.customFactor && parseFloat(line.customFactor) > 0) {
+                return parseFloat(line.customFactor);
+            }
+            if (line.factor && parseFloat(line.factor) > 0) {
+                return parseFloat(line.factor);
+            }
+            if (item) {
+                const uName = String(line.unitName || line.unit || line.selectedUnit || '').trim();
+                if (uName) {
+                    const list = getItemUnitsList(item);
+                    const matched = list.find(u => u.name === uName);
+                    if (matched && parseFloat(matched.factor) > 0) return parseFloat(matched.factor);
+                }
+                if (item.conversionFactor && parseFloat(item.conversionFactor) > 0) {
+                    return parseFloat(item.conversionFactor);
+                }
+            }
+            return 1;
+        }
+
+        function getItemUnitsList(item) {
+            let list = [];
+            if (!item) return [{ name: 'وحدة', factor: 1 }];
+
+            const baseUnitName = item.baseUnit || item.unit || 'وحدة';
+            list.push({ name: baseUnitName, factor: 1, isBase: true });
+
+            if (item.units && Array.isArray(item.units)) {
+                item.units.forEach(u => {
+                    const uName = u.name || u.unitName;
+                    if (uName && uName !== baseUnitName) {
+                        list.push({ name: uName, factor: parseFloat(u.factor || u.conversionFactor) || 1 });
+                    }
+                });
+            } else if (item.subUnit && item.conversionFactor) {
+                list.push({ name: item.subUnit, factor: parseFloat(item.conversionFactor) || 1 });
+            }
+            return list;
+        }
+
         function buildRealInventory(items) {
             let actualStockMap = {}; 
             let reservedStockMap = {};
 
-            let warehousesDb = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
-            if (warehousesDb.length === 0) {
-                warehousesDb = [{ id:'w-main', name:'المخزن الرئيسي' }];
-            }
-            // Include pending receipt so items can have 0 balance there too
-            warehousesDb.unshift({ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام' });
+            let warehousesDb = getStorageList('erp_warehouses_v1');
+            if (warehousesDb.length === 0) warehousesDb = [{ id: 'w-main', name: 'المخزن الرئيسي' }];
+            const allWarehouses = [{ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام' }, ...warehousesDb];
 
             let getWarehouseName = (id) => {
                 if (!id) return 'المخزن الرئيسي';
-                let w = warehousesDb.find(w => String(w.id) === String(id) || w.name === id);
+                let w = allWarehouses.find(w => String(w.id) === String(id) || w.name === id);
                 return w ? w.name : id;
             };
 
+            // Initialize 0 Stock
             items.forEach(item => {
-                warehousesDb.forEach(wh => {
+                allWarehouses.forEach(wh => {
                     let key = String(item.id) + '|' + wh.name;
                     actualStockMap[key] = 0;
                     reservedStockMap[key] = 0;
                 });
+
+                // Add Master Opening Balance
+                let openQty = parseFloat(item.openingBalance || item.opening_balance || 0);
+                if (openQty > 0) {
+                    let targetWh = getWarehouseName(item.openingBalanceWarehouseId || item.warehouseId || item.warehouse);
+                    let key = String(item.id) + '|' + targetWh;
+                    actualStockMap[key] = (actualStockMap[key] || 0) + openQty;
+                }
             });
 
-            // 1. ADD Purchases (Inward) — SUBTRACT if Return
-            let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
-            purchases = purchases.filter(x => !x.deleted);
+            // 1. Purchases & Adjustments
+            let purchases = getStorageList('erp_purchase_invoices_v1').filter(x => !x.deleted);
             purchases.forEach(inv => {
-                let hdrWhName = getWarehouseName(inv.warehouseId || inv.warehouse);
-                const isReturn = inv.isReturn === true;
+                let hdrWh = getWarehouseName(inv.warehouseId || inv.warehouse);
                 (inv.items || inv.lines || []).forEach(line => {
-                    let lineWhName = line.warehouseId ? getWarehouseName(line.warehouseId) : hdrWhName;
-                    let key = String(line.itemId || line.productId) + '|' + lineWhName;
-                    let item = items.find(i => String(i.id) === String(line.itemId || line.productId));
-                    let baseQty;
-                    if (line.customBaseQty !== undefined) {
-                        // استخدم الكمية المحسوبة مسبقاً (من مذكرات الاستلام الجديدة)
-                        baseQty = parseFloat(line.customBaseQty) || 0;
+                    let wh = line.warehouseId ? getWarehouseName(line.warehouseId) : hdrWh;
+                    let itemId = String(line.itemId || line.productId);
+                    let itemObj = items.find(i => String(i.id) === itemId);
+                    let key = itemId + '|' + wh;
+
+                    const origQty = parseFloat(line.quantity) || 0;
+                    const origFactor = resolveUnitFactor(line, itemObj);
+                    let baseQty = (line.customBaseQty !== undefined) ? (parseFloat(line.customBaseQty) || 0) : (origQty * origFactor);
+
+                    if (actualStockMap[key] === undefined) actualStockMap[key] = 0;
+
+                    if (inv.isReturn) {
+                        actualStockMap[key] -= baseQty;
+                    } else if (inv.isAdjustment) {
+                        actualStockMap[key] += baseQty;
                     } else {
-                        // للسجلات القديمة: استخرج عامل التحويل من بيانات الصنف
-                        let resolvedFactor = line.customFactor || 1;
-                        if (resolvedFactor === 1 && item) {
-                            const uName = String(line.unitName || line.unit || '').trim();
-                            const unitsList = [];
-                            if (Array.isArray(item.units)) unitsList.push(...item.units);
-                            if (Array.isArray(item.unitsArray)) unitsList.push(...item.unitsArray);
-                            const matchedUnit = unitsList.find(u => {
-                                const n = (u.unitName || u.name || '').trim();
-                                return n && n === uName;
-                            });
-                            if (matchedUnit && parseFloat(matchedUnit.factor || matchedUnit.equiv) > 0) {
-                                resolvedFactor = parseFloat(matchedUnit.factor || matchedUnit.equiv);
-                            } else {
-                                resolvedFactor = item.conversionFactor || 1;
-                            }
-                        }
-                        baseQty = (parseFloat(line.quantity) || 0) * resolvedFactor;
-                    }
-                    if (isReturn) {
-                        actualStockMap[key] = (actualStockMap[key] || 0) - baseQty;
-                    } else {
-                        actualStockMap[key] = (actualStockMap[key] || 0) + baseQty;
+                        actualStockMap[key] += baseQty;
                     }
                 });
             });
 
-            // 2. SUBTRACT Sales (Outward)
-            let sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
-            sales = sales.filter(x => !x.deleted && x.saleType !== 'preliminary' && x.status !== 'preliminary');
+            // 2. Sales & Reserved
+            let sales = getStorageList('erp_sales_invoices_v1').filter(x => !x.deleted && x.saleType !== 'preliminary' && x.status !== 'preliminary');
             sales.forEach(inv => {
-                let hdrWhName = getWarehouseName(inv.warehouse);
+                let hdrWh = getWarehouseName(inv.warehouse);
                 (inv.items || []).forEach(line => {
-                    let lineWhName = line.warehouseId ? getWarehouseName(line.warehouseId) : hdrWhName;
-                    let key = String(line.itemId) + '|' + lineWhName;
-                    let item = items.find(i => String(i.id) === String(line.itemId));
-                    let baseQty;
-                    if (line.customBaseQty !== undefined) {
-                        baseQty = parseFloat(line.customBaseQty) || 0;
-                    } else {
-                        let resolvedFactor = line.customFactor || 1;
-                        if (resolvedFactor === 1 && item) {
-                            const uName = String(line.unitName || line.unit || '').trim();
-                            const unitsList = [];
-                            if (Array.isArray(item.units)) unitsList.push(...item.units);
-                            if (Array.isArray(item.unitsArray)) unitsList.push(...item.unitsArray);
-                            const matchedUnit = unitsList.find(u => { const n = (u.unitName || u.name || '').trim(); return n && n === uName; });
-                            if (matchedUnit && parseFloat(matchedUnit.factor || matchedUnit.equiv) > 0) {
-                                resolvedFactor = parseFloat(matchedUnit.factor || matchedUnit.equiv);
-                            } else {
-                                resolvedFactor = item.conversionFactor || 1;
-                            }
-                        }
-                        baseQty = (parseFloat(line.quantity) || 0) * resolvedFactor;
-                    }
+                    let wh = line.warehouseId ? getWarehouseName(line.warehouseId) : hdrWh;
+                    let itemId = String(line.itemId);
+                    let itemObj = items.find(i => String(i.id) === itemId);
+                    let key = itemId + '|' + wh;
 
-                    if (inv.isReturn === true) {
-                        // Sales return: add back to stock
-                        actualStockMap[key] = (actualStockMap[key] || 0) + baseQty;
-                    } else if (inv.saleType === 'reserved') {
-                        if (inv.deliveryStatus === 'delivered') {
-                            actualStockMap[key] = (actualStockMap[key] || 0) - baseQty;
-                        } else {
-                            reservedStockMap[key] = (reservedStockMap[key] || 0) + baseQty;
-                        }
+                    const origQty = parseFloat(line.quantity) || 0;
+                    const origFactor = resolveUnitFactor(line, itemObj);
+                    let baseQty = (line.customBaseQty !== undefined) ? (parseFloat(line.customBaseQty) || 0) : (origQty * origFactor);
+
+                    if (actualStockMap[key] === undefined) actualStockMap[key] = 0;
+                    if (reservedStockMap[key] === undefined) reservedStockMap[key] = 0;
+
+                    if (inv.saleType === 'reserved' && inv.deliveryStatus !== 'delivered') {
+                        reservedStockMap[key] += baseQty;
+                    } else if (inv.isReturn === true) {
+                        actualStockMap[key] += baseQty;
                     } else {
-                        actualStockMap[key] = (actualStockMap[key] || 0) - baseQty;
+                        actualStockMap[key] -= baseQty;
                     }
                 });
             });
 
-            // 3. Process Warehouse Transfers
-            let transfers = JSON.parse(localStorage.getItem('erp_warehouse_transfers_v1')) || [];
-            transfers = transfers.filter(x => !x.deleted && x.status !== 'cancelled');
-            transfers.forEach(transfer => {
-                let fromWhName = getWarehouseName(transfer.fromWarehouse);
-                let toWhName = getWarehouseName(transfer.toWarehouse);
-                (transfer.items || []).forEach(line => {
-                    let fromKey = String(line.itemId) + '|' + fromWhName;
-                    let toKey = String(line.itemId) + '|' + toWhName;
-                    let item = items.find(i => String(i.id) === String(line.itemId));
-                    let baseQty;
-                    if (line.customBaseQty !== undefined) {
-                        baseQty = parseFloat(line.customBaseQty) || 0;
-                    } else {
-                        let resolvedFactor = line.customFactor || 1;
-                        if (resolvedFactor === 1 && item) {
-                            const uName = String(line.unitName || line.unit || '').trim();
-                            const unitsList = [];
-                            if (Array.isArray(item.units)) unitsList.push(...item.units);
-                            if (Array.isArray(item.unitsArray)) unitsList.push(...item.unitsArray);
-                            const matchedUnit = unitsList.find(u => { const n = (u.unitName || u.name || '').trim(); return n && n === uName; });
-                            if (matchedUnit && parseFloat(matchedUnit.factor || matchedUnit.equiv) > 0) {
-                                resolvedFactor = parseFloat(matchedUnit.factor || matchedUnit.equiv);
-                            } else {
-                                resolvedFactor = item.conversionFactor || 1;
-                            }
-                        }
-                        baseQty = (parseFloat(line.quantity) || 0) * resolvedFactor;
-                    }
-                    
-                    actualStockMap[fromKey] = (actualStockMap[fromKey] || 0) - baseQty;
-                    actualStockMap[toKey] = (actualStockMap[toKey] || 0) + baseQty;
+            // 3. Warehouse Transfers
+            let transfers = getStorageList('erp_warehouse_transfers_v1').filter(x => !x.deleted && x.status !== 'cancelled');
+            transfers.forEach(tr => {
+                let fromWh = getWarehouseName(tr.fromWarehouse);
+                let toWh = getWarehouseName(tr.toWarehouse);
+                (tr.items || []).forEach(line => {
+                    let itemId = String(line.itemId);
+                    let itemObj = items.find(i => String(i.id) === itemId);
+                    const origQty = parseFloat(line.quantity) || 0;
+                    const origFactor = resolveUnitFactor(line, itemObj);
+                    let baseQty = (line.customBaseQty !== undefined) ? (parseFloat(line.customBaseQty) || 0) : (origQty * origFactor);
+
+                    let fromKey = itemId + '|' + fromWh;
+                    let toKey = itemId + '|' + toWh;
+
+                    if (actualStockMap[fromKey] === undefined) actualStockMap[fromKey] = 0;
+                    if (actualStockMap[toKey] === undefined) actualStockMap[toKey] = 0;
+
+                    actualStockMap[fromKey] -= baseQty;
+                    actualStockMap[toKey] += baseQty;
                 });
             });
 
-            let generated = [];
+            // Flatten generated inventory records
+            let result = [];
             for (let key in actualStockMap) {
                 let [itemId, warehouse] = key.split('|');
-                let itemData = items.find(i => String(i.id) === String(itemId));
-                let minQty = itemData && itemData.reorderLevel ? parseFloat(itemData.reorderLevel) : 10;
-                
-                generated.push({
-                    itemId: String(itemId),
+                let rawItem = items.find(i => String(i.id) === itemId);
+                if (!rawItem) continue;
+
+                let actual = actualStockMap[key] || 0;
+                let reserved = reservedStockMap[key] || 0;
+                let avail = actual - reserved;
+                let costPrice = parseFloat(rawItem.costPrice || rawItem.buyPrice || rawItem.price) || 0;
+                let totalVal = actual * costPrice;
+
+                result.push({
+                    itemId: itemId,
+                    code: rawItem.code || rawItem.barcode || rawItem.id,
+                    name: rawItem.name || 'بدون اسم',
+                    category: rawItem.category || 'عام',
                     warehouse: warehouse,
-                    qty: actualStockMap[key],
-                    reservedQuantity: reservedStockMap[key] || 0,
-                    minQty: minQty
+                    actualQty: actual,
+                    reservedQty: reserved,
+                    availQty: avail,
+                    minQty: parseFloat(rawItem.minQuantity || rawItem.minQty || rawItem.reorderLevel || 0),
+                    costPrice: costPrice,
+                    cashPrice: parseFloat(rawItem.cashPrice || rawItem.price || 0),
+                    wholesalePrice: parseFloat(rawItem.wholesalePrice || 0),
+                    retailPrice: parseFloat(rawItem.retailPrice || rawItem.price || 0),
+                    totalValue: totalVal,
+                    rawItem: rawItem
                 });
             }
-            return generated;
+            return result;
         }
 
-        function populateCategoryFilter() {
-            const select = document.getElementById('filter-category');
-            select.innerHTML = '<option value="ALL">🏷️ تصفية بالفئة (جميع الفئات)</option>';
-            const cats = [...new Set(itemsDb.map(i => i.category).filter(c => c))];
-            if(cats.length === 0) cats.push('مواد بناء');
-            cats.forEach(cat => {
-                const option = document.createElement('option');
-                option.value = cat; option.text = cat; select.appendChild(option);
-            });
-        }
+        // =======================================================================
+        // 🎯 MULTI-UNIT FORMATTING & PRESENTATION
+        // =======================================================================
 
-        const LARGE_CONTAINER_UNITS = [
-            'طن', 'طن عددي', 'طن وزني', 'شوال', 'جوال', 'لفة', 'لفه', 'كرتونة', 'كرتونه', 'دزينة', 'دزينه', 
-            'باكت', 'باكيت', 'صندوق', 'ربطة', 'ربطه', 'طبلية', 'طبليه', 'برميل', 'صفيحة', 'صفيحه', 'دستة', 'دسته', 'طرد', 'كيس'
-        ];
-
-        const SMALL_BASE_UNITS = [
-            'سيخ', 'سيخة', 'سيخه', 'كيلو', 'كجم', 'متر', 'سم', 'حبة', 'حبه', 'قطعة', 'قطعه', 'لتر', 'مل', 'جرام', 'غرام', 'لوح', 'عدد'
-        ];
-
-        function isLargeUnitName(name) {
-            if (!name) return false;
-            const n = name.trim().toLowerCase();
-            return LARGE_CONTAINER_UNITS.some(u => n.includes(u));
-        }
-
-        function isSmallUnitName(name) {
-            if (!name) return false;
-            const n = name.trim().toLowerCase();
-            return SMALL_BASE_UNITS.some(u => n.includes(u));
-        }
-
-        // Helper: Extract all configured units and their factors for an item
-        function getItemUnitsList(item) {
-            if (!item) return [{ name: 'وحدة', factor: 1 }];
-            let list = [];
-            
-            // 1. First add base unit
-            const baseName = (item.baseUnit || (item.units && item.units[0] ? (item.units[0].unitName || item.units[0].name) : '') || item.unit || '').trim();
-            if (baseName) {
-                list.push({ name: baseName, factor: 1, isBase: true });
-            }
-
-            // 2. Add other units from item.units
-            if (Array.isArray(item.units) && item.units.length > 0) {
-                item.units.forEach(u => {
-                    const name = (u.unitName || u.name || '').trim();
-                    const factor = parseFloat(u.factor || u.equiv || u.conversionFactor) || 1;
-                    if (name && !list.some(x => x.name === name)) {
-                        list.push({ name, factor });
-                    }
-                });
-            }
-            
-            // 3. Add units from item.unitsArray
-            if (Array.isArray(item.unitsArray) && item.unitsArray.length > 0) {
-                item.unitsArray.forEach(u => {
-                    const name = (u.name || u.unitName || '').trim();
-                    const factor = parseFloat(u.factor || u.equiv || u.conversionFactor) || 1;
-                    if (name && !list.some(x => x.name === name)) {
-                        list.push({ name, factor });
-                    }
-                });
-            }
-            
-            if (list.length === 0) {
-                list.push({ name: 'وحدة', factor: 1, isBase: true });
-            }
-            
-            return list;
-        }
-
-        function convertBaseQtyToUnit(baseQty, baseUnitName, targetUnit) {
-            const num = Number(baseQty) || 0;
-            const factor = parseFloat(targetUnit.factor) || 1;
-            if (factor === 0 || factor === 1) return num;
-
-            const baseIsLarge = isLargeUnitName(baseUnitName);
-            const targetIsSmall = isSmallUnitName(targetUnit.name);
-            const targetIsLarge = isLargeUnitName(targetUnit.name);
-            const baseIsSmall = isSmallUnitName(baseUnitName);
-
-            // If Base is Large (e.g. طن, شوال, لفة) and Target is Small (e.g. سيخة, كيلو, متر):
-            // 1 طن = 92 سيخة => TargetQty = BaseQty * Factor
-            if (baseIsLarge && targetIsSmall) {
-                return num * factor;
-            }
-
-            // If Base is Small (e.g. سيخة, كيلو, متر) and Target is Large (e.g. طن, شوال, لفة):
-            // 1 طن = 92 سيخة => TargetQty = BaseQty / Factor
-            if (baseIsSmall && targetIsLarge) {
-                return num / factor;
-            }
-
-            // Target indicates a sub-unit:
-            if (targetIsSmall) {
-                return num * factor;
-            }
-            // Target indicates a package unit:
-            if (targetIsLarge) {
-                return num / factor;
-            }
-
-            // Default fallback
-            return num * factor;
-        }
-
-        // =========================================================================
-        // Custom Report Studio Configuration & State
-        // =========================================================================
-        const COLUMN_DEFS = {
-            item: { title: 'الاسم والمواصفات', align: 'right' },
-            code: { title: 'كود الصنف', align: 'center' },
-            category: { title: 'فئة الصنف', align: 'center' },
-            warehouse: { title: 'المخزن', align: 'right' },
-            actualQty: { title: 'الرصيد الفعلي', align: 'center' },
-            reservedQty: { title: 'الرصيد المحجوز', align: 'center' },
-            availQty: { title: 'المتاح للبيع', align: 'center' },
-            minQty: { title: 'حد الطلب', align: 'center' },
-            costPrice: { title: 'سعر التكلفة', align: 'right' },
-            cashPrice: { title: 'سعر نقدي', align: 'right' },
-            wholesalePrice: { title: 'سعر جملة', align: 'right' },
-            retailPrice: { title: 'سعر قطاعي', align: 'right' },
-            totalValue: { title: 'إجمالي القيمة', align: 'right' },
-            status: { title: 'حالة المخزون', align: 'center' },
-            actions: { title: 'إجراءات', align: 'center' }
-        };
-
-        let customReportConfig = {
-            cols: {
-                item: true,
-                code: true,
-                category: true,
-                warehouse: true,
-                actualQty: true,
-                reservedQty: true,
-                availQty: true,
-                minQty: false,
-                costPrice: true,
-                cashPrice: false,
-                wholesalePrice: false,
-                retailPrice: false,
-                totalValue: true,
-                status: true,
-                actions: true
-            },
-            unitMode: 'compound', // 'compound', 'base', 'smallest'
-            showUnitRelations: true,
-            qtyDecimals: 2,
-            priceDecimals: 2,
-            showCurrencySymbol: true,
-            fontSize: '14px',
-            rowDensity: 'normal', // 'compact', 'normal', 'spacious'
-            highlightColor: '#38bdf8',
-            sortBy: 'default'
-        };
-
-        // Load saved custom preset if available
-        try {
-            const savedPreset = localStorage.getItem('erp_custom_report_preset_v1');
-            if (savedPreset) {
-                const parsed = JSON.parse(savedPreset);
-                customReportConfig = { ...customReportConfig, ...parsed, cols: { ...customReportConfig.cols, ...(parsed.cols || {}) } };
-            }
-        } catch(e) {}
-
-        // Helper: Render quantity in all configured units (Compound Hierarchical / Single Unit Display)
         function renderMultiUnitQty(baseQty, unitsList, themeColor = '#38bdf8') {
-            if (baseQty === undefined || baseQty === null) baseQty = 0;
-            const num = Number(baseQty) || 0;
-            const baseUnit = (unitsList && unitsList.length > 0) ? unitsList[0] : { name: 'وحدة', factor: 1 };
-            const qDec = (typeof customReportConfig !== 'undefined' && customReportConfig.qtyDecimals !== undefined) ? customReportConfig.qtyDecimals : 2;
-            const unitMode = (typeof customReportConfig !== 'undefined' && customReportConfig.unitMode) ? customReportConfig.unitMode : 'compound';
-            
-            const isNegative = num < 0;
-            const minusSign = isNegative ? `<span style="color:#ef4444; font-weight:900; font-size:1.2rem; margin-left: 2px;">-</span>` : '';
-            const absNum = Math.abs(num);
-            const formattedBase = absNum.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: qDec });
-
-            // 1. Base Unit Only Mode
-            if (unitMode === 'base' || !unitsList || unitsList.length <= 1) {
-                return `<div style="display:inline-flex; align-items:baseline; justify-content:center; gap:4px;" title="إجمالي الرصيد: ${formattedBase} ${baseUnit.name}">
-                    ${minusSign}<span style="font-size:1.15rem; font-weight:900; color:${themeColor};">${formattedBase}</span>
-                    <span style="font-size:0.75rem; font-weight:800; color:#cbd5e1; background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:4px;">${baseUnit.name}</span>
-                </div>`;
+            if (baseQty === 0) return `<span style="color:#64748b; font-weight:700;">0</span>`;
+            if (customReportConfig.unitDisplayMode === 'base' || !unitsList || unitsList.length <= 1) {
+                return `<span style="font-weight:900; color:${themeColor};">${fmtNum(baseQty)} <small style="font-size:0.75rem; color:#94a3b8;">${unitsList[0] ? unitsList[0].name : 'وحدة'}</small></span>`;
             }
 
-            // 2. Smallest Unit Only Mode
-            if (unitMode === 'smallest') {
-                const smallestUnit = unitsList[unitsList.length - 1];
-                const smallestFactor = parseFloat(smallestUnit.factor) || 1;
-                const totalInSmallest = absNum * smallestFactor;
-                const formattedSmallest = totalInSmallest.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: qDec });
-                return `<div style="display:inline-flex; align-items:baseline; justify-content:center; gap:4px;" title="الرصيد بوحدة التجزئة: ${formattedSmallest} ${smallestUnit.name}">
-                    ${minusSign}<span style="font-size:1.15rem; font-weight:900; color:${themeColor};">${formattedSmallest}</span>
-                    <span style="font-size:0.75rem; font-weight:800; color:#cbd5e1; background:rgba(255,255,255,0.08); padding:2px 6px; border-radius:4px;">${smallestUnit.name}</span>
-                </div>`;
-            }
+            // Compound Units Display (e.g. 2 طن و 15 سيخ)
+            let sorted = [...unitsList].sort((a,b) => b.factor - a.factor);
+            let rem = Math.abs(baseQty);
+            let parts = [];
 
-            // 3. Smart Compound Units Logic
-            const baseIsLarge = isLargeUnitName(baseUnit.name);
-            const baseIsSmall = isSmallUnitName(baseUnit.name);
-            
-            const isContinuous = unitsList.some(u => {
-                const n = (u.name || '').trim();
-                return n.includes('وزن') || n.includes('كيلو') || n.includes('كجم') || n.includes('جرام') || n.includes('لتر') || n.includes('متر') || n === 'طن';
-            });
-            
-            let normalized = unitsList.map(u => {
-                let factor = parseFloat(u.factor) || 1;
-                if (u.isBase) return { ...u, multiplier: 1 };
-                
-                const uIsLarge = isLargeUnitName(u.name);
-                const uIsSmall = isSmallUnitName(u.name);
-                
-                let multiplier = 1;
-                if (baseIsLarge && uIsSmall) multiplier = 1 / factor;
-                else if (baseIsSmall && uIsLarge) multiplier = factor;
-                else if (uIsSmall) multiplier = 1 / factor; 
-                else if (uIsLarge) multiplier = factor;
-                else multiplier = factor;
-                return { ...u, multiplier };
-            });
-
-            const minMultiplier = Math.min(...normalized.map(u => u.multiplier));
-            normalized = normalized.map(u => ({ ...u, atomicMultiplier: u.multiplier / minMultiplier }));
-            normalized.sort((a, b) => b.atomicMultiplier - a.atomicMultiplier);
-
-            const baseUnitNormalized = normalized.find(u => u.isBase) || normalized[0];
-            let badges = [];
-
-            if (isContinuous) {
-                // Stacked Independent Display for Weights/Measurements
-                let stackHtml = '';
-                normalized.forEach((unit, i) => {
-                    let totalInThisUnit = (absNum * baseUnitNormalized.atomicMultiplier) / unit.atomicMultiplier;
-                    let formattedQty = totalInThisUnit.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: qDec });
-                    
-                    if (i === 0) {
-                        stackHtml += `<div style="font-size: 1.15rem; font-weight: 900; color: ${themeColor}; line-height: 1.1; text-shadow: 0 0 10px ${themeColor}40;">
-                            ${minusSign}${formattedQty} <span style="font-size: 0.8rem; color: #cbd5e1; font-weight: 800;">${unit.name}</span>
-                        </div>`;
-                    } else {
-                        stackHtml += `<div style="font-size: 0.95rem; font-weight: 800; color: #94a3b8; margin-top: 4px; padding-top: 4px; border-top: 1px dashed rgba(255,255,255,0.08);">
-                            ${minusSign}${formattedQty} <span style="font-size: 0.75rem; color: #64748b;">${unit.name}</span>
-                        </div>`;
-                    }
-                });
-
-                return `<div style="display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; background: rgba(0,0,0,0.15); padding: 6px 12px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.04); min-width: 90px;" title="كميات موازية (وزن / قياس متصل)">
-                    ${stackHtml}
-                </div>`;
-            } else {
-                // Compound Discrete Display (e.g. 2 tons AND 16 rebars)
-                let remainingAtomicQty = absNum * baseUnitNormalized.atomicMultiplier;
-                for (let i = 0; i < normalized.length; i++) {
-                    let unit = normalized[i];
-                    let qty;
-                    if (i === normalized.length - 1) {
-                        qty = remainingAtomicQty / unit.atomicMultiplier;
-                        remainingAtomicQty = 0;
-                    } else {
-                        qty = Math.floor(remainingAtomicQty / unit.atomicMultiplier);
-                        remainingAtomicQty -= qty * unit.atomicMultiplier;
-                    }
-                    
-                    if (qty > 0.0001 || (i === normalized.length - 1 && badges.length === 0)) {
-                        let formattedQty = qty.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: qDec });
-                        badges.push(`<span style="background: rgba(255, 255, 255, 0.06); border: 1px solid rgba(255, 255, 255, 0.12); padding: 3px 8px; border-radius: 6px; display: inline-flex; align-items: baseline; gap: 4px; box-shadow: 0 2px 5px rgba(0,0,0,0.2);">
-                            <strong style="color:${themeColor}; font-size:1.05rem; text-shadow: 0 0 10px ${themeColor}40;">${formattedQty}</strong>
-                            <span style="color:#cbd5e1; font-size:0.75rem; font-weight:700;">${unit.name}</span>
-                        </span>`);
+            for (let i = 0; i < sorted.length; i++) {
+                let u = sorted[i];
+                if (u.factor <= 0) continue;
+                if (i === sorted.length - 1) {
+                    let q = rem / u.factor;
+                    if (q > 0.001 || parts.length === 0) parts.push(`${fmtNum(q)} ${u.name}`);
+                } else {
+                    let count = Math.floor(rem / u.factor);
+                    if (count > 0) {
+                        parts.push(`${count} ${u.name}`);
+                        rem -= count * u.factor;
                     }
                 }
-                return `<div style="display: flex; flex-wrap: wrap; justify-content: center; align-items: center; gap: 4px;" title="إجمالي الرصيد: ${formattedBase} ${baseUnit.name}">
-                    ${minusSign}
-                    ${badges.join(' ')}
-                </div>`;
             }
+
+            let str = (baseQty < 0 ? '- ' : '') + parts.join(' و ');
+            return `<span style="font-weight:900; color:${themeColor};">${str}</span>`;
         }
+
+        function getStatusInfo(availQty, minQty) {
+            if (availQty <= 0) return { text: 'عجز / نفاد', icon: '🔴', cssClass: 'danger', color: '#f87171' };
+            if (minQty > 0 && availQty <= minQty) return { text: 'تحت الطلب', icon: '🟡', cssClass: 'warning', color: '#fbbf24' };
+            return { text: 'رصيد آمن', icon: '🟢', cssClass: 'ok', color: '#34d399' };
+        }
+
+        // =======================================================================
+        // 🔍 FILTERING, SEARCHING & RENDERING
+        // =======================================================================
 
         function onSearchInput(input) {
             const clearBtn = document.getElementById('search-clear-btn');
-            if (clearBtn) {
-                clearBtn.style.display = input.value.trim().length > 0 ? 'inline-flex' : 'none';
-            }
+            if (clearBtn) clearBtn.style.display = input.value.trim() ? 'flex' : 'none';
             applyFilters();
         }
 
         function clearSearch() {
             const input = document.getElementById('filter-search');
-            if (input) {
-                input.value = '';
-                const clearBtn = document.getElementById('search-clear-btn');
-                if (clearBtn) clearBtn.style.display = 'none';
-                applyFilters();
-            }
+            if (input) { input.value = ''; onSearchInput(input); input.focus(); }
         }
 
-        function setQuickFilter(statusKey, btn) {
-            const statusSelect = document.getElementById('filter-status');
-            if (statusSelect) {
-                statusSelect.value = statusKey;
-            }
-            document.querySelectorAll('.quick-pill').forEach(p => p.classList.remove('active'));
-            if (btn) btn.classList.add('active');
-            applyFilters();
-        }
-
-        function syncStatusFromSelect() {
-            const statusVal = document.getElementById('filter-status').value;
-            document.querySelectorAll('.quick-pill').forEach(p => {
-                const clickAttr = p.getAttribute('onclick') || '';
-                if (clickAttr.includes(`'${statusVal}'`)) {
-                    p.classList.add('active');
-                } else {
-                    p.classList.remove('active');
-                }
-            });
-            applyFilters();
-        }
-
-        function copyItemCode(code, event) {
-            if (event) event.stopPropagation();
-            if (navigator.clipboard) {
-                navigator.clipboard.writeText(code).then(() => {
-                    if (typeof showToast === 'function') {
-                        showToast(`تم نسخ الكود (${code}) إلى الحافظة!`, 'success');
-                    }
-                });
-            }
-        }
-
-        // =========================================================================
-        // Dynamic Executive Data Table Rendering
-        // =========================================================================
         function applyFilters() {
-            const fWh = document.getElementById('filter-warehouse') ? document.getElementById('filter-warehouse').value : 'ALL';
-            const fCat = document.getElementById('filter-category') ? document.getElementById('filter-category').value : 'ALL';
-            const fStatus = document.getElementById('filter-status') ? document.getElementById('filter-status').value : 'ACTIVE';
-            const fSearch = document.getElementById('filter-search') ? document.getElementById('filter-search').value.toLowerCase().trim() : '';
+            const searchVal = (document.getElementById('filter-search')?.value || '').toLowerCase().trim();
+            const statusVal = document.getElementById('filter-status')?.value || 'ALL';
+            const whVal = document.getElementById('filter-warehouse')?.value || 'ALL';
+            const catVal = document.getElementById('filter-category')?.value || 'ALL';
 
-            const mainTable = document.getElementById('inventory-main-table') || document.querySelector('.dash-table');
-            const thead = document.getElementById('inventory-thead') || (mainTable ? mainTable.querySelector('thead') : null);
-            const tbody = document.getElementById('inventory-tbody');
-            if (!tbody) return;
-            tbody.innerHTML = '';
+            let filtered = invDb.filter(row => {
+                if (whVal !== 'ALL' && row.warehouse !== whVal) return false;
+                if (catVal !== 'ALL' && row.category !== catVal) return false;
 
-            // Apply font size and row density
-            if (mainTable) {
-                mainTable.style.fontSize = customReportConfig.fontSize || '14px';
-                if (customReportConfig.rowDensity === 'compact') {
-                    mainTable.style.setProperty('--row-padding', '5px 8px');
-                } else if (customReportConfig.rowDensity === 'spacious') {
-                    mainTable.style.setProperty('--row-padding', '14px 16px');
-                } else {
-                    mainTable.style.setProperty('--row-padding', '10px 14px');
+                // Status Filter
+                if (statusVal === 'AVAILABLE' && row.actualQty <= 0) return false;
+                if (statusVal === 'OK' && (row.availQty <= row.minQty || row.availQty <= 0)) return false;
+                if (statusVal === 'WARNING' && (row.availQty > row.minQty || row.availQty <= 0)) return false;
+                if (statusVal === 'DANGER' && row.availQty > 0) return false;
+
+                // Search Filter
+                if (searchVal) {
+                    const searchStr = `${row.code} ${row.name} ${row.category} ${row.warehouse}`.toLowerCase();
+                    if (!searchStr.includes(searchVal)) return false;
                 }
-            }
-
-            // Dynamically Render THEAD based on customReportConfig.cols
-            let visibleColCount = 0;
-            if (thead) {
-                let thsHtml = '';
-                for (const [colKey, isVisible] of Object.entries(customReportConfig.cols)) {
-                    if (isVisible && COLUMN_DEFS[colKey]) {
-                        visibleColCount++;
-                        const col = COLUMN_DEFS[colKey];
-                        const alignStyle = col.align === 'center' ? 'text-align: center;' : (col.align === 'left' ? 'text-align: left;' : 'text-align: right;');
-                        thsHtml += `<th style="${alignStyle} padding: ${customReportConfig.rowDensity === 'compact' ? '7px 10px' : '11px 14px'};">${col.title}</th>`;
-                    }
-                }
-                thead.innerHTML = `<tr>${thsHtml}</tr>`;
-            }
-
-            let totalItems = 0; let totalQty = 0; let totalValue = 0; let totalAlerts = 0;
-
-            let reportData = [];
-            invDb.forEach(invRecord => {
-                const item = itemsDb.find(i => String(i.id) === String(invRecord.itemId));
-                if(item) {
-                    let baseUnit = item.units && item.units.length > 0 ? (item.units[0].unitName || item.units[0].name) : (item.unit || item.baseUnit || 'وحدة');
-                    let price = item.units && item.units.length > 0 ? item.units[0].cashPrice : (item.price || 0);
-                    reportData.push({
-                        ...invRecord, itemName: item.name || 'بدون اسم', category: item.category || 'عام',
-                        unit: baseUnit, price: parseFloat((price || 0).toString().replace(/,/g, '')) || 0,
-                        rawItem: item
-                    });
-                }
-            });
-
-            let filteredData = reportData.filter(row => {
-                if (fWh !== 'ALL' && row.warehouse !== fWh) return false;
-                if (fCat !== 'ALL' && row.category !== fCat) return false;
-                if (fSearch && !row.itemName.toLowerCase().includes(fSearch) && !row.itemId.toLowerCase().includes(fSearch)) return false;
-                
-                let actualQty = Number(row.qty) || 0;
-                let reservedQty = Number(row.reservedQuantity) || 0;
-                let availQty = actualQty - reservedQty;
-
-                const isZeroStock = (Math.abs(actualQty) < 0.0001 && Math.abs(reservedQty) < 0.0001 && Math.abs(availQty) < 0.0001);
-
-                if (fStatus === 'ALL_WITH_ZERO') {
-                    return true;
-                } else if (fStatus === 'OK') {
-                    let statusInfo = getStatusInfo(availQty, row.minQty);
-                    return statusInfo.code === 'OK' && !isZeroStock;
-                } else if (fStatus === 'WARNING') {
-                    let statusInfo = getStatusInfo(availQty, row.minQty);
-                    return statusInfo.code === 'WARNING' && !isZeroStock;
-                } else if (fStatus === 'DANGER') {
-                    let statusInfo = getStatusInfo(availQty, row.minQty);
-                    return statusInfo.code === 'DANGER' || isZeroStock || availQty <= 0;
-                } else {
-                    return !isZeroStock;
-                }
+                return true;
             });
 
             // Sorting
-            if (customReportConfig.sortBy === 'value_desc') {
-                filteredData.sort((a, b) => ((b.qty - (b.reservedQuantity || 0)) * b.price) - ((a.qty - (a.reservedQuantity || 0)) * a.price));
-            } else if (customReportConfig.sortBy === 'qty_desc') {
-                filteredData.sort((a, b) => (Number(b.qty) || 0) - (Number(a.qty) || 0));
-            } else if (customReportConfig.sortBy === 'qty_asc') {
-                filteredData.sort((a, b) => (Number(a.qty) || 0) - (Number(b.qty) || 0));
-            } else if (customReportConfig.sortBy === 'name_asc') {
-                filteredData.sort((a, b) => (a.itemName || '').localeCompare(b.itemName || '', 'ar'));
-            } else if (customReportConfig.sortBy === 'code_asc') {
-                filteredData.sort((a, b) => (a.itemId || '').localeCompare(b.itemId || ''));
-            }
-
-            const pDec = customReportConfig.priceDecimals !== undefined ? customReportConfig.priceDecimals : 2;
-            const qDec = customReportConfig.qtyDecimals !== undefined ? customReportConfig.qtyDecimals : 2;
-            const activeHighlightColor = customReportConfig.highlightColor || '#38bdf8';
-            const cellPad = customReportConfig.rowDensity === 'compact' ? 'padding: 6px 10px;' : (customReportConfig.rowDensity === 'spacious' ? 'padding: 14px 16px;' : 'padding: 10px 14px;');
-
-            filteredData.forEach((row, index) => {
-                let actualQty = Number(row.qty) || 0;
-                let reservedQty = Number(row.reservedQuantity) || 0;
-                let availQty = actualQty - reservedQty;
-                
-                let statusInfo = getStatusInfo(availQty, row.minQty);
-                let rowValue = availQty * row.price;
-
-                totalItems++; totalQty += availQty; totalValue += rowValue;
-                if (statusInfo.code !== 'OK') totalAlerts++;
-
-                const unitsList = getItemUnitsList(row.rawItem);
-                let unitsRelationInfo = '';
-                if (unitsList.length > 1) {
-                    const baseUnitName = unitsList[0].name;
-                    const rels = unitsList.slice(1).map(u => {
-                        const factor = parseFloat(u.factor) || 1;
-                        const baseIsLarge = isLargeUnitName(baseUnitName);
-                        const targetIsSmall = isSmallUnitName(u.name);
-                        if (baseIsLarge && targetIsSmall) {
-                            return `1 ${baseUnitName} ⇄ ${factor} ${u.name}`;
-                        } else {
-                            return `1 ${u.name} ⇄ ${factor} ${baseUnitName}`;
-                        }
-                    }).join(' | ');
-                    unitsRelationInfo = `<div style="font-size:0.72rem; color:${activeHighlightColor}; margin-top:3px; font-weight:700;">⚖️ ${rels}</div>`;
-                }
-
-                let tdsHtml = '';
-                for (const [colKey, isVisible] of Object.entries(customReportConfig.cols)) {
-                    if (!isVisible) continue;
-
-                    if (colKey === 'item') {
-                        tdsHtml += `<td style="${cellPad} font-weight:700; color:var(--text-primary);">
-                            <div style="display:flex; align-items:center; gap:6px; margin-bottom:4px;">
-                                ${!customReportConfig.cols.code ? `<span class="code-pill" onclick="copyItemCode('${row.itemId}', event)" title="انقر لنسخ الكود" style="font-size: 0.7rem; padding: 2px 6px;">📋 ${row.itemId}</span>` : ''}
-                                ${!customReportConfig.cols.category ? `<span style="background:rgba(255,255,255,0.04); padding:2px 6px; border-radius:6px; font-weight:600; font-size:0.7rem; border:1px solid var(--glass-border); color: #94a3b8;">${row.category}</span>` : ''}
-                            </div>
-                            <div style="font-size:0.95rem; color:#f8fafc;">${row.itemName}</div>
-                            <div style="font-size:0.72rem; color:var(--text-muted); margin-top:2px;">الوحدة الرئيسية: <strong style="color:#cbd5e1;">${unitsList[0].name}</strong></div>
-                            ${customReportConfig.showUnitRelations ? unitsRelationInfo : ''}
-                        </td>`;
-                    } else if (colKey === 'code') {
-                        tdsHtml += `<td style="${cellPad} text-align:center;"><span class="code-pill" onclick="copyItemCode('${row.itemId}', event)" title="انقر لنسخ الكود">📋 ${row.itemId}</span></td>`;
-                    } else if (colKey === 'category') {
-                        tdsHtml += `<td style="${cellPad} text-align:center;"><span style="background:rgba(255,255,255,0.05); padding:3px 8px; border-radius:6px; font-weight:700; font-size:0.78rem; border:1px solid var(--glass-border); color:#94a3b8;">${row.category}</span></td>`;
-                    } else if (colKey === 'warehouse') {
-                        tdsHtml += `<td style="${cellPad}"><span style="font-weight:700; color:#cbd5e1;">${row.warehouse}</span></td>`;
-                    } else if (colKey === 'actualQty') {
-                        tdsHtml += `<td style="${cellPad} text-align:center;">${renderMultiUnitQty(actualQty, unitsList, '#38bdf8')}</td>`;
-                    } else if (colKey === 'reservedQty') {
-                        tdsHtml += `<td style="${cellPad} text-align:center;">${reservedQty > 0 ? renderMultiUnitQty(reservedQty, unitsList, '#fbbf24') : '<span style="color:var(--text-muted); font-weight:700;">-</span>'}</td>`;
-                    } else if (colKey === 'availQty') {
-                        tdsHtml += `<td style="${cellPad} text-align:center;">${renderMultiUnitQty(availQty, unitsList, statusInfo.color)}</td>`;
-                    } else if (colKey === 'minQty') {
-                        const minFormatted = (row.minQty || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: qDec });
-                        tdsHtml += `<td style="${cellPad} text-align:center; font-weight:700; color:#94a3b8;">${minFormatted} <span style="font-size:0.75rem;">${unitsList[0].name}</span></td>`;
-                    } else if (colKey === 'costPrice') {
-                        const costFormatted = (row.price || 0).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: pDec });
-                        tdsHtml += `<td style="${cellPad} font-weight:700; color:#cbd5e1; direction:ltr; text-align:left;">${costFormatted}</td>`;
-                    } else if (colKey === 'cashPrice') {
-                        const cp = (row.rawItem && row.rawItem.cashPrice) ? Number(row.rawItem.cashPrice) : (row.price || 0);
-                        const cpFormatted = cp.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: pDec });
-                        tdsHtml += `<td style="${cellPad} font-weight:700; color:#38bdf8; direction:ltr; text-align:left;">${cpFormatted}</td>`;
-                    } else if (colKey === 'wholesalePrice') {
-                        const wp = (row.rawItem && row.rawItem.wholesalePrice) ? Number(row.rawItem.wholesalePrice) : 0;
-                        const wpFormatted = wp.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: pDec });
-                        tdsHtml += `<td style="${cellPad} font-weight:700; color:#a78bfa; direction:ltr; text-align:left;">${wpFormatted}</td>`;
-                    } else if (colKey === 'retailPrice') {
-                        const rp = (row.rawItem && row.rawItem.retailPrice) ? Number(row.rawItem.retailPrice) : 0;
-                        const rpFormatted = rp.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: pDec });
-                        tdsHtml += `<td style="${cellPad} font-weight:700; color:#f472b6; direction:ltr; text-align:left;">${rpFormatted}</td>`;
-                    } else if (colKey === 'totalValue') {
-                        const curr = customReportConfig.showCurrencySymbol ? '<span style="font-size:0.75rem; color:#64748b; font-weight:600;">SDG</span>' : '';
-                        const valFormatted = rowValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: pDec });
-                        tdsHtml += `<td style="${cellPad}" class="val-td">${valFormatted} ${curr}</td>`;
-                    } else if (colKey === 'status') {
-                        tdsHtml += `<td style="${cellPad} text-align:center;"><span class="status-badge ${statusInfo.cssClass}">${statusInfo.icon} ${statusInfo.text}</span></td>`;
-                    } else if (colKey === 'actions') {
-                        tdsHtml += `<td style="${cellPad} text-align:center;"><a data-href="item-ledger.php?item=${row.itemId}" onclick="window.location.href='item-ledger.php?item=${row.itemId}'" class="btn-link"><span>📑</span> كشف حركة</a></td>`;
-                    }
-                }
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = tdsHtml;
-                tbody.appendChild(tr);
+            filtered.sort((a,b) => {
+                if (customReportConfig.sortBy === 'value_desc') return b.totalValue - a.totalValue;
+                if (customReportConfig.sortBy === 'qty_desc') return b.actualQty - a.actualQty;
+                if (customReportConfig.sortBy === 'qty_asc') return a.actualQty - b.actualQty;
+                if (customReportConfig.sortBy === 'name_asc') return a.name.localeCompare(b.name, 'ar');
+                if (customReportConfig.sortBy === 'code_asc') return String(a.code).localeCompare(String(b.code));
+                return 0;
             });
 
-            // Update Summary KPI Strip
-            const kpiCount = document.getElementById('kpi-count');
-            if (kpiCount) kpiCount.innerHTML = `${totalItems.toLocaleString()} <span>صنف</span>`;
-            const kpiQty = document.getElementById('kpi-qty');
-            if (kpiQty) kpiQty.innerHTML = `${totalQty.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: qDec })} <span>وحدة</span>`;
-            const kpiValue = document.getElementById('kpi-value');
-            if (kpiValue) kpiValue.innerHTML = `${totalValue.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: pDec })} <span>SDG</span>`;
-            const kpiAlerts = document.getElementById('kpi-alerts');
-            if (kpiAlerts) kpiAlerts.innerHTML = `${totalAlerts.toLocaleString()} <span>تنبيه</span>`;
-
-            const matchesBadge = document.getElementById('filtered-matches-badge');
-            if (matchesBadge) {
-                matchesBadge.textContent = `المطابق: ${filteredData.length} من ${reportData.length} صنف`;
-            }
-
-            window.currentReportData = reportData;
-            window.currentFilteredData = filteredData;
-
-            if (filteredData.length === 0) {
-                const whName = fWh === 'ALL' ? 'جميع المخازن' : fWh;
-                tbody.innerHTML = `<tr><td colspan="${visibleColCount || 9}" style="text-align:center; padding:60px 20px; color:var(--text-secondary);">
-                    <div style="font-size: 2.5rem; margin-bottom: 10px;">📦</div>
-                    <div style="font-size: 1.1rem; font-weight: 800; color: #f8fafc; margin-bottom: 5px;">لا توجد أصناف مطابقة للبحث أو التصفية</div>
-                    <div style="font-size: 0.85rem; color: #64748b;">جرب تغيير خيارات التصفية أو مسح البحث لعرض البضائع في (${whName})</div>
-                </td></tr>`;
-            }
+            renderTable(filtered);
+            updateKPIs(filtered);
         }
 
-        function getStatusInfo(qty, minQty) {
-            if (qty <= 0) return { code: 'DANGER', text: 'نافذ / سالب', color: '#ef4444', cssClass: 'status-danger', icon: '🚨' };
-            if (qty <= minQty) return { code: 'WARNING', text: 'تحت الطلب', color: '#fbbf24', cssClass: 'status-warn', icon: '⚠️' };
-            return { code: 'OK', text: 'رصيد آمن', color: '#10b981', cssClass: 'status-ok', icon: '✅' };
+        function renderTable(data) {
+            const thead = document.getElementById('inventory-thead');
+            const tbody = document.getElementById('inventory-tbody');
+            if (!thead || !tbody) return;
+
+            // 1. Render Table Headers
+            let ths = `<tr>`;
+            ths += `<th style="width:45px; text-align:center;">#</th>`;
+            AVAILABLE_COLUMNS.forEach(col => {
+                if (customReportConfig.cols.includes(col.id)) {
+                    ths += `<th style="text-align:${col.align};">${col.title}</th>`;
+                }
+            });
+            ths += `</tr>`;
+            thead.innerHTML = ths;
+
+            // 2. Render Rows
+            if (data.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="15" style="text-align:center; padding:45px; color:var(--text-secondary); font-size:1rem; font-weight:700;">لا توجد أصناف مطابقة للبحث المحدد</td></tr>`;
+                return;
+            }
+
+            let rowsHtml = '';
+            data.forEach((row, idx) => {
+                const unitsList = getItemUnitsList(row.rawItem);
+                const statusInfo = getStatusInfo(row.availQty, row.minQty);
+
+                rowsHtml += `<tr>`;
+                rowsHtml += `<td style="text-align:center; font-weight:700; color:#64748b;">${idx + 1}</td>`;
+
+                AVAILABLE_COLUMNS.forEach(col => {
+                    if (!customReportConfig.cols.includes(col.id)) return;
+
+                    if (col.id === 'name') {
+                        rowsHtml += `<td style="font-weight:800; color:#f8fafc;">${row.name}</td>`;
+                    } else if (col.id === 'code') {
+                        rowsHtml += `<td style="text-align:center; font-weight:700; color:#38bdf8;">${row.code}</td>`;
+                    } else if (col.id === 'category') {
+                        rowsHtml += `<td><span style="background:rgba(255,255,255,0.05); padding:3px 8px; border-radius:6px; font-size:0.8rem;">${row.category}</span></td>`;
+                    } else if (col.id === 'warehouse') {
+                        rowsHtml += `<td><span style="background:rgba(56,189,248,0.1); color:#38bdf8; border:1px solid rgba(56,189,248,0.25); padding:3px 8px; border-radius:6px; font-weight:700;">${row.warehouse}</span></td>`;
+                    } else if (col.id === 'actualQty') {
+                        rowsHtml += `<td style="text-align:center;">${renderMultiUnitQty(row.actualQty, unitsList, '#38bdf8')}</td>`;
+                    } else if (col.id === 'reservedQty') {
+                        rowsHtml += `<td style="text-align:center; color:#f59e0b; font-weight:700;">${row.reservedQty > 0 ? renderMultiUnitQty(row.reservedQty, unitsList, '#f59e0b') : '-'}</td>`;
+                    } else if (col.id === 'availQty') {
+                        rowsHtml += `<td style="text-align:center;">${renderMultiUnitQty(row.availQty, unitsList, statusInfo.color)}</td>`;
+                    } else if (col.id === 'minQty') {
+                        rowsHtml += `<td style="text-align:center; color:#64748b;">${fmtNum(row.minQty)}</td>`;
+                    } else if (col.id === 'costPrice') {
+                        rowsHtml += `<td style="text-align:center; font-weight:700; color:#cbd5e1;">${fmtNum(row.costPrice)} <small style="font-size:0.7rem; color:#64748b;">SDG</small></td>`;
+                    } else if (col.id === 'cashPrice') {
+                        rowsHtml += `<td style="text-align:center; font-weight:700; color:#38bdf8;">${fmtNum(row.cashPrice)}</td>`;
+                    } else if (col.id === 'wholesalePrice') {
+                        rowsHtml += `<td style="text-align:center; font-weight:700; color:#10b981;">${fmtNum(row.wholesalePrice)}</td>`;
+                    } else if (col.id === 'retailPrice') {
+                        rowsHtml += `<td style="text-align:center; font-weight:700; color:#c084fc;">${fmtNum(row.retailPrice)}</td>`;
+                    } else if (col.id === 'totalValue') {
+                        rowsHtml += `<td style="text-align:center; font-weight:900; color:#f59e0b;">${fmtNum(row.totalValue)} <small style="font-size:0.7rem; color:#94a3b8;">SDG</small></td>`;
+                    } else if (col.id === 'status') {
+                        rowsHtml += `<td style="text-align:center;"><span class="status-badge ${statusInfo.cssClass}">${statusInfo.icon} ${statusInfo.text}</span></td>`;
+                    } else if (col.id === 'action') {
+                        rowsHtml += `<td style="text-align:center;">
+                            <a href="item-ledger.php?item=${row.itemId}" class="btn-action-top" style="padding:3px 8px; font-size:0.75rem; text-decoration:none; display:inline-flex; background:rgba(56,189,248,0.12); color:#38bdf8; border:1px solid rgba(56,189,248,0.3); border-radius:6px; font-weight:700;" title="عرض كارت حركة الصنف">
+                                📑 كشف الحركة
+                            </a>
+                        </td>`;
+                    }
+                });
+                rowsHtml += `</tr>`;
+            });
+            tbody.innerHTML = rowsHtml;
         }
 
-        // =========================================================================
-        // Custom Report Studio Modal Logic & Actions
-        // =========================================================================
-        function toggleChipClass(input) {
-            if (!input) return;
-            const parent = input.closest('.studio-chip');
-            if (parent) {
-                if (input.checked) parent.classList.add('checked');
-                else parent.classList.remove('checked');
-            }
+        function updateKPIs(data) {
+            let totalQty = 0;
+            let totalValue = 0;
+            let alertCount = 0;
+            const uniqueItems = new Set();
+
+            data.forEach(r => {
+                uniqueItems.add(r.itemId);
+                totalQty += r.actualQty;
+                totalValue += r.totalValue;
+                if (r.availQty <= r.minQty || r.availQty <= 0) alertCount++;
+            });
+
+            document.getElementById('kpi-count').innerHTML = `${fmtNum(uniqueItems.size)} <span>صنف</span>`;
+            document.getElementById('kpi-qty').innerHTML = `${fmtNum(totalQty)} <span>وحدة</span>`;
+            document.getElementById('kpi-value').innerHTML = `${fmtNum(totalValue)} <span>SDG</span>`;
+            document.getElementById('kpi-alerts').innerHTML = `${fmtNum(alertCount)} <span>تنبيه</span>`;
+            document.getElementById('filtered-matches-badge').innerText = `مطابقة: ${data.length} سجل (${uniqueItems.size} صنف)`;
         }
+
+        // =======================================================================
+        // 🎛️ CUSTOM REPORT STUDIO LOGIC
+        // =======================================================================
 
         function openCustomReportStudio() {
-            // Populate Warehouses
-            const crWh = document.getElementById('cr-warehouse');
-            const srcWh = document.getElementById('filter-warehouse');
-            if (crWh && srcWh) {
-                crWh.innerHTML = srcWh.innerHTML;
-                crWh.value = srcWh.value;
-            }
+            const modal = document.getElementById('custom-report-modal');
+            const container = document.getElementById('cr-cols-checkboxes');
+            if (!modal || !container) return;
 
-            // Populate Categories
-            const crCat = document.getElementById('cr-category');
-            const srcCat = document.getElementById('filter-category');
-            if (crCat && srcCat) {
-                crCat.innerHTML = srcCat.innerHTML;
-                crCat.value = srcCat.value;
-            }
+            container.innerHTML = '';
+            AVAILABLE_COLUMNS.forEach(c => {
+                const isChecked = customReportConfig.cols.includes(c.id);
+                const chip = document.createElement('label');
+                chip.style.cssText = 'display:flex; align-items:center; gap:8px; font-size:0.85rem; font-weight:700; color:#cbd5e1; cursor:pointer; padding:4px 6px; border-radius:6px;';
+                chip.innerHTML = `<input type="checkbox" value="${c.id}" ${isChecked ? 'checked' : ''} style="cursor:pointer;"> <span>${c.title}</span>`;
+                container.appendChild(chip);
+            });
 
-            // Sync Status
-            const crStatus = document.getElementById('cr-status');
-            const srcStatus = document.getElementById('filter-status');
-            if (crStatus && srcStatus) {
-                crStatus.value = srcStatus.value;
-            }
+            document.getElementById('cr-unit-mode').value = customReportConfig.unitDisplayMode || 'compound';
+            document.getElementById('cr-row-density').value = customReportConfig.rowDensity || 'normal';
 
-            // Sync Column Checkboxes
-            for (const [colKey, isVisible] of Object.entries(customReportConfig.cols)) {
-                const el = document.getElementById(`col-${colKey}`);
-                if (el) {
-                    el.checked = isVisible;
-                    toggleChipClass(el);
-                }
-            }
-
-            // Sync Unit Mode
-            const unitRadio = document.querySelector(`input[name="cr-unit-mode"][value="${customReportConfig.unitMode}"]`);
-            if (unitRadio) {
-                unitRadio.checked = true;
-                document.querySelectorAll('input[name="cr-unit-mode"]').forEach(r => toggleChipClass(r));
-            }
-
-            // Sync other options
-            const showRels = document.getElementById('cr-show-unit-rels');
-            if (showRels) { showRels.checked = customReportConfig.showUnitRelations; toggleChipClass(showRels); }
-
-            const qDec = document.getElementById('cr-qty-decimals');
-            if (qDec) qDec.value = customReportConfig.qtyDecimals;
-
-            const pDec = document.getElementById('cr-price-decimals');
-            if (pDec) pDec.value = customReportConfig.priceDecimals;
-
-            const showCurr = document.getElementById('cr-show-currency');
-            if (showCurr) { showCurr.checked = customReportConfig.showCurrencySymbol; toggleChipClass(showCurr); }
-
-            const fontSize = document.getElementById('cr-font-size');
-            if (fontSize) fontSize.value = customReportConfig.fontSize;
-
-            const density = document.getElementById('cr-row-density');
-            if (density) density.value = customReportConfig.rowDensity;
-
-            const color = document.getElementById('cr-highlight-color');
-            if (color) color.value = customReportConfig.highlightColor;
-
-            const sortEl = document.getElementById('cr-sort');
-            if (sortEl) sortEl.value = customReportConfig.sortBy || 'default';
-
-            document.getElementById('custom-report-modal').style.display = 'flex';
+            modal.style.display = 'flex';
         }
 
         function closeCustomReportStudio() {
-            document.getElementById('custom-report-modal').style.display = 'none';
+            const modal = document.getElementById('custom-report-modal');
+            if (modal) modal.style.display = 'none';
         }
 
         function setAllStudioCols(checked) {
-            for (const colKey of Object.keys(COLUMN_DEFS)) {
-                const el = document.getElementById(`col-${colKey}`);
-                if (el) {
-                    el.checked = checked;
-                    toggleChipClass(el);
-                }
-            }
+            document.querySelectorAll('#cr-cols-checkboxes input[type="checkbox"]').forEach(chk => chk.checked = checked);
         }
 
         function setStudioPreset(preset) {
-            const presets = {
-                standard: { item: true, code: true, category: true, warehouse: true, actualQty: true, reservedQty: true, availQty: true, minQty: false, costPrice: true, cashPrice: false, wholesalePrice: false, retailPrice: false, totalValue: true, status: true, actions: true },
-                financial: { item: true, code: true, category: true, warehouse: true, actualQty: false, reservedQty: false, availQty: true, minQty: false, costPrice: true, cashPrice: true, wholesalePrice: true, retailPrice: false, totalValue: true, status: false, actions: true },
-                quantities: { item: true, code: true, category: false, warehouse: true, actualQty: true, reservedQty: true, availQty: true, minQty: true, costPrice: false, cashPrice: false, wholesalePrice: false, retailPrice: false, totalValue: false, status: true, actions: true }
-            };
-
-            const selectedPreset = presets[preset] || presets.standard;
-            for (const [colKey, isVisible] of Object.entries(selectedPreset)) {
-                const el = document.getElementById(`col-${colKey}`);
-                if (el) {
-                    el.checked = isVisible;
-                    toggleChipClass(el);
-                }
+            if (preset === 'standard') {
+                customReportConfig.cols = ['name', 'code', 'category', 'warehouse', 'actualQty', 'availQty', 'costPrice', 'totalValue', 'status', 'action'];
+            } else if (preset === 'financial') {
+                customReportConfig.cols = ['name', 'code', 'warehouse', 'actualQty', 'costPrice', 'cashPrice', 'wholesalePrice', 'totalValue'];
+            } else if (preset === 'quantities') {
+                customReportConfig.cols = ['name', 'code', 'category', 'warehouse', 'actualQty', 'reservedQty', 'availQty', 'minQty', 'status'];
             }
-        }
-
-        function readStudioConfigFromModal() {
-            // Read Columns
-            for (const colKey of Object.keys(COLUMN_DEFS)) {
-                const el = document.getElementById(`col-${colKey}`);
-                if (el) {
-                    customReportConfig.cols[colKey] = el.checked;
-                }
-            }
-
-            // Read Unit Mode
-            const activeUnitRadio = document.querySelector('input[name="cr-unit-mode"]:checked');
-            if (activeUnitRadio) customReportConfig.unitMode = activeUnitRadio.value;
-
-            // Read options
-            const showRels = document.getElementById('cr-show-unit-rels');
-            if (showRels) customReportConfig.showUnitRelations = showRels.checked;
-
-            const qDec = document.getElementById('cr-qty-decimals');
-            if (qDec) customReportConfig.qtyDecimals = parseInt(qDec.value, 10);
-
-            const pDec = document.getElementById('cr-price-decimals');
-            if (pDec) customReportConfig.priceDecimals = parseInt(pDec.value, 10);
-
-            const showCurr = document.getElementById('cr-show-currency');
-            if (showCurr) customReportConfig.showCurrencySymbol = showCurr.checked;
-
-            const fontSize = document.getElementById('cr-font-size');
-            if (fontSize) customReportConfig.fontSize = fontSize.value;
-
-            const density = document.getElementById('cr-row-density');
-            if (density) customReportConfig.rowDensity = density.value;
-
-            const color = document.getElementById('cr-highlight-color');
-            if (color) customReportConfig.highlightColor = color.value;
-
-            const sortEl = document.getElementById('cr-sort');
-            if (sortEl) customReportConfig.sortBy = sortEl.value;
-
-            // Sync Scope Filters to main bar
-            const crWh = document.getElementById('cr-warehouse');
-            const srcWh = document.getElementById('filter-warehouse');
-            if (crWh && srcWh && crWh.value !== srcWh.value) {
-                srcWh.value = crWh.value;
-            }
-
-            const crCat = document.getElementById('cr-category');
-            const srcCat = document.getElementById('filter-category');
-            if (crCat && srcCat && crCat.value !== srcCat.value) {
-                srcCat.value = crCat.value;
-            }
-
-            const crStatus = document.getElementById('cr-status');
-            const srcStatus = document.getElementById('filter-status');
-            if (crStatus && srcStatus && crStatus.value !== srcStatus.value) {
-                srcStatus.value = crStatus.value;
-            }
+            openCustomReportStudio();
         }
 
         function applyStudioReport() {
-            readStudioConfigFromModal();
-            applyFilters();
-            closeCustomReportStudio();
-            if (typeof showToast === 'function') {
-                showToast('تم تطبيق وتوليد التقرير المخصص بنجاح! 🚀', 'success');
+            const selectedCols = [];
+            document.querySelectorAll('#cr-cols-checkboxes input[type="checkbox"]:checked').forEach(chk => selectedCols.push(chk.value));
+            if (selectedCols.length === 0) {
+                alert('يرجى اختيار عمود واحد على الأقل للعرض!');
+                return;
             }
+            customReportConfig.cols = selectedCols;
+            customReportConfig.unitDisplayMode = document.getElementById('cr-unit-mode').value;
+            customReportConfig.rowDensity = document.getElementById('cr-row-density').value;
+
+            closeCustomReportStudio();
+            applyFilters();
         }
 
         function saveStudioPreset() {
-            readStudioConfigFromModal();
+            applyStudioReport();
             localStorage.setItem('erp_custom_report_preset_v1', JSON.stringify(customReportConfig));
-            if (typeof showToast === 'function') {
-                showToast('تم حفظ قالب التقرير المخصص بنجاح كافتراضي! 💾', 'success');
-            }
+            alert('تم حفظ إعدادات تقرير الجرد بنجاح!');
         }
 
         function resetStudioConfig() {
             customReportConfig = {
-                cols: {
-                    item: true, code: true, category: true, warehouse: true,
-                    actualQty: true, reservedQty: true, availQty: true, minQty: false,
-                    costPrice: true, cashPrice: false, wholesalePrice: false, retailPrice: false,
-                    totalValue: true, status: true, actions: true
-                },
-                unitMode: 'compound',
-                showUnitRelations: true,
-                qtyDecimals: 2,
-                priceDecimals: 2,
-                showCurrencySymbol: true,
-                fontSize: '14px',
+                cols: ['name', 'code', 'category', 'warehouse', 'actualQty', 'availQty', 'costPrice', 'totalValue', 'status', 'action'],
+                unitDisplayMode: 'compound',
                 rowDensity: 'normal',
-                highlightColor: '#38bdf8',
-                sortBy: 'default'
+                sortBy: 'value_desc'
             };
             localStorage.removeItem('erp_custom_report_preset_v1');
             openCustomReportStudio();
             applyFilters();
-            if (typeof showToast === 'function') {
-                showToast('تم استعادة الإعدادات الافتراضية للتقرير 🔄', 'info');
-            }
         }
 
-        // =========================================================================
-        // Custom Report Printing & Excel Export
-        // =========================================================================
-        function printStudioReport() {
-            readStudioConfigFromModal();
-            applyFilters();
+        // =======================================================================
+        // ⚖️ PHYSICAL STOCKTAKE (تسوية وجرد المخزون)
+        // =======================================================================
 
-            const table = document.getElementById('inventory-main-table');
-            if (!table) return;
-
-            const printWindow = window.open('', '_blank');
-            if (!printWindow) {
-                if (typeof showToast === 'function') {
-                    showToast('يرجى السماح بالنوافذ المنبثقة للطباعة!', 'warning');
-                } else {
-                    alert('يرجى السماح بالنوافذ المنبثقة للطباعة!');
-                }
-                return;
-            }
-
-            const now = new Date();
-            const dateStr = now.toLocaleDateString('ar-EG', { year:'numeric', month:'long', day:'numeric' });
-            const timeStr = now.toLocaleTimeString('ar-EG', { hour:'2-digit', minute:'2-digit' });
-            const whVal = document.getElementById('filter-warehouse') ? document.getElementById('filter-warehouse').selectedOptions[0].text : 'جميع المخازن';
-            const statusVal = document.getElementById('filter-status') ? document.getElementById('filter-status').selectedOptions[0].text : 'عام';
-
-            const printHtml = `
-            <!DOCTYPE html>
-            <html dir="rtl" lang="ar">
-            <head>
-                <meta charset="UTF-8">
-                <title>تقرير المخزون المخصص - ELSAJANA</title>
-                <style>
-                    body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background: #fff; color: #000; padding: 20px; direction: rtl; }
-                    .print-header { border-bottom: 2px solid #000; padding-bottom: 12px; margin-bottom: 15px; display: flex; justify-content: space-between; align-items: center; }
-                    .print-title { font-size: 1.4rem; font-weight: 900; margin: 0 0 5px; }
-                    .print-meta { font-size: 0.85rem; color: #555; display: flex; gap: 15px; }
-                    table { width: 100%; border-collapse: collapse; margin-top: 10px; font-size: ${customReportConfig.fontSize || '12px'}; }
-                    th { background: #f1f5f9; color: #000; border: 1px solid #cbd5e1; padding: 8px 10px; font-weight: 800; }
-                    td { border: 1px solid #e2e8f0; padding: 8px 10px; }
-                    .val-td { direction: ltr; text-align: left; font-weight: 800; }
-                    .code-pill { font-family: monospace; font-weight: 700; background: #eee; padding: 2px 5px; border-radius: 4px; }
-                    .status-badge { font-weight: 700; }
-                    .btn-link { display: none; }
-                    @media print {
-                        body { padding: 0; }
-                        @page { margin: 1.5cm; size: landscape; }
-                    }
-                </style>
-            </head>
-            <body>
-                <div class="print-header">
-                    <div>
-                        <h1 class="print-title">🏢 شركة السجانة العالمية للتجارة والخدمات</h1>
-                        <div style="font-size: 1.1rem; font-weight: 800; color: #1e293b;">تقرير جرد وتقييم المخزون المخصص</div>
-                    </div>
-                    <div style="text-align: left;">
-                        <div class="print-meta"><span>📅 التاريخ: ${dateStr}</span> <span>⏰ الوقت: ${timeStr}</span></div>
-                        <div style="font-size: 0.82rem; color: #475569; margin-top: 4px;">النطاق: <strong>${whVal}</strong> | الحالة: <strong>${statusVal}</strong></div>
-                    </div>
-                </div>
-                ${table.outerHTML}
-                <div style="margin-top: 20px; display: flex; justify-content: space-between; font-size: 0.85rem; border-top: 1px solid #ccc; padding-top: 10px;">
-                    <div>توقيع أمين المخزن: ..............................</div>
-                    <div>توقيع المدير المالي: ..............................</div>
-                    <div>الختم الرسمي: ..............................</div>
-                </div>
-                <script>
-                    window.onload = function() { window.print(); };
-                <\/script>
-            </body>
-            </html>`;
-
-            printWindow.document.write(printHtml);
-            printWindow.document.close();
-        }
-
-        function exportStudioExcel() {
-            readStudioConfigFromModal();
-            applyFilters();
-
-            const table = document.getElementById('inventory-main-table');
-            if (!table) return;
-
-            const clone = table.cloneNode(true);
-            clone.querySelectorAll('.btn-link, .code-pill, button').forEach(el => {
-                const text = el.innerText.replace(/[📋📑👁️🖨️📥]/g, '').trim();
-                el.replaceWith(document.createTextNode(text));
-            });
-
-            let html = `
-            <html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:x="urn:schemas-microsoft-com:office:excel" xmlns="http://www.w3.org/TR/REC-html40">
-            <head><meta charset="utf-8" /><style>table, th, td { border: 1px solid #000; font-family: Segoe UI, Tahoma; text-align: right; } th { background-color: #f2f2f2; }</style></head>
-            <body dir="rtl">
-            <h2>تقرير جرد المخزون المخصص - شركة السجانة</h2>
-            <p>تاريخ الاستخراج: ${new Date().toLocaleString('ar-EG')}</p>
-            ${clone.outerHTML}
-            </body></html>`;
-
-            const blob = new Blob([html], { type: 'application/vnd.ms-excel;charset=utf-8;' });
-            const link = document.createElement('a');
-            link.href = URL.createObjectURL(blob);
-            link.download = `تقرير_المخزون_المخصص_${new Date().toISOString().slice(0,10)}.xls`;
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-
-            if (typeof showToast === 'function') {
-                showToast('تم تصدير ملف Excel بنجاح! 📥', 'success');
-            }
-        }
-
-        function exportExcel() {
-            exportStudioExcel();
-        }
-
-        // Stocktake / Adjustment Functions
         function openStocktakeModal() {
-            const filterWh = document.getElementById('filter-warehouse');
-            const adjWh = document.getElementById('adj-warehouse');
-            adjWh.innerHTML = '';
-            
-            Array.from(filterWh.options).forEach(opt => {
-                if (opt.value !== 'ALL') {
-                    const newOpt = document.createElement('option');
-                    newOpt.value = opt.value;
-                    newOpt.text = opt.text;
-                    adjWh.appendChild(newOpt);
-                }
+            const modal = document.getElementById('stocktake-modal');
+            const whSelect = document.getElementById('stocktake-warehouse-select');
+            if (!modal || !whSelect) return;
+
+            whSelect.innerHTML = '';
+            let warehousesDb = getStorageList('erp_warehouses_v1');
+            if (warehousesDb.length === 0) warehousesDb = [{ id: 'w-main', name: 'المخزن الرئيسي' }];
+            warehousesDb.forEach(wh => {
+                const opt = document.createElement('option');
+                opt.value = wh.name;
+                opt.text = wh.name;
+                whSelect.appendChild(opt);
             });
 
-            if (filterWh.value !== 'ALL') {
-                adjWh.value = filterWh.value;
-            }
-
-            document.getElementById('stocktake-modal').style.display = 'flex';
+            document.getElementById('stocktake-date').valueAsDate = new Date();
             loadStocktakeItems();
+            modal.style.display = 'flex';
         }
 
         function closeStocktakeModal() {
-            document.getElementById('stocktake-modal').style.display = 'none';
+            const modal = document.getElementById('stocktake-modal');
+            if (modal) modal.style.display = 'none';
         }
 
-        let stocktakeData = [];
-
         function loadStocktakeItems() {
-            const wh = document.getElementById('adj-warehouse').value;
+            const targetWh = document.getElementById('stocktake-warehouse-select')?.value;
             const tbody = document.getElementById('stocktake-tbody');
-            tbody.innerHTML = '';
+            if (!tbody || !targetWh) return;
 
-            let currentInv = buildRealInventory(itemsDb);
-            let whInv = currentInv.filter(inv => inv.warehouse === wh);
-
-            stocktakeData = [];
-
-            if (whInv.length === 0) {
-                tbody.innerHTML = `<tr><td colspan="5" style="text-align:center; padding:30px; color:var(--text-secondary);">لا توجد أصناف في هذا المخزن حالياً.</td></tr>`;
-                document.getElementById('adj-total-val').textContent = '0.00';
+            const whRecords = invDb.filter(r => r.warehouse === targetWh);
+            if (whRecords.length === 0) {
+                tbody.innerHTML = `<tr><td colspan="7" style="text-align:center; padding:30px; color:#94a3b8;">لا توجد أصناف مسجلة في هذا المخزن</td></tr>`;
                 return;
             }
 
-            whInv.forEach((row, index) => {
-                const item = itemsDb.find(i => String(i.id) === String(row.itemId));
-                if (!item) return;
-
-                let baseUnit = item.units && item.units.length > 0 ? (item.units[0].unitName || item.units[0].name) : (item.unit || item.baseUnit || 'وحدة');
-                let price = item.units && item.units.length > 0 ? (item.units[0].cashPrice || item.units[0].costPrice || item.price || 0) : (item.price || item.buyPrice || item.costPrice || 0);
-                price = parseFloat((price || 0).toString().replace(/,/g, '')) || 0;
-
-                const bookQty = row.qty || 0;
-                
-                stocktakeData.push({
-                    itemId: row.itemId,
-                    name: item.name || 'بدون اسم',
-                    unit: baseUnit,
-                    price: price,
-                    bookQty: bookQty
-                });
-
-                const tr = document.createElement('tr');
-                tr.innerHTML = `
-                    <td style="font-weight:700;">${item.name} <div style="font-size:0.7rem; color:var(--text-secondary); margin-top:2px;">الوحدة: ${baseUnit} | التكلفة: ${price.toLocaleString()}</div></td>
-                    <td style="text-align:center; color:#38bdf8; font-weight:700;">${bookQty.toLocaleString()}</td>
+            let html = '';
+            whRecords.forEach((r, idx) => {
+                html += `<tr>
+                    <td style="text-align:center; color:#64748b;">${idx + 1}</td>
+                    <td style="color:#38bdf8; font-weight:700;">${r.code}</td>
+                    <td style="font-weight:800;">${r.name}</td>
+                    <td style="text-align:center; font-weight:800;">${fmtNum(r.actualQty)}</td>
                     <td style="text-align:center;">
-                        <input type="number" class="f-input" id="phys-${row.itemId}" value="${bookQty}" oninput="calculateStocktakeDiff('${row.itemId}')" style="width:100px; text-align:center; padding:5px; background:rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.1); border-radius:6px; color:#fff; font-weight:700;">
+                        <input type="number" step="any" class="f-input st-count-input" data-item-id="${r.itemId}" data-book-qty="${r.actualQty}" data-cost="${r.costPrice}" value="${r.actualQty}" oninput="calcStocktakeDiff(this)" style="width:100px; text-align:center; height:32px; font-weight:900; color:#10b981;">
                     </td>
-                    <td style="text-align:center; font-weight:700;" id="diff-${row.itemId}">0</td>
-                    <td style="text-align:center; font-weight:700;" id="val-${row.itemId}">0.00</td>
-                `;
-                tbody.appendChild(tr);
-                calculateStocktakeDiff(row.itemId);
+                    <td id="st-diff-qty-${r.itemId}" style="text-align:center; font-weight:800; color:#64748b;">0</td>
+                    <td id="st-diff-val-${r.itemId}" style="text-align:center; font-weight:800; color:#64748b;">0.00</td>
+                </tr>`;
             });
+            tbody.innerHTML = html;
+            updateStocktakeSummary();
         }
 
-        function calculateStocktakeDiff(itemId) {
-            const row = stocktakeData.find(d => String(d.itemId) === String(itemId));
-            if (!row) return;
+        function calcStocktakeDiff(input) {
+            const itemId = input.dataset.itemId;
+            const bookQty = parseFloat(input.dataset.bookQty) || 0;
+            const cost = parseFloat(input.dataset.cost) || 0;
+            const actualCount = parseFloat(input.value) || 0;
+            const diffQty = actualCount - bookQty;
+            const diffVal = diffQty * cost;
 
-            const rate = parseFloat(document.getElementById('adj-exchange-rate') ? document.getElementById('adj-exchange-rate').value : 1) || 1;
+            const diffQtyEl = document.getElementById(`st-diff-qty-${itemId}`);
+            const diffValEl = document.getElementById(`st-diff-val-${itemId}`);
 
-            const physInput = document.getElementById(`phys-${itemId}`);
-            const physQty = parseFloat(physInput.value) || 0;
-            const diff = physQty - row.bookQty;
-            const diffVal = (diff * row.price) / rate;
-
-            const diffTd = document.getElementById(`diff-${itemId}`);
-            const valTd = document.getElementById(`val-${itemId}`);
-
-            valTd.textContent = diffVal.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-
-            if (diff > 0) {
-                diffTd.innerHTML = `<span style="background: rgba(16, 185, 129, 0.15); color: #10b981; padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(16, 185, 129, 0.3); font-weight: 700; display: inline-block;">+${diff.toLocaleString()}</span>`;
-                valTd.style.color = '#10b981';
-            } else if (diff < 0) {
-                diffTd.innerHTML = `<span style="background: rgba(239, 68, 68, 0.15); color: #ef4444; padding: 4px 10px; border-radius: 20px; border: 1px solid rgba(239, 68, 68, 0.3); font-weight: 700; display: inline-block;">${diff.toLocaleString()}</span>`;
-                valTd.style.color = '#ef4444';
-            } else {
-                diffTd.innerHTML = `<span style="color: var(--text-secondary);">${diff.toLocaleString()}</span>`;
-                valTd.style.color = 'var(--text-secondary)';
+            if (diffQtyEl) {
+                diffQtyEl.innerText = diffQty > 0 ? `+${fmtNum(diffQty)}` : fmtNum(diffQty);
+                diffQtyEl.style.color = diffQty > 0 ? '#10b981' : (diffQty < 0 ? '#ef4444' : '#64748b');
             }
+            if (diffValEl) {
+                diffValEl.innerText = `${fmtNum(diffVal)} SDG`;
+                diffValEl.style.color = diffVal > 0 ? '#10b981' : (diffVal < 0 ? '#ef4444' : '#64748b');
+            }
+            updateStocktakeSummary();
+        }
 
-            let totalAdjVal = 0;
-            stocktakeData.forEach(d => {
-                const pInput = document.getElementById(`phys-${d.itemId}`);
-                const pQty = pInput ? (parseFloat(pInput.value) || 0) : d.bookQty;
-                totalAdjVal += (pQty - d.bookQty) * d.price;
+        function updateStocktakeSummary() {
+            let totalDiffVal = 0;
+            document.querySelectorAll('.st-count-input').forEach(input => {
+                const bookQty = parseFloat(input.dataset.bookQty) || 0;
+                const cost = parseFloat(input.dataset.cost) || 0;
+                const actualCount = parseFloat(input.value) || 0;
+                totalDiffVal += (actualCount - bookQty) * cost;
             });
-
-            const totalAdjValForeign = totalAdjVal / rate;
-
-            const totalEl = document.getElementById('adj-total-val');
-            if (totalEl) {
-                totalEl.textContent = totalAdjValForeign.toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-                if (totalAdjValForeign > 0) {
-                    totalEl.style.color = '#10b981';
-                } else if (totalAdjValForeign < 0) {
-                    totalEl.style.color = '#ef4444';
-                } else {
-                    totalEl.style.color = '#fbbf24';
-                }
+            const badge = document.getElementById('stocktake-summary-badge');
+            if (badge) {
+                badge.innerHTML = `إجمالي صافي الفروقات الجردية: <span style="color:${totalDiffVal >= 0 ? '#10b981' : '#ef4444'}; font-size:1.1rem; font-weight:900;">${fmtNum(totalDiffVal)} SDG</span>`;
             }
         }
 
         function saveStocktake() {
-            const wh = document.getElementById('adj-warehouse') ? document.getElementById('adj-warehouse').value : '';
-            const notes = document.getElementById('adj-notes') ? document.getElementById('adj-notes').value.trim() : '';
-            const currency = document.getElementById('adj-currency') ? document.getElementById('adj-currency').value : 'SDG';
-            const rate = parseFloat(document.getElementById('adj-exchange-rate') ? document.getElementById('adj-exchange-rate').value : 1) || 1;
+            const targetWh = document.getElementById('stocktake-warehouse-select')?.value;
+            const stDate = document.getElementById('stocktake-date')?.value || new Date().toISOString().split('T')[0];
+            const adjustments = [];
 
-            const itemsToAdjust = [];
-            let totalAdjVal = 0;
-
-            stocktakeData.forEach(d => {
-                const physInput = document.getElementById(`phys-${d.itemId}`);
-                const physQty = physInput ? (parseFloat(physInput.value) || 0) : d.bookQty;
-                const diff = physQty - d.bookQty;
-                if (diff !== 0) {
-                    itemsToAdjust.push({
-                        itemId: d.itemId,
-                        unitId: 'base',
-                        unitName: d.unit,
-                        quantity: diff,
+            document.querySelectorAll('.st-count-input').forEach(input => {
+                const itemId = input.dataset.itemId;
+                const bookQty = parseFloat(input.dataset.bookQty) || 0;
+                const actualCount = parseFloat(input.value) || 0;
+                const diff = actualCount - bookQty;
+                if (Math.abs(diff) > 0.0001) {
+                    const item = itemsDb.find(i => String(i.id) === String(itemId));
+                    adjustments.push({
+                        itemId: itemId,
+                        quantity: Math.abs(diff),
                         customBaseQty: diff,
-                        customFactor: 1,
-                        price: d.price / rate,
-                        taxRate: 0,
-                        total: (diff * d.price) / rate
+                        unit: item ? (item.baseUnit || item.unit || 'وحدة') : 'وحدة',
+                        factor: 1,
+                        notes: diff > 0 ? `تسوية جردية بالزيادة للمخزن ${targetWh}` : `تسوية جردية بالعجز للمخزن ${targetWh}`
                     });
-                    totalAdjVal += diff * d.price;
                 }
             });
 
-            if (itemsToAdjust.length === 0) {
-                if (typeof showToast === 'function') {
-                    showToast('لم يتم إجراء أي تعديل على الكميات لتسويتها!', 'warning');
-                } else {
-                    alert('لم يتم إجراء أي تعديل على الكميات لتسويتها!');
-                }
+            if (adjustments.length === 0) {
+                alert('لا توجد أي فروقات جردية تستدعي إصدار إذن تسوية!');
                 return;
             }
 
-            const totalAdjValForeign = totalAdjVal / rate;
+            if (!confirm(`هل أنت متأكد من ترحيل إذن التسوية الجردية لـ (${adjustments.length}) أصناف؟`)) return;
 
-            const confirmMsg = `هل أنت متأكد من ترحيل هذه التسوية؟\nسيتم تعديل أرصدة الأصناف (${itemsToAdjust.length} صنف) في المخازن، وتوليد قيود تسوية الفروقات تلقائياً بقيمة إجمالية ${totalAdjValForeign.toLocaleString()} ${currency}.`;
-            if (!confirm(confirmMsg)) return;
-
-            const adjInv = {
-                id: 'ADJ-' + Date.now(),
+            const adjVoucher = {
+                id: `ADJ-${Date.now()}`,
+                invoiceNo: `ADJ-${Date.now().toString().slice(-6)}`,
+                date: stDate,
+                warehouse: targetWh,
                 isAdjustment: true,
-                warehouse: wh,
-                warehouseId: wh,
-                date: new Date().toISOString(),
-                notes: notes || 'تسوية مخزنية للفروقات',
-                currency: currency,
-                exchangeRate: rate,
-                items: itemsToAdjust,
-                grandTotal: totalAdjValForeign,
-                status: 'completed',
-                createdBy: (JSON.parse(localStorage.getItem('user')) || {}).id || 'unknown'
+                items: adjustments,
+                notes: `إذن تسوية جردية شاملة لمخزن ${targetWh}`,
+                createdAt: new Date().toISOString()
             };
 
-            let allPurchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
-            allPurchases.push(adjInv);
-            localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+            let purchases = getStorageList('erp_purchase_invoices_v1');
+            purchases.unshift(adjVoucher);
+            localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(purchases));
 
-            let currentInvData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
-            itemsToAdjust.forEach(adj => {
-                let entry = currentInvData.find(inv => String(inv.itemId) === String(adj.itemId) && inv.warehouse === wh);
-                if (entry) {
-                    entry.qty = (parseFloat(entry.qty) || 0) + adj.quantity;
-                } else {
-                    currentInvData.push({
-                        itemId: adj.itemId,
-                        warehouse: wh,
-                        qty: adj.quantity,
-                        minQty: 10
-                    });
-                }
-            });
-            localStorage.setItem('erp_inventory_v1', JSON.stringify(currentInvData));
-
-            if (typeof showToast === 'function') {
-                showToast('تم ترحيل التسوية وتوليد القيود بنجاح!', 'success');
-            }
+            alert('تم ترحيل وحفظ إذن التسوية الجردية بنجاح!');
             closeStocktakeModal();
-
-            setTimeout(() => {
-                window.location.reload();
-            }, 800);
+            loadData();
+            applyFilters();
         }
 
-        function onCurrencyChange() {
-            const curr = document.getElementById('adj-currency').value;
-            const rateGroup = document.getElementById('exchange-rate-group');
-            const rateInput = document.getElementById('adj-exchange-rate');
-            
-            if (curr === 'SDG') {
-                rateGroup.style.display = 'none';
-                rateInput.value = '1.00';
-            } else {
-                rateGroup.style.display = 'block';
-                const dedicatedUSD = parseFloat(localStorage.getItem('erp_rate_usd')) || 600.00;
-                if (curr === 'USD') rateInput.value = dedicatedUSD.toFixed(2);
-                else if (curr === 'SAR') rateInput.value = '160.00';
-                else if (curr === 'AED') rateInput.value = '163.00';
-            }
+        // =======================================================================
+        // 👁️ FULLSCREEN REPORT PREVIEW & LIVE DESIGN STUDIO
+        // =======================================================================
 
-            const currencyTh = document.getElementById('currency-th-label');
-            if (currencyTh) {
-                currencyTh.textContent = `قيمة الفرق (${curr})`;
-            }
+        function openInventoryReportPreview() {
+            const modal = document.getElementById('inventory-report-preview-modal');
+            const sheet = document.getElementById('inv-preview-sheet');
+            if (!modal || !sheet) return;
 
-            const totalValLabel = document.getElementById('adj-total-val-label');
-            if (totalValLabel) {
-                totalValLabel.textContent = curr;
-            }
+            const dateStr = new Date().toLocaleDateString('ar-EG');
+            const filteredWh = document.getElementById('filter-warehouse')?.value || 'ALL';
+            const whLabel = filteredWh === 'ALL' ? 'جميع المخازن (الجرد العام)' : filteredWh;
 
-            updateAllDiffs();
-        }
-
-        function updateAllDiffs() {
-            stocktakeData.forEach(d => {
-                calculateStocktakeDiff(d.itemId);
-            });
-        }
-    </script>
-
-        <!-- Custom Report Studio Modal (مصمم تقارير المخزون المخصص) -->
-        <div id="custom-report-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center; direction: rtl; backdrop-filter: blur(8px);">
-            <div class="glass-panel" style="width: 95%; max-width: 1050px; max-height: 92vh; display: flex; flex-direction: column; padding: 25px; position: relative; border: 1px solid rgba(139, 92, 246, 0.4); background: #0f172a; border-radius: 16px; box-shadow: 0 20px 60px rgba(0,0,0,0.7);">
-                
-                <!-- Modal Header -->
-                <div style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 1px solid rgba(139, 92, 246, 0.2); padding-bottom: 12px; margin-bottom: 15px;">
-                    <div>
-                        <h3 style="color: #c084fc; margin: 0 0 4px 0; font-weight: 900; font-size: 1.3rem; display: flex; align-items: center; gap: 10px;">
-                            <span style="font-size: 1.6rem;">🎛️</span> مصمم ومخصص تقارير المخزون الشامل (Report Studio)
-                        </h3>
-                        <p style="margin: 0; font-size: 0.82rem; color: #94a3b8;">
-                            تحكم كامل في أعمدة التقرير، وحدات القياس، الأسعار، الفواصل العشرية، ونمط العرض والطباعة والتصدير
-                        </p>
-                    </div>
-                    <button onclick="closeCustomReportStudio()" style="background: none; border: none; color: #94a3b8; font-size: 1.8rem; cursor: pointer; transition: 0.3s; line-height: 1;" onmouseover="this.style.color='#ef4444'" onmouseout="this.style.color='#94a3b8'">&times;</button>
-                </div>
-
-                <!-- Modal Body (Scrollable) -->
-                <div style="flex: 1; overflow-y: auto; padding-right: 5px; display: flex; flex-direction: column; gap: 16px;">
-                    
-                    <!-- Section 1: نطاق التقرير والترتيب -->
-                    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 12px; padding: 14px;">
-                        <div class="studio-section-title">
-                            <span>🎯</span> 1. نطاق بيانات التقرير والترتيب (Scope & Sorting)
-                        </div>
-                        <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px;">
-                            <div>
-                                <label style="font-size: 0.76rem; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 4px;">تحديد المخزن</label>
-                                <select id="cr-warehouse" class="f-input f-select" style="height: 36px;">
-                                    <option value="ALL">🏢 جميع المخازن (جرد عام)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label style="font-size: 0.76rem; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 4px;">تحديد الفئة</label>
-                                <select id="cr-category" class="f-input f-select" style="height: 36px;">
-                                    <option value="ALL">🏷️ جميع الفئات</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label style="font-size: 0.76rem; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 4px;">تصفية حالة الرصيد</label>
-                                <select id="cr-status" class="f-input f-select" style="height: 36px;">
-                                    <option value="ACTIVE" selected>⚡ الأصناف المتوفرة فقط</option>
-                                    <option value="ALL_WITH_ZERO">🌐 شامل الصفر (الكل)</option>
-                                    <option value="OK">🟢 رصيد آمن فقط</option>
-                                    <option value="WARNING">⚠️ تحت حد الطلب</option>
-                                    <option value="DANGER">🚨 توفير النواقص (نافذ / صفر)</option>
-                                </select>
-                            </div>
-                            <div>
-                                <label style="font-size: 0.76rem; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 4px;">ترتيب الأصناف بالتقرير</label>
-                                <select id="cr-sort" class="f-input f-select" style="height: 36px;">
-                                    <option value="default">الترتيب الافتراضي</option>
-                                    <option value="value_desc">الأعلى قيمة مالية أولاً 💰</option>
-                                    <option value="qty_desc">الأكثر كمية متوفرة 📦</option>
-                                    <option value="qty_asc">الأقل كمية (الأقرب للنفاذ) ⚠️</option>
-                                    <option value="name_asc">أبجدياً حسب اسم الصنف (أ-ي)</option>
-                                    <option value="code_asc">حسب كود الصنف</option>
-                                </select>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Section 2: إظهار وإخفاء الأعمدة -->
-                    <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 12px; padding: 14px;">
-                        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                            <div class="studio-section-title" style="margin-bottom: 0; border-bottom: none; padding-bottom: 0;">
-                                <span>👁️</span> 2. اختيار وإظهار/إخفاء الأعمدة (Columns Visibility)
-                            </div>
-                            <div style="display: flex; gap: 6px;">
-                                <button type="button" onclick="setAllStudioCols(true)" style="background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border); border-radius: 6px; padding: 3px 8px; font-size: 0.72rem; color: #38bdf8; cursor: pointer;">تحديد الكل</button>
-                                <button type="button" onclick="setStudioPreset('standard')" style="background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border); border-radius: 6px; padding: 3px 8px; font-size: 0.72rem; color: #cbd5e1; cursor: pointer;">الافتراضي</button>
-                                <button type="button" onclick="setStudioPreset('financial')" style="background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border); border-radius: 6px; padding: 3px 8px; font-size: 0.72rem; color: #10b981; cursor: pointer;">موجز مالي</button>
-                                <button type="button" onclick="setStudioPreset('quantities')" style="background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border); border-radius: 6px; padding: 3px 8px; font-size: 0.72rem; color: #fbbf24; cursor: pointer;">جرد كميات</button>
-                            </div>
-                        </div>
-                        <div class="studio-card-grid" id="studio-cols-grid">
-                            <label class="studio-chip checked"><input type="checkbox" id="col-item" onchange="toggleChipClass(this)" checked> <span>📦 اسم الصنف</span></label>
-                            <label class="studio-chip checked"><input type="checkbox" id="col-code" onchange="toggleChipClass(this)" checked> <span>📋 كود الصنف</span></label>
-                            <label class="studio-chip checked"><input type="checkbox" id="col-category" onchange="toggleChipClass(this)" checked> <span>🏷️ فئة الصنف</span></label>
-                            <label class="studio-chip checked"><input type="checkbox" id="col-warehouse" onchange="toggleChipClass(this)" checked> <span>🏢 المخزن</span></label>
-                            <label class="studio-chip checked"><input type="checkbox" id="col-actualQty" onchange="toggleChipClass(this)" checked> <span>📊 الرصيد الفعلي</span></label>
-                            <label class="studio-chip checked"><input type="checkbox" id="col-reservedQty" onchange="toggleChipClass(this)" checked> <span>🔒 الرصيد المحجوز</span></label>
-                            <label class="studio-chip checked"><input type="checkbox" id="col-availQty" onchange="toggleChipClass(this)" checked> <span>🟢 الرصيد المتاح للبيع</span></label>
-                            <label class="studio-chip"><input type="checkbox" id="col-minQty" onchange="toggleChipClass(this)"> <span>⚠️ حد الطلب الأدنى</span></label>
-                            <label class="studio-chip checked"><input type="checkbox" id="col-costPrice" onchange="toggleChipClass(this)" checked> <span>💵 سعر التكلفة/المتوسط</span></label>
-                            <label class="studio-chip"><input type="checkbox" id="col-cashPrice" onchange="toggleChipClass(this)"> <span>🏷️ سعر البيع النقدي</span></label>
-                            <label class="studio-chip"><input type="checkbox" id="col-wholesalePrice" onchange="toggleChipClass(this)"> <span>💼 سعر البيع جملة</span></label>
-                            <label class="studio-chip"><input type="checkbox" id="col-retailPrice" onchange="toggleChipClass(this)"> <span>🛍️ سعر البيع قطاعي</span></label>
-                            <label class="studio-chip checked"><input type="checkbox" id="col-totalValue" onchange="toggleChipClass(this)" checked> <span>💰 إجمالي القيمة</span></label>
-                            <label class="studio-chip checked"><input type="checkbox" id="col-status" onchange="toggleChipClass(this)" checked> <span>🚦 حالة المخزون</span></label>
-                            <label class="studio-chip checked"><input type="checkbox" id="col-actions" onchange="toggleChipClass(this)" checked> <span>📑 زر كشف الحركة</span></label>
-                        </div>
-                    </div>
-
-                    <!-- Section 3: التحكم في الوحدات + الفواصل العشرية + المظهر -->
-                    <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 12px;">
-                        
-                        <!-- Units Control -->
-                        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 12px; padding: 14px;">
-                            <div class="studio-section-title">
-                                <span>⚖️</span> 3. طريقة عرض الوحدات
-                            </div>
-                            <div style="display: flex; flex-direction: column; gap: 8px;">
-                                <label class="studio-chip checked" style="padding: 6px 10px;">
-                                    <input type="radio" name="cr-unit-mode" value="compound" checked>
-                                    <span>🌟 عرض مركب ذكي (طن+سيخ / كرتونة+حبة)</span>
-                                </label>
-                                <label class="studio-chip" style="padding: 6px 10px;">
-                                    <input type="radio" name="cr-unit-mode" value="base">
-                                    <span>📦 الوحدة الأساسية الكبرى فقط</span>
-                                </label>
-                                <label class="studio-chip" style="padding: 6px 10px;">
-                                    <input type="radio" name="cr-unit-mode" value="smallest">
-                                    <span>🔹 الوحدة الصغرى (التجزئة) فقط</span>
-                                </label>
-                                <label class="studio-chip checked" style="padding: 6px 10px; margin-top: 4px;">
-                                    <input type="checkbox" id="cr-show-unit-rels" onchange="toggleChipClass(this)" checked>
-                                    <span style="font-size: 0.78rem;">إظهار معادلات التحويل أسفل الصنف</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Decimals & Precision -->
-                        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 12px; padding: 14px;">
-                            <div class="studio-section-title">
-                                <span>🔢</span> 4. الفاصلة العشرية والعملة
-                            </div>
-                            <div style="display: flex; flex-direction: column; gap: 10px;">
-                                <div>
-                                    <label style="font-size: 0.76rem; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 3px;">خانات الكميات العشرية</label>
-                                    <select id="cr-qty-decimals" class="f-input f-select" style="height: 34px;">
-                                        <option value="0">0 (أرقام صحيحة بدون كسور)</option>
-                                        <option value="1">1 (مثال: 12.5)</option>
-                                        <option value="2" selected>2 (مثال: 12.50)</option>
-                                        <option value="3">3 (للأوزان والأطنان: 12.550)</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label style="font-size: 0.76rem; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 3px;">خانات الأسعار والمبالغ</label>
-                                    <select id="cr-price-decimals" class="f-input f-select" style="height: 34px;">
-                                        <option value="0">0 (بدون كسور: 50,000)</option>
-                                        <option value="2" selected>2 (خانتي سنت: 50,000.00)</option>
-                                        <option value="3">3 (ثلاث خانات)</option>
-                                    </select>
-                                </div>
-                                <label class="studio-chip checked" style="padding: 6px 10px;">
-                                    <input type="checkbox" id="cr-show-currency" onchange="toggleChipClass(this)" checked>
-                                    <span style="font-size: 0.78rem;">إظهار رمز العملة (SDG)</span>
-                                </label>
-                            </div>
-                        </div>
-
-                        <!-- Appearance & Sizing -->
-                        <div style="background: rgba(255,255,255,0.02); border: 1px solid var(--glass-border); border-radius: 12px; padding: 14px;">
-                            <div class="studio-section-title">
-                                <span>🎨</span> 5. مقاسات الخطوط والمظهر
-                            </div>
-                            <div style="display: flex; flex-direction: column; gap: 10px;">
-                                <div>
-                                    <label style="font-size: 0.76rem; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 3px;">مقاس خط الجدول</label>
-                                    <select id="cr-font-size" class="f-input f-select" style="height: 34px;">
-                                        <option value="12px">صغير مدمج (12px)</option>
-                                        <option value="14px" selected>قياسي متناسق (14px)</option>
-                                        <option value="16px">كبير مريح (16px)</option>
-                                        <option value="18px">بارز عريض (18px)</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label style="font-size: 0.76rem; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 3px;">كثافة تباعد الأسطر</label>
-                                    <select id="cr-row-density" class="f-input f-select" style="height: 34px;">
-                                        <option value="compact">مضغوط Compact (أكبر عدد بيانات)</option>
-                                        <option value="normal" selected>قياسي مريح Normal</option>
-                                        <option value="spacious">واسع Spacious</option>
-                                    </select>
-                                </div>
-                                <div>
-                                    <label style="font-size: 0.76rem; font-weight: 700; color: #94a3b8; display: block; margin-bottom: 3px;">لون تمييز الرصيد المتاح</label>
-                                    <select id="cr-highlight-color" class="f-input f-select" style="height: 34px;">
-                                        <option value="#38bdf8" selected>🔵 أزرق سماوي نيون (Sky Blue)</option>
-                                        <option value="#10b981">🟢 أخضر زمردي (Emerald Green)</option>
-                                        <option value="#8b5cf6">🟣 بنفسجي ملكي (Purple)</option>
-                                        <option value="#fbbf24">🟡 ذهبي كلاسيكي (Gold)</option>
-                                    </select>
-                                </div>
-                            </div>
-                        </div>
-
-                    </div>
-
-                </div>
-
-                <!-- Modal Footer Actions -->
-                <div style="display: flex; justify-content: space-between; align-items: center; border-top: 1px solid rgba(139, 92, 246, 0.2); padding-top: 15px; margin-top: 15px; flex-wrap: wrap; gap: 10px;">
-                    <div style="display: flex; gap: 8px;">
-                        <button type="button" onclick="resetStudioConfig()" class="btn-action" style="background: rgba(255,255,255,0.06); border: 1px solid var(--glass-border); color: #94a3b8; padding: 8px 16px;">🔄 استعادة الافتراضي</button>
-                        <button type="button" onclick="saveStudioPreset()" class="btn-action" style="background: rgba(99, 102, 241, 0.15); border: 1px solid rgba(99, 102, 241, 0.4); color: #c084fc; padding: 8px 16px;">💾 حفظ كقالب دائم</button>
-                    </div>
-                    <div style="display: flex; gap: 8px;">
-                        <button type="button" onclick="exportStudioExcel()" class="btn-action" style="background: linear-gradient(135deg, #059669, #047857); color: #fff; border: none; padding: 9px 20px; box-shadow: 0 4px 12px rgba(5, 150, 105, 0.35);">
-                            <span>📥</span> تصدير Excel مخصص
-                        </button>
-                        <button type="button" onclick="printStudioReport()" class="btn-action" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff; border: none; padding: 9px 20px; box-shadow: 0 4px 12px rgba(2, 132, 199, 0.35);">
-                            <span>🖨️</span> طباعة التقرير المخصص (A4)
-                        </button>
-                        <button type="button" onclick="applyStudioReport()" class="btn-action" style="background: linear-gradient(135deg, #6366f1, #8b5cf6); color: #fff; border: none; padding: 9px 24px; font-weight: 800; box-shadow: 0 4px 15px rgba(99, 102, 241, 0.4);">
-                            <span>⚡</span> تطبيق التقرير على الشاشة الآن
-                        </button>
+            let sheetHtml = `
+                <div style="text-align:center; border-bottom:2px solid #0f172a; padding-bottom:15px; margin-bottom:20px;">
+                    <h2 style="margin:0; font-size:1.6rem; color:#0f172a; font-weight:900;">تقرير جرد المخزون العام الشامل</h2>
+                    <div style="display:flex; justify-content:space-between; margin-top:10px; font-size:0.88rem; color:#475569; font-weight:700;">
+                        <span>🏢 المخزن: <strong>${whLabel}</strong></span>
+                        <span>📅 تاريخ التقرير: <strong>${dateStr}</strong></span>
                     </div>
                 </div>
 
-            </div>
-        </div>
-
-        <!-- AI Inventory Modal -->
-        <div id="aiInv-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center; direction: rtl; backdrop-filter: blur(8px);">
-            <div class="glass-panel" style="width: 95%; max-width: 800px; max-height: 85vh; overflow-y: auto; padding: 30px; position: relative; border: 1px solid rgba(236, 72, 153, 0.4); background: #0f172a; border-radius: 16px;">
-                <button onclick="document.getElementById('aiInv-modal').style.display='none'" style="position: absolute; top: 15px; left: 15px; background: none; border: none; color: #94a3b8; font-size: 1.8rem; cursor: pointer; transition: 0.3s;" onmouseover="this.style.color='#ec4899'" onmouseout="this.style.color='#94a3b8'">&times;</button>
-                <h3 style="color: #ec4899; margin-bottom: 25px; font-weight: 900; border-bottom: 1px solid rgba(236, 72, 153, 0.2); padding-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 1.8rem;">🤖</span> مستشار المخزون الذكي (AI Forecaster)
-                </h3>
-                <div id="aiInv-content" style="color: #f8fafc; line-height: 1.9; font-size: 1.05rem;">
-                    <div style="text-align: center; padding: 40px 0;">
-                        <div style="font-size: 3rem; margin-bottom: 15px; animation: pulse 1.5s infinite;">📦</div>
-                        <div style="color: #94a3b8;">جاري جرد وتقييم الأصناف... يرجى الانتظار</div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
-        <!-- Stocktake Modal -->
-        <div id="stocktake-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.85); z-index: 10000; align-items: center; justify-content: center; direction: rtl; backdrop-filter: blur(8px);">
-            <div class="glass-panel" style="width: 95%; max-width: 1100px; max-height: 90vh; display: flex; flex-direction: column; padding: 25px; position: relative; border: 1px solid rgba(16, 185, 129, 0.4); background: #0f172a; border-radius: 16px;">
-                <button onclick="closeStocktakeModal()" style="position: absolute; top: 15px; left: 15px; background: none; border: none; color: #94a3b8; font-size: 1.8rem; cursor: pointer; transition: 0.3s;" onmouseover="this.style.color='#10b981'" onmouseout="this.style.color='#94a3b8'">&times;</button>
-                
-                <h3 style="color: #10b981; margin: 0 0 20px 0; font-weight: 900; border-bottom: 1px solid rgba(16, 185, 129, 0.2); padding-bottom: 15px; display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 1.8rem;">⚙️</span> تسوية وجرد المخزون (Physical Stocktake)
-                </h3>
-                
-                <div style="display: grid; grid-template-columns: 2fr 1.5fr 1.5fr 3fr; gap: 15px; margin-bottom: 20px;">
-                    <div class="f-group" style="margin:0;">
-                        <label style="color:#94a3b8; font-size:0.75rem; font-weight:700; margin-bottom:5px; display:block;">المخزن المستهدف بالتسوية</label>
-                        <select id="adj-warehouse" class="f-input" onchange="loadStocktakeItems()" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:10px; color:#fff; padding:10px 15px; outline:none;">
-                        </select>
-                    </div>
-                    <div class="f-group" style="margin:0;">
-                        <label style="color:#94a3b8; font-size:0.75rem; font-weight:700; margin-bottom:5px; display:block;">العملة</label>
-                        <select id="adj-currency" class="f-input" onchange="onCurrencyChange()" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:10px; color:#fff; padding:10px 15px; outline:none;">
-                            <option value="SDG">SDG (العملة المحلية)</option>
-                            <option value="USD">USD (الدولار الأمريكي)</option>
-                            <option value="SAR">SAR (الريال السعودي)</option>
-                            <option value="AED">AED (الدرهم الإماراتي)</option>
-                        </select>
-                    </div>
-                    <div class="f-group" id="exchange-rate-group" style="margin:0; display:none;">
-                        <label style="color:#94a3b8; font-size:0.75rem; font-weight:700; margin-bottom:5px; display:block;">سعر الصرف</label>
-                        <input type="number" id="adj-exchange-rate" value="1.00" step="0.01" oninput="updateAllDiffs()" style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:10px; color:#fff; padding:10px 15px; outline:none;">
-                    </div>
-                    <div class="f-group" style="margin:0;">
-                        <label style="color:#94a3b8; font-size:0.75rem; font-weight:700; margin-bottom:5px; display:block;">ملاحظات / سبب التسوية</label>
-                        <input type="text" id="adj-notes" placeholder="مثال: تسوية الجرد السنوي للعام 2026..." style="width:100%; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:10px; color:#fff; padding:10px 15px; outline:none;">
-                    </div>
-                </div>
-
-                <div style="flex: 1; overflow-y: auto; margin-bottom: 20px; border: 1px solid rgba(255,255,255,0.05); border-radius:12px; background:rgba(0,0,0,0.2);">
-                    <table class="dash-table" style="width:100%; border-collapse:collapse; min-width:unset !important;">
-                        <thead>
-                            <tr>
-                                <th>اسم الصنف</th>
-                                <th style="text-align:center; width:120px;">الرصيد الدفتري</th>
-                                <th style="text-align:center; width:140px;">الجرد الفعلي</th>
-                                <th style="text-align:center; width:120px; text-shadow:0 0 10px rgba(16,185,129,0.3);">الزيادة / النقصان</th>
-                                <th style="text-align:center; width:140px;" id="currency-th-label">قيمة الفرق (SDG)</th>
-                            </tr>
-                        </thead>
-                        <tbody id="stocktake-tbody">
-                            <!-- Populated dynamically -->
-                        </tbody>
-                    </table>
-                </div>
-
-                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.08); padding-top:15px;">
-                    <div style="display:flex; gap:20px; font-weight:700; font-size:1rem; color:#f8fafc;">
-                        <div>إجمالي قيمة التعديل: <span id="adj-total-val" style="color:#fbbf24;">0.00</span> <span id="adj-total-val-label">SDG</span></div>
-                        <div style="font-size:0.85rem; color:#94a3b8; align-self:center;">(الزيادة باللون الأخضر، والعجز باللون الوردي)</div>
-                    </div>
-                    <div style="display:flex; gap:10px;">
-                        <button onclick="closeStocktakeModal()" class="btn-action btn-print" style="padding:10px 20px;">إلغاء</button>
-                        <button onclick="saveStocktake()" class="btn-action" style="background:linear-gradient(135deg,#10b981,#059669); color:white; border:none; padding:10px 25px; box-shadow:0 4px 15px rgba(16,185,129,0.3);">ترحيل التسوية وتوليد القيود 💾</button>
-                    </div>
-                </div>
-            </div>
-        </div>
-        <style>@keyframes pulse { 0% { transform: scale(0.95); opacity: 0.8; } 50% { transform: scale(1.05); opacity: 1; } 100% { transform: scale(0.95); opacity: 0.8; } }
-        
-        /* Universal Light Theme Overrides for Internal Screens */
-        :root.light-theme body,
-        :root.light-theme .ambient-bg {
-            background: #f8fafc !important;
-        }
-        :root.light-theme .glass-panel,
-        :root.light-theme .neo-card,
-        :root.light-theme .summary-card,
-        :root.light-theme .filter-panel,
-        :root.light-theme .chart-card,
-        :root.light-theme .kpi-card,
-        :root.light-theme .premium-header,
-        :root.light-theme .top-header,
-        :root.light-theme .header-area {
-            background: #ffffff !important;
-            border-color: rgba(0, 0, 0, 0.08) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
-            color: #0f172a !important;
-        }
-        :root.light-theme .glass-panel *,
-        :root.light-theme .neo-card *,
-        :root.light-theme .summary-card * {
-            text-shadow: none !important;
-        }
-        :root.light-theme table.pro-table th,
-        :root.light-theme .pos-grid thead th,
-        :root.light-theme .ledger-table th,
-        :root.light-theme .report-table th {
-            background: #f1f5f9 !important;
-            color: #0f172a !important;
-            border-bottom: 2px solid #cbd5e1 !important;
-        }
-        :root.light-theme table.pro-table td,
-        :root.light-theme .pos-grid tbody td,
-        :root.light-theme .ledger-table td,
-        :root.light-theme .report-table td {
-            color: #1e293b !important;
-            border-bottom: 1px solid rgba(0,0,0,0.08) !important;
-        }
-        :root.light-theme table.pro-table tbody tr:hover td,
-        :root.light-theme .pos-grid tbody tr:hover td,
-        :root.light-theme .ledger-table tbody tr:hover td,
-        :root.light-theme .report-table tbody tr:hover td {
-            background: rgba(0,0,0,0.02) !important;
-        }
-        :root.light-theme .h-label,
-        :root.light-theme .form-label,
-        :root.light-theme .tot-lbl,
-        :root.light-theme .lbl,
-        :root.light-theme label,
-        :root.light-theme .table-header {
-            color: #334155 !important;
-        }
-        :root.light-theme .tot-val,
-        :root.light-theme .val {
-            color: #0f172a !important;
-        }
-        :root.light-theme .h-form-group,
-        :root.light-theme .control-panel {
-            background: transparent !important;
-            border-color: rgba(0,0,0,0.08) !important;
-        }
-        :root.light-theme .modern-btn {
-            color: #1e293b !important;
-        }
-        :root.light-theme .modern-btn:hover {
-            color: #0f172a !important;
-        }
-        /* Neon text colors correction for light theme */
-        :root.light-theme .text-emerald-400, :root.light-theme span[style*="color: #34d399"], :root.light-theme span[style*="color:#34d399"] { color: #059669 !important; }
-        :root.light-theme .text-rose-400, :root.light-theme span[style*="color: #f87171"], :root.light-theme span[style*="color:#f87171"] { color: #e11d48 !important; }
-        :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
-        :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
-        :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
-    </style>
-
-    <script>
-    function runAIInventory() {
-        const modal = document.getElementById('aiInv-modal');
-        if (modal) modal.style.display = 'flex';
-        const contentEl = document.getElementById('aiInv-content');
-        if (contentEl) {
-            contentEl.innerHTML = `
-                <div style="text-align: center; padding: 40px 0;">
-                    <div style="font-size: 3rem; margin-bottom: 15px; animation: pulse 1.5s infinite;">📦</div>
-                    <div style="color: #94a3b8;">جاري جرد وتقييم الأصناف لمعرفة التكدس والنواقص... يرجى الانتظار</div>
-                </div>`;
-        }
-        
-        const sourceData = (window.currentFilteredData && window.currentFilteredData.length > 0) 
-            ? window.currentFilteredData 
-            : (window.currentReportData || []);
-        
-        let inventoryData = [];
-        const limit = Math.min(sourceData.length, 120); 
-        
-        for (let i = 0; i < limit; i++) {
-            const row = sourceData[i];
-            const actualQty = Number(row.qty) || 0;
-            const reservedQty = Number(row.reservedQuantity) || 0;
-            const availQty = actualQty - reservedQty;
-            const price = Number(row.price) || 0;
-            const totalCost = availQty * price;
-            const statusInfo = getStatusInfo(availQty, row.minQty);
-            const unitName = (row.unit || 'وحدة');
-            
-            inventoryData.push(`الصنف: ${row.itemName} (كود: ${row.itemId}) | المخزن: ${row.warehouse} | المتاح: ${availQty.toLocaleString()} ${unitName} | حد الطلب: ${row.minQty || 0} | التكلفة: ${price.toLocaleString()} SDG | إجمالي القيمة: ${totalCost.toLocaleString()} SDG | الحالة: ${statusInfo.text}`);
-        }
-
-        if (inventoryData.length === 0) {
-            if (contentEl) contentEl.innerHTML = '<span style="color:#ef4444">الجدول فارغ أو لا توجد أرصدة للتحليل.</span>';
-            return;
-        }
-
-        const context = "تقرير جرد المخزون الحالي:\n" + inventoryData.join("\n");
-
-        const promptMsg = "أنت مستشار إدارة مخزون وسلاسل إمداد (Supply Chain & Inventory Advisor). قم بقراءة تقرير الجرد المرفق واستخرج التالي:\n1. ⚠️ الأصناف التي تقترب من النفاذ (أرصدة منخفضة جداً أو سالبة).\n2. 📦 الأصناف المكدسة (أرصدة عالية جداً وقيمتها النقدية مجمدة).\n3. 💡 مقترحات سريعة لتسييل البضاعة المكدسة (عروض ترويجية، تجميع أصناف).\nاكتب التقرير بشكل احترافي، مباشر، ومنسق بنقاط وأيقونات.";
-
-        fetch('api/ai-assistant.php', {
-            method: 'POST',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({ message: promptMsg, context: context })
-        })
-        .then(res => res.json())
-        .then(data => {
-            if (data && data.reply) {
-                let formatted = data.reply
-                    .replace(/\*\*(.*?)\*\*/g, '<strong style="color:#ec4899">$1</strong>')
-                    .replace(/⚠️/g, '<span style="font-size:1.2em; color:#f59e0b;">⚠️</span>')
-                    .replace(/📦/g, '<span style="font-size:1.2em; color:#3b82f6;">📦</span>')
-                if (contentEl) contentEl.innerHTML = formatted;
-            } else {
-                if (contentEl) contentEl.innerHTML = '<span style="color:#ef4444">حدث خطأ أثناء التحليل: ' + (data.error || 'استجابة غير متوقعة') + '</span>';
-            }
-        })
-        .catch(err => {
-            if (contentEl) contentEl.innerHTML = '<span style="color:#ef4444">تعذر الاتصال بالخادم الذكي.</span>';
-        });
-    }
-    </script>
-
-    <style id="inventory-report-print-style"></style>
-
-    <!-- ═══════════════════════════════════════════════════════════ -->
-    <!-- 🎨 INVENTORY REPORT PREVIEW & DESIGN STUDIO MODAL           -->
-    <!-- ═══════════════════════════════════════════════════════════ -->
-    <div id="inventory-report-preview-modal" class="modal-overlay" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(10, 15, 30, 0.92); z-index: 12000; align-items: center; justify-content: center; direction: rtl; backdrop-filter: blur(12px);">
-        <div class="glass-panel" style="width: 96%; max-width: 1440px; height: 94vh; display: flex; flex-direction: column; padding: 18px 22px; border: 1px solid rgba(255,255,255,0.12); background: #0b1120; border-radius: 18px; color: #fff; box-shadow: 0 25px 60px rgba(0,0,0,0.6); overflow: hidden;">
-            
-            <!-- Top Toolbar Header -->
-            <div style="display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 12px; margin-bottom: 10px;" class="no-print">
-                <div style="display: flex; align-items: center; gap: 10px;">
-                    <span style="font-size: 1.4rem;">👁️</span>
-                    <div>
-                        <h3 style="margin: 0; font-weight: 900; color: #38bdf8; font-size: 1.15rem;">معاينة وتخصيص تصميم تقرير الجرد العام للمخازن</h3>
-                        <p style="margin: 2px 0 0 0; font-size: 0.75rem; color: #94a3b8;">استوديو التصميم: يمكنك التحكم بالأعمدة، الألوان، الخطوط، وتنسيق ورقة الطباعة A4</p>
-                    </div>
-                </div>
-                
-                <div style="display: flex; align-items: center; gap: 6px;">
-                    <!-- Studio Design Toggle -->
-                    <button type="button" id="btn-toggle-inv-studio" onclick="toggleInvStudioDrawer()" class="btn-action" style="background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.4); color: #38bdf8; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; height: 28px;">
-                        <span>🎨</span> الضبط
-                    </button>
-                    <!-- Live Edit Mode Toggle -->
-                    <button type="button" id="btn-toggle-inv-live-edit" onclick="toggleInvLiveEditMode()" class="btn-action" style="background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.4); color: #fbbf24; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 4px; height: 28px;">
-                        <span>✏️</span> تعديل النصوص
-                    </button>
-                    <!-- Print Button -->
-                    <button type="button" onclick="printInventoryReportSheet()" class="btn-action" style="background: linear-gradient(135deg, #10b981, #059669); color: white; border: none; padding: 4px 14px; font-size: 0.8rem; font-weight: 800; border-radius: 6px; cursor: pointer; display: flex; align-items: center; gap: 4px; box-shadow: 0 2px 8px rgba(16,185,129,0.3); height: 28px;">
-                        <span>🖨️</span> طباعة
-                    </button>
-                    <!-- Close Button -->
-                    <button type="button" onclick="closeInventoryReportPreview()" class="btn-action" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.15); color: #e2e8f0; padding: 4px 10px; border-radius: 6px; font-size: 0.8rem; cursor: pointer; height: 28px;">
-                        ✕ إغلاق
-                    </button>
-                </div>
-            </div>
-
-            <!-- Design Studio Toolbar (Collapsible / Active) -->
-            <div id="inv-studio-drawer" class="no-print" style="display: flex; flex-direction: column; gap: 6px; background: rgba(15, 23, 42, 0.95); border: 1px solid rgba(56, 189, 248, 0.25); border-radius: 8px; padding: 6px 10px; margin-bottom: 6px; box-shadow: inset 0 2px 8px rgba(0,0,0,0.3);">
-                
-                <!-- Row 1: Global Theme, Font, Size, Paper & Sections -->
-                <div style="display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;">
-                    <div style="display: flex; align-items: center; gap: 4px;">
-                        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">🎨 الثيم:</span>
-                        <select id="inv-studio-theme-select" onchange="applyInvStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 5px; padding: 2px 6px; font-size: 0.8rem; height: 26px;">
-                            <option value="corporate">🔷 أزرق نيلي (Corporate)</option>
-                            <option value="emerald">💚 أخضر زمردي (Emerald Pro)</option>
-                            <option value="gold">🟡 ذهبي كلاسيكي (Luxury Gold)</option>
-                            <option value="slate">🩶 رمادي عصري (Modern Slate)</option>
-                            <option value="black">🖤 أسود رسمي (Luxury Black)</option>
-                        </select>
-                    </div>
-
-                    <div style="display: flex; align-items: center; gap: 4px;">
-                        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">🔤 الخط:</span>
-                        <select id="inv-studio-font-select" onchange="applyInvStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 5px; padding: 2px 6px; font-size: 0.8rem; height: 26px;">
-                            <option value="'Tajawal', sans-serif">تجوّل (Tajawal)</option>
-                            <option value="'Cairo', sans-serif">القاهرة (Cairo)</option>
-                            <option value="'Almarai', sans-serif">المراعي (Almarai)</option>
-                            <option value="'Inter', sans-serif">إنتـر المريح (Inter)</option>
-                            <option value="'Traditional Arabic', serif">عربي تقليدي (Traditional)</option>
-                        </select>
-                    </div>
-
-                    <div style="display: flex; align-items: center; gap: 4px;">
-                        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">📏 الكثافة:</span>
-                        <select id="inv-studio-size-select" onchange="applyInvStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 5px; padding: 2px 6px; font-size: 0.8rem; height: 26px;">
-                            <option value="compact">مدمج صغير (Compact)</option>
-                            <option value="medium" selected>متوازن قياسي (Medium)</option>
-                            <option value="large">كبير واضح (Large)</option>
-                        </select>
-                    </div>
-
-                    <div style="display: flex; align-items: center; gap: 4px;">
-                        <span style="font-size: 0.8rem; color: #94a3b8; font-weight: 700;">📑 الاتجاه:</span>
-                        <select id="inv-studio-orientation-select" onchange="applyInvStudioDesign()" style="background: #1e293b; color: #fff; border: 1px solid #475569; border-radius: 5px; padding: 2px 6px; font-size: 0.8rem; height: 26px;">
-                            <option value="landscape" selected>↔️ أفقي (Landscape)</option>
-                            <option value="portrait">↕️ طولي (Portrait)</option>
-                        </select>
-                    </div>
-
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <label style="font-size: 0.8rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 2px;">
-                            <input type="checkbox" id="chk-inv-show-header" checked onchange="applyInvStudioDesign()"> الترويسة
-                        </label>
-                        <label style="font-size: 0.8rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 2px;">
-                            <input type="checkbox" id="chk-inv-show-kpis" checked onchange="applyInvStudioDesign()"> ملخص الأرصدة
-                        </label>
-                        <label style="font-size: 0.8rem; color: #e2e8f0; cursor: pointer; display: flex; align-items: center; gap: 2px;">
-                            <input type="checkbox" id="chk-inv-show-signatures" checked onchange="applyInvStudioDesign()"> التوقيعات
-                        </label>
-                    </div>
-                </div>
-
-                <!-- Row 2: Unified Single-Row Column Super-Toolbar -->
-                <div class="panel-card studio-super-row" style="margin-bottom: 0; padding: 4px 8px; gap: 6px; display: flex; align-items: center; justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto; background: rgba(255, 255, 255, 0.08) !important; border: 1px solid rgba(56, 189, 248, 0.3) !important;">
-                    
-                    <!-- Group A: Column Selection & Visibility -->
-                    <div class="studio-group-pill">
-                        <span style="color:#38bdf8; font-size:0.8rem; font-weight:900;">🎯 العمود:</span>
-                        <select id="inv-selected-col-select" class="panel-input" style="color:#38bdf8; font-size:0.8rem; font-weight:900; border-color:#38bdf8; background:#1e293b; padding: 2px 6px; height: 26px;" onchange="selectInvColumn(this.value)">
-                            <option value="code">كود الصنف</option>
-                            <option value="item" selected>اسم الصنف</option>
-                            <option value="category">فئة الصنف</option>
-                            <option value="warehouse">المخزن</option>
-                            <option value="actualQty">الرصيد الفعلي</option>
-                            <option value="reservedQty">الرصيد المحجوز</option>
-                            <option value="availQty">الرصيد المتاح</option>
-                            <option value="minQty">حد الطلب</option>
-                            <option value="costPrice">سعر التكلفة</option>
-                            <option value="cashPrice">سعر البيع</option>
-                            <option value="totalValue">القيمة الإجمالية</option>
-                            <option value="status">حالة الرصيد</option>
-                        </select>
-                        <label style="display:flex; align-items:center; gap:2px; cursor:pointer; font-size:0.8rem; font-weight:800;" title="إظهار أو إخفاء العمود">
-                            <input type="checkbox" id="inv-col-visible-chk" checked onchange="updateSelectedInvCol('visible', this.checked)">
-                            إظهار
-                        </label>
-                    </div>
-
-                    <div class="studio-pill-divider"></div>
-
-                    <!-- Group B: Header Label & Ordering -->
-                    <div class="studio-group-pill">
-                        <span style="font-size:0.8rem;">✏️ التسمية:</span>
-                        <input type="text" id="inv-col-label-input" class="panel-input" style="width:105px; font-size:0.8rem; padding: 2px 6px; background:#1e293b; color:#fff; border-color:#475569; height: 26px;" oninput="updateSelectedInvCol('label', this.value)">
-                        <span style="font-size:0.8rem;">الترتيب:</span>
-                        <button class="ribbon-btn studio-mini-btn" onclick="moveSelectedInvCol(-1)" title="تحريك لليمين">➡️</button>
-                        <button class="ribbon-btn studio-mini-btn" onclick="moveSelectedInvCol(1)" title="تحريك لليسار">⬅️</button>
-                    </div>
-
-                    <div class="studio-pill-divider"></div>
-
-                    <!-- Group C: Alignment -->
-                    <div class="studio-group-pill">
-                        <span style="font-size:0.8rem;">المحاذاة:</span>
-                        <select id="inv-col-align-select" class="panel-input" style="font-size:0.8rem; padding: 2px 6px; background:#1e293b; color:#fff; border-color:#475569; height: 26px;" onchange="updateSelectedInvCol('align', this.value)">
-                            <option value="right">يمين ➡️</option>
-                            <option value="center" selected>وسط 🟢</option>
-                            <option value="left">يسار ⬅️</option>
-                        </select>
-                    </div>
-
-                    <div class="studio-pill-divider"></div>
-
-                    <!-- Group D: Column Width -->
-                    <div class="studio-group-pill">
-                        <span style="font-size:0.8rem;" title="عرض العمود كنسبة مئوية">📏 العرض:</span>
-                        <input type="range" id="inv-col-width-range" min="5" max="50" step="1" value="15" style="width:65px;"
-                            oninput="document.getElementById('inv-col-width-input').value=this.value; updateSelectedInvCol('width', this.value)">
-                        <input type="number" id="inv-col-width-input" class="panel-input" style="width:42px; font-size:0.8rem; padding: 2px; background:#1e293b; color:#fff; border-color:#475569; height: 26px;" min="5" max="50" placeholder="%" 
-                            oninput="if(document.getElementById('inv-col-width-range')) document.getElementById('inv-col-width-range').value=this.value; updateSelectedInvCol('width', this.value)">
-                        <button class="ribbon-btn studio-mini-btn" style="font-size:0.75rem; padding: 2px 5px;" 
-                            onclick="updateSelectedInvCol('width', ''); document.getElementById('inv-col-width-input').value=''; document.getElementById('inv-col-width-range').value=15;" title="ضبط العرض التلقائي">🔄 تلقائي</button>
-                    </div>
-
-                    <div class="studio-pill-divider"></div>
-
-                    <!-- Group E: Table Width -->
-                    <div class="studio-group-pill">
-                        <span style="font-size:0.8rem;">📐 عرض الجدول:</span>
-                        <input type="range" id="inv-table-width-range" min="60" max="100" step="5" value="100" style="width:65px;"
-                            oninput="setInvTableWidth(this.value)">
-                        <span id="inv-table-width-label" style="font-weight:900; font-size:0.8rem; min-width:32px; text-align:center; color:#38bdf8;">100%</span>
-                    </div>
-
-                </div>
-            </div>
-
-            <!-- Preview Scroll Area -->
-            <div class="preview-scroll-container" style="flex: 1; overflow-y: auto; overflow-x: auto; padding: 15px; background: rgba(0,0,0,0.3); border-radius: 12px; display: flex; justify-content: center;">
-                <div id="inventory-report-sheet" class="paper-landscape" style="background: #ffffff; color: #0f172a; width: 100%; max-width: 1200px; padding: 35px 40px; box-shadow: 0 10px 40px rgba(0,0,0,0.4); border-radius: 4px; box-sizing: border-box; transition: all 0.3s ease; font-family: 'Tajawal', sans-serif;">
-                    <!-- Live rendered sheet content -->
-                </div>
-            </div>
-
-        </div>
-    </div>
-
-    <script>
-    // ═════════════════════════════════════════════════════════════════
-    // 🎨 INVENTORY REPORT PREVIEW & STUDIO ENGINE (Pro Edition)
-    // ═════════════════════════════════════════════════════════════════
-    const INV_THEMES_CONFIG = {
-        corporate: { headerBg: '#1e3a8a', headerColor: '#ffffff', border: '#cbd5e1', zebra: '#f8fafc', accent: '#3b82f6' },
-        emerald: { headerBg: '#065f46', headerColor: '#ffffff', border: '#cbd5e1', zebra: '#f0fdf4', accent: '#10b981' },
-        gold: { headerBg: '#78350f', headerColor: '#ffffff', border: '#fde68a', zebra: '#fffbeb', accent: '#d97706' },
-        slate: { headerBg: '#334155', headerColor: '#ffffff', border: '#cbd5e1', zebra: '#f1f5f9', accent: '#64748b' },
-        black: { headerBg: '#0a0a0a', headerColor: '#ffffff', border: '#404040', zebra: '#fafafa', accent: '#171717' }
-    };
-
-    let invPreviewCols = [
-        { id: 'index', label: '#', visible: true, align: 'center', width: '40px' },
-        { id: 'code', label: 'كود الصنف', visible: true, align: 'center', width: '90px' },
-        { id: 'item', label: 'اسم الصنف والتعبئة', visible: true, align: 'right', width: 'auto' },
-        { id: 'category', label: 'الفئة', visible: true, align: 'center', width: '100px' },
-        { id: 'warehouse', label: 'المخزن', visible: true, align: 'center', width: '110px' },
-        { id: 'actualQty', label: 'الرصيد الفعلي', visible: true, align: 'center', width: '120px' },
-        { id: 'reservedQty', label: 'المحجوز', visible: false, align: 'center', width: '100px' },
-        { id: 'availQty', label: 'المتاح للبيع', visible: true, align: 'center', width: '120px' },
-        { id: 'minQty', label: 'حد الطلب', visible: false, align: 'center', width: '90px' },
-        { id: 'costPrice', label: 'سعر التكلفة', visible: true, align: 'left', width: '100px' },
-        { id: 'cashPrice', label: 'سعر البيع', visible: false, align: 'left', width: '100px' },
-        { id: 'totalValue', label: 'إجمالي القيمة', visible: true, align: 'left', width: '130px' },
-        { id: 'status', label: 'حالة الرصيد', visible: true, align: 'center', width: '100px' }
-    ];
-
-    let currentSelectedInvColId = 'item';
-
-    function openInventoryReportPreview() {
-        const sourceData = (window.currentFilteredData && window.currentFilteredData.length > 0) 
-            ? window.currentFilteredData 
-            : (window.currentReportData || []);
-
-        const whSelect = document.getElementById('filter-warehouse');
-        const whName = (whSelect && whSelect.value !== 'ALL') ? whSelect.options[whSelect.selectedIndex]?.text : 'جميع المخازن (جرد شامل)';
-        const catSelect = document.getElementById('filter-category');
-        const catName = (catSelect && catSelect.value !== 'ALL') ? catSelect.value : 'جميع الفئات';
-
-        const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
-        const user = JSON.parse(localStorage.getItem('user') || '{}');
-        const companyName = cfg.companyName || user.company_name || localStorage.getItem('companyName') || 'مؤسسة مقاييس للأعمال';
-        const companyPhone = cfg.phone || cfg.whatsapp || user.phone || '—';
-        const companyAddress = cfg.address || user.address || '—';
-        const companyReg = cfg.regNumber || user.reg_number || '';
-        const companyTax = cfg.taxNumber || user.tax_number || user.vat_number || '';
-        const logoUrl = cfg.logoBase64 || localStorage.getItem('company_logo_base64') || user.logo || user.logo_url || '';
-        const printedAt = new Date().toLocaleString('ar-SD-u-nu-latn');
-        const userName = user.fullName || user.username || 'المسؤول';
-
-        let sumActual = 0;
-        let sumAvail = 0;
-        let sumValue = 0;
-        let alertCount = 0;
-
-        let rowsHtml = '';
-        if (sourceData.length === 0) {
-            rowsHtml = `<tr><td colspan="${invPreviewCols.filter(c => c.visible).length}" style="text-align:center; padding:35px; color:#64748b; font-size:1.05rem;">لا توجد أصناف مطابقة للبحث أو التصفية الحالية</td></tr>`;
-        } else {
-            sourceData.forEach((row, idx) => {
-                const actualQty = Number(row.qty) || 0;
-                const reservedQty = Number(row.reservedQuantity) || 0;
-                const availQty = actualQty - reservedQty;
-                const price = Number(row.price) || 0;
-                const totalCost = availQty * price;
-                const statusInfo = getStatusInfo(availQty, row.minQty);
-                const unitsList = getItemUnitsList(row.rawItem);
-
-                sumActual += actualQty;
-                sumAvail += availQty;
-                sumValue += totalCost;
-                if (statusInfo.code !== 'OK') alertCount++;
-
-                let tds = '';
-                invPreviewCols.forEach(col => {
-                    if (!col.visible) return;
-                    const align = col.align || 'center';
-                    const w = col.width ? `width:${col.width};` : '';
-
-                    if (col.id === 'index') {
-                        tds += `<td style="text-align:${align}; ${w} font-weight:700; color:#64748b;">${idx + 1}</td>`;
-                    } else if (col.id === 'code') {
-                        tds += `<td style="text-align:${align}; ${w} font-weight:700; color:#3b82f6;">${row.itemId}</td>`;
-                    } else if (col.id === 'item') {
-                        tds += `<td style="text-align:${align}; ${w} font-weight:800; color:#0f172a;">
-                            <div>${row.itemName}</div>
-                            <small style="font-size:0.72rem; color:#64748b;">الوحدة: <strong>${unitsList[0].name}</strong></small>
-                        </td>`;
-                    } else if (col.id === 'category') {
-                        tds += `<td style="text-align:${align}; ${w}">${row.category || '-'}</td>`;
-                    } else if (col.id === 'warehouse') {
-                        tds += `<td style="text-align:${align}; ${w} font-weight:700; color:#0284c7;">${row.warehouse}</td>`;
-                    } else if (col.id === 'actualQty') {
-                        tds += `<td style="text-align:${align}; ${w} font-weight:700;">${renderMultiUnitQty(actualQty, unitsList, '#0284c7')}</td>`;
-                    } else if (col.id === 'reservedQty') {
-                        tds += `<td style="text-align:${align}; ${w} font-weight:700; color:#b45309;">${reservedQty > 0 ? renderMultiUnitQty(reservedQty, unitsList, '#b45309') : '-'}</td>`;
-                    } else if (col.id === 'availQty') {
-                        tds += `<td style="text-align:${align}; ${w} font-weight:800;">${renderMultiUnitQty(availQty, unitsList, statusInfo.color)}</td>`;
-                    } else if (col.id === 'minQty') {
-                        tds += `<td style="text-align:${align}; ${w} color:#64748b;">${row.minQty || 0}</td>`;
-                    } else if (col.id === 'costPrice') {
-                        tds += `<td style="text-align:${align}; ${w} font-weight:700; direction:ltr;">${fmtNum(price)}</td>`;
-                    } else if (col.id === 'cashPrice') {
-                        const cp = (row.rawItem && row.rawItem.cashPrice) ? Number(row.rawItem.cashPrice) : price;
-                        tds += `<td style="text-align:${align}; ${w} font-weight:700; direction:ltr; color:#0284c7;">${fmtNum(cp)}</td>`;
-                    } else if (col.id === 'totalValue') {
-                        tds += `<td style="text-align:${align}; ${w} font-weight:900; direction:ltr; color:#0f172a;">${fmtNum(totalCost)} <small style="font-size:0.75rem; color:#64748b;">SDG</small></td>`;
-                    } else if (col.id === 'status') {
-                        tds += `<td style="text-align:${align}; ${w}"><span class="status-badge ${statusInfo.cssClass}">${statusInfo.icon} ${statusInfo.text}</span></td>`;
-                    }
-                });
-
-                rowsHtml += `<tr>${tds}</tr>`;
-            });
-        }
-
-        // Build Table Header
-        let thsHtml = '';
-        invPreviewCols.forEach(col => {
-            if (!col.visible) return;
-            const align = col.align || 'center';
-            const w = col.width ? `width:${col.width};` : '';
-            thsHtml += `<th style="padding:8px 10px; border:1px solid #cbd5e1; text-align:${align}; ${w}">${col.label}</th>`;
-        });
-
-        const sheetHtml = `
-            <!-- 1. Company Header -->
-            <div id="inv-sheet-header-block" style="display: flex; justify-content: space-between; align-items: flex-start; border-bottom: 2px solid #0f172a; padding-bottom: 12px; margin-bottom: 14px;">
-                <div style="flex: 1; text-align: right;">
-                    <h2 style="margin: 0 0 4px 0; font-size: 1.45rem; font-weight: 900; color: #0f172a;">${companyName}</h2>
-                    <p style="margin: 0 0 2px 0; font-size: 0.85rem; color: #475569;">📍 ${companyAddress}</p>
-                    <p style="margin: 0 0 2px 0; font-size: 0.85rem; color: #475569;">📞 هاتف / واتساب: ${companyPhone}</p>
-                    ${companyReg ? `<p style="margin:0; font-size:0.8rem; color:#64748b;">س.ت: ${companyReg} ${companyTax ? ' | ضريبي: ' + companyTax : ''}</p>` : ''}
-                </div>
-                <div style="flex: 1; text-align: center; display: flex; flex-direction: column; align-items: center; justify-content: center;">
-                    <h3 style="margin: 0; padding: 6px 18px; background: rgba(0,0,0,0.04); border-radius: 8px; border: 1.5px solid #0f172a; font-size: 1.3rem; font-weight: 900; color: #0f172a;">تقرير جرد وتقييم المخزون العام</h3>
-                    <div style="font-size: 0.8rem; color: #64748b; margin-top: 4px;">تاريخ الطباعة: ${printedAt}</div>
-                </div>
-                <div style="flex: 1; text-align: left; display: flex; justify-content: flex-end; align-items: center;">
-                    ${logoUrl ? `<img src="${logoUrl}" style="max-height: 80px; max-width: 160px; object-fit: contain;">` : '<div style="width:70px; height:70px; border:1px dashed #cbd5e1; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:0.75rem; color:#94a3b8;">شعار الشركة</div>'}
-                </div>
-            </div>
-
-            <!-- 2. Subheader Meta Info -->
-            <div id="inv-sheet-meta-block" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 14px; background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 8px; padding: 10px 14px; font-size: 0.85rem;">
-                <div><span style="color:#64748b;">المستودع المستهدف:</span> <strong style="color:#0f172a;">${whName}</strong></div>
-                <div><span style="color:#64748b;">فئة الأصناف:</span> <strong style="color:#0f172a;">${catName}</strong></div>
-                <div><span style="color:#64748b;">المستخدم المستخرج:</span> <strong style="color:#0f172a;">${userName}</strong></div>
-                <div><span style="color:#64748b;">عدد الأصناف المطابقة:</span> <strong style="color:#0284c7;">${sourceData.length} صنف</strong></div>
-            </div>
-
-            <!-- 3. Summary KPIs Strip -->
-            <div id="inv-sheet-kpis-block" style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-bottom: 16px;">
-                <div style="background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.25); border-radius: 8px; padding: 8px 12px;">
-                    <div style="font-size: 0.75rem; color: #64748b; font-weight: 700;">إجمالي الأصناف 📦</div>
-                    <div style="font-size: 1.2rem; font-weight: 900; color: #0284c7;">${fmtNum(sourceData.length)}</div>
-                </div>
-                <div style="background: rgba(16,185,129,0.08); border: 1px solid rgba(16,185,129,0.25); border-radius: 8px; padding: 8px 12px;">
-                    <div style="font-size: 0.75rem; color: #64748b; font-weight: 700;">إجمالي الرصيد الفعلي ⚖️</div>
-                    <div style="font-size: 1.2rem; font-weight: 900; color: #059669;">${fmtNum(sumActual)}</div>
-                </div>
-                <div style="background: rgba(245,158,11,0.08); border: 1px solid rgba(245,158,11,0.25); border-radius: 8px; padding: 8px 12px;">
-                    <div style="font-size: 0.75rem; color: #64748b; font-weight: 700;">إجمالي المتاح للبيع 🟢</div>
-                    <div style="font-size: 1.2rem; font-weight: 900; color: #d97706;">${fmtNum(sumAvail)}</div>
-                </div>
-                <div style="background: rgba(99,102,241,0.08); border: 1px solid rgba(99,102,241,0.25); border-radius: 8px; padding: 8px 12px;">
-                    <div style="font-size: 0.75rem; color: #64748b; font-weight: 700;">القيمة التقديرية الإجمالية 💰</div>
-                    <div style="font-size: 1.2rem; font-weight: 900; color: #4338ca;">${fmtNum(sumValue)} SDG</div>
-                </div>
-            </div>
-
-            <!-- 4. Excel Sheet Table -->
-            <div style="overflow-x: auto;">
-                <table id="inv-sheet-table" style="width: 100%; border-collapse: collapse; font-size: 0.85rem; background: #ffffff;">
+                <table style="width:100%; border-collapse:collapse; font-size:0.85rem; text-align:right;">
                     <thead>
-                        <tr id="inv-sheet-thead-row" style="background: #1e3a8a; color: #ffffff; font-weight: 800;">
-                            ${thsHtml}
+                        <tr style="background:#f1f5f9; border-bottom:2px solid #cbd5e1;">
+                            <th style="padding:8px 10px; border:1px solid #cbd5e1; text-align:center;">#</th>
+                            <th style="padding:8px 10px; border:1px solid #cbd5e1;">كود الصنف</th>
+                            <th style="padding:8px 10px; border:1px solid #cbd5e1;">اسم ومواصفات الصنف</th>
+                            <th style="padding:8px 10px; border:1px solid #cbd5e1;">المخزن</th>
+                            <th style="padding:8px 10px; border:1px solid #cbd5e1; text-align:center;">الرصيد الفعلي</th>
+                            <th style="padding:8px 10px; border:1px solid #cbd5e1; text-align:center;">سعر التكلفة</th>
+                            <th style="padding:8px 10px; border:1px solid #cbd5e1; text-align:center;">القيمة الإجمالية</th>
                         </tr>
                     </thead>
-                    <tbody id="inv-sheet-tbody">
-                        ${rowsHtml}
+                    <tbody>
+            `;
+
+            let sumQty = 0;
+            let sumVal = 0;
+
+            invDb.forEach((r, idx) => {
+                if (filteredWh !== 'ALL' && r.warehouse !== filteredWh) return;
+                sumQty += r.actualQty;
+                sumVal += r.totalValue;
+
+                sheetHtml += `
+                    <tr style="border-bottom:1px solid #e2e8f0;">
+                        <td style="padding:7px 10px; border:1px solid #e2e8f0; text-align:center;">${idx + 1}</td>
+                        <td style="padding:7px 10px; border:1px solid #e2e8f0; font-weight:700;">${r.code}</td>
+                        <td style="padding:7px 10px; border:1px solid #e2e8f0; font-weight:800;">${r.name}</td>
+                        <td style="padding:7px 10px; border:1px solid #e2e8f0;">${r.warehouse}</td>
+                        <td style="padding:7px 10px; border:1px solid #e2e8f0; text-align:center; font-weight:800;">${fmtNum(r.actualQty)}</td>
+                        <td style="padding:7px 10px; border:1px solid #e2e8f0; text-align:center;">${fmtNum(r.costPrice)} SDG</td>
+                        <td style="padding:7px 10px; border:1px solid #e2e8f0; text-align:center; font-weight:900;">${fmtNum(r.totalValue)} SDG</td>
+                    </tr>
+                `;
+            });
+
+            sheetHtml += `
                     </tbody>
                     <tfoot>
-                        <tr style="background: #f1f5f9; font-weight: 900; border-top: 2px solid #cbd5e1;">
-                            <td colspan="4" style="padding: 10px; text-align: center; color: #0f172a;">الإجماليات العامة للمخزون</td>
-                            <td style="padding: 10px; text-align: center; color: #0284c7;">${fmtNum(sumActual)}</td>
-                            <td style="padding: 10px; text-align: center; color: #059669;">${fmtNum(sumAvail)}</td>
-                            <td colspan="2" style="padding: 10px; text-align: left; color: #0f172a; direction: ltr;">${fmtNum(sumValue)} SDG</td>
-                            <td></td>
+                        <tr style="background:#f8fafc; font-weight:900; border-top:2px solid #0f172a;">
+                            <td colspan="4" style="padding:10px; text-align:center;">الإجمالي العام</td>
+                            <td style="padding:10px; text-align:center; color:#0284c7;">${fmtNum(sumQty)}</td>
+                            <td style="padding:10px;"></td>
+                            <td style="padding:10px; text-align:center; color:#059669;">${fmtNum(sumVal)} SDG</td>
                         </tr>
                     </tfoot>
                 </table>
-            </div>
-
-            <!-- 5. Signatures Block -->
-            <div id="inv-sheet-signatures-block" style="margin-top:30px; border-top:1px dashed #cbd5e1; padding-top:18px; display:grid; grid-template-columns: repeat(4, 1fr); gap:15px; text-align:center; font-size:0.82rem; color:#334155;">
-                <div style="border:1px solid #e2e8f0; border-radius:6px; padding:10px; background:#fafafa;">
-                    <strong style="color:#0f172a;">✍️ أمين المستودع</strong>
-                    <div style="margin-top:28px; border-top:1px solid #cbd5e1; padding-top:4px;">الاسم والتوقيع</div>
-                </div>
-                <div style="border:1px solid #e2e8f0; border-radius:6px; padding:10px; background:#fafafa;">
-                    <strong style="color:#0f172a;">🔍 لجنة الجرد والتدقيق</strong>
-                    <div style="margin-top:28px; border-top:1px solid #cbd5e1; padding-top:4px;">الاسم والتوقيع</div>
-                </div>
-                <div style="border:1px solid #e2e8f0; border-radius:6px; padding:10px; background:#fafafa;">
-                    <strong style="color:#0f172a;">📊 المحاسب المالي</strong>
-                    <div style="margin-top:28px; border-top:1px solid #cbd5e1; padding-top:4px;">الاسم والتوقيع</div>
-                </div>
-                <div style="border:1px solid #e2e8f0; border-radius:6px; padding:10px; background:#fafafa;">
-                    <strong style="color:#0f172a;">🏢 اعتماد الإدارة والختم</strong>
-                    <div style="margin-top:28px; border-top:1px solid #cbd5e1; padding-top:4px;">الختم الرسمي</div>
-                </div>
-            </div>
-
-            <!-- 6. Footer Disclaimer -->
-            <div style="margin-top:20px; border-top:1px solid #e2e8f0; padding-top:6px; display:flex; justify-content:space-between; font-size:0.72rem; color:#94a3b8; direction:rtl;">
-                <div>تم استخراج وطباعة هذا التقرير تلقائياً عبر نظام مقاييس ERP المتكامل · MAGAIEES CLOUD</div>
-                <div>صفحة 1 من 1</div>
-            </div>
-        `;
-
-        const sheet = document.getElementById('inventory-report-sheet');
-        if (sheet) sheet.innerHTML = sheetHtml;
-
-        applyInvStudioDesign();
-
-        const modal = document.getElementById('inventory-report-preview-modal');
-        if (modal) modal.style.display = 'flex';
-    }
-
-    function closeInventoryReportPreview() {
-        const modal = document.getElementById('inventory-report-preview-modal');
-        if (modal) modal.style.display = 'none';
-    }
-
-    function applyInvStudioDesign() {
-        const sheet = document.getElementById('inventory-report-sheet');
-        if (!sheet) return;
-
-        const themeKey = document.getElementById('inv-studio-theme-select')?.value || 'corporate';
-        const theme = INV_THEMES_CONFIG[themeKey] || INV_THEMES_CONFIG.corporate;
-        const font = document.getElementById('inv-studio-font-select')?.value || "'Tajawal', sans-serif";
-        const size = document.getElementById('inv-studio-size-select')?.value || 'medium';
-        const orientation = document.getElementById('inv-studio-orientation-select')?.value || 'landscape';
-
-        const showHeader = document.getElementById('chk-inv-show-header')?.checked;
-        const showKPIs = document.getElementById('chk-inv-show-kpis')?.checked;
-        const showSignatures = document.getElementById('chk-inv-show-signatures')?.checked;
-
-        sheet.style.fontFamily = font;
-
-        if (size === 'compact') {
-            sheet.style.fontSize = '0.78rem';
-            sheet.querySelectorAll('th, td').forEach(c => c.style.padding = '5px 4px');
-        } else if (size === 'large') {
-            sheet.style.fontSize = '0.94rem';
-            sheet.querySelectorAll('th, td').forEach(c => c.style.padding = '12px 8px');
-        } else {
-            sheet.style.fontSize = '0.85rem';
-            sheet.querySelectorAll('th, td').forEach(c => c.style.padding = '8px 6px');
-        }
-
-        if (orientation === 'portrait') {
-            sheet.style.maxWidth = '850px';
-        } else {
-            sheet.style.maxWidth = '1200px';
-        }
-
-        const hdrBlock = document.getElementById('inv-sheet-header-block');
-        if (hdrBlock) hdrBlock.style.display = showHeader ? 'flex' : 'none';
-        const kpisBlock = document.getElementById('inv-sheet-kpis-block');
-        if (kpisBlock) kpisBlock.style.display = showKPIs ? 'grid' : 'none';
-        const sigBlock = document.getElementById('inv-sheet-signatures-block');
-        if (sigBlock) sigBlock.style.display = showSignatures ? 'grid' : 'none';
-
-        const theadRow = document.getElementById('inv-sheet-thead-row');
-        if (theadRow) {
-            theadRow.style.background = theme.headerBg;
-            theadRow.style.color = theme.headerColor;
-        }
-
-        // Print Stylesheet update
-        const printStyle = document.getElementById('inventory-report-print-style');
-        if (printStyle) {
-            printStyle.innerHTML = `
-                @page { size: ${orientation}; margin: 8mm; }
-                @media print {
-                    #inventory-report-preview-modal.print-direct-mode { display: block !important; }
-                    body > *:not(#inventory-report-preview-modal) { display: none !important; }
-                    #inventory-report-preview-modal { position: absolute !important; left: 0 !important; top: 0 !important; width: 100% !important; height: auto !important; background: #fff !important; padding: 0 !important; margin: 0 !important; display: block !important; overflow: visible !important; }
-                    #inventory-report-preview-modal .glass-panel { width: 100% !important; max-width: 100% !important; height: auto !important; border: none !important; background: #fff !important; padding: 0 !important; box-shadow: none !important; margin: 0 !important; }
-                    .global-sidebar, .no-print, .btn-action, .dash-controls { display: none !important; }
-                    #inventory-report-preview-modal .preview-scroll-container { background: #fff !important; padding: 0 !important; overflow: visible !important; }
-                    #inventory-report-sheet { box-shadow: none !important; padding: 0 !important; margin: 0 !important; border: none !important; width: 100% !important; max-width: 100% !important; }
-                }
             `;
+
+            sheet.innerHTML = sheetHtml;
+            modal.style.display = 'flex';
         }
-    }
 
-    function printInventoryReportSheet() {
-        const modal = document.getElementById('inventory-report-preview-modal');
-        if (!modal) return;
-        modal.classList.add('print-direct-mode');
-        window.print();
-        setTimeout(() => { modal.classList.remove('print-direct-mode'); }, 1000);
-    }
-
-    function toggleInvStudioDrawer() {
-        const drawer = document.getElementById('inv-studio-drawer');
-        if (!drawer) return;
-        drawer.style.display = (drawer.style.display === 'none') ? 'flex' : 'none';
-    }
-
-    function toggleInvLiveEditMode() {
-        const sheet = document.getElementById('inventory-report-sheet');
-        const btn = document.getElementById('btn-toggle-inv-live-edit');
-        if (!sheet) return;
-        const isEditing = sheet.contentEditable === 'true';
-        sheet.contentEditable = isEditing ? 'false' : 'true';
-        if (!isEditing) {
-            sheet.style.outline = '2px dashed #fbbf24';
-            if (btn) btn.style.background = '#fbbf24';
-            if (btn) btn.style.color = '#000';
-        } else {
-            sheet.style.outline = 'none';
-            if (btn) btn.style.background = 'rgba(245,158,11,0.15)';
-            if (btn) btn.style.color = '#fbbf24';
+        function closeInventoryReportPreview() {
+            const modal = document.getElementById('inventory-report-preview-modal');
+            if (modal) modal.style.display = 'none';
         }
-    }
 
-    function selectInvColumn(colId) {
-        currentSelectedInvColId = colId;
-        const col = invPreviewCols.find(c => c.id === colId);
-        if (!col) return;
-        const visChk = document.getElementById('inv-col-visible-chk');
-        if (visChk) visChk.checked = col.visible;
-        const lblInput = document.getElementById('inv-col-label-input');
-        if (lblInput) lblInput.value = col.label;
-        const alignSelect = document.getElementById('inv-col-align-select');
-        if (alignSelect) alignSelect.value = col.align || 'center';
-    }
+        function printInventoryReportSheet() {
+            window.print();
+        }
 
-    function updateSelectedInvCol(prop, val) {
-        const col = invPreviewCols.find(c => c.id === currentSelectedInvColId);
-        if (!col) return;
-        if (prop === 'visible') col.visible = Boolean(val);
-        if (prop === 'label') col.label = val;
-        if (prop === 'align') col.align = val;
-        if (prop === 'width') col.width = val ? (val + '%') : 'auto';
-        openInventoryReportPreview();
-    }
+        function exportExcel() {
+            let csv = "\uFEFF# , كود الصنف , اسم الصنف , المخزن , الرصيد الفعلي , متوسط التكلفة , القيمة الإجمالية\n";
+            invDb.forEach((r, idx) => {
+                csv += `"${idx+1}","${r.code}","${r.name}","${r.warehouse}","${r.actualQty}","${r.costPrice}","${r.totalValue}"\n`;
+            });
+            const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+            const link = document.createElement("a");
+            link.href = URL.createObjectURL(blob);
+            link.setAttribute("download", `inventory_report_${new Date().toISOString().split('T')[0]}.csv`);
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+        }
 
-    function moveSelectedInvCol(dir) {
-        const idx = invPreviewCols.findIndex(c => c.id === currentSelectedInvColId);
-        if (idx === -1) return;
-        const newIdx = idx + dir;
-        if (newIdx < 0 || newIdx >= invPreviewCols.length) return;
-        const temp = invPreviewCols[idx];
-        invPreviewCols[idx] = invPreviewCols[newIdx];
-        invPreviewCols[newIdx] = temp;
-        openInventoryReportPreview();
-    }
+        // =======================================================================
+        // 🤖 AI SUITE INTEGRATION
+        // =======================================================================
 
-    function setInvTableWidth(val) {
-        const tbl = document.getElementById('inv-sheet-table');
-        const lbl = document.getElementById('inv-table-width-label');
-        if (tbl) tbl.style.width = val + '%';
-        if (lbl) lbl.textContent = val + '%';
-    }
+        function runAIInventory() {
+            alert('جاري تشغيل المستشار الذكي لتحليل المخزون...');
+            window.location.href = 'ai_goods_advisor.php';
+        }
 
-    // Nav Dropdowns Click & Touch Toggle
-    document.addEventListener('click', function(e) {
-        const clickedDropdown = e.target.closest('.nav-dropdown');
-        document.querySelectorAll('.nav-dropdown').forEach(dd => {
-            if (dd !== clickedDropdown) dd.classList.remove('active');
+        // Dropdown Event Delegation
+        document.addEventListener('click', function(e) {
+            const clickedDropdown = e.target.closest('.nav-dropdown');
+            document.querySelectorAll('.nav-dropdown').forEach(dd => {
+                if (dd !== clickedDropdown) dd.classList.remove('active');
+            });
+            if (clickedDropdown && e.target.closest('.nav-tab')) {
+                clickedDropdown.classList.toggle('active');
+            }
         });
-        if (clickedDropdown && e.target.closest('.nav-tab')) {
-            clickedDropdown.classList.toggle('active');
-        }
-    });
     </script>
 </body>
 </html>
-
