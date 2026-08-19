@@ -22,6 +22,24 @@
 
     <!-- TAB 1: Columns & Formatting -->
     <div id="studio-tab-cols">
+        <!-- Interactive Visual Column Manager (Drag & Drop, Checkboxes for all columns & units) -->
+        <div class="panel-card" style="margin-bottom: 6px; padding: 6px 10px; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(251, 191, 36, 0.35); border-radius: 10px;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 8px;">
+                <div style="display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 0.82rem; color: #fbbf24;">
+                    <span>📋 مدير الأعمدة والوحدات الأربع:</span>
+                    <span style="font-size: 0.72rem; color: #94a3b8; font-weight: normal;">(اضغط على المربع للإظهار/الإخفاء، أو اسحب للترتيب)</span>
+                </div>
+                <div style="display: flex; gap: 5px; align-items: center;">
+                    <button type="button" class="ribbon-btn studio-mini-btn" onclick="setAllColumnsVisibility(true)" style="background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); padding: 2px 8px; font-size: 0.75rem; border-radius: 6px; cursor: pointer;">👁️ إظهار الكل</button>
+                    <button type="button" class="ribbon-btn studio-mini-btn" onclick="setAllColumnsVisibility(false)" style="background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); padding: 2px 8px; font-size: 0.75rem; border-radius: 6px; cursor: pointer;">🚫 إخفاء الكل</button>
+                    <button type="button" class="ribbon-btn studio-mini-btn" onclick="resetDefaultColumnOrder()" style="background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); padding: 2px 8px; font-size: 0.75rem; border-radius: 6px; cursor: pointer;">🔄 الترتيب الافتراضي</button>
+                </div>
+            </div>
+            <div id="studio-columns-chips-container" style="display: flex; gap: 5px; flex-wrap: wrap; align-items: center; max-height: 140px; overflow-y: auto; padding: 2px;">
+                <!-- Column chips rendered dynamically via JS -->
+            </div>
+        </div>
+
         <!-- Row 1: Unified Super Toolbar (All Column Controls in 1 Compact Line) -->
         <div class="panel-card studio-super-row" style="margin-bottom: 6px; padding: 4px 8px; gap: 6px; display: flex; align-items: center; justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto;">
             

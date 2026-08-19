@@ -15,22 +15,25 @@ let showHeaderInfo = true;
 let isLongPressTriggered = false;
 let longPressInterval = null;
 
-// Default column definitions with exact field mapping for General Ledger
+// Default column definitions with exact field mapping for Item Ledger (4 Units)
 const baseColumns = [
-    { idx: 0, defaultLabel: "التاريخ", field: "date", isNum: false },
-    { idx: 1, defaultLabel: "نوع الحركة", field: "type", isNum: false },
-    { idx: 2, defaultLabel: "رقم الإذن", field: "permitNo", isNum: false },
-    { idx: 3, defaultLabel: "رقم الاستلام", field: "receiptNo", isNum: false },
-    { idx: 4, defaultLabel: "الوارد (وحدة 1)", field: "in1", isNum: true },
-    { idx: 5, defaultLabel: "المنصرف (وحدة 1)", field: "out1", isNum: true },
-    { idx: 6, defaultLabel: "الرصيد (وحدة 1)", field: "bal1", isNum: true },
-    { idx: 7, defaultLabel: "الوارد (وحدة 2)", field: "in2", isNum: true },
-    { idx: 8, defaultLabel: "المنصرف (وحدة 2)", field: "out2", isNum: true },
-    { idx: 9, defaultLabel: "الرصيد (وحدة 2)", field: "bal2", isNum: true },
-    { idx: 10, defaultLabel: "الوارد (وحدة 3)", field: "in3", isNum: true },
-    { idx: 11, defaultLabel: "المنصرف (وحدة 3)", field: "out3", isNum: true },
-    { idx: 12, defaultLabel: "الرصيد (وحدة 3)", field: "bal3", isNum: true },
-    { idx: 13, defaultLabel: "ملحوظة الحركة", field: "notes", isNum: false }
+    { idx: 0, defaultLabel: "التاريخ", field: "date", isNum: false, group: "general" },
+    { idx: 1, defaultLabel: "نوع الحركة", field: "type", isNum: false, group: "general" },
+    { idx: 2, defaultLabel: "رقم الإذن", field: "permitNo", isNum: false, group: "general" },
+    { idx: 3, defaultLabel: "رقم الاستلام", field: "receiptNo", isNum: false, group: "general" },
+    { idx: 4, defaultLabel: "الوارد (الأساسية)", field: "in1", isNum: true, group: "u1" },
+    { idx: 5, defaultLabel: "المنصرف (الأساسية)", field: "out1", isNum: true, group: "u1" },
+    { idx: 6, defaultLabel: "الرصيد (الأساسية)", field: "bal1", isNum: true, group: "u1" },
+    { idx: 7, defaultLabel: "الوارد (الوحدة 2)", field: "in2", isNum: true, group: "u2" },
+    { idx: 8, defaultLabel: "المنصرف (الوحدة 2)", field: "out2", isNum: true, group: "u2" },
+    { idx: 9, defaultLabel: "الرصيد (الوحدة 2)", field: "bal2", isNum: true, group: "u2" },
+    { idx: 10, defaultLabel: "الوارد (الوحدة 3)", field: "in3", isNum: true, group: "u3" },
+    { idx: 11, defaultLabel: "المنصرف (الوحدة 3)", field: "out3", isNum: true, group: "u3" },
+    { idx: 12, defaultLabel: "الرصيد (الوحدة 3)", field: "bal3", isNum: true, group: "u3" },
+    { idx: 13, defaultLabel: "الوارد (الوحدة 4)", field: "in4", isNum: true, group: "u4" },
+    { idx: 14, defaultLabel: "المنصرف (الوحدة 4)", field: "out4", isNum: true, group: "u4" },
+    { idx: 15, defaultLabel: "الرصيد (الوحدة 4)", field: "bal4", isNum: true, group: "u4" },
+    { idx: 16, defaultLabel: "ملحوظة الحركة", field: "notes", isNum: false, group: "general" }
 ];
 
 window.activeUnitsConfig = [];
@@ -59,11 +62,35 @@ function getRawFieldValue(row, field) {
     if (field === "out3") return row.out3 || 0;
     if (field === "bal3") return row.bal3 || 0;
 
+    if (field === "in4") return row.in4 || 0;
+    if (field === "out4") return row.out4 || 0;
+    if (field === "bal4") return row.bal4 || 0;
+
     return "";
 }
 
+function getDefaultConfigs() {
+    let conf = {};
+    baseColumns.forEach(c => {
+        conf[c.idx] = {
+            label: c.defaultLabel,
+            visible: c.visible !== false,
+            fs: 0.9,
+            fontWeight: '',
+            fontFamily: 'inherit',
+            color: '',
+            bgColor: '',
+            align: c.isNum ? 'right' : 'center',
+            thousandSep: ',',
+            decimals: 2,
+            showDecSep: true,
+            rounding: 'nearest'
+        };
+    });
+    return conf;
+}
 
-let columnOrder = [0, 1, 2, 3, 4, 13, 14, 5, 6, 7, 8, 9, 10, 11, 12];
+let columnOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
 let columnConfigs = {};
 
 function loadCompanyHeader() {
@@ -566,6 +593,11 @@ document.addEventListener('DOMContentLoaded', async () => {
             newRow.out3 = formatQtyInUnit(row.out, window.activeUnitsConfig[2]);
             newRow.bal3 = formatQtyInUnit(row.runningBalance, window.activeUnitsConfig[2]);
         }
+        if (window.activeUnitsConfig[3]) {
+            newRow.in4 = formatQtyInUnit(row.in, window.activeUnitsConfig[3]);
+            newRow.out4 = formatQtyInUnit(row.out, window.activeUnitsConfig[3]);
+            newRow.bal4 = formatQtyInUnit(row.runningBalance, window.activeUnitsConfig[3]);
+        }
         return newRow;
     });
 
@@ -586,6 +618,7 @@ document.addEventListener('DOMContentLoaded', async () => {
     
     if (typeof loadCompanyHeader === 'function') loadCompanyHeader();
 
+    // Unit 1 (Base Unit)
     if (window.activeUnitsConfig[0]) {
         baseColumns.find(c => c.field === 'in1').defaultLabel = 'الوارد (' + window.activeUnitsConfig[0].name + ')';
         baseColumns.find(c => c.field === 'out1').defaultLabel = 'المنصرف (' + window.activeUnitsConfig[0].name + ')';
@@ -596,6 +629,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         baseColumns.find(c => c.field === 'bal1').visible = false;
     }
     
+    // Unit 2
     if (window.activeUnitsConfig[1]) {
         baseColumns.find(c => c.field === 'in2').defaultLabel = 'الوارد (' + window.activeUnitsConfig[1].name + ')';
         baseColumns.find(c => c.field === 'out2').defaultLabel = 'المنصرف (' + window.activeUnitsConfig[1].name + ')';
@@ -606,6 +640,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         baseColumns.find(c => c.field === 'bal2').visible = false;
     }
     
+    // Unit 3
     if (window.activeUnitsConfig[2]) {
         baseColumns.find(c => c.field === 'in3').defaultLabel = 'الوارد (' + window.activeUnitsConfig[2].name + ')';
         baseColumns.find(c => c.field === 'out3').defaultLabel = 'المنصرف (' + window.activeUnitsConfig[2].name + ')';
@@ -615,10 +650,26 @@ document.addEventListener('DOMContentLoaded', async () => {
         baseColumns.find(c => c.field === 'out3').visible = false;
         baseColumns.find(c => c.field === 'bal3').visible = false;
     }
+
+    // Unit 4
+    if (window.activeUnitsConfig[3]) {
+        baseColumns.find(c => c.field === 'in4').defaultLabel = 'الوارد (' + window.activeUnitsConfig[3].name + ')';
+        baseColumns.find(c => c.field === 'out4').defaultLabel = 'المنصرف (' + window.activeUnitsConfig[3].name + ')';
+        baseColumns.find(c => c.field === 'bal4').defaultLabel = 'الرصيد (' + window.activeUnitsConfig[3].name + ')';
+    } else {
+        baseColumns.find(c => c.field === 'in4').visible = false;
+        baseColumns.find(c => c.field === 'out4').visible = false;
+        baseColumns.find(c => c.field === 'bal4').visible = false;
+    }
     
+    // Initial Column Order containing all active/visible columns
     const newOrder = [];
     baseColumns.forEach(c => {
         if (c.visible !== false) newOrder.push(c.idx);
+    });
+    // Add remaining columns at end so they can be re-enabled
+    baseColumns.forEach(c => {
+        if (!newOrder.includes(c.idx)) newOrder.push(c.idx);
     });
     
     columnOrder = newOrder;
@@ -627,7 +678,189 @@ document.addEventListener('DOMContentLoaded', async () => {
     filteredData = currentData;
     if (typeof renderTable === 'function') renderTable();
     if (typeof generateChartData === 'function') generateChartData();
+    renderColumnManagerChips();
 });
+
+// ─── VISUAL DRAG & DROP COLUMN MANAGER ───
+let draggedColIdx = null;
+
+function renderColumnManagerChips() {
+    const container = document.getElementById('studio-columns-chips-container');
+    if (!container) return;
+
+    container.innerHTML = '';
+    
+    const groupColors = {
+        general: { bg: 'rgba(56, 189, 248, 0.12)', border: 'rgba(56, 189, 248, 0.3)', text: '#38bdf8' },
+        u1:      { bg: 'rgba(16, 185, 129, 0.15)', border: 'rgba(16, 185, 129, 0.35)', text: '#34d399' },
+        u2:      { bg: 'rgba(6, 182, 212, 0.15)',  border: 'rgba(6, 182, 212, 0.35)',  text: '#22d3ee' },
+        u3:      { bg: 'rgba(168, 85, 247, 0.15)', border: 'rgba(168, 85, 247, 0.35)', text: '#c084fc' },
+        u4:      { bg: 'rgba(245, 158, 11, 0.15)', border: 'rgba(245, 158, 11, 0.35)', text: '#fbbf24' }
+    };
+
+    columnOrder.forEach((idx, pos) => {
+        const c = baseColumns.find(x => x.idx === idx);
+        if (!c) return;
+
+        const conf = columnConfigs[idx] || getDefaultConfigs()[idx];
+        const isVisible = conf.visible !== false;
+        const isSelected = (selectedColIndex === idx);
+        const gColor = groupColors[c.group] || groupColors.general;
+
+        const chip = document.createElement('div');
+        chip.className = 'studio-col-chip' + (isSelected ? ' active-chip' : '') + (!isVisible ? ' hidden-chip' : '');
+        chip.draggable = true;
+        chip.dataset.colIdx = idx;
+        chip.dataset.colPos = pos;
+
+        chip.style.cssText = `
+            display: inline-flex;
+            align-items: center;
+            gap: 5px;
+            padding: 3px 8px;
+            border-radius: 8px;
+            font-size: 0.76rem;
+            font-weight: 700;
+            background: ${isSelected ? '#1e293b' : (isVisible ? gColor.bg : 'rgba(255,255,255,0.03)')};
+            border: 1.5px solid ${isSelected ? '#38bdf8' : (isVisible ? gColor.border : 'rgba(255,255,255,0.1)')};
+            color: ${isVisible ? (isSelected ? '#fff' : gColor.text) : '#64748b'};
+            cursor: grab;
+            user-select: none;
+            transition: all 0.2s ease;
+            box-shadow: ${isSelected ? '0 0 10px rgba(56,189,248,0.4)' : 'none'};
+        `;
+
+        // Checkbox
+        const chk = document.createElement('input');
+        chk.type = 'checkbox';
+        chk.checked = isVisible;
+        chk.title = isVisible ? 'إخفاء العمود' : 'إظهار العمود';
+        chk.style.cursor = 'pointer';
+        chk.onchange = (e) => {
+            e.stopPropagation();
+            toggleColumnVisibility(idx, chk.checked);
+        };
+
+        // Drag handle icon
+        const handle = document.createElement('span');
+        handle.innerText = '⠿';
+        handle.style.opacity = '0.5';
+        handle.style.cursor = 'grab';
+
+        // Title Label
+        const titleSpan = document.createElement('span');
+        titleSpan.innerText = conf.label || c.defaultLabel;
+        titleSpan.style.cursor = 'pointer';
+        titleSpan.onclick = () => selectColumn(idx);
+
+        // Move Left / Right buttons
+        const btnPrev = document.createElement('button');
+        btnPrev.type = 'button';
+        btnPrev.innerText = '➡️';
+        btnPrev.title = 'تحريك للأمام (يمين)';
+        btnPrev.style.cssText = 'background:none; border:none; color:#94a3b8; font-size:0.65rem; cursor:pointer; padding:0 2px;';
+        btnPrev.onclick = (e) => { e.stopPropagation(); moveColumnOrderPos(pos, -1); };
+
+        const btnNext = document.createElement('button');
+        btnNext.type = 'button';
+        btnNext.innerText = '⬅️';
+        btnNext.title = 'تحريك للخلف (يسار)';
+        btnNext.style.cssText = 'background:none; border:none; color:#94a3b8; font-size:0.65rem; cursor:pointer; padding:0 2px;';
+        btnNext.onclick = (e) => { e.stopPropagation(); moveColumnOrderPos(pos, 1); };
+
+        chip.appendChild(handle);
+        chip.appendChild(chk);
+        chip.appendChild(titleSpan);
+        chip.appendChild(btnPrev);
+        chip.appendChild(btnNext);
+
+        // HTML5 Drag Events
+        chip.ondragstart = (e) => {
+            draggedColIdx = idx;
+            chip.style.opacity = '0.4';
+            e.dataTransfer.effectAllowed = 'move';
+        };
+        chip.ondragend = () => {
+            chip.style.opacity = '1';
+            draggedColIdx = null;
+        };
+        chip.ondragover = (e) => {
+            e.preventDefault();
+            e.dataTransfer.dropEffect = 'move';
+            chip.style.transform = 'scale(1.05)';
+        };
+        chip.ondragleave = () => {
+            chip.style.transform = 'none';
+        };
+        chip.ondrop = (e) => {
+            e.preventDefault();
+            chip.style.transform = 'none';
+            if (draggedColIdx !== null && draggedColIdx !== idx) {
+                swapColumnOrderIndices(draggedColIdx, idx);
+            }
+        };
+
+        container.appendChild(chip);
+    });
+}
+
+function toggleColumnVisibility(idx, isVisible) {
+    if (!columnConfigs[idx]) {
+        columnConfigs[idx] = getDefaultConfigs()[idx];
+    }
+    columnConfigs[idx].visible = isVisible;
+    
+    if (selectedColIndex === idx) {
+        const chk = document.getElementById('col-visible-chk');
+        if (chk) chk.checked = isVisible;
+    }
+    
+    renderTable();
+    renderColumnManagerChips();
+}
+
+function setAllColumnsVisibility(isVisible) {
+    baseColumns.forEach(c => {
+        if (!columnConfigs[c.idx]) columnConfigs[c.idx] = getDefaultConfigs()[c.idx];
+        columnConfigs[c.idx].visible = isVisible;
+    });
+    renderTable();
+    renderColumnManagerChips();
+}
+
+function resetDefaultColumnOrder() {
+    columnOrder = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16];
+    baseColumns.forEach(c => {
+        if (!columnConfigs[c.idx]) columnConfigs[c.idx] = getDefaultConfigs()[c.idx];
+        columnConfigs[c.idx].visible = (c.visible !== false);
+    });
+    renderTable();
+    renderColumnManagerChips();
+}
+
+function moveColumnOrderPos(currentPos, direction) {
+    const newPos = currentPos + direction;
+    if (newPos < 0 || newPos >= columnOrder.length) return;
+    
+    const temp = columnOrder[currentPos];
+    columnOrder[currentPos] = columnOrder[newPos];
+    columnOrder[newPos] = temp;
+    
+    renderTable();
+    renderColumnManagerChips();
+}
+
+function swapColumnOrderIndices(idxA, idxB) {
+    const posA = columnOrder.indexOf(idxA);
+    const posB = columnOrder.indexOf(idxB);
+    if (posA === -1 || posB === -1) return;
+    
+    columnOrder.splice(posA, 1);
+    columnOrder.splice(posB, 0, idxA);
+    
+    renderTable();
+    renderColumnManagerChips();
+}
 
 
 document.addEventListener('DOMContentLoaded', () => {

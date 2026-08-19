@@ -386,18 +386,21 @@
             </div>
             <div class="input-group">
                 <label style="color:#38bdf8; display:flex; justify-content:space-between;">
-                    <span>2. وحدات التقرير (أقصى حد 3 وحدات)</span>
+                    <span>2. وحدات التقرير (حتى 4 وحدات)</span>
                     <span style="font-size:0.7rem; opacity:0.8;">⚖️ متعدد الوحدات</span>
                 </label>
-                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 6px;">
-                    <select id="unit-select-1" onfocus="onUnit1Focus()" onchange="onUnit1Change()" title="الوحدة الأولى (الرئيسية)" style="padding: 9px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.3);">
+                <div style="display: grid; grid-template-columns: 1fr 1fr 1fr 1fr; gap: 5px;">
+                    <select id="unit-select-1" onfocus="onUnit1Focus()" onchange="onUnit1Change()" title="الوحدة الأولى (الأساسية)" style="padding: 8px 4px; font-size: 0.78rem; font-weight: 700; border-color:rgba(56,189,248,0.3);">
                         <option value="">الوحدة 1 (الأساسية)</option>
                     </select>
-                    <select id="unit-select-2" onfocus="onUnit2Focus()" onchange="onUnit2Change()" title="الوحدة الثانية (اختياري)" style="padding: 9px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.2);">
+                    <select id="unit-select-2" onfocus="onUnit2Focus()" onchange="onUnit2Change()" title="الوحدة الثانية (اختياري)" style="padding: 8px 4px; font-size: 0.78rem; font-weight: 700; border-color:rgba(56,189,248,0.2);">
                         <option value="">الوحدة 2 (اختياري)</option>
                     </select>
-                    <select id="unit-select-3" onfocus="onUnit3Focus()" onchange="onUnit3Change()" title="الوحدة الثالثة (اختياري)" style="padding: 9px 6px; font-size: 0.8rem; font-weight: 700; border-color:rgba(56,189,248,0.2);">
+                    <select id="unit-select-3" onfocus="onUnit3Focus()" onchange="onUnit3Change()" title="الوحدة الثالثة (اختياري)" style="padding: 8px 4px; font-size: 0.78rem; font-weight: 700; border-color:rgba(56,189,248,0.2);">
                         <option value="">الوحدة 3 (اختياري)</option>
+                    </select>
+                    <select id="unit-select-4" onfocus="onUnit4Focus()" onchange="onUnit4Change()" title="الوحدة الرابعة (اختياري)" style="padding: 8px 4px; font-size: 0.78rem; font-weight: 700; border-color:rgba(56,189,248,0.2);">
+                        <option value="">الوحدة 4 (اختياري)</option>
                     </select>
                 </div>
             </div>
@@ -728,7 +731,7 @@
             }
 
             // 3. Secondary / Sub-unit fallback if defined on item
-            ['subUnit', 'secondaryUnit', 'unit2', 'thirdUnit', 'unit3'].forEach(key => {
+            ['subUnit', 'secondaryUnit', 'unit2', 'thirdUnit', 'unit3', 'fourthUnit', 'unit4'].forEach(key => {
                 if (item[key] && typeof item[key] === 'string' && item[key].trim()) {
                     const name = item[key].trim();
                     if (!list.some(u => u.name === name)) {
@@ -737,6 +740,8 @@
                             factor = parseFloat(item.conversionFactor || item.bundleFactor || item.factor2) || 1;
                         } else if (key === 'thirdUnit' || key === 'unit3') {
                             factor = parseFloat(item.thirdFactor || item.factor3) || 1;
+                        } else if (key === 'fourthUnit' || key === 'unit4') {
+                            factor = parseFloat(item.fourthFactor || item.factor4) || 1;
                         }
                         list.push({ name, factor });
                     }
@@ -788,11 +793,13 @@
             const u1 = document.getElementById('unit-select-1');
             const u2 = document.getElementById('unit-select-2');
             const u3 = document.getElementById('unit-select-3');
+            const u4 = document.getElementById('unit-select-4');
 
             if (!item) {
-                if (u1) u1.innerHTML = '<option value="">الوحدة 1</option>';
+                if (u1) u1.innerHTML = '<option value="">الوحدة 1 (الأساسية)</option>';
                 if (u2) u2.innerHTML = '<option value="">(بدون وحدة 2)</option>';
                 if (u3) u3.innerHTML = '<option value="">(بدون وحدة 3)</option>';
+                if (u4) u4.innerHTML = '<option value="">(بدون وحدة 4)</option>';
                 loadLedger();
                 return;
             }
@@ -800,22 +807,25 @@
             const units = getItemUnitsList(item);
 
             // 1. Populate Unit 1 with all units
-            u1.innerHTML = '';
-            units.forEach((u) => {
-                const opt = document.createElement('option');
-                opt.value = u.name;
-                opt.text = u.name;
-                u1.appendChild(opt);
-            });
+            if (u1) {
+                u1.innerHTML = '';
+                units.forEach((u) => {
+                    const opt = document.createElement('option');
+                    opt.value = u.name;
+                    opt.text = u.name;
+                    u1.appendChild(opt);
+                });
 
-            // Default Unit 1 to the first unit (base unit)
-            if (units.length > 0) {
-                u1.value = units[0].name;
+                // Default Unit 1 to the first unit (base unit)
+                if (units.length > 0) {
+                    u1.value = units[0].name;
+                }
             }
 
-            // 2. Cascade down to populate Unit 2 & Unit 3
+            // 2. Cascade down to populate Unit 2, Unit 3 & Unit 4
             refreshUnit2Dropdown(units, true);
             refreshUnit3Dropdown(units, true);
+            refreshUnit4Dropdown(units, true);
 
             loadLedger();
         }
@@ -855,12 +865,20 @@
             refreshUnit3Dropdown(units, false);
         }
 
+        function onUnit4Focus() {
+            const item = getSelectedItemObj();
+            if (!item) return;
+            const units = getItemUnitsList(item);
+            refreshUnit4Dropdown(units, false);
+        }
+
         function onUnit1Change() {
             const item = getSelectedItemObj();
             const units = getItemUnitsList(item);
 
             refreshUnit2Dropdown(units, true);
             refreshUnit3Dropdown(units, true);
+            refreshUnit4Dropdown(units, true);
             loadLedger();
         }
 
@@ -869,10 +887,19 @@
             const units = getItemUnitsList(item);
 
             refreshUnit3Dropdown(units, true);
+            refreshUnit4Dropdown(units, true);
             loadLedger();
         }
 
         function onUnit3Change() {
+            const item = getSelectedItemObj();
+            const units = getItemUnitsList(item);
+
+            refreshUnit4Dropdown(units, true);
+            loadLedger();
+        }
+
+        function onUnit4Change() {
             loadLedger();
         }
 
@@ -931,11 +958,40 @@
             }
         }
 
+        function refreshUnit4Dropdown(units, isAutoPick = false) {
+            const u1Val = document.getElementById('unit-select-1')?.value || '';
+            const u2Val = document.getElementById('unit-select-2')?.value || '';
+            const u3Val = document.getElementById('unit-select-3')?.value || '';
+            const u4 = document.getElementById('unit-select-4');
+            if (!u4) return;
+
+            const prevU4Val = u4.value;
+            u4.innerHTML = '<option value="">(بدون وحدة 4)</option>';
+
+            // Available for Unit 4: All item units EXCEPT Unit 1, Unit 2, Unit 3
+            const availableForU4 = units.filter(u => u.name !== u1Val && u.name !== u2Val && u.name !== u3Val);
+            availableForU4.forEach(u => {
+                const opt = document.createElement('option');
+                opt.value = u.name;
+                opt.text = u.name;
+                u4.appendChild(opt);
+            });
+
+            if (prevU4Val && availableForU4.some(u => u.name === prevU4Val)) {
+                u4.value = prevU4Val;
+            } else if (isAutoPick && availableForU4.length > 0 && !prevU4Val && u3Val) {
+                u4.value = availableForU4[0].name;
+            } else {
+                u4.value = '';
+            }
+        }
+
         function getActiveSelectedUnits(item) {
             const unitsList = getItemUnitsList(item);
             const u1Val = document.getElementById('unit-select-1')?.value;
             const u2Val = document.getElementById('unit-select-2')?.value;
             const u3Val = document.getElementById('unit-select-3')?.value;
+            const u4Val = document.getElementById('unit-select-4')?.value;
 
             let selected = [];
             if (u1Val) {
@@ -950,11 +1006,15 @@
                 const obj = unitsList.find(u => u.name === u3Val) || { name: u3Val, factor: 1 };
                 selected.push(obj);
             }
+            if (u4Val && u4Val !== u1Val && u4Val !== u2Val && u4Val !== u3Val) {
+                const obj = unitsList.find(u => u.name === u4Val) || { name: u4Val, factor: 1 };
+                selected.push(obj);
+            }
 
             if (selected.length === 0) {
                 selected.push(unitsList[0] || { name: 'وحدة', factor: 1 });
             }
-            return selected.slice(0, 3); // Maximum 3 units
+            return selected.slice(0, 4); // Up to 4 units
         }
 
         function formatQtyInUnit(baseQty, unitObj) {
