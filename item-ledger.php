@@ -1377,38 +1377,38 @@
             if (activeUnits.length === 1) {
                 thead.innerHTML = `
                     <tr>
-                        <th style="white-space:nowrap;">التاريخ</th>
-                        <th>نوع الحركة</th>
-                        <th style="color:#38bdf8;">رقم الإذن</th>
-                        <th>رقم الاستلام</th>
-                        <th style="color:#38bdf8;">ملحوظة الحركة</th>
-                        <th style="color:#8b5cf6; background:rgba(139,92,246,0.05); text-align:right;">وحدة وكمية الوارد والصادر</th>
-                        <th style="color:#10b981; background:rgba(16,185,129,0.07); text-align:right; white-space:nowrap;">
+                        <th style="white-space:nowrap; text-align:center;">التاريخ</th>
+                        <th style="text-align:center;">نوع الحركة</th>
+                        <th style="color:#38bdf8; text-align:center;">رقم الإذن</th>
+                        <th style="text-align:center;">رقم الاستلام</th>
+                        <th style="color:#38bdf8; text-align:center;">ملحوظة الحركة</th>
+                        <th style="color:#8b5cf6; background:rgba(139,92,246,0.05); text-align:center;">وحدة وكمية الوارد والصادر</th>
+                        <th style="color:#10b981; background:rgba(16,185,129,0.07); text-align:center; white-space:nowrap;">
                             الوارد<br><span style="font-size:0.75rem; font-weight:600; opacity:0.75;">(بـ ${baseUnitName})</span>
                         </th>
-                        <th style="color:#ec4899; background:rgba(236,72,153,0.07); text-align:right; white-space:nowrap;">
+                        <th style="color:#ec4899; background:rgba(236,72,153,0.07); text-align:center; white-space:nowrap;">
                             المنصرف<br><span style="font-size:0.75rem; font-weight:600; opacity:0.75;">(بـ ${baseUnitName})</span>
                         </th>
-                        <th style="color:#fbbf24; background:rgba(251,191,36,0.07); text-align:right; white-space:nowrap;">
+                        <th style="color:#fbbf24; background:rgba(251,191,36,0.07); text-align:center; white-space:nowrap;">
                             الرصيد<br><span style="font-size:0.75rem; font-weight:600; opacity:0.75;">(${baseUnitName})</span>
                         </th>
                     </tr>
                 `;
             } else {
-                let uHeadersBal = activeUnits.map(u => `<th style="color:#fbbf24; background:rgba(251,191,36,0.08); text-align:right; font-size:0.75rem; padding:8px 10px;">${u.name}</th>`).join('');
+                let uHeadersBal = activeUnits.map(u => `<th style="color:#fbbf24; background:rgba(251,191,36,0.08); text-align:center; font-size:0.75rem; padding:8px 10px;">${u.name}</th>`).join('');
 
                 thead.innerHTML = `
                     <tr>
-                        <th rowspan="2" style="vertical-align:middle; white-space:nowrap;">التاريخ</th>
-                        <th rowspan="2" style="vertical-align:middle;">نوع الحركة</th>
-                        <th rowspan="2" style="color:#38bdf8; vertical-align:middle;">رقم الإذن</th>
-                        <th rowspan="2" style="vertical-align:middle;">رقم الاستلام</th>
-                        <th rowspan="2" style="color:#38bdf8; vertical-align:middle;">ملحوظة الحركة</th>
-                        <th rowspan="2" style="color:#8b5cf6; background:rgba(139,92,246,0.05); vertical-align:middle; text-align:right;">وحدة وكمية الوارد والصادر</th>
-                        <th rowspan="2" style="color:#10b981; background:rgba(16,185,129,0.07); vertical-align:middle; text-align:right; white-space:nowrap;">
+                        <th rowspan="2" style="vertical-align:middle; white-space:nowrap; text-align:center;">التاريخ</th>
+                        <th rowspan="2" style="vertical-align:middle; text-align:center;">نوع الحركة</th>
+                        <th rowspan="2" style="color:#38bdf8; vertical-align:middle; text-align:center;">رقم الإذن</th>
+                        <th rowspan="2" style="vertical-align:middle; text-align:center;">رقم الاستلام</th>
+                        <th rowspan="2" style="color:#38bdf8; vertical-align:middle; text-align:center;">ملحوظة الحركة</th>
+                        <th rowspan="2" style="color:#8b5cf6; background:rgba(139,92,246,0.05); vertical-align:middle; text-align:center;">وحدة وكمية الوارد والصادر</th>
+                        <th rowspan="2" style="color:#10b981; background:rgba(16,185,129,0.07); vertical-align:middle; text-align:center; white-space:nowrap;">
                             الوارد<br><span style="font-size:0.72rem; opacity:0.75;">(بوحدة الحركة)</span>
                         </th>
-                        <th rowspan="2" style="color:#ec4899; background:rgba(236,72,153,0.07); vertical-align:middle; text-align:right; white-space:nowrap;">
+                        <th rowspan="2" style="color:#ec4899; background:rgba(236,72,153,0.07); vertical-align:middle; text-align:center; white-space:nowrap;">
                             المنصرف<br><span style="font-size:0.72rem; opacity:0.75;">(بوحدة الحركة)</span>
                         </th>
                         <th colspan="${numBalCols}" style="color:#fbbf24; background:rgba(251,191,36,0.05); text-align:center; border-bottom:1px solid rgba(251,191,36,0.25);">الرصيد التراكمي</th>
@@ -1589,13 +1589,13 @@
                 function buildSimpleQtyCell(qty, direction) {
                     const isIn = direction === 'in';
                     if ((isIn && row.in <= 0) || (!isIn && row.out <= 0)) {
-                        return `<td style="${isIn ? 'color:#10b981' : 'color:#ec4899'}; font-weight:700; background:${isIn ? 'rgba(16,185,129,0.02)' : 'rgba(236,72,153,0.02)'}; text-align:right;">-</td>`;
+                        return `<td style="${isIn ? 'color:#10b981' : 'color:#ec4899'}; font-weight:700; background:${isIn ? 'rgba(16,185,129,0.02)' : 'rgba(236,72,153,0.02)'}; text-align:center;">-</td>`;
                     }
                     const baseQty = isIn ? row.in : row.out;
                     const baseUnitObj = activeUnits[0] || { name: 'وحدة', factor: 1 };
                     const formatted = formatQtyInUnit(baseQty, baseUnitObj);
                     
-                    return `<td style="font-weight:900; color:${isIn ? '#10b981' : '#ec4899'}; background:${isIn ? 'rgba(16,185,129,0.02)' : 'rgba(236,72,153,0.02)'}; text-align:right; vertical-align:middle;">
+                    return `<td style="font-weight:900; color:${isIn ? '#10b981' : '#ec4899'}; background:${isIn ? 'rgba(16,185,129,0.02)' : 'rgba(236,72,153,0.02)'}; text-align:center; vertical-align:middle;">
                         <span style="font-size:0.92rem; font-weight:900;">${formatted}</span> <span style="font-size:0.72rem; font-weight:700; opacity:0.85;">${baseUnitObj.name}</span>
                     </td>`;
                 }
@@ -1608,52 +1608,39 @@
                 let origBadgeHtml = '-';
                 if (origQtyAbs > 0) {
                     origBadgeHtml = `
-                        <div style="display:inline-flex; align-items:baseline; gap:4px; justify-content:flex-end; width:100%;">
+                        <div style="display:inline-flex; align-items:baseline; gap:4px; justify-content:center; width:100%;">
                             <span style="font-size:0.92rem; font-weight:900; color:#a78bfa;">${fmtNum(origQtyAbs)}</span> <span style="font-size:0.72rem; font-weight:700; color:#c4b5fd; background:rgba(139,92,246,0.12); padding:2px 5px; border-radius:4px; border:1px solid rgba(139,92,246,0.25);">${origUnitStr}</span>
                         </div>
                     `;
                 }
-                const origCell = `<td style="background:rgba(139,92,246,0.02); vertical-align:middle; text-align:right;">${origBadgeHtml}</td>`;
+                const origCell = `<td style="background:rgba(139,92,246,0.02); vertical-align:middle; text-align:center;">${origBadgeHtml}</td>`;
 
                 const inCell  = buildSimpleQtyCell(row.in, 'in');
                 const outCell = buildSimpleQtyCell(row.out, 'out');
 
                 let balCells = '';
                 if (activeUnits.length === 1) {
-                    const allUnits = getItemUnitsList(item);
-                    const otherUnits = allUnits.filter(u => u.name !== activeUnits[0].name && u.factor > 0 );
-                    let subBal = '';
-                    if (otherUnits.length > 0) {
-                        const subs = otherUnits.map(u => `<span style="color:#fbbf24; font-weight:800;">${formatQtyInUnit(row.runningBalance, u)}</span> <span style="opacity:0.8;">${u.name}</span>`).join(' <span style="opacity:0.4;">|</span> ');
-                        subBal = `
-                            <div style="font-size:0.75rem; color:#fde68a; font-family:monospace; background:rgba(251,191,36,0.08); padding:2px 8px; border-radius:5px; border:1px solid rgba(251,191,36,0.2);">
-                                (= ${subs})
-                            </div>`;
-                    }
                     balCells = `
-                        <td style="color:#fbbf24; font-weight:900; background:rgba(251,191,36,0.02); text-align:right; vertical-align:middle;">
-                            <div style="display:flex; flex-direction:column; align-items:flex-end; gap:3px;">
-                                <div style="display:inline-flex; align-items:baseline; gap:4px;">
-                                    <span style="font-size:0.95rem; font-weight:900;">${formatQtyInUnit(row.runningBalance, activeUnits[0])}</span> <span style="font-size:0.75rem; font-weight:700; opacity:0.85;">${activeUnits[0].name}</span>
-                                </div>
-                                ${subBal}
+                        <td style="color:#fbbf24; font-weight:900; background:rgba(251,191,36,0.02); text-align:center; vertical-align:middle;">
+                            <div style="display:inline-flex; align-items:baseline; gap:4px; justify-content:center;">
+                                <span style="font-size:0.95rem; font-weight:900;">${formatQtyInUnit(row.runningBalance, activeUnits[0])}</span> <span style="font-size:0.75rem; font-weight:700; opacity:0.85;">${activeUnits[0].name}</span>
                             </div>
                         </td>`;
                 } else {
                     balCells = activeUnits.map(u => `
-                        <td style="color:#fbbf24; font-weight:900; background:rgba(251,191,36,0.02); font-size:1.0rem; text-align:right; vertical-align:middle;">
-                            <span style="font-size:1.05rem; font-weight:900;">${formatQtyInUnit(row.runningBalance, u)}</span>
-                            <span style="font-size:0.75rem; font-weight:600; opacity:0.7;">${u.name}</span>
+                        <td style="color:#fbbf24; font-weight:900; background:rgba(251,191,36,0.02); font-size:0.95rem; text-align:center; vertical-align:middle;">
+                            <span style="font-size:0.95rem; font-weight:900;">${formatQtyInUnit(row.runningBalance, u)}</span>
+                            <span style="font-size:0.72rem; font-weight:700; opacity:0.85;">${u.name}</span>
                         </td>
                     `).join('');
                 }
 
                 tr.innerHTML = `
-                    <td style="white-space:nowrap;">${dStr}</td>
-                    <td>${typeBadge}</td>
-                    <td style="font-weight:700;">${permitHtml}</td>
-                    <td style="font-weight:600;">${refHtml}</td>
-                    <td>${noteHtml}</td>
+                    <td style="white-space:nowrap; text-align:center;">${dStr}</td>
+                    <td style="text-align:center;">${typeBadge}</td>
+                    <td style="font-weight:700; text-align:center;">${permitHtml}</td>
+                    <td style="font-weight:600; text-align:center;">${refHtml}</td>
+                    <td style="text-align:center;">${noteHtml}</td>
                     ${origCell}
                     ${inCell}
                     ${outCell}
