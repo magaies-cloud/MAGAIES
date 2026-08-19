@@ -1439,18 +1439,18 @@
 
                 const otherUnits = units.filter((u, i) => i > 0 && u.factor > 0);
                 if (otherUnits.length > 0) {
-                    // Modern, elegant mini-list for secondary units
+                    // Elegant horizontal pills for secondary units
                     const subs = otherUnits.map(u => `
-                        <div style="display:flex; justify-content:space-between; align-items:center; padding: 5px 8px; background: rgba(0,0,0,0.2); border-radius: 6px; border: 1px solid rgba(255,255,255,0.04); transition: all 0.2s ease;">
-                            <span style="font-size:0.75rem; font-weight:600; color:#cbd5e1;">${u.name}</span>
-                            <strong style="font-size:0.88rem; font-weight:800; color:${themeColor}; font-family: 'Courier New', Courier, monospace;">${formatQtyInUnit(val, u)}</strong>
+                        <div style="display:inline-flex; align-items:center; gap: 4px; padding: 3px 8px; background: rgba(0,0,0,0.25); border-radius: 6px; border: 1px solid rgba(255,255,255,0.05); white-space:nowrap;">
+                            <strong style="font-size:0.88rem; font-weight:800; color:${themeColor}; font-family: 'Courier New', Courier, monospace; letter-spacing:-0.5px;">${formatQtyInUnit(val, u)}</strong>
+                            <span style="font-size:0.72rem; font-weight:600; color:#cbd5e1; opacity:0.9;">${u.name}</span>
                         </div>
                     `).join('');
 
                     return `
                         <div style="display:flex; flex-direction:column; width: 100%;">
                             ${main}
-                            <div style="display:flex; flex-direction:column; gap: 5px; margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,0.08);">
+                            <div style="display:flex; flex-direction:row; flex-wrap:wrap; gap: 6px; margin-top: 10px; padding-top: 10px; border-top: 1px dashed rgba(255,255,255,0.1);">
                                 ${subs}
                             </div>
                         </div>
