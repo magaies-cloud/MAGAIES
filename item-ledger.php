@@ -431,8 +431,7 @@
                             <th>نوع الحركة</th>
                             <th style="color:#38bdf8;">رقم الإذن</th>
                             <th>رقم الاستلام</th>
-                        <th style="color:#8b5cf6; background:rgba(139,92,246,0.05); text-align:center;">أصل الوحدة الواردة</th>
-                        <th style="color:#10b981; background:rgba(16,185,129,0.05); text-align: right;">الوارد (داخل)</th>
+                            <th style="color:#10b981; background:rgba(16,185,129,0.05); text-align: right;">الوارد (داخل)</th>
                             <th style="color:#ec4899; background:rgba(236,72,153,0.05); text-align: right;">المنصرف (خارج)</th>
                             <th style="color:#fbbf24; background:rgba(251,191,36,0.05); text-align: right;">الرصيد التراكمي</th>
                             <th style="color:#38bdf8;">ملحوظة الحركة</th>
@@ -1369,7 +1368,6 @@
                         <th rowspan="2" style="vertical-align:middle;">نوع الحركة</th>
                         <th rowspan="2" style="color:#38bdf8; vertical-align:middle;">رقم الإذن</th>
                         <th rowspan="2" style="vertical-align:middle;">رقم الاستلام</th>
-                        <th rowspan="2" style="color:#8b5cf6; background:rgba(139,92,246,0.05); vertical-align:middle; text-align:center;">أصل الوحدة الواردة</th>
                         <th rowspan="2" style="color:#10b981; background:rgba(16,185,129,0.07); vertical-align:middle; text-align:right; white-space:nowrap;">
                             الوارد<br><span style="font-size:0.72rem; opacity:0.75;">(بوحدة الحركة)</span>
                         </th>
@@ -1603,15 +1601,6 @@
                     return `<td style="font-weight:700; background:${isIn ? 'rgba(16,185,129,0.02)' : 'rgba(236,72,153,0.02)'}; text-align:right; vertical-align:middle;">${html}</td>`;
                 }
 
-                const baseUnitObjDef = activeUnits[0] || { name: 'وحدة', factor: 1 };
-                const origUnitStr = row.origUnit || baseUnitObjDef.name;
-                let origUnitBadge = '-';
-                if (row.in > 0) {
-                    origUnitBadge = `<span style="font-size:0.8rem; font-weight:700; color:#8b5cf6; background:rgba(139,92,246,0.12); padding:3px 8px; border-radius:6px; border:1px solid rgba(139,92,246,0.2);">${origUnitStr}</span>`;
-                } else if (row.out > 0) {
-                    origUnitBadge = `<span style="font-size:0.8rem; font-weight:700; color:#64748b; background:rgba(100,116,139,0.12); padding:3px 8px; border-radius:6px;">${origUnitStr}</span>`;
-                }
-                
                 const inCell  = buildOrigQtyCell(row.in, 'in');
                 const outCell = buildOrigQtyCell(row.out, 'out');
 
@@ -1651,7 +1640,6 @@
                     <td>${typeBadge}</td>
                     <td style="font-weight:700;">${permitHtml}</td>
                     <td style="font-weight:600;">${refHtml}</td>
-                    <td style="text-align:center;">${origUnitBadge}</td>
                     ${inCell}
                     ${outCell}
                     ${balCells}
