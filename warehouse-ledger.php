@@ -1124,10 +1124,12 @@ try {
             document.getElementById('kpi-wh-net').innerHTML = `<span style="color:${netFlow >= 0 ? '#10b981' : '#ec4899'}">${netFlow >= 0 ? '+' : ''}${fmtNum(netFlow)}</span>`;
 
             initWarehouseLedgerResizers();
+            } catch(err) {
+                console.error('Error in loadLedger:', err);
+            }
         }
 
         function initWarehouseLedgerResizers() {
-            // ... omitting for brevity if not strictly needed, but let's keep the old table resizer logic 
             const table = document.getElementById('warehouse-ledger-table');
             if (!table) return;
             const resizers = table.querySelectorAll('.resizer');
@@ -1415,12 +1417,12 @@ try {
                 <!-- 1. Header Section -->
                 <div id="sheet-header-block" style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px double #0f172a; padding-bottom:16px; margin-bottom:20px; direction:rtl;">
                     <div style="display:flex; align-items:center; gap:14px; width:35%;">
-                        ${cmpLogo ? \`<img src="${cmpLogo}" style="max-height:65px; max-width:90px; object-fit:contain; border-radius:8px;">\` : ''}
+                        ${cmpLogo ? ('<img src="' + cmpLogo + '" style="max-height:65px; max-width:90px; object-fit:contain; border-radius:8px;">') : ''}
                         <div>
                             <h2 style="margin:0; font-size:1.35rem; font-weight:900; color:#0f172a;" class="editable-text">${cmpName}</h2>
                             <div style="font-size:0.75rem; color:#475569; margin-top:3px;">
-                                ${cmpReg ? \`<span>س.ت: ${cmpReg}</span> | \` : ''}
-                                ${cmpTax ? \`<span>ر.ض : ${cmpTax}</span>\` : ''}
+                                ${cmpReg ? ('<span>س.ت: ' + cmpReg + '</span> | ') : ''}
+                                ${cmpTax ? ('<span>ر.ض : ' + cmpTax + '</span>') : ''}
                             </div>
                             <div style="font-size:0.75rem; color:#475569;">${cmpAddress} | هاتف: ${cmpPhone}</div>
                         </div>
