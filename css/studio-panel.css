@@ -1,116 +1,899 @@
-﻿/* Studio Settings Panel Shared CSS - Ultra Compact Pro Edition (0.8rem) */
-.studio-tabs {
-    display: flex; justify-content: space-between; align-items: center;
-    background: linear-gradient(135deg, #ca8a04, #854d0e);
-    color: #ffffff; padding: 5px 12px; border-radius: 8px;
-    margin-bottom: 8px; box-shadow: 0 2px 8px rgba(133, 77, 14, 0.2);
-}
-body.dark-mode .studio-tabs {
-    background: linear-gradient(135deg, #854d0e, #451a03);
-}
-.studio-tab-btn {
-    background: rgba(255, 255, 255, 0.15); border: 1px solid rgba(255, 255, 255, 0.3);
-    color: #ffffff !important; padding: 4px 12px; border-radius: 14px;
-    font-family: inherit; font-weight: 800; cursor: pointer; transition: all 0.2s; font-size: 0.8rem;
-}
-.studio-tab-btn.active {
-    background: #ffffff !important; color: #854d0e !important; font-weight: 900;
-    box-shadow: 0 2px 6px rgba(0,0,0,0.2); border-color: #ffffff; transform: translateY(-1px);
-}
-.studio-tab-btn:hover:not(.active) {
-    background: rgba(255, 255, 255, 0.3); color: #ffffff !important;
-}
+/* ═════════════════════════════════════════════════════════════════════════
+   studio-panel.css — Microsoft Office 365 Excel Ribbon Studio Theme
+   Pixel-perfect match to user reference screenshots
+   ═════════════════════════════════════════════════════════════════════════ */
 
-/* Studio Dropdown Panel with Slide-Down Animation */
-@keyframes studioSlideDown {
-    from { opacity: 0; transform: translateY(-8px); max-height: 0; }
-    to { opacity: 1; transform: translateY(0); max-height: 500px; }
-}
-
+/* ── Panel Container ── */
 .settings-panel {
-    background: #fef9c3; /* Yellow-100 */
-    color: #713f12; /* Yellow-900 */
-    padding: 8px 12px; border-bottom: 3px solid #eab308;
-    display: none; /* Hidden by default */
-    font-size: 0.8rem; font-weight: 800;
-    box-shadow: 0 6px 18px rgba(0,0,0,0.15);
-    flex-direction: column; gap: 6px;
-    animation: studioSlideDown 0.25s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-    overflow: hidden;
+    display: none;
+    background: #ffffff;
+    color: #1e293b;
+    border-bottom: 2px solid #cbd5e1;
+    box-shadow: 0 6px 20px rgba(0, 0, 0, 0.1);
+    font-family: 'Segoe UI', 'Tajawal', -apple-system, BlinkMacSystemFont, sans-serif;
+    font-size: 11px;
+    z-index: 999;
+    position: relative;
+    user-select: none;
+    -webkit-user-select: none;
 }
+
 .settings-panel.show {
-    display: flex !important;
+    display: block !important;
 }
 
-body.dark-mode .settings-panel {
-    background: #1c1507; color: #fef08a; border-bottom-color: #ca8a04;
+/* ── 1. Top Amber Tab Strip (Exact Screenshot Match) ── */
+.office-ribbon-tabs {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    background: linear-gradient(180deg, #935116 0%, #7e4000 100%);
+    padding: 3px 10px 0 10px;
+    min-height: 32px;
+    border-bottom: 1px solid #663300;
 }
 
-.panel-card {
-    background: rgba(255,255,255,0.78);
-    border: 1px solid rgba(202, 138, 4, 0.4);
-    border-radius: 6px; padding: 5px 10px;
-    display: flex; flex-wrap: wrap; gap: 8px; align-items: center; justify-content: space-between;
-}
-body.dark-mode .panel-card {
-    background: rgba(0,0,0,0.45); border-color: rgba(202, 138, 4, 0.3);
+.ribbon-tabs-group {
+    display: flex;
+    align-items: flex-end;
+    gap: 4px;
 }
 
-.panel-group { display: flex; align-items: center; gap: 6px; flex-wrap: wrap; }
-.panel-group span { font-size: 0.8rem; font-weight: 900; }
-.panel-input {
-    padding: 3px 8px; border-radius: 5px; border: 1px solid #ca8a04; font-family: inherit;
-    background: #ffffff; color: #000; font-weight: 800; font-size: 0.8rem; outline: none;
-    height: 28px; box-sizing: border-box;
-}
-.panel-input:focus { border-color: #0284c7; box-shadow: 0 0 0 2px rgba(2,132,199,0.2); }
-
-/* Super-Row Single Line Toolbar Styles */
-.studio-super-row {
-    scrollbar-width: thin;
-    overflow-x: auto;
-    background: rgba(255, 255, 255, 0.9) !important;
-    border: 1px solid rgba(202, 138, 4, 0.5) !important;
-    box-shadow: 0 1px 4px rgba(0, 0, 0, 0.04);
-    padding: 4px 8px !important;
-}
-body.dark-mode .studio-super-row {
-    background: rgba(15, 23, 42, 0.85) !important;
-    border-color: rgba(202, 138, 4, 0.3) !important;
-}
-.studio-group-pill {
+.ribbon-tab-btn {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    padding: 4px 14px;
+    font-size: 11px;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    border-radius: 4px 4px 0 0;
     display: inline-flex;
     align-items: center;
     gap: 5px;
+    transition: all 0.15s ease;
     white-space: nowrap;
-    flex-shrink: 0;
-    font-size: 0.8rem;
+    opacity: 0.85;
 }
-.studio-group-pill span, .studio-group-pill label {
-    font-size: 0.8rem !important;
+
+.ribbon-tab-btn:hover:not(.active) {
+    opacity: 1;
+    background: rgba(255, 255, 255, 0.12);
 }
-.studio-pill-divider {
-    width: 1px;
-    height: 18px;
-    background: rgba(202, 138, 4, 0.35);
-    margin: 0 3px;
-    flex-shrink: 0;
-}
-.studio-mini-btn {
-    padding: 2px 6px !important;
-    font-size: 0.78rem !important;
-    height: 24px !important;
-    border-radius: 6px !important;
+
+/* Active Tab: Pure White Pill Shape */
+.ribbon-tab-btn.active {
     background: #ffffff !important;
-    color: #000000 !important;
-    border: 1px solid #ca8a04 !important;
-    cursor: pointer;
-    transition: all 0.2s ease;
+    color: #6e3a00 !important;
+    font-weight: 800 !important;
+    opacity: 1 !important;
+    border-radius: 12px 12px 0 0 !important;
+    box-shadow: 0 -2px 6px rgba(0, 0, 0, 0.15);
+    padding: 5px 16px !important;
+    margin-bottom: -1px;
+    border: 1px solid #e2e8f0;
+    border-bottom: 1px solid #ffffff;
+}
+
+/* Quick Access Toolbar */
+.quick-access-toolbar {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 2px 6px;
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(59, 130, 246, 0.5);
+    border-radius: 4px;
+}
+
+.qat-btn {
+    background: transparent;
+    border: none;
+    color: #ffffff;
+    width: 22px;
+    height: 22px;
     display: inline-flex;
     align-items: center;
     justify-content: center;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.15s;
+    padding: 0;
 }
-.studio-mini-btn:hover {
-    background: #fef08a !important;
+
+.qat-btn:hover {
+    background: rgba(255, 255, 255, 0.2);
+}
+
+.qat-save {
+    color: #c084fc;
+}
+
+.qat-close:hover {
+    background: rgba(239, 68, 68, 0.8);
+}
+
+/* ── 2. Ribbon Content Row (White Excel Surface) ── */
+.office-ribbon-content {
+    display: flex;
+    align-items: stretch;
+    background: #ffffff;
+    padding: 4px 8px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+    min-height: 80px;
+    gap: 0;
+}
+
+/* Section Group */
+.ribbon-sec {
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+    padding: 2px 6px;
+    flex-shrink: 0;
+}
+
+.sec-body {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    flex: 1;
+    justify-content: center;
+}
+
+.sec-footer {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    position: relative;
+    font-size: 10px;
+    color: #475569;
+    padding-top: 2px;
+    margin-top: 2px;
+    letter-spacing: 0.2px;
+}
+
+.dialog-launcher {
+    position: absolute;
+    right: 0;
+    font-size: 9px;
+    color: #94a3b8;
+    cursor: pointer;
+}
+
+.dialog-launcher:hover {
+    color: #0284c7;
+}
+
+/* Vertical Divider Between Groups */
+.sec-divider {
+    width: 1px;
+    background: #e2e8f0;
+    margin: 4px 2px;
+    align-self: stretch;
+    flex-shrink: 0;
+}
+
+/* Generic Control Row */
+.office-ctrl-row {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    white-space: nowrap;
+}
+
+/* ── Specific Groups ── */
+
+/* 1. Clipboard */
+.sec-body-clipboard {
+    flex-direction: row !important;
+    align-items: center;
+    gap: 4px;
+}
+
+.ribbon-paste-btn {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 3px;
+    padding: 2px 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+}
+
+.ribbon-paste-btn:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.paste-text {
+    font-size: 10px;
+    color: #334155;
+    display: flex;
+    align-items: center;
+    gap: 2px;
+}
+
+.clipboard-tools {
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+}
+
+.icon-tool-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 2px;
+    width: 20px;
+    height: 18px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #475569;
+}
+
+.icon-tool-btn:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+/* 2. Font Group */
+.office-select {
+    height: 22px;
+    border: 1px solid #cbd5e1;
+    border-radius: 2px;
+    background: #ffffff;
+    color: #1e293b;
+    font-size: 11px;
+    font-family: inherit;
+    padding: 0 4px;
+    outline: none;
+}
+
+.office-select:focus {
+    border-color: #0284c7;
+}
+
+.font-family-select { width: 105px; }
+.font-size-select { width: 42px; }
+
+.btn-font-scale {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 2px;
+    width: 20px;
+    height: 22px;
+    font-size: 11px;
+    font-weight: 700;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+}
+
+.btn-font-scale:hover {
+    background: #f1f5f9;
+}
+
+.btn-style-toggle {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 2px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    cursor: pointer;
+    color: #1e293b;
+}
+
+.btn-style-toggle:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.color-btn-wrap {
+    position: relative;
+    display: inline-flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    width: 22px;
+    height: 20px;
+    border: 1px solid #e2e8f0;
+    border-radius: 2px;
+    cursor: pointer;
+}
+
+.color-btn-wrap:hover {
+    background: #f1f5f9;
+}
+
+.color-btn-wrap input[type="color"] {
+    position: absolute;
+    opacity: 0;
+    width: 100%;
+    height: 100%;
+    cursor: pointer;
+}
+
+.color-bar {
+    position: absolute;
+    bottom: 1px;
+    left: 2px;
+    right: 2px;
+    height: 3px;
+    border-radius: 1px;
+}
+
+.col-bg-label {
+    font-size: 10px;
+    font-weight: 700;
+    color: #475569;
+}
+
+.col-bg-box {
+    width: 45px;
+    height: 18px;
+    border: 1.5px solid #84cc16;
+    border-radius: 3px;
+    background: #f0fdf4;
+    position: relative;
+    overflow: hidden;
+    cursor: pointer;
+}
+
+.col-bg-box input[type="color"] {
+    position: absolute;
+    inset: -5px;
+    width: 200%;
+    height: 200%;
+    opacity: 0;
+    cursor: pointer;
+}
+
+/* 3. Alignment Group */
+.btn-align-icon {
+    background: #ffffff;
+    border: 1px solid #e2e8f0;
+    border-radius: 2px;
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: #475569;
+}
+
+.btn-align-icon:hover, .btn-align-icon.active {
+    background: #e0f2fe;
+    border-color: #38bdf8;
+    color: #0284c7;
+}
+
+.office-blue-range {
+    -webkit-appearance: none;
+    appearance: none;
+    height: 5px;
+    background: #0284c7;
+    border-radius: 3px;
+    outline: none;
+    width: 70px;
+    cursor: pointer;
+}
+
+.office-blue-range::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    appearance: none;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    background: #0284c7;
+    border: 2px solid #ffffff;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+    cursor: pointer;
+}
+
+.table-width-pct {
+    font-size: 10px;
+    font-weight: 800;
+    color: #0f172a;
+    min-width: 28px;
+}
+
+.table-width-title {
+    font-size: 10px;
+    color: #475569;
+    font-weight: 600;
+}
+
+/* 4. Number Group */
+.number-format-select { width: 95px; }
+.num-sep-select { width: 34px; padding: 0 2px; }
+
+.btn-num-tool {
+    background: #ffffff;
+    border: 1px solid #cbd5e1;
+    border-radius: 2px;
+    height: 20px;
+    padding: 0 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 11px;
+    cursor: pointer;
+}
+
+.btn-num-tool:hover {
+    background: #f1f5f9;
+}
+
+/* 5, 6, 7. Big Action Buttons (Margins, Orientation, Size) */
+.ribbon-sec-big {
+    justify-content: center;
+    align-items: center;
+    min-width: 55px;
+}
+
+.big-action-btn {
+    background: transparent;
+    border: 1px solid transparent;
+    border-radius: 4px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 4px 6px;
+    cursor: pointer;
+    transition: all 0.15s;
+    height: 100%;
+}
+
+.big-action-btn:hover {
+    background: #f1f5f9;
+    border-color: #cbd5e1;
+}
+
+.big-action-title {
+    font-size: 10px;
+    color: #334155;
+    font-weight: 600;
+    margin-top: 2px;
+    white-space: nowrap;
+}
+
+/* ── 8. COLUMN CONFIGURATION AREA (Right Side - Exact Match) ── */
+.ribbon-sec-columns {
+    flex: 1;
+    min-width: 270px;
+    justify-content: center;
+}
+
+.columns-ctrl-box {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    width: 100%;
+}
+
+.col-ctrl-row {
+    display: flex;
+    align-items: center;
+    justify-content: flex-end;
+    gap: 6px;
+}
+
+.col-row-label {
+    font-size: 12px;
+    font-weight: 900;
+    white-space: nowrap;
+}
+
+.label-red {
+    color: #dc2626;
+}
+
+.label-pencil {
+    color: #ea580c;
+}
+
+.col-sub-label {
+    font-size: 11px;
+    font-weight: 700;
+    color: #334155;
+}
+
+/* Custom Select Dropdown Wrappers */
+.custom-select-wrap {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+.col-pill-select {
+    height: 24px;
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 11px;
+    font-weight: 800;
+    padding: 0 16px 0 10px;
+    outline: none;
+    cursor: pointer;
+    -webkit-appearance: none;
+    appearance: none;
+    direction: rtl;
+}
+
+.select-caret {
+    position: absolute;
+    left: 6px;
+    pointer-events: none;
+    font-size: 10px;
+    font-weight: 900;
+}
+
+/* Red Active Column Select */
+.select-wrap-red .col-select-red {
+    border: 1.5px solid #ef4444;
+    background: #ffffff;
+    color: #dc2626;
+    min-width: 150px;
+}
+
+.red-caret { color: #dc2626; }
+
+/* Yellow Hidden Columns Select */
+.select-wrap-yellow .col-select-yellow {
+    border: 1.5px solid #f59e0b;
+    background: #fffbeb;
+    color: #1e293b;
+    min-width: 150px;
+}
+
+.yellow-caret { color: #d97706; }
+
+/* Visibility Checkbox */
+.col-visibility-chk-label {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 12px;
+    font-weight: 800;
+    color: #1e293b;
+    cursor: pointer;
+}
+
+.col-visibility-chk-label input[type="checkbox"] {
+    width: 15px;
+    height: 15px;
+    accent-color: #0284c7;
+    cursor: pointer;
+}
+
+/* Input for Label */
+.input-wrap-yellow {
+    display: inline-flex;
+}
+
+.col-label-input-field {
+    height: 22px;
+    border: 1.5px solid #f59e0b;
+    border-radius: 10px;
+    background: #ffffff;
+    color: #1e293b;
+    font-size: 11px;
+    font-weight: 800;
+    font-family: inherit;
+    padding: 0 8px;
+    text-align: center;
+    width: 95px;
+    outline: none;
+}
+
+/* Blue Order Square Buttons */
+.col-order-buttons {
+    display: flex;
+    gap: 3px;
+}
+
+.btn-col-order {
+    width: 22px;
+    height: 22px;
+    background: #0284c7;
+    color: #ffffff;
+    border: none;
+    border-radius: 4px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 10px;
+    cursor: pointer;
+    transition: all 0.15s;
+    padding: 0;
+}
+
+.btn-col-order:hover {
+    background: #0369a1;
     transform: translateY(-1px);
+}
+
+/* ── Visual Column Chips Strip ── */
+.office-chips-strip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    background: #f8fafc;
+    border-top: 1px solid #e2e8f0;
+    padding: 3px 10px;
+    overflow-x: auto;
+    scrollbar-width: thin;
+}
+
+.chips-strip-header {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-shrink: 0;
+}
+
+.chips-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #92400e;
+}
+
+.chips-hint {
+    font-size: 10px;
+    color: #64748b;
+}
+
+.chips-container-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    flex-wrap: nowrap;
+}
+
+/* ═════════════════════════════════════════════════════════════════════════
+   TAB 2: PAPER & PRINT SETUP (Screenshot 2 Match)
+   ═════════════════════════════════════════════════════════════════════════ */
+.paper-tab-content {
+    justify-content: space-between !important;
+}
+
+.paper-controls-column {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    flex: 1;
+    padding: 4px 8px;
+}
+
+.paper-ctrl-row {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+
+/* Upper Header Elements Box (Rounded Amber Border) */
+.paper-pill-box {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: #ffffff;
+    border: 1.5px solid #d97706;
+    border-radius: 12px;
+    padding: 3px 12px;
+}
+
+.paper-box-title {
+    font-size: 11px;
+    font-weight: 800;
+    color: #92400e;
+}
+
+.paper-chk-label {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 11px;
+    font-weight: 700;
+    color: #1e293b;
+    cursor: pointer;
+}
+
+.paper-chk-label input[type="checkbox"] {
+    width: 14px;
+    height: 14px;
+    accent-color: #0284c7;
+    cursor: pointer;
+}
+
+/* Theme Select Dropdown */
+.theme-select-wrap {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+}
+
+.theme-select-label {
+    font-size: 11px;
+    font-weight: 800;
+    color: #92400e;
+}
+
+.select-wrap-amber .col-select-amber {
+    border: 1.5px solid #d97706;
+    background: #ffffff;
+    color: #1e293b;
+    min-width: 180px;
+}
+
+.amber-caret { color: #d97706; }
+
+/* Advanced Print Options Header */
+.paper-print-options-header {
+    font-size: 11px;
+    font-weight: 800;
+    color: #b45309;
+    margin-top: 2px;
+}
+
+/* Colored Print Pill Boxes (Screenshot 2 Match) */
+.paper-print-pills-row {
+    gap: 8px !important;
+}
+
+.print-pill-box {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: #ffffff;
+    border-radius: 12px;
+    padding: 3px 10px;
+}
+
+/* Purple: Page numbers */
+.pill-purple {
+    border: 1.5px solid #8b5cf6;
+}
+
+.pill-purple input[type="checkbox"] {
+    accent-color: #8b5cf6;
+}
+
+/* Green: Date & Time */
+.pill-green {
+    border: 1.5px solid #10b981;
+}
+
+.pill-green input[type="checkbox"] {
+    accent-color: #10b981;
+}
+
+/* Blue: User who printed */
+.pill-blue {
+    border: 1.5px solid #0284c7;
+}
+
+.pill-blue input[type="checkbox"] {
+    accent-color: #0284c7;
+}
+
+.select-wrap-blue-sm .col-select-blue {
+    border: 1px solid #0284c7;
+    background: #f0f9ff;
+    color: #0284c7;
+    font-size: 10px;
+    height: 20px;
+    border-radius: 8px;
+    min-width: 90px;
+}
+
+.blue-caret { color: #0284c7; }
+
+/* Right Column Big Icons */
+.paper-big-icons-column {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+}
+
+.themes-vertical-group {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    padding: 2px 6px;
+    border-left: 1px solid #e2e8f0;
+}
+
+.theme-mini-row {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    font-size: 10px;
+    color: #475569;
+    cursor: pointer;
+}
+
+.theme-mini-row:hover {
+    color: #0284c7;
+}
+
+.theme-swatch {
+    font-size: 10px;
+}
+
+.colors-swatch { color: #10b981; }
+.fonts-swatch { color: #0284c7; font-weight: 900; }
+.effects-swatch { color: #84cc16; }
+
+.themes-group-title {
+    font-size: 9px;
+    color: #94a3b8;
+    text-align: center;
+    margin-top: 2px;
+}
+
+/* ═════════════════════════════════════════════════════════════════════════
+   TAB 3: PRESETS MANAGEMENT
+   ═════════════════════════════════════════════════════════════════════════ */
+.presets-pane-container {
+    padding: 10px 14px;
+}
+
+.presets-header-bar {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+}
+
+.presets-title {
+    font-size: 12px;
+    font-weight: 800;
+    color: #92400e;
+}
+
+.btn-add-preset {
+    background: linear-gradient(135deg, #10b981, #059669);
+    color: #ffffff;
+    border: none;
+    border-radius: 12px;
+    padding: 5px 14px;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 2px 6px rgba(16, 185, 129, 0.3);
+}
+
+.presets-cards-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+    gap: 10px;
+}
+
+/* Highlight Selected Column in Table */
+th.selected-col {
+    background: #bae6fd !important;
+    color: #0369a1 !important;
+    border-bottom: 3px solid #0284c7 !important;
+}
+
+/* Print Rules */
+@media print {
+    .settings-panel, .no-print {
+        display: none !important;
+    }
 }

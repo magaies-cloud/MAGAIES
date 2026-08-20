@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
+    <link rel="stylesheet" href="css/report-ribbon.css?v=1787182249">
         <style>
         :root {
             /* Theme: Pink & Emerald Dashboard */
@@ -279,90 +280,36 @@
         <?php $header_theme_class = 'header-theme-inventory'; ?>
         <?php include 'includes/header.php'; ?>
 
-        <!-- Top Navigation Row (Clustered Smart Hub + Action Buttons) -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 10px; flex-wrap: nowrap;">
-            <div class="nav-tabs" style="margin-bottom: 0; flex: 1;">
-                
-                <!-- Cluster 1: نظام الجرد -->
-                <div class="nav-cluster">
-                    <a href="inventory-report.php" class="nav-tab" title="نظام الجرد الشامل بجميع المخازن">
-                        <span>📦</span> <span>الجرد الشامل للمخازن</span>
-                    </a>
-                </div>
-
-                <div class="nav-divider"></div>
-
-                <!-- Cluster 2: حركات البضائع -->
-                <div class="nav-cluster nav-dropdown">
-                    <div class="nav-tab active" title="حركات البضائع">
-                        <span>📑</span> <span>حركات البضائع</span>
-                        <span style="font-size: 0.7rem; margin-right: 2px;">▼</span>
-                    </div>
-                    <div class="nav-dropdown-content">
-                        <a href="item-ledger.php" class="nav-dropdown-item" title="كشف حركة صنف محدد">
-                            <span>📑</span> حركة الأصناف
-                        </a>
-                        <a href="warehouse-ledger.php" class="nav-dropdown-item active" title="كشف حركة مخزن محدد">
-                            <span>🏭</span> حركة المخازن (الحالية)
-                        </a>
-                        <a href="inventory-summary.php" class="nav-dropdown-item" title="ملخص الوارد والمنصرف">
-                            <span>📊</span> ملخص الحركات
-                        </a>
-                    </div>
-                </div>
-
-                <div class="nav-divider"></div>
-
-                <!-- Cluster 3: مركز الذكاء الاصطناعي (AI Suite) -->
-                <div class="nav-cluster nav-dropdown">
-                    <div class="nav-tab nav-tab-ai" title="أدوات الذكاء الاصطناعي">
-                        <span>🤖</span> <span>أدوات الذكاء الاصطناعي</span>
-                        <span class="nav-ai-badge">AI</span>
-                        <span style="font-size: 0.7rem; margin-right: 2px;">▼</span>
-                    </div>
-                    <div class="nav-dropdown-content">
-                        <a href="ai_goods_advisor.php" class="nav-dropdown-item" title="توصيات الشراء واستراتيجيات التخزين">
-                            <span>💡</span> مستشار الـ AI للبضائع
-                        </a>
-                        <a href="smart_inventory_report.php" class="nav-dropdown-item" title="تقارير تفاعلية ذكية للمخزون">
-                            <span>🧠</span> تقارير المخازن الذكية
-                        </a>
-                    </div>
-                </div>
-
-                <div class="nav-divider"></div>
-
-                <!-- Cluster 4: التحليلات المرئية (Charts & Dashboards) -->
-                <div class="nav-cluster nav-dropdown">
-                    <div class="nav-tab" title="المخططات والرسوم البيانية">
-                        <span>📈</span> <span style="font-weight: 800; color: #f8fafc;">التحليلات المرئية</span>
-                        <span style="font-size: 0.7rem; margin-right: 2px;">▼</span>
-                    </div>
-                    <div class="nav-dropdown-content">
-                        <a href="visual-analytics.php#pie" class="nav-dropdown-item" title="النسب المئوية لتوزيع البضائع في المخازن">
-                            <span>🍕</span> توزيع المخزون (مخطط دائري)
-                        </a>
-                        <a href="visual-analytics.php#donut" class="nav-dropdown-item" title="حالة الأرصدة (آمن، نواقص، الخ)">
-                            <span>🍩</span> حالة الأرصدة (كعكة مفرغة)
-                        </a>
-                        <a href="visual-analytics.php#bar" class="nav-dropdown-item" title="إجمالي القيمة المالية لكل صنف ومخزن">
-                            <span>📊</span> قيمة المخزون (أعمدة مصمتة)
-                        </a>
-                    </div>
-                </div>
-
+        <!-- Unified Smart Ribbon Toolbar Row -->
+        <div class="report-ribbon-bar">
+            <div class="ribbon-presets-group">
+                <button class="preset-pill-btn active" data-preset="0" onclick="applyReportPreset(0, this)" title="القالب الافتراضي 1">
+                    <span class="preset-num">1</span> <span>افتراضي 1</span>
+                </button>
+                <button class="preset-pill-btn" data-preset="1" onclick="applyReportPreset(1, this)" title="القالب المخصص 2">
+                    <span class="preset-num">2</span> <span>تخصيص 2</span>
+                </button>
+                <button class="preset-pill-btn" data-preset="2" onclick="applyReportPreset(2, this)" title="القالب المخصص 3">
+                    <span class="preset-num">3</span> <span>تخصيص 3</span>
+                </button>
             </div>
 
-            <div class="dash-controls" style="margin: 0; display: flex; gap: 8px; flex-shrink: 0;">
-                <button class="btn-action" onclick="openWarehouseLedgerPreview()" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white; border: none; padding: 7px 15px; border-radius: 10px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(13,148,136,0.25); display: flex; align-items: center; gap: 6px;">
+            <div class="ribbon-actions-group">
+                <button class="ribbon-btn" onclick="openStudioPreviewPage()" style="--btn-color: #eab308; background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(202, 138, 4, 0.3)); border-color: rgba(234, 179, 8, 0.5); color: #fef08a;">
+                    <span>⚙️</span> <span>إعدادات الأعمدة</span>
+                </button>
+                <button class="ribbon-btn" onclick="openWarehouseLedgerPreview()" style="--btn-color: #0d9488;">
                     <span>👁️</span> <span>معاينة وتصميم التقرير</span>
                 </button>
-                <button class="btn-action btn-print" onclick="printWarehouseLedgerSheet()" style="background: rgba(255,255,255,0.05); color: var(--text-primary); border: 1px solid var(--glass-border); padding: 7px 14px; border-radius: 10px; font-weight: 700; cursor: pointer; display: flex; align-items: center; gap: 5px;">
+                <button class="ribbon-btn" onclick="printWarehouseLedgerSheet()" style="--btn-color: #38bdf8;">
                     <span>🖨️</span> <span>طباعة</span>
                 </button>
-                <button class="btn-icon-nav" onclick="history.back()" title="رجوع" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; color: var(--text-primary); cursor: pointer; transition: 0.3s;">↩</button>
             </div>
         </div>
+
+        <!-- Pro Studio Dropdown Panel & Modals -->
+        <!-- Studio panel moved to preview-inventory-report.php -->
+        <!-- Studio modals moved to preview-inventory-report.php -->
 
         <!-- KPIs Strip -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 12px; margin-bottom: 12px;">
@@ -647,7 +594,7 @@
             const whSelect = document.getElementById('warehouse-select');
             if (whSelect) {
                 whSelect.innerHTML = '<option value="ALL">جميع المخازن (كافة الحركات)</option>';
-                let warehousesDb = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
+                let warehousesDb = getStorageList('erp_warehouses_v1');
                 const displayWh = [{ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام' }, ...warehousesDb];
                 displayWh.forEach(wh => {
                     const opt = document.createElement('option');
@@ -710,15 +657,58 @@
             return 1;
         }
 
+                function getStorageList(key) {
+            let res = [];
+            if (window.DB_STORE) {
+                if (window.getTenantKey) {
+                    const tk = window.getTenantKey(key);
+                    if (window.DB_STORE[tk]) {
+                        try {
+                            const parsed = typeof window.DB_STORE[tk] === 'string' ? JSON.parse(window.DB_STORE[tk]) : window.DB_STORE[tk];
+                            if (Array.isArray(parsed)) return parsed;
+                            if (typeof parsed === 'object' && parsed !== null) return Object.values(parsed);
+                        } catch(e){}
+                    }
+                }
+                if (window.DB_STORE[key]) {
+                    try {
+                        const parsed = typeof window.DB_STORE[key] === 'string' ? JSON.parse(window.DB_STORE[key]) : window.DB_STORE[key];
+                        if (Array.isArray(parsed)) return parsed;
+                        if (typeof parsed === 'object' && parsed !== null) return Object.values(parsed);
+                    } catch(e){}
+                }
+            }
+            if (typeof window.getTenantKey === 'function') {
+                try {
+                    const tk = window.getTenantKey(key);
+                    const raw = localStorage.getItem(tk);
+                    if (raw) {
+                        const parsed = JSON.parse(raw);
+                        if (Array.isArray(parsed)) return parsed;
+                        if (typeof parsed === 'object' && parsed !== null) return Object.values(parsed);
+                    }
+                } catch(e){}
+            }
+            try {
+                const raw = localStorage.getItem(key);
+                if (raw) {
+                    const parsed = JSON.parse(raw);
+                    if (Array.isArray(parsed)) return parsed;
+                    if (typeof parsed === 'object' && parsed !== null) return Object.values(parsed);
+                }
+            } catch(e){}
+            return [];
+        }
+
         function buildRealWarehouseHistory(warehouseId) {
             let history = [];
             
-            let itemsDb = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+            let itemsDb = getStorageList('erp_items_v1');
             let getItem = (id) => {
                 return itemsDb.find(i => String(i.id) === String(id)) || null;
             };
 
-            let warehousesDb = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
+            let warehousesDb = getStorageList('erp_warehouses_v1');
             let getWarehouseName = (nameOrId) => {
                 if (!nameOrId) return 'مخزن غير محدد';
                 const wh = warehousesDb.find(w => String(w.id) === String(nameOrId) || w.name === nameOrId);
@@ -767,7 +757,7 @@
             });
 
             // 1. Get Purchases & Adjustments
-            let purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
+            let purchases = getStorageList('erp_purchase_invoices_v1');
             purchases = purchases.filter(x => !x.deleted);
             purchases.forEach(inv => {
                 (inv.items || inv.lines || []).forEach(line => {
@@ -829,7 +819,7 @@
             });
 
             // 2. Get Sales
-            let sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+            let sales = getStorageList('erp_sales_invoices_v1');
             sales = sales.filter(x => !x.deleted && x.status !== 'draft' && x.status !== 'preliminary');
             sales.forEach(inv => {
                 let hdrWh = inv.warehouse;
@@ -884,7 +874,7 @@
             });
 
             // 3. Get Warehouse Transfers
-            let transfers = JSON.parse(localStorage.getItem('erp_warehouse_transfers_v1')) || [];
+            let transfers = getStorageList('erp_warehouse_transfers_v1');
             transfers = transfers.filter(x => !x.deleted && x.status !== 'cancelled');
             transfers.forEach(tr => {
                 let fromWh = getWarehouseId(tr.fromWarehouse);
@@ -1326,48 +1316,70 @@
             `;
 
             const sheetHtml = `
-                <div id="sheet-header-block" style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:25px; border-bottom:3px solid #1e293b; padding-bottom:15px;">
-                    <div style="display:flex; gap:15px; align-items:center; width:35%;">
-                        ${cmpLogo ? `<img src="${cmpLogo}" style="height:60px; max-width:140px; object-fit:contain; border-radius:4px;">` : `<div style="width:50px; height:50px; background:#e2e8f0; border-radius:8px; display:flex; align-items:center; justify-content:center; font-size:1.5rem;">🏢</div>`}
+                <!-- 1. Header Section -->
+                <div id="sheet-header-block" style="display:flex; justify-content:space-between; align-items:center; border-bottom:3px double #0f172a; padding-bottom:16px; margin-bottom:20px; direction:rtl;">
+                    <div style="display:flex; align-items:center; gap:14px; width:35%;">
+                        ${cmpLogo ? \`<img src="${cmpLogo}" style="max-height:65px; max-width:90px; object-fit:contain; border-radius:8px;">\` : ''}
                         <div>
-                            <h2 style="margin:0; font-size:1.1rem; color:#0f172a; font-weight:900;" class="editable-text">${cmpName}</h2>
+                            <h2 style="margin:0; font-size:1.35rem; font-weight:900; color:#0f172a;" class="editable-text">${cmpName}</h2>
                             <div style="font-size:0.75rem; color:#475569; margin-top:3px;">
-                                ${cmpReg ? `<span>س.ت: ${cmpReg}</span> · ` : ''}
-                                ${cmpTax ? `<span>ر.ض: ${cmpTax}</span>` : ''}
+                                ${cmpReg ? \`<span>س.ت: ${cmpReg}</span> | \` : ''}
+                                ${cmpTax ? \`<span>ر.ض : ${cmpTax}</span>\` : ''}
                             </div>
-                            <div style="font-size:0.75rem; color:#475569;">${cmpAddress} · هاتف: ${cmpPhone}</div>
+                            <div style="font-size:0.75rem; color:#475569;">${cmpAddress} | هاتف: ${cmpPhone}</div>
                         </div>
                     </div>
 
                     <div style="text-align:center; width:30%;">
                         <div class="sheet-title-box" style="border:2px solid #0f172a; padding:8px 20px; border-radius:8px; background:#f8fafc; display:inline-block;">
-                            <h3 style="margin:0; font-size:1.2rem; font-weight:900; color:#0f172a; white-space:nowrap;" class="editable-text">📑 كشف حركة المخازن التفصيلي</h3>
-                            <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">(مراقبة تدفق البضائع للمخزن)</div>
+                            <h3 style="margin:0; font-size:1.2rem; font-weight:900; color:#0f172a; white-space:nowrap;" class="editable-text">📊 كشف حركة المخزن التفصيلي</h3>
+                            <div style="font-size:0.75rem; color:#64748b; margin-top:2px;">(مطابقة الداخل والخارج للمخازن)</div>
                         </div>
                     </div>
 
                     <div style="text-align:left; width:35%; font-size:0.78rem; color:#475569; line-height:1.6;">
-                        <div>تاريخ التقرير: <strong>${printedAt}</strong></div>
+                        <div>تاريخ الطباعة: <strong>${printedAt}</strong></div>
                         <div>الفترة المحددة: <strong>${periodStr}</strong></div>
                         <div>المخزن: <strong>${whName}</strong></div>
                     </div>
                 </div>
 
+                <!-- 2. Metadata Card -->
+                <div id="sheet-meta-block" style="background:#f8fafc; border:1px solid #cbd5e1; border-radius:8px; padding:12px 18px; margin-bottom:18px; display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:12px; font-size:0.85rem;">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:1.2rem;">🏢</span>
+                        <div>
+                            <span style="color:#64748b; font-size:0.75rem;">اسم المخزن المحدد:</span><br>
+                            <strong style="color:#0f172a; font-size:1rem;">${whName}</strong>
+                        </div>
+                    </div>
+                    <div>
+                        <span style="color:#64748b; font-size:0.75rem;">إجمالي الحركات:</span><br>
+                        <strong style="color:#0f172a;">${currentHistory.length} حركة</strong>
+                    </div>
+                    <div>
+                        <span style="color:#64748b; font-size:0.75rem;">الفترة المحددة:</span><br>
+                        <strong style="color:#0f172a;">${periodStr}</strong>
+                    </div>
+                </div>
+
+                <!-- 3. KPI Balance Cards -->
                 <div id="sheet-kpis-block" style="display:grid; grid-template-columns: repeat(3, 1fr); gap:12px; margin-bottom:20px;">
                     <div style="background:#f0fdf4; border:1px solid #bbf7d0; border-radius:8px; padding:10px 14px; text-align:center;">
-                        <div style="font-size:0.75rem; color:#15803d; font-weight:700;">إجمالي الوارد (مشتريات/استلام/تحويل) ⚖️</div>
+                        <div style="font-size:0.75rem; color:#15803d; font-weight:700;">إجمالي الوارد (مشتريات/استلام/تحويل) 📥</div>
                         <div style="font-size:1.05rem; font-weight:900; color:#16a34a; margin-top:4px;">${fmtNum(currentSumIn)}</div>
                     </div>
                     <div style="background:#fdf2f8; border:1px solid #fbcfe8; border-radius:8px; padding:10px 14px; text-align:center;">
-                        <div style="font-size:0.75rem; color:#be185d; font-weight:700;">إجمالي المنصرف (مبيعات/تسليم/تحويل) 💰</div>
+                        <div style="font-size:0.75rem; color:#be185d; font-weight:700;">إجمالي المنصرف (مبيعات/تسليم/تحويل) 📤</div>
                         <div style="font-size:1.05rem; font-weight:900; color:#db2777; margin-top:4px;">${fmtNum(currentSumOut)}</div>
                     </div>
                     <div style="background:#fffbeb; border:1px solid #fde68a; border-radius:8px; padding:10px 14px; text-align:center;">
-                        <div style="font-size:0.75rem; color:#b45309; font-weight:700;">صافي الحركة 🔄</div>
+                        <div style="font-size:0.75rem; color:#b45309; font-weight:700;">صافي الحركة ⚖️</div>
                         <div style="font-size:1.05rem; font-weight:900; color:#d97706; margin-top:4px;">${fmtNum(currentSumIn - currentSumOut)}</div>
                     </div>
                 </div>
 
+                <!-- 4. Detailed Movement Table -->
                 <div id="sheet-table-block" style="margin-bottom:25px;">
                     <table class="ledger-sheet-table" style="width:100%; border-collapse:collapse; text-align:right; font-size:0.85rem; direction:rtl;">
                         <thead>
@@ -1378,7 +1390,7 @@
                         </tbody>
                         <tfoot>
                             <tr style="background:#f8fafc; font-weight:900; border-top:2px solid #0f172a;">
-                                <td colspan="5" style="padding:10px; text-align:left; border:1px solid #94a3b8;">الإجمالي:</td>
+                                <td colspan="5" style="padding:10px; text-align:left; border:1px solid #94a3b8;">الإجماليات:</td>
                                 <td class="col-in" style="border:1px solid #94a3b8; text-align:center; color:#15803d;">${fmtNum(currentSumIn)}</td>
                                 <td class="col-out" style="border:1px solid #94a3b8; text-align:center; color:#be185d;">${fmtNum(currentSumOut)}</td>
                             </tr>
@@ -1386,26 +1398,32 @@
                     </table>
                 </div>
 
-                <div id="sheet-signatures-block" style="margin-top:35px; border-top:1px dashed #cbd5e1; padding-top:20px; display:grid; grid-template-columns: repeat(3, 1fr); gap:15px; text-align:center; font-size:0.82rem; color:#334155;">
+                <!-- 5. Signatures Section -->
+                <div id="sheet-signatures-block" style="margin-top:35px; border-top:1px dashed #cbd5e1; padding-top:20px; display:grid; grid-template-columns: repeat(4, 1fr); gap:15px; text-align:center; font-size:0.82rem; color:#334155;">
                     <div style="border:1px solid #e2e8f0; border-radius:6px; padding:10px; background:#fafafa;">
                         <strong style="color:#0f172a;">✍️ أمين المستودع</strong>
                         <div style="margin-top:28px; border-top:1px solid #cbd5e1; padding-top:4px;">الاسم والتوقيع</div>
                     </div>
                     <div style="border:1px solid #e2e8f0; border-radius:6px; padding:10px; background:#fafafa;">
-                        <strong style="color:#0f172a;">📊 المحاسب المختص</strong>
+                        <strong style="color:#0f172a;">📝 المحاسب المختص</strong>
                         <div style="margin-top:28px; border-top:1px solid #cbd5e1; padding-top:4px;">الاسم والتوقيع</div>
                     </div>
                     <div style="border:1px solid #e2e8f0; border-radius:6px; padding:10px; background:#fafafa;">
-                        <strong style="color:#0f172a;">🏢 اعتماد الإدارة والختم</strong>
-                        <div style="margin-top:28px; border-top:1px solid #cbd5e1; padding-top:4px;">الختم الرسمي</div>
+                        <strong style="color:#0f172a;">🔍 المراجع المالي</strong>
+                        <div style="margin-top:28px; border-top:1px solid #cbd5e1; padding-top:4px;">الاسم والتوقيع</div>
+                    </div>
+                    <div style="border:1px solid #e2e8f0; border-radius:6px; padding:10px; background:#fafafa;">
+                        <strong style="color:#0f172a;">✅ مدير الإدارة / الفرع</strong>
+                        <div style="margin-top:28px; border-top:1px solid #cbd5e1; padding-top:4px;">توقيع الاعتماد</div>
                     </div>
                 </div>
 
+                <!-- 6. Footer Disclaimer -->
                 <div style="margin-top:25px; border-top:1px solid #e2e8f0; padding-top:8px; display:flex; justify-content:space-between; font-size:0.72rem; color:#94a3b8; direction:rtl;">
-                    <div>تم استخراج وطباعة هذا التقرير تلقائياً عبر نظام مقاييس ERP المتكامل · MAGAIEES CLOUD</div>
+                    <div>تم استخراج هذا الكشف من النظام المحاسبي الآلي بواسطة ERP ماجايس © MAGAIEES CLOUD</div>
                     <div>صفحة 1 من 1</div>
                 </div>
-            `;
+`;
 
             const sheet = document.getElementById('warehouse-ledger-sheet');
             sheet.innerHTML = sheetHtml;
@@ -1522,6 +1540,21 @@
             const sBlock = document.getElementById('sheet-signatures-block');
             if (sBlock) sBlock.style.display = showSignatures ? 'grid' : 'none';
 
+                        // Hook: Sync column visibility with Main Screen presets (ursColumns)
+            if (typeof ursColumns !== 'undefined') {
+                ursColumns.forEach((col, idx) => {
+                    const colKeys = ['date', 'type', 'warehouse', 'doc', 'item', 'in', 'out'];
+                    const mappedKey = colKeys[idx];
+                    if (mappedKey) {
+                        sheet.querySelectorAll(`.col-${mappedKey}`).forEach(el => {
+                            el.style.display = col.visible ? '' : 'none';
+                        });
+                        // also sync the modal checkboxes
+                        const chk = document.querySelector(`.col-toggle[data-col="${mappedKey}"]`);
+                        if(chk) chk.checked = col.visible;
+                    }
+                });
+            }
             const colToggles = document.querySelectorAll('.col-toggle');
             colToggles.forEach(chk => {
                 const colKey = chk.getAttribute('data-col');
@@ -1585,6 +1618,7 @@
                 window.print();
             }, 100);
         }</script>
+<script src="js/universal-report-studio.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>
 

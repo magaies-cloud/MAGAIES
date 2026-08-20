@@ -1,3 +1,9 @@
+function toEasternArabicNumerals(str) {
+    const arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+    return String(str).replace(/[0-9]/g, function(d) {
+        return arabicDigits[d];
+    }).replace(/,/g, '،');
+}
 // js/preview-ledger.js - General Ledger Pro Studio Edition
 
 const PRESETS_STORAGE_KEY = 'ledger_preview_presets_v7';
@@ -1308,51 +1314,40 @@ function renderPresetsManagementList() {
     }
 
     if (presets.length === 0) {
-        list.innerHTML = '<div style="text-align:center; padding:20px; opacity:0.7; font-size:1rem;">لا توجد تخصيصات محفوظة حالياً. اضغط زر إضافة تخصيص جديد!</div>';
+        list.innerHTML = '<div style="text-align:center; padding:15px; opacity:0.7; font-size:12px;">لا توجد تخصيصات، أضف واحد جديد!</div>';
         return;
     }
 
     presets.forEach((p, idx) => {
         const card = document.createElement('div');
-        card.className = 'panel-card';
-        card.style.marginBottom = '4px';
-        
         const isCurrent = idx === currentPresetIndex;
-        const isVisible = p.showInRibbon !== false;
-        const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
+        card.style.cssText = `
+            min-width: 170px;
+            max-width: 170px;
+            background: ${isCurrent ? '#f0fdf4' : '#f8fafc'};
+            border: 1.5px solid ${isCurrent ? '#10b981' : '#cbd5e1'};
+            border-radius: 6px;
+            padding: 8px 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
+            transition: all 0.2s;
+        `;
         
-        let statusBadge = '';
-        if (isDefaultGroup && p.isLocked) {
-            statusBadge = '<span style="color:#eab308; font-weight:900; background:rgba(234,179,8,0.15); padding:3px 10px; border-radius:12px; font-size:0.85rem; border:1px solid rgba(234,179,8,0.4);">🔒 ضبط مصنع نهائي محمي</span>';
-        } else if (isDefaultGroup) {
-            statusBadge = '<span style="color:#64748b; font-weight:800; background:rgba(100,116,139,0.15); padding:3px 10px; border-radius:12px; font-size:0.85rem;">⏳ افتراضي (اضغط 8 ثوانٍ للقفل)</span>';
-        } else {
-            statusBadge = '<span style="color:#38bdf8; font-weight:900; background:rgba(56,189,248,0.15); padding:3px 10px; border-radius:12px; font-size:0.85rem; border:1px solid rgba(56,189,248,0.3);">🔄 نموذج قابل للتحديث</span>';
-        }
-
         card.innerHTML = `
-            <div class="panel-group" style="gap:10px;">
-                <span style="font-weight:900; font-size:1rem; background:${isCurrent ? 'linear-gradient(135deg,#10b981,#059669)' : '#ca8a04'}; color:#fff; padding:3px 10px; border-radius:10px; min-width:28px; text-align:center;">${idx + 1}</span>
-                <input type="text" class="panel-input" value="${p.name}" ${p.isLocked ? 'disabled style="opacity:0.8;"' : ''} onchange="renamePreset(${idx}, this.value)" style="width:180px; font-weight:800; font-size:0.95rem;">
-                ${statusBadge}
-                ${isCurrent ? '<span style="color:#10b981; font-weight:900; background:rgba(16,185,129,0.15); padding:3px 10px; border-radius:12px; font-size:0.88rem;">🟢 النشط حالياً</span>' : ''}
+            <div style="display:flex; justify-content:space-between; align-items:center;">
+                <input type="text" value="${p.name}" ${p.isLocked ? 'disabled' : ''} onchange="renamePreset(${idx}, this.value)" style="width:110px; font-weight:900; font-family:'Tajawal',sans-serif; font-size:12.5px; border:none; background:transparent; outline:none; color:#1e293b;" onclick="event.stopPropagation();">
+                <span style="font-weight:900; font-size:11px; font-family:'Tajawal',sans-serif; background:${isCurrent ? '#10b981' : '#ca8a04'}; color:#fff; padding:2px 6px; border-radius:10px;">${idx + 1}</span>
             </div>
-
-            <div class="panel-group" style="gap:8px;">
-                <label style="display:flex; align-items:center; gap:5px; cursor:pointer; background:rgba(255,255,255,0.6); padding:5px 12px; border-radius:8px; border:1px solid #ca8a04; font-size:0.88rem;">
-                    <input type="checkbox" ${isVisible ? 'checked' : ''} onchange="togglePresetRibbonVisibility(${idx}, this.checked)">
-                    👁️ إظهار
-                </label>
-
-                <button class="ribbon-btn" style="padding:5px 14px; background:linear-gradient(135deg,#0284c7,#0369a1); border:none; font-size:0.85rem;" onclick="loadPreset(${idx})">
-                    ▶️ تطبيق
-                </button>
-
-                <button class="ribbon-btn" style="padding:5px 14px; background:linear-gradient(135deg,#ef4444,#dc2626); border:none; font-size:0.85rem;" onclick="deletePreset(${idx})">
-                    🗑️ حذف
-                </button>
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto;">
+                <button title="تطبيق" style="background:#0284c7; color:#fff; border:none; border-radius:4px; padding:3px 10px; font-size:11px; font-weight:700; cursor:pointer;" onclick="event.stopPropagation(); loadPreset(${idx});">تطبيق</button>
+                <button title="حذف" style="background:#ef4444; color:#fff; border:none; border-radius:4px; padding:3px 10px; font-size:11px; font-weight:700; cursor:pointer;" onclick="event.stopPropagation(); deletePreset(${idx});">حذف</button>
+                <label style="font-size:11.5px; font-weight:700; color:#475569; display:flex; align-items:center; gap:3px; cursor:pointer;" onclick="event.stopPropagation();"><input type="checkbox" style="width:12px;height:12px;margin:0;" ${p.showInRibbon !== false ? 'checked' : ''} onchange="togglePresetRibbonVisibility(${idx}, this.checked)"> شريط</label>
             </div>
         `;
+        card.onclick = () => loadPreset(idx);
         list.appendChild(card);
     });
 }
@@ -1677,40 +1672,28 @@ document.addEventListener('DOMContentLoaded', () => {
 
 function toggleSettingsPanel() {
     const p = document.getElementById('settings-panel');
-    const isOpening = (p.style.display === 'none' || p.style.display === '');
-    p.style.display = isOpening ? 'flex' : 'none';
-
-    if (isOpening && selectedColIndex === null) {
-        selectColumn(6); // Default select "مدين محلي"
+    if (!p) return;
+    const isOpening = !p.classList.contains('show');
+    if (isOpening) {
+        p.classList.add('show');
+        if (selectedColIndex === null) selectColumn(6);
+    } else {
+        p.classList.remove('show');
     }
 }
 
 function switchStudioTab(tab) {
-    const btnCols = document.getElementById('tab-btn-cols');
-    const btnPaper = document.getElementById('tab-btn-paper');
-    const btnPresets = document.getElementById('tab-btn-presets');
-    
-    const contentCols = document.getElementById('studio-tab-cols');
-    const contentPaper = document.getElementById('studio-tab-paper');
-    const contentPresets = document.getElementById('studio-tab-presets');
-
-    btnCols.classList.remove('active');
-    btnPaper.classList.remove('active');
-    if (btnPresets) btnPresets.classList.remove('active');
-
-    contentCols.style.display = 'none';
-    contentPaper.style.display = 'none';
-    if (contentPresets) contentPresets.style.display = 'none';
-
-    if (tab === 'cols') {
-        btnCols.classList.add('active');
-        contentCols.style.display = 'block';
-    } else if (tab === 'paper') {
-        btnPaper.classList.add('active');
-        contentPaper.style.display = 'block';
-    } else if (tab === 'presets') {
-        if (btnPresets) btnPresets.classList.add('active');
-        if (contentPresets) contentPresets.style.display = 'block';
+    // Support both old IDs (tab-btn-*) and new IDs (sr-tab-*)
+    ['cols', 'paper', 'presets'].forEach(function(t) {
+        var oldBtn = document.getElementById('tab-btn-' + t);
+        var newBtn = document.getElementById('sr-tab-' + t);
+        var content = document.getElementById('studio-tab-' + t);
+        var isActive = (t === tab);
+        if (oldBtn) oldBtn.classList.toggle('active', isActive);
+        if (newBtn) newBtn.classList.toggle('active', isActive);
+        if (content) content.style.display = isActive ? 'block' : 'none';
+    });
+    if (tab === 'presets' && typeof renderPresetsManagementList === 'function') {
         renderPresetsManagementList();
     }
 }
@@ -1768,7 +1751,7 @@ function setPageOrientation(orient, updateSelect = true) {
 function updatePageCss() {
     const styleEl = document.getElementById('dynamic-paper-style');
     if (styleEl) {
-        styleEl.innerHTML = `@page { size: ${currentPaperSize} ${currentOrientation}; margin: 10mm; }`;
+        styleEl.innerHTML = `@page { size: ${currentPaperSize} ${currentOrientation}; margin: ${typeof currentMargins !== 'undefined' ? currentMargins : '15mm'}; }`;
     }
 }
 
@@ -1873,11 +1856,22 @@ function renderTable() {
         }
         
         th.style.fontSize = (conf.fs || 0.9) + 'rem';
+        if (conf.width) { th.style.width = conf.width; th.style.minWidth = conf.width; }
         th.style.textAlign = conf.align || 'center';
         if (conf.fontWeight) th.style.fontWeight = conf.fontWeight;
         if (conf.fontFamily && conf.fontFamily !== 'inherit') th.style.fontFamily = conf.fontFamily;
         if (conf.color) th.style.color = conf.color;
         if (conf.bgColor) th.style.backgroundColor = conf.bgColor;
+        
+        if (conf.italic) th.style.fontStyle = 'italic';
+        if (conf.underline && conf.strikethrough) th.style.textDecoration = 'underline line-through';
+        else if (conf.underline) th.style.textDecoration = 'underline';
+        else if (conf.strikethrough) th.style.textDecoration = 'line-through';
+        
+        if (conf.wrapText) th.style.whiteSpace = 'normal';
+        else th.style.whiteSpace = 'nowrap';
+        
+        if (conf.dir) th.style.direction = conf.dir;
         
         th.onclick = () => selectColumn(idx);
         trHead.appendChild(th);
@@ -1913,13 +1907,32 @@ function renderTable() {
             }
 
             td.innerText = c.isNum ? formatCustomNumber(rawVal, conf) : (rawVal || '-');
+            if (c.isNum && conf.numFont && conf.numFont !== 'inherit' && conf.numFont !== 'arabic_indic') {
+                td.style.fontFamily = conf.numFont;
+            }
+            if (c.isNum && typeof rawVal === 'number' && rawVal < 0) {
+                if (conf.negFormat === 'red' || conf.negFormat === 'paren_red') {
+                    td.style.color = '#dc2626';
+                }
+            }
             
             td.style.fontSize = (conf.fs || 0.9) + 'rem';
+            if (conf.width) { td.style.width = conf.width; td.style.minWidth = conf.width; }
             td.style.textAlign = conf.align || 'center';
             if (conf.fontWeight) td.style.fontWeight = conf.fontWeight;
             if (conf.fontFamily && conf.fontFamily !== 'inherit') td.style.fontFamily = conf.fontFamily;
             if (conf.color) td.style.color = conf.color;
             if (conf.bgColor) td.style.backgroundColor = conf.bgColor;
+            
+            if (conf.italic) td.style.fontStyle = 'italic';
+            if (conf.underline && conf.strikethrough) td.style.textDecoration = 'underline line-through';
+            else if (conf.underline) td.style.textDecoration = 'underline';
+            else if (conf.strikethrough) td.style.textDecoration = 'line-through';
+            
+            if (conf.wrapText) td.style.whiteSpace = 'normal';
+            else td.style.whiteSpace = 'nowrap';
+            
+            if (conf.dir) td.style.direction = conf.dir;
             
             tr.appendChild(td);
         });
@@ -1941,9 +1954,20 @@ function renderTable() {
             
             let td = document.createElement('td');
             td.style.fontSize = (conf.fs || 0.9) + 'rem';
+            if (conf.width) { td.style.width = conf.width; td.style.minWidth = conf.width; }
             td.style.textAlign = conf.align || 'center';
             if (conf.fontWeight) td.style.fontWeight = conf.fontWeight;
             if (conf.fontFamily && conf.fontFamily !== 'inherit') td.style.fontFamily = conf.fontFamily;
+            
+            if (conf.italic) td.style.fontStyle = 'italic';
+            if (conf.underline && conf.strikethrough) td.style.textDecoration = 'underline line-through';
+            else if (conf.underline) td.style.textDecoration = 'underline';
+            else if (conf.strikethrough) td.style.textDecoration = 'line-through';
+            
+            if (conf.wrapText) td.style.whiteSpace = 'normal';
+            else td.style.whiteSpace = 'nowrap';
+            
+            if (conf.dir) td.style.direction = conf.dir;
 
             if (firstVisible) {
                 td.innerText = 'الإجمالي الكلي (' + filteredData.length + ')';
@@ -1969,7 +1993,9 @@ function renderTable() {
         tfoot.appendChild(trFoot);
     }
 
-    updateHiddenColumnsDropdown();
+    if (typeof updateHiddenColumnsDropdown === 'function') {
+        updateHiddenColumnsDropdown();
+    }
 }
 
 function formatCustomNumber(val, conf) {
@@ -1977,34 +2003,48 @@ function formatCustomNumber(val, conf) {
     let num = parseFloat(val);
     if (isNaN(num)) return '-';
 
-    const dec = conf.decimals !== undefined ? conf.decimals : 2;
-    const rounding = conf.rounding || 'nearest';
+    const isNegative = num < 0;
+    const absNum = Math.abs(num);
+
+    const dec = conf && conf.decimals !== undefined ? conf.decimals : 2;
+    const rounding = conf && conf.rounding ? conf.rounding : 'nearest';
     const factor = Math.pow(10, dec);
 
+    let calcNum = absNum;
     if (rounding === 'up') {
-        num = Math.ceil(num * factor) / factor;
+        calcNum = Math.ceil(calcNum * factor) / factor;
     } else if (rounding === 'down') {
-        num = Math.floor(num * factor) / factor;
+        calcNum = Math.floor(calcNum * factor) / factor;
     } else if (rounding === 'cut') {
-        num = Math.trunc(num * factor) / factor;
+        calcNum = Math.trunc(calcNum * factor) / factor;
     } else {
-        num = Math.round(num * factor) / factor;
+        calcNum = Math.round(calcNum * factor) / factor;
     }
 
-    let parts = num.toFixed(dec).split('.');
+    let parts = calcNum.toFixed(dec).split('.');
     let intPart = parts[0];
     let decPart = parts[1] || '';
 
-    const sep = conf.thousandSep !== undefined ? conf.thousandSep : ',';
+    const sep = conf && conf.thousandSep !== undefined ? conf.thousandSep : ',';
     if (sep && sep !== 'none') {
         intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, sep);
     }
 
-    if (dec > 0 && conf.showDecSep !== false) {
-        return intPart + '.' + decPart;
-    } else {
-        return intPart;
+    let formatted = (dec > 0 && (!conf || conf.showDecSep !== false)) ? (intPart + '.' + decPart) : intPart;
+    if (conf && conf.percentFormat) formatted += '%';
+
+    if (conf && conf.numFont === 'arabic_indic') {
+        formatted = toEasternArabicNumerals(formatted);
     }
+
+    if (isNegative) {
+        if (conf && (conf.negFormat === 'paren' || conf.negFormat === 'paren_red')) {
+            return '(' + formatted + ')';
+        } else {
+            return '-' + formatted;
+        }
+    }
+    return formatted;
 }
 
 function populateSelectedColDropdown() {
@@ -2022,6 +2062,109 @@ function populateSelectedColDropdown() {
         sel.appendChild(opt);
     });
     if (currentVal !== null) sel.value = currentVal;
+}
+
+function updateSettingsPanelForCol(idx) {
+    const c = baseColumns.find(x => x.idx === idx);
+    if (!c) return;
+    
+    const conf = columnConfigs[idx] || getDefaultConfigs()[idx];
+    
+    populateSelectedColDropdown();
+    const sel = document.getElementById('selected-col-select');
+    if (sel) sel.value = idx;
+    
+    const labelInp = document.getElementById('col-label-input');
+    if (labelInp) { labelInp.disabled = false; labelInp.value = conf.label || c.defaultLabel; }
+
+    const chk = document.getElementById('col-visible-chk');
+    if (chk) { chk.disabled = false; chk.checked = conf.visible !== false; }
+
+    // Font Size Select
+    const fsSel = document.getElementById('col-fs-select');
+    if (fsSel) {
+        fsSel.disabled = false;
+        const curRem = conf.fs || 0.9;
+        let match = false;
+        for (let i = 0; i < fsSel.options.length; i++) {
+            if (Math.abs(parseFloat(fsSel.options[i].value) - curRem) < 0.04) {
+                fsSel.selectedIndex = i;
+                match = true;
+                break;
+            }
+        }
+        if (!match) fsSel.value = '0.9';
+    }
+
+    // Font Family Select
+    const fontSel = document.getElementById('col-font-select');
+    if (fontSel) { fontSel.disabled = false; fontSel.value = conf.fontFamily || "'Segoe UI',sans-serif"; }
+
+    // Colors
+    const cp = document.getElementById('col-color-picker');
+    if (cp) { 
+        cp.disabled = false; 
+        cp.value = conf.color || '#dc2626'; 
+        const fcSwatch = document.getElementById('sr-fc-swatch');
+        if (fcSwatch) fcSwatch.style.background = cp.value;
+    }
+
+    const bgp = document.getElementById('col-bg-picker');
+    if (bgp) { 
+        bgp.disabled = false; 
+        bgp.value = conf.bgColor || '#ffffff';
+        const bgPrev = document.getElementById('sr-bg-preview');
+        if (bgPrev) bgPrev.style.background = bgp.value;
+    }
+
+    // Numbers & Decimals
+    const decSel = document.getElementById('col-dec-select');
+    if (decSel) { decSel.disabled = false; decSel.value = conf.decimals !== undefined ? conf.decimals : 2; }
+
+    const numFontSel = document.getElementById('col-numfont-select');
+    if (numFontSel) { numFontSel.disabled = false; numFontSel.value = conf.numFont || 'inherit'; }
+
+    const negFormatSel = document.getElementById('col-negformat-select');
+    if (negFormatSel) { negFormatSel.disabled = false; negFormatSel.value = conf.negFormat || 'default'; }
+
+    const pctChk = document.getElementById('col-percent-chk');
+    if (pctChk) { pctChk.disabled = false; pctChk.checked = !!conf.percentFormat; }
+
+    // Column Width Range
+    const wRng = document.getElementById('col-width-range');
+    const wLbl = document.getElementById('sr-col-w-lbl');
+    if (wRng) {
+        wRng.disabled = false;
+        const currentW = conf.width ? parseInt(conf.width) : (c.defaultWidth ? parseInt(c.defaultWidth) : 120);
+        wRng.value = currentW;
+        if (wLbl) wLbl.textContent = currentW + 'px';
+    }
+    
+    // Update 3 alignment buttons
+    document.querySelectorAll(`button[onclick*="'align'"]`).forEach(btn => {
+        if (btn.getAttribute('onclick').includes(`'${conf.align || 'center'}'`)) {
+            btn.classList.add('active');
+            btn.style.background = '#dbeafe';
+            btn.style.color = '#2563eb';
+        } else {
+            btn.classList.remove('active');
+            btn.style.background = '#f8fafc';
+            btn.style.color = '#475569';
+        }
+    });
+
+    // Formatting toggles (B, I, U, S)
+    const bBtn = document.querySelector(`button[onclick="updateSelectedCol('fontWeight','900')"]`);
+    if (bBtn) { conf.fontWeight === '900' ? bBtn.classList.add('active') : bBtn.classList.remove('active'); }
+    
+    const iBtn = document.querySelector(`button[onclick="updateSelectedCol('italic',true)"]`);
+    if (iBtn) { conf.italic ? iBtn.classList.add('active') : iBtn.classList.remove('active'); }
+    
+    const uBtn = document.querySelector(`button[onclick="updateSelectedCol('underline',true)"]`);
+    if (uBtn) { conf.underline ? uBtn.classList.add('active') : uBtn.classList.remove('active'); }
+    
+    const sBtn = document.querySelector(`button[onclick="updateSelectedCol('strikethrough',true)"]`);
+    if (sBtn) { conf.strikethrough ? sBtn.classList.add('active') : sBtn.classList.remove('active'); }
 }
 
 function selectColumn(idx) {
@@ -2047,57 +2190,48 @@ function updateSettingsPanelForCol(idx) {
     if (sel) sel.value = idx;
     
     const labelInp = document.getElementById('col-label-input');
-    labelInp.disabled = false;
-    labelInp.value = conf.label || c.defaultLabel;
+    if (labelInp) { labelInp.disabled = false; labelInp.value = conf.label || c.defaultLabel; }
 
     const chk = document.getElementById('col-visible-chk');
-    chk.disabled = false;
-    chk.checked = conf.visible !== false;
+    if (chk) { chk.disabled = false; chk.checked = conf.visible !== false; }
 
     const alignSel = document.getElementById('col-align-select');
-    alignSel.disabled = false;
-    alignSel.value = conf.align || 'center';
+    if (alignSel) { alignSel.disabled = false; alignSel.value = conf.align || 'center'; }
     
     const rng = document.getElementById('col-fs-range');
-    rng.disabled = false;
-    rng.value = conf.fs || 0.9;
-    document.getElementById('col-fs-val').innerText = (conf.fs || 0.9) + 'rem';
+    if (rng) { rng.disabled = false; rng.value = conf.fs || 0.9; }
+    const fsVal = document.getElementById('col-fs-val');
+    if (fsVal) fsVal.innerText = (conf.fs || 0.9) + 'rem';
     
     const fwSel = document.getElementById('col-fw-select');
-    if (fwSel) {
-        fwSel.disabled = false;
-        fwSel.value = conf.fontWeight || '700';
-    }
+    if (fwSel) { fwSel.disabled = false; fwSel.value = conf.fontWeight || '700'; }
 
     const fontSel = document.getElementById('col-font-select');
-    if (fontSel) {
-        fontSel.disabled = false;
-        fontSel.value = conf.fontFamily || 'inherit';
-    }
+    if (fontSel) { fontSel.disabled = false; fontSel.value = conf.fontFamily || 'inherit'; }
     
     const cp = document.getElementById('col-color-picker');
-    cp.disabled = false;
-    cp.value = conf.color || '#000000';
+    if (cp) { cp.disabled = false; cp.value = conf.color || '#000000'; }
 
     const bgp = document.getElementById('col-bg-picker');
-    bgp.disabled = false;
-    bgp.value = conf.bgColor || '#ffffff';
+    if (bgp) { bgp.disabled = false; bgp.value = conf.bgColor || '#ffffff'; }
 
     const sepSel = document.getElementById('col-sep-select');
-    sepSel.disabled = false;
-    sepSel.value = conf.thousandSep || ',';
+    if (sepSel) { sepSel.disabled = false; sepSel.value = conf.thousandSep || ','; }
 
     const decSel = document.getElementById('col-dec-select');
-    decSel.disabled = false;
-    decSel.value = conf.decimals !== undefined ? conf.decimals : 2;
+    if (decSel) { decSel.disabled = false; decSel.value = conf.decimals !== undefined ? conf.decimals : 2; }
 
     const decSepChk = document.getElementById('col-dec-sep-chk');
-    decSepChk.disabled = false;
-    decSepChk.checked = conf.showDecSep !== false;
+    if (decSepChk) { decSepChk.disabled = false; decSepChk.checked = conf.showDecSep !== false; }
 
     const roundSel = document.getElementById('col-rounding-select');
-    roundSel.disabled = false;
-    roundSel.value = conf.rounding || 'nearest';
+    if (roundSel) { roundSel.disabled = false; roundSel.value = conf.rounding || 'nearest'; }
+
+    // Sync bg preview swatch
+    const bgPreview = document.getElementById('sr-bg-preview');
+    if (bgPreview) bgPreview.style.background = conf.bgColor || '#ffffff';
+    const bgInline = document.getElementById('col-bg-picker-inline');
+    if (bgInline) bgInline.value = conf.bgColor || '#ffffff';
 }
 
 function updateSelectedCol(type, val) {
@@ -2123,7 +2257,12 @@ function updateSelectedCol(type, val) {
                 rounding: 'nearest'
             };
         }
-        columnConfigs[selectedColIndex][type] = val;
+        
+        if (['italic', 'underline', 'strikethrough', 'wrapText', 'percentFormat'].includes(type) && val === true) {
+            columnConfigs[selectedColIndex][type] = !columnConfigs[selectedColIndex][type];
+        } else {
+            columnConfigs[selectedColIndex][type] = val;
+        }
     }
     
     if (type === 'fs') {
@@ -3733,3 +3872,78 @@ function buildAccountsList() {
     }
 }
 
+
+let currentTableWidth = 100;
+function setTableWidth(percent) {
+    currentTableWidth = percent;
+    const tableContainer = document.querySelector('.table-responsive table') || document.querySelector('table');
+    if (tableContainer) {
+        tableContainer.style.width = percent + '%';
+        if (percent < 100) {
+            tableContainer.style.margin = '0 auto';
+        }
+    }
+}
+
+let currentRowHeight = 'normal';
+function setRowHeight(mode) {
+    currentRowHeight = mode;
+    const tbody = document.querySelector('tbody');
+    if (tbody) {
+        const tds = tbody.querySelectorAll('td');
+        let pad = '8px';
+        if (mode === 'compact') pad = '4px';
+        if (mode === 'comfortable') pad = '12px';
+        if (mode === 'spacious') pad = '16px';
+        tds.forEach(td => td.style.padding = pad);
+    }
+}
+
+// Helper for font size steps
+const FONT_SIZE_STEPS = [
+    { label: '8', rem: 0.65 },
+    { label: '9', rem: 0.72 },
+    { label: '10', rem: 0.8 },
+    { label: '11', rem: 0.85 },
+    { label: '12', rem: 0.9 },
+    { label: '14', rem: 1.0 },
+    { label: '16', rem: 1.15 },
+    { label: '18', rem: 1.3 },
+    { label: '20', rem: 1.45 },
+    { label: '24', rem: 1.7 },
+    { label: '28', rem: 2.0 }
+];
+
+function stepFontSize(direction) {
+    const sel = document.getElementById('col-fs-select');
+    if (!sel) return;
+    let curIdx = sel.selectedIndex;
+    if (direction > 0 && curIdx < sel.options.length - 1) {
+        sel.selectedIndex = curIdx + 1;
+    } else if (direction < 0 && curIdx > 0) {
+        sel.selectedIndex = curIdx - 1;
+    }
+    const val = parseFloat(sel.value);
+    updateSelectedCol('fs', val);
+}
+
+function setColumnFontSize(val) {
+    updateSelectedCol('fs', parseFloat(val));
+}
+
+function setColumnNumberFont(fontVal) {
+    updateSelectedCol('numFont', fontVal);
+}
+
+function setNegativeNumberFormat(formatVal) {
+    updateSelectedCol('negFormat', formatVal);
+}
+
+let currentMargins = '15mm';
+function setPageMargins(mode) {
+    if (mode === 'normal') currentMargins = '15mm';
+    else if (mode === 'compact') currentMargins = '5mm';
+    else if (mode === 'none') currentMargins = '0mm';
+    else currentMargins = mode;
+    updatePageCss();
+}

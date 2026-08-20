@@ -972,7 +972,7 @@ function setPageOrientation(orient, updateSelect = true) {
 function updatePageCss() {
     const styleEl = document.getElementById('dynamic-paper-style');
     if (styleEl) {
-        styleEl.innerHTML = `@page { size: ${currentPaperSize} ${currentOrientation}; margin: 10mm; }`;
+        styleEl.innerHTML = `@page { size: ${currentPaperSize} ${currentOrientation}; margin: ${typeof currentMargins !== 'undefined' ? currentMargins : '15mm'}; }`;
     }
 }
 
@@ -2937,3 +2937,12 @@ function buildAccountsList() {
     }
 }
 
+
+let currentMargins = '15mm';
+function setPageMargins(mode) {
+    if (mode === 'normal') currentMargins = '15mm';
+    else if (mode === 'compact') currentMargins = '5mm';
+    else if (mode === 'none') currentMargins = '0mm';
+    else currentMargins = mode;
+    updatePageCss();
+}

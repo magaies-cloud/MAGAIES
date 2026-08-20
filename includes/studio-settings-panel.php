@@ -1,388 +1,401 @@
-<link rel="stylesheet" href="css/studio-panel.css?v=<?php echo file_exists('css/studio-panel.css') ? filemtime('css/studio-panel.css') : time(); ?>">
+<link rel="stylesheet" href="css/studio-ribbon-v4.css?v=<?php echo filemtime('css/studio-ribbon-v4.css'); ?>">
+
 <div class="settings-panel no-print" id="settings-panel">
-    <!-- Studio Tabs Header -->
-    <div class="studio-tabs" id="studio-tabs-bar" style="display: flex; justify-content: space-between; align-items: center; border-bottom: 2px solid #ca8a04; margin-bottom: 6px; padding-bottom: 4px;">
-        <div style="display: flex; gap: 5px; flex-wrap: wrap;">
-            <button class="studio-tab-btn active" id="tab-btn-cols" onclick="switchStudioTab('cols')">📊 إعدادات الأعمدة والتنسيق</button>
-            <button class="studio-tab-btn" id="tab-btn-paper" onclick="switchStudioTab('paper')">📄 إعدادات الورقة والطباعة</button>
-            <button class="studio-tab-btn" id="tab-btn-presets" onclick="switchStudioTab('presets')">💎 التخصيصات الجاهزة</button>
-        </div>
 
-        <div style="display: flex; gap: 6px; align-items: center;">
-            <button id="reset-design-btn" class="ribbon-btn" style="background: linear-gradient(135deg, #64748b, #475569); color:#fff; border:none; padding:4px 12px; font-size:0.8rem; font-weight:800; border-radius:12px; box-shadow: 0 2px 6px rgba(71,85,105,0.3); position: relative; overflow: hidden; display: flex; align-items: center; gap: 3px; cursor: pointer; user-select: none; height: 28px;">
-                <span class="btn-progress" style="position: absolute; right: 0; top: 0; bottom: 0; width: 0%; background: rgba(255,255,255,0.25); transition: none; pointer-events: none;"></span>
-                <span class="btn-text">🔄 إعادة ضبط</span>
-            </button>
-            <button id="save-settings-btn-main" class="ribbon-btn" onclick="saveCurrentPreset()" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:4px 12px; font-size:0.8rem; font-weight:800; border-radius:12px; box-shadow: 0 2px 6px rgba(16,185,129,0.3); height: 28px;">
-                💾 حفظ الإعدادات
-            </button>
-            <button type="button" class="btn-close-modal" onclick="toggleSettingsPanel()" title="إغلاق الاستوديو" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.3); padding: 4px 12px; border-radius: 6px; font-size:0.8rem; font-weight: bold; cursor: pointer; height: 28px;">❌ إغلاق</button>
-        </div>
+<!-- ════════════════ TAB STRIP ════════════════ -->
+<div class="sr-tab-strip" dir="rtl">
+    <div class="sr-tabs">
+        <button type="button" class="sr-tab" id="sr-tab-presets" onclick="switchStudioTab('presets')">💎 التخصيصات الجاهزة</button>
+        <button type="button" class="sr-tab" id="sr-tab-paper"   onclick="switchStudioTab('paper')">📄 إعدادات الورقة والطباعة</button>
+        <button type="button" class="sr-tab active" id="sr-tab-cols" onclick="switchStudioTab('cols')">📊 إعدادات الأعمدة والتنسيق</button>
     </div>
-
-    <!-- TAB 1: Columns & Formatting -->
-    <div id="studio-tab-cols">
-        <!-- Interactive Visual Column Manager (Drag & Drop, Checkboxes for all columns & units) -->
-        <div class="panel-card" style="margin-bottom: 6px; padding: 6px 10px; background: rgba(15, 23, 42, 0.55); border: 1px solid rgba(251, 191, 36, 0.35); border-radius: 10px;">
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 6px; flex-wrap: wrap; gap: 8px;">
-                <div style="display: flex; align-items: center; gap: 6px; font-weight: 800; font-size: 0.82rem; color: #fbbf24;">
-                    <span>📋 مدير الأعمدة والوحدات الأربع:</span>
-                    <span style="font-size: 0.72rem; color: #94a3b8; font-weight: normal;">(اضغط على المربع للإظهار/الإخفاء، أو اسحب للترتيب)</span>
-                </div>
-                <div style="display: flex; gap: 5px; align-items: center;">
-                    <button type="button" class="ribbon-btn studio-mini-btn" onclick="setAllColumnsVisibility(true)" style="background: rgba(16,185,129,0.15); color: #10b981; border: 1px solid rgba(16,185,129,0.3); padding: 2px 8px; font-size: 0.75rem; border-radius: 6px; cursor: pointer;">👁️ إظهار الكل</button>
-                    <button type="button" class="ribbon-btn studio-mini-btn" onclick="setAllColumnsVisibility(false)" style="background: rgba(239,68,68,0.15); color: #ef4444; border: 1px solid rgba(239,68,68,0.3); padding: 2px 8px; font-size: 0.75rem; border-radius: 6px; cursor: pointer;">🚫 إخفاء الكل</button>
-                    <button type="button" class="ribbon-btn studio-mini-btn" onclick="resetDefaultColumnOrder()" style="background: rgba(56,189,248,0.15); color: #38bdf8; border: 1px solid rgba(56,189,248,0.3); padding: 2px 8px; font-size: 0.75rem; border-radius: 6px; cursor: pointer;">🔄 الترتيب الافتراضي</button>
-                </div>
-            </div>
-            <div id="studio-columns-chips-container" style="display: flex; gap: 5px; flex-wrap: wrap; align-items: center; max-height: 140px; overflow-y: auto; padding: 2px;">
-                <!-- Column chips rendered dynamically via JS -->
-            </div>
-        </div>
-
-        <!-- Row 1: Unified Super Toolbar (All Column Controls in 1 Compact Line) -->
-        <div class="panel-card studio-super-row" style="margin-bottom: 6px; padding: 4px 8px; gap: 6px; display: flex; align-items: center; justify-content: flex-start; flex-wrap: nowrap; overflow-x: auto;">
-            
-            <!-- Group A: Selection & Visibility -->
-            <div class="studio-group-pill">
-                <span style="color:#dc2626; font-size:0.8rem; font-weight:900;">🎯 العمود:</span>
-                <select id="selected-col-select" class="panel-input" style="color:#dc2626; font-size:0.8rem; font-weight:900; border-color:#dc2626; background:#ffffff; padding: 2px 6px; height: 26px;" onchange="selectColumn(parseInt(this.value))">
-                    <!-- Column options populated dynamically via JS -->
-                </select>
-                <label style="display:flex; align-items:center; gap:2px; cursor:pointer; font-size:0.8rem; font-weight:800;" title="إظهار أو إخفاء العمود">
-                    <input type="checkbox" id="col-visible-chk" checked onchange="updateSelectedCol('visible', this.checked)">
-                    إظهار
-                </label>
-                <select id="restore-hidden-col-select" class="panel-input" style="background:#fffeb3; border-color:#d97706; font-size:0.78rem; padding: 2px 4px; height: 26px;" onchange="restoreHiddenColumn(this.value)" title="استعادة الأعمدة المخفية">
-                    <option value="">👁️ المخفي (0)</option>
-                </select>
-            </div>
-
-            <div class="studio-pill-divider"></div>
-
-            <!-- Group B: Header Label & Ordering -->
-            <div class="studio-group-pill">
-                <span style="font-size:0.8rem;">✏️ التسمية:</span>
-                <input type="text" id="col-label-input" class="panel-input" style="width:105px; font-size:0.8rem; padding: 2px 6px; height: 26px;" oninput="updateSelectedCol('label', this.value)">
-                <span style="font-size:0.8rem;">الترتيب:</span>
-                <button class="ribbon-btn studio-mini-btn" onclick="moveSelectedCol(-1)" title="تحريك لليمين">➡️</button>
-                <button class="ribbon-btn studio-mini-btn" onclick="moveSelectedCol(1)" title="تحريك لليسار">⬅️</button>
-            </div>
-
-            <div class="studio-pill-divider"></div>
-
-            <!-- Group C: Alignment -->
-            <div class="studio-group-pill">
-                <span style="font-size:0.8rem;">المحاذاة:</span>
-                <select id="col-align-select" class="panel-input" style="font-size:0.8rem; padding: 2px 6px; height: 26px;" onchange="updateSelectedCol('align', this.value)">
-                    <option value="right">يمين ➡️</option>
-                    <option value="center" selected>وسط 🟢</option>
-                    <option value="left">يسار ⬅️</option>
-                </select>
-            </div>
-
-            <div class="studio-pill-divider"></div>
-
-            <!-- Group D: Column Width -->
-            <div class="studio-group-pill">
-                <span style="font-size:0.8rem;" title="عرض العمود كنسبة مئوية">📏 العرض:</span>
-                <input type="range" id="col-width-range" min="5" max="60" step="1" value="15" style="width:65px;"
-                    oninput="document.getElementById('col-width-input').value=this.value; updateSelectedCol('width', this.value)">
-                <input type="number" id="col-width-input" class="panel-input" style="width:42px; font-size:0.8rem; padding: 2px; height: 26px;" min="5" max="60" placeholder="%" 
-                    oninput="if(document.getElementById('col-width-range')) document.getElementById('col-width-range').value=this.value; updateSelectedCol('width', this.value)">
-                <button class="ribbon-btn studio-mini-btn" style="font-size:0.75rem; padding: 2px 5px;" 
-                    onclick="updateSelectedCol('width', ''); document.getElementById('col-width-input').value=''; document.getElementById('col-width-range').value=15;" title="ضبط العرض التلقائي">🔄 تلقائي</button>
-            </div>
-
-            <div class="studio-pill-divider"></div>
-
-            <!-- Group E: Table Width -->
-            <div class="studio-group-pill">
-                <span style="font-size:0.8rem;">📐 عرض الجدول:</span>
-                <input type="range" id="table-width-range" min="50" max="100" step="5" value="100" style="width:65px;"
-                    oninput="setTableWidth(this.value)">
-                <span id="table-width-label" style="font-weight:900; font-size:0.8rem; min-width:32px; text-align:center;">100%</span>
-            </div>
-
-        </div>
-
-        <!-- Row 2: Colors, Font Sizes, Font Weights & Global Themes -->
-        <div class="panel-card" style="margin-bottom: 8px;">
-            <div class="panel-group">
-                <span>حجم الخط:</span>
-                <input type="range" id="col-fs-range" min="0.6" max="2.0" step="0.1" value="0.9" oninput="updateSelectedCol('fs', parseFloat(this.value))">
-                <span id="col-fs-val">0.9rem</span>
-
-                <span>وزن الخط:</span>
-                <select id="col-fw-select" class="panel-input" onchange="updateSelectedCol('fontWeight', this.value)">
-                    <option value="400">عادي (Normal 400)</option>
-                    <option value="500">متوسط (Medium 500)</option>
-                    <option value="600">بارز (Semi-Bold 600)</option>
-                    <option value="700">عريض (Bold 700)</option>
-                    <option value="800" selected>عريض جداً (Extra-Bold 800)</option>
-                    <option value="900">أسود داكن (Black 900)</option>
-                </select>
-
-                <span>نوع الخط:</span>
-                <select id="col-font-select" class="panel-input" onchange="updateSelectedCol('fontFamily', this.value)">
-                    <option value="inherit">الافتراضي (افتراضي المستند)</option>
-                    <option value="'Inter', sans-serif">Inter (إنتـر المريح - Normal 400)</option>
-                    <option value="'Plus Jakarta Sans', sans-serif">Plus Jakarta Sans (جاكارتا للأرقام)</option>
-                    <option value="'Roboto', sans-serif">Roboto (روبوتو وضوح فائق للأرقام)</option>
-                    <option value="'Outfit', sans-serif">Outfit (أوتفيت العصري)</option>
-                    <option value="'Tajawal', sans-serif">Tajawal (تجوال العصري)</option>
-                    <option value="'Cairo', sans-serif">Cairo (القاهرة الفاخر)</option>
-                    <option value="'Almarai', sans-serif">Almarai (المراعي النظيف)</option>
-                    <option value="'Alexandria', sans-serif">Alexandria (الإسكندرية الحديث)</option>
-                    <option value="'Changa', sans-serif">Changa (شانغا الهندسي)</option>
-                    <option value="'Amiri', serif">Amiri (الأميري الكلاسيكي)</option>
-                    <option value="'JetBrains Mono', monospace">JetBrains Mono (رقمي برمجيات)</option>
-                    <option value="'Roboto Mono', monospace">Roboto Mono (روبوتو أحادي)</option>
-                    <option value="'Fira Code', monospace">Fira Code (فيرا كود الحسابي)</option>
-                </select>
-
-                <span>لون الخط:</span>
-                <input type="color" id="col-color-picker" oninput="updateSelectedCol('color', this.value)">
-
-                <span>خلفية العمود:</span>
-                <input type="color" id="col-bg-picker" value="#ffffff" oninput="updateSelectedCol('bgColor', this.value)">
-            </div>
-
-            <div class="panel-group">
-                <span>✨ أنماط العرض الفاخرة:</span>
-                <select id="table-theme-select" class="panel-input" style="font-weight:800;" onchange="setTableTheme(this.value)">
-                    <option value="">⚪ 1. الأساسي المعياري</option>
-                    <option value="theme-classic-navy">🔷 2. الأزرق الكلاسيكي (Classic Navy)</option>
-                    <option value="theme-emerald-pro">💚 3. الزمردي الراقي (Emerald Pro)</option>
-                    <option value="theme-modern-slate">🩶 4. الرمادي العصري (Modern Slate)</option>
-                    <option value="theme-luxury-gold">👑 5. الذهبي الملكي (Luxury Gold)</option>
-                    <option value="theme-gold">🟡 6. الأصفر الغامق (Amber Gold)</option>
-                    <option value="theme-lightblue">🔵 7. الأزرق الفاتح (Ocean Blue)</option>
-                    <option value="theme-slate">⚪ 8. الرمادي الكلاسيكي (Slate Gray)</option>
-                    <option value="theme-luxury-black">🖤 9. الأسود الفاخر (Luxury Black)</option>
-                </select>
-            </div>
-
-            <div class="panel-group">
-                <span>🏗️ هيكل وتخطيط الفاتورة:</span>
-                <select id="layout-theme-select" class="panel-input" style="font-weight:800;" onchange="setLayoutTheme(this.value)">
-                    <option value="">📑 1. الهيكل الكلاسيكي (الافتراضي)</option>
-                    <option value="layout-modern">🏢 2. الهيكل المودرن المبسط</option>
-                    <option value="layout-split">🗂️ 3. الهيكل المنفصل للشركات</option>
-                    <option value="layout-compact">📋 4. الهيكل المضغوط للمراجعات</option>
-                </select>
-            </div>
-        </div>
-
-        <!-- Row 3: Number Formatting, Decimals, Separators & Rounding -->
-        <div class="panel-card">
-            <div class="panel-group">
-                <span>الفاصلة الألفية:</span>
-                <select id="col-sep-select" class="panel-input" onchange="updateSelectedCol('thousandSep', this.value)">
-                    <option value="," selected>كومة ( 1,000 )</option>
-                    <option value=".">نقطة ( 1.000 )</option>
-                    <option value=" ">مسافة ( 1 000 )</option>
-                    <option value="'">اقتباس ( 1'000 )</option>
-                    <option value="_">شريط ( 1_000 )</option>
-                </select>
-
-                <span>الخانات العشرية:</span>
-                <select id="col-dec-select" class="panel-input" onchange="updateSelectedCol('decimals', parseInt(this.value))">
-                    <option value="0">0 (بدون كسور)</option>
-                    <option value="1">1 (0.0)</option>
-                    <option value="2" selected>2 (0.00)</option>
-                    <option value="3">3 (0.000)</option>
-                    <option value="4">4 (0.0000)</option>
-                </select>
-
-                <label style="display:flex; align-items:center; gap:4px; cursor:pointer;">
-                    <input type="checkbox" id="col-dec-sep-chk" checked onchange="updateSelectedCol('showDecSep', this.checked)">
-                    إظهار فاصلة الكسور
-                </label>
-            </div>
-
-            <div class="panel-group">
-                <span>التقريب:</span>
-                <select id="col-rounding-select" class="panel-input" onchange="updateSelectedCol('rounding', this.value)">
-                    <option value="nearest" selected>تقريب عادي (Math.round)</option>
-                    <option value="up">للأعلى (Math.ceil)</option>
-                    <option value="down">للأسفل (Math.floor)</option>
-                    <option value="cut">قطع الكسر بدون تقريب</option>
-                </select>
-
-                <span>خط الأرقام:</span>
-                <select id="num-font-select" class="panel-input" onchange="setNumberFont(this.value)">
-                    <option value="font-ultra" selected>1. Inter (إنتـر المريح - Normal 400)</option>
-                    <option value="font-jakarta">2. Plus Jakarta Sans (أفضل خط مالي للأرقام)</option>
-                    <option value="font-roboto">3. Roboto (روبوتو القياسي الأوضح للأرقام)</option>
-                    <option value="font-outfit">4. Outfit (أوتفيت العصري للأرقام)</option>
-                    <option value="font-newsons">5. JetBrains Mono (رقمي برمجيات)</option>
-                    <option value="font-ribot">6. Roboto Mono (روبوتو أحادي)</option>
-                    <option value="font-firacode">7. Fira Code (فيرا كود الحسابي)</option>
-                </select>
-            </div>
-        </div>
-    </div>
-
-    <!-- TAB 2: Paper & Print Setup -->
-    <div id="studio-tab-paper" style="display:none;">
-        <div class="panel-card" style="margin-bottom: 8px;">
-            <div class="panel-group">
-                <span>📏 مقاس الورقة (Paper Size):</span>
-                <select id="paper-size-select" class="panel-input" onchange="setPaperSize(this.value)">
-                    <option value="A4" selected>A4 (المعياري - 210x297 mm)</option>
-                    <option value="A3">A3 (الموسع - 297x420 mm)</option>
-                    <option value="A5">A5 (المصغر - 148x210 mm)</option>
-                    <option value="Letter">Letter (الرسائل - 8.5x11 in)</option>
-                    <option value="Legal">Legal (المستندات - 8.5x14 in)</option>
-                </select>
-            </div>
-
-            <div class="panel-group">
-                <span>📐 اتجاه الورقة (Orientation):</span>
-                <select id="paper-orient-select" class="panel-input" onchange="setPageOrientation(this.value)">
-                    <option value="landscape" selected>📜 عرضي (Landscape)</option>
-                    <option value="portrait">📄 طولي (Portrait)</option>
-                </select>
-            </div>
-        </div>
-
-        <div class="panel-card">
-            <div class="panel-group">
-                <span>👁️ التحكم بعناصر الترويسة العليا:</span>
-                
-                <label style="display:flex; align-items:center; gap:5px; cursor:pointer; background:rgba(255,255,255,0.6); padding:5px 12px; border-radius:6px; border:1px solid #ca8a04;">
-                    <input type="checkbox" id="hdr-show-logo-chk" checked onchange="toggleHeaderElement('logo', this.checked)">
-                    إظهار شعار الشركة (Logo)
-                </label>
-
-                <label style="display:flex; align-items:center; gap:5px; cursor:pointer; background:rgba(255,255,255,0.6); padding:5px 12px; border-radius:6px; border:1px solid #ca8a04;">
-                    <input type="checkbox" id="hdr-show-info-chk" checked onchange="toggleHeaderElement('info', this.checked)">
-                    إظهار اسم وبيانات الشركة (الهاتف والتفاصيل)
-                </label>
-            </div>
-        </div>
-
-
-        <div class="panel-card" style="margin-top: 8px;">
-            <div class="panel-group">
-                <span>🌟 خيارات الطباعة المتقدمة التلقائية:</span>
-                
-                <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; width: 100%;">
-                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer; background:rgba(255,255,255,0.6); padding:5px 12px; border-radius:6px; border:1px solid #0369a1;">
-                        <input type="checkbox" id="hdr-show-user-chk" checked onchange="updatePrintMeta()">
-                        👤 إظهار اسم المستخدم الذي قام بالطباعة
-                    </label>
-
-                    <select id="meta-user-pos-select" class="panel-input" onchange="updatePrintMeta()" style="background:#f0f9ff; border-color:#0369a1; color:#0369a1; font-weight:bold;">
-                        <option value="bottom-right" selected>↘️ أسفل اليمين</option>
-                        <option value="bottom-left">↙️ أسفل اليسار</option>
-                        <option value="top-right">↗️ أعلى اليمين</option>
-                        <option value="top-left">↖️ أعلى اليسار</option>
-                    </select>
-                </div>
-
-                <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; width: 100%; margin-top: 5px;">
-                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer; background:rgba(255,255,255,0.6); padding:5px 12px; border-radius:6px; border:1px solid #059669;">
-                        <input type="checkbox" id="hdr-show-datetime-chk" checked onchange="updatePrintMeta()">
-                        🕒 إظهار تاريخ ووقت الطباعة الدقيق
-                    </label>
-
-                    <label style="display:flex; align-items:center; gap:5px; cursor:pointer; background:rgba(255,255,255,0.6); padding:5px 12px; border-radius:6px; border:1px solid #8b5cf6;">
-                        <input type="checkbox" id="hdr-show-pagenums-chk" checked onchange="updatePrintMeta()">
-                        📑 إظهار أرقام الصفحات
-                    </label>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- TAB 3: Presets Management -->
-    <div id="studio-tab-presets" style="display:none;">
-        <div class="panel-card" style="margin-bottom: 10px; justify-content: space-between; align-items: center;">
-            <span style="font-size:0.95rem; font-weight:800;">💎 إدارة التخصيصات الجاهزة:</span>
-            <button class="ribbon-btn" onclick="addNewPresetPrompt()" style="background: linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; padding:5px 16px; font-weight:800; border-radius:18px;">
-                ➕ إضافة تخصيص جديد
-            </button>
-        </div>
-
-        <div id="presets-management-list" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(340px, 1fr)); gap: 10px;">
-        </div>
+    <div class="sr-qat" style="direction:ltr;">
+        <button type="button" class="sr-qat-btn" onclick="saveCurrentPreset()" title="حفظ الإعدادات الحالية">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M17 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V7l-4-4zm-5 16c-1.66 0-3-1.34-3-3s1.34-3 3-3 3 1.34 3 3-1.34 3-3 3zm3-10H5V5h10v4z"/></svg>
+        </button>
+        <button type="button" class="sr-qat-btn" onclick="if(typeof resetDefaultColumnOrder==='function')resetDefaultColumnOrder();" title="إعادة الإعدادات الافتراضية">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M12.5 8c-2.65 0-5.05.99-6.9 2.6L2 7v9h9l-3.62-3.62c1.39-1.16 3.16-1.88 5.12-1.88 3.54 0 6.55 2.31 7.6 5.5l2.37-.78C21.08 11.03 17.15 8 12.5 8z"/></svg>
+        </button>
+        <button type="button" class="sr-qat-btn" onclick="toggleSettingsPanel()" title="إغلاق الشريط">
+            <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor"><path d="M19 6.41L17.59 5 12 10.59 6.41 5 5 6.41 10.59 12 5 17.59 6.41 19 12 13.41 17.59 19 19 17.59 13.41 12z"/></svg>
+        </button>
     </div>
 </div>
 
-<style>
-@media print {
-    .print-meta-bar { display: flex !important; justify-content: space-between; align-items: center; font-size: 11px; color: #555; width: 100%; margin-bottom: 5px; }
-    .print-meta-footer { margin-top: 15px; border-top: 1px solid #ccc; padding-top: 5px; }
-    .print-meta-page-numbers { position: absolute; bottom: 0; left: 50%; transform: translateX(-50%); font-size: 10px; }
-}
-@media screen {
-    .print-meta-bar { display: flex; justify-content: space-between; align-items: center; font-size: 0.8rem; color: #64748b; width: 100%; padding: 4px 10px; background: rgba(0,0,0,0.02); border-radius: 6px; margin-bottom: 10px; border: 1px dashed #cbd5e1; }
-    .print-meta-footer { margin-top: 20px; }
-}
-</style>
+<!-- ════════════════ TAB 1 – COLUMNS ════════════════ -->
+<div id="studio-tab-cols">
+<div class="sr-body" style="padding: 6px 12px; gap: 8px; flex-wrap: nowrap; overflow-x: auto; overflow-y: hidden; justify-content: space-between; align-items: center;">
+
+    <!-- 1. Column Settings (Far Right) -->
+    <div class="sr-group" style="padding: 2px 4px; border:none; box-shadow:none; flex: 2; min-width: 260px;">
+        <div class="sr-group-body" style="align-items:stretch; gap:6px; justify-content:center;">
+            <!-- Row 1: Active Column -->
+            <div class="sr-group-row" style="gap:4px; justify-content:flex-start;">
+                <span style="color:#dc2626; font-weight:900; font-size:14px; font-family:'Tajawal',sans-serif; width:95px; white-space:nowrap;">العمود النشط 🎯:</span>
+                <select id="selected-col-select" class="sr-select" style="border:1.5px solid #dc2626; color:#dc2626; font-weight:900; flex:1; height:30px; font-size:14px; border-radius:4px; text-align:center; padding: 0 4px; box-shadow: 0 1px 2px rgba(220, 38, 38, 0.1);" onchange="selectColumn(parseInt(this.value))"></select>
+            </div>
+            
+            <!-- Row 2: Show/Hide -->
+            <div class="sr-group-row" style="gap:6px; justify-content:flex-start;">
+                <label style="font-size:15px; font-weight:800; font-family:'Tajawal',sans-serif; color:#0f172a; display:flex; align-items:center; gap:4px; white-space:nowrap; cursor:pointer;">
+                    <input type="checkbox" id="col-visible-chk" style="width:14px; height:14px; accent-color:#0284c7; margin:0; cursor:pointer;" onchange="updateSelectedCol('visible', this.checked)"> إظهار العمود
+                </label>
+                <select id="restore-hidden-col-select" class="sr-select" style="flex:1; height:28px; font-size:15px; font-weight:800; font-family:'Tajawal',sans-serif; color:#b45309; border:1px solid #f59e0b; border-radius:4px; padding:0 4px; background:#fffbeb;" onchange="if(typeof restoreHiddenColumn==='function' && this.value){restoreHiddenColumn(this.value); this.value='';}">
+                    <option value="">👁️ الأعمدة المخفية (0)</option>
+                </select>
+            </div>
+
+            <!-- Row 3: Reorder & Label -->
+            <div class="sr-group-row" style="gap:4px; justify-content:flex-start;">
+                <span style="font-size:15px; font-weight:800; font-family:'Tajawal',sans-serif; color:#475569; white-space:nowrap;">الترتيب:</span>
+                <div style="display:flex; border:1px solid #cbd5e1; border-radius:4px; overflow:hidden;">
+                    <button type="button" class="sr-btn" onclick="moveSelectedCol(-1)" style="width:22px; height:28px; border:none; border-radius:0; background:#f8fafc; font-size:14px; color:#475569; border-left:1px solid #cbd5e1; font-weight:900;">▶</button>
+                    <button type="button" class="sr-btn" onclick="moveSelectedCol(1)" style="width:22px; height:28px; border:none; border-radius:0; background:#f8fafc; font-size:14px; color:#475569; font-weight:900;">◀</button>
+                </div>
+                <span style="font-size:15px; font-weight:800; font-family:'Tajawal',sans-serif; color:#475569; padding-right:4px; white-space:nowrap;">التسمية ✏️:</span>
+                <input type="text" id="col-label-input" class="sr-select" style="flex:1; height:28px; font-size:15px; font-weight:800; border:1px solid #cbd5e1; border-radius:4px; padding:0 6px; color:#1e293b;" placeholder="اكتب الاسم..." oninput="updateSelectedCol('label',this.value)">
+            </div>
+        </div>
+    </div>
+    
+    <div class="sr-vd" style="height:125px; margin:0;"></div>
+
+    <!-- 2. Dimensions -->
+    <div class="sr-group" style="padding: 2px 4px; border:none; box-shadow:none; flex: 1;">
+        <div class="sr-group-body" style="gap:6px;">
+            <div class="sr-group-row" style="gap:4px; justify-content:flex-start;">
+                <span style="font-size:15px; font-weight:800; font-family:'Tajawal',sans-serif; color:#475569; width:65px; white-space:nowrap;">عرض العمود:</span>
+                <button type="button" class="sr-btn" onclick="var s=document.getElementById('col-width-range'); s.value=Math.max(40, parseInt(s.value)-5); updateSelectedCol('width', s.value+'px'); document.getElementById('sr-col-w-lbl').textContent=s.value+'px';" style="padding:0; width:20px; height:20px; font-size:14px; border:none; border-radius:4px; background:#e2e8f0; color:#0f172a; font-weight:900; display:flex; align-items:center; justify-content:center;">-</button>
+                <input type="range" id="col-width-range" class="sr-slider" style="width:65px;" min="40" max="400" step="5" value="120" oninput="updateSelectedCol('width',this.value+'px'); document.getElementById('sr-col-w-lbl').textContent=this.value+'px';">
+                <button type="button" class="sr-btn" onclick="var s=document.getElementById('col-width-range'); s.value=Math.min(400, parseInt(s.value)+5); updateSelectedCol('width', s.value+'px'); document.getElementById('sr-col-w-lbl').textContent=s.value+'px';" style="padding:0; width:20px; height:20px; font-size:14px; border:none; border-radius:4px; background:#e2e8f0; color:#0f172a; font-weight:900; display:flex; align-items:center; justify-content:center;">+</button>
+                <span id="sr-col-w-lbl" style="font-size:15px; font-weight:900; color:#2563eb; width:40px; text-align:left; font-family:'Tajawal',sans-serif;">120px</span>
+            </div>
+            <div class="sr-group-row" style="gap:4px; justify-content:flex-start;">
+                <span style="font-size:15px; font-weight:800; font-family:'Tajawal',sans-serif; color:#475569; width:65px; white-space:nowrap;">عرض الجدول:</span>
+                <button type="button" class="sr-btn" onclick="var s=document.getElementById('table-width-range'); s.value=Math.max(50, parseInt(s.value)-5); if(typeof setTableWidth==='function')setTableWidth(s.value); document.getElementById('sr-tbl-w-lbl').textContent=s.value+'%';" style="padding:0; width:20px; height:20px; font-size:14px; border:none; border-radius:4px; background:#e2e8f0; color:#0f172a; font-weight:900; display:flex; align-items:center; justify-content:center;">-</button>
+                <input type="range" id="table-width-range" class="sr-slider" style="width:65px;" min="50" max="100" step="5" value="100" oninput="if(typeof setTableWidth==='function')setTableWidth(this.value); document.getElementById('sr-tbl-w-lbl').textContent=this.value+'%';">
+                <button type="button" class="sr-btn" onclick="var s=document.getElementById('table-width-range'); s.value=Math.min(100, parseInt(s.value)+5); if(typeof setTableWidth==='function')setTableWidth(s.value); document.getElementById('sr-tbl-w-lbl').textContent=s.value+'%';" style="padding:0; width:20px; height:20px; font-size:14px; border:none; border-radius:4px; background:#e2e8f0; color:#0f172a; font-weight:900; display:flex; align-items:center; justify-content:center;">+</button>
+                <span id="sr-tbl-w-lbl" style="font-size:15px; font-weight:900; color:#2563eb; width:40px; text-align:left; font-family:'Tajawal',sans-serif;">100%</span>
+            </div>
+            <div class="sr-group-row" style="gap:4px; justify-content:flex-start;">
+                <span style="font-size:15px; font-weight:800; font-family:'Tajawal',sans-serif; color:#475569; width:65px; white-space:nowrap;">ارتفاع الصف:</span>
+                <select class="sr-select" style="flex:1; height:28px; font-size:15px; font-family:'Tajawal',sans-serif; border-radius:4px; padding:0 4px;" onchange="setRowHeight(this.value)">
+                    <option value="compact">مضغوط (4px)</option>
+                    <option value="normal" selected>عادي (8px)</option>
+                    <option value="comfortable">مريح (12px)</option>
+                    <option value="spacious">واسع (16px)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <div class="sr-vd" style="height:125px; margin:0;"></div>
+
+    <!-- 3. Page Settings -->
+    <div class="sr-group" style="padding: 2px 4px; border:none; box-shadow:none; flex: 1.4; min-width: 180px;">
+        <div class="sr-group-body" style="gap:6px;">
+            <div class="sr-group-row" style="gap:4px; justify-content:flex-start;">
+                <span style="font-size:15px; font-weight:800; font-family:'Tajawal',sans-serif; color:#475569; width:50px; white-space:nowrap;">المقاس:</span>
+                <select id="paper-size-select" class="sr-select" style="flex:1; height:28px; font-size:15px; font-family:'Tajawal',sans-serif; border-radius:4px; font-weight:800; color:#0284c7; padding:0 4px;" onchange="setPaperSize(this.value)">
+                    <option value="A4" selected>A4 (افتراضي)</option>
+                    <option value="A5">A5 (نصف صفحة)</option>
+                    <option value="A3">A3 (كبير)</option>
+                    <option value="A6">A6 (إيصال/صغير)</option>
+                    <option value="Letter">Letter</option>
+                </select>
+            </div>
+            <div class="sr-group-row" style="gap:4px; justify-content:flex-start;">
+                <span style="font-size:15px; font-weight:800; font-family:'Tajawal',sans-serif; color:#475569; width:50px; white-space:nowrap;">الاتجاه:</span>
+                <select id="paper-orient-select" class="sr-select" style="flex:1; height:28px; font-size:15px; font-family:'Tajawal',sans-serif; border-radius:4px; font-weight:800; color:#1e293b; padding:0 4px;" onchange="setPageOrientation(this.value)">
+                    <option value="portrait" selected>طولي (عمودي) 📄</option>
+                    <option value="landscape">عرضي (أفقي) 📜</option>
+                </select>
+            </div>
+            <div class="sr-group-row" style="gap:4px; justify-content:flex-start;">
+                <span style="font-size:15px; font-weight:800; font-family:'Tajawal',sans-serif; color:#475569; width:50px; white-space:nowrap;">الهوامش:</span>
+                <select id="paper-margins-select" class="sr-select" style="flex:1; height:28px; font-size:15px; font-family:'Tajawal',sans-serif; border-radius:4px; font-weight:800; color:#1e293b; padding:0 4px;" onchange="setPageMargins(this.value)">
+                    <option value="normal" selected>عادي (15mm)</option>
+                    <option value="compact">ضيق (5mm)</option>
+                    <option value="none">بدون هوامش (0mm)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+    
+    <div class="sr-vd" style="height:125px; margin:0;"></div>
+
+    <!-- 4. Decimals -->
+    <div class="sr-group" style="padding: 2px 4px; border:none; box-shadow:none; flex: 0.6; min-width: 80px;">
+        <div class="sr-group-body" style="flex-direction:row; gap:10px; align-items:center;">
+            <button type="button" class="sr-btn" onclick="var s=document.getElementById('col-dec-select');s.selectedIndex=Math.min(4,s.selectedIndex+1);updateSelectedCol('decimals',parseInt(s.value));" title="زيادة المنازل العشرية" style="font-family:'Segoe UI',monospace; font-weight:900; letter-spacing:-1px; padding:4px; border:none; display:flex; flex-direction:column; align-items:center; background:transparent; cursor:pointer;">
+                <div style="display:flex; align-items:center;">
+                    <span style="font-size:18px; line-height:1; color:#0284c7;">.00</span>
+                </div>
+                <div style="display:flex; align-items:center; margin-right:8px;">
+                    <span style="font-size:16px; color:#0284c7;">→</span><span style="font-size:18px; line-height:0.9; color:#0284c7;">.0</span>
+                </div>
+            </button>
+            <button type="button" class="sr-btn" onclick="var s=document.getElementById('col-dec-select');s.selectedIndex=Math.max(0,s.selectedIndex-1);updateSelectedCol('decimals',parseInt(s.value));" title="تقليل المنازل العشرية" style="font-family:'Segoe UI',monospace; font-weight:900; letter-spacing:-1px; padding:4px; border:none; display:flex; flex-direction:column; align-items:center; background:transparent; cursor:pointer;">
+                <div style="display:flex; align-items:center; margin-right:8px;">
+                    <span style="font-size:18px; line-height:1; color:#0284c7;">←</span><span style="font-size:16px; color:#0284c7;">.0</span>
+                </div>
+                <span style="font-size:18px; line-height:0.9; color:#0284c7;">.00</span>
+            </button>
+            <div style="display:none;">
+                <select id="col-dec-select"><option value="0">0</option><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option><option value="4">4</option></select>
+                <select id="col-sep-select"><option value="," selected>,</option><option value=".">.</option><option value=" ">_</option><option value="none">بدون</option></select>
+            </div>
+        </div>
+    </div>
+    
+    <div class="sr-vd" style="height:125px; margin:0;"></div>
+
+    <!-- 5. Alignment -->
+    <div class="sr-group" style="padding: 2px 4px; border:none; box-shadow:none; flex: 0.6; min-width: 80px;">
+        <div class="sr-group-body" style="justify-content:center; gap:4px;">
+            <div style="display:flex; border:1px solid #cbd5e1; border-radius:4px; overflow:hidden; background:#f8fafc;">
+                <button type="button" class="sr-btn" title="محاذاة لليمين" onclick="updateSelectedCol('align','right');" style="width:30px; height:28px; border:none; border-radius:0; border-left:1px solid #cbd5e1; display:flex; align-items:center; justify-content:center; color:#475569; cursor:pointer;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18v2H3zm6 5h12v2H9zm-6 5h18v2H3zm6 5h12v2H9z"/></svg>
+                </button>
+                <button type="button" class="sr-btn active" title="توسيط" onclick="updateSelectedCol('align','center');" style="width:30px; height:28px; border:none; border-radius:0; border-left:1px solid #cbd5e1; display:flex; align-items:center; justify-content:center; color:#2563eb; background:#dbeafe; cursor:pointer;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18v2H3zm3 5h12v2H6zm-3 5h18v2H3zm3 5h12v2H6z"/></svg>
+                </button>
+                <button type="button" class="sr-btn" title="محاذاة لليسار" onclick="updateSelectedCol('align','left');" style="width:30px; height:28px; border:none; border-radius:0; display:flex; align-items:center; justify-content:center; color:#475569; cursor:pointer;">
+                    <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M3 4h18v2H3zm0 5h12v2H3zm0 5h18v2H3zm0 5h12v2H3z"/></svg>
+                </button>
+            </div>
+            <div style="text-align:center; font-size:14px; font-weight:800; font-family:'Tajawal',sans-serif; color:#64748b; margin-top:2px;">المحاذاة</div>
+        </div>
+    </div>
+    
+    <div class="sr-vd" style="height:125px; margin:0;"></div>
+
+    <!-- 6. Font & Colors -->
+    <div class="sr-group" style="padding: 2px 4px; border:none; box-shadow:none; flex: 1.5; min-width: 200px;">
+        <div class="sr-group-body" style="gap:4px;">
+            <div class="sr-group-row" style="gap:4px;">
+                <select id="col-font-select" class="sr-select" style="width:110px; height:28px; font-size:15px; font-family:'Tajawal',sans-serif; border-radius:4px; font-weight:800; color:#1e293b; padding:0 4px;" onchange="updateSelectedCol('fontFamily',this.value)">
+                    <option value="'Segoe UI',sans-serif" selected>Segoe UI</option>
+                    <option value="'Tajawal',sans-serif">Tajawal (تجوّل)</option>
+                    <option value="'Cairo',sans-serif">Cairo (القاهرة)</option>
+                    <option value="'Almarai',sans-serif">Almarai</option>
+                    <option value="'Readex Pro',sans-serif">Readex Pro</option>
+                    <option value="'Amiri',serif">Amiri (أميري)</option>
+                    <option value="'Changa',sans-serif">Changa</option>
+                    <option value="'Arial',sans-serif">Arial</option>
+                    <option value="Consolas,monospace">Consolas</option>
+                </select>
+                <select id="col-fs-select" class="sr-select" style="width:45px; height:28px; font-size:15px; font-weight:900; border-radius:4px; color:#1e293b; padding:0 4px;" onchange="setColumnFontSize(this.value)">
+                    <option value="0.65">8</option><option value="0.72">9</option><option value="0.8">10</option><option value="0.85">11</option><option value="0.9" selected>12</option><option value="1.0">14</option><option value="1.15">16</option><option value="1.3">18</option><option value="1.45">20</option><option value="1.7">24</option><option value="2.0">28</option>
+                </select>
+                <div style="display:flex; gap:2px; margin-right:2px;">
+                    <button type="button" class="sr-btn" title="تكبير الخط" onclick="stepFontSize(1);" style="font-family:serif;font-size:16px;font-weight:900; width:22px; height:28px; padding:0; border:none; background:transparent; color:#475569; cursor:pointer;">A<sup style="font-size:9px;">▲</sup></button>
+                    <button type="button" class="sr-btn" title="تصغير الخط" onclick="stepFontSize(-1);" style="font-family:serif;font-size:14px;font-weight:900; width:22px; height:28px; padding:0; border:none; background:transparent; color:#475569; cursor:pointer;">A<sup style="font-size:8px;">▼</sup></button>
+                    <input type="range" id="col-fs-range" min="0.6" max="2.0" step="0.1" value="0.9" style="display:none;" oninput="updateSelectedCol('fs',parseFloat(this.value))">
+                </div>
+            </div>
+            
+            <div class="sr-group-row" style="gap:4px;">
+                <div style="display:flex; border:1px solid #cbd5e1; border-radius:4px; overflow:hidden; background:#f8fafc;">
+                    <button type="button" class="sr-btn active" onclick="updateSelectedCol('fontWeight','900')" title="عريض" style="font-family:serif;font-weight:900;font-size:15px;width:26px;height:28px;border:none;border-radius:0;">B</button>
+                    <button type="button" class="sr-btn" onclick="updateSelectedCol('italic',true)" title="مائل" style="font-family:serif;font-style:italic;font-size:15px;width:26px;height:28px;border:none;border-radius:0;border-right:1px solid #cbd5e1;border-left:1px solid #cbd5e1;">I</button>
+                    <button type="button" class="sr-btn" onclick="updateSelectedCol('underline',true)" title="تسطير" style="font-family:serif;text-decoration:underline;font-size:15px;width:26px;height:28px;border:none;border-radius:0;">U</button>
+                    <button type="button" class="sr-btn" onclick="updateSelectedCol('strikethrough',true)" title="يتوسطه خط" style="font-family:serif;text-decoration:line-through;font-size:15px;width:26px;height:28px;border:none;border-radius:0;border-right:1px solid #cbd5e1;">S</button>
+                </div>
+                <div class="sr-vd" style="height:28px; margin:0 2px;"></div>
+                <label class="sr-color-btn" title="لون تمييز النص" style="width:24px; height:28px; border:none; background:transparent; cursor:pointer; margin-right:2px;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="currentColor" style="color:#eab308;"><path d="M19 11.5s-4-4.5-4-7.5a4 4 0 0 0-8 0c0 3 4 7.5 4 7.5l8 0zM5 19h14v2H5z"/></svg>
+                    <div class="sr-color-swatch" id="sr-hl-swatch" style="background:#eab308; height:3px; margin-top:2px; border-radius:1px;"></div>
+                    <input type="color" value="#eab308" style="display:none;" oninput="document.getElementById('sr-hl-swatch').style.background=this.value;updateSelectedCol('bgColor',this.value);">
+                </label>
+                <label class="sr-color-btn" title="لون الخط" style="width:24px; height:28px; border:none; background:transparent; cursor:pointer;">
+                    <span style="font-family:serif;font-weight:900;font-size:16px;line-height:0.9;color:#dc2626;">A</span>
+                    <div class="sr-color-swatch" id="sr-fc-swatch" style="background:#dc2626; height:3px; margin-top:2px; border-radius:1px;"></div>
+                    <input type="color" id="col-color-picker" value="#dc2626" style="display:none;" oninput="document.getElementById('sr-fc-swatch').style.background=this.value;updateSelectedCol('color',this.value);">
+                </label>
+            </div>
+            
+            <div class="sr-group-row" style="gap:6px; justify-content:flex-start; margin-top:2px;">
+                <button type="button" class="sr-btn" onclick="updateSelectedCol('bgColor','');updateSelectedCol('color','');updateSelectedCol('fontWeight','400');document.getElementById('col-bg-picker').value='#ffffff';document.getElementById('sr-bg-preview').style.background='#ffffff';" title="مسح التنسيق" style="font-size:15px; font-weight:900; color:#ef4444; padding:2px 10px; border:1px solid #fca5a5; border-radius:4px; background:#fef2f2; font-family:'Tajawal',sans-serif; cursor:pointer;">
+                    مسح 🗑️
+                </button>
+                <label style="cursor:pointer; display:flex; align-items:center; gap:4px;">
+                    <div id="sr-bg-preview" style="width:30px; height:20px; border:1.5px solid #10b981; border-radius:4px; background:#dcfce7;"></div>
+                    <input type="color" id="col-bg-picker" value="#dcfce7" style="display:none;" oninput="document.getElementById('sr-bg-preview').style.background=this.value;updateSelectedCol('bgColor',this.value);">
+                    <span style="font-size:14px; font-weight:800; color:#475569; font-family:'Tajawal',sans-serif;">خلفية العمود:</span>
+                </label>
+            </div>
+        </div>
+    </div>
+    
+    <div class="sr-vd" style="height:125px; margin:0;"></div>
+    
+    <!-- 7. Number Style -->
+    <div class="sr-group" style="padding: 2px 4px; border:none; box-shadow:none; flex: 1.4; min-width: 200px;">
+        <div class="sr-group-body" style="gap:4px;">
+            <div class="sr-group-row" style="gap:4px; justify-content:flex-start;">
+                <span style="font-size:15px; font-weight:800; font-family:'Tajawal',sans-serif; color:#475569; width:65px;">خط الأرقام:</span>
+                <select id="col-numfont-select" class="sr-select" style="width:120px; height:28px; font-size:15px; font-family:'Tajawal',sans-serif; border-radius:4px; font-weight:800; color:#1e293b; padding:0 4px;" onchange="setColumnNumberFont(this.value)">
+                    <option value="inherit" selected>Segoe UI</option>
+                    <option value="Consolas, monospace">محاسبي Monospace</option>
+                    <option value="'Tajawal', sans-serif">تجاري أنيق Tajawal</option>
+                    <option value="arabic_indic">مشرقية / عربية (١٢٣)</option>
+                </select>
+            </div>
+            <div class="sr-group-row" style="gap:4px; justify-content:flex-start;">
+                <span style="font-size:15px; font-weight:800; font-family:'Tajawal',sans-serif; color:#475569; width:65px;">السالب:</span>
+                <select id="col-negformat-select" class="sr-select" style="width:120px; height:28px; font-size:15px; font-family:'Tajawal',sans-serif; border-radius:4px; font-weight:800; color:#dc2626; padding:0 4px;" onchange="setNegativeNumberFormat(this.value)">
+                    <option value="default" selected>-100.00 (افتراضي)</option>
+                    <option value="red">-100.00 (لون أحمر)</option>
+                    <option value="paren_red">(100.00) محاسبي أحمر</option>
+                    <option value="paren">(100.00) بين أقواس</option>
+                </select>
+            </div>
+            <div class="sr-group-row" style="gap:4px; justify-content:flex-start;">
+                <span style="font-size:15px; font-weight:800; font-family:'Tajawal',sans-serif; color:#475569; width:65px;">النسبة:</span>
+                <label style="font-size:15px; font-weight:800; font-family:'Tajawal',sans-serif; display:flex; align-items:center; gap:4px; color:#1e293b; cursor:pointer;">
+                    <input type="checkbox" id="col-percent-chk" style="width:14px; height:14px; accent-color:#0284c7; margin:0; cursor:pointer;" onchange="updateSelectedCol('percentFormat', this.checked)"> إضافة علامة %
+                </label>
+            </div>
+        </div>
+    </div>
+
+</div><!-- /sr-body -->
+
+<div id="studio-columns-chips-container" style="display:none;"></div>
+</div>
+</div><!-- /studio-tab-cols -->
+
+<!-- ════════════════ TAB 2 – PAPER ════════════════ -->
+<div id="studio-tab-paper" style="display:none;">
+<div class="sr-paper-body">
+    <div class="sr-paper-main">
+
+        <!-- Theme picker -->
+        <div class="sr-paper-row">
+            <span class="sr-amber-label">✨ نمط العرض:</span>
+            <select id="table-theme-select" class="sr-pill-amber" onchange="setTableTheme(this.value)">
+                <option value="theme-gold" selected>🟡 الأصفر الغامق (Amber Gold)</option>
+                <option value="">⚪ الأساسي المعياري</option>
+                <option value="theme-classic-navy">🔷 الأزرق الكلاسيكي</option>
+                <option value="theme-emerald-pro">💚 الزمردي الراقي</option>
+                <option value="theme-modern-slate">🩶 الرمادي العصري</option>
+                <option value="theme-luxury-gold">👑 الذهبي الملكي</option>
+                <option value="theme-lightblue">🔵 الأزرق الفاتح</option>
+                <option value="theme-slate">⚪ الرمادي الكلاسيكي</option>
+                <option value="theme-luxury-black">🖤 الأسود الفاخر</option>
+            </select>
+        </div>
+
+        <!-- Header controls -->
+        <div class="sr-paper-row">
+            <span class="sr-amber-label">👁️ الترويسة العليا:</span>
+            <div class="sr-box sr-box-amber">
+                <label class="sr-chk-lbl"><input type="checkbox" id="hdr-show-logo-chk" checked onchange="toggleHeaderElement('logo',this.checked)"> شعار الشركة (Logo)</label>
+                <label class="sr-chk-lbl"><input type="checkbox" id="hdr-show-info-chk" checked onchange="toggleHeaderElement('info',this.checked)"> بيانات الشركة (الهاتف والتفاصيل)</label>
+            </div>
+        </div>
+
+        <!-- Print meta -->
+        <div class="sr-paper-row">
+            <span class="sr-amber-label">🌟 خيارات الطباعة:</span>
+            <div class="sr-box sr-box-blue">
+                <label class="sr-chk-lbl"><input type="checkbox" id="hdr-show-user-chk" checked onchange="updatePrintMeta()"> اسم المستخدم 👤</label>
+                <select id="meta-user-pos-select" class="sr-pill-sm" onchange="updatePrintMeta()">
+                    <option value="bottom-right" selected>↘️ أسفل اليمين</option>
+                    <option value="bottom-left">↙️ أسفل اليسار</option>
+                    <option value="top-right">↗️ أعلى اليمين</option>
+                    <option value="top-left">↖️ أعلى اليسار</option>
+                </select>
+            </div>
+            <div class="sr-box sr-box-green">
+                <label class="sr-chk-lbl"><input type="checkbox" id="hdr-show-datetime-chk" checked onchange="updatePrintMeta()"> وقت الطباعة 🕒</label>
+            </div>
+            <div class="sr-box sr-box-purple">
+                <label class="sr-chk-lbl"><input type="checkbox" id="hdr-show-pagenums-chk" checked onchange="updatePrintMeta()"> أرقام الصفحات 📑</label>
+            </div>
+        </div>
+
+        <!-- Hidden helpers -->
+        <div style="display:none;">
+            <select id="paper-size-select" onchange="setPaperSize(this.value)"><option value="A4" selected>A4</option><option value="A3">A3</option><option value="A5">A5</option><option value="Letter">Letter</option><option value="Legal">Legal</option></select>
+            <select id="paper-orient-select" onchange="setPageOrientation(this.value)"><option value="landscape" selected>Landscape</option><option value="portrait">Portrait</option></select>
+            <select id="layout-theme-select" onchange="setLayoutTheme(this.value)"><option value="">Classic</option><option value="layout-modern">Modern</option></select>
+        </div>
+
+    </div>
+
+    <div class="sr-divider"></div>
+
+    <!-- Right side: Illustrations / Text / Acrobat / Themes -->
+    <div style="display:flex;align-items:center;gap:6px;padding:0 10px;flex-shrink:0;">
+        <button type="button" class="sr-big-btn">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><circle cx="9" cy="9" r="6" stroke="#475569" stroke-width="1.8"/><rect x="9" y="9" width="11" height="11" rx="1.5" stroke="#0284c7" stroke-width="1.8"/></svg>
+            <span class="sr-big-label">Illustrations ▾</span>
+        </button>
+        <button type="button" class="sr-big-btn">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="#0284c7" stroke-width="2"><path d="M4 20h16M12 4v16M8 4h8"/></svg>
+            <span class="sr-big-label">Text ▾</span>
+        </button>
+        <button type="button" class="sr-big-btn" onclick="if(typeof window.openExportModal==='function')window.openExportModal();else window.print();">
+            <svg width="26" height="26" viewBox="0 0 24 24" fill="none"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" stroke="#dc2626" stroke-width="1.8"/><polyline points="14 2 14 8 20 8" stroke="#dc2626" stroke-width="1.8"/><path d="M12 18v-6m-3 3l3-3 3 3" stroke="#dc2626" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+            <span class="sr-big-label" style="font-size:9px;line-height:1.2;">Create &amp; Convert<br>Adobe PDF</span>
+        </button>
+        <div class="sr-divider"></div>
+        <div style="display:flex;flex-direction:column;gap:3px;min-width:95px;">
+            <button type="button" class="sr-btn" style="justify-content:flex-start;font-size:15px;gap:5px;padding:2px 6px;"><span style="color:#10b981;font-size:14px;">⊞</span> Colors ▾</button>
+            <button type="button" class="sr-btn" style="justify-content:flex-start;font-size:15px;gap:5px;padding:2px 6px;"><span style="color:#0284c7;font-weight:900;font-family:serif;font-size:14px;">A</span> Fonts ▾</button>
+            <button type="button" class="sr-btn" style="justify-content:flex-start;font-size:15px;gap:5px;padding:2px 6px;"><span style="color:#84cc16;font-size:14px;">●</span> Effects ▾</button>
+            <span style="font-size:9.5px;color:#64748b;text-align:center;font-weight:700;">Themes</span>
+        </div>
+    </div>
+</div>
+</div><!-- /studio-tab-paper -->
+
+<!-- ════════════════ TAB 3 – PRESETS ════════════════ -->
+<div id="studio-tab-presets" style="display:none;">
+<div class="sr-presets-pane">
+    <div style="display:flex;justify-content:space-between;align-items:center;">
+        <span class="sr-amber-label" style="font-size:14px;">💎 إدارة التخصيصات والقوالب الجاهزة</span>
+        <button type="button" onclick="addNewPresetPrompt()"
+                style="background:linear-gradient(135deg,#10b981,#059669);color:#fff;border:none;border-radius:999px;padding:7px 18px;font-weight:900;font-size:15px;cursor:pointer;font-family:'Tajawal',sans-serif;">
+            ➕ إضافة قالب جديد
+        </button>
+    </div>
+    <div id="presets-management-list" class="sr-presets-grid"></div>
+</div>
+</div><!-- /studio-tab-presets -->
+
+</div><!-- /settings-panel -->
+
 <script>
-function getPrintUsername() {
-    try {
-        const userStr = localStorage.getItem('user');
-        if (userStr) {
-            const user = JSON.parse(userStr);
-            return user.fullName || user.username || 'المستخدم الحالي';
-        }
-    } catch(e) {}
-    return 'المستخدم الحالي';
+/* ── Print meta helper ── */
+function getPrintUsername(){try{var u=localStorage.getItem('user');if(u){var p=JSON.parse(u);return p.fullName||p.username||'المستخدم';}}catch(e){}return 'المستخدم';}
+function updatePrintMeta(){
+    var su=document.getElementById('hdr-show-user-chk'),up=document.getElementById('meta-user-pos-select'),
+        sd=document.getElementById('hdr-show-datetime-chk'),sp=document.getElementById('hdr-show-pagenums-chk'),
+        tb=document.getElementById('print-top-bar'),fb=document.getElementById('print-footer-bar');
+    if(!tb||!fb)return;
+    var un=getPrintUsername(),now=new Date(),
+        ds=now.toLocaleDateString('ar-EG')+' '+now.toLocaleTimeString('ar-EG');
+    tb.innerHTML='<div></div><div></div><div></div>';fb.innerHTML='<div></div><div></div><div></div>';
+    var ht=false,hf=false;
+    if(su&&su.checked){var pos=up?up.value:'bottom-right';if(pos.startsWith('top')){tb.children[pos.endsWith('right')?0:2].innerHTML='👤 طباعة: '+un;ht=true;}else{fb.children[pos.endsWith('right')?0:2].innerHTML='👤 طباعة: '+un;hf=true;}}
+    if(sd&&sd.checked){fb.children[1].innerHTML='🕒 '+ds;hf=true;}
+    if(sp&&sp.checked){fb.children[1].innerHTML+=' <span>ص 1</span>';hf=true;}
+    tb.style.display=ht?'flex':'none';fb.style.display=hf?'flex':'none';
 }
+window.updatePrintMeta=updatePrintMeta;
+document.addEventListener('DOMContentLoaded',updatePrintMeta);
 
-function updatePrintMeta() {
-    const showUser = document.getElementById('hdr-show-user-chk')?.checked;
-    const userPos = document.getElementById('meta-user-pos-select')?.value || 'bottom-right';
-    const showDateTime = document.getElementById('hdr-show-datetime-chk')?.checked;
-    const showPageNums = document.getElementById('hdr-show-pagenums-chk')?.checked;
-
-    const topBar = document.getElementById('print-top-bar');
-    const footerBar = document.getElementById('print-footer-bar');
-    
-    if (!topBar || !footerBar) return;
-    
-    const userName = getPrintUsername();
-    
-    let now = new Date();
-    let dateStr = now.toLocaleDateString('ar-EG') + ' ' + now.toLocaleTimeString('ar-EG');
-    
-    // Clear
-    topBar.innerHTML = '<div class="meta-right"></div><div class="meta-center"></div><div class="meta-left"></div>';
-    footerBar.innerHTML = '<div class="meta-right"></div><div class="meta-center"></div><div class="meta-left"></div>';
-    
-    // Top Bar Logic
-    let hasTop = false;
-    if (showUser && userPos === 'top-right') { topBar.querySelector('.meta-right').innerHTML = '👤 طباعة: ' + userName; hasTop = true; }
-    if (showUser && userPos === 'top-left') { topBar.querySelector('.meta-left').innerHTML = '👤 طباعة: ' + userName; hasTop = true; }
-    
-    topBar.style.display = hasTop ? 'flex' : 'none';
-    
-    // Footer Bar Logic
-    let hasFooter = false;
-    if (showUser && userPos === 'bottom-right') { footerBar.querySelector('.meta-right').innerHTML = '👤 طباعة: ' + userName; hasFooter = true; }
-    if (showUser && userPos === 'bottom-left') { footerBar.querySelector('.meta-left').innerHTML = '👤 طباعة: ' + userName; hasFooter = true; }
-    
-    if (showDateTime) {
-        if (!footerBar.querySelector('.meta-right').innerHTML) footerBar.querySelector('.meta-right').innerHTML = '🕒 وقت الطباعة: ' + dateStr;
-        else if (!footerBar.querySelector('.meta-left').innerHTML) footerBar.querySelector('.meta-left').innerHTML = '🕒 وقت الطباعة: ' + dateStr;
-        else footerBar.querySelector('.meta-center').innerHTML = '🕒 وقت الطباعة: ' + dateStr;
-        hasFooter = true;
-    }
-    
-    if (showPageNums) {
-        // We use a CSS trick for page numbers if possible, otherwise just static text
-        footerBar.querySelector('.meta-center').innerHTML += '<span class="page-number-css"></span>';
-        hasFooter = true;
-    }
-    
-    footerBar.style.display = hasFooter ? 'flex' : 'none';
-}
-
-// Attach to global window so it can be called after preset load
-window.updatePrintMeta = updatePrintMeta;
-document.addEventListener('DOMContentLoaded', updatePrintMeta);
+/* ── Tab switching – ensure legacy tabs are hidden by default ── */
+window.switchStudioTab=function(tab){
+    ['cols','paper','presets'].forEach(function(t){
+        var el=document.getElementById('studio-tab-'+t);
+        var btn=document.getElementById('sr-tab-'+t);
+        if(!el)return;
+        el.style.display=(t===tab)?'block':'none';
+        if(btn){btn.classList.toggle('active',t===tab);}
+    });
+};
 </script>

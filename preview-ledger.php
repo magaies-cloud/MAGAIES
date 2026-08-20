@@ -151,7 +151,7 @@
             -webkit-user-select: none !important;
         }
 
-        /* Old panel styles removed - now controlled by css/studio-panel.css */
+        /* Old panel styles removed - now controlled by css/studio-ribbon-v4.css */
 
         /* Printable Area - Realistic Solid Paper Sheet Boundary */
         .print-area {

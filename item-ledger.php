@@ -20,6 +20,7 @@
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
+    <link rel="stylesheet" href="css/report-ribbon.css?v=1787182249">
     <style>
         :root {
             /* Theme: Pink & Emerald Dashboard */
@@ -275,91 +276,41 @@
         <?php $header_theme_class = 'header-theme-inventory'; ?>
         <?php include 'includes/header.php'; ?>
 
-        <!-- Top Navigation Row (Clustered Smart Hub + Preview Action Buttons) -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; gap: 10px; flex-wrap: nowrap;">
-            <div class="nav-tabs" style="margin-bottom: 0; flex: 1;">
-                
-                <!-- Cluster 1: نظام الجرد -->
-                <div class="nav-cluster">
-                    <a href="inventory-report.php" class="nav-tab" title="نظام الجرد الشامل بجميع المخازن">
-                        <span>📦</span> <span>الجرد الشامل للمخازن</span>
-                    </a>
-                </div>
-
-                <div class="nav-divider"></div>
-
-                <!-- Cluster 2: حركات البضائع -->
-                <div class="nav-cluster nav-dropdown">
-                    <div class="nav-tab active" title="حركات البضائع">
-                        <span>📑</span> <span>حركات البضائع</span>
-                        <span style="font-size: 0.7rem; margin-right: 2px;">▼</span>
-                    </div>
-                    <div class="nav-dropdown-content">
-                        <a href="item-ledger.php" class="nav-dropdown-item active" title="كشف حركة صنف محدد">
-                            <span>📑</span> حركة الأصناف (الحالية)
-                        </a>
-                        <a href="warehouse-ledger.php" class="nav-dropdown-item" title="كشف حركة مخزن محدد">
-                            <span>🏭</span> حركة المخازن
-                        </a>
-                        <a href="inventory-summary.php" class="nav-dropdown-item" title="ملخص الوارد والمنصرف">
-                            <span>📊</span> ملخص الحركات
-                        </a>
-                    </div>
-                </div>
-
-                <div class="nav-divider"></div>
-
-                <!-- Cluster 3: مركز الذكاء الاصطناعي (AI Suite) -->
-                <div class="nav-cluster nav-dropdown">
-                    <div class="nav-tab nav-tab-ai" title="أدوات الذكاء الاصطناعي">
-                        <span>🤖</span> <span>أدوات الذكاء الاصطناعي</span>
-                        <span class="nav-ai-badge">AI</span>
-                        <span style="font-size: 0.7rem; margin-right: 2px;">▼</span>
-                    </div>
-                    <div class="nav-dropdown-content">
-                        <a href="ai_goods_advisor.php" class="nav-dropdown-item" title="توصيات الشراء واستراتيجيات التخزين">
-                            <span>💡</span> مستشار الـ AI للبضائع
-                        </a>
-                        <a href="smart_inventory_report.php" class="nav-dropdown-item" title="تقارير تفاعلية ذكية للمخزون">
-                            <span>🧠</span> تقارير المخازن الذكية
-                        </a>
-                    </div>
-                </div>
-
-                <div class="nav-divider"></div>
-
-                <!-- Cluster 4: التحليلات المرئية (Charts & Dashboards) -->
-                <div class="nav-cluster nav-dropdown">
-                    <div class="nav-tab" title="المخططات والرسوم البيانية">
-                        <span>📈</span> <span style="font-weight: 800; color: #f8fafc;">التحليلات المرئية</span>
-                        <span style="font-size: 0.7rem; margin-right: 2px;">▼</span>
-                    </div>
-                    <div class="nav-dropdown-content">
-                        <a href="visual-analytics.php#pie" class="nav-dropdown-item" title="النسب المئوية لتوزيع البضائع في المخازن">
-                            <span>🍕</span> توزيع المخزون (مخطط دائري)
-                        </a>
-                        <a href="visual-analytics.php#donut" class="nav-dropdown-item" title="حالة الأرصدة (آمن، نواقص، الخ)">
-                            <span>🍩</span> حالة الأرصدة (كعكة مفرغة)
-                        </a>
-                        <a href="visual-analytics.php#bar" class="nav-dropdown-item" title="إجمالي القيمة المالية لكل صنف ومخزن">
-                            <span>📊</span> قيمة المخزون (أعمدة مصمتة)
-                        </a>
-                    </div>
-                </div>
-
+        <!-- Unified Smart Ribbon Toolbar Row -->
+        <div class="report-ribbon-bar">
+            <!-- Presets Cluster: 1, 2, 3 -->
+            <div class="ribbon-presets-group">
+                <button class="preset-pill-btn active" data-preset="0" onclick="applyReportPreset(0, this)" title="القالب الافتراضي 1">
+                    <span class="preset-num">1</span> <span>افتراضي 1</span>
+                </button>
+                <button class="preset-pill-btn" data-preset="1" onclick="applyReportPreset(1, this)" title="القالب المخصص 2">
+                    <span class="preset-num">2</span> <span>تخصيص 2</span>
+                </button>
+                <button class="preset-pill-btn" data-preset="2" onclick="applyReportPreset(2, this)" title="القالب المخصص 3">
+                    <span class="preset-num">3</span> <span>تخصيص 3</span>
+                </button>
             </div>
 
-            <!-- Far Left Controls: Preview & Action Buttons -->
-            <div class="dash-controls" style="margin: 0; display: flex; gap: 8px; flex-shrink: 0;">
-                <button id="btn-preview-report" class="btn-action" onclick="openItemLedgerPreview()" style="display: none; background: linear-gradient(135deg, #0d9488, #0f766e); color: white; border: none; padding: 7px 15px; border-radius: 10px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(13,148,136,0.25); align-items: center; gap: 6px;">
+            <!-- Action Controls -->
+            <div class="ribbon-actions-group">
+                <button class="ribbon-btn" onclick="openStudioPreviewPage()" style="--btn-color: #eab308; background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(202, 138, 4, 0.3)); border-color: rgba(234, 179, 8, 0.5); color: #fef08a;">
+                    <span>⚙️</span> <span>إعدادات الأعمدة</span>
+                </button>
+                <button id="btn-preview-report" class="ribbon-btn" onclick="openItemLedgerPreview()" style="--btn-color: #0d9488;">
                     <span>👁️</span> <span>معاينة وتصميم التقرير</span>
                 </button>
-                <button id="btn-print-report" class="btn-action btn-print" onclick="printItemLedgerDirectly()" style="display: none; background: rgba(255,255,255,0.05); color: var(--text-primary); border: 1px solid var(--glass-border); padding: 7px 14px; border-radius: 10px; font-weight: 700; cursor: pointer; align-items: center; gap: 5px;">
+                <button id="btn-print-report" class="ribbon-btn" onclick="printItemLedgerDirectly()" style="--btn-color: #38bdf8;">
                     <span>🖨️</span> <span>طباعة</span>
                 </button>
-                <button class="btn-icon-nav" onclick="history.back()" title="رجوع" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; color: var(--text-primary); cursor: pointer; transition: 0.3s;">↩</button>
+                <button class="ribbon-btn" onclick="history.back()" style="--btn-color: #ef4444;" title="رجوع">
+                    <span>↩</span>
+                </button>
             </div>
         </div>
+
+        <!-- Pro Studio Dropdown Panel & Modals -->
+        <!-- Studio panel moved to preview-inventory-report.php -->
+        <!-- Studio modals moved to preview-inventory-report.php -->
 
         <!-- Filters -->
         <div class="filters-bar" style="display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px 15px; margin-bottom: 8px; flex-wrap: wrap; background: linear-gradient(135deg, rgba(30, 41, 59, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%); backdrop-filter: blur(16px); border-radius: 12px; border: 1.5px solid rgba(255, 255, 255, 0.12); box-shadow: 0 4px 18px rgba(0,0,0,0.3);">
@@ -1051,7 +1002,8 @@
             return [];
         }
 
-        function getStorageList(key) {
+                function getStorageList(key) {
+            let res = [];
             if (window.DB_STORE) {
                 if (window.getTenantKey) {
                     const tk = window.getTenantKey(key);
@@ -1059,6 +1011,7 @@
                         try {
                             const parsed = typeof window.DB_STORE[tk] === 'string' ? JSON.parse(window.DB_STORE[tk]) : window.DB_STORE[tk];
                             if (Array.isArray(parsed)) return parsed;
+                            if (typeof parsed === 'object' && parsed !== null) return Object.values(parsed);
                         } catch(e){}
                     }
                 }
@@ -1066,6 +1019,7 @@
                     try {
                         const parsed = typeof window.DB_STORE[key] === 'string' ? JSON.parse(window.DB_STORE[key]) : window.DB_STORE[key];
                         if (Array.isArray(parsed)) return parsed;
+                        if (typeof parsed === 'object' && parsed !== null) return Object.values(parsed);
                     } catch(e){}
                 }
             }
@@ -1076,6 +1030,7 @@
                     if (raw) {
                         const parsed = JSON.parse(raw);
                         if (Array.isArray(parsed)) return parsed;
+                        if (typeof parsed === 'object' && parsed !== null) return Object.values(parsed);
                     }
                 } catch(e){}
             }
@@ -1084,6 +1039,7 @@
                 if (raw) {
                     const parsed = JSON.parse(raw);
                     if (Array.isArray(parsed)) return parsed;
+                    if (typeof parsed === 'object' && parsed !== null) return Object.values(parsed);
                 }
             } catch(e){}
             return [];
@@ -1664,8 +1620,8 @@
                 document.getElementById('sum-in').innerText = '0';
                 document.getElementById('sum-out').innerText = '0';
                 document.getElementById('sum-balance').innerText = '0';
-                if (btnPreview) btnPreview.style.display = 'none';
-                if (btnPrint) btnPrint.style.display = 'none';
+                // if (btnPreview) btnPreview.style.display = 'none';
+                // if (btnPrint) btnPrint.style.display = 'none';
                 return;
             }
 
@@ -1959,6 +1915,20 @@
             if (document.getElementById('chk-show-kpis')) document.getElementById('chk-show-kpis').checked = d.showKPIs !== false;
             if (document.getElementById('chk-show-signatures')) document.getElementById('chk-show-signatures').checked = d.showSignatures !== false;
 
+                        // Hook: Sync column visibility with Main Screen presets (ursColumns)
+            if (typeof ursColumns !== 'undefined') {
+                ursColumns.forEach((col, idx) => {
+                    const colKeys = ['date', 'type', 'warehouse', 'doc', 'in', 'out', 'balance', 'notes'];
+                    const mappedKey = colKeys[idx];
+                    if (mappedKey) {
+                        sheet.querySelectorAll(`.col-${mappedKey}`).forEach(el => {
+                            el.style.display = col.visible ? '' : 'none';
+                        });
+                        const chk = document.querySelector(`.col-toggle[data-col="${mappedKey}"]`);
+                        if(chk) chk.checked = col.visible;
+                    }
+                });
+            }
             const colToggles = document.querySelectorAll('.col-toggle');
             colToggles.forEach((chk, idx) => {
                 if (d.columns && d.columns[idx] !== undefined) {
@@ -2401,6 +2371,20 @@
             if (sBlock) sBlock.style.display = showSignatures ? 'grid' : 'none';
 
             // Toggle Columns
+                        // Hook: Sync column visibility with Main Screen presets (ursColumns)
+            if (typeof ursColumns !== 'undefined') {
+                ursColumns.forEach((col, idx) => {
+                    const colKeys = ['date', 'type', 'warehouse', 'doc', 'in', 'out', 'balance', 'notes'];
+                    const mappedKey = colKeys[idx];
+                    if (mappedKey) {
+                        sheet.querySelectorAll(`.col-${mappedKey}`).forEach(el => {
+                            el.style.display = col.visible ? '' : 'none';
+                        });
+                        const chk = document.querySelector(`.col-toggle[data-col="${mappedKey}"]`);
+                        if(chk) chk.checked = col.visible;
+                    }
+                });
+            }
             const colToggles = document.querySelectorAll('.col-toggle');
             colToggles.forEach(chk => {
                 const colKey = chk.getAttribute('data-col');
@@ -2481,6 +2465,7 @@
             }, 200);
         }
     </script>
+<script src="js/universal-report-studio.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>
 

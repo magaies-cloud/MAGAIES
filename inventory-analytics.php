@@ -15,6 +15,7 @@ $header_theme_class = "header-theme-inventory";
     <!-- Base CSS -->
     <link rel="stylesheet" href="css/theme.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="css/components.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/report-ribbon.css?v=1787182249">
     
     <style>
         .dashboard-container { display: flex; flex-direction: column; gap: 20px; padding: 20px 30px; box-sizing: border-box; max-width: 1600px; margin: 0 auto; }
@@ -147,23 +148,36 @@ $header_theme_class = "header-theme-inventory";
     <div class="dashboard-container">
         <?php include 'includes/header.php'; ?>
 
-        <!-- Navigation and Actions Row -->
-            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; flex-wrap: wrap; gap: 15px;">
-                <div class="nav-tabs" style="margin-bottom: 0;">
-                    <a data-href="inventory-report.php" onclick="window.location.href='inventory-report.php'" class="nav-tab">📦 جرد الأرصدة العام</a>
-                    <a data-href="warehouse-inventory.php" onclick="window.location.href='warehouse-inventory.php'" class="nav-tab">🏢 جرد المخزن</a>
-                    <a data-href="inventory-summary.php" onclick="window.location.href='inventory-summary.php'" class="nav-tab">📊 ملخص الحركات</a>
-                    <a data-href="inventory-analytics.php" onclick="window.location.href='inventory-analytics.php'" class="nav-tab active">🧠 التحليل الاستراتيجي</a>
-                    <a data-href="item-ledger.php" onclick="window.location.href='item-ledger.php'" class="nav-tab">📑 حركة الصنف</a>
-                    <a data-href="warehouse-ledger.php" onclick="window.location.href='warehouse-ledger.php'" class="nav-tab">🏭 حركة المخزن</a>
-                <a data-href="ai_goods_advisor.php" onclick="window.location.href='ai_goods_advisor.php'" class="nav-tab">🤖 مستشار الـ AI للبضائع</a>
-                <a data-href="smart_inventory_report.php" onclick="window.location.href='smart_inventory_report.php'" class="nav-tab">📊 تقارير المخازن الذكية</a>
-                </div>
-                <div class="dash-controls" style="margin: 0;">
-                    <button class="btn-action" onclick="previewAnalyticsReport()" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white; border: none; padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer; box-shadow: 0 4px 10px rgba(13,148,136,0.2); margin-left: 8px;">👁️ معاينة</button>
-                    <button class="btn-action btn-print" onclick="printAnalyticsReportDirectly()" style="background: rgba(255,255,255,0.05); color: var(--text-main); border: 1px solid var(--glass-border); padding: 8px 15px; border-radius: 10px; font-weight: 700; cursor: pointer;">🖨️ طباعة التقرير</button>
-                </div>
+        <!-- Unified Smart Ribbon Toolbar Row -->
+        <div class="report-ribbon-bar">
+            <div class="ribbon-presets-group">
+                <button class="preset-pill-btn active" data-preset="0" onclick="applyReportPreset(0, this)" title="القالب الافتراضي 1">
+                    <span class="preset-num">1</span> <span>افتراضي 1</span>
+                </button>
+                <button class="preset-pill-btn" data-preset="1" onclick="applyReportPreset(1, this)" title="القالب المخصص 2">
+                    <span class="preset-num">2</span> <span>تخصيص 2</span>
+                </button>
+                <button class="preset-pill-btn" data-preset="2" onclick="applyReportPreset(2, this)" title="القالب المخصص 3">
+                    <span class="preset-num">3</span> <span>تخصيص 3</span>
+                </button>
             </div>
+
+            <div class="ribbon-actions-group">
+                <button class="ribbon-btn" onclick="openStudioPreviewPage()" style="--btn-color: #eab308; background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(202, 138, 4, 0.3)); border-color: rgba(234, 179, 8, 0.5); color: #fef08a;">
+                    <span>⚙️</span> <span>إعدادات الأعمدة</span>
+                </button>
+                <button class="ribbon-btn" onclick="previewAnalyticsReport()" style="--btn-color: #0d9488;">
+                    <span>👁️</span> <span>معاينة</span>
+                </button>
+                <button class="ribbon-btn" onclick="printAnalyticsReportDirectly()" style="--btn-color: #38bdf8;">
+                    <span>🖨️</span> <span>طباعة التقرير</span>
+                </button>
+            </div>
+        </div>
+
+        <!-- Pro Studio Dropdown Panel & Modals -->
+        <!-- Studio panel moved to preview-inventory-report.php -->
+        <!-- Studio modals moved to preview-inventory-report.php -->
 
             <!-- Sub Navigation -->
             <div class="sub-nav">
@@ -658,5 +672,6 @@ $header_theme_class = "header-theme-inventory";
             printReportDirectly(title, activeSection);
         }
     </script>
+<script src="js/universal-report-studio.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

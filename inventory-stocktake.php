@@ -15,6 +15,7 @@ $header_theme_class = "header-theme-inventory";
     <!-- Base CSS -->
     <link rel="stylesheet" href="css/theme.css?v=<?php echo time(); ?>">
     <link rel="stylesheet" href="css/components.css?v=<?php echo time(); ?>">
+    <link rel="stylesheet" href="css/report-ribbon.css?v=1787182249">
     <link rel="stylesheet" href="css/inventory.css?v=<?php echo time(); ?>">
     
     <style>
@@ -237,93 +238,36 @@ $header_theme_class = "header-theme-inventory";
         <?php include 'includes/header.php'; ?>
 
         <!-- Top Navigation Smart Hub -->
-        <div style="display: flex; justify-content: space-between; align-items: center; gap: 10px; flex-wrap: nowrap;">
-            <div class="nav-tabs" style="flex: 1;">
-                
-                <!-- Cluster 1: نظام الجرد -->
-                <div class="nav-cluster">
-                    <a href="inventory-report.php" class="nav-tab active" title="نظام الجرد الشامل بجميع المخازن">
-                        <span>📦</span> <span>الجرد الشامل للمخازن</span>
-                    </a>
-                </div>
-
-                <div class="nav-divider"></div>
-
-                <!-- Cluster 2: حركات البضائع -->
-                <div class="nav-cluster nav-dropdown">
-                    <div class="nav-tab" title="حركات البضائع">
-                        <span>📑</span> <span>حركات البضائع</span>
-                        <span style="font-size: 0.7rem; margin-right: 2px;">▼</span>
-                    </div>
-                    <div class="nav-dropdown-content">
-                        <a href="item-ledger.php" class="nav-dropdown-item" title="كشف حركة صنف محدد">
-                            <span>📑</span> حركة الأصناف
-                        </a>
-                        <a href="warehouse-ledger.php" class="nav-dropdown-item" title="كشف حركة مخزن محدد">
-                            <span>🏭</span> حركة المخازن
-                        </a>
-                        <a href="inventory-summary.php" class="nav-dropdown-item" title="ملخص الوارد والمنصرف">
-                            <span>📊</span> ملخص الحركات
-                        </a>
-                    </div>
-                </div>
-
-                <div class="nav-divider"></div>
-
-                <!-- Cluster 3: مركز الذكاء الاصطناعي (AI Suite) -->
-                <div class="nav-cluster nav-dropdown">
-                    <div class="nav-tab nav-tab-ai" title="أدوات الذكاء الاصطناعي">
-                        <span>🤖</span> <span>أدوات الذكاء الاصطناعي</span>
-                        <span class="nav-ai-badge">AI</span>
-                        <span style="font-size: 0.7rem; margin-right: 2px;">▼</span>
-                    </div>
-                    <div class="nav-dropdown-content">
-                        <a href="ai_goods_advisor.php" class="nav-dropdown-item" title="توصيات الشراء واستراتيجيات التخزين">
-                            <span>💡</span> مستشار الـ AI للبضائع
-                        </a>
-                        <a href="smart_inventory_report.php" class="nav-dropdown-item" title="تقارير تفاعلية ذكية للمخزون">
-                            <span>🧠</span> تقارير المخازن الذكية
-                        </a>
-                        <a href="javascript:void(0)" onclick="runAIInventory()" class="nav-dropdown-item" style="color: #ec4899;" title="تحليل فوري للمخزون">
-                            <span>⚡</span> فاحص المخزون الذكي
-                        </a>
-                    </div>
-                </div>
-
-                <div class="nav-divider"></div>
-
-                <!-- Cluster 4: التحليلات المرئية -->
-                <div class="nav-cluster nav-dropdown">
-                    <div class="nav-tab" title="المخططات والرسوم البيانية">
-                        <span>📈</span> <span>التحليلات المرئية</span>
-                        <span style="font-size: 0.7rem; margin-right: 2px;">▼</span>
-                    </div>
-                    <div class="nav-dropdown-content">
-                        <a href="visual-analytics.php#pie" class="nav-dropdown-item" title="النسب المئوية لتوزيع البضائع">
-                            <span>🍕</span> توزيع المخزون (دائري)
-                        </a>
-                        <a href="visual-analytics.php#donut" class="nav-dropdown-item" title="حالة الأرصدة ومستويات الأمان">
-                            <span>🍩</span> مستويات الأمان والتنبيهات
-                        </a>
-                        <a href="visual-analytics.php#bar" class="nav-dropdown-item" title="القيمة المالية للأصناف والمخازن">
-                            <span>📊</span> قيمة المخزون (أعمدة)
-                        </a>
-                    </div>
-                </div>
-
+        <!-- Unified Smart Ribbon Toolbar Row -->
+        <div class="report-ribbon-bar">
+            <div class="ribbon-presets-group">
+                <button class="preset-pill-btn active" data-preset="0" onclick="applyReportPreset(0, this)" title="القالب الافتراضي 1">
+                    <span class="preset-num">1</span> <span>افتراضي 1</span>
+                </button>
+                <button class="preset-pill-btn" data-preset="1" onclick="applyReportPreset(1, this)" title="القالب المخصص 2">
+                    <span class="preset-num">2</span> <span>تخصيص 2</span>
+                </button>
+                <button class="preset-pill-btn" data-preset="2" onclick="applyReportPreset(2, this)" title="القالب المخصص 3">
+                    <span class="preset-num">3</span> <span>تخصيص 3</span>
+                </button>
             </div>
 
-            <!-- Top Action Controls -->
-            <div style="display: flex; gap: 8px; flex-shrink: 0; align-items: center;">
-                <button class="btn-action-top btn-preview-top" onclick="openInventoryReportPreview()">
+            <div class="ribbon-actions-group">
+                <button class="ribbon-btn" onclick="openStudioPreviewPage()" style="--btn-color: #eab308; background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(202, 138, 4, 0.3)); border-color: rgba(234, 179, 8, 0.5); color: #fef08a;">
+                    <span>⚙️</span> <span>إعدادات الأعمدة</span>
+                </button>
+                <button class="ribbon-btn" onclick="openInventoryReportPreview()" style="--btn-color: #0d9488;">
                     <span>👁️</span> <span>معاينة وتصميم التقرير</span>
                 </button>
-                <button class="btn-action-top btn-studio-top" onclick="openCustomReportStudio()">
+                <button class="ribbon-btn" onclick="openCustomReportStudio()" style="--btn-color: #6366f1;">
                     <span>🎛️</span> <span>الضبط المتقدم</span>
                 </button>
-                <button class="btn-icon-nav" onclick="history.back()" title="رجوع">↩</button>
             </div>
         </div>
+
+        <!-- Pro Studio Dropdown Panel & Modals -->
+        <!-- Studio panel moved to preview-inventory-report.php -->
+        <!-- Studio modals moved to preview-inventory-report.php -->
 
         <!-- Single-Row Streamlined Filters Hub -->
         <div class="filters-hub">
@@ -398,7 +342,7 @@ $header_theme_class = "header-theme-inventory";
                 </button>
             </div>
             <div style="display: flex; gap: 8px; align-items: center;">
-                <button class="btn-action-top" onclick="openReportPreview('تقرير جرد المخزون العام', '#report-table-wrap')" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white;">
+                <button class="btn-action-top" onclick="openStudioPreviewPage()" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white;">
                     <span>👁️</span> <span>معاينة</span>
                 </button>
                 <button class="btn-action-top" onclick="printReportDirectly('تقرير جرد المخزون العام', '#report-table-wrap')" style="background: rgba(255,255,255,0.06); color: var(--text-main); border: 1px solid var(--glass-border);">
@@ -1489,5 +1433,6 @@ $header_theme_class = "header-theme-inventory";
             }
         });
     </script>
+<script src="js/universal-report-studio.js?v=<?php echo time(); ?>"></script>
 </body>
 </html>

@@ -195,9 +195,12 @@ try {
 
         <div class="mb-8 border-b border-slate-800 pb-5 flex justify-between items-center">
             <div>
-                <p class="text-slate-400 text-xs mt-1">المنصة المكتملة لإدارة حركة بضائع السجانة حياً ومباشرة من الداتابيز الحقيقية</p>
+                <p class="text-slate-400 text-xs mt-1">المنصة المتكاملة لإدارة حركة بضائع السجل الذكي آنياً ومباشرة من قاعدة البيانات</p>
             </div>
             <div class="flex items-center gap-3">
+                <a href="ai_goods_advisor.php" class="px-5 py-2.5 bg-cyan-950/60 hover:bg-cyan-900/80 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-black transition-all shadow-lg shadow-cyan-500/10 hover:shadow-cyan-500/30 flex items-center gap-2 group">
+                    <i class="fa-solid fa-microchip text-cyan-400 group-hover:scale-125 transition-transform duration-300"></i> مستشعر الـ AI الاستراتيجي للبضائع
+                </a>
                 <a href="alerts_manager.php" class="px-5 py-2.5 bg-red-950/40 hover:bg-red-900/40 text-red-400 border border-red-500/20 rounded-xl text-xs font-bold transition-all shadow-md flex items-center gap-2">
                     <i class="fa-solid fa-bell"></i> ضبط تنبيهات المخازن الذكية
                 </a>
@@ -229,6 +232,31 @@ try {
                 <span class="text-3xl font-black text-red-400 mt-2 block font-mono"><?php echo $critical_count; ?> <span class="text-sm font-normal text-slate-500">صنف حرج</span></span>
             </div>
             <div class="p-4 bg-red-950/40 text-red-400 rounded-2xl text-xl border border-red-500/10 shadow-inner"><i class="fa-solid fa-triangle-exclamation"></i></div>
+        </div>
+    </div>
+
+    <!-- كارت مستشعر الـ AI الاستراتيجي للبضائع -->
+    <div class="mb-10 p-6 rounded-3xl relative overflow-hidden" style="background: linear-gradient(135deg, rgba(6, 182, 212, 0.15) 0%, rgba(15, 23, 42, 0.85) 50%, rgba(236, 72, 153, 0.15) 100%); border: 1px solid rgba(56, 189, 248, 0.35); backdrop-filter: blur(20px); box-shadow: 0 15px 40px rgba(0,0,0,0.4);">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-6 relative z-10">
+            <div class="flex items-center gap-5 text-right">
+                <div class="w-16 h-16 rounded-2xl flex items-center justify-center text-3xl shadow-xl flex-shrink-0" style="background: linear-gradient(135deg, #06b6d4, #3b82f6); box-shadow: 0 0 25px rgba(6, 182, 212, 0.45);">
+                    <i class="fa-solid fa-brain text-white"></i>
+                </div>
+                <div>
+                    <div class="flex items-center gap-3">
+                        <h2 class="text-xl font-black text-white tracking-wide">مستشعر الـ AI الاستراتيجي للبضائع</h2>
+                        <span class="px-2.5 py-0.5 rounded-full text-[10px] font-black uppercase tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-400/30">AI Live Sensor</span>
+                    </div>
+                    <p class="text-slate-300 text-xs md:text-sm mt-1.5 leading-relaxed">
+                        التحليل الذكي التنبؤي لبيانات المخازن: استكشاف البضائع الراكدة فورياً، كشف النواقص وسرعة الدوران، وتوليد قرارات الشراء والتسييل بدقة فائقة.
+                    </p>
+                </div>
+            </div>
+            <a href="ai_goods_advisor.php" class="flex-shrink-0 px-7 py-3.5 rounded-2xl text-white font-black text-sm transition-all duration-300 flex items-center gap-3 shadow-xl hover:scale-105" style="background: linear-gradient(135deg, #06b6d4, #0284c7); box-shadow: 0 10px 25px rgba(6, 182, 212, 0.35); border: 1px solid rgba(255,255,255,0.2);">
+                <i class="fa-solid fa-robot text-lg"></i>
+                <span>تشغيل مستشعر الـ AI الاستراتيجي</span>
+                <i class="fa-solid fa-arrow-left text-xs"></i>
+            </a>
         </div>
     </div>
 

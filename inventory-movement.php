@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
+    <link rel="stylesheet" href="css/report-ribbon.css?v=1787182249">
     <style>
         :root {
             /* Theme: Pink & Emerald Dashboard */
@@ -271,26 +272,45 @@
         <?php $header_theme_class = 'header-theme-inventory'; ?>
         <?php include 'includes/header.php'; ?>
 
-        <!-- Navigation and Actions Row -->
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 5px; flex-wrap: wrap; gap: 15px;">
-            <div class="nav-tabs" style="margin-bottom: 0;">
-                <a data-href="inventory-movement.php" onclick="window.location.href='inventory-movement.php'" class="nav-tab active">📦 جرد الأرصدة العام</a>
-                <a data-href="warehouse-inventory.php" onclick="window.location.href='warehouse-inventory.php'" class="nav-tab">🏢 جرد المخزن</a>
-                <a data-href="item-ledger.php" onclick="window.location.href='item-ledger.php'" class="nav-tab">📑 حركة الصنف</a>
-                <a data-href="warehouse-ledger.php" onclick="window.location.href='warehouse-ledger.php'" class="nav-tab">🏭 حركة المخزن</a>
-                <a data-href="ai_goods_advisor.php" onclick="window.location.href='ai_goods_advisor.php'" class="nav-tab">🤖 مستشار الـ AI للبضائع</a>
-                <a data-href="smart_inventory_report.php" onclick="window.location.href='smart_inventory_report.php'" class="nav-tab">📊 تقارير المخازن الذكية</a>
+        <!-- Unified Smart Ribbon Toolbar Row -->
+        <div class="report-ribbon-bar">
+            <div class="ribbon-presets-group">
+                <button class="preset-pill-btn active" data-preset="0" onclick="applyReportPreset(0, this)" title="القالب الافتراضي 1">
+                    <span class="preset-num">1</span> <span>افتراضي 1</span>
+                </button>
+                <button class="preset-pill-btn" data-preset="1" onclick="applyReportPreset(1, this)" title="القالب المخصص 2">
+                    <span class="preset-num">2</span> <span>تخصيص 2</span>
+                </button>
+                <button class="preset-pill-btn" data-preset="2" onclick="applyReportPreset(2, this)" title="القالب المخصص 3">
+                    <span class="preset-num">3</span> <span>تخصيص 3</span>
+                </button>
             </div>
 
-            <div class="dash-controls" style="margin: 0; display: flex; gap: 8px;">
-                <button class="btn-action" onclick="openReportPreview('تقرير جرد حركة مخازن الأرصدة', '#report-table-wrap')" style="background: linear-gradient(135deg, #0d9488, #0f766e); color: white; border: none; box-shadow: 0 4px 15px rgba(13, 148, 136, 0.4);">👁️ معاينة</button>
-                <button class="btn-action btn-print" onclick="printReportDirectly('تقرير جرد حركة مخازن الأرصدة', '#report-table-wrap')">🖨️ طباعة</button>
-                <button class="btn-action btn-print" onclick="window.openExportModal(exportExcel, {element: document.getElementById('report-table-wrap'), filename: 'inventory-report.pdf', orientation: 'landscape'})">📥 تصدير</button>
-                <button class="btn-action" onclick="runAIInventory()" style="background: linear-gradient(135deg, #ec4899, #be185d); color: white; border: none; box-shadow: 0 4px 15px rgba(236, 72, 153, 0.4);">🤖 محلل المخزون (AI)</button>
-    
-                <button class="btn-icon-nav" onclick="history.back()" title="رجوع" style="background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: center; width: 36px; height: 36px; border-radius: 8px; color: var(--text-main); cursor: pointer; transition: 0.3s;">↩</button>
+            <div class="ribbon-actions-group">
+                <button class="ribbon-btn" onclick="openStudioPreviewPage()" style="--btn-color: #eab308; background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(202, 138, 4, 0.3)); border-color: rgba(234, 179, 8, 0.5); color: #fef08a;">
+                    <span>⚙️</span> <span>إعدادات الأعمدة</span>
+                </button>
+                <button class="ribbon-btn" onclick="openStudioPreviewPage()" style="--btn-color: #0d9488;">
+                    <span>👁️</span> <span>معاينة</span>
+                </button>
+                <button class="ribbon-btn" onclick="printReportDirectly('تقرير جرد حركة مخازن الأرصدة', '#report-table-wrap')" style="--btn-color: #38bdf8;">
+                    <span>🖨️</span> <span>طباعة</span>
+                </button>
+                <button class="ribbon-btn" onclick="window.openExportModal(exportExcel, {element: document.getElementById('report-table-wrap'), filename: 'inventory-report.pdf', orientation: 'landscape'})" style="--btn-color: #10b981;">
+                    <span>📥</span> <span>تصدير</span>
+                </button>
+                <button class="ribbon-btn" onclick="runAIInventory()" style="--btn-color: #ec4899;">
+                    <span>🤖</span> <span>محلل المخزون (AI)</span>
+                </button>
+                <button class="ribbon-btn" onclick="history.back()" style="--btn-color: #ef4444;" title="رجوع">
+                    <span>↩</span>
+                </button>
             </div>
         </div>
+
+        <!-- Pro Studio Dropdown Panel & Modals -->
+        <!-- Studio panel moved to preview-inventory-report.php -->
+        <!-- Studio modals moved to preview-inventory-report.php -->
 
         <!-- Filters -->
         <div class="filters-bar">
@@ -754,6 +774,7 @@
         });
     }
     </script>
-    \n</body>
+    <script src="js/universal-report-studio.js?v=<?php echo time(); ?>"></script>
+</body>
 </html>
 
