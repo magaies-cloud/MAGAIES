@@ -162,6 +162,27 @@
         .btn-icon-nav { width: 40px; height: 40px; border-radius: 10px; background: rgba(255,255,255,0.05); border: 1px solid var(--glass-border); color: var(--text-primary); display: flex; align-items: center; justify-content: center; cursor: pointer; transition: 0.2s; }
         .btn-icon-nav:hover { background: rgba(255,255,255,0.15); }
 
+        
+        /* Top Layer Dropdown and Option Styling */
+        .filters-bar {
+            position: relative !important;
+            z-index: 100 !important;
+        }
+        .filters-bar .input-group {
+            position: relative !important;
+            z-index: 101 !important;
+        }
+        #warehouse-select {
+            position: relative !important;
+            z-index: 102 !important;
+            cursor: pointer;
+        }
+        #warehouse-select option {
+            background: #0f172a !important;
+            color: #ffffff !important;
+            padding: 10px !important;
+        }
+
         /* Filters Bar style matching inventory-report */
         .filters-bar {
             background: var(--panel-bg); backdrop-filter: blur(15px); border-radius: 16px; padding: 20px;
@@ -590,43 +611,110 @@
         }
 
         function initWarehouseLedger() {
-try {
-            // Load Warehouses
-            const whSelect = document.getElementById('warehouse-select');
-            if (whSelect) {
-                whSelect.innerHTML = '<option value="ALL">جميع المخازن (كافة الحركات)</option>';
-                let warehousesDb = getStorageList('erp_warehouses_v1');
-                const displayWh = [{ id: 'PENDING_RECEIPT', name: '⏳ بضاعة قيد الاستلام' }, ...warehousesDb];
-                displayWh.forEach(wh => {
-                    const opt = document.createElement('option');
-                    opt.value = wh.id;
-                    opt.text = wh.name;
-                    whSelect.appendChild(opt);
-                });
-            }
+            try {
+                const whSelect = document.getElementById("warehouse-select");
+                if (whSelect) {
+                    const currentVal = whSelect.value;
+                    whSelect.innerHTML = '<option value="ALL">جميع المخازن (كافة الحركات)</option>';
+                    
+                    let warehousesDb = [];
+                    // 1. Storage List
+                    if (typeof getStorageList === "function") {
+                        warehousesDb = getStorageList("erp_warehouses_v1") || [];
+                    }
+                    
+                    // 2. DB_STORE
+                    if ((!warehousesDb || warehousesDb.length === 0) && window.DB_STORE) {
+                        const tk = window.getTenantKey ? window.getTenantKey("erp_warehouses_v1") : "erp_warehouses_v1";
+                        const raw = window.DB_STORE[tk] || window.DB_STORE["erp_warehouses_v1"];
+                        if (raw) {
+                            try {
+                                const p = typeof raw === "string" ? JSON.parse(raw) : raw;
+                                warehousesDb = Array.isArray(p) ? p : Object.values(p);
+                            } catch(e){}
+                        }
+                    }
 
-            const today = new Date();
-            const dateTo = document.getElementById('date-to');
-            if (dateTo && !dateTo.value) {
-                dateTo.valueAsDate = today;
-            }
+                    // 3. LocalStorage
+                    if (!warehousesDb || warehousesDb.length === 0) {
+                        try {
+                            const tk = window.getTenantKey ? window.getTenantKey("erp_warehouses_v1") : "erp_warehouses_v1";
+                            const raw = localStorage.getItem(tk) || localStorage.getItem("erp_warehouses_v1");
+                            if (raw) {
+                                const p = JSON.parse(raw);
+                                warehousesDb = Array.isArray(p) ? p : Object.values(p);
+                            }
+                        } catch(e){}
+                    }
 
-            const urlParams = new URLSearchParams(window.location.search);
-            const whParam = urlParams.get('warehouse') || urlParams.get('wh');
-            if (whParam && whSelect) {
-                for (let i = 0; i < whSelect.options.length; i++) {
-                    if (whSelect.options[i].value === whParam || whSelect.options[i].text === whParam || String(whSelect.options[i].value).toLowerCase() === String(whParam).toLowerCase()) {
-                        whSelect.selectedIndex = i;
-                        break;
+                    // 4. Fallback Default
+                    if (!warehousesDb || warehousesDb.length === 0) {
+                        warehousesDb = [{ id: "w-main", name: "المخزن الرئيسي" }];
+                    }
+
+                    // 5. Scan all invoices / movements to auto-discover any recorded warehouses
+                    const purchases = typeof getStorageList === "function" ? getStorageList("erp_purchase_invoices_v1") : [];
+                    const sales = typeof getStorageList === "function" ? getStorageList("erp_sales_invoices_v1") : [];
+                    const transfers = typeof getStorageList === "function" ? getStorageList("erp_warehouse_transfers_v1") : [];
+                    
+                    const seenNames = new Set(warehousesDb.map(w => w.name));
+                    const addCustomWh = (whName) => {
+                        if (whName && typeof whName === "string" && whName.trim() && whName !== "ALL" && whName !== "⏳ بضاعة قيد الاستلام" && !seenNames.has(whName.trim())) {
+                            seenNames.add(whName.trim());
+                            warehousesDb.push({ id: whName.trim(), name: whName.trim() });
+                        }
+                    };
+
+                    purchases.forEach(p => {
+                        addCustomWh(p.warehouse);
+                        (p.items || []).forEach(item => addCustomWh(item.warehouse));
+                    });
+                    sales.forEach(s => {
+                        addCustomWh(s.warehouse);
+                        (s.items || []).forEach(item => addCustomWh(item.warehouse));
+                    });
+                    transfers.forEach(t => {
+                        addCustomWh(t.fromWarehouse);
+                        addCustomWh(t.toWarehouse);
+                    });
+
+                    // Build Options
+                    const displayWh = [{ id: "PENDING_RECEIPT", name: "⏳ بضاعة قيد الاستلام" }, ...warehousesDb];
+                    displayWh.forEach(wh => {
+                        const opt = document.createElement("option");
+                        opt.value = wh.id;
+                        opt.text = wh.name;
+                        opt.style.background = "#0f172a";
+                        opt.style.color = "#ffffff";
+                        whSelect.appendChild(opt);
+                    });
+
+                    if (currentVal && currentVal !== "ALL") {
+                        whSelect.value = currentVal;
                     }
                 }
-            }
 
-            loadLedger();
-} catch(err) {
-    console.error('Error in initWarehouseLedger:', err);
-    alert('Error in initWarehouseLedger: ' + err.message);
-}
+                const today = new Date();
+                const dateTo = document.getElementById("date-to");
+                if (dateTo && !dateTo.value) {
+                    dateTo.valueAsDate = today;
+                }
+
+                const urlParams = new URLSearchParams(window.location.search);
+                const whParam = urlParams.get("warehouse") || urlParams.get("wh");
+                if (whParam && whSelect) {
+                    for (let i = 0; i < whSelect.options.length; i++) {
+                        if (whSelect.options[i].value === whParam || whSelect.options[i].text === whParam || String(whSelect.options[i].value).toLowerCase() === String(whParam).toLowerCase()) {
+                            whSelect.selectedIndex = i;
+                            break;
+                        }
+                    }
+                }
+
+                loadLedger();
+            } catch(err) {
+                console.error("Error in initWarehouseLedger:", err);
+            }
         }
 
         if (document.readyState === 'loading') {
