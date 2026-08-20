@@ -1882,12 +1882,12 @@ function renderGrid() {
             </td>
             <td><span class="g-readonly" data-avail="${row.id}" style="color:#0ea5e9; font-weight:bold; display:block; text-align:center;">${calcs.availQty !== '—' ? fmtNum(calcs.availQty, '6') : '—'}</span></td>
             <td><span class="g-readonly" data-rem="${row.id}" style="color:#f59e0b; font-weight:bold; display:block; text-align:center;">${calcs.availQty !== '—' ? fmtNum(calcs.availQty - calcs.baseQty, '7') : '—'}</span></td>
-            <td>
+            <td class="hide-if-sdg">
                 <input type="text" inputmode="decimal" class="g-input" data-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}"
                     onfocus="this.select()" oninput="updateRow(${row.id},'fcPrice',this.value)"
                     onblur="this.value=fmtNum(parseNum(this.value)); checkAutoAddRow(${row.id})" style="color:#10b981; font-weight:700;" tabindex="-1">
             </td>
-            <td><span class="g-readonly total-fc-val" style="color:#10b981; font-weight:bold;" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1))) * (row.quantity || 0))}</span></td>
+            <td class="hide-if-sdg"><span class="g-readonly total-fc-val" style="color:#10b981; font-weight:bold;" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1))) * (row.quantity || 0))}</span></td>
 
             <td class="td-wh">
                 <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1">
@@ -1896,7 +1896,7 @@ function renderGrid() {
                 </select>
             </td>
 
-            <td><span class="g-readonly total-val" style="color:var(--gold-primary); font-weight:bold;" data-total="${row.id}">${fmtNum(calcs.total, '11')}</span></td>
+            <td><span class="g-readonly total-val" style="color:var(--gold-primary); font-weight:900; font-size:1.3rem; letter-spacing:0.5px; display:block; text-align:center; font-family:monospace, 'Cairo', sans-serif;" data-total="${row.id}">${fmtNum(calcs.total, '11')}</span></td>
 
             <td>
                 <div style="display: flex; gap: 5px; justify-content: center;">

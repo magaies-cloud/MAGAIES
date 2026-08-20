@@ -2098,7 +2098,7 @@ function updateSettingsPanelForCol(idx) {
 
     // Font Family Select
     const fontSel = document.getElementById('col-font-select');
-    if (fontSel) { fontSel.disabled = false; fontSel.value = conf.fontFamily || "'Segoe UI',sans-serif"; }
+    if (fontSel) { fontSel.disabled = false; fontSel.value = (!conf.fontFamily || conf.fontFamily === 'inherit') ? "'Segoe UI',sans-serif" : conf.fontFamily; }
 
     // Colors
     const cp = document.getElementById('col-color-picker');
@@ -2179,61 +2179,6 @@ function selectColumn(idx) {
     renderTable();
 }
 
-function updateSettingsPanelForCol(idx) {
-    const c = baseColumns.find(x => x.idx === idx);
-    if (!c) return;
-    
-    const conf = columnConfigs[idx] || getDefaultConfigs()[idx];
-    
-    populateSelectedColDropdown();
-    const sel = document.getElementById('selected-col-select');
-    if (sel) sel.value = idx;
-    
-    const labelInp = document.getElementById('col-label-input');
-    if (labelInp) { labelInp.disabled = false; labelInp.value = conf.label || c.defaultLabel; }
-
-    const chk = document.getElementById('col-visible-chk');
-    if (chk) { chk.disabled = false; chk.checked = conf.visible !== false; }
-
-    const alignSel = document.getElementById('col-align-select');
-    if (alignSel) { alignSel.disabled = false; alignSel.value = conf.align || 'center'; }
-    
-    const rng = document.getElementById('col-fs-range');
-    if (rng) { rng.disabled = false; rng.value = conf.fs || 0.9; }
-    const fsVal = document.getElementById('col-fs-val');
-    if (fsVal) fsVal.innerText = (conf.fs || 0.9) + 'rem';
-    
-    const fwSel = document.getElementById('col-fw-select');
-    if (fwSel) { fwSel.disabled = false; fwSel.value = conf.fontWeight || '700'; }
-
-    const fontSel = document.getElementById('col-font-select');
-    if (fontSel) { fontSel.disabled = false; fontSel.value = conf.fontFamily || 'inherit'; }
-    
-    const cp = document.getElementById('col-color-picker');
-    if (cp) { cp.disabled = false; cp.value = conf.color || '#000000'; }
-
-    const bgp = document.getElementById('col-bg-picker');
-    if (bgp) { bgp.disabled = false; bgp.value = conf.bgColor || '#ffffff'; }
-
-    const sepSel = document.getElementById('col-sep-select');
-    if (sepSel) { sepSel.disabled = false; sepSel.value = conf.thousandSep || ','; }
-
-    const decSel = document.getElementById('col-dec-select');
-    if (decSel) { decSel.disabled = false; decSel.value = conf.decimals !== undefined ? conf.decimals : 2; }
-
-    const decSepChk = document.getElementById('col-dec-sep-chk');
-    if (decSepChk) { decSepChk.disabled = false; decSepChk.checked = conf.showDecSep !== false; }
-
-    const roundSel = document.getElementById('col-rounding-select');
-    if (roundSel) { roundSel.disabled = false; roundSel.value = conf.rounding || 'nearest'; }
-
-    // Sync bg preview swatch
-    const bgPreview = document.getElementById('sr-bg-preview');
-    if (bgPreview) bgPreview.style.background = conf.bgColor || '#ffffff';
-    const bgInline = document.getElementById('col-bg-picker-inline');
-    if (bgInline) bgInline.value = conf.bgColor || '#ffffff';
-}
-
 function updateSelectedCol(type, val) {
     if (selectedColIndex === null) {
         // Apply globally across all columns
@@ -2266,7 +2211,7 @@ function updateSelectedCol(type, val) {
     }
     
     if (type === 'fs') {
-        document.getElementById('col-fs-val').innerText = val + 'rem';
+        let el = document.getElementById('col-fs-val'); if(el) el.innerText = val + 'rem';
     } else if (type === 'label' || type === 'visible') {
         populateSelectedColDropdown();
     }

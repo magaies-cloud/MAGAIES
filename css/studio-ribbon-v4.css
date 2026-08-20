@@ -73,14 +73,14 @@
     display: flex;
     align-items: stretch;
     background: #ffffff;
-    padding: 6px 8px 4px;
-    height: 150px;
+    padding: 8px 14px 6px;
+    height: 175px;
     box-sizing: border-box;
     overflow-x: auto;
     overflow-y: hidden;
     direction: ltr;
     flex-direction: row-reverse; /* RTL group order */
-    gap: 0;
+    gap: 4px;
 }
 
 /* ── GROUP ── */
@@ -243,7 +243,7 @@
 .sr-paper-body {
     display:flex; align-items:stretch;
     background:#fff; padding:6px 10px; gap:0;
-    height: 150px;
+    height: 175px;
     box-sizing: border-box;
     overflow-x: auto;
     overflow-y: hidden;

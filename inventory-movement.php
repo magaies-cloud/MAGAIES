@@ -275,13 +275,13 @@
         <!-- Unified Smart Ribbon Toolbar Row -->
         <div class="report-ribbon-bar">
             <div class="ribbon-presets-group">
-                <button class="preset-pill-btn active" data-preset="0" onclick="applyReportPreset(0, this)" title="القالب الافتراضي 1">
+                <button class="preset-pill-btn active" data-preset="0" onclick="applyAndOpenPreview(0, this)" title="القالب الافتراضي 1">
                     <span class="preset-num">1</span> <span>افتراضي 1</span>
                 </button>
-                <button class="preset-pill-btn" data-preset="1" onclick="applyReportPreset(1, this)" title="القالب المخصص 2">
+                <button class="preset-pill-btn" data-preset="1" onclick="applyAndOpenPreview(1, this)" title="القالب المخصص 2">
                     <span class="preset-num">2</span> <span>تخصيص 2</span>
                 </button>
-                <button class="preset-pill-btn" data-preset="2" onclick="applyReportPreset(2, this)" title="القالب المخصص 3">
+                <button class="preset-pill-btn" data-preset="2" onclick="applyAndOpenPreview(2, this)" title="القالب المخصص 3">
                     <span class="preset-num">3</span> <span>تخصيص 3</span>
                 </button>
             </div>
@@ -391,7 +391,7 @@
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
+    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>    <script src="js/universal-report-studio.js?v=<?php echo time(); ?>"></script>
     <script>
         const ITEMS_STORAGE_KEY = 'erp_items_v1';
         const INVENTORY_STORAGE_KEY = 'erp_inventory_v1';
@@ -410,6 +410,8 @@
             initInventoryReport();
         } else {
             document.addEventListener('DBReady', initInventoryReport);
+            window.addEventListener('cloudDataRestored', initInventoryReport);
+            window.addEventListener('strictDataReady', initInventoryReport);
         }
 
         function populateWarehouseFilter() {
@@ -775,6 +777,53 @@
     }
     </script>
     <script src="js/universal-report-studio.js?v=<?php echo time(); ?>"></script>
+    <script>
+    // ── Preset Buttons: Apply preset then open preview page directly ──
+    function applyAndOpenPreview(index, btn) {
+        // 1. Apply the preset visually (update active state)
+        document.querySelectorAll('.preset-pill-btn').forEach(function(b) { b.classList.remove('active'); });
+        if (btn) btn.classList.add('active');
+        
+        // 2. Apply the preset settings to the table
+        if (typeof window.applyReportPreset === 'function') {
+            window.applyReportPreset(index, btn);
+        }
+        
+        // 3. Small delay to let preset apply to DOM, then open preview
+        setTimeout(function() {
+            if (typeof window.openStudioPreviewPage === 'function') {
+                window.openStudioPreviewPage();
+            } else {
+                // Fallback: manually clone table and open preview
+                try {
+                    var table = document.querySelector('#report-table-wrap table') ||
+                                document.querySelector('.dash-table') ||
+                                document.querySelector('.table-wrapper table');
+                    if (table) {
+                        var clone = table.cloneNode(true);
+                        clone.querySelectorAll('input, select, button, .btn-action').forEach(function(el) {
+                            if (el.tagName === 'INPUT' || el.tagName === 'SELECT') {
+                                var span = document.createElement('span');
+                                span.textContent = el.value || '';
+                                el.replaceWith(span);
+                            } else {
+                                el.remove();
+                            }
+                        });
+                        sessionStorage.setItem('urs_preview_table_html', clone.outerHTML);
+                    }
+                    sessionStorage.setItem('urs_preview_source', 'inventory-movement');
+                    var titleEl = document.querySelector('.content-title h2') || document.querySelector('h2');
+                    sessionStorage.setItem('urs_preview_title', titleEl ? titleEl.textContent.trim() : 'تقرير حركة البضائع');
+                    window.open('preview-inventory-report.php?source=inventory-movement&presetIndex=' + index, '_blank');
+                } catch(e) {
+                    console.error('applyAndOpenPreview fallback error:', e);
+                    window.open('preview-inventory-report.php', '_blank');
+                }
+            }
+        }, 150);
+    }
+    </script>
 </body>
 </html>
 

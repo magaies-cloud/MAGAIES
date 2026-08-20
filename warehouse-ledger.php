@@ -283,13 +283,13 @@
         <!-- Unified Smart Ribbon Toolbar Row -->
         <div class="report-ribbon-bar">
             <div class="ribbon-presets-group">
-                <button class="preset-pill-btn active" data-preset="0" onclick="applyReportPreset(0, this)" title="القالب الافتراضي 1">
+                <button class="preset-pill-btn active" data-preset="0" onclick="applyAndOpenPreview(0, this)" title="القالب الافتراضي 1">
                     <span class="preset-num">1</span> <span>افتراضي 1</span>
                 </button>
-                <button class="preset-pill-btn" data-preset="1" onclick="applyReportPreset(1, this)" title="القالب المخصص 2">
+                <button class="preset-pill-btn" data-preset="1" onclick="applyAndOpenPreview(1, this)" title="القالب المخصص 2">
                     <span class="preset-num">2</span> <span>تخصيص 2</span>
                 </button>
-                <button class="preset-pill-btn" data-preset="2" onclick="applyReportPreset(2, this)" title="القالب المخصص 3">
+                <button class="preset-pill-btn" data-preset="2" onclick="applyAndOpenPreview(2, this)" title="القالب المخصص 3">
                     <span class="preset-num">3</span> <span>تخصيص 3</span>
                 </button>
             </div>
@@ -590,6 +590,7 @@
         }
 
         function initWarehouseLedger() {
+try {
             // Load Warehouses
             const whSelect = document.getElementById('warehouse-select');
             if (whSelect) {
@@ -622,6 +623,10 @@
             }
 
             loadLedger();
+} catch(err) {
+    console.error('Error in initWarehouseLedger:', err);
+    alert('Error in initWarehouseLedger: ' + err.message);
+}
         }
 
         if (document.readyState === 'loading') {
@@ -630,6 +635,8 @@
             initWarehouseLedger();
         }
         document.addEventListener('DBReady', initWarehouseLedger);
+        window.addEventListener('cloudDataRestored', initWarehouseLedger);
+        window.addEventListener('strictDataReady', initWarehouseLedger);
 
         function resolveWarehouseUnitFactor(line, itemObj) {
             if (line.customBaseQty !== undefined && parseFloat(line.quantity) > 0) {
@@ -889,7 +896,7 @@
                     let resolvedFactor = parseFloat(line.customFactor || line.factor) || 1;
                     let baseQty = (line.customBaseQty !== undefined) ? parseFloat(line.customBaseQty) : (origQty * resolvedFactor);
 
-                    if (warehouseId === 'ALL' || String(fromWh) === String(warehouseId)) {
+                    if (warehouseId === 'ALL' || isWarehouseMatch(warehouseId, fromWh)) {
                         history.push({
                             date: new Date(tr.date || tr.createdAt || Date.now()),
                             typeCode: 'out',
@@ -908,7 +915,7 @@
                         });
                     }
 
-                    if (warehouseId === 'ALL' || String(toWh) === String(warehouseId)) {
+                    if (warehouseId === 'ALL' || isWarehouseMatch(warehouseId, toWh)) {
                         history.push({
                             date: new Date(tr.date || tr.createdAt || Date.now()),
                             typeCode: 'in',
@@ -937,6 +944,7 @@
         let currentSumOut = 0;
 
         function loadLedger() {
+try {
             const wh = document.getElementById('warehouse-select')?.value || 'ALL';
             const tbody = document.getElementById('ledger-tbody');
             const searchVal = (document.getElementById('search-filter')?.value || '').toLowerCase().trim();
@@ -980,7 +988,7 @@
                     ? `<span class="type-badge type-in">${row.typeName}</span>`
                     : `<span class="type-badge type-out">${row.typeName}</span>`;
 
-                const dStr = row.date.toISOString().split('T')[0];
+                const dStr = (row.date instanceof Date && !isNaN(row.date.getTime()) ? row.date.toISOString() : new Date().toISOString()).split('T')[0];
 
                 const tr = document.createElement('tr');
                 let refHtml = row.ref;
@@ -1283,7 +1291,7 @@
                 
                 rowsHtml += `
                     <tr>
-                        <td class="col-date editable-text" style="padding:8px 6px; border:1px solid #94a3b8; text-align:center;">${row.date.toISOString().split('T')[0]}</td>
+                        <td class="col-date editable-text" style="padding:8px 6px; border:1px solid #94a3b8; text-align:center;">${(row.date instanceof Date && !isNaN(row.date.getTime()) ? row.date.toISOString() : new Date().toISOString()).split('T')[0]}</td>
                         <td class="col-type editable-text" style="padding:8px 6px; border:1px solid #94a3b8; text-align:center;">
                             <span class="sheet-badge ${badgeClass}">${row.typeName}</span>
                         </td>
@@ -1619,6 +1627,40 @@
             }, 100);
         }</script>
 <script src="js/universal-report-studio.js?v=<?php echo time(); ?>"></script>
+<script>
+// ── Preset Buttons: Apply preset then open preview page directly ──
+function applyAndOpenPreview(index, btn) {
+    document.querySelectorAll('.preset-pill-btn').forEach(function(b) { b.classList.remove('active'); });
+    if (btn) btn.classList.add('active');
+    if (typeof window.applyReportPreset === 'function') {
+        window.applyReportPreset(index, btn);
+    }
+    setTimeout(function() {
+        if (typeof window.openStudioPreviewPage === 'function') {
+            window.openStudioPreviewPage();
+        } else {
+            try {
+                var table = document.querySelector('#report-table-wrap table') || document.querySelector('.dash-table') || document.querySelector('#warehouse-ledger-table');
+                if (table) {
+                    var clone = table.cloneNode(true);
+                    clone.querySelectorAll('input, select, button, .btn-action').forEach(function(el) {
+                        if (el.tagName === 'INPUT' || el.tagName === 'SELECT') {
+                            var span = document.createElement('span');
+                            span.textContent = el.value || '';
+                            el.replaceWith(span);
+                        } else { el.remove(); }
+                    });
+                    sessionStorage.setItem('urs_preview_table_html', clone.outerHTML);
+                }
+                sessionStorage.setItem('urs_preview_source', 'warehouse-ledger');
+                var titleEl = document.querySelector('.content-title h2') || document.querySelector('h2');
+                sessionStorage.setItem('urs_preview_title', titleEl ? titleEl.textContent.trim() : 'دفتر أستاذ المستودع');
+                window.open('preview-inventory-report.php?source=warehouse-ledger&presetIndex=' + index, '_blank');
+            } catch(e) { window.open('preview-inventory-report.php', '_blank'); }
+        }
+    }, 150);
+}
+</script>
 </body>
 </html>
 

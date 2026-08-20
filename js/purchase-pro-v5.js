@@ -1698,17 +1698,17 @@ function renderGridHead() {
 
     thead.innerHTML = `
         <tr>
-            <th data-col-id="col_index" style="width: 45px; text-align: center; font-size: 1.1rem; font-weight: bold;">العدد</th>
-            <th data-col-id="available" style="width: 120px; text-align: center; font-size: 1.25rem; font-weight: bold;" title="الكمية المتوفرة بالمخزن تلقائياً">المتاح</th>
-            <th data-col-id="item" style="width: 25%; text-align: right; font-size: 1.25rem; font-weight: bold;">الصنف</th>
-            <th data-col-id="unit" style="width: 110px; text-align: center; font-size: 1.25rem; font-weight: bold;">الوحدة</th>
-            <th data-col-id="quantity" style="width: 105px; text-align: center; font-size: 1.25rem; font-weight: bold;">الكمية</th>
-            <th data-col-id="price" style="width: 140px; text-align: center; font-size: 1.25rem; font-weight: bold;">${priceHeader}</th>
+            <th data-col-id="col_index" style="width: 45px; text-align: center; font-size: 1.1rem; font-weight: bold;">#</th>
+            <th data-col-id="available" style="width: 110px; text-align: center; font-size: 1.25rem; font-weight: bold;" title="الكمية المتوفرة بالمخزن تلقائياً">المتاح</th>
+            <th data-col-id="item" style="width: auto; min-width: 250px; text-align: right; font-size: 1.25rem; font-weight: bold;">الصنف</th>
+            <th data-col-id="unit" style="width: 100px; text-align: center; font-size: 1.25rem; font-weight: bold;">الوحدة</th>
+            <th data-col-id="quantity" style="width: 100px; text-align: center; font-size: 1.25rem; font-weight: bold;">الكمية</th>
+            <th data-col-id="price" style="width: 130px; text-align: center; font-size: 1.25rem; font-weight: bold;">${priceHeader}</th>
             ${!isBaseSDG ? `<th data-col-id="fcprice" style="width: 120px; text-align: center; font-size: 1.05rem;">سعر (جنيه)</th>` : ''}
-            <th data-col-id="total" style="width: 160px; text-align: center; font-size: 1.25rem; font-weight: bold;">${totalHeader}</th>
+            <th data-col-id="warehouse" style="width: 130px; text-align: center; font-size: 1.1rem; font-weight: bold;">المخزن</th>
+            <th data-col-id="total" style="width: 240px; min-width: 240px; text-align: center; font-size: 1.25rem; font-weight: bold;">${totalHeader}</th>
             ${!isBaseSDG ? `<th data-col-id="fctotal" style="width: 120px; text-align: center; font-size: 1.05rem;">جملة (جنيه)</th>` : ''}
-            <th style="width: 140px; text-align: center; font-size: 1.1rem; font-weight: bold;">المخزن</th>
-            <th style="width: 90px; text-align: center; font-size: 1.05rem;">إجراء</th>
+            <th data-col-id="action" style="width: 90px; text-align: center; font-size: 1.05rem;">إجراء</th>
         </tr>
     `;
     if (typeof GridCustomizer !== 'undefined') {
@@ -1911,19 +1911,19 @@ function renderGrid() {
             </td>
             ` : ''}
             <td style="text-align: center;">
-                <span class="g-readonly total-val" data-total="${row.id}" style="font-size: 1.6rem; font-weight: bold; color: #34d399;">${fmtNum(calcs.total, 'total')}</span>
+                <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1" style="text-align: center; width: 100%; font-size: 1.05rem;">
+                    <option value="">نفس الفاتورة ↩</option>
+                    ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
+                </select>
+            </td>
+            <td style="text-align: center; min-width: 240px;">
+                <span class="g-readonly total-val" data-total="${row.id}" style="font-size: 1.6rem; font-weight: 900; color: #34d399; font-family: monospace, 'Cairo', sans-serif; display: block; text-align: center;">${fmtNum(calcs.total, 'total')}</span>
             </td>
             ${!isBaseSDG ? `
             <td style="text-align: center;">
                 <span class="g-readonly total-fc-val" style="color:#10b981; font-size: 1.1rem; font-weight: bold;" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)) * (row.quantity || 0), 'fctotal')}</span>
             </td>
             ` : ''}
-            <td style="text-align: center;">
-                <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1" style="text-align: center; width: 100%; font-size: 1.05rem;">
-                    <option value="">نفس الفاتورة ↩</option>
-                    ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
-                </select>
-            </td>
             <td style="text-align: center;">
                 <div style="display: flex; gap: 5px; justify-content: center; align-items: center;">
                     <button type="button" class="add-row-btn" onclick="addRow()" title="إضافة سطر جديد" style="background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.35)); border: 1px solid rgba(16,185,129,0.5); color: #34d399; border-radius: 6px; padding: 6px 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">

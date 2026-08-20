@@ -289,14 +289,16 @@ $header_theme_class = "header-theme-inventory";
         let currentViewMode = 'trend';
 
         document.addEventListener('DOMContentLoaded', () => {
-            populateWarehouseFilter();
-            if (window.DB_STORE) {
-                renderUnifiedChart();
-            } else {
-                document.addEventListener('DBReady', renderUnifiedChart);
-                window.addEventListener('load', renderUnifiedChart);
-            }
-        });
+              populateWarehouseFilter();
+              document.addEventListener('DBReady', () => {
+                  populateWarehouseFilter();
+                  renderUnifiedChart();
+              });
+              window.addEventListener('cloudDataRestored', renderUnifiedChart);
+              if (window.APP_READY) {
+                  renderUnifiedChart();
+              }
+          });
 
         function switchChartView(mode, btn) {
             currentViewMode = mode;

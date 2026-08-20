@@ -280,13 +280,13 @@
         <div class="report-ribbon-bar">
             <!-- Presets Cluster: 1, 2, 3 -->
             <div class="ribbon-presets-group">
-                <button class="preset-pill-btn active" data-preset="0" onclick="applyReportPreset(0, this)" title="القالب الافتراضي 1">
+                <button class="preset-pill-btn active" data-preset="0" onclick="applyAndOpenPreview(0, this)" title="القالب الافتراضي 1">
                     <span class="preset-num">1</span> <span>افتراضي 1</span>
                 </button>
-                <button class="preset-pill-btn" data-preset="1" onclick="applyReportPreset(1, this)" title="القالب المخصص 2">
+                <button class="preset-pill-btn" data-preset="1" onclick="applyAndOpenPreview(1, this)" title="القالب المخصص 2">
                     <span class="preset-num">2</span> <span>تخصيص 2</span>
                 </button>
-                <button class="preset-pill-btn" data-preset="2" onclick="applyReportPreset(2, this)" title="القالب المخصص 3">
+                <button class="preset-pill-btn" data-preset="2" onclick="applyAndOpenPreview(2, this)" title="القالب المخصص 3">
                     <span class="preset-num">3</span> <span>تخصيص 3</span>
                 </button>
             </div>
@@ -1199,6 +1199,16 @@
             initItemLedger();
         }
         document.addEventListener('DBReady', () => {
+        window.addEventListener('cloudDataRestored', () => {
+            itemsDb = getAllItemsFromStorage();
+            populateItemDropdown();
+            initItemLedger();
+        });
+        window.addEventListener('strictDataReady', () => {
+            itemsDb = getAllItemsFromStorage();
+            populateItemDropdown();
+            initItemLedger();
+        });
             itemsDb = getAllItemsFromStorage();
             populateItemDropdown();
             checkUrlSelection();
@@ -2466,6 +2476,39 @@
         }
     </script>
 <script src="js/universal-report-studio.js?v=<?php echo time(); ?>"></script>
+<script>
+function applyAndOpenPreview(index, btn) {
+    document.querySelectorAll('.preset-pill-btn').forEach(function(b) { b.classList.remove('active'); });
+    if (btn) btn.classList.add('active');
+    if (typeof window.applyReportPreset === 'function') {
+        window.applyReportPreset(index, btn);
+    }
+    setTimeout(function() {
+        if (typeof window.openStudioPreviewPage === 'function') {
+            window.openStudioPreviewPage();
+        } else {
+            try {
+                var table = document.querySelector('#report-table-wrap table') || document.querySelector('.dash-table') || document.querySelector('#item-ledger-table') || document.querySelector('.table-wrapper table');
+                if (table) {
+                    var clone = table.cloneNode(true);
+                    clone.querySelectorAll('input, select, button, .btn-action').forEach(function(el) {
+                        if (el.tagName === 'INPUT' || el.tagName === 'SELECT') {
+                            var span = document.createElement('span');
+                            span.textContent = el.value || '';
+                            el.replaceWith(span);
+                        } else { el.remove(); }
+                    });
+                    sessionStorage.setItem('urs_preview_table_html', clone.outerHTML);
+                }
+                sessionStorage.setItem('urs_preview_source', 'item-ledger');
+                var titleEl = document.querySelector('.content-title h2') || document.querySelector('h2');
+                sessionStorage.setItem('urs_preview_title', titleEl ? titleEl.textContent.trim() : 'دفتر أستاذ الصنف');
+                window.open('preview-inventory-report.php?source=item-ledger&presetIndex=' + index, '_blank');
+            } catch(e) { window.open('preview-inventory-report.php', '_blank'); }
+        }
+    }, 150);
+}
+</script>
 </body>
 </html>
 

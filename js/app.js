@@ -155,6 +155,29 @@ JSON.parse = function(val) {
 
     // Load data from IndexedDB into DB_STORE (optimized: localStorage first, IndexedDB async)
     async function initDB() {
+                // ---------------------------------------------------------------------------------
+        // AUTO-RECOVERY: If tenant keys were wiped by quota cleanup, restore from base keys
+        // ---------------------------------------------------------------------------------
+        try {
+            const tk = window.getTenantKey('erp_settings_v1');
+            if (tk !== 'erp_settings_v1') {
+                syncKeys.forEach(baseKey => {
+                    const tenantKey = window.getTenantKey(baseKey);
+                    const tenantVal = originalGetItem.call(localStorage, tenantKey);
+                    const baseVal = originalGetItem.call(localStorage, baseKey);
+                    
+                    // If tenant is empty or '[]' but base has data, recover it!
+                    if ((!tenantVal || tenantVal === '[]' || tenantVal === '{}') && baseVal && baseVal !== '[]' && baseVal !== '{}') {
+                        console.warn('Recovering ' + baseKey + ' to ' + tenantKey);
+                        window.DB_STORE[tenantKey] = baseVal;
+                        try { originalSetItem.call(localStorage, tenantKey, baseVal); } catch(e) {}
+                        if (typeof localforage !== 'undefined') localforage.setItem(tenantKey, baseVal).catch(e=>{});
+                    }
+                });
+            }
+        } catch(e) {}
+        // ---------------------------------------------------------------------------------
+
         // 1. FAST PATH: Load from localStorage immediately (synchronous)
         syncKeys.forEach(key => {
             const tenantKey = window.getTenantKey(key);
@@ -1068,10 +1091,12 @@ JSON.parse = function(val) {
                     entries.sort((a, b) => b.size - a.size);
                     
                     // Remove up to 30% of entries (the biggest ones)
-                    const removeCount = Math.max(3, Math.ceil(entries.length * 0.3));
-                    for (let i = 0; i < Math.min(removeCount, entries.length); i++) {
-                        originalRemoveItem.call(localStorage, entries[i].key);
-                        console.log("Auto-cleaned localStorage key:", entries[i].key, "size:", entries[i].size);
+                    const safeToRemove = ['erp_auto_backups', 'erp_audit_logs'];
+                    for (let j = 0; j < entries.length; j++) {
+                        if (safeToRemove.some(sk => entries[j].key.includes(sk))) {
+                            originalRemoveItem.call(localStorage, entries[j].key);
+                            console.log('Safe-cleaned localStorage key:', entries[j].key);
+                        }
                     }
                     
                     // Retry saving
@@ -1447,7 +1472,7 @@ JSON.parse = function(val) {
 
     const pushToCloud = window.pushToCloud = function(force = false) {
         return new Promise((resolve, reject) => {
-            if (!navigator.onLine || (!force && (window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1')))) {
+            if (!navigator.onLine) {
                 // وضع محلي مستقل بالكامل
                 resolve({ success: true, offline: true });
                 return;
@@ -1560,9 +1585,7 @@ JSON.parse = function(val) {
     window.pullFromCloud = function(force = false) {
         if (!navigator.onLine) return Promise.resolve();
         const isLocal = window.location.hostname.includes('localhost') || window.location.hostname.includes('127.0.0.1');
-        if (isLocal && !force) {
-            return Promise.resolve();
-        }
+        // Sync enabled on localhost - no longer skip
         const token = localStorage.getItem('authToken');
         if (!token) return Promise.resolve();
 
