@@ -479,17 +479,15 @@ window.setLayoutTheme = function(v) {};
 window.setNumberFont = function(f) { var t=document.getElementById('preview-table'); if(!t) return; ['font-newsons','font-ribot','font-firacode','font-ultra','font-jakarta','font-roboto','font-outfit','font-tajawal','font-cairo'].forEach(function(c){t.classList.remove(c);}); if(f) t.classList.add(f); };
 window.toggleHeaderElement = function(type, checked) { if(type==='logo') document.getElementById('company-logo-block').style.display = checked?'':'none'; if(type==='info') document.getElementById('company-info-block').style.display = checked?'':'none'; };
 window.setPaperSize = function(size) {
-    var el = document.getElementById('dynamic-paper-style');
-    var orient = currentOrientation || 'landscape';
-    if(el) el.textContent = '@page { size: ' + size + ' ' + orient + '; margin: 10mm; }';
+    if (typeof applyPaperSimulation === 'function') applyPaperSimulation(size, null, null);
     currentPaperSize = size;
 };
 window.setPageOrientation = function(orient) {
+    if (typeof applyPaperSimulation === 'function') applyPaperSimulation(null, orient, null);
     currentOrientation = orient;
-    var wrapper = document.getElementById('print-area-wrapper');
-    if(wrapper) { wrapper.classList.remove('paper-portrait','paper-landscape'); wrapper.classList.add('paper-' + orient); }
-    var el = document.getElementById('dynamic-paper-style');
-    if(el) el.textContent = '@page { size: ' + (currentPaperSize||'A4') + ' ' + orient + '; margin: 10mm; }';
+};
+window.setPageMargins = function(margins) {
+    if (typeof applyPaperSimulation === 'function') applyPaperSimulation(null, null, margins);
 };
 window.filterTableRows = function(q) { var t=document.getElementById('preview-table'); if(!t)return; q=(q||'').toLowerCase(); t.querySelectorAll('tbody tr').forEach(function(r){r.style.display=(!q||r.textContent.toLowerCase().includes(q))?'':'none';}); };
 window.saveCurrentPreset = function() {

@@ -297,7 +297,7 @@
                     <span>⚙️</span> <span>إعدادات الأعمدة</span>
                 </button>
                 <button id="btn-preview-report" class="ribbon-btn" onclick="openItemLedgerPreview()" style="--btn-color: #0d9488;">
-                    <span>👁️</span> <span>معاينة وتصميم التقرير</span>
+                    <span>👁️</span> <span>معاينة التقرير</span>
                 </button>
                 <button id="btn-print-report" class="ribbon-btn" onclick="printItemLedgerDirectly()" style="--btn-color: #38bdf8;">
                     <span>🖨️</span> <span>طباعة</span>

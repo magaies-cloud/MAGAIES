@@ -583,3 +583,88 @@ function addNewPresetPrompt() {
     switchStudioTab('cols');
     alert("قم بضبط التعديلات والألوان من هذه الشاشة، ثم اضغط على زر 'حفظ الإعدادات' في الأعلى.");
 }
+
+// Paper setup handlers
+function setPaperSize(size) { if(typeof applyPaperSimulation === 'function') applyPaperSimulation(size, null, null); }
+function setPageOrientation(orient) { if(typeof applyPaperSimulation === 'function') applyPaperSimulation(null, orient, null); }
+function setPageMargins(margins) { if(typeof applyPaperSimulation === 'function') applyPaperSimulation(null, null, margins); }
+window.setPaperSize = setPaperSize;
+window.setPageOrientation = setPageOrientation;
+window.setPageMargins = setPageMargins;
+
+
+
+const FACTORY_PRESETS_DIRECT_SALES = [
+    {
+        id: 1,
+        name: '💎 افتراضي 1 (الذهبي الأصلي)',
+        tableTheme: 'theme-gold',
+        layoutTheme: '',
+        numFont: 'font-ultra',
+        paperSize: 'A4',
+        orientation: 'portrait',
+        margins: 'normal',
+        tableWidth: 100,
+        copyLabel: 'نسخة العميل'
+    },
+    {
+        id: 2,
+        name: '⭐ افتراضي 2 (ذهبي ملكي)',
+        tableTheme: 'theme-gold',
+        layoutTheme: 'layout-modern',
+        numFont: 'font-newsons',
+        paperSize: 'A4',
+        orientation: 'portrait',
+        margins: 'normal',
+        tableWidth: 100,
+        copyLabel: 'نسخة أصلية'
+    },
+    {
+        id: 3,
+        name: '🎨 افتراضي 3 (زمردي راقي)',
+        tableTheme: 'theme-emerald-pro',
+        layoutTheme: '',
+        numFont: 'font-tajawal',
+        paperSize: 'A4',
+        orientation: 'portrait',
+        margins: 'compact',
+        tableWidth: 100,
+        copyLabel: 'نسخة العميل'
+    },
+    {
+        id: 4,
+        name: '🔥 افتراضي 4 (عصري رمادي)',
+        tableTheme: 'theme-modern-slate',
+        layoutTheme: '',
+        numFont: 'font-cairo',
+        paperSize: 'A4',
+        orientation: 'portrait',
+        margins: 'compact',
+        tableWidth: 100,
+        copyLabel: 'نسخة المحاسبة'
+    }
+];
+
+function resetPresetToFactory(id) {
+    const factory = FACTORY_PRESETS_DIRECT_SALES.find(x => x.id === id) || FACTORY_PRESETS_DIRECT_SALES[0];
+    const p = dsPresets.find(x => x.id === id);
+    if (p) {
+        Object.assign(p, factory);
+        localStorage.setItem('erp_ds_print_presets', JSON.stringify(dsPresets));
+        loadPreset(id);
+        renderPresetsManagementList();
+        alert('🏭 تم استرجاع ضبط المصنع لـ ' + factory.name);
+    }
+}
+
+function resetAllPresetsToFactory() {
+    if (!confirm('هل أنت متأكد من استرجاع كافة قوالب الفواتير لضبط المصنع؟')) return;
+    dsPresets = JSON.parse(JSON.stringify(FACTORY_PRESETS_DIRECT_SALES));
+    localStorage.setItem('erp_ds_print_presets', JSON.stringify(dsPresets));
+    loadPreset(1);
+    renderPresetsManagementList();
+    alert('🏭 تم استرجاع كافة القوالب لضبط المصنع بنجاح!');
+}
+
+window.resetPresetToFactory = resetPresetToFactory;
+window.resetAllPresetsToFactory = resetAllPresetsToFactory;

@@ -528,12 +528,21 @@
         showToast('\u2139\ufe0f \u0625\u0639\u0627\u062f\u0629 \u0627\u0644\u062a\u0631\u062a\u064a\u0628 \u0645\u062a\u0627\u062d\u0629 \u0641\u064a \u0635\u0641\u062d\u0629 \u0627\u0644\u0627\u0633\u062a\u0648\u062f\u064a\u0648 \u0627\u0644\u0645\u0646\u0641\u0635\u0644\u0629');
     }
 
-    // ── Paper & Header (for inline preview) ──
-    function setPaper(size) { /* Used only in standalone preview */ }
-    function setOrientation(orient) { /* Used only in standalone preview */ }
-    function setMargins(margin) { /* Used only in standalone preview */ }
-    function toggleHeader(type, checked) { /* Used only in standalone preview */ }
-    function setLayout(layout) { /* Used only in standalone preview */ }
+    // ── Paper & Header (for inline preview & print engine) ──
+    function setPaper(size) { if (typeof applyPaperSimulation === 'function') applyPaperSimulation(size, null, null); }
+    function setOrientation(orient) { if (typeof applyPaperSimulation === 'function') applyPaperSimulation(null, orient, null); }
+    function setMargins(margin) { if (typeof applyPaperSimulation === 'function') applyPaperSimulation(null, null, margin); }
+    function toggleHeader(type, checked) {
+        if (type === 'logo') {
+            var el = document.getElementById('company-logo-block');
+            if (el) el.style.display = checked ? '' : 'none';
+        }
+        if (type === 'info') {
+            var el = document.getElementById('company-info-block');
+            if (el) el.style.display = checked ? '' : 'none';
+        }
+    }
+    function setLayout(layout) { /* Layout variant */ }
 
     // ── Filter Table Rows (Quick Search) ──
     function filterRows(query) {
@@ -586,6 +595,31 @@
     window.setPageMargins = setMargins;
     window.filterTableRows = filterRows;
     window.addNewPresetPrompt = addNewPreset;
+
+    function resetPresetToFactory(idx) {
+        // Reset to default column configs
+        if (ursPresets[idx]) {
+            ursPresets[idx].settings = null;
+            savePresets();
+            applyPreset(idx);
+            showToast('🏭 تم استرجاع ضبط المصنع للقالب بنجاح');
+        }
+    }
+    function resetAllPresetsToFactory() {
+        if (!confirm('هل أنت متأكد من استرجاع كافة القوالب لضبط المصنع؟')) return;
+        ursPresets = [
+            { name: '💎 افتراضي 1', settings: null },
+            { name: '⭐ افتراضي 2', settings: null },
+            { name: '🎨 افتراضي 3', settings: null },
+            { name: '🔥 افتراضي 4', settings: null }
+        ];
+        savePresets();
+        applyPreset(0);
+        showToast('🏭 تم استرجاع كافة القوالب لضبط المصنع');
+    }
+    window.resetPresetToFactory = resetPresetToFactory;
+    window.resetAllPresetsToFactory = resetAllPresetsToFactory;
+
     window.openStudioPreviewPage = openStudioPreviewPage;
 
     // renderTable is expected by some screens

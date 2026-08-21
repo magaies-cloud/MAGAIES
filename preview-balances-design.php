@@ -37,10 +37,28 @@
         }
 
         /* Themes */
-        table.excel-table.theme-gold th { background: #b45309 !important; color: #ffffff !important; border-color: #78350f !important; font-weight: 800 !important; text-shadow: none !important; }
-        table.excel-table.theme-gold td { border-color: #fde68a !important; }
-        table.excel-table.theme-gold tbody tr:nth-child(even) { background: #fffde7 !important; }
-        table.excel-table.theme-gold tbody tr:nth-child(odd) { background: #ffffff !important; }
+        table.excel-table.theme-gold th { 
+            background: #b45309 !important; 
+            color: #ffffff !important; 
+            border-color: #78350f !important; 
+            font-weight: 800 !important; 
+            text-shadow: none !important; 
+        }
+        table.excel-table.theme-gold td { 
+            border-color: #fde68a !important; 
+        }
+        table.excel-table.theme-gold tbody tr:nth-child(even) { 
+            background: #fffde7 !important; 
+        }
+        table.excel-table.theme-gold tbody tr:nth-child(odd) { 
+            background: #ffffff !important; 
+        }
+        table.excel-table.theme-gold tfoot td { 
+            background: #fef3c7 !important; 
+            color: #78350f !important; 
+            font-weight: 900 !important; 
+            border-color: #d97706 !important; 
+        }
         
         table.excel-table.theme-lightblue th { background: #0284c7 !important; color: #ffffff !important; border-color: #0369a1 !important; }
         table.excel-table.theme-lightblue td { border-color: #bae6fd !important; }
@@ -247,6 +265,24 @@
         body.dark-mode table.excel-table th.selected-col { background: #0369a1 !important; color: #ffffff !important; border-bottom-color: #38bdf8 !important; }
         
         table.excel-table td.num-cell { font-family: var(--num-font-family); font-weight: 600; direction: ltr; }
+
+        /* Default Column Background & Font Colors for Balances */
+        table.excel-table td[data-col-idx="4"], table.excel-table td[data-col-idx="6"] {
+            background-color: #e0f2fe !important;
+            color: #0044cc !important;
+            font-weight: 700 !important;
+        }
+        table.excel-table td[data-col-idx="5"], table.excel-table td[data-col-idx="7"] {
+            background-color: #fee2e2 !important;
+            color: #dc2626 !important;
+            font-weight: 700 !important;
+        }
+        table.excel-table td[data-col-idx="1"] {
+            background-color: #dcfce7 !important;
+            color: #008000 !important;
+            font-weight: 700 !important;
+        }
+
         table.excel-table tfoot td { font-weight: 900; background: var(--table-header-bg); }
         
         @media print {

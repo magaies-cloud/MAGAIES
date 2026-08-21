@@ -2118,48 +2118,41 @@ function renderLedgerPresets() {
     if (!container) return;
     container.innerHTML = '';
 
-    const PRESETS_STORAGE_KEY = 'ledger_preview_presets_v7';
+    const PRESETS_STORAGE_KEY = 'ledger_preview_presets_v20';
     let presets = [];
     try { presets = JSON.parse(localStorage.getItem(PRESETS_STORAGE_KEY) || '[]'); } catch(e){}
 
-    const defaultIcons = ['💎 افتراضي 1', '⭐ افتراضي 2', '🎨 افتراضي 3', '🔥 افتراضي 4', '🌺 افتراضي 5', '✨ نموذج 1', '✨ نموذج 2'];
+    const defaultPresets = [
+        { name: '💎 افتراضي 1', showInRibbon: true },
+        { name: '⭐ افتراضي 2', showInRibbon: true },
+        { name: '🎨 افتراضي 3', showInRibbon: true },
+        { name: '🔥 افتراضي 4', showInRibbon: true },
+        { name: '✨ افتراضي 5', showInRibbon: true },
+        { name: '🚀 افتراضي 6', showInRibbon: true }
+    ];
 
     if (!Array.isArray(presets) || presets.length === 0) {
-        presets = defaultIcons.map(name => ({ name, showInRibbon: true }));
-    } else {
-        // Fix legacy arrays where index 4 was '✨ نموذج 1'
-        if (presets.length >= 5 && presets[4].name && presets[4].name.includes('نموذج 1')) {
-            // Insert 'افتراضي 5' at index 4 and shift the rest
-            presets.splice(4, 0, { name: defaultIcons[4], showInRibbon: true });
-        }
-        
-        // Append any remaining missing presets up to 7
-        if (presets.length < defaultIcons.length) {
-            for (let i = presets.length; i < defaultIcons.length; i++) {
-                presets.push({ name: defaultIcons[i], showInRibbon: true });
-            }
-        }
+        presets = defaultPresets;
         localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
     }
 
-    presets.slice(0, 7).forEach((p, idx) => {
+    presets.slice(0, 6).forEach((p, idx) => {
         if (p.showInRibbon === false) return;
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'luxury-action-btn';
         
-        // Assign color based on index
-        let color = '#38bdf8'; // default blue
-        if (idx === 1) color = '#eab308'; // yellow
-        else if (idx === 2) color = '#a855f7'; // purple
-        else if (idx === 3) color = '#ef4444'; // red
-        else if (idx === 4) color = '#f43f5e'; // rose
-        else if (idx === 5) color = '#10b981'; // green
-        else if (idx === 6) color = '#10b981'; // green
+        let color = '#38bdf8';
+        if (idx === 0) color = '#ca8a04';
+        else if (idx === 1) color = '#10b981';
+        else if (idx === 2) color = '#0284c7';
+        else if (idx === 3) color = '#f97316';
+        else if (idx === 4) color = '#a855f7';
+        else if (idx === 5) color = '#64748b';
         
         btn.style.cssText = `--btn-color: ${color};`;
-        btn.innerHTML = p.name || ('افتراضي ' + (idx + 1));
-        btn.onclick = () => openPresetModal(idx, p.name || ('افتراضي ' + (idx + 1)));
+        btn.innerHTML = p.name || ('نموذج ' + (idx + 1));
+        btn.onclick = () => openPresetModal(idx, p.name || ('نموذج ' + (idx + 1)));
         container.appendChild(btn);
     });
 }
@@ -2231,11 +2224,11 @@ document.addEventListener('DOMContentLoaded', () => {
     const token = localStorage.getItem('erp_token') || '';
     const headers = {};
     if (token) headers['Authorization'] = 'Bearer ' + token;
-    fetch('api_index.php/report-layout?reportKey=ledger_preview_presets_v7', { headers: headers })
+    fetch('api_index.php/report-layout?reportKey=ledger_preview_presets_v20', { headers: headers })
         .then(res => res.json())
         .then(data => {
             if (data && data.success && Array.isArray(data.layout) && data.layout.length > 0) {
-                localStorage.setItem('ledger_preview_presets_v7', JSON.stringify(data.layout));
+                localStorage.setItem('ledger_preview_presets_v20', JSON.stringify(data.layout));
                 renderLedgerPresets();
             }
         })
@@ -2249,7 +2242,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 window.addEventListener('storage', function(e) {
-    if (e.key === 'ledger_preview_presets_v7' || e.key === 'ledger_preview_presets_v1') {
+    if (e.key === 'ledger_preview_presets_v20' || e.key === 'ledger_preview_presets_v20') {
         if (typeof renderLedgerPresets === 'function') {
             renderLedgerPresets();
         }

@@ -6,8 +6,8 @@ function toEasternArabicNumerals(str) {
 }
 // js/preview-ledger.js - General Ledger Pro Studio Edition
 
-const PRESETS_STORAGE_KEY = 'ledger_preview_presets_v7';
-const MAX_PRESETS_LIMIT = 7;
+const PRESETS_STORAGE_KEY = 'ledger_preview_presets_v20';
+const MAX_PRESETS_LIMIT = 6;
 let currentData = [];
 let filteredData = [];
 let currentPresetIndex = 0;
@@ -736,160 +736,167 @@ function getDefaultConfigs() {
     return conf;
 }
 
-function initPresets() {
-    let raw = localStorage.getItem(PRESETS_STORAGE_KEY);
-    let list = [];
-    let needsMigration = true;
 
-    if (raw) {
-        try { 
-            list = JSON.parse(raw); 
-            if (Array.isArray(list) && list.length > 0) {
-                needsMigration = false;
-            }
-        } catch(e){}
-    }
+// ════════════════ TWO-TIER PRESET & FACTORY DEFAULTS ENGINE (LEDGER) ════════════════
+
+
+
+
+
+function getFactoryPreset1LedgerConfigs() {
+    let conf = getDefaultConfigs();
+    conf[0] = { ...conf[0], label: "التاريخ", visible: true, align: 'center', fontWeight: 'bold', color: '#0f172a', bgColor: '' };
+    conf[1] = { ...conf[1], label: "الرقم المرجعي", visible: true, align: 'center', fontWeight: 'bold', color: '#2563eb', bgColor: '' };
+    conf[2] = { ...conf[2], label: "البيان / الوصف", visible: true, align: 'right', color: '#1e293b', bgColor: '' };
+    conf[3] = { ...conf[3], label: "الحساب المقابل", visible: true, align: 'right', color: '#334155', bgColor: '' };
+    conf[4] = { ...conf[4], label: "نوع الحركة", visible: true, align: 'center', fontWeight: 'bold', color: '#7c3aed', bgColor: '' };
     
-    if (needsMigration) {
-        const allKeys = [
-            'ledger_preview_presets_v4',
-            'ledger_preview_presets_v3',
-            'ledger_preview_presets_v2',
-            'ledger_preview_presets_v1',
-            'ledger_preview_presets'
-        ];
-        
-        allKeys.forEach(k => {
-            let oldRaw = localStorage.getItem(k);
-            if (oldRaw) {
-                try {
-                    let items = JSON.parse(oldRaw);
-                    if (Array.isArray(items)) {
-                        items.forEach(item => {
-                            if (item && item.name && !list.some(x => x.name.trim() === item.name.trim())) {
-                                item.showInRibbon = item.showInRibbon !== false;
-                                list.push(item);
-                            }
-                        });
-                    }
-                } catch(e){}
-            }
-        });
+    // Debit Local (مدين محلي) -> Light blue bg + vibrant dark blue text
+    conf[5] = { ...conf[5], label: "مدين (محلي)", visible: true, align: 'center', fontWeight: 'bold', color: '#0044cc', bgColor: '#e0f2fe' };
+    // Credit Local (دائن محلي) -> Light rose bg + vibrant red text
+    conf[6] = { ...conf[6], label: "دائن (محلي)", visible: true, align: 'center', fontWeight: 'bold', color: '#dc2626', bgColor: '#fee2e2' };
+    // Debit Foreign (مدين أجنبي) -> Light blue bg + vibrant dark blue text
+    conf[7] = { ...conf[7], label: "مدين (أجنبي)", visible: true, align: 'center', fontWeight: 'bold', color: '#0044cc', bgColor: '#e0f2fe' };
+    // Credit Foreign (دائن أجنبي) -> Light rose bg + vibrant red text
+    conf[8] = { ...conf[8], label: "دائن (أجنبي)", visible: true, align: 'center', fontWeight: 'bold', color: '#dc2626', bgColor: '#fee2e2' };
+    // Exchange Rate (سعر الصرف) -> Light emerald bg + emerald text
+    conf[9] = { ...conf[9], label: "سعر الصرف", visible: true, align: 'center', fontWeight: 'bold', color: '#059669', bgColor: '#dcfce7' };
+    // Total Balance Local (الإجمالي المحلي) -> Warm gold bg + royal brown text
+    conf[10] = { ...conf[10], label: "الإجمالي المحلي", visible: true, align: 'center', fontWeight: 'bold', color: '#78350f', bgColor: '#fef3c7' };
+    // Total Balance Foreign (الإجمالي الأجنبي) -> Warm gold bg + royal brown text
+    conf[11] = { ...conf[11], label: "الإجمالي الأجنبي", visible: true, align: 'center', fontWeight: 'bold', color: '#78350f', bgColor: '#fef3c7' };
+    
+    conf[12] = { ...conf[12], label: "ملاحظات", visible: true, align: 'center', color: '#475569', bgColor: '' };
+    conf[13] = { ...conf[13], visible: false };
+    conf[14] = { ...conf[14], visible: false };
+    conf[15] = { ...conf[15], label: "اسم البنك", visible: false, color: '#c026d3', bgColor: '' };
+    return conf;
+}
+
+function getForeignOnlyConfigs() {
+    let conf = getFactoryPreset1LedgerConfigs();
+    if (conf[5]) conf[5].visible = false;
+    if (conf[6]) conf[6].visible = false;
+    if (conf[10]) conf[10].visible = false;
+    return conf;
+}
+
+function getLocalOnlyConfigs() {
+    let conf = getFactoryPreset1LedgerConfigs();
+    if (conf[7]) conf[7].visible = false;
+    if (conf[8]) conf[8].visible = false;
+    if (conf[9]) conf[9].visible = false;
+    if (conf[11]) conf[11].visible = false;
+    return conf;
+}
+
+const FACTORY_PRESETS_LEDGER = [
+    {
+        name: '💎 افتراضي 1',
+        configs: getFactoryPreset1LedgerConfigs(),
+        order: [0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12],
+        theme: 'theme-gold',
+        font: 'font-ultra',
+        paperSize: 'A4',
+        orientation: 'landscape',
+        margins: 'normal',
+        showLogo: true,
+        showInfo: true,
+        showInRibbon: true
+    },
+    {
+        name: '⭐ افتراضي 2',
+        configs: getForeignOnlyConfigs(),
+        order: [0, 1, 2, 3, 4, 7, 8, 9, 11, 12],
+        theme: 'theme-classic-navy',
+        font: 'font-newsons',
+        paperSize: 'A4',
+        orientation: 'landscape',
+        margins: 'compact',
+        showLogo: true,
+        showInfo: true,
+        showInRibbon: true
+    },
+    {
+        name: '🎨 افتراضي 3',
+        configs: getLocalOnlyConfigs(),
+        order: [0, 1, 2, 3, 4, 5, 6, 10, 12],
+        theme: 'theme-emerald-pro',
+        font: 'font-tajawal',
+        paperSize: 'A4',
+        orientation: 'landscape',
+        margins: 'normal',
+        showLogo: true,
+        showInfo: true,
+        showInRibbon: true
+    },
+    {
+        name: '🔥 افتراضي 4',
+        configs: getFactoryPreset1LedgerConfigs(),
+        order: [0, 1, 2, 3, 4, 13, 14, 5, 6, 7, 8, 9, 10, 11, 12],
+        theme: 'theme-modern-slate',
+        font: 'font-cairo',
+        paperSize: 'A4',
+        orientation: 'landscape',
+        margins: 'compact',
+        showLogo: true,
+        showInfo: true,
+        showInRibbon: true
+    },
+    {
+        name: '✨ افتراضي 5',
+        configs: getFactoryPreset1LedgerConfigs(),
+        order: [0, 1, 2, 3, 4, 13, 14, 5, 6, 7, 8, 9, 10, 11, 12],
+        theme: 'theme-luxury-gold',
+        font: 'font-ultra',
+        paperSize: 'A4',
+        orientation: 'landscape',
+        margins: 'normal',
+        showLogo: true,
+        showInfo: true,
+        showInRibbon: true
+    },
+    {
+        name: '🚀 افتراضي 6',
+        configs: getFactoryPreset1LedgerConfigs(),
+        order: [0, 1, 2, 3, 4, 13, 14, 5, 6, 7, 8, 9, 10, 11, 12],
+        theme: '',
+        font: 'font-ultra',
+        paperSize: 'A4',
+        orientation: 'landscape',
+        margins: 'normal',
+        showLogo: true,
+        showInfo: true,
+        showInRibbon: true
     }
+];
 
-    if (list.length === 0) {
-        list = [
-            {
-                name: '💎 افتراضي 1',
-                configs: getDefaultConfigs(),
-                order: [0, 1, 2, 3, 4, 13, 14, 5, 6, 7, 8, 9, 10, 11, 12],
-                theme: 'theme-classic-navy',
-                font: 'font-ultra',
-                paperSize: 'A4',
-                orientation: 'landscape',
-                showLogo: true,
-                showInfo: true,
-                showInRibbon: true,
-                isLocked: false,
-                isFactoryDefault: true
-            },
-            {
-                name: '⭐ افتراضي 2',
-                configs: getDefaultConfigs(),
-                order: [0, 1, 2, 3, 4, 13, 14, 6, 7, 8, 9, 10, 11, 5, 12],
-                theme: 'theme-emerald-pro',
-                font: 'font-newsons',
-                paperSize: 'A4',
-                orientation: 'landscape',
-                showLogo: true,
-                showInfo: true,
-                showInRibbon: true,
-                isLocked: false,
-                isFactoryDefault: true
-            },
-            {
-                name: '🎨 افتراضي 3',
-                configs: getDefaultConfigs(),
-                order: [0, 1, 2, 3, 4, 13, 14, 5, 6, 7, 8, 9, 10, 11, 12],
-                theme: 'theme-modern-slate',
-                font: 'font-tajawal',
-                paperSize: 'A4',
-                orientation: 'landscape',
-                showLogo: true,
-                showInfo: true,
-                showInRibbon: true,
-                isLocked: false,
-                isFactoryDefault: true
-            },
-            {
-                name: '🔥 افتراضي 4',
-                order: [0, 1, 2, 3, 4, 13, 14, 5, 6, 7, 8, 9, 10, 11, 12],
-                theme: 'theme-luxury-gold',
-                font: 'font-cairo',
-                paperSize: 'A4',
-                orientation: 'landscape',
-                showLogo: true,
-                showInfo: true,
-                showInRibbon: true,
-                isLocked: false,
-                isFactoryDefault: true
-            },
-            {
-                name: '✨ نموذج 1',
-                configs: getDefaultConfigs(),
-                order: [0, 1, 2, 3, 4, 13, 14, 5, 6, 7, 8, 9, 10, 11, 12],
-                theme: '',
-                font: 'font-ultra',
-                paperSize: 'A4',
-                orientation: 'landscape',
-                showLogo: true,
-                showInfo: true,
-                showInRibbon: true,
-                isLocked: false,
-                isFactoryDefault: false
-            },
-            {
-                name: '🚀 نموذج 2',
-                configs: getDefaultConfigs(),
-                order: [0, 1, 2, 3, 4, 13, 14, 5, 6, 7, 8, 9, 10, 11, 12],
-                theme: '',
-                font: 'font-ultra',
-                paperSize: 'A4',
-                orientation: 'landscape',
-                showLogo: true,
-                showInfo: true,
-                showInRibbon: true,
-                isLocked: false,
-                isFactoryDefault: false
-            },
-            {
-                name: '🌟 نموذج 3',
-                configs: getDefaultConfigs(),
-                order: [0, 1, 2, 3, 4, 13, 14, 5, 6, 7, 8, 9, 10, 11, 12],
-                theme: '',
-                font: 'font-ultra',
-                paperSize: 'A4',
-                orientation: 'landscape',
-                showLogo: true,
-                showInfo: true,
-                showInRibbon: true,
-                isLocked: false,
-                isFactoryDefault: false
+function getSavedPresets() {
+    let raw = localStorage.getItem(PRESETS_STORAGE_KEY);
+    if (!raw) return [];
+    try {
+        let list = JSON.parse(raw);
+        if (Array.isArray(list)) {
+            if (list.length > MAX_PRESETS_LIMIT) {
+                list = list.slice(0, MAX_PRESETS_LIMIT);
+                localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(list));
             }
-        ];
-    }
-
-    savePresets(list);
-    renderPresetButtons();
-
-    // Async sync with database
-    loadPresetsFromDB(PRESETS_STORAGE_KEY, PRESETS_STORAGE_KEY, function() {
-        renderPresetButtons();
-        if (typeof renderPresetsManagementList === 'function') renderPresetsManagementList();
-        if (typeof currentPresetIndex !== 'undefined' && currentPresetIndex !== null) {
-            loadPreset(currentPresetIndex);
+            return list;
         }
-    });
+        return [];
+    } catch(e) {
+        return [];
+    }
+}
+
+function savePresets(presets) {
+    if (Array.isArray(presets)) {
+        if (presets.length > MAX_PRESETS_LIMIT) {
+            presets = presets.slice(0, MAX_PRESETS_LIMIT);
+        }
+        localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
+        syncPresetsToDB(PRESETS_STORAGE_KEY, presets);
+    }
 }
 
 function syncPresetsToDB(reportKey, presets) {
@@ -901,10 +908,7 @@ function syncPresetsToDB(reportKey, presets) {
         fetch('api_index.php/report-layout', {
             method: 'POST',
             headers: headers,
-            body: JSON.stringify({
-                reportKey: reportKey,
-                layout: presets
-            })
+            body: JSON.stringify({ reportKey: reportKey, layout: presets })
         }).catch(err => console.warn('[PresetDBSync] POST failed:', err));
     } catch(e) { console.warn('[PresetDBSync] Error:', e); }
 }
@@ -935,370 +939,153 @@ function loadPresetsFromDB(reportKey, localKey, onComplete) {
             .catch(err => console.warn('[PresetDBSync] GET failed:', err));
     } catch(e) { console.warn('[PresetDBSync] Error:', e); }
 }
-window.FACTORY_PRESETS = [];
-async function loadFactoryPresets() {
-    try {
-        const res = await fetch('api/factory_config/ledger_factory_presets.json?t=' + Date.now());
-        if (res.ok) {
-            const data = await res.json();
-            if (Array.isArray(data) && data.length > 0) {
-                window.FACTORY_PRESETS = data;
-                renderPresetButtons();
-                if (typeof renderPresetsManagementList === 'function') renderPresetsManagementList();
-            }
-        }
-    } catch (e) {
-        // No factory presets found, ignore
-    }
-}
-setTimeout(loadFactoryPresets, 50);
 
-// Developer Secret Shortcut: Ctrl + Shift + S to lock ONLY the current preset as factory default
-document.addEventListener('keydown', async function(e) {
-    if (e.ctrlKey && e.shiftKey && (e.key === 'S' || e.key === 's' || e.key === 'س')) {
-        e.preventDefault();
-        
-        const idx = typeof currentPresetIndex !== 'undefined' ? currentPresetIndex : 0;
-        if (idx > 3) {
-            alert('يمكنك قفل الأزرار الأربعة الأولى فقط كـ ضبط مصنع (افتراضي 1 إلى 4)!');
-            return;
-        }
-        
-        let presets = getSavedPresets();
-        let activePreset = presets[idx];
-        
-        if (!activePreset) {
-            alert('لا يوجد تصميم محفوظ في هذا الزر! يرجى تصميمه وحفظه أولاً ثم الضغط على الاختصار.');
-            return;
-        }
-        
-        if (activePreset.isFactoryDefault) {
-            alert('هذا الزر مقفل مسبقاً كـ "ضبط مصنع" ولا يحتاج إلى قفل مرة أخرى!');
-            return;
-        }
-
-        if (confirm(`⚠️ تحذير المطورين: هل أنت متأكد من رغبتك في قفل التصميم الحالي المفتوح في الزر رقم (${idx + 1}) كـ "ضبط مصنع نهائي"؟ لا يمكن التراجع عن هذا الإجراء من داخل النظام!`)) {
-            let pToSave = JSON.parse(JSON.stringify(activePreset));
-            pToSave.isFactoryDefault = true;
-            pToSave.isLocked = true;
-            try {
-                const res = await fetch('api/save_factory_presets.php', {
-                    method: 'POST',
-                    headers: {'Content-Type': 'application/json'},
-                    body: JSON.stringify({ preset: pToSave, index: idx })
-                });
-                const data = await res.json();
-                if (data.success) {
-                    alert('🎉 ' + data.message);
-                    window.location.reload();
-                } else {
-                    alert('❌ ' + data.message);
-                }
-            } catch(err) {
-                alert('حدث خطأ في الاتصال بالخادم!');
-            }
-        }
-    }
-});
-
-function applyFactoryLocks(list) {
-    if (window.FACTORY_PRESETS && window.FACTORY_PRESETS.length > 0) {
-        for(let i=0; i < window.FACTORY_PRESETS.length; i++) {
-            list[i] = JSON.parse(JSON.stringify(window.FACTORY_PRESETS[i])); // deep clone
-            list[i].isLocked = true;
-            list[i].isFactoryDefault = true;
-        }
-    }
-    return list;
-}
-
-function getSavedPresets() {
-    let list = [];
+function initPresets() {
     let raw = localStorage.getItem(PRESETS_STORAGE_KEY);
+    let list = [];
     if (raw) {
-        try { list = JSON.parse(raw); } catch(e) {}
+        try {
+            list = JSON.parse(raw);
+        } catch(e) {}
     }
-    if (!Array.isArray(list)) list = [];
+    if (!Array.isArray(list) || list.length === 0) {
+        list = JSON.parse(JSON.stringify(FACTORY_PRESETS_LEDGER));
+        savePresets(list);
+    }
     
-    // Sanitize local storage: remove any accidental locks that were saved locally
-    list = list.map(p => {
-        if (p) {
-            delete p.isFactoryDefault;
-            delete p.isLocked;
-        }
-        return p;
-    });
+    renderPresetButtons();
+    renderPresetsManagementList();
+    if (list.length > 0) {
+        loadPreset(currentPresetIndex || 0);
+    }
 
-    return applyFactoryLocks(list);
+    loadPresetsFromDB(PRESETS_STORAGE_KEY, PRESETS_STORAGE_KEY, function(dbLayout) {
+        if (Array.isArray(dbLayout) && dbLayout.length > 0) {
+            renderPresetButtons();
+            renderPresetsManagementList();
+            if (typeof currentPresetIndex !== 'undefined') loadPreset(currentPresetIndex);
+        }
+    });
 }
 
-function savePresets(presets) {
-    if (Array.isArray(presets)) {
-        if (presets.length > MAX_PRESETS_LIMIT) {
-            presets = presets.slice(0, MAX_PRESETS_LIMIT);
+function loadPreset(idx) {
+    const presets = getSavedPresets();
+    if (!presets || !presets[idx]) return;
+    currentPresetIndex = idx;
+    const p = presets[idx];
+    applyDesignState(p);
+    renderPresetButtons();
+    renderPresetsManagementList();
+}
+
+function applyPreset(idx) {
+    loadPreset(idx);
+    const presets = getSavedPresets();
+    const name = presets[idx] ? presets[idx].name : '';
+    if (typeof showToast === 'function') {
+        showToast('✨ تم تطبيق القالب [' + name + '] بنجاح!', 'info');
+    }
+}
+
+function saveCurrentPreset(targetIdx) {
+    const idx = (typeof targetIdx === 'number') ? targetIdx : currentPresetIndex;
+    const presets = getSavedPresets();
+    if (!presets || !presets[idx]) return;
+    const p = presets[idx];
+
+    p.configs = JSON.parse(JSON.stringify(columnConfigs));
+    p.order = [...columnOrder];
+    p.theme = currentTheme;
+    p.font = currentFont;
+    p.paperSize = window.currentPaperSize || currentPaperSize || 'A4';
+    p.orientation = window.currentOrientation || currentOrientation || 'landscape';
+    p.margins = window.currentMargins || currentMargins || 'normal';
+    p.showLogo = showHeaderLogo;
+    p.showInfo = showHeaderInfo;
+    
+    const uChk = document.getElementById('hdr-show-user-chk');
+    const uPos = document.getElementById('meta-user-pos-select');
+    const dChk = document.getElementById('hdr-show-datetime-chk');
+    const pChk = document.getElementById('hdr-show-pagenums-chk');
+    
+    p.showUser = uChk ? uChk.checked : true;
+    p.userPos = uPos ? uPos.value : 'bottom-right';
+    p.showDateTime = dChk ? dChk.checked : true;
+    p.showPageNums = pChk ? pChk.checked : true;
+    p.updatedAt = new Date().toISOString();
+    p.isCustomized = true;
+
+    savePresets(presets);
+    renderPresetButtons();
+    renderPresetsManagementList();
+
+    try {
+        if (window.DB_STORE && window.getTenantKey) {
+            const tk = window.getTenantKey(PRESETS_STORAGE_KEY);
+            window.DB_STORE[tk] = JSON.stringify(presets);
         }
-        localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
-        syncPresetsToDB(PRESETS_STORAGE_KEY, presets);
+        if (typeof localforage !== 'undefined') {
+            localforage.setItem(PRESETS_STORAGE_KEY, presets);
+        }
+    } catch(e){}
+
+    if (typeof showToast === 'function') {
+        showToast('💾 تم حفظ التعديلات في "' + p.name + '" بنجاح!', 'success');
+    }
+}
+
+function resetPresetToFactory(idx) {
+    const factory = FACTORY_PRESETS_LEDGER[idx] || FACTORY_PRESETS_LEDGER[0];
+    const presets = getSavedPresets();
+    if (!presets || !presets[idx]) return;
+    
+    presets[idx] = JSON.parse(JSON.stringify(factory));
+    savePresets(presets);
+    
+    if (idx === currentPresetIndex) {
+        loadPreset(idx);
+    } else {
+        renderPresetButtons();
+        renderPresetsManagementList();
+    }
+    if (typeof showToast === 'function') {
+        showToast('🏭 تم استرجاع ضبط المصنع الأصلي لـ "' + factory.name + '" بنجاح!', 'info');
+    }
+}
+
+function resetAllPresetsToFactory() {
+    if (!confirm('⚠️ هل أنت متأكد من استرجاع كافة القوالب والتصميمات إلى ضبط المصنع الأصلي للنظام؟')) return;
+    const presets = JSON.parse(JSON.stringify(FACTORY_PRESETS_LEDGER));
+    savePresets(presets);
+    currentPresetIndex = 0;
+    loadPreset(0);
+    renderPresetButtons();
+    renderPresetsManagementList();
+    if (typeof showToast === 'function') {
+        showToast('🏭 تم استرجاع كافة القوالب لضبط المصنع الأصلي بنجاح!', 'success');
     }
 }
 
 function renderPresetButtons() {
     const container = document.getElementById('presets-container');
     if (!container) return;
-    container.innerHTML = ''; // Prevent duplicates if general-ledger.js also rendered
-    let presets = getSavedPresets();
+    container.innerHTML = '';
+    const presets = getSavedPresets();
     
-    const defaultIcons = ['💎 افتراضي 1', '⭐ افتراضي 2', '🎨 افتراضي 3', '🔥 افتراضي 4', '🌺 افتراضي 5', '✨ نموذج 1', '✨ نموذج 2'];
-
-    if (!Array.isArray(presets) || presets.length === 0) {
-        presets = defaultIcons.map(name => ({ name, showInRibbon: true }));
-    } else {
-        // Fix legacy arrays where index 4 was '✨ نموذج 1'
-        if (presets.length >= 5 && presets[4].name && presets[4].name.includes('نموذج 1')) {
-            // Insert 'افتراضي 5' at index 4 and shift the rest
-            presets.splice(4, 0, { name: defaultIcons[4], showInRibbon: true });
-        }
-        
-        // Append any remaining missing presets up to 7
-        if (presets.length < defaultIcons.length) {
-            for (let i = presets.length; i < defaultIcons.length; i++) {
-                presets.push({ name: defaultIcons[i], showInRibbon: true });
-            }
-        }
-        savePresets(presets);
-    }
-
-    presets.slice(0, 7).forEach((p, idx) => {
+    presets.forEach((p, idx) => {
         if (p.showInRibbon === false) return;
         const btn = document.createElement('button');
         btn.type = 'button';
         btn.className = 'preset-btn' + (idx === currentPresetIndex ? ' active' : '');
-        
-        let color = '#38bdf8'; // default blue
-        if (idx === 1) color = '#eab308'; // yellow
-        else if (idx === 2) color = '#a855f7'; // purple
-        else if (idx === 3) color = '#ef4444'; // red
-        else if (idx === 4) color = '#f43f5e'; // rose
-        else if (idx === 5) color = '#10b981'; // green
-        else if (idx === 6) color = '#10b981'; // green
-        
-        btn.style.cssText = `--btn-color: ${color};`;
-        btn.innerHTML = p.name || ('افتراضي ' + (idx + 1));
-        btn.onclick = () => {
+        btn.innerHTML = p.name + (idx === currentPresetIndex ? ' 🟢' : '');
+        btn.title = 'تطبيق ' + p.name;
+        btn.onclick = function(e) {
+            if (e) e.preventDefault();
             loadPreset(idx);
-            setTimeout(renderPresetButtons, 50); // re-render to update active styling
+            if (typeof showToast === 'function') showToast('✨ تم تطبيق [' + p.name + ']', 'info');
         };
         container.appendChild(btn);
     });
-}
-
-function startLongPressCount(idx, btn) {
-    cancelLongPressCount();
-    isLongPressTriggered = false;
-    currentPressingBtn = btn;
-
-    const presets = getSavedPresets();
-    const p = presets[idx];
-    if (!p) return;
-
-    const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
-    const isLockedDefault = isDefaultGroup && p.isLocked === true;
-
-    const hud = document.getElementById('long-press-hud');
-    const hudTitle = document.getElementById('hud-title');
-    const hudDesc = document.getElementById('hud-desc');
-    const hudProgress = document.getElementById('hud-progress-bar');
-    const hudTimer = document.getElementById('hud-timer');
-    const hudIcon = document.getElementById('hud-icon');
-
-    if (hud) {
-        hud.style.display = 'block';
-        if (isDefaultGroup) {
-            hudIcon.innerText = '🔒';
-            hudTitle.innerText = `حفظ وتثبيت ضبط المصنع (${p.name})`;
-            hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) لحفظ وتثبيت التعديلات الجديدة كـ "ضبط مصنع نهائي".';
-            if (hudProgress) {
-                hudProgress.style.width = '0%';
-                hudProgress.style.background = 'linear-gradient(90deg, #eab308, #10b981)';
-            }
-            if (hudTimer) hudTimer.innerText = '8.0 ثانية متبقية';
-        } else {
-            hudIcon.innerText = '✨';
-            hudTitle.innerText = `حفظ وتحديث (${p.name})`;
-            hudDesc.innerText = 'استمر بالضغط المتواصل (8 ثوانٍ) حتى يمتلئ الشريط، وسيطلب منك النظام تأكيد الحفظ والتحديث.';
-            if (hudProgress) {
-                hudProgress.style.width = '0%';
-                hudProgress.style.background = 'linear-gradient(90deg, #3b82f6, #10b981)';
-            }
-            if (hudTimer) hudTimer.innerText = '8.0 ثانية متبقية';
-        }
-    }
-
-    const duration = 8000;
-    const startTime = Date.now();
-
-    longPressInterval = setInterval(() => {
-        const elapsed = Date.now() - startTime;
-        const remainingMs = Math.max(0, duration - elapsed);
-        const remainingSec = (remainingMs / 1000).toFixed(1);
-        const percent = Math.min(100, (elapsed / duration) * 100);
-
-        if (hudProgress) hudProgress.style.width = percent + '%';
-        if (hudTimer) hudTimer.innerText = remainingSec + ' ثانية متبقية';
-
-        if (btn) {
-            btn.style.boxShadow = `0 0 15px rgba(16,185,129,0.8)`;
-            btn.style.borderColor = '#10b981';
-            btn.style.background = `linear-gradient(90deg, rgba(16,185,129,0.45) ${percent}%, rgba(255,255,255,0.08) ${percent}%)`;
-        }
-
-        if (elapsed >= duration) {
-            cancelLongPressCount();
-            isLongPressTriggered = true;
-            
-            setTimeout(() => {
-                promptConfirmationAndSave(idx);
-            }, 50);
-        }
-    }, 50);
-}
-
-function cancelLongPressCount() {
-    if (longPressInterval) {
-        clearInterval(longPressInterval);
-        clearTimeout(longPressInterval);
-        longPressInterval = null;
-    }
-    const hud = document.getElementById('long-press-hud');
-    if (hud) hud.style.display = 'none';
-
-    if (currentPressingBtn) {
-        currentPressingBtn.style.boxShadow = '';
-        currentPressingBtn.style.borderColor = '';
-        currentPressingBtn.style.background = '';
-        currentPressingBtn = null;
-    }
-}
-
-function promptConfirmationAndSave(idx) {
-    const presets = getSavedPresets();
-    const p = presets[idx];
-    if (!p) return;
-
-    const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
-
-    const modal = document.getElementById('save-confirm-modal');
-    const title = document.getElementById('confirm-modal-title');
-    const body = document.getElementById('confirm-modal-body');
-    const icon = document.getElementById('confirm-modal-icon');
-    const okBtn = document.getElementById('confirm-modal-ok-btn');
-    const cancelBtn = document.getElementById('confirm-modal-cancel-btn');
-
-    if (modal && title && body && okBtn && cancelBtn) {
-        modal.style.display = 'flex';
-
-        if (isDefaultGroup) {
-            if (icon) icon.innerText = '🔒';
-            title.innerText = `حفظ وتثبيت ضبط المصنع (${p.name})`;
-            body.innerHTML = `اكتملت الـ 8 ثوانٍ بنجاح! <br><br>هل تريد حفظ وتثبيت التعديلات الجديدة في (<b>${p.name}</b>) كـ <b>"ضبط مصنع نهائي"</b>؟<br><br><span style="color:#eab308; font-size:0.85rem;">(ملاحظة: سيتم تثبيت وتقييد جميع الخطوط والألوان والأعمدة والتنسيقات الجديدة).</span>`;
-        } else {
-            if (icon) icon.innerText = '✨';
-            title.innerText = `حفظ وتحديث التقرير (${p.name})`;
-            body.innerHTML = `اكتملت الـ 8 ثوانٍ بنجاح! <br><br>هل تريد حفظ وتحديث تصميم التقرير الحالي في (<b>${p.name}</b>)؟<br><br><span style="color:#38bdf8; font-size:0.85rem;">(ملاحظة: يمكنك إعادة تعديله وتجديده لاحقاً في أي وقت بالضغط المطول 8 ثوانٍ مجدداً).</span>`;
-        }
-
-        okBtn.onclick = () => {
-            modal.style.display = 'none';
-            executeLongPressSave(idx);
-        };
-
-        cancelBtn.onclick = () => {
-            modal.style.display = 'none';
-        };
-    } else {
-        if (isDefaultGroup) {
-            const confirmSave = confirm(`🔒 اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وتثبيت التعديلات الجديدة في (${p.name}) كـ "ضبط مصنع نهائي"؟`);
-            if (confirmSave) executeLongPressSave(idx);
-        } else {
-            const confirmSave = confirm(`✨ اكتملت الـ 8 ثوانٍ بنجاح!\n\nهل تريد حفظ وتحديث تصميم التقرير الحالي في (${p.name})؟`);
-            if (confirmSave) executeLongPressSave(idx);
-        }
-    }
-}
-
-function executeLongPressSave(idx) {
-    const presets = getSavedPresets();
-    const p = presets[idx];
-    if (!p) return;
-
-    const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
-
-    if (isDefaultGroup) {
-        // Save updated Factory Reset settings without hard-locking future edits
-        p.configs = JSON.parse(JSON.stringify(columnConfigs));
-        p.order = [...columnOrder];
-        p.theme = currentTheme;
-        p.font = currentFont;
-        p.paperSize = currentPaperSize;
-        p.orientation = currentOrientation;
-        p.showLogo = showHeaderLogo;
-        p.showInfo = showHeaderInfo;
-        p.showUser = document.getElementById('hdr-show-user-chk')?.checked;
-        p.userPos = document.getElementById('meta-user-pos-select')?.value;
-        p.showDateTime = document.getElementById('hdr-show-datetime-chk')?.checked;
-        p.showPageNums = document.getElementById('hdr-show-pagenums-chk')?.checked;
-        p.isLocked = true;
-        p.isFactoryDefault = true;
-        p.updatedAt = new Date().toISOString();
-
-        savePresets(presets);
-        renderPresetButtons();
-        renderPresetsManagementList();
-
-        try {
-            if (window.DB_STORE && window.getTenantKey) {
-                const tk = window.getTenantKey(PRESETS_STORAGE_KEY);
-                window.DB_STORE[tk] = JSON.stringify(presets);
-            }
-            if (typeof localforage !== 'undefined') {
-                localforage.setItem(PRESETS_STORAGE_KEY, presets);
-            }
-        } catch(e){}
-
-        alert(`⭐ تم حفظ وتثبيت التعديلات الجديدة في "${p.name}" كـ "ضبط المصنع" بنجاح!\n\n(ملاحظة: جميع التنسيقات الجديدة محفوظة الآن، وتظل مجهزة لإعادة التعديل والتحديث مجدداً في أي وقت تعود فيه إلي هذا الخيار).`);
-    } else {
-        // Model preset (نموذج 1, 2, 3) - Overwritable
-        p.configs = JSON.parse(JSON.stringify(columnConfigs));
-        p.order = [...columnOrder];
-        p.theme = currentTheme;
-        p.font = currentFont;
-        p.paperSize = currentPaperSize;
-        p.orientation = currentOrientation;
-        p.showLogo = showHeaderLogo;
-        p.showInfo = showHeaderInfo;
-        p.showUser = document.getElementById('hdr-show-user-chk')?.checked;
-        p.userPos = document.getElementById('meta-user-pos-select')?.value;
-        p.showDateTime = document.getElementById('hdr-show-datetime-chk')?.checked;
-        p.showPageNums = document.getElementById('hdr-show-pagenums-chk')?.checked;
-        p.isLocked = false;
-        p.updatedAt = new Date().toISOString();
-
-        savePresets(presets);
-        renderPresetButtons();
-        renderPresetsManagementList();
-
-        try {
-            if (window.DB_STORE && window.getTenantKey) {
-                const tk = window.getTenantKey(PRESETS_STORAGE_KEY);
-                window.DB_STORE[tk] = JSON.stringify(presets);
-            }
-            if (typeof localforage !== 'undefined') {
-                localforage.setItem(PRESETS_STORAGE_KEY, presets);
-            }
-        } catch(e){}
-
-        alert(`✨ تم حفظ وتحديث تصميم التقرير في "${p.name}" بنجاح!\n\nتمت أرشفة ونقل التعديلات الحالية إلى هذا النموذج، ويمكنك إعادة تعديله وتحديثه مرة أخرى في أي وقت عن طريق الضغط المطول (8 ثوانٍ).`);
-    }
 }
 
 function renderPresetsManagementList() {
@@ -1307,49 +1094,113 @@ function renderPresetsManagementList() {
     list.innerHTML = '';
     const presets = getSavedPresets();
 
-    // Update the header counter
-    const headerSpan = document.querySelector('#studio-tab-presets .panel-card span');
-    if (headerSpan) {
-        headerSpan.innerHTML = `💎 إدارة التخصيصات الجاهزة: <span style="background:#ca8a04; color:#fff; padding:2px 10px; border-radius:12px; margin-right:6px;">${presets.length} / ${MAX_PRESETS_LIMIT}</span>`;
-    }
-
-    if (presets.length === 0) {
-        list.innerHTML = '<div style="text-align:center; padding:15px; opacity:0.7; font-size:12px;">لا توجد تخصيصات، أضف واحد جديد!</div>';
-        return;
-    }
-
     presets.forEach((p, idx) => {
         const card = document.createElement('div');
         const isCurrent = idx === currentPresetIndex;
-        card.style.cssText = `
-            min-width: 170px;
-            max-width: 170px;
-            background: ${isCurrent ? '#f0fdf4' : '#f8fafc'};
-            border: 1.5px solid ${isCurrent ? '#10b981' : '#cbd5e1'};
-            border-radius: 6px;
-            padding: 8px 10px;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-            cursor: pointer;
-            box-shadow: 0 1px 2px rgba(0,0,0,0.05);
-            transition: all 0.2s;
-        `;
+        card.className = 'sr-preset-card' + (isCurrent ? ' active' : '');
         
+        const hasFactory = idx < FACTORY_PRESETS_LEDGER.length;
+        const visibleCols = (p.configs ? Object.values(p.configs) : []).filter(c => c && c.visible !== false).length;
+        const themeLabel = p.theme ? p.theme.replace('theme-', '') : 'افتراضي';
+        const orientLabel = p.orientation === 'portrait' ? 'طولي' : 'عرضي';
+
         card.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center;">
-                <input type="text" value="${p.name}" ${p.isLocked ? 'disabled' : ''} onchange="renamePreset(${idx}, this.value)" style="width:110px; font-weight:900; font-family:'Tajawal',sans-serif; font-size:12.5px; border:none; background:transparent; outline:none; color:#1e293b;" onclick="event.stopPropagation();">
-                <span style="font-weight:900; font-size:11px; font-family:'Tajawal',sans-serif; background:${isCurrent ? '#10b981' : '#ca8a04'}; color:#fff; padding:2px 6px; border-radius:10px;">${idx + 1}</span>
+            <div class="sr-preset-header">
+                <span style="font-weight:900; font-size:11.5px; background:${isCurrent ? '#0284c7' : '#64748b'}; color:#fff; padding:1px 5px; border-radius:3px;">${idx + 1}</span>
+                <input type="text" class="sr-preset-name-input" value="${p.name}" onchange="renamePreset(${idx}, this.value)" style="font-size:11px; padding:1px 4px;">
+                ${isCurrent ? '<span style="color:#0284c7; font-weight:900; font-size:10.5px;">🟢 النشط</span>' : ''}
             </div>
-            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto;">
-                <button title="تطبيق" style="background:#0284c7; color:#fff; border:none; border-radius:4px; padding:3px 10px; font-size:11px; font-weight:700; cursor:pointer;" onclick="event.stopPropagation(); loadPreset(${idx});">تطبيق</button>
-                <button title="حذف" style="background:#ef4444; color:#fff; border:none; border-radius:4px; padding:3px 10px; font-size:11px; font-weight:700; cursor:pointer;" onclick="event.stopPropagation(); deletePreset(${idx});">حذف</button>
-                <label style="font-size:11.5px; font-weight:700; color:#475569; display:flex; align-items:center; gap:3px; cursor:pointer;" onclick="event.stopPropagation();"><input type="checkbox" style="width:12px;height:12px;margin:0;" ${p.showInRibbon !== false ? 'checked' : ''} onchange="togglePresetRibbonVisibility(${idx}, this.checked)"> شريط</label>
+            
+            <div class="sr-preset-meta" style="gap:2px; margin:2px 0;">
+                <span class="sr-preset-badge" style="font-size:9.5px; padding:1px 4px;">🎨 ${themeLabel}</span>
+                <span class="sr-preset-badge" style="font-size:9.5px; padding:1px 4px;">📄 ${p.paperSize || 'A4'} ${orientLabel}</span>
+            </div>
+            <label style="display:flex; align-items:center; gap:5px; font-size:10.5px; font-weight:800; color:#334155; cursor:pointer; background:#f8fafc; border:1px solid #e2e8f0; border-radius:4px; padding:2px 6px; margin:2px 0;" title="إظهار أو إخفاء هذا الزر من الشريط العلوي">
+                <input type="checkbox" ${p.showInRibbon !== false ? 'checked' : ''} onchange="togglePresetRibbonVisibility(${idx}, this.checked)" style="width:13px; height:13px; accent-color:#0284c7; cursor:pointer;">
+                <span>👁️ إظهار في الشريط</span>
+            </label>
+
+            <div class="sr-preset-actions" style="gap:2px; margin-top:3px; padding-top:3px;">
+                <button type="button" class="sr-preset-btn sr-preset-btn-apply" onclick="loadPreset(${idx}); switchStudioTab('cols');" title="تطبيق هذا القالب" style="font-size:10px; padding:2px 4px;">
+                    ✨ تطبيق
+                </button>
+                <button type="button" class="sr-preset-btn sr-preset-btn-save" onclick="saveCurrentPreset(${idx})" title="حفظ التصميم المفتوح حالياً في هذا القالب" style="font-size:10px; padding:2px 4px;">
+                    💾 حفظ
+                </button>
+                ${hasFactory ? `
+                <button type="button" class="sr-preset-btn sr-preset-btn-reset" onclick="resetPresetToFactory(${idx})" title="استرجاع ضبط المصنع الأصلي لهذا القالب" style="font-size:10px; padding:2px 4px;">
+                    🔄 مصنع
+                </button>` : `
+                <button type="button" class="sr-preset-btn sr-preset-btn-del" onclick="deletePreset(${idx})" title="حذف هذا القالب" style="font-size:10px; padding:2px 4px;">
+                    🗑️ حذف
+                </button>`}
             </div>
         `;
-        card.onclick = () => loadPreset(idx);
         list.appendChild(card);
     });
+}
+
+function renamePreset(idx, newName) {
+    const presets = getSavedPresets();
+    if (!presets[idx]) return;
+    if (newName && newName.trim()) {
+        presets[idx].name = newName.trim();
+        savePresets(presets);
+        renderPresetButtons();
+        renderPresetsManagementList();
+    }
+}
+
+function deletePreset(idx) {
+    const presets = getSavedPresets();
+    if (!presets[idx]) return;
+    if (confirm('⚠️ هل أنت متأكد من حذف التخصيص "' + presets[idx].name + '"؟')) {
+        presets.splice(idx, 1);
+        savePresets(presets);
+        if (currentPresetIndex >= presets.length) {
+            currentPresetIndex = Math.max(0, presets.length - 1);
+        }
+        renderPresetButtons();
+        renderPresetsManagementList();
+        if (presets.length > 0) {
+            loadPreset(currentPresetIndex);
+        }
+    }
+}
+
+function addNewPresetPrompt() {
+    const presets = getSavedPresets();
+    if (presets.length >= MAX_PRESETS_LIMIT) {
+        alert('⚠️ لقد وصلت إلى الحد الأقصى للتخصيصات (' + MAX_PRESETS_LIMIT + ' تخصيصات كحد أقصى).');
+        return;
+    }
+
+    const name = prompt("أدخل اسماً للتخصيص الجديد:", "🎨 تصميم " + (presets.length + 1));
+    if (name && name.trim()) {
+        presets.push({
+            name: name.trim(),
+            configs: JSON.parse(JSON.stringify(columnConfigs)),
+            order: [...columnOrder],
+            theme: currentTheme,
+            font: currentFont,
+            paperSize: window.currentPaperSize || currentPaperSize || 'A4',
+            orientation: window.currentOrientation || currentOrientation || 'landscape',
+            margins: window.currentMargins || currentMargins || 'normal',
+            showLogo: showHeaderLogo,
+            showInfo: showHeaderInfo,
+            showUser: document.getElementById('hdr-show-user-chk')?.checked ?? true,
+            userPos: document.getElementById('meta-user-pos-select')?.value || 'bottom-right',
+            showDateTime: document.getElementById('hdr-show-datetime-chk')?.checked ?? true,
+            showPageNums: document.getElementById('hdr-show-pagenums-chk')?.checked ?? true,
+            showInRibbon: true
+        });
+        savePresets(presets);
+        currentPresetIndex = presets.length - 1;
+        renderPresetButtons();
+        renderPresetsManagementList();
+        loadPreset(currentPresetIndex);
+        if (typeof showToast === 'function') showToast('➕ تمت إضافة التخصيص الجديد بنجاح!', 'success');
+    }
 }
 
 function togglePresetRibbonVisibility(idx, isChecked) {
@@ -1362,313 +1213,14 @@ function togglePresetRibbonVisibility(idx, isChecked) {
     }
 }
 
-function renamePreset(idx, newName) {
-    const presets = getSavedPresets();
-    if (!presets[idx]) return;
-    if (presets[idx].isLocked) {
-        alert(`🛑 الخيار "${presets[idx].name}" محمي ومقفل كـ "ضبط مصنع نهائي"، ولا يمكن تغيير اسمه نهائياً 🔒.`);
-        renderPresetsManagementList();
-        return;
-    }
-    if (newName.trim()) {
-        presets[idx].name = newName.trim();
-        savePresets(presets);
-        renderPresetButtons();
-        renderPresetsManagementList();
-    }
-}
+window.saveCurrentPreset = saveCurrentPreset;
+window.applyPreset = applyPreset;
+window.loadPreset = loadPreset;
+window.resetPresetToFactory = resetPresetToFactory;
+window.resetAllPresetsToFactory = resetAllPresetsToFactory;
+window.addNewPresetPrompt = addNewPresetPrompt;
+window.renderPresetsManagementList = renderPresetsManagementList;
 
-function deletePreset(idx) {
-    const presets = getSavedPresets();
-    if (!presets[idx]) return;
-    if (presets[idx].isLocked) {
-        alert(`🛑 الخيار "${presets[idx].name}" محمي ومقفل كـ "ضبط مصنع نهائي"، ولا يمكن حذفه نهائياً 🔒.`);
-        return;
-    }
-    
-    if (confirm(`⚠️ هل أنت تأكد من رغبتك في حذف التخصيص "${presets[idx].name}"؟`)) {
-        presets.splice(idx, 1);
-        savePresets(presets);
-        
-        if (currentPresetIndex >= presets.length) {
-            currentPresetIndex = Math.max(0, presets.length - 1);
-        }
-        
-        renderPresetButtons();
-        renderPresetsManagementList();
-        if (presets.length > 0) {
-            loadPreset(currentPresetIndex);
-        }
-        alert('تم حذف التخصيص بنجاح!');
-    }
-}
-
-function addNewPresetPrompt() {
-    const presets = getSavedPresets();
-    if (presets.length >= MAX_PRESETS_LIMIT) {
-        alert(`⚠️ لقد وصلت إلى الحد الأقصى للتخصيصات (7 تخصيصات كحد أقصى).\n\nيمكنك الحذف أو التعديل على التخصيصات الحالية من تبويب "💎 التخصيصات الجاهزة".`);
-        return;
-    }
-
-    const name = prompt("أدخل اسماً للتخصيص الجديد (الحد الأقصى 7 تخصيصات):", "🎨 تصميم " + (presets.length + 1));
-    if (name && name.trim()) {
-        presets.push({
-            name: name.trim(),
-            configs: JSON.parse(JSON.stringify(columnConfigs)),
-            order: [...columnOrder],
-            theme: currentTheme,
-            font: currentFont,
-            paperSize: currentPaperSize,
-            orientation: currentOrientation,
-            showLogo: showHeaderLogo,
-            showInfo: showHeaderInfo,
-            showUser: document.getElementById('hdr-show-user-chk')?.checked,
-            userPos: document.getElementById('meta-user-pos-select')?.value,
-            showDateTime: document.getElementById('hdr-show-datetime-chk')?.checked,
-            showPageNums: document.getElementById('hdr-show-pagenums-chk')?.checked,
-            showInRibbon: true
-        });
-        savePresets(presets);
-        currentPresetIndex = presets.length - 1;
-        renderPresetButtons();
-        renderPresetsManagementList();
-        loadPreset(currentPresetIndex);
-        alert('✨ تمت إضافة التخصيص الجديد وظهوره في الشريط العلوي بنجاح!');
-    }
-}
-
-function loadPreset(idx) {
-    currentPresetIndex = idx;
-    const presets = getSavedPresets();
-    const preset = presets[idx];
-    
-    const saveBtn = document.querySelector('button[onclick="saveCurrentPreset()"]');
-    if (saveBtn) {
-        if (idx < 5 || (preset && preset.isFactoryDefault)) {
-            saveBtn.style.display = 'none';
-        } else {
-            saveBtn.style.display = 'inline-flex';
-            saveBtn.style.opacity = '1';
-            saveBtn.style.pointerEvents = 'auto';
-            saveBtn.title = "";
-        }
-    }
-
-    if (preset) {
-        columnConfigs = preset.configs || getDefaultConfigs();
-        columnOrder = preset.order || [0, 1, 2, 3, 4, 13, 14, 5, 6, 7, 8, 9, 10, 11, 12];
-        
-        // Migration for old configs
-        if (!columnOrder.includes(12)) {
-            if(!columnOrder.includes(11)) columnOrder.push(11);
-            if(!columnOrder.includes(12)) columnOrder.push(12);
-        }
-        if (!columnOrder.includes(13)) {
-            const pos4 = columnOrder.indexOf(4);
-            if (pos4 !== -1) {
-                columnOrder.splice(pos4 + 1, 0, 13, 14);
-            } else {
-                columnOrder.push(13, 14);
-            }
-        } else if (!columnOrder.includes(14)) {
-            const pos13 = columnOrder.indexOf(13);
-            columnOrder.splice(pos13 + 1, 0, 14);
-        }
-        const defaults = getDefaultConfigs();
-        [9, 10, 11, 12, 13, 14].forEach(i => {
-            if (columnConfigs[i]) {
-                if (!columnConfigs[i].label) columnConfigs[i].label = defaults[i].label;
-            } else {
-                columnConfigs[i] = defaults[i];
-            }
-        });
-        currentTheme = preset.theme || '';
-        currentFont = preset.font || 'font-newsons';
-        currentPaperSize = preset.paperSize || 'A4';
-        currentOrientation = preset.orientation || 'landscape';
-        showHeaderLogo = preset.showLogo !== undefined ? preset.showLogo : true;
-        showHeaderInfo = preset.showInfo !== undefined ? preset.showInfo : true;
-    } else {
-        columnConfigs = getDefaultConfigs();
-        columnOrder = [0, 1, 2, 3, 4, 13, 14, 5, 6, 7, 8, 9, 10, 11, 12];
-        currentTheme = '';
-        currentFont = 'font-newsons';
-        currentPaperSize = 'A4';
-        currentOrientation = 'landscape';
-        showHeaderLogo = true;
-        showHeaderInfo = true;
-    }
-    
-    setTableTheme(currentTheme, false);
-    setNumberFont(currentFont, false);
-    setPaperSize(currentPaperSize, true);
-    setPageOrientation(currentOrientation, true);
-    
-    document.getElementById('hdr-show-logo-chk').checked = showHeaderLogo;
-    document.getElementById('hdr-show-info-chk').checked = showHeaderInfo;
-    toggleHeaderElement('logo', showHeaderLogo);
-    toggleHeaderElement('info', showHeaderInfo);
-    
-    // Load advanced print options if available
-    const showUserChk = document.getElementById('hdr-show-user-chk');
-    if (showUserChk) {
-        showUserChk.checked = preset ? (preset.showUser !== undefined ? preset.showUser : true) : true;
-    }
-    const userPosSel = document.getElementById('meta-user-pos-select');
-    if (userPosSel) {
-        userPosSel.value = preset ? (preset.userPos || 'bottom-right') : 'bottom-right';
-    }
-    const showDateTimeChk = document.getElementById('hdr-show-datetime-chk');
-    if (showDateTimeChk) {
-        showDateTimeChk.checked = preset ? (preset.showDateTime !== undefined ? preset.showDateTime : true) : true;
-    }
-    const showPageNumsChk = document.getElementById('hdr-show-pagenums-chk');
-    if (showPageNumsChk) {
-        showPageNumsChk.checked = preset ? (preset.showPageNums !== undefined ? preset.showPageNums : true) : true;
-    }
-    if (typeof window.updatePrintMeta === 'function') window.updatePrintMeta();
-
-    renderPresetButtons();
-    renderTable();
-    updateHiddenColumnsDropdown();
-    
-    if (selectedColIndex !== null) {
-        updateSettingsPanelForCol(selectedColIndex);
-    }
-}
-
-function saveCurrentPreset() {
-    const presets = getSavedPresets();
-    const p = presets[currentPresetIndex];
-    if (!p) return;
-
-    if (p.isFactoryDefault) {
-        alert('🛑 هذا التصميم محمي كـ "ضبط مصنع" ولا يمكن حفظ التعديلات عليه!');
-        return;
-    }
-
-    // Direct save - no long press needed, just save immediately
-    p.configs = JSON.parse(JSON.stringify(columnConfigs));
-    p.order = [...columnOrder];
-    p.theme = currentTheme;
-    p.font = currentFont;
-    p.paperSize = currentPaperSize;
-    p.orientation = currentOrientation;
-    p.showLogo = showHeaderLogo;
-    p.showInfo = showHeaderInfo;
-    p.updatedAt = new Date().toISOString();
-
-    // Automatically lock default presets upon first save
-    const isDefaultGroup = currentPresetIndex < 4 || (p.name && p.name.includes('افتراضي'));
-    if (isDefaultGroup) {
-        p.isFactoryDefault = true;
-        p.isLocked = true;
-        try {
-            fetch('api/save_factory_presets.php', {
-                method: 'POST',
-                headers: {'Content-Type': 'application/json'},
-                body: JSON.stringify({ preset: p, index: currentPresetIndex })
-            });
-        } catch(err) {}
-    }
-
-    savePresets(presets);
-    renderPresetButtons();
-    if (typeof renderPresetsManagementList === 'function') renderPresetsManagementList();
-    
-    // Refresh loadPreset to immediately hide the save button
-    loadPreset(currentPresetIndex);
-
-    try {
-        if (window.DB_STORE && window.getTenantKey) {
-            const tk = window.getTenantKey(PRESETS_STORAGE_KEY);
-            window.DB_STORE[tk] = JSON.stringify(presets);
-        }
-        if (typeof localforage !== 'undefined') {
-            localforage.setItem(PRESETS_STORAGE_KEY, presets);
-        }
-    } catch(e){}
-
-    if (isDefaultGroup) {
-        showToast(`🔒 تم حفظ "${p.name}" كـ ضبط مصنع نهائي بنجاح ولن يمكن تعديله بعد الآن!`, 'success');
-    } else {
-        showToast(`💾 تم حفظ تصميم الجدول في "${p.name}" بنجاح!`, 'success');
-    }
-}
-
-function updateReportTableTheme(theme) {
-    const tbl = document.getElementById('preview-table');
-    if (!tbl) return;
-    
-    // Remove old themes
-    tbl.classList.remove(
-        'theme-classic-navy', 'theme-emerald-pro', 'theme-modern-slate',
-        'theme-luxury-gold', 'theme-luxury-black'
-    );
-    
-    // Add new theme
-    if (theme !== 'default' && theme) {
-        tbl.classList.add(theme);
-    }
-}
-
-/* ── Custom Context Menu for Preview Ledger ── */
-let previewCtxType = '';
-let previewCtxRef = '';
-
-document.addEventListener('contextmenu', function(e) {
-    const table = e.target.closest('#preview-table');
-    if (!table) return;
-
-    const td = e.target.closest('td');
-    if (!td) return;
-    
-    const tr = td.closest('tr');
-    if (!tr) return;
-
-    previewCtxType = tr.dataset.type || '';
-    previewCtxRef = tr.dataset.ref || '';
-
-    if (!previewCtxRef || previewCtxRef === '-' || previewCtxRef === 'PRE-PERIOD') {
-        return;
-    }
-
-    e.preventDefault();
-    const menu = document.getElementById('preview-context-menu');
-    if (!menu) return;
-
-    menu.style.display = 'block';
-    
-    let x = e.clientX;
-    let y = e.clientY;
-
-    if (x + menu.offsetWidth > window.innerWidth) x -= menu.offsetWidth;
-    if (y + menu.offsetHeight > window.innerHeight) y -= menu.offsetHeight;
-
-    menu.style.left = x + 'px';
-    menu.style.top = y + 'px';
-});
-
-document.addEventListener('click', function(e) {
-    const menu = document.getElementById('preview-context-menu');
-    if (menu && !menu.contains(e.target)) {
-        menu.style.display = 'none';
-    }
-});
-
-document.addEventListener('DOMContentLoaded', () => {
-    const drillBtn = document.getElementById('preview-ctx-drilldown');
-    if (drillBtn) {
-        drillBtn.onclick = function() {
-            document.getElementById('preview-context-menu').style.display = 'none';
-            if (typeof window.navigateToOriginalVoucher === 'function') {
-                window.navigateToOriginalVoucher(previewCtxType, previewCtxRef);
-            }
-        };
-        drillBtn.onmouseover = function() { this.style.background = 'linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(56, 189, 248, 0.3))'; this.style.color = '#38bdf8'; this.style.paddingRight = '22px'; };
-        drillBtn.onmouseout = function() { this.style.background = 'transparent'; this.style.color = '#fff'; this.style.paddingRight = '18px'; };
-    }
-});
 
 function toggleSettingsPanel() {
     const p = document.getElementById('settings-panel');
@@ -1726,32 +1278,35 @@ function setNumberFont(fontClass) {
 
 function setPaperSize(size, updateSelect = true) {
     currentPaperSize = size;
-    if (updateSelect) {
-        const sel = document.getElementById('paper-size-select');
-        if (sel) sel.value = size;
+    if (typeof applyPaperSimulation === 'function') {
+        applyPaperSimulation(size, null, null);
+    } else {
+        updatePageCss();
     }
-    updatePageCss();
 }
 
 function setPageOrientation(orient, updateSelect = true) {
     currentOrientation = orient;
-    if (updateSelect) {
-        const sel = document.getElementById('paper-orient-select');
-        if (sel) sel.value = orient;
+    if (typeof applyPaperSimulation === 'function') {
+        applyPaperSimulation(null, orient, null);
+    } else {
+        const wrapper = document.getElementById('print-area-wrapper');
+        if (wrapper) {
+            wrapper.classList.remove('paper-portrait', 'paper-landscape');
+            wrapper.classList.add('paper-' + orient);
+        }
+        updatePageCss();
     }
-    
-    const wrapper = document.getElementById('print-area-wrapper');
-    if (wrapper) {
-        wrapper.classList.remove('paper-portrait', 'paper-landscape');
-        wrapper.classList.add('paper-' + orient);
-    }
-    updatePageCss();
 }
 
 function updatePageCss() {
-    const styleEl = document.getElementById('dynamic-paper-style');
-    if (styleEl) {
-        styleEl.innerHTML = `@page { size: ${currentPaperSize} ${currentOrientation}; margin: ${typeof currentMargins !== 'undefined' ? currentMargins : '15mm'}; }`;
+    if (typeof applyPaperSimulation === 'function') {
+        applyPaperSimulation(currentPaperSize, currentOrientation, currentMargins);
+    } else {
+        const styleEl = document.getElementById('dynamic-paper-style');
+        if (styleEl) {
+            styleEl.innerHTML = `@page { size: ${currentPaperSize} ${currentOrientation}; margin: ${typeof currentMargins !== 'undefined' ? currentMargins : '15mm'}; }`;
+        }
     }
 }
 
@@ -1850,6 +1405,7 @@ function renderTable() {
         if (!conf.visible) return;
         
         let th = document.createElement('th');
+        th.setAttribute('data-col-idx', idx);
         th.innerText = conf.label || c.defaultLabel;
         if (selectedColIndex === idx) {
             th.classList.add('selected-col');
@@ -1862,6 +1418,26 @@ function renderTable() {
         if (conf.fontFamily && conf.fontFamily !== 'inherit') th.style.fontFamily = conf.fontFamily;
         if (conf.color) th.style.color = conf.color;
         if (conf.bgColor) th.style.backgroundColor = conf.bgColor;
+        if (conf.width) {
+            const wNum = parseInt(conf.width, 10);
+            th.style.width = conf.width;
+            th.style.minWidth = conf.width;
+            th.style.maxWidth = conf.width;
+            if (!isNaN(wNum)) {
+                if (wNum <= 10) {
+                    th.style.padding = '0px';
+                    th.style.fontSize = '0px';
+                    th.style.color = 'transparent';
+                } else if (wNum < 45) {
+                    th.style.paddingLeft = '2px';
+                    th.style.paddingRight = '2px';
+                }
+            }
+        } else {
+            th.style.width = '';
+            th.style.minWidth = '';
+            th.style.maxWidth = '';
+        }
         
         if (conf.italic) th.style.fontStyle = 'italic';
         if (conf.underline && conf.strikethrough) th.style.textDecoration = 'underline line-through';
@@ -1897,6 +1473,7 @@ function renderTable() {
             if (!conf.visible) return;
             
             let td = document.createElement('td');
+            td.setAttribute('data-col-idx', idx);
             if (c.isNum) td.classList.add('num-cell');
             
             const rawVal = getRawFieldValue(row, c.field);
@@ -1922,7 +1499,27 @@ function renderTable() {
             if (conf.fontWeight) td.style.fontWeight = conf.fontWeight;
             if (conf.fontFamily && conf.fontFamily !== 'inherit') td.style.fontFamily = conf.fontFamily;
             if (conf.color) td.style.color = conf.color;
-            if (conf.bgColor) td.style.backgroundColor = conf.bgColor;
+            if (conf.bgColor) { td.style.setProperty('background-color', conf.bgColor, 'important'); }
+        if (conf.width) {
+            const wNum = parseInt(conf.width, 10);
+            td.style.width = conf.width;
+            td.style.minWidth = conf.width;
+            td.style.maxWidth = conf.width;
+            if (!isNaN(wNum)) {
+                if (wNum <= 10) {
+                    td.style.padding = '0px';
+                    td.style.fontSize = '0px';
+                    td.style.color = 'transparent';
+                } else if (wNum < 45) {
+                    td.style.paddingLeft = '2px';
+                    td.style.paddingRight = '2px';
+                }
+            }
+        } else {
+            td.style.width = '';
+            td.style.minWidth = '';
+            td.style.maxWidth = '';
+        }
             
             if (conf.italic) td.style.fontStyle = 'italic';
             if (conf.underline && conf.strikethrough) td.style.textDecoration = 'underline line-through';
@@ -1953,6 +1550,7 @@ function renderTable() {
             if (!conf.visible) return;
             
             let td = document.createElement('td');
+            td.setAttribute('data-col-idx', idx);
             td.style.fontSize = (conf.fs || 0.9) + 'rem';
             if (conf.width) { td.style.width = conf.width; td.style.minWidth = conf.width; }
             td.style.textAlign = conf.align || 'center';
@@ -2074,6 +1672,22 @@ function updateSettingsPanelForCol(idx) {
     const sel = document.getElementById('selected-col-select');
     if (sel) sel.value = idx;
     
+    
+    const widthRng = document.getElementById('col-width-range');
+    const widthLbl = document.getElementById('sr-col-w-lbl');
+    let currentW = 120;
+    if (conf.width) {
+        currentW = parseInt(conf.width, 10) || 120;
+    } else {
+        currentW = (c && c.isNum) ? 110 : 180;
+    }
+    if (widthRng) {
+        widthRng.disabled = false;
+        widthRng.value = currentW;
+    }
+    if (widthLbl) {
+        widthLbl.textContent = currentW + 'px';
+    }
     const labelInp = document.getElementById('col-label-input');
     if (labelInp) { labelInp.disabled = false; labelInp.value = conf.label || c.defaultLabel; }
 
@@ -2179,7 +1793,63 @@ function selectColumn(idx) {
     renderTable();
 }
 
+
+function applyLiveColumnWidth(colIdx, widthVal) {
+    if (colIdx === null || colIdx === undefined) return;
+    const wNum = parseInt(widthVal, 10);
+    const widthStr = typeof widthVal === 'number' ? widthVal + 'px' : widthVal;
+    
+    if (!columnConfigs[colIdx]) {
+        columnConfigs[colIdx] = getDefaultConfigs()[colIdx] || { visible: true, fs: 0.9 };
+    }
+    columnConfigs[colIdx].width = widthStr;
+
+    // Direct DOM fast-path mutation without rebuilding table
+    const cells = document.querySelectorAll('[data-col-idx="' + colIdx + '"]');
+    cells.forEach(cell => {
+        cell.style.width = widthStr;
+        cell.style.minWidth = widthStr;
+        cell.style.maxWidth = widthStr;
+        cell.style.overflow = 'hidden';
+        cell.style.boxSizing = 'border-box';
+        
+        if (!isNaN(wNum) && wNum <= 15) {
+            cell.style.paddingLeft = '0px';
+            cell.style.paddingRight = '0px';
+            cell.style.paddingTop = '2px';
+            cell.style.paddingBottom = '2px';
+            cell.style.fontSize = '0px';
+            cell.style.color = 'transparent';
+        } else if (!isNaN(wNum) && wNum < 40) {
+            cell.style.paddingLeft = '2px';
+            cell.style.paddingRight = '2px';
+            cell.style.fontSize = '';
+            cell.style.color = '';
+        } else {
+            cell.style.paddingLeft = '';
+            cell.style.paddingRight = '';
+            cell.style.fontSize = '';
+            cell.style.color = '';
+        }
+    });
+
+    const lbl = document.getElementById('sr-col-w-lbl');
+    if (lbl) lbl.textContent = widthStr;
+    const rng = document.getElementById('col-width-range');
+    if (rng && parseInt(rng.value, 10) !== wNum) rng.value = wNum;
+}
+window.applyLiveColumnWidth = applyLiveColumnWidth;
+
 function updateSelectedCol(type, val) {
+    if (type === 'width') {
+        if (selectedColIndex !== null) {
+            applyLiveColumnWidth(selectedColIndex, val);
+        } else {
+            baseColumns.forEach(c => applyLiveColumnWidth(c.idx, val));
+        }
+        return;
+    }
+
     if (selectedColIndex === null) {
         // Apply globally across all columns
         baseColumns.forEach(c => {
@@ -3884,11 +3554,19 @@ function setNegativeNumberFormat(formatVal) {
     updateSelectedCol('negFormat', formatVal);
 }
 
-let currentMargins = '15mm';
+let currentMargins = 'normal';
 function setPageMargins(mode) {
-    if (mode === 'normal') currentMargins = '15mm';
-    else if (mode === 'compact') currentMargins = '5mm';
-    else if (mode === 'none') currentMargins = '0mm';
-    else currentMargins = mode;
-    updatePageCss();
+    currentMargins = mode;
+    if (typeof applyPaperSimulation === 'function') {
+        applyPaperSimulation(null, null, mode);
+    } else {
+        updatePageCss();
+    }
 }
+window.saveCurrentPreset = saveCurrentPreset;
+window.applyPreset = applyPreset;
+window.loadPreset = loadPreset;
+window.resetPresetToFactory = resetPresetToFactory;
+window.resetAllPresetsToFactory = resetAllPresetsToFactory;
+window.addNewPresetPrompt = addNewPresetPrompt;
+window.renderPresetsManagementList = renderPresetsManagementList;

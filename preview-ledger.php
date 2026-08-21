@@ -122,34 +122,68 @@
             border-bottom: 2px solid #0284c7;
             flex-wrap: nowrap; gap: 8px; overflow-x: auto;
         }
-        .ribbon-btn, .preset-btn { position: relative; overflow: hidden; background: linear-gradient(135deg, color-mix(in srgb, var(--btn-color, #fff) 8%, rgba(255,255,255,0.05)), rgba(0,0,0,0.2)); background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.07) 1px, transparent 1px), linear-gradient(135deg, color-mix(in srgb, var(--btn-color, #fff) 10%, rgba(255,255,255,0.05)), rgba(0,0,0,0.2)); background-size: 3px 3px, auto; border: 1px solid color-mix(in srgb, var(--btn-color, #fff) 40%, rgba(255,255,255,0.2)); backdrop-filter: blur(12px) saturate(150%); color: #f8fafc; padding: 4px 12px; border-radius: 10px; font-weight: 800; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1); font-family: inherit; font-size: 0.8rem; height: 32px; box-shadow: 0 2px 8px rgba(0,0,0,0.15); z-index: 1; white-space: nowrap; flex-shrink: 0; }
-        .ribbon-btn::before, .preset-btn::before { content: ''; position: absolute; inset: 0; border-radius: inherit; padding: 2px; background: linear-gradient(135deg, var(--btn-color, rgba(255,255,255,0.8)), transparent 40%, var(--btn-color, rgba(255,255,255,0.5))); -webkit-mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0); -webkit-mask-composite: xor; mask-composite: exclude; opacity: 0.9; transition: opacity 0.4s; }
-        .ribbon-btn::after, .preset-btn::after { content: ''; position: absolute; top: 0; left: -100%; width: 75%; height: 100%; background: linear-gradient(90deg, transparent, rgba(255,255,255,0.65), transparent); transform: skewX(-25deg); animation: luxurySweep 4s cubic-bezier(0.4, 0, 0.2, 1) infinite; z-index: -1; }
-        
-        .ribbon-btn:hover, .preset-btn:hover:not(.active) { transform: translateY(-2px); background-image: radial-gradient(circle at 50% 50%, rgba(255,255,255,0.15) 1px, transparent 1px), linear-gradient(135deg, color-mix(in srgb, var(--btn-color, #fff) 30%, transparent), color-mix(in srgb, var(--btn-color, #fff) 10%, rgba(0,0,0,0.3))); border-color: var(--btn-color, #fff); box-shadow: 0 6px 16px rgba(0,0,0,0.3); color: #fff !important; text-shadow: 0 0 8px rgba(255,255,255,0.6); }
-        .ribbon-btn:hover::before, .preset-btn:hover:not(.active)::before { opacity: 1; background: linear-gradient(135deg, #fff, var(--btn-color, #fff)); }
-        .ribbon-btn:active, .preset-btn:active { transform: translateY(0); }
-        
+        /* Ribbon & Preset Buttons */
+        .ribbon-btn {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, color-mix(in srgb, var(--btn-color, #fff) 8%, rgba(255,255,255,0.05)), rgba(0,0,0,0.2));
+            border: 1px solid color-mix(in srgb, var(--btn-color, #fff) 40%, rgba(255,255,255,0.2));
+            color: #f8fafc;
+            padding: 4px 12px;
+            border-radius: 10px;
+            font-weight: 800;
+            cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-family: inherit;
+            font-size: 0.8rem;
+            height: 32px;
+            white-space: nowrap;
+        }
+        .ribbon-btn:hover {
+            transform: translateY(-2px);
+            border-color: var(--btn-color, #fff);
+            box-shadow: 0 6px 16px rgba(0,0,0,0.3);
+            color: #fff !important;
+        }
+
+        .preset-btn {
+            position: relative;
+            overflow: hidden;
+            background: linear-gradient(135deg, rgba(255,255,255,0.12), rgba(15,23,42,0.85)) !important;
+            border: 1.5px solid rgba(255,255,255,0.25) !important;
+            color: #f1f5f9 !important;
+            padding: 5px 14px !important;
+            border-radius: 20px !important;
+            font-family: inherit;
+            font-size: 0.85rem !important;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            box-shadow: 0 4px 14px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.25);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            white-space: nowrap;
+        }
+        .preset-btn:hover:not(.active) {
+            background: linear-gradient(135deg, rgba(56,189,248,0.35), rgba(3,105,161,0.8)) !important;
+            border-color: #38bdf8 !important;
+            color: #ffffff !important;
+            transform: translateY(-2px);
+            box-shadow: 0 8px 20px rgba(56,189,248,0.4);
+        }
         .preset-btn.active {
-            background: linear-gradient(135deg, rgba(16,185,129,0.2), rgba(5,150,105,0.3)); border-color: rgba(16,185,129,0.4); color: #ffffff !important; --btn-color: #10b981;
-            box-shadow: 0 4px 14px rgba(16,185,129,0.3), 0 0 15px rgba(16,185,129,0.5); animation: none;
+            background: linear-gradient(135deg, rgba(16,185,129,0.5), rgba(4,120,87,0.9)) !important;
+            border-color: #34d399 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 16px rgba(16,185,129,0.55), inset 0 1px 1px rgba(255,255,255,0.5) !important;
+            transform: scale(1.04);
         }
-        .preset-btn.active::before { opacity: 1; background: linear-gradient(135deg, #10b981, transparent); }
-        
-        @keyframes luxurySweep { 0% { left: -100%; } 20% { left: 200%; } 100% { left: 200%; } }
-        
-        :root.light-theme .ribbon-btn, :root.light-theme .preset-btn { background: linear-gradient(135deg, #ffffff, #f8fafc); color: #0f172a; border-color: rgba(0,0,0,0.08); box-shadow: 0 4px 10px rgba(0,0,0,0.04); }
-        :root.light-theme .ribbon-btn::before, :root.light-theme .preset-btn::before { background: linear-gradient(135deg, var(--btn-color, rgba(0,0,0,0.2)), transparent); opacity: 0.3; }
-        :root.light-theme .ribbon-btn:hover, :root.light-theme .preset-btn:hover:not(.active) { background: #ffffff; border-color: rgba(0,0,0,0.15); box-shadow: 0 8px 20px rgba(0,0,0,0.08), 0 0 15px rgba(var(--btn-color-rgb, 0,0,0), 0.1); color: #000 !important; text-shadow: none; }
-        :root.light-theme .ribbon-btn::after, :root.light-theme .preset-btn::after { background: linear-gradient(90deg, transparent, rgba(255,255,255,0.8), transparent); }
-        :root.light-theme .preset-btn.active { background: linear-gradient(135deg, rgba(16,185,129,0.1), rgba(5,150,105,0.05)); color: #047857 !important; }
-        .preset-btn.is-pressing {
-            transform: scale(0.96) translateY(1px) !important;
-            box-shadow: 0 0 16px rgba(16, 185, 129, 0.9) !important;
-            border-color: #10b981 !important;
-            user-select: none !important;
-            -webkit-user-select: none !important;
-        }
+
 
         /* Old panel styles removed - now controlled by css/studio-ribbon-v4.css */
 
@@ -219,6 +253,29 @@
         body.dark-mode table.excel-table th.selected-col { background: #0369a1 !important; color: #ffffff !important; border-bottom-color: #38bdf8 !important; }
         
         table.excel-table td.num-cell { font-family: var(--num-font-family); font-weight: 600; direction: ltr; }
+
+        /* Default Column Background & Font Colors */
+        table.excel-table td[data-col-idx="5"], table.excel-table td[data-col-idx="7"] {
+            background-color: #e0f2fe !important;
+            color: #0044cc !important;
+            font-weight: 700 !important;
+        }
+        table.excel-table td[data-col-idx="6"], table.excel-table td[data-col-idx="8"] {
+            background-color: #fee2e2 !important;
+            color: #dc2626 !important;
+            font-weight: 700 !important;
+        }
+        table.excel-table td[data-col-idx="9"] {
+            background-color: #dcfce7 !important;
+            color: #059669 !important;
+            font-weight: 700 !important;
+        }
+        table.excel-table td[data-col-idx="10"], table.excel-table td[data-col-idx="11"] {
+            background-color: #fef3c7 !important;
+            color: #78350f !important;
+            font-weight: 800 !important;
+        }
+
         table.excel-table tfoot td { font-weight: 900; background: var(--table-header-bg); }
         
         @media print {

@@ -320,7 +320,7 @@
                     <span>⚙️</span> <span>إعدادات الأعمدة</span>
                 </button>
                 <button class="ribbon-btn" onclick="openWarehouseLedgerPreview()" style="--btn-color: #0d9488;">
-                    <span>👁️</span> <span>معاينة وتصميم التقرير</span>
+                    <span>👁️</span> <span>معاينة التقرير</span>
                 </button>
                 <button class="ribbon-btn" onclick="printWarehouseLedgerSheet()" style="--btn-color: #38bdf8;">
                     <span>🖨️</span> <span>طباعة</span>

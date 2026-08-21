@@ -257,7 +257,7 @@ $header_theme_class = "header-theme-inventory";
                     <span>⚙️</span> <span>إعدادات الأعمدة</span>
                 </button>
                 <button class="ribbon-btn" onclick="openInventoryReportPreview()" style="--btn-color: #0d9488;">
-                    <span>👁️</span> <span>معاينة وتصميم التقرير</span>
+                    <span>👁️</span> <span>معاينة التقرير</span>
                 </button>
                 <button class="ribbon-btn" onclick="openCustomReportStudio()" style="--btn-color: #6366f1;">
                     <span>🎛️</span> <span>الضبط المتقدم</span>

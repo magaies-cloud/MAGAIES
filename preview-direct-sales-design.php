@@ -200,20 +200,7 @@
             to { opacity: 1; transform: translateY(0); max-height: 500px; }
         }
 
-        .settings-panel {
-            background: #fef9c3; /* Yellow-100 */
-            color: #713f12; /* Yellow-900 */
-            padding: 14px 20px; border-bottom: 4px solid #eab308;
-            display: none; /* Hidden by default */
-            font-size: 0.95rem; font-weight: 800;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.18);
-            flex-direction: column; gap: 10px;
-            animation: studioSlideDown 0.35s cubic-bezier(0.16, 1, 0.3, 1) forwards;
-            overflow: hidden;
-        }
-        body.dark-mode .settings-panel {
-            background: #1c1507; color: #fef08a; border-bottom-color: #ca8a04;
-        }
+
         
         .panel-card {
             background: rgba(255,255,255,0.7);
