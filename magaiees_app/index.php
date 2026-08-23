@@ -1,7 +1,11 @@
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
-  <base href="/">
+  <script>
+    var path = window.location.pathname;
+    var base = path.substring(0, path.lastIndexOf('/') + 1);
+    document.write('<base href="' + base + '">');
+  </script>
   <meta charset="UTF-8">
   <meta content="IE=Edge" http-equiv="X-UA-Compatible">
   <meta name="description" content="منصة مقاييس - سوق مواد البناء والمعدات">
