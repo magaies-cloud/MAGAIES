@@ -21,6 +21,8 @@ _UserModel _$UserModelFromJson(Map<String, dynamic> json) => _UserModel(
   token: json['token'] as String?,
   refreshToken: json['refreshToken'] as String?,
   permissions: json['permissions'] as Map<String, dynamic>? ?? const {},
+  merchantPoints: (json['merchantPoints'] as num?)?.toInt() ?? 0,
+  merchantTier: json['merchantTier'] as String? ?? 'beginner',
 );
 
 Map<String, dynamic> _$UserModelToJson(_UserModel instance) =>
@@ -39,6 +41,8 @@ Map<String, dynamic> _$UserModelToJson(_UserModel instance) =>
       'token': instance.token,
       'refreshToken': instance.refreshToken,
       'permissions': instance.permissions,
+      'merchantPoints': instance.merchantPoints,
+      'merchantTier': instance.merchantTier,
     };
 
 const _$UserRoleEnumMap = {

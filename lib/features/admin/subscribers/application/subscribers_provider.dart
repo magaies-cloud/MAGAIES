@@ -41,6 +41,8 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
           joinedAt: e['created_at'] != null ? DateTime.parse(e['created_at']) : DateTime.now(),
           isVerified: true,
           permissions: perms,
+          merchantPoints: e['merchant_points'] ?? 0,
+          merchantTier: e['merchant_tier'] ?? 'beginner',
         );
       }).toList();
       
@@ -91,6 +93,25 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
       }
     } catch (e) {
       print('Error updating permissions: ' + e.toString());
+    }
+  }
+
+  Future<void> adjustMerchantPoints(String userId, int pointsToAdd) async {
+    try {
+      final sub = state.value?.firstWhere((s) => s.id == userId);
+      if (sub == null) return;
+      final newPoints = (sub.merchantPoints + pointsToAdd).clamp(0, 999999);
+      await _supabase.from('users').update({'merchant_points': newPoints}).eq('id', userId);
+      // Tier will be auto-calculated by DB trigger, we just optimistically update points
+      if (state.value != null) {
+        final updatedList = state.value!.map((s) {
+          if (s.id == userId) return s.copyWith(merchantPoints: newPoints);
+          return s;
+        }).toList();
+        state = AsyncValue.data(updatedList);
+      }
+    } catch (e) {
+      print('Error adjusting points: ' + e.toString());
     }
   }
 

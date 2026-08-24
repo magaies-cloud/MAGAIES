@@ -99,19 +99,61 @@ class SubscriberDetailSheet extends ConsumerWidget {
             ),
             
             if (subscriber.role == UserRole.merchant) ...[
-                const SizedBox(height: 16),
-                const Divider(),
-                const SizedBox(height: 16),
-                Text(
-                  isRtl ? 'معلومات المتجر' : 'Store Information',
-                  style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
-                ),
-                const SizedBox(height: 16),
-                if (subscriber.storeName != null || subscriber.storeNameAr != null)
-                  _buildInfoRow(context, Icons.store, isRtl ? 'اسم المتجر' : 'Store Name', (isRtl ? subscriber.storeNameAr : subscriber.storeName) ?? ''),
-                _buildInfoRow(context, Icons.shopping_bag, isRtl ? 'إجمالي الطلبات' : 'Total Orders', subscriber.totalOrders.toString()),
-                _buildInfoRow(context, Icons.attach_money, isRtl ? 'إجمالي المبيعات' : 'Total Revenue', currencyFormatter.format(subscriber.totalSpent)),
-              ],
+                  const SizedBox(height: 16),
+                  const Divider(),
+                  const SizedBox(height: 16),
+                  Text(
+                    isRtl ? 'معلومات المتجر' : 'Store Information',
+                    style: Theme.of(context).textTheme.titleMedium?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                  const SizedBox(height: 16),
+                  if (subscriber.storeName != null || subscriber.storeNameAr != null)
+                    _buildInfoRow(context, Icons.store, isRtl ? 'اسم المتجر' : 'Store Name', (isRtl ? subscriber.storeNameAr : subscriber.storeName) ?? ''),
+                  _buildInfoRow(context, Icons.shopping_bag, isRtl ? 'إجمالي الطلبات' : 'Total Orders', subscriber.totalOrders.toString()),
+                  _buildInfoRow(context, Icons.attach_money, isRtl ? 'إجمالي المبيعات' : 'Total Revenue', currencyFormatter.format(subscriber.totalSpent)),
+                  
+                  // Gamification Admin View
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(12),
+                    decoration: BoxDecoration(
+                      color: Colors.amber.withOpacity(0.1),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.amber.shade200),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.stars, color: Colors.amber),
+                            const SizedBox(width: 8),
+                            Text(isRtl ? 'تدرج التاجر (Gamification)' : 'Merchant Gamification', style: const TextStyle(fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        _buildInfoRow(context, Icons.military_tech, isRtl ? 'المستوى الحالي' : 'Current Tier', subscriber.merchantTier.toUpperCase()),
+                        _buildInfoRow(context, Icons.control_point_duplicate, isRtl ? 'النقاط المكتسبة' : 'Earned Points', '${subscriber.merchantPoints} نقطة'),
+                        const SizedBox(height: 12),
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.spaceEvenly,
+                          children: [
+                            TextButton.icon(
+                              icon: const Icon(Icons.remove, color: Colors.red),
+                              label: Text(isRtl ? 'خصم 10' : 'Penalty -10', style: const TextStyle(color: Colors.red)),
+                              onPressed: () => ref.read(subscribersProvider.notifier).adjustMerchantPoints(subscriber.id, -10),
+                            ),
+                            TextButton.icon(
+                              icon: const Icon(Icons.add, color: Colors.green),
+                              label: Text(isRtl ? 'منح 50' : 'Bonus +50', style: const TextStyle(color: Colors.green)),
+                              onPressed: () => ref.read(subscribersProvider.notifier).adjustMerchantPoints(subscriber.id, 50),
+                            ),
+                          ],
+                        )
+                      ],
+                    ),
+                  ),
+                ],
 
               if (subscriber.role == UserRole.employee) ...[
                 const SizedBox(height: 16),

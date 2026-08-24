@@ -14,10 +14,12 @@ class SubscriberModel {
   final DateTime joinedAt;
   final String? storeName;
   final String? storeNameAr;
-  final String? documentType; // passport, national_id, drivers_license
+  final String? documentType;
   final int totalOrders;
   final double totalSpent;
   final Map<String, dynamic> permissions;
+  final int merchantPoints;
+  final String merchantTier;
 
   const SubscriberModel({
     required this.id,
@@ -35,6 +37,8 @@ class SubscriberModel {
     this.totalOrders = 0,
     this.totalSpent = 0.0,
     this.permissions = const {},
+    this.merchantPoints = 0,
+    this.merchantTier = 'beginner',
   });
 
   SubscriberModel copyWith({
@@ -53,6 +57,8 @@ class SubscriberModel {
     int? totalOrders,
     double? totalSpent,
     Map<String, dynamic>? permissions,
+    int? merchantPoints,
+    String? merchantTier,
   }) {
     return SubscriberModel(
       id: id ?? this.id,
@@ -70,6 +76,8 @@ class SubscriberModel {
       totalOrders: totalOrders ?? this.totalOrders,
       totalSpent: totalSpent ?? this.totalSpent,
       permissions: permissions ?? this.permissions,
+      merchantPoints: merchantPoints ?? this.merchantPoints,
+      merchantTier: merchantTier ?? this.merchantTier,
     );
   }
 }

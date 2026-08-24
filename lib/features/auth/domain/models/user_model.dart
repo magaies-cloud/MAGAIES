@@ -53,6 +53,12 @@ abstract class UserModel with _$UserModel {
 
     /// Granular permissions (especially for employees).
     @Default({}) Map<String, dynamic> permissions,
+
+    /// Gamification: Points the merchant has earned.
+    @Default(0) int merchantPoints,
+
+    /// Gamification: The merchant's tier (beginner, bronze, silver, gold).
+    @Default('beginner') String merchantTier,
   }) = _UserModel;
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>

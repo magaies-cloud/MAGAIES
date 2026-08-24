@@ -159,14 +159,27 @@ class SupabaseAuthRepository implements AuthRepository {
         role = UserRole.buyer;
     }
 
+    final permsData = data['permissions'];
+    Map<String, dynamic> perms = {};
+    if (permsData != null && permsData is Map) {
+      perms = Map<String, dynamic>.from(permsData);
+    } else if (permsData is String) {
+      try {
+        perms = jsonDecode(permsData);
+      } catch (_) {}
+    }
+
     return UserModel(
       id: data['id'],
-      name: data['name'] ?? '',
+      name: data['name'] ?? 'User',
       nameAr: data['name_ar'],
       email: data['email'] ?? '',
       phone: data['phone'] ?? '',
       role: role,
       hasStore: data['role'] == 'merchant',
+      permissions: perms,
+      merchantPoints: data['merchant_points'] ?? 0,
+      merchantTier: data['merchant_tier'] ?? 'beginner',
     );
   }
 }

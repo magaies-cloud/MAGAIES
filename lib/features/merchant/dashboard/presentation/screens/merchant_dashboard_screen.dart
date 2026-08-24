@@ -14,6 +14,7 @@ import 'package:pdf/widgets.dart' as pw;
 import 'package:printing/printing.dart';
 
 import 'package:magaiees_marketplace/features/merchant/inventory/presentation/screens/merchant_inventory_screen.dart';
+import 'package:magaiees_marketplace/features/merchant/dashboard/presentation/widgets/merchant_tier_widget.dart';
 
 final merchantDashboardStatsProvider = Provider.autoDispose<AsyncValue<Map<String, dynamic>>>((ref) {
   final ordersAsync = ref.watch(merchantOrdersProvider);
@@ -478,27 +479,36 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
           final recentOrders = stats['recentOrders'] as List<Map<String, dynamic>>;
           final allOrders = stats['allOrders'] as List<Map<String, dynamic>>;
 
-          return CustomScrollView(
-            slivers: [
-              SliverPadding(
-                padding: const EdgeInsets.all(16.0),
-                sliver: SliverToBoxAdapter(
-                  child: Row(
-                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                    children: [
-                      Text(
-                        isRtl ? 'نظرة عامة ماليّة' : 'Financial Overview',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+          return Builder(
+            builder: (context) {
+              final user = ref.watch(authNotifierProvider).valueOrNull;
+              
+              return CustomScrollView(
+                slivers: [
+                  if (user != null)
+                    SliverToBoxAdapter(
+                      child: MerchantTierWidget(user: user),
+                    ),
+                    
+                  SliverPadding(
+                    padding: const EdgeInsets.all(16.0),
+                    sliver: SliverToBoxAdapter(
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text(
+                            isRtl ? 'نظرة عامة ماليّة' : 'Financial Overview',
+                            style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                          ),
+                          IconButton(
+                            icon: const Icon(Icons.picture_as_pdf, color: Colors.red),
+                            tooltip: isRtl ? 'استخراج كشف حساب' : 'Statement of Account',
+                            onPressed: () => _showReportDialog(context, stats, isRtl),
+                          ),
+                        ],
                       ),
-                      IconButton(
-                        icon: const Icon(Icons.picture_as_pdf, color: Colors.red),
-                        tooltip: isRtl ? 'استخراج كشف حساب' : 'Statement of Account',
-                        onPressed: () => _showReportDialog(context, stats, isRtl),
-                      ),
-                    ],
+                    ),
                   ),
-                ),
-              ),
               
               // Top Financial Summary
               SliverPadding(
@@ -640,9 +650,11 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
               const SliverToBoxAdapter(child: SizedBox(height: 32)),
             ],
           );
-        }
-      ),
-    );
+          },
+        ); // closes Builder
+        }, // closes data: (stats) {
+      ), // closes when
+    ); // closes Scaffold
   }
 
   MaterialColor _getStatusColor(String? status) {
