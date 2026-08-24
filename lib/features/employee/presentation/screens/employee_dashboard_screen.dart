@@ -127,9 +127,9 @@ class EmployeeDashboardScreen extends ConsumerWidget {
               padding: const EdgeInsets.symmetric(horizontal: 16.0, vertical: 8.0),
               child: Row(
                 children: [
-                  Expanded(child: _StatCard(icon: Icons.checklist, title: 'الطلبات المنجزة', value: state.completedOrders.length.toString(), color: Colors.blueAccent)),
+                  Expanded(child: _StatCard(icon: Icons.checklist, title: 'الطلبات المنجزة', value: state.myOrders.where((o) => o.status.toString().contains('delivered')).length.toString(), color: Colors.blueAccent)),
                   const SizedBox(width: 12),
-                  Expanded(child: _StatCard(icon: Icons.pending_actions, title: 'قيد التنفيذ', value: state.activeOrders.length.toString(), color: Colors.orangeAccent)),
+                  Expanded(child: _StatCard(icon: Icons.pending_actions, title: 'قيد التنفيذ', value: state.myOrders.where((o) => !o.status.toString().contains('delivered')).length.toString(), color: Colors.orangeAccent)),
                 ],
               ),
             ),
