@@ -1,0 +1,78 @@
+name: magaiees_marketplace
+description: "Magaiees Marketplace (منصة مقاييس) - B2B/B2C Super App for construction materials and heavy equipment rental."
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.10.4
+
+dependencies:
+  flutter:
+    sdk: flutter
+  flutter_localizations:
+    sdk: flutter
+
+  # UI
+  cupertino_icons: ^1.0.8
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Routing
+  go_router: ^14.8.1
+
+  # Localization
+  intl: any  # version managed by flutter_localizations
+
+  # Local Storage
+  sqflite: ^2.4.2
+  path: ^1.9.1
+  shared_preferences: ^2.5.3
+
+  # Models & Serialization
+  freezed_annotation: ^3.0.0
+  json_annotation: ^4.9.0
+
+  # Utilities
+  uuid: ^4.5.1
+  equatable: ^2.0.7
+  google_fonts: ^8.2.1
+  dio: ^5.11.0
+  image_picker: ^1.2.3
+  supabase_flutter: ^2.17.2
+  pdf: ^3.12.0
+  printing: ^5.14.3
+  audioplayers: ^6.7.1
+  local_auth: ^3.0.2
+  flutter_secure_storage: ^11.0.0
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  flutter_lints: ^6.0.0
+
+  # Code Generation
+  build_runner: ^2.4.15
+  riverpod_generator: ^2.6.3
+  freezed: ^3.0.0
+  json_serializable: ^6.9.5
+
+  # Linting
+  riverpod_lint: ^2.6.3
+  custom_lint: ^0.7.5
+  flutter_launcher_icons: ^0.14.4
+
+flutter:
+  generate: true
+  uses-material-design: true
+  assets:
+    - assets/images/
+    - assets/audio/
+
+flutter_launcher_icons:
+  android: true
+  ios: true
+  image_path: "assets/images/logo_final.png"
+  adaptive_icon_background: "#ffffff"
+  adaptive_icon_foreground: "assets/images/logo_final.png"

@@ -1,0 +1,75 @@
+import 'package:magaiees_marketplace/core/enums/user_role.dart';
+
+enum SubscriberStatus { active, suspended, pendingVerification }
+
+class SubscriberModel {
+  final String id;
+  final String name;
+  final String nameAr;
+  final String email;
+  final String phone;
+  final UserRole role;
+  final SubscriberStatus status;
+  final bool isVerified;
+  final DateTime joinedAt;
+  final String? storeName;
+  final String? storeNameAr;
+  final String? documentType; // passport, national_id, drivers_license
+  final int totalOrders;
+  final double totalSpent;
+  final Map<String, dynamic> permissions;
+
+  const SubscriberModel({
+    required this.id,
+    required this.name,
+    required this.nameAr,
+    required this.email,
+    required this.phone,
+    required this.role,
+    required this.status,
+    required this.isVerified,
+    required this.joinedAt,
+    this.storeName,
+    this.storeNameAr,
+    this.documentType,
+    this.totalOrders = 0,
+    this.totalSpent = 0.0,
+    this.permissions = const {},
+  });
+
+  SubscriberModel copyWith({
+    String? id,
+    String? name,
+    String? nameAr,
+    String? email,
+    String? phone,
+    UserRole? role,
+    SubscriberStatus? status,
+    bool? isVerified,
+    DateTime? joinedAt,
+    String? storeName,
+    String? storeNameAr,
+    String? documentType,
+    int? totalOrders,
+    double? totalSpent,
+    Map<String, dynamic>? permissions,
+  }) {
+    return SubscriberModel(
+      id: id ?? this.id,
+      name: name ?? this.name,
+      nameAr: nameAr ?? this.nameAr,
+      email: email ?? this.email,
+      phone: phone ?? this.phone,
+      role: role ?? this.role,
+      status: status ?? this.status,
+      isVerified: isVerified ?? this.isVerified,
+      joinedAt: joinedAt ?? this.joinedAt,
+      storeName: storeName ?? this.storeName,
+      storeNameAr: storeNameAr ?? this.storeNameAr,
+      documentType: documentType ?? this.documentType,
+      totalOrders: totalOrders ?? this.totalOrders,
+      totalSpent: totalSpent ?? this.totalSpent,
+      permissions: permissions ?? this.permissions,
+    );
+  }
+}
