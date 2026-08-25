@@ -88,7 +88,7 @@ class _AdminCategoriesScreenState extends ConsumerState<AdminCategoriesScreen> {
                     InkWell(
                       onTap: () async {
                         final picker = ImagePicker();
-                        final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+                        final XFile? image = await picker.pickImage(source: ImageSource.gallery, imageQuality: 60, maxWidth: 800);
                         if (image != null) {
                           final bytes = await image.readAsBytes();
                           final ext = image.name.split('.').last;
@@ -264,7 +264,7 @@ class _AdminCategoriesScreenState extends ConsumerState<AdminCategoriesScreen> {
                     InkWell(
                       onTap: () async {
                         final picker = ImagePicker();
-                        final XFile? image = await picker.pickImage(source: ImageSource.gallery);
+                        final XFile? image = await picker.pickImage(source: ImageSource.gallery, imageQuality: 60, maxWidth: 800);
                         if (image != null) {
                           final bytes = await image.readAsBytes();
                           final ext = image.name.split('.').last;
@@ -289,7 +289,10 @@ class _AdminCategoriesScreenState extends ConsumerState<AdminCategoriesScreen> {
                                 borderRadius: BorderRadius.circular(12),
                                 child: selectedImageBytes != null
                                     ? Image.memory(selectedImageBytes!, fit: BoxFit.contain)
-                                    : Image.network(existingImageUrl!, fit: BoxFit.contain),
+                                    : Image.network(existingImageUrl!, fit: BoxFit.contain, loadingBuilder: (ctx, child, progress) {
+                                          if (progress == null) return child;
+                                          return const Center(child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)));
+                                        }),
                               )
                             : Column(
                                 mainAxisAlignment: MainAxisAlignment.center,
@@ -851,7 +854,10 @@ class _AdminCategoriesScreenState extends ConsumerState<AdminCategoriesScreen> {
             child: category.imageUrl != null
                 ? ClipRRect(
                     borderRadius: BorderRadius.circular(12),
-                    child: Image.network(category.imageUrl!, fit: BoxFit.contain, errorBuilder: (c, e, s) => Icon(Icons.image_not_supported, color: Colors.grey.shade400)),
+                    child: Image.network(category.imageUrl!, fit: BoxFit.contain, loadingBuilder: (ctx, child, progress) {
+                      if (progress == null) return child;
+                      return const Center(child: SizedBox(width: 20, height: 20, child: CircularProgressIndicator(strokeWidth: 2)));
+                    }, errorBuilder: (c, e, s) => Icon(Icons.image_not_supported, color: Colors.grey.shade400)),
                   )
                 : Icon(Icons.category, color: _primaryBlue),
           ),

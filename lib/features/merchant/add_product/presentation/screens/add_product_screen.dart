@@ -299,7 +299,7 @@ class _AddProductScreenState extends ConsumerState<AddProductScreen> {
                 onTap: () async {
                   try {
                     final picker = ImagePicker();
-                    final pickedFile = await picker.pickImage(source: ImageSource.gallery);
+                    final pickedFile = await picker.pickImage(source: ImageSource.gallery, imageQuality: 60, maxWidth: 800);
                     
                     if (pickedFile != null) {
                       final bytes = await pickedFile.readAsBytes();

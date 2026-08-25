@@ -388,7 +388,7 @@ class _AdminServicesScreenState extends ConsumerState<AdminServicesScreen> {
                               GestureDetector(
                                 onTap: () async {
                                   final picker = ImagePicker();
-                                  final picked = await picker.pickImage(source: ImageSource.gallery);
+                                  final picked = await picker.pickImage(source: ImageSource.gallery, imageQuality: 60, maxWidth: 800);
                                   if (picked != null) {
                                     final bytes = await picked.readAsBytes();
                                     final ext = picked.name.split('.').last;

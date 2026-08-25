@@ -7,7 +7,7 @@ plugins {
 
 android {
     namespace = "com.magaiees.magaiees_marketplace"
-    compileSdk = flutter.compileSdkVersion
+    compileSdk = 37
     ndkVersion = flutter.ndkVersion
 
     compileOptions {
