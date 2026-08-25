@@ -4439,16 +4439,25 @@ try {
 
     window.loadGridConfigFromDB = async function() {
         try {
-            const res = await fetch('api/get_grid_config.php?grid_id=' + window.CurrentGridConfig.grid_id + '&_t=' + Date.now());
+            const gridId = (window.CurrentGridConfig && window.CurrentGridConfig.grid_id) ? window.CurrentGridConfig.grid_id : 'sales_grid';
+            const res = await fetch('api/get_grid_config.php?grid_id=' + gridId + '&_t=' + Date.now());
             const data = await res.json();
             if (data && data.config) {
                 window.CurrentGridConfig = data.config;
-                if (typeof applyGridSettings === 'function') applyGridSettings();
-                if (typeof renderGrid === 'function') renderGrid();
-                if (typeof recalcAll === 'function') recalcAll();
+            } else {
+                // No saved config in DB — use factory default
+                window.CurrentGridConfig = JSON.parse(JSON.stringify(DEFAULT_GRID_CONFIG));
             }
+            if (typeof applyGridSettings === 'function') applyGridSettings();
+            if (typeof renderGrid === 'function') renderGrid();
+            if (typeof recalcAll === 'function') recalcAll();
         } catch (e) {
             console.error("Failed to load grid config", e);
+            // Fallback to hardcoded default on error
+            if (!window.CurrentGridConfig) {
+                window.CurrentGridConfig = JSON.parse(JSON.stringify(DEFAULT_GRID_CONFIG));
+                if (typeof applyGridSettings === 'function') applyGridSettings();
+            }
         }
     };
     window.applyGridSettings = function() {
@@ -4610,17 +4619,33 @@ try {
         showToast(`تم ضبط المحاذاة إلى ${alignMode === 'right' ? 'اليمين' : alignMode === 'center' ? 'الوسط' : 'اليسار'}`, "success");
     };
 
-    window.quickResetGrid = function() {
+    window.quickResetGrid = async function() {
         const menu = document.getElementById('col-context-menu');
         if (menu) menu.style.display = 'none';
-        if (confirm("هل أنت متأكد من استعادة التنسيق والترتيب الافتراضي لجدول جدول المبيعات المباشرة وحفظه في قاعدة البيانات؟")) {
-            window.CurrentGridConfig = JSON.parse(JSON.stringify(DEFAULT_GRID_CONFIG));
+        if (confirm("هل أنت متأكد من استعادة التنسيق والترتيب الافتراضي لجدول المبيعات المباشرة وحفظه في قاعدة البيانات؟")) {
+            try {
+                // Try to fetch factory default from DB
+                const res = await fetch('api/get_grid_config.php?grid_id=sales_grid_default&_t=' + Date.now());
+                const data = await res.json();
+                if (data && data.config) {
+                    window.CurrentGridConfig = data.config;
+                    window.CurrentGridConfig.grid_id = 'sales_grid'; // Ensure correct grid_id for saving
+                } else {
+                    window.CurrentGridConfig = JSON.parse(JSON.stringify(DEFAULT_GRID_CONFIG));
+                }
+            } catch(e) {
+                window.CurrentGridConfig = JSON.parse(JSON.stringify(DEFAULT_GRID_CONFIG));
+            }
             applyGridSettings();
             if (typeof renderGrid === 'function') renderGrid();
             if (typeof recalcAll === 'function') recalcAll();
             saveGridConfigToDB(window.CurrentGridConfig);
-            if (tempGridConfig) openGridSettingsModal();
-            showToast("تم استعادة الضبط الافتراضي وحفظه في قاعدة البيانات بنجاح", "success");
+            if (tempGridConfig) {
+                tempGridConfig = JSON.parse(JSON.stringify(window.CurrentGridConfig));
+                if (typeof renderModalColumnsList === 'function') renderModalColumnsList();
+                if (typeof populateSelectedColPanel === 'function') populateSelectedColPanel();
+            }
+            showToast("تم استعادة الضبط الافتراضي وحفظه في قاعدة البيانات بنجاح ✅", "success");
         }
     };
 
