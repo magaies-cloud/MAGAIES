@@ -1167,17 +1167,20 @@
                     <!-- Units Tab -->
                     <div id="inner-units" class="inner-tab-content">
                         <div class="md-card neon-glass-panel neon-border-info" style="margin-bottom:20px; border-color: rgba(56,189,248,0.3);">
-                            <h4 style="margin-top:0; color:#38bdf8;">إضافة/تعديل وحدة</h4>
+                            <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+                                <h4 style="margin:0; color:#38bdf8; font-weight:bold; font-size:1.2rem;">📐 إدارة مصفوفة وحدات القياس العامة</h4>
+                                <button type="button" class="btn-add" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.4); color:#f87171; padding:6px 14px; font-size:0.85rem;" onclick="cleanAndResetUnits()" title="إزالة الرموز التالفة واستعادة الوحدات القياسية">🧹 تنظيف واستعادة الوحدات القياسية</button>
+                            </div>
                             <div class="form-grid">
-                                <div class="input-group"><label>اسم الوحدة</label><input type="text" id="unit-name-input" placeholder="مثال: دزينة، صندوق، حبة"></div>
+                                <div class="input-group"><label>اسم الوحدة الجديدة</label><input type="text" id="unit-name-input" placeholder="مثال: دزينة، صندوق، كرتونة، حبة"></div>
                                 <div style="display:flex; align-items:flex-end;">
-                                    <button class="btn-add" style="background:linear-gradient(135deg, rgba(56,189,248,0.2), rgba(14,165,233,0.6)); border: 1px solid rgba(56,189,248,0.5); padding:10px 20px; height:fit-content;" onclick="saveGlobalUnit()">💾 حفظ الوحدة</button>
+                                    <button class="btn-add" style="background:linear-gradient(135deg, rgba(56,189,248,0.2), rgba(14,165,233,0.6)); border: 1px solid rgba(56,189,248,0.5); padding:10px 20px; height:fit-content; font-weight:bold;" onclick="saveGlobalUnit()">💾 حفظ الوحدة</button>
                                 </div>
                             </div>
                         </div>
                         <div class="table-responsive" style="overflow-x: auto;">
                             <table class="pro-table">
-                                <thead><tr><th>اسم الوحدة</th><th>الإجراء</th></tr></thead>
+                                <thead><tr><th style="padding:12px 15px;">اسم الوحدة</th><th style="padding:12px 15px; text-align:center; width:180px;">الإجراء</th></tr></thead>
                                 <tbody id="units-table-body">
                                     <!-- Dynamic units -->
                                 </tbody>
@@ -1252,6 +1255,75 @@
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
     <script>
+                // ================= BACKEND MYSQL PERSISTENCE =================
+        async function syncToBackend(type, data) {
+            try {
+                const token = localStorage.getItem('authToken') || localStorage.getItem('token') || '';
+                const res = await fetch('api/save_master_data.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token ? ('Bearer ' + token) : ''
+                    },
+                    body: JSON.stringify({ type, data })
+                });
+                const result = await res.json();
+                if (result && result.success) {
+                    console.log(`[Master Data Sync] Successfully saved ${type} to MySQL.`);
+                }
+                return result;
+            } catch(err) {
+                console.warn(`[Master Data Sync] Failed to save ${type} to MySQL:`, err);
+            }
+        }
+
+        async function loadMasterDataFromBackend() {
+            try {
+                const token = localStorage.getItem('authToken') || localStorage.getItem('token') || '';
+                const res = await fetch('api/get_master_data.php', {
+                    headers: token ? { 'Authorization': 'Bearer ' + token } : {}
+                });
+                const json = await res.json();
+                if (json && json.success && json.data) {
+                    const d = json.data;
+                    if (Array.isArray(d.units) && d.units.length > 0) {
+                        localStorage.setItem('erp_global_units_v1', JSON.stringify(d.units));
+                    }
+                    if (Array.isArray(d.categories) && d.categories.length > 0) {
+                        localStorage.setItem('erp_categories_v1', JSON.stringify(d.categories));
+                    }
+                    if (Array.isArray(d.items) && d.items.length > 0) {
+                        localStorage.setItem('erp_items_v1', JSON.stringify(d.items));
+                    }
+                    if (Array.isArray(d.warehouses) && d.warehouses.length > 0) {
+                        localStorage.setItem('erp_warehouses_v1', JSON.stringify(d.warehouses));
+                    }
+                    if (Array.isArray(d.customers) && d.customers.length > 0) {
+                        localStorage.setItem('erp_customers_v1', JSON.stringify(d.customers));
+                    }
+                    if (Array.isArray(d.suppliers) && d.suppliers.length > 0) {
+                        localStorage.setItem('erp_suppliers_v1', JSON.stringify(d.suppliers));
+                    }
+                    if (Array.isArray(d.banks) && d.banks.length > 0) {
+                        localStorage.setItem('erp_banks_v1', JSON.stringify(d.banks));
+                    }
+                    if (Array.isArray(d.safes) && d.safes.length > 0) {
+                        localStorage.setItem('erp_safes_v1', JSON.stringify(d.safes));
+                    }
+                    if (Array.isArray(d.cost_centers) && d.cost_centers.length > 0) {
+                        localStorage.setItem('erp_cost_centers_v1', JSON.stringify(d.cost_centers));
+                    }
+                    if (d.currency_rates) {
+                        localStorage.setItem('erp_currency_rates_v1', JSON.stringify(d.currency_rates));
+                    }
+                    renderAllMasterData();
+                    if (typeof renderGlobalUnitsList === 'function') renderGlobalUnitsList();
+                    if (typeof updateUnitDropdowns === 'function') updateUnitDropdowns();
+                }
+            } catch(err) {
+                console.warn('[Master Data] Failed to load from backend:', err);
+            }
+        }
         function renderAllMasterData() {
             renderCustomers();
             renderSuppliers();
@@ -1273,6 +1345,7 @@
             clearCustomerForm();
             clearSupplierForm();
             renderAllMasterData();
+            loadMasterDataFromBackend();
         });
 
         // Re-render when cloud sync completes (essential for iOS Safari first load/fresh sessions)
@@ -2125,82 +2198,7 @@
             }
         }
 
-                // ================= ITEMS LOGIC =================
-        function closeItemForm() { document.getElementById('item-form').style.display = 'none'; }
-
-        function updateToggleLabel() {
-            const t = document.getElementById('item-active-toggle');
-            const l = document.getElementById('item-active-label');
-            if(t.checked) { l.innerText = '🟢 نشط'; l.style.color = 'var(--success-color)'; }
-            else { l.innerText = '🔴 موقوف'; l.style.color = 'var(--danger-color)'; }
-        }
-
-        function updateBaseUnitRow() {
-            const v = document.getElementById('item-base-unit').value;
-            const d = document.getElementById('base-unit-name-display');
-            if(d) d.value = v;
-        }
-
-        function quickAddCategory() {
-            const name = prompt('أدخل اسم الفئة الجديدة:');
-            if(!name) return;
-            let cats = [];
-            try {
-                cats = JSON.parse(localStorage.getItem('erp_categories_v1')) || ['مواد بناء','أدوات صحية','كهرباء'];
-                if (!Array.isArray(cats)) cats = ['مواد بناء','أدوات صحية','كهرباء'];
-            } catch(e) {
-                cats = ['مواد بناء','أدوات صحية','كهرباء'];
-            }
-            if(!cats.includes(name)) { cats.push(name); localStorage.setItem('erp_categories_v1', JSON.stringify(cats)); }
-            updateCategoryDropdowns();
-            document.getElementById('item-category').value = name;
-            renderCategoriesList();
-        }
-
-        function saveItem() {
-            const name = document.getElementById('item-name-input').value;
-            if(!name) { alert('الرجاء إدخال اسم الصنف'); return; }
-            const baseUnit = document.getElementById('item-base-unit').value;
-            if(!baseUnit) { alert('الرجاء إدخال الوحدة الأساسية'); return; }
-            const id = document.getElementById('item-code').value || 'ITEM-' + Date.now();
-            const units = [];
-            document.querySelectorAll('#units-matrix-body tr').forEach((row) => {
-                const inputs = row.querySelectorAll('input');
-                if(inputs.length >= 7) {
-                    units.push({ unitName: inputs[0].value || baseUnit, factor: parseFloat(inputs[1].value) || 1, barcode: inputs[2].value, cashPrice: parseFloat(inputs[3].value) || 0, creditPrice: parseFloat(inputs[4].value) || 0, minPrice: parseFloat(inputs[5].value) || 0, weight: parseFloat(inputs[6].value) || 0, stock: 0 });
-                }
-            });
-            const costRadio = document.querySelector('input[name="cost_method"]:checked');
-            const itemData = { id, name, nameLatin: document.getElementById('item-name-latin').value, barcode: document.getElementById('item-barcode').value, category: document.getElementById('item-category').value, subCategory: document.getElementById('item-sub-category').value, nature: document.getElementById('item-nature').value, brand: document.getElementById('item-brand').value, status: document.getElementById('item-active-toggle').checked ? 'active' : 'inactive', sellingPrice: parseFloat(document.getElementById('item-selling-price').value) || 0, maxDiscount: parseFloat(document.getElementById('item-max-discount').value) || 0, taxable: document.getElementById('item-taxable').checked, taxRate: parseFloat(document.getElementById('item-tax-rate').value) || 0, costMethod: costRadio ? costRadio.value : 'lastPurchase', openingQty: parseFloat(document.getElementById('item-opening-qty').value) || 0, openingValue: parseFloat(document.getElementById('item-opening-value').value) || 0, binLocation: document.getElementById('item-bin-location').value, maxLimit: parseFloat(document.getElementById('item-max-limit').value) || 0, minLimit: parseFloat(document.getElementById('item-min-limit').value) || 0, reorderLevel: parseFloat(document.getElementById('item-reorder-level').value) || 0, baseUnit, bundleFactor: parseFloat(document.getElementById('item-bundle-factor').value) || 1, units, description: document.getElementById('item-description').value };
-            let items = [];
-            try {
-                items = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
-                if (!Array.isArray(items)) items = [];
-            } catch(e) {
-                items = [];
-            }
-            items = items.filter(i => !i.deleted);
-            const ei = items.findIndex(i => i.id === id);
-            if(ei > -1) { if(items[ei].units) { itemData.units.forEach((u,i) => { if(items[ei].units[i]) u.stock = items[ei].units[i].stock || 0; }); } items[ei] = itemData; }
-            else { itemData.units[0].stock = itemData.openingQty; items.push(itemData); }
-            localStorage.setItem('erp_items_v1', JSON.stringify(items));
-            closeItemForm(); renderItems();
-        }
-
-        
-
-function openSafeForm() {
-            document.getElementById('safe-form').style.display = 'block';
-            document.getElementById('safe-code').value = 'B-' + Date.now();
-        }
-
-        function closeSafeForm() {
-            document.getElementById('safe-form').style.display = 'none';
-        }
-
-        
-
-        function saveSafe() {
+                function saveSafe() {
             const id = document.getElementById('safe-code').value;
             const name = document.getElementById('safe-name').value;
             if(!name) { alert('الرجاء إدخال اسم الخزينة'); return; }
@@ -2328,7 +2326,7 @@ function openSafeForm() {
             }
         }
 
-                // ================= ITEMS LOGIC =================
+                        // ================= ITEMS LOGIC =================
         function closeItemForm() { document.getElementById('item-form').style.display = 'none'; }
 
         function updateToggleLabel() {
@@ -2354,48 +2352,129 @@ function openSafeForm() {
             } catch(e) {
                 cats = ['مواد بناء','أدوات صحية','كهرباء'];
             }
-            if(!cats.includes(name)) { cats.push(name); localStorage.setItem('erp_categories_v1', JSON.stringify(cats)); }
+            if(!cats.includes(name)) { cats.push(name); localStorage.setItem('erp_categories_v1', JSON.stringify(cats)); syncToBackend('categories', cats); }
             updateCategoryDropdowns();
             document.getElementById('item-category').value = name;
             renderCategoriesList();
         }
 
         function saveItem() {
-            const name = document.getElementById('item-name-input').value;
+            const name = document.getElementById('item-name-input').value.trim();
             if(!name) { alert('الرجاء إدخال اسم الصنف'); return; }
-            const baseUnit = document.getElementById('item-base-unit').value;
+            const baseUnit = document.getElementById('item-base-unit').value.trim();
             if(!baseUnit) { alert('الرجاء إدخال الوحدة الأساسية'); return; }
-            const id = document.getElementById('item-code').value || 'ITEM-' + Date.now();
+            const id = document.getElementById('item-code').value.trim() || 'ITEM-' + Date.now();
+            
+            const sellingPriceInput = parseFloat(document.getElementById('item-selling-price').value) || 0;
+            const itemBarcode = document.getElementById('item-barcode').value.trim();
+
             const units = [];
-            document.querySelectorAll('#units-matrix-body tr').forEach((row) => {
-                const unitNameElem = row.querySelector('input[type="text"]:first-of-type, select.unit-name-input');
-                const inputs = row.querySelectorAll('input[type="number"], input[type="text"]:not(#base-unit-name-display)');
-                
-                // inputs now has:
-                // [number factor, text barcode, number cash, number credit, number min, number weight]
-                // but wait, let's just get them by specific selectors or index correctly to avoid bugs.
-                
-                const factorInput = row.querySelector('input[type="number"]:nth-of-type(1)'); // wait, nth-of-type(1) might be wrong if there are multiple td's.
-                // It's safer to get all inputs AND selects and map them, or use specific classes/indices.
-                // Let's use the td index.
+            const unitsArray = [];
+
+            const rows = document.querySelectorAll('#units-matrix-body tr');
+            rows.forEach((row, idx) => {
                 const tds = row.querySelectorAll('td');
                 if (tds.length >= 8) {
-                    const uName = tds[1].querySelector('input, select')?.value || baseUnit;
-                    const uFactor = parseFloat(tds[2].querySelector('input')?.value) || 1;
-                    const uBarcode = tds[3].querySelector('input')?.value || '';
-                    const uCash = parseFloat(tds[4].querySelector('input')?.value) || 0;
+                    let uName = '';
+                    if (idx === 0) {
+                        uName = baseUnit;
+                    } else {
+                        const sel = tds[1].querySelector('select, input');
+                        uName = sel ? sel.value.trim() : '';
+                    }
+                    if (!uName) uName = (idx === 0 ? baseUnit : 'وحدة ' + (idx + 1));
+
+                    const uFactor = (idx === 0) ? 1 : (parseFloat(tds[2].querySelector('input')?.value) || 1);
+                    const uBarcode = tds[3].querySelector('input')?.value.trim() || (idx === 0 ? itemBarcode : '');
+                    
+                    let uCash = parseFloat(tds[4].querySelector('input')?.value) || 0;
+                    if (idx === 0 && uCash === 0 && sellingPriceInput > 0) {
+                        uCash = sellingPriceInput;
+                    }
                     const uCredit = parseFloat(tds[5].querySelector('input')?.value) || 0;
                     const uMin = parseFloat(tds[6].querySelector('input')?.value) || 0;
                     const uWeight = parseFloat(tds[7].querySelector('input')?.value) || 0;
                     
-                    units.push({ unitName: uName, factor: uFactor, barcode: uBarcode, cashPrice: uCash, creditPrice: uCredit, minPrice: uMin, weight: uWeight, stock: 0 });
+                    units.push({
+                        unitName: uName,
+                        factor: uFactor,
+                        barcode: uBarcode,
+                        cashPrice: uCash,
+                        creditPrice: uCredit,
+                        minPrice: uMin,
+                        weight: uWeight,
+                        stock: 0
+                    });
+
+                    unitsArray.push({
+                        name: uName,
+                        unitName: uName,
+                        factor: uFactor,
+                        price: uCash,
+                        cashPrice: uCash,
+                        creditPrice: uCredit,
+                        minPrice: uMin,
+                        barcode: uBarcode
+                    });
                 }
             });
-            const itemBarcode = document.getElementById('item-barcode').value;
-            const newBarcodes = [itemBarcode, ...units.map(u => u.barcode)].filter(b => b && b.trim() !== '');
+
+            if (units.length === 0) {
+                units.push({
+                    unitName: baseUnit,
+                    factor: 1,
+                    barcode: itemBarcode,
+                    cashPrice: sellingPriceInput,
+                    creditPrice: 0,
+                    minPrice: 0,
+                    weight: 0,
+                    stock: 0
+                });
+                unitsArray.push({
+                    name: baseUnit,
+                    unitName: baseUnit,
+                    factor: 1,
+                    price: sellingPriceInput,
+                    cashPrice: sellingPriceInput,
+                    barcode: itemBarcode
+                });
+            }
+
+            const finalSellingPrice = (units[0] && units[0].cashPrice > 0) ? units[0].cashPrice : sellingPriceInput;
+            const finalBarcode = (units[0] && units[0].barcode) ? units[0].barcode : itemBarcode;
+
+            const newBarcodes = [finalBarcode, ...units.map(u => u.barcode)].filter(b => b && b.trim() !== '');
 
             const costRadio = document.querySelector('input[name="cost_method"]:checked');
-            const itemData = { id, name, nameLatin: document.getElementById('item-name-latin').value, barcode: itemBarcode, category: document.getElementById('item-category').value, subCategory: document.getElementById('item-sub-category').value, nature: document.getElementById('item-nature').value, brand: document.getElementById('item-brand').value, status: document.getElementById('item-active-toggle').checked ? 'active' : 'inactive', sellingPrice: parseFloat(document.getElementById('item-selling-price').value) || 0, maxDiscount: parseFloat(document.getElementById('item-max-discount').value) || 0, taxable: document.getElementById('item-taxable').checked, taxRate: parseFloat(document.getElementById('item-tax-rate').value) || 0, costMethod: costRadio ? costRadio.value : 'lastPurchase', openingQty: parseFloat(document.getElementById('item-opening-qty').value) || 0, openingValue: parseFloat(document.getElementById('item-opening-value').value) || 0, binLocation: document.getElementById('item-bin-location').value, maxLimit: parseFloat(document.getElementById('item-max-limit').value) || 0, minLimit: parseFloat(document.getElementById('item-min-limit').value) || 0, reorderLevel: parseFloat(document.getElementById('item-reorder-level').value) || 0, baseUnit, bundleFactor: parseFloat(document.getElementById('item-bundle-factor').value) || 1, units, description: document.getElementById('item-description').value };
+            const itemData = {
+                id,
+                name,
+                nameLatin: document.getElementById('item-name-latin').value.trim(),
+                barcode: finalBarcode,
+                category: document.getElementById('item-category').value,
+                subCategory: document.getElementById('item-sub-category').value,
+                nature: document.getElementById('item-nature').value,
+                brand: document.getElementById('item-brand').value.trim(),
+                status: document.getElementById('item-active-toggle').checked ? 'active' : 'inactive',
+                sellingPrice: finalSellingPrice,
+                maxDiscount: parseFloat(document.getElementById('item-max-discount').value) || 0,
+                taxable: document.getElementById('item-taxable').checked,
+                taxRate: parseFloat(document.getElementById('item-tax-rate').value) || 0,
+                costMethod: costRadio ? costRadio.value : 'lastPurchase',
+                openingQty: parseFloat(document.getElementById('item-opening-qty').value) || 0,
+                openingValue: parseFloat(document.getElementById('item-opening-value').value) || 0,
+                binLocation: document.getElementById('item-bin-location').value.trim(),
+                maxLimit: parseFloat(document.getElementById('item-max-limit').value) || 0,
+                minLimit: parseFloat(document.getElementById('item-min-limit').value) || 0,
+                reorderLevel: parseFloat(document.getElementById('item-reorder-level').value) || 0,
+                baseUnit: baseUnit,
+                unit: baseUnit,
+                bundleFactor: parseFloat(document.getElementById('item-bundle-factor').value) || 1,
+                units: units,
+                unitsArray: unitsArray,
+                description: document.getElementById('item-description').value
+            };
+
             let items = [];
             try {
                 items = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
@@ -2405,7 +2484,7 @@ function openSafeForm() {
             }
             items = items.filter(i => !i.deleted);
             
-            const duplicateName = items.find(i => i.name.trim() === name.trim() && i.id !== id);
+            const duplicateName = items.find(i => i.name.trim() === name && i.id !== id);
             if (duplicateName) { alert('هذا الصنف مسجل مسبقاً بنفس الاسم.'); return; }
             
             for (const b of newBarcodes) {
@@ -2415,11 +2494,27 @@ function openSafeForm() {
                     return;
                 }
             }
+            
             const ei = items.findIndex(i => i.id === id);
-            if(ei > -1) { if(items[ei].units) { itemData.units.forEach((u,i) => { if(items[ei].units[i]) u.stock = items[ei].units[i].stock || 0; }); } items[ei] = itemData; }
-            else { itemData.units[0].stock = itemData.openingQty; items.push(itemData); }
+            if(ei > -1) {
+                if(items[ei].units) {
+                    itemData.units.forEach((u,i) => { if(items[ei].units[i]) u.stock = items[ei].units[i].stock || 0; });
+                }
+                items[ei] = itemData;
+            } else {
+                itemData.units[0].stock = itemData.openingQty;
+                items.push(itemData);
+            }
+            
             localStorage.setItem('erp_items_v1', JSON.stringify(items));
-            closeItemForm(); renderItems();
+            syncToBackend('save_item', itemData);
+            closeItemForm();
+            renderItems();
+            if (typeof showToast === 'function') {
+                showToast('✅ تم حفظ الصنف ووحداته نهائياً في قاعدة البيانات بنجاح', 'success');
+            } else {
+                alert('✅ تم حفظ الصنف ووحداته نهائياً في قاعدة البيانات بنجاح');
+            }
         }
 
         function renderItems() {
@@ -2537,7 +2632,7 @@ function openSafeForm() {
             return '<tr ' + bg + '><td style="text-align:center; font-weight:bold;">' + num + '</td><td>' + unitField + '</td><td><input type="number" value="' + (u.factor || 1) + '" ' + dis + ' style="width:100%; background:transparent; border:' + (isBase ? 'none' : '1px solid rgba(255,255,255,0.15)') + '; color:' + (isBase ? 'var(--success-color)' : '#fff') + '; font-weight:bold; text-align:center; padding:10px; border-radius:8px; outline:none; font-size:1.2rem;"></td><td><input type="text" value="' + (u.barcode || '') + '" placeholder="باركود..." style="width:100%; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:10px; border-radius:8px; outline:none;"></td><td><input type="number" value="' + (u.cashPrice || '') + '" placeholder="0.00" style="width:100%; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#34d399; padding:10px; border-radius:8px; font-weight:bold; outline:none;"></td><td><input type="number" value="' + (u.creditPrice || '') + '" placeholder="0.00" style="width:100%; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#60a5fa; padding:10px; border-radius:8px; font-weight:bold; outline:none;"></td><td><input type="number" value="' + (u.minPrice || '') + '" placeholder="0.00" style="width:100%; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#f87171; padding:10px; border-radius:8px; font-weight:bold; outline:none;"></td><td><input type="number" value="' + (u.weight || '') + '" placeholder="0.00" style="width:100%; background:var(--bg-color); border:1px solid rgba(255,255,255,0.15); color:#fff; padding:10px; border-radius:8px; outline:none;"></td><td style="text-align:center;">' + act + '</td></tr>';
         }
 
-        function editItem(id) {
+                function editItem(id) {
             let items = [];
             try {
                 items = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
@@ -2573,13 +2668,47 @@ function openSafeForm() {
             document.getElementById('item-max-limit').value = item.maxLimit || '';
             document.getElementById('item-min-limit').value = item.minLimit || '';
             document.getElementById('item-reorder-level').value = item.reorderLevel || '';
-            document.getElementById('item-base-unit').value = item.baseUnit || '';
+            
+            const baseUnit = item.baseUnit || item.unit || 'قطعة';
+            updateUnitDropdowns(baseUnit);
+            document.getElementById('item-base-unit').value = baseUnit;
             document.getElementById('item-bundle-factor').value = item.bundleFactor || 1;
             document.getElementById('item-description').value = item.description || '';
             updateBaseUnitRow();
+            
             const tbody = document.getElementById('units-matrix-body');
             tbody.innerHTML = '';
-            if(item.units && item.units.length > 0) { item.units.forEach((u, idx) => { tbody.insertAdjacentHTML('beforeend', buildUnitRow(idx + 1, u, idx === 0)); }); }
+            
+            let matrixUnits = [];
+            if (Array.isArray(item.units) && item.units.length > 0) {
+                matrixUnits = item.units;
+            } else if (Array.isArray(item.unitsArray) && item.unitsArray.length > 0) {
+                matrixUnits = item.unitsArray.map(u => ({
+                    unitName: u.name || u.unitName || baseUnit,
+                    factor: u.factor || 1,
+                    barcode: u.barcode || '',
+                    cashPrice: u.price || u.cashPrice || item.sellingPrice || 0,
+                    creditPrice: u.creditPrice || 0,
+                    minPrice: u.minPrice || 0,
+                    weight: u.weight || 0
+                }));
+            }
+            if (matrixUnits.length === 0) {
+                matrixUnits = [{
+                    unitName: baseUnit,
+                    factor: 1,
+                    barcode: item.barcode || '',
+                    cashPrice: item.sellingPrice || 0,
+                    creditPrice: 0,
+                    minPrice: 0,
+                    weight: 0
+                }];
+            }
+            
+            matrixUnits.forEach((u, idx) => {
+                tbody.insertAdjacentHTML('beforeend', buildUnitRow(idx + 1, u, idx === 0));
+            });
+            
             document.getElementById('item-form').style.display = 'block';
             document.getElementById('item-form').scrollIntoView({ behavior: 'smooth' });
         }
@@ -2649,63 +2778,175 @@ function openSafeForm() {
         }
 
         // ================= UNITS LOGIC =================
-        function saveGlobalUnit() {
-            const name = document.getElementById('unit-name-input').value;
-            if(!name) { alert('أدخل اسم الوحدة'); return; }
+        const DEFAULT_STANDARD_UNITS = [
+            'طن', 'طن وزني', 'طن عددي', 'طن العددي',
+            'سيخه', 'سيخة / عود', 'كيس', 'حبة', 'ألف حبة',
+            'متر مكعب', 'متر مربع', 'متر طولي',
+            'كرتونة', 'كرتونة (4 جالون)', 'درزن', 'جالون',
+            'لتر', 'كيلو', 'قطعة', 'عددي', 'قلاب 12متر'
+        ];
+
+        function sanitizeGlobalUnits() {
             let units = [];
             try {
                 units = JSON.parse(localStorage.getItem('erp_global_units_v1')) || [];
+                if (!Array.isArray(units)) units = [];
             } catch(e) { units = []; }
+
+            // 1. Purge corrupted question mark strings
+            let cleaned = units.filter(u => {
+                if (!u || typeof u !== 'string') return false;
+                let trimmed = u.trim();
+                if (trimmed === '' || trimmed.includes('?')) return false;
+                return true;
+            });
+
+            // 2. Ensure standard defaults are present
+            DEFAULT_STANDARD_UNITS.forEach(def => {
+                if (!cleaned.includes(def)) {
+                    cleaned.push(def);
+                }
+            });
+
+            // 3. Clean any corrupted units in erp_items_v1
+            try {
+                let items = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+                let itemsModified = false;
+                items.forEach(item => {
+                    if (item.baseUnit && typeof item.baseUnit === 'string' && item.baseUnit.includes('?')) {
+                        item.baseUnit = 'حبة';
+                        itemsModified = true;
+                    }
+                    if (item.unit && typeof item.unit === 'string' && item.unit.includes('?')) {
+                        item.unit = 'حبة';
+                        itemsModified = true;
+                    }
+                    if (Array.isArray(item.units)) {
+                        item.units = item.units.filter(u => u && (!u.unitName || !u.unitName.includes('?')));
+                        itemsModified = true;
+                    }
+                    if (Array.isArray(item.unitsArray)) {
+                        item.unitsArray = item.unitsArray.filter(u => u && (!u.name || !u.name.includes('?')));
+                        itemsModified = true;
+                    }
+                });
+                if (itemsModified) {
+                    localStorage.setItem('erp_items_v1', JSON.stringify(items));
+                }
+            } catch(e) {}
+
+            localStorage.setItem('erp_global_units_v1', JSON.stringify(cleaned));
+            return cleaned;
+        }
+
+        function saveGlobalUnit() {
+            const input = document.getElementById('unit-name-input');
+            const name = input ? input.value.trim() : '';
+            if(!name) { alert('الرجاء إدخال اسم الوحدة'); return; }
+            if(name.includes('?')) { alert('اسم الوحدة يحتوي على رموز غير صالحة (?)'); return; }
+            
+            let units = sanitizeGlobalUnits();
             if(!units.includes(name)) { 
                 units.push(name); 
                 localStorage.setItem('erp_global_units_v1', JSON.stringify(units)); 
+                syncToBackend('units', units);
             }
-            document.getElementById('unit-name-input').value = '';
+            if (input) input.value = '';
             renderGlobalUnitsList();
             updateUnitDropdowns();
+            if (typeof showToast === 'function') showToast('✅ تم حفظ الوحدة بنجاح', 'success');
+        }
+
+        function editGlobalUnit(oldName) {
+            const newName = prompt('تعديل اسم الوحدة:', oldName);
+            if(!newName || newName.trim() === '' || newName.trim() === oldName) return;
+            const cleanNew = newName.trim();
+            if(cleanNew.includes('?')) { alert('الاسم يحتوي على رموز غير صالحة (?)'); return; }
+
+            let units = sanitizeGlobalUnits();
+            const idx = units.indexOf(oldName);
+            if(idx > -1) {
+                units[idx] = cleanNew;
+                localStorage.setItem('erp_global_units_v1', JSON.stringify(units));
+                syncToBackend('units', units);
+            }
+
+            // Update items referencing this unit
+            try {
+                let items = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+                items.forEach(item => {
+                    if(item.baseUnit === oldName) item.baseUnit = cleanNew;
+                    if(item.unit === oldName) item.unit = cleanNew;
+                    if(Array.isArray(item.units)) {
+                        item.units.forEach(u => { if(u.unitName === oldName) u.unitName = cleanNew; });
+                    }
+                    if(Array.isArray(item.unitsArray)) {
+                        item.unitsArray.forEach(u => { if(u.name === oldName) u.name = cleanNew; });
+                    }
+                });
+                localStorage.setItem('erp_items_v1', JSON.stringify(items));
+            } catch(e) {}
+
+            renderGlobalUnitsList();
+            updateUnitDropdowns();
+            if (typeof renderItems === 'function') renderItems();
+        }
+
+        function deleteGlobalUnit(name) {
+            if(!confirm('هل أنت متأكد من حذف الوحدة "' + name + '"؟')) return;
+            let units = sanitizeGlobalUnits();
+            units = units.filter(u => u !== name);
+            localStorage.setItem('erp_global_units_v1', JSON.stringify(units));
+            syncToBackend('units', units);
+            renderGlobalUnitsList();
+            updateUnitDropdowns();
+        }
+
+        function cleanAndResetUnits() {
+            if(confirm('هل تريد تنظيف وإزالة كافة الوحدات التالفة والرموز غير الصالحة واستعادة الوحدات القياسية؟')) {
+                localStorage.removeItem('erp_global_units_v1');
+                const cleanU = sanitizeGlobalUnits();
+                syncToBackend('units', cleanU);
+                renderGlobalUnitsList();
+                updateUnitDropdowns();
+                alert('✅ تم تنظيف وإصلاح مصفوفة الوحدات بنجاح!');
+            }
         }
 
         function renderGlobalUnitsList() {
             const tbody = document.getElementById('units-table-body');
             if(!tbody) return;
-            let units = [];
-            try {
-                units = JSON.parse(localStorage.getItem('erp_global_units_v1')) || [];
-            } catch(e) { units = []; }
+            let units = sanitizeGlobalUnits();
             tbody.innerHTML = '';
             units.forEach(u => {
                 tbody.insertAdjacentHTML('beforeend', `<tr>
-                    <td><strong style="color:#38bdf8;">${u}</strong></td>
-                    <td><button class="btn-text" style="color:var(--danger-color);" onclick="deleteGlobalUnit('${u}')">حذف</button></td>
+                    <td style="font-weight:bold; font-size:1.1rem; color:#38bdf8; padding:12px;">${u}</td>
+                    <td style="text-align:center; padding:12px; white-space:nowrap;">
+                        <button class="btn-text" style="color:#38bdf8; margin-left:12px; font-weight:bold;" onclick="editGlobalUnit('${u}')">✏️ تعديل</button>
+                        <button class="btn-text" style="color:var(--danger-color); font-weight:bold;" onclick="deleteGlobalUnit('${u}')">🗑️ حذف</button>
+                    </td>
                 </tr>`);
             });
         }
 
-        function deleteGlobalUnit(name) {
-            if(!confirm('هل أنت متأكد من حذف هذه الوحدة؟')) return;
-            let units = [];
-            try {
-                units = JSON.parse(localStorage.getItem('erp_global_units_v1')) || [];
-            } catch(e) { units = []; }
-            units = units.filter(u => u !== name);
-            localStorage.setItem('erp_global_units_v1', JSON.stringify(units));
-            renderGlobalUnitsList();
-            updateUnitDropdowns();
-        }
-
         function importLegacyUnits() {
-            // Import units that were manually typed in older items
+            // Import units that were manually typed in items without importing corrupted '?' strings
             let items = [];
             try { items = JSON.parse(localStorage.getItem('erp_items_v1')) || []; } catch(e) {}
             if(items.length === 0) return;
-            let units = [];
-            try { units = JSON.parse(localStorage.getItem('erp_global_units_v1')) || []; } catch(e) {}
+            let units = sanitizeGlobalUnits();
             let added = false;
             items.forEach(i => {
-                if(i.baseUnit && !units.includes(i.baseUnit)) { units.push(i.baseUnit); added = true; }
-                if(i.units) {
+                if(i.baseUnit && typeof i.baseUnit === 'string' && !i.baseUnit.includes('?') && !units.includes(i.baseUnit.trim())) { 
+                    units.push(i.baseUnit.trim()); 
+                    added = true; 
+                }
+                if(i.units && Array.isArray(i.units)) {
                     i.units.forEach(u => {
-                        if(u.unitName && !units.includes(u.unitName)) { units.push(u.unitName); added = true; }
+                        if(u.unitName && typeof u.unitName === 'string' && !u.unitName.includes('?') && !units.includes(u.unitName.trim())) { 
+                            units.push(u.unitName.trim()); 
+                            added = true; 
+                        }
                     });
                 }
             });
@@ -2715,17 +2956,14 @@ function openSafeForm() {
         }
 
         function updateUnitDropdowns(selectedValue = '') {
-            let units = [];
-            try {
-                units = JSON.parse(localStorage.getItem('erp_global_units_v1')) || [];
-            } catch(e) { units = []; }
+            let units = sanitizeGlobalUnits();
             
             const options = units.map(u => `<option value="${u}">${u}</option>`).join('');
             const baseSelect = document.getElementById('item-base-unit');
             if(baseSelect) {
                 const current = selectedValue || baseSelect.value;
                 baseSelect.innerHTML = `<option value="">-- اختر الوحدة --</option>` + options;
-                if(current) baseSelect.value = current;
+                if(current && units.includes(current)) baseSelect.value = current;
             }
             
             // Also update any dynamic selects in the matrix
@@ -2733,7 +2971,7 @@ function openSafeForm() {
                 if(sel.tagName === 'SELECT') {
                     const current = sel.value;
                     sel.innerHTML = `<option value="">-- اختر الوحدة --</option>` + options;
-                    if(current) sel.value = current;
+                    if(current && units.includes(current)) sel.value = current;
                 }
             });
         }
@@ -2749,7 +2987,7 @@ function openSafeForm() {
             } catch(e) {
                 cats = ['مواد بناء','أدوات صحية','كهرباء'];
             }
-            if(!cats.includes(name)) { cats.push(name); localStorage.setItem('erp_categories_v1', JSON.stringify(cats)); }
+            if(!cats.includes(name)) { cats.push(name); localStorage.setItem('erp_categories_v1', JSON.stringify(cats)); syncToBackend('categories', cats); }
             document.getElementById('cat-name-input').value = '';
             renderCategoriesList();
             updateCategoryDropdowns();

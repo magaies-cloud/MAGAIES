@@ -1,7 +1,49 @@
-<?php $page_title = 'المشتريات'; ?>
+<?php 
+$page_title = 'المشتريات'; 
+$db_purchase_grid_config = null;
+$preloadedUnitsJson = '[]';
+$preloadedItemsJson = '[]';
+try {
+    require_once __DIR__ . '/api/db.php';
+    if (isset($pdo)) {
+        $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'grid_config_purchase_grid'");
+        $stmt->execute();
+        $row = $stmt->fetch(PDO::FETCH_ASSOC);
+        if ($row && !empty($row['setting_value'])) {
+            $db_purchase_grid_config = json_decode($row['setting_value'], true);
+        }
+
+        $stmtUnits = $pdo->query("SELECT setting_value FROM global_settings WHERE setting_key = 'erp_global_units_v1'");
+        $uVal = $stmtUnits ? $stmtUnits->fetchColumn() : null;
+        if ($uVal) $preloadedUnitsJson = $uVal;
+
+        $stmtItems = $pdo->query("SELECT data FROM items WHERE is_deleted = 0 OR is_deleted IS NULL");
+        $pItems = [];
+        while ($r = $stmtItems->fetch(PDO::FETCH_ASSOC)) {
+            if (!empty($r['data'])) {
+                $d = json_decode($r['data'], true);
+                if ($d && empty($d['deleted'])) $pItems[] = $d;
+            }
+        }
+        $preloadedItemsJson = json_encode($pItems, JSON_UNESCAPED_UNICODE);
+    }
+} catch (Exception $e) {}
+?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
+<script>
+window._PRELOADED_UNITS = <?= $preloadedUnitsJson ?: '[]' ?>;
+window._PRELOADED_ITEMS = <?= $preloadedItemsJson ?: '[]' ?>;
+try {
+    if (Array.isArray(window._PRELOADED_UNITS) && window._PRELOADED_UNITS.length > 0) {
+        localStorage.setItem('erp_global_units_v1', JSON.stringify(window._PRELOADED_UNITS));
+    }
+    if (Array.isArray(window._PRELOADED_ITEMS) && window._PRELOADED_ITEMS.length > 0) {
+        localStorage.setItem('erp_items_v1', JSON.stringify(window._PRELOADED_ITEMS));
+    }
+} catch(e) {}
+</script>
 <script>
 (function(){
     var l = localStorage.getItem('erp_lang') || 'ar';
@@ -1458,6 +1500,50 @@
             border-color: rgba(132, 204, 22, 0.3) !important;
         }
     </style>
+
+    <!-- Server-Side Pre-Rendered Grid Configuration from MySQL Database -->
+    <script>
+        window.CurrentGridConfig = <?php echo json_encode($db_purchase_grid_config, JSON_UNESCAPED_UNICODE) ?: 'null'; ?>;
+    </script>
+    <style id="dynamic-pos-grid-style">
+    <?php
+    if ($db_purchase_grid_config && isset($db_purchase_grid_config['columns'])) {
+        $cfg = $db_purchase_grid_config;
+        $fFamily = $cfg['fontFamily'] ?? "'Cairo', sans-serif";
+        $fSize = ($cfg['fontSize'] ?? 16) . 'px';
+        $fWeight = $cfg['fontWeight'] ?? 'normal';
+        $fColor = $cfg['fontColor'] ?? '#ffffff';
+        $tAlign = $cfg['align'] ?? 'center';
+        
+        echo "#pos-grid, #pos-grid *, #pos-grid thead th, #pos-grid tbody td, #pos-grid tbody td input, #pos-grid tbody td select, #pos-grid tbody td span { font-family: " . $fFamily . " !important; }\n";
+        echo "#pos-grid thead th { font-size: " . $fSize . " !important; text-align: " . $tAlign . " !important; }\n";
+        echo "#pos-grid tbody td { font-size: " . $fSize . " !important; font-weight: " . $fWeight . " !important; color: " . $fColor . " !important; text-align: " . $tAlign . " !important; }\n";
+        echo "#pos-grid tbody td input, #pos-grid tbody td select, #pos-grid tbody td span:not(.btn-icon):not(.add-row-btn), #pos-grid tbody td div:not(.custom-dropdown-list), #pos-grid tbody td .g-input, #pos-grid tbody td .g-select, #pos-grid tbody td .g-readonly { font-size: " . $fSize . " !important; font-weight: " . $fWeight . " !important; color: " . $fColor . " !important; text-align: " . $tAlign . " !important; }\n";
+        
+        foreach ($cfg['columns'] as $col) {
+            $colId = $col['id'];
+            $colVisible = !isset($col['visible']) || $col['visible'];
+            $colColor = $col['color'] ?? $fColor;
+            $colSize = isset($col['fontSize']) ? ($col['fontSize'] . 'px') : $fSize;
+            $colWeight = $col['fontWeight'] ?? $fWeight;
+            $colAlign = $col['align'] ?? $tAlign;
+            $colWidth = (!empty($col['width']) && $col['width'] !== 'auto') ? $col['width'] : (($colId === 'item' || $colId === 'col_item') ? 'auto' : '100px');
+            
+            if (!$colVisible) {
+                echo "#pos-grid [data-col-id='" . $colId . "'] { display: none !important; }\n";
+            } else {
+                $wStyle = ($colWidth !== 'auto') ? ("width: " . $colWidth . " !important; min-width: " . $colWidth . " !important; max-width: " . $colWidth . " !important;") : "width: auto !important; min-width: 180px !important;";
+                $flexJustify = ($colAlign === 'center') ? 'center' : (($colAlign === 'right') ? 'flex-start' : 'flex-end');
+                echo "#pos-grid [data-col-id='" . $colId . "'] { display: table-cell !important; " . $wStyle . " text-align: " . $colAlign . " !important; color: " . $colColor . " !important; font-size: " . $colSize . " !important; font-weight: " . $colWeight . " !important; }\n";
+                echo "#pos-grid th[data-col-id='" . $colId . "'] { color: #38bdf8 !important; font-weight: bold !important; text-align: " . $colAlign . " !important; font-size: " . $colSize . " !important; " . $wStyle . " }\n";
+                echo "#pos-grid td[data-col-id='" . $colId . "'] { text-align: " . $colAlign . " !important; color: " . $colColor . " !important; font-size: " . $colSize . " !important; font-weight: " . $colWeight . " !important; " . $wStyle . " }\n";
+                echo "#pos-grid td[data-col-id='" . $colId . "'] input, #pos-grid td[data-col-id='" . $colId . "'] select, #pos-grid td[data-col-id='" . $colId . "'] span:not(.btn-icon):not(.add-row-btn), #pos-grid td[data-col-id='" . $colId . "'] div:not(.custom-dropdown-list), #pos-grid td[data-col-id='" . $colId . "'] .g-input, #pos-grid td[data-col-id='" . $colId . "'] .g-select, #pos-grid td[data-col-id='" . $colId . "'] .g-readonly, #pos-grid td[data-col-id='" . $colId . "'] .total-val, #pos-grid td[data-col-id='" . $colId . "'] .avail-val { text-align: " . $colAlign . " !important; color: " . $colColor . " !important; font-size: " . $colSize . " !important; font-weight: " . $colWeight . " !important; }\n";
+                echo "#pos-grid td[data-col-id='" . $colId . "'] > div { display: flex; justify-content: " . $flexJustify . " !important; align-items: center; }\n";
+            }
+        }
+    }
+    ?>
+    </style>
 </head>
 <body class="light-theme">
     <div class="toast-container" id="toast-container"></div>
@@ -1503,7 +1589,6 @@
         
         <!-- Action Cards -->
         <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(280px, 1fr)); gap: 20px; margin-bottom: 25px;">
-
 
             <!-- Direct Purchase Invoice -->
             <button onclick="openPurchaseEditor('direct')" class="hub-action-card card-orange">
@@ -1591,7 +1676,6 @@
                         <span>🔄 تحديث</span>
                     </button>
                 </div>
-                
             </div>
         </div>
 
@@ -1653,7 +1737,6 @@
                     <div id="invoice-info-box" style="flex: 1.3; display: flex; gap: 20px; width: 100%; align-items: center; transition: all 0.4s ease; padding: 6px 15px; border-radius: 12px;">
                         
                         <div class="h-form-group group-invoice" style="flex: 1; display:flex; align-items:center; gap:15px; margin:0; flex-direction: row !important;">
-
                             <label id="hdr-inv-label" class="h-label" style="margin:0; font-size: 0.9rem; font-weight:bold; white-space:nowrap; transition: all 0.3s ease;">رقم الفاتورة:</label>
                             <div class="pro-serial-container" style="flex:1; display:flex; align-items:center; justify-content:space-between; padding: 3px 8px; border-radius: 8px;">
                                 <button class="pro-serial-btn" type="button" onclick="loadPreviousInvoice()" title="السابقة" style="background: transparent; border: none; color: #fff; font-size: 1.2rem; cursor: pointer; padding: 0 10px; opacity:0.7; transition:0.2s;" onmouseover="this.style.opacity=1" onmouseout="this.style.opacity=0.7">❮</button>
@@ -1782,22 +1865,11 @@
                     </div>
                 </div>
 
-                <!-- Due Date (hidden normally) -->
-                <div class="h-form-group" id="due-date-group" style="display:none; border-color: rgba(245,158,11,0.3); background: rgba(245,158,11,0.05);; flex-direction: row !important;">
-                    <label class="h-label" style="color: #f59e0b;">الاستحقاق</label>
-                    <div class="h-input-wrapper" style="display: flex !important; flex-direction: row !important; align-items: center !important; flex: 1;">
-                        <input type="date" class="v-input ctrl-input" id="hdr-due-date" style="color:#f59e0b; background: rgba(245,158,11,0.1);">
-                    </div>
-                </div>
-
             </div>
         </div>
 
-        <!-- Totals Card removed for inline redesign -->
-
     </div> <!-- End purchase-top-row -->
 
-    
     <style>
         /* --- PURCHASE GRID 100% FULL WIDTH RESPONSIVE OVERRIDE --- */
         .purchase-bottom {
@@ -1816,21 +1888,47 @@
         }
         #pos-grid {
             width: 100% !important;
-            min-width: 950px !important;
+            min-width: 900px !important;
             table-layout: auto !important;
             border-collapse: collapse !important;
         }
-        #pos-grid th[data-col-id="item"], #pos-grid td:nth-child(3) {
-            width: auto !important;
-            min-width: 250px !important;
-        }
         #pos-grid thead th {
             white-space: nowrap !important;
+            position: relative !important;
+        }
+        #pos-grid td {
+            position: relative !important;
         }
     </style>
-
+    
     <!-- BOTTOM PANEL (Items Table) -->
     <div class="purchase-bottom" style="flex: none; display: flex; flex-direction: column; padding: 0 15px 15px 15px; overflow: visible; margin-top: 15px;">
+        
+        <div class="panel-header-row" style="display: flex; align-items: center; justify-content: space-between; gap: 12px; margin-bottom: 12px; background: rgba(18, 15, 25, 0.65); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 10px 16px;">
+            <div style="display: flex; align-items: center; gap: 10px; flex: 1;">
+                <div class="panel-title" style="white-space: nowrap; font-weight: bold; color: #38bdf8; font-size: 1.1rem;">📦 أصناف الفاتورة</div>
+                <div class="quick-add-box" style="flex: 1; max-width: 380px; position: relative; z-index: 99999; display: flex; gap: 6px; align-items: center;">
+                    <input type="text" class="g-input" id="quick-item-search" placeholder="بحث صنف أو باركود..."
+                        style="background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.35); border-radius: 8px; color: var(--text-primary); padding: 5px 10px; flex: 1;"
+                        onfocus="this.select(); showQuickItemDropdown()"
+                        onblur="hideQuickItemDropdownDelayed()"
+                        oninput="filterQuickItemDropdown()" autocomplete="new-password">
+                    <button type="button" onclick="startCameraScanner('quick-item-search')" style="background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.35); border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #38bdf8; font-size: 1.1rem;" title="مسح باركود بالكاميرا">
+                        📷
+                    </button>
+                    <button type="button" onclick="addRow()" style="background: rgba(16,185,129,0.15); border: 1px solid rgba(16,185,129,0.35); border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #10b981; font-size: 1.4rem; font-weight: bold;" title="إضافة سطر">
+                        +
+                    </button>
+                    <div class="custom-dropdown-list" id="quick-item-dropdown-list" style="text-align:right; top: 100%; left: 0; right: 0; position: absolute;"></div>
+                </div>
+            </div>
+            <div>
+                <button type="button" onclick="openGridSettingsModal()" style="background: linear-gradient(135deg, rgba(56,189,248,0.2), rgba(14,165,233,0.3)); border: 1.5px solid #38bdf8; color: #38bdf8; border-radius: 8px; padding: 6px 14px; display: flex; align-items: center; gap: 6px; cursor: pointer; font-weight: bold; font-size: 0.95rem; transition: all 0.2s; box-shadow: 0 2px 10px rgba(56,189,248,0.25);" title="تخصيص وترتيب الأعمدة والخطوط والألوان وحفظها نهائياً في قاعدة البيانات">
+                    <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="3"></circle><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path></svg>
+                    <span>⚙️ تخصيص وتنسيق الجدول</span>
+                </button>
+            </div>
+        </div>
         
         <!-- items-toolbar was moved below the table-container -->
 
@@ -3760,8 +3858,839 @@ document.addEventListener('DOMContentLoaded', () => {
     });
 });
 </script>
+
+    
+    <!-- Context Menu for Columns -->
+    <div id="col-context-menu" class="grid-context-menu" style="display:none; position:fixed; z-index:999999; background:#1e293b; border:1px solid #38bdf8; border-radius:10px; box-shadow:0 15px 35px rgba(0,0,0,0.7); min-width:240px; padding:8px 0; color:#fff; font-family:'Tajawal', sans-serif;">
+        <div class="grid-context-title" style="padding:8px 16px; font-weight:bold; color:#38bdf8; border-bottom:1px solid rgba(255,255,255,0.1); font-size:1rem;">🛠️ خيارات وتخصيص الجدول</div>
+        <div class="context-item-custom" onclick="openGridSettingsModal()" style="padding:10px 16px; cursor:pointer; display:flex; align-items:center; gap:8px; font-weight:bold;">⚙️ تخصيص وترتيب وتنسيق الأعمدة...</div>
+        <hr class="context-item-hr" style="border:none; border-top:1px solid rgba(255,255,255,0.1); margin:4px 0;">
+        <div class="context-item-custom" onclick="quickAlignGrid('right')" style="padding:8px 16px; cursor:pointer;">➡️ محاذاة النص لليمين</div>
+        <div class="context-item-custom" onclick="quickAlignGrid('center')" style="padding:8px 16px; cursor:pointer;">↕️ محاذاة النص للوسط</div>
+        <div class="context-item-custom" onclick="quickAlignGrid('left')" style="padding:8px 16px; cursor:pointer;">⬅️ محاذاة النص لليسار</div>
+        <hr class="context-item-hr" style="border:none; border-top:1px solid rgba(255,255,255,0.1); margin:4px 0;">
+        <div class="context-item-custom" onclick="quickResetGrid()" style="padding:8px 16px; cursor:pointer; color:#f87171;">🔄 استعادة الضبط الافتراضي</div>
+    </div>
+
+    <!-- Advanced Modal for Grid Customization (With Interactive Column Selection & DB Persistence) -->
+    <div id="grid-settings-modal" class="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px); z-index:999999; justify-content:center; align-items:center; direction:rtl; font-family:'Tajawal', sans-serif;">
+        <div class="glass-panel" style="width:96%; max-width:1200px; max-height:94vh; display:flex; flex-direction:column; padding:22px; border-radius:20px; border:1.5px solid rgba(56, 189, 248, 0.4); background:rgba(15,23,42,0.98); color:#fff; box-shadow:0 25px 60px rgba(0,0,0,0.85);">
+            
+            <!-- Modal Header -->
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:12px; margin-bottom:14px;">
+                <div style="display:flex; align-items:center; gap:12px;">
+                    <div style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; border-radius:10px; width:42px; height:42px; display:flex; align-items:center; justify-content:center; font-size:1.4rem;">⚙️</div>
+                    <div>
+                        <h3 style="margin:0; font-size:1.35rem; font-weight:900; color:#38bdf8;">تخصيص وتنسيق جدول المشتريات (اختيار عمود أو ضبط عام)</h3>
+                        <span style="font-size:0.85rem; color:#94a3b8;">اضغط على أي عمود لاختياره وتعديل حجم خطه، لونه، سُمكه، عرضه وفواصله، أو اضبط الإعدادات العامة لكامل الجدول</span>
+                    </div>
+                </div>
+                <button type="button" onclick="closeGridSettingsModal()" style="background:rgba(255,255,255,0.08); border:none; color:#fff; font-size:1.4rem; cursor:pointer; width:36px; height:36px; border-radius:8px; display:flex; align-items:center; justify-content:center; transition:background 0.2s;">✕</button>
+            </div>
+            
+            <!-- Modal Body (2 Columns Layout) -->
+            <div style="flex:1; overflow-y:auto; padding-right:4px; display:grid; grid-template-columns:1.1fr 1.35fr; gap:20px;">
+                
+                <!-- Right Side: Column Selector & Reorder List -->
+                <div style="background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:14px; display:flex; flex-direction:column;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:8px;">
+                        <h4 style="margin:0; color:#38bdf8; font-size:1.05rem; font-weight:bold; display:flex; align-items:center; gap:6px;">📋 قائمة الأعمدة (اضغط للاختيار والتعديل)</h4>
+                        <span style="font-size:0.78rem; color:#cbd5e1;">▲ ▼ للترتيب</span>
+                    </div>
+                    
+                    <div id="col-settings-list" style="display:flex; flex-direction:column; gap:6px; overflow-y:auto; max-height:55vh; padding-left:4px;">
+                        <!-- Dynamically populated -->
+                    </div>
+                </div>
+                
+                <!-- Left Side: Interactive Selected Column Editor & Global Settings -->
+                <div style="display:flex; flex-direction:column; gap:14px;">
+                    
+                    <!-- Box 1: Selected Column Detailed Properties -->
+                    <div id="selected-col-panel" style="background:linear-gradient(135deg, rgba(56,189,248,0.08), rgba(15,23,42,0.6)); border:1.5px solid rgba(56,189,248,0.4); border-radius:14px; padding:14px; box-shadow:inset 0 1px 3px rgba(255,255,255,0.05);">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px; border-bottom:1px solid rgba(56,189,248,0.3); padding-bottom:8px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="font-size:1.2rem;">🎯</span>
+                                <h4 style="margin:0; color:#38bdf8; font-size:1.05rem; font-weight:900;">خصائص العمود المحدد: <span id="lbl-selected-col-name" style="color:#facc15; font-size:1.15rem;"></span></h4>
+                            </div>
+                            <span id="badge-selected-col-id" style="font-size:0.75rem; background:rgba(56,189,248,0.2); color:#38bdf8; padding:3px 8px; border-radius:6px; font-family:monospace;"></span>
+                        </div>
+
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:12px;">
+                            <!-- Column Title / Alias -->
+                            <div style="grid-column:1 / -1;">
+                                <label style="color:#cbd5e1; font-weight:bold; font-size:0.85rem; display:block; margin-bottom:4px;">عنوان واسم العمود في الرأس:</label>
+                                <input type="text" id="sel-col-name" oninput="onSelectedColPropChange('name', this.value)" style="width:100%; background:#0f172a; border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff; padding:7px 10px; font-weight:bold; font-size:0.95rem;">
+                            </div>
+
+                            <!-- Column Font Size -->
+                            <div>
+                                <label style="color:#cbd5e1; font-weight:bold; font-size:0.85rem; display:block; margin-bottom:4px;">حجم خط هذا العمود:</label>
+                                <div style="display:flex; gap:8px; align-items:center;">
+                                    <input type="number" id="sel-col-fontsize" min="11" max="36" oninput="onSelectedColPropChange('fontSize', parseInt(this.value)||16)" style="width:60px; background:#0f172a; border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff; padding:6px; text-align:center; font-weight:bold;">
+                                    <input type="range" id="sel-col-fontsize-range" min="11" max="36" oninput="document.getElementById('sel-col-fontsize').value=this.value; onSelectedColPropChange('fontSize', parseInt(this.value));" style="flex:1; cursor:pointer; accent-color:#38bdf8;">
+                                    <span style="font-size:0.8rem; color:#38bdf8; font-family:monospace;">px</span>
+                                </div>
+                            </div>
+
+                            <!-- Column Font Weight -->
+                            <div>
+                                <label style="color:#cbd5e1; font-weight:bold; font-size:0.85rem; display:block; margin-bottom:4px;">سُمك خط هذا العمود:</label>
+                                <select id="sel-col-fontweight" onchange="onSelectedColPropChange('fontWeight', this.value)" style="width:100%; background:#0f172a; border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff; padding:7px 10px; font-size:0.9rem;">
+                                    <option value="">افتراضي (نفس الجدول)</option>
+                                    <option value="normal">عادي (Normal)</option>
+                                    <option value="bold">عريض (Bold)</option>
+                                    <option value="800">سميك جداً (Extra Bold)</option>
+                                </select>
+                            </div>
+
+                            <!-- Column Color -->
+                            <div>
+                                <label style="color:#cbd5e1; font-weight:bold; font-size:0.85rem; display:block; margin-bottom:4px;">لون خط هذا العمود:</label>
+                                <div style="display:flex; gap:8px; align-items:center;">
+                                    <input type="color" id="sel-col-color" oninput="onSelectedColPropChange('color', this.value)" style="border:none; width:45px; height:34px; cursor:pointer; background:transparent; border-radius:6px;">
+                                    <input type="text" id="sel-col-color-text" oninput="onSelectedColPropChange('color', this.value); document.getElementById('sel-col-color').value=this.value;" style="width:85px; background:#0f172a; border:1px solid rgba(255,255,255,0.2); border-radius:6px; color:#fff; padding:5px; text-align:center; font-family:monospace; font-size:0.85rem;">
+                                    <button type="button" onclick="onSelectedColPropChange('color', '#ffffff'); document.getElementById('sel-col-color').value='#ffffff'; document.getElementById('sel-col-color-text').value='#ffffff';" style="background:rgba(255,255,255,0.1); border:none; border-radius:6px; padding:5px 8px; font-size:0.75rem; color:#fff; cursor:pointer;">أبيض</button>
+                                </div>
+                            </div>
+
+                            <!-- Column Alignment -->
+                            <div>
+                                <label style="color:#cbd5e1; font-weight:bold; font-size:0.85rem; display:block; margin-bottom:4px;">محاذاة هذا العمود:</label>
+                                <select id="sel-col-align" onchange="onSelectedColPropChange('align', this.value)" style="width:100%; background:#0f172a; border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff; padding:7px 10px; font-size:0.9rem;">
+                                    <option value="center">وسط (Center)</option>
+                                    <option value="right">يمين (Right)</option>
+                                    <option value="left">يسار (Left)</option>
+                                </select>
+                            </div>
+
+                            <!-- Column Width -->
+                            <div>
+                                <label style="color:#cbd5e1; font-weight:bold; font-size:0.85rem; display:block; margin-bottom:4px;">عرض العمود:</label>
+                                <div style="display:flex; gap:8px; align-items:center;">
+                                    <input type="range" id="sel-col-width-range" min="40" max="450" oninput="document.getElementById('sel-col-width').value=this.value; onSelectedColPropChange('width', this.value+'px');" style="flex:1; cursor:pointer; accent-color:#38bdf8;">
+                                    <input type="number" id="sel-col-width" min="40" max="450" oninput="document.getElementById('sel-col-width-range').value=this.value; onSelectedColPropChange('width', this.value+'px');" style="width:65px; background:#0f172a; border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff; padding:5px; text-align:center; font-weight:bold;">
+                                    <span style="font-size:0.8rem; color:#38bdf8; font-family:monospace;">px</span>
+                                </div>
+                            </div>
+
+                            <!-- Column Decimals -->
+                            <div>
+                                <label style="color:#cbd5e1; font-weight:bold; font-size:0.85rem; display:block; margin-bottom:4px;">الخانات العشرية لهذا العمود:</label>
+                                <select id="sel-col-decimals" onchange="onSelectedColPropChange('decimals', this.value !== '' ? parseInt(this.value) : '')" style="width:100%; background:#0f172a; border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#38bdf8; padding:7px 10px; font-size:0.9rem;">
+                                    <option value="">افتراضي (حسب الضبط العام)</option>
+                                    <option value="0">0 (بدون كسور: 120)</option>
+                                    <option value="1">1 (خانة واحدة: 120.5)</option>
+                                    <option value="2">2 (خانتان: 120.50)</option>
+                                    <option value="3">3 (ثلاث خانات: 120.500)</option>
+                                    <option value="4">4 (أربع خانات: 120.5000)</option>
+                                </select>
+                            </div>
+
+                            <!-- Column Thousands Separator -->
+                            <div>
+                                <label style="color:#cbd5e1; font-weight:bold; font-size:0.85rem; display:block; margin-bottom:4px;">الفاصلة الألفية لهذا العمود:</label>
+                                <select id="sel-col-thousandsep" onchange="onSelectedColPropChange('thousandSep', this.value)" style="width:100%; background:#0f172a; border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#38bdf8; padding:7px 10px; font-size:0.9rem;">
+                                    <option value="default">افتراضي (حسب الضبط العام)</option>
+                                    <option value=",">ظهور الفاصلة (1,234.50)</option>
+                                    <option value="none">إخفاء الفاصلة (1234.50)</option>
+                                </select>
+                            </div>
+
+                            <!-- Apply To All Button -->
+                            <div style="grid-column:1 / -1; margin-top:4px;">
+                                <button type="button" onclick="applySelectedColStyleToAll()" style="background:rgba(99,102,241,0.2); color:#a5b4fc; border:1px solid rgba(99,102,241,0.4); border-radius:8px; padding:8px 12px; width:100%; font-weight:bold; font-size:0.85rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s;">
+                                    ⚡ تطبيق حجم ولون وسُمك هذا العمود على جميع الأعمدة الأخرى
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Box 2: Global Table Settings -->
+                    <div style="background:rgba(0,0,0,0.25); border:1px solid rgba(255,255,255,0.08); border-radius:14px; padding:14px;">
+                        <h4 style="margin:0 0 10px 0; color:#38bdf8; font-size:0.98rem; font-weight:bold; border-bottom:1px solid rgba(255,255,255,0.08); padding-bottom:6px;">🌐 الإعدادات والخطوط العامة للجدول بالكامل</h4>
+                        
+                        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px;">
+                            <!-- Font Family -->
+                            <div style="grid-column:1 / -1;">
+                                <label style="color:#cbd5e1; font-weight:bold; font-size:0.82rem; display:block; margin-bottom:3px;">نوع الخط (Font Family):</label>
+                                <select id="grid-setting-font-family" style="width:100%; background:#0f172a; border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff; padding:6px 10px; font-size:0.9rem;">
+                                    <option value="'Cairo', sans-serif">Cairo (الافتراضي - كلاسيكي وواضح)</option>
+                                    <option value="'Tajawal', sans-serif">Tajawal (عصري وناعم)</option>
+                                    <option value="'JetBrains Mono', monospace">JetBrains Mono (فائق الوضوح للأرقام)</option>
+                                    <option value="'Consolas', monospace">Consolas (ممتاز للأرقام)</option>
+                                    <option value="'Segoe UI', sans-serif">Segoe UI (رسمي وأنيق)</option>
+                                    <option value="'Roboto', sans-serif">Roboto (حديث)</option>
+                                    <option value="'Arial', sans-serif">Arial (قياسي)</option>
+                                </select>
+                            </div>
+
+                            <!-- Global Font Size -->
+                            <div>
+                                <label style="color:#cbd5e1; font-weight:bold; font-size:0.82rem; display:block; margin-bottom:3px;">حجم الخط العام الافتراضي:</label>
+                                <div style="display:flex; gap:6px; align-items:center;">
+                                    <input type="number" id="grid-setting-font-size" min="11" max="32" value="16" style="width:55px; background:#0f172a; border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff; padding:5px; text-align:center; font-weight:bold;">
+                                    <input type="range" min="11" max="32" value="16" oninput="document.getElementById('grid-setting-font-size').value=this.value" style="flex:1; cursor:pointer; accent-color:#38bdf8;">
+                                </div>
+                            </div>
+
+                            <!-- Global Font Weight -->
+                            <div>
+                                <label style="color:#cbd5e1; font-weight:bold; font-size:0.82rem; display:block; margin-bottom:3px;">سُمك الخط العام الافتراضي:</label>
+                                <select id="grid-setting-font-weight" style="width:100%; background:#0f172a; border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff; padding:6px 10px; font-size:0.85rem;">
+                                    <option value="normal">عادي (Normal - 400)</option>
+                                    <option value="bold">عريض (Bold - 700)</option>
+                                    <option value="800">سميك جداً (Extra Bold - 800)</option>
+                                    <option value="300">خفيف (Light - 300)</option>
+                                </select>
+                            </div>
+
+                            <!-- Global Font Color -->
+                            <div>
+                                <label style="color:#cbd5e1; font-weight:bold; font-size:0.82rem; display:block; margin-bottom:3px;">لون الخط العام الافتراضي:</label>
+                                <div style="display:flex; gap:6px; align-items:center;">
+                                    <input type="color" id="grid-setting-font-color" value="#ffffff" style="border:none; width:38px; height:30px; cursor:pointer; background:#0f172a; border-radius:6px;">
+                                    <button type="button" onclick="document.getElementById('grid-setting-font-color').value='#ffffff'" style="background:rgba(255,255,255,0.1); border:none; border-radius:6px; padding:5px 8px; font-size:0.75rem; color:#fff; cursor:pointer;">أبيض</button>
+                                </div>
+                            </div>
+
+                            <!-- Global Align -->
+                            <div>
+                                <label style="color:#cbd5e1; font-weight:bold; font-size:0.82rem; display:block; margin-bottom:3px;">المحاذاة العامة الافتراضية:</label>
+                                <select id="grid-setting-align" style="width:100%; background:#0f172a; border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff; padding:6px 10px; font-size:0.85rem;">
+                                    <option value="center">وسط (Center)</option>
+                                    <option value="right">يمين (Right)</option>
+                                    <option value="left">يسار (Left)</option>
+                                </select>
+                            </div>
+
+                            <!-- Global Thousands Separator -->
+                            <div>
+                                <label style="color:#cbd5e1; font-weight:bold; font-size:0.82rem; display:block; margin-bottom:3px;">الفاصلة الألفية العامة:</label>
+                                <select id="grid-setting-thousand-sep" style="width:100%; background:#0f172a; border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff; padding:6px 10px; font-size:0.85rem;">
+                                    <option value=",">ظهور الفاصلة (1,234.50)</option>
+                                    <option value="none">إخفاء الفاصلة (1234.50)</option>
+                                </select>
+                            </div>
+
+                            <!-- Global Decimals -->
+                            <div>
+                                <label style="color:#cbd5e1; font-weight:bold; font-size:0.82rem; display:block; margin-bottom:3px;">الخانات العشرية العامة:</label>
+                                <select id="grid-setting-decimals" style="width:100%; background:#0f172a; border:1px solid rgba(255,255,255,0.2); border-radius:8px; color:#fff; padding:6px 10px; font-size:0.85rem;">
+                                    <option value="0">0 (بدون كسور: 120)</option>
+                                    <option value="1">1 (خانة واحدة: 120.5)</option>
+                                    <option value="2" selected>2 (خانتان: 120.50)</option>
+                                    <option value="3">3 (ثلاث خانات: 120.500)</option>
+                                    <option value="4">4 (أربع خانات: 120.5000)</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <!-- Modal Footer / Actions -->
+            <div style="display:flex; justify-content:space-between; align-items:center; margin-top:14px; border-top:1px solid rgba(255,255,255,0.12); padding-top:12px;">
+                <button type="button" onclick="quickResetGrid()" style="background:rgba(239,68,68,0.15); color:#f87171; border:1px solid rgba(239,68,68,0.3); border-radius:8px; padding:8px 16px; font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:6px;">
+                    🔄 استعادة الافتراضي
+                </button>
+                
+                <div style="display:flex; gap:10px;">
+                    <button type="button" onclick="previewGridSettings()" style="background:rgba(56,189,248,0.15); color:#38bdf8; border:1px solid rgba(56,189,248,0.4); border-radius:8px; padding:8px 18px; font-weight:bold; cursor:pointer; display:flex; align-items:center; gap:6px;">
+                        👁️ تجربة فورية
+                    </button>
+                    <button type="button" onclick="closeGridSettingsModal()" style="background:rgba(255,255,255,0.1); color:#fff; border:1px solid rgba(255,255,255,0.15); border-radius:8px; padding:8px 18px; cursor:pointer;">
+                        إلغاء
+                    </button>
+                    <button type="button" onclick="saveAndApplyGridSettingsToDB()" style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; border:none; border-radius:8px; padding:8px 24px; font-weight:900; font-size:1.05rem; cursor:pointer; box-shadow:0 4px 15px rgba(16,185,129,0.4); display:flex; align-items:center; gap:8px;">
+                        💾 حفظ نهائي في قاعدة البيانات
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+    // ══════════════════════════════════════════════════════════════════════════
+    //  INTERACTIVE DATABASE-PERSISTENT GRID CUSTOMIZER SYSTEM (purchase_grid)
+    // ══════════════════════════════════════════════════════════════════════════
+
+    const GRID_ID = 'purchase_grid';
+
+    const DEFAULT_GRID_CONFIG = {
+    "grid_id": "purchase_grid",
+    "fontSize": 16,
+    "fontWeight": "normal",
+    "fontFamily": "'Cairo', sans-serif",
+    "fontColor": "#ffffff",
+    "align": "center",
+    "decimalPlaces": 2,
+    "thousandSep": ",",
+    "columns": [
+        {
+            "id": "col_index",
+            "name": "#",
+            "visible": true,
+            "width": "45px",
+            "align": "center",
+            "color": "#94a3b8",
+            "fontSize": 15
+        },
+        {
+            "id": "available",
+            "name": "المتاح",
+            "visible": true,
+            "width": "128px",
+            "align": "center",
+            "color": "#38bdf8",
+            "fontSize": 16,
+            "decimals": 2
+        },
+        {
+            "id": "item",
+            "name": "الصنف",
+            "visible": true,
+            "width": "324px",
+            "align": "right",
+            "color": "#ffffff",
+            "fontSize": 17,
+            "fontWeight": "bold"
+        },
+        {
+            "id": "unit",
+            "name": "الوحدة",
+            "visible": true,
+            "width": "175px",
+            "align": "center",
+            "color": "#ffffff",
+            "fontSize": 16
+        },
+        {
+            "id": "quantity",
+            "name": "الكمية",
+            "visible": true,
+            "width": "196px",
+            "align": "center",
+            "color": "#facc15",
+            "fontSize": 16,
+            "fontWeight": "bold",
+            "decimals": 2
+        },
+        {
+            "id": "price",
+            "name": "السعر",
+            "visible": true,
+            "width": "168px",
+            "align": "center",
+            "color": "#ffffff",
+            "fontSize": 17,
+            "fontWeight": "bold",
+            "decimals": 2,
+            "thousandSep": ","
+        },
+        {
+            "id": "fcprice",
+            "name": "سعر (جنيه)",
+            "visible": true,
+            "width": "120px",
+            "align": "center",
+            "color": "#ffffff",
+            "fontSize": 15,
+            "decimals": 2,
+            "thousandSep": ","
+        },
+        {
+            "id": "warehouse",
+            "name": "المخزن",
+            "visible": true,
+            "width": "130px",
+            "align": "center",
+            "color": "#ffffff",
+            "fontSize": 15
+        },
+        {
+            "id": "total",
+            "name": "الجملة",
+            "visible": true,
+            "width": "240px",
+            "align": "center",
+            "color": "#ffa3a8",
+            "fontSize": 18,
+            "fontWeight": "900",
+            "decimals": 2,
+            "thousandSep": ","
+        },
+        {
+            "id": "fctotal",
+            "name": "جملة (جنيه)",
+            "visible": true,
+            "width": "120px",
+            "align": "center",
+            "color": "#fafffd",
+            "fontSize": 15,
+            "decimals": 2,
+            "thousandSep": ","
+        },
+        {
+            "id": "action",
+            "name": "إجراء",
+            "visible": true,
+            "width": "90px",
+            "align": "center",
+            "color": "#ffffff",
+            "fontSize": 14
+        }
+    ]
+};
+
+    let tempGridConfig = null;
+    let selectedColIndex = 0;
+
+    function renderModalColumnsList() {
+        const listEl = document.getElementById('col-settings-list');
+        listEl.innerHTML = '';
+        
+        tempGridConfig.columns.forEach((col, index) => {
+            const item = document.createElement('div');
+            const isSelected = (index === selectedColIndex);
+            
+            item.style.cssText = `
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                gap: 8px;
+                padding: 9px 12px;
+                border-radius: 10px;
+                cursor: pointer;
+                transition: all 0.2s;
+                background: ${isSelected ? 'rgba(56, 189, 248, 0.18)' : 'rgba(255,255,255,0.03)'};
+                border: ${isSelected ? '2px solid #38bdf8' : '1px solid rgba(255,255,255,0.07)'};
+                box-shadow: ${isSelected ? '0 0 12px rgba(56,189,248,0.3)' : 'none'};
+            `;
+            
+            item.onclick = (e) => {
+                if (e.target.tagName === 'BUTTON' || e.target.tagName === 'INPUT') return;
+                selectedColIndex = index;
+                renderModalColumnsList();
+                populateSelectedColPanel();
+            };
+
+            const colColor = col.color || tempGridConfig.fontColor || '#ffffff';
+            const colSize = col.fontSize || tempGridConfig.fontSize || 16;
+            const colWidth = col.width || '100px';
+
+            item.innerHTML = `
+                <!-- Move ▲ ▼ & Checkbox & Name -->
+                <div style="display:flex; align-items:center; gap:8px; flex:1;">
+                    <div style="display:flex; flex-direction:column; gap:2px;">
+                        <button type="button" onclick="moveModalColumn(${index}, 'up'); event.stopPropagation();" style="background:rgba(255,255,255,0.1); border:none; border-radius:4px; width:22px; height:18px; cursor:pointer; color:#fff; font-size:0.65rem; display:flex; align-items:center; justify-content:center;" ${index === 0 ? 'disabled style="opacity:0.2;"' : ''}>▲</button>
+                        <button type="button" onclick="moveModalColumn(${index}, 'down'); event.stopPropagation();" style="background:rgba(255,255,255,0.1); border:none; border-radius:4px; width:22px; height:18px; cursor:pointer; color:#fff; font-size:0.65rem; display:flex; align-items:center; justify-content:center;" ${index === tempGridConfig.columns.length - 1 ? 'disabled style="opacity:0.2;"' : ''}>▼</button>
+                    </div>
+                    
+                    <input type="checkbox" id="modal-col-chk-${col.id}" ${col.visible ? 'checked' : ''} onchange="toggleModalColVis(${index}, this.checked); event.stopPropagation();" style="cursor:pointer; width:17px; height:17px; accent-color:#10b981;">
+                    <div style="display:flex; flex-direction:column;">
+                        <span style="font-weight:bold; font-size:0.95rem; color:${colColor};">${col.name}</span>
+                        <span style="font-size:0.75rem; color:#94a3b8;">${colWidth} | ${colSize}px</span>
+                    </div>
+                </div>
+
+                <!-- Active Indicator Badge -->
+                <div style="display:flex; align-items:center; gap:6px;">
+                    <div style="width:14px; height:14px; border-radius:50%; background:${colColor}; border:1px solid rgba(255,255,255,0.4);" title="لون الخط"></div>
+                    ${isSelected ? '<span style="font-size:0.75rem; color:#38bdf8; font-weight:bold; background:rgba(56,189,248,0.2); padding:2px 6px; border-radius:4px;">👈 محدد</span>' : ''}
+                </div>
+            `;
+            listEl.appendChild(item);
+        });
+    }
+
+    function populateSelectedColPanel() {
+        const col = tempGridConfig.columns[selectedColIndex];
+        if (!col) return;
+
+        document.getElementById('lbl-selected-col-name').textContent = col.name;
+        document.getElementById('badge-selected-col-id').textContent = col.id;
+        document.getElementById('sel-col-name').value = col.name || '';
+        
+        const fSize = col.fontSize || tempGridConfig.fontSize || 16;
+        document.getElementById('sel-col-fontsize').value = fSize;
+        document.getElementById('sel-col-fontsize-range').value = fSize;
+        
+        document.getElementById('sel-col-fontweight').value = col.fontWeight || '';
+        
+        const fColor = col.color || tempGridConfig.fontColor || '#ffffff';
+        document.getElementById('sel-col-color').value = fColor;
+        document.getElementById('sel-col-color-text').value = fColor;
+        
+        document.getElementById('sel-col-align').value = col.align || tempGridConfig.align || 'center';
+        
+        const widthVal = parseInt(col.width) || (col.id === 'item' || col.id === 'col_item' ? 260 : 100);
+        document.getElementById('sel-col-width').value = widthVal;
+        document.getElementById('sel-col-width-range').value = widthVal;
+        
+        document.getElementById('sel-col-decimals').value = col.decimals !== undefined ? col.decimals : '';
+        document.getElementById('sel-col-thousandsep').value = col.thousandSep || 'default';
+    }
+
+    window.onSelectedColPropChange = function(prop, val) {
+        const col = tempGridConfig.columns[selectedColIndex];
+        if (!col) return;
+
+        col[prop] = val;
+        renderModalColumnsList();
+    };
+
+    window.applySelectedColStyleToAll = function() {
+        const sourceCol = tempGridConfig.columns[selectedColIndex];
+        if (!sourceCol) return;
+
+        tempGridConfig.columns.forEach(col => {
+            if (sourceCol.fontSize) col.fontSize = sourceCol.fontSize;
+            if (sourceCol.fontWeight) col.fontWeight = sourceCol.fontWeight;
+            if (sourceCol.color) col.color = sourceCol.color;
+            if (sourceCol.align) col.align = sourceCol.align;
+        });
+
+        renderModalColumnsList();
+        populateSelectedColPanel();
+        showToast("⚡ تم نسخ حجم وسُمك ولون ومحاذاة العمود المحدد إلى كافة الأعمدة بنجاح", "info", 3000);
+    };
+
+    window.toggleModalColVis = function(index, checked) {
+        tempGridConfig.columns[index].visible = checked;
+        renderModalColumnsList();
+    };
+
+    window.moveModalColumn = function(index, direction) {
+        const list = tempGridConfig.columns;
+        if (direction === 'up' && index > 0) {
+            const temp = list[index];
+            list[index] = list[index - 1];
+            list[index - 1] = temp;
+            if (selectedColIndex === index) selectedColIndex = index - 1;
+            else if (selectedColIndex === index - 1) selectedColIndex = index;
+        } else if (direction === 'down' && index < list.length - 1) {
+            const temp = list[index];
+            list[index] = list[index + 1];
+            list[index + 1] = temp;
+            if (selectedColIndex === index) selectedColIndex = index + 1;
+            else if (selectedColIndex === index + 1) selectedColIndex = index;
+        }
+        renderModalColumnsList();
+        populateSelectedColPanel();
+    };
+
+    function readModalGeneralSettings() {
+        tempGridConfig.fontFamily = document.getElementById('grid-setting-font-family').value;
+        tempGridConfig.fontSize = parseInt(document.getElementById('grid-setting-font-size').value) || 16;
+        tempGridConfig.fontWeight = document.getElementById('grid-setting-font-weight').value;
+        tempGridConfig.fontColor = document.getElementById('grid-setting-font-color').value;
+        tempGridConfig.align = document.getElementById('grid-setting-align').value;
+        tempGridConfig.decimalPlaces = parseInt(document.getElementById('grid-setting-decimals').value);
+        tempGridConfig.thousandSep = document.getElementById('grid-setting-thousand-sep').value;
+    }
+
+    window.previewGridSettings = function() {
+        readModalGeneralSettings();
+        window.CurrentGridConfig = JSON.parse(JSON.stringify(tempGridConfig));
+        applyGridSettings();
+        if (typeof renderGrid === 'function') renderGrid();
+        if (typeof recalcAll === 'function') recalcAll();
+        showToast("👁️ تم تطبيق التنسيق للمعاينة المباشرة على الجدول", "info", 2000);
+    };
+
+    window.saveAndApplyGridSettingsToDB = async function() {
+        readModalGeneralSettings();
+        window.CurrentGridConfig = JSON.parse(JSON.stringify(tempGridConfig));
+        
+        applyGridSettings();
+        if (typeof renderGrid === 'function') renderGrid();
+        if (typeof recalcAll === 'function') recalcAll();
+        
+        await saveGridConfigToDB(window.CurrentGridConfig);
+        closeGridSettingsModal();
+    };
+
+    window.loadGridConfigFromDB = async function() {
+        try {
+            const res = await fetch('api/get_grid_config.php?grid_id=' + window.CurrentGridConfig.grid_id + '&_t=' + Date.now());
+            const data = await res.json();
+            if (data && data.config) {
+                window.CurrentGridConfig = data.config;
+                if (typeof applyGridSettings === 'function') applyGridSettings();
+                if (typeof renderGrid === 'function') renderGrid();
+                if (typeof recalcAll === 'function') recalcAll();
+            }
+        } catch (e) {
+            console.error("Failed to load grid config", e);
+        }
+    };
+    window.applyGridSettings = function() {
+        let cfg = window.CurrentGridConfig;
+        if (!cfg || !cfg.columns) return;
+        
+        let style = document.getElementById('dynamic-grid-style');
+        if (!style) {
+            style = document.createElement('style');
+            style.id = 'dynamic-grid-style';
+            document.head.appendChild(style);
+        }
+        
+        let css = `
+            #pos-grid {
+                font-size: ${cfg.fontSize || 16}px !important;
+                font-weight: ${cfg.fontWeight || 'normal'} !important;
+                font-family: ${cfg.fontFamily || "'Cairo', sans-serif"} !important;
+                color: ${cfg.fontColor || '#ffffff'} !important;
+            }
+        `;
+        
+        cfg.columns.forEach(col => {
+            if (col.visible === false || col.visible === "false" || col.visible === 0) {
+                css += `
+                    #pos-grid th[data-col-id="${col.id}"],
+                    #pos-grid td[data-col-id="${col.id}"] {
+                        display: none !important;
+                    }
+                `;
+            } else {
+                let width = col.width ? col.width : 'auto';
+                let align = col.align ? col.align : (cfg.align || 'center');
+                let fontSize = col.fontSize ? col.fontSize + 'px' : 'inherit';
+                let color = col.color ? col.color : 'inherit';
+                let fontWeight = col.fontWeight ? col.fontWeight : 'inherit';
+                
+                css += `
+                    #pos-grid th[data-col-id="${col.id}"],
+                    #pos-grid td[data-col-id="${col.id}"] {
+                        width: ${width} !important;
+                        min-width: ${width} !important;
+                        max-width: ${width} !important;
+                        text-align: ${align} !important;
+                        color: ${color} !important;
+                        font-size: ${fontSize} !important;
+                        font-weight: ${fontWeight} !important;
+                    }
+                `;
+            }
+        });
+        
+        style.innerHTML = css;
+
+        // DOM Reordering
+        const table = document.getElementById('pos-grid');
+        if (!table) return;
+
+        // Reorder thead
+        const theadTr = table.querySelector('thead tr');
+        if (theadTr) {
+            cfg.columns.forEach(col => {
+                const th = theadTr.querySelector(`th[data-col-id="${col.id}"]`);
+                if (th) {
+                    theadTr.appendChild(th);
+                }
+            });
+        }
+
+        // Reorder tbody
+        const tbodyRows = table.querySelectorAll('tbody tr');
+        tbodyRows.forEach(tr => {
+            // skip rows that span across (e.g. empty state)
+            if (tr.children.length === 1 && tr.children[0].colSpan > 1) return;
+            
+            cfg.columns.forEach(col => {
+                const td = tr.querySelector(`td[data-col-id="${col.id}"]`);
+                if (td) {
+                    tr.appendChild(td);
+                }
+            });
+        });
+        
+        // Reorder tfoot (if any)
+        const tfootTr = table.querySelector('tfoot tr');
+        if (tfootTr && tfootTr.children.length > 1) {
+            cfg.columns.forEach(col => {
+                const td = tfootTr.querySelector(`th[data-col-id="${col.id}"], td[data-col-id="${col.id}"]`);
+                if (td) {
+                    tfootTr.appendChild(td);
+                }
+            });
+        }
+    };
+
+
+
+
+
+    window.saveGridConfigToDB = async function(config) {
+        if (!config || !config.grid_id) return;
+        try {
+            const res = await fetch('api/save_grid_config.php', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({ grid_id: config.grid_id, config: config })
+            });
+            const data = await res.json();
+            if (data && data.status === 'success') {
+                console.log("Grid config saved to DB.");
+                // Update localStorage backup if you want
+                localStorage.setItem('erp_grid_config_' + config.grid_id, JSON.stringify(config));
+            } else {
+                console.error("Failed to save grid config", data);
+            }
+        } catch (e) {
+            console.error("Error saving grid config:", e);
+        }
+    };
+
+
+
+        window.openGridSettingsModal = function() {
+        if (!window.CurrentGridConfig) return;
+        tempGridConfig = JSON.parse(JSON.stringify(window.CurrentGridConfig));
+        
+        // General settings
+        if(document.getElementById('grid-setting-font-family')) document.getElementById('grid-setting-font-family').value = tempGridConfig.fontFamily || "'Cairo', sans-serif";
+        if(document.getElementById('grid-setting-font-size')) document.getElementById('grid-setting-font-size').value = tempGridConfig.fontSize || 16;
+        if(document.getElementById('grid-setting-font-weight')) document.getElementById('grid-setting-font-weight').value = tempGridConfig.fontWeight || 'normal';
+        if(document.getElementById('grid-setting-font-color')) document.getElementById('grid-setting-font-color').value = tempGridConfig.fontColor || '#ffffff';
+        if(document.getElementById('grid-setting-align')) document.getElementById('grid-setting-align').value = tempGridConfig.align || 'center';
+        if(document.getElementById('grid-setting-decimals')) document.getElementById('grid-setting-decimals').value = tempGridConfig.decimalPlaces !== undefined ? tempGridConfig.decimalPlaces : 2;
+        if(document.getElementById('grid-setting-thousand-sep')) document.getElementById('grid-setting-thousand-sep').value = tempGridConfig.thousandSep || ',';
+        
+        selectedColIndex = 0;
+        if (typeof renderModalColumnsList === 'function') renderModalColumnsList();
+        if (typeof populateSelectedColPanel === 'function') populateSelectedColPanel();
+        
+        document.getElementById('grid-settings-modal').style.display = 'flex';
+    };
+
+
+
+    window.closeGridSettingsModal = function() {
+        document.getElementById('grid-settings-modal').style.display = 'none';
+    };
+
+    window.quickAlignGrid = function(alignMode) {
+        window.CurrentGridConfig.align = alignMode;
+        window.CurrentGridConfig.columns.forEach(col => {
+            col.align = alignMode;
+        });
+        applyGridSettings();
+        if (typeof renderGrid === 'function') renderGrid();
+        saveGridConfigToDB(window.CurrentGridConfig);
+        const menu = document.getElementById('col-context-menu');
+        if (menu) menu.style.display = 'none';
+        showToast(`تم ضبط المحاذاة إلى ${alignMode === 'right' ? 'اليمين' : alignMode === 'center' ? 'الوسط' : 'اليسار'}`, "success");
+    };
+
+    window.quickResetGrid = function() {
+        const menu = document.getElementById('col-context-menu');
+        if (menu) menu.style.display = 'none';
+        if (confirm("هل أنت متأكد من استعادة التنسيق والترتيب الافتراضي لجدول جدول المشتريات وحفظه في قاعدة البيانات؟")) {
+            window.CurrentGridConfig = JSON.parse(JSON.stringify(DEFAULT_GRID_CONFIG));
+            applyGridSettings();
+            if (typeof renderGrid === 'function') renderGrid();
+            if (typeof recalcAll === 'function') recalcAll();
+            saveGridConfigToDB(window.CurrentGridConfig);
+            if (tempGridConfig) openGridSettingsModal();
+            showToast("تم استعادة الضبط الافتراضي وحفظه في قاعدة البيانات بنجاح", "success");
+        }
+    };
+
+    // 7. Column Header Dragging and Resizing
+    function makeTableResizable() {
+        const table = document.getElementById('pos-grid');
+        if (!table) return;
+        const row = table.querySelector('thead tr');
+        const cols = row ? row.children : [];
+        if (!cols) return;
+
+        table.querySelectorAll('.col-resizer').forEach(r => r.remove());
+
+        for (let i = 0; i < cols.length; i++) {
+            const th = cols[i];
+            const colId = th.getAttribute('data-col-id');
+            if (colId === "col_del" || colId === "action") continue;
+
+            const resizer = document.createElement('div');
+            resizer.className = 'col-resizer';
+            resizer.style.cssText = 'position:absolute; left:0; top:0; width:7px; height:100%; cursor:col-resize; user-select:none; z-index:15; transition: background-color 0.2s;';
+            resizer.addEventListener('mouseenter', () => resizer.style.backgroundColor = 'rgba(56, 189, 248, 0.6)');
+            resizer.addEventListener('mouseleave', () => resizer.style.backgroundColor = 'transparent');
+            th.appendChild(resizer);
+
+            let startX, startWidth;
+
+            resizer.addEventListener('mousedown', function(e) {
+                e.preventDefault();
+                e.stopPropagation();
+                startX = e.clientX;
+                startWidth = th.offsetWidth;
+
+                function doDrag(ev) {
+                    const dx = ev.clientX - startX;
+                    const newWidth = Math.max(40, startWidth - dx); // RTL
+                    
+                    th.style.width = newWidth + 'px';
+                    th.style.minWidth = newWidth + 'px';
+                    th.style.maxWidth = newWidth + 'px';
+
+                    const tds = table.querySelectorAll(`tbody td[data-col-id="${colId}"]`);
+                    tds.forEach(td => {
+                        td.style.width = newWidth + 'px';
+                        td.style.minWidth = newWidth + 'px';
+                        td.style.maxWidth = newWidth + 'px';
+                    });
+                }
+
+                function stopDrag() {
+                    document.removeEventListener('mousemove', doDrag);
+                    document.removeEventListener('mouseup', stopDrag);
+
+                    const cfg = window.CurrentGridConfig;
+                    const colSetting = cfg.columns.find(c => String(c.id) === String(colId));
+                    if (colSetting) {
+                        colSetting.width = th.style.width;
+                        saveGridConfigToDB(cfg);
+                    }
+                }
+
+                document.addEventListener('mousemove', doDrag);
+                document.addEventListener('mouseup', stopDrag);
+            });
+
+            // Context Menu on Right Click
+            th.addEventListener('contextmenu', function(e) {
+                e.preventDefault();
+                const menu = document.getElementById('col-context-menu');
+                if (menu) {
+                    menu.style.display = 'block';
+                    menu.style.left = Math.min(window.innerWidth - 250, e.clientX) + 'px';
+                    menu.style.top = Math.min(window.innerHeight - 200, e.clientY) + 'px';
+                }
+            });
+        }
+    }
+
+    // Close Context Menu on outside click
+    document.addEventListener('click', function(e) {
+        const menu = document.getElementById('col-context-menu');
+        if (menu && !menu.contains(e.target)) {
+            menu.style.display = 'none';
+        }
+    });
+
+    // Initialize Grid Config from DB on page load
+    document.addEventListener('DOMContentLoaded', () => {
+        loadGridConfigFromDB();
+    });
+
+    // Also trigger on DBReady if applicable
+    document.addEventListener('DBReady', () => {
+        loadGridConfigFromDB();
+    });
+    </script>
+    
 </body>
 </html>
-
-
-

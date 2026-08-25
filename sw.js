@@ -1,4 +1,4 @@
-// Version: 20260815060700 (Performance: Cache-first for static assets)
+// Version: 20260825201600 (Forced cache clear for JS updates)
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
@@ -7,7 +7,7 @@ self.addEventListener('activate', (event) => {
     event.waitUntil(
         caches.keys().then((cacheNames) => {
             return Promise.all(
-                cacheNames.filter(n => n !== 'magaies-static-v2').map(n => caches.delete(n))
+                cacheNames.map(n => caches.delete(n))
             );
         }).then(() => self.clients.claim())
     );
@@ -25,18 +25,15 @@ self.addEventListener('fetch', (event) => {
         return;
     }
     
-    // Static assets (JS, CSS, fonts, images): Cache-First for maximum speed
+    // Static assets (JS, CSS, fonts, images): Network-First to always get latest
     if (/\.(js|css|woff2?|ttf|png|jpg|jpeg|gif|svg|ico|webp)(\?.*)?$/i.test(url.pathname)) {
         event.respondWith(
-            caches.match(event.request).then((cached) => {
-                if (cached) return cached; // Instant from cache!
-                return fetch(event.request).then((response) => {
-                    if (response && response.status === 200 && response.type === 'basic') {
-                        const clone = response.clone();
-                        caches.open('magaies-static-v2').then(c => c.put(event.request, clone));
-                    }
-                    return response;
-                });
+            fetch(event.request).then((response) => {
+                if (response && response.status === 200 && response.type === 'basic') {
+                    const clone = response.clone();
+                    caches.open('magaies-static-v3').then(c => c.put(event.request, clone));
+                }
+                return response;
             }).catch(() => caches.match(event.request))
         );
         return;

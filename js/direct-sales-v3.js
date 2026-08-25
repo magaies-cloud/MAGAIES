@@ -1,3 +1,91 @@
+
+function extractItemUnits(item) {
+    if (!item) return [];
+    const baseUnit = (item.baseUnit || item.mainUnit || item.unit || "سيخه").trim();
+    let list = [];
+
+    // Parse units if string
+    if (typeof item.units === 'string') {
+        try { item.units = JSON.parse(item.units); } catch(e) {}
+    }
+    if (typeof item.unitsArray === 'string') {
+        try { item.unitsArray = JSON.parse(item.unitsArray); } catch(e) {}
+    }
+
+    // 1. From item.units (Matrix format from master-data)
+    if (Array.isArray(item.units) && item.units.length > 0) {
+        item.units.forEach(u => {
+            if (!u) return;
+            const uName = (u.unitName || u.name || u.unit || "").trim();
+            const uFactor = (u.factor !== undefined && u.factor !== null && u.factor !== "") ? parseFloat(u.factor) : 1;
+            const uPrice = parseFloat(u.cashPrice || u.price || item.sellingPrice || item.price || 0) || 0;
+            if (uName && !list.find(x => x.name === uName)) {
+                list.push({ name: uName, unitName: uName, factor: isNaN(uFactor) ? 1 : uFactor, price: uPrice, barcode: u.barcode || '' });
+            }
+        });
+    }
+
+    // 2. From item.unitsArray
+    if (Array.isArray(item.unitsArray) && item.unitsArray.length > 0) {
+        item.unitsArray.forEach(u => {
+            if (!u) return;
+            const uName = (typeof u === "string" ? u : (u.name || u.unitName || u.unit || "")).trim();
+            const uFactor = (u && typeof u === 'object' && u.factor !== undefined && u.factor !== null && u.factor !== "") ? parseFloat(u.factor) : 1;
+            const uPrice = (u && typeof u === 'object') ? parseFloat(u.price || u.cashPrice || item.sellingPrice || item.price || 0) || 0 : 0;
+            if (uName && !list.find(x => x.name === uName)) {
+                list.push({ name: uName, unitName: uName, factor: isNaN(uFactor) ? 1 : uFactor, price: uPrice, barcode: (u && u.barcode) || '' });
+            }
+        });
+    }
+
+    // 3. Specific fallback only for Steel / Linya items if list has <= 1 unit
+    const normName = (item.name || '').toLowerCase();
+    const isSteel = normName.includes('سيخ') || normName.includes('لينيا') || normName.includes('حديد') || normName.includes('تسليح') || normName.includes('ل');
+    if (isSteel && list.length <= 1) {
+        let fallbackMatrix = null;
+        if (normName.includes('3') || normName.includes('ثلاث')) {
+            fallbackMatrix = [
+                { name: 'سيخه', unitName: 'سيخه', factor: 1, price: 0 },
+                { name: 'طن عددي', unitName: 'طن عددي', factor: 135, price: 0 },
+                { name: 'طن وزني', unitName: 'طن وزني', factor: 166, price: 0 },
+                { name: 'شيله', unitName: 'شيله', factor: 15, price: 0 }
+            ];
+        } else if (normName.includes('4') || normName.includes('اربع') || normName.includes('أربع')) {
+            fallbackMatrix = [
+                { name: 'سيخه', unitName: 'سيخه', factor: 1, price: 0 },
+                { name: 'طن عددي', unitName: 'طن عددي', factor: 92, price: 0 },
+                { name: 'طن وزني', unitName: 'طن وزني', factor: 110, price: 0 },
+                { name: 'شيله', unitName: 'شيله', factor: 10, price: 0 }
+            ];
+        } else if (normName.includes('5') || normName.includes('خمس')) {
+            fallbackMatrix = [
+                { name: 'سيخه', unitName: 'سيخه', factor: 1, price: 0 },
+                { name: 'طن عددي', unitName: 'طن عددي', factor: 52, price: 0 },
+                { name: 'طن وزني', unitName: 'طن وزني', factor: 59, price: 0 },
+                { name: 'شيله', unitName: 'شيله', factor: 5, price: 0 }
+            ];
+        }
+
+        if (fallbackMatrix) {
+            fallbackMatrix.forEach(fb => {
+                if (!list.find(x => x.name === fb.name)) {
+                    list.push(fb);
+                }
+            });
+        }
+    }
+
+    // 4. Ensure base unit is present
+    if (baseUnit && !list.find(x => x.name === baseUnit)) {
+        list.unshift({ name: baseUnit, unitName: baseUnit, factor: 1, price: parseFloat(item.sellingPrice || item.price || 0) || 0, barcode: item.barcode || '' });
+    }
+
+    if (list.length === 0) {
+        list = [{ name: baseUnit || "قطعة", unitName: baseUnit || "قطعة", factor: 1, price: parseFloat(item.sellingPrice || item.price || 0) || 0, barcode: item.barcode || '' }];
+    }
+
+    return list;
+}
 /* ═══════════════════════════════════════════════════════
    sales-invoice.js — POS Engine v6.0
    Real-time Reactive Calculations � Sequential Invoices
@@ -86,18 +174,30 @@ function getSortedSalesInvoices() {
 //  HELPERS
 // ════════════════════════════════════════
 function fmtNum(n, colId = null) {
-    if (n === 0 || n === '0' || !n) return '0';
-    
-    const prefs = JSON.parse(localStorage.getItem('num_format_prefs') || '{}');
-    let decimals = prefs.decimals !== undefined ? prefs.decimals : 2;
-    let separator = prefs.thousandSep !== undefined ? prefs.thousandSep : ',';
-    let decimalSep = prefs.decimalSep !== undefined ? prefs.decimalSep : '.';
+    const cfg = window.CurrentGridConfig || {};
+    let decimals = (cfg.decimalPlaces !== undefined && cfg.decimalPlaces !== '' && cfg.decimalPlaces !== null) ? parseInt(cfg.decimalPlaces) : 2;
+    let separator = (cfg.thousandSep !== undefined && cfg.thousandSep !== '' && cfg.thousandSep !== null && cfg.thousandSep !== 'default') ? cfg.thousandSep : ',';
+    let decimalSep = cfg.decimalSep !== undefined ? cfg.decimalSep : '.';
 
-    // OVERRIDE WITH PER COLUMN SETTINGS if available
-    if (colId && window.CurrentGridConfig && window.CurrentGridConfig[colId]) {
-        const colCfg = window.CurrentGridConfig[colId];
-        if (colCfg.decimals !== undefined && colCfg.decimals !== '') decimals = parseInt(colCfg.decimals);
-        if (colCfg.thousandSep !== undefined && colCfg.thousandSep !== '') separator = colCfg.thousandSep;
+    if (colId && Array.isArray(cfg.columns)) {
+        const colCfg = cfg.columns.find(c => String(c.id) === String(colId));
+        if (colCfg) {
+            if (colCfg.decimals !== undefined && colCfg.decimals !== '' && colCfg.decimals !== null) decimals = parseInt(colCfg.decimals);
+            if (colCfg.thousandSep !== undefined && colCfg.thousandSep !== '' && colCfg.thousandSep !== null && colCfg.thousandSep !== 'default') separator = colCfg.thousandSep;
+        }
+    } else if (colId && cfg[colId]) {
+        const colCfg = cfg[colId];
+        if (colCfg.decimals !== undefined && colCfg.decimals !== '' && colCfg.decimals !== null) decimals = parseInt(colCfg.decimals);
+        if (colCfg.thousandSep !== undefined && colCfg.thousandSep !== '' && colCfg.thousandSep !== null && colCfg.thousandSep !== 'default') separator = colCfg.thousandSep;
+    }
+
+    if (separator === 'default') separator = ',';
+
+    if (n === 0 || n === '0' || !n) {
+        if (n === 0 || n === '0') {
+            return decimals > 0 ? (0).toFixed(decimals) : '0';
+        }
+        return decimals > 0 ? (0).toFixed(decimals) : '0';
     }
 
     let val = parseFloat(n);
@@ -292,11 +392,15 @@ function initSalesApp() {
             });
         }
 
-        // Load Master Data Items
+                // Load Master Data Items
         let rawItems = [];
         let invData = [];
         try {
-            rawItems = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+            if (window._PRELOADED_ITEMS && Array.isArray(window._PRELOADED_ITEMS) && window._PRELOADED_ITEMS.length > 0) {
+                rawItems = window._PRELOADED_ITEMS;
+            } else {
+                rawItems = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+            }
             invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
         } catch(e) { console.error(e); }
         
@@ -324,58 +428,80 @@ function initSalesApp() {
                 sp = sp.toString().replace(/,/g, '');
                 
                 const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
-
-                let unitsArray = [];
-                if (item.units && item.units.length > 0) {
-                    unitsArray = item.units.map(u => ({ name: u.unitName || 'وحدة', factor: u.factor || 1 }));
-                } else if (item.unitsArray && item.unitsArray.length > 0) {
-                    unitsArray = item.unitsArray;
-                }
-                
-                if (unitsArray.length === 0 || !unitsArray.find(u => u && u.name === baseUnit)) {
-                    unitsArray = [{ name: baseUnit, factor: 1 }, ...unitsArray];
-                }
-
+                const unitsArray = extractItemUnits(item);
                 ITEMS.push({
                     id: item.id,
                     name: item.name || 'صنف بدون اسم',
                     unit: baseUnit,
                     baseUnit: baseUnit,
                     conversionFactor: 1, 
-                    bundleFactor: 1,
+                    bundleFactor: parseFloat(item.bundleFactor) || 1,
                     price: parseFloat(sp) || 0,
                     actualStock: actualStockMap,
                     reservedStock: reservedStockMap,
+                    units: item.units || [],
                     unitsArray: unitsArray,
+                    barcode: item.barcode || '',
                     maxDiscount: item.maxDiscount || 0,
                     status: item.status || 'active'
                 });
             });
         }
         ITEMS = ITEMS.filter(item => item && item.status !== 'inactive');
+        console.log('[initSalesApp] Loaded ' + ITEMS.length + ' items. Items with >1 units:', ITEMS.filter(i => i.unitsArray && i.unitsArray.length > 1).length);
+        ITEMS.slice(0, 3).forEach(i => console.log('  Item: ' + i.name + ' → ' + (i.unitsArray||[]).map(u=>u.name).join(', ')));
 
-        populateDropdowns();
+
+                populateDropdowns();
         populatePaymentAccounts();
         initMultiPaymentSystem();
         initHeader();
-        
-        if (typeof GridCustomizer !== 'undefined') {
-            GridCustomizer.init('sales_grid', 'pos-grid', () => {
-                if (rows.length === 0) {
-                    addRow(true);
-                    recalcAll();
-                } else {
+
+        if (rows.length === 0) {
+            addRow(true);
+            recalcAll();
+        } else {
+            renderGrid();
+        }
+        if (typeof loadHubTransactions === 'function') loadHubTransactions();
+
+        // Background sync latest items & units from MySQL unconditionally
+        fetch('api/get_master_data.php').then(r => r.json()).then(res => {
+            if (res && res.success && res.data) {
+                if (Array.isArray(res.data.units) && res.data.units.length > 0) {
+                    localStorage.setItem('erp_global_units_v1', JSON.stringify(res.data.units));
+                }
+                if (Array.isArray(res.data.items) && res.data.items.length > 0) {
+                    localStorage.setItem('erp_items_v1', JSON.stringify(res.data.items));
+                    res.data.items.forEach(dbItem => {
+                        let existing = ITEMS.find(i => String(i.id) === String(dbItem.id));
+                        const baseUnit = dbItem.baseUnit || dbItem.mainUnit || dbItem.unit || 'سيخه';
+                        const unitsArr = extractItemUnits(dbItem);
+                        if (!existing) {
+                            ITEMS.push({
+                                id: dbItem.id,
+                                name: dbItem.name || 'صنف',
+                                unit: baseUnit,
+                                baseUnit: baseUnit,
+                                conversionFactor: 1,
+                                bundleFactor: parseFloat(dbItem.bundleFactor) || 1,
+                                price: parseFloat(dbItem.sellingPrice || dbItem.price || 0) || 0,
+                                actualStock: {},
+                                reservedStock: {},
+                                units: dbItem.units || [],
+                                unitsArray: unitsArr,
+                                maxDiscount: dbItem.maxDiscount || 0,
+                                status: dbItem.status || 'active'
+                            });
+                        } else {
+                            existing.units = dbItem.units || existing.units;
+                            existing.unitsArray = unitsArr;
+                        }
+                    });
                     renderGrid();
                 }
-                if (typeof loadHubTransactions === 'function') loadHubTransactions();
-            });
-        } else {
-            if (rows.length === 0) {
-                addRow(true);
-                recalcAll();
             }
-            if (typeof loadHubTransactions === 'function') loadHubTransactions();
-        }
+        }).catch(err => console.error('[Master Data Sync Error]:', err));
     } catch(globalErr) {
         console.error("Critical error during initSalesApp:", globalErr);
     }
@@ -911,7 +1037,10 @@ function hideCustomerDropdownDelayed() {
         }
 
         const listEl = document.getElementById('customer-dropdown-list');
-        if(listEl) listEl.classList.remove('show');
+        if(listEl) {
+            listEl.classList.remove('show');
+            listEl.style.display = 'none';
+        }
         
         const idVal = document.getElementById('hdr-customer').value;
         const searchVal = document.getElementById('hdr-customer-search').value.trim();
@@ -928,7 +1057,7 @@ function hideCustomerDropdownDelayed() {
         } else {
             document.getElementById('hdr-customer-search').value = '';
         }
-    }, 250);
+    }, 200);
 }
 
 function filterCustomerDropdown() {
@@ -936,19 +1065,27 @@ function filterCustomerDropdown() {
     updateLedgerButton();
     onCustomerChange();
     renderCustomerDropdown(document.getElementById('hdr-customer-search').value);
-    document.getElementById('customer-dropdown-list').classList.add('show');
+    const listEl = document.getElementById('customer-dropdown-list');
+    if (listEl) {
+        listEl.style.display = 'block';
+        listEl.classList.add('show');
+    }
 }
 
 function selectCustomer(id, name) {
     document.getElementById('hdr-customer').value = id;
-    document.getElementById('hdr-customer-search').value = name;
-    const listEl = document.getElementById('customer-dropdown-list');
-    if (listEl) {
-        listEl.classList.remove('show');
-        listEl.style.display = 'none';
+    const searchEl = document.getElementById('hdr-customer-search');
+    if (searchEl) {
+        searchEl.value = name;
+        searchEl.blur();
+    }
+    const cList = document.getElementById('customer-dropdown-list');
+    if (cList) {
+        cList.classList.remove('show');
+        cList.style.display = 'none';
     }
     updateLedgerButton();
-    if(typeof onCustomerChange === 'function') onCustomerChange();
+    onCustomerChange();
 }
 
 function updateLedgerButton() {
@@ -1309,12 +1446,13 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
     try {
         let localMatches = ITEMS;
         if (term) {
-            // Smart filter: match from the beginning of ANY word in the item name, OR match substring
             localMatches = ITEMS.filter(i => {
-                const normName = i.name.toLowerCase();
+                if (!i) return false;
+                const normName = (i.name || '').toLowerCase();
                 const nameWords = normName.split(' ');
-                const bcMatches = i.barcode && i.barcode.toLowerCase().startsWith(term);
-                return nameWords.some(w => w.startsWith(term)) || normName.includes(term) || bcMatches;
+                const bcMatches = i.barcode && i.barcode.toLowerCase().includes(term);
+                const unitBcMatches = i.units && Array.isArray(i.units) && i.units.some(u => u.barcode && u.barcode.toLowerCase().includes(term));
+                return nameWords.some(w => w.startsWith(term)) || normName.includes(term) || bcMatches || unitBcMatches;
             });
         }
 
@@ -1331,53 +1469,45 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
             console.error('API Search Failed:', err);
         }
         
-        const invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
-        const WAREHOUSES = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
-        const rawItems = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+        const rawItems = window._PRELOADED_ITEMS || JSON.parse(localStorage.getItem('erp_items_v1')) || [];
         
         // Merge dbMatches and newly added rawItems
         const allNew = [...rawItems, ...dbMatches];
         allNew.forEach(item => {
+            if (!item || !item.id) return;
             let existing = ITEMS.find(i => String(i.id) === String(item.id));
+            const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
+            const unitsArray = extractItemUnits(item);
+            let sp = item.sellingPrice || item.salePrice || item.price || 0;
+            sp = sp.toString().replace(/,/g, '');
+
             if (!existing) {
-                let stockMap = {};
-                let itemInv = invData.filter(inv => String(inv.itemId) === String(item.id));
-                itemInv.forEach(inv => {
-                    let whId = WAREHOUSES.find(w => w.name === inv.warehouse)?.id || 'w-001';
-                    stockMap[whId] = (stockMap[whId] || 0) + (parseFloat(inv.qty) || parseFloat(inv.quantity) || 0);
-                });
-
-                let sp = item.sellingPrice || item.salePrice || item.price || 0;
-                sp = sp.toString().replace(/,/g, '');
-                const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
-
-                let unitsArray = [];
-                if (item.units && item.units.length > 0) {
-                    unitsArray = item.units.map(u => ({ name: u.unitName, factor: u.factor || 1 }));
-                } else if (item.unitsArray && item.unitsArray.length > 0) {
-                    unitsArray = item.unitsArray;
-                }
-                if (unitsArray.length === 0 || !unitsArray.find(u => u.name === baseUnit)) {
-                    unitsArray = [{ name: baseUnit, factor: 1 }, ...unitsArray];
-                }
-
                 existing = {
                     id: item.id,
-                    name: item.name,
+                    name: item.name || 'صنف',
                     unit: baseUnit,
                     baseUnit: baseUnit,
                     conversionFactor: 1, 
-                    bundleFactor: 1,
+                    bundleFactor: parseFloat(item.bundleFactor) || 1,
                     price: parseFloat(sp) || 0,
-                    stock: stockMap,
-                    unitsArray: unitsArray
+                    actualStock: {},
+                    reservedStock: {},
+                    units: item.units || [],
+                    unitsArray: unitsArray,
+                    barcode: item.barcode || '',
+                    maxDiscount: item.maxDiscount || 0,
+                    status: item.status || 'active'
                 };
                 ITEMS.push(existing);
-                localMatches.push(existing); // Add to display list
+                if (!term || existing.name.toLowerCase().includes(term)) {
+                    localMatches.push(existing);
+                }
+            } else {
+                existing.units = item.units || existing.units;
+                existing.unitsArray = unitsArray;
             }
         });
 
-        // Deduplicate localMatches by id
         const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
 
         if (finalMatches.length === 0) {
@@ -1390,12 +1520,27 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
             const div = document.createElement('div');
             div.className = 'custom-dropdown-item';
             
-            let displayText = existing.name;
-            if (isMobile && existing.unit) displayText += ' <span style="font-size:0.8rem; color:#aaa;">— ' + existing.unit + '</span>';
-            if (existing.barcode) displayText += ' <span style="font-size:0.8rem; color:#888;">[' + existing.barcode + ']</span>';
-            div.innerHTML = displayText;
-            div.onmousedown = () => { updateRow(rowId, 'itemId', existing.id); renderGrid(); };
-            div.onpointerdown = () => { updateRow(rowId, 'itemId', existing.id); renderGrid(); };
+            const uList = extractItemUnits(existing);
+            const uText = uList.map(u => u.name).join(' | ');
+
+            let displayText = `<strong>${existing.name}</strong>`;
+            
+            if (existing.barcode) displayText += ` <span style="font-size:0.8rem; color:#888;">[${existing.barcode}]</span>`;
+            
+            div.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                <span>${displayText}</span>
+            </div>`;
+            
+            const doSelect = (e) => {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                selectRowItem(rowId, existing.id, isMobile);
+            };
+            div.onmousedown = doSelect;
+            div.onpointerdown = doSelect;
+            div.onclick = doSelect;
             listEl.appendChild(div);
         });
     } catch (e) {
@@ -1404,40 +1549,61 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
     }
 }
 
+function selectRowItem(rowId, itemId, isMobile = false) {
+    const prefix = isMobile ? 'm-' : '';
+    
+    // Hide ALL open dropdown lists immediately
+    document.querySelectorAll('.custom-dropdown-list').forEach(el => {
+        el.classList.remove('show');
+        el.style.display = 'none';
+    });
+
+    const searchInput = document.getElementById(`${prefix}item-search-${rowId}`);
+    if (searchInput) {
+        searchInput.blur();
+    }
+
+    updateRow(rowId, 'itemId', itemId);
+    renderGrid();
+
+    // Auto-focus quantity column on the selected row
+    setTimeout(() => {
+        const trIndex = rows.findIndex(r => r.id === rowId);
+        if (trIndex !== -1) {
+            const tr = document.querySelectorAll('#grid-body tr')[trIndex];
+            if (tr) {
+                const qtyInput = tr.querySelector('[data-col-id="col_qty"] input');
+                if (qtyInput) {
+                    qtyInput.focus();
+                    qtyInput.select();
+                }
+            }
+        }
+    }, 50);
+}
+
 function showItemDropdown(rowId, isMobile = false) {
     const prefix = isMobile ? 'm-' : '';
-    // Always show all items when focusing to allow choosing a new item easily
     renderItemDropdown(rowId, isMobile, '');
     const listEl = document.getElementById(`${prefix}item-dropdown-list-${rowId}`);
-    if (listEl) listEl.classList.add('show');
+    if (listEl) {
+        listEl.style.display = 'block';
+        listEl.classList.add('show');
+    }
 }
 
 function hideItemDropdownDelayed(rowId, isMobile = false) {
     setTimeout(() => {
         const prefix = isMobile ? 'm-' : '';
         const listEl = document.getElementById(`${prefix}item-dropdown-list-${rowId}`);
-        if(listEl) { listEl.classList.remove('show'); listEl.style.display = ''; }
+        if(listEl) { 
+            listEl.classList.remove('show'); 
+            listEl.style.display = 'none'; 
+        }
         
         const row = rows.find(r => r.id === rowId);
         const searchEl = document.getElementById(`${prefix}item-search-${rowId}`);
         if (searchEl) {
-            // Auto-select exact match (e.g. from Barcode Scanner or typing full name)
-            const val = searchEl.value.trim().toLowerCase();
-            if ((!row || !row.itemId) && val !== '') {
-                const exactItem = ITEMS.find(i => i.name.toLowerCase() === val || (i.barcode && i.barcode.toLowerCase() === val));
-                if (exactItem) {
-                    updateRow(rowId, 'itemId', exactItem.id);
-                    renderGrid();
-                    return;
-                }
-                const partialItem = ITEMS.find(i => i.name.toLowerCase().includes(val));
-                if (partialItem) {
-                    updateRow(rowId, 'itemId', partialItem.id);
-                    renderGrid();
-                    return;
-                }
-            }
-
             if (row && row.itemId) {
                 const item = ITEMS.find(i => String(i.id) === String(row.itemId));
                 if (item) {
@@ -1447,15 +1613,19 @@ function hideItemDropdownDelayed(rowId, isMobile = false) {
                 searchEl.value = '';
             }
         }
-    }, 250);
+    }, 150);
 }
 
 function filterItemDropdown(rowId, isMobile = false) {
-    updateRow(rowId, 'itemId', ''); // clear id
+    updateRow(rowId, 'itemId', '');
     const prefix = isMobile ? 'm-' : '';
     const searchEl = document.getElementById(`${prefix}item-search-${rowId}`);
     renderItemDropdown(rowId, isMobile, searchEl.value);
-    document.getElementById(`${prefix}item-dropdown-list-${rowId}`).classList.add('show');
+    const listEl = document.getElementById(`${prefix}item-dropdown-list-${rowId}`);
+    if (listEl) {
+        listEl.style.display = 'block';
+        listEl.classList.add('show');
+    }
 }
 
 // ════════════════════════════════════════
@@ -1471,12 +1641,13 @@ async function renderQuickItemDropdown(filter = '') {
     try {
         let localMatches = ITEMS;
         if (term) {
-            // Smart filter: match from the beginning of ANY word in the item name, OR match substring
             localMatches = ITEMS.filter(i => {
-                const normName = i.name.toLowerCase();
+                if (!i) return false;
+                const normName = (i.name || '').toLowerCase();
                 const nameWords = normName.split(' ');
-                const bcMatches = i.barcode && i.barcode.toLowerCase().startsWith(term);
-                return nameWords.some(w => w.startsWith(term)) || normName.includes(term) || bcMatches;
+                const bcMatches = i.barcode && i.barcode.toLowerCase().includes(term);
+                const unitBcMatches = i.units && Array.isArray(i.units) && i.units.some(u => u.barcode && u.barcode.toLowerCase().includes(term));
+                return nameWords.some(w => w.startsWith(term)) || normName.includes(term) || bcMatches || unitBcMatches;
             });
         }
 
@@ -1491,48 +1662,40 @@ async function renderQuickItemDropdown(filter = '') {
             console.error('API Search Failed:', err);
         }
         
-        const invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
-        const WAREHOUSES = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
-        const rawItems = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
-        
+        const rawItems = window._PRELOADED_ITEMS || JSON.parse(localStorage.getItem('erp_items_v1')) || [];
         const allNew = [...rawItems, ...dbMatches];
         allNew.forEach(item => {
+            if (!item || !item.id) return;
             let existing = ITEMS.find(i => String(i.id) === String(item.id));
+            const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
+            const unitsArray = extractItemUnits(item);
+            let sp = item.sellingPrice || item.salePrice || item.price || 0;
+            sp = sp.toString().replace(/,/g, '');
+
             if (!existing) {
-                let stockMap = {};
-                let itemInv = invData.filter(inv => String(inv.itemId) === String(item.id));
-                itemInv.forEach(inv => {
-                    let whId = WAREHOUSES.find(w => w.name === inv.warehouse)?.id || 'w-001';
-                    stockMap[whId] = (stockMap[whId] || 0) + (parseFloat(inv.qty) || parseFloat(inv.quantity) || 0);
-                });
-
-                let sp = item.sellingPrice || item.salePrice || item.price || 0;
-                sp = sp.toString().replace(/,/g, '');
-                const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
-
-                let unitsArray = [];
-                if (item.units && item.units.length > 0) {
-                    unitsArray = item.units.map(u => ({ name: u.unitName, factor: u.factor || 1 }));
-                } else if (item.unitsArray && item.unitsArray.length > 0) {
-                    unitsArray = item.unitsArray;
-                }
-                if (unitsArray.length === 0 || !unitsArray.find(u => u.name === baseUnit)) {
-                    unitsArray = [{ name: baseUnit, factor: 1 }, ...unitsArray];
-                }
-
                 existing = {
                     id: item.id,
-                    name: item.name,
+                    name: item.name || 'صنف',
                     unit: baseUnit,
                     baseUnit: baseUnit,
                     conversionFactor: 1, 
-                    bundleFactor: 1,
+                    bundleFactor: parseFloat(item.bundleFactor) || 1,
                     price: parseFloat(sp) || 0,
-                    stock: stockMap,
-                    unitsArray: unitsArray
+                    actualStock: {},
+                    reservedStock: {},
+                    units: item.units || [],
+                    unitsArray: unitsArray,
+                    barcode: item.barcode || '',
+                    maxDiscount: item.maxDiscount || 0,
+                    status: item.status || 'active'
                 };
                 ITEMS.push(existing);
-                localMatches.push(existing);
+                if (!term || existing.name.toLowerCase().includes(term)) {
+                    localMatches.push(existing);
+                }
+            } else {
+                existing.units = item.units || existing.units;
+                existing.unitsArray = unitsArray;
             }
         });
 
@@ -1544,12 +1707,20 @@ async function renderQuickItemDropdown(filter = '') {
         }
 
         listEl.innerHTML = '';
-        finalMatches.forEach(existing => {
+        finalMatches.slice(0, 50).forEach(existing => {
             const div = document.createElement('div');
             div.className = 'custom-dropdown-item';
-            div.textContent = `${existing.name} — ${existing.unit}`;
+            
+            const uList = extractItemUnits(existing);
+            const uText = uList.map(u => u.name).join(' | ');
+
+            div.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                <span><strong>${existing.name}</strong></span>
+                
+            </div>`;
             div.onmousedown = () => { selectQuickItem(existing.id); };
             div.onpointerdown = () => { selectQuickItem(existing.id); };
+            div.onclick = () => { selectQuickItem(existing.id); };
             listEl.appendChild(div);
         });
     } catch (e) {
@@ -1634,67 +1805,88 @@ function updateRow(id, field, value) {
     const row = rows.find(r => r.id === id);
     if (!row) return;
 
-    if (field === 'quantity' || field === 'price' || field === 'customFactor' || field === 'customBaseQty' || field === 'fcPrice') {
-        row[field] = parseNum(value);
-        if (field === 'quantity' || field === 'customFactor') {
-            row.customBaseQty = undefined; // reset so it auto-calculates
-        }
-        if (field === 'fcPrice') {
-            const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
-            const isBaseSDG = document.getElementById('hdr-currency').value === 'SDG';
-            if (isBaseSDG) {
-                row.price = row.fcPrice * exRate;
-            } else {
-                row.price = row.fcPrice / exRate;
-            }
-        }
-        if (field === 'price') {
-            const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
-            const isBaseSDG = document.getElementById('hdr-currency').value === 'SDG';
+    if (field === "quantity" || field === "price" || field === "customFactor" || field === "fcPrice" || field === "customBaseQty") {
+        row[field] = (value === "" || isNaN(parseNum(value))) ? "" : parseNum(value);
+        if (field === "price") {
+            const exRate = parseNum(document.getElementById("hdr-exchange-rate").value) || 1;
+            const isBaseSDG = document.getElementById("hdr-currency").value === "SDG";
             if (isBaseSDG) {
                 row.fcPrice = row.price / exRate;
             } else {
                 row.fcPrice = row.price * exRate;
             }
         }
-        if (field === 'customBaseQty') {
-            const item = ITEMS.find(i => String(i.id) === String(row.itemId));
-            let factor = row.customFactor !== undefined ? row.customFactor : 1;
-            if (row.customFactor === undefined && item && row.selectedUnit && item.unitsArray && item.unitsArray.length > 0) {
-                const su = item.unitsArray.find(u => u.name === row.selectedUnit);
+        if (field === "customBaseQty") {
+            let item = ITEMS.find(i => String(i.id) === String(row.itemId));
+            let factor = (row.customFactor !== undefined && row.customFactor !== null && row.customFactor !== "") ? parseFloat(row.customFactor) : 1;
+            if (item && row.selectedUnit) {
+                const units = extractItemUnits(item);
+                const su = units.find(u => u.name === row.selectedUnit);
                 if (su) factor = su.factor;
             }
-            const conv = item ? item.conversionFactor : 1;
+            const conv = item ? (item.conversionFactor || 1) : 1;
             if (factor * conv > 0) {
                 row.quantity = row.customBaseQty / (factor * conv);
             }
         }
     } else {
         row[field] = value;
-        if (field === 'itemId') {
+        if (field === "itemId") {
             row.customBaseQty = undefined;
-            // Use already-mapped ITEMS (which has proper unitsArray), do NOT reload raw localStorage
-            const item = ITEMS.find(i => String(i.id) === String(value));
+                        let item = ITEMS.find(i => String(i.id) === String(value));
+            if (!item) {
+                try {
+                    const rawItems = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+                    const raw = rawItems.find(i => String(i.id) === String(value));
+                    if (raw) {
+                        item = raw;
+                        // BUG FIX: ensure item is in ITEMS so renderGrid can find it
+                        item.unitsArray = extractItemUnits(item);
+                        if (!ITEMS.find(i => String(i.id) === String(item.id))) ITEMS.push(item);
+                    }
+                } catch(e) {}
+            }
             if (item) {
-                row.price = item.price;
-                // Default to first unit in unitsArray (the base unit)
-                if (item.unitsArray && item.unitsArray.length > 0) {
-                    row.selectedUnit = item.unitsArray[0].name;
-                    row.customFactor = item.unitsArray[0].factor;
+                const units = extractItemUnits(item);
+                item.unitsArray = units;
+                row.price = parseFloat(item.sellingPrice || item.price || 0) || 0;
+                if (units && units.length > 0) {
+                    row.selectedUnit = units[0].name;
+                    row.customFactor = units[0].factor;
+                    if (units[0].price && units[0].price > 0) {
+                        row.price = units[0].price;
+                    }
                 } else {
-                    row.selectedUnit = item.unit || '';
+                    row.selectedUnit = item.unit || item.baseUnit || "قطعة";
                     row.customFactor = 1;
                 }
+            } else {
+                row.selectedUnit = '';
+                row.customFactor = 1;
             }
-        } else if (field === 'selectedUnit') {
+                } else if (field === "selectedUnit") {
             row.customBaseQty = undefined;
-            const item = ITEMS.find(i => String(i.id) === String(row.itemId));
-            if (item && item.unitsArray) {
-                const su = item.unitsArray.find(u => u.name === value);
+            let item = ITEMS.find(i => String(i.id) === String(row.itemId));
+            if (!item) {
+                try {
+                    const rawItems = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+                    item = rawItems.find(i => String(i.id) === String(row.itemId));
+                } catch(e) {}
+            }
+            if (item) {
+                const units = extractItemUnits(item);
+                const su = units.find(u => u.name === value || u.unitName === value);
                 if (su) {
-                    row.customFactor = su.factor;
+                    row.customFactor = (su.factor !== undefined && su.factor !== null && su.factor !== "") ? parseFloat(su.factor) : 1;
+                    if (su.price && su.price > 0) {
+                        row.price = su.price;
+                    } else if (su.cashPrice && su.cashPrice > 0) {
+                        row.price = su.cashPrice;
+                    }
                 }
             }
+            updateRowCalcs(id);
+            recalcAll();
         }
     }
     // Live update without full re-render (keeps focus)
@@ -1767,24 +1959,18 @@ function updateRowCalcs(id) {
     const shilaRemEl = document.querySelector(`[data-shila-rem="${id}"]`);
     const priceEl = document.querySelector(`[data-price-input="${id}"]`);
     const fcPriceEl = document.querySelector(`[data-fcprice-input="${id}"]`);
-    const totalFcEl = document.querySelector(`[data-total-fc="${id}"]`);
+    const factorEl = document.querySelector(`[data-factor-input="${id}"]`);
 
-    if (totalEl) totalEl.textContent = fmtNum(calcs.total, '11');
-    if (baseEl && document.activeElement !== baseEl) baseEl.value = fmtNum(calcs.baseQty, '5');
+    if (totalEl) totalEl.textContent = fmtNum(calcs.total, 'col_total');
+    if (factorEl && document.activeElement !== factorEl) factorEl.value = fmtNum(calcs.unitFactor, 'col_factor');
+    if (baseEl && document.activeElement !== baseEl) baseEl.value = fmtNum(calcs.baseQty, 'col_baseqty');
     if (bundleEl) bundleEl.textContent = fmtNum(calcs.bundles);
-    if (shilaEl) shilaEl.textContent = fmtNum(calcs.shilaQty);
-    if (shilaRemEl) shilaRemEl.textContent = fmtNum(calcs.shilaRem);
-    if (priceEl && document.activeElement !== priceEl) priceEl.value = fmtNum(row.price, '4');
-
-    const isBaseSDG = document.getElementById('hdr-currency').value === 'SDG';
-    const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
-    let computedFcPrice = row.fcPrice !== undefined ? row.fcPrice : (isBaseSDG ? row.price / exRate : row.price * exRate);
-    
-    if (fcPriceEl && document.activeElement !== fcPriceEl) fcPriceEl.value = fmtNum(computedFcPrice, '8');
-    if (totalFcEl) totalFcEl.textContent = fmtNum(computedFcPrice * (row.quantity || 0), '9');
+    if (shilaEl) shilaEl.textContent = fmtNum(calcs.shilaQty, 'col_shila');
+    if (shilaRemEl) shilaRemEl.textContent = fmtNum(calcs.shilaRem, 'col_shila_rem');
+    if (priceEl && document.activeElement !== priceEl) priceEl.value = fmtNum(row.price, 'col_price');
 
     if (availEl) {
-        availEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty, '6');
+        availEl.textContent = calcs.availQty === '—' ? '—' : fmtNum(calcs.availQty, 'col_avail');
         availEl.className = 'g-readonly ' + (calcs.availQty !== '—' && calcs.availQty < row.quantity ? 'warn-val' : 'avail-val');
     }
     if (remEl) {
@@ -1794,17 +1980,17 @@ function updateRowCalcs(id) {
 
     // Mobile
     const mTotal = document.querySelector(`[data-m-total="${id}"]`);
-    if (mTotal) mTotal.textContent = fmtNum(calcs.total, '11') + ' ' + getCurrency();
+    if (mTotal) mTotal.textContent = fmtNum(calcs.total, 'col_total') + ' ' + getCurrency();
 
     const mFcPriceEl = document.querySelector(`[data-m-fcprice-input="${id}"]`);
     const mTotalFcEl = document.querySelector(`[data-m-total-fc="${id}"]`);
-    if (mFcPriceEl && document.activeElement !== mFcPriceEl) mFcPriceEl.value = fmtNum(computedFcPrice, '8');
-    if (mTotalFcEl) mTotalFcEl.textContent = fmtNum(computedFcPrice * (row.quantity || 0), '9');
+    if (mFcPriceEl && document.activeElement !== mFcPriceEl) mFcPriceEl.value = fmtNum(computedFcPrice, 'col_fcprice');
+    if (mTotalFcEl) mTotalFcEl.textContent = fmtNum(computedFcPrice * (row.quantity || 0), 'col_fctotal');
 
     const mShilaEl = document.querySelector(`[data-m-shila="${id}"]`);
     const mShilaRemEl = document.querySelector(`[data-m-shila-rem="${id}"]`);
-    if (mShilaEl) mShilaEl.textContent = fmtNum(calcs.shilaQty);
-    if (mShilaRemEl) mShilaRemEl.textContent = fmtNum(calcs.shilaRem);
+    if (mShilaEl) mShilaEl.textContent = fmtNum(calcs.shilaQty, 'col_shila');
+    if (mShilaRemEl) mShilaRemEl.textContent = fmtNum(calcs.shilaRem, 'col_shila_rem');
 }
 
 function getCurrency() {
@@ -1832,73 +2018,74 @@ function renderGrid() {
         const item = ITEMS.find(i => String(i.id) === String(row.itemId));
         const calcs = getRowCalcs(row);
 
+        const unitsList = extractItemUnits(item);
+        if (item) console.log('[renderGrid] Row', idx+1, item.name, '→ units:', unitsList.map(u=>u.name));
         let itemUnitsHtml = '';
-        if (item && item.unitsArray && item.unitsArray.length > 0) {
-            itemUnitsHtml = item.unitsArray.map(u => `<option value="${u.name}" ${row.selectedUnit === u.name ? 'selected' : ''}>${u.name}</option>`).join('');
+        if (unitsList && unitsList.length > 0) {
+            itemUnitsHtml = unitsList.map(u => `<option value="${u.name}" ${row.selectedUnit === u.name ? 'selected' : ''}>${u.name}</option>`).join('');
         } else {
-            itemUnitsHtml = `<option value="${item ? item.unit : ''}">${item ? item.unit : '—'}</option>`;
+            itemUnitsHtml = `<option value="${item ? (item.unit || item.baseUnit || 'قطعة') : ''}">${item ? (item.unit || item.baseUnit || '—') : '—'}</option>`;
         }
 
         // ── Desktop Row ──
         const tr = document.createElement('tr');
         tr.innerHTML = `
-            <td><div class="row-num">${idx + 1}</div></td>
-            <td style="position:relative;">
+            <td data-col-id="col_num"><div class="row-num">${idx + 1}</div></td>
+            <td data-col-id="col_item" style="position:relative;">
                 <input type="text" class="g-input" id="item-search-${row.id}" placeholder="ابحث أو اختر الصنف..." 
                     value="${item ? item.name : ''}" autocomplete="one-time-code"
-                    style="font-size: 1.15rem !important; font-weight: 800 !important;"
-                    onfocus="this.select(); showItemDropdown(${row.id})" 
+                    style="width: 100%;"
+                    onfocus="this.select(); showItemDropdown(${row.id})" onkeydown="handleItemSearchKeydown(event, ${row.id})" 
                     onblur="hideItemDropdownDelayed(${row.id})" 
                     oninput="filterItemDropdown(${row.id})">
                 <div class="custom-dropdown-list" id="item-dropdown-list-${row.id}" style="text-align:right; min-width: 220px; white-space: normal;">
                     <!-- populated by JS -->
                 </div>
             </td>
-            <td>
+            <td data-col-id="col_unit">
                 <select class="g-select" style="min-width: 80px;" onchange="updateRow(${row.id},'selectedUnit',this.value); renderGrid();" tabindex="-1">
                     ${itemUnitsHtml}
                 </select>
             </td>
-            <td><input type="text" inputmode="decimal" class="g-input" value="${row.quantity || ''}" placeholder="0"
+            <td data-col-id="col_factor">
+                <input type="text" inputmode="decimal" class="g-input" data-factor-input="${row.id}" value="${fmtNum(calcs.unitFactor, 'col_factor')}"
+                    onfocus="this.select()" oninput="updateRow(${row.id},'customFactor',this.value)"
+                    onblur="this.value=parseNum(this.value)||1; checkAutoAddRow(${row.id})" style="text-align:center;">
+            </td>
+            <td data-col-id="col_qty"><input type="text" inputmode="decimal" class="g-input" value="${row.quantity || ''}" placeholder="0"
                 onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)"
                 onblur="this.value=parseNum(this.value)||''; checkAutoAddRow(${row.id})"></td>
-            <td>
+            <td data-col-id="col_price">
                 <div style="display:flex; align-items:center; gap:4px;">
-                    <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price, '4')}"
+                    <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price, 'col_price')}"
                         onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
                         onblur="this.value=fmtNum(parseNum(this.value)); checkAutoAddRow(${row.id})" style="flex:1;">
-                    <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'sales')" title="سجل أسعار الصنف للعميل" style="color:#38bdf8; background:rgba(56,189,248,0.1); border-radius:4px; padding:4px; border:1px solid rgba(56,189,248,0.2); cursor:pointer;">
+                    <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'sales')" title="سجل أسعار الصنف للعميل" style="color:#38bdf8; background:rgba(56,189,248,0.1); border-radius:4px; padding:4px; border:1px solid rgba(56,189,248,0.2); cursor:pointer;" tabindex="-1">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
                     </button>
                 </div>
             </td>
-            <td>
+            <td data-col-id="col_baseqty">
                 <div style="display:flex; align-items:center; gap:4px; justify-content:center;">
-                    <input type="text" inputmode="decimal" class="g-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty, '5')}" placeholder="0"
+                    <input type="text" inputmode="decimal" class="g-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty, 'col_baseqty')}" placeholder="0"
                         onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
-                        onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700; width:100%;" tabindex="-1">
+                        onblur="this.value=fmtNum(parseNum(this.value))" style="width:100%;" tabindex="-1">
                     <span style="font-size:11px; color:var(--text-muted); white-space:nowrap;">${item ? item.baseUnit : ''}</span>
                 </div>
             </td>
-            <td><span class="g-readonly" data-avail="${row.id}" style="color:#0ea5e9; font-weight:bold; display:block; text-align:center;">${calcs.availQty !== '—' ? fmtNum(calcs.availQty, '6') : '—'}</span></td>
-            <td><span class="g-readonly" data-rem="${row.id}" style="color:#f59e0b; font-weight:bold; display:block; text-align:center;">${calcs.availQty !== '—' ? fmtNum(calcs.availQty - calcs.baseQty, '7') : '—'}</span></td>
-            <td class="hide-if-sdg">
-                <input type="text" inputmode="decimal" class="g-input" data-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}"
-                    onfocus="this.select()" oninput="updateRow(${row.id},'fcPrice',this.value)"
-                    onblur="this.value=fmtNum(parseNum(this.value)); checkAutoAddRow(${row.id})" style="color:#10b981; font-weight:700;" tabindex="-1">
-            </td>
-            <td class="hide-if-sdg"><span class="g-readonly total-fc-val" style="color:#10b981; font-weight:bold;" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1))) * (row.quantity || 0))}</span></td>
-
-            <td class="td-wh">
+            <td data-col-id="col_avail"><span class="g-readonly" data-avail="${row.id}" style="display:block; text-align:center;">${calcs.availQty !== '—' ? fmtNum(calcs.availQty, 'col_avail') : '—'}</span></td>
+            <td data-col-id="col_wh" class="td-wh">
                 <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1">
                     <option value="">نفس الفاتورة ↩</option>
                     ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
                 </select>
             </td>
-
-            <td><span class="g-readonly total-val" style="color:var(--gold-primary); font-weight:900; font-size:1.3rem; letter-spacing:0.5px; display:block; text-align:center; font-family:monospace, 'Cairo', sans-serif;" data-total="${row.id}">${fmtNum(calcs.total, '11')}</span></td>
-
-            <td>
+            <td data-col-id="col_note">
+                <input type="text" class="g-input" value="${row.note || ''}" placeholder="ملاحظة..."
+                    oninput="updateRow(${row.id},'note',this.value)" tabindex="-1">
+            </td>
+            <td data-col-id="col_total"><span class="g-readonly total-val" style="display:block; text-align:center;" data-total="${row.id}">${fmtNum(calcs.total, 'col_total')}</span></td>
+            <td data-col-id="col_del">
                 <div style="display: flex; gap: 5px; justify-content: center;">
                     <button class="edit-btn" onclick="document.getElementById('item-search-${row.id}').focus()" title="تعديل السطر" style="background: rgba(56,189,248,0.1); border: 1px solid rgba(56,189,248,0.2); color: #38bdf8; border-radius: 6px; padding: 6px; cursor: pointer;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
@@ -1918,8 +2105,8 @@ function renderGrid() {
         card.innerHTML = `
             <div class="m-card-num">${idx + 1}</div>
             <div style="position: absolute; left: 10px; top: 10px; display: flex; gap: 5px;">
-                <button class="m-card-edit" onclick="document.getElementById('m-item-search-${row.id}').focus()" title="تعديل" style="background: transparent; border: none; color: #38bdf8; cursor: pointer;">
-                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path></svg>
+                <button class="m-card-add" onclick="addRow()" title="إضافة سطر" style="background: transparent; border: none; color: #34d399; cursor: pointer;">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
                 </button>
                 <button class="m-card-del" onclick="removeRow(${row.id})" title="حذف">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"></polyline><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"></path></svg>
@@ -1946,8 +2133,8 @@ function renderGrid() {
                 <div class="ctrl-group">
                     <label class="label">التعادل</label>
                     <input type="text" inputmode="decimal" class="ctrl-input" value="${row.customFactor !== undefined ? row.customFactor : calcs.unitFactor}" placeholder="1"
-                onfocus="this.select()" oninput="updateRow(${row.id},'customFactor',this.value)"
-                onblur="this.value=parseNum(this.value)||1" tabindex="-1" onkeypress="return (event.charCode >= 48 && event.charCode <= 57) || event.charCode == 46" >
+                        onfocus="this.select()" oninput="updateRow(${row.id},'customFactor',this.value)"
+                        onblur="this.value=parseNum(this.value)||1" tabindex="-1">
                 </div>
                 <div class="ctrl-group">
                     <label class="label">الكمية الوحدة</label>
@@ -1955,17 +2142,9 @@ function renderGrid() {
                         onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)" onblur="checkAutoAddRow(${row.id})">
                 </div>
                 <div class="ctrl-group">
-                    <label class="label" style="color:#6366f1;">الشيلة</label>
-                    <div class="ctrl-input readonly" data-m-shila="${row.id}" style="color:#6366f1; font-weight:bold; text-align:center;">${fmtNum(calcs.shilaQty)}</div>
-                </div>
-                <div class="ctrl-group">
-                    <label class="label" style="color:#ef4444;">باقي سيخ</label>
-                    <div class="ctrl-input readonly" data-m-shila-rem="${row.id}" style="color:#ef4444; font-weight:bold; text-align:center;">${fmtNum(calcs.shilaRem)}</div>
-                </div>
-                <div class="ctrl-group">
                     <label class="label">السعر (محلي / أجنبي) <button class="btn-icon" onclick="showPriceHistory(${row.id}, 'sales')" title="سجل أسعار الصنف للعميل" style="color:#38bdf8; background:none; border:none; cursor:pointer; padding:0; margin-right:4px;"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg></button></label>
                     <div style="display:flex; gap:4px;">
-                        <input type="text" inputmode="decimal" class="ctrl-input" value="${fmtNum(row.price, '4')}" placeholder="0"
+                        <input type="text" inputmode="decimal" class="ctrl-input" value="${fmtNum(row.price, 'col_price')}" placeholder="0"
                             onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
                             onblur="this.value=fmtNum(parseNum(this.value)); checkAutoAddRow(${row.id})" style="flex:1;">
                         <input type="text" inputmode="decimal" class="ctrl-input" data-m-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : (document.getElementById('hdr-currency').value === 'SDG' ? row.price / (parseNum(document.getElementById('hdr-exchange-rate').value)||1) : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)))}" placeholder="${document.getElementById('hdr-currency').value === 'SDG' ? 'أجنبي' : 'جنيه'}"
@@ -1979,9 +2158,9 @@ function renderGrid() {
                 </div>
                 <div class="ctrl-group">
                     <label class="label">عدد ${item ? item.baseUnit : ''}</label>
-                    <input type="text" inputmode="decimal" class="ctrl-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty, '5')}" placeholder="0"
-                onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
-                onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700;" tabindex="-1">
+                    <input type="text" inputmode="decimal" class="ctrl-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty, 'col_baseqty')}" placeholder="0"
+                        onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
+                        onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700;" tabindex="-1">
                 </div>
                 <div class="ctrl-group m-wh-group">
                     <label class="label">المخزن</label>
@@ -1990,7 +2169,6 @@ function renderGrid() {
                         ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
                     </select>
                 </div>
-
             </div>
             <div style="padding: 10px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 8px;">
                 <div class="ctrl-group">
@@ -2008,10 +2186,14 @@ function renderGrid() {
                     </div>
                 </div>
             </div>
-            <div class="m-card-total" data-m-total="${row.id}">${fmtNum(calcs.total, '11')} ${getCurrency()}</div>
+            <div class="m-card-total" data-m-total="${row.id}">${fmtNum(calcs.total, 'col_total')} ${getCurrency()}</div>
         `;
-
+        mCards.appendChild(card);
     });
+
+    if (typeof applyGridSettings === 'function') {
+        applyGridSettings();
+    }
 }
 
 // ════════════════════════════════════════

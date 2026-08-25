@@ -1,3 +1,91 @@
+
+function extractItemUnits(item) {
+    if (!item) return [];
+    const baseUnit = (item.baseUnit || item.mainUnit || item.unit || "سيخه").trim();
+    let list = [];
+
+    // Parse units if string
+    if (typeof item.units === 'string') {
+        try { item.units = JSON.parse(item.units); } catch(e) {}
+    }
+    if (typeof item.unitsArray === 'string') {
+        try { item.unitsArray = JSON.parse(item.unitsArray); } catch(e) {}
+    }
+
+    // 1. From item.units (Matrix format from master-data)
+    if (Array.isArray(item.units) && item.units.length > 0) {
+        item.units.forEach(u => {
+            if (!u) return;
+            const uName = (u.unitName || u.name || u.unit || "").trim();
+            const uFactor = (u.factor !== undefined && u.factor !== null && u.factor !== "") ? parseFloat(u.factor) : 1;
+            const uPrice = parseFloat(u.cashPrice || u.price || item.sellingPrice || item.price || 0) || 0;
+            if (uName && !list.find(x => x.name === uName)) {
+                list.push({ name: uName, unitName: uName, factor: isNaN(uFactor) ? 1 : uFactor, price: uPrice, barcode: u.barcode || '' });
+            }
+        });
+    }
+
+    // 2. From item.unitsArray
+    if (Array.isArray(item.unitsArray) && item.unitsArray.length > 0) {
+        item.unitsArray.forEach(u => {
+            if (!u) return;
+            const uName = (typeof u === "string" ? u : (u.name || u.unitName || u.unit || "")).trim();
+            const uFactor = (u && typeof u === 'object' && u.factor !== undefined && u.factor !== null && u.factor !== "") ? parseFloat(u.factor) : 1;
+            const uPrice = (u && typeof u === 'object') ? parseFloat(u.price || u.cashPrice || item.sellingPrice || item.price || 0) || 0 : 0;
+            if (uName && !list.find(x => x.name === uName)) {
+                list.push({ name: uName, unitName: uName, factor: isNaN(uFactor) ? 1 : uFactor, price: uPrice, barcode: (u && u.barcode) || '' });
+            }
+        });
+    }
+
+    // 3. Specific fallback only for Steel / Linya items if list has <= 1 unit
+    const normName = (item.name || '').toLowerCase();
+    const isSteel = normName.includes('سيخ') || normName.includes('لينيا') || normName.includes('حديد') || normName.includes('تسليح') || normName.includes('ل');
+    if (isSteel && list.length <= 1) {
+        let fallbackMatrix = null;
+        if (normName.includes('3') || normName.includes('ثلاث')) {
+            fallbackMatrix = [
+                { name: 'سيخه', unitName: 'سيخه', factor: 1, price: 0 },
+                { name: 'طن عددي', unitName: 'طن عددي', factor: 135, price: 0 },
+                { name: 'طن وزني', unitName: 'طن وزني', factor: 166, price: 0 },
+                { name: 'شيله', unitName: 'شيله', factor: 15, price: 0 }
+            ];
+        } else if (normName.includes('4') || normName.includes('اربع') || normName.includes('أربع')) {
+            fallbackMatrix = [
+                { name: 'سيخه', unitName: 'سيخه', factor: 1, price: 0 },
+                { name: 'طن عددي', unitName: 'طن عددي', factor: 92, price: 0 },
+                { name: 'طن وزني', unitName: 'طن وزني', factor: 110, price: 0 },
+                { name: 'شيله', unitName: 'شيله', factor: 10, price: 0 }
+            ];
+        } else if (normName.includes('5') || normName.includes('خمس')) {
+            fallbackMatrix = [
+                { name: 'سيخه', unitName: 'سيخه', factor: 1, price: 0 },
+                { name: 'طن عددي', unitName: 'طن عددي', factor: 52, price: 0 },
+                { name: 'طن وزني', unitName: 'طن وزني', factor: 59, price: 0 },
+                { name: 'شيله', unitName: 'شيله', factor: 5, price: 0 }
+            ];
+        }
+
+        if (fallbackMatrix) {
+            fallbackMatrix.forEach(fb => {
+                if (!list.find(x => x.name === fb.name)) {
+                    list.push(fb);
+                }
+            });
+        }
+    }
+
+    // 4. Ensure base unit is present
+    if (baseUnit && !list.find(x => x.name === baseUnit)) {
+        list.unshift({ name: baseUnit, unitName: baseUnit, factor: 1, price: parseFloat(item.sellingPrice || item.price || 0) || 0, barcode: item.barcode || '' });
+    }
+
+    if (list.length === 0) {
+        list = [{ name: baseUnit || "قطعة", unitName: baseUnit || "قطعة", factor: 1, price: parseFloat(item.sellingPrice || item.price || 0) || 0, barcode: item.barcode || '' }];
+    }
+
+    return list;
+}
 /* ═══════════════════════════════════════════════════════
    sales-invoice.js — POS Engine v6.0
    Real-time Reactive Calculations · Sequential Invoices
@@ -51,21 +139,30 @@ function getPurchaseInvoicesList() {
 //  HELPERS
 // ════════════════════════════════════════
 function fmtNum(n, colId = null) {
-    if (n === 0 || n === '0' || !n) {
-        n = 0;
-    }
-    
-    // Read preferences from localStorage
-    const prefs = JSON.parse(localStorage.getItem('num_format_prefs') || '{}');
-    let decimals = prefs.decimals !== undefined ? prefs.decimals : 2;
-    let separator = prefs.thousandSep !== undefined ? prefs.thousandSep : ',';
-    let decimalSep = prefs.decimalSep !== undefined ? prefs.decimalSep : '.';
+    const cfg = window.CurrentGridConfig || {};
+    let decimals = (cfg.decimalPlaces !== undefined && cfg.decimalPlaces !== '' && cfg.decimalPlaces !== null) ? parseInt(cfg.decimalPlaces) : 2;
+    let separator = (cfg.thousandSep !== undefined && cfg.thousandSep !== '' && cfg.thousandSep !== null && cfg.thousandSep !== 'default') ? cfg.thousandSep : ',';
+    let decimalSep = cfg.decimalSep !== undefined ? cfg.decimalSep : '.';
 
-    // OVERRIDE WITH PER COLUMN SETTINGS if available
-    if (colId && window.CurrentGridConfig && window.CurrentGridConfig[colId]) {
-        const colCfg = window.CurrentGridConfig[colId];
-        if (colCfg.decimals !== undefined && colCfg.decimals !== '') decimals = parseInt(colCfg.decimals);
-        if (colCfg.thousandSep !== undefined && colCfg.thousandSep !== '') separator = colCfg.thousandSep;
+    if (colId && Array.isArray(cfg.columns)) {
+        const colCfg = cfg.columns.find(c => String(c.id) === String(colId));
+        if (colCfg) {
+            if (colCfg.decimals !== undefined && colCfg.decimals !== '' && colCfg.decimals !== null) decimals = parseInt(colCfg.decimals);
+            if (colCfg.thousandSep !== undefined && colCfg.thousandSep !== '' && colCfg.thousandSep !== null && colCfg.thousandSep !== 'default') separator = colCfg.thousandSep;
+        }
+    } else if (colId && cfg[colId]) {
+        const colCfg = cfg[colId];
+        if (colCfg.decimals !== undefined && colCfg.decimals !== '' && colCfg.decimals !== null) decimals = parseInt(colCfg.decimals);
+        if (colCfg.thousandSep !== undefined && colCfg.thousandSep !== '' && colCfg.thousandSep !== null && colCfg.thousandSep !== 'default') separator = colCfg.thousandSep;
+    }
+
+    if (separator === 'default') separator = ',';
+
+    if (n === 0 || n === '0' || !n) {
+        if (n === 0 || n === '0') {
+            return decimals > 0 ? (0).toFixed(decimals) : '0';
+        }
+        return decimals > 0 ? (0).toFixed(decimals) : '0';
     }
 
     let val = parseFloat(n);
@@ -73,18 +170,14 @@ function fmtNum(n, colId = null) {
 
     let numStr = val.toFixed(decimals);
     let parts = numStr.split('.');
-    
-    // Apply thousands separator
-    if (separator !== 'none') {
-        parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, separator);
+    let intPart = parts[0];
+    let decPart = parts.length > 1 ? decimalSep + parts[1] : '';
+
+    if (separator !== 'none' && separator !== '') {
+        intPart = intPart.replace(/\B(?=(\d{3})+(?!\d))/g, separator);
     }
-    
-    // Apply decimal separator
-    let decimalPart = parts[1] || '';
-    if (decimalPart) {
-        return parts[0] + decimalSep + decimalPart;
-    }
-    return parts[0];
+
+    return intPart + decPart;
 }
 function parseNum(str) {
     if (str === null || str === undefined) return 0;
@@ -267,16 +360,7 @@ function initPurchaseApp() {
             sp = sp.toString().replace(/,/g, '');
 
             const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
-
-            let unitsArray = [];
-            if (item.units && item.units.length > 0) {
-                unitsArray = item.units.map(u => ({ name: u.unitName, factor: u.factor || 1 }));
-            } else if (item.unitsArray && item.unitsArray.length > 0) {
-                unitsArray = item.unitsArray;
-            }
-            if (unitsArray.length === 0 || !unitsArray.find(u => u.name === baseUnit)) {
-                unitsArray = [{ name: baseUnit, factor: 1 }, ...unitsArray];
-            }
+            const unitsArray = extractItemUnits(item);
 
             return {
                 id: item.id,
@@ -284,7 +368,7 @@ function initPurchaseApp() {
                 unit: baseUnit,
                 baseUnit: baseUnit,
                 conversionFactor: 1, 
-                bundleFactor: parseFloat(item.bundleFactor) || parseFloat(item.shila) || parseFloat(item.bundleQty) || 1,
+                bundleFactor: 1,
                 price: parseFloat(sp) || 0,
                 stock: stockMap,
                 unitsArray: unitsArray,
@@ -301,6 +385,39 @@ function initPurchaseApp() {
                 recalcAll();
                 initMultiPaymentSystem();
                 if (typeof loadHubTransactions === 'function') loadHubTransactions();
+                // Background sync latest items & units from MySQL
+        fetch('api/get_master_data.php').then(r => r.json()).then(res => {
+            if (res && res.success && res.data) {
+                if (Array.isArray(res.data.units) && res.data.units.length > 0) {
+                    localStorage.setItem('erp_global_units_v1', JSON.stringify(res.data.units));
+                }
+                if (Array.isArray(res.data.items) && res.data.items.length > 0) {
+                    res.data.items.forEach(dbItem => {
+                        let existing = ITEMS.find(i => String(i.id) === String(dbItem.id));
+                        if (!existing) {
+                            const baseUnit = dbItem.baseUnit || dbItem.mainUnit || dbItem.unit || 'قطعة';
+                            const unitsArr = extractItemUnits(dbItem);
+                            ITEMS.push({
+                                id: dbItem.id,
+                                name: dbItem.name || 'صنف',
+                                unit: baseUnit,
+                                baseUnit: baseUnit,
+                                conversionFactor: 1,
+                                bundleFactor: 1,
+                                price: parseFloat(dbItem.sellingPrice || dbItem.price || 0) || 0,
+                                actualStock: {},
+                                reservedStock: {},
+                                unitsArray: unitsArr,
+                                maxDiscount: dbItem.maxDiscount || 0,
+                                status: dbItem.status || 'active'
+                            });
+                        } else {
+                            existing.unitsArray = extractItemUnits(dbItem);
+                        }
+                    });
+                }
+            }
+        }).catch(() => {});
             });
         } else {
             renderGrid();
@@ -1125,145 +1242,145 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
     const listEl = document.getElementById(`${prefix}item-dropdown-list-${rowId}`);
     if (!listEl) return;
     
+    listEl.innerHTML = '<div class="custom-dropdown-empty">جاري البحث...</div>';
     const term = filter.toLowerCase().trim();
     
     try {
-        // 1. Ensure local ITEMS array is populated from localStorage
-        const invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
-        const WAREHOUSES = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
-        const rawItems = (JSON.parse(localStorage.getItem('erp_items_v1')) || []).filter(x => !x.deleted);
-        
-        rawItems.forEach(item => {
-            let existing = ITEMS.find(i => String(i.id) === String(item.id));
-            if (!existing) {
-                let stockMap = {};
-                let itemInv = invData.filter(inv => String(inv.itemId) === String(item.id));
-                itemInv.forEach(inv => {
-                    let whId = WAREHOUSES.find(w => w.name === inv.warehouse)?.id || 'w-001';
-                    stockMap[whId] = (stockMap[whId] || 0) + (parseFloat(inv.qty) || parseFloat(inv.quantity) || 0);
-                });
-
-                let sp = item.sellingPrice || item.salePrice || item.price || 0;
-                sp = sp.toString().replace(/,/g, '');
-                const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
-
-                let unitsArray = [];
-                if (item.units && item.units.length > 0) {
-                    unitsArray = item.units.map(u => ({ name: u.unitName, factor: u.factor || 1 }));
-                } else if (item.unitsArray && item.unitsArray.length > 0) {
-                    unitsArray = item.unitsArray;
-                }
-                if (unitsArray.length === 0 || !unitsArray.find(u => u.name === baseUnit)) {
-                    unitsArray = [{ name: baseUnit, factor: 1 }, ...unitsArray];
-                }
-
-                existing = {
-                    id: item.id,
-                    name: item.name,
-                    unit: baseUnit,
-                    baseUnit: baseUnit,
-                    conversionFactor: 1, 
-                    bundleFactor: parseFloat(item.bundleFactor) || parseFloat(item.shila) || parseFloat(item.bundleQty) || 1,
-                    price: parseFloat(sp) || 0,
-                    stock: stockMap,
-                    unitsArray: unitsArray,
-                    barcode: item.barcode || '',
-                    image: item.image || item.photo || item.img || item.thumbnail || ''
-                };
-                ITEMS.push(existing);
-            }
-        });
-
-        // Function to render items into listEl
-        const renderList = (matches) => {
-            const finalMatches = Array.from(new Map(matches.map(m => [String(m.id), m])).values());
-            if (finalMatches.length === 0) {
-                listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة.<br><small style="color:#888;">(حاول استخدام اسم آخر)</small></div>';
-                return;
-            }
-
-            listEl.innerHTML = '';
-            finalMatches.slice(0, 50).forEach(existing => {
-                const div = document.createElement('div');
-                div.className = 'custom-dropdown-item';
-                div.style.display = 'flex';
-                div.style.alignItems = 'center';
-                div.style.gap = '10px';
-                
-                let imgHtml = '';
-                if (existing.image) {
-                    imgHtml = `<img src="${existing.image}" style="width:28px; height:28px; border-radius:6px; object-fit:cover; border:1px solid rgba(56,189,248,0.3); flex-shrink:0;">`;
-                } else {
-                    imgHtml = `<div style="width:28px; height:28px; border-radius:6px; background:rgba(56,189,248,0.12); border:1px solid rgba(56,189,248,0.25); color:#38bdf8; display:flex; align-items:center; justify-content:center; font-size:0.8rem; flex-shrink:0;">📦</div>`;
-                }
-
-                const nameH = window.highlightSearchMatches ? window.highlightSearchMatches(existing.name, filter) : existing.name;
-                const barcodeH = existing.barcode ? (window.highlightSearchMatches ? window.highlightSearchMatches(String(existing.barcode), filter) : existing.barcode) : '';
-                let textHtml = `<div style="flex:1;"><span>${nameH}</span>`;
-                if (isMobile && existing.unit) textHtml += ` <span style="font-size:0.75rem; color:#aaa;">— ${existing.unit}</span>`;
-                if (barcodeH) textHtml += ` <span style="font-size:0.75rem; color:#888;">[${barcodeH}]</span>`;
-                textHtml += `</div>`;
-
-                div.innerHTML = imgHtml + textHtml;
-                
-                div.onmousedown = (e) => { e.preventDefault(); updateRow(rowId, 'itemId', existing.id); renderGrid(); };
-                div.onpointerdown = (e) => { e.preventDefault(); updateRow(rowId, 'itemId', existing.id); renderGrid(); };
-                listEl.appendChild(div);
-            });
-        };
-
-        // Filter local matches
         let localMatches = ITEMS;
         if (term) {
             localMatches = ITEMS.filter(i => {
+                if (!i) return false;
                 const normName = (i.name || '').toLowerCase();
                 const nameWords = normName.split(' ');
-                const bcMatches = i.barcode && i.barcode.toLowerCase().startsWith(term);
-                return nameWords.some(w => w.startsWith(term)) || normName.includes(term) || bcMatches;
+                const bcMatches = i.barcode && i.barcode.toLowerCase().includes(term);
+                const unitBcMatches = i.units && Array.isArray(i.units) && i.units.some(u => u.barcode && u.barcode.toLowerCase().includes(term));
+                return nameWords.some(w => w.startsWith(term)) || normName.includes(term) || bcMatches || unitBcMatches;
             });
         }
 
-        // Render local items instantly (0ms delay)
-        renderList(localMatches);
-
-        // Async API fetch for server items (non-blocking)
+        let dbMatches = [];
         try {
-            const token = localStorage.getItem('authToken') || localStorage.getItem('token') || '';
+            const token = localStorage.getItem('token');
             const headers = token ? { 'Authorization': 'Bearer ' + token } : {};
             const res = await fetch('api/items_search.php?q=' + encodeURIComponent(term), { headers });
-            if (res.ok) {
-                const rawMatches = await res.json();
-                if (Array.isArray(rawMatches) && rawMatches.length > 0) {
-                    rawMatches.forEach(item => {
-                        let existing = ITEMS.find(i => String(i.id) === String(item.id));
-                        if (!existing) {
-                            const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
-                            existing = {
-                                id: item.id,
-                                name: item.name,
-                                unit: baseUnit,
-                                baseUnit: baseUnit,
-                                conversionFactor: 1,
-                                bundleFactor: 1,
-                                price: parseFloat(item.sellingPrice || item.price || 0),
-                                stock: {},
-                                unitsArray: [{ name: baseUnit, factor: 1 }],
-                                barcode: item.barcode || ''
-                            };
-                            ITEMS.push(existing);
-                            localMatches.push(existing);
-                        }
-                    });
-                    renderList(localMatches);
-                }
+            const rawMatches = await res.json();
+            if (Array.isArray(rawMatches)) {
+                dbMatches = rawMatches;
             }
         } catch(err) {
-            // Quietly ignore API errors to keep local UI responsive
+            console.error('API Search Failed:', err);
         }
+        
+        const rawItems = window._PRELOADED_ITEMS || JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+        
+        // Merge dbMatches and newly added rawItems
+        const allNew = [...rawItems, ...dbMatches];
+        allNew.forEach(item => {
+            if (!item || !item.id) return;
+            let existing = ITEMS.find(i => String(i.id) === String(item.id));
+            const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
+            const unitsArray = extractItemUnits(item);
+            let sp = item.sellingPrice || item.salePrice || item.price || 0;
+            sp = sp.toString().replace(/,/g, '');
+
+            if (!existing) {
+                existing = {
+                    id: item.id,
+                    name: item.name || 'صنف',
+                    unit: baseUnit,
+                    baseUnit: baseUnit,
+                    conversionFactor: 1, 
+                    bundleFactor: parseFloat(item.bundleFactor) || 1,
+                    price: parseFloat(sp) || 0,
+                    actualStock: {},
+                    reservedStock: {},
+                    units: item.units || [],
+                    unitsArray: unitsArray,
+                    barcode: item.barcode || '',
+                    maxDiscount: item.maxDiscount || 0,
+                    status: item.status || 'active'
+                };
+                ITEMS.push(existing);
+                if (!term || existing.name.toLowerCase().includes(term)) {
+                    localMatches.push(existing);
+                }
+            } else {
+                existing.units = item.units || existing.units;
+                existing.unitsArray = unitsArray;
+            }
+        });
+
+        const finalMatches = Array.from(new Map(localMatches.map(m => [String(m.id), m])).values());
+
+        if (finalMatches.length === 0) {
+            listEl.innerHTML = '<div class="custom-dropdown-empty">لا توجد نتائج مطابقة.<br><small style="color:#888;">(حاول استخدام اسم آخر)</small></div>';
+            return;
+        }
+
+        listEl.innerHTML = '';
+        finalMatches.slice(0, 50).forEach(existing => {
+            const div = document.createElement('div');
+            div.className = 'custom-dropdown-item';
+            
+            const uList = extractItemUnits(existing);
+            const uText = uList.map(u => u.name).join(' | ');
+
+            let displayText = `<strong>${existing.name}</strong>`;
+            
+            if (existing.barcode) displayText += ` <span style="font-size:0.8rem; color:#888;">[${existing.barcode}]</span>`;
+            
+            div.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                <span>${displayText}</span>
+            </div>`;
+            
+            const doSelect = (e) => {
+                if (e) {
+                    e.preventDefault();
+                    e.stopPropagation();
+                }
+                selectRowItem(rowId, existing.id, isMobile);
+            };
+            div.onmousedown = doSelect;
+            div.onpointerdown = doSelect;
+            div.onclick = doSelect;
+            listEl.appendChild(div);
+        });
     } catch (e) {
         console.error(e);
-        listEl.innerHTML = '<div class="custom-dropdown-empty">خطأ في تحويل البيانات</div>';
+        listEl.innerHTML = '<div class="custom-dropdown-empty">خطأ في الاتصال</div>';
     }
+}
+
+
+
+function selectRowItem(rowId, itemId, isMobile = false) {
+    const prefix = isMobile ? 'm-' : '';
+    document.querySelectorAll('.custom-dropdown-list').forEach(el => {
+        el.classList.remove('show');
+        el.style.display = 'none';
+    });
+
+    const searchInput = document.getElementById(`${prefix}item-search-${rowId}`);
+    if (searchInput) {
+        searchInput.blur();
+    }
+
+    updateRow(rowId, 'itemId', itemId);
+    renderGrid();
+
+    setTimeout(() => {
+        const trIndex = rows.findIndex(r => r.id === rowId);
+        if (trIndex !== -1) {
+            const tr = document.querySelectorAll('#grid-body tr')[trIndex];
+            if (tr) {
+                const qtyInput = tr.querySelector('[data-col-id="col_qty"] input');
+                if (qtyInput) {
+                    qtyInput.focus();
+                    qtyInput.select();
+                }
+            }
+        }
+    }, 50);
 }
 
 function showItemDropdown(rowId, isMobile = false) {
@@ -1350,10 +1467,12 @@ async function renderQuickItemDropdown(filter = '') {
         let localMatches = ITEMS;
         if (term) {
             localMatches = ITEMS.filter(i => {
-                const normName = i.name.toLowerCase();
+                if (!i) return false;
+                const normName = (i.name || '').toLowerCase();
                 const nameWords = normName.split(' ');
-                const bcMatches = i.barcode && i.barcode.toLowerCase().startsWith(term);
-                return nameWords.some(w => w.startsWith(term)) || normName.includes(term) || bcMatches;
+                const bcMatches = i.barcode && i.barcode.toLowerCase().includes(term);
+                const unitBcMatches = i.units && Array.isArray(i.units) && i.units.some(u => u.barcode && u.barcode.toLowerCase().includes(term));
+                return nameWords.some(w => w.startsWith(term)) || normName.includes(term) || bcMatches || unitBcMatches;
             });
         }
 
@@ -1368,48 +1487,40 @@ async function renderQuickItemDropdown(filter = '') {
             console.error('API Search Failed:', err);
         }
         
-        const invData = JSON.parse(localStorage.getItem('erp_inventory_v1')) || [];
-        const WAREHOUSES = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
-        const rawItems = (JSON.parse(localStorage.getItem('erp_items_v1')) || []).filter(x => !x.deleted);
-        
+        const rawItems = window._PRELOADED_ITEMS || JSON.parse(localStorage.getItem('erp_items_v1')) || [];
         const allNew = [...rawItems, ...dbMatches];
         allNew.forEach(item => {
+            if (!item || !item.id) return;
             let existing = ITEMS.find(i => String(i.id) === String(item.id));
+            const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
+            const unitsArray = extractItemUnits(item);
+            let sp = item.sellingPrice || item.salePrice || item.price || 0;
+            sp = sp.toString().replace(/,/g, '');
+
             if (!existing) {
-                let stockMap = {};
-                let itemInv = invData.filter(inv => String(inv.itemId) === String(item.id));
-                itemInv.forEach(inv => {
-                    let whId = WAREHOUSES.find(w => w.name === inv.warehouse)?.id || 'w-001';
-                    stockMap[whId] = (stockMap[whId] || 0) + (parseFloat(inv.qty) || parseFloat(inv.quantity) || 0);
-                });
-
-                let sp = item.sellingPrice || item.salePrice || item.price || 0;
-                sp = sp.toString().replace(/,/g, '');
-                const baseUnit = item.baseUnit || item.mainUnit || item.unit || 'قطعة';
-
-                let unitsArray = [];
-                if (item.units && item.units.length > 0) {
-                    unitsArray = item.units.map(u => ({ name: u.unitName, factor: u.factor || 1 }));
-                } else if (item.unitsArray && item.unitsArray.length > 0) {
-                    unitsArray = item.unitsArray;
-                }
-                if (unitsArray.length === 0 || !unitsArray.find(u => u.name === baseUnit)) {
-                    unitsArray = [{ name: baseUnit, factor: 1 }, ...unitsArray];
-                }
-
                 existing = {
                     id: item.id,
-                    name: item.name,
+                    name: item.name || 'صنف',
                     unit: baseUnit,
                     baseUnit: baseUnit,
                     conversionFactor: 1, 
-                    bundleFactor: parseFloat(item.bundleFactor) || parseFloat(item.shila) || parseFloat(item.bundleQty) || 1,
+                    bundleFactor: parseFloat(item.bundleFactor) || 1,
                     price: parseFloat(sp) || 0,
-                    stock: stockMap,
-                    unitsArray: unitsArray
+                    actualStock: {},
+                    reservedStock: {},
+                    units: item.units || [],
+                    unitsArray: unitsArray,
+                    barcode: item.barcode || '',
+                    maxDiscount: item.maxDiscount || 0,
+                    status: item.status || 'active'
                 };
                 ITEMS.push(existing);
-                localMatches.push(existing);
+                if (!term || existing.name.toLowerCase().includes(term)) {
+                    localMatches.push(existing);
+                }
+            } else {
+                existing.units = item.units || existing.units;
+                existing.unitsArray = unitsArray;
             }
         });
 
@@ -1425,15 +1536,16 @@ async function renderQuickItemDropdown(filter = '') {
             const div = document.createElement('div');
             div.className = 'custom-dropdown-item';
             
-            const nameH = window.highlightSearchMatches ? window.highlightSearchMatches(existing.name, filter) : existing.name;
-            const barcodeH = existing.barcode ? (window.highlightSearchMatches ? window.highlightSearchMatches(String(existing.barcode), filter) : existing.barcode) : '';
-            let displayText = nameH;
-            if (existing.unit) displayText += ' <span style="font-size:0.8rem; color:#aaa;">— ' + existing.unit + '</span>';
-            if (barcodeH) displayText += ' <span style="font-size:0.8rem; color:#888;">[' + barcodeH + ']</span>';
-            div.innerHTML = displayText;
-            
-            div.onmousedown = () => selectQuickItem(existing.id);
-            div.onpointerdown = () => selectQuickItem(existing.id);
+            const uList = extractItemUnits(existing);
+            const uText = uList.map(u => u.name).join(' | ');
+
+            div.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
+                <span><strong>${existing.name}</strong></span>
+                
+            </div>`;
+            div.onmousedown = () => { selectQuickItem(existing.id); };
+            div.onpointerdown = () => { selectQuickItem(existing.id); };
+            div.onclick = () => { selectQuickItem(existing.id); };
             listEl.appendChild(div);
         });
     } catch (e) {
@@ -1462,16 +1574,31 @@ function filterQuickItemDropdown() {
 }
 
 function selectQuickItem(itemId) {
+    const listEl = document.getElementById('quick-item-dropdown-list');
+    if(listEl) { listEl.classList.remove('show'); listEl.style.display = 'none'; }
+    document.querySelectorAll('.custom-dropdown-list').forEach(el => {
+        el.classList.remove('show');
+        el.style.display = 'none';
+    });
+
+    const searchEl = document.getElementById('quick-item-search');
+    if(searchEl) { searchEl.value = ''; searchEl.blur(); }
+
     addRow();
     const lastRow = rows[rows.length - 1];
     updateRow(lastRow.id, 'itemId', itemId);
-    
-    const searchEl = document.getElementById('quick-item-search');
-    if(searchEl) searchEl.value = '';
-    const listEl = document.getElementById('quick-item-dropdown-list');
-    if(listEl) listEl.classList.remove('show');
-    
     renderGrid();
+
+    setTimeout(() => {
+        const lastTr = document.querySelector('#grid-body tr:last-child');
+        if (lastTr) {
+            const qtyInput = lastTr.querySelector('[data-col-id="col_qty"] input');
+            if (qtyInput) {
+                qtyInput.focus();
+                qtyInput.select();
+            }
+        }
+    }, 50);
 }
 
 // ════════════════════════════════════════
@@ -1512,67 +1639,83 @@ function updateRow(id, field, value) {
     const row = rows.find(r => r.id === id);
     if (!row) return;
 
-    if (field === 'quantity' || field === 'price' || field === 'customFactor' || field === 'customBaseQty' || field === 'fcPrice') {
-        row[field] = parseNum(value);
-        if (field === 'quantity' || field === 'customFactor') {
-            row.customBaseQty = undefined; // reset so it auto-calculates
-        }
-        if (field === 'fcPrice') {
-            const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
-            const isBaseSDG = document.getElementById('hdr-currency').value === 'SDG';
-            if (isBaseSDG) {
-                row.price = row.fcPrice * exRate;
-            } else {
-                row.price = row.fcPrice / exRate;
-            }
-        }
-        if (field === 'price') {
-            const exRate = parseNum(document.getElementById('hdr-exchange-rate').value) || 1;
-            const isBaseSDG = document.getElementById('hdr-currency').value === 'SDG';
+    if (field === "quantity" || field === "price" || field === "customFactor" || field === "fcPrice" || field === "customBaseQty") {
+        row[field] = (value === "" || isNaN(parseNum(value))) ? "" : parseNum(value);
+        if (field === "price") {
+            const exRate = parseNum(document.getElementById("hdr-exchange-rate").value) || 1;
+            const isBaseSDG = document.getElementById("hdr-currency").value === "SDG";
             if (isBaseSDG) {
                 row.fcPrice = row.price / exRate;
             } else {
                 row.fcPrice = row.price * exRate;
             }
         }
-        if (field === 'customBaseQty') {
-            const item = ITEMS.find(i => String(i.id) === String(row.itemId));
-            let factor = row.customFactor !== undefined ? row.customFactor : 1;
-            if (row.customFactor === undefined && item && row.selectedUnit && item.unitsArray && item.unitsArray.length > 0) {
-                const su = item.unitsArray.find(u => u.name === row.selectedUnit);
+        if (field === "customBaseQty") {
+            let item = ITEMS.find(i => String(i.id) === String(row.itemId));
+            let factor = (row.customFactor !== undefined && row.customFactor !== null && row.customFactor !== "") ? parseFloat(row.customFactor) : 1;
+            if (item && row.selectedUnit) {
+                const units = extractItemUnits(item);
+                const su = units.find(u => u.name === row.selectedUnit);
                 if (su) factor = su.factor;
             }
-            const conv = item ? item.conversionFactor : 1;
+            const conv = item ? (item.conversionFactor || 1) : 1;
             if (factor * conv > 0) {
                 row.quantity = row.customBaseQty / (factor * conv);
             }
         }
     } else {
         row[field] = value;
-        if (field === 'itemId') {
+        if (field === "itemId") {
             row.customBaseQty = undefined;
-            // Use already-mapped ITEMS (which has proper unitsArray), do NOT reload raw localStorage
-            const item = ITEMS.find(i => String(i.id) === String(value));
+            let item = ITEMS.find(i => String(i.id) === String(value));
+            if (!item) {
+                try {
+                    const rawItems = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+                    const raw = rawItems.find(i => String(i.id) === String(value));
+                    if (raw) item = raw;
+                } catch(e) {}
+            }
             if (item) {
-                row.price = item.price;
-                // Default to first unit in unitsArray (the base unit)
-                if (item.unitsArray && item.unitsArray.length > 0) {
-                    row.selectedUnit = item.unitsArray[0].name;
-                    row.customFactor = item.unitsArray[0].factor;
+                const units = extractItemUnits(item);
+                item.unitsArray = units;
+                row.price = parseFloat(item.sellingPrice || item.price || 0) || 0;
+                if (units && units.length > 0) {
+                    row.selectedUnit = units[0].name;
+                    row.customFactor = units[0].factor;
+                    if (units[0].price && units[0].price > 0) {
+                        row.price = units[0].price;
+                    }
                 } else {
-                    row.selectedUnit = item.unit || '';
+                    row.selectedUnit = item.unit || item.baseUnit || "قطعة";
                     row.customFactor = 1;
                 }
+            } else {
+                row.selectedUnit = '';
+                row.customFactor = 1;
             }
-        } else if (field === 'selectedUnit') {
+                } else if (field === "selectedUnit") {
             row.customBaseQty = undefined;
-            const item = ITEMS.find(i => String(i.id) === String(row.itemId));
-            if (item && item.unitsArray) {
-                const su = item.unitsArray.find(u => u.name === value);
+            let item = ITEMS.find(i => String(i.id) === String(row.itemId));
+            if (!item) {
+                try {
+                    const rawItems = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+                    item = rawItems.find(i => String(i.id) === String(row.itemId));
+                } catch(e) {}
+            }
+            if (item) {
+                const units = extractItemUnits(item);
+                const su = units.find(u => u.name === value || u.unitName === value);
                 if (su) {
-                    row.customFactor = su.factor;
+                    row.customFactor = (su.factor !== undefined && su.factor !== null && su.factor !== "") ? parseFloat(su.factor) : 1;
+                    if (su.price && su.price > 0) {
+                        row.price = su.price;
+                    } else if (su.cashPrice && su.cashPrice > 0) {
+                        row.price = su.cashPrice;
+                    }
                 }
             }
+            updateRowCalcs(id);
+            recalcAll();
         }
     }
     // Live update without full re-render (keeps focus)
@@ -1617,7 +1760,7 @@ function getRowCalcs(row) {
     const shilaRem = baseQty ? (baseQty % shilaFactor) : 0;
 
     const whId = getResolvedWarehouse(row);
-    const availQty = item && item.stock[whId] !== undefined ? item.stock[whId] : '—';
+    const availQty = (item && item.stock && item.stock[whId] !== undefined) ? item.stock[whId] : (item && item.actualStock && item.actualStock[whId] !== undefined ? item.actualStock[whId] : '—');
     return { total, baseQty, bundles, shilaQty, shilaRem, availQty, unit: selectedUnitName, unitFactor: selectedUnitFactor };
 }
 
@@ -1711,9 +1854,8 @@ function renderGridHead() {
             <th data-col-id="action" style="width: 90px; text-align: center; font-size: 1.05rem;">إجراء</th>
         </tr>
     `;
-    if (typeof GridCustomizer !== 'undefined') {
-        GridCustomizer.attachEvents();
-        GridCustomizer.applyStyles();
+    if (typeof applyGridSettings === 'function') {
+        applyGridSettings();
     }
 }
 
@@ -1763,7 +1905,6 @@ function saveAdvancedColSettings() {
             gridColumnsConfig[k].visible = chk.checked;
         }
     });
-    
     
     window.previewBackupConfig = null; // Clear backup on save
     
@@ -1852,23 +1993,24 @@ function renderGrid() {
         const item = ITEMS.find(i => String(i.id) === String(row.itemId));
         const calcs = getRowCalcs(row);
 
+                const unitsList = extractItemUnits(item);
         let itemUnitsHtml = '';
-        if (item && item.unitsArray && item.unitsArray.length > 0) {
-            itemUnitsHtml = item.unitsArray.map(u => `<option value="${u.name}" ${row.selectedUnit === u.name ? 'selected' : ''}>${u.name}</option>`).join('');
+        if (unitsList && unitsList.length > 0) {
+            itemUnitsHtml = unitsList.map(u => `<option value="${u.name}" ${row.selectedUnit === u.name ? 'selected' : ''}>${u.name}</option>`).join('');
         } else {
-            itemUnitsHtml = `<option value="${item ? item.unit : ''}">${item ? item.unit : '—'}</option>`;
+            itemUnitsHtml = `<option value="${item ? (item.unit || item.baseUnit || 'قطعة') : ''}">${item ? (item.unit || item.baseUnit || '—') : '—'}</option>`;
         }
 
         const isBaseSDG = (getCurrency() === 'SDG');
         
         let trHtml = `
-            <td style="text-align: center;"><div class="row-num">${idx + 1}</div></td>
-            <td style="text-align: center;">
-                <span class="g-readonly avail-val" data-avail="${row.id}" style="display: inline-block; width: 100%; text-align: center; background: rgba(56, 189, 248, 0.1); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 6px; padding: 5px 2px; font-size: 1.25rem; font-weight: bold; font-family: 'JetBrains Mono', monospace;" title="الكمية المتوفرة حالياً بالمخزن تلقائياً">
+            <td data-col-id="col_index" style="text-align: center;"><div class="row-num">${idx + 1}</div></td>
+            <td data-col-id="available" style="text-align: center;">
+                <span class="g-readonly avail-val" data-avail="${row.id}" style="display: inline-block; width: 100%; text-align: center; background: rgba(56, 189, 248, 0.1); border: 1px solid rgba(56, 189, 248, 0.2); border-radius: 6px; padding: 5px 2px;" title="الكمية المتوفرة حالياً بالمخزن تلقائياً">
                     ${row.availableQty !== undefined ? fmtNum(row.availableQty, 'available') : '0'}
                 </span>
             </td>
-            <td style="position:relative; text-align: right;">
+            <td data-col-id="item" style="position:relative; text-align: right;">
                 <div style="display: flex; align-items: center; gap: 8px;">
                     ${item && item.image ? 
                         `<img src="${item.image}" style="width: 28px; height: 28px; border-radius: 6px; object-fit: cover; border: 1px solid rgba(56,189,248,0.4); flex-shrink: 0;" title="${item.name}">` : 
@@ -1877,8 +2019,8 @@ function renderGrid() {
                     <div style="position:relative; flex: 1;">
                         <input type="text" class="g-input" id="item-search-${row.id}" placeholder="ابحث أو اختر الصنف..." 
                             value="${item ? item.name : ''}" autocomplete="one-time-code"
-                            style="text-align: right; width: 100%; font-size: 1.4rem; font-weight: bold;"
-                            onfocus="if(this.closest('tr')) { this.closest('tr').style.zIndex='999999'; this.closest('tr').style.position='relative'; } showItemDropdown(${row.id})" 
+                            style="text-align: right; width: 100%;"
+                            onfocus="if(this.closest('tr')) { this.closest('tr').style.zIndex='999999'; this.closest('tr').style.position='relative'; } showItemDropdown(${row.id})" onkeydown="handleItemSearchKeydown(event, ${row.id})" 
                             onblur="hideItemDropdownDelayed(${row.id})" 
                             oninput="filterItemDropdown(${row.id})">
                         <div class="custom-dropdown-list" id="item-dropdown-list-${row.id}" style="text-align:right; min-width: 260px; white-space: normal;">
@@ -1886,45 +2028,45 @@ function renderGrid() {
                     </div>
                 </div>
             </td>
-            <td style="text-align: center;">
-                <select class="g-select" data-unit-select="${row.id}" style="width: 100%; font-size: 1.4rem; font-weight: bold;" onchange="updateRow(${row.id},'selectedUnit',this.value); renderGrid();">
+            <td data-col-id="unit" style="text-align: center;">
+                <select class="g-select" data-unit-select="${row.id}" style="width: 100%;" onchange="updateRow(${row.id},'selectedUnit',this.value); renderGrid();">
                     ${itemUnitsHtml}
                 </select>
             </td>
             
-            <td style="text-align: center;">
-                <input type="text" inputmode="decimal" class="g-input" data-qty-input="${row.id}" value="${Number.isInteger(row.quantity) ? row.quantity : parseFloat((row.quantity || 0).toFixed(4)) || ''}" placeholder="0"
+            <td data-col-id="quantity" style="text-align: center;">
+                <input type="text" inputmode="decimal" class="g-input" data-qty-input="${row.id}" value="${row.quantity || ''}" placeholder="0"
                     onfocus="this.select()" oninput="updateRow(${row.id},'quantity',this.value)"
-                    onblur="this.value=parseNum(this.value)||''" style="text-align: center; width: 95%; margin: 0 auto; display: block; font-size: 1.25rem; font-weight: bold; color: #facc15;">
+                    onblur="this.value=parseNum(this.value)||''" style="text-align: center; width: 95%; margin: 0 auto; display: block;">
             </td>
-            <td style="text-align: center;">
+            <td data-col-id="price" style="text-align: center;">
                 <input type="text" inputmode="decimal" class="g-input" data-price-input="${row.id}" value="${fmtNum(row.price, 'price')}"
                     onfocus="this.select()" oninput="updateRow(${row.id},'price',this.value)"
                     onblur="this.value=fmtNum(parseNum(this.value), 'price')" 
-                    style="text-align: center; width: 100%; font-size: 1.6rem; font-weight: bold; color: #fff;">
+                    style="text-align: center; width: 100%;">
             </td>
             ${!isBaseSDG ? `
-            <td style="text-align: center;">
+            <td data-col-id="fcprice" style="text-align: center;">
                 <input type="text" inputmode="decimal" class="g-input" data-fcprice-input="${row.id}" value="${fmtNum(row.fcPrice !== undefined ? row.fcPrice : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1), 'fcprice')}"
                     onfocus="this.select()" oninput="updateRow(${row.id},'fcPrice',this.value)"
-                    onblur="this.value=fmtNum(parseNum(this.value), 'fcprice')" style="text-align: center; width: 100%; color:#10b981; font-size: 1.05rem;" tabindex="-1">
+                    onblur="this.value=fmtNum(parseNum(this.value), 'fcprice')" style="text-align: center; width: 100%;" tabindex="-1">
             </td>
             ` : ''}
-            <td style="text-align: center;">
-                <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1" style="text-align: center; width: 100%; font-size: 1.05rem;">
+            <td data-col-id="warehouse" style="text-align: center;">
+                <select class="g-select" onchange="updateRow(${row.id},'warehouseId',this.value)" tabindex="-1" style="text-align: center; width: 100%;">
                     <option value="">نفس الفاتورة ↩</option>
                     ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
                 </select>
             </td>
-            <td style="text-align: center; min-width: 240px;">
-                <span class="g-readonly total-val" data-total="${row.id}" style="font-size: 1.6rem; font-weight: 900; color: #34d399; font-family: monospace, 'Cairo', sans-serif; display: block; text-align: center;">${fmtNum(calcs.total, 'total')}</span>
+            <td data-col-id="total" style="text-align: center; min-width: 240px;">
+                <span class="g-readonly total-val" data-total="${row.id}" style="display: block; text-align: center;">${fmtNum(calcs.total, 'total')}</span>
             </td>
             ${!isBaseSDG ? `
-            <td style="text-align: center;">
-                <span class="g-readonly total-fc-val" style="color:#10b981; font-size: 1.1rem; font-weight: bold;" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)) * (row.quantity || 0), 'fctotal')}</span>
+            <td data-col-id="fctotal" style="text-align: center;">
+                <span class="g-readonly total-fc-val" data-total-fc="${row.id}">${fmtNum((row.fcPrice !== undefined ? row.fcPrice : row.price * (parseNum(document.getElementById('hdr-exchange-rate').value)||1)) * (row.quantity || 0), 'fctotal')}</span>
             </td>
             ` : ''}
-            <td style="text-align: center;">
+            <td data-col-id="action" style="text-align: center;">
                 <div style="display: flex; gap: 5px; justify-content: center; align-items: center;">
                     <button type="button" class="add-row-btn" onclick="addRow()" title="إضافة سطر جديد" style="background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.35)); border: 1px solid rgba(16,185,129,0.5); color: #34d399; border-radius: 6px; padding: 6px 8px; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease;">
                         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line></svg>
@@ -1937,6 +2079,7 @@ function renderGrid() {
         `;
         const tr = document.createElement('tr');
         tr.innerHTML = trHtml;
+        if (window.reorderTds) window.reorderTds(tr);
         tbody.appendChild(tr);
 
         // ── Mobile Card ──
@@ -1973,8 +2116,8 @@ function renderGrid() {
                 <div class="ctrl-group">
                     <label class="label">التعادل</label>
                     <input type="text" inputmode="decimal" class="ctrl-input" value="${row.customFactor !== undefined ? row.customFactor : calcs.unitFactor}" placeholder="1"
-                onfocus="this.select()" oninput="updateRow(${row.id},'customFactor',this.value)"
-                onblur="this.value=parseNum(this.value)||1" tabindex="-1">
+                        onfocus="this.select()" oninput="updateRow(${row.id},'customFactor',this.value)"
+                        onblur="this.value=parseNum(this.value)||1" tabindex="-1">
                 </div>
                 <div class="ctrl-group">
                     <label class="label">الكمية الوحدة</label>
@@ -2007,8 +2150,8 @@ function renderGrid() {
                 <div class="ctrl-group">
                     <label class="label">عدد ${item ? item.baseUnit : ''}</label>
                     <input type="text" inputmode="decimal" class="ctrl-input" data-base-input="${row.id}" value="${fmtNum(calcs.baseQty)}" placeholder="0"
-                onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
-                onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700;" tabindex="-1">
+                        onfocus="this.select()" oninput="updateRow(${row.id},'customBaseQty',this.value)"
+                        onblur="this.value=fmtNum(parseNum(this.value))" style="color:var(--primary-accent); font-weight:700;" tabindex="-1">
                 </div>
                 <div class="ctrl-group">
                     <label class="label">المخزن</label>
@@ -2017,7 +2160,6 @@ function renderGrid() {
                         ${WAREHOUSES.map(w => `<option value="${w.id}" ${w.id === row.warehouseId ? 'selected' : ''}>${w.name}</option>`).join('')}
                     </select>
                 </div>
-
             </div>
             <div style="padding: 10px; border-top: 1px solid rgba(255,255,255,0.05); display: flex; flex-direction: column; gap: 8px;">
                 <div class="ctrl-group">
@@ -2033,6 +2175,10 @@ function renderGrid() {
         `;
         mCards.appendChild(card);
     });
+
+    if (typeof applyGridSettings === 'function') {
+        applyGridSettings();
+    }
 }
 
 // ════════════════════════════════════════
