@@ -23,6 +23,10 @@ _UserModel _$UserModelFromJson(Map<String, dynamic> json) => _UserModel(
   permissions: json['permissions'] as Map<String, dynamic>? ?? const {},
   merchantPoints: (json['merchantPoints'] as num?)?.toInt() ?? 0,
   merchantTier: json['merchantTier'] as String? ?? 'beginner',
+  directPaymentEnabled: json['directPaymentEnabled'] as bool? ?? false,
+  bankName: json['bankName'] as String?,
+  bankAccountName: json['bankAccountName'] as String?,
+  bankAccountNumber: json['bankAccountNumber'] as String?,
 );
 
 Map<String, dynamic> _$UserModelToJson(_UserModel instance) =>
@@ -43,6 +47,10 @@ Map<String, dynamic> _$UserModelToJson(_UserModel instance) =>
       'permissions': instance.permissions,
       'merchantPoints': instance.merchantPoints,
       'merchantTier': instance.merchantTier,
+      'directPaymentEnabled': instance.directPaymentEnabled,
+      'bankName': instance.bankName,
+      'bankAccountName': instance.bankAccountName,
+      'bankAccountNumber': instance.bankAccountNumber,
     };
 
 const _$UserRoleEnumMap = {

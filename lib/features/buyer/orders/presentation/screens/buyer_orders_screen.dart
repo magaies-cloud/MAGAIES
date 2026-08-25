@@ -252,6 +252,23 @@ class _BuyerOrderCard extends StatelessWidget {
                     ],
                   ),
                 ),
+                if (status == 'delivered' && items.isNotEmpty) ...[
+                  const SizedBox(height: 12),
+                  SizedBox(
+                    width: double.infinity,
+                    child: OutlinedButton.icon(
+                      icon: const Icon(Icons.star_outline, color: Colors.amber),
+                      label: Text(isRtl ? 'إضافة تقييم' : 'Leave a Review', style: const TextStyle(color: Colors.amber)),
+                      style: OutlinedButton.styleFrom(
+                        side: const BorderSide(color: Colors.amber),
+                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(8)),
+                      ),
+                      onPressed: () {
+                        _showReviewDialog(context, items.first, isRtl);
+                      },
+                    ),
+                  ),
+                ]
               ],
             ),
           ),
@@ -292,10 +309,106 @@ class _BuyerOrderCard extends StatelessWidget {
 
   String _getPaymentText(String paymentStatus) {
     switch (paymentStatus) {
-      case 'paid': return isRtl ? '✓ مدفوع بالكامل' : '✓ Fully Paid';
-      case 'partial': return isRtl ? '◐ مدفوع جزئياً' : '◐ Partially Paid';
-      default: return isRtl ? '✕ لم يتم الدفع بعد' : '✕ Unpaid';
+      case 'paid': return isRtl ? '✅ دفع بالكامل' : '✅ Fully Paid';
+      case 'partial': return isRtl ? '⚠️ دفع جزئي' : '⚠️ Partially Paid';
+      default: return isRtl ? '❌ لم يتم الدفع بعد' : '❌ Unpaid';
     }
+  }
+
+  void _showReviewDialog(BuildContext context, dynamic item, bool isRtl) {
+    int selectedRating = 5;
+    final commentController = TextEditingController();
+    bool isSubmitting = false;
+
+    showModalBottomSheet(
+      context: context,
+      isScrollControlled: true,
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.vertical(top: Radius.circular(20))),
+      builder: (ctx) {
+        return StatefulBuilder(
+          builder: (ctx, setState) {
+            return Padding(
+              padding: EdgeInsets.only(
+                bottom: MediaQuery.of(ctx).viewInsets.bottom,
+                left: 24, right: 24, top: 24,
+              ),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(isRtl ? 'تقييم المنتج' : 'Rate Product',
+                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold)),
+                  const SizedBox(height: 8),
+                  Text(item['product_name'] ?? '', style: TextStyle(color: Colors.grey.shade600)),
+                  const SizedBox(height: 24),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: List.generate(5, (index) {
+                      return IconButton(
+                        iconSize: 40,
+                        icon: Icon(
+                          index < selectedRating ? Icons.star : Icons.star_border,
+                          color: Colors.amber,
+                        ),
+                        onPressed: () {
+                          setState(() => selectedRating = index + 1);
+                        },
+                      );
+                    }),
+                  ),
+                  const SizedBox(height: 16),
+                  TextField(
+                    controller: commentController,
+                    maxLines: 3,
+                    decoration: InputDecoration(
+                      hintText: isRtl ? 'اكتب تعليقك (اختياري)...' : 'Write a comment (optional)...',
+                      border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                  SizedBox(
+                    width: double.infinity,
+                    height: 50,
+                    child: FilledButton(
+                      onPressed: isSubmitting ? null : () async {
+                        setState(() => isSubmitting = true);
+                        try {
+                          final supabase = Supabase.instance.client;
+                          await supabase.from('product_reviews').insert({
+                            'product_id': item['product_id'],
+                            'buyer_id': supabase.auth.currentUser!.id,
+                            'rating': selectedRating,
+                            'comment': commentController.text.trim(),
+                          });
+                          if (ctx.mounted) {
+                            Navigator.pop(ctx);
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text(isRtl ? 'شكرًا لتقييمك!' : 'Thank you for your review!'),
+                              backgroundColor: Colors.green,
+                            ));
+                          }
+                        } catch (e) {
+                          setState(() => isSubmitting = false);
+                          if (ctx.mounted) {
+                            ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                              content: Text(isRtl ? 'لقد قمت بتقييم هذا المنتج مسبقاً.' : 'You have already reviewed this product.'),
+                              backgroundColor: Colors.red,
+                            ));
+                          }
+                        }
+                      },
+                      child: isSubmitting 
+                        ? const CircularProgressIndicator(color: Colors.white)
+                        : Text(isRtl ? 'إرسال التقييم' : 'Submit Review'),
+                    ),
+                  ),
+                  const SizedBox(height: 24),
+                ],
+              ),
+            );
+          }
+        );
+      }
+    );
   }
 }
 

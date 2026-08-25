@@ -22,6 +22,10 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
   final _workingHoursController = TextEditingController();
   final _returnPolicyController = TextEditingController();
   
+  final _bankNameController = TextEditingController();
+  final _bankAccountNameController = TextEditingController();
+  final _bankAccountNumberController = TextEditingController();
+  
   bool _isLoading = true;
   bool _isOpen = true;
   bool _chatSoundsEnabled = true;
@@ -60,6 +64,18 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
         if (res['created_at'] != null) {
           _createdAt = DateTime.tryParse(res['created_at'].toString());
         }
+      }
+      
+      final userRes = await Supabase.instance.client
+          .from('users')
+          .select('bank_name, bank_account_name, bank_account_number')
+          .eq('id', user.id)
+          .maybeSingle();
+          
+      if (userRes != null) {
+        _bankNameController.text = userRes['bank_name'] ?? '';
+        _bankAccountNameController.text = userRes['bank_account_name'] ?? '';
+        _bankAccountNumberController.text = userRes['bank_account_number'] ?? '';
       }
       
       final prefs = await SharedPreferences.getInstance();
@@ -105,6 +121,12 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
               .single();
           _storeId = inserted['id'];
         }
+        
+        await Supabase.instance.client.from('users').update({
+          'bank_name': _bankNameController.text,
+          'bank_account_name': _bankAccountNameController.text,
+          'bank_account_number': _bankAccountNumberController.text,
+        }).eq('id', user.id);
 
         if (mounted) {
           final isRtl = Directionality.of(context) == TextDirection.rtl;
@@ -140,6 +162,9 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
     _addressController.dispose();
     _workingHoursController.dispose();
     _returnPolicyController.dispose();
+    _bankNameController.dispose();
+    _bankAccountNameController.dispose();
+    _bankAccountNumberController.dispose();
     super.dispose();
   }
 
@@ -280,6 +305,27 @@ class _StoreSettingsScreenState extends ConsumerState<StoreSettingsScreen> {
                       decoration: InputDecoration(labelText: isRtl ? 'العنوان (إلزامي)' : 'Address (Required)', border: const OutlineInputBorder(), prefixIcon: const Icon(Icons.location_on)),
                       maxLines: 2,
                       validator: (val) => val == null || val.isEmpty ? (isRtl ? 'يجب إدخال العنوان لاستلام الطلبات' : 'Address is required') : null,
+                    ),
+                    const SizedBox(height: 32),
+
+                    Text(isRtl ? 'الحساب البنكي للدفع المباشر' : 'Direct Payment Bank Info', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18, color: Colors.green)),
+                    const SizedBox(height: 8),
+                    Text(isRtl ? 'أدخل تفاصيل حسابك البنكي لاستلام المدفوعات من العملاء' : 'Enter bank details to receive direct payments', style: const TextStyle(fontSize: 12, color: Colors.grey)),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _bankNameController,
+                      decoration: InputDecoration(labelText: isRtl ? 'اسم البنك (مثال: بنك الخرطوم)' : 'Bank Name', border: const OutlineInputBorder(), prefixIcon: const Icon(Icons.account_balance)),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _bankAccountNameController,
+                      decoration: InputDecoration(labelText: isRtl ? 'اسم صاحب الحساب' : 'Account Holder Name', border: const OutlineInputBorder(), prefixIcon: const Icon(Icons.person)),
+                    ),
+                    const SizedBox(height: 16),
+                    TextFormField(
+                      controller: _bankAccountNumberController,
+                      keyboardType: TextInputType.number,
+                      decoration: InputDecoration(labelText: isRtl ? 'رقم الحساب' : 'Account Number', border: const OutlineInputBorder(), prefixIcon: const Icon(Icons.numbers)),
                     ),
                     const SizedBox(height: 32),
                     

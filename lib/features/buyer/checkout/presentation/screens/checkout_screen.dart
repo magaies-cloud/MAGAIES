@@ -4,6 +4,7 @@ import 'package:go_router/go_router.dart';
 import '../../../cart/application/cart_provider.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:magaiees_marketplace/features/auth/application/auth_provider.dart';
+import 'package:magaiees_marketplace/features/buyer/checkout/application/checkout_merchants_provider.dart';
 
 class CheckoutScreen extends ConsumerStatefulWidget {
   const CheckoutScreen({super.key});
@@ -27,6 +28,7 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
     final offloadingTotal = ref.watch(cartOffloadingTotalProvider);
     final vat = ref.watch(cartVatTotalProvider);
     final grandTotal = ref.watch(cartGrandTotalProvider);
+    final merchantsAsync = ref.watch(checkoutMerchantsProvider);
     final currency = isRtl ? 'ج.س' : 'SDG';
 
     return Scaffold(
@@ -232,8 +234,80 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                 _SummaryRow(isRtl ? 'رسوم النقل:' : 'Transport Fee:', transportTotal, currency: currency),
                 _SummaryRow(isRtl ? 'رسوم التنزيل:' : 'Offloading Fee:', offloadingTotal, currency: currency),
                 _SummaryRow(isRtl ? 'ضريبة القيمة المضافة (15%):' : 'VAT (15%):', vat, currency: currency),
-                const Divider(),
-                _SummaryRow(isRtl ? 'المجموع الكلي:' : 'Grand Total:', grandTotal, isTotal: true, currency: currency),
+                  
+                  if (cart.discountAmount > 0) ...[
+                    _SummaryRow(isRtl ? 'الخصم (كوبون):' : 'Discount (Coupon):', -cart.discountAmount, currency: currency),
+                  ],
+                  const Divider(),
+                  
+                  if (cart.appliedCouponCode == null) ...[
+                    const SizedBox(height: 8),
+                    Row(
+                      children: [
+                        Expanded(
+                          child: TextField(
+                            decoration: InputDecoration(
+                              labelText: isRtl ? 'هل لديك كود خصم؟' : 'Have a promo code?',
+                              border: const OutlineInputBorder(),
+                              contentPadding: const EdgeInsets.symmetric(horizontal: 12),
+                            ),
+                            onSubmitted: (code) async {
+                              // Simulate coupon fetch logic (we would fetch from Supabase here)
+                              // For now, if code is not empty, give a fake discount of 5% of subtotal to test
+                              if (code.trim().isNotEmpty) {
+                                final res = await Supabase.instance.client
+                                    .from('coupons')
+                                    .select()
+                                    .eq('code', code.trim())
+                                    .eq('is_active', true)
+                                    .maybeSingle();
+                                
+                                if (res != null) {
+                                  double amount = double.tryParse(res['discount_value'].toString()) ?? 0.0;
+                                  if (res['discount_type'] == 'percentage') {
+                                    amount = (subtotal * amount) / 100;
+                                    final maxDiscount = res['max_discount'] != null ? double.tryParse(res['max_discount'].toString()) : null;
+                                    if (maxDiscount != null && amount > maxDiscount) {
+                                      amount = maxDiscount;
+                                    }
+                                  }
+                                  ref.read(cartNotifierProvider.notifier).applyCoupon(code.trim(), amount);
+                                } else {
+                                  if (context.mounted) {
+                                    ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+                                      content: Text(isRtl ? 'الكود غير صحيح أو منتهي الصلاحية' : 'Invalid or expired code'),
+                                      backgroundColor: Colors.red,
+                                    ));
+                                  }
+                                }
+                              }
+                            },
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 8),
+                  ] else ...[
+                    const SizedBox(height: 8),
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                      decoration: BoxDecoration(color: Colors.green.shade50, borderRadius: BorderRadius.circular(8), border: Border.all(color: Colors.green)),
+                      child: Row(
+                        mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                        children: [
+                          Text('🎟️ ${cart.appliedCouponCode} تم التطبيق!', style: const TextStyle(color: Colors.green, fontWeight: FontWeight.bold)),
+                          InkWell(
+                            onTap: () => ref.read(cartNotifierProvider.notifier).removeCoupon(),
+                            child: const Icon(Icons.close, color: Colors.red, size: 20),
+                          ),
+                        ],
+                      ),
+                    ),
+                    const SizedBox(height: 8),
+                  ],
+
+                  const Divider(),
+                  _SummaryRow(isRtl ? 'الإجمالي الكلي:' : 'Grand Total:', grandTotal, isTotal: true, currency: currency),
               ],
             ),
             isActive: _currentStep >= 1,
@@ -241,37 +315,95 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           ),
           Step(
             title: Text(isRtl ? 'طريقة الدفع' : 'Payment Method'),
-            content: Column(
-              children: [
-                _PaymentRadio(
-                  title: isRtl ? 'تطبيق أوكاش (O-Cash)' : 'O-Cash App Transfer',
-                  value: 'ocash',
-                  groupValue: _selectedPaymentMethod,
-                  onChanged: (val) => setState(() => _selectedPaymentMethod = val!),
-                  icon: Icons.payments,
-                ),
-                _PaymentRadio(
-                  title: isRtl ? 'تطبيق بنكك (Bankak)' : 'Bankak App Transfer',
-                  value: 'bankak',
-                  groupValue: _selectedPaymentMethod,
-                  onChanged: (val) => setState(() => _selectedPaymentMethod = val!),
-                  icon: Icons.account_balance_wallet,
-                ),
-                _PaymentRadio(
-                  title: isRtl ? 'تحويل بنكي مباشر' : 'Direct Bank Wire Transfer',
-                  value: 'bank',
-                  groupValue: _selectedPaymentMethod,
-                  onChanged: (val) => setState(() => _selectedPaymentMethod = val!),
-                  icon: Icons.account_balance,
-                ),
-                _PaymentRadio(
-                  title: isRtl ? 'آجل للشركات (B2B Credit)' : 'B2B Corporate Credit',
-                  value: 'b2b',
-                  groupValue: _selectedPaymentMethod,
-                  onChanged: (val) => setState(() => _selectedPaymentMethod = val!),
-                  icon: Icons.business,
-                ),
-              ],
+            content: merchantsAsync.when(
+              loading: () => const CircularProgressIndicator(),
+              error: (e, st) => Text('Error: $e'),
+              data: (merchants) {
+                // Find if any merchant has direct payment enabled
+                final directMerchants = merchants.where((m) => m['direct_payment_enabled'] == true).toList();
+                final platformMerchants = merchants.where((m) => m['direct_payment_enabled'] != true).toList();
+                
+                return Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    if (directMerchants.isNotEmpty) ...[
+                      Text(
+                        isRtl ? '🥇 الدفع المباشر للتجار المعتمدين:' : '🥇 Direct Payment to Verified Merchants:',
+                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.amber, fontSize: 16),
+                      ),
+                      const SizedBox(height: 8),
+                      ...directMerchants.map((m) {
+                        String badgeName = isRtl ? 'تاجر معتمد' : 'Verified Merchant';
+                        if (m['merchant_tier'] == 'gold') badgeName = isRtl ? 'تاجر ذهبي معتمد' : 'Gold Verified Merchant';
+                        if (m['merchant_tier'] == 'silver') badgeName = isRtl ? 'تاجر فضي معتمد' : 'Silver Verified Merchant';
+                        if (m['merchant_tier'] == 'bronze') badgeName = isRtl ? 'تاجر برونزي معتمد' : 'Bronze Verified Merchant';
+                        
+                        return Card(
+                          color: Colors.amber.shade50,
+                          margin: const EdgeInsets.only(bottom: 12),
+                          child: Padding(
+                            padding: const EdgeInsets.all(12),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Row(
+                                  children: [
+                                    const Icon(Icons.verified, color: Colors.amber),
+                                    const SizedBox(width: 8),
+                                    Text('${m['name']} - $badgeName', style: const TextStyle(fontWeight: FontWeight.bold)),
+                                  ],
+                                ),
+                                const Divider(),
+                                Text('${isRtl ? "البنك:" : "Bank:"} ${m['bank_name'] ?? "-"}'),
+                                Text('${isRtl ? "الاسم:" : "Name:"} ${m['bank_account_name'] ?? "-"}'),
+                                Text('${isRtl ? "رقم الحساب:" : "Account:"} ${m['bank_account_number'] ?? "-"}'),
+                              ],
+                            ),
+                          ),
+                        );
+                      }).toList(),
+                    ],
+                    if (platformMerchants.isNotEmpty) ...[
+                      const SizedBox(height: 16),
+                      Text(
+                        isRtl ? 'الدفع الآمن عبر منصة مقاييس:' : 'Secure Payment via Magaiees:',
+                        style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.blue, fontSize: 16),
+                      ),
+                      const SizedBox(height: 8),
+                      _PaymentRadio(
+                        title: isRtl ? 'تطبيق بنكك (Bankak)' : 'Bankak App',
+                        value: 'bankak',
+                        groupValue: _selectedPaymentMethod,
+                        onChanged: (val) => setState(() => _selectedPaymentMethod = val!),
+                        icon: Icons.account_balance_wallet,
+                      ),
+                      _PaymentRadio(
+                        title: isRtl ? 'تطبيق أوكاش (O-Cash)' : 'O-Cash App',
+                        value: 'ocash',
+                        groupValue: _selectedPaymentMethod,
+                        onChanged: (val) => setState(() => _selectedPaymentMethod = val!),
+                        icon: Icons.payments,
+                      ),
+                      _PaymentRadio(
+                        title: isRtl ? 'تحويل بنكي مباشر' : 'Direct Bank Wire',
+                        value: 'bank',
+                        groupValue: _selectedPaymentMethod,
+                        onChanged: (val) => setState(() => _selectedPaymentMethod = val!),
+                        icon: Icons.account_balance,
+                      ),
+                    ],
+                    if (merchants.isNotEmpty && directMerchants.isEmpty) ...[
+                      _PaymentRadio(
+                        title: isRtl ? 'دفع آجل للشركات (B2B Credit)' : 'B2B Corporate Credit',
+                        value: 'b2b',
+                        groupValue: _selectedPaymentMethod,
+                        onChanged: (val) => setState(() => _selectedPaymentMethod = val!),
+                        icon: Icons.business,
+                      ),
+                    ]
+                  ],
+                );
+              }
             ),
             isActive: _currentStep >= 2,
           ),

@@ -153,6 +153,50 @@ class SubscriberDetailSheet extends ConsumerWidget {
                       ],
                     ),
                   ),
+                  const SizedBox(height: 16),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.blue.withOpacity(0.05),
+                      borderRadius: BorderRadius.circular(12),
+                      border: Border.all(color: Colors.blue.withOpacity(0.2)),
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Row(
+                          children: [
+                            const Icon(Icons.account_balance, color: Colors.blue),
+                            const SizedBox(width: 8),
+                            Text(isRtl ? 'بوابة الدفع (الدفع المباشر)' : 'Payment Gateway (Direct)', style: const TextStyle(fontWeight: FontWeight.bold)),
+                          ],
+                        ),
+                        const SizedBox(height: 12),
+                        SwitchListTile(
+                          title: Text(isRtl ? 'تمكين الدفع المباشر للتاجر' : 'Enable Direct Payment'),
+                          subtitle: Text(
+                            subscriber.merchantTier == 'beginner'
+                              ? (isRtl ? 'غير متاح للتاجر المبتدئ.' : 'Not available for beginner tier.')
+                              : (isRtl 
+                                ? 'إذا تم التفعيل، سيقوم المشتري بتحويل المبلغ لحساب التاجر البنكي مباشرة.' 
+                                : 'If enabled, buyer will transfer directly to merchant\'s bank account.'),
+                            style: TextStyle(fontSize: 12, color: subscriber.merchantTier == 'beginner' ? Colors.red : null),
+                          ),
+                          value: subscriber.directPaymentEnabled,
+                          onChanged: subscriber.merchantTier == 'beginner' ? null : (val) {
+                            ref.read(subscribersProvider.notifier).toggleDirectPayment(subscriber.id, val);
+                          },
+                          contentPadding: EdgeInsets.zero,
+                        ),
+                        if (subscriber.directPaymentEnabled && subscriber.bankAccountNumber != null) ...[
+                          const Divider(),
+                          _buildInfoRow(context, Icons.account_balance, isRtl ? 'البنك' : 'Bank', subscriber.bankName ?? ''),
+                          _buildInfoRow(context, Icons.person, isRtl ? 'الاسم' : 'Name', subscriber.bankAccountName ?? ''),
+                          _buildInfoRow(context, Icons.numbers, isRtl ? 'رقم الحساب' : 'Account', subscriber.bankAccountNumber ?? ''),
+                        ]
+                      ],
+                    ),
+                  ),
                 ],
 
               if (subscriber.role == UserRole.employee) ...[

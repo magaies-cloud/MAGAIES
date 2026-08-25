@@ -25,7 +25,7 @@ class CategoryGridWidget extends StatelessWidget {
           crossAxisCount: crossAxisCount,
           mainAxisSpacing: 16,
           crossAxisSpacing: 10,
-          childAspectRatio: 0.82,
+          childAspectRatio: 0.72,
         ),
         itemCount: categories.length + 1,
         itemBuilder: (context, index) {
@@ -34,20 +34,20 @@ class CategoryGridWidget extends StatelessWidget {
             final name = isRtl ? 'مقدمو الخدمات' : 'Services';
             return InkWell(
               onTap: () => context.push('/buyer/home/services'),
-              borderRadius: BorderRadius.circular(16),
+              borderRadius: BorderRadius.circular(22),
               child: Column(
                 mainAxisSize: MainAxisSize.min,
                 children: [
                   Container(
-                    width: 58,
-                    height: 58,
+                    width: 80,
+                    height: 80,
                     decoration: BoxDecoration(
                       gradient: const LinearGradient(
                         colors: [Color(0xFFF59E0B), Color(0xFFD97706)],
                         begin: Alignment.topLeft,
                         end: Alignment.bottomRight,
                       ),
-                      borderRadius: BorderRadius.circular(18),
+                      borderRadius: BorderRadius.circular(22),
                       boxShadow: [
                         BoxShadow(
                           color: Colors.amber.withOpacity(0.3),
@@ -60,7 +60,7 @@ class CategoryGridWidget extends StatelessWidget {
                       child: Icon(
                         Icons.engineering,
                         color: Colors.white,
-                        size: 28,
+                        size: 40,
                       ),
                     ),
                   ),
@@ -94,16 +94,16 @@ class CategoryGridWidget extends StatelessWidget {
                 '/buyer/home/category/${category.id}?name=${Uri.encodeComponent(name)}',
               );
             },
-            borderRadius: BorderRadius.circular(16),
+            borderRadius: BorderRadius.circular(22),
             child: Column(
               mainAxisSize: MainAxisSize.min,
               children: [
                 // Icon Card with Gradient Background & Shadow
                 Container(
-                  width: 58,
-                  height: 58,
+                  width: 80,
+                  height: 80,
                   decoration: BoxDecoration(
-                    gradient: LinearGradient(
+                    gradient: category.imageUrl != null ? null : LinearGradient(
                       colors: [
                         style.color.withOpacity(0.18),
                         style.color.withOpacity(0.08),
@@ -111,25 +111,37 @@ class CategoryGridWidget extends StatelessWidget {
                       begin: Alignment.topLeft,
                       end: Alignment.bottomRight,
                     ),
-                    borderRadius: BorderRadius.circular(18),
+                    color: category.imageUrl != null ? Colors.white : null,
+                    borderRadius: BorderRadius.circular(22),
                     border: Border.all(
-                      color: style.color.withOpacity(0.25),
+                      color: category.imageUrl != null ? Colors.grey.shade200 : style.color.withOpacity(0.25),
                       width: 1.2,
                     ),
                     boxShadow: [
                       BoxShadow(
-                        color: style.color.withOpacity(0.12),
+                        color: category.imageUrl != null ? Colors.grey.withOpacity(0.1) : style.color.withOpacity(0.12),
                         blurRadius: 8,
                         offset: const Offset(0, 3),
                       ),
                     ],
                   ),
                   child: Center(
-                    child: Icon(
-                      style.icon,
-                      color: style.color,
-                      size: 28,
-                    ),
+                    child: category.imageUrl != null
+                        ? ClipRRect(
+                            borderRadius: BorderRadius.circular(22),
+                            child: Image.network(
+                              category.imageUrl!.contains('unsplash') ? 'https://picsum.photos/seed/${category.id}/80/80' : category.imageUrl!,
+                              width: 80,
+                              height: 80,
+                              fit: BoxFit.contain,
+                              errorBuilder: (c, e, s) => Icon(style.icon, color: style.color, size: 28),
+                            ),
+                          )
+                        : Icon(
+                            style.icon,
+                            color: style.color,
+                            size: 40,
+                          ),
                   ),
                 ),
                 const SizedBox(height: 6),

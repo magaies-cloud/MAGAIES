@@ -77,11 +77,11 @@ class Products extends _$Products {
         categoryNameAr: 'عام',
         name: json['name'] ?? '',
         nameAr: json['name_ar'] ?? '',
-        imageUrl: (json['images'] != null && (json['images'] as List).isNotEmpty) ? json['images'][0] : 'https://picsum.photos/seed/${json['id']}/400/400',
+        imageUrl: (json['images'] != null && (json['images'] as List).isNotEmpty) ? json['images'][0] : (json['image_url'] ?? ''),
         pricePerTon: (json['price_sdg'] as num?)?.toDouble() ?? 0.0,
         priceInUsd: (json['price_usd'] as num?)?.toDouble(),
-        unit: 'ton',
-        unitAr: 'طن',
+        unit: json['unit'] ?? 'ton',
+        unitAr: json['unit_ar'] ?? 'طن',
         inStock: (json['is_active'] ?? true) && (((json['stock'] as num?) ?? 0) > 0),
         merchantId: json['store_id'] ?? 'magaiees',
         storeName: 'Magaiees',
@@ -101,7 +101,7 @@ class Products extends _$Products {
         'name_ar': newProduct.nameAr,
         'price_sdg': newProduct.pricePerTon,
         'price_usd': newProduct.priceInUsd,
-        'stock': newProduct.inStock ? 100 : 0,
+        'stock': newProduct.inStock ? 100 : 0, // ProductCardModel does not have a stock field; default to 100 if in stock
         'images': [newProduct.imageUrl ?? ''],
         'is_magaiees_exclusive': newProduct.isMagaieesExclusive,
       };
@@ -157,7 +157,7 @@ class Products extends _$Products {
   void applyGlobalPricing(double usdRate, {double? percentOffset}) {
     if (state.valueOrNull != null) {
       final list = state.value!.map((p) {
-        double currentUsd = p.priceInUsd ?? (p.pricePerTon / 6000.0);
+        double currentUsd = p.priceInUsd ?? (p.pricePerTon / usdRate);
         if (percentOffset != null) {
           currentUsd = currentUsd * (1 + percentOffset / 100);
         }

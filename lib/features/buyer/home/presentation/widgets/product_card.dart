@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:magaiees_marketplace/features/buyer/home/domain/models/product_card_model.dart';
+import 'package:magaiees_marketplace/features/buyer/wishlist/application/wishlist_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 
 class ProductCard extends StatelessWidget {
@@ -56,7 +58,7 @@ class ProductCard extends StatelessWidget {
                     color: Colors.grey.shade200,
                     child: product.imageUrl != null
                         ? Image.network(
-                            product.imageUrl!,
+                            product.imageUrl!.contains('unsplash') ? 'https://picsum.photos/seed/${product.id}/600/600' : product.imageUrl!,
                             fit: BoxFit.cover,
                             errorBuilder: (context, error, stackTrace) => const Icon(
                               Icons.inventory_2_outlined,
@@ -99,7 +101,7 @@ class ProductCard extends StatelessWidget {
                           borderRadius: BorderRadius.circular(4),
                         ),
                         child: Text(
-                          isRtl ? '⭐ مقاييس' : '⭐ Magaiees',
+                          isRtl ? '⭐ مقاييس' : '🌟 Magaiees',
                           style: const TextStyle(
                             color: Colors.white,
                             fontSize: 10,
@@ -108,6 +110,32 @@ class ProductCard extends StatelessWidget {
                         ),
                       ),
                     ),
+                  Consumer(
+                    builder: (context, ref, child) {
+                      final wishlist = ref.watch(wishlistProvider).valueOrNull ?? {};
+                      final isSaved = wishlist.contains(product.id);
+                      return Positioned(
+                        bottom: 4,
+                        left: isRtl ? 4 : null,
+                        right: isRtl ? null : 4,
+                        child: CircleAvatar(
+                          backgroundColor: Colors.white.withOpacity(0.9),
+                          radius: 16,
+                          child: IconButton(
+                            padding: EdgeInsets.zero,
+                            iconSize: 18,
+                            icon: Icon(
+                              isSaved ? Icons.favorite : Icons.favorite_border,
+                              color: isSaved ? Colors.red : Colors.grey.shade600,
+                            ),
+                            onPressed: () {
+                              ref.read(wishlistProvider.notifier).toggleWishlist(product.id);
+                            },
+                          ),
+                        ),
+                      );
+                    },
+                  ),
                 ],
               ),
             ),

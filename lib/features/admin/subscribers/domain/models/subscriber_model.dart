@@ -20,6 +20,10 @@ class SubscriberModel {
   final Map<String, dynamic> permissions;
   final int merchantPoints;
   final String merchantTier;
+  final bool directPaymentEnabled;
+  final String? bankName;
+  final String? bankAccountName;
+  final String? bankAccountNumber;
 
   const SubscriberModel({
     required this.id,
@@ -39,6 +43,10 @@ class SubscriberModel {
     this.permissions = const {},
     this.merchantPoints = 0,
     this.merchantTier = 'beginner',
+    this.directPaymentEnabled = false,
+    this.bankName,
+    this.bankAccountName,
+    this.bankAccountNumber,
   });
 
   SubscriberModel copyWith({
@@ -59,6 +67,10 @@ class SubscriberModel {
     Map<String, dynamic>? permissions,
     int? merchantPoints,
     String? merchantTier,
+    bool? directPaymentEnabled,
+    String? bankName,
+    String? bankAccountName,
+    String? bankAccountNumber,
   }) {
     return SubscriberModel(
       id: id ?? this.id,
@@ -78,6 +90,10 @@ class SubscriberModel {
       permissions: permissions ?? this.permissions,
       merchantPoints: merchantPoints ?? this.merchantPoints,
       merchantTier: merchantTier ?? this.merchantTier,
+      directPaymentEnabled: directPaymentEnabled ?? this.directPaymentEnabled,
+      bankName: bankName ?? this.bankName,
+      bankAccountName: bankAccountName ?? this.bankAccountName,
+      bankAccountNumber: bankAccountNumber ?? this.bankAccountNumber,
     );
   }
 }

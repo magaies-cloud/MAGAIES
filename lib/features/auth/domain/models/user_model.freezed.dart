@@ -31,7 +31,11 @@ mixin _$UserModel {
  String? get refreshToken;/// Granular permissions (especially for employees).
  Map<String, dynamic> get permissions;/// Gamification: Points the merchant has earned.
  int get merchantPoints;/// Gamification: The merchant's tier (beginner, bronze, silver, gold).
- String get merchantTier;
+ String get merchantTier;/// Hybrid Payment: Whether buyers pay this merchant directly.
+ bool get directPaymentEnabled;/// Hybrid Payment: Merchant Bank Name.
+ String? get bankName;/// Hybrid Payment: Merchant Bank Account Name.
+ String? get bankAccountName;/// Hybrid Payment: Merchant Bank Account Number.
+ String? get bankAccountNumber;
 /// Create a copy of UserModel
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -44,16 +48,16 @@ $UserModelCopyWith<UserModel> get copyWith => _$UserModelCopyWithImpl<UserModel>
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.nameAr, nameAr) || other.nameAr == nameAr)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.role, role) || other.role == role)&&(identical(other.hasStore, hasStore) || other.hasStore == hasStore)&&(identical(other.storeId, storeId) || other.storeId == storeId)&&(identical(other.storeName, storeName) || other.storeName == storeName)&&(identical(other.storeNameAr, storeNameAr) || other.storeNameAr == storeNameAr)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl)&&(identical(other.token, token) || other.token == token)&&(identical(other.refreshToken, refreshToken) || other.refreshToken == refreshToken)&&const DeepCollectionEquality().equals(other.permissions, permissions)&&(identical(other.merchantPoints, merchantPoints) || other.merchantPoints == merchantPoints)&&(identical(other.merchantTier, merchantTier) || other.merchantTier == merchantTier));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UserModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.nameAr, nameAr) || other.nameAr == nameAr)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.role, role) || other.role == role)&&(identical(other.hasStore, hasStore) || other.hasStore == hasStore)&&(identical(other.storeId, storeId) || other.storeId == storeId)&&(identical(other.storeName, storeName) || other.storeName == storeName)&&(identical(other.storeNameAr, storeNameAr) || other.storeNameAr == storeNameAr)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl)&&(identical(other.token, token) || other.token == token)&&(identical(other.refreshToken, refreshToken) || other.refreshToken == refreshToken)&&const DeepCollectionEquality().equals(other.permissions, permissions)&&(identical(other.merchantPoints, merchantPoints) || other.merchantPoints == merchantPoints)&&(identical(other.merchantTier, merchantTier) || other.merchantTier == merchantTier)&&(identical(other.directPaymentEnabled, directPaymentEnabled) || other.directPaymentEnabled == directPaymentEnabled)&&(identical(other.bankName, bankName) || other.bankName == bankName)&&(identical(other.bankAccountName, bankAccountName) || other.bankAccountName == bankAccountName)&&(identical(other.bankAccountNumber, bankAccountNumber) || other.bankAccountNumber == bankAccountNumber));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,nameAr,email,phone,role,hasStore,storeId,storeName,storeNameAr,profileImageUrl,token,refreshToken,const DeepCollectionEquality().hash(permissions),merchantPoints,merchantTier);
+int get hashCode => Object.hashAll([runtimeType,id,name,nameAr,email,phone,role,hasStore,storeId,storeName,storeNameAr,profileImageUrl,token,refreshToken,const DeepCollectionEquality().hash(permissions),merchantPoints,merchantTier,directPaymentEnabled,bankName,bankAccountName,bankAccountNumber]);
 
 @override
 String toString() {
-  return 'UserModel(id: $id, name: $name, nameAr: $nameAr, email: $email, phone: $phone, role: $role, hasStore: $hasStore, storeId: $storeId, storeName: $storeName, storeNameAr: $storeNameAr, profileImageUrl: $profileImageUrl, token: $token, refreshToken: $refreshToken, permissions: $permissions, merchantPoints: $merchantPoints, merchantTier: $merchantTier)';
+  return 'UserModel(id: $id, name: $name, nameAr: $nameAr, email: $email, phone: $phone, role: $role, hasStore: $hasStore, storeId: $storeId, storeName: $storeName, storeNameAr: $storeNameAr, profileImageUrl: $profileImageUrl, token: $token, refreshToken: $refreshToken, permissions: $permissions, merchantPoints: $merchantPoints, merchantTier: $merchantTier, directPaymentEnabled: $directPaymentEnabled, bankName: $bankName, bankAccountName: $bankAccountName, bankAccountNumber: $bankAccountNumber)';
 }
 
 
@@ -64,7 +68,7 @@ abstract mixin class $UserModelCopyWith<$Res>  {
   factory $UserModelCopyWith(UserModel value, $Res Function(UserModel) _then) = _$UserModelCopyWithImpl;
 @useResult
 $Res call({
- String id, String name, String? nameAr, String email, String phone, UserRole role, bool hasStore, String? storeId, String? storeName, String? storeNameAr, String? profileImageUrl, String? token, String? refreshToken, Map<String, dynamic> permissions, int merchantPoints, String merchantTier
+ String id, String name, String? nameAr, String email, String phone, UserRole role, bool hasStore, String? storeId, String? storeName, String? storeNameAr, String? profileImageUrl, String? token, String? refreshToken, Map<String, dynamic> permissions, int merchantPoints, String merchantTier, bool directPaymentEnabled, String? bankName, String? bankAccountName, String? bankAccountNumber
 });
 
 
@@ -81,7 +85,7 @@ class _$UserModelCopyWithImpl<$Res>
 
 /// Create a copy of UserModel
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? nameAr = freezed,Object? email = null,Object? phone = null,Object? role = null,Object? hasStore = null,Object? storeId = freezed,Object? storeName = freezed,Object? storeNameAr = freezed,Object? profileImageUrl = freezed,Object? token = freezed,Object? refreshToken = freezed,Object? permissions = null,Object? merchantPoints = null,Object? merchantTier = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? id = null,Object? name = null,Object? nameAr = freezed,Object? email = null,Object? phone = null,Object? role = null,Object? hasStore = null,Object? storeId = freezed,Object? storeName = freezed,Object? storeNameAr = freezed,Object? profileImageUrl = freezed,Object? token = freezed,Object? refreshToken = freezed,Object? permissions = null,Object? merchantPoints = null,Object? merchantTier = null,Object? directPaymentEnabled = null,Object? bankName = freezed,Object? bankAccountName = freezed,Object? bankAccountNumber = freezed,}) {
   return _then(_self.copyWith(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -99,7 +103,11 @@ as String?,refreshToken: freezed == refreshToken ? _self.refreshToken : refreshT
 as String?,permissions: null == permissions ? _self.permissions : permissions // ignore: cast_nullable_to_non_nullable
 as Map<String, dynamic>,merchantPoints: null == merchantPoints ? _self.merchantPoints : merchantPoints // ignore: cast_nullable_to_non_nullable
 as int,merchantTier: null == merchantTier ? _self.merchantTier : merchantTier // ignore: cast_nullable_to_non_nullable
-as String,
+as String,directPaymentEnabled: null == directPaymentEnabled ? _self.directPaymentEnabled : directPaymentEnabled // ignore: cast_nullable_to_non_nullable
+as bool,bankName: freezed == bankName ? _self.bankName : bankName // ignore: cast_nullable_to_non_nullable
+as String?,bankAccountName: freezed == bankAccountName ? _self.bankAccountName : bankAccountName // ignore: cast_nullable_to_non_nullable
+as String?,bankAccountNumber: freezed == bankAccountNumber ? _self.bankAccountNumber : bankAccountNumber // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 
@@ -184,10 +192,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String? nameAr,  String email,  String phone,  UserRole role,  bool hasStore,  String? storeId,  String? storeName,  String? storeNameAr,  String? profileImageUrl,  String? token,  String? refreshToken,  Map<String, dynamic> permissions,  int merchantPoints,  String merchantTier)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( String id,  String name,  String? nameAr,  String email,  String phone,  UserRole role,  bool hasStore,  String? storeId,  String? storeName,  String? storeNameAr,  String? profileImageUrl,  String? token,  String? refreshToken,  Map<String, dynamic> permissions,  int merchantPoints,  String merchantTier,  bool directPaymentEnabled,  String? bankName,  String? bankAccountName,  String? bankAccountNumber)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UserModel() when $default != null:
-return $default(_that.id,_that.name,_that.nameAr,_that.email,_that.phone,_that.role,_that.hasStore,_that.storeId,_that.storeName,_that.storeNameAr,_that.profileImageUrl,_that.token,_that.refreshToken,_that.permissions,_that.merchantPoints,_that.merchantTier);case _:
+return $default(_that.id,_that.name,_that.nameAr,_that.email,_that.phone,_that.role,_that.hasStore,_that.storeId,_that.storeName,_that.storeNameAr,_that.profileImageUrl,_that.token,_that.refreshToken,_that.permissions,_that.merchantPoints,_that.merchantTier,_that.directPaymentEnabled,_that.bankName,_that.bankAccountName,_that.bankAccountNumber);case _:
   return orElse();
 
 }
@@ -205,10 +213,10 @@ return $default(_that.id,_that.name,_that.nameAr,_that.email,_that.phone,_that.r
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String? nameAr,  String email,  String phone,  UserRole role,  bool hasStore,  String? storeId,  String? storeName,  String? storeNameAr,  String? profileImageUrl,  String? token,  String? refreshToken,  Map<String, dynamic> permissions,  int merchantPoints,  String merchantTier)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( String id,  String name,  String? nameAr,  String email,  String phone,  UserRole role,  bool hasStore,  String? storeId,  String? storeName,  String? storeNameAr,  String? profileImageUrl,  String? token,  String? refreshToken,  Map<String, dynamic> permissions,  int merchantPoints,  String merchantTier,  bool directPaymentEnabled,  String? bankName,  String? bankAccountName,  String? bankAccountNumber)  $default,) {final _that = this;
 switch (_that) {
 case _UserModel():
-return $default(_that.id,_that.name,_that.nameAr,_that.email,_that.phone,_that.role,_that.hasStore,_that.storeId,_that.storeName,_that.storeNameAr,_that.profileImageUrl,_that.token,_that.refreshToken,_that.permissions,_that.merchantPoints,_that.merchantTier);case _:
+return $default(_that.id,_that.name,_that.nameAr,_that.email,_that.phone,_that.role,_that.hasStore,_that.storeId,_that.storeName,_that.storeNameAr,_that.profileImageUrl,_that.token,_that.refreshToken,_that.permissions,_that.merchantPoints,_that.merchantTier,_that.directPaymentEnabled,_that.bankName,_that.bankAccountName,_that.bankAccountNumber);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -225,10 +233,10 @@ return $default(_that.id,_that.name,_that.nameAr,_that.email,_that.phone,_that.r
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String? nameAr,  String email,  String phone,  UserRole role,  bool hasStore,  String? storeId,  String? storeName,  String? storeNameAr,  String? profileImageUrl,  String? token,  String? refreshToken,  Map<String, dynamic> permissions,  int merchantPoints,  String merchantTier)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( String id,  String name,  String? nameAr,  String email,  String phone,  UserRole role,  bool hasStore,  String? storeId,  String? storeName,  String? storeNameAr,  String? profileImageUrl,  String? token,  String? refreshToken,  Map<String, dynamic> permissions,  int merchantPoints,  String merchantTier,  bool directPaymentEnabled,  String? bankName,  String? bankAccountName,  String? bankAccountNumber)?  $default,) {final _that = this;
 switch (_that) {
 case _UserModel() when $default != null:
-return $default(_that.id,_that.name,_that.nameAr,_that.email,_that.phone,_that.role,_that.hasStore,_that.storeId,_that.storeName,_that.storeNameAr,_that.profileImageUrl,_that.token,_that.refreshToken,_that.permissions,_that.merchantPoints,_that.merchantTier);case _:
+return $default(_that.id,_that.name,_that.nameAr,_that.email,_that.phone,_that.role,_that.hasStore,_that.storeId,_that.storeName,_that.storeNameAr,_that.profileImageUrl,_that.token,_that.refreshToken,_that.permissions,_that.merchantPoints,_that.merchantTier,_that.directPaymentEnabled,_that.bankName,_that.bankAccountName,_that.bankAccountNumber);case _:
   return null;
 
 }
@@ -240,7 +248,7 @@ return $default(_that.id,_that.name,_that.nameAr,_that.email,_that.phone,_that.r
 @JsonSerializable()
 
 class _UserModel implements UserModel {
-  const _UserModel({required this.id, required this.name, this.nameAr, required this.email, required this.phone, this.role = UserRole.buyer, this.hasStore = false, this.storeId, this.storeName, this.storeNameAr, this.profileImageUrl, this.token, this.refreshToken, final  Map<String, dynamic> permissions = const {}, this.merchantPoints = 0, this.merchantTier = 'beginner'}): _permissions = permissions;
+  const _UserModel({required this.id, required this.name, this.nameAr, required this.email, required this.phone, this.role = UserRole.buyer, this.hasStore = false, this.storeId, this.storeName, this.storeNameAr, this.profileImageUrl, this.token, this.refreshToken, final  Map<String, dynamic> permissions = const {}, this.merchantPoints = 0, this.merchantTier = 'beginner', this.directPaymentEnabled = false, this.bankName, this.bankAccountName, this.bankAccountNumber}): _permissions = permissions;
   factory _UserModel.fromJson(Map<String, dynamic> json) => _$UserModelFromJson(json);
 
 /// Unique user identifier.
@@ -282,6 +290,14 @@ class _UserModel implements UserModel {
 @override@JsonKey() final  int merchantPoints;
 /// Gamification: The merchant's tier (beginner, bronze, silver, gold).
 @override@JsonKey() final  String merchantTier;
+/// Hybrid Payment: Whether buyers pay this merchant directly.
+@override@JsonKey() final  bool directPaymentEnabled;
+/// Hybrid Payment: Merchant Bank Name.
+@override final  String? bankName;
+/// Hybrid Payment: Merchant Bank Account Name.
+@override final  String? bankAccountName;
+/// Hybrid Payment: Merchant Bank Account Number.
+@override final  String? bankAccountNumber;
 
 /// Create a copy of UserModel
 /// with the given fields replaced by the non-null parameter values.
@@ -296,16 +312,16 @@ Map<String, dynamic> toJson() {
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.nameAr, nameAr) || other.nameAr == nameAr)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.role, role) || other.role == role)&&(identical(other.hasStore, hasStore) || other.hasStore == hasStore)&&(identical(other.storeId, storeId) || other.storeId == storeId)&&(identical(other.storeName, storeName) || other.storeName == storeName)&&(identical(other.storeNameAr, storeNameAr) || other.storeNameAr == storeNameAr)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl)&&(identical(other.token, token) || other.token == token)&&(identical(other.refreshToken, refreshToken) || other.refreshToken == refreshToken)&&const DeepCollectionEquality().equals(other._permissions, _permissions)&&(identical(other.merchantPoints, merchantPoints) || other.merchantPoints == merchantPoints)&&(identical(other.merchantTier, merchantTier) || other.merchantTier == merchantTier));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UserModel&&(identical(other.id, id) || other.id == id)&&(identical(other.name, name) || other.name == name)&&(identical(other.nameAr, nameAr) || other.nameAr == nameAr)&&(identical(other.email, email) || other.email == email)&&(identical(other.phone, phone) || other.phone == phone)&&(identical(other.role, role) || other.role == role)&&(identical(other.hasStore, hasStore) || other.hasStore == hasStore)&&(identical(other.storeId, storeId) || other.storeId == storeId)&&(identical(other.storeName, storeName) || other.storeName == storeName)&&(identical(other.storeNameAr, storeNameAr) || other.storeNameAr == storeNameAr)&&(identical(other.profileImageUrl, profileImageUrl) || other.profileImageUrl == profileImageUrl)&&(identical(other.token, token) || other.token == token)&&(identical(other.refreshToken, refreshToken) || other.refreshToken == refreshToken)&&const DeepCollectionEquality().equals(other._permissions, _permissions)&&(identical(other.merchantPoints, merchantPoints) || other.merchantPoints == merchantPoints)&&(identical(other.merchantTier, merchantTier) || other.merchantTier == merchantTier)&&(identical(other.directPaymentEnabled, directPaymentEnabled) || other.directPaymentEnabled == directPaymentEnabled)&&(identical(other.bankName, bankName) || other.bankName == bankName)&&(identical(other.bankAccountName, bankAccountName) || other.bankAccountName == bankAccountName)&&(identical(other.bankAccountNumber, bankAccountNumber) || other.bankAccountNumber == bankAccountNumber));
 }
 
 @JsonKey(includeFromJson: false, includeToJson: false)
 @override
-int get hashCode => Object.hash(runtimeType,id,name,nameAr,email,phone,role,hasStore,storeId,storeName,storeNameAr,profileImageUrl,token,refreshToken,const DeepCollectionEquality().hash(_permissions),merchantPoints,merchantTier);
+int get hashCode => Object.hashAll([runtimeType,id,name,nameAr,email,phone,role,hasStore,storeId,storeName,storeNameAr,profileImageUrl,token,refreshToken,const DeepCollectionEquality().hash(_permissions),merchantPoints,merchantTier,directPaymentEnabled,bankName,bankAccountName,bankAccountNumber]);
 
 @override
 String toString() {
-  return 'UserModel(id: $id, name: $name, nameAr: $nameAr, email: $email, phone: $phone, role: $role, hasStore: $hasStore, storeId: $storeId, storeName: $storeName, storeNameAr: $storeNameAr, profileImageUrl: $profileImageUrl, token: $token, refreshToken: $refreshToken, permissions: $permissions, merchantPoints: $merchantPoints, merchantTier: $merchantTier)';
+  return 'UserModel(id: $id, name: $name, nameAr: $nameAr, email: $email, phone: $phone, role: $role, hasStore: $hasStore, storeId: $storeId, storeName: $storeName, storeNameAr: $storeNameAr, profileImageUrl: $profileImageUrl, token: $token, refreshToken: $refreshToken, permissions: $permissions, merchantPoints: $merchantPoints, merchantTier: $merchantTier, directPaymentEnabled: $directPaymentEnabled, bankName: $bankName, bankAccountName: $bankAccountName, bankAccountNumber: $bankAccountNumber)';
 }
 
 
@@ -316,7 +332,7 @@ abstract mixin class _$UserModelCopyWith<$Res> implements $UserModelCopyWith<$Re
   factory _$UserModelCopyWith(_UserModel value, $Res Function(_UserModel) _then) = __$UserModelCopyWithImpl;
 @override @useResult
 $Res call({
- String id, String name, String? nameAr, String email, String phone, UserRole role, bool hasStore, String? storeId, String? storeName, String? storeNameAr, String? profileImageUrl, String? token, String? refreshToken, Map<String, dynamic> permissions, int merchantPoints, String merchantTier
+ String id, String name, String? nameAr, String email, String phone, UserRole role, bool hasStore, String? storeId, String? storeName, String? storeNameAr, String? profileImageUrl, String? token, String? refreshToken, Map<String, dynamic> permissions, int merchantPoints, String merchantTier, bool directPaymentEnabled, String? bankName, String? bankAccountName, String? bankAccountNumber
 });
 
 
@@ -333,7 +349,7 @@ class __$UserModelCopyWithImpl<$Res>
 
 /// Create a copy of UserModel
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? nameAr = freezed,Object? email = null,Object? phone = null,Object? role = null,Object? hasStore = null,Object? storeId = freezed,Object? storeName = freezed,Object? storeNameAr = freezed,Object? profileImageUrl = freezed,Object? token = freezed,Object? refreshToken = freezed,Object? permissions = null,Object? merchantPoints = null,Object? merchantTier = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? id = null,Object? name = null,Object? nameAr = freezed,Object? email = null,Object? phone = null,Object? role = null,Object? hasStore = null,Object? storeId = freezed,Object? storeName = freezed,Object? storeNameAr = freezed,Object? profileImageUrl = freezed,Object? token = freezed,Object? refreshToken = freezed,Object? permissions = null,Object? merchantPoints = null,Object? merchantTier = null,Object? directPaymentEnabled = null,Object? bankName = freezed,Object? bankAccountName = freezed,Object? bankAccountNumber = freezed,}) {
   return _then(_UserModel(
 id: null == id ? _self.id : id // ignore: cast_nullable_to_non_nullable
 as String,name: null == name ? _self.name : name // ignore: cast_nullable_to_non_nullable
@@ -351,7 +367,11 @@ as String?,refreshToken: freezed == refreshToken ? _self.refreshToken : refreshT
 as String?,permissions: null == permissions ? _self._permissions : permissions // ignore: cast_nullable_to_non_nullable
 as Map<String, dynamic>,merchantPoints: null == merchantPoints ? _self.merchantPoints : merchantPoints // ignore: cast_nullable_to_non_nullable
 as int,merchantTier: null == merchantTier ? _self.merchantTier : merchantTier // ignore: cast_nullable_to_non_nullable
-as String,
+as String,directPaymentEnabled: null == directPaymentEnabled ? _self.directPaymentEnabled : directPaymentEnabled // ignore: cast_nullable_to_non_nullable
+as bool,bankName: freezed == bankName ? _self.bankName : bankName // ignore: cast_nullable_to_non_nullable
+as String?,bankAccountName: freezed == bankAccountName ? _self.bankAccountName : bankAccountName // ignore: cast_nullable_to_non_nullable
+as String?,bankAccountNumber: freezed == bankAccountNumber ? _self.bankAccountNumber : bankAccountNumber // ignore: cast_nullable_to_non_nullable
+as String?,
   ));
 }
 

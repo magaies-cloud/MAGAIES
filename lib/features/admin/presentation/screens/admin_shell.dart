@@ -1,3 +1,4 @@
+import 'package:magaiees_marketplace/features/admin/services/presentation/screens/admin_services_screen.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
@@ -7,9 +8,12 @@ import 'package:magaiees_marketplace/features/admin/presentation/screens/admin_o
 import 'package:magaiees_marketplace/features/admin/presentation/screens/admin_categories_screen.dart';
 import 'package:magaiees_marketplace/features/admin/presentation/screens/admin_products_screen.dart';
 import 'package:magaiees_marketplace/features/admin/presentation/screens/admin_settings_screen.dart';
+import 'package:magaiees_marketplace/features/admin/finance/presentation/screens/admin_finance_screen.dart';
 import 'package:magaiees_marketplace/features/admin/subscribers/presentation/screens/subscribers_management_screen.dart';
 import 'package:magaiees_marketplace/features/auth/application/auth_provider.dart';
 import 'package:magaiees_marketplace/routing/route_names.dart';
+
+final adminTabIndexProvider = StateProvider<int>((ref) => 0);
 
 class AdminShell extends ConsumerStatefulWidget {
   const AdminShell({super.key});
@@ -32,12 +36,24 @@ class _AdminShellState extends ConsumerState<AdminShell> {
     AdminOrdersScreen(),
     AdminCategoriesScreen(),
     AdminProductsScreen(),
+      AdminServicesScreen(),
+    AdminFinanceScreen(),
     AdminSettingsScreen(),
   ];
 
   @override
   Widget build(BuildContext context) {
     final isRtl = Directionality.of(context) == TextDirection.rtl;
+
+    ref.listen<int>(adminTabIndexProvider, (prev, next) {
+      if (next != _selectedIndex) {
+        setState(() => _selectedIndex = next);
+      }
+    });
+
+    final authUser = ref.watch(authNotifierProvider).valueOrNull;
+    final userName = (isRtl && authUser?.nameAr != null && authUser!.nameAr!.isNotEmpty ? authUser.nameAr : authUser?.name) ?? (isRtl ? 'مدير النظام' : 'Admin');
+    final userEmail = authUser?.email ?? 'admin@magaiees.com';
 
     return Scaffold(
       body: Row(
@@ -98,22 +114,24 @@ class _AdminShellState extends ConsumerState<AdminShell> {
 
                   // Navigation Items
                   Expanded(
-                    child: ListView(
-                      padding: const EdgeInsets.symmetric(horizontal: 8),
-                      children: [
-                        _buildNavItem(0, Icons.dashboard_outlined, isRtl ? 'الرئيسية' : 'Dashboard'),
-                        _buildNavItem(1, Icons.people_outline, isRtl ? 'إدارة المشتركين' : 'Subscribers'),
-                        _buildNavItem(2, Icons.campaign_outlined, isRtl ? 'إدارة الإعلانات' : 'Ads'),
-                        _buildNavItem(3, Icons.shopping_cart_outlined, isRtl ? 'إدارة الطلبات' : 'Orders'),
-                        _buildNavItem(4, Icons.category_outlined, isRtl ? 'إدارة الأقسام' : 'Categories'),
-                        _buildNavItem(5, Icons.price_change_outlined, isRtl ? 'الأصناف والأسعار' : 'Pricing'),
-                        Padding(
-                          padding: const EdgeInsets.symmetric(vertical: 8.0),
-                          child: Divider(color: Colors.white.withValues(alpha: 0.12), height: 1),
-                        ),
-                        _buildNavItem(6, Icons.settings_outlined, isRtl ? 'الإعدادات' : 'Settings'),
-                      ],
-                    ),
+                      child: ListView(
+                        padding: const EdgeInsets.symmetric(horizontal: 8),
+                        children: [
+                          _buildNavItem(0, Icons.dashboard_outlined, isRtl ? 'الرئيسية' : 'Dashboard'),
+                          _buildNavItem(1, Icons.people_outline, isRtl ? 'إدارة المشتركين' : 'Subscribers'),
+                          _buildNavItem(2, Icons.campaign_outlined, isRtl ? 'إدارة الإعلانات' : 'Ads'),
+                          _buildNavItem(3, Icons.shopping_cart_outlined, isRtl ? 'إدارة الطلبات' : 'Orders'),
+                          _buildNavItem(4, Icons.category_outlined, isRtl ? 'إدارة الأقسام' : 'Categories'),
+                          _buildNavItem(5, Icons.price_change_outlined, isRtl ? 'الأسعار والتسعير' : 'Pricing'),
+                          _buildNavItem(6, Icons.engineering, isRtl ? 'مقدمو الخدمات' : 'Service Providers'),
+                          _buildNavItem(7, Icons.account_balance_wallet_outlined, isRtl ? 'المالية والحسابات' : 'Finance & Accounting'),
+                          Padding(
+                            padding: const EdgeInsets.symmetric(vertical: 8.0),
+                            child: Divider(color: Colors.white.withValues(alpha: 0.12), height: 1),
+                          ),
+                          _buildNavItem(8, Icons.settings_outlined, isRtl ? 'الإعدادات' : 'Settings'),
+                        ],
+                      ),
                   ),
 
                   // Bottom Area (Admin Info & Logout)
@@ -148,7 +166,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                                         mainAxisAlignment: MainAxisAlignment.center,
                                         children: [
                                           Text(
-                                            isRtl ? 'مدير النظام' : 'Admin',
+                                            userName,
                                             style: const TextStyle(
                                               color: Colors.white,
                                               fontWeight: FontWeight.bold,
@@ -158,7 +176,7 @@ class _AdminShellState extends ConsumerState<AdminShell> {
                                             overflow: TextOverflow.ellipsis,
                                           ),
                                           Text(
-                                            'admin@magaiees.com',
+                                            userEmail,
                                             style: TextStyle(
                                               color: Colors.grey.shade400,
                                               fontSize: 11,
@@ -213,7 +231,10 @@ class _AdminShellState extends ConsumerState<AdminShell> {
         color: Colors.transparent,
         child: InkWell(
           borderRadius: BorderRadius.circular(10),
-          onTap: () => setState(() => _selectedIndex = index),
+          onTap: () {
+            setState(() => _selectedIndex = index);
+            ref.read(adminTabIndexProvider.notifier).state = index;
+          },
           child: Container(
             height: 48,
             decoration: BoxDecoration(

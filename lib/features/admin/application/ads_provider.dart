@@ -79,6 +79,23 @@ class Ads extends _$Ads {
 
   @override
   FutureOr<List<AdModel>> build() async {
+    // Setup Realtime listener for instant ad updates
+    final channel = _supabase
+        .channel('admin:ads')
+        .onPostgresChanges(
+          event: PostgresChangeEvent.all,
+          schema: 'public',
+          table: 'ads',
+          callback: (payload) {
+            ref.invalidateSelf();
+          },
+        )
+        .subscribe();
+
+    ref.onDispose(() {
+      channel.unsubscribe();
+    });
+
     final data = await _supabase.from('ads').select().order('created_at', ascending: false);
     return data.map((e) => AdModel.fromJson(e)).toList();
   }

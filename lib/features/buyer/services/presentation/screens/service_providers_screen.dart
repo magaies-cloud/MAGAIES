@@ -1,288 +1,21 @@
+import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:magaiees_marketplace/features/buyer/services/domain/models/service_provider_model.dart';
+import 'package:magaiees_marketplace/features/buyer/services/application/services_provider.dart';
 
-class ServiceProvidersScreen extends StatefulWidget {
+class ServiceProvidersScreen extends ConsumerStatefulWidget {
   const ServiceProvidersScreen({super.key});
 
   @override
-  State<ServiceProvidersScreen> createState() => _ServiceProvidersScreenState();
+  ConsumerState<ServiceProvidersScreen> createState() => _ServiceProvidersScreenState();
 }
 
-class _ServiceProvidersScreenState extends State<ServiceProvidersScreen> with SingleTickerProviderStateMixin {
+class _ServiceProvidersScreenState extends ConsumerState<ServiceProvidersScreen> with SingleTickerProviderStateMixin {
   late TabController _tabController;
   String _selectedSubTrade = 'all';
   String _searchQuery = '';
 
-  final List<ServiceProviderModel> _allProviders = const [
-    // === 1. الاستشارات الهندسية (Engineering Consulting) ===
-    ServiceProviderModel(
-      id: 'eng1',
-      name: 'Eng. Khalid Al-Mansour (Structural)',
-      nameAr: 'م. خالد المنصور - استشارات إنشائية وإشراف صب',
-      trade: 'Senior Structural Engineer',
-      tradeAr: 'مهندس إنشائي معتمد - مراجعة مخططات واستلام صب',
-      categoryId: 'engineering',
-      rating: 4.95,
-      reviewsCount: 64,
-      experienceYears: '16',
-      priceEstimate: '50,000 ج.س / زيارة إشراف واستلام',
-      phone: '+249 91 223 3445',
-      location: 'Khartoum - Central',
-      locationAr: 'الخرطوم وأم درمان وبحري',
-      isVerified: true,
-    ),
-    ServiceProviderModel(
-      id: 'eng2',
-      name: 'Dar Al-Binaa Architectural Design',
-      nameAr: 'مكتب دار البناء للتصميم المعماري والمساحة',
-      trade: 'Architectural & Surveying Office',
-      tradeAr: 'تصميم معماري، رخص بناء، ورفع مساحي دقيق',
-      categoryId: 'engineering',
-      rating: 4.88,
-      reviewsCount: 48,
-      experienceYears: '12',
-      priceEstimate: 'حسب مساحة المخطط / 800 ج.س للمتر',
-      phone: '+249 92 334 4556',
-      location: 'Khartoum - Riyadh',
-      locationAr: 'الخرطوم - شارع الستين والرياض',
-      isVerified: true,
-    ),
-    ServiceProviderModel(
-      id: 'eng3',
-      name: 'Eng. Yasser Quantity Surveying',
-      nameAr: 'م. ياسر لحساب كميات المشاريع وجداول الكميات (BOQ)',
-      trade: 'Quantity Surveyor (QS)',
-      tradeAr: 'حساب كميات الحديد والخرسانة وتدقيق تكاليف المقاولين',
-      categoryId: 'engineering',
-      rating: 4.9,
-      reviewsCount: 37,
-      experienceYears: '10',
-      priceEstimate: '35,000 ج.س / جدول كميات كامل للمبنى',
-      phone: '+249 90 445 5667',
-      location: 'Bahri',
-      locationAr: 'بحري وكافوري',
-      isVerified: true,
-    ),
-
-    // === 2. العمالة الفنية والحرفية (Technical & Skilled Labor) ===
-    ServiceProviderModel(
-      id: 'sp1',
-      name: 'Othman Steel Fixing Team',
-      nameAr: 'معلم عثمان وفريقه للحدادة المسلحة',
-      trade: 'Steel Fixer / Blacksmith',
-      tradeAr: 'حداد مسلح وقص وتثبيت حديد طبقا للمخطط',
-      categoryId: 'labor',
-      rating: 4.9,
-      reviewsCount: 38,
-      experienceYears: '12',
-      priceEstimate: '15,000 ج.س / طن مصنعية',
-      phone: '+249 91 122 3344',
-      location: 'Khartoum - El Sajana',
-      locationAr: 'الخرطوم - السجانة والمقرن',
-      isVerified: true,
-    ),
-    ServiceProviderModel(
-      id: 'sp2',
-      name: 'Master Carpenter Adam',
-      nameAr: 'الأسطى آدم لأعمال النجارة المسلحة والصب',
-      trade: 'Formwork Carpenter',
-      tradeAr: 'نجار مسلح وقوالب خرسانية وشدات أعمدة وسقف',
-      categoryId: 'labor',
-      rating: 4.8,
-      reviewsCount: 29,
-      experienceYears: '15',
-      priceEstimate: '2,500 ج.س / متر مربع نجارة',
-      phone: '+249 92 445 6677',
-      location: 'Omdurman - Industrial Area',
-      locationAr: 'أم درمان - المنطقة الصناعية',
-      isVerified: true,
-    ),
-    ServiceProviderModel(
-      id: 'sp3',
-      name: 'Eng. Tariq Plumbing Services',
-      nameAr: 'مؤسسة طارق للسباكة وتمديدات الصرف',
-      trade: 'Master Plumber',
-      tradeAr: 'سباكة وتمديدات صحية متطورة وشبكات تغذية',
-      categoryId: 'labor',
-      rating: 4.9,
-      reviewsCount: 52,
-      experienceYears: '9',
-      priceEstimate: 'يومية 20,000 ج.س / أو مقطوعية للمبنى',
-      phone: '+249 90 778 8990',
-      location: 'Bahri - Kafouri',
-      locationAr: 'بحري - كافوري وشمبات',
-      isVerified: true,
-    ),
-    ServiceProviderModel(
-      id: 'sp4',
-      name: 'Al-Nour Electrical Contracting',
-      nameAr: 'ورشة النور للتمديدات الكهربائية والإنارة',
-      trade: 'Master Electrician',
-      tradeAr: 'كهرباء مباني وتأسيس لوحات قواطع رئيسية',
-      categoryId: 'labor',
-      rating: 4.7,
-      reviewsCount: 41,
-      experienceYears: '11',
-      priceEstimate: '1,800 ج.س / نقطة كهرباء',
-      phone: '+249 91 334 5566',
-      location: 'Khartoum - Riyadh',
-      locationAr: 'الخرطوم - المعمورة والرياض',
-      isVerified: true,
-    ),
-    ServiceProviderModel(
-      id: 'sp5',
-      name: 'Ibrahim Decor & Painting',
-      nameAr: 'فريق إبراهيم للدهانات والديكورات الإنشائية',
-      trade: 'Professional Painter',
-      tradeAr: 'دهانات داخلية وخارجية وبوهيات',
-      categoryId: 'labor',
-      rating: 4.8,
-      reviewsCount: 34,
-      experienceYears: '8',
-      priceEstimate: '1,200 ج.س / متر مربع',
-      phone: '+249 92 889 0011',
-      location: 'Khartoum',
-      locationAr: 'الخرطوم وبحري',
-      isVerified: true,
-    ),
-    ServiceProviderModel(
-      id: 'sp6',
-      name: 'Al-Baraka Masonry & Plastering',
-      nameAr: 'مقاولات البركة للبناء واللياسة',
-      trade: 'Master Mason',
-      tradeAr: 'بناء طوب وبلوك مصمت ولياسة خشنة وناعمة',
-      categoryId: 'labor',
-      rating: 4.9,
-      reviewsCount: 46,
-      experienceYears: '14',
-      priceEstimate: '3,000 ج.س / متر مربع لياسة',
-      phone: '+249 91 556 7788',
-      location: 'Omdurman',
-      locationAr: 'أم درمان - الثورات',
-      isVerified: true,
-    ),
-
-    // === 3. الخدمات اللوجستية وأسطول النقل والتعتيل ===
-    // 3.1 الدفارات (Dyna / Medium Trucks)
-    ServiceProviderModel(
-      id: 'log_dyna1',
-      name: 'Al-Fursan Dyna Fleet (Medium Cargo)',
-      nameAr: 'أسطول دفارات الفرسان للنقل المتوسط والتشطيبات',
-      trade: 'Dyna Truck Fleet (الدفارات)',
-      tradeAr: 'الدفارات: حمولات متوسطة مخصصة لطلبيات التشطيبات، البوهيات، العدد، وتجهيزات السباكة والكهرباء',
-      categoryId: 'logistics',
-      rating: 4.89,
-      reviewsCount: 76,
-      experienceYears: '9',
-      priceEstimate: '18,000 إلى 25,000 ج.س / الرد داخل ولاية الخرطوم',
-      phone: '+249 91 776 5544',
-      location: 'Khartoum - El Sajana',
-      locationAr: 'سوق السجانة ولكافة مناطق الخرطوم',
-      isVerified: true,
-    ),
-    ServiceProviderModel(
-      id: 'log_dyna2',
-      name: 'Express Dyna Delivery (Finishes & Paints)',
-      nameAr: 'دفارات الصادق للتوصيل السريع للمشاريع',
-      trade: 'Dyna Truck Fleet (الدفارات)',
-      tradeAr: 'الدفارات: نقل مباشر للبوهيات، العوازل، الكراتين، وأطقم الحمامات والمستلزمات',
-      categoryId: 'logistics',
-      rating: 4.82,
-      reviewsCount: 43,
-      experienceYears: '6',
-      priceEstimate: '20,000 ج.س / المشوار السريع',
-      phone: '+249 92 665 4433',
-      location: 'Bahri & Omdurman',
-      locationAr: 'بحري وأم درمان وشرق النيل',
-      isVerified: true,
-    ),
-
-    // 3.2 الجرارات والشاحنات المسطحة (Flatbed Trucks for Rebar & Pipes)
-    ServiceProviderModel(
-      id: 'log_flatbed1',
-      name: 'Al-Nile Flatbed & Trailer Fleet (Rebar 12m)',
-      nameAr: 'شركة النيل للجرارات والشاحنات المسطحة (Flatbed)',
-      trade: 'Flatbed Trucks (جرارات وشاحنات مسطحة)',
-      tradeAr: 'الجرارات والمسطحات: متخصصة في نقل أسياخ حديد التسليح (12 متر)، المواسير الطويلة، كمرات الصلب، والهياكل الحديدية الضخمة',
-      categoryId: 'logistics',
-      rating: 4.96,
-      reviewsCount: 110,
-      experienceYears: '18',
-      priceEstimate: '75,000 ج.س / رد تريلا مسطحة 30 طن',
-      phone: '+249 91 888 7766',
-      location: 'Khartoum - Industrial Zone',
-      locationAr: 'المناطق الصناعية، مصانع الحديد، والمشاريع الكبرى',
-      isVerified: true,
-    ),
-    ServiceProviderModel(
-      id: 'log_flatbed2',
-      name: 'Al-Amana Heavy Flatbed Trailers',
-      nameAr: 'أسطول الأمانة للجرارات والسطحات الطويلة',
-      trade: 'Flatbed Trucks (جرارات وشاحنات مسطحة)',
-      tradeAr: 'الجرارات والمسطحات: شاحنات مسطحة لنقل السيخ والمواسير الطويلة وكمرات الجمالونات',
-      categoryId: 'logistics',
-      rating: 4.88,
-      reviewsCount: 58,
-      experienceYears: '14',
-      priceEstimate: 'حسب الحمولة والمسافة (65,000 إلى 90,000 ج.س)',
-      phone: '+249 90 998 8112',
-      location: 'Khartoum State',
-      locationAr: 'الخرطوم وكافة الولايات المجاورة',
-      isVerified: true,
-    ),
-
-    // 3.3 القلابات (Dump Trucks for Sand, Gravel & Ready-mix)
-    ServiceProviderModel(
-      id: 'log_dump1',
-      name: 'Al-Muqran Dump Trucks (Sand & Gravel)',
-      nameAr: 'مؤسسة المقرن للقلابات ونقل المواد السائبة',
-      trade: 'Dump Trucks (القلابات)',
-      tradeAr: 'القلابات: توريد وتفريغ مباشر للمواد السائبة (رمل خشن، رمل ناعم، سن، حجر، كركار، وخرسانة) قلابات 18 و 24 متر مكعب',
-      categoryId: 'logistics',
-      rating: 4.92,
-      reviewsCount: 94,
-      experienceYears: '12',
-      priceEstimate: 'حسب نوع المادة والمسافة (يبدأ من 45,000 ج.س للقلاب)',
-      phone: '+249 91 332 2110',
-      location: 'Khartoum Quarries',
-      locationAr: 'المرخيات، قري، حطاب، وكافة مواقع الصب',
-      isVerified: true,
-    ),
-    ServiceProviderModel(
-      id: 'log_dump2',
-      name: 'Sahara Heavy Dump Trucks Fleet',
-      nameAr: 'أسطول الصحراء للقلابات الكبيرة',
-      trade: 'Dump Trucks (القلابات)',
-      tradeAr: 'القلابات: توريد يومي ومستمر لرمل البناء، الحصى، والدفان لمواقع الإنشاءات الكبرى',
-      categoryId: 'logistics',
-      rating: 4.85,
-      reviewsCount: 67,
-      experienceYears: '10',
-      priceEstimate: '50,000 ج.س / قلاب 20 متر مكعب',
-      phone: '+249 92 443 3221',
-      location: 'Omdurman & Bahri',
-      locationAr: 'أم درمان وبحري وشرق النيل',
-      isVerified: true,
-    ),
-
-    // 3.4 فرق التعتيل والتنزيل والتشوين
-    ServiceProviderModel(
-      id: 'log_crew1',
-      name: 'El Sajana Heavy Offloading & Hoisting Crew',
-      nameAr: 'فرقة السجانة المركزية لتعتيل وتنزيل الشحنات',
-      trade: 'Offloading & Hoisting Labor (تعتيل وتشوين)',
-      tradeAr: 'عمالة تعتيل قوية لتفريغ وتنزيل تريلات الحديد والأسمنت وتشوين المواد للأدوار العليا والمستودعات بأمان',
-      categoryId: 'logistics',
-      rating: 4.95,
-      reviewsCount: 82,
-      experienceYears: '10',
-      priceEstimate: '500 ج.س / كيس أسمنت تشوين - 3,500 ج.س / طن حديد',
-      phone: '+249 91 998 8776',
-      location: 'Khartoum - El Sajana Market',
-      locationAr: 'سوق السجانة ولكافة مواقع الخرطوم',
-      isVerified: true,
-    ),
-  ];
+  List<ServiceProviderModel> _allProviders = [];
 
   @override
   void initState() {
@@ -304,6 +37,9 @@ class _ServiceProvidersScreenState extends State<ServiceProvidersScreen> with Si
 
   @override
   Widget build(BuildContext context) {
+    final servicesAsync = ref.watch(servicesProvider);
+    _allProviders = servicesAsync.valueOrNull ?? [];
+
     final isRtl = Directionality.of(context) == TextDirection.rtl;
 
     return Scaffold(

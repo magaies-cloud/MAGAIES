@@ -48,6 +48,14 @@ class CartNotifier extends _$CartNotifier {
   void clearCart() {
     state = const CartModel();
   }
+
+  void applyCoupon(String code, double amount) {
+    state = state.copyWith(appliedCouponCode: code, discountAmount: amount);
+  }
+
+  void removeCoupon() {
+    state = state.copyWith(appliedCouponCode: null, discountAmount: 0.0);
+  }
 }
 
 @Riverpod(keepAlive: true)
@@ -70,10 +78,12 @@ double cartOffloadingTotal(CartOffloadingTotalRef ref) {
 
 @Riverpod(keepAlive: true)
 double cartGrandTotal(CartGrandTotalRef ref) {
+  final cart = ref.watch(cartNotifierProvider);
   final subtotal = ref.watch(cartSubtotalProvider);
   final transport = ref.watch(cartTransportTotalProvider);
   final offloading = ref.watch(cartOffloadingTotalProvider);
-  return (subtotal + transport + offloading) * 1.15; // Assuming 15% VAT
+  final totalWithVat = (subtotal + transport + offloading) * 1.15; // Assuming 15% VAT
+  return totalWithVat - cart.discountAmount;
 }
 
 @Riverpod(keepAlive: true)

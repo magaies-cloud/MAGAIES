@@ -11,6 +11,9 @@ import 'package:magaiees_marketplace/features/buyer/home/presentation/widgets/ma
 import 'package:magaiees_marketplace/features/buyer/home/presentation/widgets/product_card.dart';
 import 'package:magaiees_marketplace/features/buyer/home/presentation/widgets/hero_banner_carousel.dart';
 import 'package:magaiees_marketplace/features/locale/presentation/widgets/language_switcher.dart';
+import 'package:magaiees_marketplace/features/notifications/application/notifications_provider.dart';
+import 'package:magaiees_marketplace/features/notifications/presentation/screens/notifications_screen.dart';
+import 'package:magaiees_marketplace/features/buyer/wishlist/presentation/screens/wishlist_screen.dart';
 import 'package:go_router/go_router.dart';
 
 class BuyerHomeScreen extends ConsumerWidget {
@@ -44,8 +47,60 @@ class BuyerHomeScreen extends ConsumerWidget {
             ),
           ],
         ),
-        actions: const [
-          LanguageSwitcher(),
+        actions: [
+          Consumer(
+            builder: (context, ref, child) {
+              final unreadCount = ref.watch(unreadNotificationsCountProvider);
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications_outlined),
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+                      );
+                    },
+                  ),
+                  if (unreadCount > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          unreadCount.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
+          Consumer(
+            builder: (context, ref, child) {
+              return IconButton(
+                icon: const Icon(Icons.favorite_border),
+                onPressed: () {
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(builder: (_) => const WishlistScreen()),
+                  );
+                },
+              );
+            },
+          ),
+          const LanguageSwitcher(),
         ],
       ),
       body: CustomScrollView(

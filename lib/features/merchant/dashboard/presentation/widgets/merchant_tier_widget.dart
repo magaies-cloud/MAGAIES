@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:magaiees_marketplace/features/auth/domain/models/user_model.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 class MerchantTierWidget extends StatelessWidget {
   final UserModel user;
@@ -149,16 +150,38 @@ class MerchantTierWidget extends StatelessWidget {
             Text(isRtl ? 'كيف أكسب النقاط؟' : 'How to earn points?'),
           ],
         ),
-        content: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            _buildRule(Icons.check_circle, Colors.green, isRtl ? '+10 نقاط لكل طلب يتم تسليمه بنجاح' : '+10 pts for delivered orders'),
-            _buildRule(Icons.monetization_on, Colors.amber, isRtl ? '+1 نقطة لكل 50,000 ج.س مبيعات' : '+1 pt per 50K SDG sales'),
-            _buildRule(Icons.star, Colors.blue, isRtl ? '+50 نقطة مكافأة تميز من الإدارة' : '+50 pts Admin Bonus'),
-            const Divider(),
-            _buildRule(Icons.cancel, Colors.red, isRtl ? '-20 نقطة لإلغاء الطلب بعد قبوله' : '-20 pts for cancelling orders'),
-          ],
+        content: FutureBuilder<dynamic>(
+          future: Supabase.instance.client.from('gamification_settings').select().eq('id', 1).maybeSingle(),
+          builder: (context, snapshot) {
+            if (snapshot.connectionState == ConnectionState.waiting) {
+              return const SizedBox(height: 100, child: Center(child: CircularProgressIndicator()));
+            }
+            
+            int ptsPerOrder = 10;
+            int threshold = 50000;
+            int ptsPerThreshold = 1;
+            int penalty = 20;
+            
+            if (snapshot.hasData && snapshot.data != null) {
+              final d = snapshot.data as Map;
+              ptsPerOrder = d['points_per_order'] ?? 10;
+              threshold = d['sales_threshold_sdg'] ?? 50000;
+              ptsPerThreshold = d['points_per_sales_threshold'] ?? 1;
+              penalty = d['penalty_cancel_order'] ?? 20;
+            }
+
+            return Column(
+              mainAxisSize: MainAxisSize.min,
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _buildRule(Icons.check_circle, Colors.green, isRtl ? '+$ptsPerOrder نقاط لكل طلب يتم تسليمه بنجاح' : '+$ptsPerOrder pts for delivered orders'),
+                _buildRule(Icons.monetization_on, Colors.amber, isRtl ? '+$ptsPerThreshold نقطة لكل ${threshold/1000} ألف ج.س مبيعات' : '+$ptsPerThreshold pt per ${threshold/1000}K SDG sales'),
+                _buildRule(Icons.star, Colors.blue, isRtl ? '+ مكافآت تميز من الإدارة' : '+ Admin Bonus for excellence'),
+                const Divider(),
+                _buildRule(Icons.cancel, Colors.red, isRtl ? '-$penalty نقطة لإلغاء الطلب بعد قبوله' : '-$penalty pts for cancelling orders'),
+              ],
+            );
+          }
         ),
         actions: [
           TextButton(

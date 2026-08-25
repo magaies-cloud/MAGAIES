@@ -59,6 +59,18 @@ abstract class UserModel with _$UserModel {
 
     /// Gamification: The merchant's tier (beginner, bronze, silver, gold).
     @Default('beginner') String merchantTier,
+
+    /// Hybrid Payment: Whether buyers pay this merchant directly.
+    @Default(false) bool directPaymentEnabled,
+
+    /// Hybrid Payment: Merchant Bank Name.
+    String? bankName,
+
+    /// Hybrid Payment: Merchant Bank Account Name.
+    String? bankAccountName,
+
+    /// Hybrid Payment: Merchant Bank Account Number.
+    String? bankAccountNumber,
   }) = _UserModel;
 
   factory UserModel.fromJson(Map<String, dynamic> json) =>

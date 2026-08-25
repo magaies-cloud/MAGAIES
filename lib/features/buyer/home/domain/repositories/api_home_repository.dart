@@ -29,7 +29,7 @@ class ApiHomeRepository {
 
   Future<List<CategoryModel>> getCategories() async {
     try {
-      final response = await Supabase.instance.client.from('categories').select('*, subcategories(*)');
+      final response = await Supabase.instance.client.from('categories').select('*, subcategories(*)').order('created_at', ascending: false);
       final List<dynamic> data = response;
       return data.map((json) {
         final subs = (json['subcategories'] as List<dynamic>? ?? []).map((sub) {
@@ -47,6 +47,7 @@ class ApiHomeRepository {
           name: json['name'] ?? '',
           nameAr: json['name_ar'] ?? '',
           iconName: json['icon_name'] ?? 'category',
+          imageUrl: json['image_url'],
           productCount: 0,
           isExclusiveToMagaiees: json['is_magaiees_exclusive'] ?? false,
           subCategories: subs,

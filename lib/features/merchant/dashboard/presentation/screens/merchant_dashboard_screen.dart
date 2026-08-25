@@ -7,6 +7,7 @@ import 'package:magaiees_marketplace/core/enums/app_mode.dart';
 import 'package:magaiees_marketplace/features/mode_switch/application/mode_provider.dart';
 import 'package:magaiees_marketplace/features/merchant/orders/presentation/screens/merchant_orders_screen.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:fl_chart/fl_chart.dart';
 import 'package:magaiees_marketplace/features/auth/application/auth_provider.dart';
 import 'package:intl/intl.dart' hide TextDirection;
 import 'package:pdf/pdf.dart';
@@ -15,6 +16,11 @@ import 'package:printing/printing.dart';
 
 import 'package:magaiees_marketplace/features/merchant/inventory/presentation/screens/merchant_inventory_screen.dart';
 import 'package:magaiees_marketplace/features/merchant/dashboard/presentation/widgets/merchant_tier_widget.dart';
+import 'package:magaiees_marketplace/features/merchant/dashboard/presentation/screens/merchant_wallet_screen.dart';
+import 'package:magaiees_marketplace/features/merchant/store_management/presentation/screens/merchant_coupons_screen.dart';
+import 'package:magaiees_marketplace/features/merchant/store_management/presentation/screens/merchant_reviews_screen.dart';
+import 'package:magaiees_marketplace/features/notifications/application/notifications_provider.dart';
+import 'package:magaiees_marketplace/features/notifications/presentation/screens/notifications_screen.dart';
 
 final merchantDashboardStatsProvider = Provider.autoDispose<AsyncValue<Map<String, dynamic>>>((ref) {
   final ordersAsync = ref.watch(merchantOrdersProvider);
@@ -39,6 +45,13 @@ final merchantDashboardStatsProvider = Provider.autoDispose<AsyncValue<Map<Strin
   int deliveredCount = 0;
   Set<String> uniqueCustomers = {};
 
+  final now = DateTime.now();
+  final last7DaysDates = List.generate(7, (i) {
+    final d = now.subtract(Duration(days: 6 - i));
+    return DateTime(d.year, d.month, d.day);
+  });
+  final List<double> dailySales = List.filled(7, 0.0);
+
   for (var order in orders) {
     if (order['status'] != 'cancelled') {
       final total = (num.tryParse(order['total_amount']?.toString() ?? '0') ?? 0.0).toDouble();
@@ -51,6 +64,24 @@ final merchantDashboardStatsProvider = Provider.autoDispose<AsyncValue<Map<Strin
 
       final buyerId = order['buyer_id'];
       if (buyerId != null) uniqueCustomers.add(buyerId.toString());
+
+      final createdAtStr = order['created_at'];
+      if (createdAtStr != null) {
+        try {
+          final dt = DateTime.parse(createdAtStr).toLocal();
+          final orderDate = DateTime(dt.year, dt.month, dt.day);
+          final diff = now.difference(orderDate).inDays;
+          if (diff >= 0 && diff < 7) {
+            // Find index
+            for (int i = 0; i < 7; i++) {
+              if (last7DaysDates[i].isAtSameMomentAs(orderDate)) {
+                dailySales[i] += total;
+                break;
+              }
+            }
+          }
+        } catch (_) {}
+      }
     }
     if (order['status'] == 'pending') {
       pendingCount++;
@@ -69,6 +100,8 @@ final merchantDashboardStatsProvider = Provider.autoDispose<AsyncValue<Map<Strin
     'customers': uniqueCustomers.length,
     'recentOrders': orders.take(5).toList(),
     'allOrders': orders,
+    'dailySales': dailySales,
+    'last7DaysDates': last7DaysDates,
   });
 });
 
@@ -460,6 +493,46 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
           ],
         ),
         actions: [
+          Consumer(
+            builder: (context, ref, child) {
+              final unreadCount = ref.watch(unreadNotificationsCountProvider);
+              return Stack(
+                alignment: Alignment.center,
+                children: [
+                  IconButton(
+                    icon: const Icon(Icons.notifications_outlined),
+                    tooltip: isRtl ? 'الإشعارات' : 'Notifications',
+                    onPressed: () {
+                      Navigator.push(
+                        context,
+                        MaterialPageRoute(builder: (_) => const NotificationsScreen()),
+                      );
+                    },
+                  ),
+                  if (unreadCount > 0)
+                    Positioned(
+                      right: 8,
+                      top: 8,
+                      child: Container(
+                        padding: const EdgeInsets.all(4),
+                        decoration: const BoxDecoration(
+                          color: Colors.red,
+                          shape: BoxShape.circle,
+                        ),
+                        child: Text(
+                          unreadCount.toString(),
+                          style: const TextStyle(
+                            color: Colors.white,
+                            fontSize: 10,
+                            fontWeight: FontWeight.bold,
+                          ),
+                        ),
+                      ),
+                    ),
+                ],
+              );
+            },
+          ),
           IconButton(
             icon: const Icon(Icons.swap_horiz),
             tooltip: isRtl ? 'التبديل للمشتري' : 'Switch to Buyer Mode',
@@ -500,10 +573,44 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
                             isRtl ? 'نظرة عامة ماليّة' : 'Financial Overview',
                             style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
                           ),
-                          IconButton(
-                            icon: const Icon(Icons.picture_as_pdf, color: Colors.red),
-                            tooltip: isRtl ? 'استخراج كشف حساب' : 'Statement of Account',
-                            onPressed: () => _showReportDialog(context, stats, isRtl),
+                          Row(
+                            children: [
+                              IconButton(
+                                icon: const Icon(Icons.star, color: Colors.amber),
+                                tooltip: isRtl ? 'التقييمات والآراء' : 'Reviews & Ratings',
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const MerchantReviewsScreen()),
+                                  );
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.local_offer, color: Colors.purple),
+                                tooltip: isRtl ? 'إدارة الكوبونات' : 'Coupons Management',
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const MerchantCouponsScreen()),
+                                  );
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.account_balance_wallet, color: Colors.blue),
+                                tooltip: isRtl ? 'المحفظة والسحوبات' : 'Wallet & Payouts',
+                                onPressed: () {
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(builder: (_) => const MerchantWalletScreen()),
+                                  );
+                                },
+                              ),
+                              IconButton(
+                                icon: const Icon(Icons.picture_as_pdf, color: Colors.red),
+                                tooltip: isRtl ? 'استخراج كشف حساب' : 'Statement of Account',
+                                onPressed: () => _showReportDialog(context, stats, isRtl),
+                              ),
+                            ],
                           ),
                         ],
                       ),
@@ -536,6 +643,122 @@ class _MerchantDashboardScreenState extends ConsumerState<MerchantDashboardScree
                         ),
                       ),
                     ],
+                  ),
+                ),
+              ),
+
+              // Chart
+              SliverPadding(
+                padding: const EdgeInsets.only(left: 16.0, right: 16.0, top: 24.0, bottom: 8.0),
+                sliver: SliverToBoxAdapter(
+                  child: Text(
+                    isRtl ? 'المبيعات خلال آخر 7 أيام' : 'Sales - Last 7 Days',
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(fontWeight: FontWeight.bold),
+                  ),
+                ),
+              ),
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 16.0),
+                sliver: SliverToBoxAdapter(
+                  child: Container(
+                    height: 250,
+                    padding: const EdgeInsets.all(16),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(color: Colors.black.withOpacity(0.05), blurRadius: 10, offset: const Offset(0, 4)),
+                      ],
+                    ),
+                    child: Builder(
+                      builder: (context) {
+                        final salesData = stats['dailySales'] as List<double>;
+                        final dates = stats['last7DaysDates'] as List<DateTime>;
+                        
+                        double maxSale = 1000;
+                        for (var s in salesData) {
+                          if (s > maxSale) maxSale = s;
+                        }
+
+                        return LineChart(
+                          LineChartData(
+                            gridData: FlGridData(
+                              show: true, 
+                              drawVerticalLine: false,
+                              getDrawingHorizontalLine: (value) => FlLine(color: Colors.grey.withOpacity(0.2), strokeWidth: 1),
+                            ),
+                            titlesData: FlTitlesData(
+                              rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                              topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                              bottomTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 30,
+                                  getTitlesWidget: (value, meta) {
+                                    final index = value.toInt();
+                                    if (index < 0 || index >= 7) return const SizedBox.shrink();
+                                    final d = dates[index];
+                                    return SideTitleWidget(
+                                      meta: meta,
+                                      child: Text('${d.day}/${d.month}', style: const TextStyle(fontSize: 10, color: Colors.grey)),
+                                    );
+                                  },
+                                ),
+                              ),
+                              leftTitles: AxisTitles(
+                                sideTitles: SideTitles(
+                                  showTitles: true,
+                                  reservedSize: 40,
+                                  getTitlesWidget: (value, meta) {
+                                    if (value == 0) return const SizedBox.shrink();
+                                    return SideTitleWidget(
+                                      meta: meta,
+                                      child: Text(
+                                        value >= 1000 ? '${(value/1000).toStringAsFixed(1)}k' : value.toStringAsFixed(0),
+                                        style: const TextStyle(fontSize: 10, color: Colors.grey),
+                                      ),
+                                    );
+                                  }
+                                ),
+                              ),
+                            ),
+                            borderData: FlBorderData(show: false),
+                            minX: 0,
+                            maxX: 6,
+                            minY: 0,
+                            maxY: maxSale * 1.2,
+                            lineBarsData: [
+                              LineChartBarData(
+                                spots: List.generate(7, (i) => FlSpot(i.toDouble(), salesData[i])),
+                                isCurved: true,
+                                color: Colors.blue,
+                                barWidth: 3,
+                                isStrokeCapRound: true,
+                                dotData: const FlDotData(show: true),
+                                belowBarData: BarAreaData(
+                                  show: true,
+                                  color: Colors.blue.withOpacity(0.1),
+                                ),
+                              ),
+                            ],
+                            lineTouchData: LineTouchData(
+                              touchTooltipData: LineTouchTooltipData(
+                                getTooltipColor: (spot) => Colors.blueAccent,
+                                getTooltipItems: (touchedSpots) {
+                                  return touchedSpots.map((spot) {
+                                    final val = NumberFormat.compact().format(spot.y);
+                                    return LineTooltipItem(
+                                      '$val ${isRtl ? "ج.س" : "SDG"}',
+                                      const TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                                    );
+                                  }).toList();
+                                },
+                              ),
+                            ),
+                          ),
+                        );
+                      }
+                    ),
                   ),
                 ),
               ),

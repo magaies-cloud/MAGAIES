@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// State representation for admin pricing and currency exchange rate.
 class PricingState {
@@ -39,11 +40,47 @@ class PricingState {
 
 /// State notifier to manage USD exchange rate and percentage pricing changes.
 class PricingNotifier extends StateNotifier<PricingState> {
-  PricingNotifier() : super(const PricingState());
+  PricingNotifier() : super(const PricingState()) {
+    _loadFromDb();
+  }
+
+  final _supabase = Supabase.instance.client;
+
+  Future<void> _loadFromDb() async {
+    try {
+      final res = await _supabase
+          .from('gamification_settings')
+          .select('usd_exchange_rate')
+          .eq('id', 1)
+          .maybeSingle();
+      if (res != null && res['usd_exchange_rate'] != null) {
+        state = state.copyWith(
+          usdExchangeRate: (res['usd_exchange_rate'] as num).toDouble(),
+        );
+      }
+    } catch (_) {
+      // Use default rate if table/column doesn't exist yet
+    }
+  }
 
   /// Updates the current USD to SDG exchange rate.
   void updateUsdRate(double newRate) {
     state = state.copyWith(usdExchangeRate: newRate);
+    _saveToDb();
+  }
+
+  /// Alias for updateUsdRate
+  void updateRate(double newRate) => updateUsdRate(newRate);
+
+  Future<void> _saveToDb() async {
+    try {
+      await _supabase.from('gamification_settings').upsert({
+        'id': 1,
+        'usd_exchange_rate': state.usdExchangeRate,
+      });
+    } catch (_) {
+      // Silently fail if column doesn't exist
+    }
   }
 
   /// Records and applies a percentage change to pricing.

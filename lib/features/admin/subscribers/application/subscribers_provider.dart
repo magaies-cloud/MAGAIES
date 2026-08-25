@@ -33,16 +33,20 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
         return SubscriberModel(
           id: e['id'].toString(),
           name: e['name'] ?? 'User',
-          nameAr: e['name'] ?? 'User',
+          nameAr: e['name_ar'] ?? e['name'] ?? 'User',
           email: e['email'] ?? '',
           phone: e['phone'] ?? '',
           role: _parseRole(e['role']),
           status: e['is_suspended'] == true ? SubscriberStatus.suspended : SubscriberStatus.active,
           joinedAt: e['created_at'] != null ? DateTime.parse(e['created_at']) : DateTime.now(),
-          isVerified: true,
+          isVerified: e['is_verified'] ?? true,
           permissions: perms,
           merchantPoints: e['merchant_points'] ?? 0,
           merchantTier: e['merchant_tier'] ?? 'beginner',
+          directPaymentEnabled: e['direct_payment_enabled'] ?? false,
+          bankName: e['bank_name'],
+          bankAccountName: e['bank_account_name'],
+          bankAccountNumber: e['bank_account_number'],
         );
       }).toList();
       
@@ -93,6 +97,18 @@ class SubscribersNotifier extends StateNotifier<AsyncValue<List<SubscriberModel>
       }
     } catch (e) {
       print('Error updating permissions: ' + e.toString());
+    }
+  }
+
+  Future<void> toggleDirectPayment(String userId, bool isEnabled) async {
+    try {
+      await Supabase.instance.client
+          .from('users')
+          .update({'direct_payment_enabled': isEnabled})
+          .eq('id', userId);
+      loadSubscribers(); // reload
+    } catch (e) {
+      rethrow;
     }
   }
 
@@ -185,4 +201,7 @@ final filteredSubscribersProvider = Provider<AsyncValue<List<SubscriberModel>>>(
   });
 });
 
-final pendingVerificationsCountProvider = Provider<int>((ref) => 0);
+final pendingVerificationsCountProvider = Provider<int>((ref) {
+  final subs = ref.watch(subscribersProvider).valueOrNull ?? [];
+  return subs.where((s) => s.status == SubscriberStatus.pendingVerification).length;
+});

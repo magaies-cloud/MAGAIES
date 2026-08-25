@@ -112,7 +112,9 @@ class _HeroBannerCarouselState extends ConsumerState<HeroBannerCarousel> {
                     children: [
                       // Background Image
                       Image.network(
-                        ad.imageUrl,
+                        ad.imageUrl.contains('unsplash') 
+                            ? 'https://picsum.photos/seed/${ad.id}/800/400' 
+                            : ad.imageUrl,
                         fit: BoxFit.cover,
                         errorBuilder: (context, error, stackTrace) => Container(
                           color: Colors.grey.shade800,

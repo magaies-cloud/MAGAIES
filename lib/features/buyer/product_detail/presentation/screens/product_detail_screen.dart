@@ -62,7 +62,11 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       borderRadius: BorderRadius.circular(16),
                       image: product.imageUrl != null
                           ? DecorationImage(
-                              image: NetworkImage(product.imageUrl!),
+                        image: NetworkImage(
+                                product.imageUrl!.contains('unsplash')
+                                    ? 'https://picsum.photos/seed/${product.id}/600/600'
+                                    : product.imageUrl!,
+                              ),
                               fit: BoxFit.cover,
                             )
                           : null,
