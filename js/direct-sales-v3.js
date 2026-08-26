@@ -1564,11 +1564,36 @@ function selectRowItem(rowId, itemId, isMobile = false) {
     }
 
     updateRow(rowId, 'itemId', itemId);
-    // DEBUG: Log item selection and units
-    const _dbgItem = ITEMS.find(i => String(i.id) === String(itemId));
-    const _dbgRow = rows.find(r => r.id === rowId);
-    console.log('[selectRowItem] itemId:', itemId, 'item:', _dbgItem ? _dbgItem.name : 'NOT FOUND', 'units:', _dbgItem ? extractItemUnits(_dbgItem).map(u=>u.name) : 'N/A', 'row.selectedUnit:', _dbgRow ? _dbgRow.selectedUnit : 'N/A');
     renderGrid();
+
+    // DIRECT DOM UPDATE: Immediately populate unit select after renderGrid
+    const item = ITEMS.find(i => String(i.id) === String(itemId));
+    if (item) {
+        const units = extractItemUnits(item);
+        const row = rows.find(r => r.id === rowId);
+        const trIndex = rows.indexOf(row);
+        if (trIndex !== -1) {
+            const allTrs = document.querySelectorAll('#grid-body tr');
+            const tr = allTrs[trIndex];
+            if (tr) {
+                const unitTd = tr.querySelector('[data-col-id="col_unit"]');
+                if (unitTd) {
+                    const selectEl = unitTd.querySelector('select');
+                    if (selectEl && units.length > 0) {
+                        selectEl.innerHTML = '';
+                        units.forEach(u => {
+                            const opt = document.createElement('option');
+                            opt.value = u.name;
+                            opt.textContent = u.name;
+                            if (row && row.selectedUnit === u.name) opt.selected = true;
+                            selectEl.appendChild(opt);
+                        });
+                        console.log('[selectRowItem] Unit dropdown updated for', item.name, ':', units.map(u => u.name));
+                    }
+                }
+            }
+        }
+    }
 
     // Auto-focus quantity column on the selected row
     setTimeout(() => {
