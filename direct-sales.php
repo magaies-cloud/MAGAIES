@@ -3407,6 +3407,19 @@ try {
     <script defer src="js/print-engine.js?v=<?php echo file_exists('js/print-engine.js') ? filemtime('js/print-engine.js') : '1.0.0'; ?>"></script>
     
     <script defer src="js/direct-sales-v3.js?v=<?php echo time(); ?>"></script>
+    <script>
+    // Force Service Worker update + clear old caches
+    if ('serviceWorker' in navigator) {
+        navigator.serviceWorker.getRegistrations().then(regs => {
+            regs.forEach(reg => reg.update());
+        });
+        if (caches) {
+            caches.keys().then(names => {
+                names.filter(n => n.includes('static-v1') || n.includes('magaies-static-v2')).forEach(n => caches.delete(n));
+            });
+        }
+    }
+    </script>
 
     <script>
         // Fallback definitions for fmtNum/parseNum in case direct-sales-v3.js hasn't loaded yet
