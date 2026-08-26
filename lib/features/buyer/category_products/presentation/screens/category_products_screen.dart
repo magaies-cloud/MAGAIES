@@ -1,4 +1,4 @@
-﻿import 'package:flutter/material.dart';
+import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:go_router/go_router.dart';
 import 'package:magaiees_marketplace/features/buyer/home/application/home_provider.dart';
@@ -7,11 +7,13 @@ import 'package:magaiees_marketplace/features/buyer/home/presentation/widgets/pr
 
 class CategoryProductsScreen extends ConsumerStatefulWidget {
   final String categoryId;
+  final String? subCategoryId;
   final String? categoryName;
 
   const CategoryProductsScreen({
     super.key,
     required this.categoryId,
+    this.subCategoryId,
     this.categoryName,
   });
 
@@ -21,6 +23,12 @@ class CategoryProductsScreen extends ConsumerStatefulWidget {
 
 class _CategoryProductsScreenState extends ConsumerState<CategoryProductsScreen> {
   String? _selectedSubCategoryId;
+
+  @override
+  void initState() {
+    super.initState();
+    _selectedSubCategoryId = widget.subCategoryId;
+  }
   String _searchQuery = '';
   String _sortBy = 'all'; // 'all', 'price_asc', 'price_desc', 'in_stock'
 

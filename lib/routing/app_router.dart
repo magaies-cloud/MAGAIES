@@ -21,6 +21,7 @@ import 'package:magaiees_marketplace/features/buyer/orders/presentation/screens/
 import 'package:magaiees_marketplace/features/buyer/profile/presentation/screens/buyer_profile_screen.dart';
 import 'package:magaiees_marketplace/features/buyer/product_detail/presentation/screens/product_detail_screen.dart';
 import 'package:magaiees_marketplace/features/buyer/category_products/presentation/screens/category_products_screen.dart';
+import 'package:magaiees_marketplace/features/buyer/home/presentation/screens/sub_categories_screen.dart';
 import 'package:magaiees_marketplace/features/buyer/services/presentation/screens/service_providers_screen.dart';
 import 'package:magaiees_marketplace/features/buyer/help_center/presentation/screens/help_center_screen.dart';
 import 'package:magaiees_marketplace/features/buyer/checkout/presentation/screens/checkout_screen.dart';

@@ -12,7 +12,8 @@ const Color _kEmerald = Color(0xFF059669);
 const Color _kAmber = Color(0xFFF59E0B);
 
 class AdminProductsScreen extends ConsumerStatefulWidget {
-  const AdminProductsScreen({super.key});
+  final String? initialSearchQuery;
+  const AdminProductsScreen({super.key, this.initialSearchQuery});
 
   @override
   ConsumerState<AdminProductsScreen> createState() => _AdminProductsScreenState();
@@ -27,11 +28,17 @@ class _AdminProductsScreenState extends ConsumerState<AdminProductsScreen> {
   final _percentCtrl = TextEditingController(text: '0');
   final _searchCtrl = TextEditingController();
   String _searchQuery = '';
+
+
   String? _selectedCategoryId;
 
   @override
   void initState() {
     super.initState();
+    _searchQuery = widget.initialSearchQuery ?? '';
+    if (widget.initialSearchQuery != null) {
+      _searchCtrl.text = widget.initialSearchQuery!;
+    }
     final initialRate = ref.read(pricingProvider).usdExchangeRate;
     _usdRate = initialRate;
     _usdRateCtrl = TextEditingController(text: initialRate.toStringAsFixed(0));
