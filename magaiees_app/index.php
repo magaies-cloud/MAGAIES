@@ -1,24 +1,6 @@
-<?php
-header('Cache-Control: no-store, no-cache, must-revalidate, max-age=0');
-header('Cache-Control: post-check=0, pre-check=0', false);
-header('Pragma: no-cache');
-header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
-?>
 <!DOCTYPE html>
 <html dir="rtl" lang="ar">
 <head>
-<script>
-  if ('serviceWorker' in navigator) {
-    navigator.serviceWorker.getRegistrations().then(function(registrations) {
-      for(let registration of registrations) {
-        registration.unregister();
-        console.log('ServiceWorker unregistered to bypass cache');
-      }
-    });
-  }
-  // Optional: add a version parameter to main.dart.js to force redownload
-  var dartVersion = '?v=' + new Date().getTime();
-</script>
   <script>
     var path = window.location.pathname;
     var base = path.substring(0, path.lastIndexOf('/') + 1);
@@ -213,6 +195,6 @@ header('Expires: Wed, 11 Jan 1984 05:00:00 GMT');
       }, 300);
     });
   </script>
-  <script src="flutter_bootstrap.js?v=639233186873149680" async></script>
+  <script src="flutter_bootstrap.js" async></script>
 </body>
 </html>
