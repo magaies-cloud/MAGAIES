@@ -1564,6 +1564,10 @@ function selectRowItem(rowId, itemId, isMobile = false) {
     }
 
     updateRow(rowId, 'itemId', itemId);
+    // DEBUG: Log item selection and units
+    const _dbgItem = ITEMS.find(i => String(i.id) === String(itemId));
+    const _dbgRow = rows.find(r => r.id === rowId);
+    console.log('[selectRowItem] itemId:', itemId, 'item:', _dbgItem ? _dbgItem.name : 'NOT FOUND', 'units:', _dbgItem ? extractItemUnits(_dbgItem).map(u=>u.name) : 'N/A', 'row.selectedUnit:', _dbgRow ? _dbgRow.selectedUnit : 'N/A');
     renderGrid();
 
     // Auto-focus quantity column on the selected row
