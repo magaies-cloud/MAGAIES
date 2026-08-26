@@ -1560,43 +1560,23 @@ function selectRowItem(rowId, itemId, isMobile = false) {
 
     const searchInput = document.getElementById(`${prefix}item-search-${rowId}`);
     if (searchInput) {
+        // Remove blur handler temporarily to prevent filterItemDropdown from clearing itemId
+        searchInput.onblur = null;
         searchInput.blur();
     }
 
+    // Set item data
     updateRow(rowId, 'itemId', itemId);
+    
+    // First render - immediate
     renderGrid();
 
-    // DIRECT DOM UPDATE: Immediately populate unit select after renderGrid
-    const item = ITEMS.find(i => String(i.id) === String(itemId));
-    if (item) {
-        const units = extractItemUnits(item);
-        const row = rows.find(r => r.id === rowId);
-        const trIndex = rows.indexOf(row);
-        if (trIndex !== -1) {
-            const allTrs = document.querySelectorAll('#grid-body tr');
-            const tr = allTrs[trIndex];
-            if (tr) {
-                const unitTd = tr.querySelector('[data-col-id="col_unit"]');
-                if (unitTd) {
-                    const selectEl = unitTd.querySelector('select');
-                    if (selectEl && units.length > 0) {
-                        selectEl.innerHTML = '';
-                        units.forEach(u => {
-                            const opt = document.createElement('option');
-                            opt.value = u.name;
-                            opt.textContent = u.name;
-                            if (row && row.selectedUnit === u.name) opt.selected = true;
-                            selectEl.appendChild(opt);
-                        });
-                        console.log('[selectRowItem] Unit dropdown updated for', item.name, ':', units.map(u => u.name));
-                    }
-                }
-            }
-        }
-    }
-
-    // Auto-focus quantity column on the selected row
+    // Second render after 200ms - AFTER all blur/hide handlers have fired (they use 150ms timeout)
+    // This ensures the units are ALWAYS visible
     setTimeout(() => {
+        renderGrid();
+        
+        // Force-focus quantity input
         const trIndex = rows.findIndex(r => r.id === rowId);
         if (trIndex !== -1) {
             const tr = document.querySelectorAll('#grid-body tr')[trIndex];
@@ -1608,7 +1588,7 @@ function selectRowItem(rowId, itemId, isMobile = false) {
                 }
             }
         }
-    }, 50);
+    }, 200);
 }
 
 function showItemDropdown(rowId, isMobile = false) {
