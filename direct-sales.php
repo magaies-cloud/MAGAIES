@@ -33,6 +33,22 @@ try {
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
 <script>
+// CRITICAL: Unregister ALL Service Workers and clear ALL caches immediately
+// This runs BEFORE any other JS to ensure fresh files
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.getRegistrations().then(function(regs) {
+        regs.forEach(function(reg) { reg.unregister(); });
+        if (regs.length > 0) console.log('[SW] Unregistered ' + regs.length + ' service workers');
+    });
+}
+if (typeof caches !== 'undefined') {
+    caches.keys().then(function(names) {
+        names.forEach(function(name) { caches.delete(name); });
+        if (names.length > 0) console.log('[Cache] Cleared ' + names.length + ' caches');
+    });
+}
+</script>
+<script>
 window._PRELOADED_UNITS = <?= $preloadedUnitsJson ?: '[]' ?>;
 window._PRELOADED_ITEMS = <?= $preloadedItemsJson ?: '[]' ?>;
 try {
