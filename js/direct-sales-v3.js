@@ -2048,7 +2048,6 @@ function renderGrid() {
         const calcs = getRowCalcs(row);
 
         const unitsList = extractItemUnits(item);
-        if (item) console.log('[renderGrid] Row', idx+1, item.name, '→ units:', unitsList.map(u=>u.name));
         let itemUnitsHtml = '';
         if (unitsList && unitsList.length > 0) {
             itemUnitsHtml = unitsList.map(u => `<option value="${u.name}" ${row.selectedUnit === u.name ? 'selected' : ''}>${u.name}</option>`).join('');
@@ -2223,6 +2222,29 @@ function renderGrid() {
     if (typeof applyGridSettings === 'function') {
         applyGridSettings();
     }
+
+    // FINAL PASS: Force-populate all unit selects after DOM reordering
+    // This guarantees units are always visible after any grid rebuild
+    const allGridTrs = document.querySelectorAll('#grid-body tr');
+    rows.forEach((row, idx) => {
+        if (!row.itemId) return;
+        const item = ITEMS.find(i => String(i.id) === String(row.itemId));
+        if (!item) return;
+        const units = extractItemUnits(item);
+        if (!units || units.length === 0) return;
+        const tr = allGridTrs[idx];
+        if (!tr) return;
+        const unitTd = tr.querySelector('[data-col-id="col_unit"]');
+        if (!unitTd) return;
+        const sel = unitTd.querySelector('select');
+        if (!sel) return;
+        // Only update if current options don't match
+        if (sel.options.length !== units.length || (sel.options.length > 0 && sel.options[0].value === '—')) {
+            sel.innerHTML = units.map(u => 
+                `<option value="${u.name}" ${row.selectedUnit === u.name ? 'selected' : ''}>${u.name}</option>`
+            ).join('');
+        }
+    });
 }
 
 // ════════════════════════════════════════
