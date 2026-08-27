@@ -1520,12 +1520,8 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
             const div = document.createElement('div');
             div.className = 'custom-dropdown-item' + (idx === 0 ? ' active' : '');
             div.setAttribute('data-item-id', existing.id);
-            
-            const uList = extractItemUnits(existing);
-            const uText = uList.map(u => u.name).join(' | ');
 
             let displayText = `<strong>${existing.name}</strong>`;
-            if (uText) displayText += ` <span style="font-size:0.75rem; color:#38bdf8; margin-right:6px;">[${uText}]</span>`;
             if (existing.barcode) displayText += ` <span style="font-size:0.8rem; color:#888;">[${existing.barcode}]</span>`;
             
             div.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
@@ -1636,7 +1632,7 @@ function hideItemDropdownDelayed(rowId, isMobile = false) {
             if (row && row.itemId) {
                 const item = ITEMS.find(i => String(i.id) === String(row.itemId));
                 if (item) {
-                    searchEl.value = isMobile ? `${item.name} — ${item.unit}` : item.name;
+                    searchEl.value = item.name;
                 }
             } else {
                 searchEl.value = '';
