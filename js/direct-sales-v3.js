@@ -2191,7 +2191,7 @@ function renderGrid() {
             </div>
             <div class="m-card-grid">
                 <div class="ctrl-group">
-                    <label class="label">الوحدة</label>
+                    <label class="label">الوحدات</label>
                     <select class="ctrl-input" onchange="updateRow(${row.id},'selectedUnit',this.value); renderGrid();" tabindex="-1">
                         ${itemUnitsHtml}
                     </select>

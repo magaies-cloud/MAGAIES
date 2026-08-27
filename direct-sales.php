@@ -2745,7 +2745,7 @@ try {
                             <tr style="background: rgba(15, 23, 42, 0.8); border-bottom: 2px solid rgba(56, 189, 248, 0.6);">
                                 <th data-col-id="col_num" class="th-num" style="width: 3%;">#</th>
                                 <th data-col-id="col_item" class="th-item" style="width: 18%;">الصنف</th>
-                                <th data-col-id="col_unit" class="th-unit" style="width: 7%;">الوحدة</th>
+                                <th data-col-id="col_unit" class="th-unit" style="width: 7%;">الوحدات</th>
                                 <th data-col-id="col_factor" class="th-factor" style="width: 5%;">التعادل</th>
                                 <th data-col-id="col_qty" class="th-qty" style="width: 7%;">الكمية</th>
                                 <th data-col-id="col_price" class="th-price" style="width: 8%;">السعر</th>
@@ -4219,7 +4219,7 @@ try {
         },
         {
             "id": "col_unit",
-            "name": "الوحدة",
+            "name": "الوحدات",
             "visible": true,
             "width": "129px",
             "align": "center",

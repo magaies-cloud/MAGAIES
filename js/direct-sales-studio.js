@@ -11,7 +11,7 @@
 const baseColumns = [
     { idx: 0, field: 'col0', defaultLabel: '#', isNum: false },
     { idx: 1, field: 'col1', defaultLabel: 'الصنف', isNum: false },
-    { idx: 2, field: 'col2', defaultLabel: 'الوحدة', isNum: false },
+    { idx: 2, field: 'col2', defaultLabel: 'الوحدات', isNum: false },
     { idx: 3, field: 'col3', defaultLabel: 'الكمية', isNum: true },
     { idx: 4, field: 'col4', defaultLabel: 'السعر', isNum: true },
     { idx: 5, field: 'col5', defaultLabel: 'العدد', isNum: true },
