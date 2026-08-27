@@ -1516,15 +1516,16 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
         }
 
         listEl.innerHTML = '';
-        finalMatches.slice(0, 50).forEach(existing => {
+        finalMatches.slice(0, 50).forEach((existing, idx) => {
             const div = document.createElement('div');
-            div.className = 'custom-dropdown-item';
+            div.className = 'custom-dropdown-item' + (idx === 0 ? ' active' : '');
+            div.setAttribute('data-item-id', existing.id);
             
             const uList = extractItemUnits(existing);
             const uText = uList.map(u => u.name).join(' | ');
 
             let displayText = `<strong>${existing.name}</strong>`;
-            
+            if (uText) displayText += ` <span style="font-size:0.75rem; color:#38bdf8; margin-right:6px;">[${uText}]</span>`;
             if (existing.barcode) displayText += ` <span style="font-size:0.8rem; color:#888;">[${existing.barcode}]</span>`;
             
             div.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
@@ -1563,37 +1564,21 @@ function selectRowItem(rowId, itemId, isMobile = false) {
         searchInput.blur();
     }
 
+    // Ensure item exists in ITEMS
+    let item = ITEMS.find(i => String(i.id) === String(itemId));
+    if (!item) {
+        try {
+            const raw = (window._PRELOADED_ITEMS || JSON.parse(localStorage.getItem('erp_items_v1')) || []).find(i => String(i.id) === String(itemId));
+            if (raw) {
+                item = raw;
+                item.unitsArray = extractItemUnits(item);
+                ITEMS.push(item);
+            }
+        } catch(e) {}
+    }
+
     updateRow(rowId, 'itemId', itemId);
     renderGrid();
-
-    // DIRECT DOM UPDATE: Immediately populate unit select after renderGrid
-    const item = ITEMS.find(i => String(i.id) === String(itemId));
-    if (item) {
-        const units = extractItemUnits(item);
-        const row = rows.find(r => r.id === rowId);
-        const trIndex = rows.indexOf(row);
-        if (trIndex !== -1) {
-            const allTrs = document.querySelectorAll('#grid-body tr');
-            const tr = allTrs[trIndex];
-            if (tr) {
-                const unitTd = tr.querySelector('[data-col-id="col_unit"]');
-                if (unitTd) {
-                    const selectEl = unitTd.querySelector('select');
-                    if (selectEl && units.length > 0) {
-                        selectEl.innerHTML = '';
-                        units.forEach(u => {
-                            const opt = document.createElement('option');
-                            opt.value = u.name;
-                            opt.textContent = u.name;
-                            if (row && row.selectedUnit === u.name) opt.selected = true;
-                            selectEl.appendChild(opt);
-                        });
-                        console.log('[selectRowItem] Unit dropdown updated for', item.name, ':', units.map(u => u.name));
-                    }
-                }
-            }
-        }
-    }
 
     // Auto-focus quantity column on the selected row
     setTimeout(() => {
@@ -1625,7 +1610,7 @@ function hideItemDropdownDelayed(rowId, isMobile = false) {
     setTimeout(() => {
         const prefix = isMobile ? 'm-' : '';
         const listEl = document.getElementById(`${prefix}item-dropdown-list-${rowId}`);
-        if(listEl) { 
+        if (listEl) { 
             listEl.classList.remove('show'); 
             listEl.style.display = 'none'; 
         }
@@ -1633,6 +1618,21 @@ function hideItemDropdownDelayed(rowId, isMobile = false) {
         const row = rows.find(r => r.id === rowId);
         const searchEl = document.getElementById(`${prefix}item-search-${rowId}`);
         if (searchEl) {
+            const val = searchEl.value.trim().toLowerCase();
+            // If row has no itemId selected but user typed or scanned something, auto-select best match
+            if ((!row || !row.itemId) && val !== '') {
+                const exactItem = ITEMS.find(i => (i.name && i.name.toLowerCase() === val) || (i.barcode && i.barcode.toLowerCase() === val));
+                if (exactItem) {
+                    selectRowItem(rowId, exactItem.id, isMobile);
+                    return;
+                }
+                const partialItem = ITEMS.find(i => i.name && i.name.toLowerCase().includes(val));
+                if (partialItem) {
+                    selectRowItem(rowId, partialItem.id, isMobile);
+                    return;
+                }
+            }
+
             if (row && row.itemId) {
                 const item = ITEMS.find(i => String(i.id) === String(row.itemId));
                 if (item) {
@@ -1642,11 +1642,10 @@ function hideItemDropdownDelayed(rowId, isMobile = false) {
                 searchEl.value = '';
             }
         }
-    }, 150);
+    }, 200);
 }
 
 function filterItemDropdown(rowId, isMobile = false) {
-    updateRow(rowId, 'itemId', '');
     const prefix = isMobile ? 'm-' : '';
     const searchEl = document.getElementById(`${prefix}item-search-${rowId}`);
     renderItemDropdown(rowId, isMobile, searchEl.value);
@@ -1654,6 +1653,49 @@ function filterItemDropdown(rowId, isMobile = false) {
     if (listEl) {
         listEl.style.display = 'block';
         listEl.classList.add('show');
+    }
+}
+
+function handleItemSearchKeydown(event, rowId, isMobile = false) {
+    const prefix = isMobile ? 'm-' : '';
+    const listEl = document.getElementById(`${prefix}item-dropdown-list-${rowId}`);
+    if (!listEl || listEl.style.display === 'none') {
+        if (event.key === 'ArrowDown' || event.key === 'Enter') {
+            showItemDropdown(rowId, isMobile);
+            event.preventDefault();
+        }
+        return;
+    }
+
+    const items = Array.from(listEl.querySelectorAll('.custom-dropdown-item'));
+    if (items.length === 0) return;
+
+    let activeIdx = items.findIndex(el => el.classList.contains('active'));
+
+    if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        if (activeIdx !== -1) items[activeIdx].classList.remove('active');
+        activeIdx = (activeIdx + 1) % items.length;
+        items[activeIdx].classList.add('active');
+        items[activeIdx].scrollIntoView({ block: 'nearest' });
+    } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        if (activeIdx !== -1) items[activeIdx].classList.remove('active');
+        activeIdx = (activeIdx - 1 + items.length) % items.length;
+        items[activeIdx].classList.add('active');
+        items[activeIdx].scrollIntoView({ block: 'nearest' });
+    } else if (event.key === 'Enter' || event.key === 'Tab') {
+        event.preventDefault();
+        const selectedEl = (activeIdx !== -1) ? items[activeIdx] : items[0];
+        if (selectedEl) {
+            const itemId = selectedEl.getAttribute('data-item-id');
+            if (itemId) {
+                selectRowItem(rowId, itemId, isMobile);
+            }
+        }
+    } else if (event.key === 'Escape') {
+        listEl.style.display = 'none';
+        listEl.classList.remove('show');
     }
 }
 
