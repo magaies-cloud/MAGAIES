@@ -1576,6 +1576,29 @@ function selectRowItem(rowId, itemId, isMobile = false) {
     updateRow(rowId, 'itemId', itemId);
     renderGrid();
 
+    // DIRECT SYNCHRONOUS UPDATE: Immediately guarantee unit select is populated for this row
+    if (item) {
+        const units = extractItemUnits(item);
+        const row = rows.find(r => r.id === rowId);
+        const trIndex = rows.findIndex(r => r.id === rowId);
+        if (trIndex !== -1 && units.length > 0) {
+            const allTrs = document.querySelectorAll('#grid-body tr');
+            const tr = allTrs[trIndex];
+            if (tr) {
+                const unitTd = tr.querySelector('[data-col-id="col_unit"]');
+                if (unitTd) {
+                    const sel = unitTd.querySelector('select');
+                    if (sel) {
+                        sel.innerHTML = units.map(u => 
+                            `<option value="${u.name}" ${row && row.selectedUnit === u.name ? 'selected' : ''}>${u.name}</option>`
+                        ).join('');
+                        if (row && row.selectedUnit) sel.value = row.selectedUnit;
+                    }
+                }
+            }
+        }
+    }
+
     // Auto-focus quantity column on the selected row
     setTimeout(() => {
         const trIndex = rows.findIndex(r => r.id === rowId);
@@ -2276,12 +2299,10 @@ function renderGrid() {
         if (!unitTd) return;
         const sel = unitTd.querySelector('select');
         if (!sel) return;
-        // Only update if current options don't match
-        if (sel.options.length !== units.length || (sel.options.length > 0 && sel.options[0].value === '—')) {
-            sel.innerHTML = units.map(u => 
-                `<option value="${u.name}" ${row.selectedUnit === u.name ? 'selected' : ''}>${u.name}</option>`
-            ).join('');
-        }
+        sel.innerHTML = units.map(u => 
+            `<option value="${u.name}" ${row.selectedUnit === u.name ? 'selected' : ''}>${u.name}</option>`
+        ).join('');
+        if (row.selectedUnit) sel.value = row.selectedUnit;
     });
 }
 
