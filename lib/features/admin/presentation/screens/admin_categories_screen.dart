@@ -18,6 +18,7 @@ class AdminCategoriesScreen extends ConsumerStatefulWidget {
 class _AdminCategoriesScreenState extends ConsumerState<AdminCategoriesScreen> {
   String _searchQuery = '';
   int _selectedSegment = 0;
+  bool _isGridView = true;
 
   final Color _primaryBlue = const Color(0xFF1E40AF);
   final Color _darkSlate = const Color(0xFF0F172A);
@@ -820,6 +821,234 @@ class _AdminCategoriesScreenState extends ConsumerState<AdminCategoriesScreen> {
               child: Icon(Icons.delete_outline, size: 18, color: Colors.red.shade400),
             ),
           ),
+        ],
+      ),
+    );
+  }
+
+  
+  Widget _buildViewToggle(bool isRtl) {
+    return Container(
+      decoration: BoxDecoration(
+        color: Colors.white,
+        borderRadius: BorderRadius.circular(12),
+        border: Border.all(color: Colors.grey.shade300),
+      ),
+      child: Row(
+        mainAxisSize: MainAxisSize.min,
+        children: [
+          InkWell(
+            onTap: () => setState(() => _isGridView = false),
+            borderRadius: BorderRadius.horizontal(
+              left: isRtl ? Radius.zero : const Radius.circular(12),
+              right: isRtl ? const Radius.circular(12) : Radius.zero,
+            ),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: !_isGridView ? Colors.blue.shade50 : Colors.transparent,
+                borderRadius: BorderRadius.horizontal(
+                  left: isRtl ? Radius.zero : const Radius.circular(12),
+                  right: isRtl ? const Radius.circular(12) : Radius.zero,
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.list_rounded, color: !_isGridView ? Colors.blue.shade700 : Colors.grey.shade600, size: 20),
+                  const SizedBox(width: 8),
+                  Text('صفـوف', style: TextStyle(fontWeight: FontWeight.bold, color: !_isGridView ? Colors.blue.shade700 : Colors.grey.shade600)),
+                ],
+              ),
+            ),
+          ),
+          Container(width: 1, height: 24, color: Colors.grey.shade300),
+          InkWell(
+            onTap: () => setState(() => _isGridView = true),
+            borderRadius: BorderRadius.horizontal(
+              left: isRtl ? const Radius.circular(12) : Radius.zero,
+              right: isRtl ? Radius.zero : const Radius.circular(12),
+            ),
+            child: Container(
+              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+              decoration: BoxDecoration(
+                color: _isGridView ? Colors.blue.shade50 : Colors.transparent,
+                borderRadius: BorderRadius.horizontal(
+                  left: isRtl ? const Radius.circular(12) : Radius.zero,
+                  right: isRtl ? Radius.zero : const Radius.circular(12),
+                ),
+              ),
+              child: Row(
+                children: [
+                  Icon(Icons.grid_view_rounded, color: _isGridView ? Colors.blue.shade700 : Colors.grey.shade600, size: 20),
+                  const SizedBox(width: 8),
+                  Text('أيقونات', style: TextStyle(fontWeight: FontWeight.bold, color: _isGridView ? Colors.blue.shade700 : Colors.grey.shade600)),
+                ],
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+  }
+
+  Widget _buildCategoryGridCard(BuildContext context, CategoryModel category, bool isRtl) {
+    return InkWell(
+      onTap: () {
+        if (category.subCategories.isNotEmpty) {
+          _showSubCategoriesDialog(context, category, isRtl);
+        }
+      },
+      borderRadius: BorderRadius.circular(16),
+      child: Container(
+        decoration: BoxDecoration(
+          color: Colors.white,
+          borderRadius: BorderRadius.circular(16),
+          boxShadow: [BoxShadow(color: Colors.black.withOpacity(0.04), blurRadius: 16, offset: const Offset(0, 4))],
+          border: Border.all(color: Colors.grey.shade100),
+        ),
+        child: Column(
+          children: [
+            Align(
+              alignment: isRtl ? Alignment.topLeft : Alignment.topRight,
+              child: PopupMenuButton<String>(
+                icon: const Icon(Icons.more_vert, color: Colors.grey),
+                onSelected: (val) {
+                  if (val == 'edit') _showEditCategoryDialog(context, category, isRtl);
+                  if (val == 'delete') _confirmDeleteCategory(context, category, isRtl);
+                },
+                itemBuilder: (context) => [
+                  PopupMenuItem(value: 'edit', child: Row(children: [const Icon(Icons.edit_outlined, color: Colors.blue), const SizedBox(width: 8), Text(isRtl ? 'تعديل' : 'Edit')])),
+                  PopupMenuItem(value: 'delete', child: Row(children: [Icon(Icons.delete_outline, color: Colors.red.shade600), const SizedBox(width: 8), Text(isRtl ? 'حذف' : 'Delete')])),
+                ],
+              ),
+            ),
+            Container(
+              width: 80,
+              height: 80,
+              decoration: BoxDecoration(color: const Color(0xFFF8FAFC), borderRadius: BorderRadius.circular(16), border: Border.all(color: Colors.grey.shade200)),
+              child: category.imageUrl != null && category.imageUrl!.isNotEmpty
+                  ? ClipRRect(
+                      borderRadius: BorderRadius.circular(16),
+                      child: Image.network(category.imageUrl!, fit: BoxFit.cover, loadingBuilder: (ctx, child, progress) {
+                        if (progress == null) return child;
+                        return const Center(child: SizedBox(width: 24, height: 24, child: CircularProgressIndicator(strokeWidth: 2)));
+                      }, errorBuilder: (c, e, s) => Icon(Icons.image_not_supported, color: Colors.grey.shade400, size: 32)),
+                    )
+                  : const Icon(Icons.category, color: Colors.blue, size: 32),
+            ),
+            const SizedBox(height: 12),
+            Padding(
+              padding: const EdgeInsets.symmetric(horizontal: 8.0),
+              child: Text(isRtl ? category.nameAr : category.name, textAlign: TextAlign.center, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 16)),
+            ),
+            const SizedBox(height: 8),
+            Text(isRtl ? '${category.subCategories.length} أقسام فرعية' : '${category.subCategories.length} sub-categories', style: TextStyle(color: Colors.grey.shade500, fontSize: 13, fontWeight: FontWeight.w500)),
+          ],
+        ),
+      ),
+    );
+  }
+
+  void _promptToDistributeProducts(BuildContext context, String newSubCatId, String newSubCatName, List<Map<String, dynamic>> products, bool isRtl) {
+    List<String> selectedProductIds = products.map((p) => p['id'].toString()).toList();
+    
+    showDialog(
+      context: context,
+      barrierDismissible: false,
+      builder: (ctx) => StatefulBuilder(
+        builder: (context, setDlgState) {
+          return AlertDialog(
+            title: Text(isRtl ? 'توزيع المنتجات غير المصنفة' : 'Distribute Uncategorized Products', style: const TextStyle(fontWeight: FontWeight.bold, fontSize: 18)),
+            content: SizedBox(
+              width: 500,
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                children: [
+                  Text(
+                    isRtl 
+                      ? 'لقد قمت بإنشاء قسم فرعي جديد (' + newSubCatName + '). وجدنا منتجات غير مصنفة في القسم الرئيسي. هل تريد نقلها إلى هذا القسم الجديد؟'
+                      : 'You created a new subcategory. We found unassigned products in the main category. Would you like to move them?',
+                  ),
+                  const SizedBox(height: 16),
+                  Flexible(
+                    child: ListView.builder(
+                      shrinkWrap: true,
+                      itemCount: products.length,
+                      itemBuilder: (c, i) {
+                        final p = products[i];
+                        final pId = p['id'].toString();
+                        return CheckboxListTile(
+                          value: selectedProductIds.contains(pId),
+                          title: Text(isRtl ? (p['name_ar'] ?? p['name']) : p['name']),
+                          onChanged: (val) {
+                            setDlgState(() {
+                              if (val == true) {
+                                selectedProductIds.add(pId);
+                              } else {
+                                selectedProductIds.remove(pId);
+                              }
+                            });
+                          }
+                        );
+                      }
+                    ),
+                  )
+                ]
+              )
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(ctx),
+                child: Text(isRtl ? 'تخطي' : 'Skip'),
+              ),
+              FilledButton(
+                onPressed: selectedProductIds.isEmpty ? null : () async {
+                  try {
+                    await Supabase.instance.client
+                      .from('products')
+                      .update({'subcategory_id': newSubCatId})
+                      .inFilter('id', selectedProductIds);
+                    if (context.mounted) {
+                      Navigator.pop(ctx);
+                      _showSnackBar(context, isRtl ? 'تم تحديث المنتجات بنجاح' : 'Products updated', false);
+                    }
+                  } catch(e) {
+                     if (context.mounted) _showSnackBar(context, 'Error: ' + e.toString(), true);
+                  }
+                },
+                child: Text(isRtl ? 'نقل المحدد' : 'Move Selected'),
+              )
+            ]
+          );
+        }
+      )
+    );
+  }
+  
+  void _showSubCategoriesDialog(BuildContext context, CategoryModel category, bool isRtl) {
+    showDialog(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        backgroundColor: const Color(0xFFF8FAFC),
+        title: Text(isRtl ? category.nameAr : category.name, style: const TextStyle(fontWeight: FontWeight.w800, fontSize: 20)),
+        content: SizedBox(
+          width: 500,
+          child: category.subCategories.isEmpty
+              ? Padding(
+                  padding: const EdgeInsets.all(24.0),
+                  child: Text(isRtl ? 'لا توجد أقسام فرعية' : 'No sub-categories', textAlign: TextAlign.center, style: TextStyle(color: Colors.grey.shade500, fontSize: 16)),
+                )
+              : SingleChildScrollView(
+                  child: Wrap(
+                    spacing: 12,
+                    runSpacing: 12,
+                    alignment: WrapAlignment.center,
+                    children: category.subCategories.map((sub) => _buildSubCategoryChip(context, sub, isRtl)).toList(),
+                  ),
+                ),
+        ),
+        actions: [
+          TextButton(onPressed: () => Navigator.pop(ctx), child: Text(isRtl ? 'إغلاق' : 'Close', style: const TextStyle(fontWeight: FontWeight.bold))),
         ],
       ),
     );

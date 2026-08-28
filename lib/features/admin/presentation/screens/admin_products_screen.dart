@@ -372,6 +372,7 @@ class _AdminProductsScreenState extends ConsumerState<AdminProductsScreen> {
                           if (val != null) {
                             setDlgState(() {
                               selectedCatId = val;
+                              _selectedSubCatId = null;
                               final cat = categories.firstWhere((c) => c.id == val, orElse: () => selectedCat);
                               isExclusive = _selectedSegment == 0 || cat.isExclusiveToMagaiees;
                             });
@@ -379,14 +380,37 @@ class _AdminProductsScreenState extends ConsumerState<AdminProductsScreen> {
                         },
                       ),
                       const SizedBox(height: 16),
-                      TextField(
-                        controller: brandCtrl,
-                        decoration: InputDecoration(
-                          labelText: 'الماركة / القسم الفرعي',
-                          border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
-                          prefixIcon: const Icon(Icons.branding_watermark, color: _kDarkNavy),
-                        ),
+                      Builder(
+                        builder: (ctx) {
+                          final cat = categories.firstWhere((c) => c.id == selectedCatId, orElse: () => categories.first);
+                          if (cat.subCategories.isEmpty) {
+                            return const SizedBox.shrink();
+                          }
+                          return Padding(
+                            padding: const EdgeInsets.only(bottom: 16.0),
+                            child: DropdownButtonFormField<String>(
+                              value: _selectedSubCatId,
+                              decoration: InputDecoration(
+                                labelText: 'القسم الفرعي',
+                                border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
+                                prefixIcon: const Icon(Icons.subdirectory_arrow_right, color: _kDarkNavy),
+                              ),
+                              items: cat.subCategories.map((sub) {
+                                return DropdownMenuItem(
+                                  value: sub.id.toString(),
+                                  child: Text(sub.nameAr),
+                                );
+                              }).toList(),
+                              onChanged: (val) {
+                                setDlgState(() {
+                                  _selectedSubCatId = val;
+                                });
+                              },
+                            ),
+                          );
+                        }
                       ),
+                      TextField(
                       const SizedBox(height: 16),
                       TextField(
                         controller: nameArCtrl,
@@ -483,6 +507,10 @@ class _AdminProductsScreenState extends ConsumerState<AdminProductsScreen> {
                       return;
                     }
 
+                    final selectedSubCat = _selectedSubCatId != null 
+                        ? selectedCat.subCategories.cast<SubCategoryModel?>().firstWhere((s) => s?.id.toString() == _selectedSubCatId, orElse: () => null)
+                        : null;
+
                     final newProduct = ProductCardModel(
                       id: 'custom_prod_${DateTime.now().millisecondsSinceEpoch}',
                       name: nameEnCtrl.text.trim().isNotEmpty ? nameEnCtrl.text.trim() : nameAr,
@@ -490,9 +518,9 @@ class _AdminProductsScreenState extends ConsumerState<AdminProductsScreen> {
                       categoryId: selectedCat.id,
                       categoryName: selectedCat.name,
                       categoryNameAr: selectedCat.nameAr,
-                      subCategoryId: 'sub_custom',
-                      subCategoryName: brandCtrl.text.trim(),
-                      subCategoryNameAr: brandCtrl.text.trim().isNotEmpty ? brandCtrl.text.trim() : 'عام',
+                      subCategoryId: _selectedSubCatId,
+                      subCategoryName: selectedSubCat?.name,
+                      subCategoryNameAr: selectedSubCat?.nameAr,
                       pricePerTon: usdPrice * _usdRate,
                       priceInUsd: usdPrice,
                       unitAr: 'ج.س/$selectedUnit',
