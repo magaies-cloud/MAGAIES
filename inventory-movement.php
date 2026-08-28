@@ -391,7 +391,8 @@
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>    <script src="js/universal-report-studio.js?v=<?php echo time(); ?>"></script>
+    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
+    <script src="js/universal-report-studio.js?v=<?php echo file_exists('js/universal-report-studio.js') ? filemtime('js/universal-report-studio.js') : '1'; ?>"></script>
     <script>
         const ITEMS_STORAGE_KEY = 'erp_items_v1';
         const INVENTORY_STORAGE_KEY = 'erp_inventory_v1';

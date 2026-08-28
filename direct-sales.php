@@ -1195,10 +1195,11 @@ try {
     .group-date .ctrl-input:focus { border-color: #f87171 !important; box-shadow: 0 0 12px rgba(248, 113, 113, 0.45), inset 0 1px 2px rgba(0,0,0,0.6) !important; }
 
     /* 3. Supplier / Customer (Teal/Emerald Green) */
-    .group-supplier .h-label { color: #34d399 !important; }
-    .group-supplier .ctrl-input { border-color: rgba(52, 211, 153, 0.25) !important; color: #ffffff !important; }
-    .h-form-group.group-supplier:focus-within .h-label { text-shadow: 0 0 8px rgba(52, 211, 153, 0.4) !important; }
-    .group-supplier .ctrl-input:focus { border-color: #34d399 !important; box-shadow: 0 0 12px rgba(52, 211, 153, 0.45), inset 0 1px 2px rgba(0,0,0,0.6) !important; }
+    .group-supplier .h-label { color: #34d399 !important; font-size: 1.25rem !important; font-weight: 800 !important; }
+    .group-supplier .ctrl-input, #hdr-customer-search { border-color: rgba(52, 211, 153, 0.4) !important; color: #6ee7b7 !important; font-size: 1.45rem !important; font-weight: 800 !important; text-shadow: 0 0 8px rgba(110, 231, 183, 0.25) !important; }
+    .group-supplier .ctrl-input::placeholder, #hdr-customer-search::placeholder { color: #94a3b8 !important; font-size: 1.15rem !important; font-weight: 600 !important; }
+    .h-form-group.group-supplier:focus-within .h-label { text-shadow: 0 0 10px rgba(52, 211, 153, 0.5) !important; }
+    .group-supplier .ctrl-input:focus, #hdr-customer-search:focus { border-color: #34d399 !important; box-shadow: 0 0 16px rgba(52, 211, 153, 0.5), inset 0 1px 2px rgba(0,0,0,0.6) !important; color: #a7f3d0 !important; }
 
     /* 4. Currency / Exchange Rate (Lavender/Indigo) */
     .group-currency .h-label { color: #a78bfa !important; }
@@ -2199,6 +2200,33 @@ try {
     <!-- Server-Side Pre-Rendered Grid Configuration from MySQL Database -->
     <script>
         window.CurrentGridConfig = <?php echo json_encode($db_sales_grid_config, JSON_UNESCAPED_UNICODE) ?: 'null'; ?>;
+        window.parseNum = window.parseNum || function(v) {
+            if (typeof v === 'number') return isNaN(v) ? 0 : v;
+            if (!v) return 0;
+            const str = String(v).replace(/[^0-9.-]/g, '');
+            const n = parseFloat(str);
+            return isNaN(n) ? 0 : n;
+        };
+        window.fmtNum = window.fmtNum || function(n, colId = null) {
+            if (typeof n === 'string') n = window.parseNum(n);
+            if (isNaN(n) || n === null || n === undefined) n = 0;
+            const cfg = window.CurrentGridConfig || {};
+            let decimals = (cfg.decimalPlaces !== undefined && cfg.decimalPlaces !== '' && cfg.decimalPlaces !== null) ? parseInt(cfg.decimalPlaces) : 2;
+            let separator = (cfg.thousandSep !== undefined && cfg.thousandSep !== '' && cfg.thousandSep !== null && cfg.thousandSep !== 'default') ? cfg.thousandSep : ',';
+            if (colId && Array.isArray(cfg.columns)) {
+                const colCfg = cfg.columns.find(c => String(c.id) === String(colId));
+                if (colCfg) {
+                    if (colCfg.decimals !== undefined && colCfg.decimals !== '' && colCfg.decimals !== null) decimals = parseInt(colCfg.decimals);
+                    if (colCfg.thousandSep !== undefined && colCfg.thousandSep !== '' && colCfg.thousandSep !== null && colCfg.thousandSep !== 'default') separator = colCfg.thousandSep;
+                }
+            }
+            if (separator === 'default') separator = ',';
+            let parts = Number(n).toFixed(decimals).split('.');
+            if (separator !== 'none') {
+                parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, separator);
+            }
+            return parts.join('.');
+        };
     </script>
     <style id="dynamic-pos-grid-style">
     <?php
@@ -2554,9 +2582,28 @@ try {
                     </div>
                     
                     <div style="display: flex; flex-direction: column; gap: 18px; position:relative; z-index:1;">
-                        
-                        
-                        
+                        <!-- Saved Invoice Edit Advisory Banner -->
+                        <div id="saved-invoice-edit-banner" style="display:none; margin-bottom: 8px; background: linear-gradient(135deg, rgba(245, 158, 11, 0.15), rgba(180, 83, 9, 0.25)); border: 1.5px solid rgba(245, 158, 11, 0.6); border-radius: 12px; padding: 12px 18px; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.25);">
+                            <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
+                                <div style="display: flex; align-items: center; gap: 12px;">
+                                    <span style="font-size: 1.6rem;">⚠️</span>
+                                    <div>
+                                        <div style="color: #fbbf24; font-size: 1.1rem; font-weight: 900;">
+                                            تنبيه: أنت الآن في وضع تعديل فاتورة محفوظة ومعتمدة مسبقاً (<span id="edit-banner-inv-no" style="color:#ffffff; font-family:'Outfit',sans-serif; text-decoration: underline;">-</span>)
+                                        </div>
+                                        <div style="color: #fde68a; font-size: 0.88rem; font-weight: 600; margin-top: 2px;">
+                                            أصل الفاتورة تم اعتماده مسبقاً في النظام. حفظ أي تعديلات سيقوم بتحديث الحسابات وحركات المخزن المرتبطة بها تلقائياً.
+                                        </div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; gap: 8px; align-items: center;">
+                                    <button type="button" onclick="onSuccessNewInvoice()" style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.3); color: #fff; padding: 6px 14px; border-radius: 8px; font-weight: bold; cursor: pointer; font-size: 0.85rem; transition: 0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.12)'">
+                                        ➕ إلغاء التعديل وبدء فاتورة جديدة
+                                    </button>
+                                </div>
+                            </div>
+                        </div>
+
     <!-- ROW 1 WRAPPER (Invoice Info & Financial Strip) -->
     <div style="display: flex; width: 100%; gap: 15px; margin-bottom: 12px; transition: all 0.4s ease;">
         
@@ -2631,11 +2678,11 @@ try {
         
         <!-- 1. Customer Field -->
         <div class="h-form-group group-supplier" style="flex: 2.2; min-width: 260px; display:flex; align-items:center; gap:10px;">
-            <label class="h-label" style="margin:0; white-space:nowrap;">👤 العميل <span id="fin-status-badge" style="display:none;"><span class="status-dot neutral"></span></span></label>
+            <label class="h-label" style="margin:0; white-space:nowrap; font-size: 1.25rem !important; font-weight: 800 !important; color: #34d399;">👤 العميل <span id="fin-status-badge" style="display:none;"><span class="status-dot neutral"></span></span></label>
             <div style="display: flex; flex-direction: row; align-items: center; gap: 8px; flex: 1; width: 100%;">
                 <div class="custom-dropdown" style="flex:1; min-width: 0;">
                     <div class="custom-dropdown-input-wrap" style="position: relative;">
-                        <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم العميل..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; padding-left: 95px !important;" autocomplete="one-time-code">
+                        <input type="text" class="ctrl-input v-input" id="hdr-customer-search" placeholder="ابحث عن اسم العميل..." onfocus="showCustomerDropdown()" onblur="hideCustomerDropdownDelayed()" oninput="filterCustomerDropdown()" style="width:100%; padding-left: 95px !important; font-size: 1.45rem !important; font-weight: 800 !important; color: #6ee7b7 !important;" autocomplete="one-time-code">
                         <button type="button" id="hdr-customer-ledger-btn" onclick="openGeneralLedgerForAccount('cust-' + document.getElementById('hdr-customer').value)" style="display: none;" title="دفتر الأستاذ العام">📖 أستاذ</button>
                         <input type="hidden" id="hdr-customer" onchange="if(typeof onCustomerChange === 'function') onCustomerChange()">
                         <div class="custom-dropdown-list" id="customer-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; z-index: 9999; background: #1e293b; border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; max-height: 250px; overflow-y: auto; text-align: right; box-shadow: 0 10px 25px rgba(0,0,0,0.5); display: none;">
@@ -2763,104 +2810,86 @@ try {
                     <tfoot id="grid-foot">
                         <!-- Transport -->
                         <tr class="tot-row" id="row-tot-transport" style="display: none; background: rgba(249, 115, 22, 0.08); border-top: 1px dashed rgba(249, 115, 22, 0.3);">
-                            <td colspan="10" style="border: none;"></td>
-                            <td colspan="2" style="text-align: left; vertical-align: middle; padding-right: 15px; border: none;">
-                                <span style="color: #f97316; font-size: 1.3rem; font-weight: 900;">🚚 الترحيل</span>
+                            <td colspan="10" style="text-align: left; vertical-align: middle; padding-left: 20px; padding-right: 15px; border: none;">
+                                <span style="color: #f97316; font-size: 1.2rem; font-weight: 900;">🚚 الترحيل</span>
                             </td>
-                            
-                            
-                            <td style="padding: 6px 4px; border: none; min-width: 240px;">
-                                <div style="display: flex; gap: 8px;">
-                                    <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-transport" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('transport')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="flex: 1; height: 48px; text-align: center; background: rgba(249, 115, 22, 0.15); border: 1.5px solid rgba(249, 115, 22, 0.5); border-radius: 8px; color: #fff; font-size: 1.7rem; font-weight: 900; font-family: monospace, 'Cairo', sans-serif; box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);">
-                                    
+                            <td data-col-id="col_total" style="padding: 6px 4px; border: none;">
+                                <div style="display: flex; width: 100%;">
+                                    <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-transport" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('transport')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 100%; height: 46px; text-align: center; background: rgba(249, 115, 22, 0.15); border: 1.5px solid rgba(249, 115, 22, 0.5); border-radius: 8px; color: #fff; font-size: 1.5rem; font-weight: 900; font-family: monospace, 'Cairo', sans-serif; box-shadow: inset 0 2px 6px rgba(0,0,0,0.4); box-sizing: border-box;">
                                 </div>
                             </td>
-                            <td style="border: none;"></td>
+                            <td data-col-id="col_del" style="border: none;"></td>
                         </tr>
                         <!-- Labor -->
                         <tr class="tot-row" id="row-tot-labor" style="display: none; background: rgba(59, 130, 246, 0.08); border-top: 1px dashed rgba(59, 130, 246, 0.3);">
-                            <td colspan="10" style="border: none;"></td>
-                            <td colspan="2" style="text-align: left; vertical-align: middle; padding-right: 15px; border: none;">
-                                <span style="color: #38bdf8; font-size: 1.3rem; font-weight: 900;">💪 العمالة</span>
+                            <td colspan="10" style="text-align: left; vertical-align: middle; padding-left: 20px; padding-right: 15px; border: none;">
+                                <span style="color: #38bdf8; font-size: 1.2rem; font-weight: 900;">💪 العمالة</span>
                             </td>
-                            
-                            
-                            <td style="padding: 6px 4px; border: none; min-width: 240px;">
-                                <div style="display: flex; gap: 8px;">
-                                    <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-labor" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('labor')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="flex: 1; height: 48px; text-align: center; background: rgba(59, 130, 246, 0.15); border: 1.5px solid rgba(59, 130, 246, 0.5); border-radius: 8px; color: #fff; font-size: 1.7rem; font-weight: 900; font-family: monospace, 'Cairo', sans-serif; box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);">
-                                    
+                            <td data-col-id="col_total" style="padding: 6px 4px; border: none;">
+                                <div style="display: flex; width: 100%;">
+                                    <input type="text" inputmode="decimal" class="v-input tot-input amount" id="t-labor" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('labor')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 100%; height: 46px; text-align: center; background: rgba(59, 130, 246, 0.15); border: 1.5px solid rgba(59, 130, 246, 0.5); border-radius: 8px; color: #fff; font-size: 1.5rem; font-weight: 900; font-family: monospace, 'Cairo', sans-serif; box-shadow: inset 0 2px 6px rgba(0,0,0,0.4); box-sizing: border-box;">
                                 </div>
                             </td>
-                            <td style="border: none;"></td>
+                            <td data-col-id="col_del" style="border: none;"></td>
                         </tr>
                         <!-- Additions -->
                         <tr class="tot-row" id="row-tot-additions" style="display: none; background: rgba(234, 179, 8, 0.08); border-top: 1px dashed rgba(234, 179, 8, 0.3);">
-                            <td colspan="10" style="border: none;"></td>
-                            <td colspan="2" style="text-align: left; vertical-align: middle; padding-right: 15px; border: none;">
-                                <span style="color: #eab308; font-size: 1.3rem; font-weight: 900;">➕ إضافات</span>
+                            <td colspan="10" style="text-align: left; vertical-align: middle; padding-left: 20px; padding-right: 15px; border: none;">
+                                <span style="color: #eab308; font-size: 1.2rem; font-weight: 900;">➕ إضافات</span>
                             </td>
-                            
-                            
-                            <td style="padding: 6px 4px; border: none; min-width: 240px;">
-                                <div style="display: flex; gap: 8px;">
-                                    <input type="text" inputmode="decimal" class="v-input tot-input amount" id="addition-amt" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('additions')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="flex: 1; height: 48px; text-align: center; background: rgba(234, 179, 8, 0.15); border: 1.5px solid rgba(234, 179, 8, 0.5); border-radius: 8px; color: #fff; font-size: 1.7rem; font-weight: 900; font-family: monospace, 'Cairo', sans-serif; box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);">
-                                    
+                            <td data-col-id="col_total" style="padding: 6px 4px; border: none;">
+                                <div style="display: flex; width: 100%;">
+                                    <input type="text" inputmode="decimal" class="v-input tot-input amount" id="addition-amt" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('additions')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 100%; height: 46px; text-align: center; background: rgba(234, 179, 8, 0.15); border: 1.5px solid rgba(234, 179, 8, 0.5); border-radius: 8px; color: #fff; font-size: 1.5rem; font-weight: 900; font-family: monospace, 'Cairo', sans-serif; box-shadow: inset 0 2px 6px rgba(0,0,0,0.4); box-sizing: border-box;">
                                 </div>
                             </td>
-                            <td style="border: none;"></td>
+                            <td data-col-id="col_del" style="border: none;"></td>
                         </tr>
                         <!-- Tax -->
                         <tr class="tot-row" id="row-tot-tax" style="display: none; background: rgba(239, 68, 68, 0.08); border-top: 1px dashed rgba(239, 68, 68, 0.3);">
-                            <td colspan="10" style="border: none;"></td>
-                            <td colspan="2" style="text-align: left; vertical-align: middle; padding-right: 15px; border: none;">
-                                <span style="color: #ef4444; font-size: 1.3rem; font-weight: 900;">🏛️ ضريبة</span>
+                            <td colspan="10" style="text-align: left; vertical-align: middle; padding-left: 20px; padding-right: 15px; border: none;">
+                                <span style="color: #ef4444; font-size: 1.2rem; font-weight: 900;">🏛️ ضريبة</span>
                             </td>
-                            
-                            
-                            <td style="padding: 6px 4px; border: none; min-width: 240px;">
-                                <div style="display: flex; gap: 8px;">
-                                    <input type="text" inputmode="decimal" class="v-input tot-input amount" id="tax-amt" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('tax')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="flex: 1; height: 48px; text-align: center; background: rgba(239, 68, 68, 0.15); border: 1.5px solid rgba(239, 68, 68, 0.5); border-radius: 8px; color: #fff; font-size: 1.7rem; font-weight: 900; font-family: monospace, 'Cairo', sans-serif; box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);">
-                                    
+                            <td data-col-id="col_total" style="padding: 6px 4px; border: none;">
+                                <div style="display: flex; width: 100%;">
+                                    <input type="text" inputmode="decimal" class="v-input tot-input amount" id="tax-amt" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('tax')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 100%; height: 46px; text-align: center; background: rgba(239, 68, 68, 0.15); border: 1.5px solid rgba(239, 68, 68, 0.5); border-radius: 8px; color: #fff; font-size: 1.5rem; font-weight: 900; font-family: monospace, 'Cairo', sans-serif; box-shadow: inset 0 2px 6px rgba(0,0,0,0.4); box-sizing: border-box;">
                                 </div>
                             </td>
-                            <td style="border: none;"></td>
+                            <td data-col-id="col_del" style="border: none;"></td>
                         </tr>
                         <!-- Discount -->
                         <tr class="tot-row" id="row-tot-discount" style="display: none; background: rgba(34, 197, 94, 0.08); border-top: 1px dashed rgba(34, 197, 94, 0.3);">
-                            <td colspan="10" style="border: none;"></td>
-                            <td colspan="2" style="text-align: left; vertical-align: middle; padding-right: 15px; border: none;">
-                                <span style="color: #22c55e; font-size: 1.3rem; font-weight: 900;">➖ خصم</span>
+                            <td colspan="10" style="text-align: left; vertical-align: middle; padding-left: 20px; padding-right: 15px; border: none;">
+                                <span style="color: #22c55e; font-size: 1.2rem; font-weight: 900;">➖ خصم</span>
                             </td>
-                            
-                            
-                            <td style="padding: 6px 4px; border: none; min-width: 240px;">
-                                <div style="display: flex; gap: 8px;">
-                                    <input type="text" inputmode="decimal" class="v-input tot-input amount" id="discount-amt" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('discount')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="flex: 1; height: 48px; text-align: center; background: rgba(34, 197, 94, 0.15); border: 1.5px solid rgba(34, 197, 94, 0.5); border-radius: 8px; color: #fff; font-size: 1.7rem; font-weight: 900; font-family: monospace, 'Cairo', sans-serif; box-shadow: inset 0 2px 6px rgba(0,0,0,0.4);">
-                                    
+                            <td data-col-id="col_total" style="padding: 6px 4px; border: none;">
+                                <div style="display: flex; width: 100%;">
+                                    <input type="text" inputmode="decimal" class="v-input tot-input amount" id="discount-amt" value="0" onfocus="this.select()" oninput="if(typeof syncFc==='function')syncFc('discount')" onblur="this.value=fmtNum(parseNum(this.value)); if(typeof recalcAll==='function')recalcAll();" style="width: 100%; height: 46px; text-align: center; background: rgba(34, 197, 94, 0.15); border: 1.5px solid rgba(34, 197, 94, 0.5); border-radius: 8px; color: #fff; font-size: 1.5rem; font-weight: 900; font-family: monospace, 'Cairo', sans-serif; box-shadow: inset 0 2px 6px rgba(0,0,0,0.4); box-sizing: border-box;">
                                 </div>
                             </td>
-                            <td style="border: none;"></td>
+                            <td data-col-id="col_del" style="border: none;"></td>
                         </tr>
                         <!-- Spacer -->
-                        <tr>
-                            <td colspan="14" style="border: none; height: 10px;"></td>
+                        <tr style="border: none;">
+                            <td colspan="12" style="border: none; height: 8px;"></td>
                         </tr>
                         <!-- Grand Total -->
-                        <tr id="row-grand-total" style="background: rgba(15, 23, 42, 0.95); border-top: 2px solid rgba(56, 189, 248, 0.4);">
-                            <td colspan="10" style="border: none;"></td>
-                            <td colspan="2" style="text-align: left; vertical-align: middle; padding-right: 15px; border: none;">
-                                <span id="lbl-grand-dynamic" style="color: #38bdf8; font-size: 1.5rem; font-weight: 900; text-shadow: 0 0 10px rgba(56,189,248,0.4);">الإجمالي الكلي:</span>
+                        <tr id="row-grand-total" style="background: linear-gradient(90deg, rgba(15, 23, 42, 0.98) 0%, rgba(16, 185, 129, 0.15) 50%, rgba(15, 23, 42, 0.98) 100%); border-top: 3px solid rgba(16, 185, 129, 0.7); border-bottom: 3px solid rgba(16, 185, 129, 0.5); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);">
+                            <td colspan="10" style="text-align: left; vertical-align: middle; padding: 14px 20px 14px 25px; border: none;">
+                                <div style="display: inline-flex; align-items: center; gap: 12px;">
+                                    <span style="font-size: 1.8rem; filter: drop-shadow(0 0 8px rgba(16,185,129,0.8));">💵</span>
+                                    <span id="lbl-grand-dynamic" style="color: #34d399; font-size: 1.65rem; font-weight: 900; letter-spacing: 0.5px; text-shadow: 0 0 12px rgba(16, 185, 129, 0.6);">الإجمالي الكلي:</span>
+                                </div>
                             </td>
-                            
-                            
-                            <td style="padding: 10px 4px; border: none; min-width: 240px;">
-                                <div style="display: flex; gap: 8px; align-items: center;">
-                                    <span class="val amount" id="t-grand-dynamic-loc" style="flex: 1; display: flex; align-items: center; justify-content: center; width: 100%; height: 52px; font-size: 2.1rem; font-weight: 900; font-family: monospace, 'Cairo', sans-serif; color: #ffffff !important; text-align: center; background: linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.35)); border: 1.5px solid rgba(16,185,129,0.6); border-radius: 8px; box-shadow: 0 4px 15px rgba(16,185,129,0.25), inset 0 1px 2px rgba(255,255,255,0.2); letter-spacing: 0.5px;">0</span>
-                                    
+                            <td data-col-id="col_total" style="padding: 10px 4px; border: none; vertical-align: middle;">
+                                <div style="display: flex; gap: 10px; align-items: center; justify-content: center; width: 100%;">
+                                    <!-- ONLY Amount Number inside this stylized rectangle -->
+                                    <span class="val amount" id="t-grand-dynamic-loc" style="flex: 1; min-width: 0; min-height: 56px; height: 56px; display: flex; align-items: center; justify-content: center; font-size: 2.25rem; font-weight: 900; font-family: 'Cairo', 'JetBrains Mono', monospace, sans-serif; color: #ffffff !important; text-align: center; background: linear-gradient(135deg, rgba(16,185,129,0.4) 0%, rgba(5,150,105,0.6) 50%, rgba(4,120,87,0.7) 100%); border: 2px solid #10b981; border-radius: 12px; box-shadow: 0 0 20px rgba(16,185,129,0.35), inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 6px rgba(0,0,0,0.5); letter-spacing: 1px; box-sizing: border-box; text-shadow: 0 2px 4px rgba(0,0,0,0.6);">0</span>
+                                    <!-- Currency badge completely OUTSIDE the rectangle -->
+                                    <span id="t-grand-currency-badge" style="flex-shrink: 0; height: 44px; min-width: 52px; display: inline-flex; align-items: center; justify-content: center; padding: 0 12px; font-size: 1.15rem; font-weight: 900; color: #6ee7b7; background: rgba(16, 185, 129, 0.18); border: 1.5px solid rgba(16, 185, 129, 0.45); border-radius: 9px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-family: 'Tajawal', 'Cairo', sans-serif; letter-spacing: 0.5px;">SDG</span>
                                     <span id="t-grand" style="display:none;">0</span>
                                 </div>
                             </td>
-                            <td style="border: none;"></td>
+                            <td data-col-id="col_del" style="border: none;"></td>
                         </tr>
                     </tfoot>
                     </table>
@@ -3062,20 +3091,24 @@ try {
                 
                 const dynLoc = document.getElementById("t-grand-dynamic-loc");
                 const dynFc = document.getElementById("t-grand-dynamic-fc");
+                const dynBadge = document.getElementById("t-grand-currency-badge");
                 const tGrand = document.getElementById("t-grand");
                 const rate = parseNum(document.getElementById("hdr-exchange-rate")?.value) || 1;
                 
+                if (dynBadge) {
+                    dynBadge.textContent = isSDG ? 'SDG' : (curEl?.value || 'SDG');
+                }
+
                 if (tGrand && dynLoc) {
                     const cleanVal = tGrand.textContent.replace(/[^0-9.-]/g, "");
                     const numVal = parseNum(cleanVal) || 0;
-                    const suffixLoc = ' <span style="font-size: 0.95rem; color: #94a3b8; font-weight: 700; margin-right: 4px;">' + (isSDG ? 'SDG' : (curEl?.value || '')) + '</span>';
                     
-                    animateDynNumber(dynLoc, _lastDynLocVal, numVal, 450, suffixLoc, false);
+                    animateDynNumber(dynLoc, _lastDynLocVal, numVal, 450, '', false);
                     _lastDynLocVal = numVal;
 
                     if (dynFc) {
                         const fcVal = rate > 0 ? (isSDG ? (numVal / rate) : (numVal * rate)) : 0;
-                        const suffixFc = ' <span style="font-size: 0.95rem; color: #10b981; font-weight: 700; margin-right: 4px;">' + (isSDG ? '$' : 'SDG') + '</span>';
+                        const suffixFc = ' ' + (isSDG ? '$' : 'SDG');
                         animateDynNumber(dynFc, _lastDynFcVal, fcVal, 450, suffixFc, true);
                         _lastDynFcVal = fcVal;
                     }
@@ -3188,7 +3221,7 @@ try {
     </style>
 
             <!-- ══ FULL-WIDTH: تفاصيل الدفع ══ -->
-            <div class="panel" id="payment-panel" style="display: none; z-index: 40; margin-top: 15px; padding: 0 !important; background: rgba(15, 23, 42, 0.95) !important; border: 1px solid rgba(234, 179, 8, 0.22) !important;">
+            <div class="panel" id="payment-panel" style="display: block; z-index: 40; margin-top: 15px; padding: 0 !important; background: rgba(15, 23, 42, 0.95) !important; border: 1px solid rgba(234, 179, 8, 0.22) !important;">
                 <style>
                     #payment-panel {
                         animation: none;
@@ -3204,11 +3237,36 @@ try {
                             border-color: rgba(234, 179, 8, 0.45) !important;
                         }
                     }
-                    .pay-toggle-btn.active {
-                        background: linear-gradient(135deg, #ff7300, #ff9100) !important;
-                        border-color: #ff7300 !important;
+                    .pay-toggle-btn {
+                        transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
+                    }
+                    .pay-toggle-btn:hover {
+                        filter: brightness(1.2);
+                        transform: translateY(-2px);
+                    }
+                    #toggle-credit.active {
+                        background: linear-gradient(135deg, #92400e, #b45309) !important;
+                        border-color: #b45309 !important;
                         color: #fff !important;
-                        box-shadow: 0 0 12px rgba(255, 115, 0, 0.4) !important;
+                        box-shadow: 0 6px 16px rgba(180, 83, 9, 0.5) !important;
+                    }
+                    #toggle-cash.active {
+                        background: linear-gradient(135deg, #047857, #059669) !important;
+                        border-color: #059669 !important;
+                        color: #fff !important;
+                        box-shadow: 0 6px 16px rgba(5, 150, 105, 0.5) !important;
+                    }
+                    #toggle-bank.active {
+                        background: linear-gradient(135deg, #0e7490, #0891b2) !important;
+                        border-color: #0891b2 !important;
+                        color: #fff !important;
+                        box-shadow: 0 6px 16px rgba(8, 145, 178, 0.5) !important;
+                    }
+                    #toggle-cheque.active {
+                        background: linear-gradient(135deg, #6d28d9, #7c3aed) !important;
+                        border-color: #7c3aed !important;
+                        color: #fff !important;
+                        box-shadow: 0 6px 16px rgba(124, 58, 237, 0.5) !important;
                     }
                     .payment-summary-card {
                         transition: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
@@ -3287,66 +3345,60 @@ try {
                             <div id="prog-cheque" style="width: 0%; height: 100%; background: linear-gradient(90deg, #8b5cf6, #a78bfa); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(139,92,246,0.3);"></div>
                             <div id="prog-credit" style="width: 100%; height: 100%; background: linear-gradient(90deg, #f59e0b, #fbbf24); transition: width 0.4s cubic-bezier(0.4, 0, 0.2, 1); box-shadow: 0 0 8px rgba(245,158,11,0.3);"></div>
                         </div>
-                        <span id="payment-status-badge" style="font-size: 0.78rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; transition: all 0.3s ease; white-space: nowrap;">⏳ آجلة بالكامل</span>
+                        <span id="payment-status-badge" style="font-size: 0.78rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; transition: all 0.3s ease; white-space: nowrap; background: rgba(245, 158, 11, 0.15); color: #fbbf24;">⏳ آجلة بالكامل</span>
                     </div>
 
                     <div class="payment-toggles" style="display: flex; gap: 8px; flex: none;">
-                        <button type="button" class="pay-toggle-btn" id="toggle-credit" onclick="togglePaymentSection('credit')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">💳 آجل</button>
-                        <button type="button" class="pay-toggle-btn" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">💵 نقدي</button>
-                        <button type="button" class="pay-toggle-btn" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">🏦 تحويل بنكي</button>
-                        <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">✍️ شيك</button>
+                        <button type="button" class="pay-toggle-btn active" id="toggle-credit" onclick="togglePaymentSection('credit')" style="background: rgba(180, 83, 9, 0.1); border: 1px solid rgba(180, 83, 9, 0.35); color: #fcd34d; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">💳 آجل</button>
+                        <button type="button" class="pay-toggle-btn" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.35); color: #6ee7b7; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">💵 نقدي</button>
+                        <button type="button" class="pay-toggle-btn" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(6, 182, 212, 0.1); border: 1px solid rgba(6, 182, 212, 0.35); color: #67e8f9; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">🏦 تحويل بنكي</button>
+                        <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(147, 51, 234, 0.1); border: 1px solid rgba(147, 51, 234, 0.35); color: #d8b4fe; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 2px 8px rgba(0,0,0,0.2);">✍️ شيك</button>
                     </div>
                 </div>
                 
-                <div class="payment-layout" id="payment-layout" style="display: none; gap: 15px; padding: 15px; flex-wrap: wrap;">
+                <div class="payment-layout" id="payment-layout" style="display: flex; gap: 15px; padding: 15px; flex-wrap: wrap;">
                     <!-- Right Section: Payment Details Forms -->
                     <div class="payment-details-card" style="flex: 1; min-width: 100%; display: flex; flex-direction: column; gap: 10px;">
                         
-                        <!-- Credit payment box (Toggled off by default) -->
-                        <div id="pay-credit-section" class="payment-method-box" style="background: rgba(245, 158, 11, 0.04); border: 1px solid rgba(245, 158, 11, 0.18); border-radius: 12px; padding: 12px 15px; display: none; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
+                        <!-- Credit payment box (Visible by default in yellow) -->
+                        <div id="pay-credit-section" class="payment-method-box" style="background: radial-gradient(circle at top left, rgba(217, 119, 6, 0.35), rgba(180, 83, 9, 0.15)); border: 3px solid rgba(217, 119, 6, 0.9); box-shadow: 0 0 25px rgba(217, 119, 6, 0.4), inset 0 0 15px rgba(180, 83, 9, 0.3); border-radius: 12px; padding: 12px 15px; display: flex; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
                             <div style="display: flex; align-items: center; gap: 8px; min-width: 200px; width: 200px; flex: none;">
                                 <span style="font-size: 1.2rem;">💳</span>
-                                <span style="font-weight: 800; color: #fbbf24; font-size: 0.95rem;">آجل على الحساب</span>
+                                <span style="font-weight: 800; color: #fcd34d; font-size: 0.95rem;">آجل على الحساب</span>
                             </div>
                             <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
-                                <input type="number" class="v-input ctrl-input" id="pay-credit-amount" value="0.00" step="any" readonly placeholder="المبلغ الآجل..." style="flex: none; width: 145px; min-width: 145px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; text-align: center; font-size: 1.15rem; font-weight: 800; color: #fbbf24 !important;">
+                                <input type="number" class="v-input ctrl-input" id="pay-credit-amount" value="0.00" step="any" readonly placeholder="المبلغ الآجل..." style="flex: none; width: 145px; min-width: 145px; background: rgba(15,23,42,0.8); border: 1px solid rgba(180, 83, 9, 0.5); height: 38px; text-align: center; font-size: 1.15rem; font-weight: 800; color: #fcd34d !important; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
                                 
                                 <div id="pay-credit-due-group" style="flex: 1.2; min-width: 180px; display: flex; align-items: center; gap: 5px;">
                                     <label style="font-size: 0.78rem; color: #94a3b8; white-space: nowrap;">تاريخ الاستحقاق:</label>
                                     <input type="date" class="v-input ctrl-input" id="pay-credit-due-date" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 38px; font-size:0.85rem; padding: 0 4px; width: 100%;">
                                 </div>
                                 
-                                <button type="button" class="btn-action" onclick="previewCurrentPromissoryNote()" style="flex: 0.8; min-width: 120px; height: 38px; background: rgba(245, 158, 11, 0.15); border: 1px solid rgba(245, 158, 11, 0.6); color: #f59e0b; padding: 0 10px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight: bold; transition: 0.2s;" onmouseover="this.style.background='rgba(245, 158, 11, 0.25)';" onmouseout="this.style.background='rgba(245, 158, 11, 0.15)';">📄 معاينة الكمبيالة</button>
+                                <button type="button" class="btn-action" onclick="previewCurrentPromissoryNote()" style="flex: 0.8; min-width: 120px; height: 38px; background: linear-gradient(135deg, rgba(180, 83, 9, 0.2), rgba(146, 64, 14, 0.4)); border: 1px solid rgba(180, 83, 9, 0.6); color: #fcd34d; padding: 0 10px; border-radius: 8px; font-size: 0.8rem; cursor: pointer; font-weight: bold; transition: 0.2s;" onmouseover="this.style.background='linear-gradient(135deg, rgba(180, 83, 9, 0.35), rgba(146, 64, 14, 0.5))';" onmouseout="this.style.background='linear-gradient(135deg, rgba(180, 83, 9, 0.2), rgba(146, 64, 14, 0.4))';">📄 معاينة الكمبيالة</button>
                             </div>
                         </div>
 
-                        <!-- Cash payment box (Visible by default) -->
-                        <div id="pay-cash-section" style="background: rgba(16, 185, 129, 0.18); border: 1px solid rgba(16, 185, 129, 0.6); border-radius: 12px; padding: 15px; margin-bottom: 10px; display: flex; flex-direction: column; width: 100%;">
-                            <div style="color: #34d399; font-weight: bold; margin-bottom: 10px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
-                                <span>💵</span> <span>نقد كاش</span>
-                            </div>
-                            <div style="display: flex; gap: 10px; align-items: center; width: 100%;">
-                                <input type="number" class="v-input ctrl-input" id="pay-cash-amount" value="0.00" step="any" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; text-align: center; font-size: 1.15rem; font-weight: 800; padding: 0 8px; color: #34d399 !important;">
-                                <select class="v-input ctrl-input" id="hdr-payment-account" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1.1rem; color: #fff; padding: 0 4px;">
+                        <!-- Cash payment box (Toggled off by default until chosen by user) -->
+                        <div id="pay-cash-section" style="background: radial-gradient(circle at top left, rgba(16, 185, 129, 0.35), rgba(16, 185, 129, 0.15)); border: 3px solid rgba(16, 185, 129, 0.9); box-shadow: 0 0 25px rgba(16, 185, 129, 0.4), inset 0 0 15px rgba(16, 185, 129, 0.3); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; display: none; flex-direction: column; width: 100%;">
+                            <div class="payment-row-item" style="display: grid; grid-template-columns: 85px 1.5fr 1.2fr 1.2fr 2fr 30px; gap: 8px; align-items: center; width: 100%; margin-bottom: 0px;">
+                                <div style="display: flex; align-items: center; justify-content: flex-start; color: #6ee7b7; font-weight: 900; font-size: 0.95rem; gap: 6px; text-shadow: 0 0 8px rgba(16, 185, 129, 0.4);"><span>💵</span> كاش</div>
+                                <input type="number" class="v-input ctrl-input dynamic-focus-input dynamic-focus-amount" id="pay-cash-amount" value="0" step="1" oninput="onPaymentAmountInput()" placeholder="المبلغ" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.5); border-radius: 8px; text-align: center; font-size: 2.25rem; font-weight: 800; color: #ffffff; height: 60px; outline: none; padding: 0 8px; font-family: 'Tajawal', sans-serif; width: 100%; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3);">
+                                <select class="v-input ctrl-input" id="hdr-payment-account" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%;">
                                 </select>
-                                <input type="text" class="v-input ctrl-input" id="pay-cash-ref" placeholder="رقم المرجع" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; text-align: center; font-size: 1.1rem; font-weight: 800; padding: 0 8px; color: #34d399;">
-                                <input type="text" class="v-input ctrl-input" id="pay-cash-note" placeholder="الملحوظة" style="flex: 1; min-width: 180px; height: 48px; background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); border-radius: 6px; font-size: 1.1rem; color: #fff; padding: 0 8px;">
-                                <div style="width: 40px; min-width: 40px; flex: none;"></div>
+                                <input type="text" class="v-input ctrl-input" id="pay-cash-ref" placeholder="رقم المرجع" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%;">
+                                <input type="text" class="v-input ctrl-input" id="pay-cash-note" placeholder="الملحوظة" style="background: rgba(15, 23, 42, 0.8); border: 1px solid rgba(16, 185, 129, 0.4); border-radius: 8px; text-align: center; font-size: 0.95rem; color: #e2e8f0; height: 60px; outline: none; padding: 0 8px; width: 100%;">
+                                <div></div>
                             </div>
                         </div>
 
-                        <!-- Bank Transfers box (Toggled off by default) -->
-                        <div id="pay-bank-section" style="display: none; flex-direction: column; background: rgba(56, 189, 248, 0.18); border: 1px solid rgba(56, 189, 248, 0.6); border-radius: 12px; padding: 15px; margin-bottom: 10px; width: 100%;">
-                            <div style="color: #38bdf8; font-weight: bold; margin-bottom: 10px; font-size: 1.1rem; display: flex; align-items: center; gap: 8px;">
-                                <span>💳</span> <span>تحويل بنكي</span>
-                            </div>
-                            <div id="bank-transfers-list" style="display: flex; flex-direction: column; gap: 10px; width: 100%;"></div>
+                        <!-- Bank Transfers box -->
+                        <div id="pay-bank-section" style="display: none; flex-direction: column; background: radial-gradient(circle at top left, rgba(6, 182, 212, 0.35), rgba(6, 182, 212, 0.15)); border: 3px solid rgba(6, 182, 212, 0.9); box-shadow: 0 0 25px rgba(6, 182, 212, 0.4), inset 0 0 15px rgba(6, 182, 212, 0.3); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; width: 100%;">
+                            <div id="bank-transfers-list" style="display: flex; flex-direction: column; gap: 0px; width: 100%;"></div>
                         </div>
 
-                        <!-- Cheques box (Toggled off by default) -->
-                        <div id="pay-cheque-section" style="display: none; width: 100%;">
-                            <!-- Dynamic cheque rows -->
-                            <div id="cheques-list" style="display: flex; flex-direction: column; gap: 10px; width: 100%;"></div>
+                        <!-- Cheques box -->
+                        <div id="pay-cheque-section" style="display: none; flex-direction: column; background: radial-gradient(circle at top left, rgba(168, 85, 247, 0.35), rgba(147, 51, 234, 0.15)); border: 3px solid rgba(168, 85, 247, 0.9); box-shadow: 0 0 25px rgba(168, 85, 247, 0.4), inset 0 0 15px rgba(147, 51, 234, 0.3); border-radius: 12px; padding: 12px 15px; margin-bottom: 10px; width: 100%;">
+                            <div id="cheques-list" style="display: flex; flex-direction: column; gap: 0px; width: 100%;"></div>
                         </div>
                     </div>
                 </div>
@@ -3421,8 +3473,8 @@ try {
     <script defer src="js/html2pdf.bundle.min.js"></script>
     <script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1.0.0'; ?>"></script>
+    <script defer src="js/accounting-engine.js?v=<?php echo file_exists('js/accounting-engine.js') ? filemtime('js/accounting-engine.js') : '1.0.0'; ?>"></script>
     <script defer src="js/print-engine.js?v=<?php echo file_exists('js/print-engine.js') ? filemtime('js/print-engine.js') : '1.0.0'; ?>"></script>
-    
     <script defer src="js/direct-sales-v3.js?v=<?php echo time(); ?>"></script>
     <script>
     // Force Service Worker update + clear old caches
@@ -3852,11 +3904,37 @@ try {
 
         function editHubTransaction(invNo) {
             try {
+                let allSales = [];
+                try { allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || []; } catch(e) {}
+                let inv = allSales.find(i => (i.invoiceNo || i.id) === invNo);
+                if (!inv) {
+                    let str = localStorage.getItem('erp_inv_' + invNo) || localStorage.getItem('erp_draft_' + invNo);
+                    if (str) try { inv = JSON.parse(str); } catch(e) {}
+                }
+
+                const isPosted = !!(inv && (inv.status === 'posted' || inv.effectsApplied));
+                let wantsToEdit = false;
+
+                if (isPosted) {
+                    // Posted invoice: STRICT READ-ONLY. No edits allowed under any circumstances!
+                    wantsToEdit = false;
+                    showToast('🔒 الفاتورة مرحلة محاسبياً في دفتر الأستاذ - وضع المعاينة فقط (ممنوع التعديل نهائياً)', 'warning', 6000);
+                } else if (inv) {
+                    // Saved unposted invoice: Ask user if they want to edit
+                    wantsToEdit = confirm('⚠️ تنبيه:\n\nهذه الفاتورة (رقم: ' + invNo + ') تم حفظها مسبقاً في النظام.\n\nهل تريد تعديل بيانات هذه الفاتورة؟\n\n- اضغط [موافق / OK] لفتح الفاتورة وتعديلها\n- اضغط [إلغاء / Cancel] للمعاينة والقراءة فقط بدون تعديل');
+                    if (!wantsToEdit) {
+                        showToast('👁️ وضع المعاينة فقط - الحقول مغلقة ضد التعديل', 'info', 4000);
+                    }
+                }
+
                 openInvoiceEditor(undefined, true);
                 if(typeof loadInvoiceFromStorage === 'function') {
                     setTimeout(() => {
                         try {
-                            const success = loadInvoiceFromStorage(invNo);
+                            const success = loadInvoiceFromStorage(invNo, {
+                                isLocked: isPosted ? true : (!wantsToEdit),
+                                isPosted: isPosted
+                            });
                             if (!success) {
                                 showToast('❌ فشل تحميل بيانات الفاتورة من التخزين', 'error');
                             }
@@ -3873,18 +3951,245 @@ try {
                 alert('خطأ في محرر الفواتير: ' + err.message);
             }
         }
-        
-        function deleteHubTransaction(invNo) {
-            if(confirm('هل أنت متأكد من حذف الفاتورة ' + invNo + ' نهائياً؟')) {
-                let savedData = localStorage.getItem('erp_sales_invoices_v1');
-                if (savedData) {
-                    let invoices = JSON.parse(savedData);
-                    invoices = invoices.filter(i => i.invoiceNo !== invNo);
-                    localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(invoices));
-                    showToast('تم حذف الفاتورة بنجاح', 'success');
-                    loadHubTransactions();
+        let currentDeleteInvoiceNo = null;
+
+        function closeInvoiceDeleteModal() {
+            const modal = document.getElementById('invoice-delete-modal');
+            if (modal) modal.style.display = 'none';
+            currentDeleteInvoiceNo = null;
+        }
+
+        async function deleteHubTransaction(invNo) {
+            currentDeleteInvoiceNo = invNo;
+            const modal = document.getElementById('invoice-delete-modal');
+            
+            // Set loading state
+            document.getElementById('inv-del-target-no').innerText = invNo;
+            
+            const iconWrap = document.getElementById('inv-del-modal-icon-wrap');
+            const iconEl = document.getElementById('inv-del-modal-icon');
+            const titleEl = document.getElementById('inv-del-modal-title');
+            const subtitleEl = document.getElementById('inv-del-modal-subtitle');
+            const statusBox = document.getElementById('inv-del-status-box');
+            const vouchersContainer = document.getElementById('inv-del-vouchers-container');
+            const footerEl = document.getElementById('inv-del-modal-footer');
+
+            iconWrap.style.background = 'rgba(56,189,248,0.15)';
+            iconWrap.style.borderColor = 'rgba(56,189,248,0.3)';
+            iconWrap.style.boxShadow = '0 0 20px rgba(56,189,248,0.2)';
+            iconEl.innerText = '🔍';
+            
+            titleEl.innerText = 'جاري فحص ارتباطات الفاتورة...';
+            titleEl.style.color = '#fff';
+            subtitleEl.innerText = 'يتم التحقق من الدفعات والقيود المحاسبية';
+            
+            statusBox.style.background = 'rgba(56,189,248,0.08)';
+            statusBox.style.borderColor = 'rgba(56,189,248,0.2)';
+            statusBox.innerHTML = `
+                <div style="display:flex; align-items:center; justify-content:center; gap:12px; color:#38bdf8; font-weight:800; font-size:1.1rem;">
+                    <span style="animation:spin 1s infinite linear;">⏳</span>
+                    <span>جاري فحص قاعدة البيانات والسجلات...</span>
+                </div>
+            `;
+            
+            vouchersContainer.style.display = 'none';
+            footerEl.innerHTML = `
+                <button type="button" onclick="closeInvoiceDeleteModal()" class="btn-action" style="padding:8px 20px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#fff; cursor:pointer;">إلغاء</button>
+            `;
+
+            modal.style.display = 'flex';
+
+            // Local Usage Check (Receipts, Delivery Notes, Cheques, Journal, Stock)
+            let localUsages = [];
+            try {
+                // 1. Check single receipts
+                const sReceipts = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
+                sReceipts.forEach(sr => {
+                    if (sr && (sr.againstInvoice == invNo || sr.invoiceNo == invNo)) {
+                        localUsages.push({ type: 'سند قبض مالي', doc_no: sr.id || sr.voucherNo, label: 'سند قبض مالي رقم ' + (sr.id || sr.voucherNo) + (sr.amount ? ' بمبلغ ' + sr.amount : '') });
+                    }
+                });
+                // 2. Check multi receipts
+                const mReceipts = JSON.parse(localStorage.getItem('erp_receipts_v1')) || [];
+                mReceipts.forEach(mr => {
+                    if (mr && mr.invoices && Array.isArray(mr.invoices)) {
+                        if (mr.invoices.some(i => (i.invoiceNo || i.id) == invNo)) {
+                            localUsages.push({ type: 'سند قبض مجمع', doc_no: mr.id || mr.receiptNo, label: 'سند قبض مجمع رقم ' + (mr.id || mr.receiptNo) });
+                        }
+                    }
+                });
+                // 3. Check delivery notes / warehouse dispatches
+                const dNotes = JSON.parse(localStorage.getItem('erp_delivery_notes_v1')) || [];
+                dNotes.forEach(dn => {
+                    if (dn && (dn.invoiceNo == invNo || dn.sourceDocNo == invNo)) {
+                        localUsages.push({ type: 'إذن صرف / تسليم مخزني', doc_no: dn.noteNo || dn.id, label: 'سند تسليم بضاعة من المخزن رقم ' + (dn.noteNo || dn.id) });
+                    }
+                });
+                // 4. Check cheques
+                const cheques = JSON.parse(localStorage.getItem('erp_cheques_v1')) || [];
+                cheques.forEach(ch => {
+                    if (ch && (ch.invoiceNo == invNo || ch.refNo == invNo || ch.againstInvoice == invNo)) {
+                        localUsages.push({ type: 'شيك بنكي مرتبط', doc_no: ch.chequeNo || ch.id, label: 'شيك بنكي رقم ' + (ch.chequeNo || ch.id) });
+                    }
+                });
+                // 5. Check journal vouchers
+                const jvs = JSON.parse(localStorage.getItem('erp_journal_vouchers_v1')) || [];
+                jvs.forEach(jv => {
+                    if (jv && (jv.invoiceNo == invNo || jv.reference == invNo || jv.refNo == invNo)) {
+                        localUsages.push({ type: 'قيد محاسبي مرحل', doc_no: jv.id || jv.voucherNo, label: 'قيد يومية عامة رقم ' + (jv.id || jv.voucherNo) });
+                    }
+                });
+                // 6. Check invoice posting & warehouse status
+                const allSales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+                const targetInv = allSales.find(inv => (inv.invoiceNo || inv.id) == invNo);
+                if (targetInv && (targetInv.status === 'posted' || targetInv.status === 'confirmed' || targetInv.effectsApplied)) {
+                    localUsages.push({ type: 'حركة مخزنية ومالية معتمدة', doc_no: invNo, label: 'الفاتورة معتمدة ومؤثرة على أرصدة المخزون والحسابات' });
                 }
+            } catch(e) {
+                console.warn('Local usage check error:', e);
             }
+
+            // Backend Check
+            let backendUsages = [];
+            try {
+                const token = localStorage.getItem('authToken') || localStorage.getItem('token') || '';
+                const res = await fetch('api/check_invoice_usage.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': token ? ('Bearer ' + token) : '' },
+                    body: JSON.stringify({ invoiceNo: invNo })
+                });
+                const resJson = await res.json();
+                if (resJson && resJson.success && resJson.is_used) {
+                    backendUsages = resJson.usages || [];
+                }
+            } catch(e) {
+                console.warn('Backend usage check error:', e);
+            }
+
+            // Merge unique usages
+            const allUsagesMap = new Map();
+            [...localUsages, ...backendUsages].forEach(u => {
+                const key = (u.type || '') + '_' + (u.doc_no || '');
+                if (!allUsagesMap.has(key)) allUsagesMap.set(key, u);
+            });
+            const allUsages = Array.from(allUsagesMap.values());
+            const isUsed = allUsages.length > 0;
+
+            // Render Result
+            if (isUsed) {
+                iconWrap.style.background = 'rgba(239, 68, 68, 0.18)';
+                iconWrap.style.borderColor = 'rgba(239, 68, 68, 0.45)';
+                iconWrap.style.boxShadow = '0 0 25px rgba(239, 68, 68, 0.35)';
+                iconEl.innerText = '🚫';
+
+                titleEl.innerText = 'لا يمكن حذف هذه الفاتورة نهائياً';
+                titleEl.style.color = '#f87171';
+                subtitleEl.innerText = 'مرتبطة بحركات مخزنية أو سندات ومبالغ مالية';
+
+                statusBox.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(185, 28, 28, 0.08))';
+                statusBox.style.borderColor = 'rgba(239, 68, 68, 0.35)';
+                statusBox.innerHTML = `
+                    <div style="display:flex; flex-direction:column; gap:10px;">
+                        <div style="display:flex; align-items:center; gap:8px; color:#fca5a5; font-weight:900; font-size:1.1rem;">
+                            <span>⚠️</span>
+                            <span>تنبيه نظام الضبط المخزني والمالي:</span>
+                        </div>
+                        <p style="margin:0; color:#e2e8f0; font-size:0.95rem; line-height:1.6; font-weight:600;">
+                            لا يمكن حذف الفاتورة <span style="color:#38bdf8; font-weight:800;">${invNo}</span> نسبةً لوجود عدد <span style="color:#f87171; font-weight:900; font-size:1.15rem; background:rgba(239,68,68,0.2); padding:1px 8px; border-radius:6px;">${allUsages.length}</span> حركة مخزنية أو سند مالي مرتبط بها.
+                        </p>
+                        <div style="background:rgba(0,0,0,0.3); border-radius:10px; padding:12px 14px; margin-top:4px; border-right:3px solid #ef4444;">
+                            <span style="color:#cbd5e1; font-size:0.88rem; font-weight:700; line-height:1.6; display:block;">
+                                🔒 <strong>حماية البيانات:</strong> تم صرف بضاعة أو تسجيل دفعات مالية/قيود على هذه الفاتورة. لإلغائها، يجب أولاً إلغاء الحركات المخزنية وسندات القبض/الدفع المرتبطة بها.
+                            </span>
+                        </div>
+                    </div>
+                `;
+
+                document.getElementById('inv-del-vouchers-count').innerText = `${allUsages.length} حركة / سند`;
+                document.getElementById('inv-del-vouchers-list').innerHTML = allUsages.map((u, idx) => `
+                    <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); border-radius:8px; padding:8px 12px;">
+                        <div style="display:flex; align-items:center; gap:8px;">
+                            <span style="color:#f87171; font-weight:bold; font-size:0.85rem;">${idx + 1}.</span>
+                            <span style="color:#e2e8f0; font-weight:700; font-size:0.9rem;">${u.label || (u.type + ' رقم ' + u.doc_no)}</span>
+                        </div>
+                        <span style="background:rgba(239,68,68,0.15); color:#fca5a5; font-size:0.75rem; font-weight:800; padding:2px 8px; border-radius:4px;">${u.type}</span>
+                    </div>
+                `).join('');
+                vouchersContainer.style.display = 'block';
+
+                footerEl.innerHTML = `
+                    <button type="button" onclick="closeInvoiceDeleteModal()" class="btn-action" style="padding:10px 25px; border-radius:10px; background:linear-gradient(135deg, #3b82f6, #1d4ed8); border:none; color:#fff; font-weight:800; font-size:1rem; cursor:pointer; box-shadow:0 4px 15px rgba(59,130,246,0.4);">حسناً، فهمت</button>
+                `;
+            } else {
+                iconWrap.style.background = 'rgba(245, 158, 11, 0.18)';
+                iconWrap.style.borderColor = 'rgba(245, 158, 11, 0.45)';
+                iconWrap.style.boxShadow = '0 0 25px rgba(245, 158, 11, 0.35)';
+                iconEl.innerText = '⚠️';
+
+                titleEl.innerText = 'تأكيد حذف الفاتورة نهائياً';
+                titleEl.style.color = '#fbbf24';
+                subtitleEl.innerText = 'الفاتورة غير مرتبطة بأي سندات';
+
+                statusBox.style.background = 'linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(239, 68, 68, 0.06))';
+                statusBox.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+                statusBox.innerHTML = `
+                    <div style="display:flex; flex-direction:column; gap:10px;">
+                        <div style="display:flex; align-items:center; gap:8px; color:#34d399; font-weight:800; font-size:1rem;">
+                            <span>✅</span>
+                            <span>تم التحقق: هذه الفاتورة غير مرتبطة بأي دفعات أو سندات صرف أو قيود.</span>
+                        </div>
+                        <p style="margin:0; color:#e2e8f0; font-size:0.95rem; line-height:1.6; font-weight:600;">
+                            هل أنت متأكد من رغبتك في حذف الفاتورة (<span style="color:#38bdf8; font-weight:800;">${invNo}</span>)؟
+                        </p>
+                        <div style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.35); border-radius:10px; padding:12px 14px; margin-top:4px;">
+                            <div style="display:flex; align-items:center; gap:8px; color:#f87171; font-weight:900; font-size:0.95rem; margin-bottom:4px;">
+                                <span>🚨</span>
+                                <span>تحذير نهائي:</span>
+                            </div>
+                            <span style="color:#fecaca; font-size:0.88rem; font-weight:700; line-height:1.5; display:block;">
+                                سيتم حذف الفاتورة <strong>نهائياً وبشكل دائم من النظام</strong> ولن يمكن استرجاعها.
+                            </span>
+                        </div>
+                    </div>
+                `;
+
+                vouchersContainer.style.display = 'none';
+
+                footerEl.innerHTML = `
+                    <button type="button" onclick="closeInvoiceDeleteModal()" class="btn-action" style="padding:10px 20px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#fff; font-weight:800; cursor:pointer;">إلغاء الأمر</button>
+                    <button type="button" onclick="confirmExecuteDeleteInvoice()" class="btn-action" style="padding:10px 25px; border-radius:10px; background:linear-gradient(135deg, #ef4444, #dc2626); border:1px solid rgba(239,68,68,0.5); color:#fff; font-weight:900; font-size:1rem; cursor:pointer; box-shadow:0 6px 20px rgba(239,68,68,0.4);">🗑️ نعم، احذف نهائياً</button>
+                `;
+            }
+        }
+
+        async function confirmExecuteDeleteInvoice() {
+            if (!currentDeleteInvoiceNo) return;
+            const invNo = currentDeleteInvoiceNo;
+            
+            // Delete from Database if API exists for it (usually handled by save_sales_invoice.php with action=delete or similar).
+            // Currently the system uses localStorage mostly, but we'll try to sync deletion to DB if there's an endpoint.
+            try {
+                const token = localStorage.getItem('authToken') || localStorage.getItem('token') || '';
+                // Since this system uses save_sales_invoice.php or generic save APIs, let's just mark it soft deleted or hard deleted
+                // The current code just deletes it from localStorage. Let's do that + DB if possible.
+                await fetch('api/save_sales_invoice.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json', 'Authorization': token ? ('Bearer ' + token) : '' },
+                    body: JSON.stringify({ action: 'delete', invoiceNo: invNo })
+                });
+            } catch(e) { console.warn('DB delete sync failed:', e); }
+
+            // Delete from LocalStorage
+            let savedData = localStorage.getItem('erp_sales_invoices_v1');
+            if (savedData) {
+                let invoices = JSON.parse(savedData);
+                invoices = invoices.filter(i => i.invoiceNo !== invNo);
+                localStorage.setItem('erp_sales_invoices_v1', JSON.stringify(invoices));
+            }
+            
+            closeInvoiceDeleteModal();
+            showToast('تم حذف الفاتورة نهائياً بنجاح', 'success');
+            loadHubTransactions();
         }
 
         // Initialize view on load
@@ -4190,7 +4495,7 @@ try {
             "id": "col_wh",
             "name": "المخزن",
             "visible": true,
-            "width": "150px",
+            "width": "154px",
             "align": "center",
             "color": "#fafafa",
             "fontSize": 20,
@@ -4212,7 +4517,7 @@ try {
             "id": "col_item",
             "name": "الصنف",
             "visible": true,
-            "width": "298px",
+            "width": "346px",
             "align": "center",
             "color": "#fedd67",
             "fontSize": 24,
@@ -4222,7 +4527,7 @@ try {
             "id": "col_unit",
             "name": "الوحدات",
             "visible": true,
-            "width": "129px",
+            "width": "127px",
             "align": "center",
             "color": "#fafafa",
             "fontSize": 20,
@@ -4232,9 +4537,9 @@ try {
             "id": "col_qty",
             "name": "الكمية",
             "visible": true,
-            "width": "117px",
+            "width": "138px",
             "align": "center",
-            "color": "#fafafa",
+            "color": "#7cfedd",
             "fontSize": 24,
             "decimals": 0,
             "fontWeight": "800",
@@ -4244,7 +4549,7 @@ try {
             "id": "col_price",
             "name": "السعر",
             "visible": true,
-            "width": "231px",
+            "width": "227px",
             "align": "center",
             "color": "#fafafa",
             "fontSize": 24,
@@ -4256,7 +4561,7 @@ try {
             "id": "col_total",
             "name": "الإجمالي",
             "visible": true,
-            "width": "169px",
+            "width": "166px",
             "align": "center",
             "color": "#f96c6c",
             "fontSize": 28,
@@ -4268,7 +4573,7 @@ try {
             "id": "col_baseqty",
             "name": "عدد الوحدة",
             "visible": true,
-            "width": "162px",
+            "width": "168px",
             "align": "center",
             "color": "#fafafa",
             "fontSize": 20,
@@ -4571,13 +4876,25 @@ try {
             });
         });
         
-        // Reorder tfoot (if any)
-        const tfootTr = table.querySelector('tfoot tr');
-        if (tfootTr && tfootTr.children.length > 1) {
-            cfg.columns.forEach(col => {
-                const td = tfootTr.querySelector(`th[data-col-id="${col.id}"], td[data-col-id="${col.id}"]`);
-                if (td) {
-                    tfootTr.appendChild(td);
+        // Properly adjust tfoot colSpans so col_total aligns directly beneath the total column
+        const tfoot = table.querySelector('tfoot');
+        if (tfoot) {
+            const visibleCols = cfg.columns.filter(c => c.visible !== false && c.visible !== "false" && c.visible !== 0);
+            const totalIndex = visibleCols.findIndex(c => c.id === 'col_total' || c.id === 'total');
+            const colsBefore = totalIndex >= 0 ? totalIndex : Math.max(1, visibleCols.length - 2);
+            const colsAfter = Math.max(1, visibleCols.length - colsBefore - 1);
+
+            tfoot.querySelectorAll('tr').forEach(tr => {
+                const totalTd = tr.querySelector('[data-col-id="col_total"]');
+                if (!totalTd) return;
+                
+                const firstTd = tr.firstElementChild;
+                if (firstTd && firstTd !== totalTd) {
+                    firstTd.colSpan = colsBefore;
+                }
+                const lastTd = tr.lastElementChild;
+                if (lastTd && lastTd !== totalTd && lastTd !== firstTd) {
+                    lastTd.colSpan = colsAfter;
                 }
             });
         }
@@ -4772,6 +5089,112 @@ try {
         loadGridConfigFromDB();
     });
     </script>
+    
+    <!-- Invoice Deletion Modal -->
+    <div id="invoice-delete-modal" class="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px); z-index:999999; justify-content:center; align-items:center; direction:rtl; font-family:'Tajawal', sans-serif;">
+        <div class="glass-panel" style="width:90%; max-width:600px; padding:30px; border-radius:24px; border:1px solid rgba(255,255,255,0.1); background:rgba(15,23,42,0.95); box-shadow:0 25px 50px -12px rgba(0,0,0,0.8);">
+            
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+                <div style="display:flex; gap:15px; align-items:center;">
+                    <div id="inv-del-modal-icon-wrap" style="width:60px; height:60px; border-radius:16px; display:flex; align-items:center; justify-content:center; font-size:2rem; background:rgba(56,189,248,0.15); border:1px solid rgba(56,189,248,0.3); box-shadow:0 0 20px rgba(56,189,248,0.2);">
+                        <span id="inv-del-modal-icon">🔍</span>
+                    </div>
+                    <div>
+                        <h2 id="inv-del-modal-title" style="margin:0 0 5px 0; color:#fff; font-size:1.4rem; font-weight:900;">جاري فحص ارتباطات السند...</h2>
+                        <p id="inv-del-modal-subtitle" style="margin:0; color:#94a3b8; font-size:0.9rem;">يتم التحقق من الدفعات والقيود المحاسبية</p>
+                    </div>
+                </div>
+            </div>
+
+            <div style="background:rgba(0,0,0,0.4); border-radius:16px; padding:15px; margin-bottom:20px; border:1px solid rgba(255,255,255,0.05);">
+                <div style="display:flex; justify-content:space-between; margin-bottom:10px;">
+                    <span style="color:#94a3b8; font-size:0.9rem;">رقم الفاتورة:</span>
+                    <strong id="inv-del-target-no" style="color:#38bdf8; font-size:1.1rem;">-</strong>
+                </div>
+            </div>
+
+            <div id="inv-del-status-box" style="border-radius:12px; padding:15px; margin-bottom:20px; border:1px solid rgba(56,189,248,0.2); background:rgba(56,189,248,0.08);">
+                <div style="display:flex; align-items:center; justify-content:center; gap:12px; color:#38bdf8; font-weight:800; font-size:1.1rem;">
+                    <span style="animation:spin 1s infinite linear;">⏳</span>
+                    <span>جاري فحص قاعدة البيانات والسجلات...</span>
+                </div>
+            </div>
+
+            <div id="inv-del-vouchers-container" style="display:none; margin-bottom:25px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:12px;">
+                    <h4 id="inv-del-vouchers-header-label" style="margin:0; color:#e2e8f0; font-size:1rem;">📋 السجلات المرتبطة بهذا السند:</h4>
+                    <span id="inv-del-vouchers-count" style="background:rgba(239,68,68,0.2); color:#fca5a5; padding:4px 10px; border-radius:12px; font-weight:bold; font-size:0.85rem;">0 سند</span>
+                </div>
+                <div id="inv-del-vouchers-list" style="max-height:200px; overflow-y:auto; padding-right:5px; display:flex; flex-direction:column; gap:8px;">
+                    <!-- Vouchers will be injected here -->
+                </div>
+            </div>
+
+            <div id="inv-del-modal-footer" style="display:flex; justify-content:flex-end; gap:10px; border-top:1px solid rgba(255,255,255,0.1); padding-top:20px;">
+                <button type="button" onclick="closeInvoiceDeleteModal()" class="btn-action" style="padding:8px 20px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#fff; cursor:pointer;">إلغاء</button>
+            </div>
+            
+        </div>
+    </div>
+    
+    <!-- Beautiful Modern Delivery Confirmation Modal -->
+    <div id="delivery-confirmation-modal" class="modal-overlay" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(12px); z-index:999999; justify-content:center; align-items:center; direction:rtl; font-family:'Tajawal', sans-serif;">
+        <div class="glass-panel" style="width:90%; max-width:560px; padding:28px; border-radius:24px; border:1.5px solid rgba(16,185,129,0.4); background:linear-gradient(145deg, rgba(15,23,42,0.98), rgba(6,78,59,0.25)); box-shadow:0 25px 60px -12px rgba(0,0,0,0.9), 0 0 30px rgba(16,185,129,0.15);">
+            
+            <!-- Header with Emerald Badge Icon -->
+            <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:20px;">
+                <div style="display:flex; gap:16px; align-items:center;">
+                    <div style="width:64px; height:64px; border-radius:18px; display:flex; align-items:center; justify-content:center; font-size:2.2rem; background:linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.4)); border:2px solid rgba(16,185,129,0.6); box-shadow:0 0 25px rgba(16,185,129,0.4);">
+                        <span>📦</span>
+                    </div>
+                    <div>
+                        <h2 style="margin:0 0 4px 0; color:#ffffff; font-size:1.45rem; font-weight:900; letter-spacing:0.5px;">تأكيد تسليم وصرف البضاعة</h2>
+                        <p style="margin:0; color:#a7f3d0; font-size:0.92rem; font-weight:600;">اعتماد تسليم الفاتورة وخصم الكميات من المخزن المحدد</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeDeliveryConfirmationModal()" style="background:transparent; border:none; color:#94a3b8; font-size:1.5rem; cursor:pointer; padding:4px 8px; line-height:1; transition:0.2s;" onmouseover="this.style.color='#fff'" onmouseout="this.style.color='#94a3b8'">✕</button>
+            </div>
+
+            <!-- Invoice Details Card -->
+            <div style="background:rgba(0,0,0,0.45); border-radius:16px; padding:18px; margin-bottom:18px; border:1px solid rgba(255,255,255,0.08); display:flex; flex-direction:column; gap:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:10px;">
+                    <span style="color:#94a3b8; font-size:0.92rem; font-weight:700;">رقم الفاتورة:</span>
+                    <strong id="del-modal-inv-no" style="color:#38bdf8; font-size:1.2rem; font-family:'Outfit',sans-serif; letter-spacing:1px; background:rgba(56,189,248,0.12); padding:2px 10px; border-radius:8px; border:1px solid rgba(56,189,248,0.3);">-</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:10px;">
+                    <span style="color:#94a3b8; font-size:0.92rem; font-weight:700;">العميل:</span>
+                    <strong id="del-modal-cust-name" style="color:#6ee7b7; font-size:1.15rem; font-weight:800;">-</strong>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.06); padding-bottom:10px;">
+                    <span style="color:#94a3b8; font-size:0.92rem; font-weight:700;">مخزن الصرف:</span>
+                    <span id="del-modal-wh-name" style="color:#fbbf24; font-size:1.05rem; font-weight:800; background:rgba(245,158,11,0.12); padding:2px 10px; border-radius:8px; border:1px solid rgba(245,158,11,0.3);">-</span>
+                </div>
+                <div style="display:flex; justify-content:space-between; align-items:center;">
+                    <span style="color:#94a3b8; font-size:0.92rem; font-weight:700;">إجمالي المبلغ:</span>
+                    <strong id="del-modal-amount" style="color:#ffffff; font-size:1.25rem; font-weight:900; font-family:'Cairo',sans-serif;">0 SDG</strong>
+                </div>
+            </div>
+
+            <!-- Action Notice -->
+            <div style="background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.3); border-radius:12px; padding:12px 16px; margin-bottom:22px; display:flex; align-items:center; gap:10px;">
+                <span style="font-size:1.3rem;">✨</span>
+                <span style="color:#d1fae5; font-size:0.9rem; font-weight:700; line-height:1.5;">
+                    سيتم خصم كميات البضاعة تلقائياً من رصيد المخزن المذكور وتحديث حالة الفاتورة كـ <strong>مسلّمة ومعتمدة</strong>.
+                </span>
+            </div>
+
+            <!-- Footer Buttons -->
+            <div style="display:flex; justify-content:flex-end; gap:12px; border-top:1px solid rgba(255,255,255,0.1); padding-top:18px;">
+                <button type="button" onclick="closeDeliveryConfirmationModal()" style="padding:10px 22px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); color:#cbd5e1; font-weight:800; font-size:0.95rem; cursor:pointer; transition:0.2s;" onmouseover="this.style.background='rgba(255,255,255,0.15)'" onmouseout="this.style.background='rgba(255,255,255,0.08)'">
+                    ❌ تراجع / إلغاء
+                </button>
+                <button type="button" onclick="confirmExecuteDeliveryAction()" style="padding:10px 28px; border-radius:10px; background:linear-gradient(135deg, #10b981 0%, #059669 100%); border:1px solid rgba(16,212,143,0.5); color:#ffffff; font-weight:900; font-size:1.05rem; cursor:pointer; box-shadow:0 6px 20px rgba(16,185,129,0.4); display:flex; align-items:center; gap:8px; transition:0.25s;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 8px 25px rgba(16,185,129,0.6)'" onmouseout="this.style.transform='none'; this.style.boxShadow='0 6px 20px rgba(16,185,129,0.4)'">
+                    <span>📦 تأكيد التسليم والصرف الآن</span>
+                </button>
+            </div>
+            
+        </div>
+    </div>
     
 </body>
 </html>

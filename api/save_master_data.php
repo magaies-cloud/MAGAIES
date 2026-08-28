@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/db.php';
+require_once __DIR__ . '/check_entity_usage.php';
 header('Content-Type: application/json; charset=UTF-8');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 
@@ -16,7 +17,7 @@ if (!empty($token)) {
 $input = json_decode(file_get_contents('php://input'), true);
 if (!$input || !isset($input['type'])) {
     http_response_code(400);
-    echo json_encode(['success' => false, 'error' => 'Invalid payload']);
+    echo json_encode(['success' => false, 'error' => 'Invalid payload'], JSON_UNESCAPED_UNICODE);
     exit;
 }
 
@@ -25,6 +26,7 @@ $data = $input['data'] ?? null;
 
 try {
     switch ($type) {
+        // --- 1. Global Settings Collections ---
         case 'units':
             if (is_array($data)) {
                 $unitsJson = json_encode(array_values(array_unique(array_filter($data))), JSON_UNESCAPED_UNICODE);
@@ -57,6 +59,33 @@ try {
             }
             break;
 
+        // --- 2. Check Entity Usage (Unified for all entities) ---
+        case 'check_entity_usage':
+        case 'check_item_usage':
+            if ($data && (isset($data['id']) || isset($data['name']))) {
+                $entType = $data['entity_type'] ?? ($type === 'check_item_usage' ? 'item' : 'item');
+                $entId = (string)($data['id'] ?? '');
+                $entName = (string)($data['name'] ?? '');
+                $usageResult = checkEntityUsageInDatabase($pdo, $tenant_id, $entType, $entId, $entName, $data);
+                echo json_encode([
+                    'success' => true,
+                    'type' => 'check_entity_usage',
+                    'entity_type' => $entType,
+                    'id' => $entId,
+                    'name' => $entName,
+                    'is_used' => $usageResult['is_used'],
+                    'can_delete' => $usageResult['can_delete'],
+                    'usage_count' => $usageResult['usage_count'],
+                    'usages' => $usageResult['usages'],
+                    'message' => $usageResult['is_used']
+                        ? 'هذا المكون مستخدم في سندات أو سجلات مسجلة بالنظام ولا يمكن حذفه نهائياً.'
+                        : 'هذا المكون غير مستخدم في أي سند أو حركة، ويمكن حذفه نهائياً من قاعدة البيانات.'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+            break;
+
+        // --- 3. Items ---
         case 'save_item':
             if ($data && isset($data['id'])) {
                 $itemId = (string)$data['id'];
@@ -81,10 +110,38 @@ try {
             break;
 
         case 'delete_item':
-            if ($data && isset($data['id'])) {
-                $itemId = (string)$data['id'];
-                $stmtDel = $pdo->prepare("UPDATE items SET is_deleted = 1, updated_at = NOW() WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
-                $stmtDel->execute([$tenant_id, $itemId, $itemId]);
+            if ($data && (isset($data['id']) || isset($data['name']))) {
+                $itemId = (string)($data['id'] ?? '');
+                $itemName = (string)($data['name'] ?? '');
+
+                // Security check
+                $usageResult = checkEntityUsageInDatabase($pdo, $tenant_id, 'item', $itemId, $itemName, $data);
+                if ($usageResult['is_used']) {
+                    http_response_code(400);
+                    echo json_encode([
+                        'success' => false,
+                        'type' => 'delete_item',
+                        'can_delete' => false,
+                        'is_used' => true,
+                        'usage_count' => $usageResult['usage_count'],
+                        'usages' => $usageResult['usages'],
+                        'error' => 'لا يمكن حذف هذا الصنف نهائياً لأنه مستخدم في سندات أو فواتير مسجلة في النظام.'
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+
+                // Hard delete from database
+                $stmtDel = $pdo->prepare("DELETE FROM items WHERE (tenant_id = ? OR tenant_id IS NULL) AND (frontend_id = ? OR id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                $stmtDel->execute([$tenant_id, $itemId, $itemId, $itemName, $itemId]);
+
+                echo json_encode([
+                    'success' => true,
+                    'type' => 'delete_item',
+                    'can_delete' => true,
+                    'is_used' => false,
+                    'message' => 'تم حذف الصنف نهائياً من قاعدة البيانات بنجاح ولا يمكن استرجاعه.'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
             }
             break;
 
@@ -115,6 +172,7 @@ try {
             }
             break;
 
+        // --- 4. Warehouses ---
         case 'save_warehouse':
             if ($data && isset($data['id'])) {
                 $whId = (string)$data['id'];
@@ -133,13 +191,42 @@ try {
             break;
 
         case 'delete_warehouse':
-            if ($data && isset($data['id'])) {
-                $whId = (string)$data['id'];
-                $stmtDel = $pdo->prepare("UPDATE warehouses SET is_deleted = 1, updated_at = NOW() WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
-                $stmtDel->execute([$tenant_id, $whId, $whId]);
+            if ($data && (isset($data['id']) || isset($data['name']))) {
+                $whId = (string)($data['id'] ?? '');
+                $whName = (string)($data['name'] ?? '');
+
+                // Security check
+                $usageResult = checkEntityUsageInDatabase($pdo, $tenant_id, 'warehouse', $whId, $whName, $data);
+                if ($usageResult['is_used']) {
+                    http_response_code(400);
+                    echo json_encode([
+                        'success' => false,
+                        'type' => 'delete_warehouse',
+                        'can_delete' => false,
+                        'is_used' => true,
+                        'usage_count' => $usageResult['usage_count'],
+                        'usages' => $usageResult['usages'],
+                        'error' => 'لا يمكن حذف هذا المخزن نهائياً لأنه مدرج في سندات أو فواتير أو حركات مسجلة بالنظام.'
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+
+                // Hard delete from database
+                $stmtDel = $pdo->prepare("DELETE FROM warehouses WHERE (tenant_id = ? OR tenant_id IS NULL) AND (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                $stmtDel->execute([$tenant_id, $whId, $whId, $whId]);
+
+                echo json_encode([
+                    'success' => true,
+                    'type' => 'delete_warehouse',
+                    'can_delete' => true,
+                    'is_used' => false,
+                    'message' => 'تم حذف المخزن نهائياً من قاعدة البيانات بنجاح ولا يمكن استرجاعه.'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
             }
             break;
 
+        // --- 5. Customers ---
         case 'save_customer':
             if ($data && isset($data['id'])) {
                 $cId = (string)$data['id'];
@@ -158,13 +245,42 @@ try {
             break;
 
         case 'delete_customer':
-            if ($data && isset($data['id'])) {
-                $cId = (string)$data['id'];
-                $stmtDel = $pdo->prepare("UPDATE customers SET is_deleted = 1, updated_at = NOW() WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
-                $stmtDel->execute([$tenant_id, $cId, $cId]);
+            if ($data && (isset($data['id']) || isset($data['name']))) {
+                $cId = (string)($data['id'] ?? '');
+                $cName = (string)($data['name'] ?? '');
+
+                // Security check
+                $usageResult = checkEntityUsageInDatabase($pdo, $tenant_id, 'customer', $cId, $cName, $data);
+                if ($usageResult['is_used']) {
+                    http_response_code(400);
+                    echo json_encode([
+                        'success' => false,
+                        'type' => 'delete_customer',
+                        'can_delete' => false,
+                        'is_used' => true,
+                        'usage_count' => $usageResult['usage_count'],
+                        'usages' => $usageResult['usages'],
+                        'error' => 'لا يمكن حذف هذا العميل نهائياً لأنه مدرج في سندات أو فواتير أو قيود مسجلة بالنظام.'
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+
+                // Hard delete from database
+                $stmtDel = $pdo->prepare("DELETE FROM customers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (frontend_id = ? OR id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                $stmtDel->execute([$tenant_id, $cId, $cId, $cName, $cId]);
+
+                echo json_encode([
+                    'success' => true,
+                    'type' => 'delete_customer',
+                    'can_delete' => true,
+                    'is_used' => false,
+                    'message' => 'تم حذف العميل نهائياً من قاعدة البيانات بنجاح ولا يمكن استرجاعه.'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
             }
             break;
 
+        // --- 6. Suppliers ---
         case 'save_supplier':
             if ($data && isset($data['id'])) {
                 $sId = (string)$data['id'];
@@ -183,13 +299,42 @@ try {
             break;
 
         case 'delete_supplier':
-            if ($data && isset($data['id'])) {
-                $sId = (string)$data['id'];
-                $stmtDel = $pdo->prepare("UPDATE suppliers SET is_deleted = 1, updated_at = NOW() WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
-                $stmtDel->execute([$tenant_id, $sId, $sId]);
+            if ($data && (isset($data['id']) || isset($data['name']))) {
+                $sId = (string)($data['id'] ?? '');
+                $sName = (string)($data['name'] ?? '');
+
+                // Security check
+                $usageResult = checkEntityUsageInDatabase($pdo, $tenant_id, 'supplier', $sId, $sName, $data);
+                if ($usageResult['is_used']) {
+                    http_response_code(400);
+                    echo json_encode([
+                        'success' => false,
+                        'type' => 'delete_supplier',
+                        'can_delete' => false,
+                        'is_used' => true,
+                        'usage_count' => $usageResult['usage_count'],
+                        'usages' => $usageResult['usages'],
+                        'error' => 'لا يمكن حذف هذا المورد نهائياً لأنه مدرج في سندات أو فواتير أو قيود مسجلة بالنظام.'
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+
+                // Hard delete from database
+                $stmtDel = $pdo->prepare("DELETE FROM suppliers WHERE (tenant_id = ? OR tenant_id IS NULL) AND (frontend_id = ? OR id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                $stmtDel->execute([$tenant_id, $sId, $sId, $sName, $sId]);
+
+                echo json_encode([
+                    'success' => true,
+                    'type' => 'delete_supplier',
+                    'can_delete' => true,
+                    'is_used' => false,
+                    'message' => 'تم حذف المورد نهائياً من قاعدة البيانات بنجاح ولا يمكن استرجاعه.'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
             }
             break;
 
+        // --- 7. Banks ---
         case 'save_bank':
             if ($data && isset($data['id'])) {
                 $bId = (string)$data['id'];
@@ -208,13 +353,42 @@ try {
             break;
 
         case 'delete_bank':
-            if ($data && isset($data['id'])) {
-                $bId = (string)$data['id'];
-                $stmtDel = $pdo->prepare("UPDATE banks SET is_deleted = 1, updated_at = NOW() WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
-                $stmtDel->execute([$tenant_id, $bId, $bId]);
+            if ($data && (isset($data['id']) || isset($data['name']))) {
+                $bId = (string)($data['id'] ?? '');
+                $bName = (string)($data['name'] ?? '');
+
+                // Security check
+                $usageResult = checkEntityUsageInDatabase($pdo, $tenant_id, 'bank', $bId, $bName, $data);
+                if ($usageResult['is_used']) {
+                    http_response_code(400);
+                    echo json_encode([
+                        'success' => false,
+                        'type' => 'delete_bank',
+                        'can_delete' => false,
+                        'is_used' => true,
+                        'usage_count' => $usageResult['usage_count'],
+                        'usages' => $usageResult['usages'],
+                        'error' => 'لا يمكن حذف هذا البنك نهائياً لأنه مدرج في سندات أو فواتير أو حركات دفع/قبض مسجلة بالنظام.'
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+
+                // Hard delete from database
+                $stmtDel = $pdo->prepare("DELETE FROM banks WHERE (tenant_id = ? OR tenant_id IS NULL) AND (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                $stmtDel->execute([$tenant_id, $bId, $bId, $bId]);
+
+                echo json_encode([
+                    'success' => true,
+                    'type' => 'delete_bank',
+                    'can_delete' => true,
+                    'is_used' => false,
+                    'message' => 'تم حذف البنك نهائياً من قاعدة البيانات بنجاح ولا يمكن استرجاعه.'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
             }
             break;
 
+        // --- 8. Safes ---
         case 'save_safe':
             if ($data && isset($data['id'])) {
                 $sId = (string)$data['id'];
@@ -233,10 +407,226 @@ try {
             break;
 
         case 'delete_safe':
+            if ($data && (isset($data['id']) || isset($data['name']))) {
+                $sId = (string)($data['id'] ?? '');
+                $sName = (string)($data['name'] ?? '');
+
+                // Security check
+                $usageResult = checkEntityUsageInDatabase($pdo, $tenant_id, 'safe', $sId, $sName, $data);
+                if ($usageResult['is_used']) {
+                    http_response_code(400);
+                    echo json_encode([
+                        'success' => false,
+                        'type' => 'delete_safe',
+                        'can_delete' => false,
+                        'is_used' => true,
+                        'usage_count' => $usageResult['usage_count'],
+                        'usages' => $usageResult['usages'],
+                        'error' => 'لا يمكن حذف هذه الخزينة نهائياً لأنها مدرجة في سندات أو فواتير أو حركات نقدية مسجلة بالنظام.'
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+
+                // Hard delete from database
+                $stmtDel = $pdo->prepare("DELETE FROM safes WHERE (tenant_id = ? OR tenant_id IS NULL) AND (frontend_id = ? OR id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                $stmtDel->execute([$tenant_id, $sId, $sId, $sId]);
+
+                echo json_encode([
+                    'success' => true,
+                    'type' => 'delete_safe',
+                    'can_delete' => true,
+                    'is_used' => false,
+                    'message' => 'تم حذف الخزينة نهائياً من قاعدة البيانات بنجاح ولا يمكن استرجاعها.'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+            break;
+
+        // --- 9. Employees / Users ---
+        case 'save_employee':
+        case 'save_user':
             if ($data && isset($data['id'])) {
-                $sId = (string)$data['id'];
-                $stmtDel = $pdo->prepare("UPDATE safes SET is_deleted = 1, updated_at = NOW() WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
-                $stmtDel->execute([$tenant_id, $sId, $sId]);
+                $uId = (string)$data['id'];
+                $uName = $data['name'] ?? '';
+                $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE);
+                $stmtCheck = $pdo->prepare("SELECT id FROM users WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+                $stmtCheck->execute([$tenant_id, $uId, $uId]);
+                $existingId = $stmtCheck->fetchColumn();
+                if ($existingId) {
+                    $stmtUp = $pdo->prepare("UPDATE users SET data = ?, search_name = ?, is_deleted = 0, updated_at = NOW() WHERE id = ?");
+                    $stmtUp->execute([$jsonData, $uName, $existingId]);
+                } else {
+                    $stmtIns = $pdo->prepare("INSERT INTO users (tenant_id, frontend_id, data, search_name, is_deleted) VALUES (?, ?, ?, ?, 0)");
+                    $stmtIns->execute([$tenant_id, $uId, $jsonData, $uName]);
+                }
+            }
+            break;
+
+        case 'delete_employee':
+        case 'delete_user':
+            if ($data && (isset($data['id']) || isset($data['name']))) {
+                $uId = (string)($data['id'] ?? '');
+                $uName = (string)($data['name'] ?? '');
+
+                // Security check
+                $usageResult = checkEntityUsageInDatabase($pdo, $tenant_id, 'employee', $uId, $uName, $data);
+                if ($usageResult['is_used']) {
+                    http_response_code(400);
+                    echo json_encode([
+                        'success' => false,
+                        'type' => 'delete_employee',
+                        'can_delete' => false,
+                        'is_used' => true,
+                        'usage_count' => $usageResult['usage_count'],
+                        'usages' => $usageResult['usages'],
+                        'error' => 'لا يمكن حذف هذا الموظف نهائياً لأنه مرتبط بسندات أو فواتير أو حركات مسجلة بالنظام.'
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+
+                // Hard delete from database
+                $stmtDel = $pdo->prepare("DELETE FROM users WHERE (tenant_id = ? OR tenant_id IS NULL) AND (frontend_id = ? OR id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
+                $stmtDel->execute([$tenant_id, $uId, $uId, $uName, $uId]);
+
+                echo json_encode([
+                    'success' => true,
+                    'type' => 'delete_employee',
+                    'can_delete' => true,
+                    'is_used' => false,
+                    'message' => 'تم حذف الموظف نهائياً من قاعدة البيانات بنجاح ولا يمكن استرجاعه.'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+            break;
+
+        // --- 10. Units ---
+        case 'delete_unit':
+            if ($data && (isset($data['name']) || isset($data['id']))) {
+                $unitName = (string)($data['name'] ?? $data['id'] ?? '');
+
+                // Security check
+                $usageResult = checkEntityUsageInDatabase($pdo, $tenant_id, 'unit', $unitName, $unitName, $data);
+                if ($usageResult['is_used']) {
+                    http_response_code(400);
+                    echo json_encode([
+                        'success' => false,
+                        'type' => 'delete_unit',
+                        'can_delete' => false,
+                        'is_used' => true,
+                        'usage_count' => $usageResult['usage_count'],
+                        'usages' => $usageResult['usages'],
+                        'error' => 'لا يمكن حذف هذه الوحدة نهائياً لأنها مستخدمة في بطاقات أصناف أو فواتير أو سندات مسجلة بالنظام.'
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+
+                // Remove unit from global settings
+                $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'erp_global_units_v1'");
+                $stmt->execute();
+                $cur = json_decode($stmt->fetchColumn() ?: '[]', true) ?: [];
+                $newUnits = array_values(array_filter($cur, function($u) use ($unitName) {
+                    return trim($u) !== trim($unitName);
+                }));
+                $stmtUp = $pdo->prepare("UPDATE global_settings SET setting_value = ?, updated_at = NOW() WHERE setting_key = 'erp_global_units_v1'");
+                $stmtUp->execute([json_encode($newUnits, JSON_UNESCAPED_UNICODE)]);
+
+                echo json_encode([
+                    'success' => true,
+                    'type' => 'delete_unit',
+                    'can_delete' => true,
+                    'is_used' => false,
+                    'message' => 'تم حذف الوحدة نهائياً من قاعدة البيانات بنجاح.'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+            break;
+
+        // --- 11. Cost Centers ---
+        case 'delete_cost_center':
+            if ($data && (isset($data['id']) || isset($data['name']))) {
+                $ccId = (string)($data['id'] ?? '');
+                $ccName = (string)($data['name'] ?? '');
+
+                // Security check
+                $usageResult = checkEntityUsageInDatabase($pdo, $tenant_id, 'cost_center', $ccId, $ccName, $data);
+                if ($usageResult['is_used']) {
+                    http_response_code(400);
+                    echo json_encode([
+                        'success' => false,
+                        'type' => 'delete_cost_center',
+                        'can_delete' => false,
+                        'is_used' => true,
+                        'usage_count' => $usageResult['usage_count'],
+                        'usages' => $usageResult['usages'],
+                        'error' => 'لا يمكن حذف مركز التكلفة هذا نهائياً لأنه مدرج في سندات أو فواتير أو قيود مسجلة بالنظام.'
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+
+                // Remove from global settings
+                $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'erp_cost_centers_v1'");
+                $stmt->execute();
+                $cur = json_decode($stmt->fetchColumn() ?: '[]', true) ?: [];
+                $newCC = array_values(array_filter($cur, function($c) use ($ccId, $ccName) {
+                    if (is_array($c)) {
+                        if ($ccId && ($c['id'] ?? '') === $ccId) return false;
+                        if ($ccName && ($c['name'] ?? '') === $ccName) return false;
+                    }
+                    return true;
+                }));
+                $stmtUp = $pdo->prepare("UPDATE global_settings SET setting_value = ?, updated_at = NOW() WHERE setting_key = 'erp_cost_centers_v1'");
+                $stmtUp->execute([json_encode($newCC, JSON_UNESCAPED_UNICODE)]);
+
+                echo json_encode([
+                    'success' => true,
+                    'type' => 'delete_cost_center',
+                    'can_delete' => true,
+                    'is_used' => false,
+                    'message' => 'تم حذف مركز التكلفة نهائياً من قاعدة البيانات بنجاح.'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
+            }
+            break;
+
+        // --- 12. Categories ---
+        case 'delete_category':
+            if ($data && (isset($data['name']) || isset($data['id']))) {
+                $catName = (string)($data['name'] ?? $data['id'] ?? '');
+
+                // Security check
+                $usageResult = checkEntityUsageInDatabase($pdo, $tenant_id, 'category', $catName, $catName, $data);
+                if ($usageResult['is_used']) {
+                    http_response_code(400);
+                    echo json_encode([
+                        'success' => false,
+                        'type' => 'delete_category',
+                        'can_delete' => false,
+                        'is_used' => true,
+                        'usage_count' => $usageResult['usage_count'],
+                        'usages' => $usageResult['usages'],
+                        'error' => 'لا يمكن حذف هذه الفئة نهائياً لأنها مرتبطة بأصناف مسجلة بالنظام.'
+                    ], JSON_UNESCAPED_UNICODE);
+                    exit;
+                }
+
+                // Remove category from global settings
+                $stmt = $pdo->prepare("SELECT setting_value FROM global_settings WHERE setting_key = 'erp_categories_v1'");
+                $stmt->execute();
+                $cur = json_decode($stmt->fetchColumn() ?: '[]', true) ?: [];
+                $newCats = array_values(array_filter($cur, function($c) use ($catName) {
+                    return trim($c) !== trim($catName);
+                }));
+                $stmtUp = $pdo->prepare("UPDATE global_settings SET setting_value = ?, updated_at = NOW() WHERE setting_key = 'erp_categories_v1'");
+                $stmtUp->execute([json_encode($newCats, JSON_UNESCAPED_UNICODE)]);
+
+                echo json_encode([
+                    'success' => true,
+                    'type' => 'delete_category',
+                    'can_delete' => true,
+                    'is_used' => false,
+                    'message' => 'تم حذف الفئة نهائياً من قاعدة البيانات بنجاح.'
+                ], JSON_UNESCAPED_UNICODE);
+                exit;
             }
             break;
     }
@@ -244,5 +634,5 @@ try {
     echo json_encode(['success' => true, 'type' => $type], JSON_UNESCAPED_UNICODE);
 } catch (Exception $e) {
     http_response_code(500);
-    echo json_encode(['success' => false, 'error' => $e->getMessage()]);
+    echo json_encode(['success' => false, 'error' => $e->getMessage()], JSON_UNESCAPED_UNICODE);
 }

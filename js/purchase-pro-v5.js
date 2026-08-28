@@ -2493,14 +2493,14 @@ function submitInvoice(ignoreWarnings = false) {
     const localGrandAmount = isBase ? grandAmount : grandAmount * rate;
     const fcGrandAmount = isBase ? grandAmount / rate : grandAmount;
 
-    // --- 1. Multi-Payment Read & Validation ---
+    // --- 1. Multi-Payment Read (Save without restrictive conditions) ---
     if (typeof recalcPaymentSummary === 'function') {
         recalcPaymentSummary();
     }
-    const cashActive = document.getElementById('toggle-cash').classList.contains('active');
-    const creditActive = document.getElementById('toggle-credit').classList.contains('active');
-    const bankActive = document.getElementById('toggle-bank').classList.contains('active');
-    const chequeActive = document.getElementById('toggle-cheque').classList.contains('active');
+    const cashActive = document.getElementById('toggle-cash')?.classList.contains('active') || false;
+    const creditActive = document.getElementById('toggle-credit')?.classList.contains('active') || false;
+    const bankActive = document.getElementById('toggle-bank')?.classList.contains('active') || false;
+    const chequeActive = document.getElementById('toggle-cheque')?.classList.contains('active') || false;
 
     let cashAmt = 0;
     let creditAmt = 0;
@@ -2508,80 +2508,62 @@ function submitInvoice(ignoreWarnings = false) {
     let transfersSum = 0;
     let cheques = [];
     let chequesSum = 0;
-    let paymentMethod = 'cash';
 
-    if (!cashActive && !creditActive && !bankActive && !chequeActive) {
-        // DEFAULT RULE: If no payment method is toggled, default to Credit (Deferred) for full amount
-        creditAmt = grandAmount;
+    if (cashActive) {
+        cashAmt = parseNum(document.getElementById('pay-cash-amount')?.value || 0);
+    }
+
+    if (bankActive) {
+        document.querySelectorAll('#bank-transfers-list .payment-row-item').forEach(row => {
+            const bankAccountId = row.querySelector('.bt-bank-select') ? row.querySelector('.bt-bank-select').value : '';
+            const refEl = row.querySelector('.bt-ref-input') || row.querySelector('.bt-no-input');
+            const reference = refEl ? refEl.value.trim() : '';
+            const noteEl = row.querySelector('.bt-note-input');
+            const notes = noteEl ? noteEl.value.trim() : '';
+            const amountEl = row.querySelector('.bt-amount-input');
+            const amount = amountEl ? parseNum(amountEl.value) : 0;
+            if (amount > 0) {
+                bankTransfers.push({ bankAccountId, reference, notes, amount });
+                transfersSum += amount;
+            }
+        });
+    }
+
+    if (chequeActive) {
+        document.querySelectorAll('#cheques-list .payment-row-item').forEach(row => {
+            const chequeNo = row.querySelector('.ch-no-input') ? row.querySelector('.ch-no-input').value.trim() : '';
+            const bankAccountId = row.querySelector('.ch-bank-select') ? row.querySelector('.ch-bank-select').value : '';
+            const dueDate = row.querySelector('.ch-date-input') ? row.querySelector('.ch-date-input').value : '';
+            const noteEl = row.querySelector('.bt-note-input') || row.querySelector('.ch-note-input');
+            const notes = noteEl ? noteEl.value.trim() : '';
+            const amountEl = row.querySelector('.ch-amount-input');
+            const amount = amountEl ? parseNum(amountEl.value) : 0;
+            if (amount > 0) {
+                cheques.push({ chequeNo, bankAccountId, dueDate, notes, amount });
+                chequesSum += amount;
+            }
+        });
+    }
+
+    // The remaining unpaid portion is automatically treated as Credit (آجل على حساب المورد)
+    const totalPaymentsPaid = cashAmt + transfersSum + chequesSum;
+    if (totalPaymentsPaid < grandAmount) {
+        creditAmt = Math.max(0, grandAmount - totalPaymentsPaid);
+    } else {
+        creditAmt = 0;
+    }
+
+    let paymentMethod = 'credit';
+    if (cashAmt > 0 && transfersSum === 0 && chequesSum === 0 && creditAmt === 0) {
+        paymentMethod = 'cash';
+    } else if (transfersSum > 0 && cashAmt === 0 && chequesSum === 0 && creditAmt === 0) {
+        paymentMethod = 'bank';
+    } else if (chequesSum > 0 && cashAmt === 0 && transfersSum === 0 && creditAmt === 0) {
+        paymentMethod = 'cheque';
+    } else if (totalPaymentsPaid === 0) {
         paymentMethod = 'credit';
     } else {
-        cashAmt = cashActive ? parseNum(document.getElementById('pay-cash-amount').value) : 0;
-        creditAmt = creditActive ? parseNum(document.getElementById('pay-credit-amount').value) : 0;
-        
-        if (bankActive) {
-            let validationFailed = false;
-            let existingPayments = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
-            
-            document.querySelectorAll('#bank-transfers-list .payment-row-item').forEach(row => {
-                const bankAccountId = row.querySelector('.bt-bank-select') ? row.querySelector('.bt-bank-select').value : '';
-                const refEl = row.querySelector('.bt-ref-input') || row.querySelector('.bt-no-input');
-                const reference = refEl ? refEl.value.trim() : '';
-                const amountEl = row.querySelector('.bt-amount-input');
-                const amount = amountEl ? parseNum(amountEl.value) : 0;
-                if (amount > 0) {
-                    if (reference.length < 6) {
-                        showToast('❌ رقم التحويلة أقل من 6 أرقام! يرجى التأكد.', 'error-pink', 6000);
-                        validationFailed = true;
-                    } else {
-                        const last6 = reference.slice(-6);
-                        const isDuplicate = existingPayments.some(p => p.reference && String(p.reference).trim().slice(-6) === last6);
-                        if (isDuplicate) {
-                            showToast(`❌ رقم التحويل منتهي بـ (${last6}) مسجل مسبقاً في حوالة أخرى ولن يتكرر في النظام!`, 'error', 6000);
-                            validationFailed = true;
-                        }
-                    }
-                    bankTransfers.push({ bankAccountId, reference, amount });
-                    transfersSum += amount;
-                }
-            });
-            if (validationFailed) {
-                window.isSubmitting = false;
-                return;
-            }
-        }
-        
-        if (chequeActive) {
-            let validationFailed = false;
-            document.querySelectorAll('#cheques-list .payment-row-item').forEach(row => {
-                const chequeNo = row.querySelector('.ch-no-input') ? row.querySelector('.ch-no-input').value.trim() : '';
-                const bankAccountId = row.querySelector('.ch-bank-select') ? row.querySelector('.ch-bank-select').value : '';
-                const dueDate = row.querySelector('.ch-date-input') ? row.querySelector('.ch-date-input').value : '';
-                const amountEl = row.querySelector('.ch-amount-input');
-                const amount = amountEl ? parseNum(amountEl.value) : 0;
-                if (amount > 0) {
-                    if (!chequeNo) {
-                        showToast('❌ رقم الشيك فاضي! يجب إدخال رقم الشيك لإتمام العملية.', 'error', 6000);
-                        validationFailed = true;
-                    }
-                    cheques.push({ chequeNo, bankAccountId, dueDate, amount });
-                    chequesSum += amount;
-                }
-            });
-            if (validationFailed) {
-                window.isSubmitting = false;
-                return;
-            }
-        }
-
-        const totalPaid = cashAmt + creditAmt + transfersSum + chequesSum;
-        const remaining = grandAmount - totalPaid;
-
-        if (Math.abs(remaining) > 0.05) {
-            showToast(`❌ مجموع المبالغ المدفوعة لا يتطابق مع إجمالي الفاتورة. المتبقي: ${fmtNum(remaining)} ${cur}`, 'error', 5000);
-            return;
-        }
-
-        paymentMethod = getPaymentMethodFromUI();
+        paymentMethod = 'hybrid';
     }
 
     // Save invoice data
@@ -2592,7 +2574,9 @@ function submitInvoice(ignoreWarnings = false) {
         timestamp: new Date().toISOString(),
         date: document.getElementById('hdr-date').value,
         time: new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}),
-        customer: document.getElementById('hdr-customer').value,
+        customer: custId,
+        supplierId: custId,
+        supplier: custId,
         supplierName: supplierSearchEl ? supplierSearchEl.value : '',
         saleType: currentSaleType,
         currency: cur,
@@ -2838,6 +2822,9 @@ function submitInvoice(ignoreWarnings = false) {
     localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
     if (window.AccountingEngine && typeof window.AccountingEngine.postPurchaseInvoice === 'function') {
         window.AccountingEngine.postPurchaseInvoice(data);
+    }
+    if (typeof window.rebuildGLFromAllTables === 'function') {
+        window.rebuildGLFromAllTables(false);
     }
     if (typeof loadHubTransactions === 'function') loadHubTransactions();
 
@@ -3085,6 +3072,16 @@ function postInvoice(invoiceNo) {
     if (idx !== -1) allPurchases[idx] = inv;
     localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
 
+    if (window.AccountingEngine && typeof window.AccountingEngine.postPurchaseInvoice === 'function') {
+        window.AccountingEngine.postPurchaseInvoice(inv);
+    }
+    if (typeof window.rebuildGLFromAllTables === 'function') {
+        window.rebuildGLFromAllTables(false);
+    }
+    if (typeof window.pushToCloud === 'function') {
+        window.pushToCloud(true).catch(e => console.warn("Cloud sync on post failed:", e));
+    }
+
     // 5. Apply immutability and update UI
     if (window.applyImmutabilityUI) window.applyImmutabilityUI('posted');
     updatePostingStatusBar('posted');
@@ -3113,6 +3110,13 @@ function unpostInvoice(invoiceNo) {
     const idx = allPurchases.findIndex(i => String(i.invoiceNo) === String(invoiceNo));
     if (idx !== -1) allPurchases[idx] = inv;
     localStorage.setItem('erp_purchase_invoices_v1', JSON.stringify(allPurchases));
+
+    if (typeof window.rebuildGLFromAllTables === 'function') {
+        window.rebuildGLFromAllTables(false);
+    }
+    if (typeof window.pushToCloud === 'function') {
+        window.pushToCloud(true).catch(e => console.warn("Cloud sync on unpost failed:", e));
+    }
 
     // Remove immutability and update UI
     if (window.applyImmutabilityUI) window.applyImmutabilityUI('confirmed');

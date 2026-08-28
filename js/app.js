@@ -6335,7 +6335,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
         const currency = inv.currency || 'SDG';
         const time = inv.time || timeNow;
         const refNo = inv.invoiceNo || inv.id;
-        const supplierAcct = inv.supplierId || inv.supplier || inv.customer;
+        const supplierAcct = resolveAccount(inv.supplierId || inv.supplier || inv.customer || 'supp-001');
         const isPosted = inv.isPosted !== false;
 
         const rate = parseNum(inv.exchangeRate || 1);

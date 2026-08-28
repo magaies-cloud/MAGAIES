@@ -1251,11 +1251,98 @@
         </main>
     </div>
 
+    <!-- Universal Master Data Entity Deletion & Voucher Check Modal -->
+    <div id="master-data-delete-modal" style="display: none; position: fixed; inset: 0; z-index: 999999; background: rgba(0, 0, 0, 0.82); backdrop-filter: blur(14px); -webkit-backdrop-filter: blur(14px); justify-content: center; align-items: center; padding: 20px; animation: fadeIn 0.25s ease-out;">
+        <div class="neo-card" style="background: rgba(18, 15, 25, 0.96); border: 2.5px solid rgba(255, 255, 255, 0.15); border-radius: 22px; width: 100%; max-width: 630px; box-shadow: 0 25px 65px rgba(0,0,0,0.85), 0 0 35px rgba(0,0,0,0.6); overflow: hidden; display: flex; flex-direction: column; max-height: 90vh; font-family: 'Tajawal', sans-serif;">
+            
+            <!-- Modal Header -->
+            <div id="md-del-modal-header" style="padding: 20px 24px; border-bottom: 1px solid rgba(255,255,255,0.1); display: flex; align-items: center; justify-content: space-between; background: rgba(255,255,255,0.02);">
+                <div style="display: flex; align-items: center; gap: 14px;">
+                    <div id="md-del-modal-icon-wrap" style="width: 48px; height: 48px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.8rem; background: rgba(239,68,68,0.15); border: 1px solid rgba(239,68,68,0.3); box-shadow: 0 0 20px rgba(239,68,68,0.2);">
+                        <span id="md-del-modal-icon">🚫</span>
+                    </div>
+                    <div>
+                        <h3 id="md-del-modal-title" style="margin: 0; font-size: 1.3rem; font-weight: 900; color: #fff; letter-spacing: 0.3px;">فحص حالة العنصر والسندات</h3>
+                        <p id="md-del-modal-subtitle" style="margin: 4px 0 0 0; font-size: 0.88rem; color: #94a3b8; font-weight: 600;">التحقق من ارتباط المكون بالعمليات المالية والمخزنية</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeEntityDeleteModal()" style="background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.12); color: #fff; width: 36px; height: 36px; border-radius: 10px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.15rem; transition: all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.2)'" onmouseout="this.style.background='rgba(255,255,255,0.06)'">✕</button>
+            </div>
+
+            <!-- Modal Body -->
+            <div style="padding: 24px; overflow-y: auto; flex: 1; display: flex; flex-direction: column; gap: 18px;">
+                
+                <!-- Target Summary Card -->
+                <div style="background: linear-gradient(135deg, rgba(56,189,248,0.08), rgba(99,102,241,0.05)); border: 1px solid rgba(56,189,248,0.25); border-radius: 16px; padding: 14px 20px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 12px;">
+                    <div>
+                        <span id="md-del-target-type-label" style="font-size: 0.8rem; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">📦 الاسم:</span>
+                        <strong id="md-del-target-name" style="font-size: 1.3rem; color: #38bdf8; font-weight: 900;">-</strong>
+                    </div>
+                    <div style="text-align: left;">
+                        <span id="md-del-target-code-label" style="font-size: 0.8rem; color: #94a3b8; font-weight: 700; display: block; margin-bottom: 2px;">🏷️ الكود / المعرف:</span>
+                        <span id="md-del-target-code" style="font-family: 'Outfit', monospace; font-size: 1.15rem; font-weight: 900; color: #f1f5f9; background: rgba(0,0,0,0.3); padding: 4px 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">-</span>
+                    </div>
+                </div>
+
+                <!-- Dynamic State Box -->
+                <div id="md-del-status-box" style="border-radius: 16px; padding: 18px; border: 1.5px solid transparent; transition: all 0.3s;">
+                    <!-- Filled dynamically -->
+                </div>
+
+                <!-- Vouchers List Section (Shown only if used) -->
+                <div id="md-del-vouchers-container" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <span id="md-del-vouchers-header-label" style="font-size: 0.95rem; font-weight: 800; color: #f87171; display: flex; align-items: center; gap: 6px;">📋 السندات والفواتير المرتبطة بهذا العنصر:</span>
+                        <span id="md-del-vouchers-count" style="font-size: 0.85rem; background: rgba(239,68,68,0.25); color: #fca5a5; padding: 3px 10px; border-radius: 8px; font-weight: 900; border: 1px solid rgba(239,68,68,0.4);">0 سند</span>
+                    </div>
+                    <div id="md-del-vouchers-list" style="max-height: 200px; overflow-y: auto; background: rgba(0,0,0,0.45); border: 1px solid rgba(255,255,255,0.08); border-radius: 14px; padding: 10px; display: flex; flex-direction: column; gap: 8px;">
+                        <!-- Vouchers items -->
+                    </div>
+                </div>
+
+            </div>
+
+            <!-- Modal Footer Actions -->
+            <div id="md-del-modal-footer" style="padding: 18px 24px; border-top: 1px solid rgba(255,255,255,0.1); background: rgba(0,0,0,0.3); display: flex; justify-content: flex-end; gap: 12px; flex-wrap: wrap;">
+                <!-- Buttons dynamically populated -->
+            </div>
+
+        </div>
+    </div>
+
     <!-- Scripts -->
     <script defer src="https://cdnjs.cloudflare.com/ajax/libs/localforage/1.10.0/localforage.min.js"></script>
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
     <script>
-                // ================= BACKEND MYSQL PERSISTENCE =================
+        if (typeof window.showToast !== 'function') {
+            window.showToast = function(msg, type = 'success', duration = 3500) {
+                let container = document.getElementById('md-toast-container');
+                if (!container) {
+                    container = document.createElement('div');
+                    container.id = 'md-toast-container';
+                    container.style.cssText = 'position:fixed; bottom:30px; left:50%; transform:translateX(-50%); z-index:9999999; display:flex; flex-direction:column; gap:10px; pointer-events:none;';
+                    document.body.appendChild(container);
+                }
+                const toast = document.createElement('div');
+                const isSuccess = type === 'success';
+                const isError = type === 'error';
+                const bg = isSuccess ? 'linear-gradient(135deg, #10b981, #059669)' : (isError ? 'linear-gradient(135deg, #ef4444, #dc2626)' : 'linear-gradient(135deg, #f59e0b, #d97706)');
+                toast.style.cssText = `background:${bg}; color:#ffffff; padding:14px 28px; border-radius:14px; font-weight:800; font-size:1.05rem; box-shadow:0 12px 35px rgba(0,0,0,0.6), 0 0 20px rgba(0,0,0,0.4); pointer-events:auto; font-family:'Tajawal', sans-serif; text-align:center; display:flex; align-items:center; gap:10px; border:1px solid rgba(255,255,255,0.25); transition:all 0.35s cubic-bezier(0.4, 0, 0.2, 1); transform:translateY(20px); opacity:0;`;
+                toast.innerHTML = (isSuccess ? '<span>✅</span> ' : (isError ? '<span>🚫</span> ' : '<span>⚠️</span> ')) + `<span>${msg}</span>`;
+                container.appendChild(toast);
+                requestAnimationFrame(() => {
+                    toast.style.transform = 'translateY(0)';
+                    toast.style.opacity = '1';
+                });
+                setTimeout(() => {
+                    toast.style.transform = 'translateY(20px)';
+                    toast.style.opacity = '0';
+                    setTimeout(() => toast.remove(), 350);
+                }, duration);
+            };
+        }
+
+        // ================= BACKEND MYSQL PERSISTENCE =================
         async function syncToBackend(type, data) {
             try {
                 const token = localStorage.getItem('authToken') || localStorage.getItem('token') || '';
@@ -1484,19 +1571,7 @@
         }
 
         function deleteWarehouse(id) {
-            if(confirm('هل أنت متأكد من حذف هذا المخزن؟ سيتم حذف المخزن فقط، لن يتم حذف البضائع الموجودة.')) {
-                let warehouses = [];
-            try {
-                warehouses = JSON.parse(localStorage.getItem('erp_warehouses_v1')) || [];
-                if (!Array.isArray(warehouses)) warehouses = [];
-            } catch(e) {
-                warehouses = [];
-            }
-            warehouses = warehouses.filter(w => !w.deleted);
-                const idx = warehouses.findIndex(w => w.id === id); if(idx > -1) { warehouses[idx].deleted = true; warehouses[idx].updatedAt = Date.now(); }
-                localStorage.setItem('erp_warehouses_v1', JSON.stringify(warehouses));
-                renderWarehouses();
-            }
+            genericDeleteEntity('warehouse', id);
         }
 
         // ================= CUSTOMERS LOGIC =================
@@ -1746,25 +1821,7 @@
         }
         
         function deleteCustomer(id) {
-            if(confirm('هل أنت متأكد من حذف هذا العميل؟')) {
-                let customers = [];
-                try {
-                    customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
-                    if (!Array.isArray(customers)) customers = [];
-                } catch(e) {}
-                
-                const idx = customers.findIndex(c => String(c.id) === String(id));
-                if (idx > -1) {
-                    customers.splice(idx, 1);
-                } else {
-                    // Fallback for corrupted data (try by name if id somehow matches name)
-                    const nameIdx = customers.findIndex(c => c.name === id);
-                    if (nameIdx > -1) customers.splice(nameIdx, 1);
-                }
-                
-                localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
-                renderCustomers();
-            }
+            genericDeleteEntity('customer', id);
         }
 
         // ================= SUPPLIERS LOGIC =================
@@ -1943,24 +2000,7 @@
         }
         
         function deleteSupplier(id) {
-            if(confirm('هل أنت متأكد من حذف هذا المورد؟')) {
-                let suppliers = [];
-                try {
-                    suppliers = JSON.parse(localStorage.getItem('erp_suppliers_v1')) || [];
-                    if (!Array.isArray(suppliers)) suppliers = [];
-                } catch(e) {}
-                
-                const idx = suppliers.findIndex(s => String(s.id) === String(id));
-                if (idx > -1) {
-                    suppliers.splice(idx, 1);
-                } else {
-                    const nameIdx = suppliers.findIndex(s => s.name === id);
-                    if (nameIdx > -1) suppliers.splice(nameIdx, 1);
-                }
-                
-                localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
-                renderSuppliers();
-            }
+            genericDeleteEntity('supplier', id);
         }
 
         function renderEmployees() {
@@ -1992,8 +2032,22 @@
             }
 
             employees.forEach(emp => {
-                tbody.insertAdjacentHTML('beforeend', `<tr><td>${emp.name}</td><td>${emp.role}</td><td>${emp.phone||'-'}</td><td>${emp.securityLevel}</td><td>${emp.status}</td><td><button class="btn-text" onclick="editEmployee('${emp.id}')">تعديل</button></td></tr>`);
+                tbody.insertAdjacentHTML('beforeend', `<tr>
+                    <td>${emp.name}</td>
+                    <td>${emp.role}</td>
+                    <td>${emp.phone||'-'}</td>
+                    <td>${emp.securityLevel}</td>
+                    <td>${emp.status}</td>
+                    <td>
+                        <button class="btn-text" style="color:#a855f7; font-weight:bold; margin-left:8px;" onclick="editEmployee('${emp.id}')">✏️ تعديل</button>
+                        <button class="btn-text" style="color:var(--danger-color); font-weight:bold;" onclick="deleteEmployee('${emp.id}')">🗑️ حذف</button>
+                    </td>
+                </tr>`);
             });
+        }
+        
+        function deleteEmployee(id) {
+            genericDeleteEntity('employee', id);
         }
         
         function openNewEmployeeForm() {
@@ -2039,6 +2093,7 @@
             }
             
             localStorage.setItem('erp_users_v1', JSON.stringify(employees));
+            syncToBackend('save_employee', empData);
             document.getElementById('employee-form').style.display='none';
             renderEmployees();
         }
@@ -2183,19 +2238,7 @@
         }
 
         function deleteBank(id) {
-            if(confirm('هل أنت متأكد من حذف هذا الحساب؟')) {
-                let banks = [];
-            try {
-                banks = JSON.parse(localStorage.getItem('erp_banks_v1')) || [];
-                if (!Array.isArray(banks)) banks = [];
-            } catch(e) {
-                banks = [];
-            }
-            banks = banks.filter(b => !b.deleted);
-                const idx = banks.findIndex(b => b.id === id); if(idx > -1) { banks[idx].deleted = true; banks[idx].updatedAt = Date.now(); }
-                localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
-                renderBanks();
-            }
+            genericDeleteEntity('bank', id);
         }
 
                 function saveSafe() {
@@ -2311,19 +2354,7 @@
         }
 
         function deleteSafe(id) {
-            if(confirm('هل أنت متأكد من حذف هذا الحساب؟')) {
-                let safes = [];
-            try {
-                safes = JSON.parse(localStorage.getItem('erp_safes_v1')) || [];
-                if (!Array.isArray(safes)) safes = [];
-            } catch(e) {
-                safes = [];
-            }
-            safes = safes.filter(b => !b.deleted);
-                const idx = safes.findIndex(b => b.id === id); if(idx > -1) { safes[idx].deleted = true; safes[idx].updatedAt = Date.now(); }
-                localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
-                renderSafes();
-            }
+            genericDeleteEntity('safe', id);
         }
 
                         // ================= ITEMS LOGIC =================
@@ -2713,19 +2744,707 @@
             document.getElementById('item-form').scrollIntoView({ behavior: 'smooth' });
         }
 
-        function deleteItem(id) {
-            if(confirm('هل أنت متأكد من حذف هذا الصنف؟')) {
-                let items = [];
-            try {
-                items = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
-                if (!Array.isArray(items)) items = [];
-            } catch(e) {
-                items = [];
+        // ================= ITEM DELETION & USAGE CHECK LOGIC =================
+        let currentDeleteItemData = null;
+
+        // ================= UNIVERSAL MASTER DATA DELETION & VOUCHER USAGE CHECK ENGINE =================
+        const ENTITY_CONFIG = {
+            warehouse: {
+                type: 'warehouse',
+                label: 'المخزن',
+                labelPlural: 'المخازن',
+                icon: '🏢',
+                localKey: 'erp_warehouses_v1',
+                backendType: 'delete_warehouse',
+                render: () => { if (typeof renderWarehouses === 'function') renderWarehouses(); }
+            },
+            customer: {
+                type: 'customer',
+                label: 'العميل',
+                labelPlural: 'العملاء',
+                icon: '👥',
+                localKey: 'erp_customers_v1',
+                backendType: 'delete_customer',
+                render: () => { if (typeof renderCustomers === 'function') renderCustomers(); }
+            },
+            supplier: {
+                type: 'supplier',
+                label: 'المورد',
+                labelPlural: 'الموردين',
+                icon: '🏭',
+                localKey: 'erp_suppliers_v1',
+                backendType: 'delete_supplier',
+                render: () => { if (typeof renderSuppliers === 'function') renderSuppliers(); }
+            },
+            bank: {
+                type: 'bank',
+                label: 'البنك',
+                labelPlural: 'البنوك',
+                icon: '🏦',
+                localKey: 'erp_banks_v1',
+                backendType: 'delete_bank',
+                render: () => { if (typeof renderBanks === 'function') renderBanks(); }
+            },
+            safe: {
+                type: 'safe',
+                label: 'الخزينة',
+                labelPlural: 'الخزن',
+                icon: '💰',
+                localKey: 'erp_safes_v1',
+                backendType: 'delete_safe',
+                render: () => { if (typeof renderSafes === 'function') renderSafes(); }
+            },
+            item: {
+                type: 'item',
+                label: 'الصنف',
+                labelPlural: 'الأصناف',
+                icon: '📦',
+                localKey: 'erp_items_v1',
+                backendType: 'delete_item',
+                render: () => { if (typeof renderItems === 'function') renderItems(); }
+            },
+            employee: {
+                type: 'employee',
+                label: 'الموظف',
+                labelPlural: 'الموظفين',
+                icon: '👤',
+                localKey: 'erp_users_v1',
+                backendType: 'delete_employee',
+                render: () => { if (typeof renderEmployees === 'function') renderEmployees(); }
+            },
+            unit: {
+                type: 'unit',
+                label: 'وحدة القياس',
+                labelPlural: 'الوحدات',
+                icon: '📐',
+                localKey: 'erp_global_units_v1',
+                backendType: 'delete_unit',
+                render: () => {
+                    if (typeof renderGlobalUnitsList === 'function') renderGlobalUnitsList();
+                    if (typeof updateUnitDropdowns === 'function') updateUnitDropdowns();
+                    if (typeof renderItems === 'function') renderItems();
+                }
+            },
+            cost_center: {
+                type: 'cost_center',
+                label: 'مركز التكلفة',
+                labelPlural: 'مراكز التكلفة',
+                icon: '📊',
+                localKey: 'erp_jobs_v1',
+                backendType: 'delete_cost_center',
+                render: () => { if (typeof renderCostCenters === 'function') renderCostCenters(); }
+            },
+            category: {
+                type: 'category',
+                label: 'الفئة',
+                labelPlural: 'الفئات',
+                icon: '🏷️',
+                localKey: 'erp_categories_v1',
+                backendType: 'delete_category',
+                render: () => {
+                    if (typeof renderCategoriesList === 'function') renderCategoriesList();
+                    if (typeof updateCategoryDropdowns === 'function') updateCategoryDropdowns();
+                    if (typeof renderItems === 'function') renderItems();
+                }
             }
-            items = items.filter(i => !i.deleted);
-                const idx = items.findIndex(i => i.id === id); if(idx > -1) { items[idx].deleted = true; items[idx].updatedAt = Date.now(); }
-                localStorage.setItem('erp_items_v1', JSON.stringify(items));
-                renderItems();
+        };
+
+        let currentDeleteTarget = null;
+
+        function closeEntityDeleteModal() {
+            const modal = document.getElementById('master-data-delete-modal') || document.getElementById('item-delete-modal');
+            if (modal) modal.style.display = 'none';
+            currentDeleteTarget = null;
+        }
+        function closeItemDeleteModal() { closeEntityDeleteModal(); }
+
+        function openEntityDeleteModalLoading(cfg, entity) {
+            const modal = document.getElementById('master-data-delete-modal') || document.getElementById('item-delete-modal');
+            if (!modal) return;
+
+            const nameEl = document.getElementById('md-del-target-name') || document.getElementById('item-del-target-name');
+            const codeEl = document.getElementById('md-del-target-code') || document.getElementById('item-del-target-code');
+            const typeLabelEl = document.getElementById('md-del-target-type-label');
+            const codeLabelEl = document.getElementById('md-del-target-code-label');
+
+            if (nameEl) nameEl.innerText = entity.name || entity.id || 'عنصر غير محدد';
+            if (codeEl) codeEl.innerText = entity.id || entity.name || '-';
+            if (typeLabelEl) typeLabelEl.innerText = `${cfg.icon} اسم ${cfg.label}:`;
+            if (codeLabelEl) codeLabelEl.innerText = `🏷️ كود ${cfg.label}:`;
+
+            const iconWrap = document.getElementById('md-del-modal-icon-wrap') || document.getElementById('item-del-modal-icon-wrap');
+            const iconEl = document.getElementById('md-del-modal-icon') || document.getElementById('item-del-modal-icon');
+            if (iconWrap) {
+                iconWrap.style.background = 'rgba(56,189,248,0.15)';
+                iconWrap.style.borderColor = 'rgba(56,189,248,0.3)';
+                iconWrap.style.boxShadow = '0 0 20px rgba(56,189,248,0.2)';
+            }
+            if (iconEl) iconEl.innerText = '🔍';
+
+            const titleEl = document.getElementById('md-del-modal-title') || document.getElementById('item-del-modal-title');
+            const subtitleEl = document.getElementById('md-del-modal-subtitle') || document.getElementById('item-del-modal-subtitle');
+            if (titleEl) {
+                titleEl.innerText = `جاري فحص ارتباطات ${cfg.label} بالسندات...`;
+                titleEl.style.color = '#fff';
+            }
+            if (subtitleEl) subtitleEl.innerText = `يتم التحقق من الفواتير، السندات، والقيود المحاسبية وحركات المخزون`;
+
+            const statusBox = document.getElementById('md-del-status-box') || document.getElementById('item-del-status-box');
+            if (statusBox) {
+                statusBox.style.background = 'rgba(56,189,248,0.08)';
+                statusBox.style.borderColor = 'rgba(56,189,248,0.2)';
+                statusBox.innerHTML = `
+                    <div style="display:flex; align-items:center; justify-content:center; gap:12px; padding:15px; color:#38bdf8; font-weight:800; font-size:1.1rem;">
+                        <span style="display:inline-block; animation:spin 1s infinite linear;">⏳</span>
+                        <span>جاري فحص السجلات المحاسبية والمخزنية وقاعدة البيانات...</span>
+                    </div>
+                `;
+            }
+
+            const vouchersContainer = document.getElementById('md-del-vouchers-container') || document.getElementById('item-del-vouchers-container');
+            if (vouchersContainer) vouchersContainer.style.display = 'none';
+
+            const footerEl = document.getElementById('md-del-modal-footer') || document.getElementById('item-del-modal-footer');
+            if (footerEl) {
+                footerEl.innerHTML = `
+                    <button type="button" onclick="closeEntityDeleteModal()" class="btn-action" style="padding:8px 20px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#fff; cursor:pointer;">إلغاء</button>
+                `;
+            }
+
+            modal.style.display = 'flex';
+        }
+
+        function scanEntityLocalUsages(entityType, entity) {
+            const usages = [];
+            const entId = String(entity.id || '');
+            const entName = String(entity.name || '').trim().toLowerCase();
+            const barcodes = [entity.barcode || ''];
+            if (Array.isArray(entity.units)) {
+                entity.units.forEach(u => { if (u && u.barcode) barcodes.push(u.barcode); });
+            }
+
+            const isMatch = (val) => {
+                if (val === null || val === undefined || val === '') return false;
+                const s = String(val).trim();
+                const sl = s.toLowerCase();
+                if (entId && s === entId) return true;
+                if (entName && sl === entName) return true;
+                if (entId && (s === 'cust-' + entId || s === 'supp-' + entId || s === 'wh-' + entId || s === 'safe-' + entId || s === 'bank-' + entId)) return true;
+                if (barcodes.includes(s)) return true;
+                return false;
+            };
+
+            // 1. Sales Invoices
+            try {
+                const sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1')) || [];
+                if (Array.isArray(sales)) {
+                    sales.forEach(s => {
+                        if (!s) return;
+                        let matched = false;
+                        if (entityType === 'warehouse') {
+                            if (isMatch(s.warehouse) || isMatch(s.warehouseId) || isMatch(s.deliveryWarehouse)) matched = true;
+                            if (Array.isArray(s.items)) {
+                                s.items.forEach(it => { if (isMatch(it.warehouseId) || isMatch(it.warehouse)) matched = true; });
+                            }
+                        } else if (entityType === 'customer') {
+                            if (isMatch(s.customer) || isMatch(s.customerId) || isMatch(s.customerName) || isMatch(s.client)) matched = true;
+                        } else if (entityType === 'bank') {
+                            if (isMatch(s.paymentAccountId) || isMatch(s.bankId) || isMatch(s.paymentAccount) || isMatch(s.bank)) matched = true;
+                        } else if (entityType === 'safe') {
+                            if (isMatch(s.safe) || isMatch(s.safeId) || isMatch(s.paymentAccountId) || isMatch(s.cashBox)) matched = true;
+                        } else if (entityType === 'item') {
+                            if (Array.isArray(s.items)) {
+                                s.items.forEach(it => {
+                                    if (isMatch(it.itemId) || isMatch(it.id) || isMatch(it.itemName) || isMatch(it.name) || isMatch(it.barcode) || isMatch(it.qrCode)) matched = true;
+                                });
+                            }
+                        } else if (entityType === 'unit') {
+                            if (Array.isArray(s.items)) {
+                                s.items.forEach(it => { if (isMatch(it.selectedUnit) || isMatch(it.unit)) matched = true; });
+                            }
+                        } else if (entityType === 'cost_center') {
+                            if (isMatch(s.costCenter) || isMatch(s.costCenterId)) matched = true;
+                        } else if (entityType === 'employee') {
+                            if (isMatch(s.createdBy) || isMatch(s.salesRep) || isMatch(s.salesman) || isMatch(s.driver) || isMatch(s.user)) matched = true;
+                        }
+
+                        if (matched) {
+                            const invNo = s.invoiceNo || s.id || '';
+                            usages.push({
+                                type: 'فاتورة مبيعات',
+                                doc_no: String(invNo),
+                                date: s.date || '',
+                                label: `فاتورة مبيعات رقم ${invNo}` + (s.date ? ` بتاريخ ${s.date}` : '')
+                            });
+                        }
+                    });
+                }
+            } catch(e) {}
+
+            // 2. Purchase Invoices
+            try {
+                const purchases = JSON.parse(localStorage.getItem('erp_purchase_invoices_v1')) || [];
+                if (Array.isArray(purchases)) {
+                    purchases.forEach(p => {
+                        if (!p) return;
+                        let matched = false;
+                        if (entityType === 'warehouse') {
+                            if (isMatch(p.warehouse) || isMatch(p.warehouseId)) matched = true;
+                            if (Array.isArray(p.items)) {
+                                p.items.forEach(it => { if (isMatch(it.warehouseId) || isMatch(it.warehouse)) matched = true; });
+                            }
+                        } else if (entityType === 'supplier') {
+                            if (isMatch(p.supplier) || isMatch(p.supplierId) || isMatch(p.supplierName) || isMatch(p.customer)) matched = true;
+                        } else if (entityType === 'bank') {
+                            if (isMatch(p.paymentAccountId) || isMatch(p.bankId) || isMatch(p.paymentAccount) || isMatch(p.bank)) matched = true;
+                        } else if (entityType === 'safe') {
+                            if (isMatch(p.safe) || isMatch(p.safeId) || isMatch(p.paymentAccountId) || isMatch(p.cashBox)) matched = true;
+                        } else if (entityType === 'item') {
+                            if (Array.isArray(p.items)) {
+                                p.items.forEach(it => {
+                                    if (isMatch(it.itemId) || isMatch(it.id) || isMatch(it.itemName) || isMatch(it.name) || isMatch(it.barcode) || isMatch(it.qrCode)) matched = true;
+                                });
+                            }
+                        } else if (entityType === 'unit') {
+                            if (Array.isArray(p.items)) {
+                                p.items.forEach(it => { if (isMatch(it.selectedUnit) || isMatch(it.unit)) matched = true; });
+                            }
+                        } else if (entityType === 'cost_center') {
+                            if (isMatch(p.costCenter) || isMatch(p.costCenterId)) matched = true;
+                        } else if (entityType === 'employee') {
+                            if (isMatch(p.createdBy) || isMatch(p.user)) matched = true;
+                        }
+
+                        if (matched) {
+                            const invNo = p.invoiceNo || p.id || '';
+                            usages.push({
+                                type: 'فاتورة مشتريات',
+                                doc_no: String(invNo),
+                                date: p.date || '',
+                                label: `فاتورة مشتريات رقم ${invNo}` + (p.date ? ` بتاريخ ${p.date}` : '')
+                            });
+                        }
+                    });
+                }
+            } catch(e) {}
+
+            // 3. Single Payments & Receipts
+            try {
+                const singlePay = JSON.parse(localStorage.getItem('erp_single_payments_v1')) || [];
+                if (Array.isArray(singlePay)) {
+                    singlePay.forEach(sp => {
+                        if (!sp) return;
+                        let matched = false;
+                        if (['customer', 'supplier', 'bank', 'safe'].includes(entityType)) {
+                            if (isMatch(sp.fromAccount) || isMatch(sp.toAccount) || isMatch(sp.accountId) || isMatch(sp.partyId)) matched = true;
+                        } else if (entityType === 'cost_center' && (isMatch(sp.costCenter) || isMatch(sp.costCenterId))) {
+                            matched = true;
+                        } else if (entityType === 'employee' && (isMatch(sp.createdBy) || isMatch(sp.paidBy))) {
+                            matched = true;
+                        }
+                        if (matched) {
+                            const no = sp.id || sp.voucherNo || '';
+                            usages.push({
+                                type: 'سند صرف',
+                                doc_no: String(no),
+                                date: sp.date || '',
+                                label: `سند صرف رقم ${no}` + (sp.date ? ` بتاريخ ${sp.date}` : '')
+                            });
+                        }
+                    });
+                }
+            } catch(e) {}
+
+            try {
+                const singleRec = JSON.parse(localStorage.getItem('erp_single_receipts_v1')) || [];
+                if (Array.isArray(singleRec)) {
+                    singleRec.forEach(sr => {
+                        if (!sr) return;
+                        let matched = false;
+                        if (['customer', 'supplier', 'bank', 'safe'].includes(entityType)) {
+                            if (isMatch(sr.fromAccount) || isMatch(sr.toAccount) || isMatch(sr.accountId) || isMatch(sr.partyId)) matched = true;
+                        } else if (entityType === 'cost_center' && (isMatch(sr.costCenter) || isMatch(sr.costCenterId))) {
+                            matched = true;
+                        } else if (entityType === 'employee' && (isMatch(sr.createdBy) || isMatch(sr.receivedBy) || isMatch(sr.collectorName))) {
+                            matched = true;
+                        }
+                        if (matched) {
+                            const no = sr.id || sr.voucherNo || '';
+                            usages.push({
+                                type: 'سند قبض',
+                                doc_no: String(no),
+                                date: sr.date || '',
+                                label: `سند قبض رقم ${no}` + (sr.date ? ` بتاريخ ${sr.date}` : '')
+                            });
+                        }
+                    });
+                }
+            } catch(e) {}
+
+            // 4. Delivery Notes
+            try {
+                const dNotes = JSON.parse(localStorage.getItem('erp_delivery_notes_v1')) || [];
+                if (Array.isArray(dNotes)) {
+                    dNotes.forEach(dn => {
+                        if (!dn) return;
+                        let matched = false;
+                        if (entityType === 'warehouse' && (isMatch(dn.warehouse) || isMatch(dn.warehouseId) || isMatch(dn.targetWarehouse))) matched = true;
+                        if (entityType === 'customer' && (isMatch(dn.customer) || isMatch(dn.customerId) || isMatch(dn.customerName))) matched = true;
+                        if (entityType === 'employee' && (isMatch(dn.driver) || isMatch(dn.deliveredBy) || isMatch(dn.receivedBy) || isMatch(dn.createdBy))) matched = true;
+                        if (entityType === 'item' && Array.isArray(dn.items)) {
+                            dn.items.forEach(it => { if (isMatch(it.itemId) || isMatch(it.id) || isMatch(it.itemName) || isMatch(it.name)) matched = true; });
+                        }
+                        if (entityType === 'unit' && Array.isArray(dn.items)) {
+                            dn.items.forEach(it => { if (isMatch(it.selectedUnit) || isMatch(it.unit)) matched = true; });
+                        }
+                        if (matched) {
+                            const no = dn.noteNo || dn.id || '';
+                            usages.push({
+                                type: 'سند تسليم / إذن صرف',
+                                doc_no: String(no),
+                                date: dn.date || '',
+                                label: `سند تسليم رقم ${no}` + (dn.date ? ` بتاريخ ${dn.date}` : '')
+                            });
+                        }
+                    });
+                }
+            } catch(e) {}
+
+            // 5. Items table for Unit & Category usage
+            if (entityType === 'unit' || entityType === 'category') {
+                try {
+                    const items = JSON.parse(localStorage.getItem('erp_items_v1')) || [];
+                    if (Array.isArray(items)) {
+                        items.forEach(it => {
+                            if (!it || it.deleted) return;
+                            if (entityType === 'unit') {
+                                let matched = isMatch(it.baseUnit) || isMatch(it.unit);
+                                if (Array.isArray(it.units)) {
+                                    it.units.forEach(u => { if (u && isMatch(u.unitName)) matched = true; });
+                                }
+                                if (matched) {
+                                    usages.push({
+                                        type: 'بطاقة صنف',
+                                        doc_no: String(it.id || it.name),
+                                        date: '',
+                                        label: `مستخدم كوحدة في بطاقة صنف: ${it.name || it.id}`
+                                    });
+                                }
+                            } else if (entityType === 'category') {
+                                if (isMatch(it.category) || isMatch(it.subCategory)) {
+                                    usages.push({
+                                        type: 'بطاقة صنف',
+                                        doc_no: String(it.id || it.name),
+                                        date: '',
+                                        label: `مستخدم كفئة للصنف: ${it.name || it.id}`
+                                    });
+                                }
+                            }
+                        });
+                    }
+                } catch(e) {}
+            }
+
+            return usages;
+        }
+
+        function renderEntityDeleteModalResult(cfg, entity, isUsed, allUsages) {
+            const iconWrap = document.getElementById('md-del-modal-icon-wrap') || document.getElementById('item-del-modal-icon-wrap');
+            const iconEl = document.getElementById('md-del-modal-icon') || document.getElementById('item-del-modal-icon');
+            const titleEl = document.getElementById('md-del-modal-title') || document.getElementById('item-del-modal-title');
+            const subtitleEl = document.getElementById('md-del-modal-subtitle') || document.getElementById('item-del-modal-subtitle');
+            const statusBox = document.getElementById('md-del-status-box') || document.getElementById('item-del-status-box');
+            const vouchersContainer = document.getElementById('md-del-vouchers-container') || document.getElementById('item-del-vouchers-container');
+            const vouchersList = document.getElementById('md-del-vouchers-list') || document.getElementById('item-del-vouchers-list');
+            const vouchersCount = document.getElementById('md-del-vouchers-count') || document.getElementById('item-del-vouchers-count');
+            const vouchersHeader = document.getElementById('md-del-vouchers-header-label');
+            const footerEl = document.getElementById('md-del-modal-footer') || document.getElementById('item-del-modal-footer');
+
+            const displayName = entity.name || entity.id || cfg.label;
+
+            if (isUsed) {
+                // STATE 1: USED IN VOUCHER -> PREVENT DELETION
+                if (iconWrap) {
+                    iconWrap.style.background = 'rgba(239, 68, 68, 0.18)';
+                    iconWrap.style.borderColor = 'rgba(239, 68, 68, 0.45)';
+                    iconWrap.style.boxShadow = '0 0 25px rgba(239, 68, 68, 0.35)';
+                }
+                if (iconEl) iconEl.innerText = '🚫';
+
+                if (titleEl) {
+                    titleEl.innerText = `لا يمكن حذف هذا ${cfg.label} نهائياً`;
+                    titleEl.style.color = '#f87171';
+                }
+                if (subtitleEl) subtitleEl.innerText = `${cfg.label} مرتبط بسجلات وسندات وفواتير رسمية بالنظام`;
+
+                if (statusBox) {
+                    statusBox.style.background = 'linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(185, 28, 28, 0.08))';
+                    statusBox.style.borderColor = 'rgba(239, 68, 68, 0.35)';
+                    statusBox.innerHTML = `
+                        <div style="display:flex; flex-direction:column; gap:8px;">
+                            <div style="display:flex; align-items:center; gap:8px; color:#fca5a5; font-weight:800; font-size:1.05rem;">
+                                <span>⚠️</span>
+                                <span>تنبيه نظام مقاييس المحاسبي:</span>
+                            </div>
+                            <p style="margin:0; color:#e2e8f0; font-size:0.95rem; line-height:1.6; font-weight:600;">
+                                تم استخدام ${cfg.label} (<span style="color:#38bdf8; font-weight:800;">${displayName}</span>) في عدد <span style="color:#f87171; font-weight:900; font-size:1.15rem; background:rgba(239,68,68,0.2); padding:1px 8px; border-radius:6px;">${allUsages.length}</span> سند / حركة / سجل مسجل.
+                            </p>
+                            <div style="background:rgba(0,0,0,0.3); border-radius:10px; padding:10px 14px; margin-top:4px; border-right:3px solid #ef4444;">
+                                <span style="color:#cbd5e1; font-size:0.88rem; font-weight:700;">
+                                    🔒 طبقاً لمعايير المحاسبة والرقابة والضبط المالي الصارمة، <strong style="color:#f87171;">لا يمكن حذف أي ${cfg.label} له حركات أو سندات مرتبطة</strong> نهائياً، وذلك لحماية سلامة القوائم المالية، الحسابات، والتقارير الرسمية.
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                // Render Vouchers List
+                if (vouchersHeader) vouchersHeader.innerText = `📋 السندات والفواتير المرتبطة بهذا ${cfg.label}:`;
+                if (vouchersCount) vouchersCount.innerText = `${allUsages.length} سند / سجل`;
+                if (vouchersList) {
+                    vouchersList.innerHTML = allUsages.map((u, idx) => `
+                        <div style="display:flex; align-items:center; justify-content:space-between; background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.05); border-radius:8px; padding:8px 12px;">
+                            <div style="display:flex; align-items:center; gap:8px;">
+                                <span style="color:#f87171; font-weight:bold; font-size:0.85rem;">${idx + 1}.</span>
+                                <span style="color:#e2e8f0; font-weight:700; font-size:0.9rem;">${u.label || (u.type + ' رقم ' + u.doc_no)}</span>
+                            </div>
+                            <span style="background:rgba(239,68,68,0.15); color:#fca5a5; font-size:0.75rem; font-weight:800; padding:2px 8px; border-radius:4px;">${u.type}</span>
+                        </div>
+                    `).join('');
+                }
+                if (vouchersContainer) vouchersContainer.style.display = 'block';
+
+                // Footer with Close button only
+                if (footerEl) {
+                    footerEl.innerHTML = `
+                        <button type="button" onclick="closeEntityDeleteModal()" class="btn-action" style="padding:10px 25px; border-radius:10px; background:linear-gradient(135deg, #3b82f6, #1d4ed8); border:none; color:#fff; font-weight:800; font-size:1rem; cursor:pointer; box-shadow:0 4px 15px rgba(59,130,246,0.4);">حسناً، فهمت</button>
+                    `;
+                }
+
+            } else {
+                // STATE 2: NOT USED IN ANY VOUCHER -> ALLOW HARD DELETE
+                if (iconWrap) {
+                    iconWrap.style.background = 'rgba(245, 158, 11, 0.18)';
+                    iconWrap.style.borderColor = 'rgba(245, 158, 11, 0.45)';
+                    iconWrap.style.boxShadow = '0 0 25px rgba(245, 158, 11, 0.35)';
+                }
+                if (iconEl) iconEl.innerText = '⚠️';
+
+                if (titleEl) {
+                    titleEl.innerText = `تأكيد حذف ${cfg.label} نهائياً`;
+                    titleEl.style.color = '#fbbf24';
+                }
+                if (subtitleEl) subtitleEl.innerText = `${cfg.label} غير مستخدم في أي سند أو حركة`;
+
+                if (statusBox) {
+                    statusBox.style.background = 'linear-gradient(135deg, rgba(245, 158, 11, 0.08), rgba(239, 68, 68, 0.06))';
+                    statusBox.style.borderColor = 'rgba(245, 158, 11, 0.3)';
+                    statusBox.innerHTML = `
+                        <div style="display:flex; flex-direction:column; gap:10px;">
+                            <div style="display:flex; align-items:center; gap:8px; color:#34d399; font-weight:800; font-size:1rem;">
+                                <span>✅</span>
+                                <span>تم التحقق: هذا ${cfg.label} غير مستخدم في أي سند أو فاتورة أو حركة.</span>
+                            </div>
+                            <p style="margin:0; color:#e2e8f0; font-size:0.95rem; line-height:1.6; font-weight:600;">
+                                هل أنت متأكد من رغبتك في حذف ${cfg.label} (<span style="color:#38bdf8; font-weight:800;">${displayName}</span>)؟
+                            </p>
+                            <div style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.35); border-radius:10px; padding:12px 14px; margin-top:4px;">
+                                <div style="display:flex; align-items:center; gap:8px; color:#f87171; font-weight:900; font-size:0.95rem; margin-bottom:4px;">
+                                    <span>🚨</span>
+                                    <span>تحذير نهائي لا يمكن الرجوع فيه:</span>
+                                </div>
+                                <span style="color:#fecaca; font-size:0.88rem; font-weight:700; line-height:1.5; display:block;">
+                                    سيتم حذف ${cfg.label} <strong>نهائياً وبشكل دائم من قاعدة البيانات (MySQL) ومن المتصفح</strong>، ولن يمكن استرجاعه أو الرجوع فيه ثانية.
+                                </span>
+                            </div>
+                        </div>
+                    `;
+                }
+
+                if (vouchersContainer) vouchersContainer.style.display = 'none';
+
+                // Footer with Confirm Delete and Cancel buttons
+                if (footerEl) {
+                    footerEl.innerHTML = `
+                        <button type="button" onclick="closeEntityDeleteModal()" class="btn-action" style="padding:10px 20px; border-radius:10px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#fff; font-weight:800; cursor:pointer;">إلغاء الأمر</button>
+                        <button type="button" id="md-del-confirm-btn" onclick="confirmExecuteHardDeleteEntity()" class="btn-action" style="padding:10px 25px; border-radius:10px; background:linear-gradient(135deg, #ef4444, #dc2626); border:1px solid rgba(239,68,68,0.5); color:#fff; font-weight:900; font-size:1rem; cursor:pointer; box-shadow:0 6px 20px rgba(239,68,68,0.4);">🗑️ نعم، احذف ${cfg.label} نهائياً الآن</button>
+                    `;
+                }
+            }
+        }
+
+        async function genericDeleteEntity(entityType, id, customName = null) {
+            const cfg = ENTITY_CONFIG[entityType];
+            if (!cfg) return;
+
+            let entity = { id: String(id), name: customName || String(id) };
+
+            // Find entity details from localStorage
+            try {
+                const list = JSON.parse(localStorage.getItem(cfg.localKey)) || [];
+                if (Array.isArray(list)) {
+                    if (entityType === 'unit' || entityType === 'category') {
+                        const found = list.find(u => String(u) === String(id));
+                        if (found) entity = { id: found, name: found };
+                    } else {
+                        const found = list.find(item => item && (
+                            String(item.id) === String(id) || 
+                            String(item.frontend_id) === String(id) || 
+                            String(item.name || item.title || item.username) === String(id)
+                        ));
+                        if (found) {
+                            entity = {
+                                ...found,
+                                id: found.id || found.frontend_id || id,
+                                name: found.name || found.fullName || found.title || found.username || customName || id
+                            };
+                        }
+                    }
+                }
+            } catch(e) {}
+
+            currentDeleteTarget = { entityType, entity, cfg };
+
+            // 1. Open modal loading state
+            openEntityDeleteModalLoading(cfg, entity);
+
+            // 2. Scan local usages
+            const localUsages = scanEntityLocalUsages(entityType, entity);
+
+            // 3. Scan backend MySQL usages
+            let backendUsages = [];
+            try {
+                const token = localStorage.getItem('authToken') || localStorage.getItem('token') || '';
+                const res = await fetch('api/save_master_data.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token ? ('Bearer ' + token) : ''
+                    },
+                    body: JSON.stringify({
+                        type: 'check_entity_usage',
+                        data: {
+                            entity_type: entityType,
+                            id: entity.id,
+                            name: entity.name,
+                            barcode: entity.barcode || ''
+                        }
+                    })
+                });
+                const resJson = await res.json();
+                if (resJson && resJson.success) {
+                    backendUsages = resJson.usages || [];
+                }
+            } catch(e) {
+                console.warn(`Backend ${entityType} usage check error:`, e);
+            }
+
+            // 4. Merge unique usages
+            const allUsagesMap = new Map();
+            [...localUsages, ...backendUsages].forEach(u => {
+                const key = (u.type || '') + '_' + (u.doc_no || '') + '_' + (u.date || '');
+                if (!allUsagesMap.has(key)) {
+                    allUsagesMap.set(key, u);
+                }
+            });
+
+            const allUsages = Array.from(allUsagesMap.values());
+            const isUsed = allUsages.length > 0;
+
+            renderEntityDeleteModalResult(cfg, entity, isUsed, allUsages);
+        }
+
+        function deleteItem(id) {
+            genericDeleteEntity('item', id);
+        }
+
+        async function confirmExecuteHardDeleteEntity() {
+            if (!currentDeleteTarget) return;
+            const { entityType, entity, cfg } = currentDeleteTarget;
+
+            const btn = document.getElementById('md-del-confirm-btn') || document.getElementById('item-del-confirm-btn');
+            if (btn) {
+                btn.disabled = true;
+                btn.innerHTML = '⏳ جاري الحذف النهائي من قاعدة البيانات...';
+            }
+
+            try {
+                // 1. Send hard delete request to backend MySQL
+                const token = localStorage.getItem('authToken') || localStorage.getItem('token') || '';
+                const res = await fetch('api/save_master_data.php', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                        'Authorization': token ? ('Bearer ' + token) : ''
+                    },
+                    body: JSON.stringify({
+                        type: cfg.backendType,
+                        data: {
+                            id: entity.id,
+                            name: entity.name,
+                            barcode: entity.barcode || ''
+                        }
+                    })
+                });
+
+                const json = await res.json();
+                if (!json || (!json.success && json.error)) {
+                    const errMsg = (json && json.error) ? json.error : 'فشل الحذف من قاعدة البيانات';
+                    alert('🚫 خطأ: ' + errMsg);
+                    if (btn) {
+                        btn.disabled = false;
+                        btn.innerHTML = `🗑️ نعم، احذف ${cfg.label} نهائياً الآن`;
+                    }
+                    return;
+                }
+
+                // 2. Remove permanently from localStorage (Hard delete from array)
+                try {
+                    let list = JSON.parse(localStorage.getItem(cfg.localKey)) || [];
+                    if (Array.isArray(list)) {
+                        if (entityType === 'unit' || entityType === 'category') {
+                            list = list.filter(u => String(u).trim() !== String(entity.name || entity.id).trim());
+                        } else {
+                            list = list.filter(item => {
+                                if (!item) return false;
+                                if (String(item.id) === String(entity.id)) return false;
+                                if (item.frontend_id && String(item.frontend_id) === String(entity.id)) return false;
+                                if (entity.name && item.name && item.name.trim() === entity.name.trim()) return false;
+                                return true;
+                            });
+                        }
+                        localStorage.setItem(cfg.localKey, JSON.stringify(list));
+                    }
+                } catch(e) {}
+
+                // Handle secondary localStorage keys if any
+                if (entityType === 'cost_center') {
+                    try {
+                        let ccs2 = JSON.parse(localStorage.getItem('erp_cost_centers_v1')) || [];
+                        if (Array.isArray(ccs2)) {
+                            ccs2 = ccs2.filter(c => c && String(c.id) !== String(entity.id) && String(c.name) !== String(entity.name));
+                            localStorage.setItem('erp_cost_centers_v1', JSON.stringify(ccs2));
+                        }
+                    } catch(e) {}
+                }
+
+                // 3. Close modal & re-render
+                closeEntityDeleteModal();
+                cfg.render();
+
+                const successMsg = `✅ تم حذف ${cfg.label} (${entity.name || entity.id}) نهائياً من قاعدة البيانات بنجاح ولا يمكن استرجاعه`;
+                if (typeof showToast === 'function') {
+                    showToast(successMsg, 'success');
+                } else {
+                    alert(successMsg);
+                }
+            } catch(err) {
+                console.error(`Error hard deleting ${entityType}:`, err);
+                alert(`حدث خطأ أثناء الاتصال بقاعدة البيانات لحذف ${cfg.label}: ` + err.message);
+                if (btn) {
+                    btn.disabled = false;
+                    btn.innerHTML = `🗑️ نعم، احذف ${cfg.label} نهائياً الآن`;
+                }
             }
         }
 
@@ -2893,13 +3612,7 @@
         }
 
         function deleteGlobalUnit(name) {
-            if(!confirm('هل أنت متأكد من حذف الوحدة "' + name + '"؟')) return;
-            let units = sanitizeGlobalUnits();
-            units = units.filter(u => u !== name);
-            localStorage.setItem('erp_global_units_v1', JSON.stringify(units));
-            syncToBackend('units', units);
-            renderGlobalUnitsList();
-            updateUnitDropdowns();
+            genericDeleteEntity('unit', name, name);
         }
 
         function cleanAndResetUnits() {
@@ -3045,19 +3758,7 @@
         }
 
         function deleteCategory(name) {
-            if(confirm('هل أنت متأكد من حذف الفئة؟')) {
-                let cats = [];
-            try {
-                cats = JSON.parse(localStorage.getItem('erp_categories_v1')) || ['مواد بناء','أدوات صحية','كهرباء'];
-                if (!Array.isArray(cats)) cats = ['مواد بناء','أدوات صحية','كهرباء'];
-            } catch(e) {
-                cats = ['مواد بناء','أدوات صحية','كهرباء'];
-            }
-                cats = cats.filter(c => c !== name);
-                localStorage.setItem('erp_categories_v1', JSON.stringify(cats));
-                renderCategoriesList();
-                updateCategoryDropdowns();
-            }
+            genericDeleteEntity('category', name, name);
         }
 
         function updateCategoryDropdowns() {
@@ -3160,13 +3861,7 @@
         }
 
         function deleteCostCenter(id) {
-            if(confirm('هل أنت متأكد من حذف مركز التكلفة؟')) {
-                let ccs = [];
-                try { ccs = JSON.parse(localStorage.getItem('erp_jobs_v1')) || []; } catch(e) { ccs = []; }
-                ccs = ccs.filter(c => c.id !== id);
-                localStorage.setItem('erp_jobs_v1', JSON.stringify(ccs));
-                renderCostCenters();
-            }
+            genericDeleteEntity('cost_center', id);
         }
 
         // ================= CURRENCIES LOGIC =================

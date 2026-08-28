@@ -4118,130 +4118,133 @@ document.addEventListener('DOMContentLoaded', () => {
     const GRID_ID = 'purchase_grid';
 
     const DEFAULT_GRID_CONFIG = {
-    "grid_id": "purchase_grid",
-    "fontSize": 16,
-    "fontWeight": "normal",
-    "fontFamily": "'Cairo', sans-serif",
-    "fontColor": "#ffffff",
-    "align": "center",
-    "decimalPlaces": 2,
-    "thousandSep": ",",
-    "columns": [
-        {
-            "id": "col_index",
-            "name": "#",
-            "visible": true,
-            "width": "45px",
-            "align": "center",
-            "color": "#94a3b8",
-            "fontSize": 15
-        },
-        {
-            "id": "available",
-            "name": "المتاح",
-            "visible": true,
-            "width": "128px",
-            "align": "center",
-            "color": "#38bdf8",
-            "fontSize": 16,
-            "decimals": 2
-        },
-        {
-            "id": "item",
-            "name": "الصنف",
-            "visible": true,
-            "width": "324px",
-            "align": "right",
-            "color": "#ffffff",
-            "fontSize": 17,
-            "fontWeight": "bold"
-        },
-        {
-            "id": "unit",
-            "name": "الوحدة",
-            "visible": true,
-            "width": "175px",
-            "align": "center",
-            "color": "#ffffff",
-            "fontSize": 16
-        },
-        {
-            "id": "quantity",
-            "name": "الكمية",
-            "visible": true,
-            "width": "196px",
-            "align": "center",
-            "color": "#facc15",
-            "fontSize": 16,
-            "fontWeight": "bold",
-            "decimals": 2
-        },
-        {
-            "id": "price",
-            "name": "السعر",
-            "visible": true,
-            "width": "168px",
-            "align": "center",
-            "color": "#ffffff",
-            "fontSize": 17,
-            "fontWeight": "bold",
-            "decimals": 2,
-            "thousandSep": ","
-        },
-        {
-            "id": "fcprice",
-            "name": "سعر (جنيه)",
-            "visible": true,
-            "width": "120px",
-            "align": "center",
-            "color": "#ffffff",
-            "fontSize": 15,
-            "decimals": 2,
-            "thousandSep": ","
-        },
-        {
-            "id": "warehouse",
-            "name": "المخزن",
-            "visible": true,
-            "width": "130px",
-            "align": "center",
-            "color": "#ffffff",
-            "fontSize": 15
-        },
-        {
-            "id": "total",
-            "name": "الجملة",
-            "visible": true,
-            "width": "240px",
-            "align": "center",
-            "color": "#ffa3a8",
-            "fontSize": 18,
-            "fontWeight": "900",
-            "decimals": 2,
-            "thousandSep": ","
-        },
-        {
-            "id": "fctotal",
-            "name": "جملة (جنيه)",
-            "visible": true,
-            "width": "120px",
-            "align": "center",
-            "color": "#fafffd",
-            "fontSize": 15,
-            "decimals": 2,
-            "thousandSep": ","
-        },
-        {
-            "id": "action",
-            "name": "إجراء",
-            "visible": true,
-            "width": "90px",
-            "align": "center",
-            "color": "#ffffff",
-            "fontSize": 14
-        }
-    ]
-};
+        "grid_id": "purchase_grid",
+        "fontSize": 16,
+        "fontWeight": "normal",
+        "fontFamily": "'Cairo', sans-serif",
+        "fontColor": "#ffffff",
+        "align": "center",
+        "decimalPlaces": 2,
+        "thousandSep": ",",
+        "columns": [
+            {
+                "id": "col_index",
+                "name": "#",
+                "visible": true,
+                "width": "45px",
+                "align": "center",
+                "color": "#94a3b8",
+                "fontSize": 15
+            },
+            {
+                "id": "available",
+                "name": "المتاح",
+                "visible": true,
+                "width": "90px",
+                "align": "center",
+                "color": "#38bdf8",
+                "fontSize": 20,
+                "decimals": 2
+            },
+            {
+                "id": "warehouse",
+                "name": "المخزن",
+                "visible": true,
+                "width": "130px",
+                "align": "center",
+                "color": "#ffffff",
+                "fontSize": 22,
+                "fontWeight": "800"
+            },
+            {
+                "id": "item",
+                "name": "الصنف",
+                "visible": true,
+                "width": "324px",
+                "align": "right",
+                "color": "#ffdc7a",
+                "fontSize": 26,
+                "fontWeight": "800"
+            },
+            {
+                "id": "unit",
+                "name": "الوحدة",
+                "visible": true,
+                "width": "107px",
+                "align": "center",
+                "color": "#ffffff",
+                "fontSize": 20,
+                "fontWeight": "bold"
+            },
+            {
+                "id": "quantity",
+                "name": "الكمية",
+                "visible": true,
+                "width": "121px",
+                "align": "center",
+                "color": "#facc15",
+                "fontSize": 36,
+                "fontWeight": "800",
+                "decimals": 2
+            },
+            {
+                "id": "price",
+                "name": "السعر",
+                "visible": true,
+                "width": "206px",
+                "align": "center",
+                "color": "#ffffff",
+                "fontSize": 36,
+                "fontWeight": "800",
+                "decimals": 0,
+                "thousandSep": "default"
+            },
+            {
+                "id": "fcprice",
+                "name": "سعر (جنيه)",
+                "visible": true,
+                "width": "120px",
+                "align": "center",
+                "color": "#ffffff",
+                "fontSize": 22,
+                "decimals": 0,
+                "thousandSep": ","
+            },
+            {
+                "id": "total",
+                "name": "الجملة",
+                "visible": true,
+                "width": "240px",
+                "align": "center",
+                "color": "#fe9095",
+                "fontSize": 36,
+                "fontWeight": "800",
+                "decimals": 0,
+                "thousandSep": ","
+            },
+            {
+                "id": "fctotal",
+                "name": "جملة (جنيه)",
+                "visible": true,
+                "width": "120px",
+                "align": "center",
+                "color": "#fafffd",
+                "fontSize": 23,
+                "decimals": 0,
+                "thousandSep": ",",
+                "fontWeight": "800"
+            },
+            {
+                "id": "action",
+                "name": "إجراء",
+                "visible": true,
+                "width": "90px",
+                "align": "center",
+                "color": "#ffffff",
+                "fontSize": 14
+            }
+        ]
+    };
 
     let tempGridConfig = null;
     let selectedColIndex = 0;
@@ -4413,16 +4416,22 @@ document.addEventListener('DOMContentLoaded', () => {
 
     window.loadGridConfigFromDB = async function() {
         try {
-            const res = await fetch('api/get_grid_config.php?grid_id=' + window.CurrentGridConfig.grid_id + '&_t=' + Date.now());
+            const res = await fetch('api/get_grid_config.php?grid_id=purchase_grid&_t=' + Date.now());
             const data = await res.json();
             if (data && data.config) {
                 window.CurrentGridConfig = data.config;
-                if (typeof applyGridSettings === 'function') applyGridSettings();
-                if (typeof renderGrid === 'function') renderGrid();
-                if (typeof recalcAll === 'function') recalcAll();
+            } else {
+                window.CurrentGridConfig = JSON.parse(JSON.stringify(DEFAULT_GRID_CONFIG));
             }
+            if (typeof applyGridSettings === 'function') applyGridSettings();
+            if (typeof renderGrid === 'function') renderGrid();
+            if (typeof recalcAll === 'function') recalcAll();
         } catch (e) {
             console.error("Failed to load grid config", e);
+            if (!window.CurrentGridConfig) {
+                window.CurrentGridConfig = JSON.parse(JSON.stringify(DEFAULT_GRID_CONFIG));
+                if (typeof applyGridSettings === 'function') applyGridSettings();
+            }
         }
     };
     window.applyGridSettings = function() {
@@ -4584,17 +4593,33 @@ document.addEventListener('DOMContentLoaded', () => {
         showToast(`تم ضبط المحاذاة إلى ${alignMode === 'right' ? 'اليمين' : alignMode === 'center' ? 'الوسط' : 'اليسار'}`, "success");
     };
 
-    window.quickResetGrid = function() {
+    window.quickResetGrid = async function() {
         const menu = document.getElementById('col-context-menu');
         if (menu) menu.style.display = 'none';
-        if (confirm("هل أنت متأكد من استعادة التنسيق والترتيب الافتراضي لجدول جدول المشتريات وحفظه في قاعدة البيانات؟")) {
-            window.CurrentGridConfig = JSON.parse(JSON.stringify(DEFAULT_GRID_CONFIG));
+        if (confirm("هل أنت متأكد من استعادة التنسيق والترتيب الافتراضي لجدول المشتريات وحفظه في قاعدة البيانات؟")) {
+            try {
+                // Try to fetch factory default from DB
+                const res = await fetch('api/get_grid_config.php?grid_id=purchase_grid_default&_t=' + Date.now());
+                const data = await res.json();
+                if (data && data.config) {
+                    window.CurrentGridConfig = data.config;
+                    window.CurrentGridConfig.grid_id = 'purchase_grid'; // Ensure correct grid_id for saving
+                } else {
+                    window.CurrentGridConfig = JSON.parse(JSON.stringify(DEFAULT_GRID_CONFIG));
+                }
+            } catch(e) {
+                window.CurrentGridConfig = JSON.parse(JSON.stringify(DEFAULT_GRID_CONFIG));
+            }
             applyGridSettings();
             if (typeof renderGrid === 'function') renderGrid();
             if (typeof recalcAll === 'function') recalcAll();
             saveGridConfigToDB(window.CurrentGridConfig);
-            if (tempGridConfig) openGridSettingsModal();
-            showToast("تم استعادة الضبط الافتراضي وحفظه في قاعدة البيانات بنجاح", "success");
+            if (tempGridConfig) {
+                tempGridConfig = JSON.parse(JSON.stringify(window.CurrentGridConfig));
+                if (typeof renderModalColumnsList === 'function') renderModalColumnsList();
+                if (typeof populateSelectedColPanel === 'function') populateSelectedColPanel();
+            }
+            showToast("تم استعادة الضبط الافتراضي وحفظه في قاعدة البيانات بنجاح ✅", "success");
         }
     };
 

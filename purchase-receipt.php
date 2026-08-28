@@ -103,7 +103,8 @@
         }
         :root.light-theme .v-input,
         :root.light-theme .wh-select,
-        :root.light-theme .qty-input {
+        :root.light-theme .qty-input,
+        :root.light-theme .factor-input {
             background: #ffffff !important;
             color: #000000 !important;
             border: 1px solid rgba(0, 0, 0, 0.15) !important;
@@ -1041,12 +1042,33 @@
             const defaultWh = document.getElementById('actual-warehouse').value || (warehousesDb.find(x => x.id !== 'PENDING_RECEIPT') || {}).id || 'w-main';
 
             receiptLines = Object.values(invData.lines).map((line, index) => {
+                let initialFactor = 1;
+                if (line.factor && parseFloat(line.factor) > 0) {
+                    initialFactor = parseFloat(line.factor);
+                } else if (line.customFactor && parseFloat(line.customFactor) > 0) {
+                    initialFactor = parseFloat(line.customFactor);
+                } else if (typeof itemsDb !== 'undefined') {
+                    const itemObj = itemsDb.find(i => String(i.id) === String(line.itemId) || i.name === line.itemId || i.name === getItemName(line.itemId));
+                    if (itemObj) {
+                        const uName = String(line.unitName || line.unit || '').trim();
+                        if (itemObj.units && Array.isArray(itemObj.units)) {
+                            const u = itemObj.units.find(x => (x.name && x.name.trim() === uName) || (x.unitName && x.unitName.trim() === uName) || (x.id && String(x.id) === String(line.unitId)));
+                            if (u && (u.factor || u.equiv)) initialFactor = parseFloat(u.factor || u.equiv) || 1;
+                        } else if (itemObj.unitsArray && Array.isArray(itemObj.unitsArray)) {
+                            const u = itemObj.unitsArray.find(x => (x.name && x.name.trim() === uName) || (x.unitName && x.unitName.trim() === uName));
+                            if (u && (u.factor || u.equiv)) initialFactor = parseFloat(u.factor || u.equiv) || 1;
+                        }
+                    }
+                }
+                if (isNaN(initialFactor) || initialFactor <= 0) initialFactor = 1;
+
                 return {
                     id: 'L' + index,
                     itemId: line.itemId,
                     unitId: line.unitId,
                     unitName: line.unitName,
-                    factor: line.factor || 0,
+                    factor: initialFactor,
+                    customFactor: initialFactor,
                     price: line.price || 0,
                     origQty: line.origQty || line.pendingQty,
                     maxPending: line.pendingQty,
@@ -1189,25 +1211,31 @@
                 const totalAssigned = otherSplits.reduce((acc, x) => acc + (x.receiveQty || 0), 0) + (line.receiveQty || 0);
                 const remainingQty = Math.round((line.maxPending - totalAssigned) * 100) / 100;
                 
-                let factor = 1;
-                if (line.factor && parseFloat(line.factor) > 0) {
-                    factor = parseFloat(line.factor);
-                } else if (typeof itemsDb !== 'undefined') {
-                    const itemObj = itemsDb.find(i => String(i.id) === String(line.itemId) || i.name === line.itemId || i.name === getItemName(line.itemId));
-                    if (itemObj) {
-                        const uName = String(line.unitName || line.unit || '').trim();
-                        if (itemObj.units && Array.isArray(itemObj.units)) {
-                            const u = itemObj.units.find(x => (x.name && x.name.trim() === uName) || (x.unitName && x.unitName.trim() === uName) || (x.id && String(x.id) === String(line.unitId)));
-                            if (u && (u.factor || u.equiv)) factor = parseFloat(u.factor || u.equiv) || 1;
-                        } else if (itemObj.unitsArray && Array.isArray(itemObj.unitsArray)) {
-                            const u = itemObj.unitsArray.find(x => (x.name && x.name.trim() === uName) || (x.unitName && x.unitName.trim() === uName));
-                            if (u && (u.factor || u.equiv)) factor = parseFloat(u.factor || u.equiv) || 1;
+                let factor = line.factor !== undefined ? parseFloat(line.factor) : (line.customFactor !== undefined ? parseFloat(line.customFactor) : 1);
+                if (isNaN(factor) || factor <= 0) {
+                    if (typeof itemsDb !== 'undefined') {
+                        const itemObj = itemsDb.find(i => String(i.id) === String(line.itemId) || i.name === line.itemId || i.name === getItemName(line.itemId));
+                        if (itemObj) {
+                            const uName = String(line.unitName || line.unit || '').trim();
+                            if (itemObj.units && Array.isArray(itemObj.units)) {
+                                const u = itemObj.units.find(x => (x.name && x.name.trim() === uName) || (x.unitName && x.unitName.trim() === uName) || (x.id && String(x.id) === String(line.unitId)));
+                                if (u && (u.factor || u.equiv)) factor = parseFloat(u.factor || u.equiv) || 1;
+                            } else if (itemObj.unitsArray && Array.isArray(itemObj.unitsArray)) {
+                                const u = itemObj.unitsArray.find(x => (x.name && x.name.trim() === uName) || (x.unitName && x.unitName.trim() === uName));
+                                if (u && (u.factor || u.equiv)) factor = parseFloat(u.factor || u.equiv) || 1;
+                            }
                         }
                     }
                 }
+                if (isNaN(factor) || factor <= 0) factor = 1;
+                line.factor = factor;
+                line.customFactor = factor;
+
                 const baseQty = (line.maxPending * factor);
                 const rcvBaseQty = ((line.receiveQty || 0) * factor);
                 const whCol = getColStyleObj('warehouse');
+                const factorCol = getColStyleObj('factor');
+                const factorInputStyle = `font-family: '${factorCol.font}', 'Tajawal', sans-serif !important; font-size: ${factorCol.size}px !important; font-weight: ${factorCol.weight} !important; color: ${factorCol.color} !important; text-align: ${factorCol.align} !important; height: 48px; width: 100%; background: rgba(15, 23, 42, 0.95); border: 2px solid rgba(56, 189, 248, 0.6); border-radius: 9px; outline: none; padding: 0 8px; box-shadow: inset 0 2px 4px rgba(0,0,0,0.3); transition: all 0.25s ease;`;
                 
                 tr.innerHTML = `
                     <td style="display:none;" class="grn-col-item">${line.price}</td>
@@ -1225,7 +1253,9 @@
                         <div style="${getColStyleObj('remQty').boxStyle}" class="grn-col-qty" title="الكمية المتبقية للاستلام">${fmtColVal('remQty', line.maxPending)}</div>
                     </td>
                     <td style="padding: 4px 3px;">
-                        <div style="${getColStyleObj('factor').boxStyle}" class="grn-col-factor">${fmtColVal('factor', factor)}</div>
+                        <div style="position: relative; width: 100%; display: flex; align-items: center;">
+                            <input type="text" inputmode="decimal" class="factor-input grn-col-factor write-indicator-box" value="${factor}" placeholder="التعادل..." title="معامل التعادل (يمكن تعديله لتغيير الكمية المخزنية)" onfocus="this.select(); this.classList.add('focused');" onblur="this.classList.remove('focused'); if(!this.value.trim() || parseFloat(this.value) <= 0) this.value='1';" style="${factorInputStyle}">
+                        </div>
                     </td>
                     <td style="padding: 4px 3px;">
                         <div style="${getColStyleObj('pendingBase').boxStyle}" class="grn-col-pendingBase">${fmtColVal('pendingBase', baseQty)}</div>
@@ -1246,8 +1276,37 @@
                         <input type="text" class="notes-input" value="${line.notes || ''}" placeholder="ملحوظة الاستلام..." style="width: 100%; height: 48px; padding: 0 10px; background: rgba(15, 23, 42, 0.85); border: 1px solid rgba(255,255,255,0.15); font-family: 'Tajawal', sans-serif; color: #f8fafc; font-size: 13px; font-weight: 600; border-radius: 9px; outline: none; box-shadow: inset 0 1px 3px rgba(0,0,0,0.2); transition: border-color 0.2s;" onfocus="this.style.borderColor='#38bdf8'; this.style.boxShadow='0 0 8px rgba(56,189,248,0.3)';" onblur="this.style.borderColor='rgba(255,255,255,0.15)'; this.style.boxShadow='inset 0 1px 3px rgba(0,0,0,0.2)';">
                     </td>
                 `;
+
+                const factorInput = tr.querySelector('.factor-input');
                 const qtyInput = tr.querySelector('.qty-input');
                 const baseRcvCell = tr.querySelector('.base-rcv-qty');
+                const pendingBaseCell = tr.querySelector('.grn-col-pendingBase');
+
+                factorInput.addEventListener('input', function() {
+                    let clean = this.value.replace(/[^0-9.]/g, '');
+                    const parts = clean.split('.');
+                    if (parts.length > 2) {
+                        clean = parts[0] + '.' + parts.slice(1).join('');
+                    }
+                    if (this.value !== clean) {
+                        this.value = clean;
+                    }
+                    let fVal = parseFloat(clean);
+                    if (isNaN(fVal) || fVal <= 0) {
+                        fVal = 1;
+                    }
+                    line.factor = fVal;
+                    line.customFactor = fVal;
+
+                    if (pendingBaseCell) {
+                        pendingBaseCell.textContent = fmtColVal('pendingBase', (line.maxPending || 0) * fVal);
+                    }
+                    if (baseRcvCell) {
+                        baseRcvCell.textContent = fmtColVal('rcvBase', (line.receiveQty || 0) * fVal);
+                    }
+                    updateSummary();
+                });
+
                 qtyInput.addEventListener('input', function() {
                     let clean = this.value.replace(/[^0-9.]/g, '');
                     const parts = clean.split('.');
@@ -1265,8 +1324,9 @@
                         if (typeof showToast === 'function') showToast('تنبيه: الكمية المستلمة تتجاوز الكمية المعلقة (' + line.maxPending + ')', 'warning');
                     }
                     line.receiveQty = val;
+                    const curFactor = (line.factor !== undefined && line.factor !== null) ? parseFloat(line.factor) : factor;
                     if (baseRcvCell) {
-                        baseRcvCell.textContent = fmtColVal('rcvBase', val * factor);
+                        baseRcvCell.textContent = fmtColVal('rcvBase', val * curFactor);
                     }
                     updateSummary();
                 });
@@ -1405,12 +1465,14 @@
             
             const newItems = [];
             receivingItems.forEach(line => {
-                // احسب عامل التحويل من بيانات الصنف
+                // احسب عامل التحويل من بيانات السطر أو الصنف
                 let lineFactor = 1;
-                if (line.factor && parseFloat(line.factor) > 0) {
+                if (line.factor !== undefined && parseFloat(line.factor) > 0) {
                     lineFactor = parseFloat(line.factor);
+                } else if (line.customFactor !== undefined && parseFloat(line.customFactor) > 0) {
+                    lineFactor = parseFloat(line.customFactor);
                 } else if (typeof itemsDb !== 'undefined') {
-                    const itemObj = itemsDb.find(i => String(i.id) === String(line.itemId));
+                    const itemObj = itemsDb.find(i => String(i.id) === String(line.itemId) || i.name === line.itemId);
                     if (itemObj) {
                         const uName = String(line.unitName || line.unit || '').trim();
                         if (itemObj.units && Array.isArray(itemObj.units)) {
@@ -1423,14 +1485,17 @@
                     }
                 }
 
+                const baseQtyReceived = (parseFloat(line.receiveQty) || 0) * lineFactor;
+
                 // Negative (Take out of PENDING)
                 newItems.push({
                     itemId: line.itemId,
                     unitId: line.unitId,
                     unitName: line.unitName,
                     quantity: -line.receiveQty,
+                    factor: lineFactor,
                     customFactor: lineFactor,
-                    customBaseQty: -(line.receiveQty * lineFactor),
+                    customBaseQty: -baseQtyReceived,
                     warehouseId: 'PENDING_RECEIPT',
                     price: line.price || 0,
                     taxRate: 0,
@@ -1443,8 +1508,9 @@
                     unitId: line.unitId,
                     unitName: line.unitName,
                     quantity: line.receiveQty,
+                    factor: lineFactor,
                     customFactor: lineFactor,
-                    customBaseQty: line.receiveQty * lineFactor,
+                    customBaseQty: baseQtyReceived,
                     warehouseId: line.warehouseId,
                     price: line.price || 0,
                     taxRate: 0,
@@ -1492,27 +1558,36 @@
                         const whName = whObj ? whObj.name : 'المخزن الرئيسي';
                         let itemInv = currentInvData.find(inv => inv.itemId === pItem.itemId && inv.warehouse === whName);
                         if (itemInv) {
-                            itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) - parseFloat(pItem.quantity);
+                            let qtyToRevert = pItem.customBaseQty !== undefined ? parseFloat(pItem.customBaseQty) : ((parseFloat(pItem.quantity) || 0) * (parseFloat(pItem.customFactor || pItem.factor) || 1));
+                            itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) - qtyToRevert;
                             if (itemInv.qty < 0) itemInv.qty = 0;
                         }
                     });
                 }
             }
 
-            // Update actual stock in erp_inventory_v1 for new quantities
+            // Update actual stock in erp_inventory_v1 for new quantities (Feeding Warehouse: Qty * Factor)
             receivingItems.forEach(line => {
                 const whObj = warehousesDb.find(w => w.id === line.warehouseId);
                 const whName = whObj ? whObj.name : 'المخزن الرئيسي';
                 
+                let lineFactor = 1;
+                if (line.factor !== undefined && parseFloat(line.factor) > 0) {
+                    lineFactor = parseFloat(line.factor);
+                } else if (line.customFactor !== undefined && parseFloat(line.customFactor) > 0) {
+                    lineFactor = parseFloat(line.customFactor);
+                }
+                const baseQtyToAdd = (parseFloat(line.receiveQty) || 0) * lineFactor;
+
                 // We add to actual stock level
                 let itemInv = currentInvData.find(inv => inv.itemId === line.itemId && inv.warehouse === whName);
                 if (itemInv) {
-                    itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) + parseFloat(line.receiveQty);
+                    itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) + baseQtyToAdd;
                 } else {
                     currentInvData.push({
                         itemId: line.itemId,
                         warehouse: whName,
-                        qty: parseFloat(line.receiveQty),
+                        qty: baseQtyToAdd,
                         minQty: 10
                     });
                 }
@@ -1737,7 +1812,8 @@
 
                 let itemInv = currentInvData.find(inv => inv.itemId === pItem.itemId && inv.warehouse === whName);
                 if (itemInv) {
-                    itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) - parseFloat(pItem.quantity);
+                    let qtyToRevert = pItem.customBaseQty !== undefined ? parseFloat(pItem.customBaseQty) : ((parseFloat(pItem.quantity) || 0) * (parseFloat(pItem.customFactor || pItem.factor) || 1));
+                    itemInv.qty = (parseFloat(itemInv.qty) || parseFloat(itemInv.quantity) || 0) - qtyToRevert;
                     if (itemInv.qty < 0) itemInv.qty = 0;
                 }
             });
@@ -1778,7 +1854,7 @@
             // Open editor for the original invoice of this GRN
             openReceiptEditor(grn.originalInvoiceId);
             
-            // Pre-fill target quantities from this GRN
+            // Pre-fill target quantities and factors from this GRN
             const positiveItems = grn.items.filter(item => item.quantity > 0);
             setTimeout(() => {
                 // Clear any default receiptLines quantities first
@@ -1790,6 +1866,13 @@
                     const line = receiptLines.find(l => l.itemId === pItem.itemId);
                     if (line) {
                         line.receiveQty = pItem.quantity;
+                        if (pItem.customFactor || pItem.factor) {
+                            const f = parseFloat(pItem.customFactor || pItem.factor);
+                            if (f > 0) {
+                                line.factor = f;
+                                line.customFactor = f;
+                            }
+                        }
                         line.warehouseId = pItem.warehouseId;
                         line.notes = pItem.notes || '';
                     }
