@@ -1546,6 +1546,54 @@ async function renderItemDropdown(rowId, isMobile = false, filter = '') {
     }
 }
 
+function applyItemToRowDOM(rowId, item, selectedUnit) {
+    if (!item) return;
+    const units = extractItemUnits(item);
+    const chosenUnit = selectedUnit || (units.length > 0 ? units[0].name : (item.unit || item.baseUnit || ''));
+    const chosenFactor = (units.find(u => u.name === chosenUnit) || {}).factor || 1;
+    const chosenPrice = (units.find(u => u.name === chosenUnit) || {}).price || parseFloat(item.sellingPrice || item.price || 0) || 0;
+
+    // 1. Update Desktop DOM elements directly
+    const itemInput = document.getElementById(`item-search-${rowId}`);
+    if (itemInput) itemInput.value = item.name;
+
+    const unitSelects = document.querySelectorAll(`select[data-unit-select="${rowId}"], #grid-body tr [data-col-id="col_unit"] select`);
+    unitSelects.forEach(sel => {
+        if (units.length > 0) {
+            sel.innerHTML = units.map(u => `<option value="${u.name}" ${u.name === chosenUnit ? 'selected' : ''}>${u.name}</option>`).join('');
+            sel.value = chosenUnit;
+        } else {
+            sel.innerHTML = `<option value="${chosenUnit || 'قطعة'}" selected>${chosenUnit || 'قطعة'}</option>`;
+        }
+    });
+
+    const factorInputs = document.querySelectorAll(`input[data-factor-input="${rowId}"], #grid-body tr [data-col-id="col_factor"] input`);
+    factorInputs.forEach(inp => {
+        inp.value = fmtNum(chosenFactor, 'col_factor');
+    });
+
+    const priceInputs = document.querySelectorAll(`input[data-price-input="${rowId}"], #grid-body tr [data-col-id="col_price"] input`);
+    priceInputs.forEach(inp => {
+        if (!inp.value || inp.value === '0' || inp.value === '0.00') {
+            inp.value = fmtNum(chosenPrice, 'col_price');
+        }
+    });
+
+    // 2. Update Mobile DOM elements directly
+    const mItemInput = document.getElementById(`m-item-search-${rowId}`);
+    if (mItemInput) mItemInput.value = item.name;
+
+    const mUnitSelects = document.querySelectorAll(`select[data-m-unit-select="${rowId}"]`);
+    mUnitSelects.forEach(sel => {
+        if (units.length > 0) {
+            sel.innerHTML = units.map(u => `<option value="${u.name}" ${u.name === chosenUnit ? 'selected' : ''}>${u.name}</option>`).join('');
+            sel.value = chosenUnit;
+        } else {
+            sel.innerHTML = `<option value="${chosenUnit || 'قطعة'}" selected>${chosenUnit || 'قطعة'}</option>`;
+        }
+    });
+}
+
 function selectRowItem(rowId, itemId, isMobile = false) {
     const prefix = isMobile ? 'm-' : '';
     
@@ -1573,30 +1621,18 @@ function selectRowItem(rowId, itemId, isMobile = false) {
         } catch(e) {}
     }
 
+    // Immediate in-place DOM population before grid rebuild
+    if (item) {
+        applyItemToRowDOM(rowId, item);
+    }
+
     updateRow(rowId, 'itemId', itemId);
     renderGrid();
+    recalcAll();
 
-    // DIRECT SYNCHRONOUS UPDATE: Immediately guarantee unit select is populated for this row
+    // Secondary guarantee in-place DOM population after grid rebuild
     if (item) {
-        const units = extractItemUnits(item);
-        const row = rows.find(r => r.id === rowId);
-        const trIndex = rows.findIndex(r => r.id === rowId);
-        if (trIndex !== -1 && units.length > 0) {
-            const allTrs = document.querySelectorAll('#grid-body tr');
-            const tr = allTrs[trIndex];
-            if (tr) {
-                const unitTd = tr.querySelector('[data-col-id="col_unit"]');
-                if (unitTd) {
-                    const sel = unitTd.querySelector('select');
-                    if (sel) {
-                        sel.innerHTML = units.map(u => 
-                            `<option value="${u.name}" ${row && row.selectedUnit === u.name ? 'selected' : ''}>${u.name}</option>`
-                        ).join('');
-                        if (row && row.selectedUnit) sel.value = row.selectedUnit;
-                    }
-                }
-            }
-        }
+        applyItemToRowDOM(rowId, item);
     }
 
     // Auto-focus quantity column on the selected row
