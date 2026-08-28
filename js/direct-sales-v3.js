@@ -2252,7 +2252,7 @@ function renderGrid() {
                 </div>
             </td>
             <td data-col-id="col_unit">
-                <select class="g-select" style="min-width: 80px;" onchange="updateRow(${row.id},'selectedUnit',this.value); renderGrid();" tabindex="-1">
+                <select class="g-select" data-unit-select="${row.id}" style="min-width: 80px;" onchange="updateRow(${row.id},'selectedUnit',this.value); renderGrid();" tabindex="-1">
                     ${itemUnitsHtml}
                 </select>
             </td>
@@ -2335,7 +2335,7 @@ function renderGrid() {
             <div class="m-card-grid">
                 <div class="ctrl-group">
                     <label class="label">الوحدات</label>
-                    <select class="ctrl-input" onchange="updateRow(${row.id},'selectedUnit',this.value); renderGrid();" tabindex="-1">
+                    <select class="ctrl-input" data-m-unit-select="${row.id}" onchange="updateRow(${row.id},'selectedUnit',this.value); renderGrid();" tabindex="-1">
                         ${itemUnitsHtml}
                     </select>
                 </div>
@@ -2406,23 +2406,35 @@ function renderGrid() {
 
     // FINAL PASS: Force-populate all unit selects after DOM reordering
     // This guarantees units are always visible after any grid rebuild
-    const allGridTrs = document.querySelectorAll('#grid-body tr');
-    rows.forEach((row, idx) => {
+    rows.forEach(row => {
         if (!row.itemId) return;
-        const item = ITEMS.find(i => String(i.id) === String(row.itemId));
+        let item = ITEMS.find(i => String(i.id) === String(row.itemId));
+        if (!item) {
+            try {
+                const rawItems = (window._PRELOADED_ITEMS || JSON.parse(localStorage.getItem('erp_items_v1')) || []);
+                const raw = rawItems.find(i => String(i.id) === String(row.itemId));
+                if (raw) item = raw;
+            } catch(e) {}
+        }
         if (!item) return;
         const units = extractItemUnits(item);
         if (!units || units.length === 0) return;
-        const tr = allGridTrs[idx];
-        if (!tr) return;
-        const unitTd = tr.querySelector('[data-col-id="col_unit"]');
-        if (!unitTd) return;
-        const sel = unitTd.querySelector('select');
-        if (!sel) return;
-        sel.innerHTML = units.map(u => 
-            `<option value="${u.name}" ${row.selectedUnit === u.name ? 'selected' : ''}>${u.name}</option>`
-        ).join('');
-        if (row.selectedUnit) sel.value = row.selectedUnit;
+        
+        const sel = document.querySelector(`select[data-unit-select="${row.id}"]`);
+        if (sel) {
+            sel.innerHTML = units.map(u => 
+                `<option value="${u.name}" ${row.selectedUnit === u.name ? 'selected' : ''}>${u.name}</option>`
+            ).join('');
+            if (row.selectedUnit) sel.value = row.selectedUnit;
+        }
+
+        const mSel = document.querySelector(`select[data-m-unit-select="${row.id}"]`);
+        if (mSel) {
+            mSel.innerHTML = units.map(u => 
+                `<option value="${u.name}" ${row.selectedUnit === u.name ? 'selected' : ''}>${u.name}</option>`
+            ).join('');
+            if (row.selectedUnit) mSel.value = row.selectedUnit;
+        }
     });
 }
 
