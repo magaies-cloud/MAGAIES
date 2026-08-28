@@ -4,6 +4,7 @@ import 'package:intl/intl.dart' hide TextDirection;
 import 'package:magaiees_marketplace/features/buyer/home/application/home_provider.dart';
 import 'package:magaiees_marketplace/features/buyer/home/domain/models/product_card_model.dart';
 import 'package:magaiees_marketplace/features/buyer/home/domain/models/category_model.dart';
+import 'package:magaiees_marketplace/features/buyer/home/domain/models/sub_category_model.dart';
 import 'package:magaiees_marketplace/features/admin/pricing/application/pricing_provider.dart';
 
 const Color _kDarkNavy = Color(0xFF0F172A);
@@ -28,6 +29,8 @@ class _AdminProductsScreenState extends ConsumerState<AdminProductsScreen> {
   final _percentCtrl = TextEditingController(text: '0');
   final _searchCtrl = TextEditingController();
   String _searchQuery = '';
+  bool _isGridView = true;
+  String? _selectedSubCatId;
 
 
   String? _selectedCategoryId;
@@ -410,7 +413,7 @@ class _AdminProductsScreenState extends ConsumerState<AdminProductsScreen> {
                           );
                         }
                       ),
-                      TextField(
+
                       const SizedBox(height: 16),
                       TextField(
                         controller: nameArCtrl,
