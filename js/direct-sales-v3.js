@@ -1678,8 +1678,50 @@ function filterItemDropdown(rowId, isMobile = false) {
 function handleItemSearchKeydown(event, rowId, isMobile = false) {
     const prefix = isMobile ? 'm-' : '';
     const listEl = document.getElementById(`${prefix}item-dropdown-list-${rowId}`);
+    const searchEl = document.getElementById(`${prefix}item-search-${rowId}`);
+    const typedVal = searchEl ? searchEl.value.trim().toLowerCase() : '';
+
+    if (event.key === 'Enter' || event.key === 'Tab') {
+        event.preventDefault();
+        
+        // 1. Check exact match by barcode or name in ITEMS
+        if (typedVal !== '') {
+            const exactItem = ITEMS.find(i => (i.name && i.name.toLowerCase() === typedVal) || (i.barcode && i.barcode.toLowerCase() === typedVal));
+            if (exactItem) {
+                selectRowItem(rowId, exactItem.id, isMobile);
+                return;
+            }
+        }
+
+        // 2. Check highlighted or first item in dropdown list
+        if (listEl && listEl.style.display !== 'none') {
+            const items = Array.from(listEl.querySelectorAll('.custom-dropdown-item'));
+            if (items.length > 0) {
+                let activeIdx = items.findIndex(el => el.classList.contains('active'));
+                const selectedEl = (activeIdx !== -1) ? items[activeIdx] : items[0];
+                if (selectedEl) {
+                    const itemId = selectedEl.getAttribute('data-item-id');
+                    if (itemId) {
+                        selectRowItem(rowId, itemId, isMobile);
+                        return;
+                    }
+                }
+            }
+        }
+
+        // 3. Check partial match in ITEMS
+        if (typedVal !== '') {
+            const partialItem = ITEMS.find(i => i.name && i.name.toLowerCase().includes(typedVal));
+            if (partialItem) {
+                selectRowItem(rowId, partialItem.id, isMobile);
+                return;
+            }
+        }
+        return;
+    }
+
     if (!listEl || listEl.style.display === 'none') {
-        if (event.key === 'ArrowDown' || event.key === 'Enter') {
+        if (event.key === 'ArrowDown') {
             showItemDropdown(rowId, isMobile);
             event.preventDefault();
         }
@@ -1703,15 +1745,6 @@ function handleItemSearchKeydown(event, rowId, isMobile = false) {
         activeIdx = (activeIdx - 1 + items.length) % items.length;
         items[activeIdx].classList.add('active');
         items[activeIdx].scrollIntoView({ block: 'nearest' });
-    } else if (event.key === 'Enter' || event.key === 'Tab') {
-        event.preventDefault();
-        const selectedEl = (activeIdx !== -1) ? items[activeIdx] : items[0];
-        if (selectedEl) {
-            const itemId = selectedEl.getAttribute('data-item-id');
-            if (itemId) {
-                selectRowItem(rowId, itemId, isMobile);
-            }
-        }
     } else if (event.key === 'Escape') {
         listEl.style.display = 'none';
         listEl.classList.remove('show');
@@ -1797,16 +1830,16 @@ async function renderQuickItemDropdown(filter = '') {
         }
 
         listEl.innerHTML = '';
-        finalMatches.slice(0, 50).forEach(existing => {
+        finalMatches.slice(0, 50).forEach((existing, idx) => {
             const div = document.createElement('div');
-            div.className = 'custom-dropdown-item';
-            
-            const uList = extractItemUnits(existing);
-            const uText = uList.map(u => u.name).join(' | ');
+            div.className = 'custom-dropdown-item' + (idx === 0 ? ' active' : '');
+            div.setAttribute('data-item-id', existing.id);
+
+            let displayText = `<strong>${existing.name}</strong>`;
+            if (existing.barcode) displayText += ` <span style="font-size:0.8rem; color:#888;">[${existing.barcode}]</span>`;
 
             div.innerHTML = `<div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-                <span><strong>${existing.name}</strong></span>
-                
+                <span>${displayText}</span>
             </div>`;
             div.onmousedown = () => { selectQuickItem(existing.id); };
             div.onpointerdown = () => { selectQuickItem(existing.id); };
@@ -1822,33 +1855,120 @@ async function renderQuickItemDropdown(filter = '') {
 function showQuickItemDropdown() {
     renderQuickItemDropdown('');
     const listEl = document.getElementById('quick-item-dropdown-list');
-    if (listEl) listEl.classList.add('show');
+    if (listEl) {
+        listEl.classList.add('show');
+        listEl.style.display = 'block';
+    }
 }
 
 function hideQuickItemDropdownDelayed() {
     setTimeout(() => {
         const listEl = document.getElementById('quick-item-dropdown-list');
-        if(listEl) listEl.classList.remove('show'); listEl.style.display = 'none';
-    }, 150);
+        if(listEl) {
+            listEl.classList.remove('show');
+            listEl.style.display = 'none';
+        }
+    }, 200);
 }
 
 function filterQuickItemDropdown() {
     const searchEl = document.getElementById('quick-item-search');
     renderQuickItemDropdown(searchEl.value);
-    document.getElementById('quick-item-dropdown-list').classList.add('show');
+    const listEl = document.getElementById('quick-item-dropdown-list');
+    if (listEl) {
+        listEl.classList.add('show');
+        listEl.style.display = 'block';
+    }
+}
+
+function handleQuickItemSearchKeydown(event) {
+    const listEl = document.getElementById('quick-item-dropdown-list');
+    const searchEl = document.getElementById('quick-item-search');
+    const typedVal = searchEl ? searchEl.value.trim().toLowerCase() : '';
+
+    if (event.key === 'Enter' || event.key === 'Tab') {
+        event.preventDefault();
+
+        // 1. Exact match by barcode or name
+        if (typedVal !== '') {
+            const exactItem = ITEMS.find(i => (i.name && i.name.toLowerCase() === typedVal) || (i.barcode && i.barcode.toLowerCase() === typedVal));
+            if (exactItem) {
+                selectQuickItem(exactItem.id);
+                return;
+            }
+        }
+
+        // 2. Dropdown item
+        if (listEl && listEl.style.display !== 'none') {
+            const items = Array.from(listEl.querySelectorAll('.custom-dropdown-item'));
+            if (items.length > 0) {
+                let activeIdx = items.findIndex(el => el.classList.contains('active'));
+                const selectedEl = (activeIdx !== -1) ? items[activeIdx] : items[0];
+                if (selectedEl) {
+                    const itemId = selectedEl.getAttribute('data-item-id');
+                    if (itemId) {
+                        selectQuickItem(itemId);
+                        return;
+                    }
+                }
+            }
+        }
+
+        // 3. Partial match
+        if (typedVal !== '') {
+            const partialItem = ITEMS.find(i => i.name && i.name.toLowerCase().includes(typedVal));
+            if (partialItem) {
+                selectQuickItem(partialItem.id);
+                return;
+            }
+        }
+        return;
+    }
+
+    if (!listEl || listEl.style.display === 'none') {
+        if (event.key === 'ArrowDown') {
+            showQuickItemDropdown();
+            event.preventDefault();
+        }
+        return;
+    }
+
+    const items = Array.from(listEl.querySelectorAll('.custom-dropdown-item'));
+    if (items.length === 0) return;
+
+    let activeIdx = items.findIndex(el => el.classList.contains('active'));
+
+    if (event.key === 'ArrowDown') {
+        event.preventDefault();
+        if (activeIdx !== -1) items[activeIdx].classList.remove('active');
+        activeIdx = (activeIdx + 1) % items.length;
+        items[activeIdx].classList.add('active');
+        items[activeIdx].scrollIntoView({ block: 'nearest' });
+    } else if (event.key === 'ArrowUp') {
+        event.preventDefault();
+        if (activeIdx !== -1) items[activeIdx].classList.remove('active');
+        activeIdx = (activeIdx - 1 + items.length) % items.length;
+        items[activeIdx].classList.add('active');
+        items[activeIdx].scrollIntoView({ block: 'nearest' });
+    } else if (event.key === 'Escape') {
+        listEl.style.display = 'none';
+        listEl.classList.remove('show');
+    }
 }
 
 function selectQuickItem(itemId) {
-    addRow();
-    const lastRow = rows[rows.length - 1];
-    updateRow(lastRow.id, 'itemId', itemId);
+    let targetRow = rows.find(r => !r.itemId);
+    if (!targetRow) {
+        addRow(true, true);
+        targetRow = rows[rows.length - 1];
+    }
     
     const searchEl = document.getElementById('quick-item-search');
-    if(searchEl) searchEl.value = '';
+    if (searchEl) searchEl.value = '';
     const listEl = document.getElementById('quick-item-dropdown-list');
-    if(listEl) listEl.classList.remove('show'); listEl.style.display = 'none';
+    if (listEl) { listEl.classList.remove('show'); listEl.style.display = 'none'; }
     
-    renderGrid();
+    selectRowItem(targetRow.id, itemId);
 }
 
 // ════════════════════════════════════════

@@ -2720,6 +2720,7 @@ try {
                                 style="background: rgba(56,189,248,0.08); border: 1px solid rgba(56,189,248,0.35); border-radius: 8px; color: var(--text-primary); padding: 5px 10px; flex: 1;"
                                 onfocus="this.select(); showQuickItemDropdown()"
                                 onblur="hideQuickItemDropdownDelayed()"
+                                onkeydown="handleQuickItemSearchKeydown(event)"
                                 oninput="filterQuickItemDropdown()" autocomplete="new-password">
                             <button type="button" onclick="startCameraScanner('quick-item-search')" style="background: rgba(56,189,248,0.15); border: 1px solid rgba(56,189,248,0.35); border-radius: 8px; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; color: #38bdf8; font-size: 1.1rem;" title="مسح باركود بالكاميرا">
                                 📷
