@@ -744,11 +744,11 @@
                             <button onclick="clearCustomerForm()" class="btn-action" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">🔄 تفريغ الحقول (عميل جديد)</button>
                         </div>
                         <div class="form-grid">
-                            <div class="input-group"><label>اسم العميل / الشركة</label><input type="text" id="cust-name" placeholder="مثال: أحمد للتجارة"></div>
-                            <div class="input-group"><label>رقم الهاتف</label><input type="text" id="cust-phone" placeholder="00249123000000"></div>
-                            <div class="input-group"><label>رقم الواتساب</label><input type="text" id="cust-whatsapp" placeholder="00249123000000"></div>
-                            <div class="input-group"><label>الايميل (البريد الإلكتروني)</label><input type="email" id="cust-email" placeholder="example@email.com"></div>
-                            <div class="input-group" style="grid-column: span 2;"><label>العنوان</label><input type="text" id="cust-address" placeholder="مثال: الخرطوم، مقاييس"></div>
+                            <div class="input-group" style="grid-column: span 2; min-width: 280px;"><label style="font-weight: 800; color: #38bdf8;">👤 اسم العميل / الشركة</label><input type="text" id="cust-name" placeholder="مثال: شركة النيل للتجارة والاستثمار" style="font-size: 1.05rem; font-weight: 800; border-color: rgba(56,189,248,0.4); background: rgba(56,189,248,0.05);"></div>
+                            <div class="input-group" style="max-width: 180px;"><label>📞 رقم الهاتف</label><input type="text" id="cust-phone" placeholder="00249123000000" style="text-align: center; direction: ltr;"></div>
+                            <div class="input-group" style="max-width: 180px;"><label>💬 رقم الواتساب</label><input type="text" id="cust-whatsapp" placeholder="00249123000000" style="text-align: center; direction: ltr;"></div>
+                            <div class="input-group"><label>✉️ الايميل (البريد الإلكتروني)</label><input type="email" id="cust-email" placeholder="example@email.com"></div>
+                            <div class="input-group" style="grid-column: span 1;"><label>📍 العنوان</label><input type="text" id="cust-address" placeholder="مثال: الخرطوم، مقاييس"></div>
                             <div class="input-group"><label>العملة</label><select id="cust-currency" class="system-currency-select" onchange="updateCustExchangeRate()"></select></div>
                             <div class="input-group" id="cust-ex-rate-group" style="display: none;"><label id="cust-ex-rate-label" style="color:#38bdf8; font-weight:800;">💵 سعر الصرف (مقابل المحلية)</label><input type="number" id="cust-ex-rate" step="any" value="1" placeholder="سعر الصرف مقابل SDG" style="font-weight:800; color:#38bdf8;"></div>
                             <div class="input-group"><label>الرقم الضريبي</label><input type="text" id="cust-tax" placeholder="الرقم الضريبي للعميل"></div>
@@ -792,7 +792,7 @@
 
                     <div class="table-responsive" style="overflow-x: auto;">
                         <table class="pro-table">
-                            <thead><tr><th>كود</th><th>اسم العميل</th><th>الهاتف</th><th>الحالة</th><th>الرصيد الحالي</th><th>حد الائتمان</th><th>المسؤول</th><th>السرية</th><th>الإجراء</th></tr></thead>
+                            <thead><tr><th style="width: 70px; text-align: center;">كود</th><th style="width: 35%; min-width: 250px; text-align: right;">اسم العميل / الشركة</th><th style="width: 115px; text-align: center;">الهاتف</th><th style="width: 90px; text-align: center;">الحالة</th><th style="width: 130px; text-align: center;">الرصيد الحالي</th><th style="width: 120px; text-align: center;">حد الائتمان</th><th style="width: 120px; text-align: center;">المسؤول</th><th style="width: 60px; text-align: center;">السرية</th><th style="width: 100px; text-align: center;">الإجراء</th></tr></thead>
                             <tbody id="customers-tbody"></tbody>
                         </table>
                     </div>
@@ -810,11 +810,11 @@
                             <button onclick="clearSupplierForm()" class="btn-action" style="background: rgba(56, 189, 248, 0.15); color: #38bdf8; border: 1px solid rgba(56, 189, 248, 0.3); padding: 4px 10px; border-radius: 6px; cursor: pointer; font-size: 0.85rem;">🔄 تفريغ الحقول (مورد جديد)</button>
                         </div>
                         <div class="form-grid">
-                            <div class="input-group"><label>اسم المورد / المصنع</label><input type="text" id="sup-name" placeholder="مثال: مصنع جياد"></div>
-                            <div class="input-group"><label>رقم الهاتف</label><input type="text" id="sup-phone" placeholder="00249123000000"></div>
-                            <div class="input-group"><label>رقم الواتساب</label><input type="text" id="sup-whatsapp" placeholder="00249123000000"></div>
-                            <div class="input-group"><label>الايميل (البريد الإلكتروني)</label><input type="email" id="sup-email" placeholder="example@email.com"></div>
-                            <div class="input-group" style="grid-column: span 2;"><label>العنوان</label><input type="text" id="sup-address" placeholder="موقع المصنع / المعرض"></div>
+                            <div class="input-group" style="grid-column: span 2; min-width: 280px;"><label style="font-weight: 800; color: #38bdf8;">🏭 اسم المورد / المصنع / الشركة</label><input type="text" id="sup-name" placeholder="مثال: شركة جياد للصناعات الهندسية" style="font-size: 1.05rem; font-weight: 800; border-color: rgba(56,189,248,0.4); background: rgba(56,189,248,0.05);"></div>
+                            <div class="input-group" style="max-width: 180px;"><label>📞 رقم الهاتف</label><input type="text" id="sup-phone" placeholder="00249123000000" style="text-align: center; direction: ltr;"></div>
+                            <div class="input-group" style="max-width: 180px;"><label>💬 رقم الواتساب</label><input type="text" id="sup-whatsapp" placeholder="00249123000000" style="text-align: center; direction: ltr;"></div>
+                            <div class="input-group"><label>✉️ الايميل (البريد الإلكتروني)</label><input type="email" id="sup-email" placeholder="example@email.com"></div>
+                            <div class="input-group" style="grid-column: span 1;"><label>📍 العنوان</label><input type="text" id="sup-address" placeholder="موقع المصنع / المعرض"></div>
                             <div class="input-group"><label>العملة</label><select id="sup-currency" class="system-currency-select" onchange="updateSupExchangeRate()"></select></div>
                             <div class="input-group" id="sup-ex-rate-group" style="display: none;"><label id="sup-ex-rate-label" style="color:#38bdf8; font-weight:800;">💵 سعر الصرف (مقابل المحلية)</label><input type="number" id="sup-ex-rate" step="any" value="1" placeholder="سعر الصرف مقابل SDG" style="font-weight:800; color:#38bdf8;"></div>
                             <div class="input-group"><label>الرقم الضريبي</label><input type="text" id="sup-tax" placeholder="الرقم الضريبي للمورد"></div>
@@ -838,7 +838,7 @@
 
                     <div class="table-responsive" style="overflow-x: auto;">
                         <table class="pro-table" id="tab-suppliers-table">
-                            <thead><tr><th>كود</th><th>اسم المورد</th><th>الهاتف</th><th>الحالة</th><th>الرصيد الحالي</th><th>حد الائتمان</th><th>السرية</th><th>الإجراء</th></tr></thead>
+                            <thead><tr><th style="width: 70px; text-align: center;">كود</th><th style="width: 38%; min-width: 260px; text-align: right;">اسم المورد / الشركة</th><th style="width: 115px; text-align: center;">الهاتف</th><th style="width: 90px; text-align: center;">الحالة</th><th style="width: 130px; text-align: center;">الرصيد الحالي</th><th style="width: 120px; text-align: center;">حد الائتمان</th><th style="width: 60px; text-align: center;">السرية</th><th style="width: 100px; text-align: center;">الإجراء</th></tr></thead>
                             <tbody></tbody>
                         </table>
                     </div>
