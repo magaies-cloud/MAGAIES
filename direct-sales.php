@@ -4464,149 +4464,149 @@ try {
     const GRID_ID = 'sales_grid';
 
     const DEFAULT_GRID_CONFIG = {
-    "grid_id": "sales_grid",
-    "fontSize": 16,
-    "fontWeight": "normal",
-    "fontFamily": "'Cairo', sans-serif",
-    "fontColor": "#ffffff",
-    "align": "center",
-    "decimalPlaces": 2,
-    "thousandSep": ",",
-    "columns": [
-        {
-            "id": "col_num",
-            "name": "#",
-            "visible": true,
-            "width": "40px",
-            "align": "center",
-            "color": "#fafafa",
-            "fontSize": 22,
-            "fontWeight": "800"
-        },
-        {
-            "id": "col_avail",
-            "name": "المتاح",
-            "visible": true,
-            "width": "90px",
-            "align": "center",
-            "color": "#fafafa",
-            "fontSize": 18,
-            "decimals": 0,
-            "fontWeight": "800",
-            "thousandSep": ","
-        },
-        {
-            "id": "col_wh",
-            "name": "المخزن",
-            "visible": true,
-            "width": "154px",
-            "align": "center",
-            "color": "#fafafa",
-            "fontSize": 20,
-            "fontWeight": "800"
-        },
-        {
-            "id": "col_factor",
-            "name": "التعادل",
-            "visible": true,
-            "width": "94px",
-            "align": "center",
-            "color": "#fafafa",
-            "fontSize": 18,
-            "decimals": 0,
-            "fontWeight": "800",
-            "thousandSep": ","
-        },
-        {
-            "id": "col_item",
-            "name": "الصنف",
-            "visible": true,
-            "width": "346px",
-            "align": "center",
-            "color": "#fedd67",
-            "fontSize": 24,
-            "fontWeight": "800"
-        },
-        {
-            "id": "col_unit",
-            "name": "الوحدات",
-            "visible": true,
-            "width": "127px",
-            "align": "center",
-            "color": "#fafafa",
-            "fontSize": 20,
-            "fontWeight": "800"
-        },
-        {
-            "id": "col_qty",
-            "name": "الكمية",
-            "visible": true,
-            "width": "138px",
-            "align": "center",
-            "color": "#7cfedd",
-            "fontSize": 24,
-            "decimals": 0,
-            "fontWeight": "800",
-            "thousandSep": ","
-        },
-        {
-            "id": "col_price",
-            "name": "السعر",
-            "visible": true,
-            "width": "227px",
-            "align": "center",
-            "color": "#fafafa",
-            "fontSize": 24,
-            "decimals": 0,
-            "fontWeight": "800",
-            "thousandSep": ","
-        },
-        {
-            "id": "col_total",
-            "name": "الإجمالي",
-            "visible": true,
-            "width": "166px",
-            "align": "center",
-            "color": "#f96c6c",
-            "fontSize": 28,
-            "decimals": 0,
-            "fontWeight": "800",
-            "thousandSep": ","
-        },
-        {
-            "id": "col_baseqty",
-            "name": "عدد الوحدة",
-            "visible": true,
-            "width": "168px",
-            "align": "center",
-            "color": "#fafafa",
-            "fontSize": 20,
-            "decimals": 0,
-            "fontWeight": "800",
-            "thousandSep": ","
-        },
-        {
-            "id": "col_note",
-            "name": "ملاحظة",
-            "visible": true,
-            "width": "130px",
-            "align": "center",
-            "color": "#fafafa",
-            "fontSize": 22,
-            "fontWeight": "800"
-        },
-        {
-            "id": "col_del",
-            "name": "الإجراءات",
-            "visible": true,
-            "width": "85px",
-            "align": "center",
-            "fontSize": 22,
-            "fontWeight": "800",
-            "color": "#fafafa"
-        }
-    ]
-};
+        "grid_id": "sales_grid",
+        "fontSize": 16,
+        "fontWeight": "normal",
+        "fontFamily": "'Cairo', sans-serif",
+        "fontColor": "#ffffff",
+        "align": "center",
+        "decimalPlaces": 2,
+        "thousandSep": ",",
+        "columns": [
+            {
+                "id": "col_num",
+                "name": "#",
+                "visible": true,
+                "width": "40px",
+                "align": "center",
+                "color": "#fafafa",
+                "fontSize": 20,
+                "fontWeight": "800"
+            },
+            {
+                "id": "col_avail",
+                "name": "المتاح",
+                "visible": true,
+                "width": "83px",
+                "align": "center",
+                "color": "#fafafa",
+                "fontSize": 16,
+                "decimals": 0,
+                "fontWeight": "800",
+                "thousandSep": ","
+            },
+            {
+                "id": "col_wh",
+                "name": "المخزن",
+                "visible": true,
+                "width": "148px",
+                "align": "center",
+                "color": "#fafafa",
+                "fontSize": 18,
+                "fontWeight": "800"
+            },
+            {
+                "id": "col_factor",
+                "name": "التعادل",
+                "visible": true,
+                "width": "90px",
+                "align": "center",
+                "color": "#fafafa",
+                "fontSize": 16,
+                "decimals": 0,
+                "fontWeight": "800",
+                "thousandSep": ","
+            },
+            {
+                "id": "col_item",
+                "name": "الصنف",
+                "visible": true,
+                "width": "334px",
+                "align": "center",
+                "color": "#fedd67",
+                "fontSize": 22,
+                "fontWeight": "800"
+            },
+            {
+                "id": "col_unit",
+                "name": "الوحدات",
+                "visible": true,
+                "width": "119px",
+                "align": "center",
+                "color": "#fafafa",
+                "fontSize": 18,
+                "fontWeight": "800"
+            },
+            {
+                "id": "col_qty",
+                "name": "الكمية",
+                "visible": true,
+                "width": "134px",
+                "align": "center",
+                "color": "#7cfedd",
+                "fontSize": 22,
+                "decimals": 0,
+                "fontWeight": "800",
+                "thousandSep": ","
+            },
+            {
+                "id": "col_price",
+                "name": "السعر",
+                "visible": true,
+                "width": "222px",
+                "align": "center",
+                "color": "#fafafa",
+                "fontSize": 22,
+                "decimals": 0,
+                "fontWeight": "800",
+                "thousandSep": ","
+            },
+            {
+                "id": "col_total",
+                "name": "الإجمالي",
+                "visible": true,
+                "width": "162px",
+                "align": "center",
+                "color": "#f96c6c",
+                "fontSize": 26,
+                "decimals": 0,
+                "fontWeight": "800",
+                "thousandSep": ","
+            },
+            {
+                "id": "col_baseqty",
+                "name": "عدد الوحدة",
+                "visible": true,
+                "width": "163px",
+                "align": "center",
+                "color": "#fafafa",
+                "fontSize": 18,
+                "decimals": 0,
+                "fontWeight": "800",
+                "thousandSep": ","
+            },
+            {
+                "id": "col_note",
+                "name": "ملاحظة",
+                "visible": true,
+                "width": "126px",
+                "align": "center",
+                "color": "#fafafa",
+                "fontSize": 20,
+                "fontWeight": "800"
+            },
+            {
+                "id": "col_del",
+                "name": "الإجراءات",
+                "visible": true,
+                "width": "81px",
+                "align": "center",
+                "fontSize": 20,
+                "fontWeight": "800",
+                "color": "#fafafa"
+            }
+        ]
+    };
 
     let tempGridConfig = null;
     let selectedColIndex = 0;
