@@ -68,32 +68,39 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         
         /* AutoComplete Styles */
         .search-wrap { display:flex; width: 100%; align-items: center; position: relative; }
-        .search-clear-btn { position:absolute; left:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:#f87171; cursor:pointer; display:none; padding:4px; z-index:10; }
-        .autocomplete-list { position:absolute; top:calc(100% + 4px); right:0; left:0; background:#1e293b; border:1px solid #334155; border-radius:8px; list-style:none; margin:0; padding:4px; display:none; max-height:250px; overflow-y:auto; z-index:1000; box-shadow:0 10px 25px rgba(0,0,0,0.5); }
-        .autocomplete-list li { padding:8px 12px; cursor:pointer; color:#f8fafc; font-size:0.85rem; border-radius:6px; margin-bottom:2px; font-weight:bold; display:flex; justify-content:space-between; }
-        .autocomplete-list li:hover, .autocomplete-list li.active { background:#38bdf8; color:#0f172a; }
+        .search-clear-btn { position:absolute; left:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:#f87171; cursor:pointer; display:none; padding:4px; z-index:10; font-size:1.2rem; }
+        .autocomplete-list { position:absolute; top:calc(100% + 4px); right:0; left:0; background:#1e293b; border:1.5px solid #475569; border-radius:10px; list-style:none; margin:0; padding:6px; display:none; max-height:280px; overflow-y:auto; z-index:1000; box-shadow:0 10px 30px rgba(0,0,0,0.6); }
+        .autocomplete-list li { padding:10px 14px; cursor:pointer; color:#f8fafc; font-size:1.25rem; border-radius:8px; margin-bottom:3px; font-weight:800; display:flex; justify-content:space-between; align-items:center; transition: background 0.15s ease; }
+        .autocomplete-list li:hover, .autocomplete-list li.active { background:rgba(56, 189, 248, 0.2); }
+        .autocomplete-list li .acc-name-text { color: #ffd700 !important; font-size: 1.25rem !important; font-weight: 800 !important; text-shadow: 0 0 10px rgba(250, 204, 21, 0.35); font-family: 'Cairo', 'Tajawal', sans-serif; }
         .search-highlight-match {
-            color: #ff7700 !important;
+            color: #ff9800 !important;
             font-weight: 900 !important;
             background: transparent !important;
             box-shadow: none !important;
             border: none !important;
             padding: 0 !important;
             display: inline !important;
+            text-decoration: underline;
         }
         .autocomplete-list li:hover .search-highlight-match,
         .autocomplete-list li.active .search-highlight-match {
-            color: #ff5500 !important;
+            color: #ffaa00 !important;
             font-weight: 900 !important;
             background: transparent !important;
             text-shadow: none !important;
         }
         :root.light-theme .autocomplete-list { background:#ffffff !important; border-color:#e2e8f0 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.1); }
         :root.light-theme .autocomplete-list li { color:#1e293b !important; }
-        :root.light-theme .autocomplete-list li:hover { background:#e0f2fe !important; color:#0284c7 !important; }
+        :root.light-theme .autocomplete-list li .acc-name-text { color: #b45309 !important; text-shadow: none; }
+        :root.light-theme .autocomplete-list li:hover { background:#fef3c7 !important; }
         
-        .selected-account-chip { display:none; align-items:center; gap:8px; width:100%; background:rgba(168,85,247,0.15); border:1px solid rgba(168,85,247,0.4); border-radius:8px; padding:0 12px; height:40px; box-sizing:border-box; }
-        :root.light-theme .selected-account-chip { background:rgba(168,85,247,0.08) !important; border-color:rgba(168,85,247,0.3) !important; }
+        .selected-account-chip { display:none; align-items:center; gap:10px; width:100%; background:rgba(250,204,21,0.15); border:1.5px solid rgba(250,204,21,0.5); border-radius:8px; padding:0 14px; height:44px; box-sizing:border-box; }
+        .selected-account-chip #chip-name { color: #ffd700 !important; font-size: 1.25rem !important; font-weight: 900 !important; text-shadow: 0 0 10px rgba(250, 204, 21, 0.4); font-family: 'Cairo', 'Tajawal', sans-serif; }
+        :root.light-theme .selected-account-chip { background:rgba(250,204,21,0.1) !important; border-color:rgba(217,119,6,0.5) !important; }
+        :root.light-theme .selected-account-chip #chip-name { color: #b45309 !important; text-shadow: none; }
+        #account-search-input { font-size: 1.15rem !important; font-weight: 800 !important; color: #ffd700 !important; height: 44px; }
+        :root.light-theme #account-search-input { color: #b45309 !important; }
         
         .btn-run { background: linear-gradient(135deg, #a855f7, #7e22ce); color: #ffffff; border: none; padding: 8px 20px; border-radius: 8px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content:center; gap: 8px; transition: all 0.3s; font-family: inherit; font-size: 0.95rem; height: 40px; box-shadow: 0 4px 15px rgba(126, 34, 206, 0.4); }
         .btn-run:hover { background: linear-gradient(135deg, #c084fc, #9333ea); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(126, 34, 206, 0.6); }
@@ -462,14 +469,14 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             <div class="filter-group" style="flex:2;">
                 <label>🏦 الحساب الرئيسي</label>
                 <div class="search-wrap" id="account-search-wrap">
-                    <input type="text" class="filter-input" id="account-search-input" placeholder="ابحث باسم أو رقم الحساب..." autocomplete="off" onfocus="if(typeof onAccountSearch==='function')onAccountSearch()" oninput="if(typeof onAccountSearch==='function')onAccountSearch()" onclick="if(typeof onAccountSearch==='function')onAccountSearch()">
+                    <input type="text" class="filter-input" id="account-search-input" placeholder="ابحث باسم الحساب..." autocomplete="off" onfocus="if(typeof onAccountSearch==='function')onAccountSearch()" oninput="if(typeof onAccountSearch==='function')onAccountSearch()" onclick="if(typeof onAccountSearch==='function')onAccountSearch()">
                     <button class="search-clear-btn" id="search-clear-btn" onclick="clearAccountSearch()">✕</button>
                     <ul class="autocomplete-list" id="autocomplete-list"></ul>
                 </div>
                 <div class="selected-account-chip" id="selected-chip">
-                    <span id="chip-icon">🏷️</span>
-                    <span id="chip-name" style="flex:1; font-size:0.95rem; font-weight:bold;"></span>
-                    <button class="chip-remove" id="chip-remove-btn" title="إلغاء" style="background:none;border:none;color:#f87171;cursor:pointer;font-size:1.1rem;" onclick="clearAccountSearch()">✕</button>
+                    <span id="chip-icon" style="font-size:1.35rem;">🏷️</span>
+                    <span id="chip-name" style="flex:1; font-size:1.25rem; font-weight:900; color:#ffd700;"></span>
+                    <button class="chip-remove" id="chip-remove-btn" title="إلغاء" style="background:none;border:none;color:#f87171;cursor:pointer;font-size:1.25rem;font-weight:900;" onclick="clearAccountSearch()">✕</button>
                 </div>
                 <input type="hidden" id="filter-account" value="ALL">
             </div>

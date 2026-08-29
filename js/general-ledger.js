@@ -232,13 +232,14 @@ function onAccountSearch() {
     let results = ALL_ACCOUNTS.filter(a => {
         if (a.id === 'ALL') return false;
         if (qTokens.length === 0) return true;
-        const nameNorm = normStr(a.name);
+        const cleanName = String(a.name || '').replace(/^\[\d+\]\s*/, '').replace(/^\d+\s*[-–]\s*/, '');
+        const nameNorm = normStr(cleanName);
         const idNorm = normStr(a.id);
         return qTokens.every(tok => nameNorm.includes(tok) || idNorm.includes(tok));
     });
     
     if (results.length === 0) {
-        list.innerHTML = '<li class="no-results" style="padding: 10px; color: #f87171; text-align: center;">لا يوجد حساب مطابق</li>';
+        list.innerHTML = '<li class="no-results" style="padding: 14px; color: #f87171; text-align: center; font-size: 1.2rem; font-weight: bold;">لا يوجد حساب مطابق</li>';
         list.style.display = 'block';
         return;
     }
@@ -252,17 +253,19 @@ function onAccountSearch() {
         if (a.type === 'صندوق' || a.type === 'خزنة') badgeColor = '#10b981';
         if (a.type === 'بنك') badgeColor = '#8b5cf6';
         
-        const highlightedName = highlightSearchMatches(a.name, q);
-        const highlightedId = (String(a.id) !== 'ALL' && normStr(a.id).includes(normQ)) ? highlightSearchMatches(String(a.id), q) : '';
-        const idBadge = highlightedId ? `<span style="font-size: 0.75rem; opacity: 0.7; margin-right: 6px;">(#${highlightedId})</span>` : '';
+        const cleanName = String(a.name || '').replace(/^\[\d+\]\s*/, '').replace(/^\d+\s*[-–]\s*/, '');
+        const highlightedName = highlightSearchMatches(cleanName, q);
 
         li.innerHTML = `
-            <div style="display:flex; justify-content:space-between; align-items:center; width:100%;">
-                <span style="font-weight: 600;">${a.icon} ${highlightedName} ${idBadge}</span>
-                <span style="background:${badgeColor}; color:white; padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight: bold; min-width: 50px; text-align: center;">${a.type}</span>
+            <div style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:12px;">
+                <span class="acc-name-text" style="font-weight: 800; font-size: 1.25rem; color: #ffd700; display: inline-flex; align-items: center; gap: 8px; text-shadow: 0 0 10px rgba(250, 204, 21, 0.35);">
+                    <span style="font-size: 1.25rem;">${a.icon}</span>
+                    <span>${highlightedName}</span>
+                </span>
+                <span style="background:${badgeColor}; color:white; padding:4px 10px; border-radius:6px; font-size:0.85rem; font-weight: bold; min-width: 52px; text-align: center;">${a.type}</span>
             </div>
         `;
-        li.onmousedown = () => selectAccount(a.id, a.name, a.icon);
+        li.onmousedown = () => selectAccount(a.id, cleanName, a.icon);
         list.appendChild(li);
     });
     
@@ -286,7 +289,8 @@ window.selectAccount = function selectAccount(id, name, icon) {
     if (chip) {
         chip.style.display = 'flex';
         document.getElementById('chip-icon').innerText = icon || '🏷️';
-        document.getElementById('chip-name').innerText = name;
+        const cleanName = String(name || '').replace(/^\[\d+\]\s*/, '').replace(/^\d+\s*[-–]\s*/, '');
+        document.getElementById('chip-name').innerText = cleanName;
     }
     
     const list = document.getElementById('autocomplete-list');
@@ -1955,30 +1959,36 @@ window.moveGLColumn = function(colId, dir) {
 function getAccountName(accVal) {
     if (accVal === 'ALL') return 'جميع الحسابات';
     if (accVal === '-' || !accVal) return '-';
+    let name = '';
     const idLower = String(accVal).toLowerCase();
-    if (ACCOUNT_NAME_CACHE.has(idLower)) return ACCOUNT_NAME_CACHE.get(idLower);
-    const cleanId = idLower.replace(/^[a-zA-Z]+\s*[-_:\/]\s*/, '').trim();
-    if (ACCOUNT_NAME_CACHE.has(cleanId)) return ACCOUNT_NAME_CACHE.get(cleanId);
+    if (ACCOUNT_NAME_CACHE.has(idLower)) name = ACCOUNT_NAME_CACHE.get(idLower);
+    else {
+        const cleanId = idLower.replace(/^[a-zA-Z]+\s*[-_:\/]\s*/, '').trim();
+        if (ACCOUNT_NAME_CACHE.has(cleanId)) name = ACCOUNT_NAME_CACHE.get(cleanId);
+    }
     
     // Hardcoded fallbacks
-    if (idLower === 'safe-001' || accVal === 'safe-001') return 'الخزينة الرئيسية';
-    if (idLower === 'bank-001' || accVal === 'bank-001') return 'البنك الرئيسي';
-    if (idLower === 'bankok' || accVal === 'bankok') return 'بنكك (Bankak)';
-    if (idLower === 'fawry' || accVal === 'fawry') return 'فوري (Fawry)';
-    if (idLower === 'o-cash' || accVal === 'o-cash') return 'أوكاش (O-Cash)';
-    if (idLower === 'other' || accVal === 'other') return 'أخرى';
-    if (idLower === 'exp-purchases' || accVal === 'exp-purchases') return 'المشتريات';
-    if (idLower === 'revenue-sales' || accVal === 'revenue-sales') return 'إيرادات المبيعات';
-    if (idLower === 'cost-purchases' || accVal === 'cost-purchases') return 'تكلفة المشتريات (مخزون)';
-    if (idLower === 'act-inventory' || accVal === 'act-inventory') return 'حساب المخزون';
-    if (idLower === 'exp-inventory-adjustments' || accVal === 'exp-inventory-adjustments') return 'تسويات المخزون';
-    if (idLower === 'discount-permitted' || accVal === 'discount-permitted') return 'خصم مسموح به';
-    if (idLower === 'discount-received' || accVal === 'discount-received') return 'خصم مكتسب';
-    if (idLower === 'vat-collected' || accVal === 'vat-collected') return 'ضريبة مبيعات';
-    if (idLower === 'vat-paid' || accVal === 'vat-paid') return 'ضريبة مشتريات';
-    if (idLower === 'cheques-receivable' || accVal === 'cheques-receivable') return 'شيكات برسم التحصيل';
+    if (!name) {
+        if (idLower === 'safe-001' || accVal === 'safe-001') name = 'الخزينة الرئيسية';
+        else if (idLower === 'bank-001' || accVal === 'bank-001') name = 'البنك الرئيسي';
+        else if (idLower === 'bankok' || accVal === 'bankok') name = 'بنكك (Bankak)';
+        else if (idLower === 'fawry' || accVal === 'fawry') name = 'فوري (Fawry)';
+        else if (idLower === 'o-cash' || accVal === 'o-cash') name = 'أوكاش (O-Cash)';
+        else if (idLower === 'other' || accVal === 'other') name = 'أخرى';
+        else if (idLower === 'exp-purchases' || accVal === 'exp-purchases') name = 'المشتريات';
+        else if (idLower === 'revenue-sales' || accVal === 'revenue-sales') name = 'إيرادات المبيعات';
+        else if (idLower === 'cost-purchases' || accVal === 'cost-purchases') name = 'تكلفة المشتريات (مخزون)';
+        else if (idLower === 'act-inventory' || accVal === 'act-inventory') name = 'حساب المخزون';
+        else if (idLower === 'exp-inventory-adjustments' || accVal === 'exp-inventory-adjustments') name = 'تسويات المخزون';
+        else if (idLower === 'discount-permitted' || accVal === 'discount-permitted') name = 'خصم مسموح به';
+        else if (idLower === 'discount-received' || accVal === 'discount-received') name = 'خصم مكتسب';
+        else if (idLower === 'vat-collected' || accVal === 'vat-collected') name = 'ضريبة مبيعات';
+        else if (idLower === 'vat-paid' || accVal === 'vat-paid') name = 'ضريبة مشتريات';
+        else if (idLower === 'cheques-receivable' || accVal === 'cheques-receivable') name = 'شيكات برسم التحصيل';
+        else name = accVal;
+    }
     
-    return accVal; // return ID if name not found
+    return String(name || '').replace(/^\[\d+\]\s*/, '').replace(/^\d+\s*[-–]\s*/, '').trim();
 }
 
 async function prepareLedgerPreviewData() {
