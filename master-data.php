@@ -694,7 +694,7 @@
             <button class="md-tab-btn tab-suppliers" onclick="openTab(event, 'tab-suppliers')"><span class="md-tab-icon">🏭</span> الموردين</button>
             <button class="md-tab-btn tab-banks" onclick="openTab(event, 'tab-banks')"><span class="md-tab-icon">🏦</span> البنوك</button>
             <button class="md-tab-btn tab-safes" onclick="openTab(event, 'tab-safes')"><span class="md-tab-icon">💰</span> الخزن</button>
-            <button class="md-tab-btn tab-items" onclick="openTab(event, 'tab-items'); setTimeout(openItemForm, 50);"><span class="md-tab-icon">📦</span> الأصناف والوحدات</button>
+            <button class="md-tab-btn tab-items" onclick="openTab(event, 'tab-items')"><span class="md-tab-icon">📦</span> الأصناف والوحدات</button>
             <button class="md-tab-btn tab-employees" onclick="openTab(event, 'tab-employees')"><span class="md-tab-icon">👤</span> الموظفين</button>
             <button class="md-tab-btn tab-costcenters" onclick="openTab(event, 'tab-costcenters')"><span class="md-tab-icon">📊</span> مراكز التكلفة</button>
 
@@ -1133,6 +1133,10 @@
                                     <span>🔍</span>
                                     <input type="text" id="item-search" onkeyup="filterItemsTable()" placeholder="ابحث بالاسم أو الكود..." style="background:transparent; border:none; color:#fff; width:100%; outline:none;">
                                 </div>
+                                <div style="display:flex; gap:10px; align-items:center;">
+                                    <span id="kpi-total-items-badge" style="background:rgba(56,189,248,0.15); color:#38bdf8; padding:6px 14px; border-radius:20px; font-weight:bold; border:1px solid rgba(56,189,248,0.3);">إجمالي الأصناف: <strong id="kpi-total-items">0 صنف</strong></span>
+                                    <button class="btn-add hover-glow" onclick="openItemForm()" style="background:linear-gradient(135deg, #38bdf8, #2563eb); padding:8px 20px; border-radius:8px; font-weight:bold; box-shadow:0 4px 15px rgba(56,189,248,0.3); border:none; color:#fff; cursor:pointer;">➕ إضافة صنف جديد</button>
+                                </div>
                             </div>
                             <div class="table-responsive" style="overflow-x: auto;">
                                 <table class="pro-table" id="main-items-table">
@@ -1346,17 +1350,29 @@
         async function syncToBackend(type, data) {
             try {
                 const token = localStorage.getItem('authToken') || localStorage.getItem('token') || '';
+                let tenantId = localStorage.getItem('currentTenantId') || '';
+                if (!tenantId) {
+                    try {
+                        const u = JSON.parse(localStorage.getItem('user') || '{}');
+                        if (u && u.tenant_id) tenantId = u.tenant_id;
+                    } catch(e) {}
+                }
+                const headers = {
+                    'Content-Type': 'application/json'
+                };
+                if (token) headers['Authorization'] = 'Bearer ' + token;
+                if (tenantId) headers['X-Tenant-Id'] = String(tenantId);
+
                 const res = await fetch('api/save_master_data.php', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': token ? ('Bearer ' + token) : ''
-                    },
+                    headers: headers,
                     body: JSON.stringify({ type, data })
                 });
                 const result = await res.json();
                 if (result && result.success) {
                     console.log(`[Master Data Sync] Successfully saved ${type} to MySQL.`);
+                } else if (result && result.error) {
+                    console.warn(`[Master Data Sync] Server responded with error for ${type}:`, result.error);
                 }
                 return result;
             } catch(err) {
@@ -1367,9 +1383,18 @@
         async function loadMasterDataFromBackend() {
             try {
                 const token = localStorage.getItem('authToken') || localStorage.getItem('token') || '';
-                const res = await fetch('api/get_master_data.php', {
-                    headers: token ? { 'Authorization': 'Bearer ' + token } : {}
-                });
+                let tenantId = localStorage.getItem('currentTenantId') || '';
+                if (!tenantId) {
+                    try {
+                        const u = JSON.parse(localStorage.getItem('user') || '{}');
+                        if (u && u.tenant_id) tenantId = u.tenant_id;
+                    } catch(e) {}
+                }
+                const headers = {};
+                if (token) headers['Authorization'] = 'Bearer ' + token;
+                if (tenantId) headers['X-Tenant-Id'] = String(tenantId);
+
+                const res = await fetch('api/get_master_data.php', { headers });
                 const json = await res.json();
                 if (json && json.success && json.data) {
                     const d = json.data;
@@ -1399,6 +1424,11 @@
                     }
                     if (Array.isArray(d.cost_centers) && d.cost_centers.length > 0) {
                         localStorage.setItem('erp_cost_centers_v1', JSON.stringify(d.cost_centers));
+                        localStorage.setItem('erp_jobs_v1', JSON.stringify(d.cost_centers));
+                    }
+                    if (Array.isArray(d.employees) && d.employees.length > 0) {
+                        localStorage.setItem('erp_users_v1', JSON.stringify(d.employees));
+                        localStorage.setItem('erp_employees_v1', JSON.stringify(d.employees));
                     }
                     if (d.currency_rates) {
                         localStorage.setItem('erp_currency_rates_v1', JSON.stringify(d.currency_rates));
@@ -1477,12 +1507,13 @@
 
         // ================= WAREHOUSES LOGIC =================
         function saveWarehouse() {
+            const id = document.getElementById('warehouse-id').value || 'WH-' + Date.now();
             const name = document.getElementById('warehouse-name').value;
-            if(!name) { alert('الرجاء إدخال اسم المخزن'); return; }
+            if(!name.trim()) { alert('الرجاء إدخال اسم المخزن'); return; }
+            if(isDuplicateName('erp_warehouses_v1', name, id)) { alert('الاسم موجود مسبقاً، يرجى اختيار اسم آخر لتجنب التكرار.'); return; }
             
             const type = document.getElementById('warehouse-type').value;
             const security = parseInt(document.getElementById('warehouse-security').value) || 1;
-            const id = document.getElementById('warehouse-id').value || 'WH-' + Date.now();
 
             let warehouses = [];
             try {
@@ -1503,10 +1534,11 @@
             }
 
             localStorage.setItem('erp_warehouses_v1', JSON.stringify(warehouses));
+            syncToBackend('save_warehouse', whData);
             cancelEditWarehouse();
             renderWarehouses();
             
-            if(typeof showToast === 'function') showToast('تم حفظ المخزن بنجاح', 'success');
+            if(typeof showToast === 'function') showToast('✅ تم حفظ المخزن نهائياً في قاعدة البيانات بنجاح', 'success');
         }
 
         function renderWarehouses() {
@@ -1574,10 +1606,27 @@
             genericDeleteEntity('warehouse', id);
         }
 
+        function isDuplicateName(storageKey, name, currentId) {
+            if (!name) return false;
+            try {
+                const items = JSON.parse(localStorage.getItem(storageKey) || '[]');
+                const nameLower = name.trim().toLowerCase();
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].deleted) continue;
+                    if (items[i].id !== currentId && (items[i].name || '').trim().toLowerCase() === nameLower) {
+                        return true;
+                    }
+                }
+            } catch(e) {}
+            return false;
+        }
+
         // ================= CUSTOMERS LOGIC =================
         function saveCustomer() {
             const id = document.getElementById('cust-id').value || 'CUST-' + Date.now();
             const name = document.getElementById('cust-name').value;
+            if(!name.trim()) { alert('الرجاء إدخال اسم العميل'); return; }
+            if(isDuplicateName('erp_customers_v1', name, id)) { alert('الاسم موجود مسبقاً، يرجى اختيار اسم آخر لتجنب التكرار.'); return; }
             const phone = document.getElementById('cust-phone').value;
             const whatsapp = document.getElementById('cust-whatsapp').value;
             const email = document.getElementById('cust-email').value;
@@ -1664,8 +1713,10 @@
             }
 
             localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
+            syncToBackend('save_customer', custData);
             clearCustomerForm();
             renderCustomers();
+            if (typeof showToast === 'function') showToast('✅ تم حفظ العميل نهائياً في قاعدة البيانات بنجاح', 'success');
         }
 
         function renderCustomers(query = '') {
@@ -1828,6 +1879,8 @@
         function saveSupplier() {
             const id = document.getElementById('sup-id').value || 'SUP-' + Date.now();
             const name = document.getElementById('sup-name').value;
+            if(!name.trim()) { alert('الرجاء إدخال اسم المورد'); return; }
+            if(isDuplicateName('erp_suppliers_v1', name, id)) { alert('الاسم موجود مسبقاً، يرجى اختيار اسم آخر لتجنب التكرار.'); return; }
             const phone = document.getElementById('sup-phone').value;
             const whatsapp = document.getElementById('sup-whatsapp').value;
             const email = document.getElementById('sup-email').value;
@@ -1901,8 +1954,10 @@
             }
 
             localStorage.setItem('erp_suppliers_v1', JSON.stringify(suppliers));
+            syncToBackend('save_supplier', supData);
             clearSupplierForm();
             renderSuppliers();
+            if (typeof showToast === 'function') showToast('✅ تم حفظ المورد نهائياً في قاعدة البيانات بنجاح', 'success');
         }
 
         function renderSuppliers() {
@@ -2064,7 +2119,8 @@
         function saveEmployee() {
             const id = document.getElementById('emp-id').value || 'EMP-' + Date.now();
             const name = document.getElementById('emp-name').value;
-            if(!name) { alert('الرجاء إدخال اسم الموظف'); return; }
+            if(!name.trim()) { alert('الرجاء إدخال اسم الموظف'); return; }
+            if(isDuplicateName('erp_employees_v1', name, id)) { alert('الاسم موجود مسبقاً، يرجى اختيار اسم آخر لتجنب التكرار.'); return; }
             
             let employees = [];
             try {
@@ -2093,9 +2149,11 @@
             }
             
             localStorage.setItem('erp_users_v1', JSON.stringify(employees));
+            localStorage.setItem('erp_employees_v1', JSON.stringify(employees));
             syncToBackend('save_employee', empData);
             document.getElementById('employee-form').style.display='none';
             renderEmployees();
+            if (typeof showToast === 'function') showToast('✅ تم حفظ الموظف نهائياً في قاعدة البيانات بنجاح', 'success');
         }
         
         function editEmployee(id) {
@@ -2122,20 +2180,40 @@
     
         // ================= BANKS & SAFES LOGIC =================
         function openBankForm() {
-            document.getElementById('bank-form').style.display = 'block';
+            const form = document.getElementById('bank-form');
+            if (!form) return;
+            form.style.display = 'block';
             document.getElementById('bank-code').value = 'B-' + Date.now();
+            document.getElementById('bank-name').value = '';
+            document.getElementById('bank-branch').value = '';
+            document.getElementById('bank-opening-balance').value = '';
+            document.getElementById('bank-opening-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('bank-gl-account').value = '';
+            document.getElementById('bank-iban').value = '';
+            document.getElementById('bank-swift').value = '';
+            document.getElementById('bank-currency').value = 'SDG';
+            if (document.getElementById('bank-ex-rate')) {
+                document.getElementById('bank-ex-rate').value = 1;
+            }
+            document.getElementById('bank-confidentiality').value = '1';
+            document.getElementById('bank-inactive').checked = false;
+            document.querySelectorAll('.bank-payment-method').forEach(cb => cb.checked = true);
+            const title = document.getElementById('bank-form-title');
+            if (title) title.innerText = 'إضافة حساب بنكي';
+            if (typeof updateBankExchangeRate === 'function') updateBankExchangeRate();
+            form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
         function closeBankForm() {
-            document.getElementById('bank-form').style.display = 'none';
+            const form = document.getElementById('bank-form');
+            if (form) form.style.display = 'none';
         }
 
-        
-
         function saveBank() {
-            const id = document.getElementById('bank-code').value;
-            const name = document.getElementById('bank-name').value;
-            if(!name) { alert('الرجاء إدخال اسم الحساب/الخزينة'); return; }
+            const id = document.getElementById('bank-code').value || 'B-' + Date.now();
+            const name = document.getElementById('bank-name').value.trim();
+            if(!name) { alert('الرجاء إدخال اسم الحساب البنكي'); return; }
+            if(isDuplicateName('erp_banks_v1', name, id)) { alert('الاسم موجود مسبقاً، يرجى اختيار اسم آخر لتجنب التكرار.'); return; }
 
             const type = 'bank';
             let banks = [];
@@ -2148,17 +2226,26 @@
             
             const existingIdx = banks.findIndex(b => b.id === id);
 
+            const paymentMethods = [];
+            document.querySelectorAll('.bank-payment-method:checked').forEach(cb => {
+                paymentMethods.push(cb.value);
+            });
+
+            const exRate = parseFloat(document.getElementById('bank-ex-rate')?.value) || 1;
+
             const bankData = {
                 id, name, type,
-                branch: document.getElementById('bank-branch').value,
+                branch: document.getElementById('bank-branch').value.trim(),
                 openingBalance: parseFloat(document.getElementById('bank-opening-balance').value) || 0,
                 currentBalance: parseFloat(document.getElementById('bank-opening-balance').value) || 0,
                 openingDate: document.getElementById('bank-opening-date').value,
-                glAccount: document.getElementById('bank-gl-account').value,
-                iban: document.getElementById('bank-iban').value,
-                swift: document.getElementById('bank-swift').value,
+                glAccount: document.getElementById('bank-gl-account').value.trim(),
+                iban: document.getElementById('bank-iban').value.trim(),
+                swift: document.getElementById('bank-swift').value.trim(),
                 responsible: '',
                 currency: document.getElementById('bank-currency').value,
+                exchangeRate: exRate,
+                paymentMethods: paymentMethods,
                 maxLimit: 0,
                 minLimit: 0,
                 confidentiality: document.getElementById('bank-confidentiality').value,
@@ -2174,8 +2261,10 @@
             }
 
             localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
+            syncToBackend('save_bank', bankData);
             closeBankForm();
             renderBanks();
+            if (typeof showToast === 'function') showToast('✅ تم حفظ البنك نهائياً في قاعدة البيانات بنجاح', 'success');
         }
 
         function renderBanks() {
@@ -2191,16 +2280,17 @@
             banks = banks.filter(b => !b.deleted);
             tbody.innerHTML = '';
             banks.forEach(b => {
-                const typeLabel = b.type === 'bank' ? '🏦 حساب بنكي' : '💰 خزينة';
+                const typeLabel = '🏦 حساب بنكي';
+                const balFormatted = (parseFloat(b.openingBalance) || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
                 tbody.insertAdjacentHTML('beforeend', `<tr>
-                    <td>${b.id}</td>
-                    <td>${b.name} <br><small>${b.branch || ''}</small></td>
+                    <td style="color:#38bdf8; font-weight:bold;">${b.id}</td>
+                    <td style="font-weight:bold;">${b.name} <br><small style="color:#94a3b8;">${b.branch || ''}</small></td>
                     <td>${typeLabel}</td>
-                    <td>${b.currency}</td>
-                    <td>${b.currentBalance}</td>
+                    <td><span class="badge" style="background:rgba(56,189,248,0.2); color:#38bdf8; padding:3px 8px; border-radius:4px;">${b.currency || 'SDG'}</span></td>
+                    <td style="font-weight:bold;">${balFormatted}</td>
                     <td>
-                        <button class="btn-text" onclick="editBank('${b.id}')">تعديل</button>
-                        <button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteBank('${b.id}')">حذف</button>
+                        <button class="btn-text" style="color:#38bdf8;" onclick="editBank('${b.id}')">✏️ تعديل</button>
+                        <button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteBank('${b.id}')">🗑️ حذف</button>
                     </td>
                 </tr>`);
             });
@@ -2217,34 +2307,78 @@
             banks = banks.filter(b => !b.deleted);
             const bank = banks.find(b => b.id === id);
             if(!bank) return;
-            document.querySelector(`input[name="bank_type"][value="${bank.type}"]`).checked = true;
-            toggleBankFields();
+            
+            const form = document.getElementById('bank-form');
+            if (!form) return;
+            form.style.display = 'block';
+
             document.getElementById('bank-code').value = bank.id;
-            document.getElementById('bank-name').value = bank.name;
+            document.getElementById('bank-name').value = bank.name || '';
             document.getElementById('bank-branch').value = bank.branch || '';
-            document.getElementById('bank-opening-balance').value = bank.openingBalance || '';
+            document.getElementById('bank-opening-balance').value = bank.openingBalance !== undefined ? bank.openingBalance : '';
             document.getElementById('bank-opening-date').value = bank.openingDate || '';
             document.getElementById('bank-gl-account').value = bank.glAccount || '';
             document.getElementById('bank-iban').value = bank.iban || '';
             document.getElementById('bank-swift').value = bank.swift || '';
-            document.getElementById('bank-responsible').value = bank.responsible || '';
             document.getElementById('bank-currency').value = bank.currency || 'SDG';
-            document.getElementById('safe-max-limit').value = bank.maxLimit || '';
-            document.getElementById('safe-min-limit').value = bank.minLimit || '';
+            if (document.getElementById('bank-ex-rate')) {
+                document.getElementById('bank-ex-rate').value = bank.exchangeRate || 1;
+            }
             document.getElementById('bank-confidentiality').value = bank.confidentiality || '1';
             document.getElementById('bank-inactive').checked = bank.isInactive || false;
             
-            openBankForm();
+            const methods = bank.paymentMethods || ['cash', 'pos', 'transfer', 'check'];
+            document.querySelectorAll('.bank-payment-method').forEach(cb => {
+                cb.checked = methods.includes(cb.value);
+            });
+
+            const title = document.getElementById('bank-form-title');
+            if (title) title.innerText = 'تعديل حساب بنكي: ' + (bank.name || '');
+            if (typeof updateBankExchangeRate === 'function') updateBankExchangeRate();
+            form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
         function deleteBank(id) {
             genericDeleteEntity('bank', id);
         }
 
-                function saveSafe() {
-            const id = document.getElementById('safe-code').value;
-            const name = document.getElementById('safe-name').value;
+        // ================= SAFES (خزن) LOGIC =================
+        function openSafeForm() {
+            const form = document.getElementById('safe-form');
+            if (!form) return;
+            form.style.display = 'block';
+            document.getElementById('safe-code').value = 'SAFE-' + Date.now();
+            document.getElementById('safe-name').value = '';
+            document.getElementById('safe-opening-balance').value = '';
+            document.getElementById('safe-opening-date').value = new Date().toISOString().split('T')[0];
+            document.getElementById('safe-gl-account').value = '';
+            document.getElementById('safe-responsible').value = '';
+            document.getElementById('safe-currency').value = 'SDG';
+            if (document.getElementById('safe-ex-rate')) {
+                document.getElementById('safe-ex-rate').value = 1;
+            }
+            document.getElementById('safe-max-limit').value = '';
+            document.getElementById('safe-min-limit').value = '';
+            document.getElementById('safe-confidentiality').value = '1';
+            document.getElementById('safe-inactive').checked = false;
+            document.getElementById('safe-modifier').checked = false;
+            document.querySelectorAll('.safe-payment-method').forEach(cb => cb.checked = true);
+            const title = document.getElementById('safe-form-title');
+            if (title) title.innerText = 'إضافة خزينة جديدة';
+            if (typeof updateSafeExchangeRate === 'function') updateSafeExchangeRate();
+            form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+        }
+
+        function closeSafeForm() {
+            const form = document.getElementById('safe-form');
+            if (form) form.style.display = 'none';
+        }
+
+        function saveSafe() {
+            const id = document.getElementById('safe-code').value || 'SAFE-' + Date.now();
+            const name = document.getElementById('safe-name').value.trim();
             if(!name) { alert('الرجاء إدخال اسم الخزينة'); return; }
+            if(isDuplicateName('erp_safes_v1', name, id)) { alert('الاسم موجود مسبقاً، يرجى اختيار اسم آخر لتجنب التكرار.'); return; }
 
             const type = 'safe';
             let safes = [];
@@ -2256,7 +2390,7 @@
             }
             safes = safes.filter(b => !b.deleted);
             
-            const isDuplicateName = safes.some(b => b.name.trim() === name.trim() && b.id !== id);
+            const isDuplicateName = safes.some(b => b.name && b.name.trim().toLowerCase() === name.toLowerCase() && b.id !== id);
             if (isDuplicateName) {
                 alert('هذا الاسم مستخدم لخزنة أخرى، الرجاء إدخال اسم مختلف.');
                 return;
@@ -2264,17 +2398,26 @@
 
             const existingIdx = safes.findIndex(b => b.id === id);
 
+            const paymentMethods = [];
+            document.querySelectorAll('.safe-payment-method:checked').forEach(cb => {
+                paymentMethods.push(cb.value);
+            });
+
+            const exRate = parseFloat(document.getElementById('safe-ex-rate')?.value) || 1;
+
             const safeData = {
                 id, name, type,
                 branch: '',
                 openingBalance: parseFloat(document.getElementById('safe-opening-balance').value) || 0,
                 currentBalance: parseFloat(document.getElementById('safe-opening-balance').value) || 0,
                 openingDate: document.getElementById('safe-opening-date').value,
-                glAccount: document.getElementById('safe-gl-account').value,
+                glAccount: document.getElementById('safe-gl-account').value.trim(),
                 iban: '',
                 swift: '',
                 responsible: document.getElementById('safe-responsible').value,
                 currency: document.getElementById('safe-currency').value,
+                exchangeRate: exRate,
+                paymentMethods: paymentMethods,
                 maxLimit: parseFloat(document.getElementById('safe-max-limit').value) || 0,
                 minLimit: parseFloat(document.getElementById('safe-min-limit').value) || 0,
                 confidentiality: document.getElementById('safe-confidentiality').value,
@@ -2290,8 +2433,10 @@
             }
 
             localStorage.setItem('erp_safes_v1', JSON.stringify(safes));
+            syncToBackend('save_safe', safeData);
             closeSafeForm();
             renderSafes();
+            if (typeof showToast === 'function') showToast('✅ تم حفظ الخزينة نهائياً في قاعدة البيانات بنجاح', 'success');
         }
 
         function renderSafes() {
@@ -2307,16 +2452,17 @@
             safes = safes.filter(b => !b.deleted);
             tbody.innerHTML = '';
             safes.forEach(b => {
-                const typeLabel = b.type === 'safe' ? '💰 خزينة' : '💰 خزينة';
+                const typeLabel = '💰 خزينة';
+                const balFormatted = (parseFloat(b.openingBalance) || 0).toLocaleString('en-US', { minimumFractionDigits: 2 });
                 tbody.insertAdjacentHTML('beforeend', `<tr>
-                    <td>${b.id}</td>
-                    <td>${b.name} <br><small>${b.branch || ''}</small></td>
+                    <td style="color:#4ade80; font-weight:bold;">${b.id}</td>
+                    <td style="font-weight:bold;">${b.name}</td>
                     <td>${typeLabel}</td>
-                    <td>${b.currency}</td>
-                    <td>${b.currentBalance}</td>
+                    <td><span class="badge" style="background:rgba(74,222,128,0.2); color:#4ade80; padding:3px 8px; border-radius:4px;">${b.currency || 'SDG'}</span></td>
+                    <td style="font-weight:bold;">${balFormatted}</td>
                     <td>
-                        <button class="btn-text" onclick="editSafe('${b.id}')">تعديل</button>
-                        <button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteSafe('${b.id}')">حذف</button>
+                        <button class="btn-text" style="color:#38bdf8;" onclick="editSafe('${b.id}')">✏️ تعديل</button>
+                        <button class="btn-text" style="color:var(--danger-color); margin-right:10px;" onclick="deleteSafe('${b.id}')">🗑️ حذف</button>
                     </td>
                 </tr>`);
             });
@@ -2333,24 +2479,36 @@
             safes = safes.filter(b => !b.deleted);
             const safe = safes.find(b => b.id === id);
             if(!safe) return;
-            document.querySelector(`input[name="safe_type"][value="${safe.type}"]`).checked = true;
-            toggleSafeFields();
-            document.getElementById('safe-code').value = safe.id;
-            document.getElementById('safe-name').value = safe.name;
             
-            document.getElementById('safe-opening-balance').value = safe.openingBalance || '';
+            const form = document.getElementById('safe-form');
+            if (!form) return;
+            form.style.display = 'block';
+
+            document.getElementById('safe-code').value = safe.id;
+            document.getElementById('safe-name').value = safe.name || '';
+            document.getElementById('safe-opening-balance').value = safe.openingBalance !== undefined ? safe.openingBalance : '';
             document.getElementById('safe-opening-date').value = safe.openingDate || '';
             document.getElementById('safe-gl-account').value = safe.glAccount || '';
-            
-            
             document.getElementById('safe-responsible').value = safe.responsible || '';
             document.getElementById('safe-currency').value = safe.currency || 'SDG';
-            document.getElementById('safe-max-limit').value = safe.maxLimit || '';
-            document.getElementById('safe-min-limit').value = safe.minLimit || '';
+            if (document.getElementById('safe-ex-rate')) {
+                document.getElementById('safe-ex-rate').value = safe.exchangeRate || 1;
+            }
+            document.getElementById('safe-max-limit').value = safe.maxLimit !== undefined ? safe.maxLimit : '';
+            document.getElementById('safe-min-limit').value = safe.minLimit !== undefined ? safe.minLimit : '';
             document.getElementById('safe-confidentiality').value = safe.confidentiality || '1';
             document.getElementById('safe-inactive').checked = safe.isInactive || false;
             document.getElementById('safe-modifier').checked = safe.isModifier || false;
-            openSafeForm();
+
+            const methods = safe.paymentMethods || ['cash', 'pos', 'transfer', 'check'];
+            document.querySelectorAll('.safe-payment-method').forEach(cb => {
+                cb.checked = methods.includes(cb.value);
+            });
+
+            const title = document.getElementById('safe-form-title');
+            if (title) title.innerText = 'تعديل الخزينة: ' + (safe.name || '');
+            if (typeof updateSafeExchangeRate === 'function') updateSafeExchangeRate();
+            form.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
         }
 
         function deleteSafe(id) {
@@ -2395,6 +2553,7 @@
             const baseUnit = document.getElementById('item-base-unit').value.trim();
             if(!baseUnit) { alert('الرجاء إدخال الوحدة الأساسية'); return; }
             const id = document.getElementById('item-code').value.trim() || 'ITEM-' + Date.now();
+            if(isDuplicateName('erp_items_v1', name, id)) { alert('الاسم موجود مسبقاً، يرجى اختيار اسم آخر لتجنب التكرار.'); return; }
             
             const sellingPriceInput = parseFloat(document.getElementById('item-selling-price').value) || 0;
             const itemBarcode = document.getElementById('item-barcode').value.trim();
@@ -2607,16 +2766,21 @@
                 }
             }
             if (pagContainer) {
-                pagContainer.innerHTML = `
-                    <button class="btn-action" style="padding:5px 15px;" onclick="if(currentPageItems>1){currentPageItems--; renderItems();}">السابق</button>
-                    <span style="color:var(--text-secondary); font-weight:bold;">صفحة ${currentPageItems} من ${totalPages}</span>
-                    <button class="btn-action" style="padding:5px 15px;" onclick="if(currentPageItems<${totalPages}){currentPageItems++; renderItems();}">التالي</button>
-                `;
+                if (totalPages <= 1) {
+                    pagContainer.style.display = 'none';
+                } else {
+                    pagContainer.style.display = 'flex';
+                    pagContainer.innerHTML = `
+                        <button class="btn-action" style="padding:5px 15px;" onclick="if(currentPageItems>1){currentPageItems--; renderItems();}">السابق</button>
+                        <span style="color:var(--text-secondary); font-weight:bold;">صفحة ${currentPageItems} من ${totalPages}</span>
+                        <button class="btn-action" style="padding:5px 15px;" onclick="if(currentPageItems<${totalPages}){currentPageItems++; renderItems();}">التالي</button>
+                    `;
+                }
             }
         }
 
         let currentPageItems = 1;
-        const itemsPerPage = 20;
+        const itemsPerPage = 100;
         let currentItemSearchQuery = '';
 
         let itemSearchTimeout = null;
@@ -3315,12 +3479,20 @@
             let backendUsages = [];
             try {
                 const token = localStorage.getItem('authToken') || localStorage.getItem('token') || '';
+                let tenantId = localStorage.getItem('currentTenantId') || '';
+                if (!tenantId) {
+                    try {
+                        const u = JSON.parse(localStorage.getItem('user') || '{}');
+                        if (u && u.tenant_id) tenantId = u.tenant_id;
+                    } catch(e) {}
+                }
+                const chkHeaders = { 'Content-Type': 'application/json' };
+                if (token) chkHeaders['Authorization'] = 'Bearer ' + token;
+                if (tenantId) chkHeaders['X-Tenant-Id'] = String(tenantId);
+
                 const res = await fetch('api/save_master_data.php', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': token ? ('Bearer ' + token) : ''
-                    },
+                    headers: chkHeaders,
                     body: JSON.stringify({
                         type: 'check_entity_usage',
                         data: {
@@ -3371,12 +3543,20 @@
             try {
                 // 1. Send hard delete request to backend MySQL
                 const token = localStorage.getItem('authToken') || localStorage.getItem('token') || '';
+                let tenantId = localStorage.getItem('currentTenantId') || '';
+                if (!tenantId) {
+                    try {
+                        const u = JSON.parse(localStorage.getItem('user') || '{}');
+                        if (u && u.tenant_id) tenantId = u.tenant_id;
+                    } catch(e) {}
+                }
+                const delHeaders = { 'Content-Type': 'application/json' };
+                if (token) delHeaders['Authorization'] = 'Bearer ' + token;
+                if (tenantId) delHeaders['X-Tenant-Id'] = String(tenantId);
+
                 const res = await fetch('api/save_master_data.php', {
                     method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': token ? ('Bearer ' + token) : ''
-                    },
+                    headers: delHeaders,
                     body: JSON.stringify({
                         type: cfg.backendType,
                         data: {
@@ -3752,9 +3932,12 @@
             items = items.filter(i => !i.deleted);
             items.forEach(i => { if(i.category === oldName) i.category = newName; });
             localStorage.setItem('erp_items_v1', JSON.stringify(items));
+            syncToBackend('categories', cats);
+            syncToBackend('items_bulk', items);
             renderCategoriesList();
             updateCategoryDropdowns();
             renderItems();
+            if (typeof showToast === 'function') showToast('✅ تم تعديل الفئة وتحديث الأصناف في قاعدة البيانات بنجاح', 'success');
         }
 
         function deleteCategory(name) {
@@ -3797,7 +3980,8 @@
             const name = document.getElementById('costcenter-name').value;
             const desc = document.getElementById('costcenter-desc').value;
             
-            if(!name) { alert('الرجاء إدخال اسم مركز التكلفة'); return; }
+            if(!name.trim()) { alert('الرجاء إدخال اسم مركز التكلفة'); return; }
+            if(isDuplicateName('erp_cost_centers_v1', name, id)) { alert('الاسم موجود مسبقاً، يرجى اختيار اسم آخر لتجنب التكرار.'); return; }
 
             let ccs = [];
             try {
@@ -3818,8 +4002,11 @@
             }
 
             localStorage.setItem('erp_jobs_v1', JSON.stringify(ccs));
+            localStorage.setItem('erp_cost_centers_v1', JSON.stringify(ccs));
+            syncToBackend('cost_centers', ccs);
             closeCostCenterForm();
             renderCostCenters();
+            if (typeof showToast === 'function') showToast('✅ تم حفظ مركز التكلفة نهائياً في قاعدة البيانات بنجاح', 'success');
         }
 
         function renderCostCenters() {
@@ -3943,7 +4130,12 @@
             });
             
             localStorage.setItem('erp_currency_rates_v1', JSON.stringify(rates));
-            alert('✅ تم حفظ معاملات العملات بنجاح!');
+            syncToBackend('currency_rates', rates);
+            if (typeof showToast === 'function') {
+                showToast('✅ تم حفظ أسعار صرف العملات نهائياً في قاعدة البيانات بنجاح', 'success');
+            } else {
+                alert('✅ تم حفظ معاملات العملات بنجاح!');
+            }
         }
 
         function populateSystemCurrencySelects() {

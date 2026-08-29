@@ -5,6 +5,11 @@ header('Content-Type: application/json; charset=UTF-8');
 header('Cache-Control: no-cache, no-store, must-revalidate');
 
 $tenant_id = 1;
+if (!empty($_SERVER['HTTP_X_TENANT_ID'])) {
+    $tenant_id = (int)$_SERVER['HTTP_X_TENANT_ID'];
+} elseif (!empty($_GET['tenant_id'])) {
+    $tenant_id = (int)$_GET['tenant_id'];
+}
 $authHeader = $_SERVER['HTTP_AUTHORIZATION'] ?? '';
 $token = str_replace('Bearer ', '', $authHeader);
 if (!empty($token)) {
@@ -23,6 +28,21 @@ if (!$input || !isset($input['type'])) {
 
 $type = $input['type'];
 $data = $input['data'] ?? null;
+
+function isDuplicateNameDB($pdo, $tenant_id, $table, $name, $currentId) {
+    if (empty(trim($name))) return false;
+    $name = trim($name);
+    $hasSearchName = in_array($table, ['items', 'customers', 'suppliers', 'users']);
+    if ($hasSearchName) {
+        $stmt = $pdo->prepare("SELECT id FROM `$table` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND LOWER(search_name) = LOWER(?) AND frontend_id != ? LIMIT 1");
+        $stmt->execute([$tenant_id, $name, $currentId]);
+        return $stmt->fetchColumn() ? true : false;
+    } else {
+        $stmt = $pdo->prepare("SELECT id FROM `$table` WHERE tenant_id = ? AND (is_deleted = 0 OR is_deleted IS NULL) AND LOWER(JSON_UNQUOTE(JSON_EXTRACT(data, '$.name'))) = LOWER(?) AND frontend_id != ? LIMIT 1");
+        $stmt->execute([$tenant_id, $name, $currentId]);
+        return $stmt->fetchColumn() ? true : false;
+    }
+}
 
 try {
     switch ($type) {
@@ -48,6 +68,8 @@ try {
                 $ccJson = json_encode($data, JSON_UNESCAPED_UNICODE);
                 $stmt = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('erp_cost_centers_v1', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
                 $stmt->execute([$ccJson]);
+                $stmt2 = $pdo->prepare("INSERT INTO global_settings (setting_key, setting_value) VALUES ('erp_jobs_v1', ?) ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value), updated_at = NOW()");
+                $stmt2->execute([$ccJson]);
             }
             break;
 
@@ -90,6 +112,10 @@ try {
             if ($data && isset($data['id'])) {
                 $itemId = (string)$data['id'];
                 $itemName = $data['name'] ?? '';
+                if (isDuplicateNameDB($pdo, $tenant_id, 'items', $itemName, $itemId)) {
+                    echo json_encode(['success' => false, 'error' => 'الاسم موجود مسبقاً، يرجى اختيار اسم آخر لتجنب التكرار.']);
+                    exit;
+                }
                 $barcode = $data['barcode'] ?? '';
                 $category = $data['category'] ?? '';
                 $status = $data['status'] ?? 'active';
@@ -176,6 +202,11 @@ try {
         case 'save_warehouse':
             if ($data && isset($data['id'])) {
                 $whId = (string)$data['id'];
+                $whName = $data['name'] ?? '';
+                if (isDuplicateNameDB($pdo, $tenant_id, 'warehouses', $whName, $whId)) {
+                    echo json_encode(['success' => false, 'error' => 'الاسم موجود مسبقاً، يرجى اختيار اسم آخر لتجنب التكرار.']);
+                    exit;
+                }
                 $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE);
                 $stmtCheck = $pdo->prepare("SELECT id FROM warehouses WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
                 $stmtCheck->execute([$tenant_id, $whId, $whId]);
@@ -186,6 +217,28 @@ try {
                 } else {
                     $stmtIns = $pdo->prepare("INSERT INTO warehouses (tenant_id, frontend_id, data, is_deleted) VALUES (?, ?, ?, 0)");
                     $stmtIns->execute([$tenant_id, $whId, $jsonData]);
+                }
+            }
+            break;
+
+        case 'warehouses_bulk':
+        case 'warehouses':
+            if (is_array($data)) {
+                foreach ($data as $item) {
+                    if (!$item || !isset($item['id'])) continue;
+                    $whId = (string)$item['id'];
+                    $isDeleted = !empty($item['deleted']) ? 1 : 0;
+                    $jsonData = json_encode($item, JSON_UNESCAPED_UNICODE);
+                    $stmtCheck = $pdo->prepare("SELECT id FROM warehouses WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+                    $stmtCheck->execute([$tenant_id, $whId, $whId]);
+                    $existingId = $stmtCheck->fetchColumn();
+                    if ($existingId) {
+                        $stmtUp = $pdo->prepare("UPDATE warehouses SET data = ?, is_deleted = ?, updated_at = NOW() WHERE id = ?");
+                        $stmtUp->execute([$jsonData, $isDeleted, $existingId]);
+                    } else {
+                        $stmtIns = $pdo->prepare("INSERT INTO warehouses (tenant_id, frontend_id, data, is_deleted) VALUES (?, ?, ?, ?)");
+                        $stmtIns->execute([$tenant_id, $whId, $jsonData, $isDeleted]);
+                    }
                 }
             }
             break;
@@ -230,16 +283,52 @@ try {
         case 'save_customer':
             if ($data && isset($data['id'])) {
                 $cId = (string)$data['id'];
+                $cName = $data['name'] ?? '';
+                if (isDuplicateNameDB($pdo, $tenant_id, 'customers', $cName, $cId)) {
+                    echo json_encode(['success' => false, 'error' => 'الاسم موجود مسبقاً، يرجى اختيار اسم آخر لتجنب التكرار.']);
+                    exit;
+                }
+                $cPhone = $data['phone'] ?? '';
+                $cEmail = $data['email'] ?? '';
+                $cStatus = $data['status'] ?? 'active';
                 $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE);
                 $stmtCheck = $pdo->prepare("SELECT id FROM customers WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
                 $stmtCheck->execute([$tenant_id, $cId, $cId]);
                 $existingId = $stmtCheck->fetchColumn();
                 if ($existingId) {
-                    $stmtUp = $pdo->prepare("UPDATE customers SET data = ?, is_deleted = 0, updated_at = NOW() WHERE id = ?");
-                    $stmtUp->execute([$jsonData, $existingId]);
+                    $stmtUp = $pdo->prepare("UPDATE customers SET data = ?, search_name = ?, search_phone = ?, search_email = ?, status_val = ?, is_deleted = 0, updated_at = NOW() WHERE id = ?");
+                    $stmtUp->execute([$jsonData, $cName, $cPhone, $cEmail, $cStatus, $existingId]);
                 } else {
-                    $stmtIns = $pdo->prepare("INSERT INTO customers (tenant_id, frontend_id, data, is_deleted) VALUES (?, ?, ?, 0)");
-                    $stmtIns->execute([$tenant_id, $cId, $jsonData]);
+                    $stmtIns = $pdo->prepare("INSERT INTO customers (tenant_id, frontend_id, data, search_name, search_phone, search_email, status_val, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, 0)");
+                    $stmtIns->execute([$tenant_id, $cId, $jsonData, $cName, $cPhone, $cEmail, $cStatus]);
+                }
+            }
+            break;
+
+        case 'customers_bulk':
+        case 'customers':
+            if (is_array($data)) {
+                foreach ($data as $item) {
+                    if (!$item || !isset($item['id'])) continue;
+                    $cId = (string)$item['id'];
+                    $cName = $item['name'] ?? '';
+                    $cPhone = $item['phone'] ?? '';
+                    $cEmail = $item['email'] ?? '';
+                    $cStatus = $item['status'] ?? 'active';
+                    $isDeleted = !empty($item['deleted']) ? 1 : 0;
+                    $jsonData = json_encode($item, JSON_UNESCAPED_UNICODE);
+
+                    $stmtCheck = $pdo->prepare("SELECT id FROM customers WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+                    $stmtCheck->execute([$tenant_id, $cId, $cId]);
+                    $existingId = $stmtCheck->fetchColumn();
+
+                    if ($existingId) {
+                        $stmtUp = $pdo->prepare("UPDATE customers SET data = ?, search_name = ?, search_phone = ?, search_email = ?, status_val = ?, is_deleted = ?, updated_at = NOW() WHERE id = ?");
+                        $stmtUp->execute([$jsonData, $cName, $cPhone, $cEmail, $cStatus, $isDeleted, $existingId]);
+                    } else {
+                        $stmtIns = $pdo->prepare("INSERT INTO customers (tenant_id, frontend_id, data, search_name, search_phone, search_email, status_val, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                        $stmtIns->execute([$tenant_id, $cId, $jsonData, $cName, $cPhone, $cEmail, $cStatus, $isDeleted]);
+                    }
                 }
             }
             break;
@@ -284,16 +373,48 @@ try {
         case 'save_supplier':
             if ($data && isset($data['id'])) {
                 $sId = (string)$data['id'];
+                $sName = $data['name'] ?? '';
+                if (isDuplicateNameDB($pdo, $tenant_id, 'suppliers', $sName, $sId)) {
+                    echo json_encode(['success' => false, 'error' => 'الاسم موجود مسبقاً، يرجى اختيار اسم آخر لتجنب التكرار.']);
+                    exit;
+                }
+                $sPhone = $data['phone'] ?? '';
                 $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE);
                 $stmtCheck = $pdo->prepare("SELECT id FROM suppliers WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
                 $stmtCheck->execute([$tenant_id, $sId, $sId]);
                 $existingId = $stmtCheck->fetchColumn();
                 if ($existingId) {
-                    $stmtUp = $pdo->prepare("UPDATE suppliers SET data = ?, is_deleted = 0, updated_at = NOW() WHERE id = ?");
-                    $stmtUp->execute([$jsonData, $existingId]);
+                    $stmtUp = $pdo->prepare("UPDATE suppliers SET data = ?, search_name = ?, search_phone = ?, is_deleted = 0, updated_at = NOW() WHERE id = ?");
+                    $stmtUp->execute([$jsonData, $sName, $sPhone, $existingId]);
                 } else {
-                    $stmtIns = $pdo->prepare("INSERT INTO suppliers (tenant_id, frontend_id, data, is_deleted) VALUES (?, ?, ?, 0)");
-                    $stmtIns->execute([$tenant_id, $sId, $jsonData]);
+                    $stmtIns = $pdo->prepare("INSERT INTO suppliers (tenant_id, frontend_id, data, search_name, search_phone, is_deleted) VALUES (?, ?, ?, ?, ?, 0)");
+                    $stmtIns->execute([$tenant_id, $sId, $jsonData, $sName, $sPhone]);
+                }
+            }
+            break;
+
+        case 'suppliers_bulk':
+        case 'suppliers':
+            if (is_array($data)) {
+                foreach ($data as $item) {
+                    if (!$item || !isset($item['id'])) continue;
+                    $sId = (string)$item['id'];
+                    $sName = $item['name'] ?? '';
+                    $sPhone = $item['phone'] ?? '';
+                    $isDeleted = !empty($item['deleted']) ? 1 : 0;
+                    $jsonData = json_encode($item, JSON_UNESCAPED_UNICODE);
+
+                    $stmtCheck = $pdo->prepare("SELECT id FROM suppliers WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+                    $stmtCheck->execute([$tenant_id, $sId, $sId]);
+                    $existingId = $stmtCheck->fetchColumn();
+
+                    if ($existingId) {
+                        $stmtUp = $pdo->prepare("UPDATE suppliers SET data = ?, search_name = ?, search_phone = ?, is_deleted = ?, updated_at = NOW() WHERE id = ?");
+                        $stmtUp->execute([$jsonData, $sName, $sPhone, $isDeleted, $existingId]);
+                    } else {
+                        $stmtIns = $pdo->prepare("INSERT INTO suppliers (tenant_id, frontend_id, data, search_name, search_phone, is_deleted) VALUES (?, ?, ?, ?, ?, ?)");
+                        $stmtIns->execute([$tenant_id, $sId, $jsonData, $sName, $sPhone, $isDeleted]);
+                    }
                 }
             }
             break;
@@ -338,6 +459,11 @@ try {
         case 'save_bank':
             if ($data && isset($data['id'])) {
                 $bId = (string)$data['id'];
+                $bName = $data['name'] ?? '';
+                if (isDuplicateNameDB($pdo, $tenant_id, 'banks', $bName, $bId)) {
+                    echo json_encode(['success' => false, 'error' => 'الاسم موجود مسبقاً، يرجى اختيار اسم آخر لتجنب التكرار.']);
+                    exit;
+                }
                 $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE);
                 $stmtCheck = $pdo->prepare("SELECT id FROM banks WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
                 $stmtCheck->execute([$tenant_id, $bId, $bId]);
@@ -348,6 +474,28 @@ try {
                 } else {
                     $stmtIns = $pdo->prepare("INSERT INTO banks (tenant_id, frontend_id, data, is_deleted) VALUES (?, ?, ?, 0)");
                     $stmtIns->execute([$tenant_id, $bId, $jsonData]);
+                }
+            }
+            break;
+
+        case 'banks_bulk':
+        case 'banks':
+            if (is_array($data)) {
+                foreach ($data as $item) {
+                    if (!$item || !isset($item['id'])) continue;
+                    $bId = (string)$item['id'];
+                    $isDeleted = !empty($item['deleted']) ? 1 : 0;
+                    $jsonData = json_encode($item, JSON_UNESCAPED_UNICODE);
+                    $stmtCheck = $pdo->prepare("SELECT id FROM banks WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+                    $stmtCheck->execute([$tenant_id, $bId, $bId]);
+                    $existingId = $stmtCheck->fetchColumn();
+                    if ($existingId) {
+                        $stmtUp = $pdo->prepare("UPDATE banks SET data = ?, is_deleted = ?, updated_at = NOW() WHERE id = ?");
+                        $stmtUp->execute([$jsonData, $isDeleted, $existingId]);
+                    } else {
+                        $stmtIns = $pdo->prepare("INSERT INTO banks (tenant_id, frontend_id, data, is_deleted) VALUES (?, ?, ?, ?)");
+                        $stmtIns->execute([$tenant_id, $bId, $jsonData, $isDeleted]);
+                    }
                 }
             }
             break;
@@ -392,6 +540,11 @@ try {
         case 'save_safe':
             if ($data && isset($data['id'])) {
                 $sId = (string)$data['id'];
+                $sName = $data['name'] ?? '';
+                if (isDuplicateNameDB($pdo, $tenant_id, 'safes', $sName, $sId)) {
+                    echo json_encode(['success' => false, 'error' => 'الاسم موجود مسبقاً، يرجى اختيار اسم آخر لتجنب التكرار.']);
+                    exit;
+                }
                 $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE);
                 $stmtCheck = $pdo->prepare("SELECT id FROM safes WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
                 $stmtCheck->execute([$tenant_id, $sId, $sId]);
@@ -402,6 +555,28 @@ try {
                 } else {
                     $stmtIns = $pdo->prepare("INSERT INTO safes (tenant_id, frontend_id, data, is_deleted) VALUES (?, ?, ?, 0)");
                     $stmtIns->execute([$tenant_id, $sId, $jsonData]);
+                }
+            }
+            break;
+
+        case 'safes_bulk':
+        case 'safes':
+            if (is_array($data)) {
+                foreach ($data as $item) {
+                    if (!$item || !isset($item['id'])) continue;
+                    $sId = (string)$item['id'];
+                    $isDeleted = !empty($item['deleted']) ? 1 : 0;
+                    $jsonData = json_encode($item, JSON_UNESCAPED_UNICODE);
+                    $stmtCheck = $pdo->prepare("SELECT id FROM safes WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+                    $stmtCheck->execute([$tenant_id, $sId, $sId]);
+                    $existingId = $stmtCheck->fetchColumn();
+                    if ($existingId) {
+                        $stmtUp = $pdo->prepare("UPDATE safes SET data = ?, is_deleted = ?, updated_at = NOW() WHERE id = ?");
+                        $stmtUp->execute([$jsonData, $isDeleted, $existingId]);
+                    } else {
+                        $stmtIns = $pdo->prepare("INSERT INTO safes (tenant_id, frontend_id, data, is_deleted) VALUES (?, ?, ?, ?)");
+                        $stmtIns->execute([$tenant_id, $sId, $jsonData, $isDeleted]);
+                    }
                 }
             }
             break;
@@ -447,55 +622,51 @@ try {
         case 'save_user':
             if ($data && isset($data['id'])) {
                 $uId = (string)$data['id'];
-                $uName = $data['name'] ?? '';
+                $uName = $data['name'] ?? $data['username'] ?? '';
+                if (isDuplicateNameDB($pdo, $tenant_id, 'users', $uName, $uId)) {
+                    echo json_encode(['success' => false, 'error' => 'الاسم موجود مسبقاً، يرجى اختيار اسم آخر لتجنب التكرار.']);
+                    exit;
+                }
+                $uRole = $data['role'] ?? 'cashier';
+                $uStatus = $data['status'] ?? 'active';
                 $jsonData = json_encode($data, JSON_UNESCAPED_UNICODE);
                 $stmtCheck = $pdo->prepare("SELECT id FROM users WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
                 $stmtCheck->execute([$tenant_id, $uId, $uId]);
                 $existingId = $stmtCheck->fetchColumn();
                 if ($existingId) {
-                    $stmtUp = $pdo->prepare("UPDATE users SET data = ?, search_name = ?, is_deleted = 0, updated_at = NOW() WHERE id = ?");
-                    $stmtUp->execute([$jsonData, $uName, $existingId]);
+                    $stmtUp = $pdo->prepare("UPDATE users SET data = ?, search_name = ?, username = COALESCE(NULLIF(username, ''), ?), role = ?, status = ?, is_deleted = 0, updated_at = NOW() WHERE id = ?");
+                    $stmtUp->execute([$jsonData, $uName, $uName, $uRole, $uStatus, $existingId]);
                 } else {
-                    $stmtIns = $pdo->prepare("INSERT INTO users (tenant_id, frontend_id, data, search_name, is_deleted) VALUES (?, ?, ?, ?, 0)");
-                    $stmtIns->execute([$tenant_id, $uId, $jsonData, $uName]);
+                    $stmtIns = $pdo->prepare("INSERT INTO users (tenant_id, frontend_id, data, search_name, username, role, status, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, 0)");
+                    $stmtIns->execute([$tenant_id, $uId, $jsonData, $uName, $uName, $uRole, $uStatus]);
                 }
             }
             break;
 
-        case 'delete_employee':
-        case 'delete_user':
-            if ($data && (isset($data['id']) || isset($data['name']))) {
-                $uId = (string)($data['id'] ?? '');
-                $uName = (string)($data['name'] ?? '');
+        case 'employees_bulk':
+        case 'users_bulk':
+        case 'users':
+            if (is_array($data)) {
+                foreach ($data as $item) {
+                    if (!$item || !isset($item['id'])) continue;
+                    $uId = (string)$item['id'];
+                    $uName = $item['name'] ?? $item['username'] ?? '';
+                    $uRole = $item['role'] ?? 'cashier';
+                    $uStatus = $item['status'] ?? 'active';
+                    $isDeleted = !empty($item['deleted']) ? 1 : 0;
+                    $jsonData = json_encode($item, JSON_UNESCAPED_UNICODE);
 
-                // Security check
-                $usageResult = checkEntityUsageInDatabase($pdo, $tenant_id, 'employee', $uId, $uName, $data);
-                if ($usageResult['is_used']) {
-                    http_response_code(400);
-                    echo json_encode([
-                        'success' => false,
-                        'type' => 'delete_employee',
-                        'can_delete' => false,
-                        'is_used' => true,
-                        'usage_count' => $usageResult['usage_count'],
-                        'usages' => $usageResult['usages'],
-                        'error' => 'لا يمكن حذف هذا الموظف نهائياً لأنه مرتبط بسندات أو فواتير أو حركات مسجلة بالنظام.'
-                    ], JSON_UNESCAPED_UNICODE);
-                    exit;
+                    $stmtCheck = $pdo->prepare("SELECT id FROM users WHERE tenant_id = ? AND (frontend_id = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?) LIMIT 1");
+                    $stmtCheck->execute([$tenant_id, $uId, $uId]);
+                    $existingId = $stmtCheck->fetchColumn();
+                    if ($existingId) {
+                        $stmtUp = $pdo->prepare("UPDATE users SET data = ?, search_name = ?, username = COALESCE(NULLIF(username, ''), ?), role = ?, status = ?, is_deleted = ?, updated_at = NOW() WHERE id = ?");
+                        $stmtUp->execute([$jsonData, $uName, $uName, $uRole, $uStatus, $isDeleted, $existingId]);
+                    } else {
+                        $stmtIns = $pdo->prepare("INSERT INTO users (tenant_id, frontend_id, data, search_name, username, role, status, is_deleted) VALUES (?, ?, ?, ?, ?, ?, ?, ?)");
+                        $stmtIns->execute([$tenant_id, $uId, $jsonData, $uName, $uName, $uRole, $uStatus, $isDeleted]);
+                    }
                 }
-
-                // Hard delete from database
-                $stmtDel = $pdo->prepare("DELETE FROM users WHERE (tenant_id = ? OR tenant_id IS NULL) AND (frontend_id = ? OR id = ? OR search_name = ? OR JSON_UNQUOTE(JSON_EXTRACT(data, '$.id')) = ?)");
-                $stmtDel->execute([$tenant_id, $uId, $uId, $uName, $uId]);
-
-                echo json_encode([
-                    'success' => true,
-                    'type' => 'delete_employee',
-                    'can_delete' => true,
-                    'is_used' => false,
-                    'message' => 'تم حذف الموظف نهائياً من قاعدة البيانات بنجاح ولا يمكن استرجاعه.'
-                ], JSON_UNESCAPED_UNICODE);
-                exit;
             }
             break;
 
