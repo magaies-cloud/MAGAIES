@@ -2589,7 +2589,8 @@ function recalcAll() {
     }
     const dynLoc = document.getElementById('t-grand-dynamic-loc');
     if (dynLoc) {
-        dynLoc.textContent = fmtNum(grand);
+        const cleanVal = parseNum(grand) || 0;
+        dynLoc.textContent = Math.round(cleanVal).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
     }
     const dynBadge = document.getElementById('t-grand-currency-badge');
     if (dynBadge) {

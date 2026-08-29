@@ -2873,23 +2873,22 @@ try {
                             <td colspan="12" style="border: none; height: 8px;"></td>
                         </tr>
                         <!-- Grand Total -->
-                        <tr id="row-grand-total" style="background: linear-gradient(90deg, rgba(15, 23, 42, 0.98) 0%, rgba(16, 185, 129, 0.15) 50%, rgba(15, 23, 42, 0.98) 100%); border-top: 3px solid rgba(16, 185, 129, 0.7); border-bottom: 3px solid rgba(16, 185, 129, 0.5); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);">
-                            <td colspan="10" style="text-align: left; vertical-align: middle; padding: 14px 20px 14px 25px; border: none;">
-                                <div style="display: inline-flex; align-items: center; gap: 12px;">
-                                    <span style="font-size: 1.8rem; filter: drop-shadow(0 0 8px rgba(16,185,129,0.8));">💵</span>
-                                    <span id="lbl-grand-dynamic" style="color: #34d399; font-size: 1.65rem; font-weight: 900; letter-spacing: 0.5px; text-shadow: 0 0 12px rgba(16, 185, 129, 0.6);">الإجمالي الكلي:</span>
+                        <tr id="row-grand-total" style="background: linear-gradient(90deg, rgba(15, 23, 42, 0.98) 0%, rgba(16, 185, 129, 0.18) 50%, rgba(15, 23, 42, 0.98) 100%); border-top: 3px solid rgba(16, 185, 129, 0.7); border-bottom: 3px solid rgba(16, 185, 129, 0.5); box-shadow: 0 4px 20px rgba(0, 0, 0, 0.6);">
+                            <td colspan="7" style="text-align: left; vertical-align: middle; padding: 14px 20px 14px 25px; border: none;">
+                                <div style="display: inline-flex; align-items: center; gap: 14px;">
+                                    <span style="font-size: 2rem; filter: drop-shadow(0 0 10px rgba(16,185,129,0.8));">💵</span>
+                                    <span id="lbl-grand-dynamic" style="color: #34d399; font-size: 1.85rem; font-weight: 900; letter-spacing: 0.5px; text-shadow: 0 0 14px rgba(16, 185, 129, 0.6);">الإجمالي الكلي:</span>
                                 </div>
                             </td>
-                            <td data-col-id="col_total" style="padding: 10px 4px; border: none; vertical-align: middle;">
-                                <div style="display: flex; gap: 10px; align-items: center; justify-content: center; width: 100%;">
-                                    <!-- ONLY Amount Number inside this stylized rectangle -->
-                                    <span class="val amount" id="t-grand-dynamic-loc" style="flex: 1; min-width: 0; min-height: 56px; height: 56px; display: flex; align-items: center; justify-content: center; font-size: 2.25rem; font-weight: 900; font-family: 'Cairo', 'JetBrains Mono', monospace, sans-serif; color: #ffffff !important; text-align: center; background: linear-gradient(135deg, rgba(16,185,129,0.4) 0%, rgba(5,150,105,0.6) 50%, rgba(4,120,87,0.7) 100%); border: 2px solid #10b981; border-radius: 12px; box-shadow: 0 0 20px rgba(16,185,129,0.35), inset 0 2px 4px rgba(255,255,255,0.3), inset 0 -2px 6px rgba(0,0,0,0.5); letter-spacing: 1px; box-sizing: border-box; text-shadow: 0 2px 4px rgba(0,0,0,0.6);">0</span>
+                            <td colspan="5" style="padding: 10px 12px; border: none; vertical-align: middle;">
+                                <div style="display: flex; gap: 14px; align-items: center; justify-content: flex-end; width: 100%; max-width: 580px; margin-right: auto; margin-left: 0;">
+                                    <!-- ONLY Amount Number inside this stylized rectangle (Enlarged to comfortably hold 8+ integer digits) -->
+                                    <span class="val amount" id="t-grand-dynamic-loc" style="flex: 1; min-width: 280px; min-height: 60px; height: 60px; padding: 0 22px; display: flex; align-items: center; justify-content: center; font-size: 2.35rem; font-weight: 900; font-family: 'Cairo', 'JetBrains Mono', monospace, sans-serif; color: #ffffff !important; text-align: center; background: linear-gradient(135deg, rgba(16,185,129,0.45) 0%, rgba(5,150,105,0.65) 50%, rgba(4,120,87,0.8) 100%); border: 2.5px solid #10b981; border-radius: 14px; box-shadow: 0 0 25px rgba(16,185,129,0.4), inset 0 2px 5px rgba(255,255,255,0.35), inset 0 -2px 6px rgba(0,0,0,0.5); letter-spacing: 1.5px; box-sizing: border-box; text-shadow: 0 2px 6px rgba(0,0,0,0.7); white-space: nowrap; overflow: hidden;">0</span>
                                     <!-- Currency badge completely OUTSIDE the rectangle -->
-                                    <span id="t-grand-currency-badge" style="flex-shrink: 0; height: 44px; min-width: 52px; display: inline-flex; align-items: center; justify-content: center; padding: 0 12px; font-size: 1.15rem; font-weight: 900; color: #6ee7b7; background: rgba(16, 185, 129, 0.18); border: 1.5px solid rgba(16, 185, 129, 0.45); border-radius: 9px; box-shadow: 0 2px 8px rgba(0,0,0,0.3); font-family: 'Tajawal', 'Cairo', sans-serif; letter-spacing: 0.5px;">SDG</span>
+                                    <span id="t-grand-currency-badge" style="flex-shrink: 0; height: 50px; min-width: 65px; display: inline-flex; align-items: center; justify-content: center; padding: 0 16px; font-size: 1.3rem; font-weight: 900; color: #6ee7b7; background: rgba(16, 185, 129, 0.2); border: 2px solid rgba(16, 185, 129, 0.5); border-radius: 11px; box-shadow: 0 4px 12px rgba(0,0,0,0.3); font-family: 'Tajawal', 'Cairo', sans-serif; letter-spacing: 0.5px;">SDG</span>
                                     <span id="t-grand" style="display:none;">0</span>
                                 </div>
                             </td>
-                            <td data-col-id="col_del" style="border: none;"></td>
                         </tr>
                     </tfoot>
                     </table>
@@ -3033,13 +3032,18 @@ try {
             let _animLocReq = null;
             let _animFcReq = null;
 
+            function formatGrandTotalInt(n) {
+                const num = Math.round(Number(n) || 0);
+                return num.toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+            }
+
             function animateDynNumber(el, startVal, endVal, duration, suffixHtml, isFc) {
                 if (!el) return;
                 const startTime = performance.now();
                 const diff = endVal - startVal;
                 
                 if (Math.abs(diff) < 0.001) {
-                    el.innerHTML = fmtNum(endVal) + suffixHtml;
+                    el.innerHTML = (isFc ? fmtNum(endVal) : formatGrandTotalInt(endVal)) + suffixHtml;
                     return;
                 }
 
@@ -3054,7 +3058,7 @@ try {
                     // Easing: easeOutExpo
                     const ease = progress === 1 ? 1 : 1 - Math.pow(2, -10 * progress);
                     const current = startVal + (diff * ease);
-                    el.innerHTML = fmtNum(current) + suffixHtml;
+                    el.innerHTML = (isFc ? fmtNum(current) : formatGrandTotalInt(current)) + suffixHtml;
 
                     if (progress < 1) {
                         if (isFc) {
@@ -3063,7 +3067,7 @@ try {
                             _animLocReq = requestAnimationFrame(step);
                         }
                     } else {
-                        el.innerHTML = fmtNum(endVal) + suffixHtml;
+                        el.innerHTML = (isFc ? fmtNum(endVal) : formatGrandTotalInt(endVal)) + suffixHtml;
                         setTimeout(() => {
                             el.classList.remove("total-value-updating");
                         }, 250);
