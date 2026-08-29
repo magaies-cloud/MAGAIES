@@ -95,12 +95,15 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         :root.light-theme .autocomplete-list li .acc-name-text { color: #b45309 !important; text-shadow: none; }
         :root.light-theme .autocomplete-list li:hover { background:#fef3c7 !important; }
         
-        .selected-account-chip { display:none; align-items:center; gap:10px; width:100%; background:rgba(250,204,21,0.15); border:1.5px solid rgba(250,204,21,0.5); border-radius:8px; padding:0 14px; height:44px; box-sizing:border-box; }
-        .selected-account-chip #chip-name { color: #ffd700 !important; font-size: 1.25rem !important; font-weight: 900 !important; text-shadow: 0 0 10px rgba(250, 204, 21, 0.4); font-family: 'Cairo', 'Tajawal', sans-serif; }
-        :root.light-theme .selected-account-chip { background:rgba(250,204,21,0.1) !important; border-color:rgba(217,119,6,0.5) !important; }
+        .selected-account-chip { display:none; align-items:center; gap:10px; width:100%; background:#0f172a !important; border:1.5px solid rgba(250,204,21,0.5) !important; border-radius:8px; padding:0 14px; height:44px; box-sizing:border-box; }
+        .selected-account-chip #chip-name { color: #ffd700 !important; font-size: 1.38rem !important; font-weight: 900 !important; text-shadow: 0 0 10px rgba(250, 204, 21, 0.4); font-family: 'Cairo', 'Tajawal', sans-serif; }
+        :root.light-theme .selected-account-chip { background:#f8fafc !important; border-color:rgba(217,119,6,0.5) !important; }
         :root.light-theme .selected-account-chip #chip-name { color: #b45309 !important; text-shadow: none; }
-        #account-search-input { font-size: 1.15rem !important; font-weight: 800 !important; color: #ffd700 !important; height: 44px; }
-        :root.light-theme #account-search-input { color: #b45309 !important; }
+        #account-search-input { font-size: 1.28rem !important; font-weight: 800 !important; color: #ffd700 !important; height: 44px; background: #0f172a !important; border: 1.5px solid rgba(250, 204, 21, 0.4) !important; border-radius: 8px; }
+        #account-search-input::placeholder { color: rgba(250, 204, 21, 0.7) !important; font-size: 1.15rem; }
+        #account-search-input:focus { background: #0b1120 !important; border-color: #ffd700 !important; box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.25) !important; }
+        :root.light-theme #account-search-input { background: #f8fafc !important; color: #b45309 !important; border-color: rgba(217, 119, 6, 0.4) !important; }
+        :root.light-theme #account-search-input::placeholder { color: rgba(180, 83, 9, 0.6) !important; }
         
         .btn-run { background: linear-gradient(135deg, #a855f7, #7e22ce); color: #ffffff; border: none; padding: 8px 20px; border-radius: 8px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content:center; gap: 8px; transition: all 0.3s; font-family: inherit; font-size: 0.95rem; height: 40px; box-shadow: 0 4px 15px rgba(126, 34, 206, 0.4); }
         .btn-run:hover { background: linear-gradient(135deg, #c084fc, #9333ea); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(126, 34, 206, 0.6); }
@@ -464,37 +467,37 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
     <!-- Filter Launcher Panel -->
     <div class="report-header no-print">
         <!-- ROW 1 -->
-        <div class="filter-row">
+        <div class="filter-row" style="display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; margin-bottom: 14px;">
             <!-- Main Account -->
-            <div class="filter-group" style="flex:2;">
-                <label>🏦 الحساب الرئيسي</label>
+            <div class="filter-group" style="flex: 3.5; min-width: 300px;">
+                <label style="font-size: 0.95rem; font-weight: 800; color: #ffd700;">🏦 الحساب الرئيسي (بحث بالاسم)</label>
                 <div class="search-wrap" id="account-search-wrap">
                     <input type="text" class="filter-input" id="account-search-input" placeholder="ابحث باسم الحساب..." autocomplete="off" onfocus="if(typeof onAccountSearch==='function')onAccountSearch()" oninput="if(typeof onAccountSearch==='function')onAccountSearch()" onclick="if(typeof onAccountSearch==='function')onAccountSearch()">
                     <button class="search-clear-btn" id="search-clear-btn" onclick="clearAccountSearch()">✕</button>
                     <ul class="autocomplete-list" id="autocomplete-list"></ul>
                 </div>
                 <div class="selected-account-chip" id="selected-chip">
-                    <span id="chip-icon" style="font-size:1.35rem;">🏷️</span>
-                    <span id="chip-name" style="flex:1; font-size:1.25rem; font-weight:900; color:#ffd700;"></span>
-                    <button class="chip-remove" id="chip-remove-btn" title="إلغاء" style="background:none;border:none;color:#f87171;cursor:pointer;font-size:1.25rem;font-weight:900;" onclick="clearAccountSearch()">✕</button>
+                    <span id="chip-icon" style="font-size:1.4rem;">🏷️</span>
+                    <span id="chip-name" style="flex:1; font-size:1.38rem; font-weight:900; color:#ffd700;"></span>
+                    <button class="chip-remove" id="chip-remove-btn" title="إلغاء" style="background:none;border:none;color:#f87171;cursor:pointer;font-size:1.3rem;font-weight:900;" onclick="clearAccountSearch()">✕</button>
                 </div>
                 <input type="hidden" id="filter-account" value="ALL">
             </div>
 
-            <!-- Date From -->
-            <div class="filter-group">
+            <!-- Date From (Reduced by 15%) -->
+            <div class="filter-group" style="flex: 0.85; min-width: 135px; max-width: 175px;">
                 <label>📅 من تاريخ</label>
                 <input type="date" class="filter-input" id="filter-date-from" value="<?php echo date('Y-m-01'); ?>">
             </div>
 
-            <!-- Date To -->
-            <div class="filter-group">
+            <!-- Date To (Reduced by 15%) -->
+            <div class="filter-group" style="flex: 0.85; min-width: 135px; max-width: 175px;">
                 <label>📅 إلى تاريخ</label>
                 <input type="date" class="filter-input" id="filter-date-to" value="<?php echo date('Y-m-t'); ?>">
             </div>
 
             <!-- Currency -->
-            <div class="filter-group">
+            <div class="filter-group" style="flex: 1.1; min-width: 160px;">
                 <label>💱 العملة</label>
                 <select class="filter-input" id="filter-currency">
                     <option value="ALL">جميع العملات (محلي + أجنبي)</option>
