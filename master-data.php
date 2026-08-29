@@ -745,10 +745,10 @@
                         </div>
                         <div class="form-grid">
                             <div class="input-group" style="grid-column: span 2; min-width: 280px;"><label style="font-weight: 800; color: #38bdf8;">👤 اسم العميل / الشركة</label><input type="text" id="cust-name" placeholder="مثال: شركة النيل للتجارة والاستثمار" style="font-size: 1.05rem; font-weight: 800; border-color: rgba(56,189,248,0.4); background: rgba(56,189,248,0.05);"></div>
-                            <div class="input-group" style="max-width: 180px;"><label>📞 رقم الهاتف</label><input type="text" id="cust-phone" placeholder="00249123000000" style="text-align: center; direction: ltr;"></div>
-                            <div class="input-group" style="max-width: 180px;"><label>💬 رقم الواتساب</label><input type="text" id="cust-whatsapp" placeholder="00249123000000" style="text-align: center; direction: ltr;"></div>
-                            <div class="input-group"><label>✉️ الايميل (البريد الإلكتروني)</label><input type="email" id="cust-email" placeholder="example@email.com"></div>
-                            <div class="input-group" style="grid-column: span 1;"><label>📍 العنوان</label><input type="text" id="cust-address" placeholder="مثال: الخرطوم، مقاييس"></div>
+                            <div class="input-group"><label>📞 رقم الهاتف</label><input type="text" id="cust-phone" placeholder="00249123000000" style="width: 100%; font-size: 1rem; font-weight: 700; text-align: center; direction: ltr;"></div>
+                            <div class="input-group"><label>💬 رقم الواتساب</label><input type="text" id="cust-whatsapp" placeholder="00249123000000" style="width: 100%; font-size: 1rem; font-weight: 700; text-align: center; direction: ltr;"></div>
+                            <div class="input-group"><label>✉️ الايميل (البريد الإلكتروني)</label><input type="email" id="cust-email" placeholder="example@email.com" style="width: 100%;"></div>
+                            <div class="input-group" style="grid-column: span 1;"><label>📍 العنوان</label><input type="text" id="cust-address" placeholder="مثال: الخرطوم، مقاييس" style="width: 100%;"></div>
                             <div class="input-group"><label>العملة</label><select id="cust-currency" class="system-currency-select" onchange="updateCustExchangeRate()"></select></div>
                             <div class="input-group" id="cust-ex-rate-group" style="display: none;"><label id="cust-ex-rate-label" style="color:#38bdf8; font-weight:800;">💵 سعر الصرف (مقابل المحلية)</label><input type="number" id="cust-ex-rate" step="any" value="1" placeholder="سعر الصرف مقابل SDG" style="font-weight:800; color:#38bdf8;"></div>
                             <div class="input-group"><label>الرقم الضريبي</label><input type="text" id="cust-tax" placeholder="الرقم الضريبي للعميل"></div>
@@ -811,10 +811,10 @@
                         </div>
                         <div class="form-grid">
                             <div class="input-group" style="grid-column: span 2; min-width: 280px;"><label style="font-weight: 800; color: #38bdf8;">🏭 اسم المورد / المصنع / الشركة</label><input type="text" id="sup-name" placeholder="مثال: شركة جياد للصناعات الهندسية" style="font-size: 1.05rem; font-weight: 800; border-color: rgba(56,189,248,0.4); background: rgba(56,189,248,0.05);"></div>
-                            <div class="input-group" style="max-width: 180px;"><label>📞 رقم الهاتف</label><input type="text" id="sup-phone" placeholder="00249123000000" style="text-align: center; direction: ltr;"></div>
-                            <div class="input-group" style="max-width: 180px;"><label>💬 رقم الواتساب</label><input type="text" id="sup-whatsapp" placeholder="00249123000000" style="text-align: center; direction: ltr;"></div>
-                            <div class="input-group"><label>✉️ الايميل (البريد الإلكتروني)</label><input type="email" id="sup-email" placeholder="example@email.com"></div>
-                            <div class="input-group" style="grid-column: span 1;"><label>📍 العنوان</label><input type="text" id="sup-address" placeholder="موقع المصنع / المعرض"></div>
+                            <div class="input-group"><label>📞 رقم الهاتف</label><input type="text" id="sup-phone" placeholder="00249123000000" style="width: 100%; font-size: 1rem; font-weight: 700; text-align: center; direction: ltr;"></div>
+                            <div class="input-group"><label>💬 رقم الواتساب</label><input type="text" id="sup-whatsapp" placeholder="00249123000000" style="width: 100%; font-size: 1rem; font-weight: 700; text-align: center; direction: ltr;"></div>
+                            <div class="input-group"><label>✉️ الايميل (البريد الإلكتروني)</label><input type="email" id="sup-email" placeholder="example@email.com" style="width: 100%;"></div>
+                            <div class="input-group" style="grid-column: span 1;"><label>📍 العنوان</label><input type="text" id="sup-address" placeholder="موقع المصنع / المعرض" style="width: 100%;"></div>
                             <div class="input-group"><label>العملة</label><select id="sup-currency" class="system-currency-select" onchange="updateSupExchangeRate()"></select></div>
                             <div class="input-group" id="sup-ex-rate-group" style="display: none;"><label id="sup-ex-rate-label" style="color:#38bdf8; font-weight:800;">💵 سعر الصرف (مقابل المحلية)</label><input type="number" id="sup-ex-rate" step="any" value="1" placeholder="سعر الصرف مقابل SDG" style="font-weight:800; color:#38bdf8;"></div>
                             <div class="input-group"><label>الرقم الضريبي</label><input type="text" id="sup-tax" placeholder="الرقم الضريبي للمورد"></div>
