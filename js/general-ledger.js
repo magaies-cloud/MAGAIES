@@ -1,4 +1,4 @@
-/* ══════════════════════════════════════════════════
+﻿/* ══════════════════════════════════════════════════
    general-ledger.js — Smart General Ledger (SGL)
    /* ═══════════════════════════════════════════════════════ */
 
@@ -1358,7 +1358,7 @@ function renderRecentTable(txns, startIndex = 0) {
             ${col.headerColor ? 'color:' + col.headerColor + '!important;' : ''}
             ${col.fontFamily ? 'font-family:' + col.fontFamily + ', sans-serif!important;' : ''}
         `;
-        headHtml += `<th data-col-id="${col.id}" style="position: relative; white-space: nowrap; ${hStyle}">${col.label}<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>`;
+        headHtml += `<th draggable="true" data-col-id="${col.id}" ondragstart="window.glHandleDragStart(event)" ondragover="window.glHandleDragOver(event)" ondragenter="window.glHandleDragEnter(event)" ondragleave="window.glHandleDragLeave(event)" ondrop="window.glHandleDrop(event)" ondragend="window.glHandleDragEnd(event)" style="position: relative; white-space: nowrap; cursor: grab; padding-top: 20px; ${hStyle}"><div style="position:absolute; top:2px; left:0; right:0; display:flex; justify-content:space-between; padding:0 5px; font-size:11px; opacity:0.5; z-index:10;"><span style="cursor:pointer; padding:2px;" onclick="window.glHandleArrowMove(event, '${col.id}', 1)" title="����� ������">?</span><span style="cursor:pointer; padding:2px;" onclick="window.glHandleArrowMove(event, '${col.id}', -1)" title="����� ������">?</span></div>${col.label}<div class="resizer" title="Double click to auto-size"></div></th>`;
     });
     headHtml += '</tr>';
     thead.innerHTML = headHtml;
@@ -2133,18 +2133,21 @@ function renderLedgerPresets() {
     try { presets = JSON.parse(localStorage.getItem(PRESETS_STORAGE_KEY) || '[]'); } catch(e){}
 
     const defaultPresets = [
-        { name: '💎 افتراضي 1', showInRibbon: true },
-        { name: '⭐ افتراضي 2', showInRibbon: true },
-        { name: '🎨 افتراضي 3', showInRibbon: true },
-        { name: '🔥 افتراضي 4', showInRibbon: true },
-        { name: '✨ افتراضي 5', showInRibbon: true },
-        { name: '🚀 افتراضي 6', showInRibbon: true }
+        { name: '💎 افتراضي 1', showInRibbon: true, isLocked: true },
+        { name: '⭐ افتراضي 2', showInRibbon: true, isLocked: true },
+        { name: '🎨 افتراضي 3', showInRibbon: true, isLocked: true },
+        { name: '🔥 افتراضي 4', showInRibbon: true, isLocked: true },
+        { name: '✨ افتراضي 5', showInRibbon: true, isLocked: true },
+        { name: '🚀 افتراضي 6', showInRibbon: true, isLocked: true }
     ];
 
     if (!Array.isArray(presets) || presets.length === 0) {
         presets = defaultPresets;
-        localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
     }
+
+    // Lock all default presets permanently
+    presets.forEach(p => { p.isLocked = true; });
+    try { localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets)); } catch(e){}
 
     presets.slice(0, 6).forEach((p, idx) => {
         if (p.showInRibbon === false) return;
@@ -2162,13 +2165,17 @@ function renderLedgerPresets() {
         
         btn.style.cssText = `--btn-color: ${color};`;
         btn.innerHTML = p.name || ('نموذج ' + (idx + 1));
-        btn.onclick = () => openPresetModal(idx, p.name || ('نموذج ' + (idx + 1)));
+        
+        btn.onclick = (e) => {
+            if (e) e.preventDefault();
+            openPresetModal(idx, p.name || ('نموذج ' + (idx + 1)), true);
+        };
         container.appendChild(btn);
     });
 }
 window.renderLedgerPresets = renderLedgerPresets;
 
-async function openPresetModal(presetIndex, presetName) {
+async function openPresetModal(presetIndex, presetName, isLocked = true) {
     try {
         await prepareLedgerPreviewData();
     } catch (e) {
@@ -2216,7 +2223,7 @@ async function openPresetModal(presetIndex, presetName) {
         </div>
     `;
     modal.style.display = 'flex';
-};
+}
 window.openPresetModal = openPresetModal;
 
 // Attach event listeners to filters to auto-run
@@ -2357,3 +2364,99 @@ function initGeneralLedgerResizers() {
     });
 }
 document.addEventListener('DOMContentLoaded', initGeneralLedgerResizers);
+
+window.glHandleDragStart = function(e) {
+    const th = e.target.closest('th');
+    if (!th) {
+        e.preventDefault();
+        return;
+    }
+    if (e.target.classList && e.target.classList.contains('resizer')) {
+        e.preventDefault();
+        return;
+    }
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', th.getAttribute('data-col-id'));
+    setTimeout(() => { th.style.opacity = '0.4'; }, 10);
+};
+
+window.glHandleDragEnter = function(e) {
+    e.preventDefault();
+    const th = e.target.closest('th');
+    if (th) {
+        th.style.borderLeft = '3px solid #0ea5e9';
+    }
+};
+
+window.glHandleDragOver = function(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+};
+
+window.glHandleDragLeave = function(e) {
+    const th = e.target.closest('th');
+    if (th) {
+        th.style.borderLeft = '';
+    }
+};
+
+window.glHandleDrop = function(e) {
+    e.preventDefault();
+    const draggedColId = e.dataTransfer.getData('text/plain');
+    let targetTh = e.target.closest('th');
+    if (!targetTh) return;
+    
+    document.querySelectorAll('#recent-table th').forEach(el => {
+        el.style.opacity = '1';
+        el.style.borderLeft = '';
+    });
+    
+    const targetColId = targetTh.getAttribute('data-col-id');
+    if (draggedColId && targetColId && draggedColId !== targetColId) {
+        const arr = typeof activeGLColumnSettings !== 'undefined' ? activeGLColumnSettings : window.activeGLColumnSettings;
+        if (!arr) return;
+
+        const fromIdx = arr.findIndex(c => c.id === draggedColId);
+        const toIdx = arr.findIndex(c => c.id === targetColId);
+        
+        if (fromIdx > -1 && toIdx > -1) {
+            const movedItem = arr.splice(fromIdx, 1)[0];
+            arr.splice(toIdx, 0, movedItem);
+            if (typeof saveGLColumnSettings === 'function') saveGLColumnSettings();
+            if (typeof runReport === 'function') runReport();
+            if (typeof showToast === 'function') showToast('�� ������� �����', 'success');
+        }
+    }
+};
+
+window.glHandleDragEnd = function(e) {
+    const th = e.target.closest ? e.target.closest('th') : null;
+    if (th) th.style.opacity = '1';
+    document.querySelectorAll('#recent-table th').forEach(el => {
+        el.style.opacity = '1';
+        el.style.borderLeft = '';
+    });
+};
+
+
+
+
+window.glHandleArrowMove = function(e, colId, dir) {
+    e.preventDefault();
+    e.stopPropagation();
+    
+    const arr = typeof activeGLColumnSettings !== 'undefined' ? activeGLColumnSettings : window.activeGLColumnSettings;
+    if (!arr) return;
+
+    const idx = arr.findIndex(c => c.id === colId);
+    if (idx < 0) return;
+    
+    const newIdx = idx + dir;
+    if (newIdx >= 0 && newIdx < arr.length) {
+        const item = arr.splice(idx, 1)[0];
+        arr.splice(newIdx, 0, item);
+        if (typeof saveGLColumnSettings === 'function') saveGLColumnSettings();
+        if (typeof runReport === 'function') runReport();
+        if (typeof showToast === 'function') showToast('�� ����� ������', 'info');
+    }
+};

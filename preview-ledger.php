@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // preview-balances-design.php
 // Excel-Style Preview Page for Balances - Pro Edition with Studio Tabs & Page Setup
 ?>
@@ -490,21 +490,45 @@
     </div>
 
     <!-- Center/Left Side: Controls & Live Search -->
-    <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
+        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
         <!-- Live Quick Search Box -->
         <input type="text" id="live-search-input" placeholder="🔍 بحث سريع..." oninput="filterTableRows(this.value)" style="padding: 4px 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.3); color: #fff; font-family: inherit; font-size: 0.8rem; outline: none; width: 120px; height: 30px; box-sizing: border-box;">
+
+        <script>
+        function saveCurrentPresetAndLock() {
+            if (typeof saveCurrentPreset === 'function') {
+                saveCurrentPreset(window.currentPresetIndex || 0);
+                let presets = getSavedPresets();
+                if (presets[window.currentPresetIndex || 0]) {
+                    presets[window.currentPresetIndex || 0].isLocked = true;
+                    savePresets(presets);
+                    syncPresetsToDB('ledger_preview_presets_v20', presets);
+                    if (typeof showToast === 'function') showToast('تم حفظ التصميم وقفل الطبلة بنجاح!', 'success');
+                    setTimeout(() => { window.history.back(); }, 800);
+                }
+            }
+        }
+        </script>
 
         <button class="ribbon-btn" onclick="executePrintWithPermission()" style="--btn-color: #0ea5e9;">
             <span style="font-size: 1.05rem;">🖨️</span> طباعة
         </button>
-        <button class="ribbon-btn" onclick="toggleSettingsPanel()" style="--btn-color: #eab308;">
-            <span style="font-size: 1.05rem;">⚙️</span> إعدادات الأعمدة
-        </button>
+
+        <!-- Settings and Save Group -->
+        <div style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12);">
+            <button class="ribbon-btn" onclick="toggleSettingsPanel()" style="--btn-color: #eab308; margin:0;">
+                <span style="font-size: 1.05rem;">⚙️</span> إعدادات التصميم
+            </button>
+            <button class="ribbon-btn" id="mega-save-btn" onclick="saveCurrentPresetAndLock()" style="--btn-color: #10b981; font-weight: 900; display: none; margin:0;">
+                <span style="font-size: 1.05rem;">💾</span> حفظ التصميم 🔒
+            </button>
+        </div>
+
         <button class="ribbon-btn" onclick="toggleDarkMode()" style="--btn-color: #a855f7;">
-            <span style="font-size: 1.05rem;">🌙</span> عكس الألوان
+            <span style="font-size: 1.05rem;">🌙</span> الوضع الليلي
         </button>
         <button class="ribbon-btn" onclick="window.history.back()" style="--btn-color: #ef4444;">
-            <span style="font-size: 1.05rem;">❌</span> إغلاق / رجوع
+            <span style="font-size: 1.05rem;">✖</span> إغلاق / عودة
         </button>
     </div>
 </div>

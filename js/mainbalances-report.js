@@ -1,4 +1,4 @@
-/* ═══════════════════════════════════════════════════════
+﻿/* ═══════════════════════════════════════════════════════
    balances-report.js — Global Balances & Aging Report
    ═══════════════════════════════════════════════════════ */
 console.log('%c[balances-report.js] FILE LOADED v2', 'color: lime; font-size: 16px; font-weight: bold;');
@@ -100,6 +100,7 @@ function applyLayoutToDOM() {
                 if (conf.bg && conf.bg !== '#ffffff' && conf.bg !== '#0f172a') th.style.setProperty('background-color', conf.bg, 'important'); else th.style.removeProperty('background-color');
                 if (conf.fontFamily) th.style.setProperty('font-family', conf.fontFamily, 'important'); else th.style.removeProperty('font-family');
                 if (alignVal) th.style.setProperty('text-align', alignVal, 'important'); else th.style.removeProperty('text-align');
+                if (conf.width) th.style.setProperty('width', conf.width, 'important'); else th.style.removeProperty('width');
             });
         }
 
@@ -241,7 +242,7 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 });
 
-let isSavingLayout = false;
+let saveLayoutTimeout = null;
 function saveLayout() {
     try {
         const layoutPayload = {
@@ -257,13 +258,12 @@ function saveLayout() {
         localStorage.setItem('erp_settings_v1', JSON.stringify(settings));
         localStorage.setItem('mainbalances_report_master_v4_default1', JSON.stringify(layoutPayload));
         
-        const token = localStorage.getItem('erp_token') || '';
-        const headers = { 'Content-Type': 'application/json' };
-        if (token) headers['Authorization'] = 'Bearer ' + token;
+        clearTimeout(saveLayoutTimeout);
+        saveLayoutTimeout = setTimeout(() => {
+            const token = localStorage.getItem('erp_token') || '';
+            const headers = { 'Content-Type': 'application/json' };
+            if (token) headers['Authorization'] = 'Bearer ' + token;
 
-        // Save permanently to MySQL Database
-        if (!isSavingLayout) {
-            isSavingLayout = true;
             fetch('api_index.php/report-layout', {
                 method: 'POST',
                 headers: headers,
@@ -274,16 +274,14 @@ function saveLayout() {
             })
             .then(res => res.json())
             .then(data => {
-                isSavingLayout = false;
                 if (data && data.success) {
                     console.log('✅ Layout saved permanently to DB');
                 }
             })
             .catch(err => {
-                isSavingLayout = false;
                 console.error('Failed to save layout to DB', err);
             });
-        }
+        }, 800);
         
         if (typeof window.renderBalancesPresets === 'function') {
             window.renderBalancesPresets();
@@ -1976,6 +1974,13 @@ function autoSize(e) {
     e.stopPropagation();
     const th = e.target.parentElement;
     th.style.width = 'auto'; 
+    const origIdx = parseInt(th.getAttribute('data-orig-idx'));
+    if (!isNaN(origIdx) && window.colConfigs && window.colConfigs[origIdx]) {
+        window.colConfigs[origIdx].width = '';
+        if (typeof saveLayout === 'function') {
+            saveLayout();
+        }
+    }
 }
 
 function initResize(e) {
@@ -2011,6 +2016,17 @@ function stopResize(e) {
     document.removeEventListener('mousemove', doResize);
     document.removeEventListener('mouseup', stopResize);
     document.querySelectorAll('.resizer').forEach(r => r.classList.remove('resizing'));
+    
+    if (resizingTh) {
+        const origIdx = parseInt(resizingTh.getAttribute('data-orig-idx'));
+        if (!isNaN(origIdx) && window.colConfigs && window.colConfigs[origIdx]) {
+            window.colConfigs[origIdx].width = resizingTh.style.width;
+            if (typeof saveLayout === 'function') {
+                saveLayout();
+            }
+        }
+    }
+    resizingTh = null;
 }
 
 function bindNumberFocus() {
@@ -2608,6 +2624,7 @@ function updateColDOM(visualIndex, origIdx) {
         if (bgVal) th.style.setProperty('background-color', bgVal, 'important'); else th.style.removeProperty('background-color');
         if (fontVal) th.style.setProperty('font-family', fontVal, 'important'); else th.style.removeProperty('font-family');
         if (alignVal) th.style.setProperty('text-align', alignVal, 'important'); else th.style.removeProperty('text-align');
+        if (conf.width) th.style.setProperty('width', conf.width, 'important'); else th.style.removeProperty('width');
     }
 
     const rows = table.querySelectorAll('tbody tr:not(.empty-state)');
@@ -3097,36 +3114,6 @@ window.renderBalancesPresets = function() {
             btn.innerHTML = p.name + (p.isLocked ? ' \uD83D\uDD12' : ' \uD83D\uDD13');
             btn.title = p.isLocked ? 'اضغط لعرض التقرير. اضغط مطولاً لفك القفل.' : 'اضغط مرة واحدة لحفظ التعديلات وقفل الإعداد.';
 
-            let pressTimer;
-            let isLongPress = false;
-
-            const startPress = (e) => {
-                if (e.button === 2) return;
-                isLongPress = false;
-                pressTimer = setTimeout(() => {
-                    isLongPress = true;
-                    if (p.isLocked) {
-                        const unlockConfirm = confirm('هل تريد فك القفل عن ' + p.name + ' لتعديل الجداول؟');
-                        if (unlockConfirm) {
-                            p.isLocked = false;
-                            localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
-                            window.renderBalancesPresets();
-                            if (typeof showToast === 'function') showToast('تم فك القفل! يمكنك الآن التعديل.', 'info');
-                        }
-                    } else {
-                        // User can still long press to save if they want
-                        saveAndLock();
-                    }
-                }, 2000);
-            };
-
-            const cancelPress = () => { clearTimeout(pressTimer); };
-
-            btn.addEventListener('mousedown', startPress);
-            btn.addEventListener('touchstart', startPress, {passive: true});
-            btn.addEventListener('mouseup', cancelPress);
-            btn.addEventListener('mouseleave', cancelPress);
-            btn.addEventListener('touchend', cancelPress);
             
             const saveAndLock = () => {
                 const finalConfirm = confirm('تمت إزالة القفل مسبقاً:\n\nهل أنت متأكد أنك تريد حفظ التصميم الحالي كافتراضي وإعادة قفله؟');
@@ -3147,10 +3134,29 @@ window.renderBalancesPresets = function() {
                 }
             };
 
+                        let defaultLongPress = false;
+            let defaultPressTimer;
+            const startDefPress = (e) => {
+                if (e.button === 2) return;
+                defaultLongPress = false;
+                defaultPressTimer = setTimeout(() => {
+                    defaultLongPress = true;
+                }, 600);
+            };
+            const cancelDefPress = () => { clearTimeout(defaultPressTimer); };
+
+            btn.addEventListener('mousedown', startDefPress);
+            btn.addEventListener('touchstart', startDefPress, {passive: true});
+            btn.addEventListener('mouseup', cancelDefPress);
+            btn.addEventListener('mouseleave', cancelDefPress);
+            btn.addEventListener('touchend', cancelDefPress);
+
             btn.onclick = (e) => {
                 if (e) e.preventDefault();
-                if (isLongPress) return;
-                
+                if (defaultLongPress) {
+                    defaultLongPress = false;
+                    return; // DO NOT OPEN when long-pressed
+                }
                 if (p.isLocked) {
                     window.openPresetModal(idx, p.name);
                 } else {
@@ -3297,7 +3303,7 @@ async function openPresetModal(presetIndex, presetName) {
                     <span style="color: #f8fafc; font-weight: 800; font-size: 1rem;">📄 معاينة وطباعة التقرير بالتصميم المخصص</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    
+                    ${presetIndex === 0 ? '' : `
                       <button type="button" id="mega-save-btn-modal" onclick="
                           const cw = document.getElementById('preset-modal-iframe').contentWindow;
                           if (cw && cw.saveCurrentPreset) {
@@ -3324,6 +3330,7 @@ async function openPresetModal(presetIndex, presetName) {
                       " style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; padding: 7px 18px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(16,185,129,0.4);">
                           \uD83D\uDCBE \u062d\u0641\u0638 \u0627\u0644\u062a\u0635\u0645\u064a\u0645 \u0648\u0642\u0641\u0644 \u0627\u0644\u0637\u0628\u0644\u0629 \uD83D\uDD12
                       </button>
+                    `}
                       <button type="button" onclick="document.getElementById('preset-modal-iframe').contentWindow.executePrintWithPermission()" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff; border: none; padding: 7px 18px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(2,132,199,0.4);">
                         🖨️ طباعة
                     </button>
@@ -5382,3 +5389,99 @@ document.addEventListener('DOMContentLoaded', () => {
         window.renderBalancesPresets();
     }
 });
+
+window.mbHandleDragStart = function(e) {
+    const th = e.target.closest('th');
+    if (!th) {
+        e.preventDefault();
+        return;
+    }
+    if (e.target.classList && e.target.classList.contains('resizer')) {
+        e.preventDefault();
+        return;
+    }
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain', th.getAttribute('data-orig-idx'));
+    setTimeout(() => { th.style.opacity = '0.4'; }, 10);
+};
+
+window.mbHandleDragEnter = function(e) {
+    e.preventDefault();
+    const th = e.target.closest('th');
+    if (th) {
+        th.style.borderLeft = '3px solid #0ea5e9';
+    }
+};
+
+window.mbHandleDragOver = function(e) {
+    e.preventDefault();
+    e.dataTransfer.dropEffect = 'move';
+};
+
+window.mbHandleDragLeave = function(e) {
+    const th = e.target.closest('th');
+    if (th) {
+        th.style.borderLeft = '';
+    }
+};
+
+window.mbHandleDrop = function(e) {
+    e.preventDefault();
+    const draggedOrigIdx = parseInt(e.dataTransfer.getData('text/plain'));
+    let targetTh = e.target.closest('th');
+    if (!targetTh) return;
+    
+    document.querySelectorAll('#balances-table th').forEach(el => {
+        el.style.opacity = '1';
+        el.style.borderLeft = '';
+    });
+    
+    const targetOrigIdx = parseInt(targetTh.getAttribute('data-orig-idx'));
+    if (!isNaN(draggedOrigIdx) && !isNaN(targetOrigIdx) && draggedOrigIdx !== targetOrigIdx) {
+        if (!window.colOrder) return;
+        const fromIdx = window.colOrder.indexOf(draggedOrigIdx);
+        const toIdx = window.colOrder.indexOf(targetOrigIdx);
+        
+        if (fromIdx > -1 && toIdx > -1) {
+            const movedItem = window.colOrder.splice(fromIdx, 1)[0];
+            window.colOrder.splice(toIdx, 0, movedItem);
+            if (typeof saveLayout === 'function') saveLayout();
+            if (typeof applyLayoutToDOM === 'function') applyLayoutToDOM();
+            if (typeof renderSidebarConfig === 'function') renderSidebarConfig();
+            if (typeof runReport === 'function' && window.lastResults) runReport();
+            if (typeof showToast === 'function') showToast('�� ����� ������� �����', 'success');
+        }
+    }
+};
+
+window.mbHandleDragEnd = function(e) {
+    const th = e.target.closest ? e.target.closest('th') : null;
+    if (th) th.style.opacity = '1';
+    document.querySelectorAll('#balances-table th').forEach(el => {
+        el.style.opacity = '1';
+        el.style.borderLeft = '';
+    });
+};
+
+window.mbHandleArrowMove = function(e, btn, dir) {
+    e.preventDefault();
+    e.stopPropagation();
+    const th = btn.closest('th');
+    if (!th) return;
+    const origIdx = parseInt(th.getAttribute('data-orig-idx'));
+    if (isNaN(origIdx) || !window.colOrder) return;
+
+    const idx = window.colOrder.indexOf(origIdx);
+    if (idx < 0) return;
+    
+    const newIdx = idx + dir;
+    if (newIdx >= 0 && newIdx < window.colOrder.length) {
+        const item = window.colOrder.splice(idx, 1)[0];
+        window.colOrder.splice(newIdx, 0, item);
+        if (typeof saveLayout === 'function') saveLayout();
+        if (typeof applyLayoutToDOM === 'function') applyLayoutToDOM();
+        if (typeof renderSidebarConfig === 'function') renderSidebarConfig();
+        if (typeof runReport === 'function' && window.lastResults) runReport();
+        if (typeof showToast === 'function') showToast('�� ����� ������', 'info');
+    }
+};

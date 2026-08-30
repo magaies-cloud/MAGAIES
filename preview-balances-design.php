@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 // preview-balances-design.php
 // Excel-Style Preview Page for Balances - Pro Edition with Studio Tabs & Page Setup
 ?>
@@ -517,15 +517,15 @@
             }
         }
         </script>
-        <button class="ribbon-btn" id="mega-save-btn" onclick="saveCurrentPresetAndLock()" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border:none; box-shadow:0 2px 8px rgba(16,185,129,0.4);">
-            💾 حفظ التصميم وقفل الطبلة 🔒
-        </button>
-<button class="ribbon-btn" onclick="executePrintWithPermission()" style="background: linear-gradient(135deg, #0284c7, #0369a1); border:none; box-shadow:0 2px 8px rgba(3,105,161,0.4);">
-            🖨️ طباعة
-        </button>
-        <button class="ribbon-btn" onclick="toggleSettingsPanel()" style="background: linear-gradient(135deg, #eab308, #ca8a04); border:none; box-shadow:0 2px 8px rgba(202,138,4,0.4);">
-            ⚙️ إعدادات الأعمدة
-        </button>
+                <!-- Settings and Save Group -->
+        <div style="display: flex; align-items: center; gap: 6px; background: rgba(255,255,255,0.06); padding: 2px 6px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.12);">
+            <button class="ribbon-btn" onclick="toggleSettingsPanel()" style="background: linear-gradient(135deg, #eab308, #ca8a04); border:none; margin:0;">
+                <span>⚙️</span> إعدادات التصميم
+            </button>
+            <button class="ribbon-btn" id="mega-save-btn" onclick="saveCurrentPresetAndLock()" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border:none; margin:0; display:none;">
+                <span>💾</span> حفظ التصميم 🔒
+            </button>
+        </div>
         <button class="ribbon-btn" onclick="toggleDarkMode()">🌙 عكس الألوان</button>
         <button class="ribbon-btn" onclick="window.history.back()" style="color:#f87171; border-color:rgba(239,68,68,0.5);">❌ إغلاق / رجوع</button>
     </div>

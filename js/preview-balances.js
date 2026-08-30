@@ -1,4 +1,4 @@
-// js/preview-balances.js - Pro Studio Edition
+﻿// js/preview-balances.js - Pro Studio Edition
 
 const PRESETS_STORAGE_KEY = 'balances_preview_presets_v20';
 const MAX_PRESETS_LIMIT = 6;
@@ -544,6 +544,11 @@ function loadPreset(idx) {
     applyDesignState(p);
     renderPresetButtons();
     renderPresetsManagementList();
+    
+    const saveBtn = document.getElementById('mega-save-btn');
+    if (saveBtn) {
+        saveBtn.style.display = (idx === 0) ? 'none' : '';
+    }
 }
 
 function applyPreset(idx) {
@@ -641,6 +646,8 @@ function renderPresetButtons() {
     const presets = getSavedPresets();
     
     presets.forEach((p, idx) => {
+        // Hide "افتراضي 1" from the preview and print screen toolbar
+        if (idx === 0 || (p.name && p.name.includes('افتراضي 1'))) return;
         if (p.showInRibbon === false) return;
         const btn = document.createElement('button');
         btn.type = 'button';
@@ -692,9 +699,13 @@ function renderPresetsManagementList() {
                 <button type="button" class="sr-preset-btn sr-preset-btn-apply" onclick="loadPreset(${idx}); switchStudioTab('cols');" title="تطبيق هذا القالب" style="font-size:10px; padding:2px 4px;">
                     ✨ تطبيق
                 </button>
-                <button type="button" class="sr-preset-btn sr-preset-btn-save" onclick="saveCurrentPreset(${idx})" title="حفظ التصميم المفتوح حالياً في هذا القالب" style="font-size:10px; padding:2px 4px;">
-                    💾 حفظ
-                </button>
+                ${idx === 0 ? `
+<span style="font-size:10px; font-weight:800; color:#ef4444; background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.25); padding:2px 8px; border-radius:4px; display:inline-flex; align-items:center; gap:2px;">🔒 مقفل نهائياً</span>
+` : `
+<button type="button" class="sr-preset-btn sr-preset-btn-save" onclick="saveCurrentPreset(${idx})" title="حفظ التصميم الحالي" style="font-size:10px; padding:2px 4px;">
+    💾 حفظ
+</button>
+`}
                 ${hasFactory ? `
                 <button type="button" class="sr-preset-btn sr-preset-btn-reset" onclick="resetPresetToFactory(${idx})" title="استرجاع ضبط المصنع الأصلي لهذا القالب" style="font-size:10px; padding:2px 4px;">
                     🔄 مصنع
@@ -801,31 +812,17 @@ function toggleSettingsPanel() {
 }
 
 function switchStudioTab(tab) {
-    const btnCols = document.getElementById('tab-btn-cols');
-    const btnPaper = document.getElementById('tab-btn-paper');
-    const btnPresets = document.getElementById('tab-btn-presets');
-    
-    const contentCols = document.getElementById('studio-tab-cols');
-    const contentPaper = document.getElementById('studio-tab-paper');
-    const contentPresets = document.getElementById('studio-tab-presets');
-
-    btnCols.classList.remove('active');
-    btnPaper.classList.remove('active');
-    if (btnPresets) btnPresets.classList.remove('active');
-
-    contentCols.style.display = 'none';
-    contentPaper.style.display = 'none';
-    if (contentPresets) contentPresets.style.display = 'none';
-
-    if (tab === 'cols') {
-        btnCols.classList.add('active');
-        contentCols.style.display = 'block';
-    } else if (tab === 'paper') {
-        btnPaper.classList.add('active');
-        contentPaper.style.display = 'block';
-    } else if (tab === 'presets') {
-        if (btnPresets) btnPresets.classList.add('active');
-        if (contentPresets) contentPresets.style.display = 'block';
+    // Support both old IDs (tab-btn-*) and new IDs (sr-tab-*)
+    ['cols', 'paper', 'presets'].forEach(function(t) {
+        var oldBtn = document.getElementById('tab-btn-' + t);
+        var newBtn = document.getElementById('sr-tab-' + t);
+        var content = document.getElementById('studio-tab-' + t);
+        var isActive = (t === tab);
+        if (oldBtn) oldBtn.classList.toggle('active', isActive);
+        if (newBtn) newBtn.classList.toggle('active', isActive);
+        if (content) content.style.display = isActive ? 'block' : 'none';
+    });
+    if (tab === 'presets' && typeof renderPresetsManagementList === 'function') {
         renderPresetsManagementList();
     }
 }
