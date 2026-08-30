@@ -3069,13 +3069,13 @@ window.renderBalancesPresets = function() {
 
     if (!Array.isArray(presets) || presets.length === 0) {
         const defaultIcons = [
-            '💎 افتراضي 1', 
-            '⭐ افتراضي 2', 
-            '🎨 افتراضي 3', 
-            '🔥 افتراضي 4', 
-            '✨ نموذج 1', 
-            '🚀 نموذج 2', 
-            '🌟 نموذج 3'
+            'افتراضي 1', 
+            'افتراضي 2', 
+            'افتراضي 3', 
+            'افتراضي 4', 
+            'المستخدم 1', 
+            'المستخدم 2', 
+            'المستخدم 3'
         ];
         presets = defaultIcons.map((name, i) => ({ 
             name, 
@@ -3091,10 +3091,11 @@ window.renderBalancesPresets = function() {
         btn.type = 'button';
         btn.className = 'preset-ribbon-btn preset-slot-' + idx;
 
-                const isDefaultGroup = idx < 4 || (p.name && p.name.includes('�������'));
+        const isDefaultGroup = idx < 4 || (p.name && p.name.includes('افتراضي'));
+
         if (isDefaultGroup) {
-            btn.innerHTML = p.name + (p.isLocked ? ' ??' : ' ??');
-            btn.title = '���� ���� �������. ���� ������ ��� ����� �� �����.';
+            btn.innerHTML = p.name + (p.isLocked ? ' \uD83D\uDD12' : ' \uD83D\uDD13');
+            btn.title = 'اضغط لعرض التقرير. اضغط مطولاً لفك القفل أو للحفظ.';
 
             let pressTimer;
             let isLongPress = false;
@@ -3105,15 +3106,15 @@ window.renderBalancesPresets = function() {
                 pressTimer = setTimeout(() => {
                     isLongPress = true;
                     if (p.isLocked) {
-                        const unlockConfirm = confirm(�� ���� �� ����� ��  ������ �������);
+                        const unlockConfirm = confirm('هل تريد فك القفل عن ' + p.name + ' لتعديل الجداول؟');
                         if (unlockConfirm) {
                             p.isLocked = false;
                             localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
                             window.renderBalancesPresets();
-                            if (typeof showToast === 'function') showToast('�� �� �����! ����� ���� �������.', 'info');
+                            if (typeof showToast === 'function') showToast('تم فك القفل! يمكنك الآن التعديل.', 'info');
                         }
                     } else {
-                        const finalConfirm = confirm(�� ��� ����� ��� ���� ��� ������� ������ �������� ������ ����);
+                        const finalConfirm = confirm('تمت إزالة القفل مسبقاً:\n\nهل أنت متأكد أنك تريد حفظ التصميم الحالي كافتراضي وإعادة قفله؟');
                         if (finalConfirm) {
                             p.isLocked = true;
                             p.updatedAt = new Date().toISOString();
@@ -3126,7 +3127,7 @@ window.renderBalancesPresets = function() {
                                 headers: headers,
                                 body: JSON.stringify({ reportKey: PRESETS_STORAGE_KEY, layout: presets })
                             }).catch(e => {});
-                            if (typeof showToast === 'function') showToast(�� ���  �����!, 'success');
+                            if (typeof showToast === 'function') showToast('تم حفظ ' + p.name + ' بنجاح!', 'success');
                             window.renderBalancesPresets();
                         }
                     }
@@ -3147,37 +3148,18 @@ window.renderBalancesPresets = function() {
                 window.openPresetModal(idx, p.name);
             };
         } else {
-                    const finalConfirm = confirm(`تأكيد حفظ ضبط المصنع:\n\nهل أنت متأكد أن هذا ضبط نهائي لـ (${p.name}) لا يمكن تغييره مهما كان؟\nسوف ينتقل كضبط مصنع لكل الشركات وسيتم قفله نهائياً ولن يفتح مجدداً.`);
-                    if (finalConfirm) {
-                        p.isLocked = true;
-                        p.updatedAt = new Date().toISOString();
-                        localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
-                        const token = localStorage.getItem('erp_token') || '';
-                        const headers = { 'Content-Type': 'application/json' };
-                        if (token) headers['Authorization'] = 'Bearer ' + token;
-                        fetch('api_index.php/report-layout', {
-                            method: 'POST',
-                            headers: headers,
-                            body: JSON.stringify({ reportKey: PRESETS_STORAGE_KEY, layout: presets })
-                        }).catch(e => {});
-                        if (typeof showToast === 'function') showToast(`تم حفظ وقفل ضبط المصنع لـ ${p.name} بنجاح!`, "success");
-                        window.renderBalancesPresets();
-                    }
-                }
-            };
-        } else {
-            btn.innerHTML = p.name + ' 🔄';
-            btn.title = 'انقر لاسترجاع النموذج أو حفظ التعديلات 🔄';
+            btn.innerHTML = p.name + ' \uD83D\uDCE5';
+            btn.title = 'حفظ مخصص';
+            
+            let pressTimer;
+            let isLongPress = false;
 
-            btn.onclick = (e) => {
-                if (e) e.preventDefault();
-                
-                const userChoice = confirm(`إعدادات (${p.name})\n\n- اضغط [OK / حسناً] إذا كنت تريد تحميل هذا النموذج.\n- اضغط [Cancel / إلغاء] إذا كنت تريد حفظ التعديلات الحالية في هذا النموذج.`);
-                
-                if (userChoice) {
-                    window.openPresetModal(idx, p.name);
-                } else {
-                    const confirmSave = confirm(`✨ تأكيد الحفظ\n\nهل أنت متأكد من رغبتك في حفظ التعديلات الحالية في (${p.name}) بشكل نهائي؟`);
+            const startPress = (e) => {
+                if (e.button === 2) return;
+                isLongPress = false;
+                pressTimer = setTimeout(() => {
+                    isLongPress = true;
+                    const confirmSave = confirm('هل تريد حفظ التصميم الحالي في ' + p.name + '؟');
                     if (confirmSave) {
                         p.isLocked = false;
                         p.updatedAt = new Date().toISOString();
@@ -3190,37 +3172,45 @@ window.renderBalancesPresets = function() {
                             headers: headers,
                             body: JSON.stringify({ reportKey: PRESETS_STORAGE_KEY, layout: presets })
                         }).catch(e => {});
-                        if (typeof showToast === 'function') {
-                            showToast(`✨ تم حفظ التعديلات في "${p.name}" بنجاح!`, 'success');
-                        } else {
-                            alert(`✨ تم حفظ التعديلات في "${p.name}" بنجاح!`);
-                        }
+                        if (typeof showToast === 'function') showToast('تم حفظ ' + p.name + ' بنجاح!', 'success');
                         window.renderBalancesPresets();
                     }
-                }
+                }, 2000);
+            };
+
+            const cancelPress = () => { clearTimeout(pressTimer); };
+
+            btn.addEventListener('mousedown', startPress);
+            btn.addEventListener('touchstart', startPress, {passive: true});
+            btn.addEventListener('mouseup', cancelPress);
+            btn.addEventListener('mouseleave', cancelPress);
+            btn.addEventListener('touchend', cancelPress);
+
+            btn.onclick = (e) => {
+                if (e) e.preventDefault();
+                if (isLongPress) return;
+                window.openPresetModal(idx, p.name);
             };
         }
-
+        
         btn.oncontextmenu = (e) => { e.preventDefault(); return false; };
         container.appendChild(btn);
     });
 
-    // Main Preview & Design Page Button (Pushed to the very end of the row)
     const mainPreviewBtn = document.createElement('button');
     mainPreviewBtn.type = 'button';
     mainPreviewBtn.onclick = () => {
         if (typeof window.openNewPreviewPage === 'function') {
             window.openNewPreviewPage();
         } else {
-            window.openPresetModal(0, 'الشاشة الذكية للمعاينة والتصميم');
+            window.openPresetModal(0, 'معاينة');
         }
     };
     mainPreviewBtn.className = 'btn-action-hero btn-hero-preview';
     mainPreviewBtn.style.cssText = 'margin-right: auto;';
-    mainPreviewBtn.innerHTML = `<span>👁️ المعاينة والتصميم ⚙️</span>`;
+    mainPreviewBtn.innerHTML = '<span>شاشة العرض للطباعة</span>';
     container.appendChild(mainPreviewBtn);
 };
-
 window.addEventListener('storage', function(e) {
     if (e.key === 'balances_preview_presets_v7') {
         if (typeof window.renderBalancesPresets === 'function') {
