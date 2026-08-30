@@ -3095,7 +3095,7 @@ window.renderBalancesPresets = function() {
 
         if (isDefaultGroup) {
             btn.innerHTML = p.name + (p.isLocked ? ' \uD83D\uDD12' : ' \uD83D\uDD13');
-            btn.title = 'اضغط لعرض التقرير. اضغط مطولاً لفك القفل أو للحفظ.';
+            btn.title = p.isLocked ? 'اضغط لعرض التقرير. اضغط مطولاً لفك القفل.' : 'اضغط مرة واحدة لحفظ التعديلات وقفل الإعداد.';
 
             let pressTimer;
             let isLongPress = false;
@@ -3114,22 +3114,8 @@ window.renderBalancesPresets = function() {
                             if (typeof showToast === 'function') showToast('تم فك القفل! يمكنك الآن التعديل.', 'info');
                         }
                     } else {
-                        const finalConfirm = confirm('تمت إزالة القفل مسبقاً:\n\nهل أنت متأكد أنك تريد حفظ التصميم الحالي كافتراضي وإعادة قفله؟');
-                        if (finalConfirm) {
-                            p.isLocked = true;
-                            p.updatedAt = new Date().toISOString();
-                            localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
-                            const token = localStorage.getItem('erp_token') || '';
-                            const headers = { 'Content-Type': 'application/json' };
-                            if (token) headers['Authorization'] = 'Bearer ' + token;
-                            fetch('api_index.php/report-layout', {
-                                method: 'POST',
-                                headers: headers,
-                                body: JSON.stringify({ reportKey: PRESETS_STORAGE_KEY, layout: presets })
-                            }).catch(e => {});
-                            if (typeof showToast === 'function') showToast('تم حفظ ' + p.name + ' بنجاح!', 'success');
-                            window.renderBalancesPresets();
-                        }
+                        // User can still long press to save if they want
+                        saveAndLock();
                     }
                 }, 2000);
             };
@@ -3141,11 +3127,35 @@ window.renderBalancesPresets = function() {
             btn.addEventListener('mouseup', cancelPress);
             btn.addEventListener('mouseleave', cancelPress);
             btn.addEventListener('touchend', cancelPress);
+            
+            const saveAndLock = () => {
+                const finalConfirm = confirm('تمت إزالة القفل مسبقاً:\n\nهل أنت متأكد أنك تريد حفظ التصميم الحالي كافتراضي وإعادة قفله؟');
+                if (finalConfirm) {
+                    p.isLocked = true;
+                    p.updatedAt = new Date().toISOString();
+                    localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
+                    const token = localStorage.getItem('erp_token') || '';
+                    const headers = { 'Content-Type': 'application/json' };
+                    if (token) headers['Authorization'] = 'Bearer ' + token;
+                    fetch('api_index.php/report-layout', {
+                        method: 'POST',
+                        headers: headers,
+                        body: JSON.stringify({ reportKey: PRESETS_STORAGE_KEY, layout: presets })
+                    }).catch(e => {});
+                    if (typeof showToast === 'function') showToast('تم حفظ ' + p.name + ' بنجاح!', 'success');
+                    window.renderBalancesPresets();
+                }
+            };
 
             btn.onclick = (e) => {
                 if (e) e.preventDefault();
                 if (isLongPress) return;
-                window.openPresetModal(idx, p.name);
+                
+                if (p.isLocked) {
+                    window.openPresetModal(idx, p.name);
+                } else {
+                    saveAndLock();
+                }
             };
         } else {
             btn.innerHTML = p.name + ' \uD83D\uDCE5';
