@@ -3322,7 +3322,7 @@ async function openPresetModal(presetIndex, presetName) {
                               document.getElementById('preset-preview-modal').style.display='none';
                           }
                       " style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; padding: 7px 18px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(16,185,129,0.4);">
-                          \uD83D\uDCBE حفظ التصميم وقفل الطبلة \uD83D\uDD12
+                          \uD83D\uDCBE \u062d\u0641\u0638 \u0627\u0644\u062a\u0635\u0645\u064a\u0645 \u0648\u0642\u0641\u0644 \u0627\u0644\u0637\u0628\u0644\u0629 \uD83D\uDD12
                       </button>
                       <button type="button" onclick="document.getElementById('preset-modal-iframe').contentWindow.executePrintWithPermission()" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff; border: none; padding: 7px 18px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(2,132,199,0.4);">
                         🖨️ طباعة
