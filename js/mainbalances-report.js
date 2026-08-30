@@ -3091,31 +3091,62 @@ window.renderBalancesPresets = function() {
         btn.type = 'button';
         btn.className = 'preset-ribbon-btn preset-slot-' + idx;
 
-        const isDefaultGroup = idx < 4 || (p.name && p.name.includes('Ø§ÙØªØ±Ø§Ø¶ÙŠ'));
-
+                const isDefaultGroup = idx < 4 || (p.name && p.name.includes('ÇİÊÑÇÖí'));
         if (isDefaultGroup) {
-            btn.innerHTML = p.name + (p.isLocked ? ' ğŸ”’' : ' ğŸ”“');
-            btn.title = 'ğŸ”’ Ù…Ø¹Ø§ÙŠÙ†Ø© ÙˆØªØ¹Ø¯ÙŠÙ„ Ø§Ù„ØªÙ†Ø³ÙŠÙ‚ Ø¨Ù‡Ø°Ø§ Ø§Ù„Ù†Ù…ÙˆØ°Ø¬ Ø§Ù„Ø§ÙØªØ±Ø§Ø¶ÙŠ';
-            
-            // Direct Click Handler to open modal directly (Same as General Ledger)
+            btn.innerHTML = p.name + (p.isLocked ? ' ??' : ' ??');
+            btn.title = 'ÇÖÛØ áÚÑÖ ÇáÊŞÑíÑ. ÇÖÛØ ãØæáÇğ áİß ÇáŞİá Ãæ ááÍİÙ.';
+
+            let pressTimer;
+            let isLongPress = false;
+
+            const startPress = (e) => {
+                if (e.button === 2) return;
+                isLongPress = false;
+                pressTimer = setTimeout(() => {
+                    isLongPress = true;
+                    if (p.isLocked) {
+                        const unlockConfirm = confirm(åá ÊÑíÏ İß ÇáŞİá Úä  áÊÚÏíá ÇáÌÏÇæá¿);
+                        if (unlockConfirm) {
+                            p.isLocked = false;
+                            localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
+                            window.renderBalancesPresets();
+                            if (typeof showToast === 'function') showToast('Êã İß ÇáŞİá! íãßäß ÇáÂä ÇáÊÚÏíá.', 'info');
+                        }
+                    } else {
+                        const finalConfirm = confirm(åá ÃäÊ ãÊÃßÏ Ãäß ÊÑíÏ ÍİÙ ÇáÊÕãíã ÇáÍÇáí ßÇİÊÑÇÖí æÅÚÇÏÉ Şİáå¿);
+                        if (finalConfirm) {
+                            p.isLocked = true;
+                            p.updatedAt = new Date().toISOString();
+                            localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
+                            const token = localStorage.getItem('erp_token') || '';
+                            const headers = { 'Content-Type': 'application/json' };
+                            if (token) headers['Authorization'] = 'Bearer ' + token;
+                            fetch('api_index.php/report-layout', {
+                                method: 'POST',
+                                headers: headers,
+                                body: JSON.stringify({ reportKey: PRESETS_STORAGE_KEY, layout: presets })
+                            }).catch(e => {});
+                            if (typeof showToast === 'function') showToast(Êã ÍİÙ  ÈäÌÇÍ!, 'success');
+                            window.renderBalancesPresets();
+                        }
+                    }
+                }, 2000);
+            };
+
+            const cancelPress = () => { clearTimeout(pressTimer); };
+
+            btn.addEventListener('mousedown', startPress);
+            btn.addEventListener('touchstart', startPress, {passive: true});
+            btn.addEventListener('mouseup', cancelPress);
+            btn.addEventListener('mouseleave', cancelPress);
+            btn.addEventListener('touchend', cancelPress);
+
             btn.onclick = (e) => {
                 if (e) e.preventDefault();
-                
-                // Admin Secret Unlock: Ctrl + Shift + Click
-                if (p.isLocked && e.ctrlKey && e.shiftKey) {
-                    const unlockConfirm = confirm("Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù†Ø¸Ø§Ù…: Ù‡Ù„ ØªØ±ÙŠØ¯ ÙØªØ­ Ù‡Ø°Ø§ Ø§Ù„Ù‚Ø§Ù„Ø¨ Ù„ØªØ¹Ø¯ÙŠÙ„Ù‡ ÙƒØ¶Ø¨Ø· Ù…ØµÙ†Ø¹ Ù†Ù‡Ø§Ø¦ÙŠØŸ");
-                    if (unlockConfirm) {
-                        p.isLocked = false;
-                        localStorage.setItem(PRESETS_STORAGE_KEY, JSON.stringify(presets));
-                        window.renderBalancesPresets();
-                        if (typeof showToast === 'function') showToast("ØªÙ… ÙØªØ­ Ø§Ù„Ù‚Ø§Ù„Ø¨! ØµÙ…Ù… Ø§Ù„ØªÙ‚Ø±ÙŠØ± Ø«Ù… Ø§Ù†Ù‚Ø± Ø¹Ù„ÙŠÙ‡ Ù…Ø¬Ø¯Ø¯Ø§Ù‹ Ù„Ù„Ø­ÙØ¸ Ø§Ù„Ù†Ù‡Ø§Ø¦ÙŠ.", "info");
-                    }
-                    return;
-                }
-                
-                if (p.isLocked) {
-                    window.openPresetModal(idx, p.name);
-                } else {
+                if (isLongPress) return;
+                window.openPresetModal(idx, p.name);
+            };
+        } else {
                     const finalConfirm = confirm(`ØªØ£ÙƒÙŠØ¯ Ø­ÙØ¸ Ø¶Ø¨Ø· Ø§Ù„Ù…ØµÙ†Ø¹:\n\nÙ‡Ù„ Ø£Ù†Øª Ù…ØªØ£ÙƒØ¯ Ø£Ù† Ù‡Ø°Ø§ Ø¶Ø¨Ø· Ù†Ù‡Ø§Ø¦ÙŠ Ù„Ù€ (${p.name}) Ù„Ø§ ÙŠÙ…ÙƒÙ† ØªØºÙŠÙŠØ±Ù‡ Ù…Ù‡Ù…Ø§ ÙƒØ§Ù†ØŸ\nØ³ÙˆÙ ÙŠÙ†ØªÙ‚Ù„ ÙƒØ¶Ø¨Ø· Ù…ØµÙ†Ø¹ Ù„ÙƒÙ„ Ø§Ù„Ø´Ø±ÙƒØ§Øª ÙˆØ³ÙŠØªÙ… Ù‚ÙÙ„Ù‡ Ù†Ù‡Ø§Ø¦ÙŠØ§Ù‹ ÙˆÙ„Ù† ÙŠÙØªØ­ Ù…Ø¬Ø¯Ø¯Ø§Ù‹.`);
                     if (finalConfirm) {
                         p.isLocked = true;
