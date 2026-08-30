@@ -3298,7 +3298,7 @@ async function openPresetModal(presetIndex, presetName) {
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px;">
                     
-                      <button type="button" onclick="
+                      <button type="button" id="mega-save-btn-modal" onclick="
                           const cw = document.getElementById('preset-modal-iframe').contentWindow;
                           if (cw && cw.saveCurrentPreset) {
                               cw.saveCurrentPreset(${presetIndex});

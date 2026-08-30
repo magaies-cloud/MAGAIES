@@ -517,7 +517,7 @@
             }
         }
         </script>
-        <button class="ribbon-btn" onclick="saveCurrentPresetAndLock()" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border:none; box-shadow:0 2px 8px rgba(16,185,129,0.4);">
+        <button class="ribbon-btn" id="mega-save-btn" onclick="saveCurrentPresetAndLock()" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border:none; box-shadow:0 2px 8px rgba(16,185,129,0.4);">
             💾 حفظ التصميم وقفل الطبلة 🔒
         </button>
 <button class="ribbon-btn" onclick="executePrintWithPermission()" style="background: linear-gradient(135deg, #0284c7, #0369a1); border:none; box-shadow:0 2px 8px rgba(3,105,161,0.4);">

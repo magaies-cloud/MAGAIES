@@ -1,4 +1,4 @@
-// Version: 20260829222000 (Forced cache clear for JS updates)
+// Version: 20260830153103 (Forced cache clear for JS updates)
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
