@@ -3297,7 +3297,34 @@ async function openPresetModal(presetIndex, presetName) {
                     <span style="color: #f8fafc; font-weight: 800; font-size: 1rem;">📄 معاينة وطباعة التقرير بالتصميم المخصص</span>
                 </div>
                 <div style="display: flex; align-items: center; gap: 10px;">
-                    <button type="button" onclick="document.getElementById('preset-modal-iframe').contentWindow.executePrintWithPermission()" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff; border: none; padding: 7px 18px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(2,132,199,0.4);">
+                    
+                      <button type="button" onclick="
+                          const cw = document.getElementById('preset-modal-iframe').contentWindow;
+                          if (cw && cw.saveCurrentPreset) {
+                              cw.saveCurrentPreset(${presetIndex});
+                              let presets = [];
+                              try { presets = JSON.parse(localStorage.getItem('balances_preview_presets_v7') || '[]'); } catch(e){}
+                              if (presets[${presetIndex}]) {
+                                  presets[${presetIndex}].isLocked = true;
+                                  localStorage.setItem('balances_preview_presets_v7', JSON.stringify(presets));
+                                  if (typeof window.renderBalancesPresets === 'function') window.renderBalancesPresets();
+                                  
+                                  const token = localStorage.getItem('erp_token') || '';
+                                  const headers = { 'Content-Type': 'application/json' };
+                                  if (token) headers['Authorization'] = 'Bearer ' + token;
+                                  fetch('api_index.php/report-layout', {
+                                      method: 'POST',
+                                      headers: headers,
+                                      body: JSON.stringify({ reportKey: 'balances_preview_presets_v7', layout: presets })
+                                  }).catch(e => {});
+                              }
+                              if (typeof showToast === 'function') showToast('تم الحفظ وتم إعادة القفل!', 'success');
+                              document.getElementById('preset-preview-modal').style.display='none';
+                          }
+                      " style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; padding: 7px 18px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(16,185,129,0.4);">
+                          \uD83D\uDCBE حفظ التصميم وقفل الطبلة \uD83D\uDD12
+                      </button>
+                      <button type="button" onclick="document.getElementById('preset-modal-iframe').contentWindow.executePrintWithPermission()" style="background: linear-gradient(135deg, #0284c7, #0369a1); color: #fff; border: none; padding: 7px 18px; border-radius: 20px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: flex; align-items: center; gap: 6px; box-shadow: 0 3px 10px rgba(2,132,199,0.4);">
                         🖨️ طباعة
                     </button>
 
