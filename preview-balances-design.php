@@ -501,7 +501,26 @@
         <!-- Live Quick Search Box -->
         <input type="text" id="live-search-input" placeholder="🔍 بحث سريع..." oninput="filterTableRows(this.value)" style="padding: 6px 14px; border-radius: 18px; border: 1px solid rgba(255,255,255,0.3); background: rgba(0,0,0,0.3); color: #fff; font-family: inherit; font-size: 0.85rem; outline: none; width: 140px;">
 
-        <button class="ribbon-btn" onclick="executePrintWithPermission()" style="background: linear-gradient(135deg, #0284c7, #0369a1); border:none; box-shadow:0 2px 8px rgba(3,105,161,0.4);">
+        
+        <script>
+        function saveCurrentPresetAndLock() {
+            if (typeof saveCurrentPreset === 'function') {
+                saveCurrentPreset(window.currentPresetIndex || 0);
+                let presets = getSavedPresets();
+                if (presets[window.currentPresetIndex || 0]) {
+                    presets[window.currentPresetIndex || 0].isLocked = true;
+                    savePresets(presets);
+                    syncPresetsToDB('balances_preview_presets_v7', presets);
+                    if (typeof showToast === 'function') showToast('\u062a\u0645 \u062d\u0641\u0638 \u0627\u0644\u062a\u0635\u0645\u064a\u0645 \u0648\u0625\u0639\u0627\u062f\u0629 \u0627\u0644\u0642\u0641\u0644 \u0628\u0646\u062c\u0627\u062d\u0021', 'success');
+                    setTimeout(() => { window.history.back(); }, 800);
+                }
+            }
+        }
+        </script>
+        <button class="ribbon-btn" onclick="saveCurrentPresetAndLock()" style="background: linear-gradient(135deg, #10b981, #059669); color: #fff; border:none; box-shadow:0 2px 8px rgba(16,185,129,0.4);">
+            💾 حفظ التصميم وقفل الطبلة 🔒
+        </button>
+<button class="ribbon-btn" onclick="executePrintWithPermission()" style="background: linear-gradient(135deg, #0284c7, #0369a1); border:none; box-shadow:0 2px 8px rgba(3,105,161,0.4);">
             🖨️ طباعة
         </button>
         <button class="ribbon-btn" onclick="toggleSettingsPanel()" style="background: linear-gradient(135deg, #eab308, #ca8a04); border:none; box-shadow:0 2px 8px rgba(202,138,4,0.4);">
