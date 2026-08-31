@@ -251,36 +251,36 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             color: #0f172a !important;
         }
 
-        /* ── Magnified Number Audit Effect (4x Size, High Contrast: Blue on White) ── */
+        /* ── Magnified Number Audit Effect (+100% / 2x Size, Elegant Modern Box) ── */
         table#recent-table tbody td.num-magnified, 
         table#preview-table tbody td.num-magnified,
         .pos-grid tbody td.num-magnified,
         .excel-table tbody td.num-magnified,
         .excel-table td.num-magnified,
         td.num-magnified {
-            font-size: 3.5rem !important;
+            font-size: 1.8rem !important;
             font-weight: 900 !important;
             font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace !important;
             font-variant-numeric: tabular-nums !important;
-            background: #ffffff !important;
+            background: linear-gradient(145deg, #ffffff, #f8fafc) !important;
             background-color: #ffffff !important;
-            color: #0044cc !important;
-            border: 3.5px solid #0044cc !important;
-            border-radius: 14px !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 68, 204, 0.4), inset 0 0 8px rgba(0, 68, 204, 0.1) !important;
-            z-index: 999999 !important;
+            color: #1d4ed8 !important;
+            border: 2.5px solid #2563eb !important;
+            border-radius: 12px !important;
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.3), 0 4px 14px rgba(0, 0, 0, 0.18), inset 0 1px 2px rgba(255, 255, 255, 0.8) !important;
+            z-index: 99999 !important;
             position: relative !important;
             text-shadow: none !important;
-            padding: 6px 22px !important;
+            padding: 10px 22px !important;
             white-space: nowrap !important;
             min-width: max-content !important;
             width: auto !important;
             overflow: visible !important;
             display: table-cell !important;
-            letter-spacing: 1px !important;
-            transform: none !important;
-            line-height: 1.15 !important;
-            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            letter-spacing: 0.8px !important;
+            transform: scale(1.06) !important;
+            line-height: 1.25 !important;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
             cursor: pointer !important;
         }
         :root.light-theme table#recent-table tbody td.num-magnified, 
@@ -288,11 +288,11 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         :root.light-theme .pos-grid tbody td.num-magnified,
         :root.light-theme .excel-table tbody td.num-magnified,
         :root.light-theme .excel-table td.num-magnified {
-            background: #ffffff !important;
+            background: linear-gradient(145deg, #ffffff, #f8fafc) !important;
             background-color: #ffffff !important;
-            color: #0044cc !important;
-            border: 3.5px solid #0044cc !important;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35), 0 0 25px rgba(0, 68, 204, 0.3) !important;
+            color: #1d4ed8 !important;
+            border: 2.5px solid #2563eb !important;
+            box-shadow: 0 12px 30px rgba(37, 99, 235, 0.25), 0 4px 14px rgba(0, 0, 0, 0.12) !important;
             text-shadow: none !important;
         }
 
