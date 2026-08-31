@@ -292,44 +292,62 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         /* ── Custom Context Menu Styling ── */
         .gl-ctx-menu {
             position: fixed;
-            z-index: 99999;
-            background: rgba(15, 23, 42, 0.96);
-            border: 1px solid rgba(168, 85, 247, 0.4);
-            border-radius: 14px;
-            padding: 8px 0;
-            width: 260px;
-            box-shadow: 0 20px 40px rgba(0, 0, 0, 0.7), 0 0 20px rgba(168, 85, 247, 0.25);
-            backdrop-filter: blur(16px);
+            z-index: 1000000;
+            background: rgba(15, 23, 42, 0.97);
+            border: 1.5px solid rgba(56, 189, 248, 0.5);
+            border-radius: 16px;
+            padding: 10px 0;
+            width: 290px;
+            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.85), 0 0 25px rgba(56, 189, 248, 0.35);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
             display: none;
             direction: rtl;
-            font-family: 'Tajawal', sans-serif;
+            font-family: 'Tajawal', 'Cairo', sans-serif;
             user-select: none;
+            animation: ctxFadeIn 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        @keyframes ctxFadeIn {
+            from { opacity: 0; transform: scale(0.95) translateY(-5px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
         }
         .gl-ctx-item {
-            padding: 10px 18px;
+            padding: 11px 20px;
             color: #f8fafc;
-            font-size: 0.88rem;
+            font-size: 0.95rem;
             font-weight: 800;
             cursor: pointer;
             display: flex;
             align-items: center;
             justify-content: space-between;
-            gap: 10px;
-            transition: all 0.2s;
+            gap: 12px;
+            transition: all 0.2s ease;
         }
         .gl-ctx-item:hover {
-            background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(56, 189, 248, 0.3));
+            background: linear-gradient(135deg, rgba(56, 189, 248, 0.25), rgba(168, 85, 247, 0.25));
             color: #38bdf8;
-            padding-right: 22px;
+            padding-right: 25px;
+        }
+        .gl-ctx-item#gl-ctx-drilldown {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.15), rgba(99, 102, 241, 0.15));
+            border-top: 1px solid rgba(56, 189, 248, 0.2);
+            border-bottom: 1px solid rgba(56, 189, 248, 0.2);
+            color: #38bdf8;
+            margin-bottom: 4px;
+        }
+        .gl-ctx-item#gl-ctx-drilldown:hover {
+            background: linear-gradient(135deg, rgba(14, 165, 233, 0.35), rgba(99, 102, 241, 0.35));
+            color: #ffffff;
         }
         .gl-ctx-item.disabled {
-            opacity: 0.4;
+            opacity: 0.45;
             cursor: not-allowed;
             pointer-events: none;
+            background: transparent !important;
         }
         .gl-ctx-divider {
             height: 1px;
-            background: rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.12);
             margin: 6px 0;
         }
         .gl-ctx-submenu {

@@ -1,4 +1,4 @@
-﻿function toEasternArabicNumerals(str) {
+function toEasternArabicNumerals(str) {
     const arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
     return String(str).replace(/[0-9]/g, function(d) {
         return arabicDigits[d];
@@ -1579,8 +1579,14 @@ function renderTable() {
     tbody.innerHTML = '';
     filteredData.forEach(row => {
         let tr = document.createElement('tr');
-        if (row.ref) tr.dataset.ref = row.ref;
-        if (row.type) tr.dataset.type = row.type;
+        if (row.ref) {
+            tr.dataset.ref = row.ref;
+            tr.dataset.txnRef = row.ref;
+        }
+        if (row.type) {
+            tr.dataset.type = row.type;
+            tr.dataset.txnType = row.type;
+        }
         columnOrder.forEach(idx => {
             const c = baseColumns.find(x => x.idx === idx);
             if (!c) return;
@@ -1590,6 +1596,8 @@ function renderTable() {
             
             let td = document.createElement('td');
             td.setAttribute('data-col-idx', idx);
+            if (row.ref) td.dataset.txnRef = row.ref;
+            if (row.type) td.dataset.txnType = row.type;
             if (c.isNum) td.classList.add('num-cell');
             
             const rawVal = getRawFieldValue(row, c.field);
@@ -3757,3 +3765,73 @@ window.plHandleArrowMove = function(e, idx, dir) {
     renderSettingsPanel();
     if (typeof showToast === 'function') showToast('�� ����� ������', 'info');
 };
+
+
+/* ── Context Menu & Voucher Drilldown for Preview Ledger ── */
+document.addEventListener('contextmenu', function(e) {
+    const table = e.target.closest('#preview-table, .excel-table');
+    if (!table) return;
+
+    const tr = e.target.closest('tr');
+    const td = e.target.closest('td');
+    if (!tr && !td) return;
+
+    if (e.target.closest('th')) return;
+
+    e.preventDefault();
+
+    let txnType = (tr ? (tr.dataset.txnType || tr.dataset.type) : '') || (td ? (td.dataset.txnType || td.dataset.type) : '') || '';
+    let txnRef = (tr ? (tr.dataset.txnRef || tr.dataset.ref) : '') || (td ? (td.dataset.txnRef || td.dataset.ref) : '') || '';
+
+    if ((!txnRef || txnRef === '-') && tr) {
+        const refEl = tr.querySelector('[data-col-idx="1"], .ref-cell');
+        if (refEl) txnRef = refEl.innerText.trim();
+    }
+
+    const menu = document.getElementById('preview-context-menu');
+    if (!menu) return;
+
+    const drillEl = document.getElementById('preview-ctx-drilldown');
+    if (drillEl) {
+        if (txnRef && txnRef !== '-' && txnRef !== 'OPENING' && txnRef !== 'الرصيد الافتتاحي') {
+            drillEl.style.opacity = '1';
+            drillEl.style.pointerEvents = 'auto';
+            let cleanDispRef = String(txnRef).replace(/-(PUR|SAL)-PAID.*|-PAID.*|-BT\d+|-CH\d+$/i, '').trim();
+            drillEl.innerHTML = `<span>🔗 الذهاب إلى أصل السند: <strong style="color:#38bdf8; background:rgba(56,189,248,0.18); padding:2px 8px; border-radius:6px;">${cleanDispRef}</strong></span><span style="color:#38bdf8; font-size:0.8rem;">◀</span>`;
+            drillEl.onclick = (ev) => {
+                ev.stopPropagation();
+                menu.style.display = 'none';
+                if (typeof window.navigateToOriginalVoucher === 'function') {
+                    window.navigateToOriginalVoucher(txnType, txnRef);
+                } else {
+                    let targetUrl = `single-cash-payment.php?id=${encodeURIComponent(cleanDispRef)}`;
+                    if (typeof showToast === 'function') showToast(`🚀 جاري فتح أصل السند: ${cleanDispRef}`, 'info');
+                    window.open(targetUrl, '_blank');
+                }
+            };
+        } else {
+            drillEl.style.opacity = '0.5';
+            drillEl.style.pointerEvents = 'none';
+            drillEl.innerHTML = `<span>🔗 الذهاب إلى أصل السند (غير محدد)</span><span style="color:#64748b; font-size:0.8rem;">◀</span>`;
+            drillEl.onclick = null;
+        }
+    }
+
+    let posX = e.clientX;
+    let posY = e.clientY;
+    const menuWidth = 260;
+    const menuHeight = 80;
+    if (posX + menuWidth > window.innerWidth) posX = window.innerWidth - menuWidth - 15;
+    if (posY + menuHeight > window.innerHeight) posY = window.innerHeight - menuHeight - 15;
+
+    menu.style.left = Math.max(10, posX) + 'px';
+    menu.style.top = Math.max(10, posY) + 'px';
+    menu.style.display = 'block';
+});
+
+document.addEventListener('click', function(e) {
+    const menu = document.getElementById('preview-context-menu');
+    if (menu && menu.style.display !== 'none' && !menu.contains(e.target)) {
+        menu.style.display = 'none';
+    }
+});

@@ -1358,7 +1358,7 @@ function renderRecentTable(txns, startIndex = 0) {
             ${col.headerColor ? 'color:' + col.headerColor + '!important;' : ''}
             ${col.fontFamily ? 'font-family:' + col.fontFamily + ', sans-serif!important;' : ''}
         `;
-        headHtml += `<th draggable="true" data-col-id="${col.id}" ondragstart="window.glHandleDragStart(event)" ondragover="window.glHandleDragOver(event)" ondragenter="window.glHandleDragEnter(event)" ondragleave="window.glHandleDragLeave(event)" ondrop="window.glHandleDrop(event)" ondragend="window.glHandleDragEnd(event)" style="position: relative; white-space: nowrap; cursor: grab; padding-top: 20px; ${hStyle}"><div style="position:absolute; top:2px; left:0; right:0; display:flex; justify-content:space-between; padding:0 5px; font-size:11px; opacity:0.5; z-index:10;"><span style="cursor:pointer; padding:2px;" onclick="window.glHandleArrowMove(event, '${col.id}', 1)" title="����� ������">?</span><span style="cursor:pointer; padding:2px;" onclick="window.glHandleArrowMove(event, '${col.id}', -1)" title="����� ������">?</span></div>${col.label}<div class="resizer" title="Double click to auto-size"></div></th>`;
+        headHtml += `<th draggable="true" data-col-id="${col.id}" ondragstart="window.glHandleDragStart(event)" ondragover="window.glHandleDragOver(event)" ondragenter="window.glHandleDragEnter(event)" ondragleave="window.glHandleDragLeave(event)" ondrop="window.glHandleDrop(event)" ondragend="window.glHandleDragEnd(event)" style="position: relative; white-space: nowrap; cursor: grab; padding-top: 20px; ${hStyle}"><div style="position:absolute; top:2px; left:0; right:0; display:flex; justify-content:space-between; padding:0 5px; font-size:11px; opacity:0.5; z-index:10;"><span style="cursor:pointer; padding:2px;" onclick="window.glHandleArrowMove(event, '${col.id}', 1)" title=" ">?</span><span style="cursor:pointer; padding:2px;" onclick="window.glHandleArrowMove(event, '${col.id}', -1)" title=" ">?</span></div>${col.label}<div class="resizer" title="Double click to auto-size"></div></th>`;
     });
     headHtml += '</tr>';
     thead.innerHTML = headHtml;
@@ -1378,7 +1378,7 @@ function renderRecentTable(txns, startIndex = 0) {
 
         let trStyle = t.isOpening ? 'background:rgba(59,130,246,0.08); border-right:3px solid #3b82f6;' : '';
 
-        html += `<tr style="${trStyle}" data-txn-type="${t.type || ''}" data-txn-ref="${t.ref || ''}">`;
+        html += `<tr style="${trStyle}" data-txn-type="${t.type || ''}" data-txn-ref="${t.ref || ''}" data-row-idx="${i}" title="انقر كليك يمين للذهاب إلى أصل السند أو تكبير الأرقام">`;
         
         visibleCols.forEach(col => {
             const dec = col.decimals !== undefined ? col.decimals : 2;
@@ -1393,19 +1393,19 @@ function renderRecentTable(txns, startIndex = 0) {
             `;
 
             if (col.id === 'seq') {
-                html += `<td data-col-id="seq" data-is-num="false" style="${cStyle}">${startIndex + i + 1}</td>`;
+                html += `<td data-col-id="seq" data-is-num="false" data-txn-type="${t.type || ''}" data-txn-ref="${t.ref || ''}" style="${cStyle}">${startIndex + i + 1}</td>`;
             } else if (col.id === 'date') {
                 let displayDate = String(t.date || '-').trim();
                 if (displayDate.includes('T')) displayDate = displayDate.split('T')[0];
                 if (displayDate.includes(' ')) displayDate = displayDate.split(' ')[0];
-                html += `<td data-col-id="date" data-is-num="false" title="${t.time || ''}" style="${cStyle}">${displayDate}</td>`;
+                html += `<td data-col-id="date" data-is-num="false" data-txn-type="${t.type || ''}" data-txn-ref="${t.ref || ''}" title="${t.time || ''}" style="${cStyle}">${displayDate}</td>`;
             } else if (col.id === 'ref') {
                   let displayRef = t.ref ? String(t.ref).replace(/-(PUR|SAL)-PAID.*|-PAID.*|-BT\d+|-CH\d+$/i, '').trim() : '-';
-                  html += `<td data-col-id="ref" data-is-num="true" style="${cStyle}">${t.isOpening ? '<span style="color:#3b82f6; font-weight:900;">الرصيد الافتتاحي</span>' : '<strong style="color:#2563eb; text-decoration:underline; cursor:pointer;" onclick="navigateToOriginalVoucher(\'' + (t.type || '') + '\', \'' + (t.ref || '') + '\')" title="عرض تفاصيل السند الأساسي">' + displayRef + '</strong>'}</td>`;
+                  html += `<td data-col-id="ref" data-is-num="true" data-txn-type="${t.type || ''}" data-txn-ref="${t.ref || ''}" style="${cStyle}">${t.isOpening ? '<span style="color:#3b82f6; font-weight:900;">الرصيد الافتتاحي</span>' : '<strong style="color:#2563eb; text-decoration:underline; cursor:pointer;" onclick="navigateToOriginalVoucher(\'' + (t.type || '') + '\', \'' + (t.ref || '') + '\')" title="انقر لفتح أصل السند">' + displayRef + '</strong>'}</td>`;
             } else if (col.id === 'account') {
-                html += `<td data-col-id="account" data-is-num="false" style="${cStyle}"><span style="font-weight:700;">${mainAccName}</span></td>`;
+                html += `<td data-col-id="account" data-is-num="false" data-txn-type="${t.type || ''}" data-txn-ref="${t.ref || ''}" style="${cStyle}"><span style="font-weight:700;">${mainAccName}</span></td>`;
             } else if (col.id === 'typeLabel') {
-                html += `<td data-col-id="typeLabel" data-is-num="false" style="${cStyle}"><span style="background:${t.isOpening ? 'rgba(59,130,246,0.15)' : 'rgba(168,85,247,0.15)'}; color:${t.isOpening ? '#3b82f6' : '#c084fc'}; padding:2px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">${t.typeLabel || '-'}</span></td>`;
+                html += `<td data-col-id="typeLabel" data-is-num="false" data-txn-type="${t.type || ''}" data-txn-ref="${t.ref || ''}" style="${cStyle}"><span style="background:${t.isOpening ? 'rgba(59,130,246,0.15)' : 'rgba(168,85,247,0.15)'}; color:${t.isOpening ? '#3b82f6' : '#c084fc'}; padding:2px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">${t.typeLabel || '-'}</span></td>`;
             } else if (col.id === 'statement') {
                 html += `<td data-col-id="statement" data-is-num="false" style="white-space:normal; min-width:180px; ${cStyle} ${t.isOpening ? 'font-weight:bold; color:#3b82f6;' : ''}">
                     ${(t.statement === 'undefined' ? '-' : t.statement) || '-'}
@@ -1480,51 +1480,78 @@ function renderRecentTable(txns, startIndex = 0) {
 
 /* ── Navigate to Original Voucher ── */
 window.navigateToOriginalVoucher = function(type, ref) {
-    if (!ref || ref === '-' || ref === 'OPENING') {
-        showToast('لا يوجد سند مرتبط', 'warning');
+    if (!ref || ref === '-' || ref === 'OPENING' || ref === 'الرصيد الافتتاحي' || ref === 'رصيد افتتاحي') {
+        if (typeof showToast === 'function') {
+            showToast('لا يوجد سند مرتبط بهذا السطر (رصيد افتتاحي)', 'warning');
+        } else {
+            alert('لا يوجد سند مرتبط بهذا السطر');
+        }
         return;
     }
     
-    let isPurchasePayment = String(ref).includes('-PUR-PAID');
-    let isSalesPayment = String(ref).includes('-SAL-PAID');
+    let strRef = String(ref).trim();
+    let isPurchasePayment = strRef.includes('-PUR-PAID');
+    let isSalesPayment = strRef.includes('-SAL-PAID');
     
     // Clean all types of payment suffixes
-    let cleanRef = String(ref).replace(/-(PUR|SAL)-PAID.*|-PAID.*|-BT\d+|-CH\d+$/i, '').trim();
+    let cleanRef = strRef.replace(/-(PUR|SAL)-PAID.*|-PAID.*|-BT\d+|-CH\d+$/i, '').trim();
     let targetUrl = '';
-    type = String(type || '').toLowerCase();
+    type = String(type || '').toLowerCase().trim();
 
     if (isPurchasePayment) {
-        targetUrl = `purchase.php?id=${cleanRef}`;
+        targetUrl = `purchase.php?id=${encodeURIComponent(cleanRef)}`;
     } else if (isSalesPayment) {
-        targetUrl = `direct-sales.php?id=${cleanRef}`;
-    } else if (type === 'sales' || type === 'invoice' || type === 'direct-sales') {
-        targetUrl = `direct-sales.php?id=${cleanRef}`;
-    } else if (type === 'purchase' || type === 'purchases') {
-        targetUrl = `purchase.php?id=${cleanRef}`;
-    } else if (type === 'receipt' || type === 'single-receipt') targetUrl = `single-cash-receipt.php?id=${cleanRef}`;
-    else if (type === 'payment' || type === 'single-payment') targetUrl = `single-cash-payment.php?id=${cleanRef}`;
-    else if (type === 'multi-receipt') targetUrl = `multi-cash-payment.php?type=receipt&id=${cleanRef}`;
-    else if (type === 'multi-payment') targetUrl = `multi-cash-payment.php?type=payment&id=${cleanRef}`;
-    else if (type === 'comprehensive-receipt') targetUrl = `comprehensive-receipt.php?id=${cleanRef}`;
-    else if (type === 'comprehensive-payment') targetUrl = `comprehensive-payment.php?id=${cleanRef}`;
-    else if (type === 'jv' || type === 'journal' || type === 'adjustment') targetUrl = `journal-voucher.php?id=${cleanRef}`;
-    else if (type === 'bank-transfer') targetUrl = `bank-transfer.php?id=${cleanRef}`;
-    else if (type === 'check' || type === 'cheque') targetUrl = `checks-cycle.php?id=${cleanRef}`;
-    else {
-        if (cleanRef.startsWith('INV-') || cleanRef.startsWith('SAL-')) targetUrl = `direct-sales.php?id=${cleanRef}`;
-        else if (cleanRef.startsWith('PUR-')) targetUrl = `purchase.php?id=${cleanRef}`;
-        else if (cleanRef.startsWith('JV-')) targetUrl = `journal-voucher.php?id=${cleanRef}`;
-        else targetUrl = `single-cash-receipt.php?id=${cleanRef}`;
+        targetUrl = `direct-sales.php?id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'sales' || type === 'invoice' || type === 'direct-sales' || type === 'sales-invoice' || cleanRef.startsWith('INV-') || cleanRef.startsWith('SAL-') || cleanRef.startsWith('DS-')) {
+        targetUrl = `direct-sales.php?id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'sales-return' || type === 'sales_return' || cleanRef.startsWith('RET-') || cleanRef.startsWith('SR-')) {
+        targetUrl = `sales-return.php?id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'purchase' || type === 'purchases' || type === 'purchase-invoice' || cleanRef.startsWith('PUR-') || cleanRef.startsWith('PINV-')) {
+        targetUrl = `purchase.php?id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'purchase-return' || type === 'purchase_return' || cleanRef.startsWith('PRET-') || cleanRef.startsWith('PR-')) {
+        targetUrl = `purchase-return.php?id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'receipt' || type === 'single-receipt' || type === 'single_receipt' || type === 'single-cash-receipt' || cleanRef.startsWith('REC-') || cleanRef.startsWith('SREC-') || cleanRef.startsWith('RV-')) {
+        targetUrl = `single-cash-payment.php?type=receipt&id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'payment' || type === 'single-payment' || type === 'single_payment' || type === 'single-cash-payment' || cleanRef.startsWith('PAY-') || cleanRef.startsWith('SPAY-') || cleanRef.startsWith('PV-')) {
+        targetUrl = `single-cash-payment.php?type=payment&id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'multi-receipt' || type === 'multi_receipt' || cleanRef.startsWith('MREC-')) {
+        targetUrl = `multi-cash-payment.php?type=receipt&id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'multi-payment' || type === 'multi_payment' || cleanRef.startsWith('MPAY-')) {
+        targetUrl = `multi-cash-payment.php?type=payment&id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'comprehensive-receipt') {
+        targetUrl = `comprehensive-receipt.php?id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'comprehensive-payment') {
+        targetUrl = `comprehensive-payment.php?id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'jv' || type === 'journal' || type === 'adjustment' || type === 'journal-voucher' || cleanRef.startsWith('JV-') || cleanRef.startsWith('JE-')) {
+        targetUrl = `journal-voucher.php?id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'bank-transfer' || type === 'transfer' || cleanRef.startsWith('TR-') || cleanRef.startsWith('BT-')) {
+        targetUrl = `bank-transfer.php?id=${encodeURIComponent(cleanRef)}`;
+    } else if (type === 'check' || type === 'cheque' || cleanRef.startsWith('CHK-') || cleanRef.startsWith('CHQ-')) {
+        targetUrl = `checks-cycle.php?id=${encodeURIComponent(cleanRef)}`;
+    } else {
+        if (cleanRef.startsWith('INV') || cleanRef.startsWith('SAL')) targetUrl = `direct-sales.php?id=${encodeURIComponent(cleanRef)}`;
+        else if (cleanRef.startsWith('PUR')) targetUrl = `purchase.php?id=${encodeURIComponent(cleanRef)}`;
+        else if (cleanRef.startsWith('JV')) targetUrl = `journal-voucher.php?id=${encodeURIComponent(cleanRef)}`;
+        else if (cleanRef.startsWith('REC')) targetUrl = `single-cash-payment.php?type=receipt&id=${encodeURIComponent(cleanRef)}`;
+        else targetUrl = `single-cash-payment.php?id=${encodeURIComponent(cleanRef)}`;
     }
 
     if (targetUrl) {
-        showToast('جاري فتح أصل السند: ' + cleanRef, 'info');
+        if (typeof showToast === 'function') {
+            showToast(`🚀 جاري فتح أصل السند: ${cleanRef}`, 'info', 3000);
+        }
         window.open(targetUrl, '_blank');
     }
 };
 
-/* ── Single Click Number Magnification ── */
+/* ── Single Click Number Magnification & Global Click Handler ── */
 document.addEventListener('click', function(e) {
+    // Hide GL Context Menu when clicking outside
+    const menu = document.getElementById('gl-context-menu');
+    if (menu && menu.style.display !== 'none' && !menu.contains(e.target)) {
+        menu.style.display = 'none';
+    }
+
     const td = e.target.closest('#recent-table td, #preview-table td, .pos-grid td, .excel-table td');
     if (!td) return;
     const isNum = td.dataset.isNum === 'true' || td.classList.contains('num-cell') || /^[-+]?[\d,\.]+\%?$/.test(td.innerText.trim());
@@ -1533,42 +1560,48 @@ document.addEventListener('click', function(e) {
     }
 });
 
-/* ── Split Right-Click Logic (TH: Customizer, TD: Source Voucher Menu) ── */
+/* ── Split Right-Click Logic (TH: Customizer, TD/TR: Source Voucher Menu) ── */
 let currentCtxColId = null;
 let currentCtxTxn = null;
 let currentCtxTd = null;
 
 document.addEventListener('contextmenu', function(e) {
-    const table = e.target.closest('#recent-table, #preview-table');
+    const table = e.target.closest('#recent-table, #preview-table, .pos-grid, .excel-table, table');
     if (!table) return;
+
+    const tr = e.target.closest('tr');
+    const th = e.target.closest('th');
+    const td = e.target.closest('td');
+    if (!tr && !th && !td) return;
 
     e.preventDefault();
 
-    const th = e.target.closest('th');
-    const td = e.target.closest('td');
     currentCtxTd = td;
     currentCtxColId = th ? th.dataset.colId : (td ? td.dataset.colId : 'ref');
-
-    let txnType = td ? td.dataset.txnType : null;
-    let txnRef = td ? td.dataset.txnRef : null;
-
-    if (!txnType && td && td.parentElement) {
-        txnType = td.parentElement.dataset.txnType || td.parentElement.dataset.type;
-        txnRef = td.parentElement.dataset.txnRef || td.parentElement.dataset.ref;
-    }
-
-    currentCtxTxn = (txnRef && txnRef !== '-') ? { type: txnType, ref: txnRef } : null;
 
     // 1. IF Right-Clicking on Header Row (th in top row): Open Customizer Window!
     if (th) {
         const menu = document.getElementById('gl-context-menu');
         if (menu) menu.style.display = 'none';
-        if (currentCtxColId) openGLColumnModal(currentCtxColId);
+        if (currentCtxColId && typeof openGLColumnModal === 'function') openGLColumnModal(currentCtxColId);
         return;
     }
 
-    // 2. IF Right-Clicking on Data Cell / Number (td): Open Source Voucher Menu!
-    closeGLColumnModal(); // Close customization window if open
+    // 2. IF Right-Clicking on Data Cell / Number / Middle of line (td/tr): Open Source Voucher Menu!
+    if (typeof closeGLColumnModal === 'function') closeGLColumnModal();
+
+    let txnType = (tr ? (tr.dataset.txnType || tr.dataset.type) : '') || (td ? (td.dataset.txnType || td.dataset.type) : '') || '';
+    let txnRef = (tr ? (tr.dataset.txnRef || tr.dataset.ref) : '') || (td ? (td.dataset.txnRef || td.dataset.ref) : '') || '';
+
+    // If not found from dataset, try to extract from ref cell in this row
+    if ((!txnRef || txnRef === '-') && tr) {
+        const refEl = tr.querySelector('[data-col-id="ref"], strong[onclick*="navigateToOriginalVoucher"], .ref-cell');
+        if (refEl) {
+            txnRef = refEl.innerText.trim();
+        }
+    }
+
+    currentCtxTxn = (txnRef && txnRef !== '-' && txnRef !== 'OPENING' && txnRef !== 'الرصيد الافتتاحي') ? { type: txnType, ref: txnRef } : null;
 
     const menu = document.getElementById('gl-context-menu');
     if (!menu) return;
@@ -1576,10 +1609,17 @@ document.addEventListener('contextmenu', function(e) {
     // Configure Drilldown button
     const drillEl = document.getElementById('gl-ctx-drilldown');
     if (drillEl) {
-        if (currentCtxTxn) {
+        if (currentCtxTxn && currentCtxTxn.ref) {
             drillEl.classList.remove('disabled');
-            drillEl.innerHTML = `<span>🔗 الذهاب إلى أصل السند: <strong style="color:#38bdf8;">${currentCtxTxn.ref}</strong></span><span style="font-size:0.75rem; color:#38bdf8;">◀</span>`;
-            drillEl.onclick = () => {
+            let cleanDispRef = String(currentCtxTxn.ref).replace(/-(PUR|SAL)-PAID.*|-PAID.*|-BT\d+|-CH\d+$/i, '').trim();
+            drillEl.innerHTML = `
+                <div style="display:flex; align-items:center; gap:8px;">
+                    <span style="font-size:1.15rem;">🔗</span>
+                    <span>الذهاب إلى أصل السند: <strong style="color:#38bdf8; background:rgba(56,189,248,0.18); padding:2px 8px; border-radius:6px; letter-spacing:0.5px;">${cleanDispRef}</strong></span>
+                </div>
+                <span style="font-size:0.85rem; color:#38bdf8;">◀</span>`;
+            drillEl.onclick = (ev) => {
+                ev.stopPropagation();
                 menu.style.display = 'none';
                 navigateToOriginalVoucher(currentCtxTxn.type, currentCtxTxn.ref);
             };
