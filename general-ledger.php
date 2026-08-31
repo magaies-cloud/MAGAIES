@@ -252,28 +252,41 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         }
 
         /* ── Magnified Number Audit Effect ── */
-        table#recent-table tbody td.num-magnified, table#preview-table tbody td.num-magnified {
-            font-size: 1.85rem !important;
+        table#recent-table tbody td.num-magnified, 
+        table#preview-table tbody td.num-magnified,
+        .pos-grid tbody td.num-magnified,
+        .excel-table tbody td.num-magnified {
+            font-size: 1.28rem !important;
             font-weight: 900 !important;
-            background: linear-gradient(135deg, #1e3a8a, #172554) !important;
-            color: #ffffff !important;
-            border: 2px solid #3b82f6 !important;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace !important;
+            font-variant-numeric: tabular-nums !important;
+            background: linear-gradient(135deg, #090d16, #0f172a) !important;
+            color: #ffd700 !important;
+            border: 2px solid #f59e0b !important;
             border-radius: 8px !important;
-            box-shadow: 0 0 25px rgba(30, 58, 138, 0.7), inset 0 0 10px rgba(255, 255, 255, 0.4) !important;
-            transform: scale(1.15) !important;
-            transition: all 0.25s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-            z-index: 50 !important;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8), 0 0 15px rgba(245, 158, 11, 0.4), inset 0 0 6px rgba(255, 255, 255, 0.15) !important;
+            z-index: 9999 !important;
             position: relative !important;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.6) !important;
-            padding: 8px 12px !important;
+            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5), 0 2px 4px rgba(0,0,0,0.8) !important;
+            padding: 4px 10px !important;
+            white-space: nowrap !important;
+            min-width: max-content !important;
+            width: auto !important;
+            overflow: visible !important;
             display: table-cell !important;
+            letter-spacing: 0.5px !important;
+            transform: none !important;
+            transition: all 0.2s ease-in-out !important;
         }
-        :root.light-theme table#recent-table tbody td.num-magnified, table#preview-table tbody td.num-magnified {
-            background: linear-gradient(135deg, #1e3a8a, #172554) !important;
-            color: #ffffff !important;
-            border: 2px solid #3b82f6 !important;
-            box-shadow: 0 5px 20px rgba(30, 58, 138, 0.3) !important;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.3) !important;
+        :root.light-theme table#recent-table tbody td.num-magnified, 
+        :root.light-theme table#preview-table tbody td.num-magnified,
+        :root.light-theme .pos-grid tbody td.num-magnified,
+        :root.light-theme .excel-table tbody td.num-magnified {
+            background: linear-gradient(135deg, #0f172a, #1e293b) !important;
+            color: #fde047 !important;
+            border: 2px solid #d97706 !important;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 0 12px rgba(217, 119, 6, 0.3) !important;
+            text-shadow: 0 0 8px rgba(253, 224, 71, 0.6) !important;
         }
 
         /* ── Custom Context Menu Styling ── */
