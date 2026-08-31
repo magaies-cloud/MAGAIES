@@ -103,6 +103,15 @@
             text-shadow: none !important;
         }
 
+        @keyframes proModalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes proModalZoomIn {
+            from { opacity: 0; transform: scale(0.85) translateY(15px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
         /* Fonts */
         .font-newsons { font-family: 'JetBrains Mono', monospace !important; }
         .font-ribot { font-family: 'Roboto Mono', monospace !important; }

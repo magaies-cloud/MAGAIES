@@ -1544,7 +1544,207 @@ window.navigateToOriginalVoucher = function(type, ref) {
     }
 };
 
-/* ── Single Click Number Magnification & Global Click Handler ── */
+/* ── Arabic Tafqeet Utility for Professional Number Reading ── */
+function tafqeetArabic(num, currency = 'SDG') {
+    if (isNaN(num) || num === 0) return 'صفر';
+    const isNegative = num < 0;
+    num = Math.abs(num);
+    const integerPart = Math.floor(num);
+    const decimalPart = Math.round((num - integerPart) * 100);
+
+    const ones = ['', 'واحد', 'اثنان', 'ثلاثة', 'أربعة', 'خمسة', 'ستة', 'سبعة', 'ثمانية', 'تسعة', 'عشرة', 'أحد عشر', 'اثنا عشر', 'ثلاثة عشر', 'أربعة عشر', 'خمسة عشر', 'ستة عشر', 'سبعة عشر', 'ثمانية عشر', 'تسعة عشر'];
+    const tens = ['', '', 'عشرون', 'ثلاثون', 'أربعون', 'خمسون', 'ستون', 'سبعون', 'ثمانون', 'تسعون'];
+    const hundreds = ['', 'مائة', 'مئتان', 'ثلاثمائة', 'أربعمائة', 'خمسمائة', 'ستمائة', 'سبعمائة', 'ثمانمائة', 'تسعمائة'];
+
+    function convertGroup(n) {
+        let res = '';
+        const h = Math.floor(n / 100);
+        const rem = n % 100;
+        if (h > 0) res += hundreds[h];
+        if (rem > 0) {
+            if (res !== '') res += ' و';
+            if (rem < 20) {
+                res += ones[rem];
+            } else {
+                const t = Math.floor(rem / 10);
+                const o = rem % 10;
+                if (o > 0) res += ones[o] + ' و' + tens[t];
+                else res += tens[t];
+            }
+        }
+        return res;
+    }
+
+    let groups = [];
+    let temp = integerPart;
+    while (temp > 0) {
+        groups.push(temp % 1000);
+        temp = Math.floor(temp / 1000);
+    }
+
+    const scales = ['', 'ألف', 'مليون', 'مليار', 'تريليون'];
+    const scalesDual = ['', 'ألفان', 'مليونان', 'ملياران', 'تريليونان'];
+    const scalesPlural = ['', 'آلاف', 'ملايين', 'مليارات', 'تريليونات'];
+
+    let parts = [];
+    for (let i = groups.length - 1; i >= 0; i--) {
+        const val = groups[i];
+        if (val === 0) continue;
+        let groupText = '';
+        if (i === 0) {
+            groupText = convertGroup(val);
+        } else if (val === 1) {
+            groupText = scales[i];
+        } else if (val === 2) {
+            groupText = scalesDual[i];
+        } else if (val >= 3 && val <= 10) {
+            groupText = convertGroup(val) + ' ' + scalesPlural[i];
+        } else {
+            groupText = convertGroup(val) + ' ' + scales[i];
+        }
+        parts.push(groupText);
+    }
+
+    let result = parts.join(' و');
+    if (!result) result = 'صفر';
+
+    let currName = (currency === 'USD') ? 'دولار أمريكي' : 'جنيه';
+    let subCurrName = (currency === 'USD') ? 'سنت' : 'قرش';
+
+    let fullText = 'فقط ' + (isNegative ? 'سالب ' : '') + result + ' ' + currName;
+    if (decimalPart > 0) {
+        fullText += ' و' + convertGroup(decimalPart) + ' ' + subCurrName;
+    }
+    fullText += ' لا غير';
+    return fullText;
+}
+
+/* ── Professional Number Inspector & 4x Magnification Modal ── */
+window.showProfessionalNumberModal = function(td, textVal, colLabel, txnType, txnRef, dateStr, accountName, currency = 'SDG') {
+    const existing = document.getElementById('pro-number-inspector-modal');
+    if (existing) existing.remove();
+
+    const cleanNumStr = String(textVal || '').replace(/[^\d\.-]/g, '');
+    const num = parseFloat(cleanNumStr);
+    if (isNaN(num)) return;
+
+    const formattedNum = Number(num).toLocaleString('en-US', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2
+    });
+
+    const isNegative = num < 0;
+    const tafqeetText = tafqeetArabic(num, currency);
+
+    const modal = document.createElement('div');
+    modal.id = 'pro-number-inspector-modal';
+    modal.style.cssText = `
+        position: fixed;
+        top: 0; left: 0; width: 100vw; height: 100vh;
+        background: rgba(15, 23, 42, 0.75);
+        backdrop-filter: blur(12px);
+        -webkit-backdrop-filter: blur(12px);
+        z-index: 9999999;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        direction: rtl;
+        font-family: 'Tajawal', 'Cairo', sans-serif;
+        animation: proModalFadeIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+    `;
+
+    const cardHTML = `
+        <div style="background: #ffffff; width: 92%; max-width: 620px; border-radius: 24px; border: 3.5px solid #0044cc; box-shadow: 0 30px 80px rgba(0,0,0,0.6), 0 0 35px rgba(0, 68, 204, 0.3); padding: 28px 32px; position: relative; animation: proModalZoomIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); user-select: none;">
+            
+            <!-- Close Button -->
+            <button onclick="document.getElementById('pro-number-inspector-modal').remove()" style="position: absolute; top: 18px; left: 18px; width: 36px; height: 36px; border-radius: 50%; background: #f1f5f9; border: 1px solid #cbd5e1; color: #475569; font-size: 1.2rem; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.2s;" onmouseover="this.style.background='#fee2e2'; this.style.color='#dc2626'; this.style.borderColor='#f87171';" onmouseout="this.style.background='#f1f5f9'; this.style.color='#475569'; this.style.borderColor='#cbd5e1';">✕</button>
+
+            <!-- Top Header Meta -->
+            <div style="display: flex; align-items: center; gap: 10px; margin-bottom: 16px; flex-wrap: wrap;">
+                <span style="background: linear-gradient(135deg, #0044cc, #2563eb); color: #ffffff; font-size: 0.95rem; font-weight: 800; padding: 4px 14px; border-radius: 20px; box-shadow: 0 4px 12px rgba(0,68,204,0.35);">
+                    📊 ${colLabel || 'تدقيق ومراجعة الرقم'}
+                </span>
+                ${dateStr ? `<span style="color: #64748b; font-size: 0.9rem; font-weight: 700; background: #f8fafc; padding: 4px 10px; border-radius: 12px; border: 1px solid #e2e8f0;">📅 ${dateStr}</span>` : ''}
+                ${txnRef && txnRef !== '-' && txnRef !== 'OPENING' ? `<span style="color: #0284c7; font-size: 0.9rem; font-weight: 800; background: #e0f2fe; padding: 4px 10px; border-radius: 12px; border: 1px solid #bae6fd;">🔗 سند: ${txnRef}</span>` : ''}
+            </div>
+
+            <!-- The 4x Magnified Number (White Background + Blue Text) -->
+            <div style="background: #ffffff; border: 2px solid #e2e8f0; border-radius: 18px; padding: 22px 15px; text-align: center; margin-bottom: 18px; box-shadow: inset 0 2px 6px rgba(0,0,0,0.03);">
+                <div style="font-size: 0.85rem; font-weight: 800; color: #64748b; margin-bottom: 4px; text-transform: uppercase; letter-spacing: 1px;">المبلغ الرقمي بالكامل (4 أضعاف)</div>
+                <div id="pro-magnified-num-text" style="font-size: 3.8rem; font-weight: 900; color: ${isNegative ? '#dc2626' : '#0044cc'}; font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace; font-variant-numeric: tabular-nums; letter-spacing: 1.5px; line-height: 1.1; word-break: break-word;">
+                    ${formattedNum}
+                    <span style="font-size: 1.6rem; font-weight: 800; color: #64748b; margin-right: 6px;">${currency}</span>
+                </div>
+            </div>
+
+            <!-- Arabic Tafqeet -->
+            <div style="background: #eff6ff; border: 1.5px dashed #93c5fd; border-radius: 14px; padding: 12px 18px; color: #1e3a8a; font-size: 1.15rem; font-weight: 800; line-height: 1.5; margin-bottom: 22px; text-align: center;">
+                <span style="color: #3b82f6; font-size: 0.85rem; display: block; font-weight: 700; margin-bottom: 2px;">التفقيط بالحروف العربية:</span>
+                ✍️ ${tafqeetText}
+            </div>
+
+            <!-- Bottom Actions -->
+            <div style="display: flex; gap: 12px; justify-content: center; flex-wrap: wrap;">
+                <button id="btn-copy-inspected-num" style="background: #0044cc; color: #ffffff; border: none; padding: 12px 24px; border-radius: 14px; font-weight: 800; font-size: 1rem; cursor: pointer; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 14px rgba(0, 68, 204, 0.4); transition: all 0.2s;" onmouseover="this.style.transform='translateY(-2px) scale(1.02)';" onmouseout="this.style.transform='none';">
+                    📋 نسخ الرقم
+                </button>
+                ${txnRef && txnRef !== '-' && txnRef !== 'OPENING' ? `
+                <button id="btn-goto-inspected-voucher" style="background: #f0fdf4; color: #15803d; border: 1.5px solid #86efac; padding: 12px 24px; border-radius: 14px; font-weight: 800; font-size: 1rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.2s;" onmouseover="this.style.background='#dcfce7'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='#f0fdf4'; this.style.transform='none';">
+                    🔗 الذهاب إلى أصل السند
+                </button>` : ''}
+                <button onclick="document.getElementById('pro-number-inspector-modal').remove()" style="background: #f1f5f9; color: #475569; border: 1px solid #cbd5e1; padding: 12px 20px; border-radius: 14px; font-weight: 700; font-size: 1rem; cursor: pointer; transition: all 0.2s;">
+                    إغلاق
+                </button>
+            </div>
+        </div>
+    `;
+
+    modal.innerHTML = cardHTML;
+    document.body.appendChild(modal);
+
+    // Copy action
+    const copyBtn = document.getElementById('btn-copy-inspected-num');
+    if (copyBtn) {
+        copyBtn.onclick = () => {
+            navigator.clipboard.writeText(formattedNum.replace(/,/g, ''));
+            copyBtn.innerHTML = '✅ تم النسخ بنجاح!';
+            copyBtn.style.background = '#16a34a';
+            setTimeout(() => {
+                if (copyBtn) {
+                    copyBtn.innerHTML = '📋 نسخ الرقم';
+                    copyBtn.style.background = '#0044cc';
+                }
+            }, 2000);
+        };
+    }
+
+    // Go to voucher action
+    const gotoBtn = document.getElementById('btn-goto-inspected-voucher');
+    if (gotoBtn) {
+        gotoBtn.onclick = () => {
+            modal.remove();
+            if (typeof window.navigateToOriginalVoucher === 'function') {
+                window.navigateToOriginalVoucher(txnType, txnRef);
+            }
+        };
+    }
+
+    // Click outside to close
+    modal.onclick = (e) => {
+        if (e.target === modal) modal.remove();
+    };
+
+    // ESC to close
+    const escHandler = (e) => {
+        if (e.key === 'Escape') {
+            modal.remove();
+            document.removeEventListener('keydown', escHandler);
+        }
+    };
+    document.addEventListener('keydown', escHandler);
+};
+
+/* ── Single Click Professional Number Inspector Handler ── */
 document.addEventListener('click', function(e) {
     // Hide GL Context Menu when clicking outside
     const menu = document.getElementById('gl-context-menu');
@@ -1552,14 +1752,44 @@ document.addEventListener('click', function(e) {
         menu.style.display = 'none';
     }
 
-    const td = e.target.closest('#recent-table td, #preview-table td, .pos-grid td, .excel-table td');
+    const td = e.target.closest('#recent-table td, #preview-table td, .pos-grid td, .excel-table td, td');
     if (!td) return;
-    const isNum = td.dataset.isNum === 'true' || td.classList.contains('num-cell') || /^[-+]?[\d,\.]+\%?$/.test(td.innerText.trim());
-    if (isNum) {
-        td.classList.toggle('num-magnified');
+
+    // Ignore clicks on buttons or links inside cells
+    if (e.target.closest('button, a, select, input')) return;
+
+    const tr = td.closest('tr');
+    const table = td.closest('table');
+    const colId = td.dataset.colId || '';
+    const textVal = td.innerText.trim();
+
+    // Check if cell is a valid numeric cell
+    const isNum = td.dataset.isNum === 'true' || td.classList.contains('num-cell') || /^[-+]?[\d,]+(\.\d+)?%?$/.test(textVal);
+
+    if (isNum && textVal && textVal !== '-' && textVal !== 'الرصيد الافتتاحي') {
+        let colLabel = '';
+        if (table) {
+            const cellIndex = td.cellIndex;
+            const th = table.querySelector(`thead th:nth-child(${cellIndex + 1})`);
+            if (th) colLabel = th.innerText.replace(/[?◀▶▲▼↕]/g, '').trim();
+        }
+        if (!colLabel) colLabel = 'تدقيق ومراجعة المبلغ';
+
+        const txnType = (tr ? (tr.dataset.txnType || tr.dataset.type) : '') || td.dataset.txnType || '';
+        const txnRef = (tr ? (tr.dataset.txnRef || tr.dataset.ref) : '') || td.dataset.txnRef || '';
+        const dateCell = tr ? tr.querySelector('[data-col-id="date"], [data-col-idx="0"]') : null;
+        const dateStr = dateCell ? dateCell.innerText.trim() : '';
+        const accountCell = tr ? tr.querySelector('[data-col-id="account"], [data-col-idx="2"]') : null;
+        const accountName = accountCell ? accountCell.innerText.trim() : '';
+
+        let currency = 'SDG';
+        if (colId.toLowerCase().includes('fc') || colId.toLowerCase().includes('foreign') || (colLabel && colLabel.includes('أجنبي'))) {
+            currency = 'USD';
+        }
+
+        window.showProfessionalNumberModal(td, textVal, colLabel, txnType, txnRef, dateStr, accountName, currency);
     }
 });
-
 /* ── Split Right-Click Logic (TH: Customizer, TD/TR: Source Voucher Menu) ── */
 let currentCtxColId = null;
 let currentCtxTxn = null;

@@ -296,6 +296,15 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             text-shadow: none !important;
         }
 
+        @keyframes proModalFadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        @keyframes proModalZoomIn {
+            from { opacity: 0; transform: scale(0.85) translateY(15px); }
+            to { opacity: 1; transform: scale(1) translateY(0); }
+        }
+
         /* ── Custom Context Menu Styling ── */
         .gl-ctx-menu {
             position: fixed;
