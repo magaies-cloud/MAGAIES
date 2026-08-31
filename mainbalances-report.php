@@ -307,9 +307,14 @@ $page_title = 'حساب الارصده الاساسية';
         
         /* The Focused Specific Number Feature (Size Increase + Soft Light Yellow Background) */
         td.focused-num,
+        td.num-magnified,
         #balances-table tbody td.focused-num,
-        .pos-grid tbody td.focused-num {
-            font-size: 1.75rem !important;
+        #balances-table tbody td.num-magnified,
+        .pos-grid tbody td.focused-num,
+        .pos-grid tbody td.num-magnified,
+        .num.focused-num,
+        .num.num-magnified {
+            font-size: 1.85rem !important;
             font-weight: 900 !important;
             font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace !important;
             font-variant-numeric: tabular-nums !important;
@@ -318,7 +323,7 @@ $page_title = 'حساب الارصده الاساسية';
             color: #0f172a !important; /* Crisp Dark Contrast */
             border: 2.5px solid #eab308 !important;
             border-radius: 12px !important;
-            box-shadow: 0 12px 30px rgba(234, 179, 8, 0.4), 0 4px 14px rgba(0, 0, 0, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.9) !important;
+            box-shadow: 0 12px 30px rgba(234, 179, 8, 0.45), 0 4px 14px rgba(0, 0, 0, 0.2), inset 0 1px 2px rgba(255, 255, 255, 0.9) !important;
             z-index: 99999 !important;
             position: relative !important;
             display: table-cell !important;
@@ -335,8 +340,11 @@ $page_title = 'حساب الارصده الاساسية';
             cursor: pointer !important;
         }
         :root.light-theme td.focused-num,
+        :root.light-theme td.num-magnified,
         :root.light-theme #balances-table tbody td.focused-num,
-        :root.light-theme .pos-grid tbody td.focused-num {
+        :root.light-theme #balances-table tbody td.num-magnified,
+        :root.light-theme .pos-grid tbody td.focused-num,
+        :root.light-theme .pos-grid tbody td.num-magnified {
             background: #fef08a !important;
             background-color: #fef08a !important;
             color: #0f172a !important;

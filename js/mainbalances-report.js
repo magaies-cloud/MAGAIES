@@ -1,3 +1,42 @@
+
+window.toggleNumberMagnification = function(el) {
+    if (!el) return;
+    const isMagnified = el.classList.contains('focused-num') || el.classList.contains('num-magnified');
+    if (isMagnified) {
+        el.classList.remove('focused-num', 'num-magnified');
+        el.style.removeProperty('background');
+        el.style.removeProperty('background-color');
+        el.style.removeProperty('color');
+        el.style.removeProperty('font-size');
+        el.style.removeProperty('font-weight');
+        el.style.removeProperty('border');
+        el.style.removeProperty('border-radius');
+        el.style.removeProperty('box-shadow');
+        el.style.removeProperty('transform');
+        el.style.removeProperty('z-index');
+        el.style.removeProperty('position');
+        el.style.removeProperty('padding');
+        el.style.removeProperty('letter-spacing');
+        el.style.removeProperty('text-shadow');
+    } else {
+        el.classList.add('focused-num', 'num-magnified');
+        el.style.setProperty('background', '#fef08a', 'important');
+        el.style.setProperty('background-color', '#fef08a', 'important');
+        el.style.setProperty('color', '#0f172a', 'important');
+        el.style.setProperty('font-size', '1.85rem', 'important');
+        el.style.setProperty('font-weight', '900', 'important');
+        el.style.setProperty('border', '2.5px solid #eab308', 'important');
+        el.style.setProperty('border-radius', '12px', 'important');
+        el.style.setProperty('box-shadow', '0 12px 30px rgba(234, 179, 8, 0.45), 0 4px 12px rgba(0,0,0,0.2)', 'important');
+        el.style.setProperty('transform', 'scale(1.08)', 'important');
+        el.style.setProperty('z-index', '99999', 'important');
+        el.style.setProperty('position', 'relative', 'important');
+        el.style.setProperty('padding', '8px 20px', 'important');
+        el.style.setProperty('letter-spacing', '0.8px', 'important');
+        el.style.setProperty('text-shadow', 'none', 'important');
+    }
+};
+
 ﻿/* ═══════════════════════════════════════════════════════
    balances-report.js — Global Balances & Aging Report
    ═══════════════════════════════════════════════════════ */
@@ -2897,13 +2936,13 @@ function renderTable(results, isAutoInit = false) {
 
         let cells = [];
         cells[0] = `<td style="${getCellStyle(0)}">${p.name} <span style="color:#64748b;font-size:0.7rem;margin-right:5px;">(${p.type === 'CUST' ? 'عميل' : 'مورد'})</span></td>`;
-        cells[1] = `<td class="num" dir="ltr" style="${getCellStyle(1)}">${cleanPhone || '-'}</td>`;
-        cells[2] = `<td class="num" style="${getCellStyle(2)}">${p.taxNumber || '-'}</td>`;
+        cells[1] = `<td class="num" dir="ltr" style="${getCellStyle(1)}" onclick="window.toggleNumberMagnification(this); event.stopPropagation();">${cleanPhone || '-'}</td>`;
+        cells[2] = `<td class="num" style="${getCellStyle(2)}" onclick="window.toggleNumberMagnification(this); event.stopPropagation();">${p.taxNumber || '-'}</td>`;
         cells[3] = `<td style="font-weight:bold; color:#38bdf8; ${getCellStyle(3)}">${p.currency || 'SDG'}</td>`;
-        cells[4] = `<td class="num" style="${getCellStyle(4)}">${endingDebitForeign > 0 ? fmtColNum(endingDebitForeign, 4) : '-'}</td>`;
-        cells[5] = `<td class="num" style="${getCellStyle(5)}">${endingCreditForeign > 0 ? fmtColNum(endingCreditForeign, 5) : '-'}</td>`;
-        cells[6] = `<td class="num" style="${getCellStyle(6)}">${endingDebitLocal > 0 ? fmtColNum(endingDebitLocal, 6) : '-'}</td>`;
-        cells[7] = `<td class="num" style="${getCellStyle(7)}">${endingCreditLocal > 0 ? fmtColNum(endingCreditLocal, 7) : '-'}</td>`;
+        cells[4] = `<td class="num" style="${getCellStyle(4)}" onclick="window.toggleNumberMagnification(this); event.stopPropagation();">${endingDebitForeign > 0 ? fmtColNum(endingDebitForeign, 4) : '-'}</td>`;
+        cells[5] = `<td class="num" style="${getCellStyle(5)}" onclick="window.toggleNumberMagnification(this); event.stopPropagation();">${endingCreditForeign > 0 ? fmtColNum(endingCreditForeign, 5) : '-'}</td>`;
+        cells[6] = `<td class="num" style="${getCellStyle(6)}" onclick="window.toggleNumberMagnification(this); event.stopPropagation();">${endingDebitLocal > 0 ? fmtColNum(endingDebitLocal, 6) : '-'}</td>`;
+        cells[7] = `<td class="num" style="${getCellStyle(7)}" onclick="window.toggleNumberMagnification(this); event.stopPropagation();">${endingCreditLocal > 0 ? fmtColNum(endingCreditLocal, 7) : '-'}</td>`;
         cells[8] = `<td style="max-width:150px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; ${getCellStyle(8)}" title="${p.notes || ''}">${p.notes || '-'}</td>`;
         
         let orderedCells = window.colOrder.map(idx => cells[idx]).join('');
