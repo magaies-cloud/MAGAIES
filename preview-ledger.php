@@ -64,38 +64,43 @@
         table.excel-table.theme-luxury-black tbody tr:nth-child(odd) { background: #ffffff !important; }
         table.excel-table.theme-luxury-black tfoot td { background: #171717 !important; color: #f5f5f5 !important; font-weight: 900 !important; border-color: #000000 !important; }
         
-        /* ── Magnified Number Audit Effect ── */
+        /* ── Magnified Number Audit Effect (4x Size, High Contrast: Blue on White) ── */
         .excel-table tbody td.num-magnified,
-        .excel-table td.num-magnified {
-            font-size: 1.28rem !important;
+        .excel-table td.num-magnified,
+        td.num-magnified {
+            font-size: 3.5rem !important;
             font-weight: 900 !important;
-            font-family: 'JetBrains Mono', 'Fira Code', 'Courier New', monospace !important;
+            font-family: 'JetBrains Mono', 'Fira Code', 'Roboto Mono', monospace !important;
             font-variant-numeric: tabular-nums !important;
-            background: linear-gradient(135deg, #090d16, #0f172a) !important;
-            color: #ffd700 !important;
-            border: 2px solid #f59e0b !important;
-            border-radius: 8px !important;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.8), 0 0 15px rgba(245, 158, 11, 0.4), inset 0 0 6px rgba(255, 255, 255, 0.15) !important;
-            z-index: 9999 !important;
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            color: #0044cc !important;
+            border: 3.5px solid #0044cc !important;
+            border-radius: 14px !important;
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 30px rgba(0, 68, 204, 0.4), inset 0 0 8px rgba(0, 68, 204, 0.1) !important;
+            z-index: 999999 !important;
             position: relative !important;
-            text-shadow: 0 0 10px rgba(255, 215, 0, 0.5), 0 2px 4px rgba(0,0,0,0.8) !important;
-            padding: 4px 10px !important;
+            text-shadow: none !important;
+            padding: 6px 22px !important;
             white-space: nowrap !important;
             min-width: max-content !important;
             width: auto !important;
             overflow: visible !important;
             display: table-cell !important;
-            letter-spacing: 0.5px !important;
+            letter-spacing: 1px !important;
             transform: none !important;
-            transition: all 0.2s ease-in-out !important;
+            line-height: 1.15 !important;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            cursor: pointer !important;
         }
         :root.light-theme .excel-table tbody td.num-magnified,
         :root.light-theme .excel-table td.num-magnified {
-            background: linear-gradient(135deg, #0f172a, #1e293b) !important;
-            color: #fde047 !important;
-            border: 2px solid #d97706 !important;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.35), 0 0 12px rgba(217, 119, 6, 0.3) !important;
-            text-shadow: 0 0 8px rgba(253, 224, 71, 0.6) !important;
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            color: #0044cc !important;
+            border: 3.5px solid #0044cc !important;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.35), 0 0 25px rgba(0, 68, 204, 0.3) !important;
+            text-shadow: none !important;
         }
 
         /* Fonts */
