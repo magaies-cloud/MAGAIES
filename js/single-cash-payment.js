@@ -32,14 +32,41 @@ function fmtNum(n) {
 function parseNum(str) {
     return parseFloat(String(str).replace(/,/g, '')) || 0;
 }
-function showToast(msg, type = 'success', ms = 3000) {
-    const c = document.getElementById('toast-container');
+function showToast(msg, type = 'success', ms = 3500) {
+    let c = document.getElementById('toast-container');
+    if (!c) {
+        c = document.createElement('div');
+        c.id = 'toast-container';
+        c.className = 'toast-container';
+        document.body.appendChild(c);
+    }
+
     const t = document.createElement('div');
     t.className = `toast ${type}`;
-    t.innerHTML = msg;
+
+    let icon = '✨';
+    if (type === 'error' || type === 'danger') icon = '❌';
+    else if (type === 'warning') icon = '⚠️';
+    else if (type === 'info') icon = 'ℹ️';
+    else if (type === 'success') icon = '✅';
+
+    t.innerHTML = `<span class="toast-icon">${icon}</span><span class="toast-text">${msg}</span>`;
+
+    // Click to dismiss immediately
+    t.onclick = function() {
+        t.classList.add('hide');
+        setTimeout(() => { if (t.parentNode) t.remove(); }, 320);
+    };
+
     c.appendChild(t);
-    setTimeout(() => { t.classList.add('hide'); setTimeout(() => t.remove(), 500); }, ms);
+    setTimeout(() => {
+        if (t.parentNode) {
+            t.classList.add('hide');
+            setTimeout(() => { if (t.parentNode) t.remove(); }, 350);
+        }
+    }, ms);
 }
+window.showToast = showToast;
 
 function showLengthWarningModal(transferNo) {
     const existing = document.getElementById('critical-alert-modal');
