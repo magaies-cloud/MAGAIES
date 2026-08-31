@@ -2033,13 +2033,22 @@ function bindNumberFocus() {
     const cells = document.querySelectorAll('#balances-tbody td');
     cells.forEach(td => {
         td.style.cursor = 'pointer';
-        // Avoid duplicate listeners
         td.onclick = function(e) {
             e.stopPropagation();
             this.classList.toggle('focused-num');
         };
     });
 }
+
+// Global click handler for delegated number clicking
+document.addEventListener('click', function(e) {
+    const td = e.target.closest('#balances-tbody td, table.pos-grid td.num, table.pos-grid td');
+    if (!td) return;
+    if (e.target.closest('button, a, input, select, .col-toggle')) return;
+    
+    // If clicking cell, toggle focused-num
+    td.classList.toggle('focused-num');
+});
 
 window.switchCtxTab = function(tab) {
     const colsTab = document.getElementById('ctx-tab-cols');
