@@ -1083,23 +1083,59 @@ function submitVoucherInner() {
         }
     } else if (method === 'check') {
         const chequeRows = document.querySelectorAll('.cheque-row');
+        if (chequeRows.length === 0) {
+            showToast("يرجى إضافة بيانات الشيك (المبلغ، اسم البنك، رقم الشيك)", "error");
+            return;
+        }
+
         let cheques = [];
         let totalChequesAmount = 0;
         let hasInvalidCheque = false;
 
         chequeRows.forEach((row, idx) => {
-            const chNo = row.querySelector('.cheque-no').value.trim();
-            const chBranch = row.querySelector('.cheque-branch').value.trim();
-            const chDate = row.querySelector('.cheque-date').value;
-            const chAmt = parseNum(row.querySelector('.cheque-amount').value);
+            if (hasInvalidCheque) return;
+            const chNoInput = row.querySelector('.cheque-no');
+            const chBranchInput = row.querySelector('.cheque-branch');
+            const chAmtInput = row.querySelector('.cheque-amount');
+            
+            const chNo = (chNoInput?.value || '').trim();
+            const chBranch = (chBranchInput?.value || '').trim();
+            const chDate = row.querySelector('.cheque-date')?.value || '';
+            const chAmt = parseNum(chAmtInput?.value);
             const chStmt = row.querySelector('.cheque-statement')?.value.trim() || '';
-            if (!chBranch) {
-                showToast(`السطر ${idx + 1}: يرجى إدخال اسم البنك`, "error");
-                row.querySelector('.cheque-branch').focus();
+
+            if (chAmt <= 0) {
+                showToast(`السطر ${idx + 1}: يرجى إدخال مبلغ الشيك`, "error");
+                if (chAmtInput) {
+                    chAmtInput.focus();
+                    chAmtInput.style.borderColor = '#ef4444';
+                    setTimeout(() => { chAmtInput.style.borderColor = 'rgba(255,255,255,0.1)'; }, 3500);
+                }
                 hasInvalidCheque = true;
                 return;
             }
-            // removed cheque length check as per user request
+
+            if (!chBranch) {
+                showToast(`السطر ${idx + 1}: اسم البنك إجباري، يرجى كتابة اسم البنك`, "error");
+                if (chBranchInput) {
+                    chBranchInput.focus();
+                    chBranchInput.style.borderColor = '#ef4444';
+                    setTimeout(() => { chBranchInput.style.borderColor = 'rgba(255,255,255,0.1)'; }, 3500);
+                }
+                hasInvalidCheque = true;
+                return;
+            }
+
+            if (!chNo) {
+                showToast(`السطر ${idx + 1}: رقم الشيك إجباري، لابد من كتابة رقم الشيك`, "error");
+                if (chNoInput) {
+                    chNoInput.focus();
+                    chNoInput.style.borderColor = '#ef4444';
+                    setTimeout(() => { chNoInput.style.borderColor = 'rgba(255,255,255,0.1)'; }, 3500);
+                }
+                hasInvalidCheque = true;
+                return;
+            }
 
             cheques.push({ checkNo: chNo, checkBranch: chBranch, checkDate: chDate, amount: chAmt, statement: chStmt });
             totalChequesAmount += chAmt;
@@ -1129,26 +1165,37 @@ function submitVoucherInner() {
         let hasInvalidTransfer = false;
 
         transferRows.forEach((row, idx) => {
-            const trNo = row.querySelector('.transfer-no').value.trim();
-            const trNote = row.querySelector('.transfer-note').value.trim();
-            const trAmt = parseNum(row.querySelector('.transfer-amount').value);
+            if (hasInvalidTransfer) return;
+            const trNoInput = row.querySelector('.transfer-no');
+            const trAmtInput = row.querySelector('.transfer-amount');
+
+            const trNo = (trNoInput?.value || '').trim();
+            const trNote = (row.querySelector('.transfer-note')?.value || '').trim();
+            const trAmt = parseNum(trAmtInput?.value);
             const trStmt = row.querySelector('.transfer-statement')?.value.trim() || '';
+
+            if (trAmt <= 0) {
+                showToast(`السطر ${idx + 1}: يرجى إدخال مبلغ التحويل`, "error");
+                if (trAmtInput) trAmtInput.focus();
+                hasInvalidTransfer = true;
+                return;
+            }
 
             if (!trNo) {
                 showToast(`السطر ${idx + 1}: يرجى إدخال رقم حساب التحويل`, "error");
-                row.querySelector('.transfer-no').focus();
+                if (trNoInput) trNoInput.focus();
                 hasInvalidTransfer = true;
                 return;
             }
             if (trNo.length < 6) {
                 showLengthWarningModal(trNo);
-                row.querySelector('.transfer-no').focus();
+                if (trNoInput) trNoInput.focus();
                 hasInvalidTransfer = true;
                 return;
             }
             if (checkTransferDuplicate(trNo, document.getElementById('voucher-number').innerText)) {
                 showDuplicateWarningModal(trNo);
-                row.querySelector('.transfer-no').focus();
+                if (trNoInput) trNoInput.focus();
                 hasInvalidTransfer = true;
                 return;
             }
@@ -1165,18 +1212,49 @@ function submitVoucherInner() {
         let hasInvalidCheque = false;
 
         chequeRows.forEach((row, idx) => {
-            const chNo = row.querySelector('.cheque-no').value.trim();
-            const chBranch = row.querySelector('.cheque-branch').value.trim();
-            const chDate = row.querySelector('.cheque-date').value;
-            const chAmt = parseNum(row.querySelector('.cheque-amount').value);
+            if (hasInvalidCheque) return;
+            const chNoInput = row.querySelector('.cheque-no');
+            const chBranchInput = row.querySelector('.cheque-branch');
+            const chAmtInput = row.querySelector('.cheque-amount');
+            
+            const chNo = (chNoInput?.value || '').trim();
+            const chBranch = (chBranchInput?.value || '').trim();
+            const chDate = row.querySelector('.cheque-date')?.value || '';
+            const chAmt = parseNum(chAmtInput?.value);
             const chStmt = row.querySelector('.cheque-statement')?.value.trim() || '';
-            if (!chBranch) {
-                showToast(`السطر ${idx + 1}: يرجى إدخال اسم البنك`, "error");
-                row.querySelector('.cheque-branch').focus();
+
+            if (chAmt <= 0) {
+                showToast(`السطر ${idx + 1}: يرجى إدخال مبلغ الشيك`, "error");
+                if (chAmtInput) {
+                    chAmtInput.focus();
+                    chAmtInput.style.borderColor = '#ef4444';
+                    setTimeout(() => { chAmtInput.style.borderColor = 'rgba(255,255,255,0.1)'; }, 3500);
+                }
                 hasInvalidCheque = true;
                 return;
             }
-            // removed cheque length check as per user request
+
+            if (!chBranch) {
+                showToast(`السطر ${idx + 1}: اسم البنك إجباري، يرجى كتابة اسم البنك`, "error");
+                if (chBranchInput) {
+                    chBranchInput.focus();
+                    chBranchInput.style.borderColor = '#ef4444';
+                    setTimeout(() => { chBranchInput.style.borderColor = 'rgba(255,255,255,0.1)'; }, 3500);
+                }
+                hasInvalidCheque = true;
+                return;
+            }
+
+            if (!chNo) {
+                showToast(`السطر ${idx + 1}: رقم الشيك إجباري، لابد من كتابة رقم الشيك`, "error");
+                if (chNoInput) {
+                    chNoInput.focus();
+                    chNoInput.style.borderColor = '#ef4444';
+                    setTimeout(() => { chNoInput.style.borderColor = 'rgba(255,255,255,0.1)'; }, 3500);
+                }
+                hasInvalidCheque = true;
+                return;
+            }
 
             cheques.push({ checkNo: chNo, checkBranch: chBranch, checkDate: chDate, amount: chAmt, statement: chStmt });
             totalChequesAmount += chAmt;
@@ -2400,14 +2478,12 @@ window.addChequeRow = function(branch = '', no = '', date = '', amt = 0, stateme
     row.innerHTML = `
         ${labelHTML}
         <div class="dynamic-focus-container" style="width: 324px; flex: none; display: flex; align-items: center; gap: 5px;">
-            
-            <input type="text" maxlength="12" class="v-input ctrl-input cheque-amount dynamic-focus-input dynamic-focus-amount" value="${amt > 0 ? parseFloat(amt).toFixed(2) : ''}" placeholder="المبلغ" oninput="restrictToNumbers(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 58px; font-size:2rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fbbf24; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900; text-align: center;">
+            <input type="text" maxlength="12" class="v-input ctrl-input cheque-amount dynamic-focus-input dynamic-focus-amount" value="${amt > 0 ? parseFloat(amt).toFixed(2) : ''}" placeholder="المبلغ *" required oninput="restrictToNumbers(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" oncontextmenu="showNumberProperties(event, this)" onblur="formatAmount(this); if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 58px; font-size:2rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fbbf24; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900; text-align: center;">
         </div>
         <div style="flex: 1; min-width: 80px; display: flex; align-items: center; gap: 5px;">
-            
-            <input type="text" class="v-input ctrl-input cheque-branch" value="${branch}" placeholder="اسم البنك" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.3rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
+            <input type="text" class="v-input ctrl-input cheque-branch" value="${branch}" placeholder="اسم البنك * (إجباري)" required style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.3rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align:center;">
         </div>
-        <div class="dynamic-focus-container" style="flex: none; width: 270px; display: flex; align-items: center; gap: 5px;"><input type="text" maxlength="14" class="v-input ctrl-input cheque-no dynamic-focus-input dynamic-focus-number" value="${no}" placeholder="رقم الشيك" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.5rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#2dd4bf; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900;"></div>
+        <div class="dynamic-focus-container" style="flex: none; width: 270px; display: flex; align-items: center; gap: 5px;"><input type="text" maxlength="14" class="v-input ctrl-input cheque-no dynamic-focus-input dynamic-focus-number" value="${no}" placeholder="رقم الشيك * (إجباري)" required style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.5rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#2dd4bf; text-align: center; font-family: 'Inter', system-ui, sans-serif; font-variant-numeric: tabular-nums; font-weight: 900;"></div>
         <div style="flex: 0.8; min-width: 120px; display: flex; align-items: center; gap: 5px;"><input type="date" class="v-input ctrl-input cheque-date" value="${date}" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.3rem; padding: 0 4px; width: 100%; border-radius: 6px; color:#fff;"></div>
         <div style="flex: 1.2; min-width: 100px; display: flex; align-items: center; gap: 5px;"><input type="text" class="v-input ctrl-input cheque-statement" value="${statement}" placeholder="البيان" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 48px; font-size:1.3rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#fff; text-align: center;"></div>
         <div style="display: flex; justify-content: flex-end; width: 40px; flex: none;">
@@ -2829,8 +2905,8 @@ if (document.readyState === 'loading') {
 // Hook into dynamic row generation if they exist
 if (typeof addTransferRow === 'function') {
     const originalAddTransfer = addTransferRow;
-    window.addTransferRow = function(amt, bank, no) {
-        originalAddTransfer(amt, bank, no);
+    window.addTransferRow = function(...args) {
+        originalAddTransfer.apply(this, args);
         setTimeout(() => {
             const rows = document.querySelectorAll('.transfer-amount');
             if (rows.length > 0) loadAndApplyNumberProperties(rows[rows.length - 1]);
@@ -2840,8 +2916,8 @@ if (typeof addTransferRow === 'function') {
 
 if (typeof addChequeRow === 'function') {
     const originalAddCheque = addChequeRow;
-    window.addChequeRow = function(amt, bank, no, dt) {
-        originalAddCheque(amt, bank, no, dt);
+    window.addChequeRow = function(...args) {
+        originalAddCheque.apply(this, args);
         setTimeout(() => {
             const rows = document.querySelectorAll('.cheque-amount');
             if (rows.length > 0) loadAndApplyNumberProperties(rows[rows.length - 1]);
