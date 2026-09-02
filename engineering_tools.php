@@ -1733,14 +1733,26 @@ $pdo = getDBConnection();
                     </div>
 
                     <!-- Instant Fatwa Search Bar with Live Status -->
-                    <div class="w-full md:w-96 space-y-1">
-                        <label class="text-xs font-bold text-slate-300 flex items-center justify-between">
-                            <span>🔍 محرك البحث الفقهي الذكي:</span>
-                            <span id="fiqh_search_badge" class="text-emerald-400 font-mono font-black text-xs">80 فتوى كبرى متاحة للبحث الذكي</span>
-                        </label>
-                        <div class="relative">
-                            <input type="text" id="fiqh-search-input" oninput="filterFatwas()" placeholder="اكتب للبحث: تقسيط، شيك، عربون، استصناع..." class="tool-input text-sm font-bold pr-10">
-                            <i class="fa-solid fa-search absolute right-3 top-3.5 text-slate-400"></i>
+                    <div class="w-full lg:w-[520px] p-4 bg-slate-950/95 border-2 border-amber-400/80 rounded-2xl shadow-2xl space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-black text-amber-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-magnifying-glass text-amber-400"></i>
+                                ابحث في الفتاوى والمسائل (محلياً وفي قوقل):
+                            </span>
+                            <span id="fiqh_search_badge" class="text-emerald-400 font-mono font-black text-[11px] px-2.5 py-0.5 bg-emerald-950 border border-emerald-500/50 rounded-lg">
+                                80 فتوى متاحة للبحث
+                            </span>
+                        </div>
+                        
+                        <div class="flex flex-wrap sm:flex-nowrap gap-2 items-center">
+                            <div class="relative flex-1 w-full">
+                                <input type="text" id="fiqh-search-input" oninput="filterFatwas()" placeholder="اكتب سؤالك: تقسيط، شيك، ذهب، عربون..." class="w-full py-2.5 pr-10 pl-3 bg-slate-900 border-2 border-amber-500/50 focus:border-amber-400 text-white rounded-xl text-xs md:text-sm font-bold shadow-inner">
+                                <i class="fa-solid fa-search absolute right-3.5 top-3.5 text-amber-400/80"></i>
+                            </div>
+                            <button type="button" onclick="executeQuickGoogleSearch()" title="ابحث في قوقل الموثق للشيوخ الـ 12" class="px-4 py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-black text-xs rounded-xl shadow-lg border border-sky-300/50 flex items-center justify-center gap-1.5 flex-shrink-0 transition transform hover:-translate-y-0.5 w-full sm:w-auto">
+                                <i class="fa-brands fa-google text-sky-200"></i>
+                                <span>بحث قوقل ↗</span>
+                            </button>
                         </div>
                     </div>
                 </div>
@@ -11298,6 +11310,20 @@ $pdo = getDBConnection();
     <script>
     let activeScholarFilter = 'all';
     let activeTopicFilter = 'all';
+
+    
+    // 🚀 AUTO-ACTIVATE TAB FROM URL HASH OR PARAMETER 🚀
+    document.addEventListener('DOMContentLoaded', function() {
+        const urlParams = new URLSearchParams(window.location.search);
+        const tabParam = urlParams.get('tab') || window.location.hash.replace('#', '');
+        
+        if (tabParam) {
+            const targetPill = document.querySelector('[onclick*="switchSuite(\'' + tabParam + '\'"]');
+            if (targetPill) {
+                switchSuite(tabParam, targetPill);
+            }
+        }
+    });
 
     function switchSuite(suiteId, el) {
         document.querySelectorAll('.suite-section').forEach(sec => sec.classList.add('hidden'));
