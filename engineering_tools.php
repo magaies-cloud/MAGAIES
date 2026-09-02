@@ -1,7 +1,7 @@
 <?php
 // ====================================================================
-// نظام Al-Sajana Smart ERP 2026 - حزمة المساعدات والحاسبات ومفاتيح تحويلات البنوك V6
-// خط كبير وواضح مع حذف الصفر في بداية رقم الحساب تلقائياً
+// نظام Al-Sajana Smart ERP 2026 - حزمة المساعدات ومفاتيح تحويلات البنوك V7
+// تصميم فخم وبارز جداً للمنصة الرئيسية الثلاثية (اسم البنك - رقم الحساب - رقم الـ BBAN النهائي المكتمل)
 // ====================================================================
 $page_title = 'الأدوات المساعدة والحاسبات ومفاتيح تحويلات البنوك';
 $header_theme_class = 'header-theme-reports';
@@ -138,7 +138,7 @@ $pdo = getDBConnection();
         .glass-panel-v3 {
             background: var(--panel-bg);
             border: 2px solid var(--border-color, rgba(236, 72, 153, 0.3));
-            border-radius: 22px;
+            border-radius: 24px;
             padding: 24px;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
             backdrop-filter: blur(20px);
@@ -153,13 +153,13 @@ $pdo = getDBConnection();
         }
 
         .tool-input {
-            background: rgba(15, 23, 42, 0.85);
-            border: 2px solid rgba(255, 255, 255, 0.12);
+            background: rgba(15, 23, 42, 0.95);
+            border: 2px solid rgba(255, 255, 255, 0.15);
             color: #ffffff;
-            padding: 10px 14px;
-            border-radius: 12px;
-            font-weight: 700;
-            font-size: 0.95rem;
+            padding: 12px 16px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 1rem;
             outline: none;
             width: 100%;
             transition: all 0.2s;
@@ -189,7 +189,7 @@ $pdo = getDBConnection();
             border: 2px solid #db2777;
         }
 
-        /* ── بطاقات البنوك الفخمة والمفاتيح البارزة والخطوط الكبيرة ── */
+        /* ── بطاقات البنوك الفخمة والمفاتيح البارزة ── */
         .bban-bank-card {
             background: linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(6, 10, 20, 0.99));
             border: 2px solid rgba(56, 189, 248, 0.3);
@@ -230,16 +230,53 @@ $pdo = getDBConnection();
             gap: 2px;
         }
 
-        :root.light-theme .bban-bank-card {
-            background: #ffffff !important;
-            border: 2px solid #94a3b8 !important;
-            color: #000000 !important;
-            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
+        /* ── المنصة الرئيسية العليا لتوليد الـ BBAN ── */
+        .master-bban-hero-box {
+            background: linear-gradient(145deg, rgba(8, 14, 28, 0.98), rgba(2, 6, 15, 0.99));
+            border: 3px solid #38bdf8;
+            border-radius: 26px;
+            padding: 26px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(56, 189, 248, 0.35);
+            position: relative;
+            overflow: hidden;
         }
 
-        :root.light-theme .bban-code-box {
-            background: #f8fafc !important;
-            border: 2px solid #0284c7 !important;
+        .master-bban-display-screen {
+            background: #000000;
+            border: 3px solid #10b981;
+            border-radius: 20px;
+            padding: 20px 24px;
+            text-align: center;
+            font-family: 'Outfit', 'JetBrains Mono', 'Courier New', monospace;
+            font-size: 2.3rem;
+            font-weight: 900;
+            letter-spacing: 3px;
+            color: #38bdf8;
+            box-shadow: inset 0 4px 15px rgba(0, 0, 0, 0.95), 0 0 30px rgba(16, 185, 129, 0.4);
+            direction: ltr;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 4px;
+        }
+
+        @media (max-width: 768px) {
+            .master-bban-display-screen {
+                font-size: 1.5rem;
+                padding: 14px;
+                letter-spacing: 1px;
+            }
+        }
+
+        :root.light-theme .master-bban-hero-box {
+            background: #ffffff !important;
+            border: 3px solid #0284c7 !important;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1) !important;
+        }
+
+        :root.light-theme .master-bban-display-screen {
+            background: #f1f5f9 !important;
+            border: 3px solid #059669 !important;
             color: #0369a1 !important;
             box-shadow: none !important;
         }
@@ -366,7 +403,7 @@ $pdo = getDBConnection();
             </div>
 
             <!-- 8. حاسبة الزكاة -->
-            <div class="suite-pill-card" style="--p-color:#10b981; --p-border:rgba(16,185,129,0.5);" onclick="switchSuite('zakat', this)">
+            <div class="suite-pill-card" style="--p-color:#10b981; --p-border:rgba(167,243,208,0.5);" onclick="switchSuite('zakat', this)">
                 <div class="suite-pill-icon"><i class="fa-solid fa-hand-holding-dollar text-emerald-400"></i></div>
                 <div class="suite-pill-title">⚖️ الزكاة</div>
                 <div class="suite-pill-sub">عروض التجارة</div>
@@ -832,93 +869,130 @@ $pdo = getDBConnection();
         <div id="suite-sec-banks" class="suite-section anim-suite hidden space-y-6">
             <div class="glass-panel-v3" style="--border-color: rgba(34, 211, 238, 0.4);">
                 
-                <!-- Header Banner -->
-                <div class="flex flex-wrap items-center justify-between mb-5 border-b border-slate-800 pb-4 gap-3">
-                    <div>
-                        <div class="flex items-center gap-2">
-                            <span class="px-3.5 py-1.5 bg-cyan-500/20 text-cyan-300 rounded-xl text-sm font-mono font-black border-2 border-cyan-500/40 shadow-md">BBAN - 14 Digits</span>
-                            <span class="px-3.5 py-1.5 bg-emerald-500/20 text-emerald-300 rounded-xl text-sm font-black border-2 border-emerald-500/40 shadow-md">🔒 حوّل واستلم أموالك بثقة وأمان</span>
+                <!-- 👑👑 MASTER LUXURY HERO CARD: THE 3 CORE ELEMENTS 👑👑 -->
+                <div class="master-bban-hero-box mb-8">
+                    
+                    <!-- Header of the Hero Section -->
+                    <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-cyan-500/40 pb-5 mb-6">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1.5">
+                                <span class="px-4 py-1.5 bg-cyan-500/20 text-cyan-300 rounded-xl text-sm font-mono font-black border-2 border-cyan-400 shadow-md">
+                                    ★ المنظومة الموحدة للتحويلات البنكية (BBAN Engine)
+                                </span>
+                                <span class="px-3.5 py-1.5 bg-emerald-500/20 text-emerald-300 rounded-xl text-sm font-black border-2 border-emerald-400 shadow-md">
+                                    14 خانة معتمدة ✓
+                                </span>
+                            </div>
+                            <h2 class="text-2xl md:text-4xl font-black text-white flex items-center gap-3">
+                                <i class="fa-solid fa-building-columns text-cyan-400"></i>
+                                المنصة الذكية لتوليد وتركيب أرقام الـ BBAN للتحويل المباشر
+                            </h2>
+                            <p class="text-sm md:text-base font-bold text-slate-300 mt-1.5">
+                                الخطوات الثلاث الرئيسية: <span class="text-cyan-300 font-black">1) اختر اسم البنك</span> ⬅️ <span class="text-amber-300 font-black">2) اكتب رقم حسابك</span> ⬅️ <span class="text-emerald-300 font-black">3) انسخ صيغة الـ BBAN المكتملة</span>
+                            </p>
                         </div>
-                        <h3 class="text-2xl md:text-3xl font-black text-white flex items-center gap-3 mt-3">
-                            <i class="fa-solid fa-money-bill-transfer text-cyan-400"></i>
-                            دليلك السريع لأرقام BBAN ومفاتيح البنوك السودانية (16 بنكاً)
-                        </h3>
-                        <p class="text-sm md:text-base font-bold text-slate-200 mt-2">
-                            <span class="text-cyan-300 font-black">BBAN</span> هو الرقم البنكي الموحد للتحويلات بين البنوك. تتكون جميع الصيغ من <span class="text-amber-400 font-mono font-black text-lg">14 رقماً</span>.
-                        </p>
+
+                        <!-- Search Bar -->
+                        <div class="w-full md:w-80">
+                            <label class="text-xs font-bold text-slate-300 block mb-1">بحث سريع في دليل البنوك:</label>
+                            <input type="text" id="bank-search-input" oninput="searchBanks(this.value)" placeholder="🔍 ابحث بالاسم أو التطبيق..." class="tool-input text-base font-bold">
+                        </div>
                     </div>
 
-                    <!-- Search Bar -->
-                    <div class="w-full md:w-80">
-                        <input type="text" id="bank-search-input" oninput="searchBanks(this.value)" placeholder="🔍 ابحث عن اسم البنك أو التطبيق أو الكود..." class="tool-input text-base font-bold">
+                    <!-- 🎛️ 1 & 2: TWO MASSIVE INPUT SELECTORS 🎛️ -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+                        
+                        <!-- 1. اسم البنك المستفيد -->
+                        <div class="bg-slate-900/90 p-5 rounded-2xl border-2 border-cyan-500/40 shadow-lg space-y-2">
+                            <label class="text-base md:text-lg font-black text-cyan-300 flex items-center gap-2">
+                                <span class="w-8 h-8 rounded-full bg-cyan-500 text-slate-950 font-black flex items-center justify-center text-base">1</span>
+                                🏛️ اختر اسم البنك المستفيد (16 بنكاً سودانياً):
+                            </label>
+                            <select id="bban_bank_selector" onchange="generateUserBBAN()" class="tool-input text-lg md:text-xl font-black py-4 px-4 bg-slate-950 border-2 border-cyan-400 text-cyan-200 rounded-2xl cursor-pointer">
+                                <option value="040|XXXXXXX|0001">1. بنك الخرطوم — تطبيق بنكك (040 + 7 أرقام + 0001)</option>
+                                <option value="240|XXXXXXX|0001">2. بنك أم درمان الوطني — تطبيق أوكاش (240 + 7 أرقام + 0001)</option>
+                                <option value="02|XXXXXXXX|0001">3. بنك فيصل الإسلامي — تطبيق فوري (02 + 8 أرقام + 0001)</option>
+                                <option value="150000|XXXXXXXX|">4. بنك النيل الأزرق المشرق — تطبيق مشرق (150000 + 8 أرقام)</option>
+                                <option value="14000|XXXX|00001">5. البنك الإسلامي السوداني — آمن بلس (14000 + 4 أرقام + 00001)</option>
+                                <option value="sahel">6. بنك النيل — تطبيق ساهل (يستخرج من داخل التطبيق)</option>
+                                <option value="222|XXXXXXXXXXX|">7. بنك المزارع التجاري — تطبيق مصرفك (222 + 11 رقم)</option>
+                                <option value="110|XXXXXX|00001">8. البنك الفرنسي السوداني (110 + 6 أرقام + 00001)</option>
+                                <option value="03|XXXXXXX|01001">9. البنك الزراعي السوداني — الزراعي موبايل (03 + 7 أرقام + 01001)</option>
+                                <option value="180|XXXXXX|00001">10. بنك السلام السوداني (180 + 6 أرقام + 00001)</option>
+                                <option value="070|XXXXXX|00001">11. بنك البركة السوداني (070 + 6 أرقام + 00001)</option>
+                                <option value="090|XXXXXX|00001">12. بنك الثروة الحيوانية (090 + 6 أرقام + 00001)</option>
+                                <option value="120|XXXXXX|00001">13. بنك العمال الوطني (120 + 6 أرقام + 00001)</option>
+                                <option value="160|XXXXXX|00001">14. البنك العقاري التجاري (160 + 6 أرقام + 00001)</option>
+                                <option value="130|XXXXXX|00001">15. بنك التنمية الصناعية (130 + 6 أرقام + 00001)</option>
+                                <option value="170|XXXXXX|00001">16. بنك المال المتحد (170 + 6 أرقام + 00001)</option>
+                            </select>
+                            <span class="text-xs text-slate-400 font-bold block mt-1" id="selected_bank_app_badge">
+                                📱 التطبيق المعتمد: بنكك (Bank of Khartoum)
+                            </span>
+                        </div>
+
+                        <!-- 2. كتابة رقم الحساب -->
+                        <div class="bg-slate-900/90 p-5 rounded-2xl border-2 border-amber-500/40 shadow-lg space-y-2">
+                            <label class="text-base md:text-lg font-black text-amber-300 flex items-center gap-2">
+                                <span class="w-8 h-8 rounded-full bg-amber-500 text-slate-950 font-black flex items-center justify-center text-base">2</span>
+                                🔢 أدخل رقم الحساب الأساسي (بدون الصفر):
+                            </label>
+                            <input type="text" id="bban_raw_account" placeholder="مثال: 345678 أو 0345678" oninput="generateUserBBAN()" class="tool-input text-xl md:text-2xl font-mono font-black py-3.5 px-5 bg-slate-950 border-2 border-amber-400 text-amber-300 text-center tracking-widest rounded-2xl">
+                            <div class="flex items-center justify-between text-xs font-black mt-1">
+                                <span class="text-amber-300" id="bban_strip_feedback">✓ يحذف الصفر في بداية الحساب تلقائياً</span>
+                                <span class="text-rose-400">⚠️ تنبيه: لا تكتب صفر في البداية</span>
+                            </div>
+                        </div>
+
                     </div>
+
+                    <!-- 🌟 3. GRAND HERO DISPLAY: صيغة رقم الـ BBAN النهائي المكتمل 🌟 -->
+                    <div class="bg-slate-950/95 p-6 md:p-8 rounded-3xl border-3 border-emerald-500/60 shadow-2xl space-y-4">
+                        
+                        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3">
+                            <label class="text-lg md:text-2xl font-black text-emerald-400 flex items-center gap-3">
+                                <span class="w-10 h-10 rounded-full bg-emerald-500 text-slate-950 font-black flex items-center justify-center text-xl shadow-md">3</span>
+                                👑 صيغة رقم الـ BBAN النهائي المكتمل (جاهز للتحويل المباشر):
+                            </label>
+                            <span class="px-4 py-1.5 bg-emerald-500/20 text-emerald-300 border-2 border-emerald-400 rounded-xl font-mono font-black text-sm md:text-base" id="bban_len_counter">
+                                عدد الخانات: 14 رقماً ✓
+                            </span>
+                        </div>
+
+                        <!-- 🖥️ THE GIGANTIC DIGITAL SCREEN 🖥️ -->
+                        <div class="master-bban-display-screen" id="generated_bban_display_wrapper">
+                            <span id="generated_bban_display">040-------0001</span>
+                        </div>
+
+                        <!-- Huge Copy Button -->
+                        <button type="button" onclick="copyGeneratedBBAN()" class="w-full py-4 bg-gradient-to-r from-emerald-500 via-teal-400 to-cyan-400 hover:from-emerald-400 hover:to-cyan-300 text-slate-950 font-black rounded-2xl text-base md:text-lg transition flex items-center justify-center gap-3 shadow-2xl transform active:scale-95">
+                            <i class="fa-regular fa-copy text-xl"></i>
+                            اضغط هنا لنسخ رقم الـ BBAN المكتمل الآن (جاهز للصق في تطبيق البنك)
+                        </button>
+
+                    </div>
+
                 </div>
 
-                <!-- ⚠️ CRITICAL NOTICE BOX: ZERO STRIPPING ⚠️ -->
+                <!-- ⚠️ CRITICAL NOTICE BANNER ⚠️ -->
                 <div class="p-4 bg-amber-500/15 border-2 border-amber-500/50 rounded-2xl flex items-center gap-4 text-amber-200 font-bold shadow-xl mb-6">
-                    <span class="text-3xl">⚠️</span>
+                    <span class="text-3xl">💡</span>
                     <div>
-                        <h4 class="text-base md:text-lg font-black text-amber-300">قاعدة هامة لجميع التحويلات: حذف الصفر في بداية رقم الحساب</h4>
+                        <h4 class="text-base md:text-lg font-black text-amber-300">قاعدة ذهبية لجميع التحويلات: حذف الصفر في بداية رقم الحساب</h4>
                         <p class="text-xs md:text-sm text-slate-200 mt-0.5">
                             عند تركيب رقم الحساب داخل صيغة الـ BBAN، <span class="text-rose-400 font-black underline">يتم حذف أي صفر في بداية رقم الحساب الأساسي</span> حتى تنضبط خانات الـ BBAN وتكتمل الـ 14 خانة بنجاح دون أي زيادة أو خطأ في التحويل.
                         </p>
                     </div>
                 </div>
 
-                <!-- 🎛️ Interactive BBAN Builder & Formatter 🎛️ -->
-                <div class="bg-slate-950/90 border-2 border-cyan-500/50 p-6 rounded-2xl mb-6 shadow-2xl">
-                    <h4 class="text-lg font-black text-cyan-300 flex items-center gap-2 mb-4">
-                        <i class="fa-solid fa-wand-magic-sparkles text-cyan-400"></i>
-                        مولّد وفاحص صيغة الـ BBAN الفوري (يحذف الصفر من البداية ويركّب الـ 14 خانة تلقائياً):
-                    </h4>
-
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
-                        <div>
-                            <label class="text-xs md:text-sm font-bold text-slate-200 block mb-1.5">1. اختر البنك المستفيد:</label>
-                            <select id="bban_bank_selector" onchange="generateUserBBAN()" class="tool-input text-base font-bold">
-                                <option value="040|XXXXXXX|0001">1. بنك الخرطوم (بنكك)</option>
-                                <option value="240|XXXXXXX|0001">2. بنك أم درمان الوطني (أوكاش)</option>
-                                <option value="02|XXXXXXXX|0001">3. بنك فيصل الإسلامي (فوري)</option>
-                                <option value="150000|XXXXXXXX|">4. بنك النيل الأزرق المشرق (مشرق)</option>
-                                <option value="14000|XXXX|00001">5. البنك الإسلامي السوداني (آمن بلس)</option>
-                                <option value="sahel">6. بنك النيل (ساهل - من داخل التطبيق)</option>
-                                <option value="222|XXXXXXXXXXX|">7. بنك المزارع التجاري (مصرفك)</option>
-                                <option value="110|XXXXXX|00001">8. البنك الفرنسي السوداني</option>
-                                <option value="03|XXXXXXX|01001">9. البنك الزراعي السوداني (الزراعي موبايل)</option>
-                                <option value="180|XXXXXX|00001">10. بنك السلام السوداني</option>
-                                <option value="070|XXXXXX|00001">11. بنك البركة السوداني</option>
-                                <option value="090|XXXXXX|00001">12. بنك الثروة الحيوانية</option>
-                                <option value="120|XXXXXX|00001">13. بنك العمال الوطني</option>
-                                <option value="160|XXXXXX|00001">14. البنك العقاري التجاري</option>
-                                <option value="130|XXXXXX|00001">15. بنك التنمية الصناعية</option>
-                                <option value="170|XXXXXX|00001">16. بنك المال المتحد</option>
-                            </select>
-                        </div>
-
-                        <div>
-                            <label class="text-xs md:text-sm font-bold text-slate-200 block mb-1.5">2. أدخل رقم الحساب الأساسي:</label>
-                            <input type="text" id="bban_raw_account" placeholder="مثلاً: 0345678 أو 345678" oninput="generateUserBBAN()" class="tool-input font-mono font-black text-cyan-300 text-lg">
-                        </div>
-
-                        <div>
-                            <button type="button" onclick="copyGeneratedBBAN()" class="w-full py-3 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-black rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-xl">
-                                <i class="fa-regular fa-copy text-base"></i> نسخ رقم الـ BBAN المولد
-                            </button>
-                        </div>
-                    </div>
-
-                    <!-- Generated Result Box -->
-                    <div class="mt-4 p-4 bg-slate-900 rounded-xl border-2 border-cyan-500/60 flex flex-wrap items-center justify-between gap-3 shadow-inner">
-                        <div>
-                            <span class="text-xs text-slate-400 block font-bold">صيغة رقم الـ BBAN النهائي المكتمل (جاهز للتحويل المباشر):</span>
-                            <span class="text-2xl md:text-3xl font-black text-cyan-300 font-mono tracking-widest mt-1 block" id="generated_bban_display">040-------0001</span>
-                            <span class="text-xs text-emerald-400 font-bold mt-1 block" id="bban_strip_feedback">✓ تم ضبط الحساب وحذف الصفر في البداية تلقائياً</span>
-                        </div>
-                        <span class="text-sm font-black text-slate-200 bg-slate-800 px-4 py-2 rounded-xl border border-slate-700" id="bban_len_counter">عدد الخانات: 14 رقم</span>
-                    </div>
+                <!-- 📋 Full 16 Banks Directory Grid 📋 -->
+                <div class="mb-4">
+                    <h3 class="text-xl md:text-2xl font-black text-white flex items-center gap-2">
+                        <i class="fa-solid fa-list-check text-cyan-400"></i>
+                        دليل وصيغ الـ BBAN لجميع البنوك الـ 16 (للمراجعة والنسخ الفردي):
+                    </h3>
                 </div>
 
-                <!-- 📋 Full 16 Banks BBAN Luxury Grid 📋 -->
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="banks-grid-container">
 
                     <!-- Bank 1: بنك الخرطوم -->
@@ -946,8 +1020,8 @@ $pdo = getDBConnection();
                         <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
                         <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
                             <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
-                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
-                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                                <span>صيغة الـ BBAN الرسمية:</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر بالبداية</span>
                             </div>
                             <div class="bban-code-box">
                                 <span class="text-amber-400 font-black">040</span><span class="text-white font-black px-1">XXXXXXX</span><span class="text-emerald-400 font-black">0001</span>
@@ -985,8 +1059,8 @@ $pdo = getDBConnection();
                         <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
                         <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
                             <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
-                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
-                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                                <span>صيغة الـ BBAN الرسمية:</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر بالبداية</span>
                             </div>
                             <div class="bban-code-box">
                                 <span class="text-amber-400 font-black">240</span><span class="text-white font-black px-1">XXXXXXX</span><span class="text-emerald-400 font-black">0001</span>
@@ -1024,8 +1098,8 @@ $pdo = getDBConnection();
                         <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
                         <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
                             <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
-                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
-                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                                <span>صيغة الـ BBAN الرسمية:</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر بالبداية</span>
                             </div>
                             <div class="bban-code-box">
                                 <span class="text-amber-400 font-black">02</span><span class="text-white font-black px-1">XXXXXXXX</span><span class="text-emerald-400 font-black">0001</span>
@@ -1063,8 +1137,8 @@ $pdo = getDBConnection();
                         <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
                         <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
                             <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
-                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
-                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                                <span>صيغة الـ BBAN الرسمية:</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر بالبداية</span>
                             </div>
                             <div class="bban-code-box">
                                 <span class="text-amber-400 font-black">150000</span><span class="text-white font-black px-1">XXXXXXXX</span><span class="text-emerald-400 font-black"></span>
@@ -1102,8 +1176,8 @@ $pdo = getDBConnection();
                         <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
                         <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
                             <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
-                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
-                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                                <span>صيغة الـ BBAN الرسمية:</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر بالبداية</span>
                             </div>
                             <div class="bban-code-box">
                                 <span class="text-amber-400 font-black">14000</span><span class="text-white font-black px-1">XXXX</span><span class="text-emerald-400 font-black">00001</span>
@@ -1141,8 +1215,8 @@ $pdo = getDBConnection();
                         <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
                         <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
                             <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
-                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
-                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                                <span>صيغة الـ BBAN الرسمية:</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر بالبداية</span>
                             </div>
                             <div class="bban-code-box">
                                 <span class="text-amber-300 font-bold text-lg md:text-xl tracking-normal">يستخرج من داخل التطبيق</span>
@@ -1180,8 +1254,8 @@ $pdo = getDBConnection();
                         <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
                         <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
                             <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
-                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
-                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                                <span>صيغة الـ BBAN الرسمية:</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر بالبداية</span>
                             </div>
                             <div class="bban-code-box">
                                 <span class="text-amber-400 font-black">222</span><span class="text-white font-black px-1">XXXXXXXXXXX</span><span class="text-emerald-400 font-black"></span>
@@ -1219,8 +1293,8 @@ $pdo = getDBConnection();
                         <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
                         <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
                             <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
-                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
-                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                                <span>صيغة الـ BBAN الرسمية:</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر بالبداية</span>
                             </div>
                             <div class="bban-code-box">
                                 <span class="text-amber-400 font-black">110</span><span class="text-white font-black px-1">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
@@ -1258,8 +1332,8 @@ $pdo = getDBConnection();
                         <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
                         <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
                             <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
-                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
-                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                                <span>صيغة الـ BBAN الرسمية:</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر بالبداية</span>
                             </div>
                             <div class="bban-code-box">
                                 <span class="text-amber-400 font-black">03</span><span class="text-white font-black px-1">XXXXXXX</span><span class="text-emerald-400 font-black">01001</span>
@@ -1297,8 +1371,8 @@ $pdo = getDBConnection();
                         <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
                         <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
                             <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
-                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
-                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                                <span>صيغة الـ BBAN الرسمية:</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر بالبداية</span>
                             </div>
                             <div class="bban-code-box">
                                 <span class="text-amber-400 font-black">180</span><span class="text-white font-black px-1">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
@@ -1336,8 +1410,8 @@ $pdo = getDBConnection();
                         <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
                         <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
                             <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
-                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
-                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                                <span>صيغة الـ BBAN الرسمية:</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر بالبداية</span>
                             </div>
                             <div class="bban-code-box">
                                 <span class="text-amber-400 font-black">070</span><span class="text-white font-black px-1">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
@@ -1375,8 +1449,8 @@ $pdo = getDBConnection();
                         <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
                         <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
                             <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
-                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
-                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                                <span>صيغة الـ BBAN الرسمية:</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر بالبداية</span>
                             </div>
                             <div class="bban-code-box">
                                 <span class="text-amber-400 font-black">090</span><span class="text-white font-black px-1">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
@@ -1414,8 +1488,8 @@ $pdo = getDBConnection();
                         <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
                         <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
                             <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
-                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
-                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                                <span>صيغة الـ BBAN الرسمية:</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر بالبداية</span>
                             </div>
                             <div class="bban-code-box">
                                 <span class="text-amber-400 font-black">120</span><span class="text-white font-black px-1">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
@@ -1453,8 +1527,8 @@ $pdo = getDBConnection();
                         <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
                         <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
                             <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
-                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
-                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                                <span>صيغة الـ BBAN الرسمية:</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر بالبداية</span>
                             </div>
                             <div class="bban-code-box">
                                 <span class="text-amber-400 font-black">160</span><span class="text-white font-black px-1">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
@@ -1492,8 +1566,8 @@ $pdo = getDBConnection();
                         <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
                         <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
                             <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
-                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
-                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                                <span>صيغة الـ BBAN الرسمية:</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر بالبداية</span>
                             </div>
                             <div class="bban-code-box">
                                 <span class="text-amber-400 font-black">130</span><span class="text-white font-black px-1">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
@@ -1531,8 +1605,8 @@ $pdo = getDBConnection();
                         <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
                         <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
                             <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
-                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
-                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                                <span>صيغة الـ BBAN الرسمية:</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر بالبداية</span>
                             </div>
                             <div class="bban-code-box">
                                 <span class="text-amber-400 font-black">170</span><span class="text-white font-black px-1">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
@@ -2115,11 +2189,18 @@ $pdo = getDBConnection();
         const display = document.getElementById('generated_bban_display');
         const lenEl = document.getElementById('bban_len_counter');
         const feedbackEl = document.getElementById('bban_strip_feedback');
+        const appBadgeEl = document.getElementById('selected_bank_app_badge');
+
+        const selectObj = document.getElementById('bban_bank_selector');
+        const selectedText = selectObj.options[selectObj.selectedIndex].text;
+        if (appBadgeEl) {
+            appBadgeEl.textContent = '📱 ' + selectedText;
+        }
 
         if (sel === 'sahel') {
-            display.textContent = 'يستخرج رقم الـ BBAN مباشرة من داخل تطبيق ساهل (بنك النيل)';
-            lenEl.textContent = 'تطبيق ساهل';
-            if (feedbackEl) feedbackEl.textContent = 'انسخ المفتاح من تطبيق ساهل';
+            display.innerHTML = '<span class="text-amber-300 font-bold text-xl tracking-normal">يستخرج رقم الـ BBAN مباشرة من داخل تطبيق ساهل (بنك النيل)</span>';
+            lenEl.textContent = 'تطبيق ساهل (بنك النيل)';
+            if (feedbackEl) feedbackEl.textContent = 'انسخ الـ BBAN من ملفك الشخصي داخل التطبيق';
             return;
         }
 
@@ -2130,10 +2211,13 @@ $pdo = getDBConnection();
         if (feedbackEl) {
             if (hadLeadingZero) {
                 feedbackEl.textContent = '✓ تم حذف الصفر في بداية الحساب تلقائياً لضبط الـ 14 خانة';
-                feedbackEl.className = 'text-xs text-amber-300 font-bold mt-1 block';
+                feedbackEl.className = 'text-amber-300 font-black';
+            } else if (cleanAcc.length > 0) {
+                feedbackEl.textContent = '✓ صيغة رقم الحساب مدخلة وجاهزة للتحويل';
+                feedbackEl.className = 'text-emerald-400 font-black';
             } else {
-                feedbackEl.textContent = '✓ صيغة رقم الحساب بدون صفر في البداية';
-                feedbackEl.className = 'text-xs text-emerald-400 font-bold mt-1 block';
+                feedbackEl.textContent = '✓ يحذف الصفر في بداية الحساب تلقائياً';
+                feedbackEl.className = 'text-slate-400 font-bold';
             }
         }
 
@@ -2144,21 +2228,35 @@ $pdo = getDBConnection();
 
         const neededDigits = xMask.length;
         let padded = cleanAcc;
-        if (padded.length > neededDigits) {
+        if (padded.length === 0) {
+            padded = '-'.repeat(neededDigits);
+        } else if (padded.length > neededDigits) {
             padded = padded.substring(padded.length - neededDigits);
         } else {
             padded = padded.padStart(neededDigits, '0');
         }
 
         const fullBBAN = prefix + padded + suffix;
-        display.textContent = fullBBAN;
-        lenEl.textContent = 'عدد الخانات: ' + fullBBAN.length + ' رقم (14 خانة معتمدة)';
+        
+        // Render with colored segments
+        const styledHtml = '<span class="text-amber-400 font-black">' + prefix + '</span>' +
+                           '<span class="text-white font-black px-1.5">' + padded + '</span>' +
+                           '<span class="text-emerald-400 font-black">' + suffix + '</span>';
+
+        display.innerHTML = styledHtml;
+        display.setAttribute('data-raw-bban', fullBBAN);
+        lenEl.textContent = 'عدد الخانات: ' + fullBBAN.length + ' رقماً ✓ (معتمدة)';
     }
 
     function copyGeneratedBBAN() {
-        const text = document.getElementById('generated_bban_display').textContent;
-        navigator.clipboard.writeText(text).then(() => {
-            alert('✓ تم نسخ رقم الـ BBAN بنجاح: ' + text);
+        const display = document.getElementById('generated_bban_display');
+        const rawText = display.getAttribute('data-raw-bban') || display.textContent;
+        if (rawText.includes('-') || rawText.includes('يستخرج')) {
+            alert('يرجى إدخال رقم حساب صحيح أولاً لتوليد رقم الـ BBAN المكتمل.');
+            return;
+        }
+        navigator.clipboard.writeText(rawText).then(() => {
+            alert('✓ تم نسخ رقم الـ BBAN بنجاح:\n' + rawText + '\n\nجاهز الآن للصق في تطبيق التحويل.');
         });
     }
 
