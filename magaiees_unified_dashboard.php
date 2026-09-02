@@ -1547,24 +1547,69 @@
                 }
             });
 
-            const badge = document.getElementById('notif-badge');
-            const list = document.getElementById('notif-list');
+            // Fetch live database alerts from alerts_manager.php
+            fetch('alerts_manager.php?action=get_live_alerts_json')
+            .then(r => r.json())
+            .then(data => {
+                if (data.success && data.alerts && data.alerts.length > 0) {
+                    data.alerts.forEach(a => {
+                        const isRed = a.severity === 'RED';
+                        const bg = isRed ? 'rgba(239, 68, 68, 0.15)' : 'rgba(245, 158, 11, 0.15)';
+                        const border = isRed ? 'rgba(239, 68, 68, 0.4)' : 'rgba(245, 158, 11, 0.4)';
+                        const color = isRed ? '#f87171' : '#fbbf24';
+                        const title = isRed ? '🚨 إنذار رقابي حرج' : '⚠️ تنبيه للمتابعة';
 
-            if (badge) {
-                if (unreadCount > 0) {
-                    badge.innerText = unreadCount;
-                    badge.style.display = 'block';
-                } else {
-                    badge.style.display = 'none';
+                        notifications.unshift(`
+                            <div style="padding:12px; background:${bg}; border-radius:12px; border:1px solid ${border};">
+                                <div style="display:flex; justify-content:space-between; margin-bottom:6px;">
+                                    <strong style="color:${color}; font-size:0.92rem;">${title}</strong>
+                                    <span style="font-size:0.7rem; color:${color}; background:rgba(0,0,0,0.3); padding:2px 6px; border-radius:6px;">نظامي</span>
+                                </div>
+                                <div style="font-size:0.82rem; color:#fff; line-height: 1.5;">
+                                    ${a.message}
+                                </div>
+                            </div>
+                        `);
+                        unreadCount++;
+                    });
                 }
-            }
-            if (list) {
-                if (unreadCount > 0) {
+
+                // Add footer link to Alerts Manager
+                notifications.push(`
+                    <div style="margin-top: 10px; text-align: center;">
+                        <a href="alerts_manager.php" style="display: block; padding: 10px; background: rgba(244, 63, 94, 0.2); border: 1px dashed #f43f5e; color: #fda4af; border-radius: 10px; text-decoration: none; font-weight: 800; font-size: 0.85rem; transition: background 0.2s;" onmouseover="this.style.background='rgba(244, 63, 94, 0.35)'" onmouseout="this.style.background='rgba(244, 63, 94, 0.2)'">
+                            ⚙️ فتح مركز إدارة وتخصيص التنبيهات
+                        </a>
+                    </div>
+                `);
+
+                const badge = document.getElementById('notif-badge');
+                const list = document.getElementById('notif-list');
+
+                if (badge) {
+                    if (unreadCount > 0) {
+                        badge.innerText = unreadCount;
+                        badge.style.display = 'block';
+                    } else {
+                        badge.style.display = 'none';
+                    }
+                }
+                if (list) {
                     list.innerHTML = notifications.join('');
-                } else {
-                    list.innerHTML = '<div style="color:var(--text-secondary); text-align:center; font-size:0.85rem; padding:15px; background: rgba(255,255,255,0.02); border-radius: 10px;">لا توجد تنبيهات لفترات السماح حالياً 🎉</div>';
                 }
-            }
+            })
+            .catch(() => {
+                const badge = document.getElementById('notif-badge');
+                const list = document.getElementById('notif-list');
+                if (badge) {
+                    if (unreadCount > 0) { badge.innerText = unreadCount; badge.style.display = 'block'; }
+                    else { badge.style.display = 'none'; }
+                }
+                if (list) {
+                    if (unreadCount > 0) list.innerHTML = notifications.join('');
+                    else list.innerHTML = '<div style="color:var(--text-secondary); text-align:center; font-size:0.85rem; padding:15px;">لا توجد تنبيهات حالياً 🎉</div>';
+                }
+            });
         }
 
         // Load Dynamic Dashboard Data
