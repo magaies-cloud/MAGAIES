@@ -1963,34 +1963,81 @@ foreach ($rules as $r) {
             background: linear-gradient(90deg, transparent, var(--bar-color, #ef4444), transparent);
         }
 
-        /* ── أزرار التبويبات الفخمة ── */
+        /* ── أزرار التبويبات العشرة البارزة ثلاثية الأبعاد (3D Prominent Centered Buttons) ── */
         .pillar-card {
-            padding: 12px 14px;
-            border-radius: 18px;
-            font-weight: 900;
-            font-size: 0.85rem;
+            padding: 16px 10px;
+            border-radius: 22px;
+            min-height: 135px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             flex-direction: column;
-            gap: 4px;
-            border: 2px solid var(--p-border, rgba(255, 255, 255, 0.1));
-            background: var(--p-bg, rgba(255, 255, 255, 0.03));
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            border: 2.5px solid var(--p-border, rgba(255, 255, 255, 0.15));
+            background: linear-gradient(145deg, rgba(20, 27, 45, 0.92), rgba(10, 15, 28, 0.98));
             color: #ffffff;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.3);
-            text-align: right;
+            box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.15), 0 0 15px var(--p-glow, transparent);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(15px);
         }
 
         .pillar-card:hover {
-            transform: translateY(-3px);
+            transform: translateY(-6px) scale(1.02);
             border-color: var(--p-color, #38bdf8);
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 18px 35px rgba(0, 0, 0, 0.6), 0 0 25px var(--p-color);
         }
 
         .pillar-card.active {
-            background: linear-gradient(135deg, rgba(244, 63, 94, 0.25), rgba(239, 68, 68, 0.35)) !important;
+            background: linear-gradient(145deg, rgba(244, 63, 94, 0.35), rgba(225, 29, 72, 0.5)) !important;
             border-color: #f43f5e !important;
-            box-shadow: 0 0 25px rgba(244, 63, 94, 0.4) !important;
+            box-shadow: 0 15px 35px rgba(244, 63, 94, 0.55), 0 0 30px #f43f5e !important;
+            transform: translateY(-4px) scale(1.03);
+        }
+
+        .pillar-icon-box {
+            font-size: 2rem;
+            margin-bottom: 6px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(0 4px 10px var(--p-color, #38bdf8));
+            transition: all 0.3s ease;
+        }
+
+        .pillar-card:hover .pillar-icon-box {
+            transform: scale(1.15);
+        }
+
+        .pillar-title {
+            font-size: 1.12rem;
+            font-weight: 900;
+            color: #ffffff;
+            letter-spacing: -0.3px;
+            text-shadow: 0 2px 8px rgba(0, 0, 0, 0.8);
+            margin: 2px 0;
+            line-height: 1.2;
+        }
+
+        .pillar-subtitle {
+            font-size: 0.72rem;
+            color: #94a3b8;
+            font-weight: 700;
+            margin-bottom: 6px;
+            white-space: nowrap;
+        }
+
+        .pillar-badge {
+            font-size: 0.75rem;
+            font-weight: 900;
+            padding: 3px 12px;
+            border-radius: 20px;
+            background: rgba(255, 255, 255, 0.12);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            color: #ffffff;
+            box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.3);
         }
 
         /* ── كروت التنبيهات التفصيلية الفردية (واحدة تلو الأخرى) ── */
@@ -2145,96 +2192,87 @@ foreach ($rules as $r) {
             </div>
         </div>
 
-        <!-- 🎛️ 10 PILLARS NAVIGATION 🎛️ -->
-        <div class="grid grid-cols-2 md:grid-cols-5 lg:grid-cols-10 gap-2" id="pillars-container">
-            <div class="pillar-card active" style="--p-color:#f43f5e; --p-border:rgba(244,63,94,0.4);" onclick="filterPillar('ALL', this)">
-                <div class="flex items-center justify-between">
-                    <i class="fa-solid fa-layer-group text-rose-400 text-base"></i>
-                    <span class="text-[10px] bg-rose-500/20 text-rose-300 px-1.5 py-0.5 rounded-full font-bold"><?php echo count($rules); ?></span>
-                </div>
-                <div class="font-black text-xs mt-1">🌟 الكل</div>
-                <div class="text-[9px] text-slate-400">88 قاعدة</div>
+        <!-- 🎛️ 10 PROMINENT CENTERED 3D PILLARS NAVIGATION 🎛️ -->
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-10 gap-3" id="pillars-container">
+            
+            <!-- 1. الكل -->
+            <div class="pillar-card active" style="--p-color:#f43f5e; --p-border:rgba(244,63,94,0.6); --p-glow:rgba(244,63,94,0.3);" onclick="filterPillar('ALL', this)">
+                <div class="pillar-icon-box"><i class="fa-solid fa-layer-group text-rose-400"></i></div>
+                <div class="pillar-title">🌟 الكـل</div>
+                <div class="pillar-subtitle">عرض جميع التنبيهات</div>
+                <span class="pillar-badge">88 قاعدة</span>
             </div>
 
-            <div class="pillar-card" style="--p-color:#38bdf8; --p-border:rgba(56,189,248,0.3);" onclick="filterPillar('MASTER', this)">
-                <div class="flex items-center justify-between">
-                    <i class="fa-solid fa-database text-sky-400 text-base"></i>
-                    <span class="text-[10px] bg-sky-500/20 text-sky-300 px-1.5 py-0.5 rounded-full font-bold"><?php echo count($sections['MASTER']['rules']); ?></span>
-                </div>
-                <div class="font-black text-xs mt-1">🏛️ الأساسية</div>
-                <div class="text-[9px] text-slate-400">الباركود والحدود</div>
+            <!-- 2. الأساسية -->
+            <div class="pillar-card" style="--p-color:#38bdf8; --p-border:rgba(56,189,248,0.5); --p-glow:rgba(56,189,248,0.25);" onclick="filterPillar('MASTER', this)">
+                <div class="pillar-icon-box"><i class="fa-solid fa-database text-sky-400"></i></div>
+                <div class="pillar-title">🏛️ الأساسية</div>
+                <div class="pillar-subtitle">الباركود والحدود</div>
+                <span class="pillar-badge"><?php echo count($sections['MASTER']['rules']); ?> تنبيهات</span>
             </div>
 
-            <div class="pillar-card" style="--p-color:#a78bfa; --p-border:rgba(167,139,250,0.3);" onclick="filterPillar('INVENTORY', this)">
-                <div class="flex items-center justify-between">
-                    <i class="fa-solid fa-warehouse text-purple-400 text-base"></i>
-                    <span class="text-[10px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded-full font-bold"><?php echo count($sections['INVENTORY']['rules']); ?></span>
-                </div>
-                <div class="font-black text-xs mt-1">🧠 المخازن</div>
-                <div class="text-[9px] text-slate-400">الذكاء والرواكد</div>
+            <!-- 3. المخازن -->
+            <div class="pillar-card" style="--p-color:#a78bfa; --p-border:rgba(167,139,250,0.5); --p-glow:rgba(167,139,250,0.25);" onclick="filterPillar('INVENTORY', this)">
+                <div class="pillar-icon-box"><i class="fa-solid fa-warehouse text-purple-400"></i></div>
+                <div class="pillar-title">🧠 المخازن</div>
+                <div class="pillar-subtitle">الذكاء والرواكد</div>
+                <span class="pillar-badge"><?php echo count($sections['INVENTORY']['rules']); ?> تنبيهاً</span>
             </div>
 
-            <div class="pillar-card" style="--p-color:#22d3ee; --p-border:rgba(34,211,238,0.3);" onclick="filterPillar('SALES', this)">
-                <div class="flex items-center justify-between">
-                    <i class="fa-solid fa-cash-register text-cyan-400 text-base"></i>
-                    <span class="text-[10px] bg-cyan-500/20 text-cyan-300 px-1.5 py-0.5 rounded-full font-bold"><?php echo count($sections['SALES']['rules']); ?></span>
-                </div>
-                <div class="font-black text-xs mt-1">🛒 المبيعات</div>
-                <div class="text-[9px] text-slate-400">الكاشير والأسعار</div>
+            <!-- 4. المبيعات -->
+            <div class="pillar-card" style="--p-color:#22d3ee; --p-border:rgba(34,211,238,0.5); --p-glow:rgba(34,211,238,0.25);" onclick="filterPillar('SALES', this)">
+                <div class="pillar-icon-box"><i class="fa-solid fa-cash-register text-cyan-400"></i></div>
+                <div class="pillar-title">🛒 المبيعات</div>
+                <div class="pillar-subtitle">الكاشير والأسعار</div>
+                <span class="pillar-badge"><?php echo count($sections['SALES']['rules']); ?> تنبيهاً</span>
             </div>
 
-            <div class="pillar-card" style="--p-color:#fb923c; --p-border:rgba(251,146,60,0.3);" onclick="filterPillar('PURCHASE', this)">
-                <div class="flex items-center justify-between">
-                    <i class="fa-solid fa-truck-ramp-box text-orange-400 text-base"></i>
-                    <span class="text-[10px] bg-orange-500/20 text-orange-300 px-1.5 py-0.5 rounded-full font-bold"><?php echo count($sections['PURCHASE']['rules']); ?></span>
-                </div>
-                <div class="font-black text-xs mt-1">📦 المشتريات</div>
-                <div class="text-[9px] text-slate-400">المطابقة 3-Way</div>
+            <!-- 5. المشتريات -->
+            <div class="pillar-card" style="--p-color:#fb923c; --p-border:rgba(251,146,60,0.5); --p-glow:rgba(251,146,60,0.25);" onclick="filterPillar('PURCHASE', this)">
+                <div class="pillar-icon-box"><i class="fa-solid fa-truck-ramp-box text-orange-400"></i></div>
+                <div class="pillar-title">📦 المشتريات</div>
+                <div class="pillar-subtitle">المطابقة 3-Way</div>
+                <span class="pillar-badge"><?php echo count($sections['PURCHASE']['rules']); ?> تنبيهات</span>
             </div>
 
-            <div class="pillar-card" style="--p-color:#34d399; --p-border:rgba(52,211,153,0.3);" onclick="filterPillar('FINANCE', this)">
-                <div class="flex items-center justify-between">
-                    <i class="fa-solid fa-vault text-emerald-400 text-base"></i>
-                    <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded-full font-bold"><?php echo count($sections['FINANCE']['rules']); ?></span>
-                </div>
-                <div class="font-black text-xs mt-1">💰 الخزينة</div>
-                <div class="text-[9px] text-slate-400">السيولة والتحايل</div>
+            <!-- 6. الخزينة -->
+            <div class="pillar-card" style="--p-color:#34d399; --p-border:rgba(52,211,153,0.5); --p-glow:rgba(52,211,153,0.25);" onclick="filterPillar('FINANCE', this)">
+                <div class="pillar-icon-box"><i class="fa-solid fa-vault text-emerald-400"></i></div>
+                <div class="pillar-title">💰 الخزينة</div>
+                <div class="pillar-subtitle">السيولة وإدارة النقد</div>
+                <span class="pillar-badge"><?php echo count($sections['FINANCE']['rules']); ?> تنبيهاً</span>
             </div>
 
-            <div class="pillar-card" style="--p-color:#fbbf24; --p-border:rgba(251,191,36,0.3);" onclick="filterPillar('CREDIT', this)">
-                <div class="flex items-center justify-between">
-                    <i class="fa-solid fa-users-gear text-amber-400 text-base"></i>
-                    <span class="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded-full font-bold"><?php echo count($sections['CREDIT']['rules']); ?></span>
-                </div>
-                <div class="font-black text-xs mt-1">👥 العملاء</div>
-                <div class="text-[9px] text-slate-400">الائتمان والسلوك</div>
+            <!-- 7. العملاء -->
+            <div class="pillar-card" style="--p-color:#fbbf24; --p-border:rgba(251,191,36,0.5); --p-glow:rgba(251,191,36,0.25);" onclick="filterPillar('CREDIT', this)">
+                <div class="pillar-icon-box"><i class="fa-solid fa-users-gear text-amber-400"></i></div>
+                <div class="pillar-title">👥 العملاء</div>
+                <div class="pillar-subtitle">الائتمان والسلوك</div>
+                <span class="pillar-badge"><?php echo count($sections['CREDIT']['rules']); ?> تنبيهات</span>
             </div>
 
-            <div class="pillar-card" style="--p-color:#f87171; --p-border:rgba(248,113,113,0.3);" onclick="filterPillar('SECURITY', this)">
-                <div class="flex items-center justify-between">
-                    <i class="fa-solid fa-shield-halved text-rose-400 text-base"></i>
-                    <span class="text-[10px] bg-rose-500/20 text-rose-300 px-1.5 py-0.5 rounded-full font-bold"><?php echo count($sections['SECURITY']['rules']); ?></span>
-                </div>
-                <div class="font-black text-xs mt-1">🛡️ الأمان DLP</div>
-                <div class="text-[9px] text-slate-400">منع الحذف و SoD</div>
+            <!-- 8. الأمان DLP -->
+            <div class="pillar-card" style="--p-color:#f87171; --p-border:rgba(248,113,113,0.5); --p-glow:rgba(248,113,113,0.25);" onclick="filterPillar('SECURITY', this)">
+                <div class="pillar-icon-box"><i class="fa-solid fa-shield-halved text-rose-400"></i></div>
+                <div class="pillar-title">🛡️ الأمان DLP</div>
+                <div class="pillar-subtitle">منع الحذف و SoD</div>
+                <span class="pillar-badge"><?php echo count($sections['SECURITY']['rules']); ?> تنبيهات</span>
             </div>
 
-            <div class="pillar-card" style="--p-color:#e879f9; --p-border:rgba(232,121,249,0.3);" onclick="filterPillar('HR', this)">
-                <div class="flex items-center justify-between">
-                    <i class="fa-solid fa-user-clock text-fuchsia-400 text-base"></i>
-                    <span class="text-[10px] bg-fuchsia-500/20 text-fuchsia-300 px-1.5 py-0.5 rounded-full font-bold"><?php echo count($sections['HR']['rules']); ?></span>
-                </div>
-                <div class="font-black text-xs mt-1">⏱️ الورديات</div>
-                <div class="text-[9px] text-slate-400">التأخير والدوام</div>
+            <!-- 9. الورديات -->
+            <div class="pillar-card" style="--p-color:#e879f9; --p-border:rgba(232,121,249,0.5); --p-glow:rgba(232,121,249,0.25);" onclick="filterPillar('HR', this)">
+                <div class="pillar-icon-box"><i class="fa-solid fa-user-clock text-fuchsia-400"></i></div>
+                <div class="pillar-title">⏱️ الورديات</div>
+                <div class="pillar-subtitle">التأخير والـ HR</div>
+                <span class="pillar-badge"><?php echo count($sections['HR']['rules']); ?> تنبيهات</span>
             </div>
 
-            <div class="pillar-card" style="--p-color:#f472b6; --p-border:rgba(244,114,182,0.3);" onclick="filterPillar('FIXEDASSETS', this)">
-                <div class="flex items-center justify-between">
-                    <i class="fa-solid fa-building-columns text-pink-400 text-base"></i>
-                    <span class="text-[10px] bg-pink-500/20 text-pink-300 px-1.5 py-0.5 rounded-full font-bold"><?php echo count($sections['FIXEDASSETS']['rules']); ?></span>
-                </div>
-                <div class="font-black text-xs mt-1">🏢 الأصول</div>
-                <div class="text-[9px] text-slate-400">الإهلاك والضرائب</div>
+            <!-- 10. الأصول -->
+            <div class="pillar-card" style="--p-color:#f472b6; --p-border:rgba(244,114,182,0.5); --p-glow:rgba(244,114,182,0.25);" onclick="filterPillar('FIXEDASSETS', this)">
+                <div class="pillar-icon-box"><i class="fa-solid fa-building-columns text-pink-400"></i></div>
+                <div class="pillar-title">🏢 الأصول</div>
+                <div class="pillar-subtitle">الإهلاك والضرائب</div>
+                <span class="pillar-badge"><?php echo count($sections['FIXEDASSETS']['rules']); ?> تنبيهات</span>
             </div>
         </div>
 
@@ -2561,7 +2599,7 @@ foreach ($rules as $r) {
         if (kpiYellow) kpiYellow.textContent = res.yellow_count;
 
         const kpiEnabled = document.getElementById('kpi-enabled-rules');
-        if (kpiEnabled) kpiEnabled.textContent = res.enabled_count + ' / <?php echo count($rules); ?>';
+        if (kpiEnabled) kpiEnabled.textContent = res.enabled_count + ' / 88';
 
         const liveBadge = document.getElementById('live-violations-badge');
         if (liveBadge) liveBadge.textContent = (res.red_count + res.yellow_count) + ' إنذار نشط';
