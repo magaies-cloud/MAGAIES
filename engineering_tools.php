@@ -11615,48 +11615,45 @@ $pdo = getDBConnection();
             }
         }
 
-        // Build list of expanded search tokens
-        let searchTokens = [];
-        if (normQuery !== '') {
-            const words = normQuery.split(' ').filter(w => w.length > 0);
-            searchTokens = [...words];
-
-            // Expand synonyms
-            words.forEach(w => {
-                const strippedW = cleanArabicPrefix(w);
-                for (const [key, synList] of Object.entries(fiqhSynonymsMap)) {
-                    if (w.includes(key) || strippedW.includes(key) || synList.some(s => s === w || s === strippedW)) {
-                        searchTokens = searchTokens.concat(synList);
-                    }
-                }
-            });
-        }
+        const words = normQuery.split(' ').filter(w => w.length > 0);
 
         document.querySelectorAll('.fiqh-master-card').forEach(card => {
             const isFeatured = card.getAttribute('data-featured') === 'true';
             const cardScholar = card.getAttribute('data-scholar') || '';
             const cardTopic = card.getAttribute('data-topic') || '';
-            const cardFullText = normalizeArabicText(card.innerText || card.textContent || card.getAttribute('data-search') || '');
+            const cardSearchAttr = card.getAttribute('data-search') || '';
+            const cardFullText = normalizeArabicText(cardSearchAttr + ' ' + (card.textContent || ''));
 
             const matchScholar = (activeScholarFilter === 'all' || cardScholar === activeScholarFilter);
             const matchTopic = (activeTopicFilter === 'all' || cardTopic === activeTopicFilter);
 
             let matchSearch = (normQuery === '');
             if (!matchSearch) {
-                // Check direct substring match first
+                // Direct full query match
                 if (cardFullText.includes(normQuery)) {
                     matchSearch = true;
-                } else {
-                    // Check if any search token or stripped token matches
-                    matchSearch = searchTokens.some(tok => {
-                        if (cardFullText.includes(tok)) return true;
-                        const stripped = cleanArabicPrefix(tok);
+                } else if (words.length > 1) {
+                    // Multi-word AND matching
+                    matchSearch = words.every(w => {
+                        if (cardFullText.includes(w)) return true;
+                        const stripped = cleanArabicPrefix(w);
                         return cardFullText.includes(stripped);
                     });
+                } else if (words.length === 1) {
+                    // Single word with synonyms
+                    const w = words[0];
+                    const strippedW = cleanArabicPrefix(w);
+                    let syns = [];
+                    for (const [key, synList] of Object.entries(fiqhSynonymsMap)) {
+                        if (w === key || strippedW === key || synList.includes(w) || synList.includes(strippedW)) {
+                            syns = syns.concat(synList);
+                        }
+                    }
+                    matchSearch = syns.some(s => cardFullText.includes(s) || cardFullText.includes(cleanArabicPrefix(s)));
                 }
             }
 
-            // Visibility rule: if not searching and not forcing all, only show featured
+            // Visibility rule
             let shouldShow = false;
             if (isSearchingOrFiltering || showAllFatwasForced) {
                 shouldShow = (matchScholar && matchTopic && matchSearch);
@@ -11675,7 +11672,7 @@ $pdo = getDBConnection();
         const badgeEl = document.getElementById('fiqh_search_badge');
         if (badgeEl) {
             badgeEl.textContent = visibleCount + ' فتوى مطابقة ✓';
-            badgeEl.className = visibleCount > 0 ? 'text-emerald-400 font-mono font-black text-xs' : 'text-rose-400 font-mono font-black text-xs';
+            badgeEl.className = visibleCount > 0 ? 'text-emerald-400 font-mono font-black text-xs px-2.5 py-0.5 bg-emerald-950 border border-emerald-500/50 rounded-lg' : 'text-rose-400 font-mono font-black text-xs px-2.5 py-0.5 bg-rose-950 border border-rose-500/50 rounded-lg';
         }
 
         const noDataEl = document.getElementById('no-fatwas-alert');
