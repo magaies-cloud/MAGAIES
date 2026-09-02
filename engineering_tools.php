@@ -1,8 +1,8 @@
 <?php
 // ====================================================================
-// نظام Al-Sajana Smart ERP 2026 - حزمة المساعدات ومفاتيح البنوك وموسوعة فتاوى البيوع V10
-// تشمل كبار أئمة وعلماء السنة:
-// ابن تيمية · ابن القيم · النووي · الذهبي · الشنقيطي · الألباني · ابن باز · ابن عثيمين · الفوزان
+// نظام Al-Sajana Smart ERP 2026 - حزمة المساعدات ومفاتيح البنوك وموسوعة فتاوى البيوع V11
+// تضم كوكبة أئمة وعلماء السنة الـ 12:
+// أحمد بن حنبل · ابن تيمية · ابن القيم · النووي · الذهبي · محمد بن عبد الوهاب · السعدي · الشنقيطي · الألباني · ابن باز · ابن عثيمين · الفوزان
 // ====================================================================
 $page_title = 'الأدوات المساعدة والحاسبات ومفاتيح تحويلات البنوك وفتاوى البيوع';
 $header_theme_class = 'header-theme-reports';
@@ -286,9 +286,9 @@ $pdo = getDBConnection();
         }
 
         .fiqh-filter-btn {
-            padding: 8px 15px;
-            border-radius: 14px;
-            font-size: 0.82rem;
+            padding: 7px 13px;
+            border-radius: 12px;
+            font-size: 0.8rem;
             font-weight: 800;
             background: rgba(15, 23, 42, 0.9);
             color: #cbd5e1;
@@ -404,7 +404,7 @@ $pdo = getDBConnection();
             <div class="suite-pill-card" style="--p-color:#fbbf24; --p-border:rgba(251,191,36,0.5);" onclick="switchSuite('fiqh', this)">
                 <div class="suite-pill-icon"><i class="fa-solid fa-book-quran text-amber-400"></i></div>
                 <div class="suite-pill-title">📜 فتاوى البيوع</div>
-                <div class="suite-pill-sub">موسوعة أئمة السنة (9)</div>
+                <div class="suite-pill-sub">موسوعة أئمة السنة (12)</div>
             </div>
 
             <!-- 8. حاسبة الزكاة -->
@@ -1663,7 +1663,7 @@ $pdo = getDBConnection();
         </div>
 
         <!-- ════════════════════════════════════════════════════════════════ -->
-        <!-- 7. SUITE: FIQH OF ISLAMIC BUSINESS & TRANSACTIONS (9 SCHOLARS)   -->
+        <!-- 7. SUITE: FIQH OF ISLAMIC BUSINESS & TRANSACTIONS (12 SCHOLARS)  -->
         <!-- ════════════════════════════════════════════════════════════════ -->
         <div id="suite-sec-fiqh" class="suite-section anim-suite hidden space-y-6">
             <div class="glass-panel-v3" style="--border-color: rgba(251, 191, 36, 0.45);">
@@ -1681,10 +1681,10 @@ $pdo = getDBConnection();
                         </div>
                         <h2 class="text-2xl md:text-3xl font-black text-white flex items-center gap-3">
                             <i class="fa-solid fa-book-quran text-amber-400"></i>
-                            فتاوى البيوع والتعاملات المالية المعاصرة لكبار أئمة وعلماء السنة (9 أئمة)
+                            فتاوى البيوع والتعاملات المالية المعاصرة لكبار أئمة وعلماء السنة (12 إماماً)
                         </h2>
                         <p class="text-xs md:text-sm font-bold text-slate-300 mt-1">
-                            الفتاوى والأحكام محصورة بدقة وفق تحقيقات: <span class="text-amber-300 font-black">ابن تيمية</span> · <span class="text-amber-300 font-black">ابن القيم</span> · <span class="text-amber-300 font-black">النووي</span> · <span class="text-amber-300 font-black">الذهبي</span> · <span class="text-amber-300 font-black">الشنقيطي</span> · <span class="text-amber-300 font-black">الألباني</span> · <span class="text-amber-300 font-black">ابن باز</span> · <span class="text-amber-300 font-black">ابن عثيمين</span> · <span class="text-amber-300 font-black">الفوزان</span>
+                            الفتاوى والأحكام محصورة بدقة وفق تحقيقات: <span class="text-amber-300 font-black">أحمد بن حنبل</span> · <span class="text-amber-300 font-black">ابن تيمية</span> · <span class="text-amber-300 font-black">ابن القيم</span> · <span class="text-amber-300 font-black">النووي</span> · <span class="text-amber-300 font-black">الذهبي</span> · <span class="text-amber-300 font-black">محمد بن عبد الوهاب</span> · <span class="text-amber-300 font-black">السعدي</span> · <span class="text-amber-300 font-black">الشنقيطي</span> · <span class="text-amber-300 font-black">الألباني</span> · <span class="text-amber-300 font-black">ابن باز</span> · <span class="text-amber-300 font-black">ابن عثيمين</span> · <span class="text-amber-300 font-black">الفوزان</span>
                         </p>
                     </div>
 
@@ -1695,14 +1695,17 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- 🎛️ FILTER BAR 1: CHOOSE BY SCHOLAR (المشايخ التسعة) 🎛️ -->
+                <!-- 🎛️ FILTER BAR 1: CHOOSE BY SCHOLAR (المشايخ الـ 12) 🎛️ -->
                 <div class="bg-slate-900/90 p-4 rounded-2xl border-2 border-amber-500/30 space-y-2 mb-4">
                     <span class="text-xs font-black text-amber-400 block">
-                        👤 اختيار الفتاوى حسب فضيلة الشيخ / الإمام (9 أئمة):
+                        👤 اختيار الفتاوى حسب فضيلة الشيخ / الإمام (12 إماماً):
                     </span>
-                    <div class="flex flex-wrap items-center gap-2">
+                    <div class="flex flex-wrap items-center gap-1.5">
                         <button type="button" class="fiqh-filter-btn active" data-filter-type="scholar" data-filter-val="all" onclick="setFiqhScholar('all', this)">
-                            🌟 جميع المشايخ (9)
+                            🌟 جميع المشايخ (12)
+                        </button>
+                        <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="imam_ahmad" onclick="setFiqhScholar('imam_ahmad', this)">
+                            👑 الإمام أحمد بن حنبل
                         </button>
                         <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="ibn_taymiyyah" onclick="setFiqhScholar('ibn_taymiyyah', this)">
                             📖 شيخ الإسلام ابن تيمية
@@ -1716,8 +1719,14 @@ $pdo = getDBConnection();
                         <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_dhahabi" onclick="setFiqhScholar('al_dhahabi', this)">
                             ⚖️ الإمام الذهبي
                         </button>
+                        <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="muhammad_bin_abdulwahhab" onclick="setFiqhScholar('muhammad_bin_abdulwahhab', this)">
+                            📚 الإمام محمد بن عبد الوهاب
+                        </button>
+                        <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_saadi" onclick="setFiqhScholar('al_saadi', this)">
+                            💡 العلامة عبد الرحمن السعدي
+                        </button>
                         <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_shinqiti" onclick="setFiqhScholar('al_shinqiti', this)">
-                            💡 العلامة محمد الأمين الشنقيطي
+                            📖 العلامة محمد الأمين الشنقيطي
                         </button>
                         <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_albani" onclick="setFiqhScholar('al_albani', this)">
                             📚 الإمام الألباني
@@ -1759,10 +1768,10 @@ $pdo = getDBConnection();
                             🤝 بيع العربون واسترداده
                         </button>
                         <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="contracts" onclick="setFiqhTopic('contracts', this)">
-                            🏗️ الاستصناع والشرط الجزائي والتأمين
+                            🏗️ العقود والشروط والاستصناع والتأمين
                         </button>
                         <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="pricing" onclick="setFiqhTopic('pricing', this)">
-                            📈 التسعير والموازين والتطفيف
+                            📈 الصدق والتسعير والموازين والتطفيف
                         </button>
                         <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="gold" onclick="setFiqhTopic('gold', this)">
                             💎 الذهب والبطاقات البنكية
@@ -1780,13 +1789,175 @@ $pdo = getDBConnection();
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="fatwas-grid-container">
 
                     <!-- Fatwa Card 1 -->
-                    <div class="fiqh-master-card" data-scholar="ibn_baz" data-topic="ownership" data-search="1. بيع ما لا يملك المندوب أو التاجر («لا تَبِعْ ما ليس عندك» والوساطة التجارية) الإمام عبد العزيز بن باز (رحمه الله) نهى النبي ﷺ حكيم بن حزام فقال: «لا تَبِعْ ما ليس عندك». فلا يجوز للتاجر أو المندوب أن يبرم عقد بيع باتّاً على سلعة معينة ليست في ملكه ولا في حوزته وضمانه، ثم يذهب ليشتريها ويسلمها للزبون. مجموع فتاوى ومقالات متنوعة (19/43)">
+                    <div class="fiqh-master-card" data-scholar="imam_ahmad" data-topic="contracts" data-search="1. الأصل في العقود والشروط الجواز والصحة وخيار الشرط والمجلس الإمام المبجل أحمد بن حنبل (رحمه الله) مذهب الإمام أحمد بن حنبل رحمه الله أن الأصل في العقود والشروط هو الحل والصحة ما لم تخالف نصاً شرعياً أو تنافي مقتضى العقد. وثبوت خيار الشرط وخيار المجلس للمتبايعين للتراضي التام. مسائل الإمام أحمد برواية ابنه عبد الله والمغني لابن قدامة">
                         
                         <!-- Header: Title & Scholar Badge -->
                         <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
                             <div class="space-y-1.5">
                                 <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
-                                    1. بيع ما لا يملك المندوب أو التاجر («لا تَبِعْ ما ليس عندك» والوساطة التجارية)
+                                    1. الأصل في العقود والشروط الجواز والصحة وخيار الشرط والمجلس
+                                </h4>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
+                                        <i class="fa-solid fa-user-tie text-amber-400"></i> الإمام المبجل أحمد بن حنبل (رحمه الله)
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-bold">
+                                        📖 المصدر المعتمد: مسائل الإمام أحمد برواية ابنه عبد الله والمغني لابن قدامة
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Ruling Badge -->
+                            <div class="px-3.5 py-1.5 rounded-xl border-2 bg-emerald-500/20 text-emerald-300 border-emerald-500/40 text-xs md:text-sm font-black flex items-center gap-1.5 shadow-md flex-shrink-0">
+                                <span>✓</span>
+                                <span>الأصل في الشروط التجارية الجواز والوفاء بها</span>
+                            </div>
+                        </div>
+
+                        <!-- Fatwa Text Body -->
+                        <p class="text-sm md:text-base text-slate-200 font-bold leading-relaxed mb-3">
+                            مذهب الإمام أحمد بن حنبل رحمه الله أن الأصل في العقود والشروط هو الحل والصحة ما لم تخالف نصاً شرعياً أو تنافي مقتضى العقد. وثبوت خيار الشرط وخيار المجلس للمتبايعين للتراضي التام.
+                        </p>
+
+                        <!-- Evidence & Practical Solution Blocks -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-800/80 text-xs">
+                            <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800">
+                                <span class="text-sky-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    📜 الدليل الشرعي وتأصيل المسألة:
+                                </span>
+                                <span class="text-slate-300 font-bold leading-relaxed block">
+                                    قول النبي ﷺ: «المسلمون عند شروطهم»، وقوله: «البيعان بالخيار ما لم يتفرقا».
+                                </span>
+                            </div>
+
+                            <div class="p-3.5 bg-emerald-950/30 rounded-2xl border border-emerald-500/40">
+                                <span class="text-emerald-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    💡 التطبيق والبديل الشرعي المعتمد في البرنامج:
+                                </span>
+                                <span class="text-slate-200 font-bold leading-relaxed block">
+                                    تطبيق النظام: إتاحة خيار الشرط المكتوب وفترة الفحص التجاري المتفق عليها في عقود التوريد والفواتير.
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+    
+                    <!-- Fatwa Card 2 -->
+                    <div class="fiqh-master-card" data-scholar="muhammad_bin_abdulwahhab" data-topic="pricing" data-search="2. وجوب الصدق وتحريم الحلف الكاذب لترويج البضاعة والرشوة الإمام الشيخ محمد بن عبد الوهاب (رحمه الله) أكد الإمام محمد بن عبد الوهاب رحمه الله على وجوب الصدق والأمانة في المعاملات، وحرَّم الحلف بالأيمان الكاذبة أو المبالغة لترويج البضاعة، وبيَّن أن الرشوة والعمولات الخفية من أكل أموال الناس بالباطل. مجموع مؤلفات الشيخ (الفقه - كتاب البيوع) وكتاب التوحيد">
+                        
+                        <!-- Header: Title & Scholar Badge -->
+                        <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
+                            <div class="space-y-1.5">
+                                <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
+                                    2. وجوب الصدق وتحريم الحلف الكاذب لترويج البضاعة والرشوة
+                                </h4>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
+                                        <i class="fa-solid fa-user-tie text-amber-400"></i> الإمام الشيخ محمد بن عبد الوهاب (رحمه الله)
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-bold">
+                                        📖 المصدر المعتمد: مجموع مؤلفات الشيخ (الفقه - كتاب البيوع) وكتاب التوحيد
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Ruling Badge -->
+                            <div class="px-3.5 py-1.5 rounded-xl border-2 bg-rose-500/25 text-rose-300 border-rose-500/50 text-xs md:text-sm font-black flex items-center gap-1.5 shadow-md flex-shrink-0">
+                                <span>✕</span>
+                                <span>واجب شرعاً الصدق والبيان · ومحرم قطعاً الحلف لترويج السلعة</span>
+                            </div>
+                        </div>
+
+                        <!-- Fatwa Text Body -->
+                        <p class="text-sm md:text-base text-slate-200 font-bold leading-relaxed mb-3">
+                            أكد الإمام محمد بن عبد الوهاب رحمه الله على وجوب الصدق والأمانة في المعاملات، وحرَّم الحلف بالأيمان الكاذبة أو المبالغة لترويج البضاعة، وبيَّن أن الرشوة والعمولات الخفية من أكل أموال الناس بالباطل.
+                        </p>
+
+                        <!-- Evidence & Practical Solution Blocks -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-800/80 text-xs">
+                            <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800">
+                                <span class="text-sky-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    📜 الدليل الشرعي وتأصيل المسألة:
+                                </span>
+                                <span class="text-slate-300 font-bold leading-relaxed block">
+                                    قول النبي ﷺ: «الحلف مَنْفَقَةٌ للسلعة مَمْحَقَةٌ للبركة» متفق عليه، وحديث: «التاجر الصدوق الأمين مع النبيين والصديقين والشهداء».
+                                </span>
+                            </div>
+
+                            <div class="p-3.5 bg-emerald-950/30 rounded-2xl border border-emerald-500/40">
+                                <span class="text-emerald-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    💡 التطبيق والبديل الشرعي المعتمد في البرنامج:
+                                </span>
+                                <span class="text-slate-200 font-bold leading-relaxed block">
+                                    تطبيق النظام: الشفافية التامة والنزاهة في عروض الأسعار والتكاليف ومنع أي عمولات خفية غير موثقة في الحسابات.
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+    
+                    <!-- Fatwa Card 3 -->
+                    <div class="fiqh-master-card" data-scholar="al_saadi" data-topic="contracts" data-search="3. اعتبار العرف التجاري المنضبط وقواعد التيسير في المعاملات العلامة الشيخ عبد الرحمن بن ناصر السعدي (رحمه الله) قرر العلامة السعدي رحمه الله أن «العرف مطرد كالمشروط لفظاً»، وأن الأصل في المعاملات التيسير والإباحة، وكل شرط أو تعامل جرى به عرف التجار ولم يخالف الشرع فهو معتبر شرعاً. القواعد والأصول الجامعة (ص 245) والفتاوى السعدية">
+                        
+                        <!-- Header: Title & Scholar Badge -->
+                        <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
+                            <div class="space-y-1.5">
+                                <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
+                                    3. اعتبار العرف التجاري المنضبط وقواعد التيسير في المعاملات
+                                </h4>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
+                                        <i class="fa-solid fa-user-tie text-amber-400"></i> العلامة الشيخ عبد الرحمن بن ناصر السعدي (رحمه الله)
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-bold">
+                                        📖 المصدر المعتمد: القواعد والأصول الجامعة (ص 245) والفتاوى السعدية
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Ruling Badge -->
+                            <div class="px-3.5 py-1.5 rounded-xl border-2 bg-emerald-500/20 text-emerald-300 border-emerald-500/40 text-xs md:text-sm font-black flex items-center gap-1.5 shadow-md flex-shrink-0">
+                                <span>✓</span>
+                                <span>اعتبار الأعراف التجارية السليمة في تحديد الأجل والتسليم</span>
+                            </div>
+                        </div>
+
+                        <!-- Fatwa Text Body -->
+                        <p class="text-sm md:text-base text-slate-200 font-bold leading-relaxed mb-3">
+                            قرر العلامة السعدي رحمه الله أن «العرف مطرد كالمشروط لفظاً»، وأن الأصل في المعاملات التيسير والإباحة، وكل شرط أو تعامل جرى به عرف التجار ولم يخالف الشرع فهو معتبر شرعاً.
+                        </p>
+
+                        <!-- Evidence & Practical Solution Blocks -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-800/80 text-xs">
+                            <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800">
+                                <span class="text-sky-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    📜 الدليل الشرعي وتأصيل المسألة:
+                                </span>
+                                <span class="text-slate-300 font-bold leading-relaxed block">
+                                    قاعدة فقهية: «العادة محكّمة»، وقوله تعالى: ﴿خُذِ الْعَفْوَ وَأْمُرْ بِالْعُرْفِ وَأَعْرِضْ عَنِ الْجَاهِلِينَ﴾.
+                                </span>
+                            </div>
+
+                            <div class="p-3.5 bg-emerald-950/30 rounded-2xl border border-emerald-500/40">
+                                <span class="text-emerald-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    💡 التطبيق والبديل الشرعي المعتمد في البرنامج:
+                                </span>
+                                <span class="text-slate-200 font-bold leading-relaxed block">
+                                    تطبيق النظام: اعتماد الآجال وأساليب السداد والتسليم المتعارف عليها في السوق التجاري ما دامت خالية من الربا والغرر.
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+    
+                    <!-- Fatwa Card 4 -->
+                    <div class="fiqh-master-card" data-scholar="ibn_baz" data-topic="ownership" data-search="4. بيع ما لا يملك المندوب أو التاجر («لا تَبِعْ ما ليس عندك» والوساطة) الإمام عبد العزيز بن باز (رحمه الله) نهى النبي ﷺ حكيم بن حزام فقال: «لا تَبِعْ ما ليس عندك». فلا يجوز للتاجر أو المندوب أن يبرم عقد بيع باتّاً على سلعة معينة ليست في ملكه ولا في حوزته وضمانه، ثم يذهب ليشتريها ويسلمها للزبون. مجموع فتاوى ومقالات متنوعة (19/43)">
+                        
+                        <!-- Header: Title & Scholar Badge -->
+                        <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
+                            <div class="space-y-1.5">
+                                <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
+                                    4. بيع ما لا يملك المندوب أو التاجر («لا تَبِعْ ما ليس عندك» والوساطة)
                                 </h4>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
@@ -1833,14 +2004,14 @@ $pdo = getDBConnection();
 
                     </div>
     
-                    <!-- Fatwa Card 2 -->
-                    <div class="fiqh-master-card" data-scholar="ibn_uthaymeen" data-topic="installments" data-search="2. البيع بالتقسيط مع زيادة السعر عن الثمن النقدي (الكاش) الإمام محمد بن صالح العثيمين (رحمه الله) يجوز بيع السلعة بالتقسيط أو لأجل بثمن أزيد من ثمنها الحاضر (الكاش)، بشرط أن يتم تحديد الثمن الإجمالي وعدد الأقساط ومواعيدها جازماً عند توقيع العقد دون تردد أو خيار بين السعرين. الشرح الممتع على زاد المستقنع (8/360) وفتاوى نور على الدرب">
+                    <!-- Fatwa Card 5 -->
+                    <div class="fiqh-master-card" data-scholar="ibn_uthaymeen" data-topic="installments" data-search="5. البيع بالتقسيط مع زيادة السعر عن الثمن النقدي (الكاش) الإمام محمد بن صالح العثيمين (رحمه الله) يجوز بيع السلعة بالتقسيط أو لأجل بثمن أزيد من ثمنها الحاضر (الكاش)، بشرط أن يتم تحديد الثمن الإجمالي وعدد الأقساط ومواعيدها جازماً عند توقيع العقد دون تردد أو خيار بين السعرين. الشرح الممتع على زاد المستقنع (8/360) وفتاوى نور على الدرب">
                         
                         <!-- Header: Title & Scholar Badge -->
                         <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
                             <div class="space-y-1.5">
                                 <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
-                                    2. البيع بالتقسيط مع زيادة السعر عن الثمن النقدي (الكاش)
+                                    5. البيع بالتقسيط مع زيادة السعر عن الثمن النقدي (الكاش)
                                 </h4>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
@@ -1887,14 +2058,14 @@ $pdo = getDBConnection();
 
                     </div>
     
-                    <!-- Fatwa Card 3 -->
-                    <div class="fiqh-master-card" data-scholar="ibn_taymiyyah" data-topic="installments" data-search="3. تحريم فرض غرامات التأخير والفوائد على المدين المماطل في السداد شيخ الإسلام ابن تيمية (رحمه الله) الزيادة المشروطة على الدين مقابل تأخير السداد هي عين ربا الجاهلية («إما أن تقضي وإما أن تُربي»). ولا يجوز اشتراط غرامة مالية تدفع للبائع عند التأخر في سداد الأقساط أو الفواتير. مجموع الفتاوى (29/425) وقرارات هيئة كبار العلماء">
+                    <!-- Fatwa Card 6 -->
+                    <div class="fiqh-master-card" data-scholar="ibn_taymiyyah" data-topic="installments" data-search="6. تحريم فرض غرامات التأخير والفوائد على المدين المماطل في السداد شيخ الإسلام ابن تيمية (رحمه الله) الزيادة المشروطة على الدين مقابل تأخير السداد هي عين ربا الجاهلية («إما أن تقضي وإما أن تُربي»). ولا يجوز اشتراط غرامة مالية تدفع للبائع عند التأخر في سداد الأقساط أو الفواتير. مجموع الفتاوى (29/425) وقرارات هيئة كبار العلماء">
                         
                         <!-- Header: Title & Scholar Badge -->
                         <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
                             <div class="space-y-1.5">
                                 <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
-                                    3. تحريم فرض غرامات التأخير والفوائد على المدين المماطل في السداد
+                                    6. تحريم فرض غرامات التأخير والفوائد على المدين المماطل في السداد
                                 </h4>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
@@ -1941,14 +2112,14 @@ $pdo = getDBConnection();
 
                     </div>
     
-                    <!-- Fatwa Card 4 -->
-                    <div class="fiqh-master-card" data-scholar="ibn_al_qayyim" data-topic="riba" data-search="4. إبطال حيل الربا، بيع العِينة، وضوابط التورق المنضبط الإمام شمس الدين ابن قيم الجوزية (رحمه الله) بسط الإمام ابن القيم رحمه الله القول في إبطال الحيل التي يتوصل بها إلى استحلال الربا باسم البيع (كبيع العِينة: أن يبيع التاجر سلعة بالأجل ثم يشتريها نقداً بأقل). وأكد أن العبرة في العقود بالمقاصد والمعاني لا بالألفاظ والمباني. إعلام الموقعين عن رب العالمين (3/182) وإغاثة اللهفان">
+                    <!-- Fatwa Card 7 -->
+                    <div class="fiqh-master-card" data-scholar="ibn_al_qayyim" data-topic="riba" data-search="7. إبطال حيل الربا، بيع العِينة، وضوابط التورق المنضبط الإمام شمس الدين ابن قيم الجوزية (رحمه الله) بسط الإمام ابن القيم رحمه الله القول في إبطال الحيل التي يتوصل بها إلى استحلال الربا باسم البيع (كبيع العِينة: أن يبيع التاجر سلعة بالأجل ثم يشتريها نقداً بأقل). وأكد أن العبرة في العقود بالمقاصد والمعاني لا بالألفاظ والمباني. إعلام الموقعين عن رب العالمين (3/182) وإغاثة اللهفان">
                         
                         <!-- Header: Title & Scholar Badge -->
                         <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
                             <div class="space-y-1.5">
                                 <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
-                                    4. إبطال حيل الربا، بيع العِينة، وضوابط التورق المنضبط
+                                    7. إبطال حيل الربا، بيع العِينة، وضوابط التورق المنضبط
                                 </h4>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
@@ -1995,14 +2166,14 @@ $pdo = getDBConnection();
 
                     </div>
     
-                    <!-- Fatwa Card 5 -->
-                    <div class="fiqh-master-card" data-scholar="al_nawawi" data-topic="defects" data-search="5. تحريم بيع الغرر والجهالة والمخاطرة في عقود التجارة الإمام محيي الدين يحيى بن شرف النووي (رحمه الله) قال الإمام النووي رحمه الله: «النهي عن بيع الغرر أصل عظيم من أصول كتاب البيوع، يدخل فيه مسائل كثيرة غير منحصرة». فيحرم بيع ما فيه جهالة فاحشة في ذات المبيع، أو مقداره، أو سُمكه، أو صفته، أو ثمنه، أو أجله. المجموع شرح المهذب (9/258) وشرح صحيح مسلم (10/156)">
+                    <!-- Fatwa Card 8 -->
+                    <div class="fiqh-master-card" data-scholar="al_nawawi" data-topic="defects" data-search="8. تحريم بيع الغرر والجهالة والمخاطرة في عقود التجارة الإمام محيي الدين يحيى بن شرف النووي (رحمه الله) قال الإمام النووي رحمه الله: «النهي عن بيع الغرر أصل عظيم من أصول كتاب البيوع، يدخل فيه مسائل كثيرة غير منحصرة». فيحرم بيع ما فيه جهالة فاحشة في ذات المبيع، أو مقداره، أو سُمكه، أو صفته، أو ثمنه، أو أجله. المجموع شرح المهذب (9/258) وشرح صحيح مسلم (10/156)">
                         
                         <!-- Header: Title & Scholar Badge -->
                         <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
                             <div class="space-y-1.5">
                                 <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
-                                    5. تحريم بيع الغرر والجهالة والمخاطرة في عقود التجارة
+                                    8. تحريم بيع الغرر والجهالة والمخاطرة في عقود التجارة
                                 </h4>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
@@ -2049,14 +2220,14 @@ $pdo = getDBConnection();
 
                     </div>
     
-                    <!-- Fatwa Card 6 -->
-                    <div class="fiqh-master-card" data-scholar="al_dhahabi" data-topic="pricing" data-search="6. التطفيف في الكيل والميزان والغش والاحتكار في التجارة الإمام الحافظ شمس الدين الذهبي (رحمه الله) عدّ الإمام الذهبي رحمه الله التطفيف في الكيل والميزان (كنقص وزن حديد التسليح أو الخرسانة أو البضائع المعبأة عن المقدار المذكور) من كبائر الذنوب التي توعد الله أصحابها بالويل والهلاك في الآخرة. كتاب الكبائر (الكبيرة 29: التطفيف في الكيل والوزن، والكبيرة 30)">
+                    <!-- Fatwa Card 9 -->
+                    <div class="fiqh-master-card" data-scholar="al_dhahabi" data-topic="pricing" data-search="9. التطفيف في الكيل والميزان والغش والاحتكار في التجارة الإمام الحافظ شمس الدين الذهبي (رحمه الله) عدّ الإمام الذهبي رحمه الله التطفيف في الكيل والميزان (كنقص وزن حديد التسليح أو الخرسانة أو البضائع المعبأة عن المقدار المذكور) من كبائر الذنوب التي توعد الله أصحابها بالويل والهلاك في الآخرة. كتاب الكبائر (الكبيرة 29: التطفيف في الكيل والوزن، والكبيرة 30)">
                         
                         <!-- Header: Title & Scholar Badge -->
                         <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
                             <div class="space-y-1.5">
                                 <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
-                                    6. التطفيف في الكيل والميزان والغش والاحتكار في التجارة
+                                    9. التطفيف في الكيل والميزان والغش والاحتكار في التجارة
                                 </h4>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
@@ -2103,14 +2274,14 @@ $pdo = getDBConnection();
 
                     </div>
     
-                    <!-- Fatwa Card 7 -->
-                    <div class="fiqh-master-card" data-scholar="al_shinqiti" data-topic="contracts" data-search="7. ضوابط التأمين التجاري مقابل التأمين التعاوني التكافلي العلامة محمد الأمين الشنقيطي (رحمه الله) أوضح العلامة الشنقيطي رحمه الله في تفسيره أن عقود التأمين التجاري التقليدي تشتمل على الغرر الفاحش والمقامرة والربا لأن المستأمن يدفع أقساطاً ولا يدري هل يعوض أم لا. وأجاز التأمين التعاوني التكافلي القائم على التبرع المحض والتكافل بين المشتركين. أضواء البيان في إيضاح القرآن بالقرآن (تفسير سورة المائدة 2/45)">
+                    <!-- Fatwa Card 10 -->
+                    <div class="fiqh-master-card" data-scholar="al_shinqiti" data-topic="contracts" data-search="10. ضوابط التأمين التجاري مقابل التأمين التعاوني التكافلي العلامة محمد الأمين الشنقيطي (رحمه الله) أوضح العلامة الشنقيطي رحمه الله في تفسيره أن عقود التأمين التجاري التقليدي تشتمل على الغرر الفاحش والمقامرة والربا لأن المستأمن يدفع أقساطاً ولا يدري هل يعوض أم لا. وأجاز التأمين التعاوني التكافلي القائم على التبرع المحض والتكافل بين المشتركين. أضواء البيان في إيضاح القرآن بالقرآن (تفسير سورة المائدة 2/45)">
                         
                         <!-- Header: Title & Scholar Badge -->
                         <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
                             <div class="space-y-1.5">
                                 <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
-                                    7. ضوابط التأمين التجاري مقابل التأمين التعاوني التكافلي
+                                    10. ضوابط التأمين التجاري مقابل التأمين التعاوني التكافلي
                                 </h4>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
@@ -2157,14 +2328,14 @@ $pdo = getDBConnection();
 
                     </div>
     
-                    <!-- Fatwa Card 8 -->
-                    <div class="fiqh-master-card" data-scholar="al_fawzan" data-topic="exchange" data-search="8. الصرف والتحويلات الفورية عبر تطبيقات الموبايل بنك (القبض الحكمي) معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله) يشترط في بيع العملات المختلفة (دولار مقابل جنيه أو ريال) التقابض الفوري. والقيد المصرفي المكتمل أو إشعار التحويل البنكي الفوري يُعد قبضاً حكمياً معتبراً شرعاً يقوم مقام القبض باليد. المنتقى من فتاوى الفوزان ومجمع الفقه الإسلامي">
+                    <!-- Fatwa Card 11 -->
+                    <div class="fiqh-master-card" data-scholar="al_fawzan" data-topic="exchange" data-search="11. الصرف والتحويلات الفورية عبر تطبيقات الموبايل بنك (القبض الحكمي) معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله) يشترط في بيع العملات المختلفة (دولار مقابل جنيه أو ريال) التقابض الفوري. والقيد المصرفي المكتمل أو إشعار التحويل البنكي الفوري يُعد قبضاً حكمياً معتبراً شرعاً يقوم مقام القبض باليد. المنتقى من فتاوى الفوزان ومجمع الفقه الإسلامي">
                         
                         <!-- Header: Title & Scholar Badge -->
                         <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
                             <div class="space-y-1.5">
                                 <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
-                                    8. الصرف والتحويلات الفورية عبر تطبيقات الموبايل بنك (القبض الحكمي)
+                                    11. الصرف والتحويلات الفورية عبر تطبيقات الموبايل بنك (القبض الحكمي)
                                 </h4>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
@@ -2211,14 +2382,14 @@ $pdo = getDBConnection();
 
                     </div>
     
-                    <!-- Fatwa Card 9 -->
-                    <div class="fiqh-master-card" data-scholar="ibn_baz" data-topic="checks" data-search="9. تحريم خصم الشيكات والأوراق التجارية الآجلة (بيع الدين بنقد حال أقل) الإمام عبد العزيز بن باز (رحمه الله) أفتى الشيخ ابن باز رحمه الله بتحريم بيع الشيك الآجل بنقد حال أقل من قيمته (مثل بيع شيك بـ 100 ألف جنيه مقابل 90 ألف كاش)، لأن حقيقته مبادلة نقد بنقد مع التفاضل والتأجيل وهو صريح الربا. مجموع فتاوى ابن باز (19/282)">
+                    <!-- Fatwa Card 12 -->
+                    <div class="fiqh-master-card" data-scholar="ibn_baz" data-topic="checks" data-search="12. تحريم خصم الشيكات والأوراق التجارية الآجلة (بيع الدين بنقد حال أقل) الإمام عبد العزيز بن باز (رحمه الله) أفتى الشيخ ابن باز رحمه الله بتحريم بيع الشيك الآجل بنقد حال أقل من قيمته (مثل بيع شيك بـ 100 ألف جنيه مقابل 90 ألف كاش)، لأن حقيقته مبادلة نقد بنقد مع التفاضل والتأجيل وهو صريح الربا. مجموع فتاوى ابن باز (19/282)">
                         
                         <!-- Header: Title & Scholar Badge -->
                         <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
                             <div class="space-y-1.5">
                                 <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
-                                    9. تحريم خصم الشيكات والأوراق التجارية الآجلة (بيع الدين بنقد حال أقل)
+                                    12. تحريم خصم الشيكات والأوراق التجارية الآجلة (بيع الدين بنقد حال أقل)
                                 </h4>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
@@ -2265,14 +2436,14 @@ $pdo = getDBConnection();
 
                     </div>
     
-                    <!-- Fatwa Card 10 -->
-                    <div class="fiqh-master-card" data-scholar="ibn_taymiyyah" data-topic="araboon" data-search="10. بيع العربون واسترداده في حال فسخ الصفقة من قِبل المشتري شيخ الإسلام ابن تيمية (رحمه الله) اختيار شيخ الإسلام ابن تيمية والإمام ابن القيم وابن باز والعثيمين: جواز بيع العربون (دفع مبلغ مقدماً فإن أتم المشتري البيع حُسب من الثمن، وإن نكل وفسخ فللبائع الاحتفاظ به) لثبوته عن عمر بن الخطاب رضي الله عنه. مجموع الفتاوى (29/536) واختيار الإمام أحمد">
+                    <!-- Fatwa Card 13 -->
+                    <div class="fiqh-master-card" data-scholar="ibn_taymiyyah" data-topic="araboon" data-search="13. بيع العربون واسترداده في حال فسخ الصفقة من قِبل المشتري شيخ الإسلام ابن تيمية (رحمه الله) اختيار شيخ الإسلام ابن تيمية والإمام أحمد وابن القيم وابن باز والعثيمين: جواز بيع العربون (دفع مبلغ مقدماً فإن أتم المشتري البيع حُسب من الثمن، وإن نكل وفسخ فللبائع الاحتفاظ به) لثبوته عن عمر بن الخطاب رضي الله عنه. مجموع الفتاوى (29/536) واختيار الإمام أحمد">
                         
                         <!-- Header: Title & Scholar Badge -->
                         <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
                             <div class="space-y-1.5">
                                 <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
-                                    10. بيع العربون واسترداده في حال فسخ الصفقة من قِبل المشتري
+                                    13. بيع العربون واسترداده في حال فسخ الصفقة من قِبل المشتري
                                 </h4>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
@@ -2293,7 +2464,7 @@ $pdo = getDBConnection();
 
                         <!-- Fatwa Text Body -->
                         <p class="text-sm md:text-base text-slate-200 font-bold leading-relaxed mb-3">
-                            اختيار شيخ الإسلام ابن تيمية والإمام ابن القيم وابن باز والعثيمين: جواز بيع العربون (دفع مبلغ مقدماً فإن أتم المشتري البيع حُسب من الثمن، وإن نكل وفسخ فللبائع الاحتفاظ به) لثبوته عن عمر بن الخطاب رضي الله عنه.
+                            اختيار شيخ الإسلام ابن تيمية والإمام أحمد وابن القيم وابن باز والعثيمين: جواز بيع العربون (دفع مبلغ مقدماً فإن أتم المشتري البيع حُسب من الثمن، وإن نكل وفسخ فللبائع الاحتفاظ به) لثبوته عن عمر بن الخطاب رضي الله عنه.
                         </p>
 
                         <!-- Evidence & Practical Solution Blocks -->
@@ -2319,14 +2490,14 @@ $pdo = getDBConnection();
 
                     </div>
     
-                    <!-- Fatwa Card 11 -->
-                    <div class="fiqh-master-card" data-scholar="ibn_al_qayyim" data-topic="contracts" data-search="11. جواز عقد الاستصناع والمقاولات والصناعة بالطلب الإمام شمس الدين ابن قيم الجوزية (رحمه الله) قرر الإمام ابن القيم وشيخ الإسلام ابن تيمية صحة عقد الاستصناع (الاتفاق مع الحداد أو المصنع على تصنيع أبواب، شبابيك، أو قطع غيار بمواصفات محددة ومواد من عند الصانع) وأنه عقد مستقل جائز شرعاً. إعلام الموقعين عن رب العالمين (4/12) ومجموع الفتاوى">
+                    <!-- Fatwa Card 14 -->
+                    <div class="fiqh-master-card" data-scholar="ibn_al_qayyim" data-topic="contracts" data-search="14. جواز عقد الاستصناع والمقاولات والصناعة بالطلب الإمام شمس الدين ابن قيم الجوزية (رحمه الله) قرر الإمام ابن القيم وشيخ الإسلام ابن تيمية صحة عقد الاستصناع (الاتفاق مع الحداد أو المصنع على تصنيع أبواب، شبابيك، أو قطع غيار بمواصفات محددة ومواد من عند الصانع) وأنه عقد مستقل جائز شرعاً. إعلام الموقعين عن رب العالمين (4/12) ومجموع الفتاوى">
                         
                         <!-- Header: Title & Scholar Badge -->
                         <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
                             <div class="space-y-1.5">
                                 <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
-                                    11. جواز عقد الاستصناع والمقاولات والصناعة بالطلب
+                                    14. جواز عقد الاستصناع والمقاولات والصناعة بالطلب
                                 </h4>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
@@ -2373,14 +2544,14 @@ $pdo = getDBConnection();
 
                     </div>
     
-                    <!-- Fatwa Card 12 -->
-                    <div class="fiqh-master-card" data-scholar="ibn_uthaymeen" data-topic="contracts" data-search="12. الشرط الجزائي في عقود التوريد والمقاولات والصيانة الإمام محمد بن صالح العثيمين (رحمه الله) يجوز الاتفاق على الشرط الجزائي في عقود المقاولات والتوريد لجبر الضرر المالي الحقيقي الناتج عن تأخر المقاول أو المورد عن الموعد المحدد، ولا يجوز اشتراطه في الديون والقروض. مجموع فتاوى ورسائل ابن عثيمين (18/142) وهيئة كبار العلماء">
+                    <!-- Fatwa Card 15 -->
+                    <div class="fiqh-master-card" data-scholar="ibn_uthaymeen" data-topic="contracts" data-search="15. الشرط الجزائي في عقود التوريد والمقاولات والصيانة الإمام محمد بن صالح العثيمين (رحمه الله) يجوز الاتفاق على الشرط الجزائي في عقود المقاولات والتوريد لجبر الضرر المالي الحقيقي الناتج عن تأخر المقاول أو المورد عن الموعد المحدد، ولا يجوز اشتراطه في الديون والقروض. مجموع فتاوى ورسائل ابن عثيمين (18/142) وهيئة كبار العلماء">
                         
                         <!-- Header: Title & Scholar Badge -->
                         <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
                             <div class="space-y-1.5">
                                 <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
-                                    12. الشرط الجزائي في عقود التوريد والمقاولات والصيانة
+                                    15. الشرط الجزائي في عقود التوريد والمقاولات والصيانة
                                 </h4>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
@@ -2427,14 +2598,14 @@ $pdo = getDBConnection();
 
                     </div>
     
-                    <!-- Fatwa Card 13 -->
-                    <div class="fiqh-master-card" data-scholar="ibn_taymiyyah" data-topic="pricing" data-search="13. التسعير وتحديد نسبة الربح وحرية الأسعار والتراضي شيخ الإسلام ابن تيمية (رحمه الله) لم يحدد الشرع نسبة معينة للربح (كالعُشر أو الثلث)، بل الأصل هو التراضي بين البائع والمشتري. ويجوز لولي الأمر التسعير الجبري العادل فقط إذا احتكر التجار أقوات الناس ورفعوا الأسعار ظلماً. الحسبة في الإسلام لمجموع الفتاوى (28/75)">
+                    <!-- Fatwa Card 16 -->
+                    <div class="fiqh-master-card" data-scholar="ibn_taymiyyah" data-topic="pricing" data-search="16. التسعير وتحديد نسبة الربح وحرية الأسعار والتراضي شيخ الإسلام ابن تيمية (رحمه الله) لم يحدد الشرع نسبة معينة للربح (كالعُشر أو الثلث)، بل الأصل هو التراضي بين البائع والمشتري. ويجوز لولي الأمر التسعير الجبري العادل فقط إذا احتكر التجار أقوات الناس ورفعوا الأسعار ظلماً. الحسبة في الإسلام لمجموع الفتاوى (28/75)">
                         
                         <!-- Header: Title & Scholar Badge -->
                         <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
                             <div class="space-y-1.5">
                                 <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
-                                    13. التسعير وتحديد نسبة الربح وحرية الأسعار والتراضي
+                                    16. التسعير وتحديد نسبة الربح وحرية الأسعار والتراضي
                                 </h4>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
@@ -2481,14 +2652,14 @@ $pdo = getDBConnection();
 
                     </div>
     
-                    <!-- Fatwa Card 14 -->
-                    <div class="fiqh-master-card" data-scholar="al_fawzan" data-topic="gold" data-search="14. شراء الذهب والفضة عبر البطاقات المصرفية ونقاط البيع (pos) معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله) يجوز شراء الذهب والفضة ببطاقة الصراف المباشرة (مدى / الخصم الفوري) لأن الخصم من حساب المشتري والإيداع في حساب التاجر يتم فوراً في المجلس فيتحقق القبض الشرعي. الفتاوى الاقتصادية وقرار المجمع الفقهي الإسلامي">
+                    <!-- Fatwa Card 17 -->
+                    <div class="fiqh-master-card" data-scholar="al_fawzan" data-topic="gold" data-search="17. شراء الذهب والفضة عبر البطاقات المصرفية ونقاط البيع (pos) معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله) يجوز شراء الذهب والفضة ببطاقة الصراف المباشرة (مدى / الخصم الفوري) لأن الخصم من حساب المشتري والإيداع في حساب التاجر يتم فوراً في المجلس فيتحقق القبض الشرعي. الفتاوى الاقتصادية وقرار المجمع الفقهي الإسلامي">
                         
                         <!-- Header: Title & Scholar Badge -->
                         <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
                             <div class="space-y-1.5">
                                 <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
-                                    14. شراء الذهب والفضة عبر البطاقات المصرفية ونقاط البيع (POS)
+                                    17. شراء الذهب والفضة عبر البطاقات المصرفية ونقاط البيع (POS)
                                 </h4>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
@@ -2535,14 +2706,14 @@ $pdo = getDBConnection();
 
                     </div>
     
-                    <!-- Fatwa Card 15 -->
-                    <div class="fiqh-master-card" data-scholar="al_albani" data-topic="defects" data-search="15. وجوب بيان عيوب البضاعة وخيار العيب ورد السلعة الإمام محمد ناصر الدين الألباني (رحمه الله) يحرم على التاجر كتمان أي عيب في الصنف أو المبيع. ومن اشترى سلعة فوجد بها عيباً قديماً لم يخبر به البائع، فله الخيار الكامل في رد السلعة واسترجاع الثمن كاملاً أو أخذ فارق القيمة (الأرش). سلسلة الأحاديث الصحيحة (رقم 1058) وفتاوى جدة">
+                    <!-- Fatwa Card 18 -->
+                    <div class="fiqh-master-card" data-scholar="al_albani" data-topic="defects" data-search="18. وجوب بيان عيوب البضاعة وخيار العيب ورد السلعة الإمام محمد ناصر الدين الألباني (رحمه الله) يحرم على التاجر كتمان أي عيب في الصنف أو المبيع. ومن اشترى سلعة فوجد بها عيباً قديماً لم يخبر به البائع، فله الخيار الكامل في رد السلعة واسترجاع الثمن كاملاً أو أخذ فارق القيمة (الأرش). سلسلة الأحاديث الصحيحة (رقم 1058) وفتاوى جدة">
                         
                         <!-- Header: Title & Scholar Badge -->
                         <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
                             <div class="space-y-1.5">
                                 <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
-                                    15. وجوب بيان عيوب البضاعة وخيار العيب ورد السلعة
+                                    18. وجوب بيان عيوب البضاعة وخيار العيب ورد السلعة
                                 </h4>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
@@ -2589,14 +2760,14 @@ $pdo = getDBConnection();
 
                     </div>
     
-                    <!-- Fatwa Card 16 -->
-                    <div class="fiqh-master-card" data-scholar="al_shinqiti" data-topic="contracts" data-search="16. ضوابط بيع السَّلَم في التوريدات والمحاصيل الزراعية العلامة محمد الأمين الشنقيطي (رحمه الله) أكد العلامة الشنقيطي رحمه الله أن عقد السَّلَم مستثنى من بيع ما ليس عند الإنسان لحاجة الناس إليه، ويشترط لصحته: تسليم كامل رأس المال مقدماً في مجلس العقد، وانضباط الصفة والمقدار والأجل المحددين. أضواء البيان في إيضاح القرآن بالقرآن (تفسير سورة البقرة 1/214)">
+                    <!-- Fatwa Card 19 -->
+                    <div class="fiqh-master-card" data-scholar="al_shinqiti" data-topic="contracts" data-search="19. ضوابط بيع السَّلَم في التوريدات والمحاصيل الزراعية العلامة محمد الأمين الشنقيطي (رحمه الله) أكد العلامة الشنقيطي رحمه الله أن عقد السَّلَم مستثنى من بيع ما ليس عند الإنسان لحاجة الناس إليه، ويشترط لصحته: تسليم كامل رأس المال مقدماً في مجلس العقد، وانضباط الصفة والمقدار والأجل المحددين. أضواء البيان في إيضاح القرآن بالقرآن (تفسير سورة البقرة 1/214)">
                         
                         <!-- Header: Title & Scholar Badge -->
                         <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
                             <div class="space-y-1.5">
                                 <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
-                                    16. ضوابط بيع السَّلَم في التوريدات والمحاصيل الزراعية
+                                    19. ضوابط بيع السَّلَم في التوريدات والمحاصيل الزراعية
                                 </h4>
                                 <div class="flex flex-wrap items-center gap-2">
                                     <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
