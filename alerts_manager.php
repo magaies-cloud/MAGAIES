@@ -1,6 +1,6 @@
 <?php
 // ====================================================================
-// نظام Al-Sajana Smart ERP 2026 - مصفوفة الرقابة والتنبيهات الشاملة V5
+// نظام Al-Sajana Smart ERP 2026 - مصفوفة الرقابة والتنبيهات الشاملة V5.2
 // شاشة تفصيلية واضحة ومقروءة لكل تنبيه مع نص الرسالة والتحكم On/Off
 // ====================================================================
 $page_title = 'مصفوفة الرقابة وإدارة التنبيهات العالمية';
@@ -11,34 +11,48 @@ $selected_currency = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset
 $pdo = getDBConnection();
 
 // -------------------------------------------------------------
-// 1. التحرّي وتأكيد وجود جداول التنبيهات وزرع القواعد الشاملة
+// 1. التحرّي وتأكيد وجود جداول التنبيهات وترقية الأعمدة تلقائياً
 // -------------------------------------------------------------
 function ensureAlertTablesExist($pdo, $tenant_id) {
     try {
         $pdo->exec("CREATE TABLE IF NOT EXISTS alert_settings (
-            id INT AUTO_INCREMENT PRIMARY KEY,
-            tenant_id VARCHAR(100) NOT NULL,
-            rule_key VARCHAR(100) NOT NULL,
-            rule_name VARCHAR(255) NOT NULL,
-            description VARCHAR(255) DEFAULT '',
-            alert_preview VARCHAR(255) DEFAULT '',
+            tenant_id INT(11) NOT NULL,
+            rule_key VARCHAR(50) NOT NULL,
+            rule_name VARCHAR(100) NOT NULL,
+            description TEXT,
+            is_enabled TINYINT(1) DEFAULT 1,
+            warning_threshold DECIMAL(15,2) DEFAULT 0,
+            critical_threshold DECIMAL(15,2) DEFAULT 0,
             category VARCHAR(50) DEFAULT 'GENERAL',
             screen_name VARCHAR(100) DEFAULT '',
             screen_file VARCHAR(100) DEFAULT '',
             warn_label VARCHAR(100) DEFAULT '',
             crit_label VARCHAR(100) DEFAULT '',
-            is_enabled TINYINT(1) DEFAULT 1,
-            warning_threshold FLOAT DEFAULT 80,
-            critical_threshold FLOAT DEFAULT 100,
             unit VARCHAR(20) DEFAULT '',
-            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
-            UNIQUE KEY tenant_rule (tenant_id, rule_key)
+            alert_preview VARCHAR(255) DEFAULT '',
+            PRIMARY KEY (tenant_id, rule_key)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+        $cols = $pdo->query("DESCRIBE alert_settings")->fetchAll(PDO::FETCH_COLUMN);
+        $neededCols = [
+            'category' => "VARCHAR(50) DEFAULT 'GENERAL'",
+            'screen_name' => "VARCHAR(100) DEFAULT ''",
+            'screen_file' => "VARCHAR(100) DEFAULT ''",
+            'warn_label' => "VARCHAR(100) DEFAULT ''",
+            'crit_label' => "VARCHAR(100) DEFAULT ''",
+            'unit' => "VARCHAR(20) DEFAULT ''",
+            'alert_preview' => "VARCHAR(255) DEFAULT ''"
+        ];
+        foreach ($neededCols as $col => $type) {
+            if (!in_array($col, $cols)) {
+                $pdo->exec("ALTER TABLE alert_settings ADD COLUMN {$col} {$type}");
+            }
+        }
 
         $pdo->exec("CREATE TABLE IF NOT EXISTS alert_logs (
             id INT AUTO_INCREMENT PRIMARY KEY,
-            tenant_id VARCHAR(100) NOT NULL,
-            rule_key VARCHAR(100) NOT NULL,
+            tenant_id INT(11) NOT NULL,
+            rule_key VARCHAR(50) NOT NULL,
             severity VARCHAR(20) NOT NULL,
             message TEXT NOT NULL,
             screen_file VARCHAR(100) DEFAULT '',
@@ -893,7 +907,7 @@ if (isset($_GET['action'])) {
 
     if ($_GET['action'] === 'get_rules_json') {
         header('Content-Type: application/json');
-        $stmtR = $pdo->prepare("SELECT * FROM alert_settings WHERE tenant_id = ? ORDER BY category ASC, id ASC");
+        $stmtR = $pdo->prepare("SELECT * FROM alert_settings WHERE tenant_id = ? ORDER BY category ASC, rule_key ASC");
         $stmtR->execute([$GLOBAL_TENANT_ID]);
         $rules = $stmtR->fetchAll(PDO::FETCH_ASSOC);
         echo json_encode([
@@ -910,7 +924,7 @@ runAlertEngine($pdo);
 $rules = [];
 $logs = [];
 try {
-    $stmtR = $pdo->prepare("SELECT * FROM alert_settings WHERE tenant_id = ? ORDER BY category ASC, id ASC");
+    $stmtR = $pdo->prepare("SELECT * FROM alert_settings WHERE tenant_id = ? ORDER BY category ASC, rule_key ASC");
     $stmtR->execute([$GLOBAL_TENANT_ID]);
     $rules = $stmtR->fetchAll(PDO::FETCH_ASSOC);
 
@@ -1277,7 +1291,7 @@ foreach ($rules as $r) {
             <div class="pillar-card active" style="--p-color:#f43f5e; --p-border:rgba(244,63,94,0.4);" onclick="filterPillar('ALL', this)">
                 <div class="flex items-center justify-between">
                     <i class="fa-solid fa-layer-group text-rose-400 text-lg"></i>
-                    <span class="text-xs bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded-full font-bold">35 تنبيه</span>
+                    <span class="text-xs bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded-full font-bold"><?php echo count($rules); ?> تنبيه</span>
                 </div>
                 <div class="font-black text-sm mt-1">🌟 كل الأقسام</div>
                 <div class="text-[11px] text-slate-400">عرض جميع التنبيهات</div>
@@ -1286,7 +1300,7 @@ foreach ($rules as $r) {
             <div class="pillar-card" style="--p-color:#38bdf8; --p-border:rgba(56,189,248,0.3);" onclick="filterPillar('SALES', this)">
                 <div class="flex items-center justify-between">
                     <i class="fa-solid fa-cash-register text-sky-400 text-lg"></i>
-                    <span class="text-xs bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded-full font-bold">8 تنبيهات</span>
+                    <span class="text-xs bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded-full font-bold"><?php echo count($sections['SALES']['rules']); ?> تنبيهات</span>
                 </div>
                 <div class="font-black text-sm mt-1">🛒 المبيعات والفوترة</div>
                 <div class="text-[11px] text-slate-400">التكلفة والمخزون والائتمان</div>
@@ -1295,7 +1309,7 @@ foreach ($rules as $r) {
             <div class="pillar-card" style="--p-color:#a78bfa; --p-border:rgba(167,139,250,0.3);" onclick="filterPillar('INVENTORY', this)">
                 <div class="flex items-center justify-between">
                     <i class="fa-solid fa-warehouse text-purple-400 text-lg"></i>
-                    <span class="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full font-bold">9 تنبيهات</span>
+                    <span class="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full font-bold"><?php echo count($sections['INVENTORY']['rules']); ?> تنبيهات</span>
                 </div>
                 <div class="font-black text-sm mt-1">📦 المخازن والأصناف</div>
                 <div class="text-[11px] text-slate-400">الحد الأدنى والأعلى والركود</div>
@@ -1304,7 +1318,7 @@ foreach ($rules as $r) {
             <div class="pillar-card" style="--p-color:#34d399; --p-border:rgba(52,211,153,0.3);" onclick="filterPillar('FINANCE', this)">
                 <div class="flex items-center justify-between">
                     <i class="fa-solid fa-vault text-emerald-400 text-lg"></i>
-                    <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold">9 تنبيهات</span>
+                    <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold"><?php echo count($sections['FINANCE']['rules']); ?> تنبيهات</span>
                 </div>
                 <div class="font-black text-sm mt-1">💰 الخزينة والشيكات</div>
                 <div class="text-[11px] text-slate-400">السيولة والتكرار والاستحقاق</div>
@@ -1313,7 +1327,7 @@ foreach ($rules as $r) {
             <div class="pillar-card" style="--p-color:#fbbf24; --p-border:rgba(251,191,36,0.3);" onclick="filterPillar('CREDIT', this)">
                 <div class="flex items-center justify-between">
                     <i class="fa-solid fa-users-gear text-amber-400 text-lg"></i>
-                    <span class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold">4 تنبيهات</span>
+                    <span class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold"><?php echo count($sections['CREDIT']['rules']); ?> تنبيهات</span>
                 </div>
                 <div class="font-black text-sm mt-1">👥 العملاء والمديونيات</div>
                 <div class="text-[11px] text-slate-400">أعمار الديون والركود</div>
@@ -1322,7 +1336,7 @@ foreach ($rules as $r) {
             <div class="pillar-card" style="--p-color:#f87171; --p-border:rgba(248,113,113,0.3);" onclick="filterPillar('SECURITY', this)">
                 <div class="flex items-center justify-between">
                     <i class="fa-solid fa-shield-halved text-rose-400 text-lg"></i>
-                    <span class="text-xs bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded-full font-bold">5 تنبيهات</span>
+                    <span class="text-xs bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded-full font-bold"><?php echo count($sections['SECURITY']['rules']); ?> تنبيهات</span>
                 </div>
                 <div class="font-black text-sm mt-1">🛡️ الأمان والرقابة</div>
                 <div class="text-[11px] text-slate-400">التدقيق والنسخ الاحتياطي</div>
@@ -1345,6 +1359,9 @@ foreach ($rules as $r) {
                         <h2 class="text-xl md:text-2xl font-black flex items-center gap-3" style="color: <?php echo $sec['color']; ?>;">
                             <i class="fa-solid <?php echo $sec['icon']; ?>"></i>
                             <?php echo $sec['title']; ?>
+                            <span class="text-xs bg-white/10 px-3 py-1 rounded-full text-white font-mono font-bold">
+                                <?php echo count($sec['rules']); ?> تنبيهات
+                            </span>
                         </h2>
                         <div class="text-xs font-bold text-slate-400 mt-1">
                             🏢 الشاشات المرتبطة: <span class="text-slate-200"><?php echo htmlspecialchars($sec['screens']); ?></span>
@@ -1353,7 +1370,7 @@ foreach ($rules as $r) {
 
                     <div class="flex items-center gap-2">
                         <button type="button" onclick="bulkToggle('<?php echo $sec['category']; ?>', 1)" class="px-3.5 py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 rounded-xl text-xs font-black transition">
-                            ✓ تفعيل تنبيهات هذا القسم
+                            ✓ تفعيل تنبيهات هذا القسم (<?php echo count($sec['rules']); ?>)
                         </button>
                         <button type="button" onclick="bulkToggle('<?php echo $sec['category']; ?>', 0)" class="px-3.5 py-1.5 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/40 rounded-xl text-xs font-black transition">
                             ✕ تعطيل وتجاوز هذا القسم
@@ -1604,6 +1621,14 @@ foreach ($rules as $r) {
                 sec.style.display = 'none';
             }
         });
+        
+        // Scroll smoothly to the first visible section if not ALL
+        if (cat !== 'ALL') {
+            const targetSec = document.querySelector('.section-block[data-sec-category="' + cat + '"]');
+            if (targetSec) {
+                targetSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }
     }
 
     function searchMatrix(q) {
@@ -1640,9 +1665,6 @@ foreach ($rules as $r) {
 
         const kpiYellow = document.getElementById('kpi-yellow-count');
         if (kpiYellow) kpiYellow.textContent = res.yellow_count;
-
-        const enabledNum = document.getElementById('active-rules-num');
-        if (enabledNum) enabledNum.textContent = res.enabled_count;
 
         const kpiEnabled = document.getElementById('kpi-enabled-rules');
         if (kpiEnabled) kpiEnabled.textContent = res.enabled_count + ' / <?php echo count($rules); ?>';

@@ -20,7 +20,7 @@ function getDBConnection() {
     
     if ($GLOBAL_TENANT_ID === null) {
         $token = $_COOKIE['saas_token'] ?? '';
-        $isLocalhost = ($_SERVER['SERVER_NAME'] === 'localhost' || $_SERVER['SERVER_NAME'] === '127.0.0.1');
+        $isLocalhost = (php_sapi_name() === 'cli' || ($_SERVER['SERVER_NAME'] ?? '') === 'localhost' || ($_SERVER['SERVER_NAME'] ?? '') === '127.0.0.1');
         
         if (empty($token) && !$isLocalhost) {
             die("<script>alert('غير مصرح! يرجى تسجيل الدخول من البوابة أولاً.'); window.location.href='login.php';</script>");
