@@ -1208,41 +1208,39 @@ try {
             box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 25px rgba(251, 191, 36, 0.6) !important;
         }
         .dynamic-focus-amount:focus {
-            color: #fbbf24 !important; /* Yellow */
+            color: #fbbf24 !important; /* Golden Yellow */
+            border-color: #fbbf24 !important;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 30px rgba(251, 191, 36, 0.7) !important;
         }
         .dynamic-focus-number:focus {
-            color: #38bdf8 !important; /* Sky Blue for focus/comfort */
+            color: #38bdf8 !important; /* Sky Blue */
+            border-color: #38bdf8 !important;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 30px rgba(56, 189, 248, 0.7) !important;
         }
-        .transfer-no.dynamic-focus-input:focus, .cheque-no.dynamic-focus-input:focus {
-            font-size: 3.5rem !important;
+
+        /* 🔍 مقاس موحد ومكبر بدقة 4.2rem لجميع حقول الأرقام والمبالغ أثناء التركيز والكتابة */
+        .transfer-no.dynamic-focus-input:focus,
+        .cheque-no.dynamic-focus-input:focus,
+        .transfer-amount:focus,
+        .cheque-amount:focus,
+        .block-cash-amount:focus,
+        .block-sub-amount:focus,
+        .block-total-amount:focus,
+        .dynamic-focus-input:focus {
+            font-size: 4.2rem !important; /* مقاس موحد عملاق ومريح جداً للقراءة والكتابة */
             height: 95px !important;
-            width: 520px !important;
-            min-width: 450px !important;
+            min-width: 480px !important;
             max-width: none !important;
             position: relative !important;
             z-index: 1000 !important;
             margin-right: -60px !important;
             letter-spacing: 2px !important;
             font-weight: 900 !important;
-            color: #38bdf8 !important;
             background: rgba(15, 23, 42, 0.98) !important;
-            border: 2px solid #38bdf8 !important;
-            border-radius: 8px !important;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 30px rgba(56, 189, 248, 0.7) !important;
+            border-width: 2.5px !important;
+            border-style: solid !important;
+            border-radius: 10px !important;
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
-        }
-        
-        .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus {
-            font-size: 5.5rem !important;
-            height: 100px !important;
-            min-width: 400px !important;
-            position: relative !important;
-            z-index: 1000 !important;
-            margin-right: -100px !important;
-            border-color: #fbbf24 !important;
-            background: rgba(15, 23, 42, 0.98) !important;
-            color: #fbbf24 !important;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 25px rgba(251, 191, 36, 0.6) !important;
         }
             /* Custom Number Properties Menu */
         #num-props-menu { display: none; position: absolute; z-index: 9999; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); border-radius: 12px; padding: 10px; width: 260px; color: #cbd5e1; font-family: 'Inter', sans-serif; direction: rtl; }
