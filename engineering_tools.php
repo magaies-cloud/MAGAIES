@@ -1767,6 +1767,9 @@ $pdo = getDBConnection();
                     <button type="button" class="fiqh-nav-pill active" onclick="switchFiqhSubTab('fatwas', this)">
                         📑 موسوعة الفتاوى والأحكام (80 مسألة كبرى)
                     </button>
+                    <button type="button" class="fiqh-nav-pill bg-gradient-to-r from-sky-500/20 to-blue-600/30 text-sky-300 border-sky-400/60 hover:border-sky-300" onclick="switchFiqhSubTab('google', this)">
+                        🌐 محرك بحث قوقل للشيوخ الـ 12 (المواقع العالمية)
+                    </button>
                     <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('books', this)">
                         📚 مكتبة أمهات كتب البيوع للشيوخ (26 مؤلفاً وموسوعة)
                     </button>
@@ -6226,6 +6229,129 @@ $pdo = getDBConnection();
                 </div>
 
                 <!-- ════════════════════════════════════════════════════════════ -->
+                
+                <!-- ════════════════════════════════════════════════════════════ -->
+                <!-- SUB-SECTION 7: LIVE TARGETED GOOGLE SCHOLAR SEARCH ENGINE    -->
+                <!-- ════════════════════════════════════════════════════════════ -->
+                <div id="fiqh-sub-google" class="space-y-4 hidden">
+                    <div class="p-6 bg-gradient-to-br from-slate-900 via-sky-950/40 to-slate-900 border-2 border-sky-500/50 rounded-2xl shadow-2xl space-y-4">
+                        
+                        <!-- Header -->
+                        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
+                            <div>
+                                <div class="flex items-center gap-2 mb-1.5">
+                                    <span class="px-3 py-1 bg-sky-500/20 text-sky-300 font-mono font-black text-xs rounded-xl border border-sky-400">
+                                        ★ محرك بحث قوقل الذكي الموثق (Google Search Engine)
+                                    </span>
+                                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-black text-xs rounded-xl border border-amber-400">
+                                        حصر النتائج في الشيوخ الـ 12 والمواقع الرسمية فقط ✓
+                                    </span>
+                                </div>
+                                <h3 class="text-xl md:text-2xl font-black text-sky-300 flex items-center gap-2">
+                                    <i class="fa-brands fa-google text-sky-400"></i>
+                                    البحث العالمي المباشر عن الفتاوى عبر قوقل للشيوخ الـ 12 المعتمدين
+                                </h3>
+                                <p class="text-xs md:text-sm text-slate-300 font-bold mt-1">
+                                    يبحث هذا المحرك الذكي في شبكة الإنترنت العالمية مع <strong class="text-amber-300 font-black">إلزام محرك قوقل بعدم إظهار أي فتوى إلا إذا كانت صادرة عن أحد الأئمة الـ 12 المعتمدين حصراً</strong> ومن المواقع والمكتبات الإسلامية الرسمية والمحققة.
+                                </p>
+                            </div>
+                            <span class="text-4xl hidden md:block">🌐</span>
+                        </div>
+
+                        <!-- Google Live Search Form -->
+                        <div class="p-5 bg-slate-950/90 rounded-2xl border border-sky-500/30 space-y-4 shadow-inner">
+                            
+                            <!-- Search Input -->
+                            <div>
+                                <label class="text-xs md:text-sm font-black text-amber-300 block mb-1.5">
+                                    🔍 اكتب سؤالك أو مسألتك الفقهية للبحث عنها في قوقل:
+                                </label>
+                                <div class="relative">
+                                    <input type="text" id="google-fiqh-query" placeholder="مثال: حكم شراء سيارة أو معدات بالمرابحة البنكية، بيع سكراب، تأخير تسليم حديد..." class="tool-input text-sm md:text-base font-bold pr-4 pl-12 py-3 bg-slate-900 border-2 border-sky-500/40 focus:border-sky-400 text-white rounded-xl w-full">
+                                    <button type="button" onclick="executeGoogleScholarSearch()" class="absolute left-2 top-2 px-4 py-1.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs rounded-lg shadow transition">
+                                        بحث ↗
+                                    </button>
+                                </div>
+                            </div>
+
+                            <!-- Filter Grid: Scholar + Target Domain -->
+                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
+                                
+                                <!-- Scholar Filter Selector -->
+                                <div>
+                                    <label class="text-xs font-black text-slate-300 block mb-1">
+                                        👤 تخصيص الشيخ أو الإمام في قوقل:
+                                    </label>
+                                    <select id="google-scholar-select" class="tool-input text-xs font-black bg-slate-900 border border-slate-700 text-amber-300 py-2.5 rounded-xl w-full">
+                                        <option value="all">🌟 جميع الأئمة والعلماء الـ 12 معاً (تلقائي)</option>
+                                        <option value="ibn_baz">📜 الإمام عبد العزيز بن باز (رحمه الله)</option>
+                                        <option value="ibn_uthaymeen">💡 الإمام محمد بن صالح العثيمين (رحمه الله)</option>
+                                        <option value="al_fawzan">⚖️ معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله)</option>
+                                        <option value="ibn_taymiyyah">📖 شيخ الإسلام ابن تيمية (رحمه الله)</option>
+                                        <option value="ibn_al_qayyim">✨ الإمام ابن قيم الجوزية (رحمه الله)</option>
+                                        <option value="imam_ahmad">👑 الإمام أحمد بن حنبل (رحمه الله)</option>
+                                        <option value="al_nawawi">📜 الإمام محيي الدين النووي (رحمه الله)</option>
+                                        <option value="al_dhahabi">⚖️ الإمام الحافظ الذهبي (رحمه الله)</option>
+                                        <option value="muhammad_bin_abdulwahhab">📚 الإمام محمد بن عبد الوهاب (رحمه الله)</option>
+                                        <option value="al_saadi">💡 العلامة الشيخ عبد الرحمن السعدي (رحمه الله)</option>
+                                        <option value="al_shinqiti">📖 العلامة محمد الأمين الشنقيطي (رحمه الله)</option>
+                                        <option value="al_albani">📚 الإمام محمد ناصر الدين الألباني (رحمه الله)</option>
+                                    </select>
+                                </div>
+
+                                <!-- Target Sites Selector -->
+                                <div>
+                                    <label class="text-xs font-black text-slate-300 block mb-1">
+                                        🏛️ نطاق المواقع والمكتبات العالمية المعتمدة:
+                                    </label>
+                                    <select id="google-sites-select" class="tool-input text-xs font-black bg-slate-900 border border-slate-700 text-emerald-300 py-2.5 rounded-xl w-full">
+                                        <option value="all_approved">🌐 كافة المواقع الرسمية والمكتبة الشاملة والدرر السنية وإسلام ويب</option>
+                                        <option value="official_only">🏛️ المواقع الرسمية للشيوخ فقط (ابن باز، ابن عثيمين، الفوزان، الألباني)</option>
+                                        <option value="shamela">📚 المكتبة الشاملة الحديثة (shamela.ws)</option>
+                                        <option value="binbaz">📜 موقع الشيخ ابن باز الرسمي (binbaz.org.sa)</option>
+                                        <option value="uthaymeen">💡 موقع الشيخ ابن عثيمين الرسمي (ibnothaimeen.net)</option>
+                                        <option value="fawzan">⚖️ موقع الشيخ صالح الفوزان الرسمي (alfawzan.af.org.sa)</option>
+                                        <option value="albany">📚 موقع الشيخ الألباني الرسمي (alalbany.org)</option>
+                                        <option value="dorar">💎 موسوعة الدرر السنية (dorar.net)</option>
+                                        <option value="islamweb">📖 شبكة إسلام ويب (islamweb.net)</option>
+                                        <option value="alukah">📄 شبكة الألوكة الفقهية (alukah.net)</option>
+                                    </select>
+                                </div>
+
+                            </div>
+
+                            <!-- Main Search Execution Button -->
+                            <div class="pt-2">
+                                <button type="button" onclick="executeGoogleScholarSearch()" class="w-full py-3.5 px-6 bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:from-sky-400 hover:via-blue-500 hover:to-indigo-500 text-white font-black text-sm md:text-base rounded-xl shadow-xl flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5 border border-sky-300/40">
+                                    <i class="fa-brands fa-google text-lg"></i>
+                                    <span>افتح نتائج البحث الموثق في محرك قوقل العالمي الآن ↗</span>
+                                </button>
+                            </div>
+
+                        </div>
+
+                        <!-- 10 Instant Topic Search Chips -->
+                        <div class="space-y-2 pt-2">
+                            <span class="text-xs font-black text-amber-300 block">
+                                ⚡ نماذج أسئلة وفتاوى تجارية جاهزة للبحث الفوري في قوقل (اضغط للبحث مباشرة):
+                            </span>
+                            <div class="flex flex-wrap gap-2">
+                                <button type="button" class="quick-chip" onclick="quickGoogleSearch('حكم شراء سيارات أو معدات بالمرابحة البنكية للآمر بالشراء')">🚗 المرابحة البنكية للسيارات</button>
+                                <button type="button" class="quick-chip" onclick="quickGoogleSearch('حكم الشرط الجزائي وغرامات التأخير في عقود المقاولات والتوريد')">🏗️ الشرط الجزائي للمقاولات</button>
+                                <button type="button" class="quick-chip" onclick="quickGoogleSearch('حكم بيع حديد السكراب والخردة وضوابط وزن البسكول')">🔩 بيع حديد السكراب</button>
+                                <button type="button" class="quick-chip" onclick="quickGoogleSearch('حكم التورق الفردي وسداد الديون للحصول على السيولة')">💳 التورق للحصول على سيولة</button>
+                                <button type="button" class="quick-chip" onclick="quickGoogleSearch('حكم خصم الشيكات والكمبيالات الآجلة بنقد حال')">📜 حكم خصم الشيكات</button>
+                                <button type="button" class="quick-chip" onclick="quickGoogleSearch('حكم شراء الذهب والفضة عبر بطاقات الصراف ومدى ونقاط البيع')">💎 شراء الذهب بالبطاقة</button>
+                                <button type="button" class="quick-chip" onclick="quickGoogleSearch('حكم الإيجار المنتهي بالتمليك وضوابطه الشرعية الصحيحة')">🏢 الإيجار المنتهي بالتمليك</button>
+                                <button type="button" class="quick-chip" onclick="quickGoogleSearch('حكم بيع الاسم التجاري والعلامات التجارية والفرنشايز')">🏷️ بيع العلامة التجارية</button>
+                                <button type="button" class="quick-chip" onclick="quickGoogleSearch('حكم التأمين التعاوني التكافلي للبضائع والشحن البحري')">🚢 التأمين التكافلي للبضائع</button>
+                                <button type="button" class="quick-chip" onclick="quickGoogleSearch('حكم الصرف الفوري عبر تطبيقات الموبايل بنك والقبض الحكمي')">📱 الصرف عبر الموبايل بنك</button>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+
                 <!-- SUB-SECTION 2: GRAND CLASSICAL & CONTEMPORARY BOOKS LIBRARY  -->
                 <!-- ════════════════════════════════════════════════════════════ -->
                 <div id="fiqh-sub-books" class="space-y-4 hidden">
@@ -11279,12 +11405,78 @@ $pdo = getDBConnection();
         if (noAlert) noAlert.classList.toggle('hidden', visibleCount > 0);
     }
 
+    
+    // 🌐 LIVE GOOGLE SCHOLAR SEARCH ENGINE CONTROLLER 🌐
+    const googleScholarNamesMap = {
+        'all': '("ابن باز" OR "ابن عثيمين" OR "ابن تيمية" OR "ابن القيم" OR "أحمد بن حنبل" OR "النووي" OR "الذهبي" OR "محمد بن عبد الوهاب" OR "السعدي" OR "الشنقيطي" OR "الألباني" OR "صالح الفوزان")',
+        'ibn_baz': '"ابن باز"',
+        'ibn_uthaymeen': '"ابن عثيمين"',
+        'al_fawzan': '"صالح الفوزان"',
+        'ibn_taymiyyah': '"ابن تيمية"',
+        'ibn_al_qayyim': '"ابن القيم"',
+        'imam_ahmad': '"أحمد بن حنبل"',
+        'al_nawawi': '"النووي"',
+        'al_dhahabi': '"الذهبي"',
+        'muhammad_bin_abdulwahhab': '"محمد بن عبد الوهاب"',
+        'al_saadi': '"السعدي"',
+        'al_shinqiti': '"الشنقيطي"',
+        'al_albani': '"الألباني"'
+    };
+
+    const googleSitesMap = {
+        'all_approved': '(site:binbaz.org.sa OR site:ibnothaimeen.net OR site:alfawzan.af.org.sa OR site:alalbany.org OR site:shamela.ws OR site:islamweb.net OR site:alukah.net OR site:dorar.net)',
+        'official_only': '(site:binbaz.org.sa OR site:ibnothaimeen.net OR site:alfawzan.af.org.sa OR site:alalbany.org)',
+        'shamela': 'site:shamela.ws',
+        'binbaz': 'site:binbaz.org.sa',
+        'uthaymeen': 'site:ibnothaimeen.net',
+        'fawzan': 'site:alfawzan.af.org.sa',
+        'albany': 'site:alalbany.org',
+        'dorar': 'site:dorar.net',
+        'islamweb': 'site:islamweb.net',
+        'alukah': 'site:alukah.net'
+    };
+
+    function executeGoogleScholarSearch() {
+        const queryInput = (document.getElementById('google-fiqh-query') ? document.getElementById('google-fiqh-query').value : '').trim();
+        if (!queryInput) {
+            alert('يرجى كتابة كلمة البحث أو السؤال الفقهي أولاً للبحث في قوقل.');
+            if (document.getElementById('google-fiqh-query')) document.getElementById('google-fiqh-query').focus();
+            return;
+        }
+
+        const scholarKey = document.getElementById('google-scholar-select') ? document.getElementById('google-scholar-select').value : 'all';
+        const sitesKey = document.getElementById('google-sites-select') ? document.getElementById('google-sites-select').value : 'all_approved';
+
+        const scholarDork = googleScholarNamesMap[scholarKey] || googleScholarNamesMap['all'];
+        const sitesDork = googleSitesMap[sitesKey] || googleSitesMap['all_approved'];
+
+        const fullSearchQuery = queryInput + ' ' + scholarDork + ' ' + sitesDork;
+        const googleUrl = 'https://www.google.com/search?q=' + encodeURIComponent(fullSearchQuery);
+        window.open(googleUrl, '_blank');
+    }
+
+    function quickGoogleSearch(phrase) {
+        if (document.getElementById('google-fiqh-query')) {
+            document.getElementById('google-fiqh-query').value = phrase;
+        }
+        executeGoogleScholarSearch();
+    }
+
+    function executeQuickGoogleSearch() {
+        const queryInput = (document.getElementById('fiqh-search-input') ? document.getElementById('fiqh-search-input').value : '').trim();
+        const baseQuery = queryInput !== '' ? queryInput : 'فتاوى البيوع والمعاملات المالية';
+        const fullSearchQuery = baseQuery + ' ' + googleScholarNamesMap['all'] + ' ' + googleSitesMap['all_approved'];
+        const googleUrl = 'https://www.google.com/search?q=' + encodeURIComponent(fullSearchQuery);
+        window.open(googleUrl, '_blank');
+    }
+
     function switchFiqhSubTab(subId, el) {
         document.getElementById('fiqh-sub-fatwas').classList.add('hidden');
         document.getElementById('fiqh-sub-books').classList.add('hidden');
         document.getElementById('fiqh-sub-maxims').classList.add('hidden');
         document.getElementById('fiqh-sub-terms').classList.add('hidden');
         if (document.getElementById('fiqh-sub-quran')) document.getElementById('fiqh-sub-quran').classList.add('hidden');
+        if (document.getElementById('fiqh-sub-google')) document.getElementById('fiqh-sub-google').classList.add('hidden');
         if (document.getElementById('fiqh-sub-hadiths')) document.getElementById('fiqh-sub-hadiths').classList.add('hidden');
 
         document.querySelectorAll('.fiqh-nav-pill').forEach(btn => btn.classList.remove('active'));
