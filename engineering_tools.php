@@ -9692,49 +9692,96 @@ $pdo = getDBConnection();
         filterFatwas();
     }
 
-    // 🧠 SMART AI SYNONYM SEARCH ENGINE 🧠
+    // 🧠 ADVANCED ARABIC AI SYNONYM & FUZZY SEARCH ENGINE 🧠
+    function normalizeArabicText(text) {
+        if (!text) return '';
+        return text.toString()
+            .replace(/[\u064B-\u065F\u0670]/g, '') // Remove Tashkeel
+            .replace(/[إأآا]/g, 'ا')
+            .replace(/ة/g, 'ه')
+            .replace(/ى/g, 'ي')
+            .replace(/\bابن\b/g, 'بن')
+            .replace(/[\s\-_,.:;،؟/\\\(\)\[\]"']+/g, ' ')
+            .trim()
+            .toLowerCase();
+    }
+
+    function cleanArabicPrefix(w) {
+        let t = w.replace(/^(ال|وال|بال|كال|فال|لل)/, '');
+        if (t === 'ابن') t = 'بن';
+        return t.length >= 2 ? t : w;
+    }
+
     const fiqhSynonymsMap = {
-        'تقسيط': ['تقسيط', 'أقساط', 'قسط', 'آجل', 'اجل', 'دفعة', 'دفعات', 'تأجيل', 'اقساط'],
-        'شيك': ['شيك', 'شيكات', 'كمبيالة', 'كمبيالات', 'سند', 'أوراق تجارية', 'اوراق مالية', 'خصم'],
-        'عربون': ['عربون', 'مقدم', 'دفعة أولى', 'مقدم حجز', 'عربين'],
-        'ذهب': ['ذهب', 'فضة', 'عيار', 'مجوهرات', 'صاغة', 'بطاقة', 'مدى', 'pos'],
-        'صرف': ['صرف', 'تحويل', 'عملة', 'دولار', 'جنيه', 'ريال', 'بنكك', 'فوري', 'موبايل بنك', 'اوكاش', 'ساهل'],
-        'غرامة': ['غرامة', 'تأخير', 'فوائد', 'مماطل', 'ربا', 'تاخير', 'غرامات'],
-        'استصناع': ['استصناع', 'تصنيع', 'مقاولات', 'طلب', 'صناعة', 'ورشة', 'حدادة', 'تشغيل'],
-        'عينة': ['عينة', 'تورق', 'حيل', 'ربا', 'حيلة', 'شراء نقدا', 'بيع بالاجل'],
-        'غرر': ['غرر', 'جهالة', 'مخاطرة', 'حصاة', 'مجهول', 'تدليس'],
+        'تقسيط': ['تقسيط', 'اقساط', 'قسط', 'اجل', 'دفعه', 'دفعات', 'تاجيل', 'مرابحه'],
+        'شيك': ['شيك', 'شيكات', 'كمبياله', 'كمبيالات', 'سند', 'اوراق تجاريه', 'اوراق ماليه', 'خصم'],
+        'عربون': ['عربون', 'مقدم', 'دفعه اولي', 'مقدم حجز', 'عربين'],
+        'ذهب': ['ذهب', 'فضه', 'عيار', 'مجوهرات', 'صاغه', 'بطاقه', 'مدي', 'pos'],
+        'صرف': ['صرف', 'تحويل', 'عمله', 'دولار', 'جنيه', 'ريال', 'بنكك', 'فوري', 'موبايل بنك', 'اوكاش', 'ساهل'],
+        'غرامه': ['غرامه', 'تاخير', 'فوائد', 'مماطل', 'ربا', 'مطل', 'غرامات', 'فائده'],
+        'استصناع': ['استصناع', 'تصنيع', 'مقاولات', 'طلب', 'صناعه', 'ورشه', 'حداده', 'تشغيل'],
+        'عينه': ['عينه', 'تورق', 'حيل', 'ربا', 'حيله', 'شراء نقدا', 'بيع بالاجل'],
+        'غرر': ['غرر', 'جهاله', 'مخاطره', 'حصاه', 'مجهول', 'تدليس', 'مخاطر'],
         'تطفيف': ['تطفيف', 'ميزان', 'كيل', 'وزن', 'بسكول', 'نقص', 'غش', 'احتكار'],
-        'تأمين': ['تأمين', 'تامين', 'تكافلي', 'تعاوني', 'بوليصة', 'شحن بحري'],
-        'ضمان': ['ضمان', 'كفالة', 'وارنتي', 'warranty', 'صيانة', 'كفيل', 'غارم'],
-        'إيجار': ['إيجار', 'ايجار', 'تمليك', 'منتهي بالتمليك', 'تأجيري', 'مؤجر'],
-        'راتب': ['راتب', 'أجر', 'اجر', 'عمال', 'أجير', 'اجير', 'مكافأة', 'نهاية خدمة', 'خدمة'],
-        'شركة': ['شركة', 'شراكة', 'مضاربة', 'شريك', 'أسهم', 'اسهم', 'تداول', 'مساهمة'],
-        'بيتكوين': ['بيتكوين', 'مشفرة', 'رقمية', 'فوركس', 'تداول عملات', 'كريبتو', 'crypto']
+        'تامين': ['تامين', 'تكافلي', 'تعاوني', 'بوليصه', 'شحن بحري', 'تكافل'],
+        'ضمان': ['ضمان', 'كفاله', 'وارنتي', 'warranty', 'صيانه', 'كفيل', 'غارم', 'عيوب'],
+        'ايجار': ['ايجار', 'تمليك', 'منتهي بالتمليك', 'تاجيري', 'مؤجر', 'اجاره'],
+        'راتب': ['راتب', 'اجر', 'عمال', 'اجير', 'مكافاه', 'نهايه خدمه', 'خدمه'],
+        'شركه': ['شركه', 'شراكه', 'مضاربه', 'شريك', 'اسهم', 'تداول', 'مساهمه'],
+        'بيتكوين': ['بيتكوين', 'مشفره', 'رقميه', 'فوركس', 'تداول عملات', 'كريبتو', 'crypto']
     };
 
     function filterFatwas() {
-        const rawQuery = (document.getElementById('fiqh-search-input').value || '').trim().toLowerCase();
+        const rawInput = (document.getElementById('fiqh-search-input') ? document.getElementById('fiqh-search-input').value : '').trim();
+        const normQuery = normalizeArabicText(rawInput);
         let visibleCount = 0;
 
-        // Extract search terms and expanded synonyms
-        let searchKeywords = [rawQuery];
-        for (const [key, syns] of Object.entries(fiqhSynonymsMap)) {
-            if (rawQuery.includes(key) || syns.some(s => rawQuery.includes(s))) {
-                searchKeywords = searchKeywords.concat(syns);
+        // Auto-switch to fatwas sub-tab when user searches so results are immediately visible!
+        if (normQuery !== '') {
+            const fatwasTab = document.getElementById('fiqh-sub-fatwas');
+            if (fatwasTab && fatwasTab.classList.contains('hidden')) {
+                switchFiqhSubTab('fatwas', document.querySelector('.fiqh-nav-pill'));
             }
         }
 
+        // Build list of expanded search tokens
+        let searchTokens = [];
+        if (normQuery !== '') {
+            const words = normQuery.split(' ').filter(w => w.length > 0);
+            searchTokens = [...words];
+
+            // Expand synonyms
+            words.forEach(w => {
+                const strippedW = cleanArabicPrefix(w);
+                for (const [key, synList] of Object.entries(fiqhSynonymsMap)) {
+                    if (w.includes(key) || strippedW.includes(key) || synList.some(s => s === w || s === strippedW)) {
+                        searchTokens = searchTokens.concat(synList);
+                    }
+                }
+            });
+        }
+
         document.querySelectorAll('.fiqh-master-card').forEach(card => {
-            const cardScholar = card.getAttribute('data-scholar');
-            const cardTopic = card.getAttribute('data-topic');
-            const cardSearch = card.getAttribute('data-search') || '';
+            const cardScholar = card.getAttribute('data-scholar') || '';
+            const cardTopic = card.getAttribute('data-topic') || '';
+            const cardFullText = normalizeArabicText(card.innerText || card.textContent || card.getAttribute('data-search') || '');
 
             const matchScholar = (activeScholarFilter === 'all' || cardScholar === activeScholarFilter);
             const matchTopic = (activeTopicFilter === 'all' || cardTopic === activeTopicFilter);
-            
-            let matchSearch = (rawQuery === '');
+
+            let matchSearch = (normQuery === '');
             if (!matchSearch) {
-                matchSearch = searchKeywords.some(kw => cardSearch.includes(kw));
+                // Check direct substring match first
+                if (cardFullText.includes(normQuery)) {
+                    matchSearch = true;
+                } else {
+                    // Check if any search token or stripped token matches
+                    matchSearch = searchTokens.some(tok => {
+                        if (cardFullText.includes(tok)) return true;
+                        const stripped = cleanArabicPrefix(tok);
+                        return cardFullText.includes(stripped);
+                    });
+                }
             }
 
             if (matchScholar && matchTopic && matchSearch) {
@@ -9755,6 +9802,20 @@ $pdo = getDBConnection();
         if (noDataEl) {
             noDataEl.classList.toggle('hidden', visibleCount > 0);
         }
+    }
+
+    
+
+    function clearFiqhSearch() {
+        const inp = document.getElementById('fiqh-search-input');
+        if (inp) inp.value = '';
+        activeScholarFilter = 'all';
+        activeTopicFilter = 'all';
+        document.querySelectorAll('.fiqh-filter-btn').forEach(b => {
+            if (b.getAttribute('data-filter-val') === 'all') b.classList.add('active');
+            else b.classList.remove('active');
+        });
+        filterFatwas();
     }
 
     function toggleSolarMode() {
