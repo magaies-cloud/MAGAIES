@@ -985,64 +985,70 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             text-align: center !important;
         }
         
-        /* 🌟 مقاسات الوضع الطبيعي الأساسي (تمت زيادتها درجتين كاملتين لتكون الأرقام والمبالغ واضحة ومريحة دائماً) */
+        /* 🌟 مقاسات الوضع الطبيعي الأساسي (تمت زيادتها 3 درجات إضافية لتكون الأرقام واضحة ومقروءة جداً) */
         input.block-total-amount, input.block-bank-amount, input.block-cheque-amount, input.transfer-amount, input.cheque-amount, input.block-sub-amount {
-            font-size: 2.4rem !important;
-            height: 54px !important;
+            font-size: 3.1rem !important;
+            height: 62px !important;
             font-weight: 900 !important;
             color: #ffffff !important;
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
         
         input.block-transfer-no-input, input.block-cheque-no-input, input.transfer-no, input.cheque-no {
-            font-size: 2.1rem !important;
-            height: 54px !important;
-            font-weight: 800 !important;
-            letter-spacing: 1px !important;
+            font-size: 2.8rem !important;
+            height: 62px !important;
+            font-weight: 900 !important;
+            letter-spacing: 1.5px !important;
             color: #ffffff !important;
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
         
-        /* 🔍 مقاس موحد ومكبر بدقة 4.2rem لجميع حقول المبالغ والأرقام عند الضغط والتركيز والكتابة */
+        /* 🔍 مقاس موحد ومكبر بدقة 4.5rem لجميع حقول المبالغ والأرقام عند الضغط والتركيز والكتابة */
         input.block-total-amount:focus,
         input.block-bank-amount:focus,
         input.block-cheque-amount:focus,
         input.transfer-amount:focus,
         input.cheque-amount:focus,
         input.block-sub-amount:focus {
-            font-size: 4.2rem !important;
-            height: 90px !important;
-            min-width: 380px !important;
+            font-size: 4.5rem !important;
+            height: 98px !important;
+            width: 480px !important;
+            min-width: 450px !important;
+            max-width: none !important;
             position: relative !important;
-            z-index: 1000 !important;
+            z-index: 99999 !important;
+            margin-right: -60px !important;
             color: #fbbf24 !important; /* Gold / Yellow */
             background: rgba(15, 23, 42, 0.98) !important;
             border: 2.5px solid #fbbf24 !important;
             border-radius: 10px !important;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 30px rgba(251, 191, 36, 0.7) !important;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 35px rgba(251, 191, 36, 0.8) !important;
         }
         
         input.block-transfer-no-input:focus,
         input.block-cheque-no-input:focus,
         input.transfer-no:focus,
         input.cheque-no:focus {
-            font-size: 4.2rem !important;
-            height: 90px !important;
-            min-width: 380px !important;
+            font-size: 4.5rem !important;
+            height: 98px !important;
+            width: 480px !important;
+            min-width: 450px !important;
+            max-width: none !important;
             position: relative !important;
-            z-index: 1000 !important;
+            z-index: 99999 !important;
+            margin-right: -60px !important;
             letter-spacing: 2px !important;
             color: #38bdf8 !important; /* Sky Blue */
             background: rgba(15, 23, 42, 0.98) !important;
             border: 2.5px solid #38bdf8 !important;
             border-radius: 10px !important;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 30px rgba(56, 189, 248, 0.7) !important;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 35px rgba(56, 189, 248, 0.8) !important;
         }
 
         /* Larger Bank Name Font */
-        input.block-bank-name-input, input.block-cheque-bank-input {
-            font-size: 1.45rem !important;
-            height: 54px !important;
+        input.block-bank-name-input, input.block-cheque-bank-input, input.block-bank-desc-input, input.block-cheque-desc-input {
+            font-size: 1.55rem !important;
+            height: 62px !important;
             font-weight: bold !important;
         }
 
@@ -1850,8 +1856,8 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                          el.classList.contains('cheque-no');
                          
         if (isAmount || isNumber) {
-            el.style.setProperty('font-size', '4.2rem', 'important');
-            el.style.setProperty('height', '95px', 'important');
+            el.style.setProperty('font-size', '4.5rem', 'important');
+            el.style.setProperty('height', '98px', 'important');
             el.style.setProperty('min-width', '450px', 'important');
             el.style.setProperty('position', 'relative', 'important');
             el.style.setProperty('z-index', '99999', 'important');
@@ -1911,9 +1917,9 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             el.style.removeProperty('letter-spacing');
             
             if (isAmount) {
-                el.style.setProperty('font-size', '2.4rem', 'important');
+                el.style.setProperty('font-size', '3.1rem', 'important');
             } else {
-                el.style.setProperty('font-size', '2.1rem', 'important');
+                el.style.setProperty('font-size', '2.8rem', 'important');
             }
             
             if (el.parentElement && el.parentElement.style) {
