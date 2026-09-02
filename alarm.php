@@ -1,870 +1,1440 @@
-<?php $page_title = 'مركز التنبيهات'; ?>
+<?php
+// ====================================================================
+// نظام Al-Sajana Smart ERP 2026 - مصفوفة الرقابة والتنبيهات الشاملة V4
+// نظام عالمي متكامل يغطي كافة شاشات وأقسام النظام الـ 12 مع تحكم كامل On/Off
+// ====================================================================
+$page_title = 'مصفوفة الرقابة وإدارة التنبيهات العالمية';
+$header_theme_class = 'header-theme-alarm';
+
+require_once 'db_bridge.php';
+$selected_currency = isset($_COOKIE['currency']) ? $_COOKIE['currency'] : (isset($_GET['currency']) ? $_GET['currency'] : 'SDG');
+$pdo = getDBConnection();
+
+// -------------------------------------------------------------
+// 1. التحرّي وتأكيد وجود جداول التنبيهات وزرع الـ 34 قاعدة الشاملة
+// -------------------------------------------------------------
+function ensureAlertTablesExist($pdo, $tenant_id) {
+    try {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS alert_settings (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            tenant_id VARCHAR(100) NOT NULL,
+            rule_key VARCHAR(100) NOT NULL,
+            rule_name VARCHAR(255) NOT NULL,
+            description VARCHAR(255) DEFAULT '',
+            category VARCHAR(50) DEFAULT 'GENERAL',
+            screen_name VARCHAR(100) DEFAULT '',
+            screen_file VARCHAR(100) DEFAULT '',
+            is_enabled TINYINT(1) DEFAULT 1,
+            warning_threshold FLOAT DEFAULT 80,
+            critical_threshold FLOAT DEFAULT 100,
+            unit VARCHAR(20) DEFAULT '',
+            updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+            UNIQUE KEY tenant_rule (tenant_id, rule_key)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+        $pdo->exec("CREATE TABLE IF NOT EXISTS alert_logs (
+            id INT AUTO_INCREMENT PRIMARY KEY,
+            tenant_id VARCHAR(100) NOT NULL,
+            rule_key VARCHAR(100) NOT NULL,
+            severity VARCHAR(20) NOT NULL,
+            message TEXT NOT NULL,
+            screen_file VARCHAR(100) DEFAULT '',
+            created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+
+        // باقة الـ 34 قاعدة رقابية العالمية الشاملة
+        $allRules = [
+            [
+                'rule_key' => 'sales_below_cost',
+                'rule_name' => 'البيع بأقل من سعر التكلفة',
+                'description' => 'تنبيه فوري عند محاولة بيع أي صنف بسعر أقل من متوسط التكلفة المرجحة (WAC) لمنع الخسائر التجارية.',
+                'category' => 'SALES',
+                'screen_name' => 'المبيعات المباشرة وفواتير البيع',
+                'screen_file' => 'direct-sales.php / sales.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 1,
+                'critical_threshold' => 3,
+                'unit' => 'عملية',
+            ],
+            [
+                'rule_key' => 'sales_qty_exceeds_stock',
+                'rule_name' => 'البيع بكمية تتجاوز الرصيد المتاح بالمستودع',
+                'description' => 'تحذير عند إدخال كمية بيع أكبر من الرصيد الفعلي المتوفر في عنبر ومخزن الصنف.',
+                'category' => 'SALES',
+                'screen_name' => 'المبيعات المباشرة ونقاط البيع',
+                'screen_file' => 'direct-sales.php / sales.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 0,
+                'critical_threshold' => 0,
+                'unit' => 'قطعة',
+            ],
+            [
+                'rule_key' => 'sales_negative_stock',
+                'rule_name' => 'إصدار فاتورة بيع برصيد مخزني سالب',
+                'description' => 'منع وتحذير حرج عند بيع صنف رصيده صفر أو سالب بالمستودع لتفادي تشويه تكلفة المبيعات.',
+                'category' => 'SALES',
+                'screen_name' => 'المبيعات وفواتير الكاشير',
+                'screen_file' => 'direct-sales.php / pro-invoice.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 0,
+                'critical_threshold' => 0,
+                'unit' => 'وحدة',
+            ],
+            [
+                'rule_key' => 'sales_credit_limit_exceeded',
+                'rule_name' => 'تجاوز الحد الائتماني للعميل عند البيع الآجل',
+                'description' => 'تنبيه البائع عند تجاوز العميل لسقف المديونية والائتمان المسموح به في بطاقة حسابه.',
+                'category' => 'SALES',
+                'screen_name' => 'المبيعات الآجلة والعقود',
+                'screen_file' => 'direct-sales.php / sales.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 80,
+                'critical_threshold' => 100,
+                'unit' => '%',
+            ],
+            [
+                'rule_key' => 'sales_overdue_debt_block',
+                'rule_name' => 'وجود فواتير مبيعات سابقة متأخرة السداد',
+                'description' => 'إنذار عند إصدار فاتورة جديدة لعميل لديه فواتير آجلة سابقة تجاوزت فترة السماح.',
+                'category' => 'SALES',
+                'screen_name' => 'المبيعات المباشرة',
+                'screen_file' => 'direct-sales.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 30,
+                'critical_threshold' => 60,
+                'unit' => 'يوم',
+            ],
+            [
+                'rule_key' => 'sales_discount_limit_breach',
+                'rule_name' => 'تجاوز نسبة الخصم المسموحة للبائع',
+                'description' => 'تنبيه عند قيام موظف المبيعات بمنح خصم يتجاوز صلاحيته المحددة دون تصريح الإدارة.',
+                'category' => 'SALES',
+                'screen_name' => 'شاشات المبيعات والكاشير',
+                'screen_file' => 'direct-sales.php / pos-invoice-print.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 5,
+                'critical_threshold' => 10,
+                'unit' => '%',
+            ],
+            [
+                'rule_key' => 'sales_blocked_customer',
+                'rule_name' => 'محاولة البيع لعميل محظور أو موقوف',
+                'description' => 'حظر وإنذار فوري عند اختيار عميل تم تعليق حسابه أو حظره من قبل الإدارة المالية.',
+                'category' => 'SALES',
+                'screen_name' => 'شاشات المبيعات وإصدار الفواتير',
+                'screen_file' => 'direct-sales.php / sales.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 1,
+                'critical_threshold' => 1,
+                'unit' => 'محاولة',
+            ],
+            [
+                'rule_key' => 'sales_margin_danger',
+                'rule_name' => 'تدني هامش الربح الإجمالي للفاتورة',
+                'description' => 'تحذير عند انخفاض نسبة ربحية الفاتورة عن الحد الأدنى الآمن للربحية التجارية.',
+                'category' => 'SALES',
+                'screen_name' => 'المبيعات والفوترة المتقدمة',
+                'screen_file' => 'pro-invoice.php / sales.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 5,
+                'critical_threshold' => 2,
+                'unit' => '%',
+            ],
+            [
+                'rule_key' => 'inv_low_stock',
+                'rule_name' => 'وصول الصنف لحد الطلب الأدنى (Reorder Point)',
+                'description' => 'إشعار مبكر ومستمر للأصناف التي وصل رصيدها المخزني لحد إعادة الطلب.',
+                'category' => 'INVENTORY',
+                'screen_name' => 'تقرير وإدارة المخزون',
+                'screen_file' => 'inventory-report.php / smart_inventory_report.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 10,
+                'critical_threshold' => 5,
+                'unit' => 'كمية',
+            ],
+            [
+                'rule_key' => 'inv_critical_zero_stock',
+                'rule_name' => 'النفاد التام لكمية الصنف بالمستودع',
+                'description' => 'إنذار حرج بنفاد رصيد الصنف في جميع العنابر والمستودعات لمنع تعطيل المبيعات.',
+                'category' => 'INVENTORY',
+                'screen_name' => 'حركة المخزون والعنابر',
+                'screen_file' => 'inventory-report.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 3,
+                'critical_threshold' => 0,
+                'unit' => 'كمية',
+            ],
+            [
+                'rule_key' => 'inv_deadstock',
+                'rule_name' => 'ركود البضاعة وجمود الأصناف (Deadstock)',
+                'description' => 'تنبيه بوجود بضائع مخزنة لفترات طويلة دون أي حركة سحب بيعية لتفادي تجميد السيولة.',
+                'category' => 'INVENTORY',
+                'screen_name' => 'المخزون الذكي والرواكد',
+                'screen_file' => 'smart_inventory_report.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 60,
+                'critical_threshold' => 120,
+                'unit' => 'يوم',
+            ],
+            [
+                'rule_key' => 'inv_fast_moving_surge',
+                'rule_name' => 'سحب وسرعة دوران عالية غير معتادة على الصنف',
+                'description' => 'تنبيه ذكي بأن صنفاً معيناً يشهد إقبالاً وسحباً سريعاً غير مسبوق لطلب توريد عاجل.',
+                'category' => 'INVENTORY',
+                'screen_name' => 'حركة المخازن والتحليلات',
+                'screen_file' => 'inventory-report.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 150,
+                'critical_threshold' => 250,
+                'unit' => '%',
+            ],
+            [
+                'rule_key' => 'inv_slow_moving',
+                'rule_name' => 'أصناف بطيئة الحركة وضعيفة السحب',
+                'description' => 'تنبيه بالأصناف التي انخفض معدل دورانها التجاري بنسبة ملحوظة لعمل عروض ترويجية.',
+                'category' => 'INVENTORY',
+                'screen_name' => 'تحليل المخزون والرواكد',
+                'screen_file' => 'smart_inventory_report.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 45,
+                'critical_threshold' => 90,
+                'unit' => 'يوم',
+            ],
+            [
+                'rule_key' => 'inv_expiring_soon',
+                'rule_name' => 'قرب انتهاء الصلاحية للمنتجات ذات الصلاحية',
+                'description' => 'إنذار مبكر للأصناف التي تقترب فترة صلاحيتها من الانتهاء لإعادتها للمورد أو تصريفها.',
+                'category' => 'INVENTORY',
+                'screen_name' => 'إدارة الأصناف والمخازن',
+                'screen_file' => 'inventory-report.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 60,
+                'critical_threshold' => 30,
+                'unit' => 'يوم',
+            ],
+            [
+                'rule_key' => 'inv_stocktake_variance',
+                'rule_name' => 'وجود فروقات وعجز في الجرد المخزني',
+                'description' => 'تنبيه بوجود تباين أو عجز غير مطابق بين الجرد الفعلي على الرفوف والرصيد الدفتري.',
+                'category' => 'INVENTORY',
+                'screen_name' => 'تسويات وجرد المخازن',
+                'screen_file' => 'inventory-report.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 1,
+                'critical_threshold' => 5,
+                'unit' => '%',
+            ],
+            [
+                'rule_key' => 'supply_supplier_delay',
+                'rule_name' => 'تأخر استلام طلبيات الشراء من الموردين والمصانع',
+                'description' => 'مراقبة أوامر الشراء المعلقة التي تجاوزت فترة التوريد المتوقعة دون استلام البضاعة.',
+                'category' => 'SUPPLY',
+                'screen_name' => 'المشتريات وأوامر التوريد',
+                'screen_file' => 'purchase.php / purchase-order.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 7,
+                'critical_threshold' => 14,
+                'unit' => 'يوم',
+            ],
+            [
+                'rule_key' => 'fin_negative_cash_balance',
+                'rule_name' => 'الرصيد السالب للخزائن والصناديق والبنوك',
+                'description' => 'إنذار فوري عند صرف مبالغ تجعل رصيد أي خزينة أو حساب بنكي سالباً.',
+                'category' => 'FINANCE',
+                'screen_name' => 'سندات الصرف الفردية والمتعددة',
+                'screen_file' => 'single-cash-payment.php / multi-cash-payment.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 0,
+                'critical_threshold' => 0,
+                'unit' => 'SDG',
+            ],
+            [
+                'rule_key' => 'fin_min_liquidity_threshold',
+                'rule_name' => 'انخفاض رصيد السيولة عن حد الأمان التشغيلي',
+                'description' => 'تنبيه الإدارة المالية عند هبوط النقد المتوفر بالخزينة عن الحد الأدنى للالتزامات اليومية.',
+                'category' => 'FINANCE',
+                'screen_name' => 'الخزينة والسيولة والتدفقات',
+                'screen_file' => 'cashflow_modern.php / vouchers-hub.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 50000,
+                'critical_threshold' => 10000,
+                'unit' => 'SDG',
+            ],
+            [
+                'rule_key' => 'fin_duplicate_transfer_no',
+                'rule_name' => 'تكرار رقم التحويلة البنكية في سندات أخرى',
+                'description' => 'منع وتنبيه تكرار تسجيل نفس رقم إشعار التحويل البنكي في أكثر من سند صرف أو قبض.',
+                'category' => 'FINANCE',
+                'screen_name' => 'سندات الصرف والقبض البنكية',
+                'screen_file' => 'single-cash-payment.php / single-cash-receipt.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 1,
+                'critical_threshold' => 2,
+                'unit' => 'تكرار',
+            ],
+            [
+                'rule_key' => 'fin_duplicate_cheque_no',
+                'rule_name' => 'تكرار رقم الشيك البنكي في المعاملات المالية',
+                'description' => 'إنذار عند إدخال رقم شيك تم استخدامه مسبقاً في سند أو حساب آخر لتفادي التلاعب.',
+                'category' => 'FINANCE',
+                'screen_name' => 'سندات الشيكات والمدفوعات',
+                'screen_file' => 'single-cash-payment.php / multi-cash-payment.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 1,
+                'critical_threshold' => 2,
+                'unit' => 'تكرار',
+            ],
+            [
+                'rule_key' => 'fin_overdue_checks',
+                'rule_name' => 'تأخر تحصيل أو صرف الشيكات المستحقة',
+                'description' => 'مراقبة الشيكات الصادرة والواردة المعلقة التي حان أو فات موعد استحقاقها البنكي.',
+                'category' => 'FINANCE',
+                'screen_name' => 'إدارة الشيكات والسندات',
+                'screen_file' => 'vouchers-hub.php / alarm.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 1,
+                'critical_threshold' => 3,
+                'unit' => 'يوم',
+            ],
+            [
+                'rule_key' => 'fin_bounced_cheques',
+                'rule_name' => 'شيكات مرتدة أو مرفوضة من المصرف',
+                'description' => 'إشعار فوري بالشيكات المرتدة من البنك لاتخاذ الإجراء القانوني وتجميد حساب العميل.',
+                'category' => 'FINANCE',
+                'screen_name' => 'متابعة الشيكات والتحصيل',
+                'screen_file' => 'vouchers-hub.php / customer_exposure.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 1,
+                'critical_threshold' => 1,
+                'unit' => 'شيك',
+            ],
+            [
+                'rule_key' => 'fin_liquidity_deficit_forecast',
+                'rule_name' => 'توقع عجز سيولة نقدية (الالتزامات > السيولة)',
+                'description' => 'تحليل تنبؤي بوجود عجز سيولة إذا كانت الشيكات والالتزامات المستحقة قريباً تفوق الرصيد المتاح.',
+                'category' => 'FINANCE',
+                'screen_name' => 'التدفقات النقدية والموازنة',
+                'screen_file' => 'cashflow_modern.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 7,
+                'critical_threshold' => 3,
+                'unit' => 'أيام مقبلة',
+            ],
+            [
+                'rule_key' => 'fin_fx_rate_discrepancy',
+                'rule_name' => 'تباين كبير في سعر الصرف المستخدم بالسند',
+                'description' => 'تنبيه عند تسجيل سند مالي بسعر صرف يختلف بنسبة تتجاوز الحد المسموح عن سعر النظام العام.',
+                'category' => 'FINANCE',
+                'screen_name' => 'سندات العملات الأجنبية والصرف',
+                'screen_file' => 'single-cash-payment.php / multi-cash-payment.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 3,
+                'critical_threshold' => 6,
+                'unit' => '%',
+            ],
+            [
+                'rule_key' => 'fin_large_cash_outflow',
+                'rule_name' => 'سندات صرف ذات مبالغ نقدية ضخمة واستثنائية',
+                'description' => 'إشعار فوري لمدير النظام عند إصدار سند صرف نقدي يتجاوز السقف العادي للمصروفات اليومية.',
+                'category' => 'FINANCE',
+                'screen_name' => 'سندات الصرف المالي',
+                'screen_file' => 'single-cash-payment.php / multi-cash-payment.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 500000,
+                'critical_threshold' => 1000000,
+                'unit' => 'SDG',
+            ],
+            [
+                'rule_key' => 'credit_aging_danger',
+                'rule_name' => 'تراكم وأعمار الديون غير المسددة للعملاء',
+                'description' => 'إنذار بأرصدة العملاء المدينة التي تجاوزت فترات ائتمان حرجة دون سداد لتفادي الديون الهالكة.',
+                'category' => 'CREDIT',
+                'screen_name' => 'أعمار الديون والائتمان',
+                'screen_file' => 'credit_limits_dashboard.php / customer_exposure.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 60,
+                'critical_threshold' => 90,
+                'unit' => 'يوم',
+            ],
+            [
+                'rule_key' => 'customer_inactive_churn',
+                'rule_name' => 'انقطاع وركود العملاء الدائمين (VIP Churn)',
+                'description' => 'تنبيه إدارة المبيعات بأن عميلاً رئيسياً توقف عن الشراء منذ فترة غير معتادة لمتابعته.',
+                'category' => 'SALES',
+                'screen_name' => 'تحليل ولاء وركود العملاء',
+                'screen_file' => 'customer_churn.php / customer_exposure.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 30,
+                'critical_threshold' => 60,
+                'unit' => 'يوم',
+            ],
+            [
+                'rule_key' => 'customer_high_returns',
+                'rule_name' => 'ارتفاع غير طبيعي في نسبة مرتجعات العميل',
+                'description' => 'تنبيه عند تجاوز نسبة مرتجعات مبيعات عميل معين للحد المقبول لمراجعة جودة التوريد.',
+                'category' => 'SALES',
+                'screen_name' => 'مرتجعات المبيعات والعملاء',
+                'screen_file' => 'sales.php / direct-sales.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 10,
+                'critical_threshold' => 20,
+                'unit' => '%',
+            ],
+            [
+                'rule_key' => 'supplier_overdue_balance',
+                'rule_name' => 'مستحقات متأخرة لمورد تجاوزت تاريخ الاستحقاق',
+                'description' => 'تنبيه بالأرصدة الدائنة للموردين التي تجاوزت فترة السداد المتفق عليها لتفادي وقف التوريد.',
+                'category' => 'SUPPLY',
+                'screen_name' => 'حسابات الموردين والمشتريات',
+                'screen_file' => 'purchase.php / master-data.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 30,
+                'critical_threshold' => 60,
+                'unit' => 'يوم',
+            ],
+            [
+                'rule_key' => 'sec_voucher_audit_edit_delete',
+                'rule_name' => 'تعديل أو حذف أي سند مالي أو فاتورة سابقة',
+                'description' => 'إشعار رقابي فوري للإدارة عند تعديل أو إلغاء أي مستند مالي بعد ترحيله واعتماده.',
+                'category' => 'SECURITY',
+                'screen_name' => 'سجل التدقيق المحاسبي وسندات الصرف والقبض',
+                'screen_file' => 'vouchers-hub.php / single-cash-payment.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 1,
+                'critical_threshold' => 1,
+                'unit' => 'عملية',
+            ],
+            [
+                'rule_key' => 'sec_unposted_draft_vouchers',
+                'rule_name' => 'السندات والفواتير المعلقة أو المسودة غير المرحلة',
+                'description' => 'مراقبة المستندات المالية التي ظلت بحالة مسودة لأكثر من 24 ساعة دون ترحيل للقوائم المالية.',
+                'category' => 'SECURITY',
+                'screen_name' => 'السندات المعلقة والفواتير',
+                'screen_file' => 'vouchers-hub.php / sales.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 5,
+                'critical_threshold' => 10,
+                'unit' => 'سند معلق',
+            ],
+            [
+                'rule_key' => 'sec_missed_db_backup',
+                'rule_name' => 'تأخر النسخ الاحتياطي لقاعدة البيانات (> 24 ساعة)',
+                'description' => 'إنذار أمني حرج في لوحة التحكم عند عدم تنفيذ نسخة احتياطية لقاعدة البيانات خلال آخر 24 ساعة.',
+                'category' => 'SECURITY',
+                'screen_name' => 'لوحة التحكم وإدارة النسخ الاحتياطي',
+                'screen_file' => 'settings.php / magaiees_unified_dashboard.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 1,
+                'critical_threshold' => 2,
+                'unit' => 'يوم',
+            ],
+            [
+                'rule_key' => 'sec_unbalanced_entries',
+                'rule_name' => 'عدم اتزان القيود المحاسبية (المدين != الدائن)',
+                'description' => 'فحص فوري لأي قيد محاسبي أو سند غير متوازن في ميزان المراجعة ودفتر الأستاذ العام.',
+                'category' => 'SECURITY',
+                'screen_name' => 'دفتر الأستاذ العام وميزان المراجعة',
+                'screen_file' => 'general_ledger_v2.php / analytics.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 1,
+                'critical_threshold' => 1,
+                'unit' => 'قيد غير متزن',
+            ],
+            [
+                'rule_key' => 'sec_suspicious_login',
+                'rule_name' => 'محاولات دخول فاشلة أو غير مصرح بها للنظام',
+                'description' => 'تنبيه أمني عند تكرار محاولات تسجيل الدخول بكلمات سر خاطئة لتفادي محاولات الاختراق.',
+                'category' => 'SECURITY',
+                'screen_name' => 'شاشة تسجيل الدخول وحماية النظام',
+                'screen_file' => 'login.php / settings.php',
+                'is_enabled' => 1,
+                'warning_threshold' => 3,
+                'critical_threshold' => 5,
+                'unit' => 'محاولات',
+            ]
+        ];
+
+        $stmt = $pdo->prepare("INSERT INTO alert_settings (tenant_id, rule_key, rule_name, description, category, screen_name, screen_file, is_enabled, warning_threshold, critical_threshold, unit) 
+                                VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) 
+                                ON DUPLICATE KEY UPDATE 
+                                    rule_name = VALUES(rule_name), 
+                                    description = VALUES(description), 
+                                    category = VALUES(category),
+                                    screen_name = VALUES(screen_name),
+                                    screen_file = VALUES(screen_file),
+                                    unit = VALUES(unit)");
+        foreach ($allRules as $r) {
+            $stmt->execute([
+                $tenant_id, 
+                $r['rule_key'], 
+                $r['rule_name'], 
+                $r['description'], 
+                $r['category'], 
+                $r['screen_name'], 
+                $r['screen_file'], 
+                $r['is_enabled'], 
+                $r['warning_threshold'], 
+                $r['critical_threshold'], 
+                $r['unit']
+            ]);
+        }
+    } catch (Exception $e) {
+        error_log("Error initializing alert tables: " . $e->getMessage());
+    }
+}
+
+ensureAlertTablesExist($pdo, $GLOBAL_TENANT_ID);
+
+// -------------------------------------------------------------
+// 2. محرك فحص البيانات الحية وتوليد الإنذارات والتنبيهات
+// -------------------------------------------------------------
+function runAlertEngine($pdo) {
+    global $GLOBAL_TENANT_ID;
+    try {
+        // تصفير سجلات التنبيهات القديمة لإنتاج تنبيهات محدثة ومطابقة للحالة الحالية
+        $pdo->prepare("DELETE FROM alert_logs WHERE tenant_id = ?")->execute([$GLOBAL_TENANT_ID]);
+        
+        $stmtSet = $pdo->prepare("SELECT rule_key, is_enabled FROM alert_settings WHERE is_enabled = 1 AND tenant_id = ?");
+        $stmtSet->execute([$GLOBAL_TENANT_ID]);
+        $settings = $stmtSet->fetchAll(PDO::FETCH_KEY_PAIR);
+        
+        // 1. فحص تجاوز الحد الائتماني للعملاء
+        if (isset($settings['sales_credit_limit_exceeded']) || isset($settings['credit_limit_breach'])) {
+            try {
+                $stmt = $pdo->prepare("SELECT data FROM customers WHERE tenant_id = ?");
+                $stmt->execute([$GLOBAL_TENANT_ID]);
+                while ($row = $stmt->fetch()) {
+                    $c = json_decode($row['data'], true);
+                    if ($c && (float)($c['creditLimit'] ?? 0) > 0) {
+                        $name = $c['name'] ?? 'عميل غير معروف';
+                        $bal = (float)($c['currentBalance'] ?? 0);
+                        $limit = (float)($c['creditLimit'] ?? 0);
+                        $pct = ($bal / $limit) * 100;
+                        if ($pct >= 100) {
+                            $msg = "🚨 خطر ائتماني حرج! العميل [" . $name . "] تجاوز الحد الائتماني بنسبة " . round($pct) . "% (الرصيد: " . number_format($bal, 2) . " / الحد: " . number_format($limit, 2) . ")";
+                            $pdo->prepare("INSERT INTO alert_logs (tenant_id, rule_key, severity, message, screen_file) VALUES (?, 'sales_credit_limit_exceeded', 'RED', ?, 'direct-sales.php')")->execute([$GLOBAL_TENANT_ID, $msg]);
+                        } elseif ($pct >= 80) {
+                            $msg = "⚠️ تنبيه ائتماني! العميل [" . $name . "] اقترب من سقف الائتمان المسموح بنسبة " . round($pct) . "% (الرصيد: " . number_format($bal, 2) . ")";
+                            $pdo->prepare("INSERT INTO alert_logs (tenant_id, rule_key, severity, message, screen_file) VALUES (?, 'sales_credit_limit_exceeded', 'YELLOW', ?, 'direct-sales.php')")->execute([$GLOBAL_TENANT_ID, $msg]);
+                        }
+                    }
+                }
+            } catch (Exception $ex) {}
+        }
+
+        // 2. فحص الرصيد السالب للخزائن والبنوك
+        if (isset($settings['fin_negative_cash_balance'])) {
+            try {
+                $stmt = $pdo->prepare("SELECT data FROM safes WHERE tenant_id = ?");
+                $stmt->execute([$GLOBAL_TENANT_ID]);
+                while ($row = $stmt->fetch()) {
+                    $safe = json_decode($row['data'], true);
+                    if ($safe) {
+                        $name = $safe['name'] ?? 'خزينة';
+                        $bal = (float)($safe['balance'] ?? 0);
+                        if ($bal < 0) {
+                            $msg = "🚨 عجز نقدي حرج! رصيد الخزينة/الحساب [" . $name . "] أصبح سالباً بمبلغ (" . number_format($bal, 2) . ")!";
+                            $pdo->prepare("INSERT INTO alert_logs (tenant_id, rule_key, severity, message, screen_file) VALUES (?, 'fin_negative_cash_balance', 'RED', ?, 'single-cash-payment.php')")->execute([$GLOBAL_TENANT_ID, $msg]);
+                        }
+                    }
+                }
+            } catch (Exception $ex) {}
+        }
+
+        // 3. فحص الرصيد السالب للأصناف ونقص المخزون
+        if (isset($settings['sales_negative_stock']) || isset($settings['inv_critical_zero_stock']) || isset($settings['inv_low_stock'])) {
+            try {
+                $stmt = $pdo->prepare("SELECT data FROM items WHERE tenant_id = ?");
+                $stmt->execute([$GLOBAL_TENANT_ID]);
+                while ($row = $stmt->fetch()) {
+                    $item = json_decode($row['data'], true);
+                    if ($item) {
+                        $name = $item['name'] ?? 'صنف';
+                        $stock = (float)($item['stockQuantity'] ?? ($item['quantity'] ?? ($item['qty'] ?? 0)));
+                        $minStock = (float)($item['minStock'] ?? 10);
+                        if ($stock < 0 && isset($settings['sales_negative_stock'])) {
+                            $msg = "🚨 رصيد مخزني سالب! الصنف [" . $name . "] رصيده سالب (" . $stock . " وحدة) في المستودع ويجب تسوية الجرد فوراً!";
+                            $pdo->prepare("INSERT INTO alert_logs (tenant_id, rule_key, severity, message, screen_file) VALUES (?, 'sales_negative_stock', 'RED', ?, 'inventory-report.php')")->execute([$GLOBAL_TENANT_ID, $msg]);
+                        } elseif ($stock == 0 && isset($settings['inv_critical_zero_stock'])) {
+                            $msg = "🚨 نفاد مخزون كامل! الصنف [" . $name . "] رصيده الحالي بالمخزن صفر (0 وحدة).";
+                            $pdo->prepare("INSERT INTO alert_logs (tenant_id, rule_key, severity, message, screen_file) VALUES (?, 'inv_critical_zero_stock', 'RED', ?, 'inventory-report.php')")->execute([$GLOBAL_TENANT_ID, $msg]);
+                        } elseif ($stock <= $minStock && $stock > 0 && isset($settings['inv_low_stock'])) {
+                            $msg = "⚠️ حد إعادة الطلب! الصنف [" . $name . "] وصل لحد الطلب الأدنى (المتبقي: " . $stock . " وحدة).";
+                            $pdo->prepare("INSERT INTO alert_logs (tenant_id, rule_key, severity, message, screen_file) VALUES (?, 'inv_low_stock', 'YELLOW', ?, 'inventory-report.php')")->execute([$GLOBAL_TENANT_ID, $msg]);
+                        }
+                    }
+                }
+            } catch (Exception $ex) {}
+        }
+
+        // 4. فحص الشيكات المتأخرة والمرتدة
+        if (isset($settings['fin_overdue_checks']) || isset($settings['fin_bounced_cheques'])) {
+            try {
+                $stmt = $pdo->prepare("SELECT data FROM `checks` WHERE tenant_id = ?");
+                $stmt->execute([$GLOBAL_TENANT_ID]);
+                while ($row = $stmt->fetch()) {
+                    $ch = json_decode($row['data'], true);
+                    if ($ch) {
+                        $no = $ch['checkNo'] ?? ($ch['no'] ?? '---');
+                        $amt = (float)($ch['amount'] ?? 0);
+                        $status = strtoupper($ch['status'] ?? '');
+                        if (in_array($status, ['BOUNCED', 'REJECTED', 'RETURNED']) && isset($settings['fin_bounced_cheques'])) {
+                            $msg = "🚨 شيك مرتد! الشيك رقم [" . $no . "] بمبلغ (" . number_format($amt, 2) . ") تم رفضه من البنك!";
+                            $pdo->prepare("INSERT INTO alert_logs (tenant_id, rule_key, severity, message, screen_file) VALUES (?, 'fin_bounced_cheques', 'RED', ?, 'vouchers-hub.php')")->execute([$GLOBAL_TENANT_ID, $msg]);
+                        } elseif ($status === 'PENDING' && isset($settings['fin_overdue_checks'])) {
+                            $due = $ch['dueDate'] ?? ($ch['due_date'] ?? '');
+                            if ($due && $due < date('Y-m-d')) {
+                                $msg = "⚠️ شيك متأخر! الشيك رقم [" . $no . "] بمبلغ (" . number_format($amt, 2) . ") تجاوز تاريخ استحقاقه (" . $due . ").";
+                                $pdo->prepare("INSERT INTO alert_logs (tenant_id, rule_key, severity, message, screen_file) VALUES (?, 'fin_overdue_checks', 'YELLOW', ?, 'vouchers-hub.php')")->execute([$GLOBAL_TENANT_ID, $msg]);
+                            }
+                        }
+                    }
+                }
+            } catch (Exception $ex) {}
+        }
+
+        // 5. فحص تكرار أرقام التحويلات والشيكات
+        if (isset($settings['fin_duplicate_transfer_no'])) {
+            try {
+                $stmt = $pdo->prepare("SELECT data FROM vouchers WHERE tenant_id = ?");
+                $stmt->execute([$GLOBAL_TENANT_ID]);
+                $transferMap = [];
+                while ($row = $stmt->fetch()) {
+                    $v = json_decode($row['data'], true);
+                    if ($v) {
+                        $transfers = $v['transfers'] ?? [];
+                        if (empty($transfers) && !empty($v['mobileTransferNo'])) {
+                            $transfers = [['transferNo' => $v['mobileTransferNo']]];
+                        }
+                        foreach ($transfers as $tr) {
+                            $tNo = trim($tr['transferNo'] ?? '');
+                            if ($tNo !== '' && $tNo !== '0') {
+                                $transferMap[$tNo] = ($transferMap[$tNo] ?? 0) + 1;
+                            }
+                        }
+                    }
+                }
+                foreach ($transferMap as $tNo => $cnt) {
+                    if ($cnt > 1) {
+                        $msg = "🚨 تكرار رقم مستند مالي! رقم التحويلة البنكية [" . $tNo . "] مكرر في (" . $cnt . ") سندات مختلفة!";
+                        $pdo->prepare("INSERT INTO alert_logs (tenant_id, rule_key, severity, message, screen_file) VALUES (?, 'fin_duplicate_transfer_no', 'RED', ?, 'single-cash-payment.php')")->execute([$GLOBAL_TENANT_ID, $msg]);
+                    }
+                }
+            } catch (Exception $ex) {}
+        }
+
+        // 6. فحص النسخ الاحتياطي لقاعدة البيانات
+        if (isset($settings['sec_missed_db_backup'])) {
+            $backupDir = __DIR__ . '/backups';
+            $hasRecentBackup = false;
+            if (is_dir($backupDir)) {
+                $files = glob($backupDir . '/*.sql');
+                if (!empty($files)) {
+                    $latest = max(array_map('filemtime', $files));
+                    if ((time() - $latest) <= 86400) {
+                        $hasRecentBackup = true;
+                    }
+                }
+            }
+            if (!$hasRecentBackup) {
+                $msg = "🚨 تنبيه أمان حرج! لم يتم إنشاء نسخة احتياطية لقاعدة البيانات خلال آخر 24 ساعة.";
+                $pdo->prepare("INSERT INTO alert_logs (tenant_id, rule_key, severity, message, screen_file) VALUES (?, 'sec_missed_db_backup', 'RED', ?, 'settings.php')")->execute([$GLOBAL_TENANT_ID, $msg]);
+            }
+        }
+
+    } catch (Exception $e) {
+        error_log("Error running alert engine: " . $e->getMessage());
+    }
+}
+
+// -------------------------------------------------------------
+// 3. معالجة طلبات AJAX و POST
+// -------------------------------------------------------------
+if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
+    $action = $_POST['action'];
+
+    // AJAX Toggle Rule
+    if ($action === 'toggle_rule_ajax') {
+        header('Content-Type: application/json');
+        $rule_key = $_POST['rule_key'] ?? '';
+        $is_enabled = !empty($_POST['is_enabled']) ? 1 : 0;
+        
+        $stmt = $pdo->prepare("UPDATE alert_settings SET is_enabled = ? WHERE tenant_id = ? AND rule_key = ?");
+        $stmt->execute([$is_enabled, $GLOBAL_TENANT_ID, $rule_key]);
+        
+        runAlertEngine($pdo);
+        
+        $stmtCount = $pdo->prepare("SELECT COUNT(*) FROM alert_settings WHERE is_enabled = 1 AND tenant_id = ?");
+        $stmtCount->execute([$GLOBAL_TENANT_ID]);
+        $enabledCount = $stmtCount->fetchColumn();
+
+        $stmtLogs = $pdo->prepare("SELECT * FROM alert_logs WHERE tenant_id = ? ORDER BY severity DESC, id DESC");
+        $stmtLogs->execute([$GLOBAL_TENANT_ID]);
+        $logs = $stmtLogs->fetchAll(PDO::FETCH_ASSOC);
+
+        $red = 0; $yellow = 0;
+        foreach ($logs as $l) {
+            if (($l['severity'] ?? '') === 'RED') $red++; else $yellow++;
+        }
+
+        echo json_encode([
+            'success' => true,
+            'is_enabled' => $is_enabled,
+            'enabled_count' => (int)$enabledCount,
+            'red_count' => $red,
+            'yellow_count' => $yellow,
+            'logs' => $logs
+        ]);
+        exit;
+    }
+
+    // AJAX Toggle All (Enable All / Disable All)
+    if ($action === 'bulk_toggle_ajax') {
+        header('Content-Type: application/json');
+        $enable_state = !empty($_POST['is_enabled']) ? 1 : 0;
+        $category = $_POST['category'] ?? 'ALL';
+
+        if ($category === 'ALL') {
+            $stmt = $pdo->prepare("UPDATE alert_settings SET is_enabled = ? WHERE tenant_id = ?");
+            $stmt->execute([$enable_state, $GLOBAL_TENANT_ID]);
+        } else {
+            $stmt = $pdo->prepare("UPDATE alert_settings SET is_enabled = ? WHERE tenant_id = ? AND category = ?");
+            $stmt->execute([$enable_state, $GLOBAL_TENANT_ID, $category]);
+        }
+
+        runAlertEngine($pdo);
+
+        echo json_encode(['success' => true, 'message' => 'تم تحديث حالة القواعد بنجاح']);
+        exit;
+    }
+
+    // AJAX Update Thresholds
+    if ($action === 'update_thresholds_ajax') {
+        header('Content-Type: application/json');
+        $rule_key = $_POST['rule_key'] ?? '';
+        $warn = (float)($_POST['warning_threshold'] ?? 0);
+        $crit = (float)($_POST['critical_threshold'] ?? 0);
+
+        $stmt = $pdo->prepare("UPDATE alert_settings SET warning_threshold = ?, critical_threshold = ? WHERE tenant_id = ? AND rule_key = ?");
+        $stmt->execute([$warn, $crit, $GLOBAL_TENANT_ID, $rule_key]);
+
+        runAlertEngine($pdo);
+
+        echo json_encode(['success' => true, 'message' => 'تم حفظ الشروط بنجاح']);
+        exit;
+    }
+}
+
+// -------------------------------------------------------------
+// 4. معالجة طلب جلب التنبيهات والقواعد بصيغة JSON
+// -------------------------------------------------------------
+if (isset($_GET['action'])) {
+    if ($_GET['action'] === 'get_live_alerts_json') {
+        header('Content-Type: application/json');
+        runAlertEngine($pdo);
+        
+        $stmtL = $pdo->prepare("SELECT * FROM alert_logs WHERE tenant_id = ? ORDER BY severity DESC, id DESC");
+        $stmtL->execute([$GLOBAL_TENANT_ID]);
+        $logs = $stmtL->fetchAll(PDO::FETCH_ASSOC);
+        
+        $red = 0; $yellow = 0;
+        foreach ($logs as $l) {
+            if (($l['severity'] ?? '') === 'RED') $red++; else $yellow++;
+        }
+        
+        echo json_encode([
+            'success' => true,
+            'total' => count($logs),
+            'red_count' => $red,
+            'yellow_count' => $yellow,
+            'alerts' => $logs
+        ]);
+        exit;
+    }
+
+    if ($_GET['action'] === 'get_rules_json') {
+        header('Content-Type: application/json');
+        $stmtR = $pdo->prepare("SELECT * FROM alert_settings WHERE tenant_id = ? ORDER BY category ASC, id ASC");
+        $stmtR->execute([$GLOBAL_TENANT_ID]);
+        $rules = $stmtR->fetchAll(PDO::FETCH_ASSOC);
+        echo json_encode([
+            'success' => true,
+            'rules' => $rules
+        ]);
+        exit;
+    }
+}
+
+// تشغيل المحرك لجلب البيانات للعرض الأولي
+runAlertEngine($pdo);
+
+$rules = [];
+$logs = [];
+try {
+    $stmtR = $pdo->prepare("SELECT * FROM alert_settings WHERE tenant_id = ? ORDER BY category ASC, id ASC");
+    $stmtR->execute([$GLOBAL_TENANT_ID]);
+    $rules = $stmtR->fetchAll(PDO::FETCH_ASSOC);
+
+    $stmtL = $pdo->prepare("SELECT * FROM alert_logs WHERE tenant_id = ? ORDER BY severity DESC, id DESC");
+    $stmtL->execute([$GLOBAL_TENANT_ID]);
+    $logs = $stmtL->fetchAll(PDO::FETCH_ASSOC);
+} catch (Exception $e) {}
+
+$red_count = 0; $yellow_count = 0; $enabled_rules = 0;
+foreach ($logs as $l) {
+    if (($l['severity'] ?? '') === 'RED') $red_count++;
+    else $yellow_count++;
+}
+foreach ($rules as $r) {
+    if ($r['is_enabled']) $enabled_rules++;
+}
+
+// أيقونات وتنسيقات الأقسام
+$categoryMeta = [
+    'SALES'     => ['icon' => 'fa-cash-register', 'name' => 'المبيعات والفوترة والكاشير', 'color' => '#38bdf8', 'bg' => 'rgba(56,189,248,0.12)', 'border' => '#38bdf840'],
+    'INVENTORY' => ['icon' => 'fa-warehouse', 'name' => 'المخازن والمستودعات والتوريد', 'color' => '#a78bfa', 'bg' => 'rgba(167,139,250,0.12)', 'border' => '#a78bfa40'],
+    'FINANCE'   => ['icon' => 'fa-vault', 'name' => 'الخزينة وسندات القبض والصرف والبنوك', 'color' => '#34d399', 'bg' => 'rgba(52,211,153,0.12)', 'border' => '#34d39940'],
+    'CREDIT'    => ['icon' => 'fa-users-gear', 'name' => 'العملاء والائتمان والتحصيل', 'color' => '#fbbf24', 'bg' => 'rgba(251,191,36,0.12)', 'border' => '#fbbf2440'],
+    'SUPPLY'    => ['icon' => 'fa-truck-fast', 'name' => 'المشتريات والتوريد والمصانع', 'color' => '#f472b6', 'bg' => 'rgba(244,114,182,0.12)', 'border' => '#f472b640'],
+    'SECURITY'  => ['icon' => 'fa-shield-halved', 'name' => 'الأمان والرقابة والتدقيق المحاسبي', 'color' => '#f87171', 'bg' => 'rgba(248,113,113,0.12)', 'border' => '#f8717140']
+];
+?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
 <script src="js/lang.js"></script>
 <script>
 (function(){
-    var l = localStorage.getItem('erp_lang') || 'ar';
-    if(l==='en') {
-        document.documentElement.setAttribute('dir','ltr');
-        document.documentElement.setAttribute('lang','en');
+    var l = localStorage.getItem("erp_lang") || "ar";
+    if(l==="en") {
+        document.documentElement.setAttribute("dir","ltr");
+        document.documentElement.setAttribute("lang","en");
     }
 })();
 </script>
+
 <head>
-    <link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>مركز التنبيهات - مقاييس (MAGAIEES)</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>مصفوفة الرقابة وإدارة التنبيهات العالمية | Al-Sajana ERP</title>
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Cairo:wght@400;600;700;900&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
+    <link rel="stylesheet" href="css/tailwind.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+
     <style>
         :root {
             --bg-color: #050308;
-            --surface: rgba(18, 15, 25, 0.65);
-            --border: rgba(255, 255, 255, 0.08);
-            --border-highlight: rgba(255, 255, 255, 0.2);
-            
+            --surface: rgba(14, 10, 24, 0.85);
+            --border-glass: rgba(255, 255, 255, 0.1);
+            --text-main: #ffffff;
+            --text-muted: #94a3b8;
             --theme-danger: #f43f5e;
             --theme-warning: #f59e0b;
-            --theme-info: #0ea5e9;
-            --theme-purple: #8b5cf6;
+            --theme-success: #10b981;
+            --theme-info: #38bdf8;
+        }
+
+        :root.light-theme {
+            --bg-color: #f8fafc;
+            --surface: #ffffff;
+            --border-glass: #000000;
+            --text-main: #000000;
+            --text-muted: #334155;
         }
 
         body {
             background-color: var(--bg-color);
             margin: 0; padding: 0;
             min-height: 100vh;
-            font-family: 'Tajawal', sans-serif;
-            color: #fff;
-            position: relative;
+            font-family: 'Cairo', 'Tajawal', sans-serif;
+            color: var(--text-main);
             overflow-x: hidden;
         }
 
-        /* Ambient Animated Background Orbs */
         .ambient-bg {
             position: fixed; top: 0; left: 0; width: 100%; height: 100vh;
             overflow: hidden; z-index: -1; pointer-events: none;
             background: radial-gradient(circle at 50% 50%, #0c0812 0%, #000000 100%);
         }
 
-        .orb {
-            position: absolute; border-radius: 50%; filter: blur(120px); opacity: 0.15;
-            animation: floatOrb 20s infinite alternate ease-in-out;
+        .alarm-master-wrapper {
+            width: 100% !important;
+            max-width: 100% !important;
+            margin: 0 auto !important;
+            padding: 10px 15px 60px 15px !important;
+            box-sizing: border-box !important;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
         }
 
-        .orb-1 { width: 500px; height: 500px; background: var(--theme-danger); top: -5%; right: -5%; }
-        .orb-2 { width: 450px; height: 450px; background: var(--theme-warning); bottom: -10%; left: -5%; animation-delay: -7s; }
-        .orb-3 { width: 600px; height: 600px; background: var(--theme-info); top: 30%; left: 30%; animation-duration: 25s; opacity: 0.1; }
-
-        @keyframes floatOrb {
-            0% { transform: translate(0, 0) scale(1); }
-            33% { transform: translate(30px, -50px) scale(1.1); }
-            66% { transform: translate(-30px, 30px) scale(0.9); }
-            100% { transform: translate(0, 0) scale(1); }
+        /* ── كروت الإحصائيات الفخمة ── */
+        .stat-card-v4 {
+            background: var(--surface);
+            border: 2px solid var(--border-glow, rgba(255, 255, 255, 0.1));
+            border-radius: 20px;
+            padding: 20px;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            backdrop-filter: blur(20px);
         }
 
-        /* Layout Container */
-        .alarm-main {
-            width: 100%; max-width: 100%;
-            margin: 0 auto; padding: 0px 25px 25px 25px;
-            box-sizing: border-box;
-            display: flex; flex-direction: column; gap: 30px;
+        .stat-card-v4:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 15px 35px var(--border-glow, rgba(239, 68, 68, 0.3));
         }
 
-
-        .header-brand { display: flex; align-items: center; gap: 15px; }
-        .brand-icon {
-            width: 50px; height: 50px; border-radius: 16px;
-            background: linear-gradient(135deg, #f43f5e, #f59e0b);
-            display: flex; align-items: center; justify-content: center; font-size: 1.5rem;
-            box-shadow: 0 8px 20px rgba(244, 63, 94, 0.4), inset 0 2px 5px rgba(255,255,255,0.3); border: 1px solid rgba(255,255,255,0.2);
-        }
-        .brand-text h1 { margin: 0; font-size: 1.4rem; font-weight: 900; letter-spacing: 0.5px; text-shadow: 0 2px 10px rgba(255,255,255,0.1); }
-        .brand-text p { margin: 0; font-size: 0.85rem; color: #94a3b8; font-weight: 500; }
-
-        .header-center { text-align: center; }
-        .header-center h2 { margin: 0; font-size: 1.6rem; font-weight: 900; background: linear-gradient(to right, #fff, #cbd5e1); -webkit-background-clip: text; -webkit-text-fill-color: transparent; letter-spacing: 1px; }
-        .header-center #last-refresh-time { font-size: 0.8rem; color: #94a3b8; margin-top: 5px; font-weight: 600; }
-
-        .header-controls { display: flex; align-items: center; gap: 15px; }
-        .refresh-btn {
-            background: rgba(244, 63, 94, 0.15); border: 1px solid rgba(244, 63, 94, 0.3);
-            color: #fb7185; padding: 10px 20px; border-radius: 14px;
-            font-size: 0.9rem; font-weight: 700; cursor: pointer;
-            transition: all 0.3s; display: flex; align-items: center; gap: 8px; font-family: 'Tajawal', sans-serif;
-            box-shadow: 0 5px 15px rgba(244, 63, 94, 0.1);
-        }
-        .refresh-btn:hover { background: rgba(244, 63, 94, 0.25); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(244, 63, 94, 0.2); }
-        .refresh-btn .spin-icon { display: inline-block; }
-        .refresh-btn.loading .spin-icon { animation: spin 0.6s linear infinite; }
-        
-        .icon-btn { background: rgba(255,255,255,0.03); border: 1px solid var(--border); width: 46px; height: 46px; border-radius: 14px; color: #fff; font-size: 1.2rem; display: flex; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; }
-        .icon-btn:hover { background: rgba(255,255,255,0.1); border-color: rgba(255,255,255,0.2); transform: translateY(-2px); box-shadow: 0 5px 15px rgba(0,0,0,0.3); }
-
-        /* KPI Summary Grid */
-        .summary-cards {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(300px, 1fr)); gap: 20px;
-            animation: fadeSlideUp 0.5s ease-out 0.1s both;
+        .stat-card-v4::before {
+            content: '';
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 3.5px;
+            background: linear-gradient(90deg, transparent, var(--bar-color, #ef4444), transparent);
         }
 
-        .kpi-card {
-            background: var(--surface); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border); border-radius: 20px; padding: 25px;
-            display: flex; align-items: center; justify-content: space-between;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.03);
-            transition: all 0.3s ease;
-        }
-        .kpi-card:hover { transform: translateY(-5px); border-color: var(--border-highlight); }
-
-        .kpi-content { display: flex; flex-direction: column; gap: 5px; }
-        .kpi-label { font-size: 1rem; color: #94a3b8; font-weight: 600; }
-        .kpi-value { font-size: 2.2rem; font-weight: 900; font-family: 'Outfit', sans-serif; letter-spacing: 1px; }
-        
-        .kpi-icon { width: 70px; height: 70px; border-radius: 18px; display: flex; align-items: center; justify-content: center; font-size: 2rem; background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 2px 10px rgba(0,0,0,0.5); }
-
-        /* Themes */
-        .card-danger .kpi-value { background: linear-gradient(to right, #fb7185, #e11d48); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .card-danger .kpi-icon { background: rgba(244, 63, 94, 0.15); border-color: rgba(244, 63, 94, 0.3); color: #fb7185; box-shadow: 0 0 20px rgba(244, 63, 94, 0.2); }
-        .card-danger:hover { box-shadow: 0 15px 30px rgba(244, 63, 94, 0.1); }
-
-        .card-warning .kpi-value { background: linear-gradient(to right, #fcd34d, #d97706); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .card-warning .kpi-icon { background: rgba(245, 158, 11, 0.15); border-color: rgba(245, 158, 11, 0.3); color: #fbbf24; box-shadow: 0 0 20px rgba(245, 158, 11, 0.2); }
-        .card-warning:hover { box-shadow: 0 15px 30px rgba(245, 158, 11, 0.1); }
-
-        .card-info .kpi-value { background: linear-gradient(to right, #7dd3fc, #0284c7); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .card-info .kpi-icon { background: rgba(14, 165, 233, 0.15); border-color: rgba(14, 165, 233, 0.3); color: #38bdf8; box-shadow: 0 0 20px rgba(14, 165, 233, 0.2); }
-        .card-info:hover { box-shadow: 0 15px 30px rgba(14, 165, 233, 0.1); }
-
-        .card-purple .kpi-value { background: linear-gradient(to right, #c084fc, #7e22ce); -webkit-background-clip: text; -webkit-text-fill-color: transparent; }
-        .card-purple .kpi-icon { background: rgba(139, 92, 246, 0.15); border-color: rgba(139, 92, 246, 0.3); color: #c084fc; box-shadow: 0 0 20px rgba(139, 92, 246, 0.2); }
-        .card-purple:hover { box-shadow: 0 15px 30px rgba(139, 92, 246, 0.1); }
-
-        /* Main Grid */
-        .alarms-grid {
-            display: grid; grid-template-columns: repeat(auto-fit, minmax(400px, 1fr)); gap: 30px;
-            animation: fadeSlideUp 0.5s ease-out 0.2s both;
+        /* ── أزرار التبويبات ── */
+        .cat-tab-btn {
+            padding: 11px 18px;
+            border-radius: 14px;
+            font-weight: 800;
+            font-size: 0.88rem;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            background: rgba(255, 255, 255, 0.04);
+            color: #94a3b8;
+            white-space: nowrap;
         }
 
-        .glass-panel {
-            background: var(--surface); backdrop-filter: blur(20px); -webkit-backdrop-filter: blur(20px);
-            border: 1px solid var(--border); border-radius: 24px; padding: 25px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.3), inset 0 1px 1px rgba(255,255,255,0.03);
-            transition: all 0.4s ease; display: flex; flex-direction: column;
+        .cat-tab-btn:hover {
+            background: rgba(255, 255, 255, 0.1);
+            color: #fff;
+            transform: translateY(-2px);
         }
-        .glass-panel:hover { border-color: var(--border-highlight); box-shadow: 0 20px 45px rgba(0,0,0,0.4); }
 
-        .section-title {
-            color: #fff; font-size: 1.2rem; font-weight: 800; margin: 0 0 20px;
-            display: flex; align-items: center; gap: 12px; padding-bottom: 15px; border-bottom: 1px solid rgba(255,255,255,0.05);
+        .cat-tab-btn.active {
+            background: linear-gradient(135deg, rgba(244, 63, 94, 0.3), rgba(239, 68, 68, 0.45)) !important;
+            border-color: #f43f5e !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 20px rgba(244, 63, 94, 0.4);
         }
-        .section-title span { font-size: 1.5rem; }
 
-        /* Alarm Individual Card */
-        .alarm-card {
-            display: flex; align-items: center; gap: 15px; padding: 18px; border-radius: 16px; margin-bottom: 15px;
-            transition: all 0.3s; background: rgba(0,0,0,0.2); border: 1px solid rgba(255,255,255,0.03);
+        /* ── جدول المصفوفة الرقابية ── */
+        .matrix-table {
+            width: 100%;
+            border-collapse: separate;
+            border-spacing: 0 10px;
         }
-        .alarm-card:hover { transform: translateX(-5px); background: rgba(255,255,255,0.03); }
-        
-        .alarm-card.critical { border-left: 4px solid var(--theme-danger); }
-        .alarm-card.warning { border-left: 4px solid var(--theme-warning); }
-        .alarm-card.info { border-left: 4px solid var(--theme-info); }
-        .alarm-card.purple { border-left: 4px solid var(--theme-purple); }
 
-        .alarm-icon-wrap { width: 50px; height: 50px; border-radius: 14px; display: flex; align-items: center; justify-content: center; font-size: 1.5rem; flex-shrink: 0; box-shadow: inset 0 2px 5px rgba(0,0,0,0.3); }
-        .alarm-icon-wrap.critical { background: rgba(244,63,94,0.15); border: 1px solid rgba(244,63,94,0.3); animation: pulse-red 2s infinite; }
-        .alarm-icon-wrap.warning  { background: rgba(245,158,11,0.15); border: 1px solid rgba(245,158,11,0.3); animation: pulse-yellow 2s infinite; }
-        .alarm-icon-wrap.info     { background: rgba(14,165,233,0.15); border: 1px solid rgba(14,165,233,0.3); }
-        .alarm-icon-wrap.purple   { background: rgba(139,92,246,0.15); border: 1px solid rgba(139,92,246,0.3); }
+        .matrix-table th {
+            padding: 12px 16px;
+            font-size: 0.85rem;
+            font-weight: 900;
+            color: #94a3b8;
+            text-align: right;
+            border-bottom: 2px solid rgba(255, 255, 255, 0.1);
+            background: transparent;
+        }
 
-        .alarm-content { flex: 1; }
-        .alarm-title { color: #fff; font-weight: 800; font-size: 1.05rem; margin-bottom: 5px; }
-        .alarm-meta { color: #94a3b8; font-size: 0.85rem; line-height: 1.6; }
+        .matrix-row {
+            background: rgba(15, 23, 42, 0.75);
+            transition: all 0.25s ease;
+            border-radius: 14px;
+        }
 
-        .alarm-badge { font-size: 0.75rem; font-weight: 800; padding: 4px 12px; border-radius: 20px; white-space: nowrap; margin-top: 5px; font-family: 'Outfit', sans-serif; display: inline-block; }
-        .badge-red    { background: rgba(244,63,94,0.15); color: #fb7185; border: 1px solid rgba(244,63,94,0.3); }
-        .badge-yellow { background: rgba(245,158,11,0.15); color: #fcd34d; border: 1px solid rgba(245,158,11,0.3); }
-        .badge-blue   { background: rgba(14,165,233,0.15); color: #7dd3fc; border: 1px solid rgba(14,165,233,0.3); }
-        .badge-purple { background: rgba(139,92,246,0.15); color: #c084fc; border: 1px solid rgba(139,92,246,0.3); }
+        .matrix-row td {
+            padding: 14px 16px;
+            border-top: 1px solid rgba(255, 255, 255, 0.06);
+            border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+        }
 
-        .alarm-action { padding: 8px 16px; border-radius: 10px; text-decoration: none; font-size: 0.8rem; font-weight: 800; color: #fff; flex-shrink: 0; align-self: center; transition: all 0.3s; font-family: 'Tajawal', sans-serif; }
-        .alarm-action.red    { background: rgba(244,63,94,0.2); border: 1px solid rgba(244,63,94,0.5); }
-        .alarm-action.yellow { background: rgba(245,158,11,0.2); border: 1px solid rgba(245,158,11,0.5); }
-        .alarm-action.blue   { background: rgba(14,165,233,0.2); border: 1px solid rgba(14,165,233,0.5); }
-        .alarm-action.purple { background: rgba(139,92,246,0.2); border: 1px solid rgba(139,92,246,0.5); }
-        .alarm-action:hover  { filter: brightness(1.2); transform: scale(1.05); }
+        .matrix-row td:first-child {
+            border-right: 1px solid rgba(255, 255, 255, 0.06);
+            border-top-right-radius: 14px;
+            border-bottom-right-radius: 14px;
+        }
 
-        /* Animations & Utilities */
-        @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-        @keyframes pulse-red { 0%, 100% { box-shadow: 0 0 0 0 rgba(244,63,94,0.4); } 50% { box-shadow: 0 0 0 12px rgba(244,63,94,0); } }
-        @keyframes pulse-yellow { 0%, 100% { box-shadow: 0 0 0 0 rgba(245,158,11,0.4); } 50% { box-shadow: 0 0 0 12px rgba(245,158,11,0); } }
-        @keyframes spin { to { transform: rotate(360deg); } }
+        .matrix-row td:last-child {
+            border-left: 1px solid rgba(255, 255, 255, 0.06);
+            border-top-left-radius: 14px;
+            border-bottom-left-radius: 14px;
+        }
 
-        .empty-state { text-align: center; padding: 50px 20px; color: #64748b; }
-        .empty-state .empty-icon { font-size: 4rem; margin-bottom: 15px; opacity: 0.8; filter: drop-shadow(0 4px 10px rgba(0,0,0,0.3)); }
-        .empty-state p { font-size: 1.1rem; font-weight: 600; }
+        .matrix-row:hover {
+            background: rgba(30, 41, 59, 0.9) !important;
+            transform: scale(1.002);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.3);
+        }
 
-        .loading-spinner { display: flex; justify-content: center; align-items: center; padding: 50px; }
-        .spinner { width: 40px; height: 40px; border-radius: 50%; border: 4px solid rgba(255,255,255,0.1); border-top-color: var(--theme-danger); animation: spin 0.8s linear infinite; }
-        
-        /* Fix double sidebar spacing issue */
-        body.has-sidebar { padding-right: 0 !important; }
-    
-        
-        /* Universal Light Theme Overrides for Internal Screens */
-        :root.light-theme body,
-        :root.light-theme .ambient-bg {
-            background: #f8fafc !important;
+        /* ── مفتاح iOS Switch الفخم ── */
+        .ios-switch {
+            position: relative;
+            display: inline-block;
+            width: 52px;
+            height: 28px;
+            flex-shrink: 0;
+            margin: 0;
         }
-        :root.light-theme .glass-panel,
-        :root.light-theme .neo-card,
-        :root.light-theme .summary-card,
-        :root.light-theme .filter-panel,
-        :root.light-theme .chart-card,
-        :root.light-theme .kpi-card,
-        :root.light-theme .premium-header,
-        :root.light-theme .top-header,
-        :root.light-theme .header-area {
-            background: #ffffff !important;
-            border-color: rgba(0, 0, 0, 0.08) !important;
-            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.05) !important;
-            color: #0f172a !important;
+
+        .ios-switch input { opacity: 0; width: 0; height: 0; }
+
+        .ios-slider {
+            position: absolute; cursor: pointer;
+            top: 0; left: 0; right: 0; bottom: 0;
+            background-color: #334155;
+            transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: 34px;
+            border: 1px solid rgba(255, 255, 255, 0.18);
         }
-        :root.light-theme .glass-panel *,
-        :root.light-theme .neo-card *,
-        :root.light-theme .summary-card * {
-            text-shadow: none !important;
+
+        .ios-slider:before {
+            position: absolute; content: "";
+            height: 20px; width: 20px;
+            left: 4px; bottom: 3px;
+            background-color: white;
+            transition: 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            border-radius: 50%;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.4);
         }
-        :root.light-theme table.pro-table th,
-        :root.light-theme .pos-grid thead th,
-        :root.light-theme .ledger-table th,
-        :root.light-theme .report-table th {
-            background: #f1f5f9 !important;
-            color: #0f172a !important;
-            border-bottom: 2px solid #cbd5e1 !important;
+
+        input:checked + .ios-slider {
+            background-color: #10b981;
+            border-color: #10b981;
+            box-shadow: 0 0 14px rgba(16, 185, 129, 0.6);
         }
-        :root.light-theme table.pro-table td,
-        :root.light-theme .pos-grid tbody td,
-        :root.light-theme .ledger-table td,
-        :root.light-theme .report-table td {
-            color: #1e293b !important;
-            border-bottom: 1px solid rgba(0,0,0,0.08) !important;
+
+        input:checked + .ios-slider:before {
+            transform: translateX(24px);
         }
-        :root.light-theme table.pro-table tbody tr:hover td,
-        :root.light-theme .pos-grid tbody tr:hover td,
-        :root.light-theme .ledger-table tbody tr:hover td,
-        :root.light-theme .report-table tbody tr:hover td {
-            background: rgba(0,0,0,0.02) !important;
+
+        .glass-panel-v4 {
+            background: var(--surface);
+            border: 2px solid var(--border-glass);
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
         }
-        :root.light-theme .h-label,
-        :root.light-theme .form-label,
-        :root.light-theme .tot-lbl,
-        :root.light-theme .lbl,
-        :root.light-theme label,
-        :root.light-theme .table-header {
-            color: #334155 !important;
-        }
-        :root.light-theme .tot-val,
-        :root.light-theme .val {
-            color: #0f172a !important;
-        }
-        :root.light-theme .h-form-group,
-        :root.light-theme .control-panel {
-            background: transparent !important;
-            border-color: rgba(0,0,0,0.08) !important;
-        }
-        :root.light-theme .modern-btn {
-            color: #1e293b !important;
-        }
-        :root.light-theme .modern-btn:hover {
-            color: #0f172a !important;
-        }
-        /* Neon text colors correction for light theme */
-        :root.light-theme .text-emerald-400, :root.light-theme span[style*="color: #34d399"], :root.light-theme span[style*="color:#34d399"] { color: #059669 !important; }
-        :root.light-theme .text-rose-400, :root.light-theme span[style*="color: #f87171"], :root.light-theme span[style*="color:#f87171"] { color: #e11d48 !important; }
-        :root.light-theme .text-sky-400, :root.light-theme span[style*="color: #38bdf8"], :root.light-theme span[style*="color:#38bdf8"] { color: #0284c7 !important; }
-        :root.light-theme .text-purple-400, :root.light-theme span[style*="color: #c084fc"], :root.light-theme span[style*="color:#c084fc"] { color: #7c3aed !important; }
-        :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
-\n</style>
+    </style>
 </head>
-<body>
 
-<!-- Ambient Background -->
-<div class="ambient-bg">
-    <div class="orb orb-1"></div>
-    <div class="orb orb-2"></div>
-    <div class="orb orb-3"></div>
-</div>
+<body class="no-page-transition">
 
-<div class="alarm-main">
+    <div class="ambient-bg"></div>
 
-    <!-- Header -->
-    <?php $header_theme_class = 'header-theme-alarm'; ?>
-    <?php include 'includes/header.php'; ?>
+    <div class="alarm-master-wrapper">
+        
+        <?php include "includes/header.php"; ?>
 
-    <!-- Header Controls Row -->
-    <div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:20px; padding:15px 25px; box-shadow:0 10px 25px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.03); margin-top:-10px; gap: 15px; flex-wrap:wrap;">
-        <div style="display:flex; align-items:center; gap:12px;">
-            <span id="total-alarms-badge" class="alarm-badge" style="font-size:0.9rem; padding:6px 16px; border-radius:12px; font-weight:800; font-family:'Tajawal', sans-serif;">🔔 جاري تحميل التنبيهات...</span>
-        </div>
-        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
-            <span id="last-refresh-time" style="font-size:0.85rem; color:#94a3b8; font-weight:600;">آخر تحديث: -</span>
-            <button onclick="toggleAlarmSettingsDrawer()" class="refresh-btn" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(239, 68, 68, 0.25)); color: #fbbf24; border: 1.5px solid #f59e0b; gap: 8px; font-weight: 800; box-shadow: 0 0 15px rgba(245,158,11,0.2);">
-                <i class="fa-solid fa-sliders text-amber-400"></i> 🎛️ تخصيص وقواعد التنبيهات (تحكم On/Off)
-            </button>
-            <button onclick="window.location.href='alerts_manager.php'" class="refresh-btn" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); gap: 8px;">
-                <i class="fa-solid fa-sliders"></i> المركز المتقدم ↗
-            </button>
-            <button id="refresh-btn" class="refresh-btn" onclick="loadAlarms()">
-                <span class="spin-icon">🔄</span> تحديث التنبيهات
-            </button>
-        </div>
-    </div>
-
-    <!-- Collapsible Alert Rules Control Drawer -->
-    <div id="alarm-settings-drawer" style="display:none; background:rgba(15, 23, 42, 0.95); border:2px solid #f59e0b; border-radius:20px; padding:20px; box-shadow:0 15px 40px rgba(0,0,0,0.5); backdrop-filter:blur(20px); animation: fadeIn 0.3s ease;">
-        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:12px; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+        <!-- 🌟 ACTION CONTROLS & NAVIGATION BAR 🌟 -->
+        <div class="flex flex-wrap items-center justify-between gap-4 no-print bg-slate-900/85 border-2 border-rose-500/40 p-5 rounded-2xl shadow-2xl backdrop-blur-2xl">
             <div>
-                <h3 style="margin:0; font-size:1.1rem; font-weight:900; color:#fbbf24; display:flex; align-items:center; gap:8px;">
-                    <i class="fa-solid fa-sliders"></i> لوحة التحكم وتخصيص قواعد التنبيهات (15 تنبيه ذكي)
-                </h3>
-                <p style="margin:4px 0 0 0; font-size:0.8rem; color:#94a3b8;">يمكنك تشغيل أو إيقاف أي تنبيه وتعديل الشروط التحذيرية والحرجة بنقرة واحدة.</p>
+                <a href="magaiees_unified_dashboard.php" class="inline-flex items-center gap-2 text-rose-400 font-extrabold hover:underline text-sm mb-1.5">
+                    <i class="fa-solid fa-arrow-right"></i> ↩️ رجوع للوحة القيادة الموحدة (Unified Dashboard)
+                </a>
+                <h1 class="text-2xl md:text-3xl font-black flex items-center gap-3">
+                    <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
+                    مصفوفة الرقابة وإدارة التنبيهات والإنذارات العالمية
+                </h1>
+                <p class="text-slate-400 text-xs md:text-sm mt-1 font-bold">
+                    تحكم مركزي شامل لجميع شاشات وأقسام النظام الـ 12 مع إمكانية تفعيل أو تعطيل أي تنبيه (On/Off) وضبط حدوده الرقمية بدقة عالمية.
+                </p>
             </div>
-            <button onclick="toggleAlarmSettingsDrawer()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:10px; padding:6px 14px; font-weight:800; font-size:0.8rem; cursor:pointer;">
-                ✕ إغلاق اللوحة
-            </button>
-        </div>
 
-        <div style="margin-bottom:12px;">
-            <input type="text" id="alarm-drawer-search" oninput="filterAlarmDrawerRules(this.value)" placeholder="🔍 ابحث عن أي تنبيه أو شرط رقابي..." style="width:100%; box-sizing:border-box; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:8px 14px; color:#fff; font-size:0.85rem; outline:none; font-family:'Tajawal', sans-serif;">
-        </div>
-
-        <div id="alarm-drawer-rules-list" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:12px; max-height:450px; overflow-y:auto; padding-right:4px;">
-            <div style="text-align:center; color:#94a3b8; font-size:0.85rem; padding:20px; grid-column:1/-1;">جاري تحميل قواعد التنبيهات...</div>
-        </div>
-    </div>
-
-    <!-- KPI Summary -->
-    <div class="summary-cards" id="summary-cards">
-        <div class="kpi-card card-danger">
-            <div class="kpi-content">
-                <div class="kpi-label">مدفوعات متأخرة</div>
-                <div class="kpi-value" id="kpi-overdue">-</div>
-            </div>
-            <div class="kpi-icon">💸</div>
-        </div>
-        <div class="kpi-card card-warning">
-            <div class="kpi-content">
-                <div class="kpi-label">نواقص المخزون</div>
-                <div class="kpi-value" id="kpi-lowstock">-</div>
-            </div>
-            <div class="kpi-icon">📦</div>
-        </div>
-        <div class="kpi-card card-info">
-            <div class="kpi-content">
-                <div class="kpi-label">شيكات مستحقة</div>
-                <div class="kpi-value" id="kpi-checks">-</div>
-            </div>
-            <div class="kpi-icon">🧾</div>
-        </div>
-        <div class="kpi-card card-purple">
-            <div class="kpi-content">
-                <div class="kpi-label">تسليمات معلقة</div>
-                <div class="kpi-value" id="kpi-deliveries">-</div>
-            </div>
-            <div class="kpi-icon">🚚</div>
-        </div>
-    </div>
-
-    <!-- Alarms Grid -->
-    <div class="alarms-grid" id="alarms-grid">
-
-        <!-- Overdue Payments -->
-        <div class="glass-panel" style="border-top: 4px solid var(--theme-danger);">
-            <h2 class="section-title"><span style="color:var(--theme-danger);">🔴</span> مدفوعات متأخرة</h2>
-            <div id="overdue-list" class="loading-spinner"><div class="spinner" style="border-top-color:var(--theme-danger);"></div></div>
-        </div>
-
-        <!-- Low Stock -->
-        <div class="glass-panel" style="border-top: 4px solid var(--theme-warning);">
-            <h2 class="section-title"><span style="color:var(--theme-warning);">📦</span> نواقص المخزون</h2>
-            <div id="lowstock-list" class="loading-spinner"><div class="spinner" style="border-top-color:var(--theme-warning);"></div></div>
-        </div>
-
-        <!-- Due Checks -->
-        <div class="glass-panel" style="border-top: 4px solid var(--theme-info);">
-            <h2 class="section-title"><span style="color:var(--theme-info);">🧾</span> شيكات مستحقة</h2>
-            <div id="checks-list" class="loading-spinner"><div class="spinner" style="border-top-color:var(--theme-info);"></div></div>
-        </div>
-
-        <!-- Pending Deliveries -->
-        <div class="glass-panel" style="border-top: 4px solid var(--theme-purple);">
-            <h2 class="section-title"><span style="color:var(--theme-purple);">🚚</span> تسليمات معلقة</h2>
-            <div id="deliveries-list" class="loading-spinner"><div class="spinner" style="border-top-color:var(--theme-purple);"></div></div>
-        </div>
-
-    </div>
-
-</div>
-
-<script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
-<script>
-document.addEventListener('DBReady', () => {
-    if (!localStorage.getItem('authToken')) {
-        window.location.href = 'login.php';
-        return;
-    }
-    loadAlarms();
-});
-
-function loadAlarms() {
-    const btn = document.getElementById('refresh-btn');
-    btn.classList.add('loading');
-
-    // Small delay for UX
-    setTimeout(() => {
-        try {
-            renderOverdue();
-            renderLowStock();
-            renderChecks();
-            renderDeliveries();
-            updateSummary();
-        } catch(e) {
-            console.error(e);
-        }
-
-        const now = new Date();
-        document.getElementById('last-refresh-time').innerText =
-            'آخر تحديث: ' + now.toLocaleTimeString('ar-EG');
-        btn.classList.remove('loading');
-    }, 600);
-}
-
-/* ─── 1. OVERDUE PAYMENTS ─── */
-function renderOverdue() {
-    const invoices  = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
-    const customers = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]');
-    const today = new Date(); today.setHours(0,0,0,0);
-
-    const results = [];
-
-    invoices.forEach(inv => {
-        if (inv.paymentMethod === 'credit' && inv.dueDate) {
-            const net = Number(inv.grandTotal) || Number(inv.netTotal) || 0;
-            const paid = Number(inv.paidAmount) || 0;
-            const remaining = net - paid;
-            if (remaining <= 0) return; // Skip if fully paid
-
-            const due = new Date(inv.dueDate); due.setHours(0,0,0,0);
-            const diff = Math.ceil((due - today) / 86400000);
-            const cust = customers.find(c => c.id === inv.customer || c.id === inv.customerId);
-            const custName = cust ? cust.name : (inv.customerName || inv.customer || 'عميل');
-            const custPhone = cust && cust.phone ? cust.phone : null;
-
-            if (diff < 0) {
-                results.push({ severity: 'critical', inv, custName, custPhone, diff, due, remaining });
-            } else if (diff <= 3) {
-                results.push({ severity: 'warning', inv, custName, custPhone, diff, due, remaining });
-            }
-        }
-    });
-
-    results.sort((a,b) => a.diff - b.diff);
-
-    const el = document.getElementById('overdue-list');
-    if (!results.length) {
-        el.innerHTML = emptyState('✅', 'لا توجد مدفوعات متأخرة أو مستحقة. أحسنت!');
-        return;
-    }
-
-    el.innerHTML = results.map(r => {
-        const isLate = r.diff < 0;
-        const dayLabel = isLate
-            ? `متأخر ${Math.abs(r.diff)} يوم`
-            : (r.diff === 0 ? 'اليوم!' : (r.diff === 1 ? 'غداً' : `بعد ${r.diff} أيام`));
-        const amount = r.remaining.toLocaleString('en-US');
-
-        return `
-        <div class="alarm-card ${isLate ? 'critical' : 'warning'}">
-            <div class="alarm-icon-wrap ${isLate ? 'critical' : 'warning'}">${isLate ? '🔴' : '🟡'}</div>
-            <div class="alarm-content">
-                <div class="alarm-title">${r.custName}</div>
-                <div class="alarm-meta">
-                    فاتورة: <strong style="color:#fff">${r.inv.invoiceNo || '-'}</strong> &nbsp;|&nbsp;
-                    المبلغ: <strong style="color:${isLate?'#fb7185':'#fcd34d'}">${amount} SDG</strong><br>
-                    تاريخ الاستحقاق: ${r.due.toLocaleDateString('ar-EG')}
-                    ${r.custPhone ? `<br>📞 ${r.custPhone}` : ''}
-                </div>
-                <span class="alarm-badge ${isLate?'badge-red':'badge-yellow'}">${dayLabel}</span>
-            </div>
-            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
-
-            </div>
-        </div>`;
-    }).join('');
-}
-
-/* ─── 2. LOW STOCK ─── */
-function renderLowStock() {
-    const items = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
-
-    const results = items.filter(item => {
-        const stock = item.units && item.units[0] ? (Number(item.units[0].stock) || 0) : 0;
-        const safe  = Number(item.safeLimit) || 10;
-        return stock <= safe;
-    }).map(item => {
-        const stock = item.units && item.units[0] ? (Number(item.units[0].stock) || 0) : 0;
-        const safe  = Number(item.safeLimit) || 10;
-        return { ...item, stock, safe };
-    }).sort((a,b) => a.stock - b.stock);
-
-    const el = document.getElementById('lowstock-list');
-    if (!results.length) {
-        el.innerHTML = emptyState('✅', 'المخزون بخير! لا توجد أصناف تحت الحد الآمن.');
-        return;
-    }
-
-    el.innerHTML = results.slice(0, 15).map(item => {
-        const isCritical = item.stock <= 0;
-        const percentage = Math.max(0, Math.min(100, Math.round((item.stock / item.safe) * 100))) || 0;
-        const colorHex = isCritical ? '#fb7185' : '#fcd34d';
-        const colorBg = isCritical ? 'rgba(244,63,94,0.15)' : 'rgba(245,158,11,0.15)';
-        const unitName = item.units && item.units[0] ? item.units[0].name : '';
-
-        return `
-        <div style="background: rgba(15,23,42,0.4); border: 1px solid rgba(255,255,255,0.05); border-radius: 16px; padding: 20px; margin-bottom: 15px; display: flex; align-items: center; gap: 20px; transition: transform 0.3s, box-shadow 0.3s; position: relative; overflow: hidden; border-right: 4px solid ${colorHex};" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 10px 25px rgba(0,0,0,0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-            
-            <!-- Corner Status Badge -->
-            <div style="position: absolute; top:0; right:0; padding: 4px 15px; background: ${colorHex}; color: #000; font-size: 0.7rem; font-weight: 900; border-bottom-left-radius: 12px; box-shadow: -2px 2px 10px rgba(0,0,0,0.2);">
-                ${isCritical ? 'مخزون صفري!' : 'ناقص عن الحد'}
-            </div>
-            
-            <!-- Stock Value Block -->
-            <div style="width: 70px; height: 70px; border-radius: 14px; background: ${colorBg}; display: flex; flex-direction: column; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,0.1); box-shadow: inset 0 2px 5px rgba(0,0,0,0.5);">
-                <span style="font-size: 1.6rem; color: ${colorHex}; font-weight: 900; line-height: 1; text-shadow: 0 2px 10px ${colorBg};">${item.stock}</span>
-                <span style="font-size: 0.65rem; color: rgba(255,255,255,0.6); margin-top: 4px; font-weight:bold;">متوفر</span>
-            </div>
-            
-            <!-- Item Details & Progress Bar -->
-            <div style="flex: 1;">
-                <div style="font-size: 1.2rem; font-weight: 800; color: #fff; margin-bottom: 12px; letter-spacing: 0.5px;">${item.name || 'صنف غير معروف'}</div>
-                
-                <div style="display: flex; align-items: center; gap: 12px;">
-                    <span style="font-size: 0.75rem; font-weight: 800; color: #94a3b8; white-space: nowrap; min-width: 90px;">الحد الآمن: ${item.safe} ${unitName}</span>
-                    <div style="flex: 1; height: 8px; background: rgba(0,0,0,0.3); border-radius: 6px; overflow: hidden; border: 1px solid rgba(255,255,255,0.05); box-shadow: inset 0 1px 3px rgba(0,0,0,0.5);">
-                        <div style="width: ${percentage}%; height: 100%; background: ${colorHex}; border-radius: 6px; box-shadow: 0 0 10px ${colorBg}; transition: width 1s ease-out;"></div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Action Button -->
-            <div>
-                <button onclick="window.location.href='purchase.php'" style="background: rgba(255,255,255,0.03); color: ${colorHex}; border: 1px solid rgba(255,255,255,0.1); padding: 12px 20px; border-radius: 12px; font-weight: 900; font-family: 'Outfit', 'Cairo', sans-serif; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: all 0.3s; font-size: 0.9rem;" onmouseover="this.style.background='${colorHex}'; this.style.color='#000'; this.style.borderColor='transparent';" onmouseout="this.style.background='rgba(255,255,255,0.03)'; this.style.color='${colorHex}'; this.style.borderColor='rgba(255,255,255,0.1)';">
-                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-                        <circle cx="9" cy="21" r="2"></circle>
-                        <circle cx="20" cy="21" r="2"></circle>
-                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
-                    </svg>
-                    طلب شراء
+            <!-- Quick Bulk Actions -->
+            <div class="flex flex-wrap items-center gap-2.5">
+                <button type="button" onclick="bulkToggle(1)" class="px-4 py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 font-black rounded-xl text-xs transition flex items-center gap-1.5 shadow-md">
+                    <i class="fa-solid fa-check-double"></i> تفعيل الكل
+                </button>
+                <button type="button" onclick="bulkToggle(0)" class="px-4 py-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/40 font-black rounded-xl text-xs transition flex items-center gap-1.5 shadow-md">
+                    <i class="fa-solid fa-ban"></i> تعطيل الكل
+                </button>
+                <button type="button" onclick="window.print();" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-black rounded-xl text-xs transition flex items-center gap-1.5 border border-slate-700 shadow-md">
+                    <i class="fa-solid fa-print"></i> طباعة المصفوفة
+                </button>
+                <button type="button" onclick="refreshLiveEngine()" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white font-black rounded-xl text-xs transition shadow-lg flex items-center gap-1.5">
+                    <i class="fa-solid fa-rotate"></i> فحص حي الآن
                 </button>
             </div>
-        </div>`;
-    }).join('');
-}
+        </div>
 
-/* ─── 3. DUE CHECKS ─── */
-function renderChecks() {
-    const checks    = JSON.parse(localStorage.getItem('erp_checks_v1') || '[]');
-    const customers = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]');
-    const today = new Date(); today.setHours(0,0,0,0);
-
-    const results = checks.filter(ch => {
-        if (ch.status === 'cleared' || ch.status === 'deposited') return false;
-        if (!ch.dueDate) return false;
-        const due = new Date(ch.dueDate); due.setHours(0,0,0,0);
-        return (due - today) / 86400000 <= 7;
-    }).map(ch => {
-        const due  = new Date(ch.dueDate); due.setHours(0,0,0,0);
-        const diff = Math.ceil((due - today) / 86400000);
-        const cust = customers.find(c => c.id === ch.customerId);
-        return { ...ch, diff, due, custName: cust ? cust.name : (ch.drawerName || 'غير محدد') };
-    }).sort((a,b) => a.diff - b.diff);
-
-    const el = document.getElementById('checks-list');
-    if (!results.length) {
-        el.innerHTML = emptyState('✅', 'لا توجد شيكات مستحقة خلال الأسبوع القادم.');
-        return;
-    }
-
-    el.innerHTML = results.map(ch => {
-        const isLate = ch.diff < 0;
-        const dayLabel = isLate ? `متأخر ${Math.abs(ch.diff)} يوم`
-            : (ch.diff === 0 ? 'اليوم!' : `بعد ${ch.diff} أيام`);
-        const amount = (Number(ch.amount) || 0).toLocaleString('en-US');
-
-        return `
-        <div class="alarm-card ${isLate ? 'critical' : 'info'}">
-            <div class="alarm-icon-wrap ${isLate ? 'critical' : 'info'}">${isLate ? '⛔' : '🧾'}</div>
-            <div class="alarm-content">
-                <div class="alarm-title">${ch.custName}</div>
-                <div class="alarm-meta">
-                    شيك رقم: <strong style="color:#fff">${ch.checkNo || '-'}</strong> &nbsp;|&nbsp;
-                    المبلغ: <strong style="color:#7dd3fc">${amount} SDG</strong><br>
-                    تاريخ الاستحقاق: ${ch.due.toLocaleDateString('ar-EG')}
-                </div>
-                <span class="alarm-badge ${isLate?'badge-red':'badge-blue'}">${dayLabel}</span>
+        <!-- 📊 KPI SUMMARY CARDS (4 Grid) 📊 -->
+        <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
+            <!-- 1. Critical Alerts Count -->
+            <div class="stat-card-v4" style="--border-glow: rgba(239, 68, 68, 0.4); --bar-color: #ef4444;">
+                <span class="text-xs text-rose-400 font-bold block">🚨 الإنذارات الحرجـة النشطة</span>
+                <span class="text-3xl font-black text-rose-400 mt-2 block" id="kpi-red-count"><?php echo $red_count; ?></span>
+                <span class="text-xs text-rose-400/80 mt-1 block">مخاطر تتطلب معالجة فورية</span>
             </div>
-            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
-                <a data-href="checks-cycle.php" onclick="window.location.href='checks-cycle.php'" class="alarm-action ${isLate?'red':'blue'}">إدارة الشيك</a>
+
+            <!-- 2. Warning Alerts Count -->
+            <div class="stat-card-v4" style="--border-glow: rgba(245, 158, 11, 0.4); --bar-color: #f59e0b;">
+                <span class="text-xs text-amber-400 font-bold block">⚠️ التحذيرات والتنبيهات المتوسطة</span>
+                <span class="text-3xl font-black text-amber-400 mt-2 block" id="kpi-yellow-count"><?php echo $yellow_count; ?></span>
+                <span class="text-xs text-amber-400/80 mt-1 block">تنبيهات للمتابعة الدورية</span>
             </div>
-        </div>`;
-    }).join('');
-}
 
-/* ─── 4. PENDING DELIVERIES ─── */
-function renderDeliveries() {
-    const invoices  = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
-    const customers = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]');
-
-    const pending = invoices.filter(inv => {
-        const s = inv.deliveryStatus;
-        return s !== 'delivered' && s !== 'Admin_Closed' && s !== 'Delivered_Pending_Admin';
-    }).map(inv => {
-        const cust = customers.find(c => c.id === inv.customerId || c.id === inv.customer);
-        return { ...inv, custName: cust ? cust.name : (inv.customerName || inv.customer || 'عميل') };
-    });
-
-    const el = document.getElementById('deliveries-list');
-    if (!pending.length) {
-        el.innerHTML = emptyState('✅', 'جميع الطلبات تم تسليمها. لا توجد تسليمات معلقة!');
-        return;
-    }
-
-    el.innerHTML = pending.slice(0, 15).map(inv => {
-        const amount = (Number(inv.grandTotal) || Number(inv.netTotal) || 0).toLocaleString('en-US');
-        const statusLabel = {
-            'pending':    'قيد الانتظار',
-            'processing': 'جاري التجهيز',
-            'ready':      'جاهز للتسليم',
-        }[inv.deliveryStatus] || 'معلق';
-
-        return `
-        <div class="alarm-card purple">
-            <div class="alarm-icon-wrap purple">🚚</div>
-            <div class="alarm-content">
-                <div class="alarm-title">${inv.custName}</div>
-                <div class="alarm-meta">
-                    فاتورة: <strong style="color:#fff">${inv.invoiceNo || '-'}</strong> &nbsp;|&nbsp;
-                    المبلغ: <strong style="color:#c084fc">${amount} SDG</strong><br>
-                    التاريخ: ${inv.date || '-'}
-                </div>
-                <span class="alarm-badge badge-purple">${statusLabel}</span>
+            <!-- 3. Enabled Alert Rules -->
+            <div class="stat-card-v4" style="--border-glow: rgba(16, 185, 129, 0.4); --bar-color: #10b981;">
+                <span class="text-xs text-emerald-400 font-bold block">⚙️ القواعد المفعلة بالنظام</span>
+                <span class="text-3xl font-black text-emerald-400 mt-2 block" id="kpi-enabled-rules"><?php echo $enabled_rules; ?> / <?php echo count($rules); ?></span>
+                <span class="text-xs text-emerald-400/80 mt-1 block">قواعد رقابية نشطة تفحص تلقائياً</span>
             </div>
-            <div style="display:flex;flex-direction:column;align-items:flex-end;gap:8px;">
-                <a data-href="sales-delivery.php" onclick="window.location.href='sales-delivery.php'" class="alarm-action purple">تسليم</a>
+
+            <!-- 4. Controlled Screens -->
+            <div class="stat-card-v4" style="--border-glow: rgba(56, 189, 248, 0.4); --bar-color: #38bdf8;">
+                <span class="text-xs text-sky-400 font-bold block">🏢 الشاشات الخاضعة للرقابة</span>
+                <span class="text-3xl font-black text-sky-400 mt-2 block">12 شاشة</span>
+                <span class="text-xs text-slate-400 mt-1 block">المبيعات والمخازن والخزائن والأمان</span>
             </div>
-        </div>`;
-    }).join('');
-}
+        </div>
 
-/* ─── Summary KPI ─── */
-function updateSummary() {
-    const invoices  = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
-    const items     = JSON.parse(localStorage.getItem('erp_items_v1') || '[]');
-    const checks    = JSON.parse(localStorage.getItem('erp_checks_v1') || '[]');
-    const today = new Date(); today.setHours(0,0,0,0);
+        <!-- 🎛️ DEPARTMENT & SCREEN TABS + SEARCH BAR 🎛️ -->
+        <div class="flex flex-wrap items-center justify-between gap-3 p-3 bg-slate-900/70 rounded-2xl border border-slate-800">
+            <div class="flex flex-wrap items-center gap-2" id="category-tabs">
+                <button type="button" class="cat-tab-btn active" onclick="filterCategory('ALL', this)">
+                    <i class="fa-solid fa-layer-group"></i> 🌟 جميع التنبيهات (<?php echo count($rules); ?>)
+                </button>
+                <button type="button" class="cat-tab-btn" onclick="filterCategory('SALES', this)">
+                    <i class="fa-solid fa-cash-register text-sky-400"></i> 🛒 شاشات المبيعات والفوترة
+                </button>
+                <button type="button" class="cat-tab-btn" onclick="filterCategory('INVENTORY', this)">
+                    <i class="fa-solid fa-warehouse text-purple-400"></i> 📦 المخازن والمستودعات
+                </button>
+                <button type="button" class="cat-tab-btn" onclick="filterCategory('FINANCE', this)">
+                    <i class="fa-solid fa-vault text-emerald-400"></i> 💰 الخزينة وسندات القبض والصرف
+                </button>
+                <button type="button" class="cat-tab-btn" onclick="filterCategory('CREDIT', this)">
+                    <i class="fa-solid fa-users-gear text-amber-400"></i> 👥 العملاء والائتمان والتحصيل
+                </button>
+                <button type="button" class="cat-tab-btn" onclick="filterCategory('SECURITY', this)">
+                    <i class="fa-solid fa-shield-halved text-rose-400"></i> 🛡️ الأمان والرقابة المحاسبية
+                </button>
+            </div>
 
-    // Overdue count (only active credit balances that are overdue or due within 3 days)
-    const overdueCount = invoices.filter(inv => {
-        if (inv.paymentMethod !== 'credit' || !inv.dueDate) return false;
-        const net = Number(inv.grandTotal) || Number(inv.netTotal) || 0;
-        const paid = Number(inv.paidAmount) || 0;
-        if (net - paid <= 0) return false; // Already paid
-        const due = new Date(inv.dueDate); due.setHours(0,0,0,0);
-        return Math.ceil((due - today) / 86400000) <= 3;
-    }).length;
+            <!-- Search box -->
+            <div class="relative min-w-[260px]">
+                <input type="text" id="matrix-search" oninput="searchMatrix(this.value)" placeholder="🔍 ابحث بالشاشة، الاسم، أو الوصف..." class="w-full bg-slate-950 border border-slate-700 rounded-xl px-4 py-2 text-xs font-bold text-slate-200 outline-none focus:border-rose-500 pr-9">
+                <i class="fa-solid fa-search absolute right-3 top-3 text-slate-500 text-xs"></i>
+            </div>
+        </div>
 
-    // Low stock count
-    const lowStockCount = items.filter(item => {
-        const stock = item.units && item.units[0] ? (Number(item.units[0].stock) || 0) : 0;
-        return stock <= (Number(item.safeLimit) || 10);
-    }).length;
+        <!-- 📋 MASTER SCREEN-BY-SCREEN ALERT MATRIX TABLE 📋 -->
+        <div class="glass-panel-v4 overflow-x-auto">
+            <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3 flex-wrap gap-2">
+                <h3 class="text-lg font-black text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-table-list text-rose-400"></i>
+                    جدول مصفوفة الشاشات والتنبيهات الرقابية (تخصيص كامل On/Off)
+                </h3>
+                <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20" id="badge-active-rules">
+                    <span id="active-rules-num"><?php echo $enabled_rules; ?></span> من <?php echo count($rules); ?> قاعدة مفعلة
+                </span>
+            </div>
 
-    // Checks due soon
-    const checksCount = checks.filter(ch => {
-        if (!ch.dueDate || ch.status === 'cleared' || ch.status === 'deposited') return false;
-        const due = new Date(ch.dueDate); due.setHours(0,0,0,0);
-        return (due - today) / 86400000 <= 7;
-    }).length;
+            <table class="matrix-table">
+                <thead>
+                    <tr>
+                        <th style="width: 40px;">#</th>
+                        <th style="width: 220px;">الشاشة المرتبطة والملف</th>
+                        <th style="width: 240px;">اسم التنبيه ونوع الرقابة</th>
+                        <th>شرح التنبيه والهدف الرقابي</th>
+                        <th style="width: 190px;">الشروط والحدود الرقمية</th>
+                        <th style="width: 120px; text-align:center;">الحالة الحية</th>
+                        <th style="width: 110px; text-align:center;">التحكم On/Off</th>
+                    </tr>
+                </thead>
+                <tbody id="matrix-tbody">
+                    <?php 
+                    $idx = 1;
+                    foreach ($rules as $rule): 
+                        $meta = $categoryMeta[$rule['category']] ?? ['icon' => 'fa-bell', 'name' => $rule['category'], 'color' => '#fbbf24', 'bg' => 'rgba(251,191,36,0.1)', 'border' => '#fbbf2440'];
+                        $isViolated = false;
+                        $violSeverity = '';
+                        foreach ($logs as $l) {
+                            if (($l['rule_key'] ?? '') === $rule['rule_key']) {
+                                $isViolated = true;
+                                $violSeverity = $l['severity'];
+                                break;
+                            }
+                        }
+                    ?>
+                        <tr class="matrix-row" data-category="<?php echo $rule['category']; ?>" data-search="<?php echo htmlspecialchars(strtolower($rule['screen_name'] . ' ' . $rule['screen_file'] . ' ' . $rule['rule_name'] . ' ' . $rule['description'])); ?>">
+                            <td class="font-bold text-slate-500 text-xs"><?php echo $idx++; ?></td>
+                            
+                            <!-- Screen Name & Link -->
+                            <td>
+                                <div class="font-black text-slate-100 text-xs md:text-sm flex items-center gap-1.5">
+                                    <i class="fa-solid <?php echo $meta['icon']; ?>" style="color: <?php echo $meta['color']; ?>;"></i>
+                                    <?php echo htmlspecialchars($rule['screen_name'] ?? 'شاشة عامة'); ?>
+                                </div>
+                                <a href="<?php echo explode(' ', $rule['screen_file'])[0]; ?>" class="inline-block text-[11px] font-mono font-bold mt-1 text-sky-400/80 hover:text-sky-300 hover:underline">
+                                    📄 <?php echo htmlspecialchars($rule['screen_file'] ?? ''); ?> ↗
+                                </a>
+                            </td>
 
-    // Pending deliveries
-    const deliveriesCount = invoices.filter(inv => {
-        const s = inv.deliveryStatus;
-        return s !== 'delivered' && s !== 'Admin_Closed' && s !== 'Delivered_Pending_Admin';
-    }).length;
+                            <!-- Rule Name & Category -->
+                            <td>
+                                <div class="font-extrabold text-slate-100 text-xs md:text-sm"><?php echo htmlspecialchars($rule['rule_name']); ?></div>
+                                <span class="inline-block text-[10px] font-black px-2 py-0.5 rounded mt-1" style="background: <?php echo $meta['bg']; ?>; color: <?php echo $meta['color']; ?>; border: 1px solid <?php echo $meta['border']; ?>;">
+                                    <?php echo $meta['name']; ?>
+                                </span>
+                            </td>
 
-    document.getElementById('kpi-overdue').innerText    = overdueCount;
-    document.getElementById('kpi-lowstock').innerText   = lowStockCount;
-    document.getElementById('kpi-checks').innerText     = checksCount;
-    document.getElementById('kpi-deliveries').innerText = deliveriesCount;
+                            <!-- Description -->
+                            <td>
+                                <p class="text-xs text-slate-300 font-bold leading-relaxed"><?php echo htmlspecialchars($rule['description'] ?? ''); ?></p>
+                            </td>
 
-    const total = overdueCount + lowStockCount + checksCount + deliveriesCount;
-    const badge = document.getElementById('total-alarms-badge');
-    if (badge) {
-        if (total === 0) {
-            badge.style.background   = 'rgba(16, 185, 129, 0.15)';
-            badge.style.color        = '#34d399';
-            badge.innerText = '✅ لا توجد تنبيهات نشطة';
-        } else {
-            badge.style.background   = 'rgba(244, 63, 94, 0.15)';
-            badge.style.color        = '#fb7185';
-            badge.innerText = `🔔 ${total} تنبيهات حرجة`;
-        }
-    }
-}
+                            <!-- Thresholds -->
+                            <td>
+                                <div class="flex items-center gap-1.5 text-xs bg-slate-950/80 p-1.5 rounded-xl border border-slate-800">
+                                    <span class="text-amber-400 font-bold text-[11px]">⚠️:</span>
+                                    <input type="number" step="any" id="twarn-<?php echo $rule['rule_key']; ?>" value="<?php echo (float)$rule['warning_threshold']; ?>" class="w-12 bg-slate-900 border border-slate-700 text-center py-0.5 rounded text-amber-400 font-black text-xs outline-none focus:border-amber-400">
+                                    
+                                    <span class="text-rose-400 font-bold text-[11px] mr-1">🚨:</span>
+                                    <input type="number" step="any" id="tcrit-<?php echo $rule['rule_key']; ?>" value="<?php echo (float)$rule['critical_threshold']; ?>" class="w-12 bg-slate-900 border border-slate-700 text-center py-0.5 rounded text-rose-400 font-black text-xs outline-none focus:border-rose-400">
+                                    
+                                    <button type="button" onclick="saveThresholdsTable('<?php echo $rule['rule_key']; ?>')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded text-[10px] font-black transition border border-slate-700" title="حفظ الشروط">💾</button>
+                                </div>
+                                <span class="text-[10px] text-slate-400 block mt-1 font-bold">الوحدة: <?php echo htmlspecialchars($rule['unit'] ?? ''); ?></span>
+                            </td>
 
-function emptyState(icon, msg) {
-    return `<div class="empty-state">
-        <div class="empty-icon">${icon}</div>
-        <p>${msg}</p>
-    </div>`;
-}
+                            <!-- Live Status -->
+                            <td style="text-align:center;">
+                                <?php if (!$rule['is_enabled']): ?>
+                                    <span class="text-[11px] font-black px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700 block">معطّل ✕</span>
+                                <?php elseif ($isViolated && $violSeverity === 'RED'): ?>
+                                    <span class="text-[11px] font-black px-2.5 py-1 rounded-lg bg-rose-950/70 text-rose-300 border border-rose-500/50 block animate-pulse">🚨 خطر نشط!</span>
+                                <?php elseif ($isViolated && $violSeverity === 'YELLOW'): ?>
+                                    <span class="text-[11px] font-black px-2.5 py-1 rounded-lg bg-amber-950/70 text-amber-300 border border-amber-500/50 block">⚠️ تنبيه نشط</span>
+                                <?php else: ?>
+                                    <span class="text-[11px] font-black px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-500/40 block">🟢 آمن تماماً</span>
+                                <?php endif; ?>
+                            </td>
 
-/* ─── ALERT RULES DRAWER ENGINE ─── */
-let _alarmDrawerLoaded = false;
+                            <!-- On/Off Switch -->
+                            <td style="text-align:center;">
+                                <div class="flex flex-col items-center gap-1">
+                                    <label class="ios-switch">
+                                        <input type="checkbox" id="tcheck-<?php echo $rule['rule_key']; ?>" <?php echo $rule['is_enabled'] ? 'checked' : ''; ?> onchange="toggleRuleTable('<?php echo $rule['rule_key']; ?>', this.checked)">
+                                        <span class="ios-slider"></span>
+                                    </label>
+                                    <span class="text-[11px] font-bold" id="tstatus-<?php echo $rule['rule_key']; ?>" style="color: <?php echo $rule['is_enabled'] ? '#34d399' : '#64748b'; ?>;">
+                                        <?php echo $rule['is_enabled'] ? 'مفعّل' : 'معطّل'; ?>
+                                    </span>
+                                </div>
+                            </td>
+                        </tr>
+                    <?php endforeach; ?>
+                </tbody>
+            </table>
+        </div>
 
-function toggleAlarmSettingsDrawer() {
-    const drawer = document.getElementById('alarm-settings-drawer');
-    if (!drawer) return;
-    if (drawer.style.display === 'none' || drawer.style.display === '') {
-        drawer.style.display = 'block';
-        if (!_alarmDrawerLoaded) {
-            loadAlarmDrawerRules();
-            _alarmDrawerLoaded = true;
-        }
-    } else {
-        drawer.style.display = 'none';
-    }
-}
+        <!-- 🚨 LIVE VIOLATIONS PANEL 🚨 -->
+        <div class="glass-panel-v4">
+            <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3 flex-wrap gap-2">
+                <h3 class="text-lg font-black text-slate-100 flex items-center gap-2">
+                    <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
+                    سجل الإنذارات الحية المكتشفة في قاعدة البيانات (Live Violations)
+                </h3>
+                <span class="text-xs font-bold text-rose-400 bg-rose-500/10 px-3 py-1 rounded-lg border border-rose-500/20" id="live-violations-badge">
+                    <?php echo count($logs); ?> إنذار نشط
+                </span>
+            </div>
 
-function loadAlarmDrawerRules() {
-    const container = document.getElementById('alarm-drawer-rules-list');
-    if (!container) return;
-
-    fetch('alerts_manager.php?action=get_rules_json')
-    .then(r => r.json())
-    .then(data => {
-        if (data.success && data.rules) {
-            renderAlarmDrawerRules(data.rules);
-        }
-    })
-    .catch(() => {
-        container.innerHTML = '<div style="color:#f87171; text-align:center; padding:15px; grid-column:1/-1;">تعذر جلب قواعد التنبيهات من الخادم.</div>';
-    });
-}
-
-function renderAlarmDrawerRules(rules) {
-    const container = document.getElementById('alarm-drawer-rules-list');
-    if (!container) return;
-
-    const catColors = {
-        'FINANCE': '#38bdf8',
-        'CREDIT': '#fbbf24',
-        'SALES': '#34d399',
-        'INVENTORY': '#c084fc',
-        'SUPPLY': '#f472b6',
-        'SECURITY': '#f87171'
-    };
-
-    let html = '';
-    rules.forEach(r => {
-        const color = catColors[r.category] || '#94a3b8';
-        const isChecked = r.is_enabled == 1;
-        html += `
-            <div class="drawer-rule-card" data-search="${(r.rule_name + ' ' + (r.description||'')).toLowerCase()}" style="padding:12px 16px; background:rgba(255,255,255,0.03); border-radius:14px; border:1px solid rgba(255,255,255,0.08); display:flex; flex-direction:column; justify-content:space-between; gap:10px;">
-                <div>
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
-                        <strong style="font-size:0.9rem; color:#fff;">${r.rule_name}</strong>
-                        <span style="font-size:0.65rem; color:${color}; background:${color}15; padding:2px 8px; border-radius:6px; border:1px solid ${color}30; font-weight:800;">${r.category}</span>
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3" id="live-violations-grid">
+                <?php if (empty($logs)): ?>
+                    <div class="col-span-2 text-center p-8 text-slate-400 text-xs border border-dashed border-slate-800 rounded-2xl">
+                        <i class="fa-solid fa-circle-check text-emerald-400 text-3xl mb-2 block"></i>
+                        جميع العمليات والشاشات آمنة ومطابقة 100% للشروط الرقابية الحالية.
                     </div>
-                    <div style="font-size:0.75rem; color:#94a3b8; line-height:1.4;">${r.description || ''}</div>
-                </div>
-
-                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.06); padding-top:8px; margin-top:4px;">
-                    <div style="display:flex; align-items:center; gap:4px; font-size:0.75rem;">
-                        <span style="color:#fbbf24;">⚠️</span>
-                        <input type="number" id="adwarn-${r.rule_key}" value="${r.warning_threshold}" style="width:45px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#fbbf24; text-align:center; font-weight:800; font-size:0.75rem; border-radius:6px; padding:2px;" onchange="saveAlarmDrawerThresholds('${r.rule_key}')">
-                        <span style="color:#f87171; margin-right:4px;">🚨</span>
-                        <input type="number" id="adcrit-${r.rule_key}" value="${r.critical_threshold}" style="width:45px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#f87171; text-align:center; font-weight:800; font-size:0.75rem; border-radius:6px; padding:2px;" onchange="saveAlarmDrawerThresholds('${r.rule_key}')">
-                    </div>
-
-                    <div style="display:flex; align-items:center; gap:8px;">
-                        <span id="adstatus-${r.rule_key}" style="font-size:0.75rem; font-weight:800; color:${isChecked ? '#34d399' : '#64748b'};">${isChecked ? 'مفعّل' : 'معطّل'}</span>
-                        <label style="position:relative; display:inline-block; width:44px; height:24px; margin:0; cursor:pointer;">
-                            <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleAlarmDrawerRule('${r.rule_key}', this.checked)" style="opacity:0; width:0; height:0;">
-                            <span style="position:absolute; top:0; left:0; right:0; bottom:0; background-color:${isChecked ? '#10b981' : '#334155'}; transition:.3s; border-radius:24px; border:1px solid rgba(255,255,255,0.2);">
-                                <span style="position:absolute; content:''; height:16px; width:16px; left:${isChecked ? '23px' : '4px'}; bottom:3px; background-color:white; transition:.3s; border-radius:50%;"></span>
-                            </span>
-                        </label>
-                    </div>
-                </div>
+                <?php else: ?>
+                    <?php foreach ($logs as $log): 
+                        $isRed = ($log['severity'] ?? '') === 'RED';
+                        $bgCls = $isRed ? 'bg-rose-950/40 border-rose-500/40 text-rose-200' : 'bg-amber-950/40 border-amber-500/40 text-amber-200';
+                    ?>
+                        <div class="p-3.5 rounded-2xl border text-xs font-bold leading-relaxed <?php echo $bgCls; ?> flex justify-between items-center gap-3">
+                            <div class="flex-1">
+                                <?php echo nl2br(htmlspecialchars($log['message'])); ?>
+                            </div>
+                            <?php if (!empty($log['screen_file'])): ?>
+                                <a href="<?php echo htmlspecialchars($log['screen_file']); ?>" class="px-3 py-1.5 bg-slate-900/80 hover:bg-slate-800 text-white rounded-xl text-[11px] font-black transition border border-white/10 whitespace-nowrap flex items-center gap-1">
+                                    معالجة ↗
+                                </a>
+                            <?php endif; ?>
+                        </div>
+                    <?php endforeach; ?>
+                <?php endif; ?>
             </div>
-        `;
-    });
-    container.innerHTML = html;
-}
+        </div>
 
-function filterAlarmDrawerRules(q) {
-    const query = q.trim().toLowerCase();
-    const items = document.querySelectorAll('.drawer-rule-card');
-    items.forEach(it => {
-        const text = it.getAttribute('data-search') || '';
-        it.style.display = (query === '' || text.includes(query)) ? 'flex' : 'none';
-    });
-}
+        <div class="text-center text-xs text-slate-500 font-bold mt-2 no-print">
+            نظام Al-Sajana Smart ERP 2026 · مصفوفة الرقابة والتنبيهات الموحدة العالمية
+        </div>
 
-function toggleAlarmDrawerRule(ruleKey, isChecked) {
-    const formData = new FormData();
-    formData.append('action', 'toggle_rule_ajax');
-    formData.append('rule_key', ruleKey);
-    formData.append('is_enabled', isChecked ? 1 : 0);
+    </div>
 
-    fetch('alerts_manager.php', { method: 'POST', body: formData })
-    .then(r => r.json())
-    .then(res => {
-        if (res.success) {
-            const statusTxt = document.getElementById('adstatus-' + ruleKey);
-            if (statusTxt) {
-                statusTxt.textContent = isChecked ? 'مفعّل' : 'معطّل';
-                statusTxt.style.color = isChecked ? '#34d399' : '#64748b';
+    <!-- JavaScript Controllers -->
+    <script>
+    // 1. Toggle Single Rule
+    function toggleRuleTable(ruleKey, isChecked) {
+        const formData = new FormData();
+        formData.append('action', 'toggle_rule_ajax');
+        formData.append('rule_key', ruleKey);
+        formData.append('is_enabled', isChecked ? 1 : 0);
+
+        fetch('alarm.php', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                const statusTxt = document.getElementById('tstatus-' + ruleKey);
+                if (statusTxt) {
+                    statusTxt.textContent = isChecked ? 'مفعّل' : 'معطّل';
+                    statusTxt.style.color = isChecked ? '#34d399' : '#64748b';
+                }
+                updateCounters(res);
+                renderLiveViolations(res.logs);
             }
-            loadAlarms();
+        });
+    }
+
+    // 2. Bulk Toggle
+    function bulkToggle(state) {
+        const activeTab = document.querySelector('#category-tabs .cat-tab-btn.active');
+        const cat = activeTab ? activeTab.getAttribute('onclick').match(/'([^']+)'/)[1] : 'ALL';
+
+        const formData = new FormData();
+        formData.append('action', 'bulk_toggle_ajax');
+        formData.append('is_enabled', state);
+        formData.append('category', cat);
+
+        fetch('alarm.php', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                window.location.reload();
+            }
+        });
+    }
+
+    // 3. Save Thresholds
+    function saveThresholdsTable(ruleKey) {
+        const warn = document.getElementById('twarn-' + ruleKey).value;
+        const crit = document.getElementById('tcrit-' + ruleKey).value;
+
+        const formData = new FormData();
+        formData.append('action', 'update_thresholds_ajax');
+        formData.append('rule_key', ruleKey);
+        formData.append('warning_threshold', warn);
+        formData.append('critical_threshold', crit);
+
+        fetch('alarm.php', { method: 'POST', body: formData })
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                const btn = event.target;
+                const orig = btn.textContent;
+                btn.textContent = '✓';
+                btn.classList.add('bg-emerald-600');
+                setTimeout(() => {
+                    btn.textContent = orig;
+                    btn.classList.remove('bg-emerald-600');
+                }, 1000);
+                refreshLiveEngine();
+            }
+        });
+    }
+
+    // 4. Category Tab Filter
+    function filterCategory(cat, btn) {
+        document.querySelectorAll('#category-tabs .cat-tab-btn').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const rows = document.querySelectorAll('#matrix-tbody .matrix-row');
+        rows.forEach(r => {
+            if (cat === 'ALL' || r.getAttribute('data-category') === cat) {
+                r.style.display = 'table-row';
+            } else {
+                r.style.display = 'none';
+            }
+        });
+    }
+
+    // 5. Search Matrix
+    function searchMatrix(q) {
+        const query = q.trim().toLowerCase();
+        const rows = document.querySelectorAll('#matrix-tbody .matrix-row');
+        rows.forEach(r => {
+            const text = r.getAttribute('data-search') || '';
+            r.style.display = (query === '' || text.includes(query)) ? 'table-row' : 'none';
+        });
+    }
+
+    // 6. Refresh Live Engine
+    function refreshLiveEngine() {
+        fetch('alarm.php?action=get_live_alerts_json')
+        .then(r => r.json())
+        .then(res => {
+            if (res.success) {
+                const kpiRed = document.getElementById('kpi-red-count');
+                if (kpiRed) kpiRed.textContent = res.red_count;
+
+                const kpiYellow = document.getElementById('kpi-yellow-count');
+                if (kpiYellow) kpiYellow.textContent = res.yellow_count;
+
+                const liveBadge = document.getElementById('live-violations-badge');
+                if (liveBadge) liveBadge.textContent = res.total + ' إنذار نشط';
+
+                renderLiveViolations(res.alerts);
+            }
+        });
+    }
+
+    function updateCounters(res) {
+        const kpiRed = document.getElementById('kpi-red-count');
+        if (kpiRed) kpiRed.textContent = res.red_count;
+
+        const kpiYellow = document.getElementById('kpi-yellow-count');
+        if (kpiYellow) kpiYellow.textContent = res.yellow_count;
+
+        const enabledNum = document.getElementById('active-rules-num');
+        if (enabledNum) enabledNum.textContent = res.enabled_count;
+
+        const kpiEnabled = document.getElementById('kpi-enabled-rules');
+        if (kpiEnabled) kpiEnabled.textContent = res.enabled_count + ' / <?php echo count($rules); ?>';
+
+        const liveBadge = document.getElementById('live-violations-badge');
+        if (liveBadge) liveBadge.textContent = (res.red_count + res.yellow_count) + ' إنذار نشط';
+    }
+
+    function renderLiveViolations(logs) {
+        const container = document.getElementById('live-violations-grid');
+        if (!container) return;
+
+        if (!logs || logs.length === 0) {
+            container.innerHTML = '<div class="col-span-2 text-center p-8 text-slate-400 text-xs border border-dashed border-slate-800 rounded-2xl"><i class="fa-solid fa-circle-check text-emerald-400 text-3xl mb-2 block"></i>جميع العمليات والشاشات آمنة ومطابقة 100% للشروط الرقابية الحالية.</div>';
+            return;
         }
-    });
-}
 
-function saveAlarmDrawerThresholds(ruleKey) {
-    const warn = document.getElementById('adwarn-' + ruleKey).value;
-    const crit = document.getElementById('adcrit-' + ruleKey).value;
-
-    const formData = new FormData();
-    formData.append('action', 'update_thresholds_ajax');
-    formData.append('rule_key', ruleKey);
-    formData.append('warning_threshold', warn);
-    formData.append('critical_threshold', crit);
-
-    fetch('alerts_manager.php', { method: 'POST', body: formData })
-    .then(r => r.json())
-    .then(res => {
-        if (res.success) {
-            loadAlarms();
-        }
-    });
-}
-</script>
+        let html = '';
+        logs.forEach(l => {
+            const isRed = l.severity === 'RED';
+            const bgCls = isRed ? 'bg-rose-950/40 border-rose-500/40 text-rose-200' : 'bg-amber-950/40 border-amber-500/40 text-amber-200';
+            const linkBtn = l.screen_file ? '<a href="' + l.screen_file + '" class="px-3 py-1.5 bg-slate-900/80 hover:bg-slate-800 text-white rounded-xl text-[11px] font-black transition border border-white/10 whitespace-nowrap flex items-center gap-1">معالجة ↗</a>' : '';
+            html += '<div class="p-3.5 rounded-2xl border text-xs font-bold leading-relaxed ' + bgCls + ' flex justify-between items-center gap-3"><div class="flex-1">' + l.message + '</div>' + linkBtn + '</div>';
+        });
+        container.innerHTML = html;
+    }
+    </script>
+    <script defer src="js/app.js"></script>
 </body>
 </html>
-

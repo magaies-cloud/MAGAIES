@@ -1594,14 +1594,16 @@
             rules.forEach(r => {
                 const color = catColors[r.category] || '#94a3b8';
                 const isChecked = r.is_enabled == 1;
+                const screenBadge = r.screen_name ? `<span style="font-size:0.65rem; color:#38bdf8; background:rgba(56,189,248,0.1); padding:1px 6px; border-radius:4px; border:1px solid rgba(56,189,248,0.25);">🏢 ${r.screen_name}</span>` : '';
                 html += `
-                    <div class="modal-rule-item" data-search="${(r.rule_name + ' ' + (r.description||'')).toLowerCase()}" style="padding:10px 14px; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
+                    <div class="modal-rule-item" data-search="${(r.rule_name + ' ' + (r.screen_name||'') + ' ' + (r.screen_file||'') + ' ' + (r.description||'')).toLowerCase()}" style="padding:10px 14px; background:rgba(255,255,255,0.03); border-radius:12px; border:1px solid rgba(255,255,255,0.08); display:flex; justify-content:space-between; align-items:center; gap:10px; flex-wrap:wrap;">
                         <div style="flex:1; min-width:180px;">
-                            <div style="display:flex; align-items:center; gap:6px;">
+                            <div style="display:flex; align-items:center; gap:6px; flex-wrap:wrap;">
                                 <strong style="font-size:0.85rem; color:#fff;">${r.rule_name}</strong>
                                 <span style="font-size:0.65rem; color:${color}; background:${color}15; padding:1px 6px; border-radius:4px; border:1px solid ${color}30;">${r.category}</span>
+                                ${screenBadge}
                             </div>
-                            <div style="font-size:0.72rem; color:#94a3b8; margin-top:2px;">${r.description || ''}</div>
+                            <div style="font-size:0.72rem; color:#94a3b8; margin-top:3px; line-height:1.4;">${r.description || ''}</div>
                         </div>
                         <div style="display:flex; align-items:center; gap:8px;">
                             <div style="display:flex; align-items:center; gap:3px; font-size:0.75rem; background:rgba(0,0,0,0.3); padding:3px 6px; border-radius:8px;">
