@@ -1,8 +1,7 @@
 <?php
 // ====================================================================
-// نظام Al-Sajana Smart ERP 2026 - حزمة المساعدات ومفاتيح البنوك وموسوعة فتاوى البيوع V11
-// تضم كوكبة أئمة وعلماء السنة الـ 12:
-// أحمد بن حنبل · ابن تيمية · ابن القيم · النووي · الذهبي · محمد بن عبد الوهاب · السعدي · الشنقيطي · الألباني · ابن باز · ابن عثيمين · الفوزان
+// نظام Al-Sajana Smart ERP 2026 - حزمة المساعدات ومفاتيح البنوك والموسوعة الكبرى لفتاوى البيوع V12
+// كوكبة الأئمة الـ 12 + مكتبة أمهات الكتب + القواعد الفقهية الـ 5 + معجم المصطلحات + محرك البحث الذكي
 // ====================================================================
 $page_title = 'الأدوات المساعدة والحاسبات ومفاتيح تحويلات البنوك وفتاوى البيوع';
 $header_theme_class = 'header-theme-reports';
@@ -27,7 +26,7 @@ $pdo = getDBConnection();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مفاتيح تحويلات البنوك وفتاوى البيوع | Al-Sajana ERP</title>
+    <title>مفاتيح تحويلات البنوك وموسوعة فتاوى البيوع | Al-Sajana ERP</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -309,6 +308,51 @@ $pdo = getDBConnection();
             border-color: #fbbf24 !important;
             color: #ffffff !important;
             box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
+        }
+
+        .fiqh-chip {
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-size: 0.75rem;
+            font-weight: 800;
+            background: rgba(30, 41, 59, 0.8);
+            color: #93c5fd;
+            border: 1px solid rgba(147, 197, 253, 0.3);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+        }
+
+        .fiqh-chip:hover {
+            background: #0284c7;
+            color: #ffffff;
+            border-color: #38bdf8;
+        }
+
+        .fiqh-nav-pill {
+            padding: 10px 18px;
+            border-radius: 14px;
+            font-size: 0.95rem;
+            font-weight: 900;
+            background: rgba(15, 23, 42, 0.9);
+            color: #94a3b8;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .fiqh-nav-pill:hover {
+            border-color: #fbbf24;
+            color: #fbbf24;
+        }
+
+        .fiqh-nav-pill.active {
+            background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+            border-color: #fbbf24 !important;
+            color: #020617 !important;
+            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
         }
 
         @keyframes fadeInUp {
@@ -1663,7 +1707,7 @@ $pdo = getDBConnection();
         </div>
 
         <!-- ════════════════════════════════════════════════════════════════ -->
-        <!-- 7. SUITE: FIQH OF ISLAMIC BUSINESS & TRANSACTIONS (12 SCHOLARS)  -->
+        <!-- 7. SUITE: MEGA FIQH PLATFORM (12 SCHOLARS, BOOKS, MAXIMS, TERMS)-->
         <!-- ════════════════════════════════════════════════════════════════ -->
         <div id="suite-sec-fiqh" class="suite-section anim-suite hidden space-y-6">
             <div class="glass-panel-v3" style="--border-color: rgba(251, 191, 36, 0.45);">
@@ -1673,120 +1717,164 @@ $pdo = getDBConnection();
                     <div>
                         <div class="flex items-center gap-2 mb-1.5">
                             <span class="px-4 py-1.5 bg-amber-500/20 text-amber-300 rounded-xl text-sm font-black border-2 border-amber-400 shadow-md">
-                                ★ موسوعة فتاوى وضوابط البيوع والمعاملات التجارية
+                                ★ الموسوعة الكبرى لفتاوى وضوابط ومؤلفات البيوع
                             </span>
                             <span class="px-3.5 py-1.5 bg-emerald-500/20 text-emerald-300 rounded-xl text-sm font-black border-2 border-emerald-400 shadow-md">
-                                أصول وضوابط التجارة الحلال ✓
+                                12 إماماً وعالماً معتمداً ✓
                             </span>
                         </div>
                         <h2 class="text-2xl md:text-3xl font-black text-white flex items-center gap-3">
                             <i class="fa-solid fa-book-quran text-amber-400"></i>
-                            فتاوى البيوع والتعاملات المالية المعاصرة لكبار أئمة وعلماء السنة (12 إماماً)
+                            منصة فتاوى البيوع والمعاملات التجارية ومكتبة أمهات الكتب
                         </h2>
                         <p class="text-xs md:text-sm font-bold text-slate-300 mt-1">
-                            الفتاوى والأحكام محصورة بدقة وفق تحقيقات: <span class="text-amber-300 font-black">أحمد بن حنبل</span> · <span class="text-amber-300 font-black">ابن تيمية</span> · <span class="text-amber-300 font-black">ابن القيم</span> · <span class="text-amber-300 font-black">النووي</span> · <span class="text-amber-300 font-black">الذهبي</span> · <span class="text-amber-300 font-black">محمد بن عبد الوهاب</span> · <span class="text-amber-300 font-black">السعدي</span> · <span class="text-amber-300 font-black">الشنقيطي</span> · <span class="text-amber-300 font-black">الألباني</span> · <span class="text-amber-300 font-black">ابن باز</span> · <span class="text-amber-300 font-black">ابن عثيمين</span> · <span class="text-amber-300 font-black">الفوزان</span>
+                            تحقيقات وفتاوى: <span class="text-amber-300 font-black">أحمد بن حنبل</span> · <span class="text-amber-300 font-black">ابن تيمية</span> · <span class="text-amber-300 font-black">ابن القيم</span> · <span class="text-amber-300 font-black">النووي</span> · <span class="text-amber-300 font-black">الذهبي</span> · <span class="text-amber-300 font-black">محمد بن عبد الوهاب</span> · <span class="text-amber-300 font-black">السعدي</span> · <span class="text-amber-300 font-black">الشنقيطي</span> · <span class="text-amber-300 font-black">الألباني</span> · <span class="text-amber-300 font-black">ابن باز</span> · <span class="text-amber-300 font-black">ابن عثيمين</span> · <span class="text-amber-300 font-black">الفوزان</span>
                         </p>
                     </div>
 
-                    <!-- Instant Fatwa Search Bar -->
-                    <div class="w-full md:w-80">
-                        <label class="text-xs font-bold text-slate-300 block mb-1">🔍 ابحث في نصوص ومسائل الفتاوى:</label>
-                        <input type="text" id="fiqh-search-input" oninput="filterFatwas()" placeholder="اكتب للبحث: بيع، تقسيط، عربون، استصناع..." class="tool-input text-sm font-bold">
+                    <!-- Instant Fatwa Search Bar with Live Status -->
+                    <div class="w-full md:w-96 space-y-1">
+                        <label class="text-xs font-bold text-slate-300 flex items-center justify-between">
+                            <span>🔍 محرك البحث الفقهي الذكي:</span>
+                            <span id="fiqh_search_badge" class="text-emerald-400 font-mono font-black text-xs">19 فتوى متاحة</span>
+                        </label>
+                        <div class="relative">
+                            <input type="text" id="fiqh-search-input" oninput="filterFatwas()" placeholder="اكتب للبحث: تقسيط، شيك، عربون، استصناع..." class="tool-input text-sm font-bold pr-10">
+                            <i class="fa-solid fa-search absolute right-3 top-3.5 text-slate-400"></i>
+                        </div>
                     </div>
                 </div>
 
-                <!-- 🎛️ FILTER BAR 1: CHOOSE BY SCHOLAR (المشايخ الـ 12) 🎛️ -->
-                <div class="bg-slate-900/90 p-4 rounded-2xl border-2 border-amber-500/30 space-y-2 mb-4">
-                    <span class="text-xs font-black text-amber-400 block">
-                        👤 اختيار الفتاوى حسب فضيلة الشيخ / الإمام (12 إماماً):
+                <!-- ⚡ Quick Search Chips (الأسئلة الشائعة بنقرة واحدة) ⚡ -->
+                <div class="p-3 bg-slate-950/70 rounded-2xl border border-slate-800 flex flex-wrap items-center gap-2 mb-4">
+                    <span class="text-xs font-black text-amber-400 flex items-center gap-1.5">
+                        <i class="fa-solid fa-bolt text-amber-400"></i> أسئلة شائعة سريعة:
                     </span>
-                    <div class="flex flex-wrap items-center gap-1.5">
-                        <button type="button" class="fiqh-filter-btn active" data-filter-type="scholar" data-filter-val="all" onclick="setFiqhScholar('all', this)">
-                            🌟 جميع المشايخ (12)
-                        </button>
-                        <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="imam_ahmad" onclick="setFiqhScholar('imam_ahmad', this)">
-                            👑 الإمام أحمد بن حنبل
-                        </button>
-                        <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="ibn_taymiyyah" onclick="setFiqhScholar('ibn_taymiyyah', this)">
-                            📖 شيخ الإسلام ابن تيمية
-                        </button>
-                        <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="ibn_al_qayyim" onclick="setFiqhScholar('ibn_al_qayyim', this)">
-                            ✨ الإمام ابن قيم الجوزية
-                        </button>
-                        <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_nawawi" onclick="setFiqhScholar('al_nawawi', this)">
-                            📜 الإمام النووي
-                        </button>
-                        <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_dhahabi" onclick="setFiqhScholar('al_dhahabi', this)">
-                            ⚖️ الإمام الذهبي
-                        </button>
-                        <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="muhammad_bin_abdulwahhab" onclick="setFiqhScholar('muhammad_bin_abdulwahhab', this)">
-                            📚 الإمام محمد بن عبد الوهاب
-                        </button>
-                        <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_saadi" onclick="setFiqhScholar('al_saadi', this)">
-                            💡 العلامة عبد الرحمن السعدي
-                        </button>
-                        <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_shinqiti" onclick="setFiqhScholar('al_shinqiti', this)">
-                            📖 العلامة محمد الأمين الشنقيطي
-                        </button>
-                        <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_albani" onclick="setFiqhScholar('al_albani', this)">
-                            📚 الإمام الألباني
-                        </button>
-                        <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="ibn_baz" onclick="setFiqhScholar('ibn_baz', this)">
-                            📜 الإمام ابن باز
-                        </button>
-                        <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="ibn_uthaymeen" onclick="setFiqhScholar('ibn_uthaymeen', this)">
-                            💡 الإمام ابن عثيمين
-                        </button>
-                        <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_fawzan" onclick="setFiqhScholar('al_fawzan', this)">
-                            ⚖️ الشيخ صالح الفوزان
-                        </button>
-                    </div>
+                    <button type="button" class="fiqh-chip" onclick="setQuickSearch('التقسيط')">💳 حكم البيع بالتقسيط</button>
+                    <button type="button" class="fiqh-chip" onclick="setQuickSearch('غرامات التأخير')">⚠️ غرامات التأخير</button>
+                    <button type="button" class="fiqh-chip" onclick="setQuickSearch('خصم الشيكات')">📜 خصم الشيكات الآجلة</button>
+                    <button type="button" class="fiqh-chip" onclick="setQuickSearch('العربون')">🤝 بيع العربون</button>
+                    <button type="button" class="fiqh-chip" onclick="setQuickSearch('الذهب')">💎 شراء الذهب بالبطاقة</button>
+                    <button type="button" class="fiqh-chip" onclick="setQuickSearch('العِينة')">🚫 حيل الربا والعِينة</button>
+                    <button type="button" class="fiqh-chip" onclick="setQuickSearch('التأمين')">🛡️ التأمين التعاوني</button>
+                    <button type="button" class="fiqh-chip" onclick="setQuickSearch('الاستصناع')">🏗️ عقد الاستصناع</button>
+                    <button type="button" class="fiqh-chip" onclick="setQuickSearch('الغرر')">🔍 نفي الغرر والجهالة</button>
+                    <button type="button" class="fiqh-chip bg-rose-500/20 text-rose-300 border-rose-500/40" onclick="clearFiqhSearch()">✕ تفريغ البحث</button>
                 </div>
 
-                <!-- 🎛️ FILTER BAR 2: CHOOSE BY TRANSACTION / TOPIC (نوع المعاملة) 🎛️ -->
-                <div class="bg-slate-900/90 p-4 rounded-2xl border-2 border-cyan-500/30 space-y-2 mb-6">
-                    <span class="text-xs font-black text-cyan-300 block">
-                        🏷️ اختيار وتصنيف الفتاوى حسب نوع المعاملة والمسألة:
-                    </span>
-                    <div class="flex flex-wrap items-center gap-2">
-                        <button type="button" class="fiqh-filter-btn active" data-filter-type="topic" data-filter-val="all" onclick="setFiqhTopic('all', this)">
-                            📑 جميع المسائل والمعاملات
-                        </button>
-                        <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="ownership" onclick="setFiqhTopic('ownership', this)">
-                            🛒 بيع ما لا يملك والوساطة
-                        </button>
-                        <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="installments" onclick="setFiqhTopic('installments', this)">
-                            💳 التقسيط وغرامات التأخير
-                        </button>
-                        <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="exchange" onclick="setFiqhTopic('exchange', this)">
-                            💱 الصرف والموبايل بنك
-                        </button>
-                        <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="checks" onclick="setFiqhTopic('checks', this)">
-                            📜 الشيكات وخصم الأوراق المالية
-                        </button>
-                        <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="araboon" onclick="setFiqhTopic('araboon', this)">
-                            🤝 بيع العربون واسترداده
-                        </button>
-                        <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="contracts" onclick="setFiqhTopic('contracts', this)">
-                            🏗️ العقود والشروط والاستصناع والتأمين
-                        </button>
-                        <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="pricing" onclick="setFiqhTopic('pricing', this)">
-                            📈 الصدق والتسعير والموازين والتطفيف
-                        </button>
-                        <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="gold" onclick="setFiqhTopic('gold', this)">
-                            💎 الذهب والبطاقات البنكية
-                        </button>
-                        <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="defects" onclick="setFiqhTopic('defects', this)">
-                            🔄 بيان العيوب ونفي الغرر
-                        </button>
-                        <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="riba" onclick="setFiqhTopic('riba', this)">
-                            🚫 إبطال حيل الربا والعِينة
-                        </button>
-                    </div>
+                <!-- 🗂️ 4 SUB-TABS WITHIN FIQH SUITE (أقسام المنظومة الفقهية) 🗂️ -->
+                <div class="flex flex-wrap items-center gap-2 mb-6 border-b border-slate-800 pb-3">
+                    <button type="button" class="fiqh-nav-pill active" onclick="switchFiqhSubTab('fatwas', this)">
+                        📑 موسوعة الفتاوى والأحكام (19 مسألة)
+                    </button>
+                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('books', this)">
+                        📚 مكتبة أمهات كتب البيوع للشيوخ (12)
+                    </button>
+                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('maxims', this)">
+                        ⚖️ القواعد الفقهية الكبرى الـ 5 الحاكمة للتجارة
+                    </button>
+                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('terms', this)">
+                        📖 معجم المصطلحات الفقهية والاقتصادية
+                    </button>
                 </div>
 
-                <!-- 📋 FATWAS CARDS GRID 📋 -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="fatwas-grid-container">
+                <!-- ════════════════════════════════════════════════════════════ -->
+                <!-- SUB-SECTION 1: FATWAS & RULINGS GRID                         -->
+                <!-- ════════════════════════════════════════════════════════════ -->
+                <div id="fiqh-sub-fatwas" class="space-y-4">
+                    
+                    <!-- 🎛️ FILTER BAR 1: CHOOSE BY SCHOLAR (المشايخ الـ 12) 🎛️ -->
+                    <div class="bg-slate-900/90 p-4 rounded-2xl border-2 border-amber-500/30 space-y-2">
+                        <span class="text-xs font-black text-amber-400 block">
+                            👤 اختيار الفتاوى حسب فضيلة الشيخ / الإمام (12 إماماً):
+                        </span>
+                        <div class="flex flex-wrap items-center gap-1.5">
+                            <button type="button" class="fiqh-filter-btn active" data-filter-type="scholar" data-filter-val="all" onclick="setFiqhScholar('all', this)">
+                                🌟 جميع المشايخ (12)
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="imam_ahmad" onclick="setFiqhScholar('imam_ahmad', this)">
+                                👑 الإمام أحمد بن حنبل
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="ibn_taymiyyah" onclick="setFiqhScholar('ibn_taymiyyah', this)">
+                                📖 شيخ الإسلام ابن تيمية
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="ibn_al_qayyim" onclick="setFiqhScholar('ibn_al_qayyim', this)">
+                                ✨ الإمام ابن قيم الجوزية
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_nawawi" onclick="setFiqhScholar('al_nawawi', this)">
+                                📜 الإمام النووي
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_dhahabi" onclick="setFiqhScholar('al_dhahabi', this)">
+                                ⚖️ الإمام الذهبي
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="muhammad_bin_abdulwahhab" onclick="setFiqhScholar('muhammad_bin_abdulwahhab', this)">
+                                📚 الإمام محمد بن عبد الوهاب
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_saadi" onclick="setFiqhScholar('al_saadi', this)">
+                                💡 العلامة عبد الرحمن السعدي
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_shinqiti" onclick="setFiqhScholar('al_shinqiti', this)">
+                                📖 العلامة محمد الأمين الشنقيطي
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_albani" onclick="setFiqhScholar('al_albani', this)">
+                                📚 الإمام الألباني
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="ibn_baz" onclick="setFiqhScholar('ibn_baz', this)">
+                                📜 الإمام ابن باز
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="ibn_uthaymeen" onclick="setFiqhScholar('ibn_uthaymeen', this)">
+                                💡 الإمام ابن عثيمين
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_fawzan" onclick="setFiqhScholar('al_fawzan', this)">
+                                ⚖️ الشيخ صالح الفوزان
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 🎛️ FILTER BAR 2: CHOOSE BY TRANSACTION / TOPIC (نوع المعاملة) 🎛️ -->
+                    <div class="bg-slate-900/90 p-4 rounded-2xl border-2 border-cyan-500/30 space-y-2">
+                        <span class="text-xs font-black text-cyan-300 block">
+                            🏷️ اختيار وتصنيف الفتاوى حسب نوع المعاملة والمسألة:
+                        </span>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button type="button" class="fiqh-filter-btn active" data-filter-type="topic" data-filter-val="all" onclick="setFiqhTopic('all', this)">
+                                📑 جميع المسائل والمعاملات
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="ownership" onclick="setFiqhTopic('ownership', this)">
+                                🛒 بيع ما لا يملك والوساطة
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="installments" onclick="setFiqhTopic('installments', this)">
+                                💳 التقسيط وغرامات التأخير
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="exchange" onclick="setFiqhTopic('exchange', this)">
+                                💱 الصرف والموبايل بنك
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="checks" onclick="setFiqhTopic('checks', this)">
+                                📜 الشيكات وخصم الأوراق المالية
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="araboon" onclick="setFiqhTopic('araboon', this)">
+                                🤝 بيع العربون واسترداده
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="contracts" onclick="setFiqhTopic('contracts', this)">
+                                🏗️ العقود والشروط والاستصناع والتأمين
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="pricing" onclick="setFiqhTopic('pricing', this)">
+                                📈 الصدق والتسعير والموازين والتطفيف
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="gold" onclick="setFiqhTopic('gold', this)">
+                                💎 الذهب والبطاقات البنكية
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="defects" onclick="setFiqhTopic('defects', this)">
+                                🔄 بيان العيوب ونفي الغرر
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="riba" onclick="setFiqhTopic('riba', this)">
+                                🚫 إبطال حيل الربا والعِينة
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- 📋 FATWAS CARDS GRID 📋 -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="fatwas-grid-container">
 
                     <!-- Fatwa Card 1 -->
                     <div class="fiqh-master-card" data-scholar="imam_ahmad" data-topic="contracts" data-search="1. الأصل في العقود والشروط الجواز والصحة وخيار الشرط والمجلس الإمام المبجل أحمد بن حنبل (رحمه الله) مذهب الإمام أحمد بن حنبل رحمه الله أن الأصل في العقود والشروط هو الحل والصحة ما لم تخالف نصاً شرعياً أو تنافي مقتضى العقد. وثبوت خيار الشرط وخيار المجلس للمتبايعين للتراضي التام. مسائل الإمام أحمد برواية ابنه عبد الله والمغني لابن قدامة">
@@ -2814,12 +2902,410 @@ $pdo = getDBConnection();
 
                     </div>
     
+                    </div>
+
+                    <div id="no-fatwas-alert" class="p-8 text-center bg-slate-900/60 rounded-2xl border border-slate-800 hidden">
+                        <span class="text-4xl block mb-2">🔍</span>
+                        <h5 class="text-lg font-black text-slate-300">لا توجد فتاوى مطابقة لخيارات الفرز الحالية</h5>
+                        <p class="text-xs text-slate-400 mt-1">يرجى تغيير الشيخ أو الموضوع أو مسح كلمة البحث لإظهار بقية الفتاوى.</p>
+                    </div>
+
                 </div>
 
-                <div id="no-fatwas-alert" class="p-8 text-center bg-slate-900/60 rounded-2xl border border-slate-800 hidden">
-                    <span class="text-4xl block mb-2">🔍</span>
-                    <h5 class="text-lg font-black text-slate-300">لا توجد فتاوى مطابقة لخيارات الفرز الحالية</h5>
-                    <p class="text-xs text-slate-400 mt-1">يرجى تغيير الشيخ أو الموضوع أو مسح كلمة البحث لإظهار بقية الفتاوى.</p>
+                <!-- ════════════════════════════════════════════════════════════ -->
+                <!-- SUB-SECTION 2: CLASSICAL REFERENCE BOOKS DIRECTORY           -->
+                <!-- ════════════════════════════════════════════════════════════ -->
+                <div id="fiqh-sub-books" class="space-y-4 hidden">
+                    <div class="p-4 bg-amber-500/10 border border-amber-500/30 rounded-2xl">
+                        <h3 class="text-lg font-black text-amber-300 flex items-center gap-2">
+                            <i class="fa-solid fa-book-bookmark text-amber-400"></i>
+                            مكتبة أمهات كتب ومؤلفات البيوع والمعاملات المالية للأئمة الـ 12
+                        </h3>
+                        <p class="text-xs text-slate-300 font-bold mt-1">
+                            قائمة بالمصادر والمراجع الأصلية المعتمدة التي استنبطت منها فتاوى وأحكام المنظومة.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+        <div class="p-4 bg-slate-900/90 rounded-2xl border-2 border-amber-500/30 space-y-3">
+            <h4 class="text-base font-black text-white flex items-center gap-2 border-b border-slate-800 pb-2">
+                <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                الإمام أحمد بن حنبل (ت 241 هـ)
+            </h4>
+            <div class="space-y-2">
+                
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 مسائل الإمام أحمد في البيوع (رواية عبد الله وأبي داود والأثرم)</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">الأصل في تأسيس مذهب أهل السنة بأن الأصل في الشروط والعقود الإباحة وخيار المجلس والشرط.</p>
+            </div>
+        
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 الجامع في الفقه ومسائل الورع والتجارة</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">ضوابط الورع في التجارة واجتناب الشبهات والربا.</p>
+            </div>
+        
+            </div>
+        </div>
+    
+        <div class="p-4 bg-slate-900/90 rounded-2xl border-2 border-amber-500/30 space-y-3">
+            <h4 class="text-base font-black text-white flex items-center gap-2 border-b border-slate-800 pb-2">
+                <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                شيخ الإسلام ابن تيمية (ت 728 هـ)
+            </h4>
+            <div class="space-y-2">
+                
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 مجموع الفتاوى (المجلدان 29 و 30 - كتاب البيوع)</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">أعظم تحرير فقهي لقواعد المعاملات والعقود والشروط والربا والتسعير في التاريخ الإسلامي.</p>
+            </div>
+        
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 الحسبة في الإسلام</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">تنظيم الأسواق ومنع الاحتكار والغش ومراقبة الأوزان والمكاييل وضوابط ولاية السوق.</p>
+            </div>
+        
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 القواعد النورانية الفقهية (كتاب المعاملات)</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">تأصيل القواعد الكبرى في العقود والشروط وإباحة ما ينفع الناس.</p>
+            </div>
+        
+            </div>
+        </div>
+    
+        <div class="p-4 bg-slate-900/90 rounded-2xl border-2 border-amber-500/30 space-y-3">
+            <h4 class="text-base font-black text-white flex items-center gap-2 border-b border-slate-800 pb-2">
+                <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                الإمام ابن قيم الجوزية (ت 751 هـ)
+            </h4>
+            <div class="space-y-2">
+                
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 إعلام الموقعين عن رب العالمين (أبواب الربا والحيل)</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">كشف وإبطال حيل الربا، بيع العينة، ضوابط التورق، وصحة عقد الاستصناع والمقاولات.</p>
+            </div>
+        
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 زاد المعاد في هدي خير العباد (فصل هَديه ﷺ في البيوع)</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">بيان المعاملات النبوية الشريفة وأخلاق التاجر المسلم.</p>
+            </div>
+        
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 إغاثة اللهفان من مصائد الشيطان</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">تفصيل الحيل الربوية المحرمة وحماية المعاملات من الفساد.</p>
+            </div>
+        
+            </div>
+        </div>
+    
+        <div class="p-4 bg-slate-900/90 rounded-2xl border-2 border-amber-500/30 space-y-3">
+            <h4 class="text-base font-black text-white flex items-center gap-2 border-b border-slate-800 pb-2">
+                <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                الإمام محيي الدين النووي (ت 676 هـ)
+            </h4>
+            <div class="space-y-2">
+                
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 المجموع شرح المهذب (المجلدات 9 و 10 و 11 - كتاب البيوع والربا والسلم)</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">الموسوعة الفقهية الشاملة في تفصيل أركان البيع، شروط العوضين، ونفي الغرر والجهالة.</p>
+            </div>
+        
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 منهاج الطالبين وعمدة المفتين (قسم المعاملات)</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">المتن المعتمد في ضبط خيارات البيع والشفعة والرهن والإجارة.</p>
+            </div>
+        
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 شرح صحيح مسلم (كتاب البيوع والمساقاة والربا)</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">تأصيل الأحاديث النبوية الجامعة في تحريم الغرر وبيع الحصاة والربا.</p>
+            </div>
+        
+            </div>
+        </div>
+    
+        <div class="p-4 bg-slate-900/90 rounded-2xl border-2 border-amber-500/30 space-y-3">
+            <h4 class="text-base font-black text-white flex items-center gap-2 border-b border-slate-800 pb-2">
+                <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                الإمام الحافظ شمس الدين الذهبي (ت 748 هـ)
+            </h4>
+            <div class="space-y-2">
+                
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 كتاب الكبائر (كبائر المعاملات والتجارة)</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">بيان كبائر التجارة: الربا، التطفيف في الميزان والكيل، الغش، واليمين الكاذبة لترويج السلعة.</p>
+            </div>
+        
+            </div>
+        </div>
+    
+        <div class="p-4 bg-slate-900/90 rounded-2xl border-2 border-amber-500/30 space-y-3">
+            <h4 class="text-base font-black text-white flex items-center gap-2 border-b border-slate-800 pb-2">
+                <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                الإمام المجدد الشيخ محمد بن عبد الوهاب (ت 1206 هـ)
+            </h4>
+            <div class="space-y-2">
+                
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 مجموع مؤلفات الشيخ (القسم الثاني: الفقه - كتاب البيوع)</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">تحرير أحكام البيوع والربا والديون والشفعة بنصوص الكتاب والسنة.</p>
+            </div>
+        
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 مختصر الإنصاف والشرح الكبير في الفقه</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">تهذيب الأحكام الفقهية وتجريدها بالأدلة المعتبرة.</p>
+            </div>
+        
+            </div>
+        </div>
+    
+        <div class="p-4 bg-slate-900/90 rounded-2xl border-2 border-amber-500/30 space-y-3">
+            <h4 class="text-base font-black text-white flex items-center gap-2 border-b border-slate-800 pb-2">
+                <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                العلامة الشيخ عبد الرحمن بن ناصر السعدي (ت 1376 هـ)
+            </h4>
+            <div class="space-y-2">
+                
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 القواعد والأصول الجامعة والفروق والتقاسيم البديعة النافعة</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">تأصيل قواعد: (الأصل في المعاملات الإباحة) و(العرف مطرد كالمشروط) و(الخراج بالضمان).</p>
+            </div>
+        
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 بهجة قلوب الأبرار وقرة عيون الأخيار (شرح جوامع الأخبار في البيوع)</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">شرح أحاديث البيع المبرور وبركة الصدق ووعيد الكتمان.</p>
+            </div>
+        
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 الفتاوى السعدية في المعاملات والمعاملات المالية المستجدة</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">فتاوى عصرية في الشركات، الوكالات، المعاملات البنكية، والأسهم.</p>
+            </div>
+        
+            </div>
+        </div>
+    
+        <div class="p-4 bg-slate-900/90 rounded-2xl border-2 border-amber-500/30 space-y-3">
+            <h4 class="text-base font-black text-white flex items-center gap-2 border-b border-slate-800 pb-2">
+                <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                العلامة الشيخ محمد الأمين الشنقيطي (ت 1393 هـ)
+            </h4>
+            <div class="space-y-2">
+                
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 أضواء البيان في إيضاح القرآن بالقرآن (تفسير آيات البيوع والربا والعقود)</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">تحرير فقهي بديع لآيات سورة البقرة وآل عمران والمائدة، وضوابط التأمين التعاوني والسَّلَم.</p>
+            </div>
+        
+            </div>
+        </div>
+    
+        <div class="p-4 bg-slate-900/90 rounded-2xl border-2 border-amber-500/30 space-y-3">
+            <h4 class="text-base font-black text-white flex items-center gap-2 border-b border-slate-800 pb-2">
+                <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                الإمام محمد ناصر الدين الألباني (ت 1420 هـ)
+            </h4>
+            <div class="space-y-2">
+                
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 سلسلة الأحاديث الصحيحة والضعيفة (أحاديث التجارة والبيوع)</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">تحقيق وتخريج أحاديث البيوع والغش وخيار العيب والبركة في الصدق.</p>
+            </div>
+        
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 فتاوى جدة ورابغ (الفتاوى الاقتصادية والمالية)</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">فتاوى في الصرف، تحريم الفوائد البنكية، وأحكام تجارة الذهب والعملات.</p>
+            </div>
+        
+            </div>
+        </div>
+    
+        <div class="p-4 bg-slate-900/90 rounded-2xl border-2 border-amber-500/30 space-y-3">
+            <h4 class="text-base font-black text-white flex items-center gap-2 border-b border-slate-800 pb-2">
+                <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                الإمام عبد العزيز بن باز (ت 1420 هـ)
+            </h4>
+            <div class="space-y-2">
+                
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 مجموع فتاوى ومقالات متنوعة (المجلدان 19 و 20 - كتاب البيوع)</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">المرجع الفقهي الأول في فتاوى البيوع والتقسيط وخصم الشيكات والمرابحة والتأمين.</p>
+            </div>
+        
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 فتاوى نور على الدرب (قسم المعاملات والبيوع والربا)</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">إجابات واضحة ومباشرة لآلاف الأسئلة في التجارة والأسواق.</p>
+            </div>
+        
+            </div>
+        </div>
+    
+        <div class="p-4 bg-slate-900/90 rounded-2xl border-2 border-amber-500/30 space-y-3">
+            <h4 class="text-base font-black text-white flex items-center gap-2 border-b border-slate-800 pb-2">
+                <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                الإمام محمد بن صالح العثيمين (ت 1421 هـ)
+            </h4>
+            <div class="space-y-2">
+                
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 الشرح الممتع على زاد المستقنع (المجلدات 8 و 9 - كتاب البيع والربا والسلم والإجارة)</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">أوسع وأسهل شرح معاصر لفقه البيوع مع التطبيق على المعاملات المالية الحديثة.</p>
+            </div>
+        
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 فقه المعاملات المالية المعاصرة</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">تأصيل أحكام بطاقات الائتمان، الصرف الإلكتروني، الأسهم، والتأمين.</p>
+            </div>
+        
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 مجموع الفتاوى والرسائل (المجلدان 18 و 19 - البيوع)</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">فتاوى محررة بالأدلة المقارنة لمسائل البيوع اليومية.</p>
+            </div>
+        
+            </div>
+        </div>
+    
+        <div class="p-4 bg-slate-900/90 rounded-2xl border-2 border-amber-500/30 space-y-3">
+            <h4 class="text-base font-black text-white flex items-center gap-2 border-b border-slate-800 pb-2">
+                <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله)
+            </h4>
+            <div class="space-y-2">
+                
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 الملخص الفقهي (كتاب المعاملات والبيوع)</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">الدليل الفقهي الميسر والمحرر لكل تاجر ومحاسب ومسلم في أبواب البيوع.</p>
+            </div>
+        
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <span class="text-amber-300 font-black text-sm block">📚 المنتقى من فتاوى الفوزان (فتاوى المعاملات المصرفية والبيوع المعاصرة)</span>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">أحكام التطبيقات البنكية الحديثة، بطاقات مدى، وصرف العملات.</p>
+            </div>
+        
+            </div>
+        </div>
+    
+                    </div>
+                </div>
+
+                <!-- ════════════════════════════════════════════════════════════ -->
+                <!-- SUB-SECTION 3: 5 GOLDEN FIQH MAXIMS OF COMMERCE              -->
+                <!-- ════════════════════════════════════════════════════════════ -->
+                <div id="fiqh-sub-maxims" class="space-y-4 hidden">
+                    <div class="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl">
+                        <h3 class="text-lg font-black text-emerald-400 flex items-center gap-2">
+                            <i class="fa-solid fa-scale-balanced"></i>
+                            القواعد الفقهية الكبرى الـ 5 الحاكمة للبيوع والتجارة في الإسلام
+                        </h3>
+                        <p class="text-xs text-slate-300 font-bold mt-1">
+                            القواعد الكلية التي تفرعت عنها أحكام التجارة والشركات والمصارف.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                        
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-emerald-500/40 space-y-2">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h4 class="text-base font-black text-emerald-300">1. «الأصل في العقود والشروط الحل والإباحة»</h4>
+                                <span class="text-xs font-black px-2.5 py-1 bg-emerald-500/20 text-emerald-300 rounded-lg">قاعدة عامة</span>
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed font-bold">
+                                كل عقد أو شرط تجاري ابتكره الناس لتحقيق مصالحهم فهو جائز ومباح شرعاً، إلا إذا تضمن ربا، أو غشاً، أو ظلماً، أو ميسراً، أو غرراً فاحشاً.
+                            </p>
+                            <span class="text-[11px] text-slate-400 block font-bold">المقررون: الإمام أحمد، ابن تيمية، ابن القيم، السعدي، وابن عثيمين.</span>
+                        </div>
+
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-amber-500/40 space-y-2">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h4 class="text-base font-black text-amber-300">2. «الخَرَاجُ بِالضَّمَانِ · والغُنْمُ بِالغُرْمِ»</h4>
+                                <span class="text-xs font-black px-2.5 py-1 bg-amber-500/20 text-amber-300 rounded-lg">حديث نبوي صحيح</span>
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed font-bold">
+                                لا يستحق التاجر أو الشريك الربح إلا إذا كان يتحمل مخاطرة الضمان وتلف البضاعة وخسارتها. أما ضمان رأس المال مع اشتراط فائدة مؤكدة فهو عين الربا المحرم.
+                            </p>
+                            <span class="text-[11px] text-slate-400 block font-bold">التطبيق: تحريم فوائد الودائع البنكية المضمونة مع ربح ثابت، وصحة المضاربة بالمخاطرة.</span>
+                        </div>
+
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-sky-500/40 space-y-2">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h4 class="text-base font-black text-sky-300">3. «لا ضَرَرَ وَلا ضِرَارَ»</h4>
+                                <span class="text-xs font-black px-2.5 py-1 bg-sky-500/20 text-sky-300 rounded-lg">حديث نبوي صحيح</span>
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed font-bold">
+                                تحريم كل تصرف تجاري يلحق ضرراً بالمتعاملين أو بالأسواق، كاحتكار السلع الأساسية، التلاعب بالأسعار (النجش)، أو بيع السلع المعيبة دون بيان.
+                            </p>
+                            <span class="text-[11px] text-slate-400 block font-bold">التطبيق: جواز التسعير الجبري عند احتكار أقوات الناس، وثبوت خيار العيب للمشتري.</span>
+                        </div>
+
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-purple-500/40 space-y-2">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h4 class="text-base font-black text-purple-300">4. «العَادَةُ مُحَكَّمَةٌ · والمَعْرُوفُ عُرْفاً كَالمَشْرُوطِ شَرْطاً»</h4>
+                                <span class="text-xs font-black px-2.5 py-1 bg-purple-500/20 text-purple-300 rounded-lg">قاعدة أصولية</span>
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed font-bold">
+                                ما تعارف عليه التجار وأهل السوق من مواعيد التسليم، طرق التغليف، مواعيد السداد، والخصومات، يُعد ملزماً كأنه منصوص عليه في صلب العقد.
+                            </p>
+                            <span class="text-[11px] text-slate-400 block font-bold">التطبيق: تطبيق أعراف التجارة الإلكترونية والشحن والتسليم.</span>
+                        </div>
+
+                    </div>
+                </div>
+
+                <!-- ════════════════════════════════════════════════════════════ -->
+                <!-- SUB-SECTION 4: ISLAMIC BUSINESS TERMINOLOGY GUIDE            -->
+                <!-- ════════════════════════════════════════════════════════════ -->
+                <div id="fiqh-sub-terms" class="space-y-4 hidden">
+                    <div class="p-4 bg-cyan-500/10 border border-cyan-500/30 rounded-2xl">
+                        <h3 class="text-lg font-black text-cyan-400 flex items-center gap-2">
+                            <i class="fa-solid fa-spell-check"></i>
+                            معجم المصطلحات الفقهية والاقتصادية للتاجر والمحاسب المسلم
+                        </h3>
+                        <p class="text-xs text-slate-300 font-bold mt-1">
+                            شرح مبسط لأهم العقود والمفاهيم المالية الإسلامية وتطبيقاتها المعاصرة.
+                        </p>
+                    </div>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3">
+
+        <div class="p-3.5 bg-slate-900/90 rounded-2xl border-2 border-cyan-500/30 space-y-1">
+            <span class="text-cyan-300 font-black text-sm block">💡 المرابحة للآمر بالشراء:</span>
+            <p class="text-xs text-slate-300 font-bold leading-relaxed">أن يشتري البنك أو التاجر السلعة ويقبضها وتدخل في ضمانه، ثم يبيعها للزبون بالأجل بربح معلوم متفق عليه (بديل شرعي صحيح للقرض بفائدة).</p>
+        </div>
+    
+        <div class="p-3.5 bg-slate-900/90 rounded-2xl border-2 border-cyan-500/30 space-y-1">
+            <span class="text-cyan-300 font-black text-sm block">💡 السَّلَم (السَّلَف):</span>
+            <p class="text-xs text-slate-300 font-bold leading-relaxed">دفع كامل الثمن مقدماً نقداً للبائع في مجلس العقد، مقابل تسليم بضاعة موصوفة بدقة في الذمة (كحديد أو محاصيل) في تاريخ محدد مستقبلاً.</p>
+        </div>
+    
+        <div class="p-3.5 bg-slate-900/90 rounded-2xl border-2 border-cyan-500/30 space-y-1">
+            <span class="text-cyan-300 font-black text-sm block">💡 الاستصناع:</span>
+            <p class="text-xs text-slate-300 font-bold leading-relaxed">عقد اتفاق مع صانع أو مصنع أو ورشة لتصنيع سلعة بمواصفات ومقاسات محددة بمواد من عند الصانع، وتجوز فيه الدفعات والمقدم.</p>
+        </div>
+    
+        <div class="p-3.5 bg-slate-900/90 rounded-2xl border-2 border-cyan-500/30 space-y-1">
+            <span class="text-cyan-300 font-black text-sm block">💡 التورق المنضبط:</span>
+            <p class="text-xs text-slate-300 font-bold leading-relaxed">شراء سلعة بالأجل وقبضها وحيازتها فعلياً، ثم بيعها نقداً لطرف ثالث مستقل للحصول على السيولة النقدية دون تواطؤ.</p>
+        </div>
+    
+        <div class="p-3.5 bg-slate-900/90 rounded-2xl border-2 border-cyan-500/30 space-y-1">
+            <span class="text-cyan-300 font-black text-sm block">💡 بيع العِينة (المحرم):</span>
+            <p class="text-xs text-slate-300 font-bold leading-relaxed">أن يبيع التاجر سلعة بالأجل ثم يعيد شراءها نفسها من المشتري نقداً بسعر أقل، وهي حيلة صريحة للربا.</p>
+        </div>
+    
+        <div class="p-3.5 bg-slate-900/90 rounded-2xl border-2 border-cyan-500/30 space-y-1">
+            <span class="text-cyan-300 font-black text-sm block">💡 بيع العربون:</span>
+            <p class="text-xs text-slate-300 font-bold leading-relaxed">دفع جزء من الثمن مقدماً، فإن أتم المشتري الصفقة حُسب من الثمن، وإن نكل وفسخ فللبائع تملك العربون جبراناً للانتظار.</p>
+        </div>
+    
+        <div class="p-3.5 bg-slate-900/90 rounded-2xl border-2 border-cyan-500/30 space-y-1">
+            <span class="text-cyan-300 font-black text-sm block">💡 القبض الحكمي:</span>
+            <p class="text-xs text-slate-300 font-bold leading-relaxed">استلام إشعار التحويل البنكي أو قيد المبلغ في الحساب المصرفي فوراً، وهو يقوم مقام القبض باليد في صرف العملات.</p>
+        </div>
+    
+        <div class="p-3.5 bg-slate-900/90 rounded-2xl border-2 border-cyan-500/30 space-y-1">
+            <span class="text-cyan-300 font-black text-sm block">💡 الشرط الجزائي:</span>
+            <p class="text-xs text-slate-300 font-bold leading-relaxed">اتفاق مالي في عقود المقاولات والتوريد لجبر الضرر المالي الفعلي الناتج عن التأخير، ويجوز في الأعمال ويحرم في الديون.</p>
+        </div>
+    
+                    </div>
                 </div>
 
             </div>
@@ -3034,7 +3520,21 @@ $pdo = getDBConnection();
         if (el) el.classList.add('active');
     }
 
-    // ── Fiqh Filters Controller ──
+    // ── Fiqh Sub-Tabs Controller ──
+    function switchFiqhSubTab(subId, el) {
+        document.getElementById('fiqh-sub-fatwas').classList.add('hidden');
+        document.getElementById('fiqh-sub-books').classList.add('hidden');
+        document.getElementById('fiqh-sub-maxims').classList.add('hidden');
+        document.getElementById('fiqh-sub-terms').classList.add('hidden');
+
+        document.querySelectorAll('.fiqh-nav-pill').forEach(btn => btn.classList.remove('active'));
+
+        const target = document.getElementById('fiqh-sub-' + subId);
+        if (target) target.classList.remove('hidden');
+        if (el) el.classList.add('active');
+    }
+
+    // ── Fiqh Filters & Search Controller ──
     function setFiqhScholar(scholar, btn) {
         activeScholarFilter = scholar;
         document.querySelectorAll('[data-filter-type="scholar"]').forEach(b => b.classList.remove('active'));
@@ -3046,6 +3546,23 @@ $pdo = getDBConnection();
         activeTopicFilter = topic;
         document.querySelectorAll('[data-filter-type="topic"]').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
+        filterFatwas();
+    }
+
+    function setQuickSearch(word) {
+        document.getElementById('fiqh-search-input').value = word;
+        switchFiqhSubTab('fatwas', document.querySelector('.fiqh-nav-pill'));
+        filterFatwas();
+    }
+
+    function clearFiqhSearch() {
+        document.getElementById('fiqh-search-input').value = '';
+        activeScholarFilter = 'all';
+        activeTopicFilter = 'all';
+        document.querySelectorAll('.fiqh-filter-btn').forEach(b => {
+            if (b.getAttribute('data-filter-val') === 'all') b.classList.add('active');
+            else b.classList.remove('active');
+        });
         filterFatwas();
     }
 
@@ -3069,6 +3586,12 @@ $pdo = getDBConnection();
                 card.style.display = 'none';
             }
         });
+
+        const badgeEl = document.getElementById('fiqh_search_badge');
+        if (badgeEl) {
+            badgeEl.textContent = visibleCount + ' فتوى مطابقة ✓';
+            badgeEl.className = visibleCount > 0 ? 'text-emerald-400 font-mono font-black text-xs' : 'text-rose-400 font-mono font-black text-xs';
+        }
 
         const noDataEl = document.getElementById('no-fatwas-alert');
         if (noDataEl) {
