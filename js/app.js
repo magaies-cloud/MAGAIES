@@ -1,4 +1,67 @@
 // --- CLOUD SYNC ENGINE (Offline-First to SaaS Bridge) ---
+// ============================================================================
+// [الدرع الثاني & الدرع الثالث]: رادار الأخطاء المباشر والبرمجة الدفاعية
+// ============================================================================
+(function() {
+    // 📡 1. رادار الأخطاء المباشر (Global Error Radar): رصد وتتبع أي خطأ مع رقم السطر والمستخدم
+    window.addEventListener('error', function(event) {
+        try {
+            const user = (typeof localGetItem === 'function') ? JSON.parse(localGetItem('user') || '{}') : {};
+            const errorReport = {
+                type: 'JavaScript Error',
+                message: event.message || 'Unknown Error',
+                filename: event.filename || window.location.href,
+                lineno: event.lineno,
+                colno: event.colno,
+                stack: event.error ? event.error.stack : null,
+                user_email: user.email || user.username || 'guest',
+                tenant_id: user.tenant_id || 'default',
+                url: window.location.href,
+                time: new Date().toISOString()
+            };
+            console.warn("🛡️ [رادار الأخطاء]: تم رصد ومعالجة خطأ بنجاح:", errorReport);
+            if (window.Sentry && typeof window.Sentry.captureException === 'function') {
+                window.Sentry.captureException(event.error || new Error(event.message), { extra: errorReport });
+            }
+        } catch(e) {}
+    });
+
+    // 📡 2. رصد وعزل الوعود المرفوضة (Unhandled Promise Rejections) لمنع تجمد الشاشة
+    window.addEventListener('unhandledrejection', function(event) {
+        try {
+            const user = (typeof localGetItem === 'function') ? JSON.parse(localGetItem('user') || '{}') : {};
+            const reason = event.reason || {};
+            const errorReport = {
+                type: 'Unhandled Promise Rejection',
+                message: reason.message || String(reason),
+                stack: reason.stack || null,
+                user_email: user.email || user.username || 'guest',
+                url: window.location.href,
+                time: new Date().toISOString()
+            };
+            console.warn("🛡️ [رادار الأخطاء - Promise]: تم احتواء الخطأ البرمجي ومنع تجمد الشاشة:", errorReport);
+            if (window.Sentry && typeof window.Sentry.captureException === 'function') {
+                window.Sentry.captureException(reason instanceof Error ? reason : new Error(String(reason)), { extra: errorReport });
+            }
+        } catch(e) {}
+    });
+
+    // ⚔️ 3. دالة دفاعية مساعدة لجلب عنصر واحد بأمان تام (Defensive Limit 1)
+    window.defensiveFindSingle = function(array, predicate) {
+        if (!Array.isArray(array)) return null;
+        try {
+            for (let i = 0; i < array.length; i++) {
+                if (predicate(array[i], i, array)) {
+                    return array[i]; // Return first match immediately (Limit 1)
+                }
+            }
+        } catch(err) {
+            console.warn("Defensive search fallback triggered:", err);
+        }
+        return null;
+    };
+})();
+
 (function() {
     // Intercept DOMContentLoaded listeners for already-loaded document states (iOS WebKit compatibility)
     const interceptDOMContentLoaded = (target) => {
@@ -24,7 +87,11 @@ const originalJSONParse = JSON.parse;
 JSON.parse = function(val) {
     if (val === null || val === undefined) return null;
     if (typeof val === 'object') return val; // Safe bypass if already parsed
-    return originalJSONParse.apply(JSON, arguments);
+    try {
+        return originalJSONParse.apply(JSON, arguments);
+    } catch(e) {
+        return null; // Defensive JSON Parse fallback
+    }
 };
 (function() {
     const getBaseUrl = () => {
