@@ -985,40 +985,64 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             text-align: center !important;
         }
         
-        /* Normal State for Amounts */
-        input.block-total-amount, input.block-bank-amount, input.block-cheque-amount, input.transfer-amount, input.cheque-amount {
+        /* 🌟 مقاسات الوضع الطبيعي الأساسي (تمت زيادتها درجتين كاملتين لتكون الأرقام والمبالغ واضحة ومريحة دائماً) */
+        input.block-total-amount, input.block-bank-amount, input.block-cheque-amount, input.transfer-amount, input.cheque-amount, input.block-sub-amount {
             font-size: 2.4rem !important;
+            height: 54px !important;
             font-weight: 900 !important;
             color: #ffffff !important;
-            transition: font-size 0.2s ease, color 0.2s ease, background 0.2s ease !important;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
         
-        /* Focus State for Amounts */
-        input.block-total-amount:focus, input.block-bank-amount:focus, input.block-cheque-amount:focus, input.transfer-amount:focus, input.cheque-amount:focus {
-            font-size: 4.0rem !important;
-            color: #fbbf24 !important; /* Gold */
-            background: rgba(15, 23, 42, 0.8) !important;
-        }
-        
-        /* Normal State for Numbers */
         input.block-transfer-no-input, input.block-cheque-no-input, input.transfer-no, input.cheque-no {
-            font-size: 2.0rem !important;
-            font-weight: 900 !important;
+            font-size: 2.1rem !important;
+            height: 54px !important;
+            font-weight: 800 !important;
             letter-spacing: 1px !important;
             color: #ffffff !important;
-            transition: font-size 0.2s ease, color 0.2s ease, background 0.2s ease !important;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
         
-        /* Focus State for Numbers */
-        input.block-transfer-no-input:focus, input.block-cheque-no-input:focus, input.transfer-no:focus, input.cheque-no:focus {
-            font-size: 3.5rem !important;
-            color: #22d3ee !important; /* Cyan */
-            background: rgba(15, 23, 42, 0.8) !important;
+        /* 🔍 مقاس موحد ومكبر بدقة 4.2rem لجميع حقول المبالغ والأرقام عند الضغط والتركيز والكتابة */
+        input.block-total-amount:focus,
+        input.block-bank-amount:focus,
+        input.block-cheque-amount:focus,
+        input.transfer-amount:focus,
+        input.cheque-amount:focus,
+        input.block-sub-amount:focus {
+            font-size: 4.2rem !important;
+            height: 90px !important;
+            min-width: 380px !important;
+            position: relative !important;
+            z-index: 1000 !important;
+            color: #fbbf24 !important; /* Gold / Yellow */
+            background: rgba(15, 23, 42, 0.98) !important;
+            border: 2.5px solid #fbbf24 !important;
+            border-radius: 10px !important;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 30px rgba(251, 191, 36, 0.7) !important;
+        }
+        
+        input.block-transfer-no-input:focus,
+        input.block-cheque-no-input:focus,
+        input.transfer-no:focus,
+        input.cheque-no:focus {
+            font-size: 4.2rem !important;
+            height: 90px !important;
+            min-width: 380px !important;
+            position: relative !important;
+            z-index: 1000 !important;
+            letter-spacing: 2px !important;
+            color: #38bdf8 !important; /* Sky Blue */
+            background: rgba(15, 23, 42, 0.98) !important;
+            border: 2.5px solid #38bdf8 !important;
+            border-radius: 10px !important;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 30px rgba(56, 189, 248, 0.7) !important;
         }
 
         /* Larger Bank Name Font */
         input.block-bank-name-input, input.block-cheque-bank-input {
-            font-size: 1.35rem !important;
+            font-size: 1.45rem !important;
+            height: 54px !important;
             font-weight: bold !important;
         }
 
@@ -1483,7 +1507,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
-    <script defer src="js/app.js?v=20260803.65812"></script>
+    <script defer src="js/app.js?v=<?= file_exists('js/app.js') ? filemtime('js/app.js') : time() ?>"></script>
     <script defer src="js/multi-cash-payment.js?v=<?= time() ?>"></script>
     <script>
     let hasWarnedAboutEdit = false;
