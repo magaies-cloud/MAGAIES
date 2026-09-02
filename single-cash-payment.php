@@ -1213,13 +1213,23 @@ try {
         .dynamic-focus-number:focus {
             color: #38bdf8 !important; /* Sky Blue for focus/comfort */
         }
-        .transfer-no.dynamic-focus-input:focus {
-            font-size: 1.7rem !important;
-            height: 80px !important;
-            width: 500px !important;
+        .transfer-no.dynamic-focus-input:focus, .cheque-no.dynamic-focus-input:focus {
+            font-size: 3.5rem !important;
+            height: 95px !important;
+            width: 520px !important;
+            min-width: 450px !important;
             max-width: none !important;
-            margin-right: -50px !important;
-            letter-spacing: 1px !important;
+            position: relative !important;
+            z-index: 1000 !important;
+            margin-right: -60px !important;
+            letter-spacing: 2px !important;
+            font-weight: 900 !important;
+            color: #38bdf8 !important;
+            background: rgba(15, 23, 42, 0.98) !important;
+            border: 2px solid #38bdf8 !important;
+            border-radius: 8px !important;
+            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 30px rgba(56, 189, 248, 0.7) !important;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
         
         .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus {
