@@ -1,7 +1,7 @@
 <?php
 // ====================================================================
-// نظام Al-Sajana Smart ERP 2026 - حزمة المساعدات والحاسبات الهندسية والتجارية الشاملة V5
-// يضم 10 أجنحة متخصصة مع دليل ومفاتيح تحويلات البنوك السودانية (BBAN) بتصميم بارز وعالي التنسيق
+// نظام Al-Sajana Smart ERP 2026 - حزمة المساعدات والحاسبات ومفاتيح تحويلات البنوك V6
+// خط كبير وواضح مع حذف الصفر في بداية رقم الحساب تلقائياً
 // ====================================================================
 $page_title = 'الأدوات المساعدة والحاسبات ومفاتيح تحويلات البنوك';
 $header_theme_class = 'header-theme-reports';
@@ -26,11 +26,11 @@ $pdo = getDBConnection();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الأدوات المساعدة ومفاتيح تحويلات البنوك (BBAN) | Al-Sajana ERP</title>
+    <title>مفاتيح تحويلات البنوك والأدوات الهندسية | Al-Sajana ERP</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800&family=Cairo:wght@300;400;600;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Tajawal:wght@300;400;500;700;800;900&family=Outfit:wght@400;500;600;700;800;900&family=Cairo:wght@300;400;600;700;900&family=Amiri:wght@400;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
@@ -189,20 +189,20 @@ $pdo = getDBConnection();
             border: 2px solid #db2777;
         }
 
-        /* ── بطاقات البنوك الفخمة والمفاتيح البارزة ── */
+        /* ── بطاقات البنوك الفخمة والمفاتيح البارزة والخطوط الكبيرة ── */
         .bban-bank-card {
-            background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(8, 12, 24, 0.98));
-            border: 2px solid rgba(56, 189, 248, 0.25);
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(6, 10, 20, 0.99));
+            border: 2px solid rgba(56, 189, 248, 0.3);
             border-radius: 22px;
-            padding: 20px;
+            padding: 22px;
             position: relative;
             overflow: hidden;
-            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.1);
+            box-shadow: 0 12px 30px rgba(0, 0, 0, 0.5), inset 0 1px 1px rgba(255, 255, 255, 0.12);
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            gap: 12px;
+            gap: 14px;
         }
 
         .bban-bank-card:hover {
@@ -212,17 +212,17 @@ $pdo = getDBConnection();
         }
 
         .bban-code-box {
-            background: #020617;
-            border: 2px solid rgba(56, 189, 248, 0.5);
+            background: #000000;
+            border: 2px solid rgba(56, 189, 248, 0.6);
             border-radius: 14px;
-            padding: 12px 14px;
+            padding: 14px 16px;
             text-align: center;
             font-family: 'Outfit', 'JetBrains Mono', 'Courier New', monospace;
-            font-size: 1.25rem;
+            font-size: 1.45rem;
             font-weight: 900;
             letter-spacing: 2px;
             color: #38bdf8;
-            box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.8), 0 0 15px rgba(56, 189, 248, 0.15);
+            box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.9), 0 0 20px rgba(56, 189, 248, 0.2);
             direction: ltr;
             display: flex;
             align-items: center;
@@ -232,13 +232,13 @@ $pdo = getDBConnection();
 
         :root.light-theme .bban-bank-card {
             background: #ffffff !important;
-            border: 2px solid #cbd5e1 !important;
+            border: 2px solid #94a3b8 !important;
             color: #000000 !important;
             box-shadow: 0 10px 25px rgba(0, 0, 0, 0.08) !important;
         }
 
         :root.light-theme .bban-code-box {
-            background: #f1f5f9 !important;
+            background: #f8fafc !important;
             border: 2px solid #0284c7 !important;
             color: #0369a1 !important;
             box-shadow: none !important;
@@ -836,35 +836,46 @@ $pdo = getDBConnection();
                 <div class="flex flex-wrap items-center justify-between mb-5 border-b border-slate-800 pb-4 gap-3">
                     <div>
                         <div class="flex items-center gap-2">
-                            <span class="px-3 py-1 bg-cyan-500/20 text-cyan-400 rounded-lg text-xs font-mono font-black border border-cyan-500/40">BBAN - 14 Digits</span>
-                            <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg text-xs font-bold border border-emerald-500/40">🔒 حوّل واستلم أموالك بثقة وأمان</span>
+                            <span class="px-3.5 py-1.5 bg-cyan-500/20 text-cyan-300 rounded-xl text-sm font-mono font-black border-2 border-cyan-500/40 shadow-md">BBAN - 14 Digits</span>
+                            <span class="px-3.5 py-1.5 bg-emerald-500/20 text-emerald-300 rounded-xl text-sm font-black border-2 border-emerald-500/40 shadow-md">🔒 حوّل واستلم أموالك بثقة وأمان</span>
                         </div>
-                        <h3 class="text-xl md:text-3xl font-black text-white flex items-center gap-2 mt-2">
+                        <h3 class="text-2xl md:text-3xl font-black text-white flex items-center gap-3 mt-3">
                             <i class="fa-solid fa-money-bill-transfer text-cyan-400"></i>
                             دليلك السريع لأرقام BBAN ومفاتيح البنوك السودانية (16 بنكاً)
                         </h3>
-                        <p class="text-xs md:text-sm font-bold text-slate-300 mt-1">
-                            <span class="text-cyan-300 font-black">BBAN</span> هو الرقم البنكي المحلي المعتمد للتحويلات بين البنوك. تتكون جميع الصيغ من <span class="text-amber-400 font-mono font-black">14 رقماً</span> حيث يمثل الرمز <span class="text-white font-mono font-black">X</span> رقم حسابك الأساسي.
+                        <p class="text-sm md:text-base font-bold text-slate-200 mt-2">
+                            <span class="text-cyan-300 font-black">BBAN</span> هو الرقم البنكي الموحد للتحويلات بين البنوك. تتكون جميع الصيغ من <span class="text-amber-400 font-mono font-black text-lg">14 رقماً</span>.
                         </p>
                     </div>
 
                     <!-- Search Bar -->
                     <div class="w-full md:w-80">
-                        <input type="text" id="bank-search-input" oninput="searchBanks(this.value)" placeholder="🔍 ابحث عن اسم البنك أو التطبيق أو الكود..." class="tool-input">
+                        <input type="text" id="bank-search-input" oninput="searchBanks(this.value)" placeholder="🔍 ابحث عن اسم البنك أو التطبيق أو الكود..." class="tool-input text-base font-bold">
+                    </div>
+                </div>
+
+                <!-- ⚠️ CRITICAL NOTICE BOX: ZERO STRIPPING ⚠️ -->
+                <div class="p-4 bg-amber-500/15 border-2 border-amber-500/50 rounded-2xl flex items-center gap-4 text-amber-200 font-bold shadow-xl mb-6">
+                    <span class="text-3xl">⚠️</span>
+                    <div>
+                        <h4 class="text-base md:text-lg font-black text-amber-300">قاعدة هامة لجميع التحويلات: حذف الصفر في بداية رقم الحساب</h4>
+                        <p class="text-xs md:text-sm text-slate-200 mt-0.5">
+                            عند تركيب رقم الحساب داخل صيغة الـ BBAN، <span class="text-rose-400 font-black underline">يتم حذف أي صفر في بداية رقم الحساب الأساسي</span> حتى تنضبط خانات الـ BBAN وتكتمل الـ 14 خانة بنجاح دون أي زيادة أو خطأ في التحويل.
+                        </p>
                     </div>
                 </div>
 
                 <!-- 🎛️ Interactive BBAN Builder & Formatter 🎛️ -->
-                <div class="bg-slate-950/80 border-2 border-cyan-500/40 p-5 rounded-2xl mb-6 shadow-2xl">
-                    <h4 class="text-base font-black text-cyan-400 flex items-center gap-2 mb-3">
-                        <i class="fa-solid fa-wand-magic-sparkles"></i>
-                        مولّد ومفحّص صيغة الـ BBAN الفوري (اختر البنك وضع رقم حسابك ليتم تركيب الـ 14 خانة فوراً):
+                <div class="bg-slate-950/90 border-2 border-cyan-500/50 p-6 rounded-2xl mb-6 shadow-2xl">
+                    <h4 class="text-lg font-black text-cyan-300 flex items-center gap-2 mb-4">
+                        <i class="fa-solid fa-wand-magic-sparkles text-cyan-400"></i>
+                        مولّد وفاحص صيغة الـ BBAN الفوري (يحذف الصفر من البداية ويركّب الـ 14 خانة تلقائياً):
                     </h4>
 
-                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 items-end">
                         <div>
-                            <label class="text-xs font-bold text-slate-300 block mb-1">1. اختر البنك المستفيد:</label>
-                            <select id="bban_bank_selector" onchange="generateUserBBAN()" class="tool-input">
+                            <label class="text-xs md:text-sm font-bold text-slate-200 block mb-1.5">1. اختر البنك المستفيد:</label>
+                            <select id="bban_bank_selector" onchange="generateUserBBAN()" class="tool-input text-base font-bold">
                                 <option value="040|XXXXXXX|0001">1. بنك الخرطوم (بنكك)</option>
                                 <option value="240|XXXXXXX|0001">2. بنك أم درمان الوطني (أوكاش)</option>
                                 <option value="02|XXXXXXXX|0001">3. بنك فيصل الإسلامي (فوري)</option>
@@ -885,24 +896,25 @@ $pdo = getDBConnection();
                         </div>
 
                         <div>
-                            <label class="text-xs font-bold text-slate-300 block mb-1">2. أدخل رقم الحساب الأساسي (X):</label>
-                            <input type="text" id="bban_raw_account" placeholder="مثلاً: 1234567" oninput="generateUserBBAN()" class="tool-input font-mono font-bold text-cyan-300 text-base">
+                            <label class="text-xs md:text-sm font-bold text-slate-200 block mb-1.5">2. أدخل رقم الحساب الأساسي:</label>
+                            <input type="text" id="bban_raw_account" placeholder="مثلاً: 0345678 أو 345678" oninput="generateUserBBAN()" class="tool-input font-mono font-black text-cyan-300 text-lg">
                         </div>
 
                         <div>
-                            <button type="button" onclick="copyGeneratedBBAN()" class="w-full py-2.5 bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-black rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg">
-                                <i class="fa-regular fa-copy"></i> نسخ رقم الـ BBAN المولد
+                            <button type="button" onclick="copyGeneratedBBAN()" class="w-full py-3 bg-cyan-400 hover:bg-cyan-300 text-slate-950 font-black rounded-xl text-sm transition flex items-center justify-center gap-2 shadow-xl">
+                                <i class="fa-regular fa-copy text-base"></i> نسخ رقم الـ BBAN المولد
                             </button>
                         </div>
                     </div>
 
                     <!-- Generated Result Box -->
-                    <div class="mt-4 p-4 bg-slate-900 rounded-xl border border-cyan-500/50 flex flex-wrap items-center justify-between gap-3 shadow-inner">
+                    <div class="mt-4 p-4 bg-slate-900 rounded-xl border-2 border-cyan-500/60 flex flex-wrap items-center justify-between gap-3 shadow-inner">
                         <div>
-                            <span class="text-[11px] text-slate-400 block font-bold">صيغة رقم الـ BBAN النهائي المكتمل (جاهز للصق في تطبيق التحويل):</span>
-                            <span class="text-xl md:text-2xl font-black text-cyan-300 font-mono tracking-widest" id="generated_bban_display">040-------0001</span>
+                            <span class="text-xs text-slate-400 block font-bold">صيغة رقم الـ BBAN النهائي المكتمل (جاهز للتحويل المباشر):</span>
+                            <span class="text-2xl md:text-3xl font-black text-cyan-300 font-mono tracking-widest mt-1 block" id="generated_bban_display">040-------0001</span>
+                            <span class="text-xs text-emerald-400 font-bold mt-1 block" id="bban_strip_feedback">✓ تم ضبط الحساب وحذف الصفر في البداية تلقائياً</span>
                         </div>
-                        <span class="text-xs font-bold text-slate-300 bg-slate-800 px-3 py-1.5 rounded-lg border border-slate-700" id="bban_len_counter">عدد الخانات: 14 رقم</span>
+                        <span class="text-sm font-black text-slate-200 bg-slate-800 px-4 py-2 rounded-xl border border-slate-700" id="bban_len_counter">عدد الخانات: 14 رقم</span>
                     </div>
                 </div>
 
@@ -910,644 +922,660 @@ $pdo = getDBConnection();
                 <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4" id="banks-grid-container">
 
                     <!-- Bank 1: بنك الخرطوم -->
-                    <div class="bban-bank-card" data-bank-search="بنك الخرطوم بنكك (bankak) 040xxxxxxx0001">
-                        <div>
-                            <!-- Header: Badge + Number -->
-                            <div class="flex items-center justify-between gap-2 mb-3">
-                                <span class="w-8 h-8 rounded-xl bg-slate-950 text-cyan-400 font-black text-sm flex items-center justify-center font-mono border border-cyan-500/40 shadow-inner">
+                    <div class="bban-bank-card" data-bank-search="بنك الخرطوم تطبيق بنكك (bankak) 040xxxxxxx0001">
+                        <div class="space-y-2">
+                            <!-- Top Row: Badge + Number -->
+                            <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+                                <span class="w-10 h-10 rounded-xl bg-slate-950 text-cyan-400 font-black text-lg flex items-center justify-center font-mono border-2 border-cyan-500/40 shadow-inner">
                                     1
                                 </span>
-                                <span class="text-xs font-black px-3 py-1 rounded-xl border bg-emerald-500/20 text-emerald-300 border-emerald-500/40">
-                                    📱 بنكك (Bankak)
+                                <span class="text-xs md:text-sm font-black px-3.5 py-1.5 rounded-xl border-2 bg-emerald-500/25 text-emerald-300 border-emerald-400 shadow-sm">
+                                    📱 تطبيق بنكك (Bankak)
                                 </span>
                             </div>
 
-                            <!-- Bank Name Prominent -->
-                            <h4 class="text-lg md:text-xl font-black text-white leading-tight">
+                            <!-- Bank Name Prominent Large -->
+                            <h4 class="text-xl md:text-2xl font-black text-white pt-1">
                                 بنك الخرطوم
                             </h4>
-                            <span class="text-[11px] text-slate-400 font-bold block mt-1">
-                                المفتاح 040 في البداية واللاحقة 0001
-                            </span>
+                            <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                                المفتاح 040 + 7 أرقام حساب (بدون صفر البداية) + اللاحقة 0001
+                            </p>
                         </div>
 
-                        <!-- 🌟 PROMINENT BIG CODE BOX 🌟 -->
-                        <div class="my-2">
-                            <span class="text-[10px] text-slate-400 font-black uppercase tracking-wider block mb-1.5 text-right">
-                                🔑 صيغة ومفتاح الـ BBAN الرسمي (14 رقم):
-                            </span>
+                        <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
+                        <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
+                            <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
+                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                            </div>
                             <div class="bban-code-box">
-                                <span class="text-amber-400 font-black">040</span><span class="text-white font-black">XXXXXXX</span><span class="text-emerald-400 font-black">0001</span>
+                                <span class="text-amber-400 font-black">040</span><span class="text-white font-black px-1">XXXXXXX</span><span class="text-emerald-400 font-black">0001</span>
                             </div>
                         </div>
 
                         <!-- Copy Button -->
-                        <button type="button" onclick="copyBBANCode('040XXXXXXX0001', this)" class="w-full py-2.5 bg-slate-950/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 shadow-md">
-                            <i class="fa-regular fa-copy"></i> نسخ صيغة المفتاح
+                        <button type="button" onclick="copyBBANCode('040XXXXXXX0001', this)" class="w-full py-3 bg-slate-900 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border-2 border-cyan-500/50 rounded-xl text-sm font-black transition flex items-center justify-center gap-2 shadow-lg">
+                            <i class="fa-regular fa-copy text-base"></i> نسخ صيغة المفتاح
                         </button>
                     </div>
     
                     <!-- Bank 2: بنك أم درمان الوطني -->
-                    <div class="bban-bank-card" data-bank-search="بنك أم درمان الوطني أوكاش (o-cash) 240xxxxxxx0001">
-                        <div>
-                            <!-- Header: Badge + Number -->
-                            <div class="flex items-center justify-between gap-2 mb-3">
-                                <span class="w-8 h-8 rounded-xl bg-slate-950 text-cyan-400 font-black text-sm flex items-center justify-center font-mono border border-cyan-500/40 shadow-inner">
+                    <div class="bban-bank-card" data-bank-search="بنك أم درمان الوطني تطبيق أوكاش (o-cash) 240xxxxxxx0001">
+                        <div class="space-y-2">
+                            <!-- Top Row: Badge + Number -->
+                            <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+                                <span class="w-10 h-10 rounded-xl bg-slate-950 text-cyan-400 font-black text-lg flex items-center justify-center font-mono border-2 border-cyan-500/40 shadow-inner">
                                     2
                                 </span>
-                                <span class="text-xs font-black px-3 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-500/40">
-                                    📱 أوكاش (O-Cash)
+                                <span class="text-xs md:text-sm font-black px-3.5 py-1.5 rounded-xl border-2 bg-sky-500/25 text-sky-300 border-sky-400 shadow-sm">
+                                    📱 تطبيق أوكاش (O-Cash)
                                 </span>
                             </div>
 
-                            <!-- Bank Name Prominent -->
-                            <h4 class="text-lg md:text-xl font-black text-white leading-tight">
+                            <!-- Bank Name Prominent Large -->
+                            <h4 class="text-xl md:text-2xl font-black text-white pt-1">
                                 بنك أم درمان الوطني
                             </h4>
-                            <span class="text-[11px] text-slate-400 font-bold block mt-1">
-                                المفتاح 240 في البداية واللاحقة 0001
-                            </span>
+                            <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                                المفتاح 240 + 7 أرقام حساب (بدون صفر البداية) + اللاحقة 0001
+                            </p>
                         </div>
 
-                        <!-- 🌟 PROMINENT BIG CODE BOX 🌟 -->
-                        <div class="my-2">
-                            <span class="text-[10px] text-slate-400 font-black uppercase tracking-wider block mb-1.5 text-right">
-                                🔑 صيغة ومفتاح الـ BBAN الرسمي (14 رقم):
-                            </span>
+                        <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
+                        <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
+                            <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
+                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                            </div>
                             <div class="bban-code-box">
-                                <span class="text-amber-400 font-black">240</span><span class="text-white font-black">XXXXXXX</span><span class="text-emerald-400 font-black">0001</span>
+                                <span class="text-amber-400 font-black">240</span><span class="text-white font-black px-1">XXXXXXX</span><span class="text-emerald-400 font-black">0001</span>
                             </div>
                         </div>
 
                         <!-- Copy Button -->
-                        <button type="button" onclick="copyBBANCode('240XXXXXXX0001', this)" class="w-full py-2.5 bg-slate-950/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 shadow-md">
-                            <i class="fa-regular fa-copy"></i> نسخ صيغة المفتاح
+                        <button type="button" onclick="copyBBANCode('240XXXXXXX0001', this)" class="w-full py-3 bg-slate-900 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border-2 border-cyan-500/50 rounded-xl text-sm font-black transition flex items-center justify-center gap-2 shadow-lg">
+                            <i class="fa-regular fa-copy text-base"></i> نسخ صيغة المفتاح
                         </button>
                     </div>
     
                     <!-- Bank 3: بنك فيصل الإسلامي -->
-                    <div class="bban-bank-card" data-bank-search="بنك فيصل الإسلامي فوري (fawry) 02xxxxxxxx0001">
-                        <div>
-                            <!-- Header: Badge + Number -->
-                            <div class="flex items-center justify-between gap-2 mb-3">
-                                <span class="w-8 h-8 rounded-xl bg-slate-950 text-cyan-400 font-black text-sm flex items-center justify-center font-mono border border-cyan-500/40 shadow-inner">
+                    <div class="bban-bank-card" data-bank-search="بنك فيصل الإسلامي تطبيق فوري (fawry) 02xxxxxxxx0001">
+                        <div class="space-y-2">
+                            <!-- Top Row: Badge + Number -->
+                            <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+                                <span class="w-10 h-10 rounded-xl bg-slate-950 text-cyan-400 font-black text-lg flex items-center justify-center font-mono border-2 border-cyan-500/40 shadow-inner">
                                     3
                                 </span>
-                                <span class="text-xs font-black px-3 py-1 rounded-xl border bg-amber-500/20 text-amber-300 border-amber-500/40">
-                                    📱 فوري (Fawry)
+                                <span class="text-xs md:text-sm font-black px-3.5 py-1.5 rounded-xl border-2 bg-amber-500/25 text-amber-300 border-amber-400 shadow-sm">
+                                    📱 تطبيق فوري (Fawry)
                                 </span>
                             </div>
 
-                            <!-- Bank Name Prominent -->
-                            <h4 class="text-lg md:text-xl font-black text-white leading-tight">
+                            <!-- Bank Name Prominent Large -->
+                            <h4 class="text-xl md:text-2xl font-black text-white pt-1">
                                 بنك فيصل الإسلامي
                             </h4>
-                            <span class="text-[11px] text-slate-400 font-bold block mt-1">
-                                المفتاح 02 في البداية واللاحقة 0001
-                            </span>
+                            <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                                المفتاح 02 + 8 أرقام حساب (بدون صفر البداية) + اللاحقة 0001
+                            </p>
                         </div>
 
-                        <!-- 🌟 PROMINENT BIG CODE BOX 🌟 -->
-                        <div class="my-2">
-                            <span class="text-[10px] text-slate-400 font-black uppercase tracking-wider block mb-1.5 text-right">
-                                🔑 صيغة ومفتاح الـ BBAN الرسمي (14 رقم):
-                            </span>
+                        <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
+                        <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
+                            <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
+                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                            </div>
                             <div class="bban-code-box">
-                                <span class="text-amber-400 font-black">02</span><span class="text-white font-black">XXXXXXXX</span><span class="text-emerald-400 font-black">0001</span>
+                                <span class="text-amber-400 font-black">02</span><span class="text-white font-black px-1">XXXXXXXX</span><span class="text-emerald-400 font-black">0001</span>
                             </div>
                         </div>
 
                         <!-- Copy Button -->
-                        <button type="button" onclick="copyBBANCode('02XXXXXXXX0001', this)" class="w-full py-2.5 bg-slate-950/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 shadow-md">
-                            <i class="fa-regular fa-copy"></i> نسخ صيغة المفتاح
+                        <button type="button" onclick="copyBBANCode('02XXXXXXXX0001', this)" class="w-full py-3 bg-slate-900 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border-2 border-cyan-500/50 rounded-xl text-sm font-black transition flex items-center justify-center gap-2 shadow-lg">
+                            <i class="fa-regular fa-copy text-base"></i> نسخ صيغة المفتاح
                         </button>
                     </div>
     
                     <!-- Bank 4: بنك النيل الأزرق المشرق -->
-                    <div class="bban-bank-card" data-bank-search="بنك النيل الأزرق المشرق مشرق (mashreq) 150000xxxxxxxx">
-                        <div>
-                            <!-- Header: Badge + Number -->
-                            <div class="flex items-center justify-between gap-2 mb-3">
-                                <span class="w-8 h-8 rounded-xl bg-slate-950 text-cyan-400 font-black text-sm flex items-center justify-center font-mono border border-cyan-500/40 shadow-inner">
+                    <div class="bban-bank-card" data-bank-search="بنك النيل الأزرق المشرق تطبيق مشرق (mashreq) 150000xxxxxxxx">
+                        <div class="space-y-2">
+                            <!-- Top Row: Badge + Number -->
+                            <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+                                <span class="w-10 h-10 rounded-xl bg-slate-950 text-cyan-400 font-black text-lg flex items-center justify-center font-mono border-2 border-cyan-500/40 shadow-inner">
                                     4
                                 </span>
-                                <span class="text-xs font-black px-3 py-1 rounded-xl border bg-yellow-500/20 text-yellow-300 border-yellow-500/40">
-                                    📱 مشرق (Mashreq)
+                                <span class="text-xs md:text-sm font-black px-3.5 py-1.5 rounded-xl border-2 bg-yellow-500/25 text-yellow-300 border-yellow-400 shadow-sm">
+                                    📱 تطبيق مشرق (Mashreq)
                                 </span>
                             </div>
 
-                            <!-- Bank Name Prominent -->
-                            <h4 class="text-lg md:text-xl font-black text-white leading-tight">
+                            <!-- Bank Name Prominent Large -->
+                            <h4 class="text-xl md:text-2xl font-black text-white pt-1">
                                 بنك النيل الأزرق المشرق
                             </h4>
-                            <span class="text-[11px] text-slate-400 font-bold block mt-1">
-                                المفتاح 150000 في البداية ويليه الحساب
-                            </span>
+                            <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                                المفتاح 150000 + 8 أرقام حساب (بدون صفر البداية)
+                            </p>
                         </div>
 
-                        <!-- 🌟 PROMINENT BIG CODE BOX 🌟 -->
-                        <div class="my-2">
-                            <span class="text-[10px] text-slate-400 font-black uppercase tracking-wider block mb-1.5 text-right">
-                                🔑 صيغة ومفتاح الـ BBAN الرسمي (14 رقم):
-                            </span>
+                        <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
+                        <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
+                            <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
+                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                            </div>
                             <div class="bban-code-box">
-                                <span class="text-amber-400 font-black">150000</span><span class="text-white font-black">XXXXXXXX</span><span class="text-emerald-400 font-black"></span>
+                                <span class="text-amber-400 font-black">150000</span><span class="text-white font-black px-1">XXXXXXXX</span><span class="text-emerald-400 font-black"></span>
                             </div>
                         </div>
 
                         <!-- Copy Button -->
-                        <button type="button" onclick="copyBBANCode('150000XXXXXXXX', this)" class="w-full py-2.5 bg-slate-950/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 shadow-md">
-                            <i class="fa-regular fa-copy"></i> نسخ صيغة المفتاح
+                        <button type="button" onclick="copyBBANCode('150000XXXXXXXX', this)" class="w-full py-3 bg-slate-900 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border-2 border-cyan-500/50 rounded-xl text-sm font-black transition flex items-center justify-center gap-2 shadow-lg">
+                            <i class="fa-regular fa-copy text-base"></i> نسخ صيغة المفتاح
                         </button>
                     </div>
     
                     <!-- Bank 5: البنك الإسلامي السوداني -->
-                    <div class="bban-bank-card" data-bank-search="البنك الإسلامي السوداني آمن بلس (amen plus) 14000xxxx00001">
-                        <div>
-                            <!-- Header: Badge + Number -->
-                            <div class="flex items-center justify-between gap-2 mb-3">
-                                <span class="w-8 h-8 rounded-xl bg-slate-950 text-cyan-400 font-black text-sm flex items-center justify-center font-mono border border-cyan-500/40 shadow-inner">
+                    <div class="bban-bank-card" data-bank-search="البنك الإسلامي السوداني تطبيق آمن بلس (amen plus) 14000xxxx00001">
+                        <div class="space-y-2">
+                            <!-- Top Row: Badge + Number -->
+                            <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+                                <span class="w-10 h-10 rounded-xl bg-slate-950 text-cyan-400 font-black text-lg flex items-center justify-center font-mono border-2 border-cyan-500/40 shadow-inner">
                                     5
                                 </span>
-                                <span class="text-xs font-black px-3 py-1 rounded-xl border bg-purple-500/20 text-purple-300 border-purple-500/40">
-                                    📱 آمن بلس (Amen Plus)
+                                <span class="text-xs md:text-sm font-black px-3.5 py-1.5 rounded-xl border-2 bg-purple-500/25 text-purple-300 border-purple-400 shadow-sm">
+                                    📱 تطبيق آمن بلس (Amen Plus)
                                 </span>
                             </div>
 
-                            <!-- Bank Name Prominent -->
-                            <h4 class="text-lg md:text-xl font-black text-white leading-tight">
+                            <!-- Bank Name Prominent Large -->
+                            <h4 class="text-xl md:text-2xl font-black text-white pt-1">
                                 البنك الإسلامي السوداني
                             </h4>
-                            <span class="text-[11px] text-slate-400 font-bold block mt-1">
-                                المفتاح 14000 واللاحقة 00001
-                            </span>
+                            <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                                المفتاح 14000 + 4 أرقام حساب + اللاحقة 00001
+                            </p>
                         </div>
 
-                        <!-- 🌟 PROMINENT BIG CODE BOX 🌟 -->
-                        <div class="my-2">
-                            <span class="text-[10px] text-slate-400 font-black uppercase tracking-wider block mb-1.5 text-right">
-                                🔑 صيغة ومفتاح الـ BBAN الرسمي (14 رقم):
-                            </span>
+                        <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
+                        <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
+                            <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
+                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                            </div>
                             <div class="bban-code-box">
-                                <span class="text-amber-400 font-black">14000</span><span class="text-white font-black">XXXX</span><span class="text-emerald-400 font-black">00001</span>
+                                <span class="text-amber-400 font-black">14000</span><span class="text-white font-black px-1">XXXX</span><span class="text-emerald-400 font-black">00001</span>
                             </div>
                         </div>
 
                         <!-- Copy Button -->
-                        <button type="button" onclick="copyBBANCode('14000XXXX00001', this)" class="w-full py-2.5 bg-slate-950/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 shadow-md">
-                            <i class="fa-regular fa-copy"></i> نسخ صيغة المفتاح
+                        <button type="button" onclick="copyBBANCode('14000XXXX00001', this)" class="w-full py-3 bg-slate-900 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border-2 border-cyan-500/50 rounded-xl text-sm font-black transition flex items-center justify-center gap-2 shadow-lg">
+                            <i class="fa-regular fa-copy text-base"></i> نسخ صيغة المفتاح
                         </button>
                     </div>
     
                     <!-- Bank 6: بنك النيل -->
-                    <div class="bban-bank-card" data-bank-search="بنك النيل ساهل (sahel) يستخرج من داخل التطبيق">
-                        <div>
-                            <!-- Header: Badge + Number -->
-                            <div class="flex items-center justify-between gap-2 mb-3">
-                                <span class="w-8 h-8 rounded-xl bg-slate-950 text-cyan-400 font-black text-sm flex items-center justify-center font-mono border border-cyan-500/40 shadow-inner">
+                    <div class="bban-bank-card" data-bank-search="بنك النيل تطبيق ساهل (sahel) يستخرج من داخل التطبيق">
+                        <div class="space-y-2">
+                            <!-- Top Row: Badge + Number -->
+                            <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+                                <span class="w-10 h-10 rounded-xl bg-slate-950 text-cyan-400 font-black text-lg flex items-center justify-center font-mono border-2 border-cyan-500/40 shadow-inner">
                                     6
                                 </span>
-                                <span class="text-xs font-black px-3 py-1 rounded-xl border bg-cyan-500/20 text-cyan-300 border-cyan-500/40">
-                                    📱 ساهل (Sahel)
+                                <span class="text-xs md:text-sm font-black px-3.5 py-1.5 rounded-xl border-2 bg-cyan-500/25 text-cyan-300 border-cyan-400 shadow-sm">
+                                    📱 تطبيق ساهل (Sahel)
                                 </span>
                             </div>
 
-                            <!-- Bank Name Prominent -->
-                            <h4 class="text-lg md:text-xl font-black text-white leading-tight">
+                            <!-- Bank Name Prominent Large -->
+                            <h4 class="text-xl md:text-2xl font-black text-white pt-1">
                                 بنك النيل
                             </h4>
-                            <span class="text-[11px] text-slate-400 font-bold block mt-1">
-                                يتم نسخ رمز الـ BBAN مباشرة من الملف الشخصي بالتطبيق
-                            </span>
+                            <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                                يتم نسخ رمز الـ BBAN مباشرة من الملف الشخصي داخل تطبيق ساهل
+                            </p>
                         </div>
 
-                        <!-- 🌟 PROMINENT BIG CODE BOX 🌟 -->
-                        <div class="my-2">
-                            <span class="text-[10px] text-slate-400 font-black uppercase tracking-wider block mb-1.5 text-right">
-                                🔑 صيغة ومفتاح الـ BBAN الرسمي (14 رقم):
-                            </span>
+                        <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
+                        <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
+                            <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
+                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                            </div>
                             <div class="bban-code-box">
-                                <span class="text-amber-300 font-bold text-base tracking-normal">يستخرج من داخل التطبيق</span>
+                                <span class="text-amber-300 font-bold text-lg md:text-xl tracking-normal">يستخرج من داخل التطبيق</span>
                             </div>
                         </div>
 
                         <!-- Copy Button -->
-                        <button type="button" onclick="copyBBANCode('يستخرج من داخل التطبيق', this)" class="w-full py-2.5 bg-slate-950/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 shadow-md">
-                            <i class="fa-regular fa-copy"></i> نسخ صيغة المفتاح
+                        <button type="button" onclick="copyBBANCode('يستخرج من داخل التطبيق', this)" class="w-full py-3 bg-slate-900 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border-2 border-cyan-500/50 rounded-xl text-sm font-black transition flex items-center justify-center gap-2 shadow-lg">
+                            <i class="fa-regular fa-copy text-base"></i> نسخ صيغة المفتاح
                         </button>
                     </div>
     
                     <!-- Bank 7: بنك المزارع التجاري -->
-                    <div class="bban-bank-card" data-bank-search="بنك المزارع التجاري مصرفك (masrafak) 222xxxxxxxxxxx">
-                        <div>
-                            <!-- Header: Badge + Number -->
-                            <div class="flex items-center justify-between gap-2 mb-3">
-                                <span class="w-8 h-8 rounded-xl bg-slate-950 text-cyan-400 font-black text-sm flex items-center justify-center font-mono border border-cyan-500/40 shadow-inner">
+                    <div class="bban-bank-card" data-bank-search="بنك المزارع التجاري تطبيق مصرفك (masrafak) 222xxxxxxxxxxx">
+                        <div class="space-y-2">
+                            <!-- Top Row: Badge + Number -->
+                            <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+                                <span class="w-10 h-10 rounded-xl bg-slate-950 text-cyan-400 font-black text-lg flex items-center justify-center font-mono border-2 border-cyan-500/40 shadow-inner">
                                     7
                                 </span>
-                                <span class="text-xs font-black px-3 py-1 rounded-xl border bg-emerald-500/20 text-emerald-300 border-emerald-500/40">
-                                    📱 مصرفك (Masrafak)
+                                <span class="text-xs md:text-sm font-black px-3.5 py-1.5 rounded-xl border-2 bg-emerald-500/25 text-emerald-300 border-emerald-400 shadow-sm">
+                                    📱 تطبيق مصرفك (Masrafak)
                                 </span>
                             </div>
 
-                            <!-- Bank Name Prominent -->
-                            <h4 class="text-lg md:text-xl font-black text-white leading-tight">
+                            <!-- Bank Name Prominent Large -->
+                            <h4 class="text-xl md:text-2xl font-black text-white pt-1">
                                 بنك المزارع التجاري
                             </h4>
-                            <span class="text-[11px] text-slate-400 font-bold block mt-1">
-                                المفتاح 222 في البداية ويليه رقم الحساب
-                            </span>
+                            <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                                المفتاح 222 + 11 رقم حساب (بدون صفر البداية)
+                            </p>
                         </div>
 
-                        <!-- 🌟 PROMINENT BIG CODE BOX 🌟 -->
-                        <div class="my-2">
-                            <span class="text-[10px] text-slate-400 font-black uppercase tracking-wider block mb-1.5 text-right">
-                                🔑 صيغة ومفتاح الـ BBAN الرسمي (14 رقم):
-                            </span>
+                        <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
+                        <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
+                            <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
+                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                            </div>
                             <div class="bban-code-box">
-                                <span class="text-amber-400 font-black">222</span><span class="text-white font-black">XXXXXXXXXXX</span><span class="text-emerald-400 font-black"></span>
+                                <span class="text-amber-400 font-black">222</span><span class="text-white font-black px-1">XXXXXXXXXXX</span><span class="text-emerald-400 font-black"></span>
                             </div>
                         </div>
 
                         <!-- Copy Button -->
-                        <button type="button" onclick="copyBBANCode('222XXXXXXXXXXX', this)" class="w-full py-2.5 bg-slate-950/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 shadow-md">
-                            <i class="fa-regular fa-copy"></i> نسخ صيغة المفتاح
+                        <button type="button" onclick="copyBBANCode('222XXXXXXXXXXX', this)" class="w-full py-3 bg-slate-900 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border-2 border-cyan-500/50 rounded-xl text-sm font-black transition flex items-center justify-center gap-2 shadow-lg">
+                            <i class="fa-regular fa-copy text-base"></i> نسخ صيغة المفتاح
                         </button>
                     </div>
     
                     <!-- Bank 8: البنك الفرنسي السوداني -->
                     <div class="bban-bank-card" data-bank-search="البنك الفرنسي السوداني الفرنسي موبايل 110xxxxxx00001">
-                        <div>
-                            <!-- Header: Badge + Number -->
-                            <div class="flex items-center justify-between gap-2 mb-3">
-                                <span class="w-8 h-8 rounded-xl bg-slate-950 text-cyan-400 font-black text-sm flex items-center justify-center font-mono border border-cyan-500/40 shadow-inner">
+                        <div class="space-y-2">
+                            <!-- Top Row: Badge + Number -->
+                            <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+                                <span class="w-10 h-10 rounded-xl bg-slate-950 text-cyan-400 font-black text-lg flex items-center justify-center font-mono border-2 border-cyan-500/40 shadow-inner">
                                     8
                                 </span>
-                                <span class="text-xs font-black px-3 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-500/40">
+                                <span class="text-xs md:text-sm font-black px-3.5 py-1.5 rounded-xl border-2 bg-sky-500/25 text-sky-300 border-sky-400 shadow-sm">
                                     📱 الفرنسي موبايل
                                 </span>
                             </div>
 
-                            <!-- Bank Name Prominent -->
-                            <h4 class="text-lg md:text-xl font-black text-white leading-tight">
+                            <!-- Bank Name Prominent Large -->
+                            <h4 class="text-xl md:text-2xl font-black text-white pt-1">
                                 البنك الفرنسي السوداني
                             </h4>
-                            <span class="text-[11px] text-slate-400 font-bold block mt-1">
-                                المفتاح 110 واللاحقة 00001
-                            </span>
+                            <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                                المفتاح 110 + 6 أرقام حساب + اللاحقة 00001
+                            </p>
                         </div>
 
-                        <!-- 🌟 PROMINENT BIG CODE BOX 🌟 -->
-                        <div class="my-2">
-                            <span class="text-[10px] text-slate-400 font-black uppercase tracking-wider block mb-1.5 text-right">
-                                🔑 صيغة ومفتاح الـ BBAN الرسمي (14 رقم):
-                            </span>
+                        <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
+                        <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
+                            <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
+                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                            </div>
                             <div class="bban-code-box">
-                                <span class="text-amber-400 font-black">110</span><span class="text-white font-black">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
+                                <span class="text-amber-400 font-black">110</span><span class="text-white font-black px-1">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
                             </div>
                         </div>
 
                         <!-- Copy Button -->
-                        <button type="button" onclick="copyBBANCode('110XXXXXX00001', this)" class="w-full py-2.5 bg-slate-950/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 shadow-md">
-                            <i class="fa-regular fa-copy"></i> نسخ صيغة المفتاح
+                        <button type="button" onclick="copyBBANCode('110XXXXXX00001', this)" class="w-full py-3 bg-slate-900 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border-2 border-cyan-500/50 rounded-xl text-sm font-black transition flex items-center justify-center gap-2 shadow-lg">
+                            <i class="fa-regular fa-copy text-base"></i> نسخ صيغة المفتاح
                         </button>
                     </div>
     
                     <!-- Bank 9: البنك الزراعي السوداني -->
                     <div class="bban-bank-card" data-bank-search="البنك الزراعي السوداني الزراعي موبايل 03xxxxxxx01001">
-                        <div>
-                            <!-- Header: Badge + Number -->
-                            <div class="flex items-center justify-between gap-2 mb-3">
-                                <span class="w-8 h-8 rounded-xl bg-slate-950 text-cyan-400 font-black text-sm flex items-center justify-center font-mono border border-cyan-500/40 shadow-inner">
+                        <div class="space-y-2">
+                            <!-- Top Row: Badge + Number -->
+                            <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+                                <span class="w-10 h-10 rounded-xl bg-slate-950 text-cyan-400 font-black text-lg flex items-center justify-center font-mono border-2 border-cyan-500/40 shadow-inner">
                                     9
                                 </span>
-                                <span class="text-xs font-black px-3 py-1 rounded-xl border bg-lime-500/20 text-lime-300 border-lime-500/40">
+                                <span class="text-xs md:text-sm font-black px-3.5 py-1.5 rounded-xl border-2 bg-lime-500/25 text-lime-300 border-lime-400 shadow-sm">
                                     📱 الزراعي موبايل
                                 </span>
                             </div>
 
-                            <!-- Bank Name Prominent -->
-                            <h4 class="text-lg md:text-xl font-black text-white leading-tight">
+                            <!-- Bank Name Prominent Large -->
+                            <h4 class="text-xl md:text-2xl font-black text-white pt-1">
                                 البنك الزراعي السوداني
                             </h4>
-                            <span class="text-[11px] text-slate-400 font-bold block mt-1">
-                                المفتاح 03 واللاحقة 01001
-                            </span>
+                            <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                                المفتاح 03 + 7 أرقام حساب + اللاحقة 01001
+                            </p>
                         </div>
 
-                        <!-- 🌟 PROMINENT BIG CODE BOX 🌟 -->
-                        <div class="my-2">
-                            <span class="text-[10px] text-slate-400 font-black uppercase tracking-wider block mb-1.5 text-right">
-                                🔑 صيغة ومفتاح الـ BBAN الرسمي (14 رقم):
-                            </span>
+                        <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
+                        <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
+                            <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
+                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                            </div>
                             <div class="bban-code-box">
-                                <span class="text-amber-400 font-black">03</span><span class="text-white font-black">XXXXXXX</span><span class="text-emerald-400 font-black">01001</span>
+                                <span class="text-amber-400 font-black">03</span><span class="text-white font-black px-1">XXXXXXX</span><span class="text-emerald-400 font-black">01001</span>
                             </div>
                         </div>
 
                         <!-- Copy Button -->
-                        <button type="button" onclick="copyBBANCode('03XXXXXXX01001', this)" class="w-full py-2.5 bg-slate-950/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 shadow-md">
-                            <i class="fa-regular fa-copy"></i> نسخ صيغة المفتاح
+                        <button type="button" onclick="copyBBANCode('03XXXXXXX01001', this)" class="w-full py-3 bg-slate-900 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border-2 border-cyan-500/50 rounded-xl text-sm font-black transition flex items-center justify-center gap-2 shadow-lg">
+                            <i class="fa-regular fa-copy text-base"></i> نسخ صيغة المفتاح
                         </button>
                     </div>
     
                     <!-- Bank 10: بنك السلام السوداني -->
                     <div class="bban-bank-card" data-bank-search="بنك السلام السوداني السلام موبايل 180xxxxxx00001">
-                        <div>
-                            <!-- Header: Badge + Number -->
-                            <div class="flex items-center justify-between gap-2 mb-3">
-                                <span class="w-8 h-8 rounded-xl bg-slate-950 text-cyan-400 font-black text-sm flex items-center justify-center font-mono border border-cyan-500/40 shadow-inner">
+                        <div class="space-y-2">
+                            <!-- Top Row: Badge + Number -->
+                            <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+                                <span class="w-10 h-10 rounded-xl bg-slate-950 text-cyan-400 font-black text-lg flex items-center justify-center font-mono border-2 border-cyan-500/40 shadow-inner">
                                     10
                                 </span>
-                                <span class="text-xs font-black px-3 py-1 rounded-xl border bg-amber-500/20 text-amber-300 border-amber-500/40">
+                                <span class="text-xs md:text-sm font-black px-3.5 py-1.5 rounded-xl border-2 bg-amber-500/25 text-amber-300 border-amber-400 shadow-sm">
                                     📱 السلام موبايل
                                 </span>
                             </div>
 
-                            <!-- Bank Name Prominent -->
-                            <h4 class="text-lg md:text-xl font-black text-white leading-tight">
+                            <!-- Bank Name Prominent Large -->
+                            <h4 class="text-xl md:text-2xl font-black text-white pt-1">
                                 بنك السلام السوداني
                             </h4>
-                            <span class="text-[11px] text-slate-400 font-bold block mt-1">
-                                المفتاح 180 واللاحقة 00001
-                            </span>
+                            <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                                المفتاح 180 + 6 أرقام حساب + اللاحقة 00001
+                            </p>
                         </div>
 
-                        <!-- 🌟 PROMINENT BIG CODE BOX 🌟 -->
-                        <div class="my-2">
-                            <span class="text-[10px] text-slate-400 font-black uppercase tracking-wider block mb-1.5 text-right">
-                                🔑 صيغة ومفتاح الـ BBAN الرسمي (14 رقم):
-                            </span>
+                        <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
+                        <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
+                            <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
+                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                            </div>
                             <div class="bban-code-box">
-                                <span class="text-amber-400 font-black">180</span><span class="text-white font-black">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
+                                <span class="text-amber-400 font-black">180</span><span class="text-white font-black px-1">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
                             </div>
                         </div>
 
                         <!-- Copy Button -->
-                        <button type="button" onclick="copyBBANCode('180XXXXXX00001', this)" class="w-full py-2.5 bg-slate-950/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 shadow-md">
-                            <i class="fa-regular fa-copy"></i> نسخ صيغة المفتاح
+                        <button type="button" onclick="copyBBANCode('180XXXXXX00001', this)" class="w-full py-3 bg-slate-900 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border-2 border-cyan-500/50 rounded-xl text-sm font-black transition flex items-center justify-center gap-2 shadow-lg">
+                            <i class="fa-regular fa-copy text-base"></i> نسخ صيغة المفتاح
                         </button>
                     </div>
     
                     <!-- Bank 11: بنك البركة السوداني -->
                     <div class="bban-bank-card" data-bank-search="بنك البركة السوداني البركة موبايل 070xxxxxx00001">
-                        <div>
-                            <!-- Header: Badge + Number -->
-                            <div class="flex items-center justify-between gap-2 mb-3">
-                                <span class="w-8 h-8 rounded-xl bg-slate-950 text-cyan-400 font-black text-sm flex items-center justify-center font-mono border border-cyan-500/40 shadow-inner">
+                        <div class="space-y-2">
+                            <!-- Top Row: Badge + Number -->
+                            <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+                                <span class="w-10 h-10 rounded-xl bg-slate-950 text-cyan-400 font-black text-lg flex items-center justify-center font-mono border-2 border-cyan-500/40 shadow-inner">
                                     11
                                 </span>
-                                <span class="text-xs font-black px-3 py-1 rounded-xl border bg-rose-500/20 text-rose-300 border-rose-500/40">
+                                <span class="text-xs md:text-sm font-black px-3.5 py-1.5 rounded-xl border-2 bg-rose-500/25 text-rose-300 border-rose-400 shadow-sm">
                                     📱 البركة موبايل
                                 </span>
                             </div>
 
-                            <!-- Bank Name Prominent -->
-                            <h4 class="text-lg md:text-xl font-black text-white leading-tight">
+                            <!-- Bank Name Prominent Large -->
+                            <h4 class="text-xl md:text-2xl font-black text-white pt-1">
                                 بنك البركة السوداني
                             </h4>
-                            <span class="text-[11px] text-slate-400 font-bold block mt-1">
-                                المفتاح 070 واللاحقة 00001
-                            </span>
+                            <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                                المفتاح 070 + 6 أرقام حساب + اللاحقة 00001
+                            </p>
                         </div>
 
-                        <!-- 🌟 PROMINENT BIG CODE BOX 🌟 -->
-                        <div class="my-2">
-                            <span class="text-[10px] text-slate-400 font-black uppercase tracking-wider block mb-1.5 text-right">
-                                🔑 صيغة ومفتاح الـ BBAN الرسمي (14 رقم):
-                            </span>
+                        <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
+                        <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
+                            <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
+                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                            </div>
                             <div class="bban-code-box">
-                                <span class="text-amber-400 font-black">070</span><span class="text-white font-black">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
+                                <span class="text-amber-400 font-black">070</span><span class="text-white font-black px-1">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
                             </div>
                         </div>
 
                         <!-- Copy Button -->
-                        <button type="button" onclick="copyBBANCode('070XXXXXX00001', this)" class="w-full py-2.5 bg-slate-950/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 shadow-md">
-                            <i class="fa-regular fa-copy"></i> نسخ صيغة المفتاح
+                        <button type="button" onclick="copyBBANCode('070XXXXXX00001', this)" class="w-full py-3 bg-slate-900 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border-2 border-cyan-500/50 rounded-xl text-sm font-black transition flex items-center justify-center gap-2 shadow-lg">
+                            <i class="fa-regular fa-copy text-base"></i> نسخ صيغة المفتاح
                         </button>
                     </div>
     
                     <!-- Bank 12: بنك الثروة الحيوانية -->
                     <div class="bban-bank-card" data-bank-search="بنك الثروة الحيوانية الثروة كاش 090xxxxxx00001">
-                        <div>
-                            <!-- Header: Badge + Number -->
-                            <div class="flex items-center justify-between gap-2 mb-3">
-                                <span class="w-8 h-8 rounded-xl bg-slate-950 text-cyan-400 font-black text-sm flex items-center justify-center font-mono border border-cyan-500/40 shadow-inner">
+                        <div class="space-y-2">
+                            <!-- Top Row: Badge + Number -->
+                            <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+                                <span class="w-10 h-10 rounded-xl bg-slate-950 text-cyan-400 font-black text-lg flex items-center justify-center font-mono border-2 border-cyan-500/40 shadow-inner">
                                     12
                                 </span>
-                                <span class="text-xs font-black px-3 py-1 rounded-xl border bg-emerald-500/20 text-emerald-300 border-emerald-500/40">
+                                <span class="text-xs md:text-sm font-black px-3.5 py-1.5 rounded-xl border-2 bg-emerald-500/25 text-emerald-300 border-emerald-400 shadow-sm">
                                     📱 الثروة كاش
                                 </span>
                             </div>
 
-                            <!-- Bank Name Prominent -->
-                            <h4 class="text-lg md:text-xl font-black text-white leading-tight">
+                            <!-- Bank Name Prominent Large -->
+                            <h4 class="text-xl md:text-2xl font-black text-white pt-1">
                                 بنك الثروة الحيوانية
                             </h4>
-                            <span class="text-[11px] text-slate-400 font-bold block mt-1">
-                                المفتاح 090 واللاحقة 00001
-                            </span>
+                            <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                                المفتاح 090 + 6 أرقام حساب + اللاحقة 00001
+                            </p>
                         </div>
 
-                        <!-- 🌟 PROMINENT BIG CODE BOX 🌟 -->
-                        <div class="my-2">
-                            <span class="text-[10px] text-slate-400 font-black uppercase tracking-wider block mb-1.5 text-right">
-                                🔑 صيغة ومفتاح الـ BBAN الرسمي (14 رقم):
-                            </span>
+                        <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
+                        <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
+                            <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
+                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                            </div>
                             <div class="bban-code-box">
-                                <span class="text-amber-400 font-black">090</span><span class="text-white font-black">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
+                                <span class="text-amber-400 font-black">090</span><span class="text-white font-black px-1">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
                             </div>
                         </div>
 
                         <!-- Copy Button -->
-                        <button type="button" onclick="copyBBANCode('090XXXXXX00001', this)" class="w-full py-2.5 bg-slate-950/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 shadow-md">
-                            <i class="fa-regular fa-copy"></i> نسخ صيغة المفتاح
+                        <button type="button" onclick="copyBBANCode('090XXXXXX00001', this)" class="w-full py-3 bg-slate-900 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border-2 border-cyan-500/50 rounded-xl text-sm font-black transition flex items-center justify-center gap-2 shadow-lg">
+                            <i class="fa-regular fa-copy text-base"></i> نسخ صيغة المفتاح
                         </button>
                     </div>
     
                     <!-- Bank 13: بنك العمال الوطني -->
                     <div class="bban-bank-card" data-bank-search="بنك العمال الوطني العمال موبايل 120xxxxxx00001">
-                        <div>
-                            <!-- Header: Badge + Number -->
-                            <div class="flex items-center justify-between gap-2 mb-3">
-                                <span class="w-8 h-8 rounded-xl bg-slate-950 text-cyan-400 font-black text-sm flex items-center justify-center font-mono border border-cyan-500/40 shadow-inner">
+                        <div class="space-y-2">
+                            <!-- Top Row: Badge + Number -->
+                            <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+                                <span class="w-10 h-10 rounded-xl bg-slate-950 text-cyan-400 font-black text-lg flex items-center justify-center font-mono border-2 border-cyan-500/40 shadow-inner">
                                     13
                                 </span>
-                                <span class="text-xs font-black px-3 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-500/40">
+                                <span class="text-xs md:text-sm font-black px-3.5 py-1.5 rounded-xl border-2 bg-sky-500/25 text-sky-300 border-sky-400 shadow-sm">
                                     📱 العمال موبايل
                                 </span>
                             </div>
 
-                            <!-- Bank Name Prominent -->
-                            <h4 class="text-lg md:text-xl font-black text-white leading-tight">
+                            <!-- Bank Name Prominent Large -->
+                            <h4 class="text-xl md:text-2xl font-black text-white pt-1">
                                 بنك العمال الوطني
                             </h4>
-                            <span class="text-[11px] text-slate-400 font-bold block mt-1">
-                                المفتاح 120 واللاحقة 00001
-                            </span>
+                            <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                                المفتاح 120 + 6 أرقام حساب + اللاحقة 00001
+                            </p>
                         </div>
 
-                        <!-- 🌟 PROMINENT BIG CODE BOX 🌟 -->
-                        <div class="my-2">
-                            <span class="text-[10px] text-slate-400 font-black uppercase tracking-wider block mb-1.5 text-right">
-                                🔑 صيغة ومفتاح الـ BBAN الرسمي (14 رقم):
-                            </span>
+                        <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
+                        <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
+                            <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
+                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                            </div>
                             <div class="bban-code-box">
-                                <span class="text-amber-400 font-black">120</span><span class="text-white font-black">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
+                                <span class="text-amber-400 font-black">120</span><span class="text-white font-black px-1">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
                             </div>
                         </div>
 
                         <!-- Copy Button -->
-                        <button type="button" onclick="copyBBANCode('120XXXXXX00001', this)" class="w-full py-2.5 bg-slate-950/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 shadow-md">
-                            <i class="fa-regular fa-copy"></i> نسخ صيغة المفتاح
+                        <button type="button" onclick="copyBBANCode('120XXXXXX00001', this)" class="w-full py-3 bg-slate-900 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border-2 border-cyan-500/50 rounded-xl text-sm font-black transition flex items-center justify-center gap-2 shadow-lg">
+                            <i class="fa-regular fa-copy text-base"></i> نسخ صيغة المفتاح
                         </button>
                     </div>
     
                     <!-- Bank 14: البنك العقاري التجاري -->
                     <div class="bban-bank-card" data-bank-search="البنك العقاري التجاري العقاري كاش 160xxxxxx00001">
-                        <div>
-                            <!-- Header: Badge + Number -->
-                            <div class="flex items-center justify-between gap-2 mb-3">
-                                <span class="w-8 h-8 rounded-xl bg-slate-950 text-cyan-400 font-black text-sm flex items-center justify-center font-mono border border-cyan-500/40 shadow-inner">
+                        <div class="space-y-2">
+                            <!-- Top Row: Badge + Number -->
+                            <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+                                <span class="w-10 h-10 rounded-xl bg-slate-950 text-cyan-400 font-black text-lg flex items-center justify-center font-mono border-2 border-cyan-500/40 shadow-inner">
                                     14
                                 </span>
-                                <span class="text-xs font-black px-3 py-1 rounded-xl border bg-purple-500/20 text-purple-300 border-purple-500/40">
+                                <span class="text-xs md:text-sm font-black px-3.5 py-1.5 rounded-xl border-2 bg-purple-500/25 text-purple-300 border-purple-400 shadow-sm">
                                     📱 العقاري كاش
                                 </span>
                             </div>
 
-                            <!-- Bank Name Prominent -->
-                            <h4 class="text-lg md:text-xl font-black text-white leading-tight">
+                            <!-- Bank Name Prominent Large -->
+                            <h4 class="text-xl md:text-2xl font-black text-white pt-1">
                                 البنك العقاري التجاري
                             </h4>
-                            <span class="text-[11px] text-slate-400 font-bold block mt-1">
-                                المفتاح 160 واللاحقة 00001
-                            </span>
+                            <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                                المفتاح 160 + 6 أرقام حساب + اللاحقة 00001
+                            </p>
                         </div>
 
-                        <!-- 🌟 PROMINENT BIG CODE BOX 🌟 -->
-                        <div class="my-2">
-                            <span class="text-[10px] text-slate-400 font-black uppercase tracking-wider block mb-1.5 text-right">
-                                🔑 صيغة ومفتاح الـ BBAN الرسمي (14 رقم):
-                            </span>
+                        <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
+                        <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
+                            <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
+                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                            </div>
                             <div class="bban-code-box">
-                                <span class="text-amber-400 font-black">160</span><span class="text-white font-black">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
+                                <span class="text-amber-400 font-black">160</span><span class="text-white font-black px-1">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
                             </div>
                         </div>
 
                         <!-- Copy Button -->
-                        <button type="button" onclick="copyBBANCode('160XXXXXX00001', this)" class="w-full py-2.5 bg-slate-950/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 shadow-md">
-                            <i class="fa-regular fa-copy"></i> نسخ صيغة المفتاح
+                        <button type="button" onclick="copyBBANCode('160XXXXXX00001', this)" class="w-full py-3 bg-slate-900 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border-2 border-cyan-500/50 rounded-xl text-sm font-black transition flex items-center justify-center gap-2 shadow-lg">
+                            <i class="fa-regular fa-copy text-base"></i> نسخ صيغة المفتاح
                         </button>
                     </div>
     
                     <!-- Bank 15: بنك التنمية الصناعية -->
                     <div class="bban-bank-card" data-bank-search="بنك التنمية الصناعية الصناعي موبايل 130xxxxxx00001">
-                        <div>
-                            <!-- Header: Badge + Number -->
-                            <div class="flex items-center justify-between gap-2 mb-3">
-                                <span class="w-8 h-8 rounded-xl bg-slate-950 text-cyan-400 font-black text-sm flex items-center justify-center font-mono border border-cyan-500/40 shadow-inner">
+                        <div class="space-y-2">
+                            <!-- Top Row: Badge + Number -->
+                            <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+                                <span class="w-10 h-10 rounded-xl bg-slate-950 text-cyan-400 font-black text-lg flex items-center justify-center font-mono border-2 border-cyan-500/40 shadow-inner">
                                     15
                                 </span>
-                                <span class="text-xs font-black px-3 py-1 rounded-xl border bg-amber-500/20 text-amber-300 border-amber-500/40">
+                                <span class="text-xs md:text-sm font-black px-3.5 py-1.5 rounded-xl border-2 bg-amber-500/25 text-amber-300 border-amber-400 shadow-sm">
                                     📱 الصناعي موبايل
                                 </span>
                             </div>
 
-                            <!-- Bank Name Prominent -->
-                            <h4 class="text-lg md:text-xl font-black text-white leading-tight">
+                            <!-- Bank Name Prominent Large -->
+                            <h4 class="text-xl md:text-2xl font-black text-white pt-1">
                                 بنك التنمية الصناعية
                             </h4>
-                            <span class="text-[11px] text-slate-400 font-bold block mt-1">
-                                المفتاح 130 واللاحقة 00001
-                            </span>
+                            <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                                المفتاح 130 + 6 أرقام حساب + اللاحقة 00001
+                            </p>
                         </div>
 
-                        <!-- 🌟 PROMINENT BIG CODE BOX 🌟 -->
-                        <div class="my-2">
-                            <span class="text-[10px] text-slate-400 font-black uppercase tracking-wider block mb-1.5 text-right">
-                                🔑 صيغة ومفتاح الـ BBAN الرسمي (14 رقم):
-                            </span>
+                        <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
+                        <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
+                            <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
+                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                            </div>
                             <div class="bban-code-box">
-                                <span class="text-amber-400 font-black">130</span><span class="text-white font-black">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
+                                <span class="text-amber-400 font-black">130</span><span class="text-white font-black px-1">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
                             </div>
                         </div>
 
                         <!-- Copy Button -->
-                        <button type="button" onclick="copyBBANCode('130XXXXXX00001', this)" class="w-full py-2.5 bg-slate-950/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 shadow-md">
-                            <i class="fa-regular fa-copy"></i> نسخ صيغة المفتاح
+                        <button type="button" onclick="copyBBANCode('130XXXXXX00001', this)" class="w-full py-3 bg-slate-900 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border-2 border-cyan-500/50 rounded-xl text-sm font-black transition flex items-center justify-center gap-2 shadow-lg">
+                            <i class="fa-regular fa-copy text-base"></i> نسخ صيغة المفتاح
                         </button>
                     </div>
     
                     <!-- Bank 16: بنك المال المتحد -->
                     <div class="bban-bank-card" data-bank-search="بنك المال المتحد المال كاش 170xxxxxx00001">
-                        <div>
-                            <!-- Header: Badge + Number -->
-                            <div class="flex items-center justify-between gap-2 mb-3">
-                                <span class="w-8 h-8 rounded-xl bg-slate-950 text-cyan-400 font-black text-sm flex items-center justify-center font-mono border border-cyan-500/40 shadow-inner">
+                        <div class="space-y-2">
+                            <!-- Top Row: Badge + Number -->
+                            <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-2.5">
+                                <span class="w-10 h-10 rounded-xl bg-slate-950 text-cyan-400 font-black text-lg flex items-center justify-center font-mono border-2 border-cyan-500/40 shadow-inner">
                                     16
                                 </span>
-                                <span class="text-xs font-black px-3 py-1 rounded-xl border bg-cyan-500/20 text-cyan-300 border-cyan-500/40">
+                                <span class="text-xs md:text-sm font-black px-3.5 py-1.5 rounded-xl border-2 bg-cyan-500/25 text-cyan-300 border-cyan-400 shadow-sm">
                                     📱 المال كاش
                                 </span>
                             </div>
 
-                            <!-- Bank Name Prominent -->
-                            <h4 class="text-lg md:text-xl font-black text-white leading-tight">
+                            <!-- Bank Name Prominent Large -->
+                            <h4 class="text-xl md:text-2xl font-black text-white pt-1">
                                 بنك المال المتحد
                             </h4>
-                            <span class="text-[11px] text-slate-400 font-bold block mt-1">
-                                المفتاح 170 واللاحقة 00001
-                            </span>
+                            <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                                المفتاح 170 + 6 أرقام حساب + اللاحقة 00001
+                            </p>
                         </div>
 
-                        <!-- 🌟 PROMINENT BIG CODE BOX 🌟 -->
-                        <div class="my-2">
-                            <span class="text-[10px] text-slate-400 font-black uppercase tracking-wider block mb-1.5 text-right">
-                                🔑 صيغة ومفتاح الـ BBAN الرسمي (14 رقم):
-                            </span>
+                        <!-- 🌟 PROMINENT BIG CODE BOX (EXTRA LARGE TYPOGRAPHY) 🌟 -->
+                        <div class="my-2 bg-slate-950/90 p-3 rounded-2xl border border-slate-800">
+                            <div class="flex items-center justify-between mb-1.5 text-xs font-bold text-slate-400">
+                                <span>صيغة الـ BBAN الرسمية (14 خانة):</span>
+                                <span class="text-rose-400 text-[11px] font-black">⚠️ يُحذف الصفر في بداية الحساب</span>
+                            </div>
                             <div class="bban-code-box">
-                                <span class="text-amber-400 font-black">170</span><span class="text-white font-black">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
+                                <span class="text-amber-400 font-black">170</span><span class="text-white font-black px-1">XXXXXX</span><span class="text-emerald-400 font-black">00001</span>
                             </div>
                         </div>
 
                         <!-- Copy Button -->
-                        <button type="button" onclick="copyBBANCode('170XXXXXX00001', this)" class="w-full py-2.5 bg-slate-950/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border border-cyan-500/40 rounded-xl text-xs font-black transition flex items-center justify-center gap-2 shadow-md">
-                            <i class="fa-regular fa-copy"></i> نسخ صيغة المفتاح
+                        <button type="button" onclick="copyBBANCode('170XXXXXX00001', this)" class="w-full py-3 bg-slate-900 hover:bg-cyan-500 hover:text-slate-950 text-cyan-300 border-2 border-cyan-500/50 rounded-xl text-sm font-black transition flex items-center justify-center gap-2 shadow-lg">
+                            <i class="fa-regular fa-copy text-base"></i> نسخ صيغة المفتاح
                         </button>
                     </div>
     
                 </div>
 
                 <!-- 💡 Smart Instructions from Card 💡 -->
-                <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 mt-6 pt-5 border-t border-slate-800">
-                    <div class="p-4 bg-slate-950/70 border border-slate-800 rounded-2xl flex items-center gap-3">
-                        <div class="w-11 h-11 rounded-xl bg-cyan-500/20 text-cyan-400 text-xl flex items-center justify-center flex-shrink-0">
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mt-6 pt-6 border-t border-slate-800">
+                    <div class="p-4 bg-slate-950/80 border-2 border-slate-800 rounded-2xl flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl bg-cyan-500/20 text-cyan-300 text-2xl flex items-center justify-center flex-shrink-0">
                             🔍
                         </div>
                         <div>
-                            <h5 class="text-sm font-black text-white">راجع رقم BBAN بعناية</h5>
-                            <p class="text-xs text-slate-400 font-bold">تأكد من مطابقة عدد الخانات (14 رقماً) وعدم إسقاط أي خانة صفرية.</p>
+                            <h5 class="text-sm md:text-base font-black text-white">راجع رقم BBAN بعناية</h5>
+                            <p class="text-xs text-slate-300 font-bold">تأكد من مطابقة عدد الخانات (14 رقماً) وحذف الصفر في بداية الحساب.</p>
                         </div>
                     </div>
 
-                    <div class="p-4 bg-slate-950/70 border border-slate-800 rounded-2xl flex items-center gap-3">
-                        <div class="w-11 h-11 rounded-xl bg-emerald-500/20 text-emerald-400 text-xl flex items-center justify-center flex-shrink-0">
+                    <div class="p-4 bg-slate-950/80 border-2 border-slate-800 rounded-2xl flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl bg-emerald-500/20 text-emerald-300 text-2xl flex items-center justify-center flex-shrink-0">
                             👤
                         </div>
                         <div>
-                            <h5 class="text-sm font-black text-white">تطابق اسم المستفيد</h5>
-                            <p class="text-xs text-slate-400 font-bold">لا تُكمل التحويل إلا بعد ظهور ومطابقة اسم المستفيد الرباعي على الشاشة.</p>
+                            <h5 class="text-sm md:text-base font-black text-white">تطابق اسم المستفيد</h5>
+                            <p class="text-xs text-slate-300 font-bold">لا تُكمل التحويل إلا بعد ظهور ومطابقة اسم المستفيد الرباعي على الشاشة.</p>
                         </div>
                     </div>
 
-                    <div class="p-4 bg-slate-950/70 border border-slate-800 rounded-2xl flex items-center gap-3">
-                        <div class="w-11 h-11 rounded-xl bg-amber-500/20 text-amber-400 text-xl flex items-center justify-center flex-shrink-0">
+                    <div class="p-4 bg-slate-950/80 border-2 border-slate-800 rounded-2xl flex items-center gap-3">
+                        <div class="w-12 h-12 rounded-xl bg-amber-500/20 text-amber-300 text-2xl flex items-center justify-center flex-shrink-0">
                             💵
                         </div>
                         <div>
-                            <h5 class="text-sm font-black text-white">رسوم التحويل بين البنوك</h5>
-                            <p class="text-xs text-slate-400 font-bold">تختلف الرسوم بين التطبيقات وغالباً ما تكون بين 400 - 500 جنيه.</p>
+                            <h5 class="text-sm md:text-base font-black text-white">رسوم التحويل بين البنوك</h5>
+                            <p class="text-xs text-slate-300 font-bold">تختلف الرسوم بين التطبيقات وغالباً ما تكون بين 400 - 500 جنيه.</p>
                         </div>
                     </div>
                 </div>
@@ -2080,17 +2108,33 @@ $pdo = getDBConnection();
         });
     }
 
-    // Interactive BBAN Generator
+    // 🌟 Interactive BBAN Generator with Automatic Zero-Stripping 🌟
     function generateUserBBAN() {
         const sel = document.getElementById('bban_bank_selector').value;
-        const raw = document.getElementById('bban_raw_account').value.replace(/[^0-9]/g, '');
+        let raw = document.getElementById('bban_raw_account').value.replace(/[^0-9]/g, '');
         const display = document.getElementById('generated_bban_display');
         const lenEl = document.getElementById('bban_len_counter');
+        const feedbackEl = document.getElementById('bban_strip_feedback');
 
         if (sel === 'sahel') {
             display.textContent = 'يستخرج رقم الـ BBAN مباشرة من داخل تطبيق ساهل (بنك النيل)';
             lenEl.textContent = 'تطبيق ساهل';
+            if (feedbackEl) feedbackEl.textContent = 'انسخ المفتاح من تطبيق ساهل';
             return;
+        }
+
+        // ⚠️ قاعدة حذف الصفر في بداية رقم الحساب ⚠️
+        const hadLeadingZero = raw.startsWith('0');
+        let cleanAcc = raw.replace(/^0+/, ''); // حذف أي صفر في البداية
+
+        if (feedbackEl) {
+            if (hadLeadingZero) {
+                feedbackEl.textContent = '✓ تم حذف الصفر في بداية الحساب تلقائياً لضبط الـ 14 خانة';
+                feedbackEl.className = 'text-xs text-amber-300 font-bold mt-1 block';
+            } else {
+                feedbackEl.textContent = '✓ صيغة رقم الحساب بدون صفر في البداية';
+                feedbackEl.className = 'text-xs text-emerald-400 font-bold mt-1 block';
+            }
         }
 
         const parts = sel.split('|');
@@ -2099,7 +2143,7 @@ $pdo = getDBConnection();
         const suffix = parts[2] || '';
 
         const neededDigits = xMask.length;
-        let padded = raw;
+        let padded = cleanAcc;
         if (padded.length > neededDigits) {
             padded = padded.substring(padded.length - neededDigits);
         } else {
@@ -2108,7 +2152,7 @@ $pdo = getDBConnection();
 
         const fullBBAN = prefix + padded + suffix;
         display.textContent = fullBBAN;
-        lenEl.textContent = 'عدد الخانات: ' + fullBBAN.length + ' رقم (صيغة 14 خانة معتمدة)';
+        lenEl.textContent = 'عدد الخانات: ' + fullBBAN.length + ' رقم (14 خانة معتمدة)';
     }
 
     function copyGeneratedBBAN() {
@@ -2121,7 +2165,7 @@ $pdo = getDBConnection();
     function copyBBANCode(code, btn) {
         navigator.clipboard.writeText(code).then(() => {
             const oldHtml = btn.innerHTML;
-            btn.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> تم النسخ!';
+            btn.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> تم نسخ الصيغة!';
             setTimeout(() => { btn.innerHTML = oldHtml; }, 2000);
         });
     }
