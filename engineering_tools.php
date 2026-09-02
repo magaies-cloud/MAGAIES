@@ -1,7 +1,7 @@
 <?php
 // ====================================================================
-// نظام Al-Sajana Smart ERP 2026 - حزمة المساعدات والحاسبات الهندسية والتجارية الشاملة V3
-// يضم 10 أجنحة متخصصة: حديد، خرسانات، طاقة شمسية، جمارك، تحويلات، بنوك، فتاوى البيوع، وزكاة
+// نظام Al-Sajana Smart ERP 2026 - حزمة المساعدات والحاسبات الهندسية والتجارية الشاملة V4
+// يضم 10 أجنحة متخصصة مع دليل مفاتيح تحويلات البنوك السودانية (BBAN) والصيغ الـ 16 المعتمدة
 // ====================================================================
 $page_title = 'الأدوات المساعدة والحاسبات الهندسية والتجارية الشاملة';
 $header_theme_class = 'header-theme-reports';
@@ -26,7 +26,7 @@ $pdo = getDBConnection();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>الأدوات المساعدة والحاسبات الهندسية والتجارية الشاملة | Al-Sajana ERP</title>
+    <title>الأدوات المساعدة ومفاتيح تحويلات البنوك (BBAN) | Al-Sajana ERP</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -189,6 +189,19 @@ $pdo = getDBConnection();
             border: 2px solid #db2777;
         }
 
+        .bban-code-badge {
+            background: rgba(15, 23, 42, 0.9);
+            border: 1.5px solid rgba(56, 189, 248, 0.4);
+            color: #38bdf8;
+            padding: 4px 10px;
+            border-radius: 10px;
+            font-family: monospace;
+            font-size: 0.92rem;
+            font-weight: 900;
+            letter-spacing: 1px;
+            display: inline-block;
+        }
+
         .fiqh-card {
             background: rgba(15, 23, 42, 0.75);
             border: 2px solid rgba(255, 255, 255, 0.08);
@@ -244,10 +257,10 @@ $pdo = getDBConnection();
                 </a>
                 <h1 class="text-2xl md:text-3xl font-black flex items-center gap-3">
                     <i class="fa-solid fa-toolbox text-pink-400"></i>
-                    مركز الأدوات والمساعدات الهندسية والتجارية الشاملة
+                    مركز الأدوات والمساعدات الهندسية والتجارية ومفاتيح البنوك (BBAN)
                 </h1>
                 <p class="text-slate-400 text-xs md:text-sm mt-1 font-bold">
-                    حاسبات أوزان الحديد، الخرسانات، الطاقة والمضخات، الجمارك، دليل البنوك، فتاوى البيوع (ابن تيمية، ابن باز، العثيمين، الفوزان)، وحاسبة الزكاة.
+                    حاسبات أوزان الحديد، الخرسانات، الطاقة والمضخات، الجمارك، مفاتيح التحويلات البنكية السودانية (BBAN)، فتاوى البيوع، والزكاة.
                 </p>
             </div>
 
@@ -296,11 +309,11 @@ $pdo = getDBConnection();
                 <div class="suite-pill-sub">الأراضي والقياسات</div>
             </div>
 
-            <!-- 6. دليل البنوك -->
+            <!-- 6. مفاتيح التحويلات البنكية BBAN -->
             <div class="suite-pill-card" style="--p-color:#22d3ee; --p-border:rgba(34,211,238,0.5);" onclick="switchSuite('banks', this)">
-                <div class="suite-pill-icon"><i class="fa-solid fa-building-columns text-cyan-400"></i></div>
-                <div class="suite-pill-title">🏦 البنوك</div>
-                <div class="suite-pill-sub">السويفت والـ IBAN</div>
+                <div class="suite-pill-icon"><i class="fa-solid fa-money-bill-transfer text-cyan-400"></i></div>
+                <div class="suite-pill-title">🏦 مفاتيح التحويلات</div>
+                <div class="suite-pill-sub">صيغ BBAN للبنوك (16)</div>
             </div>
 
             <!-- 7. فتاوى البيوع -->
@@ -311,7 +324,7 @@ $pdo = getDBConnection();
             </div>
 
             <!-- 8. حاسبة الزكاة -->
-            <div class="suite-pill-card" style="--p-color:#10b981; --p-border:rgba(16,185,129,0.5);" onclick="switchSuite('zakat', this)">
+            <div class="suite-pill-card" style="--p-color:#10b981; --p-border:rgba(167,243,208,0.5);" onclick="switchSuite('zakat', this)">
                 <div class="suite-pill-icon"><i class="fa-solid fa-hand-holding-dollar text-emerald-400"></i></div>
                 <div class="suite-pill-title">⚖️ الزكاة</div>
                 <div class="suite-pill-sub">عروض التجارة</div>
@@ -773,96 +786,331 @@ $pdo = getDBConnection();
         </div>
 
         <!-- ════════════════════════════════════════════════════════════════ -->
-        <!-- 6. SUITE: BANK ROUTING, SWIFT & IBAN DIRECTORY                  -->
+        <!-- 6. SUITE: BBAN SUDANESE BANK ROUTING & TRANSFER GUIDE           -->
         <!-- ════════════════════════════════════════════════════════════════ -->
         <div id="suite-sec-banks" class="suite-section anim-suite hidden space-y-6">
             <div class="glass-panel-v3" style="--border-color: rgba(34, 211, 238, 0.4);">
-                <div class="flex items-center justify-between mb-5 border-b border-slate-800 pb-3">
-                    <h3 class="text-lg font-black text-slate-100 flex items-center gap-2">
-                        <i class="fa-solid fa-building-columns text-cyan-400"></i>
-                        دليل مفاتيح البنوك، السويفت كود (SWIFT/BIC)، وبنية أرقام الحسابات
-                    </h3>
-                    <span class="text-xs font-bold text-cyan-400 bg-cyan-500/10 px-3 py-1 rounded-lg border border-cyan-500/20">
-                        لتفادي الأخطاء في التحويلات والشيكات
-                    </span>
+                
+                <!-- Header Banner -->
+                <div class="flex flex-wrap items-center justify-between mb-5 border-b border-slate-800 pb-4 gap-3">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="px-3 py-1 bg-cyan-500/20 text-cyan-400 rounded-lg text-xs font-mono font-black border border-cyan-500/40">BBAN - 14 Digits</span>
+                            <span class="px-3 py-1 bg-emerald-500/20 text-emerald-400 rounded-lg text-xs font-bold border border-emerald-500/40">🔒 حوّل واستلم أموالك بثقة وأمان</span>
+                        </div>
+                        <h3 class="text-xl md:text-2xl font-black text-slate-100 flex items-center gap-2 mt-2">
+                            <i class="fa-solid fa-money-bill-transfer text-cyan-400"></i>
+                            دليلك السريع لأرقام BBAN الخاصة بالبنوك السودانية (مفاتيح التحويلات)
+                        </h3>
+                        <p class="text-xs font-bold text-slate-400 mt-1">
+                            <span class="text-cyan-300 font-black">BBAN</span> هو الرقم البنكي المحلي الموحد المستخدم للتحويلات المباشرة بين البنوك. جميع الصيغ تتكون من <span class="text-amber-400 font-mono font-black">14 رقماً</span> (الرمز X يمثل رقم حسابك الأساسي).
+                        </p>
+                    </div>
+
+                    <!-- Search Bar -->
+                    <div class="w-full md:w-80">
+                        <input type="text" id="bank-search-input" oninput="searchBanks(this.value)" placeholder="🔍 ابحث عن البنك أو التطبيق أو الصيغة..." class="tool-input">
+                    </div>
                 </div>
 
-                <!-- Bank Search -->
-                <div class="mb-4">
-                    <input type="text" id="bank-search-input" oninput="searchBanks(this.value)" placeholder="🔍 ابحث عن اسم البنك أو كود السويفت أو التطبيق (مثال: بنكك، فيصل، الخرطوم، BKHOSDKH)..." class="tool-input">
+                <!-- 🎛️ Interactive BBAN Builder & Formatter 🎛️ -->
+                <div class="bg-slate-950/80 border-2 border-cyan-500/30 p-5 rounded-2xl mb-6 shadow-xl">
+                    <h4 class="text-sm font-black text-cyan-400 flex items-center gap-2 mb-3">
+                        <i class="fa-solid fa-wand-magic-sparkles"></i>
+                        مولّد ومفحّص رقم الـ BBAN الفوري (ضع رقم حسابك واستخرج صيغة التحويل المكتملة):
+                    </h4>
+
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-3 items-end">
+                        <div>
+                            <label class="text-xs font-bold text-slate-300 block mb-1">1. اختر البنك المستفيد:</label>
+                            <select id="bban_bank_selector" onchange="generateUserBBAN()" class="tool-input">
+                                <option value="040|XXXXXXX|0001">1. بنك الخرطوم (بنكك)</option>
+                                <option value="240|XXXXXXX|0001">2. بنك أم درمان الوطني (أوكاش)</option>
+                                <option value="02|XXXXXXXX|0001">3. بنك فيصل الإسلامي (فوري)</option>
+                                <option value="150000|XXXXXXXX|">4. بنك النيل الأزرق المشرق (مشرق)</option>
+                                <option value="14000|XXXX|00001">5. البنك الإسلامي السوداني (آمن بلس)</option>
+                                <option value="sahel">6. بنك النيل (ساهل - من داخل التطبيق)</option>
+                                <option value="222|XXXXXXXXXXX|">7. بنك المزارع التجاري (مصرفك)</option>
+                                <option value="110|XXXXXX|00001">8. البنك الفرنسي السوداني</option>
+                                <option value="03|XXXXXXX|01001">9. البنك الزراعي السوداني (الزراعي موبايل)</option>
+                                <option value="180|XXXXXX|00001">10. بنك السلام السوداني</option>
+                                <option value="070|XXXXXX|00001">11. بنك البركة السوداني</option>
+                                <option value="090|XXXXXX|00001">12. بنك الثروة الحيوانية</option>
+                                <option value="120|XXXXXX|00001">13. بنك العمال الوطني</option>
+                                <option value="160|XXXXXX|00001">14. البنك العقاري التجاري</option>
+                                <option value="130|XXXXXX|00001">15. بنك التنمية الصناعية</option>
+                                <option value="170|XXXXXX|00001">16. بنك المال المتحد</option>
+                            </select>
+                        </div>
+
+                        <div>
+                            <label class="text-xs font-bold text-slate-300 block mb-1">2. أدخل رقم الحساب الأساسي (X):</label>
+                            <input type="text" id="bban_raw_account" placeholder="مثلاً: 1234567" oninput="generateUserBBAN()" class="tool-input font-mono font-bold text-cyan-300">
+                        </div>
+
+                        <div>
+                            <button type="button" onclick="copyGeneratedBBAN()" class="w-full py-2.5 bg-cyan-600 hover:bg-cyan-500 text-slate-950 font-black rounded-xl text-xs transition flex items-center justify-center gap-2 shadow-lg">
+                                <i class="fa-regular fa-copy"></i> نسخ رقم الـ BBAN المولد
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Generated Result Box -->
+                    <div class="mt-4 p-3.5 bg-slate-900 rounded-xl border border-cyan-500/40 flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <span class="text-[11px] text-slate-400 block font-bold">صيغة رقم الـ BBAN الناتج (14 خانة جاهزة للتحويل):</span>
+                            <span class="text-lg md:text-xl font-black text-cyan-400 font-mono tracking-wider" id="generated_bban_display">040-------0001</span>
+                        </div>
+                        <span class="text-xs font-bold text-slate-400" id="bban_len_counter">عدد الخانات: 14 رقم</span>
+                    </div>
                 </div>
 
-                <div class="overflow-x-auto">
-                    <table class="w-full text-right text-xs" id="banks-table">
-                        <thead>
-                            <tr class="border-b border-slate-800 text-slate-400 font-black">
-                                <th class="p-3">اسم المصرف / البنك</th>
-                                <th class="p-3">رمز السويفت (SWIFT / BIC)</th>
-                                <th class="p-3">التطبيق البنكي</th>
-                                <th class="p-3">طول وبنية رقم الحساب</th>
-                                <th class="p-3">ملاحظات التحويل والأمان</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-800/60 font-bold">
-                            <tr class="bank-row hover:bg-slate-900/50">
-                                <td class="p-3 text-white">🏦 بنك الخرطوم (Bank of Khartoum - BOK)</td>
-                                <td class="p-3 text-cyan-400 font-mono font-black">BKHOSDKH</td>
-                                <td class="p-3 text-emerald-400">بنكك (Bankak)</td>
-                                <td class="p-3 text-slate-300 font-mono">7 أرقام (حساب) / 16 رقم (بطاقة)</td>
-                                <td class="p-3 text-slate-400">يلزم التأكد من اسم المستفيد الرباعي المطابق.</td>
-                            </tr>
-                            <tr class="bank-row hover:bg-slate-900/50">
-                                <td class="p-3 text-white">🏦 بنك فيصل الإسلامي (Faisal Islamic Bank - FIB)</td>
-                                <td class="p-3 text-cyan-400 font-mono font-black">FBLISDKH</td>
-                                <td class="p-3 text-amber-400">فوري (Fawry)</td>
-                                <td class="p-3 text-slate-300 font-mono">حساب 10 أرقام</td>
-                                <td class="p-3 text-slate-400">تحويلات فورية عبر شبكة قيد وسويفت.</td>
-                            </tr>
-                            <tr class="bank-row hover:bg-slate-900/50">
-                                <td class="p-3 text-white">🏦 بنك أم درمان الوطني (Omdurman National Bank - ONB)</td>
-                                <td class="p-3 text-cyan-400 font-mono font-black">ONDMSDKH</td>
-                                <td class="p-3 text-sky-400">أوكاش (O-Cash)</td>
-                                <td class="p-3 text-slate-300 font-mono">حساب 12 رقم</td>
-                                <td class="p-3 text-slate-400">تأكيد رقم الفرع المكون من أول 3 خانات.</td>
-                            </tr>
-                            <tr class="bank-row hover:bg-slate-900/50">
-                                <td class="p-3 text-white">🏦 بنك النيل (Nile Bank)</td>
-                                <td class="p-3 text-cyan-400 font-mono font-black">NILBSDKH</td>
-                                <td class="p-3 text-purple-400">سريعتك</td>
-                                <td class="p-3 text-slate-300 font-mono">حساب 10 أرقام</td>
-                                <td class="p-3 text-slate-400">مطابقة رقم التحويل وإشعار الاستلام.</td>
-                            </tr>
-                            <tr class="bank-row hover:bg-slate-900/50">
-                                <td class="p-3 text-white">🏦 بنك البركة السوداني (Al Baraka Bank)</td>
-                                <td class="p-3 text-cyan-400 font-mono font-black">BARKSDKH</td>
-                                <td class="p-3 text-rose-400">البركة موبايل</td>
-                                <td class="p-3 text-slate-300 font-mono">حساب 14 رقم</td>
-                                <td class="p-3 text-slate-400">معتمد في الاعتمادات المستندية والاستيراد.</td>
-                            </tr>
-                            <tr class="bank-row hover:bg-slate-900/50">
-                                <td class="p-3 text-white">🏦 البنك السعودي السوداني (Saudi Sudanese Bank)</td>
-                                <td class="p-3 text-cyan-400 font-mono font-black">SSBNSDKH</td>
-                                <td class="p-3 text-emerald-400">السعودي موبايل</td>
-                                <td class="p-3 text-slate-300 font-mono">حساب 12 رقم</td>
-                                <td class="p-3 text-slate-400">التحويلات الخارجية والمقاصة الإلكترونية.</td>
-                            </tr>
-                            <tr class="bank-row hover:bg-slate-900/50">
-                                <td class="p-3 text-white">🏦 بنك التضامن الإسلامي (Tadamon Islamic Bank)</td>
-                                <td class="p-3 text-cyan-400 font-mono font-black">TADMSDKH</td>
-                                <td class="p-3 text-amber-400">تضامن كاش</td>
-                                <td class="p-3 text-slate-300 font-mono">حساب 11 رقم</td>
-                                <td class="p-3 text-slate-400">مرابحات السلع والتجارة المحلية.</td>
-                            </tr>
-                            <tr class="bank-row hover:bg-slate-900/50">
-                                <td class="p-3 text-white">🏦 البنك السوداني الفرنسي (Sudanese French Bank)</td>
-                                <td class="p-3 text-cyan-400 font-mono font-black">SFBSSDKH</td>
-                                <td class="p-3 text-sky-400">الفرنسي موبايل</td>
-                                <td class="p-3 text-slate-300 font-mono">حساب 10 أرقام</td>
-                                <td class="p-3 text-slate-400">خطابات الضمان والمقاولات.</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                <!-- 📋 Full 16 Banks BBAN Directory Grid / Table 📋 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-3.5" id="banks-grid-container">
+                    
+                    <!-- 1. بنك الخرطوم -->
+                    <div class="bank-card bg-slate-900/80 border-2 border-cyan-500/30 p-4 rounded-2xl hover:border-cyan-400 transition shadow-md">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 font-black text-xs flex items-center justify-center font-mono">1</span>
+                            <span class="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-lg">تطبيق بنكك</span>
+                        </div>
+                        <h4 class="text-sm font-black text-white">بنك الخرطوم</h4>
+                        <div class="mt-2.5">
+                            <span class="text-[10px] text-slate-400 block font-bold">صيغة رقم BBAN:</span>
+                            <span class="bban-code-badge">040XXXXXXX0001</span>
+                        </div>
+                    </div>
+
+                    <!-- 2. بنك أم درمان الوطني -->
+                    <div class="bank-card bg-slate-900/80 border-2 border-cyan-500/30 p-4 rounded-2xl hover:border-cyan-400 transition shadow-md">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 font-black text-xs flex items-center justify-center font-mono">2</span>
+                            <span class="text-[11px] font-bold text-sky-400 bg-sky-500/10 px-2.5 py-0.5 rounded-lg">تطبيق أوكاش</span>
+                        </div>
+                        <h4 class="text-sm font-black text-white">بنك أم درمان الوطني</h4>
+                        <div class="mt-2.5">
+                            <span class="text-[10px] text-slate-400 block font-bold">صيغة رقم BBAN:</span>
+                            <span class="bban-code-badge">240XXXXXXX0001</span>
+                        </div>
+                    </div>
+
+                    <!-- 3. بنك فيصل الإسلامي -->
+                    <div class="bank-card bg-slate-900/80 border-2 border-cyan-500/30 p-4 rounded-2xl hover:border-cyan-400 transition shadow-md">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 font-black text-xs flex items-center justify-center font-mono">3</span>
+                            <span class="text-[11px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-lg">تطبيق فوري</span>
+                        </div>
+                        <h4 class="text-sm font-black text-white">بنك فيصل الإسلامي</h4>
+                        <div class="mt-2.5">
+                            <span class="text-[10px] text-slate-400 block font-bold">صيغة رقم BBAN:</span>
+                            <span class="bban-code-badge">02XXXXXXXX0001</span>
+                        </div>
+                    </div>
+
+                    <!-- 4. بنك النيل الأزرق المشرق -->
+                    <div class="bank-card bg-slate-900/80 border-2 border-cyan-500/30 p-4 rounded-2xl hover:border-cyan-400 transition shadow-md">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 font-black text-xs flex items-center justify-center font-mono">4</span>
+                            <span class="text-[11px] font-bold text-yellow-400 bg-yellow-500/10 px-2.5 py-0.5 rounded-lg">تطبيق مشرق</span>
+                        </div>
+                        <h4 class="text-sm font-black text-white">بنك النيل الأزرق المشرق</h4>
+                        <div class="mt-2.5">
+                            <span class="text-[10px] text-slate-400 block font-bold">صيغة رقم BBAN:</span>
+                            <span class="bban-code-badge">150000XXXXXXXX</span>
+                        </div>
+                    </div>
+
+                    <!-- 5. البنك الإسلامي السوداني -->
+                    <div class="bank-card bg-slate-900/80 border-2 border-cyan-500/30 p-4 rounded-2xl hover:border-cyan-400 transition shadow-md">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 font-black text-xs flex items-center justify-center font-mono">5</span>
+                            <span class="text-[11px] font-bold text-purple-400 bg-purple-500/10 px-2.5 py-0.5 rounded-lg">آمن بلس</span>
+                        </div>
+                        <h4 class="text-sm font-black text-white">البنك الإسلامي السوداني</h4>
+                        <div class="mt-2.5">
+                            <span class="text-[10px] text-slate-400 block font-bold">صيغة رقم BBAN:</span>
+                            <span class="bban-code-badge">14000XXXX00001</span>
+                        </div>
+                    </div>
+
+                    <!-- 6. بنك النيل -->
+                    <div class="bank-card bg-slate-900/80 border-2 border-cyan-500/30 p-4 rounded-2xl hover:border-cyan-400 transition shadow-md">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 font-black text-xs flex items-center justify-center font-mono">6</span>
+                            <span class="text-[11px] font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-lg">تطبيق ساهل</span>
+                        </div>
+                        <h4 class="text-sm font-black text-white">بنك النيل</h4>
+                        <div class="mt-2.5">
+                            <span class="text-[10px] text-slate-400 block font-bold">صيغة رقم BBAN:</span>
+                            <span class="bban-code-badge text-amber-300">يستخرج من داخل التطبيق</span>
+                        </div>
+                    </div>
+
+                    <!-- 7. بنك المزارع التجاري -->
+                    <div class="bank-card bg-slate-900/80 border-2 border-cyan-500/30 p-4 rounded-2xl hover:border-cyan-400 transition shadow-md">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 font-black text-xs flex items-center justify-center font-mono">7</span>
+                            <span class="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-lg">تطبيق مصرفك</span>
+                        </div>
+                        <h4 class="text-sm font-black text-white">بنك المزارع التجاري</h4>
+                        <div class="mt-2.5">
+                            <span class="text-[10px] text-slate-400 block font-bold">صيغة رقم BBAN:</span>
+                            <span class="bban-code-badge">222XXXXXXXXXXX</span>
+                        </div>
+                    </div>
+
+                    <!-- 8. البنك الفرنسي السوداني -->
+                    <div class="bank-card bg-slate-900/80 border-2 border-cyan-500/30 p-4 rounded-2xl hover:border-cyan-400 transition shadow-md">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 font-black text-xs flex items-center justify-center font-mono">8</span>
+                            <span class="text-[11px] font-bold text-sky-400 bg-sky-500/10 px-2.5 py-0.5 rounded-lg">الفرنسي موبايل</span>
+                        </div>
+                        <h4 class="text-sm font-black text-white">البنك الفرنسي السوداني</h4>
+                        <div class="mt-2.5">
+                            <span class="text-[10px] text-slate-400 block font-bold">صيغة رقم BBAN:</span>
+                            <span class="bban-code-badge">110XXXXXX00001</span>
+                        </div>
+                    </div>
+
+                    <!-- 9. البنك الزراعي السوداني -->
+                    <div class="bank-card bg-slate-900/80 border-2 border-cyan-500/30 p-4 rounded-2xl hover:border-cyan-400 transition shadow-md">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 font-black text-xs flex items-center justify-center font-mono">9</span>
+                            <span class="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-lg">الزراعي موبايل</span>
+                        </div>
+                        <h4 class="text-sm font-black text-white">البنك الزراعي السوداني</h4>
+                        <div class="mt-2.5">
+                            <span class="text-[10px] text-slate-400 block font-bold">صيغة رقم BBAN:</span>
+                            <span class="bban-code-badge">03XXXXXXX01001</span>
+                        </div>
+                    </div>
+
+                    <!-- 10. بنك السلام السوداني -->
+                    <div class="bank-card bg-slate-900/80 border-2 border-cyan-500/30 p-4 rounded-2xl hover:border-cyan-400 transition shadow-md">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 font-black text-xs flex items-center justify-center font-mono">10</span>
+                            <span class="text-[11px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-lg">السلام موبايل</span>
+                        </div>
+                        <h4 class="text-sm font-black text-white">بنك السلام السوداني</h4>
+                        <div class="mt-2.5">
+                            <span class="text-[10px] text-slate-400 block font-bold">صيغة رقم BBAN:</span>
+                            <span class="bban-code-badge">180XXXXXX00001</span>
+                        </div>
+                    </div>
+
+                    <!-- 11. بنك البركة السوداني -->
+                    <div class="bank-card bg-slate-900/80 border-2 border-cyan-500/30 p-4 rounded-2xl hover:border-cyan-400 transition shadow-md">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 font-black text-xs flex items-center justify-center font-mono">11</span>
+                            <span class="text-[11px] font-bold text-rose-400 bg-rose-500/10 px-2.5 py-0.5 rounded-lg">البركة موبايل</span>
+                        </div>
+                        <h4 class="text-sm font-black text-white">بنك البركة السوداني</h4>
+                        <div class="mt-2.5">
+                            <span class="text-[10px] text-slate-400 block font-bold">صيغة رقم BBAN:</span>
+                            <span class="bban-code-badge">070XXXXXX00001</span>
+                        </div>
+                    </div>
+
+                    <!-- 12. بنك الثروة الحيوانية -->
+                    <div class="bank-card bg-slate-900/80 border-2 border-cyan-500/30 p-4 rounded-2xl hover:border-cyan-400 transition shadow-md">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 font-black text-xs flex items-center justify-center font-mono">12</span>
+                            <span class="text-[11px] font-bold text-emerald-400 bg-emerald-500/10 px-2.5 py-0.5 rounded-lg">الثروة كاش</span>
+                        </div>
+                        <h4 class="text-sm font-black text-white">بنك الثروة الحيوانية</h4>
+                        <div class="mt-2.5">
+                            <span class="text-[10px] text-slate-400 block font-bold">صيغة رقم BBAN:</span>
+                            <span class="bban-code-badge">090XXXXXX00001</span>
+                        </div>
+                    </div>
+
+                    <!-- 13. بنك العمال الوطني -->
+                    <div class="bank-card bg-slate-900/80 border-2 border-cyan-500/30 p-4 rounded-2xl hover:border-cyan-400 transition shadow-md">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 font-black text-xs flex items-center justify-center font-mono">13</span>
+                            <span class="text-[11px] font-bold text-sky-400 bg-sky-500/10 px-2.5 py-0.5 rounded-lg">العمال موبايل</span>
+                        </div>
+                        <h4 class="text-sm font-black text-white">بنك العمال الوطني</h4>
+                        <div class="mt-2.5">
+                            <span class="text-[10px] text-slate-400 block font-bold">صيغة رقم BBAN:</span>
+                            <span class="bban-code-badge">120XXXXXX00001</span>
+                        </div>
+                    </div>
+
+                    <!-- 14. البنك العقاري التجاري -->
+                    <div class="bank-card bg-slate-900/80 border-2 border-cyan-500/30 p-4 rounded-2xl hover:border-cyan-400 transition shadow-md">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 font-black text-xs flex items-center justify-center font-mono">14</span>
+                            <span class="text-[11px] font-bold text-purple-400 bg-purple-500/10 px-2.5 py-0.5 rounded-lg">العقاري كاش</span>
+                        </div>
+                        <h4 class="text-sm font-black text-white">البنك العقاري التجاري</h4>
+                        <div class="mt-2.5">
+                            <span class="text-[10px] text-slate-400 block font-bold">صيغة رقم BBAN:</span>
+                            <span class="bban-code-badge">160XXXXXX00001</span>
+                        </div>
+                    </div>
+
+                    <!-- 15. بنك التنمية الصناعية -->
+                    <div class="bank-card bg-slate-900/80 border-2 border-cyan-500/30 p-4 rounded-2xl hover:border-cyan-400 transition shadow-md">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 font-black text-xs flex items-center justify-center font-mono">15</span>
+                            <span class="text-[11px] font-bold text-amber-400 bg-amber-500/10 px-2.5 py-0.5 rounded-lg">الصناعي موبايل</span>
+                        </div>
+                        <h4 class="text-sm font-black text-white">بنك التنمية الصناعية</h4>
+                        <div class="mt-2.5">
+                            <span class="text-[10px] text-slate-400 block font-bold">صيغة رقم BBAN:</span>
+                            <span class="bban-code-badge">130XXXXXX00001</span>
+                        </div>
+                    </div>
+
+                    <!-- 16. بنك المال المتحد -->
+                    <div class="bank-card bg-slate-900/80 border-2 border-cyan-500/30 p-4 rounded-2xl hover:border-cyan-400 transition shadow-md">
+                        <div class="flex items-center justify-between mb-2">
+                            <span class="w-6 h-6 rounded-full bg-cyan-500/20 text-cyan-400 font-black text-xs flex items-center justify-center font-mono">16</span>
+                            <span class="text-[11px] font-bold text-cyan-400 bg-cyan-500/10 px-2.5 py-0.5 rounded-lg">المال كاش</span>
+                        </div>
+                        <h4 class="text-sm font-black text-white">بنك المال المتحد</h4>
+                        <div class="mt-2.5">
+                            <span class="text-[10px] text-slate-400 block font-bold">صيغة رقم BBAN:</span>
+                            <span class="bban-code-badge">170XXXXXX00001</span>
+                        </div>
+                    </div>
+
                 </div>
+
+                <!-- 💡 Smart Instructions from Card 💡 -->
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-3.5 mt-6 pt-5 border-t border-slate-800">
+                    <div class="p-3.5 bg-slate-950/70 border border-slate-800 rounded-2xl flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-cyan-500/20 text-cyan-400 text-lg flex items-center justify-center flex-shrink-0">
+                            🔍
+                        </div>
+                        <div>
+                            <h5 class="text-xs font-black text-white">راجع رقم BBAN بعناية</h5>
+                            <p class="text-[11px] text-slate-400 font-bold">تأكد من اكتمال الـ 14 رقماً وعدم إسقاط أي خانة صفرية.</p>
+                        </div>
+                    </div>
+
+                    <div class="p-3.5 bg-slate-950/70 border border-slate-800 rounded-2xl flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-emerald-500/20 text-emerald-400 text-lg flex items-center justify-center flex-shrink-0">
+                            👤
+                        </div>
+                        <div>
+                            <h5 class="text-xs font-black text-white">تطابق اسم المستفيد</h5>
+                            <p class="text-[11px] text-slate-400 font-bold">لا تُكمل التحويل إلا بعد ظهور ومطابقة اسم المستفيد الرباعي.</p>
+                        </div>
+                    </div>
+
+                    <div class="p-3.5 bg-slate-950/70 border border-slate-800 rounded-2xl flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-400 text-lg flex items-center justify-center flex-shrink-0">
+                            💵
+                        </div>
+                        <div>
+                            <h5 class="text-xs font-black text-white">رسوم التحويل بين البنوك</h5>
+                            <p class="text-[11px] text-slate-400 font-bold">تختلف الرسوم بين التطبيقات وغالباً ما تكون 400 - 500 جنيه.</p>
+                        </div>
+                    </div>
+                </div>
+
             </div>
         </div>
 
@@ -1386,9 +1634,47 @@ $pdo = getDBConnection();
     // 6. Bank Search
     function searchBanks(q) {
         const query = q.trim().toLowerCase();
-        document.querySelectorAll('.bank-row').forEach(row => {
-            const text = row.textContent.toLowerCase();
-            row.style.display = (query === '' || text.includes(query)) ? '' : 'none';
+        document.querySelectorAll('.bank-card').forEach(card => {
+            const text = card.textContent.toLowerCase();
+            card.style.display = (query === '' || text.includes(query)) ? '' : 'none';
+        });
+    }
+
+    // Interactive BBAN Generator
+    function generateUserBBAN() {
+        const sel = document.getElementById('bban_bank_selector').value;
+        const raw = document.getElementById('bban_raw_account').value.replace(/[^0-9]/g, '');
+        const display = document.getElementById('generated_bban_display');
+        const lenEl = document.getElementById('bban_len_counter');
+
+        if (sel === 'sahel') {
+            display.textContent = 'يستخرج رقم الـ BBAN مباشرة من داخل تطبيق ساهل (بنك النيل)';
+            lenEl.textContent = 'تطبيق ساهل';
+            return;
+        }
+
+        const parts = sel.split('|');
+        const prefix = parts[0];
+        const xMask = parts[1];
+        const suffix = parts[2] || '';
+
+        const neededDigits = xMask.length;
+        let padded = raw;
+        if (padded.length > neededDigits) {
+            padded = padded.substring(padded.length - neededDigits);
+        } else {
+            padded = padded.padStart(neededDigits, '0');
+        }
+
+        const fullBBAN = prefix + padded + suffix;
+        display.textContent = fullBBAN;
+        lenEl.textContent = 'عدد الخانات: ' + fullBBAN.length + ' رقم (صيغة 14 خانة معتمدة)';
+    }
+
+    function copyGeneratedBBAN() {
+        const text = document.getElementById('generated_bban_display').textContent;
+        navigator.clipboard.writeText(text).then(() => {
+            alert('✓ تم نسخ رقم الـ BBAN بنجاح: ' + text);
         });
     }
 
@@ -1478,6 +1764,7 @@ $pdo = getDBConnection();
         calculateZakat();
         calculateFeasibility();
         calculateGratuity();
+        generateUserBBAN();
     });
     </script>
     <script defer src="js/app.js"></script>
