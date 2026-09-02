@@ -1196,17 +1196,23 @@ try {
             transition: font-size 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), letter-spacing 0.3s ease, height 0.3s ease, color 0.3s ease !important;
             color: #ffffff !important;
         }
-        .dynamic-focus-input:focus {
-            font-size: 5.5rem !important;
-            height: 100px !important;
-            min-width: 400px !important;
-            position: relative !important;
-            z-index: 1000 !important;
-            margin-right: -100px !important;
-            font-weight: 900 !important;
-            letter-spacing: 3px !important;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 25px rgba(251, 191, 36, 0.6) !important;
+        /* 🌟 مقاسات الوضع الطبيعي الأساسي (تمت زيادتها درجتين كاملتين لتكون الأرقام واضحة ومريحة دائماً) */
+        .transfer-no, .cheque-no {
+            font-size: 2.1rem !important; /* زيادة درجتين من 1.5rem إلى 2.1rem */
+            height: 58px !important;
+            font-weight: 800 !important;
+            letter-spacing: 1px !important;
         }
+        .transfer-amount, .cheque-amount {
+            font-size: 2.4rem !important; /* زيادة درجتين من 2.0rem إلى 2.4rem */
+            height: 58px !important;
+            font-weight: 900 !important;
+        }
+        .transfer-note, .cheque-branch, .transfer-statement, .cheque-statement, .cheque-date {
+            font-size: 1.45rem !important;
+            height: 58px !important;
+        }
+
         .dynamic-focus-amount:focus {
             color: #fbbf24 !important; /* Golden Yellow */
             border-color: #fbbf24 !important;
