@@ -1196,21 +1196,21 @@ try {
             transition: font-size 0.3s cubic-bezier(0.34, 1.56, 0.64, 1), letter-spacing 0.3s ease, height 0.3s ease, color 0.3s ease !important;
             color: #ffffff !important;
         }
-        /* 🌟 مقاسات الوضع الطبيعي الأساسي (تمت زيادتها درجتين كاملتين لتكون الأرقام واضحة ومريحة دائماً) */
+        /* 🌟 مقاسات الوضع الطبيعي الأساسي (تمت زيادتها 3 درجات إضافية لتكون الأرقام واضحة ومقروءة جداً) */
         .transfer-no, .cheque-no {
-            font-size: 2.1rem !important; /* زيادة درجتين من 1.5rem إلى 2.1rem */
-            height: 58px !important;
-            font-weight: 800 !important;
-            letter-spacing: 1px !important;
+            font-size: 2.8rem !important; /* زيادة 3 درجات من 2.1rem إلى 2.8rem */
+            height: 62px !important;
+            font-weight: 900 !important;
+            letter-spacing: 1.5px !important;
         }
         .transfer-amount, .cheque-amount {
-            font-size: 2.4rem !important; /* زيادة درجتين من 2.0rem إلى 2.4rem */
-            height: 58px !important;
+            font-size: 3.1rem !important; /* زيادة 3 درجات من 2.4rem إلى 3.1rem */
+            height: 62px !important;
             font-weight: 900 !important;
         }
         .transfer-note, .cheque-branch, .transfer-statement, .cheque-statement, .cheque-date {
-            font-size: 1.45rem !important;
-            height: 58px !important;
+            font-size: 1.55rem !important;
+            height: 62px !important;
         }
 
         .dynamic-focus-amount:focus {
@@ -1224,7 +1224,7 @@ try {
             box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 30px rgba(56, 189, 248, 0.7) !important;
         }
 
-        /* 🔍 مقاس موحد ومكبر بدقة 4.2rem لجميع حقول الأرقام والمبالغ أثناء التركيز والكتابة */
+        /* 🔍 مقاس موحد ومكبر بدقة 4.5rem لجميع حقول الأرقام والمبالغ أثناء التركيز والكتابة */
         .transfer-no.dynamic-focus-input:focus,
         .cheque-no.dynamic-focus-input:focus,
         .transfer-amount:focus,
@@ -1233,8 +1233,8 @@ try {
         .block-sub-amount:focus,
         .block-total-amount:focus,
         .dynamic-focus-input:focus {
-            font-size: 4.2rem !important; /* مقاس موحد عملاق ومريح جداً للقراءة والكتابة */
-            height: 95px !important;
+            font-size: 4.5rem !important; /* مقاس موحد عملاق ومريح جداً للقراءة والكتابة */
+            height: 98px !important;
             min-width: 480px !important;
             max-width: none !important;
             position: relative !important;
@@ -1401,7 +1401,7 @@ try {
                         </div>
 
                         <!-- Row 1: Currency | Amount | Rate | Foreign -->
-                        <div style="display: grid; grid-template-columns: 0.8fr 2.2fr 1.0fr 2.0fr; gap: 15px; margin-bottom: 25px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="display: grid; grid-template-columns: 0.8fr 2.0fr 1.2fr 2.0fr; gap: 15px; margin-bottom: 25px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
                             <div style="display: flex; align-items: center; gap: 10px;">
                                 <label class="label" style="display:flex; align-items:center; gap:5px; color:#fbbf24 !important; font-size:1.1rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">💱 العملة</label>
                                 <select class="form-input system-currency-select input-glow-focus hover-glow" id="currency" data-next="exchange-rate" onchange="updateCurrency(); document.getElementById('exchange-rate').focus(); document.getElementById('exchange-rate').select();" style="height: 55px; border-radius: 10px; flex-grow: 1; min-width: 0; width: 100%; font-size: 1.3rem !important; font-weight: 800; padding-right: 5px; padding-left: 5px;">
@@ -1418,8 +1418,8 @@ try {
                                 </div>
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <label class="label" style="display:flex; align-items:center; gap:5px; color:#fbbf24 !important; font-size:1.1rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">⚖️ سعر الصرف</label>
-                                <input type="number" class="form-input" id="exchange-rate" value="1" placeholder="الصرف" readonly style="flex: 1.5; text-align: center; cursor:pointer; background:rgba(16,185,129,0.1); color:#10b981; font-weight:900; height: 55px; border-radius: 10px; font-size: 0.95rem !important; letter-spacing: 1px; min-width: 110px;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=Math.round(r); if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
+                                <label class="label" style="display:flex; align-items:center; gap:5px; color:#fbbf24 !important; font-size:1.15rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">⚖️ الصرف</label>
+                                <input type="number" class="form-input" id="exchange-rate" value="1" placeholder="الصرف" readonly style="flex: 2; text-align: center; cursor:pointer; background:rgba(16,185,129,0.12); color:#10b981; font-weight:900; height: 55px; border-radius: 10px; font-size: 1.65rem !important; letter-spacing: 1px; min-width: 130px; width: 100%; border: 1.5px solid rgba(16,185,129,0.4); box-shadow: 0 0 12px rgba(16,185,129,0.25);" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=Math.round(r); if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
                             </div>
                             <div style="display: flex; align-items: center; gap: 10px; position: relative;">
                                 <label id="label-box-2" class="label" style="display:flex; align-items:center; gap:5px; color:#cbd5e1 !important; font-size:1.1rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">💵 القيمة (أجنبي)</label>
