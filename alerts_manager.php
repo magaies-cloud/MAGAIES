@@ -1,7 +1,7 @@
 <?php
 // ====================================================================
-// نظام Al-Sajana Smart ERP 2026 - مصفوفة الرقابة والتنبيهات الشاملة V6
-// منظومة رقابية متكاملة من 46 قاعدة تنبيه تفصيلية لكافة شاشات النظام
+// نظام Al-Sajana Smart ERP 2026 - مصفوفة الرقابة والتنبيهات الشاملة V7
+// منظومة رقابية استراتيجية متكاملة تضم 64 قاعدة تنبيه ومنع احتيال وحظر حذف
 // ====================================================================
 $page_title = 'مصفوفة الرقابة وإدارة التنبيهات العالمية';
 $header_theme_class = 'header-theme-alarm';
@@ -61,13 +61,313 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
 
         $allRules = [
             [
+                'rule_key' => 'master_selling_below_cost',
+                'rule_name' => 'تسجيل سعر بيع افتراضي أقل من التكلفة في بطاقة الصنف',
+                'screen_name' => 'البيانات الأساسية وتعاريف الأصناف',
+                'screen_file' => 'master-data.php',
+                'category' => 'MASTER',
+                'alert_preview' => '⚠️ تنبيه تسعير: سعر البيع الافتراضي المسجل في بطاقة الصنف يقل عن سعر التكلفة/الشراء المعتمد!',
+                'description' => 'يراقب بطاقات الأصناف عند إدخالها أو تعديلها وينبه فوراً إذا كان سعر البيع أقل من التكلفة لتفادي الخسائر الأولية.',
+                'warn_label' => 'الحد الأدنى للتكلفة المسموح به',
+                'crit_label' => 'حد الخسارة الحرج بالصنف',
+                'is_enabled' => 1,
+                'warning_threshold' => 1,
+                'critical_threshold' => 1,
+                'unit' => 'صنف',
+            ],
+            [
+                'rule_key' => 'master_missing_stock_limits',
+                'rule_name' => 'أصناف مسجلة بدون تحديد الحد الأدنى والأعلى وحد الطلب',
+                'screen_name' => 'بطاقة الصنف والبيانات الأساسية',
+                'screen_file' => 'master-data.php / inventory-report.php',
+                'category' => 'MASTER',
+                'alert_preview' => '⚠️ تنبيه رقابي: صنف مسجل في النظام دون تحديد حدود الأمان المخزني (الحد الأدنى والأعلى وحد الطلب)!',
+                'description' => 'يحصر الأصناف التي تفتقر لإعدادات حدود المخزون لإلزام مسؤول المستودع بضبط مستويات التخزين الآمنة.',
+                'warn_label' => 'عدد الأصناف التحذيري بدون حدود',
+                'crit_label' => 'الحد الحرج للأصناف غير المعرفة',
+                'is_enabled' => 1,
+                'warning_threshold' => 5,
+                'critical_threshold' => 20,
+                'unit' => 'صنف',
+            ],
+            [
+                'rule_key' => 'master_duplicate_barcode_name',
+                'rule_name' => 'تكرار الباركود أو اسم الصنف التجاري في بطاقات أخرى',
+                'screen_name' => 'البيانات الأساسية والباركود',
+                'screen_file' => 'master-data.php',
+                'category' => 'MASTER',
+                'alert_preview' => '🚨 تكرار باركود: هذا الباركود أو الاسم مسجل مسبقاً لصنف آخر ويجب تعديله منعاً للتضارب!',
+                'description' => 'منع وتنبيه استخدام نفس الباركود الدولي أو الاسم لأكثر من صنف لتفادي الخلط في الفواتير والجرد.',
+                'warn_label' => 'عدد مرات التكرار التحذيرية',
+                'crit_label' => 'حد الحظر الفوري التام',
+                'is_enabled' => 1,
+                'warning_threshold' => 1,
+                'critical_threshold' => 1,
+                'unit' => 'تكرار',
+            ],
+            [
+                'rule_key' => 'master_cust_no_credit_limit',
+                'rule_name' => 'عملاء آجلون مسجلون دون سقف ائتماني أو فترة سماح معتمدة',
+                'screen_name' => 'بطاقة العملاء والبيانات الأساسية',
+                'screen_file' => 'master-data.php / credit_limits_dashboard.php',
+                'category' => 'MASTER',
+                'alert_preview' => '⚠️ تنبيه ائتمان: حساب عميل آجل مفتوح دون تحديد سقف مديونية أو فترة سماح معتمدة من الإدارة المالية!',
+                'description' => 'ينبه عند إنشاء أو تعديل بطاقة عميل آجل دون اعتماد سقف ائتماني محدد لتفادي فتح مديونيات عشوائية.',
+                'warn_label' => 'عدد الحسابات التحذيري',
+                'crit_label' => 'الحد الحرج للحسابات المفتوحة',
+                'is_enabled' => 1,
+                'warning_threshold' => 3,
+                'critical_threshold' => 10,
+                'unit' => 'عميل',
+            ],
+            [
+                'rule_key' => 'master_missing_tax_id',
+                'rule_name' => 'غياب الرقم الضريبي للمؤسسات والشركات التجارية (B2B)',
+                'screen_name' => 'بيانات العملاء والموردين الأساسية',
+                'screen_file' => 'master-data.php',
+                'category' => 'MASTER',
+                'alert_preview' => '⚠️ تنبيه ضريبي: عميل/مورد تجاري مسجل دون إدخال الرقم الضريبي المعتمد للفوترة الإلكترونية!',
+                'description' => 'يراقب اكتمال البيانات الضريبية للشركات لضمان الامتثال للوائح الفوترة الإلكترونية والضريبة المضافة.',
+                'warn_label' => 'عدد السجلات بدون رقم ضريبي',
+                'crit_label' => 'الحد الحرج للإلزام الضريبي',
+                'is_enabled' => 1,
+                'warning_threshold' => 5,
+                'critical_threshold' => 15,
+                'unit' => 'سجل',
+            ],
+            [
+                'rule_key' => 'master_safe_unassigned_users',
+                'rule_name' => 'خزائن أو بنوك غير مخصصة لأمناء عهدة ومستخدمين محددين',
+                'screen_name' => 'تعريفات الخزائن والحسابات المصرفية',
+                'screen_file' => 'master-data.php / settings.php',
+                'category' => 'MASTER',
+                'alert_preview' => '🚨 تنبيه أمني: خزينة أو صندوق نقد غير مربوط بمستخدمين محددين ومتاح للصرف من أي مستخدم!',
+                'description' => 'يمنع فتح الصرف من الخزائن لغير الأمناء المعينين رسمياً لتحديد المسؤولية المالية بدقة.',
+                'warn_label' => 'عدد الخزائن المفتوحة',
+                'crit_label' => 'حد الخطر الأمني الحرج',
+                'is_enabled' => 1,
+                'warning_threshold' => 1,
+                'critical_threshold' => 1,
+                'unit' => 'خزينة',
+            ],
+            [
+                'rule_key' => 'inv_ai_anomaly_fast_surge',
+                'rule_name' => 'سحب وسرعة دوران فجائية غير معتادة على الصنف (سحب مريب)',
+                'screen_name' => 'المخزون الذكي وتحليلات حركة الأصناف',
+                'screen_file' => 'smart_inventory_report.php / inventory-report.php',
+                'category' => 'INVENTORY',
+                'alert_preview' => '🚀 تنبيه ذكي: صنف يشهد سحباً فجائياً متسارعاً غير معتاد! يرجى مراجعة صحة التسعير وأمر التوريد.',
+                'description' => 'خوارزمية ذكية ترصد الأصناف التي تشهد قفزة غير مبررة في المبيعات لاكتشاف أخطاء التسعير أو طلبات التوريد الاستباقية.',
+                'warn_label' => 'نسبة القفزة التحذيرية في السحب',
+                'crit_label' => 'نسبة القفزة الحرجة للمراجعة العاجلة',
+                'is_enabled' => 1,
+                'warning_threshold' => 150,
+                'critical_threshold' => 300,
+                'unit' => '%',
+            ],
+            [
+                'rule_key' => 'inv_ai_deadstock_capital_freeze',
+                'rule_name' => 'ركود البضائع وتجميد رأس المال في المخزن (Deadstock Capital)',
+                'screen_name' => 'المخزون الذكي وتحليل رأس المال المجمد',
+                'screen_file' => 'smart_inventory_report.php',
+                'category' => 'INVENTORY',
+                'alert_preview' => '⚠️ تنبيه سيولة وركود: بضائع راكدة تجمد رأس مال في المخزن دون حركة بيع وتتطلب تسييلاً عاجلاً!',
+                'description' => 'يحسب القيمة المالية المجمدة في الأصناف التي لم تتحرك لأكثر من الفترة المحددة ويقترح عروض ترويجية لتصريفها.',
+                'warn_label' => 'أيام الركود التحذيرية',
+                'crit_label' => 'أيام الركود الحرجة للتسييل',
+                'is_enabled' => 1,
+                'warning_threshold' => 60,
+                'critical_threshold' => 120,
+                'unit' => 'يوم',
+            ],
+            [
+                'rule_key' => 'inv_low_stock',
+                'rule_name' => 'الحد الأدنى للأصناف ونقطة إعادة الطلب (Reorder Point)',
+                'screen_name' => 'تقرير وإدارة المخزون والمستودعات',
+                'screen_file' => 'inventory-report.php / smart_inventory_report.php',
+                'category' => 'INVENTORY',
+                'alert_preview' => '⚠️ تنبيه مخزني: رصيد الصنف وصل إلى حد الطلب الأدنى ويجب بدء إجراءات التوريد!',
+                'description' => 'إشعار مبكر ومستمر للأصناف التي اقترب رصيدها من النفاد لإصدار طلبات شراء قبل توقف المبيعات.',
+                'warn_label' => 'الحد الأدنى الآمن للطلب',
+                'crit_label' => 'الحد الأدنى الحرج وشيك النفاد',
+                'is_enabled' => 1,
+                'warning_threshold' => 10,
+                'critical_threshold' => 5,
+                'unit' => 'كمية',
+            ],
+            [
+                'rule_key' => 'inv_critical_zero_stock',
+                'rule_name' => 'النفاد التام لرصيد الصنف بالمستودع (Zero Stock)',
+                'screen_name' => 'حركة المخزون والعنابر',
+                'screen_file' => 'inventory-report.php',
+                'category' => 'INVENTORY',
+                'alert_preview' => '🚨 إنذار نفاد كامل: رصيد الصنف أصبح صفراً (0 وحدة) في جميع العنابر والمستودعات!',
+                'description' => 'إنذار حرج يعلن نفاد الصنف تماماً لمنع ضياع فرص البيع وتوجيه مسؤولي التوريد بسرعة تأمينه.',
+                'warn_label' => 'حد الخطر الوشيك للكمية',
+                'crit_label' => 'حد النفاد التام الحرج (صفر)',
+                'is_enabled' => 1,
+                'warning_threshold' => 3,
+                'critical_threshold' => 0,
+                'unit' => 'كمية',
+            ],
+            [
+                'rule_key' => 'inv_overstock_capacity',
+                'rule_name' => 'تجاوز الحد الأعلى للمخزون وسعة التخزين (Max Overstock)',
+                'screen_name' => 'المخزون الذكي ومراقبة السعة',
+                'screen_file' => 'smart_inventory_report.php',
+                'category' => 'INVENTORY',
+                'alert_preview' => '⚠️ تنبيه فائض مخزني: كمية الصنف تجاوزت السقف الأعلى للتخزين وتتسبب في تجميد السيولة!',
+                'description' => 'ينبه عند تكدس كميات كبيرة من الصنف تفوق الطاقة الاستيعابية للتخزين أو تؤدي لتجميد السيولة النقدية.',
+                'warn_label' => 'الحد الأعلى لسعة التخزين',
+                'crit_label' => 'الحد الأقصى الحرج للتكدس',
+                'is_enabled' => 1,
+                'warning_threshold' => 300,
+                'critical_threshold' => 500,
+                'unit' => 'وحدة',
+            ],
+            [
+                'rule_key' => 'inv_drop_in_turnover',
+                'rule_name' => 'انخفاض حاد في معدل دوران وسحب الصنف الرئيسي',
+                'screen_name' => 'تحليلات دوران المخزون والربحية',
+                'screen_file' => 'inventory-report.php / smart_inventory_report.php',
+                'category' => 'INVENTORY',
+                'alert_preview' => '⚠️ تنبيه مبيعات: انخفاض حاد في سحب صنف رئيسي مقارنة بالأشهر السابقة يستوجب مراجعة المنافسين!',
+                'description' => 'يرصد هبوط حركة سحب الأصناف الاستراتيجية الأكثر مبيعاً لمراجعة الأسعار والتسويق.',
+                'warn_label' => 'نسبة الهبوط التحذيرية في السحب',
+                'crit_label' => 'نسبة الهبوط الحرجة في المبيعات',
+                'is_enabled' => 1,
+                'warning_threshold' => 30,
+                'critical_threshold' => 60,
+                'unit' => '%',
+            ],
+            [
+                'rule_key' => 'inv_slow_moving',
+                'rule_name' => 'أصناف بطيئة الحركة وضعيفة السحب التجاري',
+                'screen_name' => 'تحليل المخزون ومعدل الدوران',
+                'screen_file' => 'smart_inventory_report.php',
+                'category' => 'INVENTORY',
+                'alert_preview' => '⚠️ تنبيه بطء دوران: معدل سحب الصنف ضعيف جداً ويتطلب عروض ترويجية أو مراجعة التسعير!',
+                'description' => 'ينبه بالأصناف التي انخفض معدل دورانها التجاري لمراجعة تسعيرها وتنشيط مبيعاتها.',
+                'warn_label' => 'أيام ضعف السحب التحذيرية',
+                'crit_label' => 'أيام الجمود التجاري الحرجة',
+                'is_enabled' => 1,
+                'warning_threshold' => 45,
+                'critical_threshold' => 90,
+                'unit' => 'يوم',
+            ],
+            [
+                'rule_key' => 'inv_expiring_soon',
+                'rule_name' => 'قرب انتهاء تاريخ الصلاحية للأصناف المخزنة',
+                'screen_name' => 'إدارة تواريخ الصلاحية والمخازن',
+                'screen_file' => 'inventory-report.php',
+                'category' => 'INVENTORY',
+                'alert_preview' => '🚨 إنذار صلاحية: أصناف تقترب فترة صلاحيتها من الانتهاء ويجب إعادتها للمورد أو تصريفها!',
+                'description' => 'متابعة دورية لتفادي تلف المنتجات ذات الصلاحية بإنذار مبكر قبل تاريخ الانتهاء بمدة كافية.',
+                'warn_label' => 'أيام الصلاحية التحذيرية المتبقية',
+                'crit_label' => 'أيام الصلاحية الحرجة للوقف',
+                'is_enabled' => 1,
+                'warning_threshold' => 60,
+                'critical_threshold' => 30,
+                'unit' => 'يوم',
+            ],
+            [
+                'rule_key' => 'inv_stocktake_variance',
+                'rule_name' => 'وجود فروقات وعجز بين الجرد الفعلي والدفتري',
+                'screen_name' => 'تسويات وجرد المخازن السنوية والدورية',
+                'screen_file' => 'inventory-report.php',
+                'category' => 'INVENTORY',
+                'alert_preview' => '🚨 تنبيه جرد: تباين غير مطابق بين الجرد الفعلي على الرفوف والرصيد الدفتري المسجل!',
+                'description' => 'يكشف التباين والعجز بين كميات الجرد الفعلي بالمخازن والرصيد المحاسبي بالنظام لاتخاذ إجراء فوري.',
+                'warn_label' => 'نسبة التباين التحذيرية المقبولة',
+                'crit_label' => 'نسبة العجز الحرجة للتحقيق',
+                'is_enabled' => 1,
+                'warning_threshold' => 1,
+                'critical_threshold' => 5,
+                'unit' => '%',
+            ],
+            [
+                'rule_key' => 'inv_negative_stock_balance',
+                'rule_name' => 'وجود أرصدة كميات سالبة في أي عنبر أو مستودع',
+                'screen_name' => 'حركة المخزون وتقارير العنابر',
+                'screen_file' => 'inventory-report.php',
+                'category' => 'INVENTORY',
+                'alert_preview' => '🚨 خطر مخزني: رصد كميات سالبة في المستودع تتطلب تسوية جردية فورية لمنع تشويه التكلفة!',
+                'description' => 'يكشف أي صنف أصبح رصيده سالباً نتيجة عمليات صرف سابقة دون تسجيل فواتير الشراء المقابلة.',
+                'warn_label' => 'الرصيد السالب التحذيري',
+                'crit_label' => 'الحد الحرج للإيقاف',
+                'is_enabled' => 1,
+                'warning_threshold' => 0,
+                'critical_threshold' => 0,
+                'unit' => 'وحدة',
+            ],
+            [
+                'rule_key' => 'inv_damaged_items_threshold',
+                'rule_name' => 'ارتفاع نسبة التوالف والهالك المخزني عن الحد المسموح',
+                'screen_name' => 'محاضر التوالف والهالك بالمستودع',
+                'screen_file' => 'inventory-report.php',
+                'category' => 'INVENTORY',
+                'alert_preview' => '⚠️ تنبيه توالف: نسبة البضائع التالفة والهالكة في المخزن تجاوزت النسبة المعيارية المعتمدة!',
+                'description' => 'يراقب محاضر الهالك والتوالف وينبه عند تجاوزها نسبة الفاقد الطبيعي المعتمدة للنشاط.',
+                'warn_label' => 'نسبة التوالف التحذيرية',
+                'crit_label' => 'نسبة التوالف الحرجة للتحقيق',
+                'is_enabled' => 1,
+                'warning_threshold' => 1,
+                'critical_threshold' => 3,
+                'unit' => '%',
+            ],
+            [
+                'rule_key' => 'inv_unsettled_transfer_vouchers',
+                'rule_name' => 'سندات مناقلة بضاعة بين المخازن معلقة دون تأكيد الاستلام',
+                'screen_name' => 'المناقلات والتحويلات بين الفروع والمخازن',
+                'screen_file' => 'inventory-report.php / master-data.php',
+                'category' => 'INVENTORY',
+                'alert_preview' => '⚠️ تنبيه مناقلة: بضائع تم تحويلها بين المستودعات ولم يتم تأكيد استلامها في المستودع المستلم!',
+                'description' => 'يراقب البضائع في الطريق بين الفروع والمستودعات لمنع ضياعها أو تأخر إثباتها دفترياً.',
+                'warn_label' => 'أيام التعليق التحذيرية في الطريق',
+                'crit_label' => 'أيام التعليق الحرجة للتحقيق',
+                'is_enabled' => 1,
+                'warning_threshold' => 2,
+                'critical_threshold' => 5,
+                'unit' => 'يوم',
+            ],
+            [
+                'rule_key' => 'inv_min_profit_margin_breach',
+                'rule_name' => 'انخفاض متوسط هامش ربح الصنف عن النسبة المستهدفة',
+                'screen_name' => 'تقارير ربحية الأصناف',
+                'screen_file' => 'smart_inventory_report.php',
+                'category' => 'INVENTORY',
+                'alert_preview' => '⚠️ تنبيه ربحية: متوسط هامش الربح المحقق على الصنف أقل من النسبة المستهدفة للنشاط!',
+                'description' => 'يحسب ربحية مبيعات كل صنف وينبه عند تدني هامش ربحه الفعلي عن المستهدف.',
+                'warn_label' => 'أدنى هامش ربح مقبول',
+                'crit_label' => 'هامش الربح الحرج الخاسر',
+                'is_enabled' => 1,
+                'warning_threshold' => 10,
+                'critical_threshold' => 3,
+                'unit' => '%',
+            ],
+            [
+                'rule_key' => 'inv_unmoved_seasonal_stock',
+                'rule_name' => 'بضائع موسمية لم يتم تصريفها مع قرب انتهاء موسمها',
+                'screen_name' => 'المخزون الموسمي والتحليلات',
+                'screen_file' => 'smart_inventory_report.php',
+                'category' => 'INVENTORY',
+                'alert_preview' => '⚠️ تنبيه موسمي: مخزون بضائع موسمية متبقٍ بكميات كبيرة مع اقتراب نهاية الموسم التجاري!',
+                'description' => 'تنبيه استباقي لتصريف البضائع الموسمية بخصومات ترويجية قبل انتهاء موسم رواجها.',
+                'warn_label' => 'أيام التنبيه قبل نهاية الموسم',
+                'crit_label' => 'أيام الخطر الحرج للتكدس الموسمي',
+                'is_enabled' => 1,
+                'warning_threshold' => 30,
+                'critical_threshold' => 15,
+                'unit' => 'يوم',
+            ],
+            [
                 'rule_key' => 'sales_below_cost',
-                'rule_name' => 'البيع بأقل من سعر التكلفة أو سعر الشراء (WAC)',
+                'rule_name' => 'البيع بأقل من سعر التكلفة المرجحة أو سعر الشراء (WAC)',
                 'screen_name' => 'شاشة المبيعات المباشرة وفواتير البيع',
                 'screen_file' => 'direct-sales.php / sales.php',
                 'category' => 'SALES',
                 'alert_preview' => '⚠️ تنبيه رقابي في شاشة المبيعات: سعر بيع الصنف أقل من سعر التكلفة/الشراء المعتمد!',
-                'description' => 'يراقب سعر البيع المدخل في الفاتورة لحظياً، وإذا كان أقل من متوسط تكلفة الصنف أو سعر شرائه يظهر تنبيه فوري لمنع الخسائر.',
+                'description' => 'يراقب سعر البيع المدخل في الفاتورة لحظياً، وإذا كان أقل من متوسط تكلفة الصنف يظهر تنبيه فوري لمنع الخسائر.',
                 'warn_label' => 'الحد الأدنى المسموح للتكلفة',
                 'crit_label' => 'حد الخسارة الحرج للعمليات',
                 'is_enabled' => 1,
@@ -77,7 +377,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
             ],
             [
                 'rule_key' => 'sales_price_override',
-                'rule_name' => 'تعديل وتغيير سعر البيع المسجل للصنف يدوياً',
+                'rule_name' => 'تعديل وتغيير سعر البيع المسجل للصنف يدوياً بالفاتورة',
                 'screen_name' => 'شاشات المبيعات والكاشير ونقاط البيع',
                 'screen_file' => 'direct-sales.php / pos-invoice-print.php',
                 'category' => 'SALES',
@@ -196,21 +496,6 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'unit' => 'فاتورة',
             ],
             [
-                'rule_key' => 'sales_blocked_customer',
-                'rule_name' => 'محاولة البيع لعميل محظور أو موقوف إدارياً',
-                'screen_name' => 'شاشات المبيعات وإصدار الفواتير',
-                'screen_file' => 'direct-sales.php / sales.php',
-                'category' => 'SALES',
-                'alert_preview' => '🚫 حظر مبيعات: هذا العميل موقوف ومحظور التعامل معه بموجب قرار الإدارة المالية!',
-                'description' => 'يحظر إصدار أي فاتورة أو سند بيع لعميل تم وضع علامة إيقاف أو تجميد في بطاقة حسابه.',
-                'warn_label' => 'عدد محاولات الاختراق',
-                'crit_label' => 'حد الحظر الفوري التام',
-                'is_enabled' => 1,
-                'warning_threshold' => 1,
-                'critical_threshold' => 1,
-                'unit' => 'محاولة',
-            ],
-            [
                 'rule_key' => 'sales_margin_danger',
                 'rule_name' => 'تدني هامش الربح الإجمالي للفاتورة عن الحد الآمن',
                 'screen_name' => 'المبيعات والفوترة المتقدمة',
@@ -226,56 +511,11 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'unit' => '%',
             ],
             [
-                'rule_key' => 'inv_low_stock',
-                'rule_name' => 'الحد الأدنى للأصناف ونقطة إعادة الطلب (Reorder Point)',
-                'screen_name' => 'تقرير وإدارة المخزون والمستودعات',
-                'screen_file' => 'inventory-report.php / smart_inventory_report.php',
-                'category' => 'INVENTORY',
-                'alert_preview' => '⚠️ تنبيه مخزني: رصيد الصنف وصل إلى حد الطلب الأدنى ويجب بدء إجراءات التوريد!',
-                'description' => 'إشعار مبكر ومستمر للأصناف التي اقترب رصيدها من النفاد لإصدار طلبات شراء قبل توقف المبيعات.',
-                'warn_label' => 'الحد الأدنى الآمن للطلب',
-                'crit_label' => 'الحد الأدنى الحرج وشيك النفاد',
-                'is_enabled' => 1,
-                'warning_threshold' => 10,
-                'critical_threshold' => 5,
-                'unit' => 'كمية',
-            ],
-            [
-                'rule_key' => 'inv_critical_zero_stock',
-                'rule_name' => 'النفاد التام لرصيد الصنف بالمستودع (Zero Stock)',
-                'screen_name' => 'حركة المخزون والعنابر',
-                'screen_file' => 'inventory-report.php',
-                'category' => 'INVENTORY',
-                'alert_preview' => '🚨 إنذار نفاد كامل: رصيد الصنف أصبح صفراً (0 وحدة) في جميع العنابر والمستودعات!',
-                'description' => 'إنذار حرج يعلن نفاد الصنف تماماً لمنع ضياع فرص البيع وتوجيه مسؤولي التوريد بسرعة تأمينه.',
-                'warn_label' => 'حد الخطر الوشيك للكمية',
-                'crit_label' => 'حد النفاد التام الحرج (صفر)',
-                'is_enabled' => 1,
-                'warning_threshold' => 3,
-                'critical_threshold' => 0,
-                'unit' => 'كمية',
-            ],
-            [
-                'rule_key' => 'inv_overstock_capacity',
-                'rule_name' => 'تجاوز الحد الأعلى للمخزون (Max Stock / Overstock)',
-                'screen_name' => 'المخزون الذكي ومراقبة السعة',
-                'screen_file' => 'smart_inventory_report.php',
-                'category' => 'INVENTORY',
-                'alert_preview' => '⚠️ تنبيه فائض مخزني: كمية الصنف تجاوزت السقف الأعلى للتخزين وتتسبب في تجميد السيولة!',
-                'description' => 'ينبه عند تكدس كميات كبيرة من الصنف تفوق الطاقة الاستيعابية للتخزين أو تؤدي لتجميد السيولة النقدية.',
-                'warn_label' => 'الحد الأعلى لسعة التخزين',
-                'crit_label' => 'الحد الأقصى الحرج للتكدس',
-                'is_enabled' => 1,
-                'warning_threshold' => 300,
-                'critical_threshold' => 500,
-                'unit' => 'وحدة',
-            ],
-            [
                 'rule_key' => 'pur_price_hike_alert',
-                'rule_name' => 'ارتفاع سعر الشراء عن آخر توريد مسجل من المورد',
+                'rule_name' => 'ارتفاع سعر الشراء عن آخر توريد مسجل من المورد أو المصنع',
                 'screen_name' => 'شاشة المشتريات وفواتير التوريد والمصانع',
                 'screen_file' => 'purchase.php / purchase-order.php',
-                'category' => 'INVENTORY',
+                'category' => 'PURCHASE',
                 'alert_preview' => '⚠️ تنبيه تكلفة: سعر شراء الصنف في هذه الفاتورة أعلى من آخر سعر شراء سابق مسجل بالنظام!',
                 'description' => 'يقارن سعر الشراء المدخل بآخر سعر شراء مسجل لنفس الصنف وينبه الإدارة بنسبة الزيادة السعرية.',
                 'warn_label' => 'نسبة الزيادة السعرية التحذيرية',
@@ -290,7 +530,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'rule_name' => 'فروقات الكميات المستلمة بين أمر الشراء وفاتورة التوريد',
                 'screen_name' => 'استلام البضائع وأوامر الشراء',
                 'screen_file' => 'purchase-order.php / purchase.php',
-                'category' => 'INVENTORY',
+                'category' => 'PURCHASE',
                 'alert_preview' => '⚠️ تنبيه استلام: الكمية المستلمة في فاتورة الشراء تختلف عن الكمية المتفق عليها بأمر الشراء!',
                 'description' => 'يكشف أي تباين بالزيادة أو النقصان بين الكميات المعتمدة بأمر الشراء والكمية الفعلية الموردة.',
                 'warn_label' => 'نسبة التباين التحذيرية المسموحة',
@@ -301,11 +541,26 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'unit' => '%',
             ],
             [
+                'rule_key' => 'supply_supplier_delay',
+                'rule_name' => 'تأخر استلام طلبيات الشراء من الموردين والمصانع عن موعدها',
+                'screen_name' => 'المشتريات ومتابعة أوامر التوريد',
+                'screen_file' => 'purchase.php / purchase-order.php',
+                'category' => 'PURCHASE',
+                'alert_preview' => '⚠️ تنبيه توريد: أمر الشراء تجاوز فترة التوريد المتوقعة دون وصول البضاعة من المصنع!',
+                'description' => 'مراقبة أوامر الشراء المعلقة التي تجاوزت موعد التسليم المحدد ($Lead Time$) دون توريد.',
+                'warn_label' => 'أيام التأخر التحذيرية',
+                'crit_label' => 'أيام التأخر الحرجة للمورد',
+                'is_enabled' => 1,
+                'warning_threshold' => 7,
+                'critical_threshold' => 14,
+                'unit' => 'يوم',
+            ],
+            [
                 'rule_key' => 'pur_unsettled_advances',
-                'rule_name' => 'دفعات مقدمة للموردين معلقة لفترة طويلة دون استلام بضاعة',
+                'rule_name' => 'دفعات نقدية مقدمة للموردين معلقة لفترة طويلة دون استلام بضاعة',
                 'screen_name' => 'حسابات الموردين والدفعات المقدمة',
                 'screen_file' => 'purchase.php / single-cash-payment.php',
-                'category' => 'INVENTORY',
+                'category' => 'PURCHASE',
                 'alert_preview' => '⚠️ تنبيه مالي: توجد مبالغ مدفوعة مقدماً لموردين تجاوزت المدة المتفق عليها دون توريد بضاعة!',
                 'description' => 'يراقب الدفعات النقدية المقدمة للمصانع والموردين وينبه إذا تأخر توريد البضاعة المقابلة لها.',
                 'warn_label' => 'أيام التعليق التحذيرية',
@@ -316,93 +571,33 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'unit' => 'يوم',
             ],
             [
-                'rule_key' => 'inv_deadstock',
-                'rule_name' => 'ركود البضاعة وجمود حركة الأصناف (Deadstock)',
-                'screen_name' => 'المخزون الذكي والأصناف الراكدة',
-                'screen_file' => 'smart_inventory_report.php',
-                'category' => 'INVENTORY',
-                'alert_preview' => '⚠️ تنبيه ركود: بضاعة راكدة في المخزن لفترة طويلة دون حركة بيع وتتطلب تصريفاً عاجلاً!',
-                'description' => 'يكشف الأصناف التي ظلت مخزنة لفترات طويلة دون أي حركة سحب بيعية لتفادي تلفها وتقادمها.',
-                'warn_label' => 'أيام الركود التحذيرية',
-                'crit_label' => 'أيام الركود الحرجة للتصريف',
+                'rule_key' => 'pur_monthly_budget_cap',
+                'rule_name' => 'تجاوز سقف الموازنة التقديرية الشهرية لمشتريات المنشأة',
+                'screen_name' => 'الموازنات التقديرية والمشتريات',
+                'screen_file' => 'purchase.php / cashflow_modern.php',
+                'category' => 'PURCHASE',
+                'alert_preview' => '⚠️ تنبيه موازنة: إجمالي فواتير المشتريات لهذا الشهر اقترب من تجاوز سقف الموازنة المعتمد!',
+                'description' => 'يحسب تراكم مشتريات الشهر وينبه الإدارة عند الوصول إلى السقف المالي المحدد للمشتريات.',
+                'warn_label' => 'نسبة استهلاك الموازنة التحذيرية',
+                'crit_label' => 'نسبة تجاوز الموازنة الحرجة',
                 'is_enabled' => 1,
-                'warning_threshold' => 60,
-                'critical_threshold' => 120,
-                'unit' => 'يوم',
-            ],
-            [
-                'rule_key' => 'inv_fast_moving_surge',
-                'rule_name' => 'سحب وسرعة دوران عالية غير معتادة على الصنف (سحب سريع)',
-                'screen_name' => 'تحليلات حركة المخازن وسرعة الدوران',
-                'screen_file' => 'inventory-report.php',
-                'category' => 'INVENTORY',
-                'alert_preview' => '🚀 تنبيه سحب سريع: الصنف يشهد إقبالاً وسحباً متسارعاً غير مسبوق ويتطلب طلباً استباقياً!',
-                'description' => 'خوارزمية ذكية ترصد الأصناف ذات السحب البيعي الفجائي المتسارع لإرسال طلب توريد قبل نفادها المفاجئ.',
-                'warn_label' => 'نسبة تسارع السحب التحذيرية',
-                'crit_label' => 'نسبة السحب القصوى الاستثنائية',
-                'is_enabled' => 1,
-                'warning_threshold' => 150,
-                'critical_threshold' => 250,
+                'warning_threshold' => 85,
+                'critical_threshold' => 100,
                 'unit' => '%',
             ],
             [
-                'rule_key' => 'inv_slow_moving',
-                'rule_name' => 'أصناف بطيئة الحركة وضعيفة السحب التجاري',
-                'screen_name' => 'تحليل المخزون ومعدل الدوران',
-                'screen_file' => 'smart_inventory_report.php',
-                'category' => 'INVENTORY',
-                'alert_preview' => '⚠️ تنبيه بطء دوران: معدل سحب الصنف ضعيف جداً ويتطلب عروض ترويجية أو مراجعة التسعير!',
-                'description' => 'ينبه بالأصناف التي انخفض معدل دورانها التجاري لمراجعة تسعيرها وتنشيط مبيعاتها.',
-                'warn_label' => 'أيام ضعف السحب التحذيرية',
-                'crit_label' => 'أيام الجمود التجاري الحرجة',
+                'rule_key' => 'supplier_overdue_balance',
+                'rule_name' => 'مستحقات متأخرة لمورد تجاوزت تاريخ الاستحقاق المعتمد',
+                'screen_name' => 'حسابات الموردين والمشتريات والمصانع',
+                'screen_file' => 'purchase.php / master-data.php',
+                'category' => 'PURCHASE',
+                'alert_preview' => '⚠️ تنبيه موردين: مستحقات متأخرة لمورد تجاوزت تاريخ السداد المعتمد وتستوجب الصرف!',
+                'description' => 'تنبيه بالأرصدة الدائنة للموردين التي تجاوزت فترة السداد المتفق عليها لتفادي وقف التوريد والمصانع.',
+                'warn_label' => 'أيام التأخر التحذيرية للسداد',
+                'crit_label' => 'أيام التأخر الحرجة لوقف التوريد',
                 'is_enabled' => 1,
-                'warning_threshold' => 45,
-                'critical_threshold' => 90,
-                'unit' => 'يوم',
-            ],
-            [
-                'rule_key' => 'inv_expiring_soon',
-                'rule_name' => 'قرب انتهاء تاريخ الصلاحية للأصناف المخزنة',
-                'screen_name' => 'إدارة تواريخ الصلاحية والمخازن',
-                'screen_file' => 'inventory-report.php',
-                'category' => 'INVENTORY',
-                'alert_preview' => '🚨 إنذار صلاحية: أصناف تقترب فترة صلاحيتها من الانتهاء ويجب إعادتها للمورد أو تصريفها!',
-                'description' => 'متابعة دورية لتفادي تلف المنتجات ذات الصلاحية بإنذار مبكر قبل تاريخ الانتهاء بمدة كافية.',
-                'warn_label' => 'أيام الصلاحية التحذيرية المتبقية',
-                'crit_label' => 'أيام الصلاحية الحرجة للوقف',
-                'is_enabled' => 1,
-                'warning_threshold' => 60,
-                'critical_threshold' => 30,
-                'unit' => 'يوم',
-            ],
-            [
-                'rule_key' => 'inv_stocktake_variance',
-                'rule_name' => 'وجود فروقات وعجز بين الجرد الفعلي والدفتري',
-                'screen_name' => 'تسويات وجرد المخازن السنوية والدورية',
-                'screen_file' => 'inventory-report.php',
-                'category' => 'INVENTORY',
-                'alert_preview' => '🚨 تنبيه جرد: تباين غير مطابق بين الجرد الفعلي على الرفوف والرصيد الدفتري المسجل!',
-                'description' => 'يكشف التباين والعجز بين كميات الجرد الفعلي بالمخازن والرصيد المحاسبي بالنظام لاتخاذ إجراء فوري.',
-                'warn_label' => 'نسبة التباين التحذيرية المقبولة',
-                'crit_label' => 'نسبة العجز الحرجة للتحقيق',
-                'is_enabled' => 1,
-                'warning_threshold' => 1,
-                'critical_threshold' => 5,
-                'unit' => '%',
-            ],
-            [
-                'rule_key' => 'supply_supplier_delay',
-                'rule_name' => 'تأخر استلام طلبيات الشراء من الموردين والمصانع',
-                'screen_name' => 'المشتريات ومتابعة أوامر التوريد',
-                'screen_file' => 'purchase.php / purchase-order.php',
-                'category' => 'INVENTORY',
-                'alert_preview' => '⚠️ تنبيه توريد: أمر الشراء تجاوز فترة التوريد المتوقعة دون وصول البضاعة من المصنع!',
-                'description' => 'مراقبة أوامر الشراء المعلقة التي تجاوزت موعد التسليم المحدد ($Lead Time$) دون توريد.',
-                'warn_label' => 'أيام التأخر التحذيرية',
-                'crit_label' => 'أيام التأخر الحرجة للمورد',
-                'is_enabled' => 1,
-                'warning_threshold' => 7,
-                'critical_threshold' => 14,
+                'warning_threshold' => 30,
+                'critical_threshold' => 60,
                 'unit' => 'يوم',
             ],
             [
@@ -556,21 +751,6 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'unit' => 'أيام مقبلة',
             ],
             [
-                'rule_key' => 'fin_fx_rate_discrepancy',
-                'rule_name' => 'تباين سعر الصرف المستخدم بالسند عن سعر النظام',
-                'screen_name' => 'سندات العملات الأجنبية والصرف المالي',
-                'screen_file' => 'single-cash-payment.php / multi-cash-payment.php',
-                'category' => 'FINANCE',
-                'alert_preview' => '⚠️ تنبيه صرف: سعر الصرف المدخل بالسند يختلف بنسبة غير طبيعية عن سعر الصرف العام للنظام!',
-                'description' => 'تنبيه عند تسجيل سند مالي بسعر صرف يختلف بنسبة تتجاوز الحد المسموح عن سعر النظام المعتمد.',
-                'warn_label' => 'نسبة التباين التحذيرية المسموحة',
-                'crit_label' => 'نسبة التباين الحرجة للإيقاف',
-                'is_enabled' => 1,
-                'warning_threshold' => 3,
-                'critical_threshold' => 6,
-                'unit' => '%',
-            ],
-            [
                 'rule_key' => 'fin_large_cash_outflow',
                 'rule_name' => 'سندات صرف ذات مبالغ نقدية ضخمة واستثنائية',
                 'screen_name' => 'سندات الصرف المالي والمدفوعات',
@@ -631,19 +811,34 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'unit' => '%',
             ],
             [
-                'rule_key' => 'supplier_overdue_balance',
-                'rule_name' => 'مستحقات متأخرة لمورد تجاوزت تاريخ الاستحقاق',
-                'screen_name' => 'حسابات الموردين والمشتريات والمصانع',
-                'screen_file' => 'purchase.php / master-data.php',
+                'rule_key' => 'credit_debt_concentration_risk',
+                'rule_name' => 'تركز المديونية العالية في عدد محدود جداً من العملاء',
+                'screen_name' => 'انكشاف العملاء وعمق الائتمان',
+                'screen_file' => 'customer_exposure.php / credit_limits_dashboard.php',
                 'category' => 'CREDIT',
-                'alert_preview' => '⚠️ تنبيه موردين: مستحقات متأخرة لمورد تجاوزت تاريخ السداد المعتمد وتستوجب الصرف!',
-                'description' => 'تنبيه بالأرصدة الدائنة للموردين التي تجاوزت فترة السداد المتفق عليها لتفادي وقف التوريد والمصانع.',
-                'warn_label' => 'أيام التأخر التحذيرية للسداد',
-                'crit_label' => 'أيام التأخر الحرجة لوقف التوريد',
+                'alert_preview' => '⚠️ تنبيه مخاطر ائتمان: نسبة تركز ديون الشركة في عميل واحد أو عملاء قلائل تجاوزت حد الأمان!',
+                'description' => 'يقيس تركز الديون ($Debt Concentration$) لتفادي تعرض المنشأة لأزمة سيولة في حال تعثر عميل رئيسي.',
+                'warn_label' => 'نسبة تركز الدين التحذيرية بالعميل',
+                'crit_label' => 'نسبة تركز الدين الحرجة للمنشأة',
                 'is_enabled' => 1,
-                'warning_threshold' => 30,
-                'critical_threshold' => 60,
-                'unit' => 'يوم',
+                'warning_threshold' => 25,
+                'critical_threshold' => 40,
+                'unit' => '%',
+            ],
+            [
+                'rule_key' => 'sales_blocked_customer',
+                'rule_name' => 'محاولة إصدار فاتورة أو سند لعميل محظور أو موقوف إدارياً',
+                'screen_name' => 'شاشات المبيعات والائتمان وإصدار الفواتير',
+                'screen_file' => 'direct-sales.php / sales.php',
+                'category' => 'CREDIT',
+                'alert_preview' => '🚫 حظر مبيعات: هذا العميل موقوف ومحظور التعامل معه بموجب قرار الإدارة المالية!',
+                'description' => 'يحظر إصدار أي فاتورة أو سند بيع لعميل تم وضع علامة إيقاف أو تجميد في بطاقة حسابه.',
+                'warn_label' => 'عدد محاولات الاختراق',
+                'crit_label' => 'حد الحظر الفوري التام',
+                'is_enabled' => 1,
+                'warning_threshold' => 1,
+                'critical_threshold' => 1,
+                'unit' => 'محاولة',
             ],
             [
                 'rule_key' => 'audit_void_after_print',
@@ -659,6 +854,36 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'warning_threshold' => 1,
                 'critical_threshold' => 1,
                 'unit' => 'محاولة',
+            ],
+            [
+                'rule_key' => 'audit_linked_delivered_doc_block',
+                'rule_name' => 'منع وحظر حذف الفواتير المرتبطة بتسليم/استلام مخزني فعلي',
+                'screen_name' => 'شاشات الفواتير والمخازن وسندات الصرف',
+                'screen_file' => 'sales.php / purchase.php / inventory-report.php',
+                'category' => 'SECURITY',
+                'alert_preview' => '🚫 حظر أمني صارم: يُمنع منعاً باتاً حذف هذه الفاتورة لأن بضاعتها سُلمت/استُلمت مخزنياً! يجب عمل مرتجع رسمي.',
+                'description' => 'يمنع حذف أي فاتورة بيع أو شراء تم تسليم بضاعتها بالمستودع ويلزم بعمل مردودات رسمية للحفاظ على دقة الأرصدة والقيود.',
+                'warn_label' => 'محاولات الحذف الممنوعة',
+                'crit_label' => 'حد الحظر التام الصارم',
+                'is_enabled' => 1,
+                'warning_threshold' => 1,
+                'critical_threshold' => 1,
+                'unit' => 'محاولة',
+            ],
+            [
+                'rule_key' => 'audit_reprint_invoice_repetition',
+                'rule_name' => 'تكرار إعادة طباعة إيصال الفاتورة أكثر من مرة (Duplicate Reprint)',
+                'screen_name' => 'طباعة الكاشير ونقاط البيع',
+                'screen_file' => 'pos-invoice-print.php / direct-sales.php',
+                'category' => 'SECURITY',
+                'alert_preview' => '⚠️ تنبيه تدقيق: تم تكرار إعادة طباعة إيصال هذه الفاتورة لعدة مرات لمنع استخدام الإيصال لعميل آخر!',
+                'description' => 'يراقب عدد مرات طباعة نفس الإيصال لمنع إعطاء وصل مطبوع مسبقاً لعميل جديد وسرقة المبلغ.',
+                'warn_label' => 'عدد مرات إعادة الطباعة التحذيري',
+                'crit_label' => 'الحد الحرج للتكرار المريب',
+                'is_enabled' => 1,
+                'warning_threshold' => 2,
+                'critical_threshold' => 4,
+                'unit' => 'مرات طباعة',
             ],
             [
                 'rule_key' => 'audit_manual_jv_on_cash',
@@ -677,7 +902,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
             ],
             [
                 'rule_key' => 'sec_voucher_audit_edit_delete',
-                'rule_name' => 'تعديل أو حذف أي سند مالي أو فاتورة سابقة مرحلة',
+                'rule_name' => 'تعديل أو حذف أي سند مالي أو فاتورة سابقة مرحلة ومقفلة',
                 'screen_name' => 'سجل التدقيق المحاسبي وسندات الصرف والقبض',
                 'screen_file' => 'vouchers-hub.php / single-cash-payment.php',
                 'category' => 'SECURITY',
@@ -692,7 +917,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
             ],
             [
                 'rule_key' => 'sec_unposted_draft_vouchers',
-                'rule_name' => 'السندات والفواتير المعلقة أو المسودة غير المرحلة',
+                'rule_name' => 'السندات والفواتير المعلقة أو المسودة غير المرحلة (> 24 ساعة)',
                 'screen_name' => 'السندات المعلقة والفواتير غير المرحلة',
                 'screen_file' => 'vouchers-hub.php / sales.php',
                 'category' => 'SECURITY',
@@ -722,7 +947,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
             ],
             [
                 'rule_key' => 'sec_unbalanced_entries',
-                'rule_name' => 'عدم اتزان القيود المحاسبية (المدين != الدائن)',
+                'rule_name' => 'عدم اتزان القيود المحاسبية (المدين لا يساوي الدائن)',
                 'screen_name' => 'دفتر الأستاذ العام وميزان المراجعة المحاسبي',
                 'screen_file' => 'general_ledger_v2.php / analytics.php',
                 'category' => 'SECURITY',
@@ -736,19 +961,64 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
                 'unit' => 'قيد غير متزن',
             ],
             [
-                'rule_key' => 'sec_suspicious_login',
-                'rule_name' => 'محاولات دخول فاشلة أو غير مصرح بها للنظام',
-                'screen_name' => 'شاشة تسجيل الدخول وحماية النظام',
-                'screen_file' => 'login.php / settings.php',
-                'category' => 'SECURITY',
-                'alert_preview' => '🚨 تنبيه أمني: تكرار محاولات تسجيل دخول غير مصرح بها بكلمات مرور خاطئة!',
-                'description' => 'تنبيه أمني عند تكرار محاولات تسجيل الدخول بكلمات سر خاطئة لتفادي محاولات الاختراق.',
-                'warn_label' => 'محاولات الدخول التحذيرية',
-                'crit_label' => 'حد الإغلاق والحظر الحرج للحساب',
+                'rule_key' => 'hr_late_checkin',
+                'rule_name' => 'تأخر حضور الكاشير أو موظف المبيعات عن موعد بداية الوردية',
+                'screen_name' => 'سجل الحضور والورديات ونقاط البيع',
+                'screen_file' => 'settings.php / vouchers-hub.php',
+                'category' => 'HR',
+                'alert_preview' => '⚠️ تنبيه حضور: تأخر موظف الكاشير/المبيعات عن موعد بدء الوردية المحددة بالنظام!',
+                'description' => 'يراقب أوقات فتح الورديات وتسجيل الدخول وينبه الإدارة عند تأخر الموظف عن الدوام.',
+                'warn_label' => 'دقائق التأخير التحذيرية المسموحة',
+                'crit_label' => 'دقائق التأخير الحرجة للخصم',
                 'is_enabled' => 1,
-                'warning_threshold' => 3,
-                'critical_threshold' => 5,
-                'unit' => 'محاولة',
+                'warning_threshold' => 15,
+                'critical_threshold' => 45,
+                'unit' => 'دقيقة',
+            ],
+            [
+                'rule_key' => 'hr_unclosed_shift',
+                'rule_name' => 'بقاء وردية الكاشير مفتوحة بعد انتهاء ساعات العمل الرسمية',
+                'screen_name' => 'إغلاق الورديات اليومية وتقارير الكاشير',
+                'screen_file' => 'vouchers-hub.php / single-cash-payment.php',
+                'category' => 'HR',
+                'alert_preview' => '⚠️ تنبيه وردية معلقة: وردية كاشير ما زالت مفتوحة ولم يتم تسليم الصندوق وإغلاقها بعد انتهاء الدوام!',
+                'description' => 'ينبه بضرورة تسليم النقد وإجراء الإغلاق اليومي للدرج في موعده لمنع تداخل العمليات.',
+                'warn_label' => 'ساعات التأخر التحذيرية للإغلاق',
+                'crit_label' => 'ساعات التأخر الحرجة للتحقيق',
+                'is_enabled' => 1,
+                'warning_threshold' => 2,
+                'critical_threshold' => 6,
+                'unit' => 'ساعة',
+            ],
+            [
+                'rule_key' => 'sec_new_device_login',
+                'rule_name' => 'تسجيل دخول للمستخدم من جهاز أو متصفح أو IP جديد غير مسجل',
+                'screen_name' => 'شاشة تسجيل الدخول وأمان النظام',
+                'screen_file' => 'login.php / settings.php',
+                'category' => 'HR',
+                'alert_preview' => '🚨 تنبيه أمان: محاولة تسجيل دخول لحساب مستخدم من جهاز أو عنوان IP جديد غير معتمد!',
+                'description' => 'يرصد أي دخول من أجهزة غير معروفة ويرسل إشعاراً أمنياً للمدير لمنع اختراق الحسابات.',
+                'warn_label' => 'عدد الأجهزة الجديدة التحذيري',
+                'crit_label' => 'حد الخطر الأمني للإغلاق',
+                'is_enabled' => 1,
+                'warning_threshold' => 1,
+                'critical_threshold' => 1,
+                'unit' => 'جهاز',
+            ],
+            [
+                'rule_key' => 'sec_after_hours_transaction',
+                'rule_name' => 'إجراء عمليات بيع أو صرف نقدي خارج ساعات الدوام (بعد منتصف الليل)',
+                'screen_name' => 'سجل العمليات والرقابة العامة',
+                'screen_file' => 'direct-sales.php / single-cash-payment.php',
+                'category' => 'HR',
+                'alert_preview' => '🚨 إشعار رقابي: تم تسجيل معاملة مالية/بيعية خارج أوقات العمل الرسمية للمنشأة!',
+                'description' => 'ينبه الإدارة عند تسجيل فواتير أو سندات صرف في أوقات متأخرة من الليل بعد إغلاق الفروع.',
+                'warn_label' => 'عدد المعاملات التحذيرية خارج الدوام',
+                'crit_label' => 'حد الخطر الحرج للمراجعة',
+                'is_enabled' => 1,
+                'warning_threshold' => 1,
+                'critical_threshold' => 1,
+                'unit' => 'معاملة',
             ]
         ];
 
@@ -790,7 +1060,7 @@ function ensureAlertTablesExist($pdo, $tenant_id) {
 ensureAlertTablesExist($pdo, $GLOBAL_TENANT_ID);
 
 // -------------------------------------------------------------
-// 2. محرك فحص البيانات الحية وتوليد الإنذارات والتنبيهات
+// 2. محرك فحص البيانات الحية والذكاء التحليلي الشامل
 // -------------------------------------------------------------
 function runAlertEngine($pdo) {
     global $GLOBAL_TENANT_ID;
@@ -804,19 +1074,28 @@ function runAlertEngine($pdo) {
             $settings[$row['rule_key']] = $row;
         }
         
-        // 1. فحص تجاوز الحد الائتماني للعملاء
-        if (isset($settings['sales_credit_limit_exceeded'])) {
+        // 1. فحص تجاوز الحد الائتماني وتركز الديون
+        if (isset($settings['sales_credit_limit_exceeded']) || isset($settings['credit_debt_concentration_risk'])) {
             try {
-                $warnPct = (float)$settings['sales_credit_limit_exceeded']['warning_threshold'];
-                $critPct = (float)$settings['sales_credit_limit_exceeded']['critical_threshold'];
+                $warnPct = isset($settings['sales_credit_limit_exceeded']) ? (float)$settings['sales_credit_limit_exceeded']['warning_threshold'] : 80;
+                $critPct = isset($settings['sales_credit_limit_exceeded']) ? (float)$settings['sales_credit_limit_exceeded']['critical_threshold'] : 100;
                 $stmt = $pdo->prepare("SELECT data FROM customers WHERE tenant_id = ?");
                 $stmt->execute([$GLOBAL_TENANT_ID]);
+                $totalCompanyDebt = 0;
+                $customerList = [];
                 while ($row = $stmt->fetch()) {
                     $c = json_decode($row['data'], true);
-                    if ($c && (float)($c['creditLimit'] ?? 0) > 0) {
-                        $name = $c['name'] ?? 'عميل غير معروف';
+                    if ($c) {
                         $bal = (float)($c['currentBalance'] ?? 0);
-                        $limit = (float)($c['creditLimit'] ?? 0);
+                        if ($bal > 0) $totalCompanyDebt += $bal;
+                        $customerList[] = $c;
+                    }
+                }
+                foreach ($customerList as $c) {
+                    $name = $c['name'] ?? 'عميل غير معروف';
+                    $bal = (float)($c['currentBalance'] ?? 0);
+                    $limit = (float)($c['creditLimit'] ?? 0);
+                    if ($limit > 0 && isset($settings['sales_credit_limit_exceeded'])) {
                         $pct = ($bal / $limit) * 100;
                         if ($pct >= $critPct) {
                             $msg = "🚨 خطر ائتماني حرج! العميل [" . $name . "] تجاوز الحد الائتماني بنسبة " . round($pct) . "% (الرصيد: " . number_format($bal, 2) . " / الحد: " . number_format($limit, 2) . ")";
@@ -824,6 +1103,14 @@ function runAlertEngine($pdo) {
                         } elseif ($pct >= $warnPct) {
                             $msg = "⚠️ تنبيه ائتماني! العميل [" . $name . "] اقترب من سقف الائتمان المسموح بنسبة " . round($pct) . "% (الرصيد: " . number_format($bal, 2) . ")";
                             $pdo->prepare("INSERT INTO alert_logs (tenant_id, rule_key, severity, message, screen_file) VALUES (?, 'sales_credit_limit_exceeded', 'YELLOW', ?, 'direct-sales.php')")->execute([$GLOBAL_TENANT_ID, $msg]);
+                        }
+                    }
+                    if ($totalCompanyDebt > 0 && isset($settings['credit_debt_concentration_risk'])) {
+                        $concPct = ($bal / $totalCompanyDebt) * 100;
+                        $concCrit = (float)$settings['credit_debt_concentration_risk']['critical_threshold'];
+                        if ($concPct >= $concCrit && $bal > 50000) {
+                            $msg = "⚠️ تركز مديونية عالي! العميل [" . $name . "] يستحوذ على " . round($concPct) . "% من إجمالي مديونيات المنشأة (مبلغ: " . number_format($bal, 2) . ")!";
+                            $pdo->prepare("INSERT INTO alert_logs (tenant_id, rule_key, severity, message, screen_file) VALUES (?, 'credit_debt_concentration_risk', 'YELLOW', ?, 'customer_exposure.php')")->execute([$GLOBAL_TENANT_ID, $msg]);
                         }
                     }
                 }
@@ -849,8 +1136,8 @@ function runAlertEngine($pdo) {
             } catch (Exception $ex) {}
         }
 
-        // 3. فحص الرصيد السالب للأصناف ونقص المخزون وتجاوز الحد الأعلى
-        if (isset($settings['sales_negative_stock']) || isset($settings['inv_critical_zero_stock']) || isset($settings['inv_low_stock']) || isset($settings['inv_overstock_capacity'])) {
+        // 3. فحص المخزون والأصناف والذكاء التحليلي (السحب السريع، الرواكد، الحدود)
+        if (isset($settings['sales_negative_stock']) || isset($settings['inv_critical_zero_stock']) || isset($settings['inv_low_stock']) || isset($settings['inv_overstock_capacity']) || isset($settings['inv_negative_stock_balance']) || isset($settings['master_selling_below_cost'])) {
             try {
                 $lowWarn = isset($settings['inv_low_stock']) ? (float)$settings['inv_low_stock']['warning_threshold'] : 10;
                 $lowCrit = isset($settings['inv_low_stock']) ? (float)$settings['inv_low_stock']['critical_threshold'] : 5;
@@ -863,8 +1150,15 @@ function runAlertEngine($pdo) {
                     if ($item) {
                         $name = $item['name'] ?? 'صنف';
                         $stock = (float)($item['stockQuantity'] ?? ($item['quantity'] ?? ($item['qty'] ?? 0)));
+                        $cost = (float)($item['costPrice'] ?? ($item['avgCost'] ?? ($item['purchasePrice'] ?? 0)));
+                        $sellPrice = (float)($item['sellingPrice'] ?? ($item['price'] ?? 0));
                         $minStock = (float)($item['minStock'] ?? $lowWarn);
-                        if ($stock < 0 && isset($settings['sales_negative_stock'])) {
+
+                        if ($cost > 0 && $sellPrice > 0 && $sellPrice < $cost && isset($settings['master_selling_below_cost'])) {
+                            $msg = "⚠️ خلل تسعير بالبيانات الأساسية! الصنف [" . $name . "] سعر بيعه الافتراضي (" . $sellPrice . ") أقل من سعر التكلفة (" . $cost . ")!";
+                            $pdo->prepare("INSERT INTO alert_logs (tenant_id, rule_key, severity, message, screen_file) VALUES (?, 'master_selling_below_cost', 'YELLOW', ?, 'master-data.php')")->execute([$GLOBAL_TENANT_ID, $msg]);
+                        }
+                        if ($stock < 0 && (isset($settings['sales_negative_stock']) || isset($settings['inv_negative_stock_balance']))) {
                             $msg = "🚨 رصيد مخزني سالب! الصنف [" . $name . "] رصيده سالب (" . $stock . " وحدة) في المستودع ويجب تسوية الجرد فوراً!";
                             $pdo->prepare("INSERT INTO alert_logs (tenant_id, rule_key, severity, message, screen_file) VALUES (?, 'sales_negative_stock', 'RED', ?, 'inventory-report.php')")->execute([$GLOBAL_TENANT_ID, $msg]);
                         } elseif ($stock == 0 && isset($settings['inv_critical_zero_stock'])) {
@@ -1107,14 +1401,14 @@ foreach ($rules as $r) {
     if ($r['is_enabled']) $enabled_rules++;
 }
 
-// تقسيم التنبيهات حسب الأقسام الخمسة
+// تقسيم التنبيهات حسب الأقسام الثمانية المعتمدة
 $sections = [
-    'SALES' => [
-        'id' => 'sec-sales',
-        'category' => 'SALES',
-        'title' => '🛒 شاشات المبيعات وفواتير البيع ونقاط البيع POS',
-        'screens' => 'المبيعات المباشرة direct-sales.php / فواتير المبيعات sales.php / الفاتورة الاحترافية pro-invoice.php / طباعة الكاشير pos-invoice-print.php',
-        'icon' => 'fa-cash-register',
+    'MASTER' => [
+        'id' => 'sec-master',
+        'category' => 'MASTER',
+        'title' => '🏛️ البيانات الأساسية وتعريفات الأصناف والعملاء والخزائن',
+        'screens' => 'البيانات الأساسية master-data.php / بطاقات الأصناف والعملاء والموردين',
+        'icon' => 'fa-database',
         'color' => '#38bdf8',
         'border' => 'rgba(56, 189, 248, 0.4)',
         'rules' => []
@@ -1122,17 +1416,37 @@ $sections = [
     'INVENTORY' => [
         'id' => 'sec-inventory',
         'category' => 'INVENTORY',
-        'title' => '📦 شاشات المخازن والمستودعات والتوريد والمصانع والمشتريات',
-        'screens' => 'تقرير وإدارة المخزون inventory-report.php / المخزون الذكي والرواكد smart_inventory_report.php / المشتريات purchase.php / أوامر الشراء purchase-order.php',
+        'title' => '🧠 المخازن والأصناف والذكاء التحليلي وحركة البضائع',
+        'screens' => 'تقرير وإدارة المخزون inventory-report.php / المخزون الذكي والرواكد smart_inventory_report.php / الجرد والعنابر',
         'icon' => 'fa-warehouse',
         'color' => '#a78bfa',
         'border' => 'rgba(167, 139, 250, 0.4)',
         'rules' => []
     ],
+    'SALES' => [
+        'id' => 'sec-sales',
+        'category' => 'SALES',
+        'title' => '🛒 شاشات المبيعات وفواتير البيع ونقاط البيع POS',
+        'screens' => 'المبيعات المباشرة direct-sales.php / فواتير المبيعات sales.php / الفاتورة الاحترافية pro-invoice.php / طباعة الكاشير pos-invoice-print.php',
+        'icon' => 'fa-cash-register',
+        'color' => '#22d3ee',
+        'border' => 'rgba(34, 211, 238, 0.4)',
+        'rules' => []
+    ],
+    'PURCHASE' => [
+        'id' => 'sec-purchase',
+        'category' => 'PURCHASE',
+        'title' => '📦 شاشات المشتريات وأوامر التوريد ومستحقات المصانع والموردين',
+        'screens' => 'المشتريات purchase.php / أوامر الشراء purchase-order.php / حسابات الموردين',
+        'icon' => 'fa-truck-ramp-box',
+        'color' => '#fb923c',
+        'border' => 'rgba(251, 146, 60, 0.4)',
+        'rules' => []
+    ],
     'FINANCE' => [
         'id' => 'sec-finance',
         'category' => 'FINANCE',
-        'title' => '💰 شاشات الخزينة وسندات القبض والصرف والمصارف والشيكات',
+        'title' => '💰 شاشات الخزينة والمصارف وسندات القبض والصرف وإغلاق الورديات',
         'screens' => 'سند الصرف الفردي single-cash-payment.php / سند الصرف المتعدد multi-cash-payment.php / سند القبض single-cash-receipt.php / مركز السندات vouchers-hub.php / التدفقات cashflow_modern.php',
         'icon' => 'fa-vault',
         'color' => '#34d399',
@@ -1142,8 +1456,8 @@ $sections = [
     'CREDIT' => [
         'id' => 'sec-credit',
         'category' => 'CREDIT',
-        'title' => '👥 شاشات العملاء والمديونيات والائتمان والتحصيل والموردين',
-        'screens' => 'لوحة الائتمان credit_limits_dashboard.php / انكشاف العملاء customer_exposure.php / ركود العملاء customer_churn.php / البيانات الأساسية master-data.php',
+        'title' => '👥 شاشات العملاء والمديونيات والائتمان والتحصيل',
+        'screens' => 'لوحة الائتمان credit_limits_dashboard.php / انكشاف العملاء customer_exposure.php / ركود العملاء customer_churn.php',
         'icon' => 'fa-users-gear',
         'color' => '#fbbf24',
         'border' => 'rgba(251, 191, 36, 0.4)',
@@ -1152,18 +1466,28 @@ $sections = [
     'SECURITY' => [
         'id' => 'sec-security',
         'category' => 'SECURITY',
-        'title' => '🛡️ شاشات الأمان والرقابة والتدقيق ومنع الاحتيال المحاسبي',
-        'screens' => 'لوحة التحكم magaiees_unified_dashboard.php / الإعدادات والنسخ الاحتياطي settings.php / دفتر الأستاذ general_ledger_v2.php / التقارير المالية analytics.php',
+        'title' => '🛡️ شاشات الأمان والرقابة ومنع التلاعب وحظر الحذف غير المصرح',
+        'screens' => 'لوحة التحكم magaiees_unified_dashboard.php / الإعدادات والنسخ الاحتياطي settings.php / دفتر الأستاذ general_ledger_v2.php / سجل التدقيق المحاسبي',
         'icon' => 'fa-shield-halved',
         'color' => '#f87171',
         'border' => 'rgba(248, 113, 113, 0.4)',
+        'rules' => []
+    ],
+    'HR' => [
+        'id' => 'sec-hr',
+        'category' => 'HR',
+        'title' => '⏱️ شاشات المستخدمين والورديات وساعات الحضور والانصراف',
+        'screens' => 'إدارة الورديات vouchers-hub.php / شاشة الدخول login.php / إعدادات المستخدمين settings.php',
+        'icon' => 'fa-user-clock',
+        'color' => '#e879f9',
+        'border' => 'rgba(232, 121, 249, 0.4)',
         'rules' => []
     ]
 ];
 
 foreach ($rules as $r) {
     $cat = $r['category'];
-    if ($cat === 'SUPPLY') $cat = 'INVENTORY';
+    if ($cat === 'SUPPLY') $cat = 'PURCHASE';
     if (isset($sections[$cat])) {
         $sections[$cat]['rules'][] = $r;
     } else {
@@ -1187,7 +1511,7 @@ foreach ($rules as $r) {
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مصفوفة الرقابة وإدارة التنبيهات العالمية | Al-Sajana ERP</title>
+    <title>مصفوفة الرقابة وإدارة التنبيهات العالمية (64 قاعدة) | Al-Sajana ERP</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -1271,15 +1595,15 @@ foreach ($rules as $r) {
 
         /* ── أزرار التبويبات الفخمة ── */
         .pillar-card {
-            padding: 16px 20px;
+            padding: 14px 16px;
             border-radius: 18px;
             font-weight: 900;
-            font-size: 0.95rem;
+            font-size: 0.88rem;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             flex-direction: column;
-            gap: 6px;
+            gap: 5px;
             border: 2px solid var(--p-border, rgba(255, 255, 255, 0.1));
             background: var(--p-bg, rgba(255, 255, 255, 0.03));
             color: #ffffff;
@@ -1403,14 +1727,14 @@ foreach ($rules as $r) {
                     مصفوفة الرقابة وإدارة التنبيهات والإنذارات العالمية
                 </h1>
                 <p class="text-slate-400 text-xs md:text-sm mt-1 font-bold">
-                    منظومة رقابية متقدمة تضم 46 تنبيهاً تشغيلياً ومحاسبياً مفصلاً في بطاقات واضحة تمكنك من التحكم الكامل والتفعيل والتجاوز الفوري (On / Off).
+                    منظومة رقابية شاملة تضم 64 تنبيهاً ذكياً وقواعد حظر التلاعب وحماية الحذف من البيانات الأساسية إلى كافة شاشات النظام (On / Off).
                 </p>
             </div>
 
             <!-- Quick Bulk Actions -->
             <div class="flex flex-wrap items-center gap-2.5">
                 <button type="button" onclick="bulkToggle('ALL', 1)" class="px-4 py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 font-black rounded-xl text-xs transition flex items-center gap-1.5 shadow-md">
-                    <i class="fa-solid fa-check-double"></i> تفعيل الكل (46 قاعدة)
+                    <i class="fa-solid fa-check-double"></i> تفعيل الكل (64 قاعدة)
                 </button>
                 <button type="button" onclick="bulkToggle('ALL', 0)" class="px-4 py-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/40 font-black rounded-xl text-xs transition flex items-center gap-1.5 shadow-md">
                     <i class="fa-solid fa-ban"></i> تعطيل وتجاوز الكل
@@ -1445,72 +1769,99 @@ foreach ($rules as $r) {
             </div>
 
             <div class="stat-card-v4" style="--border-glow: rgba(56, 189, 248, 0.4); --bar-color: #38bdf8;">
-                <span class="text-xs text-sky-400 font-bold block">🏢 الشاشات الخاضعة للرقابة</span>
-                <span class="text-3xl font-black text-sky-400 mt-2 block">12 شاشة</span>
-                <span class="text-xs text-slate-400 mt-1 block">المبيعات والمخازن والخزائن والأمان</span>
+                <span class="text-xs text-sky-400 font-bold block">🏢 الأقسام الخاضعة للرقابة</span>
+                <span class="text-3xl font-black text-sky-400 mt-2 block">8 قطاعات</span>
+                <span class="text-xs text-slate-400 mt-1 block">المبيعات والمخازن والخزائن والـ HR</span>
             </div>
         </div>
 
-        <!-- 🎛️ PILLARS NAVIGATION 🎛️ -->
-        <div class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-6 gap-3" id="pillars-container">
+        <!-- 🎛️ 8 PILLARS NAVIGATION 🎛️ -->
+        <div class="grid grid-cols-2 md:grid-cols-4 lg:grid-cols-9 gap-2.5" id="pillars-container">
             <div class="pillar-card active" style="--p-color:#f43f5e; --p-border:rgba(244,63,94,0.4);" onclick="filterPillar('ALL', this)">
                 <div class="flex items-center justify-between">
-                    <i class="fa-solid fa-layer-group text-rose-400 text-lg"></i>
-                    <span class="text-xs bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded-full font-bold"><?php echo count($rules); ?> تنبيه</span>
+                    <i class="fa-solid fa-layer-group text-rose-400 text-base"></i>
+                    <span class="text-[10px] bg-rose-500/20 text-rose-300 px-1.5 py-0.5 rounded-full font-bold"><?php echo count($rules); ?></span>
                 </div>
-                <div class="font-black text-sm mt-1">🌟 كل الأقسام</div>
-                <div class="text-[11px] text-slate-400">عرض جميع التنبيهات الـ 46</div>
+                <div class="font-black text-xs mt-1">🌟 كل الأقسام</div>
+                <div class="text-[10px] text-slate-400">64 تنبيه رقابي</div>
             </div>
 
-            <div class="pillar-card" style="--p-color:#38bdf8; --p-border:rgba(56,189,248,0.3);" onclick="filterPillar('SALES', this)">
+            <div class="pillar-card" style="--p-color:#38bdf8; --p-border:rgba(56,189,248,0.3);" onclick="filterPillar('MASTER', this)">
                 <div class="flex items-center justify-between">
-                    <i class="fa-solid fa-cash-register text-sky-400 text-lg"></i>
-                    <span class="text-xs bg-sky-500/20 text-sky-300 px-2 py-0.5 rounded-full font-bold"><?php echo count($sections['SALES']['rules']); ?> تنبيهات</span>
+                    <i class="fa-solid fa-database text-sky-400 text-base"></i>
+                    <span class="text-[10px] bg-sky-500/20 text-sky-300 px-1.5 py-0.5 rounded-full font-bold"><?php echo count($sections['MASTER']['rules']); ?></span>
                 </div>
-                <div class="font-black text-sm mt-1">🛒 المبيعات والفوترة</div>
-                <div class="text-[11px] text-slate-400">التكلفة والأسعار والائتمان</div>
+                <div class="font-black text-xs mt-1">🏛️ البيانات الأساسية</div>
+                <div class="text-[10px] text-slate-400">الباركود والحدود</div>
             </div>
 
             <div class="pillar-card" style="--p-color:#a78bfa; --p-border:rgba(167,139,250,0.3);" onclick="filterPillar('INVENTORY', this)">
                 <div class="flex items-center justify-between">
-                    <i class="fa-solid fa-warehouse text-purple-400 text-lg"></i>
-                    <span class="text-xs bg-purple-500/20 text-purple-300 px-2 py-0.5 rounded-full font-bold"><?php echo count($sections['INVENTORY']['rules']); ?> تنبيهات</span>
+                    <i class="fa-solid fa-warehouse text-purple-400 text-base"></i>
+                    <span class="text-[10px] bg-purple-500/20 text-purple-300 px-1.5 py-0.5 rounded-full font-bold"><?php echo count($sections['INVENTORY']['rules']); ?></span>
                 </div>
-                <div class="font-black text-sm mt-1">📦 المخازن والمشتريات</div>
-                <div class="text-[11px] text-slate-400">الأصناف والتوريد والمصانع</div>
+                <div class="font-black text-xs mt-1">🧠 المخازن والأصناف</div>
+                <div class="text-[10px] text-slate-400">الذكاء والرواكد</div>
+            </div>
+
+            <div class="pillar-card" style="--p-color:#22d3ee; --p-border:rgba(34,211,238,0.3);" onclick="filterPillar('SALES', this)">
+                <div class="flex items-center justify-between">
+                    <i class="fa-solid fa-cash-register text-cyan-400 text-base"></i>
+                    <span class="text-[10px] bg-cyan-500/20 text-cyan-300 px-1.5 py-0.5 rounded-full font-bold"><?php echo count($sections['SALES']['rules']); ?></span>
+                </div>
+                <div class="font-black text-xs mt-1">🛒 المبيعات والفوترة</div>
+                <div class="text-[10px] text-slate-400">التكلفة والأسعار</div>
+            </div>
+
+            <div class="pillar-card" style="--p-color:#fb923c; --p-border:rgba(251,146,60,0.3);" onclick="filterPillar('PURCHASE', this)">
+                <div class="flex items-center justify-between">
+                    <i class="fa-solid fa-truck-ramp-box text-orange-400 text-base"></i>
+                    <span class="text-[10px] bg-orange-500/20 text-orange-300 px-1.5 py-0.5 rounded-full font-bold"><?php echo count($sections['PURCHASE']['rules']); ?></span>
+                </div>
+                <div class="font-black text-xs mt-1">📦 المشتريات والتوريد</div>
+                <div class="text-[10px] text-slate-400">الموردين والمصانع</div>
             </div>
 
             <div class="pillar-card" style="--p-color:#34d399; --p-border:rgba(52,211,153,0.3);" onclick="filterPillar('FINANCE', this)">
                 <div class="flex items-center justify-between">
-                    <i class="fa-solid fa-vault text-emerald-400 text-lg"></i>
-                    <span class="text-xs bg-emerald-500/20 text-emerald-300 px-2 py-0.5 rounded-full font-bold"><?php echo count($sections['FINANCE']['rules']); ?> تنبيهات</span>
+                    <i class="fa-solid fa-vault text-emerald-400 text-base"></i>
+                    <span class="text-[10px] bg-emerald-500/20 text-emerald-300 px-1.5 py-0.5 rounded-full font-bold"><?php echo count($sections['FINANCE']['rules']); ?></span>
                 </div>
-                <div class="font-black text-sm mt-1">💰 الخزينة والشيكات</div>
-                <div class="text-[11px] text-slate-400">السيولة وإغلاق الصندوق</div>
+                <div class="font-black text-xs mt-1">💰 الخزينة والشيكات</div>
+                <div class="text-[10px] text-slate-400">السيولة والورديات</div>
             </div>
 
             <div class="pillar-card" style="--p-color:#fbbf24; --p-border:rgba(251,191,36,0.3);" onclick="filterPillar('CREDIT', this)">
                 <div class="flex items-center justify-between">
-                    <i class="fa-solid fa-users-gear text-amber-400 text-lg"></i>
-                    <span class="text-xs bg-amber-500/20 text-amber-300 px-2 py-0.5 rounded-full font-bold"><?php echo count($sections['CREDIT']['rules']); ?> تنبيهات</span>
+                    <i class="fa-solid fa-users-gear text-amber-400 text-base"></i>
+                    <span class="text-[10px] bg-amber-500/20 text-amber-300 px-1.5 py-0.5 rounded-full font-bold"><?php echo count($sections['CREDIT']['rules']); ?></span>
                 </div>
-                <div class="font-black text-sm mt-1">👥 العملاء والمديونيات</div>
-                <div class="text-[11px] text-slate-400">أعمار الديون والركود</div>
+                <div class="font-black text-xs mt-1">👥 العملاء والمديونيات</div>
+                <div class="text-[10px] text-slate-400">الائتمان والأعمار</div>
             </div>
 
             <div class="pillar-card" style="--p-color:#f87171; --p-border:rgba(248,113,113,0.3);" onclick="filterPillar('SECURITY', this)">
                 <div class="flex items-center justify-between">
-                    <i class="fa-solid fa-shield-halved text-rose-400 text-lg"></i>
-                    <span class="text-xs bg-rose-500/20 text-rose-300 px-2 py-0.5 rounded-full font-bold"><?php echo count($sections['SECURITY']['rules']); ?> تنبيهات</span>
+                    <i class="fa-solid fa-shield-halved text-rose-400 text-base"></i>
+                    <span class="text-[10px] bg-rose-500/20 text-rose-300 px-1.5 py-0.5 rounded-full font-bold"><?php echo count($sections['SECURITY']['rules']); ?></span>
                 </div>
-                <div class="font-black text-sm mt-1">🛡️ الأمان ومنع الاحتيال</div>
-                <div class="text-[11px] text-slate-400">إلغاء الفواتير والتدقيق</div>
+                <div class="font-black text-xs mt-1">🛡️ الأمان ومنع التلاعب</div>
+                <div class="text-[10px] text-slate-400">حظر الحذف والطباعة</div>
+            </div>
+
+            <div class="pillar-card" style="--p-color:#e879f9; --p-border:rgba(232,121,249,0.3);" onclick="filterPillar('HR', this)">
+                <div class="flex items-center justify-between">
+                    <i class="fa-solid fa-user-clock text-fuchsia-400 text-base"></i>
+                    <span class="text-[10px] bg-fuchsia-500/20 text-fuchsia-300 px-1.5 py-0.5 rounded-full font-bold"><?php echo count($sections['HR']['rules']); ?></span>
+                </div>
+                <div class="font-black text-xs mt-1">⏱️ الورديات والـ HR</div>
+                <div class="text-[10px] text-slate-400">التأخير وخارج الدوام</div>
             </div>
         </div>
 
         <!-- Search Bar -->
         <div class="relative w-full">
-            <input type="text" id="matrix-search" oninput="searchMatrix(this.value)" placeholder="🔍 ابحث عن أي تنبيه أو شاشة أو كلمة (مثلاً: سعر التكلفة، المخزون، الشيكات، المديونيات، إغلاق الوردية)..." class="w-full bg-slate-900 border-2 border-slate-700 rounded-2xl px-5 py-3 text-sm font-bold text-slate-100 outline-none focus:border-rose-500 pr-12 shadow-lg">
+            <input type="text" id="matrix-search" oninput="searchMatrix(this.value)" placeholder="🔍 ابحث عن أي تنبيه أو شاشة أو كلمة (مثلاً: سعر التكلفة، المخزون، الشيكات، المديونيات، إغلاق الوردية، منع الحذف)..." class="w-full bg-slate-900 border-2 border-slate-700 rounded-2xl px-5 py-3 text-sm font-bold text-slate-100 outline-none focus:border-rose-500 pr-12 shadow-lg">
             <i class="fa-solid fa-search absolute right-4 top-4 text-slate-400 text-base"></i>
         </div>
 

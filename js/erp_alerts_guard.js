@@ -1,7 +1,7 @@
 /**
  * ====================================================================
- * Al-Sajana Smart ERP 2026 - Universal Live Alert Guard Engine V6
- * حارس الرقابة والتنبيهات المباشر لجميع شاشات النظام
+ * Al-Sajana Smart ERP 2026 - Universal Live Alert Guard Engine V7
+ * حارس الرقابة الذكية والتنبيهات المباشرة ومنع التلاعب لجميع الشاشات
  * ====================================================================
  */
 (function() {
@@ -10,6 +10,8 @@
     window.ERPAlertsGuard = {
         rules: {},
         isLoaded: false,
+        printedInvoices: new Set(),
+        reprintCounters: {},
 
         init: function() {
             this.loadRules();
@@ -20,7 +22,7 @@
         loadRules: function() {
             const self = this;
             try {
-                const cached = localStorage.getItem('erp_alert_rules_cache_v6');
+                const cached = localStorage.getItem('erp_alert_rules_cache_v7');
                 if (cached) {
                     const parsed = JSON.parse(cached);
                     parsed.forEach(r => { self.rules[r.rule_key] = r; });
@@ -35,7 +37,7 @@
                     data.rules.forEach(r => {
                         self.rules[r.rule_key] = r;
                     });
-                    localStorage.setItem('erp_alert_rules_cache_v6', JSON.stringify(data.rules));
+                    localStorage.setItem('erp_alert_rules_cache_v7', JSON.stringify(data.rules));
                     self.isLoaded = true;
                 }
             })
@@ -93,7 +95,7 @@
             const page = window.location.pathname.split('/').pop().toLowerCase();
 
             // 1. Sales screens listeners
-            if (page.includes('sales') || page.includes('invoice')) {
+            if (page.includes('sales') || page.includes('invoice') || page.includes('pos')) {
                 document.addEventListener('input', function(e) {
                     const target = e.target;
                     if (!target) return;
@@ -111,6 +113,45 @@
                     // Discount input check
                     if (target.id === 'inv-discount' || target.classList.contains('item-discount-input') || target.name === 'discount') {
                         self.checkSalesDiscount(target);
+                    }
+                }, true);
+
+                // Anti-fraud Print & Void Interception
+                document.addEventListener('click', function(e) {
+                    const btn = e.target.closest('button, a');
+                    if (!btn) return;
+
+                    // Track print
+                    if (btn.classList.contains('btn-print') || btn.id === 'btn-print' || (btn.textContent && btn.textContent.includes('طباعة'))) {
+                        const invNo = self.getCurrentInvoiceNumber();
+                        if (invNo) {
+                            self.printedInvoices.add(invNo);
+                            self.reprintCounters[invNo] = (self.reprintCounters[invNo] || 0) + 1;
+                            if (self.reprintCounters[invNo] > 1 && self.isRuleEnabled('audit_reprint_invoice_repetition')) {
+                                self.showAlertBanner('⚠️ تنبيه تدقيق: تم تكرار طباعة الفاتورة (' + invNo + ') للمرة (' + self.reprintCounters[invNo] + ')!', 'warning');
+                            }
+                        }
+                    }
+
+                    // Track void/delete after print
+                    if (btn.classList.contains('btn-void') || btn.classList.contains('btn-delete-inv') || (btn.textContent && (btn.textContent.includes('إلغاء الفاتورة') || btn.textContent.includes('حذف الفاتورة')))) {
+                        const invNo = self.getCurrentInvoiceNumber();
+                        if (invNo && self.printedInvoices.has(invNo) && self.isRuleEnabled('audit_void_after_print')) {
+                            self.showAlertBanner('🚨 إنذار احتيال حرج: محاولة إلغاء/حذف الفاتورة (' + invNo + ') بعد طباعتها للعميل!', 'danger');
+                        }
+                    }
+
+                    // Block deletion of delivered linked documents
+                    if (btn.classList.contains('btn-delete-invoice') || btn.classList.contains('delete-btn')) {
+                        const row = btn.closest('tr') || btn.closest('.invoice-row');
+                        if (row && (row.textContent.includes('تم التسليم') || row.textContent.includes('مكتمل') || row.getAttribute('data-delivered') === '1')) {
+                            if (self.isRuleEnabled('audit_linked_delivered_doc_block')) {
+                                e.preventDefault();
+                                e.stopPropagation();
+                                self.showAlertBanner('🚫 حظر أمني صارم: لا يمكن حذف هذه الفاتورة نظراً لتسليم بضاعتها مخزنياً! يرجى عمل مرتجع رسمي.', 'danger', 8000);
+                                return false;
+                            }
+                        }
                     }
                 }, true);
             }
@@ -131,6 +172,39 @@
                         self.checkDuplicateCheque(target);
                     }
                 }, true);
+            }
+
+            // 3. Master Data screens listeners
+            if (page.includes('master-data') || page.includes('items')) {
+                document.addEventListener('input', function(e) {
+                    const target = e.target;
+                    if (!target) return;
+
+                    if (target.id === 'selling-price' || target.id === 'cost-price') {
+                        self.checkMasterItemPrice();
+                    }
+                }, true);
+            }
+        },
+
+        getCurrentInvoiceNumber: function() {
+            const el = document.getElementById('inv-number') || document.querySelector('.invoice-no, #invoice-no');
+            return el ? (el.value || el.textContent || '').trim() : 'INV-CURRENT';
+        },
+
+        checkMasterItemPrice: function() {
+            if (!this.isRuleEnabled('master_selling_below_cost')) return;
+            const costEl = document.getElementById('cost-price') || document.querySelector('[name="costPrice"]');
+            const sellEl = document.getElementById('selling-price') || document.querySelector('[name="sellingPrice"]');
+            if (costEl && sellEl) {
+                const cost = parseFloat(costEl.value) || 0;
+                const sell = parseFloat(sellEl.value) || 0;
+                if (cost > 0 && sell > 0 && sell < cost) {
+                    sellEl.classList.add('erp-alert-highlight-warning');
+                    this.showAlertBanner('⚠️ تنبيه تسعير: سعر البيع المسجل أقل من سعر التكلفة المعتمد!', 'warning');
+                } else {
+                    sellEl.classList.remove('erp-alert-highlight-warning');
+                }
             }
         },
 
