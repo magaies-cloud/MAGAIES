@@ -90,6 +90,7 @@
     }
 })();
 </script>
+<script defer src="js/erp_alerts_guard.js?v=20260902_v1"></script>
 <style>
 @keyframes neonPulseHeader {
     0% { box-shadow: 0 0 15px rgba(168, 85, 247, 0.2), inset 0 0 10px rgba(168, 85, 247, 0.1); border-color: rgba(168, 85, 247, 0.3); }

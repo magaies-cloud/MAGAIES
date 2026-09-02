@@ -1,7 +1,7 @@
 <?php
 // ====================================================================
-// نظام Al-Sajana Smart ERP 2026 - مصفوفة الرقابة والتنبيهات الشاملة V4
-// نظام عالمي متكامل يغطي كافة شاشات وأقسام النظام الـ 12 مع تحكم كامل On/Off
+// نظام Al-Sajana Smart ERP 2026 - مصفوفة الرقابة والتنبيهات الشاملة V4.2
+// نظام عالمي متكامل يغطي كافة شاشات وأقسام النظام بجداول تفصيلية وتحكم On/Off
 // ====================================================================
 $page_title = 'مصفوفة الرقابة وإدارة التنبيهات العالمية';
 $header_theme_class = 'header-theme-alarm';
@@ -491,7 +491,6 @@ ensureAlertTablesExist($pdo, $GLOBAL_TENANT_ID);
 function runAlertEngine($pdo) {
     global $GLOBAL_TENANT_ID;
     try {
-        // تصفير سجلات التنبيهات القديمة لإنتاج تنبيهات محدثة ومطابقة للحالة الحالية
         $pdo->prepare("DELETE FROM alert_logs WHERE tenant_id = ?")->execute([$GLOBAL_TENANT_ID]);
         
         $stmtSet = $pdo->prepare("SELECT rule_key, is_enabled FROM alert_settings WHERE is_enabled = 1 AND tenant_id = ?");
@@ -688,7 +687,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST' && isset($_POST['action'])) {
         exit;
     }
 
-    // AJAX Toggle All (Enable All / Disable All)
+    // AJAX Toggle All (Enable All / Disable All / By Category)
     if ($action === 'bulk_toggle_ajax') {
         header('Content-Type: application/json');
         $enable_state = !empty($_POST['is_enabled']) ? 1 : 0;
@@ -789,15 +788,69 @@ foreach ($rules as $r) {
     if ($r['is_enabled']) $enabled_rules++;
 }
 
-// أيقونات وتنسيقات الأقسام
-$categoryMeta = [
-    'SALES'     => ['icon' => 'fa-cash-register', 'name' => 'المبيعات والفوترة والكاشير', 'color' => '#38bdf8', 'bg' => 'rgba(56,189,248,0.12)', 'border' => '#38bdf840'],
-    'INVENTORY' => ['icon' => 'fa-warehouse', 'name' => 'المخازن والمستودعات والتوريد', 'color' => '#a78bfa', 'bg' => 'rgba(167,139,250,0.12)', 'border' => '#a78bfa40'],
-    'FINANCE'   => ['icon' => 'fa-vault', 'name' => 'الخزينة وسندات القبض والصرف والبنوك', 'color' => '#34d399', 'bg' => 'rgba(52,211,153,0.12)', 'border' => '#34d39940'],
-    'CREDIT'    => ['icon' => 'fa-users-gear', 'name' => 'العملاء والائتمان والتحصيل', 'color' => '#fbbf24', 'bg' => 'rgba(251,191,36,0.12)', 'border' => '#fbbf2440'],
-    'SUPPLY'    => ['icon' => 'fa-truck-fast', 'name' => 'المشتريات والتوريد والمصانع', 'color' => '#f472b6', 'bg' => 'rgba(244,114,182,0.12)', 'border' => '#f472b640'],
-    'SECURITY'  => ['icon' => 'fa-shield-halved', 'name' => 'الأمان والرقابة والتدقيق المحاسبي', 'color' => '#f87171', 'bg' => 'rgba(248,113,113,0.12)', 'border' => '#f8717140']
+// تقسيم التنبيهات حسب الأقسام الخمسة
+$sections = [
+    'SALES' => [
+        'id' => 'sec-sales',
+        'category' => 'SALES',
+        'title' => '🛒 شاشات المبيعات وفواتير البيع ونقاط البيع POS',
+        'screens' => 'المبيعات المباشرة direct-sales.php / فواتير المبيعات sales.php / الفاتورة الاحترافية pro-invoice.php / طباعة الكاشير pos-invoice-print.php',
+        'icon' => 'fa-cash-register',
+        'color' => '#38bdf8',
+        'border' => 'rgba(56, 189, 248, 0.4)',
+        'rules' => []
+    ],
+    'INVENTORY' => [
+        'id' => 'sec-inventory',
+        'category' => 'INVENTORY',
+        'title' => '📦 شاشات المخازن والمستودعات والتوريد والمصانع',
+        'screens' => 'تقرير وإدارة المخزون inventory-report.php / المخزون الذكي والرواكد smart_inventory_report.php / المشتريات purchase.php / أوامر الشراء purchase-order.php',
+        'icon' => 'fa-warehouse',
+        'color' => '#a78bfa',
+        'border' => 'rgba(167, 139, 250, 0.4)',
+        'rules' => []
+    ],
+    'FINANCE' => [
+        'id' => 'sec-finance',
+        'category' => 'FINANCE',
+        'title' => '💰 شاشات الخزينة وسندات القبض والصرف والمصارف',
+        'screens' => 'سند الصرف الفردي single-cash-payment.php / سند الصرف المتعدد multi-cash-payment.php / سند القبض single-cash-receipt.php / مركز السندات vouchers-hub.php / التدفقات cashflow_modern.php',
+        'icon' => 'fa-vault',
+        'color' => '#34d399',
+        'border' => 'rgba(52, 211, 153, 0.4)',
+        'rules' => []
+    ],
+    'CREDIT' => [
+        'id' => 'sec-credit',
+        'category' => 'CREDIT',
+        'title' => '👥 شاشات العملاء والائتمان والتحصيل والموردين',
+        'screens' => 'لوحة الائتمان credit_limits_dashboard.php / انكشاف العملاء customer_exposure.php / ركود العملاء customer_churn.php / البيانات الأساسية master-data.php',
+        'icon' => 'fa-users-gear',
+        'color' => '#fbbf24',
+        'border' => 'rgba(251, 191, 36, 0.4)',
+        'rules' => []
+    ],
+    'SECURITY' => [
+        'id' => 'sec-security',
+        'category' => 'SECURITY',
+        'title' => '🛡️ شاشات الأمان والرقابة والتدقيق المحاسبي وحماية النظام',
+        'screens' => 'لوحة التحكم magaiees_unified_dashboard.php / الإعدادات والنسخ الاحتياطي settings.php / دفتر الأستاذ general_ledger_v2.php / التقارير المالية analytics.php',
+        'icon' => 'fa-shield-halved',
+        'color' => '#f87171',
+        'border' => 'rgba(248, 113, 113, 0.4)',
+        'rules' => []
+    ]
 ];
+
+foreach ($rules as $r) {
+    $cat = $r['category'];
+    if ($cat === 'SUPPLY') $cat = 'INVENTORY';
+    if (isset($sections[$cat])) {
+        $sections[$cat]['rules'][] = $r;
+    } else {
+        $sections['SECURITY']['rules'][] = $r;
+    }
+}
 ?>
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -873,7 +926,6 @@ $categoryMeta = [
             gap: 20px;
         }
 
-        /* ── كروت الإحصائيات الفخمة ── */
         .stat-card-v4 {
             background: var(--surface);
             border: 2px solid var(--border-glow, rgba(255, 255, 255, 0.1));
@@ -898,7 +950,6 @@ $categoryMeta = [
             background: linear-gradient(90deg, transparent, var(--bar-color, #ef4444), transparent);
         }
 
-        /* ── أزرار التبويبات ── */
         .cat-tab-btn {
             padding: 11px 18px;
             border-radius: 14px;
@@ -928,7 +979,22 @@ $categoryMeta = [
             box-shadow: 0 0 20px rgba(244, 63, 94, 0.4);
         }
 
-        /* ── جدول المصفوفة الرقابية ── */
+        .section-block {
+            background: var(--surface);
+            border: 2px solid var(--border-color, rgba(255, 255, 255, 0.1));
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
+            backdrop-filter: blur(20px);
+            margin-bottom: 24px;
+            transition: all 0.3s ease;
+        }
+
+        .section-block:hover {
+            border-color: var(--border-hover, #38bdf8);
+            box-shadow: 0 18px 45px rgba(0, 0, 0, 0.5);
+        }
+
         .matrix-table {
             width: 100%;
             border-collapse: separate;
@@ -975,7 +1041,6 @@ $categoryMeta = [
             box-shadow: 0 8px 25px rgba(0,0,0,0.3);
         }
 
-        /* ── مفتاح iOS Switch الفخم ── */
         .ios-switch {
             position: relative;
             display: inline-block;
@@ -1015,15 +1080,6 @@ $categoryMeta = [
         input:checked + .ios-slider:before {
             transform: translateX(24px);
         }
-
-        .glass-panel-v4 {
-            background: var(--surface);
-            border: 2px solid var(--border-glass);
-            border-radius: 22px;
-            padding: 22px;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.4);
-            backdrop-filter: blur(20px);
-        }
     </style>
 </head>
 
@@ -1046,16 +1102,16 @@ $categoryMeta = [
                     مصفوفة الرقابة وإدارة التنبيهات والإنذارات العالمية
                 </h1>
                 <p class="text-slate-400 text-xs md:text-sm mt-1 font-bold">
-                    تحكم مركزي شامل لجميع شاشات وأقسام النظام الـ 12 مع إمكانية تفعيل أو تعطيل أي تنبيه (On/Off) وضبط حدوده الرقمية بدقة عالمية.
+                    جداول رقابية تفصيلية مقسمة لكل شاشة وقسم بالنظام مع تحكم كامل للمدير والمستشار (On / Off) لضبط القرارات بدقة عالمية.
                 </p>
             </div>
 
             <!-- Quick Bulk Actions -->
             <div class="flex flex-wrap items-center gap-2.5">
-                <button type="button" onclick="bulkToggle(1)" class="px-4 py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 font-black rounded-xl text-xs transition flex items-center gap-1.5 shadow-md">
-                    <i class="fa-solid fa-check-double"></i> تفعيل الكل
+                <button type="button" onclick="bulkToggle('ALL', 1)" class="px-4 py-2 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-400 border border-emerald-500/40 font-black rounded-xl text-xs transition flex items-center gap-1.5 shadow-md">
+                    <i class="fa-solid fa-check-double"></i> تفعيل الكل (34 قاعدة)
                 </button>
-                <button type="button" onclick="bulkToggle(0)" class="px-4 py-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/40 font-black rounded-xl text-xs transition flex items-center gap-1.5 shadow-md">
+                <button type="button" onclick="bulkToggle('ALL', 0)" class="px-4 py-2 bg-rose-600/20 hover:bg-rose-600/30 text-rose-400 border border-rose-500/40 font-black rounded-xl text-xs transition flex items-center gap-1.5 shadow-md">
                     <i class="fa-solid fa-ban"></i> تعطيل الكل
                 </button>
                 <button type="button" onclick="window.print();" class="px-4 py-2 bg-slate-800 hover:bg-slate-700 text-white font-black rounded-xl text-xs transition flex items-center gap-1.5 border border-slate-700 shadow-md">
@@ -1069,28 +1125,24 @@ $categoryMeta = [
 
         <!-- 📊 KPI SUMMARY CARDS (4 Grid) 📊 -->
         <div class="grid grid-cols-2 md:grid-cols-4 gap-4">
-            <!-- 1. Critical Alerts Count -->
             <div class="stat-card-v4" style="--border-glow: rgba(239, 68, 68, 0.4); --bar-color: #ef4444;">
                 <span class="text-xs text-rose-400 font-bold block">🚨 الإنذارات الحرجـة النشطة</span>
                 <span class="text-3xl font-black text-rose-400 mt-2 block" id="kpi-red-count"><?php echo $red_count; ?></span>
                 <span class="text-xs text-rose-400/80 mt-1 block">مخاطر تتطلب معالجة فورية</span>
             </div>
 
-            <!-- 2. Warning Alerts Count -->
             <div class="stat-card-v4" style="--border-glow: rgba(245, 158, 11, 0.4); --bar-color: #f59e0b;">
                 <span class="text-xs text-amber-400 font-bold block">⚠️ التحذيرات والتنبيهات المتوسطة</span>
                 <span class="text-3xl font-black text-amber-400 mt-2 block" id="kpi-yellow-count"><?php echo $yellow_count; ?></span>
                 <span class="text-xs text-amber-400/80 mt-1 block">تنبيهات للمتابعة الدورية</span>
             </div>
 
-            <!-- 3. Enabled Alert Rules -->
             <div class="stat-card-v4" style="--border-glow: rgba(16, 185, 129, 0.4); --bar-color: #10b981;">
                 <span class="text-xs text-emerald-400 font-bold block">⚙️ القواعد المفعلة بالنظام</span>
                 <span class="text-3xl font-black text-emerald-400 mt-2 block" id="kpi-enabled-rules"><?php echo $enabled_rules; ?> / <?php echo count($rules); ?></span>
                 <span class="text-xs text-emerald-400/80 mt-1 block">قواعد رقابية نشطة تفحص تلقائياً</span>
             </div>
 
-            <!-- 4. Controlled Screens -->
             <div class="stat-card-v4" style="--border-glow: rgba(56, 189, 248, 0.4); --bar-color: #38bdf8;">
                 <span class="text-xs text-sky-400 font-bold block">🏢 الشاشات الخاضعة للرقابة</span>
                 <span class="text-3xl font-black text-sky-400 mt-2 block">12 شاشة</span>
@@ -1101,23 +1153,23 @@ $categoryMeta = [
         <!-- 🎛️ DEPARTMENT & SCREEN TABS + SEARCH BAR 🎛️ -->
         <div class="flex flex-wrap items-center justify-between gap-3 p-3 bg-slate-900/70 rounded-2xl border border-slate-800">
             <div class="flex flex-wrap items-center gap-2" id="category-tabs">
-                <button type="button" class="cat-tab-btn active" onclick="filterCategory('ALL', this)">
-                    <i class="fa-solid fa-layer-group"></i> 🌟 جميع التنبيهات (<?php echo count($rules); ?>)
+                <button type="button" class="cat-tab-btn active" onclick="filterSectionTab('ALL', this)">
+                    <i class="fa-solid fa-layer-group"></i> 🌟 عرض كل الجداول (34 قاعدة)
                 </button>
-                <button type="button" class="cat-tab-btn" onclick="filterCategory('SALES', this)">
-                    <i class="fa-solid fa-cash-register text-sky-400"></i> 🛒 شاشات المبيعات والفوترة
+                <button type="button" class="cat-tab-btn" onclick="filterSectionTab('SALES', this)">
+                    <i class="fa-solid fa-cash-register text-sky-400"></i> 🛒 شاشات المبيعات والفوترة (8)
                 </button>
-                <button type="button" class="cat-tab-btn" onclick="filterCategory('INVENTORY', this)">
-                    <i class="fa-solid fa-warehouse text-purple-400"></i> 📦 المخازن والمستودعات
+                <button type="button" class="cat-tab-btn" onclick="filterSectionTab('INVENTORY', this)">
+                    <i class="fa-solid fa-warehouse text-purple-400"></i> 📦 المخازن والمستودعات (8)
                 </button>
-                <button type="button" class="cat-tab-btn" onclick="filterCategory('FINANCE', this)">
-                    <i class="fa-solid fa-vault text-emerald-400"></i> 💰 الخزينة وسندات القبض والصرف
+                <button type="button" class="cat-tab-btn" onclick="filterSectionTab('FINANCE', this)">
+                    <i class="fa-solid fa-vault text-emerald-400"></i> 💰 الخزينة وسندات الصرف والقبض (9)
                 </button>
-                <button type="button" class="cat-tab-btn" onclick="filterCategory('CREDIT', this)">
-                    <i class="fa-solid fa-users-gear text-amber-400"></i> 👥 العملاء والائتمان والتحصيل
+                <button type="button" class="cat-tab-btn" onclick="filterSectionTab('CREDIT', this)">
+                    <i class="fa-solid fa-users-gear text-amber-400"></i> 👥 العملاء والائتمان والتحصيل (4)
                 </button>
-                <button type="button" class="cat-tab-btn" onclick="filterCategory('SECURITY', this)">
-                    <i class="fa-solid fa-shield-halved text-rose-400"></i> 🛡️ الأمان والرقابة المحاسبية
+                <button type="button" class="cat-tab-btn" onclick="filterSectionTab('SECURITY', this)">
+                    <i class="fa-solid fa-shield-halved text-rose-400"></i> 🛡️ الأمان والرقابة المحاسبية (5)
                 </button>
             </div>
 
@@ -1128,119 +1180,138 @@ $categoryMeta = [
             </div>
         </div>
 
-        <!-- 📋 MASTER SCREEN-BY-SCREEN ALERT MATRIX TABLE 📋 -->
-        <div class="glass-panel-v4 overflow-x-auto">
-            <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3 flex-wrap gap-2">
-                <h3 class="text-lg font-black text-slate-100 flex items-center gap-2">
-                    <i class="fa-solid fa-table-list text-rose-400"></i>
-                    جدول مصفوفة الشاشات والتنبيهات الرقابية (تخصيص كامل On/Off)
-                </h3>
-                <span class="text-xs font-bold text-emerald-400 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/20" id="badge-active-rules">
-                    <span id="active-rules-num"><?php echo $enabled_rules; ?></span> من <?php echo count($rules); ?> قاعدة مفعلة
-                </span>
+        <!-- 📋 5 INDEPENDENT SECTION TABLES 📋 -->
+        <?php foreach ($sections as $secKey => $sec): ?>
+            <div class="section-block" id="<?php echo $sec['id']; ?>" data-sec-category="<?php echo $sec['category']; ?>" style="--border-color: <?php echo $sec['border']; ?>; --border-hover: <?php echo $sec['color']; ?>;">
+                
+                <!-- Section Header -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5 mb-4">
+                    <div>
+                        <h2 class="text-lg md:text-xl font-black flex items-center gap-2.5" style="color: <?php echo $sec['color']; ?>;">
+                            <i class="fa-solid <?php echo $sec['icon']; ?>"></i>
+                            <?php echo $sec['title']; ?>
+                            <span class="text-xs bg-white/10 px-2.5 py-0.5 rounded-full text-white font-bold font-mono">
+                                <?php echo count($sec['rules']); ?> تنبيهات
+                            </span>
+                        </h2>
+                        <div class="text-[11px] font-mono text-slate-400 mt-1 font-bold">
+                            🏢 الشاشات المرتبطة: <span class="text-slate-300"><?php echo htmlspecialchars($sec['screens']); ?></span>
+                        </div>
+                    </div>
+
+                    <!-- Section Quick Actions -->
+                    <div class="flex items-center gap-2">
+                        <button type="button" onclick="bulkToggle('<?php echo $sec['category']; ?>', 1)" class="px-3 py-1.5 bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/30 rounded-lg text-xs font-black transition">
+                            ✓ تفعيل القسم
+                        </button>
+                        <button type="button" onclick="bulkToggle('<?php echo $sec['category']; ?>', 0)" class="px-3 py-1.5 bg-rose-600/20 hover:bg-rose-600/30 text-rose-300 border border-rose-500/30 rounded-lg text-xs font-black transition">
+                            ✕ تعطيل القسم
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Section Table -->
+                <div class="overflow-x-auto">
+                    <table class="matrix-table">
+                        <thead>
+                            <tr>
+                                <th style="width: 35px;">#</th>
+                                <th style="width: 200px;">الشاشة المرتبطة والملف</th>
+                                <th style="width: 220px;">اسم التنبيه الرقابي</th>
+                                <th>شرح التنبيه والهدف الرقابي لحماية المنشأة</th>
+                                <th style="width: 185px;">الشروط والحدود الرقمية</th>
+                                <th style="width: 110px; text-align:center;">الحالة الحية</th>
+                                <th style="width: 100px; text-align:center;">التحكم On/Off</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <?php 
+                            $sIdx = 1;
+                            foreach ($sec['rules'] as $rule): 
+                                $isViolated = false;
+                                $violSeverity = '';
+                                foreach ($logs as $l) {
+                                    if (($l['rule_key'] ?? '') === $rule['rule_key']) {
+                                        $isViolated = true;
+                                        $violSeverity = $l['severity'];
+                                        break;
+                                    }
+                                }
+                            ?>
+                                <tr class="matrix-row" data-search="<?php echo htmlspecialchars(strtolower($rule['screen_name'] . ' ' . $rule['screen_file'] . ' ' . $rule['rule_name'] . ' ' . $rule['description'])); ?>">
+                                    <td class="font-bold text-slate-500 text-xs"><?php echo $sIdx++; ?></td>
+                                    
+                                    <!-- Screen Info -->
+                                    <td>
+                                        <div class="font-black text-slate-100 text-xs md:text-sm">
+                                            <?php echo htmlspecialchars($rule['screen_name'] ?? ''); ?>
+                                        </div>
+                                        <a href="<?php echo explode(' ', $rule['screen_file'])[0]; ?>" class="inline-block text-[11px] font-mono font-bold mt-1 text-sky-400 hover:underline">
+                                            📄 <?php echo htmlspecialchars($rule['screen_file'] ?? ''); ?> ↗
+                                        </a>
+                                    </td>
+
+                                    <!-- Alert Name -->
+                                    <td>
+                                        <div class="font-extrabold text-slate-100 text-xs md:text-sm"><?php echo htmlspecialchars($rule['rule_name']); ?></div>
+                                        <span class="inline-block text-[10px] font-mono font-bold text-slate-400 mt-1">#<?php echo $rule['rule_key']; ?></span>
+                                    </td>
+
+                                    <!-- Description & Auditing Purpose -->
+                                    <td>
+                                        <p class="text-xs text-slate-300 font-bold leading-relaxed"><?php echo htmlspecialchars($rule['description'] ?? ''); ?></p>
+                                    </td>
+
+                                    <!-- Threshold Inputs -->
+                                    <td>
+                                        <div class="flex items-center gap-1 text-xs bg-slate-950/80 p-1 rounded-xl border border-slate-800">
+                                            <span class="text-amber-400 font-bold text-[11px]">⚠️:</span>
+                                            <input type="number" step="any" id="twarn-<?php echo $rule['rule_key']; ?>" value="<?php echo (float)$rule['warning_threshold']; ?>" class="w-12 bg-slate-900 border border-slate-700 text-center py-0.5 rounded text-amber-400 font-black text-xs outline-none focus:border-amber-400">
+                                            
+                                            <span class="text-rose-400 font-bold text-[11px] mr-1">🚨:</span>
+                                            <input type="number" step="any" id="tcrit-<?php echo $rule['rule_key']; ?>" value="<?php echo (float)$rule['critical_threshold']; ?>" class="w-12 bg-slate-900 border border-slate-700 text-center py-0.5 rounded text-rose-400 font-black text-xs outline-none focus:border-rose-400">
+                                            
+                                            <button type="button" onclick="saveThresholdsTable('<?php echo $rule['rule_key']; ?>')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded text-[10px] font-black transition border border-slate-700" title="حفظ الشروط">💾</button>
+                                        </div>
+                                        <span class="text-[10px] text-slate-400 block mt-1 font-bold">الوحدة: <?php echo htmlspecialchars($rule['unit'] ?? ''); ?></span>
+                                    </td>
+
+                                    <!-- Live Status -->
+                                    <td style="text-align:center;">
+                                        <?php if (!$rule['is_enabled']): ?>
+                                            <span class="text-[10px] font-black px-2 py-1 rounded bg-slate-800 text-slate-400 border border-slate-700 block">معطّل ✕</span>
+                                        <?php elseif ($isViolated && $violSeverity === 'RED'): ?>
+                                            <span class="text-[10px] font-black px-2 py-1 rounded bg-rose-950/70 text-rose-300 border border-rose-500/50 block animate-pulse">🚨 خطر نشط!</span>
+                                        <?php elseif ($isViolated && $violSeverity === 'YELLOW'): ?>
+                                            <span class="text-[10px] font-black px-2 py-1 rounded bg-amber-950/70 text-amber-300 border border-amber-500/50 block">⚠️ تنبيه نشط</span>
+                                        <?php else: ?>
+                                            <span class="text-[10px] font-black px-2 py-1 rounded bg-emerald-950/60 text-emerald-300 border border-emerald-500/40 block">🟢 آمن تماماً</span>
+                                        <?php endif; ?>
+                                    </td>
+
+                                    <!-- On/Off Switch -->
+                                    <td style="text-align:center;">
+                                        <div class="flex flex-col items-center gap-1">
+                                            <label class="ios-switch">
+                                                <input type="checkbox" id="tcheck-<?php echo $rule['rule_key']; ?>" <?php echo $rule['is_enabled'] ? 'checked' : ''; ?> onchange="toggleRuleTable('<?php echo $rule['rule_key']; ?>', this.checked)">
+                                                <span class="ios-slider"></span>
+                                            </label>
+                                            <span class="text-[10px] font-bold" id="tstatus-<?php echo $rule['rule_key']; ?>" style="color: <?php echo $rule['is_enabled'] ? '#34d399' : '#64748b'; ?>;">
+                                                <?php echo $rule['is_enabled'] ? 'مفعّل' : 'معطّل'; ?>
+                                            </span>
+                                        </div>
+                                    </td>
+                                </tr>
+                            <?php endforeach; ?>
+                        </tbody>
+                    </table>
+                </div>
+
             </div>
-
-            <table class="matrix-table">
-                <thead>
-                    <tr>
-                        <th style="width: 40px;">#</th>
-                        <th style="width: 220px;">الشاشة المرتبطة والملف</th>
-                        <th style="width: 240px;">اسم التنبيه ونوع الرقابة</th>
-                        <th>شرح التنبيه والهدف الرقابي</th>
-                        <th style="width: 190px;">الشروط والحدود الرقمية</th>
-                        <th style="width: 120px; text-align:center;">الحالة الحية</th>
-                        <th style="width: 110px; text-align:center;">التحكم On/Off</th>
-                    </tr>
-                </thead>
-                <tbody id="matrix-tbody">
-                    <?php 
-                    $idx = 1;
-                    foreach ($rules as $rule): 
-                        $meta = $categoryMeta[$rule['category']] ?? ['icon' => 'fa-bell', 'name' => $rule['category'], 'color' => '#fbbf24', 'bg' => 'rgba(251,191,36,0.1)', 'border' => '#fbbf2440'];
-                        $isViolated = false;
-                        $violSeverity = '';
-                        foreach ($logs as $l) {
-                            if (($l['rule_key'] ?? '') === $rule['rule_key']) {
-                                $isViolated = true;
-                                $violSeverity = $l['severity'];
-                                break;
-                            }
-                        }
-                    ?>
-                        <tr class="matrix-row" data-category="<?php echo $rule['category']; ?>" data-search="<?php echo htmlspecialchars(strtolower($rule['screen_name'] . ' ' . $rule['screen_file'] . ' ' . $rule['rule_name'] . ' ' . $rule['description'])); ?>">
-                            <td class="font-bold text-slate-500 text-xs"><?php echo $idx++; ?></td>
-                            
-                            <!-- Screen Name & Link -->
-                            <td>
-                                <div class="font-black text-slate-100 text-xs md:text-sm flex items-center gap-1.5">
-                                    <i class="fa-solid <?php echo $meta['icon']; ?>" style="color: <?php echo $meta['color']; ?>;"></i>
-                                    <?php echo htmlspecialchars($rule['screen_name'] ?? 'شاشة عامة'); ?>
-                                </div>
-                                <a href="<?php echo explode(' ', $rule['screen_file'])[0]; ?>" class="inline-block text-[11px] font-mono font-bold mt-1 text-sky-400/80 hover:text-sky-300 hover:underline">
-                                    📄 <?php echo htmlspecialchars($rule['screen_file'] ?? ''); ?> ↗
-                                </a>
-                            </td>
-
-                            <!-- Rule Name & Category -->
-                            <td>
-                                <div class="font-extrabold text-slate-100 text-xs md:text-sm"><?php echo htmlspecialchars($rule['rule_name']); ?></div>
-                                <span class="inline-block text-[10px] font-black px-2 py-0.5 rounded mt-1" style="background: <?php echo $meta['bg']; ?>; color: <?php echo $meta['color']; ?>; border: 1px solid <?php echo $meta['border']; ?>;">
-                                    <?php echo $meta['name']; ?>
-                                </span>
-                            </td>
-
-                            <!-- Description -->
-                            <td>
-                                <p class="text-xs text-slate-300 font-bold leading-relaxed"><?php echo htmlspecialchars($rule['description'] ?? ''); ?></p>
-                            </td>
-
-                            <!-- Thresholds -->
-                            <td>
-                                <div class="flex items-center gap-1.5 text-xs bg-slate-950/80 p-1.5 rounded-xl border border-slate-800">
-                                    <span class="text-amber-400 font-bold text-[11px]">⚠️:</span>
-                                    <input type="number" step="any" id="twarn-<?php echo $rule['rule_key']; ?>" value="<?php echo (float)$rule['warning_threshold']; ?>" class="w-12 bg-slate-900 border border-slate-700 text-center py-0.5 rounded text-amber-400 font-black text-xs outline-none focus:border-amber-400">
-                                    
-                                    <span class="text-rose-400 font-bold text-[11px] mr-1">🚨:</span>
-                                    <input type="number" step="any" id="tcrit-<?php echo $rule['rule_key']; ?>" value="<?php echo (float)$rule['critical_threshold']; ?>" class="w-12 bg-slate-900 border border-slate-700 text-center py-0.5 rounded text-rose-400 font-black text-xs outline-none focus:border-rose-400">
-                                    
-                                    <button type="button" onclick="saveThresholdsTable('<?php echo $rule['rule_key']; ?>')" class="px-2 py-1 bg-slate-800 hover:bg-slate-700 text-white rounded text-[10px] font-black transition border border-slate-700" title="حفظ الشروط">💾</button>
-                                </div>
-                                <span class="text-[10px] text-slate-400 block mt-1 font-bold">الوحدة: <?php echo htmlspecialchars($rule['unit'] ?? ''); ?></span>
-                            </td>
-
-                            <!-- Live Status -->
-                            <td style="text-align:center;">
-                                <?php if (!$rule['is_enabled']): ?>
-                                    <span class="text-[11px] font-black px-2.5 py-1 rounded-lg bg-slate-800 text-slate-400 border border-slate-700 block">معطّل ✕</span>
-                                <?php elseif ($isViolated && $violSeverity === 'RED'): ?>
-                                    <span class="text-[11px] font-black px-2.5 py-1 rounded-lg bg-rose-950/70 text-rose-300 border border-rose-500/50 block animate-pulse">🚨 خطر نشط!</span>
-                                <?php elseif ($isViolated && $violSeverity === 'YELLOW'): ?>
-                                    <span class="text-[11px] font-black px-2.5 py-1 rounded-lg bg-amber-950/70 text-amber-300 border border-amber-500/50 block">⚠️ تنبيه نشط</span>
-                                <?php else: ?>
-                                    <span class="text-[11px] font-black px-2.5 py-1 rounded-lg bg-emerald-950/60 text-emerald-300 border border-emerald-500/40 block">🟢 آمن تماماً</span>
-                                <?php endif; ?>
-                            </td>
-
-                            <!-- On/Off Switch -->
-                            <td style="text-align:center;">
-                                <div class="flex flex-col items-center gap-1">
-                                    <label class="ios-switch">
-                                        <input type="checkbox" id="tcheck-<?php echo $rule['rule_key']; ?>" <?php echo $rule['is_enabled'] ? 'checked' : ''; ?> onchange="toggleRuleTable('<?php echo $rule['rule_key']; ?>', this.checked)">
-                                        <span class="ios-slider"></span>
-                                    </label>
-                                    <span class="text-[11px] font-bold" id="tstatus-<?php echo $rule['rule_key']; ?>" style="color: <?php echo $rule['is_enabled'] ? '#34d399' : '#64748b'; ?>;">
-                                        <?php echo $rule['is_enabled'] ? 'مفعّل' : 'معطّل'; ?>
-                                    </span>
-                                </div>
-                            </td>
-                        </tr>
-                    <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
+        <?php endforeach; ?>
 
         <!-- 🚨 LIVE VIOLATIONS PANEL 🚨 -->
-        <div class="glass-panel-v4">
+        <div class="section-block" style="--border-color: rgba(244, 63, 94, 0.4);">
             <div class="flex items-center justify-between mb-4 border-b border-slate-800 pb-3 flex-wrap gap-2">
                 <h3 class="text-lg font-black text-slate-100 flex items-center gap-2">
                     <i class="fa-solid fa-triangle-exclamation text-rose-400"></i>
@@ -1285,7 +1356,6 @@ $categoryMeta = [
 
     <!-- JavaScript Controllers -->
     <script>
-    // 1. Toggle Single Rule
     function toggleRuleTable(ruleKey, isChecked) {
         const formData = new FormData();
         formData.append('action', 'toggle_rule_ajax');
@@ -1303,19 +1373,16 @@ $categoryMeta = [
                 }
                 updateCounters(res);
                 renderLiveViolations(res.logs);
+                if (window.ERPAlertsGuard) window.ERPAlertsGuard.loadRules();
             }
         });
     }
 
-    // 2. Bulk Toggle
-    function bulkToggle(state) {
-        const activeTab = document.querySelector('#category-tabs .cat-tab-btn.active');
-        const cat = activeTab ? activeTab.getAttribute('onclick').match(/'([^']+)'/)[1] : 'ALL';
-
+    function bulkToggle(category, state) {
         const formData = new FormData();
         formData.append('action', 'bulk_toggle_ajax');
         formData.append('is_enabled', state);
-        formData.append('category', cat);
+        formData.append('category', category);
 
         fetch('alarm.php', { method: 'POST', body: formData })
         .then(r => r.json())
@@ -1326,7 +1393,6 @@ $categoryMeta = [
         });
     }
 
-    // 3. Save Thresholds
     function saveThresholdsTable(ruleKey) {
         const warn = document.getElementById('twarn-' + ruleKey).value;
         const crit = document.getElementById('tcrit-' + ruleKey).value;
@@ -1350,36 +1416,34 @@ $categoryMeta = [
                     btn.classList.remove('bg-emerald-600');
                 }, 1000);
                 refreshLiveEngine();
+                if (window.ERPAlertsGuard) window.ERPAlertsGuard.loadRules();
             }
         });
     }
 
-    // 4. Category Tab Filter
-    function filterCategory(cat, btn) {
+    function filterSectionTab(cat, btn) {
         document.querySelectorAll('#category-tabs .cat-tab-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
-        const rows = document.querySelectorAll('#matrix-tbody .matrix-row');
-        rows.forEach(r => {
-            if (cat === 'ALL' || r.getAttribute('data-category') === cat) {
-                r.style.display = 'table-row';
+        const sections = document.querySelectorAll('.section-block[data-sec-category]');
+        sections.forEach(sec => {
+            if (cat === 'ALL' || sec.getAttribute('data-sec-category') === cat) {
+                sec.style.display = 'block';
             } else {
-                r.style.display = 'none';
+                sec.style.display = 'none';
             }
         });
     }
 
-    // 5. Search Matrix
     function searchMatrix(q) {
         const query = q.trim().toLowerCase();
-        const rows = document.querySelectorAll('#matrix-tbody .matrix-row');
+        const rows = document.querySelectorAll('.matrix-row');
         rows.forEach(r => {
             const text = r.getAttribute('data-search') || '';
             r.style.display = (query === '' || text.includes(query)) ? 'table-row' : 'none';
         });
     }
 
-    // 6. Refresh Live Engine
     function refreshLiveEngine() {
         fetch('alarm.php?action=get_live_alerts_json')
         .then(r => r.json())
@@ -1405,9 +1469,6 @@ $categoryMeta = [
 
         const kpiYellow = document.getElementById('kpi-yellow-count');
         if (kpiYellow) kpiYellow.textContent = res.yellow_count;
-
-        const enabledNum = document.getElementById('active-rules-num');
-        if (enabledNum) enabledNum.textContent = res.enabled_count;
 
         const kpiEnabled = document.getElementById('kpi-enabled-rules');
         if (kpiEnabled) kpiEnabled.textContent = res.enabled_count + ' / <?php echo count($rules); ?>';
