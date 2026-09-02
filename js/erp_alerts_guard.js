@@ -1,6 +1,6 @@
 /**
  * ====================================================================
- * Al-Sajana Smart ERP 2026 - Universal Live Alert Guard Engine V7
+ * Al-Sajana Smart ERP 2026 - Universal Live Alert Guard Engine Titanium V8
  * حارس الرقابة الذكية والتنبيهات المباشرة ومنع التلاعب لجميع الشاشات
  * ====================================================================
  */
@@ -12,6 +12,9 @@
         isLoaded: false,
         printedInvoices: new Set(),
         reprintCounters: {},
+        deletedLineCount: 0,
+        lastInvoiceTimestamp: 0,
+        lastInvoiceCustomer: null,
 
         init: function() {
             this.loadRules();
@@ -22,7 +25,7 @@
         loadRules: function() {
             const self = this;
             try {
-                const cached = localStorage.getItem('erp_alert_rules_cache_v7');
+                const cached = localStorage.getItem('erp_alert_rules_cache_v8');
                 if (cached) {
                     const parsed = JSON.parse(cached);
                     parsed.forEach(r => { self.rules[r.rule_key] = r; });
@@ -30,14 +33,14 @@
                 }
             } catch(e) {}
 
-            fetch('alerts_manager.php?action=get_rules_json')
+            fetch('alarm.php?action=get_rules_json')
             .then(r => r.json())
             .then(data => {
                 if (data.success && Array.isArray(data.rules)) {
                     data.rules.forEach(r => {
                         self.rules[r.rule_key] = r;
                     });
-                    localStorage.setItem('erp_alert_rules_cache_v7', JSON.stringify(data.rules));
+                    localStorage.setItem('erp_alert_rules_cache_v8', JSON.stringify(data.rules));
                     self.isLoaded = true;
                 }
             })
@@ -45,7 +48,9 @@
         },
 
         isRuleEnabled: function(ruleKey) {
-            return this.rules[ruleKey] && (this.rules[ruleKey].is_enabled == 1 || this.rules[ruleKey].is_enabled === true);
+            if (!this.rules[ruleKey]) return false;
+            const r = this.rules[ruleKey];
+            return (r.is_enabled == 1 || r.is_enabled === true || r.is_enabled === '1');
         },
 
         getRule: function(ruleKey) {
@@ -57,7 +62,7 @@
             if (!container) {
                 container = document.createElement('div');
                 container.id = 'erp-alerts-guard-container';
-                container.style.cssText = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:999999; display:flex; flex-direction:column; gap:10px; width:90%; max-width:550px; pointer-events:none; font-family:"Cairo","Tajawal",sans-serif;';
+                container.style.cssText = 'position:fixed; top:20px; left:50%; transform:translateX(-50%); z-index:999999; display:flex; flex-direction:column; gap:10px; width:90%; max-width:560px; pointer-events:none; font-family:"Cairo","Tajawal",sans-serif;';
                 document.body.appendChild(container);
             }
 
@@ -70,9 +75,9 @@
             const border = isDanger ? '#ef4444' : '#f59e0b';
             const icon = isDanger ? '🚨' : '⚠️';
 
-            toast.style.cssText = 'background:' + bg + '; border:2px solid ' + border + '; color:#ffffff; padding:12px 18px; border-radius:16px; box-shadow:0 15px 35px rgba(0,0,0,0.5), 0 0 20px ' + border + '40; display:flex; align-items:center; justify-content:space-between; gap:12px; font-weight:800; font-size:0.9rem; line-height:1.5; animation:slideDownToast 0.3s cubic-bezier(0.16, 1, 0.3, 1);';
+            toast.style.cssText = 'background:' + bg + '; border:2px solid ' + border + '; color:#ffffff; padding:13px 18px; border-radius:18px; box-shadow:0 15px 35px rgba(0,0,0,0.5), 0 0 25px ' + border + '50; display:flex; align-items:center; justify-content:space-between; gap:12px; font-weight:800; font-size:0.92rem; line-height:1.5; animation:slideDownToast 0.3s cubic-bezier(0.16, 1, 0.3, 1); backdrop-filter:blur(15px);';
 
-            toast.innerHTML = '<div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.4rem;">' + icon + '</span><span>' + msg + '</span></div><button type="button" style="background:rgba(255,255,255,0.2); border:none; color:#fff; border-radius:8px; padding:4px 8px; font-weight:900; font-size:0.8rem; cursor:pointer;" onclick="this.parentElement.remove()">✕</button>';
+            toast.innerHTML = '<div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.5rem;">' + icon + '</span><span>' + msg + '</span></div><button type="button" style="background:rgba(255,255,255,0.25); border:none; color:#fff; border-radius:8px; padding:4px 9px; font-weight:900; font-size:0.8rem; cursor:pointer;" onclick="this.parentElement.remove()">✕</button>';
 
             container.appendChild(toast);
 
@@ -94,34 +99,66 @@
             const self = this;
             const page = window.location.pathname.split('/').pop().toLowerCase();
 
-            // 1. Sales screens listeners
+            // 1. Sales & POS Screens Listeners
             if (page.includes('sales') || page.includes('invoice') || page.includes('pos')) {
+                
+                // Input Listener (Prices, Quantities, Discounts, AML Big Cash)
                 document.addEventListener('input', function(e) {
                     const target = e.target;
                     if (!target) return;
 
-                    // Price input check
+                    // 1. Price checks (Below Cost / Price Override / Wholesale)
                     if (target.classList.contains('item-price-input') || target.id === 'item-price' || target.name === 'price' || (target.placeholder && target.placeholder.includes('سعر'))) {
                         self.checkSalesPrice(target);
                     }
 
-                    // Quantity input check
+                    // 2. Quantity checks (Exceeds stock / Negative stock)
                     if (target.classList.contains('item-qty-input') || target.id === 'item-qty' || target.name === 'qty' || (target.placeholder && target.placeholder.includes('كمية'))) {
                         self.checkSalesQty(target);
                     }
 
-                    // Discount input check
+                    // 3. Discount limit check
                     if (target.id === 'inv-discount' || target.classList.contains('item-discount-input') || target.name === 'discount') {
                         self.checkSalesDiscount(target);
                     }
+
+                    // 4. AML Large Cash Limit check
+                    if (target.id === 'paid-amount' || target.id === 'cash-amount' || target.name === 'paid' || target.name === 'cash_received') {
+                        self.checkAMLCashLimit(target);
+                    }
                 }, true);
 
-                // Anti-fraud Print & Void Interception
+                // Change Listener (Customer Selection -> Credit limit / Blocked / NSF / Overdue)
+                document.addEventListener('change', function(e) {
+                    const target = e.target;
+                    if (!target) return;
+
+                    if (target.id === 'customer-select' || target.id === 'cust-id' || target.name === 'customer_id' || target.classList.contains('customer-select')) {
+                        self.checkCustomerCreditAndStatus(target);
+                    }
+                }, true);
+
+                // Click Listeners (Print, Void, Delete, Drawer Kick, Delete Lines, Save Invoice)
                 document.addEventListener('click', function(e) {
                     const btn = e.target.closest('button, a');
                     if (!btn) return;
 
-                    // Track print
+                    // 1. Track Drawer Kick without sale (No-Sale Drawer)
+                    if (btn.id === 'btn-open-drawer' || btn.classList.contains('btn-drawer') || (btn.textContent && btn.textContent.includes('فتح الدرج'))) {
+                        if (self.isRuleEnabled('sales_no_sale_drawer_open')) {
+                            self.showAlertBanner('🚨 إنذار كاشير: تم فتح درج النقدية يدوياً بدون تسجيل فاتورة بيع!', 'warning');
+                        }
+                    }
+
+                    // 2. Track Line Voids / Deletions
+                    if (btn.classList.contains('btn-delete-row') || btn.classList.contains('delete-item-btn') || btn.classList.contains('fa-trash') || (btn.textContent && btn.textContent.includes('حذف البند'))) {
+                        self.deletedLineCount++;
+                        if (self.isRuleEnabled('sales_high_line_void_ratio') && self.deletedLineCount >= 3) {
+                            self.showAlertBanner('⚠️ تنبيه تدقيق: تكرار حذف أصناف من الفاتورة (' + self.deletedLineCount + ' بنود محذوفة)!', 'warning');
+                        }
+                    }
+
+                    // 3. Track Duplicate Reprint
                     if (btn.classList.contains('btn-print') || btn.id === 'btn-print' || (btn.textContent && btn.textContent.includes('طباعة'))) {
                         const invNo = self.getCurrentInvoiceNumber();
                         if (invNo) {
@@ -133,7 +170,7 @@
                         }
                     }
 
-                    // Track void/delete after print
+                    // 4. Track Void/Delete after Print
                     if (btn.classList.contains('btn-void') || btn.classList.contains('btn-delete-inv') || (btn.textContent && (btn.textContent.includes('إلغاء الفاتورة') || btn.textContent.includes('حذف الفاتورة')))) {
                         const invNo = self.getCurrentInvoiceNumber();
                         if (invNo && self.printedInvoices.has(invNo) && self.isRuleEnabled('audit_void_after_print')) {
@@ -141,7 +178,7 @@
                         }
                     }
 
-                    // Block deletion of delivered linked documents
+                    // 5. Block deletion of delivered linked documents
                     if (btn.classList.contains('btn-delete-invoice') || btn.classList.contains('delete-btn')) {
                         const row = btn.closest('tr') || btn.closest('.invoice-row');
                         if (row && (row.textContent.includes('تم التسليم') || row.textContent.includes('مكتمل') || row.getAttribute('data-delivered') === '1')) {
@@ -152,6 +189,11 @@
                                 return false;
                             }
                         }
+                    }
+
+                    // 6. Save Invoice Validations (Missing Rep / Rapid Duplicate)
+                    if (btn.id === 'save-invoice-btn' || btn.classList.contains('btn-save-invoice') || (btn.textContent && btn.textContent.includes('حفظ الفاتورة'))) {
+                        self.validateBeforeInvoiceSave(e);
                     }
                 }, true);
             }
@@ -209,8 +251,6 @@
         },
 
         checkSalesPrice: function(inputEl) {
-            if (!this.isRuleEnabled('sales_below_cost') && !this.isRuleEnabled('sales_price_override')) return;
-
             const row = inputEl.closest('tr') || inputEl.closest('.invoice-item-row') || inputEl.parentElement;
             if (!row) return;
 
@@ -218,17 +258,26 @@
             const cost = costEl ? parseFloat(costEl.getAttribute('data-cost') || costEl.value || costEl.textContent) : 0;
             const enteredPrice = parseFloat(inputEl.value) || 0;
 
+            // 1. Below cost
             if (cost > 0 && enteredPrice > 0 && enteredPrice < cost && this.isRuleEnabled('sales_below_cost')) {
                 inputEl.classList.add('erp-alert-highlight-danger');
                 this.showAlertBanner('⚠️ سعر البيع المدخل (' + enteredPrice + ') أقل من سعر التكلفة/الشراء (' + cost + ')!', 'danger');
             } else {
                 inputEl.classList.remove('erp-alert-highlight-danger');
             }
+
+            // 2. Below wholesale
+            if (this.isRuleEnabled('sales_below_wholesale')) {
+                const qtyEl = row.querySelector('.item-qty-input, [name="qty"]');
+                const qty = qtyEl ? (parseFloat(qtyEl.value) || 0) : 0;
+                const wholesaleThreshold = 50;
+                if (qty >= wholesaleThreshold && enteredPrice > 0 && cost > 0 && (enteredPrice - cost) < (cost * 0.02)) {
+                    this.showAlertBanner('⚠️ تنبيه جملة: السعر المدخل يقل عن هامش الجملة المعتمد للكميات الكبيرة!', 'warning');
+                }
+            }
         },
 
         checkSalesQty: function(inputEl) {
-            if (!this.isRuleEnabled('sales_qty_exceeds_stock') && !this.isRuleEnabled('sales_negative_stock')) return;
-
             const row = inputEl.closest('tr') || inputEl.closest('.invoice-item-row') || inputEl.parentElement;
             if (!row) return;
 
@@ -261,6 +310,63 @@
                 this.showAlertBanner('⚠️ نسبة الخصم (' + enteredDiscount + '%) تتجاوز الحد الأقصى المسموح (' + maxAllowed + '%)!', 'warning');
             } else {
                 inputEl.classList.remove('erp-alert-highlight-warning');
+            }
+        },
+
+        checkAMLCashLimit: function(inputEl) {
+            if (!this.isRuleEnabled('sales_aml_large_cash_limit')) return;
+            const rule = this.getRule('sales_aml_large_cash_limit');
+            const limit = rule ? parseFloat(rule.warning_threshold) : 1000000;
+            const amt = parseFloat(inputEl.value) || 0;
+
+            if (amt >= limit) {
+                inputEl.classList.add('erp-alert-highlight-warning');
+                this.showAlertBanner('⚠️ تنبيه امتثال مالي: المبلغ النقدي المستلم كبير جداً (' + amt.toLocaleString() + ') ويتطلب تحصيلاً بنكياً!', 'warning');
+            } else {
+                inputEl.classList.remove('erp-alert-highlight-warning');
+            }
+        },
+
+        checkCustomerCreditAndStatus: function(selectEl) {
+            const opt = selectEl.options ? selectEl.options[selectEl.selectedIndex] : null;
+            if (!opt) return;
+
+            const isBlocked = opt.getAttribute('data-blocked') === '1' || (opt.textContent && opt.textContent.includes('محظور'));
+            if (isBlocked && this.isRuleEnabled('sales_blocked_customer')) {
+                selectEl.classList.add('erp-alert-highlight-danger');
+                this.showAlertBanner('🚫 حظر مبيعات: هذا العميل موقوف ومحظور التعامل معه بموجب قرار الإدارة المالية!', 'danger', 8000);
+            }
+
+            const hasNSF = opt.getAttribute('data-nsf') === '1' || (opt.textContent && opt.textContent.includes('شيك مرتد'));
+            if (hasNSF && this.isRuleEnabled('credit_customer_nsf_history')) {
+                this.showAlertBanner('🚨 تحذير مخاطر شيكات: هذا العميل لديه سوابق شيكات بدون رصيد!', 'danger');
+            }
+
+            const bal = parseFloat(opt.getAttribute('data-balance') || 0);
+            const limit = parseFloat(opt.getAttribute('data-limit') || 0);
+            if (limit > 0 && bal >= limit && this.isRuleEnabled('sales_credit_limit_exceeded')) {
+                this.showAlertBanner('🚨 تنبيه ائتمان: العميل تجاوز السقف الائتماني المسموح به (' + limit.toLocaleString() + ')!', 'danger');
+            }
+        },
+
+        validateBeforeInvoiceSave: function(e) {
+            // Check missing sales rep
+            if (this.isRuleEnabled('sales_missing_rep')) {
+                const repSelect = document.getElementById('rep-select') || document.getElementById('sales-rep') || document.querySelector('[name="sales_rep_id"]');
+                if (repSelect && (!repSelect.value || repSelect.value === '0' || repSelect.value === '')) {
+                    this.showAlertBanner('⚠️ تنبيه إداري: يرجى تحديد مندوب المبيعات المسؤول عن الفاتورة!', 'warning');
+                }
+            }
+
+            // Check rapid duplicate invoice
+            if (this.isRuleEnabled('sales_rapid_duplicate_invoice')) {
+                const now = Date.now();
+                const cust = document.getElementById('customer-select') ? document.getElementById('customer-select').value : '1';
+                if (this.lastInvoiceCustomer === cust && (now - this.lastInvoiceTimestamp) < 60000) {
+                    this.showAlertBanner('⚠️ تنبيه تكرار سريع: تم إصدار فاتورة سابقة لنفس العميل خلال أقل من دقيقة!', 'warning');
+                }
+                this.lastInvoiceTimestamp = now;
+                this.lastInvoiceCustomer = cust;
             }
         },
 
