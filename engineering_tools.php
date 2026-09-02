@@ -1,9 +1,9 @@
 <?php
 // ====================================================================
-// نظام Al-Sajana Smart ERP 2026 - حزمة المساعدات ومفاتيح تحويلات البنوك V8
-// اللون الأصفر الذهبي والخطوط العملاقة مع إظهار الرقم واسم البنك فقط
+// نظام Al-Sajana Smart ERP 2026 - حزمة المساعدات ومفاتيح البنوك وموسوعة فتاوى البيوع V9
+// محصورة بدقة ومبوبة لكبار الأئمة: ابن تيمية · الألباني · ابن باز · ابن عثيمين · الفوزان
 // ====================================================================
-$page_title = 'الأدوات المساعدة والحاسبات ومفاتيح تحويلات البنوك';
+$page_title = 'الأدوات المساعدة والحاسبات ومفاتيح تحويلات البنوك وفتاوى البيوع';
 $header_theme_class = 'header-theme-reports';
 
 require_once 'db_bridge.php';
@@ -26,7 +26,7 @@ $pdo = getDBConnection();
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>مفاتيح تحويلات البنوك والأدوات الهندسية | Al-Sajana ERP</title>
+    <title>مفاتيح تحويلات البنوك وفتاوى البيوع | Al-Sajana ERP</title>
 
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -268,42 +268,46 @@ $pdo = getDBConnection();
             }
         }
 
-        :root.light-theme .master-bban-hero-box {
-            background: #ffffff !important;
-            border: 3px solid #d97706 !important;
-            box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1) !important;
+        /* ── فتاوى البيوع الفخمة ── */
+        .fiqh-master-card {
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(6, 10, 20, 0.98));
+            border: 2px solid rgba(251, 191, 36, 0.3);
+            border-radius: 22px;
+            padding: 22px;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
         }
 
-        :root.light-theme .master-bban-display-screen {
-            background: #f1f5f9 !important;
-            border: 3px solid #059669 !important;
-            color: #0369a1 !important;
-            box-shadow: none !important;
+        .fiqh-master-card:hover {
+            border-color: #fbbf24;
+            box-shadow: 0 18px 40px rgba(0, 0, 0, 0.7), 0 0 25px rgba(251, 191, 36, 0.3);
+            transform: translateY(-3px);
         }
 
-        .fiqh-card {
-            background: rgba(15, 23, 42, 0.75);
-            border: 2px solid rgba(255, 255, 255, 0.08);
-            border-radius: 18px;
-            padding: 20px;
-            transition: all 0.25s ease;
+        .fiqh-filter-btn {
+            padding: 8px 16px;
+            border-radius: 14px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            background: rgba(15, 23, 42, 0.9);
+            color: #cbd5e1;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            cursor: pointer;
+            transition: all 0.2s ease;
+            white-space: nowrap;
         }
 
-        .fiqh-card:hover {
-            border-color: #38bdf8;
-            box-shadow: 0 10px 30px rgba(56, 189, 248, 0.2);
+        .fiqh-filter-btn:hover {
+            border-color: #fbbf24;
+            color: #fbbf24;
             transform: translateY(-2px);
         }
 
-        .fiqh-source-tag {
-            font-size: 0.75rem;
-            font-weight: 800;
-            padding: 2px 10px;
-            border-radius: 12px;
-            background: rgba(56, 189, 248, 0.15);
-            color: #38bdf8;
-            border: 1px solid rgba(56, 189, 248, 0.3);
-            display: inline-block;
+        .fiqh-filter-btn.active {
+            background: linear-gradient(135deg, #d97706, #b45309) !important;
+            border-color: #fbbf24 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 15px rgba(251, 191, 36, 0.4);
         }
 
         @keyframes fadeInUp {
@@ -1658,111 +1662,766 @@ $pdo = getDBConnection();
         </div>
 
         <!-- ════════════════════════════════════════════════════════════════ -->
-        <!-- 7. SUITE: FIQH OF ISLAMIC BUSINESS & TRANSACTIONS               -->
+        <!-- 7. SUITE: FIQH OF ISLAMIC BUSINESS & TRANSACTIONS (5 SCHOLARS)   -->
         <!-- ════════════════════════════════════════════════════════════════ -->
         <div id="suite-sec-fiqh" class="suite-section anim-suite hidden space-y-6">
-            <div class="glass-panel-v3" style="--border-color: rgba(251, 191, 36, 0.4);">
-                <div class="flex items-center justify-between mb-5 border-b border-slate-800 pb-3">
+            <div class="glass-panel-v3" style="--border-color: rgba(251, 191, 36, 0.45);">
+                
+                <!-- Section Master Header -->
+                <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-amber-500/40 pb-5 mb-6">
                     <div>
-                        <h3 class="text-xl font-black text-amber-400 flex items-center gap-2">
-                            <i class="fa-solid fa-book-quran"></i>
-                            موسوعة فتاوى وضوابط البيوع والمعاملات المالية المعاصرة
-                        </h3>
-                        <div class="text-xs font-bold text-slate-400 mt-1">
-                            وفق تحقيقات وفتاوى: <span class="text-amber-300 font-black">شيخ الإسلام ابن تيمية · الإمام الألباني · الإمام ابن باز · الإمام ابن عثيمين · الشيخ صالح الفوزان</span>
+                        <div class="flex items-center gap-2 mb-1.5">
+                            <span class="px-4 py-1.5 bg-amber-500/20 text-amber-300 rounded-xl text-sm font-black border-2 border-amber-400 shadow-md">
+                                ★ موسوعة فتاوى وضوابط البيوع والمعاملات التجارية
+                            </span>
+                            <span class="px-3.5 py-1.5 bg-emerald-500/20 text-emerald-300 rounded-xl text-sm font-black border-2 border-emerald-400 shadow-md">
+                                أصول وضوابط التجارة الحلال ✓
+                            </span>
                         </div>
+                        <h2 class="text-2xl md:text-3xl font-black text-white flex items-center gap-3">
+                            <i class="fa-solid fa-book-quran text-amber-400"></i>
+                            فتاوى البيوع والتعاملات المالية المعاصرة لكبار أئمة وعلماء السنة
+                        </h2>
+                        <p class="text-xs md:text-sm font-bold text-slate-300 mt-1">
+                            الفتاوى والأحكام محصورة بدقة وفق تحقيقات: <span class="text-amber-300 font-black">شيخ الإسلام ابن تيمية</span> · <span class="text-amber-300 font-black">الإمام الألباني</span> · <span class="text-amber-300 font-black">الإمام ابن باز</span> · <span class="text-amber-300 font-black">الإمام ابن عثيمين</span> · <span class="text-amber-300 font-black">الشيخ صالح الفوزان</span>
+                        </p>
                     </div>
-                    <span class="text-xs font-bold text-amber-400 bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20">
-                        الأصل في العقود والشروط الإباحة
+
+                    <!-- Instant Fatwa Search Bar -->
+                    <div class="w-full md:w-80">
+                        <label class="text-xs font-bold text-slate-300 block mb-1">🔍 ابحث في نصوص ومسائل الفتاوى:</label>
+                        <input type="text" id="fiqh-search-input" oninput="filterFatwas()" placeholder="اكتب للبحث: بيع، تقسيط، عربون، شيك..." class="tool-input text-sm font-bold">
+                    </div>
+                </div>
+
+                <!-- 🎛️ FILTER BAR 1: CHOOSE BY SCHOLAR (المشايخ الخمسة) 🎛️ -->
+                <div class="bg-slate-900/90 p-4 rounded-2xl border-2 border-amber-500/30 space-y-2 mb-4">
+                    <span class="text-xs font-black text-amber-400 block">
+                        👤 اختيار الفتاوى حسب فضيلة الشيخ / الإمام:
                     </span>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button type="button" class="fiqh-filter-btn active" data-filter-type="scholar" data-filter-val="all" onclick="setFiqhScholar('all', this)">
+                            🌟 جميع المشايخ الخمسة
+                        </button>
+                        <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="ibn_taymiyyah" onclick="setFiqhScholar('ibn_taymiyyah', this)">
+                            📖 شيخ الإسلام ابن تيمية
+                        </button>
+                        <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_albani" onclick="setFiqhScholar('al_albani', this)">
+                            📚 الإمام الألباني
+                        </button>
+                        <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="ibn_baz" onclick="setFiqhScholar('ibn_baz', this)">
+                            📜 الإمام ابن باز
+                        </button>
+                        <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="ibn_uthaymeen" onclick="setFiqhScholar('ibn_uthaymeen', this)">
+                            💡 الإمام ابن عثيمين
+                        </button>
+                        <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_fawzan" onclick="setFiqhScholar('al_fawzan', this)">
+                            ⚖️ الشيخ صالح الفوزان
+                        </button>
+                    </div>
                 </div>
 
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
-                    
-                    <!-- Fiqh Card 1 -->
-                    <div class="fiqh-card">
-                        <div class="flex items-center justify-between mb-2">
-                            <h4 class="text-base font-black text-white">1. بيع ما لا يملك ("لا تَبِعْ ما ليس عندك")</h4>
-                            <span class="fiqh-source-tag">حديث صحيح</span>
-                        </div>
-                        <p class="text-xs text-slate-300 leading-relaxed font-bold">
-                            نهى النبي ﷺ حكيم بن حزام فقال: <span class="text-amber-300 font-bold">«لا تَبِعْ ما ليس عندك»</span>. فلا يجوز للتاجر إبرام عقد بيع باتّ على سلعة معينة لم يتملكها ولم يقبضها وتدخل في ضمانه.
-                        </p>
-                        <div class="mt-3 p-2.5 bg-slate-950/70 rounded-xl border border-slate-800 text-[11px] text-slate-400">
-                            <span class="text-emerald-400 font-black block mb-0.5">✓ البدائل الشرعية المعتمدة (ابن باز والعثيمين):</span>
-                            1) المواعدة غير الملزمة حتى يشتري السلعة ويحوزها في متجره. 2) الوكالة بأجر معلوم لشراء السلعة للزبون. 3) عقد السَّلَم بشروطه.
-                        </div>
+                <!-- 🎛️ FILTER BAR 2: CHOOSE BY TRANSACTION / TOPIC (نوع المعاملة) 🎛️ -->
+                <div class="bg-slate-900/90 p-4 rounded-2xl border-2 border-cyan-500/30 space-y-2 mb-6">
+                    <span class="text-xs font-black text-cyan-300 block">
+                        🏷️ اختيار وتصنيف الفتاوى حسب نوع المعاملة والمسألة:
+                    </span>
+                    <div class="flex flex-wrap items-center gap-2">
+                        <button type="button" class="fiqh-filter-btn active" data-filter-type="topic" data-filter-val="all" onclick="setFiqhTopic('all', this)">
+                            📑 جميع المسائل والمعاملات
+                        </button>
+                        <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="ownership" onclick="setFiqhTopic('ownership', this)">
+                            🛒 بيع ما لا يملك والوساطة
+                        </button>
+                        <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="installments" onclick="setFiqhTopic('installments', this)">
+                            💳 التقسيط وغرامات التأخير
+                        </button>
+                        <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="exchange" onclick="setFiqhTopic('exchange', this)">
+                            💱 الصرف والموبايل بنك
+                        </button>
+                        <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="checks" onclick="setFiqhTopic('checks', this)">
+                            📜 الشيكات وخصم الأوراق المالية
+                        </button>
+                        <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="araboon" onclick="setFiqhTopic('araboon', this)">
+                            🤝 بيع العربون واسترداده
+                        </button>
+                        <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="contracts" onclick="setFiqhTopic('contracts', this)">
+                            🏗️ الشرط الجزائي وبيع السَّلَم
+                        </button>
+                        <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="pricing" onclick="setFiqhTopic('pricing', this)">
+                            📈 التسعير ونسبة الربح
+                        </button>
+                        <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="gold" onclick="setFiqhTopic('gold', this)">
+                            💎 الذهب والبطاقات البنكية
+                        </button>
+                        <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="defects" onclick="setFiqhTopic('defects', this)">
+                            🔄 بيان العيوب وخيار الرد
+                        </button>
+                        <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="riba" onclick="setFiqhTopic('riba', this)">
+                            🚫 التمويل الربوي والمرابحة
+                        </button>
                     </div>
-
-                    <!-- Fiqh Card 2 -->
-                    <div class="fiqh-card">
-                        <div class="flex items-center justify-between mb-2">
-                            <h4 class="text-base font-black text-white">2. البيع بالتقسيط وغرامات التأخير</h4>
-                            <span class="fiqh-source-tag">إجماع كبار العلماء</span>
-                        </div>
-                        <p class="text-xs text-slate-300 leading-relaxed font-bold">
-                            <span class="text-emerald-400 font-bold">يجوز</span> بيع السلعة بالأجل والتقسيط بسعر أعلى من الكاش إذا حُدد السعر والمدة جازماً بالعقد. ولكن <span class="text-rose-400 font-bold">يُحرم قطعياً فرض غرامة تأخير</span> على المماطل لأنها صريح ربا الجاهلية ("إما أن تقضي وإما أن تربي").
-                        </p>
-                        <div class="mt-3 p-2.5 bg-slate-950/70 rounded-xl border border-slate-800 text-[11px] text-slate-400">
-                            <span class="text-amber-400 font-black block mb-0.5">💡 الحل الشرعي لحفظ الحقوق:</span>
-                            طلب الكفيل، أو الشيك، أو رهن سلعة، ورفع أمر المماطل للقضاء لتعزيره وإلزامه بالسداد.
-                        </div>
-                    </div>
-
-                    <!-- Fiqh Card 3 -->
-                    <div class="fiqh-card">
-                        <div class="flex items-center justify-between mb-2">
-                            <h4 class="text-base font-black text-white">3. الصرف والتحويلات وتطبيقات الموبايل بنك</h4>
-                            <span class="fiqh-source-tag">القبض الحكمي</span>
-                        </div>
-                        <p class="text-xs text-slate-300 leading-relaxed font-bold">
-                            عند بيع عملة بأخرى (دولار بجنيه أو ريال بدولار)، يشترط التقابض الفوري في المجلس. وأفتى الشيخ ابن عثيمين والشيخ الفوزان بأن <span class="text-sky-300 font-bold">«القيد في الحساب البنكي أو إشعار التحويل المكتمل يُعد قبضاً حكمياً معتبراً شرعاً»</span> فيجوز الصرف طالما تم التحويل لحظياً دون تأجيل.
-                        </p>
-                        <div class="mt-3 p-2.5 bg-slate-950/70 rounded-xl border border-slate-800 text-[11px] text-slate-400">
-                            <span class="text-rose-400 font-black block mb-0.5">✕ الممنوع شرعاً:</span>
-                            بيع العملات بالأجل أو الدين (تأخير تسليم أحد المبلغين) لأنه ربا نسيئة محرم.
-                        </div>
-                    </div>
-
-                    <!-- Fiqh Card 4 -->
-                    <div class="fiqh-card">
-                        <div class="flex items-center justify-between mb-2">
-                            <h4 class="text-base font-black text-white">4. تحريم خصم الشيكات والأوراق التجارية</h4>
-                            <span class="fiqh-source-tag">ربا فضل ونسيئة</span>
-                        </div>
-                        <p class="text-xs text-slate-300 leading-relaxed font-bold">
-                            أفتى الشيخ ابن باز والشيخ ابن عثيمين واللجنة الدائمة بـ <span class="text-rose-400 font-bold">«التحريم القاطع لبيع الشيك الآجل بنقد حال أقل من قيمته»</span> (مثلاً بيع شيك 100 ألف بـ 90 ألف كاش)، لأنه مبادلة مال بمال من جنسه مع التفاضل والتأجيل وهو صريح الربا.
-                        </p>
-                        <div class="mt-3 p-2.5 bg-slate-950/70 rounded-xl border border-slate-800 text-[11px] text-slate-400">
-                            <span class="text-emerald-400 font-black block mb-0.5">✓ البديل الشرعي المباح:</span>
-                            الانتظار لموعد الشيك، أو توكيل محصل بأجرة وكالة مقطوعة ومعلومة مقابل أتعابه.
-                        </div>
-                    </div>
-
-                    <!-- Fiqh Card 5 -->
-                    <div class="fiqh-card">
-                        <div class="flex items-center justify-between mb-2">
-                            <h4 class="text-base font-black text-white">5. بيع العربون</h4>
-                            <span class="fiqh-source-tag">اختيار ابن تيمية وابن باز</span>
-                        </div>
-                        <p class="text-xs text-slate-300 leading-relaxed font-bold">
-                            اختيار شيخ الإسلام ابن تيمية والإمام أحمد والشيخ ابن باز والعثيمين: <span class="text-emerald-400 font-bold">جواز بيع العربون</span> (دفع جزء من الثمن مقدماً، فإن أخذ السلعة حُسب من الثمن، وإن تركها فللبائع) لثبوت ذلك عن عمر بن الخطاب رضي الله عنه.
-                        </p>
-                    </div>
-
-                    <!-- Fiqh Card 6 -->
-                    <div class="fiqh-card">
-                        <div class="flex items-center justify-between mb-2">
-                            <h4 class="text-base font-black text-white">6. الشرط الجزائي والتسعير والاحتكار</h4>
-                            <span class="fiqh-source-tag">تحقيق ابن تيمية</span>
-                        </div>
-                        <p class="text-xs text-slate-300 leading-relaxed font-bold">
-                            • <span class="text-emerald-400 font-bold">يجوز الشرط الجزائي</span> في عقود المقاولات والتوريد لجبر الضرر المالي الفعلي عن التأخير، ولا يجوز في الديون.
-                            <br>• <span class="text-sky-300 font-bold">الأصل عدم التسعير وحرية الربح بالتراضي</span> دون حد أقصى ما لم يكن هناك غش أو غبن، ويجب التسعير الجبري العادل فقط عند احتكار أقوات الناس.
-                        </p>
-                    </div>
-
                 </div>
+
+                <!-- 📋 FATWAS CARDS GRID 📋 -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="fatwas-grid-container">
+
+                    <!-- Fatwa Card 1 -->
+                    <div class="fiqh-master-card" data-scholar="ibn_baz" data-topic="ownership" data-search="1. بيع ما لا يملك المندوب أو التاجر («لا تَبِعْ ما ليس عندك» والوساطة التجارية) الإمام عبد العزيز بن باز (رحمه الله) نهى النبي ﷺ حكيم بن حزام فقال: «لا تَبِعْ ما ليس عندك». فلا يجوز للتاجر أو المندوب أن يبرم عقد بيع باتّاً على سلعة معينة ليست في ملكه ولا في حوزته وضمانه، ثم يذهب ليشتريها ويسلمها للزبون. مجموع فتاوى ومقالات متنوعة (19/43)">
+                        
+                        <!-- Header: Title & Scholar Badge -->
+                        <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
+                            <div class="space-y-1.5">
+                                <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
+                                    1. بيع ما لا يملك المندوب أو التاجر («لا تَبِعْ ما ليس عندك» والوساطة التجارية)
+                                </h4>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
+                                        <i class="fa-solid fa-user-tie text-amber-400"></i> الإمام عبد العزيز بن باز (رحمه الله)
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-bold">
+                                        📖 المصدر المعتمد: مجموع فتاوى ومقالات متنوعة (19/43)
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Ruling Badge -->
+                            <div class="px-3.5 py-1.5 rounded-xl border-2 bg-amber-500/25 text-amber-300 border-amber-500/50 text-xs md:text-sm font-black flex items-center gap-1.5 shadow-md flex-shrink-0">
+                                <span>⚠️</span>
+                                <span>محرم في العقد الباتّ · جائز بصيغة الوكالة أو الوعد غير الملزم</span>
+                            </div>
+                        </div>
+
+                        <!-- Fatwa Text Body -->
+                        <p class="text-sm md:text-base text-slate-200 font-bold leading-relaxed mb-3">
+                            نهى النبي ﷺ حكيم بن حزام فقال: «لا تَبِعْ ما ليس عندك». فلا يجوز للتاجر أو المندوب أن يبرم عقد بيع باتّاً على سلعة معينة ليست في ملكه ولا في حوزته وضمانه، ثم يذهب ليشتريها ويسلمها للزبون.
+                        </p>
+
+                        <!-- Evidence & Practical Solution Blocks -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-800/80 text-xs">
+                            <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800">
+                                <span class="text-sky-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    📜 الدليل الشرعي وتأصيل المسألة:
+                                </span>
+                                <span class="text-slate-300 font-bold leading-relaxed block">
+                                    حديث صحيح رواه الترمذي وأبو داود والنسائي وصححه الألباني.
+                                </span>
+                            </div>
+
+                            <div class="p-3.5 bg-emerald-950/30 rounded-2xl border border-emerald-500/40">
+                                <span class="text-emerald-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    💡 التطبيق والبديل الشرعي المعتمد في البرنامج:
+                                </span>
+                                <span class="text-slate-200 font-bold leading-relaxed block">
+                                    الحل الشرعي المعتمد: 1) إخبار الزبون بالوعد غير الملزم حتى يشتري التاجر البضاعة ويحوزها في متجره. 2) أو الاتفاق على الوكالة بأجر معلوم لشراء السلعة له.
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+    
+                    <!-- Fatwa Card 2 -->
+                    <div class="fiqh-master-card" data-scholar="ibn_uthaymeen" data-topic="installments" data-search="2. البيع بالتقسيط مع زيادة السعر عن الثمن النقدي (الكاش) الإمام محمد بن صالح العثيمين (رحمه الله) يجوز بيع السلعة بالتقسيط أو لأجل بثمن أزيد من ثمنها الحاضر (الكاش)، بشرط أن يتم تحديد الثمن الإجمالي وعدد الأقساط ومواعيدها جازماً عند توقيع العقد دون تردد أو خيار بين السعرين. الشرح الممتع على زاد المستقنع (8/360) وفتاوى نور على الدرب">
+                        
+                        <!-- Header: Title & Scholar Badge -->
+                        <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
+                            <div class="space-y-1.5">
+                                <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
+                                    2. البيع بالتقسيط مع زيادة السعر عن الثمن النقدي (الكاش)
+                                </h4>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
+                                        <i class="fa-solid fa-user-tie text-amber-400"></i> الإمام محمد بن صالح العثيمين (رحمه الله)
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-bold">
+                                        📖 المصدر المعتمد: الشرح الممتع على زاد المستقنع (8/360) وفتاوى نور على الدرب
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Ruling Badge -->
+                            <div class="px-3.5 py-1.5 rounded-xl border-2 bg-emerald-500/20 text-emerald-300 border-emerald-500/40 text-xs md:text-sm font-black flex items-center gap-1.5 shadow-md flex-shrink-0">
+                                <span>✓</span>
+                                <span>جائز شرعاً بإجماع عامة العلماء المعاصرين</span>
+                            </div>
+                        </div>
+
+                        <!-- Fatwa Text Body -->
+                        <p class="text-sm md:text-base text-slate-200 font-bold leading-relaxed mb-3">
+                            يجوز بيع السلعة بالتقسيط أو لأجل بثمن أزيد من ثمنها الحاضر (الكاش)، بشرط أن يتم تحديد الثمن الإجمالي وعدد الأقساط ومواعيدها جازماً عند توقيع العقد دون تردد أو خيار بين السعرين.
+                        </p>
+
+                        <!-- Evidence & Practical Solution Blocks -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-800/80 text-xs">
+                            <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800">
+                                <span class="text-sky-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    📜 الدليل الشرعي وتأصيل المسألة:
+                                </span>
+                                <span class="text-slate-300 font-bold leading-relaxed block">
+                                    قوله تعالى: ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا إِذَا تَدَايَنتُم بِدَيْنٍ إِلَىٰ أَجَلٍ مُّسَمًّى فَاكْتُبُوهُ﴾، ولأن للأجل حصة من الثمن عند عامة الفقهاء.
+                                </span>
+                            </div>
+
+                            <div class="p-3.5 bg-emerald-950/30 rounded-2xl border border-emerald-500/40">
+                                <span class="text-emerald-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    💡 التطبيق والبديل الشرعي المعتمد في البرنامج:
+                                </span>
+                                <span class="text-slate-200 font-bold leading-relaxed block">
+                                    تطبيق النظام: يُثبت سعر الفاتورة الآجلة النهائي دون ربط السداد بأي زيادة إضافية بعد العقد.
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+    
+                    <!-- Fatwa Card 3 -->
+                    <div class="fiqh-master-card" data-scholar="ibn_taymiyyah" data-topic="installments" data-search="3. تحريم فرض غرامات التأخير والفوائد على المدين المماطل في السداد شيخ الإسلام ابن تيمية (رحمه الله) الزيادة المشروطة على الدين مقابل تأخير السداد هي عين ربا الجاهلية («إما أن تقضي وإما أن تُربي»). ولا يجوز اشتراط غرامة مالية تدفع للبائع عند التأخر في سداد الأقساط أو الفواتير. مجموع الفتاوى (29/425) وقرارات هيئة كبار العلماء">
+                        
+                        <!-- Header: Title & Scholar Badge -->
+                        <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
+                            <div class="space-y-1.5">
+                                <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
+                                    3. تحريم فرض غرامات التأخير والفوائد على المدين المماطل في السداد
+                                </h4>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
+                                        <i class="fa-solid fa-user-tie text-amber-400"></i> شيخ الإسلام ابن تيمية (رحمه الله)
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-bold">
+                                        📖 المصدر المعتمد: مجموع الفتاوى (29/425) وقرارات هيئة كبار العلماء
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Ruling Badge -->
+                            <div class="px-3.5 py-1.5 rounded-xl border-2 bg-rose-500/25 text-rose-300 border-rose-500/50 text-xs md:text-sm font-black flex items-center gap-1.5 shadow-md flex-shrink-0">
+                                <span>✕</span>
+                                <span>محرم قطعاً وباطل شرعاً (صريح ربا الجاهلية)</span>
+                            </div>
+                        </div>
+
+                        <!-- Fatwa Text Body -->
+                        <p class="text-sm md:text-base text-slate-200 font-bold leading-relaxed mb-3">
+                            الزيادة المشروطة على الدين مقابل تأخير السداد هي عين ربا الجاهلية («إما أن تقضي وإما أن تُربي»). ولا يجوز اشتراط غرامة مالية تدفع للبائع عند التأخر في سداد الأقساط أو الفواتير.
+                        </p>
+
+                        <!-- Evidence & Practical Solution Blocks -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-800/80 text-xs">
+                            <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800">
+                                <span class="text-sky-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    📜 الدليل الشرعي وتأصيل المسألة:
+                                </span>
+                                <span class="text-slate-300 font-bold leading-relaxed block">
+                                    قوله تعالى: ﴿وَإِن كَانَ ذُو عُسْرَةٍ فَنَظِرَةٌ إِلَىٰ مَيْسَرَةٍ﴾، وإجماع الأئمة على تحريم زيادة الدين لأجل التأخير.
+                                </span>
+                            </div>
+
+                            <div class="p-3.5 bg-emerald-950/30 rounded-2xl border border-emerald-500/40">
+                                <span class="text-emerald-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    💡 التطبيق والبديل الشرعي المعتمد في البرنامج:
+                                </span>
+                                <span class="text-slate-200 font-bold leading-relaxed block">
+                                    الحل الشرعي لحفظ الحقوق: طلب كفيل غارم، شيك ضمان، رهن أصول، أو رفع أمر المماطل للقضاء لإلزامه بالسداد وتعزيره.
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+    
+                    <!-- Fatwa Card 4 -->
+                    <div class="fiqh-master-card" data-scholar="al_fawzan" data-topic="exchange" data-search="4. الصرف والتحويلات الفورية عبر تطبيقات الموبايل بنك (القبض الحكمي) معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله) يشترط في بيع العملات المختلفة (دولار مقابل جنيه أو ريال) التقابض الفوري. والقيد المصرفي المكتمل أو إشعار التحويل البنكي الفوري يُعد قبضاً حكمياً معتبراً شرعاً يقوم مقام القبض باليد. المنتقى من فتاوى الفوزان ومجمع الفقه الإسلامي">
+                        
+                        <!-- Header: Title & Scholar Badge -->
+                        <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
+                            <div class="space-y-1.5">
+                                <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
+                                    4. الصرف والتحويلات الفورية عبر تطبيقات الموبايل بنك (القبض الحكمي)
+                                </h4>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
+                                        <i class="fa-solid fa-user-tie text-amber-400"></i> معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله)
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-bold">
+                                        📖 المصدر المعتمد: المنتقى من فتاوى الفوزان ومجمع الفقه الإسلامي
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Ruling Badge -->
+                            <div class="px-3.5 py-1.5 rounded-xl border-2 bg-emerald-500/20 text-emerald-300 border-emerald-500/40 text-xs md:text-sm font-black flex items-center gap-1.5 shadow-md flex-shrink-0">
+                                <span>✓</span>
+                                <span>جائز شرعاً طالما تم القيد والتحويل الفوري في المجلس</span>
+                            </div>
+                        </div>
+
+                        <!-- Fatwa Text Body -->
+                        <p class="text-sm md:text-base text-slate-200 font-bold leading-relaxed mb-3">
+                            يشترط في بيع العملات المختلفة (دولار مقابل جنيه أو ريال) التقابض الفوري. والقيد المصرفي المكتمل أو إشعار التحويل البنكي الفوري يُعد قبضاً حكمياً معتبراً شرعاً يقوم مقام القبض باليد.
+                        </p>
+
+                        <!-- Evidence & Practical Solution Blocks -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-800/80 text-xs">
+                            <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800">
+                                <span class="text-sky-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    📜 الدليل الشرعي وتأصيل المسألة:
+                                </span>
+                                <span class="text-slate-300 font-bold leading-relaxed block">
+                                    حديث النبي ﷺ: «فَإِذَا اخْتَلَفَتْ هَذِهِ الأَصْنَافُ فَبِيعُوا كَيْفَ شِئْتُمْ إِذَا كَانَ يَدًا بِيَدٍ».
+                                </span>
+                            </div>
+
+                            <div class="p-3.5 bg-emerald-950/30 rounded-2xl border border-emerald-500/40">
+                                <span class="text-emerald-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    💡 التطبيق والبديل الشرعي المعتمد في البرنامج:
+                                </span>
+                                <span class="text-slate-200 font-bold leading-relaxed block">
+                                    التنبيه في البرنامج: لا يجوز الصرف بالدين أو تأجيل تسليم أحد المبلغين، بل يجب أن يكون التحويل لحظياً ومؤكداً بالإشعار.
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+    
+                    <!-- Fatwa Card 5 -->
+                    <div class="fiqh-master-card" data-scholar="ibn_baz" data-topic="checks" data-search="5. تحريم خصم الشيكات والأوراق التجارية الآجلة (بيع الدين بنقد حال أقل) الإمام عبد العزيز بن باز (رحمه الله) أفتى الشيخ ابن باز رحمه الله بتحريم بيع الشيك الآجل بنقد حال أقل من قيمته (مثل بيع شيك بـ 100 ألف جنيه مقابل 90 ألف كاش)، لأن حقيقته مبادلة نقد بنقد مع التفاضل والتأجيل وهو صريح الربا. مجموع فتاوى ابن باز (19/282)">
+                        
+                        <!-- Header: Title & Scholar Badge -->
+                        <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
+                            <div class="space-y-1.5">
+                                <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
+                                    5. تحريم خصم الشيكات والأوراق التجارية الآجلة (بيع الدين بنقد حال أقل)
+                                </h4>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
+                                        <i class="fa-solid fa-user-tie text-amber-400"></i> الإمام عبد العزيز بن باز (رحمه الله)
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-bold">
+                                        📖 المصدر المعتمد: مجموع فتاوى ابن باز (19/282)
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Ruling Badge -->
+                            <div class="px-3.5 py-1.5 rounded-xl border-2 bg-rose-500/25 text-rose-300 border-rose-500/50 text-xs md:text-sm font-black flex items-center gap-1.5 shadow-md flex-shrink-0">
+                                <span>✕</span>
+                                <span>محرم تحريماً قاطعاً (ربا فضل وربا نسيئة)</span>
+                            </div>
+                        </div>
+
+                        <!-- Fatwa Text Body -->
+                        <p class="text-sm md:text-base text-slate-200 font-bold leading-relaxed mb-3">
+                            أفتى الشيخ ابن باز رحمه الله بتحريم بيع الشيك الآجل بنقد حال أقل من قيمته (مثل بيع شيك بـ 100 ألف جنيه مقابل 90 ألف كاش)، لأن حقيقته مبادلة نقد بنقد مع التفاضل والتأجيل وهو صريح الربا.
+                        </p>
+
+                        <!-- Evidence & Practical Solution Blocks -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-800/80 text-xs">
+                            <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800">
+                                <span class="text-sky-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    📜 الدليل الشرعي وتأصيل المسألة:
+                                </span>
+                                <span class="text-slate-300 font-bold leading-relaxed block">
+                                    قول النبي ﷺ: «الذهب بالذهب والفضة بالفضة... مثلاً بمثل، يداً بيد».
+                                </span>
+                            </div>
+
+                            <div class="p-3.5 bg-emerald-950/30 rounded-2xl border border-emerald-500/40">
+                                <span class="text-emerald-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    💡 التطبيق والبديل الشرعي المعتمد في البرنامج:
+                                </span>
+                                <span class="text-slate-200 font-bold leading-relaxed block">
+                                    البديل الشرعي: الانتظار حتى موعد استحقاق الشيك، أو توكيل محصل ديون بأجرة مقطوعة ومعلومة مقابل أتعاب التحصيل والمتابعة.
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+    
+                    <!-- Fatwa Card 6 -->
+                    <div class="fiqh-master-card" data-scholar="ibn_taymiyyah" data-topic="araboon" data-search="6. بيع العربون واسترداده في حال فسخ الصفقة من قِبل المشتري شيخ الإسلام ابن تيمية (رحمه الله) اختيار شيخ الإسلام ابن تيمية والإمام ابن باز والعثيمين: جواز بيع العربون (دفع مبلغ مقدماً فإن أتم المشتري البيع حُسب من الثمن، وإن نكل وفسخ فللبائع الاحتفاظ به) لثبوته عن عمر بن الخطاب رضي الله عنه. مجموع الفتاوى (29/536) واختيار الإمام أحمد">
+                        
+                        <!-- Header: Title & Scholar Badge -->
+                        <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
+                            <div class="space-y-1.5">
+                                <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
+                                    6. بيع العربون واسترداده في حال فسخ الصفقة من قِبل المشتري
+                                </h4>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
+                                        <i class="fa-solid fa-user-tie text-amber-400"></i> شيخ الإسلام ابن تيمية (رحمه الله)
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-bold">
+                                        📖 المصدر المعتمد: مجموع الفتاوى (29/536) واختيار الإمام أحمد
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Ruling Badge -->
+                            <div class="px-3.5 py-1.5 rounded-xl border-2 bg-emerald-500/20 text-emerald-300 border-emerald-500/40 text-xs md:text-sm font-black flex items-center gap-1.5 shadow-md flex-shrink-0">
+                                <span>✓</span>
+                                <span>جائز شرعاً للبائع تملك العربون إذا تراجع المشتري</span>
+                            </div>
+                        </div>
+
+                        <!-- Fatwa Text Body -->
+                        <p class="text-sm md:text-base text-slate-200 font-bold leading-relaxed mb-3">
+                            اختيار شيخ الإسلام ابن تيمية والإمام ابن باز والعثيمين: جواز بيع العربون (دفع مبلغ مقدماً فإن أتم المشتري البيع حُسب من الثمن، وإن نكل وفسخ فللبائع الاحتفاظ به) لثبوته عن عمر بن الخطاب رضي الله عنه.
+                        </p>
+
+                        <!-- Evidence & Practical Solution Blocks -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-800/80 text-xs">
+                            <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800">
+                                <span class="text-sky-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    📜 الدليل الشرعي وتأصيل المسألة:
+                                </span>
+                                <span class="text-slate-300 font-bold leading-relaxed block">
+                                    ما رواه الأثرم وابن أبي شيبة عن نافع بن الحارث أنه اشترى لعمر دار السجن بمكة إن رضي عمر فالبيع نافذ وإلا فله كذا وكذا.
+                                </span>
+                            </div>
+
+                            <div class="p-3.5 bg-emerald-950/30 rounded-2xl border border-emerald-500/40">
+                                <span class="text-emerald-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    💡 التطبيق والبديل الشرعي المعتمد في البرنامج:
+                                </span>
+                                <span class="text-slate-200 font-bold leading-relaxed block">
+                                    تطبيق النظام: إثبات سند قبض العربون، وخصمه من إجمالي الفاتورة، أو قيده كتعويض حال تراجع العميل.
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+    
+                    <!-- Fatwa Card 7 -->
+                    <div class="fiqh-master-card" data-scholar="ibn_uthaymeen" data-topic="contracts" data-search="7. الشرط الجزائي في عقود التوريد والمقاولات والصيانة الإمام محمد بن صالح العثيمين (رحمه الله) يجوز الاتفاق على الشرط الجزائي في عقود المقاولات والتوريد لجبر الضرر المالي الحقيقي الناتج عن تأخر المقاول أو المورد عن الموعد المحدد، ولا يجوز اشتراطه في الديون والقروض. مجموع فتاوى ورسائل ابن عثيمين (18/142) وهيئة كبار العلماء">
+                        
+                        <!-- Header: Title & Scholar Badge -->
+                        <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
+                            <div class="space-y-1.5">
+                                <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
+                                    7. الشرط الجزائي في عقود التوريد والمقاولات والصيانة
+                                </h4>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
+                                        <i class="fa-solid fa-user-tie text-amber-400"></i> الإمام محمد بن صالح العثيمين (رحمه الله)
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-bold">
+                                        📖 المصدر المعتمد: مجموع فتاوى ورسائل ابن عثيمين (18/142) وهيئة كبار العلماء
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Ruling Badge -->
+                            <div class="px-3.5 py-1.5 rounded-xl border-2 bg-amber-500/25 text-amber-300 border-amber-500/50 text-xs md:text-sm font-black flex items-center gap-1.5 shadow-md flex-shrink-0">
+                                <span>⚠️</span>
+                                <span>جائز في عقود الأعمال والمقاولات والتوريد · محرم في الديون</span>
+                            </div>
+                        </div>
+
+                        <!-- Fatwa Text Body -->
+                        <p class="text-sm md:text-base text-slate-200 font-bold leading-relaxed mb-3">
+                            يجوز الاتفاق على الشرط الجزائي في عقود المقاولات والتوريد لجبر الضرر المالي الحقيقي الناتج عن تأخر المقاول أو المورد عن الموعد المحدد، ولا يجوز اشتراطه في الديون والقروض.
+                        </p>
+
+                        <!-- Evidence & Practical Solution Blocks -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-800/80 text-xs">
+                            <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800">
+                                <span class="text-sky-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    📜 الدليل الشرعي وتأصيل المسألة:
+                                </span>
+                                <span class="text-slate-300 font-bold leading-relaxed block">
+                                    قول النبي ﷺ: «المسلمون على شروطهم إلا شرطاً حرَّم حلالاً أو أحلَّ حراماً» رواه الترمذي وصححه الألباني.
+                                </span>
+                            </div>
+
+                            <div class="p-3.5 bg-emerald-950/30 rounded-2xl border border-emerald-500/40">
+                                <span class="text-emerald-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    💡 التطبيق والبديل الشرعي المعتمد في البرنامج:
+                                </span>
+                                <span class="text-slate-200 font-bold leading-relaxed block">
+                                    تطبيق النظام: تقدير غرامة التأخير اليومية في عقود المقاولات بما يعادل الضرر المالي الفعلي فقط دون مبالغة.
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+    
+                    <!-- Fatwa Card 8 -->
+                    <div class="fiqh-master-card" data-scholar="ibn_taymiyyah" data-topic="pricing" data-search="8. التسعير وتحديد نسبة الربح وحرية الأسعار والتراضي شيخ الإسلام ابن تيمية (رحمه الله) لم يحدد الشرع نسبة معينة للربح (كالعُشر أو الثلث)، بل الأصل هو التراضي بين البائع والمشتري. ويجوز لولي الأمر التسعير الجبري العادل فقط إذا احتكر التجار أقوات الناس ورفعوا الأسعار ظلماً. الحسبة في الإسلام لمجموع الفتاوى (28/75)">
+                        
+                        <!-- Header: Title & Scholar Badge -->
+                        <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
+                            <div class="space-y-1.5">
+                                <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
+                                    8. التسعير وتحديد نسبة الربح وحرية الأسعار والتراضي
+                                </h4>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
+                                        <i class="fa-solid fa-user-tie text-amber-400"></i> شيخ الإسلام ابن تيمية (رحمه الله)
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-bold">
+                                        📖 المصدر المعتمد: الحسبة في الإسلام لمجموع الفتاوى (28/75)
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Ruling Badge -->
+                            <div class="px-3.5 py-1.5 rounded-xl border-2 bg-emerald-500/20 text-emerald-300 border-emerald-500/40 text-xs md:text-sm font-black flex items-center gap-1.5 shadow-md flex-shrink-0">
+                                <span>✓</span>
+                                <span>الأصل حرية الربح بالتراضي · والتسعير الجبري يجب فقط عند الاحتكار</span>
+                            </div>
+                        </div>
+
+                        <!-- Fatwa Text Body -->
+                        <p class="text-sm md:text-base text-slate-200 font-bold leading-relaxed mb-3">
+                            لم يحدد الشرع نسبة معينة للربح (كالعُشر أو الثلث)، بل الأصل هو التراضي بين البائع والمشتري. ويجوز لولي الأمر التسعير الجبري العادل فقط إذا احتكر التجار أقوات الناس ورفعوا الأسعار ظلماً.
+                        </p>
+
+                        <!-- Evidence & Practical Solution Blocks -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-800/80 text-xs">
+                            <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800">
+                                <span class="text-sky-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    📜 الدليل الشرعي وتأصيل المسألة:
+                                </span>
+                                <span class="text-slate-300 font-bold leading-relaxed block">
+                                    قول النبي ﷺ لما قيل له سعِّر لنا: «إن الله هو الخالق القابض الباسط الرزاق المسعِّر...» رواه أبو داود والترمذي وصححه الألباني.
+                                </span>
+                            </div>
+
+                            <div class="p-3.5 bg-emerald-950/30 rounded-2xl border border-emerald-500/40">
+                                <span class="text-emerald-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    💡 التطبيق والبديل الشرعي المعتمد في البرنامج:
+                                </span>
+                                <span class="text-slate-200 font-bold leading-relaxed block">
+                                    تطبيق النظام: حرية تحديد هامش الربح للصنف مع الالتزام بالصدق وعدم الغش أو الاحتكار.
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+    
+                    <!-- Fatwa Card 9 -->
+                    <div class="fiqh-master-card" data-scholar="al_fawzan" data-topic="gold" data-search="9. شراء الذهب والفضة عبر البطاقات المصرفية ونقاط البيع (pos) معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله) يجوز شراء الذهب والفضة ببطاقة الصراف المباشرة (مدى / الخصم الفوري) لأن الخصم من حساب المشتري والإيداع في حساب التاجر يتم فوراً في المجلس فيتحقق القبض الشرعي. الفتاوى الاقتصادية وقرار المجمع الفقهي الإسلامي">
+                        
+                        <!-- Header: Title & Scholar Badge -->
+                        <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
+                            <div class="space-y-1.5">
+                                <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
+                                    9. شراء الذهب والفضة عبر البطاقات المصرفية ونقاط البيع (POS)
+                                </h4>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
+                                        <i class="fa-solid fa-user-tie text-amber-400"></i> معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله)
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-bold">
+                                        📖 المصدر المعتمد: الفتاوى الاقتصادية وقرار المجمع الفقهي الإسلامي
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Ruling Badge -->
+                            <div class="px-3.5 py-1.5 rounded-xl border-2 bg-amber-500/25 text-amber-300 border-amber-500/50 text-xs md:text-sm font-black flex items-center gap-1.5 shadow-md flex-shrink-0">
+                                <span>⚠️</span>
+                                <span>جائز ببطاقة الخصم المباشر (Debit) · محرم ببطاقة الائتمان الآجلة (Credit)</span>
+                            </div>
+                        </div>
+
+                        <!-- Fatwa Text Body -->
+                        <p class="text-sm md:text-base text-slate-200 font-bold leading-relaxed mb-3">
+                            يجوز شراء الذهب والفضة ببطاقة الصراف المباشرة (مدى / الخصم الفوري) لأن الخصم من حساب المشتري والإيداع في حساب التاجر يتم فوراً في المجلس فيتحقق القبض الشرعي.
+                        </p>
+
+                        <!-- Evidence & Practical Solution Blocks -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-800/80 text-xs">
+                            <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800">
+                                <span class="text-sky-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    📜 الدليل الشرعي وتأصيل المسألة:
+                                </span>
+                                <span class="text-slate-300 font-bold leading-relaxed block">
+                                    القبض الحكمي يقوم مقام القبض الحقيقي باليد في المعاملات المالية الحديثة.
+                                </span>
+                            </div>
+
+                            <div class="p-3.5 bg-emerald-950/30 rounded-2xl border border-emerald-500/40">
+                                <span class="text-emerald-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    💡 التطبيق والبديل الشرعي المعتمد في البرنامج:
+                                </span>
+                                <span class="text-slate-200 font-bold leading-relaxed block">
+                                    تحذير النظام: يُحظر بيع الذهب بالتقسيط أو الشيكات الآجلة أو تأخير التسليم.
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+    
+                    <!-- Fatwa Card 10 -->
+                    <div class="fiqh-master-card" data-scholar="al_albani" data-topic="defects" data-search="10. وجوب بيان عيوب البضاعة وخيار العيب ورد السلعة الإمام محمد ناصر الدين الألباني (رحمه الله) يحرم على التاجر كتمان أي عيب في الصنف أو المبيع. ومن اشترى سلعة فوجد بها عيباً قديماً لم يخبر به البائع، فله الخيار الكامل في رد السلعة واسترجاع الثمن كاملاً أو أخذ فارق القيمة (الأرش). سلسلة الأحاديث الصحيحة (رقم 1058) وفتاوى جدة">
+                        
+                        <!-- Header: Title & Scholar Badge -->
+                        <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
+                            <div class="space-y-1.5">
+                                <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
+                                    10. وجوب بيان عيوب البضاعة وخيار العيب ورد السلعة
+                                </h4>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
+                                        <i class="fa-solid fa-user-tie text-amber-400"></i> الإمام محمد ناصر الدين الألباني (رحمه الله)
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-bold">
+                                        📖 المصدر المعتمد: سلسلة الأحاديث الصحيحة (رقم 1058) وفتاوى جدة
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Ruling Badge -->
+                            <div class="px-3.5 py-1.5 rounded-xl border-2 bg-emerald-500/20 text-emerald-300 border-emerald-500/40 text-xs md:text-sm font-black flex items-center gap-1.5 shadow-md flex-shrink-0">
+                                <span>✓</span>
+                                <span>واجب شرعاً بيان كل عيب · ويحرم كتمانه أو تغطيته</span>
+                            </div>
+                        </div>
+
+                        <!-- Fatwa Text Body -->
+                        <p class="text-sm md:text-base text-slate-200 font-bold leading-relaxed mb-3">
+                            يحرم على التاجر كتمان أي عيب في الصنف أو المبيع. ومن اشترى سلعة فوجد بها عيباً قديماً لم يخبر به البائع، فله الخيار الكامل في رد السلعة واسترجاع الثمن كاملاً أو أخذ فارق القيمة (الأرش).
+                        </p>
+
+                        <!-- Evidence & Practical Solution Blocks -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-800/80 text-xs">
+                            <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800">
+                                <span class="text-sky-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    📜 الدليل الشرعي وتأصيل المسألة:
+                                </span>
+                                <span class="text-slate-300 font-bold leading-relaxed block">
+                                    قول النبي ﷺ: «المسلم أخو المسلم، لا يحل لمسلم باع من أخيه بيعاً فيه عيب إلا بينه له» رواه ابن ماجه وصححه الألباني.
+                                </span>
+                            </div>
+
+                            <div class="p-3.5 bg-emerald-950/30 rounded-2xl border border-emerald-500/40">
+                                <span class="text-emerald-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    💡 التطبيق والبديل الشرعي المعتمد في البرنامج:
+                                </span>
+                                <span class="text-slate-200 font-bold leading-relaxed block">
+                                    تطبيق النظام: إتاحة خيار إرجاع المبيعات واسترجاع النقدية بسهولة عند وجود تلف أو عيب مصنعي.
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+    
+                    <!-- Fatwa Card 11 -->
+                    <div class="fiqh-master-card" data-scholar="ibn_baz" data-topic="contracts" data-search="11. ضوابط بيع السَّلَم في التوريدات والمحاصيل الزراعية الإمام عبد العزيز بن باز (رحمه الله) يجوز بيع السَّلَم (دفع كامل الثمن مقدماً نقداً للبائع وتأجيل تسليم البضاعة كالمحاصيل أو الحديد لموعد محدد)، بشرط أن تكون البضاعة موصوفة بدقة في الذمة منضبطة بالكيل أو الوزن ومحددة الأجل والمكان. مجموع فتاوى ابن باز (19/402)">
+                        
+                        <!-- Header: Title & Scholar Badge -->
+                        <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
+                            <div class="space-y-1.5">
+                                <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
+                                    11. ضوابط بيع السَّلَم في التوريدات والمحاصيل الزراعية
+                                </h4>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
+                                        <i class="fa-solid fa-user-tie text-amber-400"></i> الإمام عبد العزيز بن باز (رحمه الله)
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-bold">
+                                        📖 المصدر المعتمد: مجموع فتاوى ابن باز (19/402)
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Ruling Badge -->
+                            <div class="px-3.5 py-1.5 rounded-xl border-2 bg-emerald-500/20 text-emerald-300 border-emerald-500/40 text-xs md:text-sm font-black flex items-center gap-1.5 shadow-md flex-shrink-0">
+                                <span>✓</span>
+                                <span>جائز شرعاً بشروطه المعتبرة (تقديم الثمن وتأجيل السلعة)</span>
+                            </div>
+                        </div>
+
+                        <!-- Fatwa Text Body -->
+                        <p class="text-sm md:text-base text-slate-200 font-bold leading-relaxed mb-3">
+                            يجوز بيع السَّلَم (دفع كامل الثمن مقدماً نقداً للبائع وتأجيل تسليم البضاعة كالمحاصيل أو الحديد لموعد محدد)، بشرط أن تكون البضاعة موصوفة بدقة في الذمة منضبطة بالكيل أو الوزن ومحددة الأجل والمكان.
+                        </p>
+
+                        <!-- Evidence & Practical Solution Blocks -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-800/80 text-xs">
+                            <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800">
+                                <span class="text-sky-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    📜 الدليل الشرعي وتأصيل المسألة:
+                                </span>
+                                <span class="text-slate-300 font-bold leading-relaxed block">
+                                    قول النبي ﷺ لما قدم المدينة وهم يسلفون في الثمار: «من أسلف في شيء فليسلف في كيل معلوم، ووزن معلوم، إلى أجل معلوم» متفق عليه.
+                                </span>
+                            </div>
+
+                            <div class="p-3.5 bg-emerald-950/30 rounded-2xl border border-emerald-500/40">
+                                <span class="text-emerald-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    💡 التطبيق والبديل الشرعي المعتمد في البرنامج:
+                                </span>
+                                <span class="text-slate-200 font-bold leading-relaxed block">
+                                    تطبيق النظام: قيد فواتير السَّلَم واستلام كامل الثمن في الخزينة مع تحديد تاريخ التوريد بدقة.
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+    
+                    <!-- Fatwa Card 12 -->
+                    <div class="fiqh-master-card" data-scholar="ibn_uthaymeen" data-topic="riba" data-search="12. حكم الاقتراض بفائدة أو السحب على المكشوف لتمويل النشاط التجاري الإمام محمد بن صالح العثيمين (رحمه الله) تحرم القروض البنكية الربوية وفوائد السحب على المكشوف تحريماً قاطعاً ولو كانت بغرض تنمية التجارة أو تشغيل المخازن، والواجب اللجوء إلى التمويل الإسلامي الحقيقي كالمرابحة والمضاربة والمشاركة. فتاوى إسلامية (2/414) وفتاوى نور على الدرب">
+                        
+                        <!-- Header: Title & Scholar Badge -->
+                        <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
+                            <div class="space-y-1.5">
+                                <h4 class="text-lg md:text-xl font-black text-amber-300 leading-tight">
+                                    12. حكم الاقتراض بفائدة أو السحب على المكشوف لتمويل النشاط التجاري
+                                </h4>
+                                <div class="flex flex-wrap items-center gap-2">
+                                    <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 border border-amber-400/50 rounded-xl text-xs font-black flex items-center gap-1.5 shadow-sm">
+                                        <i class="fa-solid fa-user-tie text-amber-400"></i> الإمام محمد بن صالح العثيمين (رحمه الله)
+                                    </span>
+                                    <span class="text-xs text-slate-400 font-bold">
+                                        📖 المصدر المعتمد: فتاوى إسلامية (2/414) وفتاوى نور على الدرب
+                                    </span>
+                                </div>
+                            </div>
+
+                            <!-- Ruling Badge -->
+                            <div class="px-3.5 py-1.5 rounded-xl border-2 bg-rose-500/25 text-rose-300 border-rose-500/50 text-xs md:text-sm font-black flex items-center gap-1.5 shadow-md flex-shrink-0">
+                                <span>✕</span>
+                                <span>محرم قطعي ومن كبائر الذنوب · والبديل هو المرابحة الشرعية</span>
+                            </div>
+                        </div>
+
+                        <!-- Fatwa Text Body -->
+                        <p class="text-sm md:text-base text-slate-200 font-bold leading-relaxed mb-3">
+                            تحرم القروض البنكية الربوية وفوائد السحب على المكشوف تحريماً قاطعاً ولو كانت بغرض تنمية التجارة أو تشغيل المخازن، والواجب اللجوء إلى التمويل الإسلامي الحقيقي كالمرابحة والمضاربة والمشاركة.
+                        </p>
+
+                        <!-- Evidence & Practical Solution Blocks -->
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-3 mt-3 pt-3 border-t border-slate-800/80 text-xs">
+                            <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-slate-800">
+                                <span class="text-sky-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    📜 الدليل الشرعي وتأصيل المسألة:
+                                </span>
+                                <span class="text-slate-300 font-bold leading-relaxed block">
+                                    قوله تعالى: ﴿يَمْحَقُ اللَّهُ الرِّبَا وَيُرْبِي الصَّدَقَاتِ﴾، ولعن النبي ﷺ آكل الربا وموكله وكاتبه وشاهديه.
+                                </span>
+                            </div>
+
+                            <div class="p-3.5 bg-emerald-950/30 rounded-2xl border border-emerald-500/40">
+                                <span class="text-emerald-400 font-black flex items-center gap-1.5 mb-1 text-xs">
+                                    💡 التطبيق والبديل الشرعي المعتمد في البرنامج:
+                                </span>
+                                <span class="text-slate-200 font-bold leading-relaxed block">
+                                    البديل الشرعي في النظام: استخدام عقود المرابحة للآمر بالشراء (شراء البنك للسلعة وحيازتها ثم بيعها للتاجر بالأجل بالتقسيط).
+                                </span>
+                            </div>
+                        </div>
+
+                    </div>
+    
+                </div>
+
+                <div id="no-fatwas-alert" class="p-8 text-center bg-slate-900/60 rounded-2xl border border-slate-800 hidden">
+                    <span class="text-4xl block mb-2">🔍</span>
+                    <h5 class="text-lg font-black text-slate-300">لا توجد فتاوى مطابقة لخيارات الفرز الحالية</h5>
+                    <p class="text-xs text-slate-400 mt-1">يرجى تغيير الشيخ أو الموضوع أو مسح كلمة البحث لإظهار بقية الفتاوى.</p>
+                </div>
+
             </div>
         </div>
 
@@ -1963,6 +2622,9 @@ $pdo = getDBConnection();
 
     <!-- JavaScript Controllers -->
     <script>
+    let activeScholarFilter = 'all';
+    let activeTopicFilter = 'all';
+
     function switchSuite(suiteId, el) {
         document.querySelectorAll('.suite-section').forEach(sec => sec.classList.add('hidden'));
         document.querySelectorAll('.suite-pill-card').forEach(btn => btn.classList.remove('active'));
@@ -1970,6 +2632,48 @@ $pdo = getDBConnection();
         const targetSec = document.getElementById('suite-sec-' + suiteId);
         if (targetSec) targetSec.classList.remove('hidden');
         if (el) el.classList.add('active');
+    }
+
+    // ── Fiqh Filters Controller ──
+    function setFiqhScholar(scholar, btn) {
+        activeScholarFilter = scholar;
+        document.querySelectorAll('[data-filter-type="scholar"]').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        filterFatwas();
+    }
+
+    function setFiqhTopic(topic, btn) {
+        activeTopicFilter = topic;
+        document.querySelectorAll('[data-filter-type="topic"]').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        filterFatwas();
+    }
+
+    function filterFatwas() {
+        const query = (document.getElementById('fiqh-search-input').value || '').trim().toLowerCase();
+        let visibleCount = 0;
+
+        document.querySelectorAll('.fiqh-master-card').forEach(card => {
+            const cardScholar = card.getAttribute('data-scholar');
+            const cardTopic = card.getAttribute('data-topic');
+            const cardSearch = card.getAttribute('data-search') || '';
+
+            const matchScholar = (activeScholarFilter === 'all' || cardScholar === activeScholarFilter);
+            const matchTopic = (activeTopicFilter === 'all' || cardTopic === activeTopicFilter);
+            const matchSearch = (query === '' || cardSearch.includes(query));
+
+            if (matchScholar && matchTopic && matchSearch) {
+                card.style.display = '';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
+
+        const noDataEl = document.getElementById('no-fatwas-alert');
+        if (noDataEl) {
+            noDataEl.classList.toggle('hidden', visibleCount > 0);
+        }
     }
 
     function toggleSolarMode() {
