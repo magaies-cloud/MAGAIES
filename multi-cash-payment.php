@@ -1735,12 +1735,13 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             // Apply font family
             el.style.setProperty('font-family', conf.fontFamily, 'important');
             
-            // Apply font size modifier (base + mod * 0.1rem)
-            // Determine base size - increased to 2.6 for local/foreign totals
-            let baseSize = (el.id === 'amount-local-hdr' || el.id === 'amount-foreign') ? 2.6 : 1.2;
-            let newSize = baseSize + (conf.fontSizeMod * 0.1);
-            if(newSize < 0.5) newSize = 0.5;
-            el.style.setProperty('font-size', newSize + 'rem', 'important');
+            // Apply font size modifier (only if element is NOT currently focused)
+            if (el !== document.activeElement) {
+                let baseSize = (el.id === 'amount-local-hdr' || el.id === 'amount-foreign') ? 2.6 : 2.4;
+                let newSize = baseSize + (conf.fontSizeMod * 0.1);
+                if(newSize < 0.5) newSize = 0.5;
+                el.style.setProperty('font-size', newSize + 'rem', 'important');
+            }
             
             // Format value
             if(el.value !== "") {
@@ -1831,14 +1832,103 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
     });
 
+    // 🔍 محرك التضخيم والتكبير الفوري عند التركيز والكتابة (Dynamic Focus Magnification Engine)
+    document.addEventListener('focusin', function(e) {
+        const el = e.target;
+        if (!el || !el.classList) return;
+        
+        const isAmount = el.classList.contains('block-bank-amount') || 
+                         el.classList.contains('block-cheque-amount') || 
+                         el.classList.contains('transfer-amount') || 
+                         el.classList.contains('cheque-amount') || 
+                         el.classList.contains('block-total-amount') ||
+                         el.classList.contains('block-sub-amount');
+                         
+        const isNumber = el.classList.contains('block-transfer-no-input') || 
+                         el.classList.contains('block-cheque-no-input') || 
+                         el.classList.contains('transfer-no') || 
+                         el.classList.contains('cheque-no');
+                         
+        if (isAmount || isNumber) {
+            el.style.setProperty('font-size', '4.2rem', 'important');
+            el.style.setProperty('height', '95px', 'important');
+            el.style.setProperty('min-width', '450px', 'important');
+            el.style.setProperty('position', 'relative', 'important');
+            el.style.setProperty('z-index', '99999', 'important');
+            el.style.setProperty('margin-right', '-50px', 'important');
+            el.style.setProperty('font-weight', '900', 'important');
+            el.style.setProperty('background', 'rgba(15, 23, 42, 0.98)', 'important');
+            el.style.setProperty('border-radius', '10px', 'important');
+            el.style.setProperty('transition', 'all 0.25s cubic-bezier(0.16, 1, 0.3, 1)', 'important');
+            
+            if (isAmount) {
+                el.style.setProperty('color', '#fbbf24', 'important');
+                el.style.setProperty('border', '2.5px solid #fbbf24', 'important');
+                el.style.setProperty('box-shadow', '0 15px 50px rgba(0,0,0,0.9), 0 0 35px rgba(251, 191, 36, 0.8)', 'important');
+            } else {
+                el.style.setProperty('color', '#38bdf8', 'important');
+                el.style.setProperty('border', '2.5px solid #38bdf8', 'important');
+                el.style.setProperty('box-shadow', '0 15px 50px rgba(0,0,0,0.9), 0 0 35px rgba(56, 189, 248, 0.8)', 'important');
+                el.style.setProperty('letter-spacing', '2px', 'important');
+            }
+            
+            if (el.parentElement && el.parentElement.style) {
+                el.parentElement.dataset.origZIndex = el.parentElement.style.zIndex || '';
+                el.parentElement.dataset.origPosition = el.parentElement.style.position || '';
+                el.parentElement.style.zIndex = '99999';
+                el.parentElement.style.position = 'relative';
+            }
+        }
+    }, true);
+
     document.addEventListener('focusout', function(e) {
-         if(e.target.id === 'amount-local-hdr' || 
-           e.target.id === 'amount-foreign' || 
-           e.target.classList.contains('block-bank-amount') || 
-           e.target.classList.contains('block-cheque-amount')) {
+        const el = e.target;
+        if (!el || !el.classList) return;
+        
+        const isAmount = el.classList.contains('block-bank-amount') || 
+                         el.classList.contains('block-cheque-amount') || 
+                         el.classList.contains('transfer-amount') || 
+                         el.classList.contains('cheque-amount') || 
+                         el.classList.contains('block-total-amount') ||
+                         el.classList.contains('block-sub-amount');
+                         
+        const isNumber = el.classList.contains('block-transfer-no-input') || 
+                         el.classList.contains('block-cheque-no-input') || 
+                         el.classList.contains('transfer-no') || 
+                         el.classList.contains('cheque-no');
+                         
+        if (isAmount || isNumber) {
+            el.style.removeProperty('height');
+            el.style.removeProperty('min-width');
+            el.style.removeProperty('position');
+            el.style.removeProperty('z-index');
+            el.style.removeProperty('margin-right');
+            el.style.removeProperty('background');
+            el.style.removeProperty('border');
+            el.style.removeProperty('border-radius');
+            el.style.removeProperty('box-shadow');
+            el.style.removeProperty('color');
+            el.style.removeProperty('letter-spacing');
+            
+            if (isAmount) {
+                el.style.setProperty('font-size', '2.4rem', 'important');
+            } else {
+                el.style.setProperty('font-size', '2.1rem', 'important');
+            }
+            
+            if (el.parentElement && el.parentElement.style) {
+                el.parentElement.style.zIndex = el.parentElement.dataset.origZIndex || '';
+                el.parentElement.style.position = el.parentElement.dataset.origPosition || '';
+            }
+        }
+        
+        if (e.target.id === 'amount-local-hdr' || 
+            e.target.id === 'amount-foreign' || 
+            e.target.classList.contains('block-bank-amount') || 
+            e.target.classList.contains('block-cheque-amount')) {
             applyNumPropsToAll();
         }
-    });
+    }, true);
     
     // Periodically apply styles to newly added rows dynamically
     setInterval(applyNumPropsToAll, 1000);
