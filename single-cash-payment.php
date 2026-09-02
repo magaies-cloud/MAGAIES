@@ -1599,7 +1599,7 @@ try {
         #num-props-menu button.prop-btn { background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.5); color: #60a5fa; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
         #num-props-menu button.prop-btn:hover { background: rgba(59, 130, 246, 0.4); color: #fff; }
     </style>
-                        <div id="payment-panel" style="display: none; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; margin-top: 20px; margin-bottom: 20px;">
+                        <div id="payment-panel" style="display: block; background: rgba(15, 23, 42, 0.4); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; margin-top: 20px; margin-bottom: 20px;">
                             <div class="panel-header-row" style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; padding: 12px 20px; background: rgba(15,23,42,0.4); border-bottom: 1px solid rgba(255,255,255,0.06); border-top-left-radius: 12px; border-top-right-radius: 12px; margin: 0;">
                                 <div class="panel-title" style="background: linear-gradient(135deg, #ff4d4d, #f87171); -webkit-background-clip: text; -webkit-text-fill-color: transparent; font-size: 1.15rem; font-weight: 900; display: inline-flex; align-items: center; gap: 6px; margin: 0; white-space: nowrap; flex: none;">
                                     <span>💳</span> طريقة وتفاصيل الدفع للمستند المجمع
@@ -2181,8 +2181,12 @@ try {
             // Set initial state
             setTimeout(() => {
                 if (typeof updateCurrency === 'function') updateCurrency();
+                const container = document.getElementById('transfers-container');
+                if (container && container.children.length === 0 && typeof addTransferRow === 'function') {
+                    addTransferRow('', '', 0);
+                }
                 window.togglePaymentMethod();
-            }, 200);
+            }, 50);
         });
     </script>
 
