@@ -404,6 +404,18 @@ if (isset($_GET['action']) && $_GET['action'] === 'get_live_alerts_json') {
     exit;
 }
 
+if (isset($_GET['action']) && $_GET['action'] === 'get_rules_json') {
+    header('Content-Type: application/json');
+    $stmtR = $pdo->prepare("SELECT * FROM alert_settings WHERE tenant_id = ? ORDER BY category ASC, id ASC");
+    $stmtR->execute([$GLOBAL_TENANT_ID]);
+    $rules = $stmtR->fetchAll(PDO::FETCH_ASSOC);
+    echo json_encode([
+        'success' => true,
+        'rules' => $rules
+    ]);
+    exit;
+}
+
 // تشغيل المحرك لجلب البيانات للعرض الأولي
 runAlertEngine($pdo);
 

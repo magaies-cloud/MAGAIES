@@ -305,18 +305,44 @@
     <?php include 'includes/header.php'; ?>
 
     <!-- Header Controls Row -->
-    <div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:20px; padding:15px 25px; box-shadow:0 10px 25px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.03); margin-top:-10px; gap: 15px;">
+    <div style="display:flex; justify-content:space-between; align-items:center; background:var(--surface); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px); border:1px solid var(--border); border-radius:20px; padding:15px 25px; box-shadow:0 10px 25px rgba(0,0,0,0.2), inset 0 1px 1px rgba(255,255,255,0.03); margin-top:-10px; gap: 15px; flex-wrap:wrap;">
         <div style="display:flex; align-items:center; gap:12px;">
             <span id="total-alarms-badge" class="alarm-badge" style="font-size:0.9rem; padding:6px 16px; border-radius:12px; font-weight:800; font-family:'Tajawal', sans-serif;">🔔 جاري تحميل التنبيهات...</span>
         </div>
-        <div style="display:flex; align-items:center; gap:15px;">
+        <div style="display:flex; align-items:center; gap:12px; flex-wrap:wrap;">
             <span id="last-refresh-time" style="font-size:0.85rem; color:#94a3b8; font-weight:600;">آخر تحديث: -</span>
+            <button onclick="toggleAlarmSettingsDrawer()" class="refresh-btn" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(239, 68, 68, 0.25)); color: #fbbf24; border: 1.5px solid #f59e0b; gap: 8px; font-weight: 800; box-shadow: 0 0 15px rgba(245,158,11,0.2);">
+                <i class="fa-solid fa-sliders text-amber-400"></i> 🎛️ تخصيص وقواعد التنبيهات (تحكم On/Off)
+            </button>
             <button onclick="window.location.href='alerts_manager.php'" class="refresh-btn" style="background: rgba(239, 68, 68, 0.1); color: #ef4444; border: 1px solid rgba(239, 68, 68, 0.2); gap: 8px;">
-                <i class="fa-solid fa-triangle-exclamation"></i> تنبيهات التقارير المالية
+                <i class="fa-solid fa-sliders"></i> المركز المتقدم ↗
             </button>
             <button id="refresh-btn" class="refresh-btn" onclick="loadAlarms()">
                 <span class="spin-icon">🔄</span> تحديث التنبيهات
             </button>
+        </div>
+    </div>
+
+    <!-- Collapsible Alert Rules Control Drawer -->
+    <div id="alarm-settings-drawer" style="display:none; background:rgba(15, 23, 42, 0.95); border:2px solid #f59e0b; border-radius:20px; padding:20px; box-shadow:0 15px 40px rgba(0,0,0,0.5); backdrop-filter:blur(20px); animation: fadeIn 0.3s ease;">
+        <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:12px; margin-bottom:15px; flex-wrap:wrap; gap:10px;">
+            <div>
+                <h3 style="margin:0; font-size:1.1rem; font-weight:900; color:#fbbf24; display:flex; align-items:center; gap:8px;">
+                    <i class="fa-solid fa-sliders"></i> لوحة التحكم وتخصيص قواعد التنبيهات (15 تنبيه ذكي)
+                </h3>
+                <p style="margin:4px 0 0 0; font-size:0.8rem; color:#94a3b8;">يمكنك تشغيل أو إيقاف أي تنبيه وتعديل الشروط التحذيرية والحرجة بنقرة واحدة.</p>
+            </div>
+            <button onclick="toggleAlarmSettingsDrawer()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:10px; padding:6px 14px; font-weight:800; font-size:0.8rem; cursor:pointer;">
+                ✕ إغلاق اللوحة
+            </button>
+        </div>
+
+        <div style="margin-bottom:12px;">
+            <input type="text" id="alarm-drawer-search" oninput="filterAlarmDrawerRules(this.value)" placeholder="🔍 ابحث عن أي تنبيه أو شرط رقابي..." style="width:100%; box-sizing:border-box; background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); border-radius:12px; padding:8px 14px; color:#fff; font-size:0.85rem; outline:none; font-family:'Tajawal', sans-serif;">
+        </div>
+
+        <div id="alarm-drawer-rules-list" style="display:grid; grid-template-columns:repeat(auto-fit, minmax(320px, 1fr)); gap:12px; max-height:450px; overflow-y:auto; padding-right:4px;">
+            <div style="text-align:center; color:#94a3b8; font-size:0.85rem; padding:20px; grid-column:1/-1;">جاري تحميل قواعد التنبيهات...</div>
         </div>
     </div>
 
@@ -705,6 +731,138 @@ function emptyState(icon, msg) {
         <div class="empty-icon">${icon}</div>
         <p>${msg}</p>
     </div>`;
+}
+
+/* ─── ALERT RULES DRAWER ENGINE ─── */
+let _alarmDrawerLoaded = false;
+
+function toggleAlarmSettingsDrawer() {
+    const drawer = document.getElementById('alarm-settings-drawer');
+    if (!drawer) return;
+    if (drawer.style.display === 'none' || drawer.style.display === '') {
+        drawer.style.display = 'block';
+        if (!_alarmDrawerLoaded) {
+            loadAlarmDrawerRules();
+            _alarmDrawerLoaded = true;
+        }
+    } else {
+        drawer.style.display = 'none';
+    }
+}
+
+function loadAlarmDrawerRules() {
+    const container = document.getElementById('alarm-drawer-rules-list');
+    if (!container) return;
+
+    fetch('alerts_manager.php?action=get_rules_json')
+    .then(r => r.json())
+    .then(data => {
+        if (data.success && data.rules) {
+            renderAlarmDrawerRules(data.rules);
+        }
+    })
+    .catch(() => {
+        container.innerHTML = '<div style="color:#f87171; text-align:center; padding:15px; grid-column:1/-1;">تعذر جلب قواعد التنبيهات من الخادم.</div>';
+    });
+}
+
+function renderAlarmDrawerRules(rules) {
+    const container = document.getElementById('alarm-drawer-rules-list');
+    if (!container) return;
+
+    const catColors = {
+        'FINANCE': '#38bdf8',
+        'CREDIT': '#fbbf24',
+        'SALES': '#34d399',
+        'INVENTORY': '#c084fc',
+        'SUPPLY': '#f472b6',
+        'SECURITY': '#f87171'
+    };
+
+    let html = '';
+    rules.forEach(r => {
+        const color = catColors[r.category] || '#94a3b8';
+        const isChecked = r.is_enabled == 1;
+        html += `
+            <div class="drawer-rule-card" data-search="${(r.rule_name + ' ' + (r.description||'')).toLowerCase()}" style="padding:12px 16px; background:rgba(255,255,255,0.03); border-radius:14px; border:1px solid rgba(255,255,255,0.08); display:flex; flex-direction:column; justify-content:space-between; gap:10px;">
+                <div>
+                    <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                        <strong style="font-size:0.9rem; color:#fff;">${r.rule_name}</strong>
+                        <span style="font-size:0.65rem; color:${color}; background:${color}15; padding:2px 8px; border-radius:6px; border:1px solid ${color}30; font-weight:800;">${r.category}</span>
+                    </div>
+                    <div style="font-size:0.75rem; color:#94a3b8; line-height:1.4;">${r.description || ''}</div>
+                </div>
+
+                <div style="display:flex; justify-content:space-between; align-items:center; border-top:1px solid rgba(255,255,255,0.06); padding-top:8px; margin-top:4px;">
+                    <div style="display:flex; align-items:center; gap:4px; font-size:0.75rem;">
+                        <span style="color:#fbbf24;">⚠️</span>
+                        <input type="number" id="adwarn-${r.rule_key}" value="${r.warning_threshold}" style="width:45px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#fbbf24; text-align:center; font-weight:800; font-size:0.75rem; border-radius:6px; padding:2px;" onchange="saveAlarmDrawerThresholds('${r.rule_key}')">
+                        <span style="color:#f87171; margin-right:4px;">🚨</span>
+                        <input type="number" id="adcrit-${r.rule_key}" value="${r.critical_threshold}" style="width:45px; background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#f87171; text-align:center; font-weight:800; font-size:0.75rem; border-radius:6px; padding:2px;" onchange="saveAlarmDrawerThresholds('${r.rule_key}')">
+                    </div>
+
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span id="adstatus-${r.rule_key}" style="font-size:0.75rem; font-weight:800; color:${isChecked ? '#34d399' : '#64748b'};">${isChecked ? 'مفعّل' : 'معطّل'}</span>
+                        <label style="position:relative; display:inline-block; width:44px; height:24px; margin:0; cursor:pointer;">
+                            <input type="checkbox" ${isChecked ? 'checked' : ''} onchange="toggleAlarmDrawerRule('${r.rule_key}', this.checked)" style="opacity:0; width:0; height:0;">
+                            <span style="position:absolute; top:0; left:0; right:0; bottom:0; background-color:${isChecked ? '#10b981' : '#334155'}; transition:.3s; border-radius:24px; border:1px solid rgba(255,255,255,0.2);">
+                                <span style="position:absolute; content:''; height:16px; width:16px; left:${isChecked ? '23px' : '4px'}; bottom:3px; background-color:white; transition:.3s; border-radius:50%;"></span>
+                            </span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+        `;
+    });
+    container.innerHTML = html;
+}
+
+function filterAlarmDrawerRules(q) {
+    const query = q.trim().toLowerCase();
+    const items = document.querySelectorAll('.drawer-rule-card');
+    items.forEach(it => {
+        const text = it.getAttribute('data-search') || '';
+        it.style.display = (query === '' || text.includes(query)) ? 'flex' : 'none';
+    });
+}
+
+function toggleAlarmDrawerRule(ruleKey, isChecked) {
+    const formData = new FormData();
+    formData.append('action', 'toggle_rule_ajax');
+    formData.append('rule_key', ruleKey);
+    formData.append('is_enabled', isChecked ? 1 : 0);
+
+    fetch('alerts_manager.php', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success) {
+            const statusTxt = document.getElementById('adstatus-' + ruleKey);
+            if (statusTxt) {
+                statusTxt.textContent = isChecked ? 'مفعّل' : 'معطّل';
+                statusTxt.style.color = isChecked ? '#34d399' : '#64748b';
+            }
+            loadAlarms();
+        }
+    });
+}
+
+function saveAlarmDrawerThresholds(ruleKey) {
+    const warn = document.getElementById('adwarn-' + ruleKey).value;
+    const crit = document.getElementById('adcrit-' + ruleKey).value;
+
+    const formData = new FormData();
+    formData.append('action', 'update_thresholds_ajax');
+    formData.append('rule_key', ruleKey);
+    formData.append('warning_threshold', warn);
+    formData.append('critical_threshold', crit);
+
+    fetch('alerts_manager.php', { method: 'POST', body: formData })
+    .then(r => r.json())
+    .then(res => {
+        if (res.success) {
+            loadAlarms();
+        }
+    });
 }
 </script>
 </body>
