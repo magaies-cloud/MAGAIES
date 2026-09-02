@@ -4645,1190 +4645,1480 @@ $pdo = getDBConnection();
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4" id="books-grid-container">
 
         <!-- Book Card 1 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="imam_ahmad" data-book-search="مسائل الإمام أحمد في البيوع والتجارة (رواية عبد الله وأبي داود والأثرم والكوسج) الإمام المبجل أحمد بن حنبل (ت 241 هـ) خيار المجلس · خيار الشرط · السَّلَم · الرهن · القرض وتأجيل الديون · الشفعة الأصل العظيم في تأسيس مذهب أهل السنة بأن الأصل في العقود والشروط الإباحة والصحة، وثبوت خيار المجلس والشرط للتراضي التام، وجواز تأجيل سداد القرض بالتراضي.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="imam_ahmad" data-book-search="مسائل الإمام أحمد في البيوع والتجارة (رواية عبد الله والكوسج والمغني) الإمام المبجل أحمد بن حنبل (ت 241 هـ) خيار المجلس · خيار الشرط · السَّلَم · الرهن · القرض وتأجيل الديون · الشفعة الأصل العظيم في تأسيس مذهب أهل السنة بأن الأصل في العقود والشروط الإباحة والصحة، وثبوت خيار المجلس والشرط للتراضي التام، وجواز تأجيل سداد القرض بالتراضي.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #1
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 مجلدات وروايات متعددة
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #1
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 مجلدات وروايات متعددة
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/8505/1800" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 مسائل الإمام أحمد في البيوع والتجارة (رواية عبد الله والكوسج والمغني) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: الإمام المبجل أحمد بن حنبل (ت 241 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 مسائل الإمام أحمد في البيوع والتجارة (رواية عبد الله وأبي داود والأثرم والكوسج)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: الإمام المبجل أحمد بن حنبل (ت 241 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">خيار المجلس · خيار الشرط · السَّلَم · الرهن · القرض وتأجيل الديون · الشفعة</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    الأصل العظيم في تأسيس مذهب أهل السنة بأن الأصل في العقود والشروط الإباحة والصحة، وثبوت خيار المجلس والشرط للتراضي التام، وجواز تأجيل سداد القرض بالتراضي.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">المرجع الفقهي الأول للمذهب الحنبلي وأهل الحديث في المعاملات المالية.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">خيار المجلس · خيار الشرط · السَّلَم · الرهن · القرض وتأجيل الديون · الشفعة</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                الأصل العظيم في تأسيس مذهب أهل السنة بأن الأصل في العقود والشروط الإباحة والصحة، وثبوت خيار المجلس والشرط للتراضي التام، وجواز تأجيل سداد القرض بالتراضي.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">المرجع الفقهي الأول للمذهب الحنبلي وأهل الحديث في المعاملات المالية.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/8505/1800" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (المغني وشرح مسائل الإمام أحمد)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 2 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="imam_ahmad" data-book-search="كتاب الورع للإمام أحمد (أبواب الورع في المكاسب والتجارة والأسواق) الإمام المبجل أحمد بن حنبل (ت 241 هـ) الحلال والحرام · اجتناب الشبهات · الورع في المماكسة · النزاهة المالية بيان دقيق لضوابط الورع في التجارة، وكيفية تطهير المكاسب من الشبهات، والتحذير من أكل أموال الناس بالباطل والمماطلة في الديون.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="imam_ahmad" data-book-search="كتاب الورع للإمام أحمد (أبواب الورع في المكاسب والتجارة والأسواق) الإمام المبجل أحمد بن حنبل (ت 241 هـ) الحلال والحرام · اجتناب الشبهات · الورع في المماكسة · النزاهة المالية بيان دقيق لضوابط الورع في التجارة، وكيفية تطهير المكاسب من الشبهات، والتحذير من أكل أموال الناس بالباطل والمماطلة في الديون.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #2
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 مجلد واحد مفرد
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #2
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 مجلد واحد مفرد
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/7454" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 كتاب الورع للإمام أحمد (أبواب الورع في المكاسب والتجارة والأسواق) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: الإمام المبجل أحمد بن حنبل (ت 241 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 كتاب الورع للإمام أحمد (أبواب الورع في المكاسب والتجارة والأسواق)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: الإمام المبجل أحمد بن حنبل (ت 241 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">الحلال والحرام · اجتناب الشبهات · الورع في المماكسة · النزاهة المالية</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    بيان دقيق لضوابط الورع في التجارة، وكيفية تطهير المكاسب من الشبهات، والتحذير من أكل أموال الناس بالباطل والمماطلة في الديون.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">الدستور الأخلاقي والسلوكي للتاجر والمحاسب المسلم.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">الحلال والحرام · اجتناب الشبهات · الورع في المماكسة · النزاهة المالية</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                بيان دقيق لضوابط الورع في التجارة، وكيفية تطهير المكاسب من الشبهات، والتحذير من أكل أموال الناس بالباطل والمماطلة في الديون.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">الدستور الأخلاقي والسلوكي للتاجر والمحاسب المسلم.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/7454" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (كتاب الورع للإمام أحمد)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 3 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="imam_ahmad" data-book-search="الجامع لعلوم الإمام أحمد (فقه المعاملات المالية المروية) الإمام المبجل أحمد بن حنبل (ت 241 هـ) القواعد الفقهية · تصحيح شروط التجار · التيسير في المعاملات جمع شامل لكافة نصوص وفتاوى الإمام أحمد في البيوع والشركات والمضاربة والإجارات والرهونات.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="imam_ahmad" data-book-search="الجامع لعلوم الإمام أحمد (فقه المعاملات المالية المروية) الإمام المبجل أحمد بن حنبل (ت 241 هـ) القواعد الفقهية · تصحيح شروط التجار · التيسير في المعاملات جمع شامل لكافة نصوص وفتاوى الإمام أحمد في البيوع والشركات والمضاربة والإجارات والرهونات.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #3
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 موسوعة جامعة (قسم البيوع)
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #3
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 موسوعة جامعة (قسم البيوع)
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/97356" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 الجامع لعلوم الإمام أحمد (فقه المعاملات المالية المروية) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: الإمام المبجل أحمد بن حنبل (ت 241 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 الجامع لعلوم الإمام أحمد (فقه المعاملات المالية المروية)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: الإمام المبجل أحمد بن حنبل (ت 241 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">القواعد الفقهية · تصحيح شروط التجار · التيسير في المعاملات</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    جمع شامل لكافة نصوص وفتاوى الإمام أحمد في البيوع والشركات والمضاربة والإجارات والرهونات.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">مرجع للمقارنة بين الروايات الفقهية واختيارات كبار الأئمة.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">القواعد الفقهية · تصحيح شروط التجار · التيسير في المعاملات</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                جمع شامل لكافة نصوص وفتاوى الإمام أحمد في البيوع والشركات والمضاربة والإجارات والرهونات.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">مرجع للمقارنة بين الروايات الفقهية واختيارات كبار الأئمة.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/97356" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (الجامع لعلوم الإمام أحمد)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 4 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="ibn_taymiyyah" data-book-search="مجموع الفتاوى (المجلدان 29 و 30 - كتاب البيوع، العقود، الشروط، والربا) شيخ الإسلام ابن تيمية (ت 728 هـ) الأصل في العقود الإباحة · إبطال حيل الربا · بيع المعدوم · تصحيح شروط التجار · المقاصة أعظم وأشمل تحرير فقهي لقواعد المعاملات والعقود والشروط في التاريخ الإسلامي. قرر فيه حرية العقود ما لم تخالف نصاً، وأبطل الحيل الربوية وبيع العينة، وأصّل لقواعد المقاصة وحوالة الديون.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="ibn_taymiyyah" data-book-search="مجموع الفتاوى (المجلدان 29 و 30 - كتاب البيوع، العقود، الشروط، والربا) شيخ الإسلام ابن تيمية (ت 728 هـ) الأصل في العقود الإباحة · إبطال حيل الربا · بيع المعدوم · تصحيح شروط التجار · المقاصة أعظم وأشمل تحرير فقهي لقواعد المعاملات والعقود والشروط في التاريخ الإسلامي. قرر فيه حرية العقود ما لم تخالف نصاً، وأبطل الحيل الربوية وبيع العينة، وأصّل لقواعد المقاصة وحوالة الديون.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #4
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 المجلدان 29 و 30 (أكثر من 1000 صفحة)
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #4
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 المجلدان 29 و 30 (أكثر من 1000 صفحة)
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/7289/13768" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 مجموع الفتاوى (المجلدان 29 و 30 - كتاب البيوع، العقود، الشروط، والربا) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: شيخ الإسلام ابن تيمية (ت 728 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 مجموع الفتاوى (المجلدان 29 و 30 - كتاب البيوع، العقود، الشروط، والربا)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: شيخ الإسلام ابن تيمية (ت 728 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">الأصل في العقود الإباحة · إبطال حيل الربا · بيع المعدوم · تصحيح شروط التجار · المقاصة</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    أعظم وأشمل تحرير فقهي لقواعد المعاملات والعقود والشروط في التاريخ الإسلامي. قرر فيه حرية العقود ما لم تخالف نصاً، وأبطل الحيل الربوية وبيع العينة، وأصّل لقواعد المقاصة وحوالة الديون.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">العمدة الأولى والأساس الذي انطلقت منه الفتاوى الاقتصادية المعاصرة وهيئات الرقابة الشرعية.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">الأصل في العقود الإباحة · إبطال حيل الربا · بيع المعدوم · تصحيح شروط التجار · المقاصة</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                أعظم وأشمل تحرير فقهي لقواعد المعاملات والعقود والشروط في التاريخ الإسلامي. قرر فيه حرية العقود ما لم تخالف نصاً، وأبطل الحيل الربوية وبيع العينة، وأصّل لقواعد المقاصة وحوالة الديون.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">العمدة الأولى والأساس الذي انطلقت منه الفتاوى الاقتصادية المعاصرة وهيئات الرقابة الشرعية.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/7289/13768" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (مجموع الفتاوى - المجلد 29)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 5 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="ibn_taymiyyah" data-book-search="الحسبة في الإسلام (وظيفة ولاية السوق ومراقبة المكاييل ومنع الاحتكار) شيخ الإسلام ابن تيمية (ت 728 هـ) مراقبة الأسواق · منع الغش والتدليس · التسعير العادل الجبري · تحريم التواطؤ الاحتكاري تنظيم السوق التجاري، واجبات ولي الأمر في مراقبة الموازين والمكاييل ومنع الغش، وبيان ضوابط التسعير العادل عند احتكار السلع والأقوات.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="ibn_taymiyyah" data-book-search="الحسبة في الإسلام (وظيفة ولاية السوق ومراقبة المكاييل ومنع الاحتكار) شيخ الإسلام ابن تيمية (ت 728 هـ) مراقبة الأسواق · منع الغش والتدليس · التسعير العادل الجبري · تحريم التواطؤ الاحتكاري تنظيم السوق التجاري، واجبات ولي الأمر في مراقبة الموازين والمكاييل ومنع الغش، وبيان ضوابط التسعير العادل عند احتكار السلع والأقوات.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #5
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 كتاب مفرد محقق
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #5
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 كتاب مفرد محقق
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/21703" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 الحسبة في الإسلام (وظيفة ولاية السوق ومراقبة المكاييل ومنع الاحتكار) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: شيخ الإسلام ابن تيمية (ت 728 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 الحسبة في الإسلام (وظيفة ولاية السوق ومراقبة المكاييل ومنع الاحتكار)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: شيخ الإسلام ابن تيمية (ت 728 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">مراقبة الأسواق · منع الغش والتدليس · التسعير العادل الجبري · تحريم التواطؤ الاحتكاري</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    تنظيم السوق التجاري، واجبات ولي الأمر في مراقبة الموازين والمكاييل ومنع الغش، وبيان ضوابط التسعير العادل عند احتكار السلع والأقوات.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">المرجع الكلاسيكي الأول في الاقتصاد الكلي وتنظيم الأسواق الحرة في الإسلام.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">مراقبة الأسواق · منع الغش والتدليس · التسعير العادل الجبري · تحريم التواطؤ الاحتكاري</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                تنظيم السوق التجاري، واجبات ولي الأمر في مراقبة الموازين والمكاييل ومنع الغش، وبيان ضوابط التسعير العادل عند احتكار السلع والأقوات.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">المرجع الكلاسيكي الأول في الاقتصاد الكلي وتنظيم الأسواق الحرة في الإسلام.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/21703" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (الحسبة في الإسلام)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 6 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="ibn_taymiyyah" data-book-search="القواعد النورانية الفقهية (كتاب المعاملات المالية والعقود) شيخ الإسلام ابن تيمية (ت 728 هـ) القواعد الكلية · استحقاق الربح بالضمان والعمل · نفي الغرر · بيع العربون تأصيل القواعد الكلية الجامعة للمعاملات المالية، وتفصيل قاعدة (الغنم بالغرم والخراج بالضمان)، وصحة بيع العربون.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="ibn_taymiyyah" data-book-search="القواعد النورانية الفقهية (كتاب المعاملات المالية والعقود) شيخ الإسلام ابن تيمية (ت 728 هـ) القواعد الكلية · استحقاق الربح بالضمان والعمل · نفي الغرر · بيع العربون تأصيل القواعد الكلية الجامعة للمعاملات المالية، وتفصيل قاعدة (الغنم بالغرم والخراج بالضمان)، وصحة بيع العربون.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #6
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 مجلد محقق
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #6
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 مجلد محقق
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/7288" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 القواعد النورانية الفقهية (كتاب المعاملات المالية والعقود) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: شيخ الإسلام ابن تيمية (ت 728 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 القواعد النورانية الفقهية (كتاب المعاملات المالية والعقود)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: شيخ الإسلام ابن تيمية (ت 728 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">القواعد الكلية · استحقاق الربح بالضمان والعمل · نفي الغرر · بيع العربون</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    تأصيل القواعد الكلية الجامعة للمعاملات المالية، وتفصيل قاعدة (الغنم بالغرم والخراج بالضمان)، وصحة بيع العربون.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">تأصيل نظريات العقد والضمان في الفقه الإسلامي المقارن.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">القواعد الكلية · استحقاق الربح بالضمان والعمل · نفي الغرر · بيع العربون</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                تأصيل القواعد الكلية الجامعة للمعاملات المالية، وتفصيل قاعدة (الغنم بالغرم والخراج بالضمان)، وصحة بيع العربون.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">تأصيل نظريات العقد والضمان في الفقه الإسلامي المقارن.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/7288" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (القواعد النورانية الفقهية)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 7 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="ibn_al_qayyim" data-book-search="إعلام الموقعين عن رب العالمين (أبواب الربا، الحيل، وعقود البيوع) الإمام شمس الدين ابن قيم الجوزية (ت 751 هـ) المقاصد والمعاني · إبطال حيل الربا · عقد الاستصناع والمقاولات · التورق المنضبط تأسيس قاعدة أن العبرة في العقود بالمقاصد والمعاني لا بالألفاظ والمباني، وكشف وإبطال حيل الربا كبيع العينة، وإثبات صحة عقد الاستصناع والصناعة بالطلب.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="ibn_al_qayyim" data-book-search="إعلام الموقعين عن رب العالمين (أبواب الربا، الحيل، وعقود البيوع) الإمام شمس الدين ابن قيم الجوزية (ت 751 هـ) المقاصد والمعاني · إبطال حيل الربا · عقد الاستصناع والمقاولات · التورق المنضبط تأسيس قاعدة أن العبرة في العقود بالمقاصد والمعاني لا بالألفاظ والمباني، وكشف وإبطال حيل الربا كبيع العينة، وإثبات صحة عقد الاستصناع والصناعة بالطلب.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #7
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 المجلدات 3 و 4
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #7
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 المجلدات 3 و 4
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/21609" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 إعلام الموقعين عن رب العالمين (أبواب الربا، الحيل، وعقود البيوع) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: الإمام شمس الدين ابن قيم الجوزية (ت 751 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 إعلام الموقعين عن رب العالمين (أبواب الربا، الحيل، وعقود البيوع)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: الإمام شمس الدين ابن قيم الجوزية (ت 751 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">المقاصد والمعاني · إبطال حيل الربا · عقد الاستصناع والمقاولات · التورق المنضبط</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    تأسيس قاعدة أن العبرة في العقود بالمقاصد والمعاني لا بالألفاظ والمباني، وكشف وإبطال حيل الربا كبيع العينة، وإثبات صحة عقد الاستصناع والصناعة بالطلب.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">المرجع الفقهي الأهم في فقه المقاصد المالية ومكافحة التحايل المالي.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">المقاصد والمعاني · إبطال حيل الربا · عقد الاستصناع والمقاولات · التورق المنضبط</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                تأسيس قاعدة أن العبرة في العقود بالمقاصد والمعاني لا بالألفاظ والمباني، وكشف وإبطال حيل الربا كبيع العينة، وإثبات صحة عقد الاستصناع والصناعة بالطلب.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">المرجع الفقهي الأهم في فقه المقاصد المالية ومكافحة التحايل المالي.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/21609" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (إعلام الموقعين)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 8 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="ibn_al_qayyim" data-book-search="زاد المعاد في هدي خير العباد (المجلد الخامس - فصول هَديه ﷺ في البيوع) الإمام شمس الدين ابن قيم الجوزية (ت 751 هـ) المعاملات النبوية · وضع الجوائح والتلف · السمسرة · خيار العيب · تضمين الصناع بيان شامل للتطبيقات النبوية في البيوع، ووجوب وضع الجوائح وإسقاط الثمن عن المشتري عند تلف البضاعة قبل التسليم، وضوابط أجور السمسرة.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="ibn_al_qayyim" data-book-search="زاد المعاد في هدي خير العباد (المجلد الخامس - فصول هَديه ﷺ في البيوع) الإمام شمس الدين ابن قيم الجوزية (ت 751 هـ) المعاملات النبوية · وضع الجوائح والتلف · السمسرة · خيار العيب · تضمين الصناع بيان شامل للتطبيقات النبوية في البيوع، ووجوب وضع الجوائح وإسقاط الثمن عن المشتري عند تلف البضاعة قبل التسليم، وضوابط أجور السمسرة.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #8
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 المجلد الخامس
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #8
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 المجلد الخامس
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/7440/1715" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 زاد المعاد في هدي خير العباد (المجلد الخامس - فصول هَديه ﷺ في البيوع) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: الإمام شمس الدين ابن قيم الجوزية (ت 751 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 زاد المعاد في هدي خير العباد (المجلد الخامس - فصول هَديه ﷺ في البيوع)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: الإمام شمس الدين ابن قيم الجوزية (ت 751 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">المعاملات النبوية · وضع الجوائح والتلف · السمسرة · خيار العيب · تضمين الصناع</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    بيان شامل للتطبيقات النبوية في البيوع، ووجوب وضع الجوائح وإسقاط الثمن عن المشتري عند تلف البضاعة قبل التسليم، وضوابط أجور السمسرة.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">التطبيق العملي للسنة النبوية الشريفة في إدارة التجارة والأعمال.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">المعاملات النبوية · وضع الجوائح والتلف · السمسرة · خيار العيب · تضمين الصناع</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                بيان شامل للتطبيقات النبوية في البيوع، ووجوب وضع الجوائح وإسقاط الثمن عن المشتري عند تلف البضاعة قبل التسليم، وضوابط أجور السمسرة.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">التطبيق العملي للسنة النبوية الشريفة في إدارة التجارة والأعمال.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/7440/1715" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (زاد المعاد - المجلد الخامس)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 9 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="ibn_al_qayyim" data-book-search="إغاثة اللهفان من مصائد الشيطان (أبواب الحيل في المعاملات) الإمام شمس الدين ابن قيم الجوزية (ت 751 هـ) مفسدات العقود · التحذير من التلاعب بالألفاظ · حماية المعاملات من الفساد تفصيل دقيق لكيفية حماية العقود والمعاملات التجارية من الشبهات والربا الخفي.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="ibn_al_qayyim" data-book-search="إغاثة اللهفان من مصائد الشيطان (أبواب الحيل في المعاملات) الإمام شمس الدين ابن قيم الجوزية (ت 751 هـ) مفسدات العقود · التحذير من التلاعب بالألفاظ · حماية المعاملات من الفساد تفصيل دقيق لكيفية حماية العقود والمعاملات التجارية من الشبهات والربا الخفي.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #9
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 المجلد الثاني
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #9
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 المجلد الثاني
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/21604" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 إغاثة اللهفان من مصائد الشيطان (أبواب الحيل في المعاملات) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: الإمام شمس الدين ابن قيم الجوزية (ت 751 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 إغاثة اللهفان من مصائد الشيطان (أبواب الحيل في المعاملات)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: الإمام شمس الدين ابن قيم الجوزية (ت 751 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">مفسدات العقود · التحذير من التلاعب بالألفاظ · حماية المعاملات من الفساد</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    تفصيل دقيق لكيفية حماية العقود والمعاملات التجارية من الشبهات والربا الخفي.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">حماية النزاهة المالية للمؤسسات والشركات.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">مفسدات العقود · التحذير من التلاعب بالألفاظ · حماية المعاملات من الفساد</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                تفصيل دقيق لكيفية حماية العقود والمعاملات التجارية من الشبهات والربا الخفي.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">حماية النزاهة المالية للمؤسسات والشركات.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/21604" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (إغاثة اللهفان)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 10 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="al_nawawi" data-book-search="المجموع شرح المهذب (المجلدات 9 و 10 و 11 - كتاب البيوع والربا والسلم) الإمام محيي الدين يحيى بن شرف النووي (ت 676 هـ) أركان البيع · نفي الغرر والجهالة · البيع بالمعاطاة · السلم · الإجارة · الشركات الموسوعة الفقهية المقارنة الكبرى. تفصيل دقيق لشروط العوضين، نفي الغرر، صحة البيع بالمعاطاة والبيع الآلي ونقاط البيع السريعة، وأحكام الإجارة والجعالة والشركات.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="al_nawawi" data-book-search="المجموع شرح المهذب (المجلدات 9 و 10 و 11 - كتاب البيوع والربا والسلم) الإمام محيي الدين يحيى بن شرف النووي (ت 676 هـ) أركان البيع · نفي الغرر والجهالة · البيع بالمعاطاة · السلم · الإجارة · الشركات الموسوعة الفقهية المقارنة الكبرى. تفصيل دقيق لشروط العوضين، نفي الغرر، صحة البيع بالمعاطاة والبيع الآلي ونقاط البيع السريعة، وأحكام الإجارة والجعالة والشركات.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #10
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 المجلدات 9 و 10 و 11 (أكثر من 1500 صفحة)
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #10
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 المجلدات 9 و 10 و 11 (أكثر من 1500 صفحة)
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/2186/3890" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 المجموع شرح المهذب (المجلدات 9 و 10 و 11 - كتاب البيوع والربا والسلم) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: الإمام محيي الدين يحيى بن شرف النووي (ت 676 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 المجموع شرح المهذب (المجلدات 9 و 10 و 11 - كتاب البيوع والربا والسلم)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: الإمام محيي الدين يحيى بن شرف النووي (ت 676 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">أركان البيع · نفي الغرر والجهالة · البيع بالمعاطاة · السلم · الإجارة · الشركات</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    الموسوعة الفقهية المقارنة الكبرى. تفصيل دقيق لشروط العوضين، نفي الغرر، صحة البيع بالمعاطاة والبيع الآلي ونقاط البيع السريعة، وأحكام الإجارة والجعالة والشركات.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">أوسع مرجع فقهي مقارن بين المذاهب الأربعة في تحرير شروط البيوع والربا.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">أركان البيع · نفي الغرر والجهالة · البيع بالمعاطاة · السلم · الإجارة · الشركات</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                الموسوعة الفقهية المقارنة الكبرى. تفصيل دقيق لشروط العوضين، نفي الغرر، صحة البيع بالمعاطاة والبيع الآلي ونقاط البيع السريعة، وأحكام الإجارة والجعالة والشركات.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">أوسع مرجع فقهي مقارن بين المذاهب الأربعة في تحرير شروط البيوع والربا.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/2186/3890" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (المجموع للنووي - المجلد التاسع)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 11 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="al_nawawi" data-book-search="منهاج الطالبين وعمدة المفتين (قسم المعاملات المالية والبيوع) الإمام محيي الدين يحيى بن شرف النووي (ت 676 هـ) خيارات البيع · الرهن · الضمان · الحوالة · الشفعة · القراض المتن الفقهي الأكثر ضبطاً واعتماداً في تحرير مسائل البيوع، وضبط خيار الرؤية وخيار العيب، وتوثيق الديون بالرهن والضمان.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="al_nawawi" data-book-search="منهاج الطالبين وعمدة المفتين (قسم المعاملات المالية والبيوع) الإمام محيي الدين يحيى بن شرف النووي (ت 676 هـ) خيارات البيع · الرهن · الضمان · الحوالة · الشفعة · القراض المتن الفقهي الأكثر ضبطاً واعتماداً في تحرير مسائل البيوع، وضبط خيار الرؤية وخيار العيب، وتوثيق الديون بالرهن والضمان.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #11
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 متن فقهي عمدة
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #11
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 متن فقهي عمدة
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/11818" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 منهاج الطالبين وعمدة المفتين (قسم المعاملات المالية والبيوع) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: الإمام محيي الدين يحيى بن شرف النووي (ت 676 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 منهاج الطالبين وعمدة المفتين (قسم المعاملات المالية والبيوع)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: الإمام محيي الدين يحيى بن شرف النووي (ت 676 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">خيارات البيع · الرهن · الضمان · الحوالة · الشفعة · القراض</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    المتن الفقهي الأكثر ضبطاً واعتماداً في تحرير مسائل البيوع، وضبط خيار الرؤية وخيار العيب، وتوثيق الديون بالرهن والضمان.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">المتن المعياري المعتمد لدى المجامع الفقهية في الصياغة القانونية للمعاملات.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">خيارات البيع · الرهن · الضمان · الحوالة · الشفعة · القراض</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                المتن الفقهي الأكثر ضبطاً واعتماداً في تحرير مسائل البيوع، وضبط خيار الرؤية وخيار العيب، وتوثيق الديون بالرهن والضمان.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">المتن المعياري المعتمد لدى المجامع الفقهية في الصياغة القانونية للمعاملات.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/11818" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (منهاج الطالبين)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 12 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="al_nawawi" data-book-search="شرح صحيح مسلم (كتاب البيوع، المساقاة، والربا) الإمام محيي الدين يحيى بن شرف النووي (ت 676 هـ) أحاديث البيوع · تحريم بيع الحصاة · الربويات الستة · الصرف والتقابض شرح وتأصيل الأحاديث النبوية الجامعة في تحريم الغرر والربا والنجش والاحتكار، واشتراط التقابض في صرف العملات والذهب.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="al_nawawi" data-book-search="شرح صحيح مسلم (كتاب البيوع، المساقاة، والربا) الإمام محيي الدين يحيى بن شرف النووي (ت 676 هـ) أحاديث البيوع · تحريم بيع الحصاة · الربويات الستة · الصرف والتقابض شرح وتأصيل الأحاديث النبوية الجامعة في تحريم الغرر والربا والنجش والاحتكار، واشتراط التقابض في صرف العملات والذهب.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #12
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 المجلدان 10 و 11
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #12
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 المجلدان 10 و 11
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/1711/4060" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 شرح صحيح مسلم (كتاب البيوع، المساقاة، والربا) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: الإمام محيي الدين يحيى بن شرف النووي (ت 676 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 شرح صحيح مسلم (كتاب البيوع، المساقاة، والربا)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: الإمام محيي الدين يحيى بن شرف النووي (ت 676 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">أحاديث البيوع · تحريم بيع الحصاة · الربويات الستة · الصرف والتقابض</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    شرح وتأصيل الأحاديث النبوية الجامعة في تحريم الغرر والربا والنجش والاحتكار، واشتراط التقابض في صرف العملات والذهب.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">تأصيل فقه الحديث في المعاملات المالية المعاصرة.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">أحاديث البيوع · تحريم بيع الحصاة · الربويات الستة · الصرف والتقابض</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                شرح وتأصيل الأحاديث النبوية الجامعة في تحريم الغرر والربا والنجش والاحتكار، واشتراط التقابض في صرف العملات والذهب.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">تأصيل فقه الحديث في المعاملات المالية المعاصرة.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/1711/4060" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (شرح صحيح مسلم للنووي)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 13 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="al_dhahabi" data-book-search="كتاب الكبائر (كبائر المعاملات، الربا، الغش، والتطفيف) الإمام الحافظ شمس الدين الذهبي (ت 748 هـ) أكل الربا · التطفيف في الميزان · اليمين الغموس لترويج السلع · الغش وتزوير المنشأ بيان الكبائر والموبقات المالية: التطفيف في الميزان والكيل، الغش في بلد المنشأ والمواصفات، واليمين الكاذبة، والرشوة وأكل أموال الناس بالباطل.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="al_dhahabi" data-book-search="كتاب الكبائر (كبائر المعاملات، الربا، الغش، والتطفيف) الإمام الحافظ شمس الدين الذهبي (ت 748 هـ) أكل الربا · التطفيف في الميزان · اليمين الغموس لترويج السلع · الغش وتزوير المنشأ بيان الكبائر والموبقات المالية: التطفيف في الميزان والكيل، الغش في بلد المنشأ والمواصفات، واليمين الكاذبة، والرشوة وأكل أموال الناس بالباطل.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #13
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 كتاب مفرد محقق
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #13
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 كتاب مفرد محقق
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/10543" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 كتاب الكبائر (كبائر المعاملات، الربا، الغش، والتطفيف) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: الإمام الحافظ شمس الدين الذهبي (ت 748 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 كتاب الكبائر (كبائر المعاملات، الربا، الغش، والتطفيف)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: الإمام الحافظ شمس الدين الذهبي (ت 748 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">أكل الربا · التطفيف في الميزان · اليمين الغموس لترويج السلع · الغش وتزوير المنشأ</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    بيان الكبائر والموبقات المالية: التطفيف في الميزان والكيل، الغش في بلد المنشأ والمواصفات، واليمين الكاذبة، والرشوة وأكل أموال الناس بالباطل.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">التحذير والضبط الرادع للجرائم المالية والغش التجاري.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">أكل الربا · التطفيف في الميزان · اليمين الغموس لترويج السلع · الغش وتزوير المنشأ</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                بيان الكبائر والموبقات المالية: التطفيف في الميزان والكيل، الغش في بلد المنشأ والمواصفات، واليمين الكاذبة، والرشوة وأكل أموال الناس بالباطل.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">التحذير والضبط الرادع للجرائم المالية والغش التجاري.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/10543" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (كتاب الكبائر للذهبي)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 14 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="muhammad_bin_abdulwahhab" data-book-search="مجموع مؤلفات الشيخ (القسم الثاني: الفقه - كتاب البيوع والديون) الإمام الشيخ محمد بن عبد الوهاب (ت 1206 هـ) شروط البيع · تحريم الربا · توثيق الديون · الشفعة · منع الاحتكار تحرير أحكام البيوع والربا والديون بالسند والدليل من الكتاب والسنة، والتأكيد على وجوب كتابة الديون والصدق في الأسعار.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="muhammad_bin_abdulwahhab" data-book-search="مجموع مؤلفات الشيخ (القسم الثاني: الفقه - كتاب البيوع والديون) الإمام الشيخ محمد بن عبد الوهاب (ت 1206 هـ) شروط البيع · تحريم الربا · توثيق الديون · الشفعة · منع الاحتكار تحرير أحكام البيوع والربا والديون بالسند والدليل من الكتاب والسنة، والتأكيد على وجوب كتابة الديون والصدق في الأسعار.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #14
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 القسم الثاني (الفقه)
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #14
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 القسم الثاني (الفقه)
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/8381" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 مجموع مؤلفات الشيخ (القسم الثاني: الفقه - كتاب البيوع والديون) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: الإمام الشيخ محمد بن عبد الوهاب (ت 1206 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 مجموع مؤلفات الشيخ (القسم الثاني: الفقه - كتاب البيوع والديون)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: الإمام الشيخ محمد بن عبد الوهاب (ت 1206 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">شروط البيع · تحريم الربا · توثيق الديون · الشفعة · منع الاحتكار</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    تحرير أحكام البيوع والربا والديون بالسند والدليل من الكتاب والسنة، والتأكيد على وجوب كتابة الديون والصدق في الأسعار.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">المنهج الفقهي الأصيل المجرد بالدليل الشرعي المباشر.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">شروط البيع · تحريم الربا · توثيق الديون · الشفعة · منع الاحتكار</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                تحرير أحكام البيوع والربا والديون بالسند والدليل من الكتاب والسنة، والتأكيد على وجوب كتابة الديون والصدق في الأسعار.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">المنهج الفقهي الأصيل المجرد بالدليل الشرعي المباشر.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/8381" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (مؤلفات الشيخ محمد بن عبد الوهاب)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 15 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="muhammad_bin_abdulwahhab" data-book-search="مختصر الإنصاف والشرح الكبير في الفقه (قسم المعاملات) الإمام الشيخ محمد بن عبد الوهاب (ت 1206 هـ) تهذيب الأحكام · فقه المعاملات الحنبلية المحررة تهذيب وتلخيص أدلة الراجح في الخلاف الفقهي في البيوع والإجارات والشركات والرهن.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="muhammad_bin_abdulwahhab" data-book-search="مختصر الإنصاف والشرح الكبير في الفقه (قسم المعاملات) الإمام الشيخ محمد بن عبد الوهاب (ت 1206 هـ) تهذيب الأحكام · فقه المعاملات الحنبلية المحررة تهذيب وتلخيص أدلة الراجح في الخلاف الفقهي في البيوع والإجارات والشركات والرهن.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #15
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 مجلد محقق
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #15
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 مجلد محقق
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/8382" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 مختصر الإنصاف والشرح الكبير في الفقه (قسم المعاملات) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: الإمام الشيخ محمد بن عبد الوهاب (ت 1206 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 مختصر الإنصاف والشرح الكبير في الفقه (قسم المعاملات)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: الإمام الشيخ محمد بن عبد الوهاب (ت 1206 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">تهذيب الأحكام · فقه المعاملات الحنبلية المحررة</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    تهذيب وتلخيص أدلة الراجح في الخلاف الفقهي في البيوع والإجارات والشركات والرهن.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">خلاصة فقه المعاملات المالية المعتمدة.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">تهذيب الأحكام · فقه المعاملات الحنبلية المحررة</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                تهذيب وتلخيص أدلة الراجح في الخلاف الفقهي في البيوع والإجارات والشركات والرهن.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">خلاصة فقه المعاملات المالية المعتمدة.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/8382" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (مختصر الإنصاف والشرح الكبير)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 16 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="al_saadi" data-book-search="القواعد والأصول الجامعة والفروق والتقاسيم البديعة النافعة في المعاملات العلامة الشيخ عبد الرحمن بن ناصر السعدي (ت 1376 هـ) الأصل في المعاملات الإباحة · العرف مطرد كالمشروط · الخراج بالضمان · التعاقد الإلكتروني تأصيل بديع لقواعد التيسير ورفع الحرج في المعاملات المالية، واعتبار العرف التجاري، وصحة التعاقد بالمراسلات والوسائل الحديثة.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="al_saadi" data-book-search="القواعد والأصول الجامعة والفروق والتقاسيم البديعة النافعة في المعاملات العلامة الشيخ عبد الرحمن بن ناصر السعدي (ت 1376 هـ) الأصل في المعاملات الإباحة · العرف مطرد كالمشروط · الخراج بالضمان · التعاقد الإلكتروني تأصيل بديع لقواعد التيسير ورفع الحرج في المعاملات المالية، واعتبار العرف التجاري، وصحة التعاقد بالمراسلات والوسائل الحديثة.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #16
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 كتاب مفرد محقق
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #16
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 كتاب مفرد محقق
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/8122" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 القواعد والأصول الجامعة والفروق والتقاسيم البديعة النافعة في المعاملات ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: العلامة الشيخ عبد الرحمن بن ناصر السعدي (ت 1376 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 القواعد والأصول الجامعة والفروق والتقاسيم البديعة النافعة في المعاملات
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: العلامة الشيخ عبد الرحمن بن ناصر السعدي (ت 1376 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">الأصل في المعاملات الإباحة · العرف مطرد كالمشروط · الخراج بالضمان · التعاقد الإلكتروني</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    تأصيل بديع لقواعد التيسير ورفع الحرج في المعاملات المالية، واعتبار العرف التجاري، وصحة التعاقد بالمراسلات والوسائل الحديثة.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">أعظم كتاب معاصر في تبسيط وتطبيق القواعد الفقهية على التجارة الحديثة.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">الأصل في المعاملات الإباحة · العرف مطرد كالمشروط · الخراج بالضمان · التعاقد الإلكتروني</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                تأصيل بديع لقواعد التيسير ورفع الحرج في المعاملات المالية، واعتبار العرف التجاري، وصحة التعاقد بالمراسلات والوسائل الحديثة.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">أعظم كتاب معاصر في تبسيط وتطبيق القواعد الفقهية على التجارة الحديثة.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/8122" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (القواعد والأصول الجامعة للسعدي)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 17 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="al_saadi" data-book-search="الفتاوى السعدية في المعاملات المالية المستجدة والشركات العلامة الشيخ عبد الرحمن بن ناصر السعدي (ت 1376 هـ) الأسهم · التأمين التعاوني · الوكالات الحصرية · المضاربة والنسب الشائعة · المعاملات البنكية فتاوى عصرية رائدة في قسمة أرباح الشركات بالنسب المئوية، جواز الوكالات التجارية، وضوابط المعاملات البنكية الخالية من الربا.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="al_saadi" data-book-search="الفتاوى السعدية في المعاملات المالية المستجدة والشركات العلامة الشيخ عبد الرحمن بن ناصر السعدي (ت 1376 هـ) الأسهم · التأمين التعاوني · الوكالات الحصرية · المضاربة والنسب الشائعة · المعاملات البنكية فتاوى عصرية رائدة في قسمة أرباح الشركات بالنسب المئوية، جواز الوكالات التجارية، وضوابط المعاملات البنكية الخالية من الربا.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #17
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 مجلد الفتاوى (ص 240 - 320)
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #17
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 مجلد الفتاوى (ص 240 - 320)
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/8120" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 الفتاوى السعدية في المعاملات المالية المستجدة والشركات ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: العلامة الشيخ عبد الرحمن بن ناصر السعدي (ت 1376 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 الفتاوى السعدية في المعاملات المالية المستجدة والشركات
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: العلامة الشيخ عبد الرحمن بن ناصر السعدي (ت 1376 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">الأسهم · التأمين التعاوني · الوكالات الحصرية · المضاربة والنسب الشائعة · المعاملات البنكية</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    فتاوى عصرية رائدة في قسمة أرباح الشركات بالنسب المئوية، جواز الوكالات التجارية، وضوابط المعاملات البنكية الخالية من الربا.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">الريادة في الإفتاء المالي المعاصر والتيسير المنضبط.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">الأسهم · التأمين التعاوني · الوكالات الحصرية · المضاربة والنسب الشائعة · المعاملات البنكية</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                فتاوى عصرية رائدة في قسمة أرباح الشركات بالنسب المئوية، جواز الوكالات التجارية، وضوابط المعاملات البنكية الخالية من الربا.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">الريادة في الإفتاء المالي المعاصر والتيسير المنضبط.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/8120" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (الفتاوى السعدية)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 18 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="al_saadi" data-book-search="بهجة قلوب الأبرار (شرح جوامع الأخبار في البيوع والتجارة) العلامة الشيخ عبد الرحمن بن ناصر السعدي (ت 1376 هـ) شرح أحاديث التجارة · بركة الصدق · نفي الغرر · بيع ما لا يملك شرح أحاديث البيع المبرور، خيار المجلس، النهي عن الغش، وفضل إنظار المعسرين.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="al_saadi" data-book-search="بهجة قلوب الأبرار (شرح جوامع الأخبار في البيوع والتجارة) العلامة الشيخ عبد الرحمن بن ناصر السعدي (ت 1376 هـ) شرح أحاديث التجارة · بركة الصدق · نفي الغرر · بيع ما لا يملك شرح أحاديث البيع المبرور، خيار المجلس، النهي عن الغش، وفضل إنظار المعسرين.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #18
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 مجلد محقق
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #18
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 مجلد محقق
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/8119" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 بهجة قلوب الأبرار (شرح جوامع الأخبار في البيوع والتجارة) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: العلامة الشيخ عبد الرحمن بن ناصر السعدي (ت 1376 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 بهجة قلوب الأبرار (شرح جوامع الأخبار في البيوع والتجارة)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: العلامة الشيخ عبد الرحمن بن ناصر السعدي (ت 1376 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">شرح أحاديث التجارة · بركة الصدق · نفي الغرر · بيع ما لا يملك</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    شرح أحاديث البيع المبرور، خيار المجلس، النهي عن الغش، وفضل إنظار المعسرين.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">شرح حديثي فقهي تربوي لكل تاجر ورجل أعمال.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">شرح أحاديث التجارة · بركة الصدق · نفي الغرر · بيع ما لا يملك</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                شرح أحاديث البيع المبرور، خيار المجلس، النهي عن الغش، وفضل إنظار المعسرين.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">شرح حديثي فقهي تربوي لكل تاجر ورجل أعمال.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/8119" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (بهجة قلوب الأبرار للسعدي)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 19 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="al_shinqiti" data-book-search="أضواء البيان في إيضاح القرآن بالقرآن (تفسير آيات البيوع والربا والمداينة) العلامة الشيخ محمد الأمين الشنقيطي (ت 1393 هـ) آية المداينة · تحريم الربا والتأمين التجاري · جواز التأمين التعاوني · عقد السَّلَم · المزارعة تحرير فقهي وتفسيري بديع لآيات سورة البقرة في المداينة والربا، وسورة المائدة في العقود، وتفصيل الفارق الجوهري بين التأمين التجاري الربوي والتأمين التعاوني التكافلي.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="al_shinqiti" data-book-search="أضواء البيان في إيضاح القرآن بالقرآن (تفسير آيات البيوع والربا والمداينة) العلامة الشيخ محمد الأمين الشنقيطي (ت 1393 هـ) آية المداينة · تحريم الربا والتأمين التجاري · جواز التأمين التعاوني · عقد السَّلَم · المزارعة تحرير فقهي وتفسيري بديع لآيات سورة البقرة في المداينة والربا، وسورة المائدة في العقود، وتفصيل الفارق الجوهري بين التأمين التجاري الربوي والتأمين التعاوني التكافلي.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #19
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 المجلدات 1 و 2 و 3
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #19
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 المجلدات 1 و 2 و 3
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/21626" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 أضواء البيان في إيضاح القرآن بالقرآن (تفسير آيات البيوع والربا والمداينة) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: العلامة الشيخ محمد الأمين الشنقيطي (ت 1393 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 أضواء البيان في إيضاح القرآن بالقرآن (تفسير آيات البيوع والربا والمداينة)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: العلامة الشيخ محمد الأمين الشنقيطي (ت 1393 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">آية المداينة · تحريم الربا والتأمين التجاري · جواز التأمين التعاوني · عقد السَّلَم · المزارعة</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    تحرير فقهي وتفسيري بديع لآيات سورة البقرة في المداينة والربا، وسورة المائدة في العقود، وتفصيل الفارق الجوهري بين التأمين التجاري الربوي والتأمين التعاوني التكافلي.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">المرجع التفسيري والفقهي الأعمق في استنباط أحكام المعاملات المالية من القرآن الكريم.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">آية المداينة · تحريم الربا والتأمين التجاري · جواز التأمين التعاوني · عقد السَّلَم · المزارعة</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                تحرير فقهي وتفسيري بديع لآيات سورة البقرة في المداينة والربا، وسورة المائدة في العقود، وتفصيل الفارق الجوهري بين التأمين التجاري الربوي والتأمين التعاوني التكافلي.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">المرجع التفسيري والفقهي الأعمق في استنباط أحكام المعاملات المالية من القرآن الكريم.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/21626" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (أضواء البيان للشنقيطي)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 20 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="al_albani" data-book-search="سلسلة الأحاديث الصحيحة والضعيفة (موسوعة أحاديث التجارة والبيوع) الإمام محمد ناصر الدين الألباني (ت 1420 هـ) تحقيق أحاديث البيوع · تحريم بيع العينة · خيار العيب · بركة الصدق · نفي الغش التحقيق الحديثي الصارم لأحاديث التجارة والبيوع، وتصحيح أحاديث وضع الجوائح والبركة في الصدق، وتضعيف الأحاديث الواهية في المعاملات.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="al_albani" data-book-search="سلسلة الأحاديث الصحيحة والضعيفة (موسوعة أحاديث التجارة والبيوع) الإمام محمد ناصر الدين الألباني (ت 1420 هـ) تحقيق أحاديث البيوع · تحريم بيع العينة · خيار العيب · بركة الصدق · نفي الغش التحقيق الحديثي الصارم لأحاديث التجارة والبيوع، وتصحيح أحاديث وضع الجوائح والبركة في الصدق، وتضعيف الأحاديث الواهية في المعاملات.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #20
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 مجلدات متعددة
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #20
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 مجلدات متعددة
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/9442" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 سلسلة الأحاديث الصحيحة والضعيفة (موسوعة أحاديث التجارة والبيوع) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: الإمام محمد ناصر الدين الألباني (ت 1420 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 سلسلة الأحاديث الصحيحة والضعيفة (موسوعة أحاديث التجارة والبيوع)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: الإمام محمد ناصر الدين الألباني (ت 1420 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">تحقيق أحاديث البيوع · تحريم بيع العينة · خيار العيب · بركة الصدق · نفي الغش</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    التحقيق الحديثي الصارم لأحاديث التجارة والبيوع، وتصحيح أحاديث وضع الجوائح والبركة في الصدق، وتضعيف الأحاديث الواهية في المعاملات.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">المرجع الحديثي الأول لتمييز الأحاديث الصحيحة من الضعيفة في البيوع.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">تحقيق أحاديث البيوع · تحريم بيع العينة · خيار العيب · بركة الصدق · نفي الغش</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                التحقيق الحديثي الصارم لأحاديث التجارة والبيوع، وتصحيح أحاديث وضع الجوائح والبركة في الصدق، وتضعيف الأحاديث الواهية في المعاملات.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">المرجع الحديثي الأول لتمييز الأحاديث الصحيحة من الضعيفة في البيوع.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/9442" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (سلسلة الأحاديث الصحيحة للألباني)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 21 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="al_albani" data-book-search="إرواء الغليل في تخريج أحاديث منار السبيل (المجلد الخامس - كتاب البيوع) الإمام محمد ناصر الدين الألباني (ت 1420 هـ) تخريج أحاديث العقود · السلم · الرهن · الإجارة · الشركات · الغصب تخريج وتحقيق موسع لكافة أحاديث المعاملات المالية والعقود الفقهية.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="al_albani" data-book-search="إرواء الغليل في تخريج أحاديث منار السبيل (المجلد الخامس - كتاب البيوع) الإمام محمد ناصر الدين الألباني (ت 1420 هـ) تخريج أحاديث العقود · السلم · الرهن · الإجارة · الشركات · الغصب تخريج وتحقيق موسع لكافة أحاديث المعاملات المالية والعقود الفقهية.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #21
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 المجلد الخامس
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #21
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 المجلد الخامس
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/12063" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 إرواء الغليل في تخريج أحاديث منار السبيل (المجلد الخامس - كتاب البيوع) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: الإمام محمد ناصر الدين الألباني (ت 1420 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 إرواء الغليل في تخريج أحاديث منار السبيل (المجلد الخامس - كتاب البيوع)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: الإمام محمد ناصر الدين الألباني (ت 1420 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">تخريج أحاديث العقود · السلم · الرهن · الإجارة · الشركات · الغصب</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    تخريج وتحقيق موسع لكافة أحاديث المعاملات المالية والعقود الفقهية.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">الموسوعة التخريجية الكبرى لأحاديث الفقه المالي.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">تخريج أحاديث العقود · السلم · الرهن · الإجارة · الشركات · الغصب</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                تخريج وتحقيق موسع لكافة أحاديث المعاملات المالية والعقود الفقهية.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">الموسوعة التخريجية الكبرى لأحاديث الفقه المالي.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/12063" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (إرواء الغليل - المجلد الخامس)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 22 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="al_albani" data-book-search="فتاوى جدة ورابغ الاقتصادية وفتاوى المعاملات المالية الإمام محمد ناصر الدين الألباني (ت 1420 هـ) تحريم التسويق الهرمي والشبكي · أجور الحوالات المصرفية · الصرف والذهب فتاوى معاصرة في إبطال التسويق الشبكي لجمعه بين الربا والغرر، وجواز أخذ أجر مقطوع على خدمات التحويل البنكي.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="al_albani" data-book-search="فتاوى المعاملات المالية والاقتصادية للشيخ الألباني الإمام محمد ناصر الدين الألباني (ت 1420 هـ) تحريم التسويق الهرمي والشبكي · أجور الحوالات المصرفية · الصرف والذهب فتاوى معاصرة في إبطال التسويق الشبكي لجمعه بين الربا والغرر، وجواز أخذ أجر مقطوع على خدمات التحويل البنكي.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #22
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 تسجيلات ورسائل محررة
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #22
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 تسجيلات ورسائل محررة
+                        </span>
+                    </div>
+                    <a href="https://alalbany.org" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 فتاوى المعاملات المالية والاقتصادية للشيخ الألباني ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: الإمام محمد ناصر الدين الألباني (ت 1420 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 فتاوى جدة ورابغ الاقتصادية وفتاوى المعاملات المالية
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: الإمام محمد ناصر الدين الألباني (ت 1420 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">تحريم التسويق الهرمي والشبكي · أجور الحوالات المصرفية · الصرف والذهب</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    فتاوى معاصرة في إبطال التسويق الشبكي لجمعه بين الربا والغرر، وجواز أخذ أجر مقطوع على خدمات التحويل البنكي.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">فتاوى حديثية معاصرة في النوازل الاقتصادية.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">تحريم التسويق الهرمي والشبكي · أجور الحوالات المصرفية · الصرف والذهب</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                فتاوى معاصرة في إبطال التسويق الشبكي لجمعه بين الربا والغرر، وجواز أخذ أجر مقطوع على خدمات التحويل البنكي.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">فتاوى حديثية معاصرة في النوازل الاقتصادية.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://alalbany.org" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: الموقع الرسمي للإمام الألباني (الفتاوى الصوتية والمحررة)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 23 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="ibn_baz" data-book-search="مجموع فتاوى ومقالات متنوعة (المجلدان 19 و 20 - البيوع والمعاملات المعاصرة) الإمام عبد العزيز بن باز (ت 1420 هـ) البيع بالتقسيط · خصم الشيكات · التورق · تداول الأسهم النقية · بطاقات الائتمان · الصرافة المرجع الفقهي اليومي الأول لمسائل البيوع المعاصرة. تحريم خصم الشيكات الآجلة (صريح الربا)، تحريم بيع ما لا يملك، وضوابط الاستثمار في الأسهم النقية الخالية من الربا.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="ibn_baz" data-book-search="مجموع فتاوى ومقالات متنوعة (المجلدان 19 و 20 - البيوع والمعاملات المعاصرة) الإمام عبد العزيز بن باز (ت 1420 هـ) البيع بالتقسيط · خصم الشيكات · التورق · تداول الأسهم النقية · بطاقات الائتمان · الصرافة المرجع الفقهي اليومي الأول لمسائل البيوع المعاصرة. تحريم خصم الشيكات الآجلة (صريح الربا)، تحريم بيع ما لا يملك، وضوابط الاستثمار في الأسهم النقية الخالية من الربا.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #23
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 المجلدان 19 و 20 (أكثر من 900 صفحة)
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #23
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 المجلدان 19 و 20 (أكثر من 900 صفحة)
+                        </span>
+                    </div>
+                    <a href="https://binbaz.org.sa/categories/fiqhi/16" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 مجموع فتاوى ومقالات متنوعة (المجلدان 19 و 20 - البيوع والمعاملات المعاصرة) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: الإمام عبد العزيز بن باز (ت 1420 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 مجموع فتاوى ومقالات متنوعة (المجلدان 19 و 20 - البيوع والمعاملات المعاصرة)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: الإمام عبد العزيز بن باز (ت 1420 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">البيع بالتقسيط · خصم الشيكات · التورق · تداول الأسهم النقية · بطاقات الائتمان · الصرافة</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    المرجع الفقهي اليومي الأول لمسائل البيوع المعاصرة. تحريم خصم الشيكات الآجلة (صريح الربا)، تحريم بيع ما لا يملك، وضوابط الاستثمار في الأسهم النقية الخالية من الربا.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">المرجع الفتوى الأكثر انتشاراً وثقة في العالم الإسلامي في المعاملات التجارية.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">البيع بالتقسيط · خصم الشيكات · التورق · تداول الأسهم النقية · بطاقات الائتمان · الصرافة</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                المرجع الفقهي اليومي الأول لمسائل البيوع المعاصرة. تحريم خصم الشيكات الآجلة (صريح الربا)، تحريم بيع ما لا يملك، وضوابط الاستثمار في الأسهم النقية الخالية من الربا.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">المرجع الفتوى الأكثر انتشاراً وثقة في العالم الإسلامي في المعاملات التجارية.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://binbaz.org.sa/categories/fiqhi/16" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: الموقع الرسمي لسماحة الشيخ ابن باز (فقه المعاملات المالية)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 24 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="ibn_baz" data-book-search="فتاوى نور على الدرب (قسم المعاملات والبيوع والربا والديون) الإمام عبد العزيز بن باز (ت 1420 هـ) أجوبة التجار · قضايا الديون والرهن · إنظار المعسر · الصرف بالموبايل إجابات مباشرة وميسرة لآلاف النوازل والأسئلة التجارية اليومية للتجار والمحاسبين.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="ibn_baz" data-book-search="فتاوى نور على الدرب (قسم المعاملات والبيوع والربا والديون) الإمام عبد العزيز بن باز (ت 1420 هـ) أجوبة التجار · قضايا الديون والرهن · إنظار المعسر · الصرف بالموبايل إجابات مباشرة وميسرة لآلاف النوازل والأسئلة التجارية اليومية للتجار والمحاسبين.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #24
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 المجلدات الاقتصادية
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #24
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 المجلدات الاقتصادية
+                        </span>
+                    </div>
+                    <a href="https://binbaz.org.sa/fatwas/kind/1" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 فتاوى نور على الدرب (قسم المعاملات والبيوع والربا والديون) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: الإمام عبد العزيز بن باز (ت 1420 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 فتاوى نور على الدرب (قسم المعاملات والبيوع والربا والديون)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: الإمام عبد العزيز بن باز (ت 1420 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">أجوبة التجار · قضايا الديون والرهن · إنظار المعسر · الصرف بالموبايل</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    إجابات مباشرة وميسرة لآلاف النوازل والأسئلة التجارية اليومية للتجار والمحاسبين.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">سهولة التطبيق وحل الإشكالات المالية السريعة.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">أجوبة التجار · قضايا الديون والرهن · إنظار المعسر · الصرف بالموبايل</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                إجابات مباشرة وميسرة لآلاف النوازل والأسئلة التجارية اليومية للتجار والمحاسبين.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">سهولة التطبيق وحل الإشكالات المالية السريعة.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://binbaz.org.sa/fatwas/kind/1" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: الموقع الرسمي لسماحة الشيخ ابن باز (فتاوى نور على الدرب)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 25 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="ibn_uthaymeen" data-book-search="الشرح الممتع على زاد المستقنع (المجلدات 8 و 9 - كتاب البيع والربا والسلم والإجارة) الإمام محمد بن صالح العثيمين (ت 1421 هـ) البيع بالتقسيط · الشرط الجزائي · الكوبونات والديسكاونت · الإيجار المنتهي بالتمليك · الضمان المصنعي أوسع وأوضح شرح تطبيقي معاصر لفقه البيوع. ربط القواعد الفقهية بالمعاملات الاقتصادية الحديثة، وإجازة البيع بالتقسيط، وفصل عقد الإيجار المنتهي بالتمليك، والشرط الجزائي في المقاولات والتوريد.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="ibn_uthaymeen" data-book-search="الشرح الممتع على زاد المستقنع (المجلدات 8 و 9 - كتاب البيع والربا والسلم والإجارة) الإمام محمد بن صالح العثيمين (ت 1421 هـ) البيع بالتقسيط · الشرط الجزائي · الكوبونات والديسكاونت · الإيجار المنتهي بالتمليك · الضمان المصنعي أوسع وأوضح شرح تطبيقي معاصر لفقه البيوع. ربط القواعد الفقهية بالمعاملات الاقتصادية الحديثة، وإجازة البيع بالتقسيط، وفصل عقد الإيجار المنتهي بالتمليك، والشرط الجزائي في المقاولات والتوريد.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #25
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 المجلدان 8 و 9 (أكثر من 1100 صفحة)
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #25
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 المجلدان 8 و 9 (أكثر من 1100 صفحة)
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/23746/2800" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 الشرح الممتع على زاد المستقنع (المجلدات 8 و 9 - كتاب البيع والربا والسلم والإجارة) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: الإمام محمد بن صالح العثيمين (ت 1421 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 الشرح الممتع على زاد المستقنع (المجلدات 8 و 9 - كتاب البيع والربا والسلم والإجارة)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: الإمام محمد بن صالح العثيمين (ت 1421 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">البيع بالتقسيط · الشرط الجزائي · الكوبونات والديسكاونت · الإيجار المنتهي بالتمليك · الضمان المصنعي</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    أوسع وأوضح شرح تطبيقي معاصر لفقه البيوع. ربط القواعد الفقهية بالمعاملات الاقتصادية الحديثة، وإجازة البيع بالتقسيط، وفصل عقد الإيجار المنتهي بالتمليك، والشرط الجزائي في المقاولات والتوريد.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">المرجع الأسهل والأشمل للفقهاء والمحاسبين ورجال الأعمال في العصر الحديث.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">البيع بالتقسيط · الشرط الجزائي · الكوبونات والديسكاونت · الإيجار المنتهي بالتمليك · الضمان المصنعي</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                أوسع وأوضح شرح تطبيقي معاصر لفقه البيوع. ربط القواعد الفقهية بالمعاملات الاقتصادية الحديثة، وإجازة البيع بالتقسيط، وفصل عقد الإيجار المنتهي بالتمليك، والشرط الجزائي في المقاولات والتوريد.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">المرجع الأسهل والأشمل للفقهاء والمحاسبين ورجال الأعمال في العصر الحديث.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/23746/2800" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (الشرح الممتع للشيخ ابن عثيمين - كتاب البيوع)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 26 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="ibn_uthaymeen" data-book-search="فقه المعاملات المالية المعاصرة ومجموع الفتاوى والرسائل (المجلدان 18 و 19) الإمام محمد بن صالح العثيمين (ت 1421 هـ) بطاقات الائتمان · الصرف الإلكتروني · نقاط الولاء المجانية · المقاصة · حماية المستهلك فتاوى محررة بالأدلة المقارنة في النوازل المالية، وتأصيل حكم بطاقات الخصومات المجانية والكفالة المصنعية وخدمات ما بعد البيع.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="ibn_uthaymeen" data-book-search="فقه المعاملات المالية المعاصرة ومجموع الفتاوى والرسائل (المجلدان 18 و 19) الإمام محمد بن صالح العثيمين (ت 1421 هـ) بطاقات الائتمان · الصرف الإلكتروني · نقاط الولاء المجانية · المقاصة · حماية المستهلك فتاوى محررة بالأدلة المقارنة في النوازل المالية، وتأصيل حكم بطاقات الخصومات المجانية والكفالة المصنعية وخدمات ما بعد البيع.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #26
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 المجلدان 18 و 19
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #26
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 المجلدان 18 و 19
+                        </span>
+                    </div>
+                    <a href="https://ibnothaimeen.net/fatawa" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 فقه المعاملات المالية المعاصرة ومجموع الفتاوى والرسائل (المجلدان 18 و 19) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: الإمام محمد بن صالح العثيمين (ت 1421 هـ)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 فقه المعاملات المالية المعاصرة ومجموع الفتاوى والرسائل (المجلدان 18 و 19)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: الإمام محمد بن صالح العثيمين (ت 1421 هـ)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">بطاقات الائتمان · الصرف الإلكتروني · نقاط الولاء المجانية · المقاصة · حماية المستهلك</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    فتاوى محررة بالأدلة المقارنة في النوازل المالية، وتأصيل حكم بطاقات الخصومات المجانية والكفالة المصنعية وخدمات ما بعد البيع.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">المرجع الأساسي في فقه النوازل التجارية والمصرفية المعاصرة.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">بطاقات الائتمان · الصرف الإلكتروني · نقاط الولاء المجانية · المقاصة · حماية المستهلك</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                فتاوى محررة بالأدلة المقارنة في النوازل المالية، وتأصيل حكم بطاقات الخصومات المجانية والكفالة المصنعية وخدمات ما بعد البيع.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">المرجع الأساسي في فقه النوازل التجارية والمصرفية المعاصرة.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://ibnothaimeen.net/fatawa" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: الموقع الرسمي لفضيلة الشيخ ابن عثيمين (فتاوى المعاملات)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 27 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="al_fawzan" data-book-search="الملخص الفقهي (المجلد الثاني - كتاب المعاملات والبيوع والشركات والديون) معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله) شروط البيع · الربا · السلم · القرض والرهن · الإجارة · الوكالة · الشركات الدليل الفقهي الميسر والمحرر لكل مسلم وتاجر ومحاسب في ضبط كافة بنود العقود المالية والديون.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="al_fawzan" data-book-search="الملخص الفقهي (المجلد الثاني - كتاب المعاملات والبيوع والشركات والديون) معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله) شروط البيع · الربا · السلم · القرض والرهن · الإجارة · الوكالة · الشركات الدليل الفقهي الميسر والمحرر لكل مسلم وتاجر ومحاسب في ضبط كافة بنود العقود المالية والديون.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #27
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 المجلد الثاني (قسم المعاملات)
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #27
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 المجلد الثاني (قسم المعاملات)
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/11440" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 الملخص الفقهي (المجلد الثاني - كتاب المعاملات والبيوع والشركات والديون) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 الملخص الفقهي (المجلد الثاني - كتاب المعاملات والبيوع والشركات والديون)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">شروط البيع · الربا · السلم · القرض والرهن · الإجارة · الوكالة · الشركات</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    الدليل الفقهي الميسر والمحرر لكل مسلم وتاجر ومحاسب في ضبط كافة بنود العقود المالية والديون.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">المنهاج المعتمد لتعليم فقه المعاملات في الجامعات والمؤسسات المالية.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">شروط البيع · الربا · السلم · القرض والرهن · الإجارة · الوكالة · الشركات</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                الدليل الفقهي الميسر والمحرر لكل مسلم وتاجر ومحاسب في ضبط كافة بنود العقود المالية والديون.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">المنهاج المعتمد لتعليم فقه المعاملات في الجامعات والمؤسسات المالية.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/11440" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (الملخص الفقهي للشيخ الفوزان)</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 28 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="al_fawzan" data-book-search="المنتقى من فتاوى الفوزان (فتاوى المعاملات المصرفية والبيوع المعاصرة) معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله) التحويلات عبر الموبايل بنك · نقاط البيع pos · المرابحة البنكية · تحريم البيتكوين · الصناديق العقارية فتاوى مصرفية عصرية في اعتبار التحويل الإلكتروني قبضاً حكمياً صحيحاً، ضوابط المرابحة للآمر بالشراء، والتحذير من العملات الرقمية المشفرة والمخاطرة والغرر.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="al_fawzan" data-book-search="المنتقى من فتاوى الفوزان (فتاوى المعاملات المصرفية والبيوع المعاصرة) معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله) التحويلات عبر الموبايل بنك · نقاط البيع pos · المرابحة البنكية · تحريم البيتكوين · الصناديق العقارية فتاوى مصرفية عصرية في اعتبار التحويل الإلكتروني قبضاً حكمياً صحيحاً، ضوابط المرابحة للآمر بالشراء، والتحذير من العملات الرقمية المشفرة والمخاطرة والغرر.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #28
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 مجلدات متعددة
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #28
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 مجلدات متعددة
+                        </span>
+                    </div>
+                    <a href="https://alfawzan.af.org.sa/ar/node/2065" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 المنتقى من فتاوى الفوزان (فتاوى المعاملات المصرفية والبيوع المعاصرة) ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 المنتقى من فتاوى الفوزان (فتاوى المعاملات المصرفية والبيوع المعاصرة)
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">التحويلات عبر الموبايل بنك · نقاط البيع POS · المرابحة البنكية · تحريم البيتكوين · الصناديق العقارية</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    فتاوى مصرفية عصرية في اعتبار التحويل الإلكتروني قبضاً حكمياً صحيحاً، ضوابط المرابحة للآمر بالشراء، والتحذير من العملات الرقمية المشفرة والمخاطرة والغرر.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">المرجع الفتوى الأحدث لكبار العلماء المعاصرين في المعاملات الرقمية والبنكية.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">التحويلات عبر الموبايل بنك · نقاط البيع POS · المرابحة البنكية · تحريم البيتكوين · الصناديق العقارية</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                فتاوى مصرفية عصرية في اعتبار التحويل الإلكتروني قبضاً حكمياً صحيحاً، ضوابط المرابحة للآمر بالشراء، والتحذير من العملات الرقمية المشفرة والمخاطرة والغرر.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">المرجع الفتوى الأحدث لكبار العلماء المعاصرين في المعاملات الرقمية والبنكية.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://alfawzan.af.org.sa/ar/node/2065" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: الموقع الرسمي لمعالي الشيخ صالح الفوزان</span>
+                </a>
             </div>
 
         </div>
     
         <!-- Book Card 29 -->
-        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-xl hover:border-amber-400 transition" data-book-scholar="al_fawzan" data-book-search="شرح كتاب البيوع من بلوغ المرام من أدلة الأحكام معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله) أحاديث الأحكام المالية · الخيارات · الربا والصرف · السلم · الإجارة شرح حديثي فقهي رصين لأحاديث البيوع وضوابط الحلال والحرام في المكاسب.">
+        <div class="fiqh-book-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3.5 shadow-xl hover:border-amber-400 transition flex flex-col justify-between" data-book-scholar="al_fawzan" data-book-search="شرح كتاب البيوع من بلوغ المرام من أدلة الأحكام معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله) أحاديث الأحكام المالية · الخيارات · الربا والصرف · السلم · الإجارة شرح حديثي فقهي رصين لأحاديث البيوع وضوابط الحلال والحرام في المكاسب.">
             
-            <!-- Header: Title & Scholar -->
-            <div class="border-b border-slate-800 pb-3 space-y-1.5">
-                <div class="flex flex-wrap items-center justify-between gap-2">
-                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
-                        كتاب #29
-                    </span>
-                    <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
-                        📖 مجلد محقق
-                    </span>
+            <div class="space-y-3">
+                <!-- Header: Title & Scholar -->
+                <div class="border-b border-slate-800 pb-3 space-y-1.5">
+                    <div class="flex flex-wrap items-center justify-between gap-2">
+                        <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400/50">
+                            كتاب #29
+                        </span>
+                        <span class="text-xs text-sky-400 font-black px-2.5 py-1 rounded-xl bg-sky-950/80 border border-sky-500/40 font-mono">
+                            📖 مجلد محقق
+                        </span>
+                    </div>
+                    <a href="https://shamela.ws/book/37575" target="_blank" rel="noopener noreferrer" class="text-base md:text-lg font-black text-amber-300 hover:text-amber-200 leading-tight block hover:underline transition">
+                        📚 شرح كتاب البيوع من بلوغ المرام من أدلة الأحكام ↗
+                    </a>
+                    <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
+                        <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                        <span>المؤلف: معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله)</span>
+                    </div>
                 </div>
-                <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                    📚 شرح كتاب البيوع من بلوغ المرام من أدلة الأحكام
-                </h4>
-                <div class="flex items-center gap-1.5 text-xs text-slate-300 font-bold">
-                    <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                    <span>المؤلف: معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله)</span>
+
+                <!-- Topics Chips -->
+                <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
+                    <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
+                    <span class="text-xs text-emerald-300 font-black leading-relaxed block">أحاديث الأحكام المالية · الخيارات · الربا والصرف · السلم · الإجارة</span>
+                </div>
+
+                <!-- Description -->
+                <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
+                    شرح حديثي فقهي رصين لأحاديث البيوع وضوابط الحلال والحرام في المكاسب.
+                </p>
+
+                <!-- Importance Box -->
+                <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
+                    <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
+                    <span class="text-slate-300 font-bold">تأصيل أدلة الأحكام في الفقه المالي المعاصر.</span>
                 </div>
             </div>
 
-            <!-- Topics Chips -->
-            <div class="p-2.5 bg-slate-950/80 rounded-xl border border-slate-800">
-                <span class="text-[11px] text-slate-400 font-bold block mb-1">🏷️ أهم الأبواب والموضوعات المعالجة:</span>
-                <span class="text-xs text-emerald-300 font-black leading-relaxed block">أحاديث الأحكام المالية · الخيارات · الربا والصرف · السلم · الإجارة</span>
-            </div>
-
-            <!-- Description -->
-            <p class="text-xs md:text-sm text-slate-200 font-bold leading-relaxed">
-                شرح حديثي فقهي رصين لأحاديث البيوع وضوابط الحلال والحرام في المكاسب.
-            </p>
-
-            <!-- Importance Box -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-0.5">🌟 القيمة والأهمية الفقهية:</span>
-                <span class="text-slate-300 font-bold">تأصيل أدلة الأحكام في الفقه المالي المعاصر.</span>
+            <!-- Direct Online Link Button -->
+            <div class="pt-2 border-t border-slate-800/80">
+                <a href="https://shamela.ws/book/37575" target="_blank" rel="noopener noreferrer" class="w-full py-2.5 px-4 bg-gradient-to-r from-amber-500/20 to-amber-600/30 hover:from-amber-500/30 hover:to-amber-600/40 border-2 border-amber-400/60 rounded-xl text-amber-300 hover:text-amber-200 font-black text-xs flex items-center justify-center gap-2 shadow-md transition transform hover:-translate-y-0.5">
+                    <i class="fa-solid fa-arrow-up-right-from-square text-amber-400"></i>
+                    <span>تصفح وقراءة الكتاب كاملاً أونلاين عبر: المكتبة الشاملة (شرح بلوغ المرام - كتاب البيوع)</span>
+                </a>
             </div>
 
         </div>
