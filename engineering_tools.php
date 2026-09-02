@@ -1,7 +1,7 @@
 <?php
 // ====================================================================
-// نظام Al-Sajana Smart ERP 2026 - حزمة المساعدات ومفاتيح تحويلات البنوك V7
-// تصميم فخم وبارز جداً للمنصة الرئيسية الثلاثية (اسم البنك - رقم الحساب - رقم الـ BBAN النهائي المكتمل)
+// نظام Al-Sajana Smart ERP 2026 - حزمة المساعدات ومفاتيح تحويلات البنوك V8
+// اللون الأصفر الذهبي والخطوط العملاقة مع إظهار الرقم واسم البنك فقط
 // ====================================================================
 $page_title = 'الأدوات المساعدة والحاسبات ومفاتيح تحويلات البنوك';
 $header_theme_class = 'header-theme-reports';
@@ -233,10 +233,10 @@ $pdo = getDBConnection();
         /* ── المنصة الرئيسية العليا لتوليد الـ BBAN ── */
         .master-bban-hero-box {
             background: linear-gradient(145deg, rgba(8, 14, 28, 0.98), rgba(2, 6, 15, 0.99));
-            border: 3px solid #38bdf8;
-            border-radius: 26px;
-            padding: 26px;
-            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.8), 0 0 35px rgba(56, 189, 248, 0.35);
+            border: 3px solid #f59e0b;
+            border-radius: 28px;
+            padding: 28px;
+            box-shadow: 0 20px 60px rgba(0, 0, 0, 0.85), 0 0 40px rgba(245, 158, 11, 0.35);
             position: relative;
             overflow: hidden;
         }
@@ -244,15 +244,15 @@ $pdo = getDBConnection();
         .master-bban-display-screen {
             background: #000000;
             border: 3px solid #10b981;
-            border-radius: 20px;
-            padding: 20px 24px;
+            border-radius: 22px;
+            padding: 22px 26px;
             text-align: center;
             font-family: 'Outfit', 'JetBrains Mono', 'Courier New', monospace;
-            font-size: 2.3rem;
+            font-size: 2.6rem;
             font-weight: 900;
-            letter-spacing: 3px;
+            letter-spacing: 4px;
             color: #38bdf8;
-            box-shadow: inset 0 4px 15px rgba(0, 0, 0, 0.95), 0 0 30px rgba(16, 185, 129, 0.4);
+            box-shadow: inset 0 4px 18px rgba(0, 0, 0, 0.95), 0 0 35px rgba(16, 185, 129, 0.45);
             direction: ltr;
             display: flex;
             align-items: center;
@@ -262,15 +262,15 @@ $pdo = getDBConnection();
 
         @media (max-width: 768px) {
             .master-bban-display-screen {
-                font-size: 1.5rem;
+                font-size: 1.6rem;
                 padding: 14px;
-                letter-spacing: 1px;
+                letter-spacing: 1.5px;
             }
         }
 
         :root.light-theme .master-bban-hero-box {
             background: #ffffff !important;
-            border: 3px solid #0284c7 !important;
+            border: 3px solid #d97706 !important;
             box-shadow: 0 15px 40px rgba(0, 0, 0, 0.1) !important;
         }
 
@@ -869,14 +869,14 @@ $pdo = getDBConnection();
         <div id="suite-sec-banks" class="suite-section anim-suite hidden space-y-6">
             <div class="glass-panel-v3" style="--border-color: rgba(34, 211, 238, 0.4);">
                 
-                <!-- 👑👑 MASTER LUXURY HERO CARD: THE 3 CORE ELEMENTS 👑👑 -->
+                <!-- 👑👑 MASTER LUXURY HERO CARD: THE 3 CORE ELEMENTS IN GOLDEN YELLOW & EXTRA LARGE FONTS 👑👑 -->
                 <div class="master-bban-hero-box mb-8">
                     
                     <!-- Header of the Hero Section -->
-                    <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-cyan-500/40 pb-5 mb-6">
+                    <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-amber-500/40 pb-5 mb-6">
                         <div>
                             <div class="flex items-center gap-2 mb-1.5">
-                                <span class="px-4 py-1.5 bg-cyan-500/20 text-cyan-300 rounded-xl text-sm font-mono font-black border-2 border-cyan-400 shadow-md">
+                                <span class="px-4 py-1.5 bg-amber-500/20 text-amber-300 rounded-xl text-sm font-mono font-black border-2 border-amber-400 shadow-md">
                                     ★ المنظومة الموحدة للتحويلات البنكية (BBAN Engine)
                                 </span>
                                 <span class="px-3.5 py-1.5 bg-emerald-500/20 text-emerald-300 rounded-xl text-sm font-black border-2 border-emerald-400 shadow-md">
@@ -884,11 +884,11 @@ $pdo = getDBConnection();
                                 </span>
                             </div>
                             <h2 class="text-2xl md:text-4xl font-black text-white flex items-center gap-3">
-                                <i class="fa-solid fa-building-columns text-cyan-400"></i>
+                                <i class="fa-solid fa-building-columns text-amber-400"></i>
                                 المنصة الذكية لتوليد وتركيب أرقام الـ BBAN للتحويل المباشر
                             </h2>
                             <p class="text-sm md:text-base font-bold text-slate-300 mt-1.5">
-                                الخطوات الثلاث الرئيسية: <span class="text-cyan-300 font-black">1) اختر اسم البنك</span> ⬅️ <span class="text-amber-300 font-black">2) اكتب رقم حسابك</span> ⬅️ <span class="text-emerald-300 font-black">3) انسخ صيغة الـ BBAN المكتملة</span>
+                                الخطوات الثلاث الرئيسية: <span class="text-amber-300 font-black">1) اختيار اسم البنك</span> ⬅️ <span class="text-amber-300 font-black">2) كتابة رقم الحساب</span> ⬅️ <span class="text-emerald-300 font-black">3) نسخ صيغة الـ BBAN المكتملة</span>
                             </p>
                         </div>
 
@@ -899,32 +899,32 @@ $pdo = getDBConnection();
                         </div>
                     </div>
 
-                    <!-- 🎛️ 1 & 2: TWO MASSIVE INPUT SELECTORS 🎛️ -->
+                    <!-- 🎛️ 1 & 2: TWO MASSIVE INPUT SELECTORS WITH GOLDEN YELLOW TYPOGRAPHY 🎛️ -->
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
                         
-                        <!-- 1. اسم البنك المستفيد -->
-                        <div class="bg-slate-900/90 p-5 rounded-2xl border-2 border-cyan-500/40 shadow-lg space-y-2">
-                            <label class="text-base md:text-lg font-black text-cyan-300 flex items-center gap-2">
-                                <span class="w-8 h-8 rounded-full bg-cyan-500 text-slate-950 font-black flex items-center justify-center text-base">1</span>
-                                🏛️ اختر اسم البنك المستفيد (16 بنكاً سودانياً):
+                        <!-- 1. اختيار اسم البنك المستفيد -->
+                        <div class="bg-slate-900/95 p-6 rounded-3xl border-3 border-amber-500/50 shadow-xl space-y-3">
+                            <label class="text-xl md:text-2xl font-black text-amber-400 flex items-center gap-2">
+                                <span class="w-9 h-9 rounded-full bg-amber-400 text-slate-950 font-black flex items-center justify-center text-lg shadow-md">1</span>
+                                🏛️ اختيار اسم البنك المستفيد:
                             </label>
-                            <select id="bban_bank_selector" onchange="generateUserBBAN()" class="tool-input text-lg md:text-xl font-black py-4 px-4 bg-slate-950 border-2 border-cyan-400 text-cyan-200 rounded-2xl cursor-pointer">
-                                <option value="040|XXXXXXX|0001">1. بنك الخرطوم — تطبيق بنكك (040 + 7 أرقام + 0001)</option>
-                                <option value="240|XXXXXXX|0001">2. بنك أم درمان الوطني — تطبيق أوكاش (240 + 7 أرقام + 0001)</option>
-                                <option value="02|XXXXXXXX|0001">3. بنك فيصل الإسلامي — تطبيق فوري (02 + 8 أرقام + 0001)</option>
-                                <option value="150000|XXXXXXXX|">4. بنك النيل الأزرق المشرق — تطبيق مشرق (150000 + 8 أرقام)</option>
-                                <option value="14000|XXXX|00001">5. البنك الإسلامي السوداني — آمن بلس (14000 + 4 أرقام + 00001)</option>
-                                <option value="sahel">6. بنك النيل — تطبيق ساهل (يستخرج من داخل التطبيق)</option>
-                                <option value="222|XXXXXXXXXXX|">7. بنك المزارع التجاري — تطبيق مصرفك (222 + 11 رقم)</option>
-                                <option value="110|XXXXXX|00001">8. البنك الفرنسي السوداني (110 + 6 أرقام + 00001)</option>
-                                <option value="03|XXXXXXX|01001">9. البنك الزراعي السوداني — الزراعي موبايل (03 + 7 أرقام + 01001)</option>
-                                <option value="180|XXXXXX|00001">10. بنك السلام السوداني (180 + 6 أرقام + 00001)</option>
-                                <option value="070|XXXXXX|00001">11. بنك البركة السوداني (070 + 6 أرقام + 00001)</option>
-                                <option value="090|XXXXXX|00001">12. بنك الثروة الحيوانية (090 + 6 أرقام + 00001)</option>
-                                <option value="120|XXXXXX|00001">13. بنك العمال الوطني (120 + 6 أرقام + 00001)</option>
-                                <option value="160|XXXXXX|00001">14. البنك العقاري التجاري (160 + 6 أرقام + 00001)</option>
-                                <option value="130|XXXXXX|00001">15. بنك التنمية الصناعية (130 + 6 أرقام + 00001)</option>
-                                <option value="170|XXXXXX|00001">16. بنك المال المتحد (170 + 6 أرقام + 00001)</option>
+                            <select id="bban_bank_selector" onchange="generateUserBBAN()" style="color: #fbbf24; font-size: 1.55rem; font-weight: 900;" class="tool-input font-black py-4 px-5 bg-slate-950 border-3 border-amber-400 rounded-2xl cursor-pointer">
+                                <option value="040|XXXXXXX|0001">1. بنك الخرطوم</option>
+                                <option value="240|XXXXXXX|0001">2. بنك أم درمان الوطني</option>
+                                <option value="02|XXXXXXXX|0001">3. بنك فيصل الإسلامي</option>
+                                <option value="150000|XXXXXXXX|">4. بنك النيل الأزرق المشرق</option>
+                                <option value="14000|XXXX|00001">5. البنك الإسلامي السوداني</option>
+                                <option value="sahel">6. بنك النيل</option>
+                                <option value="222|XXXXXXXXXXX|">7. بنك المزارع التجاري</option>
+                                <option value="110|XXXXXX|00001">8. البنك الفرنسي السوداني</option>
+                                <option value="03|XXXXXXX|01001">9. البنك الزراعي السوداني</option>
+                                <option value="180|XXXXXX|00001">10. بنك السلام السوداني</option>
+                                <option value="070|XXXXXX|00001">11. بنك البركة السوداني</option>
+                                <option value="090|XXXXXX|00001">12. بنك الثروة الحيوانية</option>
+                                <option value="120|XXXXXX|00001">13. بنك العمال الوطني</option>
+                                <option value="160|XXXXXX|00001">14. البنك العقاري التجاري</option>
+                                <option value="130|XXXXXX|00001">15. بنك التنمية الصناعية</option>
+                                <option value="170|XXXXXX|00001">16. بنك المال المتحد</option>
                             </select>
                             <span class="text-xs text-slate-400 font-bold block mt-1" id="selected_bank_app_badge">
                                 📱 التطبيق المعتمد: بنكك (Bank of Khartoum)
@@ -932,15 +932,15 @@ $pdo = getDBConnection();
                         </div>
 
                         <!-- 2. كتابة رقم الحساب -->
-                        <div class="bg-slate-900/90 p-5 rounded-2xl border-2 border-amber-500/40 shadow-lg space-y-2">
-                            <label class="text-base md:text-lg font-black text-amber-300 flex items-center gap-2">
-                                <span class="w-8 h-8 rounded-full bg-amber-500 text-slate-950 font-black flex items-center justify-center text-base">2</span>
-                                🔢 أدخل رقم الحساب الأساسي (بدون الصفر):
+                        <div class="bg-slate-900/95 p-6 rounded-3xl border-3 border-amber-500/50 shadow-xl space-y-3">
+                            <label class="text-xl md:text-2xl font-black text-amber-400 flex items-center gap-2">
+                                <span class="w-9 h-9 rounded-full bg-amber-400 text-slate-950 font-black flex items-center justify-center text-lg shadow-md">2</span>
+                                🔢 كتابة رقم الحساب (بدون الصفر):
                             </label>
-                            <input type="text" id="bban_raw_account" placeholder="مثال: 345678 أو 0345678" oninput="generateUserBBAN()" class="tool-input text-xl md:text-2xl font-mono font-black py-3.5 px-5 bg-slate-950 border-2 border-amber-400 text-amber-300 text-center tracking-widest rounded-2xl">
+                            <input type="text" id="bban_raw_account" placeholder="اكتب رقم الحساب هنا" oninput="generateUserBBAN()" style="color: #fbbf24; font-size: 2.2rem; font-weight: 900; letter-spacing: 4px;" class="tool-input font-mono font-black py-4 px-6 bg-slate-950 border-3 border-amber-400 text-center rounded-2xl placeholder-slate-700 shadow-inner">
                             <div class="flex items-center justify-between text-xs font-black mt-1">
-                                <span class="text-amber-300" id="bban_strip_feedback">✓ يحذف الصفر في بداية الحساب تلقائياً</span>
-                                <span class="text-rose-400">⚠️ تنبيه: لا تكتب صفر في البداية</span>
+                                <span class="text-amber-300 font-bold" id="bban_strip_feedback">✓ يحذف الصفر في بداية الحساب تلقائياً</span>
+                                <span class="text-rose-400 font-bold">⚠️ تنبيه: لا تكتب صفر في البداية</span>
                             </div>
                         </div>
 
@@ -2194,11 +2194,11 @@ $pdo = getDBConnection();
         const selectObj = document.getElementById('bban_bank_selector');
         const selectedText = selectObj.options[selectObj.selectedIndex].text;
         if (appBadgeEl) {
-            appBadgeEl.textContent = '📱 ' + selectedText;
+            appBadgeEl.textContent = '📱 البنك المحدد: ' + selectedText;
         }
 
         if (sel === 'sahel') {
-            display.innerHTML = '<span class="text-amber-300 font-bold text-xl tracking-normal">يستخرج رقم الـ BBAN مباشرة من داخل تطبيق ساهل (بنك النيل)</span>';
+            display.innerHTML = '<span class="text-amber-300 font-bold text-2xl tracking-normal">يستخرج رقم الـ BBAN مباشرة من داخل تطبيق ساهل (بنك النيل)</span>';
             lenEl.textContent = 'تطبيق ساهل (بنك النيل)';
             if (feedbackEl) feedbackEl.textContent = 'انسخ الـ BBAN من ملفك الشخصي داخل التطبيق';
             return;
@@ -2240,7 +2240,7 @@ $pdo = getDBConnection();
         
         // Render with colored segments
         const styledHtml = '<span class="text-amber-400 font-black">' + prefix + '</span>' +
-                           '<span class="text-white font-black px-1.5">' + padded + '</span>' +
+                           '<span class="text-white font-black px-2">' + padded + '</span>' +
                            '<span class="text-emerald-400 font-black">' + suffix + '</span>';
 
         display.innerHTML = styledHtml;
