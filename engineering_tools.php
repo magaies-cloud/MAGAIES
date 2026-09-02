@@ -1773,6 +1773,9 @@ $pdo = getDBConnection();
                     <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('maxims', this)">
                         ⚖️ القواعد الفقهية الكبرى الـ 5 الحاكمة للتجارة
                     </button>
+                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('hadiths', this)">
+                        📜 أحاديث البيوع الصحيحة فقط (18 حديثاً ثابتة)
+                    </button>
                     <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('terms', this)">
                         📖 معجم المصطلحات الفقهية والاقتصادية
                     </button>
@@ -3250,6 +3253,752 @@ $pdo = getDBConnection();
                 </div>
 
                 <!-- ════════════════════════════════════════════════════════════ -->
+                
+                <!-- ════════════════════════════════════════════════════════════ -->
+                <!-- SUB-SECTION 5: AUTHENTIC HADITHS OF COMMERCE (صحيحة فقط)      -->
+                <!-- ════════════════════════════════════════════════════════════ -->
+                <div id="fiqh-sub-hadiths" class="space-y-4 hidden">
+                    <div class="p-4 bg-amber-500/15 border-2 border-amber-500/40 rounded-2xl flex flex-wrap items-center justify-between gap-3">
+                        <div>
+                            <h3 class="text-lg md:text-xl font-black text-amber-300 flex items-center gap-2">
+                                <i class="fa-solid fa-scroll text-amber-400"></i>
+                                الموسوعة النبوية الشاملة: أحاديث البيوع والمعاملات التجارية (الصحيحة فقط)
+                            </h3>
+                            <p class="text-xs md:text-sm text-slate-200 font-bold mt-1">
+                                جميع الأحاديث الواردة مخرجة من <span class="text-emerald-400 font-black">صحيحي البخاري ومسلم</span> والسنن الثابتة بتحقيق كبار أئمة الحديث (18 حديثاً صحيحاً محكماً).
+                            </p>
+                        </div>
+                        <span class="px-4 py-1.5 bg-emerald-500/20 text-emerald-300 font-mono font-black text-xs rounded-xl border border-emerald-400">
+                            18 حديثاً صحيحاً 100% ✓
+                        </span>
+                    </div>
+
+                    <!-- Hadiths Grid -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="hadiths-grid-container">
+
+        <!-- Hadith Card 1 -->
+        <div class="p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-theme="truth">
+            
+            <!-- Top Badge & Number -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 font-mono font-black flex items-center justify-center border border-amber-400/50">
+                        1
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300">
+                        البركة في الصدق والبيان وشؤم الكتمان والكذب
+                    </h4>
+                </div>
+                <span class="text-xs font-bold px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 flex items-center gap-1">
+                    ✓ حديث صحيح ثابت
+                </span>
+            </div>
+
+            <!-- Hadith Matn Calligraphy Box -->
+            <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 font-bold block mb-1.5">عن حكيم بن حزام رضي الله عنه:</span>
+                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                    «الْبَيِّعَانِ بِالْخِيَارِ مَا لَمْ يَتَفَرَّقَا، فَإِنْ صَدَقَا وَبَيَّنَا بُورِكَ لَهُمَا فِي بَيْعِهِمَا، وَإِنْ كَتَمَا وَكَذَبَا مُحِقَتْ بَرَكَةُ بَيْعِهِمَا»
+                </p>
+            </div>
+
+            <!-- Source and Fiqh Benefit -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
+                    <span class="text-sky-400 font-black block mb-0.5">📖 التخريج والمصدر المعتمد:</span>
+                    <span class="text-slate-300 font-bold">صحيح البخاري (2079) وصحيح مسلم (1532)</span>
+                </div>
+                <div class="p-2.5 bg-emerald-950/30 rounded-xl border border-emerald-500/30">
+                    <span class="text-emerald-400 font-black block mb-0.5">💡 الضابط والفائدة للتاجر والمحاسب:</span>
+                    <span class="text-slate-200 font-bold">الصدق في ذكر تكلفة وسعر السلعة وعيوبها هو مفتاح البركة والنماء، والكتمان والكذب يمحق الأرباح ولو كثرت.</span>
+                </div>
+            </div>
+
+        </div>
+    
+        <!-- Hadith Card 2 -->
+        <div class="p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-theme="truth">
+            
+            <!-- Top Badge & Number -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 font-mono font-black flex items-center justify-center border border-amber-400/50">
+                        2
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300">
+                        فضل التاجر الصدوق الأمين ومنزلته العالية في الجنة
+                    </h4>
+                </div>
+                <span class="text-xs font-bold px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 flex items-center gap-1">
+                    ✓ حديث صحيح ثابت
+                </span>
+            </div>
+
+            <!-- Hadith Matn Calligraphy Box -->
+            <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 font-bold block mb-1.5">عن أبي سعيد الخدري رضي الله عنه:</span>
+                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                    «التَّاجِرُ الصَّدُوقُ الأَمِينُ مَعَ النَّبِيِّينَ وَالصِّدِّيقِينَ وَالشُّهَدَاءِ»
+                </p>
+            </div>
+
+            <!-- Source and Fiqh Benefit -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
+                    <span class="text-sky-400 font-black block mb-0.5">📖 التخريج والمصدر المعتمد:</span>
+                    <span class="text-slate-300 font-bold">رواه الترمذي (1209) وصححه الألباني في صحيح الترغيب (1782)</span>
+                </div>
+                <div class="p-2.5 bg-emerald-950/30 rounded-xl border border-emerald-500/30">
+                    <span class="text-emerald-400 font-black block mb-0.5">💡 الضابط والفائدة للتاجر والمحاسب:</span>
+                    <span class="text-slate-200 font-bold">بيان شرف مهنة التجارة إذا اقترنت بالأمانة والصدق والبعد عن أكل أموال الناس بالباطل.</span>
+                </div>
+            </div>
+
+        </div>
+    
+        <!-- Hadith Card 3 -->
+        <div class="p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-theme="kindness">
+            
+            <!-- Top Badge & Number -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 font-mono font-black flex items-center justify-center border border-amber-400/50">
+                        3
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300">
+                        السماحة واليسر في البيع والشراء والقضاء والمطالبة
+                    </h4>
+                </div>
+                <span class="text-xs font-bold px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 flex items-center gap-1">
+                    ✓ حديث صحيح ثابت
+                </span>
+            </div>
+
+            <!-- Hadith Matn Calligraphy Box -->
+            <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 font-bold block mb-1.5">عن جابر بن عبد الله رضي الله عنهما:</span>
+                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                    «رَحِمَ اللَّهُ رَجُلًا سَمْحًا إِذَا بَاعَ، وَإِذَا اشْتَرَى، وَإِذَا اقْتَضَى»
+                </p>
+            </div>
+
+            <!-- Source and Fiqh Benefit -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
+                    <span class="text-sky-400 font-black block mb-0.5">📖 التخريج والمصدر المعتمد:</span>
+                    <span class="text-slate-300 font-bold">صحيح البخاري (2076)</span>
+                </div>
+                <div class="p-2.5 bg-emerald-950/30 rounded-xl border border-emerald-500/30">
+                    <span class="text-emerald-400 font-black block mb-0.5">💡 الضابط والفائدة للتاجر والمحاسب:</span>
+                    <span class="text-slate-200 font-bold">الدعاء بالرحمة النبوية لكل من يتساهل ولا يشدد على الناس في المماكسة وسداد الديون.</span>
+                </div>
+            </div>
+
+        </div>
+    
+        <!-- Hadith Card 4 -->
+        <div class="p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-theme="ownership">
+            
+            <!-- Top Badge & Number -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 font-mono font-black flex items-center justify-center border border-amber-400/50">
+                        4
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300">
+                        النهي الصريح عن بيع ما لا يملك التاجر (بيع ما ليس عندك)
+                    </h4>
+                </div>
+                <span class="text-xs font-bold px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 flex items-center gap-1">
+                    ✓ حديث صحيح ثابت
+                </span>
+            </div>
+
+            <!-- Hadith Matn Calligraphy Box -->
+            <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 font-bold block mb-1.5">عن حكيم بن حزام رضي الله عنه:</span>
+                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                    «قُلْتُ: يَا رَسُولَ اللَّهِ، يَأْتِينِي الرَّجُلُ فَيُرِيدُ مِنِّي الْبَيْعَ لَيْسَ عِنْدِي، أَفَأَبْتَاعُهُ لَهُ مِنَ السُّوقِ؟ فَقَالَ: لَا تَبِعْ مَا لَيْسَ عِنْدَكَ»
+                </p>
+            </div>
+
+            <!-- Source and Fiqh Benefit -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
+                    <span class="text-sky-400 font-black block mb-0.5">📖 التخريج والمصدر المعتمد:</span>
+                    <span class="text-slate-300 font-bold">رواه أبو داود (3503) والترمذي (1232) والنسائي وصححه الألباني</span>
+                </div>
+                <div class="p-2.5 bg-emerald-950/30 rounded-xl border border-emerald-500/30">
+                    <span class="text-emerald-400 font-black block mb-0.5">💡 الضابط والفائدة للتاجر والمحاسب:</span>
+                    <span class="text-slate-200 font-bold">تحريم إبرام عقد بيع باتّ على سلعة معينة قبل شرائها وقبضها ودخولها في ملك وضمان التاجر.</span>
+                </div>
+            </div>
+
+        </div>
+    
+        <!-- Hadith Card 5 -->
+        <div class="p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-theme="defects">
+            
+            <!-- Top Badge & Number -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 font-mono font-black flex items-center justify-center border border-amber-400/50">
+                        5
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300">
+                        النهي عن بيوع الغرر والمخاطرة والجهالة في السلع
+                    </h4>
+                </div>
+                <span class="text-xs font-bold px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 flex items-center gap-1">
+                    ✓ حديث صحيح ثابت
+                </span>
+            </div>
+
+            <!-- Hadith Matn Calligraphy Box -->
+            <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 font-bold block mb-1.5">عن أبي هريرة رضي الله عنه:</span>
+                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                    «نَهَى رَسُولُ اللَّهِ ﷺ عَنْ بَيْعِ الْحَصَاةِ، وَعَنْ بَيْعِ الْغَرَرِ»
+                </p>
+            </div>
+
+            <!-- Source and Fiqh Benefit -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
+                    <span class="text-sky-400 font-black block mb-0.5">📖 التخريج والمصدر المعتمد:</span>
+                    <span class="text-slate-300 font-bold">صحيح مسلم (1513)</span>
+                </div>
+                <div class="p-2.5 bg-emerald-950/30 rounded-xl border border-emerald-500/30">
+                    <span class="text-emerald-400 font-black block mb-0.5">💡 الضابط والفائدة للتاجر والمحاسب:</span>
+                    <span class="text-slate-200 font-bold">أصل عظيم يقتضي وجوب نفي الجهالة وتحديد مواصفات وأبعاد وأوزان السلع بدقة لقطع النزاع.</span>
+                </div>
+            </div>
+
+        </div>
+    
+        <!-- Hadith Card 6 -->
+        <div class="p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-theme="contracts">
+            
+            <!-- Top Badge & Number -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 font-mono font-black flex items-center justify-center border border-amber-400/50">
+                        6
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300">
+                        وجوب الوفاء بالشروط التجارية والعقود المبرمة
+                    </h4>
+                </div>
+                <span class="text-xs font-bold px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 flex items-center gap-1">
+                    ✓ حديث صحيح ثابت
+                </span>
+            </div>
+
+            <!-- Hadith Matn Calligraphy Box -->
+            <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 font-bold block mb-1.5">عن عمرو بن عوف المزني رضي الله عنه:</span>
+                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                    «الْمُسْلِمُونَ عَلَى شُرُوطِهِمْ، إِلَّا شَرْطًا حَرَّمَ حَلَالًا أَوْ أَحَلَّ حَرَامًا»
+                </p>
+            </div>
+
+            <!-- Source and Fiqh Benefit -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
+                    <span class="text-sky-400 font-black block mb-0.5">📖 التخريج والمصدر المعتمد:</span>
+                    <span class="text-slate-300 font-bold">رواه الترمذي (1352) وصححه الألباني في الإرواء (1303)</span>
+                </div>
+                <div class="p-2.5 bg-emerald-950/30 rounded-xl border border-emerald-500/30">
+                    <span class="text-emerald-400 font-black block mb-0.5">💡 الضابط والفائدة للتاجر والمحاسب:</span>
+                    <span class="text-slate-200 font-bold">إلزامية كافة الشروط التجارية المتفق عليها (مواعيد التسليم، الدفعات، المواصفات) ما لم تخالف الشرع.</span>
+                </div>
+            </div>
+
+        </div>
+    
+        <!-- Hadith Card 7 -->
+        <div class="p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-theme="defects">
+            
+            <!-- Top Badge & Number -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 font-mono font-black flex items-center justify-center border border-amber-400/50">
+                        7
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300">
+                        تحريم الغش والتطفيف والبراءة من الغاش
+                    </h4>
+                </div>
+                <span class="text-xs font-bold px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 flex items-center gap-1">
+                    ✓ حديث صحيح ثابت
+                </span>
+            </div>
+
+            <!-- Hadith Matn Calligraphy Box -->
+            <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 font-bold block mb-1.5">عن أبي هريرة رضي الله عنه:</span>
+                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                    «أَنَّ رَسُولَ اللَّهِ ﷺ مَرَّ عَلَى صُبْرَةِ طَعَامٍ فَأَدْخَلَ يَدَهُ فِيهَا، فَنَالَتْ أَصَابِعُهُ بَلَلًا، فَقَالَ: مَا هَذَا يَا صَاحِبَ الطَّعَامِ؟ قَالَ: أَصَابَتْهُ السَّمَاءُ يَا رَسُولَ اللَّهِ، قَالَ: أَفَلَا جَعَلْتَهُ فَوْقَ الطَّعَامِ كَيْ يَرَاهُ النَّاسُ، مَنْ غَشَّ فَلَيْسَ مِنِّي»
+                </p>
+            </div>
+
+            <!-- Source and Fiqh Benefit -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
+                    <span class="text-sky-400 font-black block mb-0.5">📖 التخريج والمصدر المعتمد:</span>
+                    <span class="text-slate-300 font-bold">صحيح مسلم (102)</span>
+                </div>
+                <div class="p-2.5 bg-emerald-950/30 rounded-xl border border-emerald-500/30">
+                    <span class="text-emerald-400 font-black block mb-0.5">💡 الضابط والفائدة للتاجر والمحاسب:</span>
+                    <span class="text-slate-200 font-bold">تحريم إخفاء البضاعة التالفة تحت السليمة أو تغيير المواصفات، ووجوب إظهار العيوب للمشتري.</span>
+                </div>
+            </div>
+
+        </div>
+    
+        <!-- Hadith Card 8 -->
+        <div class="p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-theme="kindness">
+            
+            <!-- Top Badge & Number -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 font-mono font-black flex items-center justify-center border border-amber-400/50">
+                        8
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300">
+                        فضل إقالة النادم وفسخ البيع برضا وقبول المرتجع
+                    </h4>
+                </div>
+                <span class="text-xs font-bold px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 flex items-center gap-1">
+                    ✓ حديث صحيح ثابت
+                </span>
+            </div>
+
+            <!-- Hadith Matn Calligraphy Box -->
+            <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 font-bold block mb-1.5">عن أبي هريرة رضي الله عنه:</span>
+                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                    «مَنْ أَقَالَ مُسْلِمًا، أَقَالَهُ اللَّهُ عَثْرَتَهُ يَوْمَ الْقِيَامَةِ»
+                </p>
+            </div>
+
+            <!-- Source and Fiqh Benefit -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
+                    <span class="text-sky-400 font-black block mb-0.5">📖 التخريج والمصدر المعتمد:</span>
+                    <span class="text-slate-300 font-bold">رواه أبو داود (3460) وابن ماجه (2199) وصححه الألباني</span>
+                </div>
+                <div class="p-2.5 bg-emerald-950/30 rounded-xl border border-emerald-500/30">
+                    <span class="text-emerald-400 font-black block mb-0.5">💡 الضابط والفائدة للتاجر والمحاسب:</span>
+                    <span class="text-slate-200 font-bold">استحباب قبول إرجاع البضاعة واسترداد الثمن للزبون النادم الذي لم يعد بحاجة للسلعة وتفريج كربته.</span>
+                </div>
+            </div>
+
+        </div>
+    
+        <!-- Hadith Card 9 -->
+        <div class="p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-theme="truth">
+            
+            <!-- Top Badge & Number -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 font-mono font-black flex items-center justify-center border border-amber-400/50">
+                        9
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300">
+                        النهي والتحذير الشديد من الحلف الكاذب لترويج البضائع
+                    </h4>
+                </div>
+                <span class="text-xs font-bold px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 flex items-center gap-1">
+                    ✓ حديث صحيح ثابت
+                </span>
+            </div>
+
+            <!-- Hadith Matn Calligraphy Box -->
+            <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 font-bold block mb-1.5">عن أبي هريرة رضي الله عنه:</span>
+                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                    «الْحَلِفُ مُنَفِّقَةٌ لِلسِّلْعَةِ، مُمْحِقَةٌ لِلْبَرَكَةِ»
+                </p>
+            </div>
+
+            <!-- Source and Fiqh Benefit -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
+                    <span class="text-sky-400 font-black block mb-0.5">📖 التخريج والمصدر المعتمد:</span>
+                    <span class="text-slate-300 font-bold">صحيح البخاري (2087) وصحيح مسلم (1606)</span>
+                </div>
+                <div class="p-2.5 bg-emerald-950/30 rounded-xl border border-emerald-500/30">
+                    <span class="text-emerald-400 font-black block mb-0.5">💡 الضابط والفائدة للتاجر والمحاسب:</span>
+                    <span class="text-slate-200 font-bold">تحريم الإكثار من الحلف بالله في الأسواق لإقناع المشتري بالسعر أو جودة البضاعة.</span>
+                </div>
+            </div>
+
+        </div>
+    
+        <!-- Hadith Card 10 -->
+        <div class="p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-theme="riba">
+            
+            <!-- Top Badge & Number -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 font-mono font-black flex items-center justify-center border border-amber-400/50">
+                        10
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300">
+                        تحريم الحيل الربوية وبيع العِينة
+                    </h4>
+                </div>
+                <span class="text-xs font-bold px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 flex items-center gap-1">
+                    ✓ حديث صحيح ثابت
+                </span>
+            </div>
+
+            <!-- Hadith Matn Calligraphy Box -->
+            <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 font-bold block mb-1.5">عن ابن عمر رضي الله عنهما:</span>
+                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                    «إِذَا تَبَايَعْتُمْ بِالْعِينَةِ، وَأَخَذْتُمْ أَذْنَابَ الْبَقَرِ، وَرَضِيتُمْ بِالزَّرْعِ، وَتَرَكْتُمُ الْجِهَادَ، سَلَّطَ اللَّهُ عَلَيْكُمْ ذُلًّا لَا يَنْزِعُهُ حَتَّى تَرْجِعُوا إِلَى دِينِكُمْ»
+                </p>
+            </div>
+
+            <!-- Source and Fiqh Benefit -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
+                    <span class="text-sky-400 font-black block mb-0.5">📖 التخريج والمصدر المعتمد:</span>
+                    <span class="text-slate-300 font-bold">رواه أبو داود (3462) وصححه الألباني في السلسلة الصحيحة (11)</span>
+                </div>
+                <div class="p-2.5 bg-emerald-950/30 rounded-xl border border-emerald-500/30">
+                    <span class="text-emerald-400 font-black block mb-0.5">💡 الضابط والفائدة للتاجر والمحاسب:</span>
+                    <span class="text-slate-200 font-bold">تحريم التحايل على القرض الربوي بصور بيع صورية، كبيع السلعة بالآجل ثم شراؤها نقداً بأقل.</span>
+                </div>
+            </div>
+
+        </div>
+    
+        <!-- Hadith Card 11 -->
+        <div class="p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-theme="truth">
+            
+            <!-- Top Badge & Number -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 font-mono font-black flex items-center justify-center border border-amber-400/50">
+                        11
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300">
+                        تحريم النَّجْش (المزايدة الكاذبة في الأسواق والمزادات)
+                    </h4>
+                </div>
+                <span class="text-xs font-bold px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 flex items-center gap-1">
+                    ✓ حديث صحيح ثابت
+                </span>
+            </div>
+
+            <!-- Hadith Matn Calligraphy Box -->
+            <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 font-bold block mb-1.5">عن عبد الله بن عمر رضي الله عنهما:</span>
+                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                    «نَهَى النَّبِيُّ ﷺ عَنِ النَّجْشِ»
+                </p>
+            </div>
+
+            <!-- Source and Fiqh Benefit -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
+                    <span class="text-sky-400 font-black block mb-0.5">📖 التخريج والمصدر المعتمد:</span>
+                    <span class="text-slate-300 font-bold">صحيح البخاري (2142) وصحيح مسلم (1516)</span>
+                </div>
+                <div class="p-2.5 bg-emerald-950/30 rounded-xl border border-emerald-500/30">
+                    <span class="text-emerald-400 font-black block mb-0.5">💡 الضابط والفائدة للتاجر والمحاسب:</span>
+                    <span class="text-slate-200 font-bold">تحريم أن يرفع شخص سعر السلعة في المزاد أو السوق وهو لا يريد شراءها بل ليغر المشتري ويرفع السعر عليه.</span>
+                </div>
+            </div>
+
+        </div>
+    
+        <!-- Hadith Card 12 -->
+        <div class="p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-theme="pricing">
+            
+            <!-- Top Badge & Number -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 font-mono font-black flex items-center justify-center border border-amber-400/50">
+                        12
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300">
+                        تحريم الاحتكار وحبس السلع الأساسية لرفع أسعارها
+                    </h4>
+                </div>
+                <span class="text-xs font-bold px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 flex items-center gap-1">
+                    ✓ حديث صحيح ثابت
+                </span>
+            </div>
+
+            <!-- Hadith Matn Calligraphy Box -->
+            <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 font-bold block mb-1.5">عن معمر بن عبد الله رضي الله عنه:</span>
+                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                    «لَا يَحْتَكِرُ إِلَّا خَاطِئٌ»
+                </p>
+            </div>
+
+            <!-- Source and Fiqh Benefit -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
+                    <span class="text-sky-400 font-black block mb-0.5">📖 التخريج والمصدر المعتمد:</span>
+                    <span class="text-slate-300 font-bold">صحيح مسلم (1605)</span>
+                </div>
+                <div class="p-2.5 bg-emerald-950/30 rounded-xl border border-emerald-500/30">
+                    <span class="text-emerald-400 font-black block mb-0.5">💡 الضابط والفائدة للتاجر والمحاسب:</span>
+                    <span class="text-slate-200 font-bold">تحريم شراء أقوات وحاجات الناس وتخزينها لحبسها عن الأسواق بغرض إغلاء الأسعار واستغلال الأزمات.</span>
+                </div>
+            </div>
+
+        </div>
+    
+        <!-- Hadith Card 13 -->
+        <div class="p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-theme="contracts">
+            
+            <!-- Top Badge & Number -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 font-mono font-black flex items-center justify-center border border-amber-400/50">
+                        13
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300">
+                        ضوابط بيع السَّلَم وتوريد البضائع المستقبلية
+                    </h4>
+                </div>
+                <span class="text-xs font-bold px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 flex items-center gap-1">
+                    ✓ حديث صحيح ثابت
+                </span>
+            </div>
+
+            <!-- Hadith Matn Calligraphy Box -->
+            <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 font-bold block mb-1.5">عن عبد الله بن عباس رضي الله عنهما:</span>
+                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                    «قَدِمَ النَّبِيُّ ﷺ الْمَدِينَةَ وَهُمْ يُسْلِفُونَ بِالتَّمْرِ السَّنَتَيْنِ وَالثَّلَاثَ، فَقَالَ: مَنْ أَسْلَفَ فِي شَيْءٍ، فَلْيُسْلِفْ فِي كَيْلٍ مَعْلُومٍ، وَوَزْنٍ مَعْلُومٍ، إِلَى أَجَلٍ مَعْلُومٍ»
+                </p>
+            </div>
+
+            <!-- Source and Fiqh Benefit -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
+                    <span class="text-sky-400 font-black block mb-0.5">📖 التخريج والمصدر المعتمد:</span>
+                    <span class="text-slate-300 font-bold">صحيح البخاري (2240) وصحيح مسلم (1604)</span>
+                </div>
+                <div class="p-2.5 bg-emerald-950/30 rounded-xl border border-emerald-500/30">
+                    <span class="text-emerald-400 font-black block mb-0.5">💡 الضابط والفائدة للتاجر والمحاسب:</span>
+                    <span class="text-slate-200 font-bold">جواز بيع السَّلَم في التوريدات بشرط: دفع كامل الثمن مقدماً، وضبط الوزن والمواصفات والأجل المحدد.</span>
+                </div>
+            </div>
+
+        </div>
+    
+        <!-- Hadith Card 14 -->
+        <div class="p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-theme="ownership">
+            
+            <!-- Top Badge & Number -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 font-mono font-black flex items-center justify-center border border-amber-400/50">
+                        14
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300">
+                        وجوب قبض السلعة وحيازتها قبل إعادة بيعها
+                    </h4>
+                </div>
+                <span class="text-xs font-bold px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 flex items-center gap-1">
+                    ✓ حديث صحيح ثابت
+                </span>
+            </div>
+
+            <!-- Hadith Matn Calligraphy Box -->
+            <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 font-bold block mb-1.5">عن عبد الله بن عمر رضي الله عنهما:</span>
+                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                    «مَنِ ابْتَاعَ طَعَامًا فَلَا يَبِعْهُ حَتَّى يَسْتَوْفِيَهُ (وفي رواية: حَتَّى يَقْبِضَهُ)»
+                </p>
+            </div>
+
+            <!-- Source and Fiqh Benefit -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
+                    <span class="text-sky-400 font-black block mb-0.5">📖 التخريج والمصدر المعتمد:</span>
+                    <span class="text-slate-300 font-bold">صحيح البخاري (2136) وصحيح مسلم (1526)</span>
+                </div>
+                <div class="p-2.5 bg-emerald-950/30 rounded-xl border border-emerald-500/30">
+                    <span class="text-emerald-400 font-black block mb-0.5">💡 الضابط والفائدة للتاجر والمحاسب:</span>
+                    <span class="text-slate-200 font-bold">لا يجوز لمن اشترى بضاعة أن يبيعها لزبون آخر بربح حتى يقبضها ويفصلها وتدخل في ضمانه وحيازته.</span>
+                </div>
+            </div>
+
+        </div>
+    
+        <!-- Hadith Card 15 -->
+        <div class="p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-theme="riba">
+            
+            <!-- Top Badge & Number -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 font-mono font-black flex items-center justify-center border border-amber-400/50">
+                        15
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300">
+                        لعن آكل الربا وموكله وكاتبه وشاهديه
+                    </h4>
+                </div>
+                <span class="text-xs font-bold px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 flex items-center gap-1">
+                    ✓ حديث صحيح ثابت
+                </span>
+            </div>
+
+            <!-- Hadith Matn Calligraphy Box -->
+            <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 font-bold block mb-1.5">عن جابر بن عبد الله رضي الله عنهما:</span>
+                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                    «لَعَنَ رَسُولُ اللَّهِ ﷺ آكِلَ الرِّبَا، وَمُؤْكِلَهُ، وَكَاتِبَهُ، وَشَاهِدَيْهِ، وَقَالَ: هُمْ سَوَاءٌ»
+                </p>
+            </div>
+
+            <!-- Source and Fiqh Benefit -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
+                    <span class="text-sky-400 font-black block mb-0.5">📖 التخريج والمصدر المعتمد:</span>
+                    <span class="text-slate-300 font-bold">صحيح مسلم (1598)</span>
+                </div>
+                <div class="p-2.5 bg-emerald-950/30 rounded-xl border border-emerald-500/30">
+                    <span class="text-emerald-400 font-black block mb-0.5">💡 الضابط والفائدة للتاجر والمحاسب:</span>
+                    <span class="text-slate-200 font-bold">تحريم الربا والتعاون عليه، ووجوب خلو كافة فواتير وحسابات النظام المحاسبي من أي فوائد ربوية.</span>
+                </div>
+            </div>
+
+        </div>
+    
+        <!-- Hadith Card 16 -->
+        <div class="p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-theme="riba">
+            
+            <!-- Top Badge & Number -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 font-mono font-black flex items-center justify-center border border-amber-400/50">
+                        16
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300">
+                        الأصناف الربوية وشرط التقابض الفوري في صرف العملات
+                    </h4>
+                </div>
+                <span class="text-xs font-bold px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 flex items-center gap-1">
+                    ✓ حديث صحيح ثابت
+                </span>
+            </div>
+
+            <!-- Hadith Matn Calligraphy Box -->
+            <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 font-bold block mb-1.5">عن عبادة بن الصامت رضي الله عنه:</span>
+                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                    «الذَّهَبُ بِالذَّهَبِ، وَالْفِضَّةُ بِالْفِضَّةِ، وَالْبُرُّ بِالْبُرِّ، وَالشَّعِيرُ بِالشَّعِيرِ، وَالتَّمْرُ بِالتَّمْرِ، وَالْمِلْحُ بِالْمِلْحِ، مِثْلًا بِمِثْلٍ، سَوَاءً بِسَوَاءٍ، يَدًا بِيَدٍ، فَإِذَا اخْتَلَفَتْ هَذِهِ الْأَصْنَافُ فَبِيعُوا كَيْفَ شِئْتُمْ إِذَا كَانَ يَدًا بِيَدٍ»
+                </p>
+            </div>
+
+            <!-- Source and Fiqh Benefit -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
+                    <span class="text-sky-400 font-black block mb-0.5">📖 التخريج والمصدر المعتمد:</span>
+                    <span class="text-slate-300 font-bold">صحيح مسلم (1587)</span>
+                </div>
+                <div class="p-2.5 bg-emerald-950/30 rounded-xl border border-emerald-500/30">
+                    <span class="text-emerald-400 font-black block mb-0.5">💡 الضابط والفائدة للتاجر والمحاسب:</span>
+                    <span class="text-slate-200 font-bold">الأصل في بيع العملات والصرافة (دولار بجنيه أو ريال) وجوب التقابض الفوري الحقيقي أو الحكمي (التحويل الفوري).</span>
+                </div>
+            </div>
+
+        </div>
+    
+        <!-- Hadith Card 17 -->
+        <div class="p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-theme="kindness">
+            
+            <!-- Top Badge & Number -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 font-mono font-black flex items-center justify-center border border-amber-400/50">
+                        17
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300">
+                        فضل إنظار المعسر والتجاوز عن المعسرين في الديون
+                    </h4>
+                </div>
+                <span class="text-xs font-bold px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 flex items-center gap-1">
+                    ✓ حديث صحيح ثابت
+                </span>
+            </div>
+
+            <!-- Hadith Matn Calligraphy Box -->
+            <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 font-bold block mb-1.5">عن أبي هريرة وأبي قتادة رضي الله عنهما:</span>
+                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                    «مَنْ أَنْظَرَ مُعْسِرًا أَوْ وَضَعَ عَنْهُ، أَظَلَّهُ اللَّهُ فِي ظِلِّهِ يَوْمَ لَا ظِلَّ إِلَّا ظِلُّهُ»
+                </p>
+            </div>
+
+            <!-- Source and Fiqh Benefit -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
+                    <span class="text-sky-400 font-black block mb-0.5">📖 التخريج والمصدر المعتمد:</span>
+                    <span class="text-slate-300 font-bold">صحيح مسلم (3006)</span>
+                </div>
+                <div class="p-2.5 bg-emerald-950/30 rounded-xl border border-emerald-500/30">
+                    <span class="text-emerald-400 font-black block mb-0.5">💡 الضابط والفائدة للتاجر والمحاسب:</span>
+                    <span class="text-slate-200 font-bold">الأجر العظيم للتاجر الذي يمهل المدين المتعسر أو يسامحه في جزء من الدين لوجه الله تعالى.</span>
+                </div>
+            </div>
+
+        </div>
+    
+        <!-- Hadith Card 18 -->
+        <div class="p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-theme="ownership">
+            
+            <!-- Top Badge & Number -->
+            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-amber-500/20 text-amber-300 font-mono font-black flex items-center justify-center border border-amber-400/50">
+                        18
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300">
+                        النهي عن بيع الثمار والمحاصيل قبل بدوّ صلاحها
+                    </h4>
+                </div>
+                <span class="text-xs font-bold px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 flex items-center gap-1">
+                    ✓ حديث صحيح ثابت
+                </span>
+            </div>
+
+            <!-- Hadith Matn Calligraphy Box -->
+            <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
+                <span class="text-xs text-slate-400 font-bold block mb-1.5">عن عبد الله بن عمر رضي الله عنهما:</span>
+                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                    «نَهَى رَسُولُ اللَّهِ ﷺ عَنْ بَيْعِ الثِّمَارِ حَتَّى يَبْدُوَ صَلَاحُهَا، نَهَى الْبَائِعَ وَالْمُبْتَاعَ»
+                </p>
+            </div>
+
+            <!-- Source and Fiqh Benefit -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
+                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
+                    <span class="text-sky-400 font-black block mb-0.5">📖 التخريج والمصدر المعتمد:</span>
+                    <span class="text-slate-300 font-bold">صحيح البخاري (2194) وصحيح مسلم (1534)</span>
+                </div>
+                <div class="p-2.5 bg-emerald-950/30 rounded-xl border border-emerald-500/30">
+                    <span class="text-emerald-400 font-black block mb-0.5">💡 الضابط والفائدة للتاجر والمحاسب:</span>
+                    <span class="text-slate-200 font-bold">تحريم بيع الزروع والمحاصيل قبل ظهور صلاحها ونضجها درءاً لمخاطرة الهلاك والآفات السماوية.</span>
+                </div>
+            </div>
+
+        </div>
+    
+                    </div>
+                </div>
+
                 <!-- SUB-SECTION 4: ISLAMIC BUSINESS TERMINOLOGY GUIDE            -->
                 <!-- ════════════════════════════════════════════════════════════ -->
                 <div id="fiqh-sub-terms" class="space-y-4 hidden">
@@ -3526,6 +4275,7 @@ $pdo = getDBConnection();
         document.getElementById('fiqh-sub-books').classList.add('hidden');
         document.getElementById('fiqh-sub-maxims').classList.add('hidden');
         document.getElementById('fiqh-sub-terms').classList.add('hidden');
+        if (document.getElementById('fiqh-sub-hadiths')) document.getElementById('fiqh-sub-hadiths').classList.add('hidden');
 
         document.querySelectorAll('.fiqh-nav-pill').forEach(btn => btn.classList.remove('active'));
 
