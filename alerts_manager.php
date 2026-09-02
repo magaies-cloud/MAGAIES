@@ -90,14 +90,19 @@ function runAlertEngine($pdo) {
         // تصفير سجلات التنبيهات المؤقتة القديمة لإنتاج تنبيهات محدثة ومطابقة للحالة الحالية
         $pdo->prepare("DELETE FROM alert_logs WHERE tenant_id = ?")->execute([$GLOBAL_TENANT_ID]);
         
-        $settings = $pdo->query("SELECT rule_key, is_enabled FROM alert_settings WHERE is_enabled = 1 AND tenant_id = '{$GLOBAL_TENANT_ID}'")->fetchAll(PDO::FETCH_KEY_PAIR);
+        $stmtSet = $pdo->prepare("SELECT rule_key, is_enabled FROM alert_settings WHERE is_enabled = 1 AND tenant_id = ?");
+        $stmtSet->execute([$GLOBAL_TENANT_ID]);
+        $settings = $stmtSet->fetchAll(PDO::FETCH_KEY_PAIR);
         
         // أ. فحص تجاوز الحد الائتماني للعملاء
         if (isset($settings['credit_limit_breach'])) {
-            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'credit_limit_breach'")->fetch(PDO::FETCH_ASSOC);
+            $stmtR = $pdo->prepare("SELECT * FROM alert_settings WHERE tenant_id = ? AND rule_key = 'credit_limit_breach'");
+            $stmtR->execute([$GLOBAL_TENANT_ID]);
+            $rule = $stmtR->fetch(PDO::FETCH_ASSOC);
             if ($rule) {
                 try {
-                    $stmt = $pdo->query("SELECT data FROM customers WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
+                    $stmt = $pdo->prepare("SELECT data FROM customers WHERE tenant_id = ?");
+                    $stmt->execute([$GLOBAL_TENANT_ID]);
                     while ($row = $stmt->fetch()) {
                         $c = json_decode($row['data'], true);
                         if ($c && (float)($c['creditLimit'] ?? 0) > 0) {
@@ -121,10 +126,13 @@ function runAlertEngine($pdo) {
 
         // ب. فحص الشيكات المعلقة المتأخرة
         if (isset($settings['overdue_checks'])) {
-            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'overdue_checks'")->fetch(PDO::FETCH_ASSOC);
+            $stmtR = $pdo->prepare("SELECT * FROM alert_settings WHERE tenant_id = ? AND rule_key = 'overdue_checks'");
+            $stmtR->execute([$GLOBAL_TENANT_ID]);
+            $rule = $stmtR->fetch(PDO::FETCH_ASSOC);
             if ($rule) {
                 try {
-                    $stmt = $pdo->query("SELECT data FROM `checks` WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
+                    $stmt = $pdo->prepare("SELECT data FROM `checks` WHERE tenant_id = ?");
+                    $stmt->execute([$GLOBAL_TENANT_ID]);
                     $overdue_count = 0;
                     while ($row = $stmt->fetch()) {
                         $ch = json_decode($row['data'], true);
@@ -148,10 +156,13 @@ function runAlertEngine($pdo) {
 
         // ج. فحص كميات أصناف المخزون المنخفضة (Low Stock Level)
         if (isset($settings['low_stock_level'])) {
-            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'low_stock_level'")->fetch(PDO::FETCH_ASSOC);
+            $stmtR = $pdo->prepare("SELECT * FROM alert_settings WHERE tenant_id = ? AND rule_key = 'low_stock_level'");
+            $stmtR->execute([$GLOBAL_TENANT_ID]);
+            $rule = $stmtR->fetch(PDO::FETCH_ASSOC);
             if ($rule) {
                 try {
-                    $stmt = $pdo->query("SELECT data FROM items WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
+                    $stmt = $pdo->prepare("SELECT data FROM items WHERE tenant_id = ?");
+                    $stmt->execute([$GLOBAL_TENANT_ID]);
                     while ($row = $stmt->fetch()) {
                         $item = json_decode($row['data'], true);
                         if ($item) {
@@ -174,10 +185,13 @@ function runAlertEngine($pdo) {
 
         // د. فحص أيام تغطية المخزون لركود الأصناف (Deadstock)
         if (isset($settings['deadstock_limit_breach'])) {
-            $rule = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' AND rule_key = 'deadstock_limit_breach'")->fetch(PDO::FETCH_ASSOC);
+            $stmtR = $pdo->prepare("SELECT * FROM alert_settings WHERE tenant_id = ? AND rule_key = 'deadstock_limit_breach'");
+            $stmtR->execute([$GLOBAL_TENANT_ID]);
+            $rule = $stmtR->fetch(PDO::FETCH_ASSOC);
             if ($rule) {
                 try {
-                    $stmt = $pdo->query("SELECT data FROM items WHERE tenant_id = '{$GLOBAL_TENANT_ID}'");
+                    $stmt = $pdo->prepare("SELECT data FROM items WHERE tenant_id = ?");
+                    $stmt->execute([$GLOBAL_TENANT_ID]);
                     while ($row = $stmt->fetch()) {
                         $item = json_decode($row['data'], true);
                         if ($item && !empty($item['isStagnant'])) {
@@ -201,8 +215,13 @@ runAlertEngine($pdo);
 $rules = [];
 $logs = [];
 try {
-    $rules = $pdo->query("SELECT * FROM alert_settings WHERE tenant_id = '{$GLOBAL_TENANT_ID}' ORDER BY id ASC")->fetchAll(PDO::FETCH_ASSOC);
-    $logs = $pdo->query("SELECT * FROM alert_logs WHERE tenant_id = '{$GLOBAL_TENANT_ID}' ORDER BY severity DESC, id DESC")->fetchAll(PDO::FETCH_ASSOC);
+    $stmtR = $pdo->prepare("SELECT * FROM alert_settings WHERE tenant_id = ? ORDER BY id ASC");
+    $stmtR->execute([$GLOBAL_TENANT_ID]);
+    $rules = $stmtR->fetchAll(PDO::FETCH_ASSOC);
+
+    $stmtL = $pdo->prepare("SELECT * FROM alert_logs WHERE tenant_id = ? ORDER BY severity DESC, id DESC");
+    $stmtL->execute([$GLOBAL_TENANT_ID]);
+    $logs = $stmtL->fetchAll(PDO::FETCH_ASSOC);
 } catch (Exception $e) {}
 
 // حساب مؤشرات KPI
