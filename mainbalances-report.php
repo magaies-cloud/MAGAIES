@@ -2,6 +2,7 @@
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
+header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 $page_title = 'حساب الارصده الاساسية';
 ?>
 <!DOCTYPE html>
@@ -1896,7 +1897,7 @@ $page_title = 'حساب الارصده الاساسية';
 <script defer src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
 
 <script defer src="js/localforage.min.js"></script>
-<script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
+<script defer src="js/app.js?v=<?php echo time(); ?>"></script>
 <script defer src="js/mainbalances-report.js?v=<?php echo time(); ?>"></script>
 <script>
 // Debug wrapper: override runReport to catch and display errors
