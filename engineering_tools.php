@@ -2075,8 +2075,19 @@ $pdo = getDBConnection();
                         </button>
                     </div>
 
-                    <div id="fiqh_fatwas_grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-                        <!-- Dynamic Fatwa Cards (520 Authentic Rulings) Rendered via JavaScript -->
+                    <!-- 📑 1. TOP PROMINENT PAGINATION & PAGE CHANGER BAR 📑 -->
+                    <div id="fiqh_pagination_bar_top" class="p-4 bg-slate-950/95 border-2 border-amber-500/60 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-xl mb-4">
+                        <!-- Rendered by JavaScript -->
+                    </div>
+
+                    <!-- 🗂️ THE 21 FATWAS GRID (عرض 21 فتوى بالضبط في كل صفحة) 🗂️ -->
+                    <div id="fiqh_fatwas_grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 min-h-[400px]">
+                        <!-- Dynamic 21 Cards Rendered via JavaScript -->
+                    </div>
+
+                    <!-- 📑 2. BOTTOM PROMINENT PAGINATION & PAGE CHANGER BAR 📑 -->
+                    <div id="fiqh_pagination_bar_bottom" class="p-4 bg-slate-950/95 border-2 border-amber-500/60 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-xl mt-4">
+                        <!-- Rendered by JavaScript -->
                     </div>
                 </div>
 
@@ -6534,7 +6545,8 @@ $pdo = getDBConnection();
     // ════════════════════════════════════════════════════════════════════════════
     // ════════════════════════════════════════════════════════════════════════════
     // ════════════════════════════════════════════════════════════════════════════
-    // 🌟 MASTER 20,000 FATWAS ENGINE (21 ITEMS PER PAGE PAGINATION) 🌟
+    // ════════════════════════════════════════════════════════════════════════════
+    // 🌟 MASTER 20,000 FATWAS ENGINE (EXACT 21 PER PAGE WITH DUAL CONTROLS) 🌟
     // ════════════════════════════════════════════════════════════════════════════
     let currentScholarFilter = 'all';
     let currentTopicFilter = 'all';
@@ -6555,7 +6567,6 @@ $pdo = getDBConnection();
     function renderFatwaCards() {
         const grid = document.getElementById('fiqh_fatwas_grid');
         const badge = document.getElementById('fiqh_search_badge');
-        const paginationBar = document.getElementById('fiqh_pagination_bar');
         if (!grid) return;
 
         const totalAll = getMasterFatwas().length || 20000;
@@ -6567,7 +6578,7 @@ $pdo = getDBConnection();
 
         if (badge) {
             if (totalMatches === totalAll) {
-                badge.innerHTML = `<i class="fa-solid fa-layer-group text-emerald-400"></i> إجمالي <strong>${totalAll.toLocaleString()}</strong> فتوى | صفحة <strong>${currentPage.toLocaleString()}</strong> من <strong>${totalPages.toLocaleString()}</strong> (21 فتوى/صفحة)`;
+                badge.innerHTML = `<i class="fa-solid fa-layer-group text-emerald-400"></i> إجمالي <strong>${totalAll.toLocaleString()}</strong> فتوى | صفحة <strong>${currentPage.toLocaleString()}</strong> من <strong>${totalPages.toLocaleString()}</strong> (21 فتوى في الصفحة)`;
             } else {
                 badge.innerHTML = `<i class="fa-solid fa-filter text-amber-400"></i> عُثر على <strong>${totalMatches.toLocaleString()}</strong> من أصل ${totalAll.toLocaleString()} فتوى | صفحة <strong>${currentPage.toLocaleString()}</strong> من <strong>${totalPages.toLocaleString()}</strong>`;
             }
@@ -6580,11 +6591,12 @@ $pdo = getDBConnection();
                     <h4 class="text-lg font-black text-amber-300">لم يتم العثور على نتائج مطابقة لبحثك في موسوعة الـ 20,000 فتوى</h4>
                     <p class="text-xs text-slate-300 font-bold">جرب كتابة كلمة أخرى مثل: تقسيط، شيك، ذهب، عربون، استصناع، سكراب، أو تصفح حسب الشيوخ الـ 12.</p>
                     <button type="button" onclick="clearFiqhSearch()" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-lg transition">
-                        ✕ إلغاء الفلترة وعرض الـ 20,000 فتوى
+                        ✕ إلغاء الفلترة وتصفح الـ 20,000 فتوى
                     </button>
                 </div>
             `;
-            if (paginationBar) paginationBar.innerHTML = '';
+            updatePaginationBarHtml('fiqh_pagination_bar_top', totalPages, 0, 0, 0);
+            updatePaginationBarHtml('fiqh_pagination_bar_bottom', totalPages, 0, 0, 0);
             return;
         }
 
@@ -6630,32 +6642,43 @@ $pdo = getDBConnection();
         });
 
         grid.innerHTML = html;
-        renderPaginationControls(totalPages, totalMatches, startIndex + 1, endIndex);
+        updatePaginationBarHtml('fiqh_pagination_bar_top', totalPages, totalMatches, startIndex + 1, endIndex);
+        updatePaginationBarHtml('fiqh_pagination_bar_bottom', totalPages, totalMatches, startIndex + 1, endIndex);
     }
 
-    function renderPaginationControls(totalPages, totalMatches, fromItem, toItem) {
-        const bar = document.getElementById('fiqh_pagination_bar');
+    function updatePaginationBarHtml(barId, totalPages, totalMatches, fromItem, toItem) {
+        const bar = document.getElementById(barId);
         if (!bar) return;
 
-        let pagesHtml = '';
+        if (totalMatches === 0) {
+            bar.innerHTML = '';
+            return;
+        }
 
-        // Previous & First Buttons
-        const prevDisabled = currentPage <= 1 ? 'disabled opacity-40 cursor-not-allowed' : 'hover:bg-amber-500 hover:text-slate-950';
-        const nextDisabled = currentPage >= totalPages ? 'disabled opacity-40 cursor-not-allowed' : 'hover:bg-amber-500 hover:text-slate-950';
+        const prevDisabled = currentPage <= 1 ? 'disabled opacity-30 cursor-not-allowed pointer-events-none' : '';
+        const nextDisabled = currentPage >= totalPages ? 'disabled opacity-30 cursor-not-allowed pointer-events-none' : '';
 
-        pagesHtml += `
-            <div class="flex items-center gap-1.5">
-                <button type="button" onclick="goToPage(1)" class="px-3 py-1.5 bg-slate-900 text-slate-300 border border-slate-700 rounded-lg text-xs font-black transition ${prevDisabled}">
+        let pagesHtml = `
+            <!-- Main Navigation Buttons -->
+            <div class="flex flex-wrap items-center gap-2">
+                <button type="button" onclick="goToPage(1)" class="px-3.5 py-2 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/50 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${prevDisabled}">
                     ⏮️ الأولى
                 </button>
-                <button type="button" onclick="goToPage(${currentPage - 1})" class="px-3 py-1.5 bg-slate-900 text-slate-300 border border-slate-700 rounded-lg text-xs font-black transition ${prevDisabled}">
-                    ◀️ السابقة
+                <button type="button" onclick="goToPage(${currentPage - 1})" class="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 border border-amber-400 rounded-xl text-xs sm:text-sm font-black shadow-lg transition flex items-center gap-1.5 ${prevDisabled}">
+                    ◀️ الصفحة السابقة
+                </button>
+                <button type="button" onclick="goToPage(${currentPage + 1})" class="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 border border-amber-400 rounded-xl text-xs sm:text-sm font-black shadow-lg transition flex items-center gap-1.5 ${nextDisabled}">
+                    الصفحة التالية ▶️
+                </button>
+                <button type="button" onclick="goToPage(${totalPages})" class="px-3.5 py-2 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/50 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${nextDisabled}">
+                    الأخيرة (${totalPages}) ⏭️
                 </button>
             </div>
+
+            <!-- Surrounding Page Number Buttons -->
+            <div class="flex items-center gap-1.5 overflow-x-auto py-1">
         `;
 
-        // Surrounding page numbers (window of 5)
-        pagesHtml += '<div class="flex items-center gap-1 overflow-x-auto max-w-[280px] sm:max-w-none py-1">';
         let startP = Math.max(1, currentPage - 2);
         let endP = Math.min(totalPages, startP + 4);
         if (endP - startP < 4) {
@@ -6663,45 +6686,36 @@ $pdo = getDBConnection();
         }
 
         if (startP > 1) {
-            pagesHtml += `<button type="button" onclick="goToPage(1)" class="px-2.5 py-1 bg-slate-900 text-slate-400 border border-slate-800 rounded text-xs font-bold">1</button>`;
-            if (startP > 2) pagesHtml += '<span class="text-slate-600 px-1">...</span>';
+            pagesHtml += `<button type="button" onclick="goToPage(1)" class="px-3 py-1.5 bg-slate-900 text-slate-400 border border-slate-800 rounded-lg text-xs font-bold hover:border-amber-400">1</button>`;
+            if (startP > 2) pagesHtml += '<span class="text-slate-500 font-black px-1">...</span>';
         }
 
         for (let p = startP; p <= endP; p++) {
             if (p === currentPage) {
-                pagesHtml += `<button type="button" class="px-3 py-1 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black rounded-lg text-xs shadow-md border border-amber-400">
+                pagesHtml += `<button type="button" class="px-4 py-1.5 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black rounded-xl text-xs sm:text-sm shadow-lg border-2 border-amber-300 transform scale-105">
                     ${p}
                 </button>`;
             } else {
-                pagesHtml += `<button type="button" onclick="goToPage(${p})" class="px-2.5 py-1 bg-slate-900 text-slate-300 hover:border-amber-400 border border-slate-700 rounded-lg text-xs font-bold transition">
+                pagesHtml += `<button type="button" onclick="goToPage(${p})" class="px-3 py-1.5 bg-slate-900 text-slate-300 hover:border-amber-400 border border-slate-700 rounded-lg text-xs sm:text-sm font-bold transition">
                     ${p}
                 </button>`;
             }
         }
 
         if (endP < totalPages) {
-            if (endP < totalPages - 1) pagesHtml += '<span class="text-slate-600 px-1">...</span>';
-            pagesHtml += `<button type="button" onclick="goToPage(${totalPages})" class="px-2.5 py-1 bg-slate-900 text-slate-400 border border-slate-800 rounded text-xs font-bold">${totalPages}</button>`;
+            if (endP < totalPages - 1) pagesHtml += '<span class="text-slate-500 font-black px-1">...</span>';
+            pagesHtml += `<button type="button" onclick="goToPage(${totalPages})" class="px-3 py-1.5 bg-slate-900 text-slate-400 border border-slate-800 rounded-lg text-xs font-bold hover:border-amber-400">${totalPages}</button>`;
         }
-        pagesHtml += '</div>';
 
-        // Next & Last Buttons + Direct Jump
         pagesHtml += `
-            <div class="flex items-center gap-1.5">
-                <button type="button" onclick="goToPage(${currentPage + 1})" class="px-3 py-1.5 bg-slate-900 text-slate-300 border border-slate-700 rounded-lg text-xs font-black transition ${nextDisabled}">
-                    التالية ▶️
-                </button>
-                <button type="button" onclick="goToPage(${totalPages})" class="px-3 py-1.5 bg-slate-900 text-slate-300 border border-slate-700 rounded-lg text-xs font-black transition ${nextDisabled}">
-                    الأخيرة ⏭️
-                </button>
             </div>
 
-            <!-- Jump to Page Input -->
-            <div class="flex items-center gap-2 pt-2 sm:pt-0 w-full sm:w-auto justify-end border-t sm:border-t-0 border-slate-800 text-xs font-bold text-slate-300">
-                <span>عرض ${fromItem.toLocaleString()} - ${toItem.toLocaleString()} من ${totalMatches.toLocaleString()} | انتقال:</span>
-                <input type="number" id="fiqh_page_jump_input" min="1" max="${totalPages}" value="${currentPage}" class="w-16 py-1 px-2 bg-slate-900 border border-amber-500/60 focus:border-amber-400 text-white rounded text-center text-xs font-bold">
-                <button type="button" onclick="jumpToPageInput()" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded font-black text-xs transition">
-                    ذهاب
+            <!-- Direct Jump to Page Box -->
+            <div class="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-300">
+                <span>عرض (${fromItem.toLocaleString()} - ${toItem.toLocaleString()}) | انتقال إلى صفحة:</span>
+                <input type="number" id="${barId}_jump_input" min="1" max="${totalPages}" value="${currentPage}" class="w-16 py-1.5 px-2 bg-slate-900 border-2 border-amber-500/60 focus:border-amber-400 text-white rounded-xl text-center text-xs sm:text-sm font-black shadow-inner">
+                <button type="button" onclick="jumpToPageInput('${barId}_jump_input')" class="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl shadow transition">
+                    انتقال ↵
                 </button>
             </div>
         `;
@@ -6723,8 +6737,8 @@ $pdo = getDBConnection();
         }
     }
 
-    function jumpToPageInput() {
-        const input = document.getElementById('fiqh_page_jump_input');
+    function jumpToPageInput(inputId) {
+        const input = document.getElementById(inputId);
         if (input) {
             const val = parseInt(input.value, 10);
             if (!isNaN(val)) {
