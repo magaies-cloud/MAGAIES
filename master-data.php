@@ -19,6 +19,7 @@
     <link rel="stylesheet" href="css/design-system.css">
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
+    <script src="js/bban_auto_helper.js"></script>
     <style>
         :root {
             --bg-color: #050308;
@@ -854,11 +855,11 @@
                         
                         <div class="form-grid">
                             <div class="input-group"><label>الرقم</label><input type="text" id="bank-code" placeholder="رقم الحساب أو الخزينة"></div>
-                            <div class="input-group"><label>الاسم</label><input type="text" id="bank-name" placeholder="مثال: الخزينة الرئيسية"></div>
+                            <div class="input-group"><label>اسم البنك / الحساب</label><input type="text" id="bank-name" placeholder="مثال: بنك الخرطوم (بنكك)" oninput="autoUpdateMasterBankIBAN()"></div>
                             <div class="input-group" id="bank-branch-group"><label>الفرع</label><input type="text" id="bank-branch" placeholder="مثال: فرع مقاييس"></div>
                             <div class="input-group"><label>الرصيد الافتتاحي</label><input type="number" id="bank-opening-balance" placeholder="0.00"></div>
                             <div class="input-group"><label>تاريخ الرصيد الافتتاحي</label><input type="date" id="bank-opening-date"></div>
-                            <div class="input-group"><label>رقم حساب الأستاذ (GL)</label><input type="text" id="bank-gl-account" placeholder="مثال: 110101"></div>
+                            <div class="input-group"><label>رقم الحساب البنكي / الأستاذ</label><input type="text" id="bank-gl-account" placeholder="أدخل رقم الحساب (يولد الآيبان تلقائياً)" oninput="autoUpdateMasterBankIBAN()"></div>
                             <div class="input-group bank-only-field"><label>IBAN</label><input type="text" id="bank-iban" placeholder="SA..."></div>
                             <div class="input-group bank-only-field"><label>SWIFT</label><input type="text" id="bank-swift" placeholder="BOKS..."></div>
                             
@@ -2179,6 +2180,21 @@
 
     
         // ================= BANKS & SAFES LOGIC =================
+        
+    function autoUpdateMasterBankIBAN() {
+        const bankName = document.getElementById('bank-name')?.value || '';
+        const accNo = document.getElementById('bank-gl-account')?.value || document.getElementById('bank-code')?.value || '';
+        const branch = document.getElementById('bank-branch')?.value || '00001';
+        const ibanField = document.getElementById('bank-iban');
+        
+        if (ibanField && accNo) {
+            const bban = typeof calculateSudanBBAN === 'function' ? calculateSudanBBAN(bankName, accNo, branch) : '';
+            if (bban) {
+                ibanField.value = bban;
+            }
+        }
+    }
+
         function openBankForm() {
             const form = document.getElementById('bank-form');
             if (!form) return;
