@@ -6244,6 +6244,118 @@ $pdo = getDBConnection();
         }
     });
 
+    // ════════════════════════════════════════════════════════════════════════════
+    // 🏦 REAL-TIME AUTOMATED SUDANESE BBAN & IBAN GENERATOR 🏦
+    // ════════════════════════════════════════════════════════════════════════════
+    function generateUserBBAN() {
+        const bankSelect = document.getElementById('bban_bank_selector');
+        const accInput = document.getElementById('bban_raw_account');
+        const displaySpan = document.getElementById('generated_bban_display');
+        const lenBadge = document.getElementById('bban_len_counter');
+        const stripFeedback = document.getElementById('bban_strip_feedback');
+
+        if (!bankSelect || !accInput || !displaySpan) return;
+
+        let bankPrefix = bankSelect.value.trim() || '170';
+        if (bankPrefix.includes('|')) bankPrefix = bankPrefix.split('|')[0];
+        
+        let rawAcc = accInput.value.replace(/\D/g, '');
+        let cleanAcc = rawAcc.replace(/^0+/, '');
+
+        // Auto-clean leading zero from input box
+        if (rawAcc !== cleanAcc && accInput.value.startsWith('0')) {
+            accInput.value = cleanAcc;
+            if (stripFeedback) {
+                stripFeedback.textContent = '✓ تم حذف الصفر الأول تلقائياً بنجاح!';
+                stripFeedback.className = 'text-emerald-400 font-bold';
+            }
+        }
+
+        const branchCode = '00001';
+
+        if (!cleanAcc) {
+            displaySpan.innerHTML = `<span class="text-amber-400 font-mono">${bankPrefix}</span><span class="text-slate-600 font-mono">-------</span><span class="text-emerald-400 font-mono">${branchCode}</span>`;
+            if (lenBadge) {
+                lenBadge.innerHTML = `عدد الخانات: <span class="text-amber-300 font-black">اكتب رقم الحساب لتوليد الآيبان</span>`;
+            }
+            return;
+        }
+
+        // Format to at least 6 digits
+        let formattedAcc = cleanAcc;
+        while (formattedAcc.length < 6) {
+            formattedAcc = '0' + formattedAcc;
+        }
+
+        const fullBBAN = bankPrefix + formattedAcc + branchCode;
+
+        // Visual distinction: Bank Prefix (Gold) + Account (Cyan) + Branch (Emerald)
+        displaySpan.innerHTML = `<span class="text-amber-400 font-black font-mono">${bankPrefix}</span><span class="text-cyan-300 font-black font-mono tracking-widest">${formattedAcc}</span><span class="text-emerald-400 font-black font-mono">${branchCode}</span>`;
+        
+        if (lenBadge) {
+            lenBadge.innerHTML = `عدد الخانات: <strong class="text-emerald-400 font-mono font-black">${fullBBAN.length} رقماً (مكتمل وجاهز للتحويل ✓)</strong>`;
+        }
+    }
+
+    function copyGeneratedBBAN() {
+        const accInput = document.getElementById('bban_raw_account');
+        if (!accInput || !accInput.value.trim()) {
+            alert('الرجاء كتابة رقم الحساب أولاً ليتم توليد ونسخ الآيبان.');
+            if (accInput) accInput.focus();
+            return;
+        }
+
+        const displaySpan = document.getElementById('generated_bban_display');
+        const fullBBAN = displaySpan ? displaySpan.textContent.replace(/\s+/g, '') : '';
+        
+        if (!fullBBAN || fullBBAN.includes('-')) {
+            alert('الرجاء التأكد من كتابة رقم الحساب.');
+            return;
+        }
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(fullBBAN).then(() => {
+                alert('✓ تم نسخ رقم الـ BBAN بنجاح:\n' + fullBBAN + '\n(جاهز للصق في تطبيق البنك للتحويل الفوري).');
+            }).catch(() => {
+                fallbackCopyText(fullBBAN);
+            });
+        } else {
+            fallbackCopyText(fullBBAN);
+        }
+    }
+
+    function fallbackCopyText(text) {
+        const temp = document.createElement('textarea');
+        temp.value = text;
+        document.body.appendChild(temp);
+        temp.select();
+        document.execCommand('copy');
+        document.body.removeChild(temp);
+        alert('✓ تم نسخ رقم الـ BBAN بنجاح:\n' + text);
+    }
+
+    function searchBanks(query) {
+        const q = (query || '').toLowerCase().trim();
+        const cards = document.querySelectorAll('.bban-bank-card');
+        cards.forEach(card => {
+            const text = (card.textContent || '').toLowerCase();
+            if (!q || text.includes(q)) {
+                card.style.display = 'flex';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    function quickSelectBank(code) {
+        const sel = document.getElementById('bban_bank_selector');
+        if (sel) {
+            sel.value = code;
+            generateUserBBAN();
+            sel.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+    }
+
     function switchSuite(suiteId, el) {
         document.querySelectorAll('.suite-section').forEach(sec => sec.classList.add('hidden'));
         document.querySelectorAll('.suite-pill-card').forEach(btn => btn.classList.remove('active'));
