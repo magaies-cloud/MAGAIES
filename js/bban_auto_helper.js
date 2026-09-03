@@ -1,25 +1,25 @@
 // ====================================================================
 // Al-Sajana ERP 2026 - Universal Automated BBAN & IBAN Generator
-// يولد رقم الآيبان والـ BBAN تلقائياً بمجرد إدخال اسم البنك ورقم الحساب
+// تفعيل فوري وشامل لتوليد رقم الآيبان والـ BBAN تلقائياً بمجرد إدخال اسم البنك ورقم الحساب
 // ====================================================================
 
 const SUDAN_BANK_MAP = [
-    { code: '170', names: ['الخرطوم', 'بنكك', 'bok', 'bank of khartoum', '170'] },
-    { code: '180', names: ['أم درمان', 'امدرمان', 'أوكاش', 'اوكاش', 'onb', 'omdurman', '180'] },
-    { code: '190', names: ['فيصل', 'فوري', 'fib', 'faisal', '190'] },
-    { code: '200', names: ['الأهلي', 'الاهلي', 'ahli', 'al ahli', '200'] },
-    { code: '210', names: ['التضامن', 'tadamon', '210'] },
-    { code: '220', names: ['العمال', 'workers', '220'] },
-    { code: '230', names: ['الثروة الحيوانية', 'animal', '230'] },
-    { code: '240', names: ['التنمية الصناعية', 'industrial', '240'] },
-    { code: '250', names: ['النيلين', 'neelain', '250'] },
-    { code: '260', names: ['المزارع', 'farmers', '260'] },
-    { code: '270', names: ['الساحل والصحراء', 'bsic', '270'] },
-    { code: '280', names: ['البركة', 'baraka', '280'] },
-    { code: '290', names: ['السعودي السوداني', 'saudi sudanese', '290'] },
-    { code: '300', names: ['المال المتحد', 'united capital', 'ucb', '300'] },
-    { code: '310', names: ['الجزيرة', 'jazeera', 'jordanian', '310'] },
-    { code: '320', names: ['النيل', 'nile bank', '320'] }
+    { code: '170', names: ['الخرطوم', 'بنكك', 'bok', 'bank of khartoum', '170', '1'] },
+    { code: '180', names: ['أم درمان', 'امدرمان', 'أوكاش', 'اوكاش', 'onb', 'omdurman', '180', '2'] },
+    { code: '190', names: ['فيصل', 'فوري', 'fib', 'faisal', '190', '3'] },
+    { code: '200', names: ['الأهلي', 'الاهلي', 'ahli', 'al ahli', '200', '4'] },
+    { code: '210', names: ['التضامن', 'tadamon', '210', '5'] },
+    { code: '220', names: ['العمال', 'workers', '220', '6'] },
+    { code: '230', names: ['الثروة الحيوانية', 'animal', '230', '7'] },
+    { code: '240', names: ['التنمية الصناعية', 'industrial', '240', '8'] },
+    { code: '250', names: ['النيلين', 'neelain', '250', '9'] },
+    { code: '260', names: ['المزارع', 'farmers', '260', '10'] },
+    { code: '270', names: ['الساحل والصحراء', 'bsic', '270', '11'] },
+    { code: '280', names: ['البركة', 'baraka', '280', '12'] },
+    { code: '290', names: ['السعودي السوداني', 'saudi sudanese', '290', '13'] },
+    { code: '300', names: ['المال المتحد', 'united capital', 'ucb', '300', '14'] },
+    { code: '310', names: ['الجزيرة', 'jazeera', 'jordanian', '310', '15'] },
+    { code: '320', names: ['النيل', 'nile bank', '320', '16'] }
 ];
 
 function detectBankCode(bankInput) {
@@ -54,44 +54,60 @@ function calculateSudanBBAN(bankInput, accountInput, branchInput = '00001') {
     return bankCode + acc + branch;
 }
 
-// Auto-wire helper for any input elements
-function bindAutoIBAN(bankInputSelector, accountInputSelector, ibanTargetSelector, branchSelector = null) {
-    const bEl = typeof bankInputSelector === 'string' ? document.querySelector(bankInputSelector) : bankInputSelector;
-    const aEl = typeof accountInputSelector === 'string' ? document.querySelector(accountInputSelector) : accountInputSelector;
-    const iEl = typeof ibanTargetSelector === 'string' ? document.querySelector(ibanTargetSelector) : ibanTargetSelector;
+// Global real-time auto-binder
+function autoGenerateIBANInContext(container) {
+    if (!container) container = document;
+    
+    // Find all bank inputs and account inputs in container
+    const bankInput = container.querySelector('#bank-name, [name*="bank"], .bank-name, select[id*="bank"]');
+    const accInput = container.querySelector('#bank-gl-account, #bank-code, [name*="account"], [name*="acc"], .bank-acc, input[id*="acc"]');
+    const ibanInput = container.querySelector('#bank-iban, [name*="iban"], .bank-iban, input[id*="iban"]');
+    const branchInput = container.querySelector('#bank-branch, [name*="branch"], .bank-branch');
 
-    if (!bEl || !aEl || !iEl) return;
-
-    function update() {
-        const bVal = bEl.value;
-        const aVal = aEl.value;
-        const brVal = branchSelector ? (document.querySelector(branchSelector)?.value || '00001') : '00001';
+    if (accInput && ibanInput) {
+        const bVal = bankInput ? (bankInput.value || bankInput.options?.[bankInput.selectedIndex]?.text || '') : '170';
+        const aVal = accInput.value || '';
+        const brVal = branchInput ? branchInput.value : '00001';
         
         if (aVal) {
             const bban = calculateSudanBBAN(bVal, aVal, brVal);
             if (bban) {
-                iEl.value = bban;
-                iEl.dispatchEvent(new Event('input', { bubbles: true }));
-                iEl.dispatchEvent(new Event('change', { bubbles: true }));
+                ibanInput.value = bban;
             }
         }
     }
-
-    bEl.addEventListener('input', update);
-    bEl.addEventListener('change', update);
-    aEl.addEventListener('input', update);
-    aEl.addEventListener('change', update);
 }
+
+// Attach event delegation across entire document
+document.addEventListener('input', function(e) {
+    const target = e.target;
+    if (!target) return;
+    
+    const id = (target.id || '').toLowerCase();
+    const cls = (target.className || '').toLowerCase();
+    const name = (target.name || '').toLowerCase();
+    const placeholder = (target.placeholder || '').toLowerCase();
+    
+    if (id.includes('bank') || id.includes('acc') || id.includes('gl') ||
+        cls.includes('bank') || cls.includes('acc') ||
+        name.includes('bank') || name.includes('acc') ||
+        placeholder.includes('حساب') || placeholder.includes('بنك')) {
+        
+        // Find parent row or form
+        const form = target.closest('form, .form-grid, .md-card, .cust-bank-row, tr, .transfer-container, .tool-section') || document;
+        autoGenerateIBANInContext(form);
+    }
+});
+
+document.addEventListener('change', function(e) {
+    const target = e.target;
+    if (!target) return;
+    const form = target.closest('form, .form-grid, .md-card, .cust-bank-row, tr, .transfer-container, .tool-section') || document;
+    autoGenerateIBANInContext(form);
+});
 
 if (typeof window !== 'undefined') {
     window.detectBankCode = detectBankCode;
     window.calculateSudanBBAN = calculateSudanBBAN;
-    window.bindAutoIBAN = bindAutoIBAN;
-
-    // Auto-bind across known ERP forms on DOM ready
-    document.addEventListener('DOMContentLoaded', function() {
-        // 1. Master Data -> Banks Form
-        bindAutoIBAN('#bank-name', '#bank-gl-account', '#bank-iban', '#bank-branch');
-        bindAutoIBAN('#bank-name', '#bank-code', '#bank-iban', '#bank-branch');
-    });
+    window.autoGenerateIBANInContext = autoGenerateIBANInContext;
 }

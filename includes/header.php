@@ -1,3 +1,4 @@
+<script src="js/bban_auto_helper.js"></script>
 <script>
     // قراءة الثيم الذي اختاره الباشمهندس مهدي من الشاشة الموحدة وتطبيقه طالما الصفحة تفتح
     const currentTheme = localStorage.getItem('magaiees_global_theme') || 'theme-imperial';
