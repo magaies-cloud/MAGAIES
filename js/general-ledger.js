@@ -1415,11 +1415,11 @@ function renderRecentTable(txns, startIndex = 0) {
                 html += `<td data-col-id="typeLabel" data-is-num="false" data-txn-type="${t.type || ''}" data-txn-ref="${t.ref || ''}" style="${cStyle}"><span style="background:${t.isOpening ? 'rgba(59,130,246,0.15)' : 'rgba(168,85,247,0.15)'}; color:${t.isOpening ? '#3b82f6' : '#c084fc'}; padding:2px 8px; border-radius:6px; font-size:0.75rem; font-weight:700;">${t.typeLabel || '-'}</span></td>`;
             } else if (col.id === 'statement') {
                 let stmtText = (t.statement === 'undefined' ? '-' : t.statement) || '-';
-                stmtText = stmtText.replace(/(?:رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|رقم\s*الشيط|الشيك|شيك|شيط)\s*(\d+)/gi, 'شيك $1');
+                stmtText = stmtText.replace(/(?:رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|رقم\s*الشيط|الشيك|شيك|شيط)\s*(\d+)/gi, 'الشيك $1');
                 
                 let addNote = (!t.isOpening && t.additionalNote && t.additionalNote !== t.statement && t.additionalNote !== 'undefined') ? t.additionalNote : '';
                 if (addNote) {
-                    addNote = addNote.replace(/(?:رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|رقم\s*الشيط|الشيك|شيك|شيط)\s*(\d+)/gi, 'شيك $1');
+                    addNote = addNote.replace(/(?:رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|رقم\s*الشيط|الشيك|شيك|شيط)\s*(\d+)/gi, 'الشيك $1');
                 }
 
                 html += `<td data-col-id="statement" data-is-num="false" style="white-space:normal; min-width:180px; ${cStyle} ${t.isOpening ? 'font-weight:bold; color:#3b82f6;' : ''}">
@@ -1430,22 +1430,22 @@ function renderRecentTable(txns, startIndex = 0) {
                 let disp = '';
                 if (t.checkNo) {
                     let cleanNo = String(t.checkNo).replace(/^(?:الشيك|شيك|شيط|رقم\s*الشيك|رقم\s*الشيط|شيك\s*رقم|الشيك\s*رقم|رقم)\s*/gi, '').trim();
-                    disp = cleanNo ? ('شيك ' + cleanNo) : 'شيك';
+                    disp = cleanNo ? ('الشيك ' + cleanNo) : 'الشيك';
                 } else if (t.transferNo) {
                     disp = String(t.transferNo).trim();
                     if (/شيك|شيط|رقم\s*الشيك|رقم\s*الشيط|شيك\s*رقم|الشيك/i.test(disp)) {
-                        disp = disp.replace(/(?:رقم\s*الشيط|رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|الشيك|شيك|شيط)\s*(\d+)/gi, 'شيك $1');
+                        disp = disp.replace(/(?:رقم\s*الشيط|رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|الشيك|شيك|شيط)\s*(\d+)/gi, 'الشيك $1');
                     }
                 } else if (t.statement && /شيك|شيط|الشيك/i.test(t.statement)) {
                     const chkMatch = String(t.statement).match(/(?:الشيك|شيك|شيط|رقم\s*الشيك|رقم\s*الشيط|شيك\s*رقم|الشيك\s*رقم)\s*(\d+)/i);
                     if (chkMatch && chkMatch[1]) {
-                        disp = 'شيك ' + chkMatch[1];
+                        disp = 'الشيك ' + chkMatch[1];
                     }
                 }
 
-                // Final Clean: Strictly format any "رقم الشيك 5" or "شيك رقم 5" or "الشيك 5" to "شيك 5" / "شيك 6"
+                // Final Clean: Strictly format any "رقم الشيك 5" or "شيك رقم 5" or "شيك 5" to "الشيك 5"
                 if (disp) {
-                    disp = disp.replace(/(?:رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|رقم\s*الشيط|الشيك|شيك|شيط)\s*(\d+)/gi, 'شيك $1');
+                    disp = disp.replace(/(?:رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|رقم\s*الشيط|الشيك|شيك|شيط)\s*(\d+)/gi, 'الشيك $1');
                 }
 
                 html += `<td data-col-id="transferNo" data-is-num="false" style="${cStyle} font-weight:bold; color:#38bdf8;">${disp || '-'}</td>`;

@@ -874,8 +874,8 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
 
 <!-- Core JS -->
 <script src="js/localforage.min.js"></script>
-<script src="js/app.js?v=<?php echo time(); ?>"></script>
-<script src="js/general-ledger.js?v=<?php echo time(); ?>"></script>
+<script src="js/app.js?v=1788471401449"></script>
+<script src="js/general-ledger.js?v=1788471401448"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof window.renderLedgerPresets === 'function') {
@@ -889,7 +889,7 @@ document.addEventListener('DOMContentLoaded', function() {
 (function() {
     function cleanChequeText(text) {
         if (!text) return text;
-        return text.replace(/(?:رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|رقم\s*الشيط|الشيك)\s*(\d+)/gi, 'شيك $1');
+        return text.replace(/(?:رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|رقم\s*الشيط|شيك|شيط|الشيك)\s*(\d+)/gi, 'الشيك $1');
     }
 
     function scanAndCleanCells() {
@@ -898,16 +898,15 @@ document.addEventListener('DOMContentLoaded', function() {
             if (!table) return;
             const cells = table.querySelectorAll('td[data-col-id="transferNo"], td[data-col-id="statement"], td');
             cells.forEach(td => {
-                // If it's transferNo column
                 if (td.getAttribute('data-col-id') === 'transferNo') {
                     const txt = td.textContent.trim();
-                    if (/رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|رقم\s*الشيط|الشيك\s*\d+|شيك\s*\d+/i.test(txt)) {
+                    if (/رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|رقم\s*الشيط|شيك\s*\d+|الشيك\s*\d+/i.test(txt)) {
                         const cleaned = cleanChequeText(txt);
                         if (cleaned !== txt) td.textContent = cleaned;
                     }
                 } else if (td.getAttribute('data-col-id') === 'statement') {
                     const html = td.innerHTML;
-                    if (/رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|رقم\s*الشيط|الشيك\s*\d+/i.test(html)) {
+                    if (/رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|رقم\s*الشيط|شيك\s*\d+/i.test(html)) {
                         const cleaned = cleanChequeText(html);
                         if (cleaned !== html) td.innerHTML = cleaned;
                     }
@@ -917,7 +916,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     // Run continuously to guarantee instant live update
-    setInterval(scanAndCleanCells, 250);
+    setInterval(scanAndCleanCells, 200);
     document.addEventListener('DOMContentLoaded', scanAndCleanCells);
     window.addEventListener('load', scanAndCleanCells);
 })();

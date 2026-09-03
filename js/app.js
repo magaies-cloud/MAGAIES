@@ -5342,7 +5342,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                 const amt = parseNum(ch.amount);
                 const amtLoc = isBaseSDG ? amt : (amt > valFc * 1.5 ? amt : amt * effRate);
                 const amtFc = isBaseSDG ? (amt / effRate) : (amt > valFc * 1.5 ? (amt / effRate) : amt);
-                const chkLabel = ch.checkNo ? ('شيك ' + ch.checkNo) : 'شيك';
+                const chkLabel = ch.checkNo ? ('الشيك ' + ch.checkNo) : 'الشيك';
                 const stmt = ch.statement || (chkLabel + ' / قبض نقدية');
 
                 txns.push({
@@ -5443,7 +5443,7 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                 const amt = parseNum(ch.amount);
                 const amtLoc = isBaseSDG ? amt : (amt > valFc * 1.5 ? amt : amt * effRate);
                 const amtFc = isBaseSDG ? (amt / effRate) : (amt > valFc * 1.5 ? (amt / effRate) : amt);
-                const chkLabel = ch.checkNo ? ('شيك ' + ch.checkNo) : 'شيك';
+                const chkLabel = ch.checkNo ? ('الشيك ' + ch.checkNo) : 'الشيك';
                 const stmt = ch.statement || (chkLabel + ' / صرف نقدية');
 
                 txns.push({
