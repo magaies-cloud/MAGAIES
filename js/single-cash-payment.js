@@ -411,17 +411,87 @@ onDBReady(() => {
 });
 
 function updateBalances() {
-    const accId = document.getElementById('to-account').value;
-    const acc = ACCOUNTS.find(a => a.id === accId);
-    if(acc && acc.balances) {
-        document.getElementById('bal-checks').innerText = acc.balances.checks;
-        document.getElementById('bal-debt').innerText = acc.balances.debt;
-        document.getElementById('bal-loan').innerText = acc.balances.loan;
-    } else {
-        document.getElementById('bal-checks').innerText = '0';
-        document.getElementById('bal-debt').innerText = '0';
-        document.getElementById('bal-loan').innerText = '0';
+    const toAccEl = document.getElementById('to-account');
+    if (!toAccEl) return;
+    const accId = toAccEl.value;
+    if (!accId) {
+        if (document.getElementById('bal-checks')) document.getElementById('bal-checks').innerText = '0';
+        if (document.getElementById('bal-debt')) document.getElementById('bal-debt').innerText = '0';
+        if (document.getElementById('bal-loan')) document.getElementById('bal-loan').innerText = '0';
+        return;
     }
+
+    // Rebuild GL if available to get freshest numbers
+    if (typeof window.rebuildGLFromAllTables === 'function') {
+        window.rebuildGLFromAllTables(true);
+    }
+
+    const getTK = window.getTenantKey || ((k) => k);
+    let gl = [];
+    try {
+        gl = JSON.parse(localStorage.getItem(getTK('erp_gl_v1')) || localStorage.getItem('erp_gl_v1')) || [];
+    } catch(e) {}
+
+    // Find opening balance from master records
+    let opBal = 0;
+    let opBalFc = 0;
+    const cleanId = String(accId).replace(/^(cust|supp|bank|safe|exp)-/, '');
+    
+    // Check customers, suppliers, safes, banks
+    let masterList = [];
+    try {
+        if (accId.startsWith('cust-') || !accId.includes('-')) {
+            masterList = JSON.parse(localStorage.getItem(getTK('erp_customers_v1')) || localStorage.getItem('erp_customers_v1')) || [];
+        } else if (accId.startsWith('supp-')) {
+            masterList = JSON.parse(localStorage.getItem(getTK('erp_suppliers_v1')) || localStorage.getItem('erp_suppliers_v1')) || [];
+        } else if (accId.startsWith('bank-')) {
+            masterList = JSON.parse(localStorage.getItem(getTK('erp_banks_v1')) || localStorage.getItem('erp_banks_v1')) || [];
+        } else if (accId.startsWith('safe-')) {
+            masterList = JSON.parse(localStorage.getItem(getTK('erp_safes_v1')) || localStorage.getItem('erp_safes_v1')) || [];
+        }
+    } catch(e) {}
+
+    const master = masterList.find(m => String(m.id) === cleanId || String(m.id) === accId);
+    if (master) {
+        const opDr = parseFloat(master.openingDebit || master.debit || 0) || 0;
+        const opCr = parseFloat(master.openingCredit || master.credit || 0) || 0;
+        const rawB = parseFloat(master.openingBalance || master.opening_balance || master.balance || master.currentBalance || 0) || 0;
+        if (opDr > 0 || opCr > 0) {
+            opBal = opDr - opCr;
+        } else if (rawB !== 0) {
+            opBal = (master.balance_type === 'credit' || master.balanceType === 'credit') ? -Math.abs(rawB) : Math.abs(rawB);
+        }
+    }
+
+    let runningLoc = opBal;
+    let runningFc = 0;
+    let runningChecks = 0;
+
+    gl.forEach(t => {
+        if (!t) return;
+        const tAcc = String(t.account || '');
+        if (tAcc === accId || tAcc === cleanId || tAcc.replace(/^(cust|supp|bank|safe|exp)-/, '') === cleanId) {
+            const dr = parseFloat(t.debit) || 0;
+            const cr = parseFloat(t.credit) || 0;
+            const drFc = parseFloat(t.debitForeign) || 0;
+            const crFc = parseFloat(t.creditForeign) || 0;
+            runningLoc += (dr - cr);
+            runningFc += (drFc - crFc);
+
+            if (t.checkNo) {
+                runningChecks += (dr - cr);
+            }
+        }
+    });
+
+    const formatB = (n) => {
+        if (isNaN(n)) return '0';
+        return Math.abs(n).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 2 });
+    };
+
+    if (document.getElementById('bal-checks')) document.getElementById('bal-checks').innerText = formatB(runningLoc);
+    if (document.getElementById('bal-debt')) document.getElementById('bal-debt').innerText = formatB(runningChecks);
+    if (document.getElementById('bal-loan')) document.getElementById('bal-loan').innerText = formatB(runningFc);
 }
 
 function togglePaymentMethod() {
