@@ -872,7 +872,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
 <!-- Core JS -->
 <script src="js/localforage.min.js"></script>
 <script src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
-<script src="js/general-ledger.js?v=1788470273915"></script>
+<script src="js/general-ledger.js?v=1788470461768"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof window.renderLedgerPresets === 'function') {
