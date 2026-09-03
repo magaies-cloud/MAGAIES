@@ -1131,6 +1131,7 @@ function runReport() {
                 date: opDate, time: '', ref: 'OPENING', type: 'opening',
                 typeLabel: 'رصيد افتتاحي', account: accVal, counterAccount: '-',
                 statement: 'الرصيد الافتتاحي',
+                transferNo: 'رصيد افتتاحي',
                 debit: opDebitLoc, credit: opCreditLoc,
                 debitForeign: opDebitFc, creditForeign: opCreditFc,
                 exchangeRate: entityExRate,
@@ -1428,7 +1429,9 @@ function renderRecentTable(txns, startIndex = 0) {
                 </td>`;
             } else if (col.id === 'transferNo') {
                 let disp = '';
-                if (t.checkNo) {
+                if (t.isOpening) {
+                    disp = 'رصيد افتتاحي';
+                } else if (t.checkNo) {
                     let cleanNo = String(t.checkNo).replace(/^(?:الشيك|شيك|شيط|رقم\s*الشيك|رقم\s*الشيط|شيك\s*رقم|الشيك\s*رقم|رقم)\s*/gi, '').trim();
                     disp = cleanNo ? ('الشيك ' + cleanNo) : 'الشيك';
                 } else if (t.transferNo) {

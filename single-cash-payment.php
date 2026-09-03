@@ -1301,20 +1301,37 @@ try {
     <style id="user-requested-typography-override">
         /* 1. التاريخ (زيادة الخط درجتين) */
         .date-input, #hdr-date {
-            font-size: 1.45rem !important; /* زيادة درجتين واضحة جداً */
+            font-size: 1.85rem !important; /* زيادة درجتين إضافيتين بناء على طلب المستخدم */
             font-weight: 900 !important;
-            height: 44px !important;
-            padding: 4px 14px !important;
+            height: 52px !important;
+            padding: 4px 16px !important;
+            min-width: 195px !important;
             color: #ffffff !important;
             background: rgba(15, 23, 42, 0.9) !important;
             border: 2px solid #38bdf8 !important;
             border-radius: 10px !important;
             text-shadow: 0 0 10px rgba(56, 189, 248, 0.5) !important;
+            letter-spacing: 1px !important;
+        }
+        .date-crystal {
+            height: 58px !important;
         }
         .date-crystal .icon-box {
-            font-size: 1.4rem !important;
-            width: 36px !important;
-            height: 36px !important;
+            font-size: 1.65rem !important;
+            width: 44px !important;
+            height: 44px !important;
+        }
+        .date-input::-webkit-calendar-picker-indicator {
+            width: 22px !important;
+            height: 22px !important;
+        }
+
+        /* 1.1 خانة كتابة العملة (زيادة بنسبة 25%) */
+        #currency {
+            height: 68px !important; /* زيادة الارتفاع بنسبة 25% من 55px */
+            font-size: 1.55rem !important; /* زيادة حجم الخط بنسبة 25% */
+            min-width: 140px !important;
+            font-weight: 900 !important;
         }
 
         /* 2. النقد والشيك والوعد / العهد (زيادة الخط درجتين) */
@@ -1508,10 +1525,10 @@ try {
                         </div>
 
                         <!-- Row 1: Currency | Amount | Rate | Foreign -->
-                        <div style="display: grid; grid-template-columns: 0.8fr 2.0fr 1.2fr 2.0fr; gap: 15px; margin-bottom: 25px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="display: grid; grid-template-columns: 1.0fr 1.9fr 1.2fr 1.9fr; gap: 15px; margin-bottom: 25px; background: rgba(0,0,0,0.2); padding: 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.05);">
                             <div style="display: flex; align-items: center; gap: 10px;">
-                                <label class="label" style="display:flex; align-items:center; gap:5px; color:#fbbf24 !important; font-size:1.1rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">💱 العملة</label>
-                                <select class="form-input system-currency-select input-glow-focus hover-glow" id="currency" data-next="exchange-rate" onchange="updateCurrency(); document.getElementById('exchange-rate').focus(); document.getElementById('exchange-rate').select();" style="height: 55px; border-radius: 10px; flex-grow: 1; min-width: 0; width: 100%; font-size: 1.3rem !important; font-weight: 800; padding-right: 5px; padding-left: 5px;">
+                                <label class="label" style="display:flex; align-items:center; gap:5px; color:#fbbf24 !important; font-size:1.15rem; margin-bottom:0; white-space:nowrap; flex-shrink: 0;">💱 العملة</label>
+                                <select class="form-input system-currency-select input-glow-focus hover-glow" id="currency" data-next="exchange-rate" onchange="updateCurrency(); document.getElementById('exchange-rate').focus(); document.getElementById('exchange-rate').select();" style="height: 68px; border-radius: 10px; flex-grow: 1; min-width: 140px; width: 100%; font-size: 1.55rem !important; font-weight: 900; padding-right: 8px; padding-left: 8px;">
                                     <option value="SDG">جنيه (SDG)</option>
                                     <option value="USD">دولار (USD)</option>
                                     <option value="AED">درهم (AED)</option>

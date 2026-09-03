@@ -465,83 +465,415 @@ function readERPStore(key) {
     return [];
 }
 
-function loadData() {
-    const pMode = (typeof window.getPostingMode === 'function') ? window.getPostingMode() : 'auto';
-    const excludeUnposted = (pMode === 'manual');
+/* ─── Unified Helper Functions Matching General Ledger ─── */
+function parseTimeTo24h(timeStr) {
+    if (!timeStr) return '00:00:00';
+    timeStr = String(timeStr).trim();
+    let isPM = /pm|مساء/i.test(timeStr);
+    let isAM = /am|صباحا|صباحاً/i.test(timeStr);
+    let clean = timeStr.replace(/[^0-9:]/g, '');
+    let parts = clean.split(':').map(p => parseInt(p, 10) || 0);
+    let h = parts[0] || 0, m = parts[1] || 0, s = parts[2] || 0;
+    if (isPM && h < 12) h += 12;
+    if (isAM && h === 12) h = 0;
+    return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(s).padStart(2, '0');
+}
 
+function normalizeArabic(s) {
+    return String(s || '').trim().toLowerCase()
+        .replace(/[أإآ]/g, 'ا')
+        .replace(/ة/g, 'ه')
+        .replace(/ى/g, 'ي')
+        .replace(/\s+/g, ' ');
+}
+
+var ACCOUNT_NAME_CACHE = new Map();
+
+function buildAccountsNameCache(allPartners = []) {
+    ACCOUNT_NAME_CACHE = new Map();
+    (allPartners || []).forEach(a => {
+        if (!a) return;
+        const idLower = String(a.id || '').toLowerCase();
+        if (idLower && a.name) ACCOUNT_NAME_CACHE.set(idLower, a.name);
+        const nameLower = String(a.name || '').toLowerCase();
+        if (nameLower && !ACCOUNT_NAME_CACHE.has(nameLower)) {
+            ACCOUNT_NAME_CACHE.set(nameLower, a.name);
+        }
+        const cleanId = idLower.replace(/^[a-zA-Z]+\s*[-_:\/]\s*/, '').trim();
+        if (cleanId && !ACCOUNT_NAME_CACHE.has(cleanId)) {
+            ACCOUNT_NAME_CACHE.set(cleanId, a.name);
+        }
+        if (a.code) {
+            const codeLower = String(a.code).toLowerCase();
+            if (!ACCOUNT_NAME_CACHE.has(codeLower)) ACCOUNT_NAME_CACHE.set(codeLower, a.name);
+        }
+    });
+
+    // Known default aliases matching general-ledger.js
+    const defaults = {
+        'safe-001': 'الخزينة الرئيسية',
+        'bank-001': 'البنك الرئيسي',
+        'bankok': 'بنكك (Bankak)',
+        'fawry': 'فوري (Fawry)',
+        'o-cash': 'أوكاش (O-Cash)',
+        'other': 'أخرى',
+        'exp-purchases': 'المشتريات',
+        'revenue-sales': 'إيرادات المبيعات',
+        'cost-purchases': 'تكلفة المشتريات (مخزون)',
+        'act-inventory': 'حساب المخزون',
+        'exp-inventory-adjustments': 'تسويات المخزون',
+        'discount-permitted': 'خصم مسموح به',
+        'discount-received': 'خصم مكتسب',
+        'vat-collected': 'ضريبة مبيعات',
+        'vat-paid': 'ضريبة مشتريات',
+        'cheques-receivable': 'شيكات برسم التحصيل'
+    };
+    for (let k in defaults) {
+        if (!ACCOUNT_NAME_CACHE.has(k)) ACCOUNT_NAME_CACHE.set(k, defaults[k]);
+    }
+}
+
+function getAccountName(accVal) {
+    if (accVal === 'ALL') return 'جميع الحسابات';
+    if (accVal === '-' || !accVal) return '-';
+    let name = '';
+    const idLower = String(accVal).toLowerCase();
+    if (ACCOUNT_NAME_CACHE.has(idLower)) name = ACCOUNT_NAME_CACHE.get(idLower);
+    else {
+        const cleanId = idLower.replace(/^[a-zA-Z]+\s*[-_:\/]\s*/, '').trim();
+        if (ACCOUNT_NAME_CACHE.has(cleanId)) name = ACCOUNT_NAME_CACHE.get(cleanId);
+    }
+    if (!name) name = accVal;
+    return String(name || '').replace(/^\[\d+\]\s*/, '').replace(/^\d+\s*[-–]\s*/, '').trim();
+}
+
+function getSystemUsdRate() {
+    let systemUsdRate = 1;
+    if (typeof window.getExchangeRateForCurrency === 'function') {
+        const r = window.getExchangeRateForCurrency('USD');
+        if (r && r > 1) systemUsdRate = parseFloat(r);
+    }
+    if (systemUsdRate <= 1 && typeof ledgerExchangeRate !== 'undefined' && ledgerExchangeRate > 1) {
+        systemUsdRate = ledgerExchangeRate;
+    }
+    if (systemUsdRate <= 1 && window._gemInitialRate && parseFloat(window._gemInitialRate) > 1) {
+        systemUsdRate = parseFloat(window._gemInitialRate);
+    }
+    if (systemUsdRate <= 1) {
+        try {
+            const settings = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
+            if (settings.rateUSD && parseFloat(settings.rateUSD) > 1) {
+                systemUsdRate = parseFloat(settings.rateUSD);
+            }
+        } catch(e){}
+    }
+    if (systemUsdRate <= 1) {
+        try {
+            const dedicated = localStorage.getItem('erp_rate_usd');
+            if (dedicated && parseFloat(dedicated) > 1) systemUsdRate = parseFloat(dedicated);
+        } catch(e){}
+    }
+    if (systemUsdRate <= 1) {
+        try {
+            const cached = localStorage.getItem('erp_cached_global_rate');
+            if (cached && parseFloat(cached) > 1) systemUsdRate = parseFloat(cached);
+        } catch(e){}
+    }
+    if (systemUsdRate <= 1) {
+        try {
+            const rates = JSON.parse(localStorage.getItem('erp_currency_rates_v1') || '{}');
+            if (rates['USD'] && parseFloat(rates['USD']) > 1) systemUsdRate = parseFloat(rates['USD']);
+        } catch(e){}
+    }
+    return systemUsdRate > 1 ? systemUsdRate : 1;
+}
+
+function calculateAccountLedgerBalance(p, allTxns, systemUsdRate, ccFilter = 'ALL') {
+    const pIdStr = String(p.id || '').trim();
+    const pType = p.type || 'CUST';
+    const prefix = pType === 'CUST' ? 'cust-' : pType === 'SUPP' ? 'supp-' : pType === 'BANK' ? 'bank-' : pType === 'SAFE' ? 'safe-' : 'exp-';
+    const pRefPrefixed = pIdStr.startsWith(prefix) ? pIdStr : (prefix + pIdStr);
+    const pBareId = pIdStr.replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '').trim();
+    const pName = String(p.name || '').trim();
+    const pCode = String(p.code || p.accountNo || '').trim();
+
+    const normName = normalizeArabic(pName);
+    const compactName = normName.replace(/\s+/g, '');
+
+    // 1. Opening balance calculation (100% Identical to general-ledger.js)
+    const opDebit = parseNum(p.openingDebit || p.debit || 0);
+    const opCredit = parseNum(p.openingCredit || p.credit || 0);
+    const rawBal = parseNum(p.openingBalance || p.opening_balance || p.balance || 0);
+
+    let intrinsicBal = 0;
+    if (opDebit > 0 || opCredit > 0) {
+        intrinsicBal = opDebit - opCredit;
+    } else if (rawBal !== 0) {
+        if (p.balance_type === 'credit' || p.balanceType === 'credit') {
+            intrinsicBal = -Math.abs(rawBal);
+        } else {
+            intrinsicBal = Math.abs(rawBal);
+        }
+    }
+
+    const entityCurrency = p.currency || 'SDG';
+    let entityExRate = parseNum(p.exchangeRate || p.exRate || p.rate || 0);
+    if (entityCurrency === 'SDG') {
+        entityExRate = systemUsdRate > 1 ? systemUsdRate : 1;
+    } else if (!entityExRate || entityExRate <= 1) {
+        if (typeof window.getExchangeRateForCurrency === 'function') {
+            const specificRate = window.getExchangeRateForCurrency(entityCurrency);
+            entityExRate = (specificRate && specificRate > 1) ? parseFloat(specificRate) : (systemUsdRate > 1 ? systemUsdRate : 1);
+        } else {
+            entityExRate = systemUsdRate > 1 ? systemUsdRate : 1;
+        }
+    }
+
+    let intrinsicBalFc = entityExRate > 1 ? (intrinsicBal / entityExRate) : 0;
+
+    // 2. Filter transactions matching this account (matching general-ledger.js criteria)
+    const partnerTxns = (allTxns || []).filter(t => {
+        if (!t) return false;
+        if (ccFilter && ccFilter !== 'ALL' && t.costCenter !== ccFilter) return false;
+
+        const tAcc = String(t.account || '').trim();
+        if (!tAcc) return false;
+
+        // Exact ID matches
+        if (tAcc === pRefPrefixed || tAcc === pBareId) return true;
+        const cleanTAcc = tAcc.replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '').trim();
+        if (cleanTAcc && cleanTAcc === pBareId) return true;
+
+        // Code match
+        if (pCode && (tAcc === pCode || cleanTAcc === pCode)) return true;
+
+        // Exact Name match
+        if (pName && tAcc === pName) return true;
+
+        // Name match via getAccountName (same as general-ledger.js)
+        const tAccName = getAccountName(tAcc);
+        if (pName && tAccName && tAccName === pName) return true;
+
+        // Arabic Normalized Name match
+        const normT = normalizeArabic(tAcc);
+        if (normName && (normT === normName || normT.replace(/\s+/g, '') === compactName)) return true;
+        if (tAccName) {
+            const normTN = normalizeArabic(tAccName);
+            if (normName && (normTN === normName || normTN.replace(/\s+/g, '') === compactName)) return true;
+        }
+
+        // Additional match on t.partner or t.accountName
+        const tPartner = String(t.partner || t.accountName || '').trim();
+        if (tPartner) {
+            if (tPartner === pRefPrefixed || tPartner === pBareId || tPartner === pName) return true;
+            const normTP = normalizeArabic(tPartner);
+            if (normName && (normTP === normName || normTP.replace(/\s+/g, '') === compactName)) return true;
+        }
+
+        return false;
+    });
+
+    // 3. Sort chronologically (oldest first at top, newest at bottom, same as general-ledger.js)
+    partnerTxns.sort((a, b) => {
+        const da = ((a && a.date) || '') + ' ' + parseTimeTo24h(a && a.time);
+        const db = ((b && b.date) || '') + ' ' + parseTimeTo24h(b && b.time);
+        let cmp = da.localeCompare(db);
+        if (cmp === 0) {
+            cmp = String((a && a.ref) || '').localeCompare(String((b && b.ref) || ''), undefined, { numeric: true });
+        }
+        return cmp;
+    });
+
+    // 4. Compute running balance (100% Identical to general-ledger.js)
+    let runningBal = intrinsicBal;
+    let runningBalFc = intrinsicBalFc;
+    let lastDate = null;
+
+    partnerTxns.forEach(t => {
+        let debLoc = parseNum(t.debit || t.dr || 0);
+        let credLoc = parseNum(t.credit || t.cr || 0);
+        let rate = parseNum(t.exchangeRate || t.exRate || t.rate || entityExRate || 1);
+        if (!rate || rate <= 0) rate = entityExRate || 1;
+
+        let df = parseNum(t.debitForeign || t.dr_foreign || 0);
+        let cf = parseNum(t.creditForeign || t.cr_foreign || 0);
+
+        if (debLoc > 0 && (df === 0 || df === debLoc) && rate > 0) {
+            df = debLoc / rate;
+        }
+        if (credLoc > 0 && (cf === 0 || cf === credLoc) && rate > 0) {
+            cf = credLoc / rate;
+        }
+
+        runningBal += (debLoc - credLoc);
+        runningBalFc += (df - cf);
+
+        const tDate = (t.date || '') + ' ' + (t.time || '00:00');
+        if (!lastDate || tDate > lastDate) {
+            lastDate = tDate;
+        }
+    });
+
+    // Foreign currency sign alignment matching general-ledger.js (lines 1175-1179 & 1236-1240)
+    if (runningBal < -0.001) {
+        runningBalFc = -Math.abs(runningBalFc);
+    } else if (runningBal > 0.001) {
+        runningBalFc = Math.abs(runningBalFc);
+    }
+
+    // 5. Ending balances mapping to the 4 columns
+    let endingDebitLocal = 0;
+    let endingCreditLocal = 0;
+    let endingDebitForeign = 0;
+    let endingCreditForeign = 0;
+
+    if (runningBal > 0.001) {
+        endingDebitLocal = Math.abs(runningBal);
+        endingCreditLocal = 0;
+        endingDebitForeign = Math.abs(runningBalFc);
+        endingCreditForeign = 0;
+    } else if (runningBal < -0.001) {
+        endingDebitLocal = 0;
+        endingCreditLocal = Math.abs(runningBal);
+        endingDebitForeign = 0;
+        endingCreditForeign = Math.abs(runningBalFc);
+    } else {
+        endingDebitLocal = 0;
+        endingCreditLocal = 0;
+        if (runningBalFc > 0.001) {
+            endingDebitForeign = Math.abs(runningBalFc);
+            endingCreditForeign = 0;
+        } else if (runningBalFc < -0.001) {
+            endingDebitForeign = 0;
+            endingCreditForeign = Math.abs(runningBalFc);
+        } else {
+            endingDebitForeign = 0;
+            endingCreditForeign = 0;
+        }
+    }
+
+    return {
+        endingDebitLocal,
+        endingCreditLocal,
+        endingDebitForeign,
+        endingCreditForeign,
+        runningBal,
+        runningBalFc,
+        lastDate,
+        txnCount: partnerTxns.length
+    };
+}
+
+function loadData() {
     console.log('%c[balances-report.js] loadData() CALLED', 'color: cyan; font-size: 14px;');
+    
+    // Always rebuild GL from all tables to ensure fresh synchronization
+    if (typeof window.rebuildGLFromAllTables === 'function') {
+        try {
+            window.rebuildGLFromAllTables(false);
+        } catch(e) {
+            console.warn('[balances-report.js] Error in rebuildGLFromAllTables:', e);
+        }
+    }
+
+    const getTK = window.getTenantKey || ((k) => k);
+
+    // Merge helper to read both tenant-prefixed and raw stores without data loss
+    function loadMergedStore(baseKey) {
+        const tk = getTK(baseKey);
+        let list1 = [];
+        let list2 = [];
+        try { list1 = JSON.parse(localStorage.getItem(tk) || '[]'); } catch(e){}
+        try { list2 = JSON.parse(localStorage.getItem(baseKey) || '[]'); } catch(e){}
+        if (!Array.isArray(list1)) list1 = Object.values(list1 || {});
+        if (!Array.isArray(list2)) list2 = Object.values(list2 || {});
+        
+        const map = new Map();
+        [...list2, ...list1].forEach(v => {
+            if (!v) return;
+            const key = String(v.id || v.accountNo || v.code || v.name || Math.random()).trim();
+            map.set(key, v);
+        });
+        return Array.from(map.values()).filter(v => v && !v.deleted && !v.is_deleted);
+    }
+
     ALL_PARTNERS = [];
-    const custs = (readERPStore('erp_customers_v1') || []).filter(x => !x.deleted && !x.is_deleted);
-    const sups  = (readERPStore('erp_suppliers_v1') || []).filter(x => !x.deleted && !x.is_deleted);
-    const banks = readERPStore('erp_banks_v1') || [];
-    const safes = readERPStore('erp_safes_v1') || [];
-    const exp   = readERPStore('erp_accounts_v1') || [];
+    const custs = loadMergedStore('erp_customers_v1');
+    const sups  = loadMergedStore('erp_suppliers_v1');
+    const banks = loadMergedStore('erp_banks_v1');
+    const safes = loadMergedStore('erp_safes_v1');
+    const exp   = loadMergedStore('erp_accounts_v1');
     
     const rates = getCurrencyRates();
+    const systemUsdRate = getSystemUsdRate();
     
     custs.forEach(c => {
         const cur = c.currency || 'SDG';
-        const rate = parseNum(c.exchangeRate || c.exRate || c.rate || rates[cur] || 1);
+        const rate = parseNum(c.exchangeRate || c.exRate || c.rate || (cur === 'USD' ? systemUsdRate : (rates[cur] || 1)));
         ALL_PARTNERS.push({ 
             id: c.id, code: c.accountNo || c.code || '-', name: c.name || c.customerName, type: 'CUST', 
             phone: c.phone || '', taxNumber: c.taxNumber || '', currency: cur, exRate: rate,
             openingDebit: parseNum(c.openingDebit || c.debit || 0),
             openingCredit: parseNum(c.openingCredit || c.credit || 0),
-            openingBalance: parseNum(c.openingBalance || c.opening_balance || c.balance || c.currentBalance || 0),
+            openingBalance: parseNum(c.openingBalance || c.opening_balance || c.balance || 0),
             balanceType: c.balance_type || c.balanceType || 'debit',
             balance_type: c.balance_type || c.balanceType || 'debit',
             notes: c.notes || '',
             debit: 0, credit: 0, lastDate: null 
         });
     });
-    sups.forEach(s  => {
+
+    sups.forEach(s => {
         const cur = s.currency || 'SDG';
-        const rate = parseNum(s.exchangeRate || s.exRate || s.rate || rates[cur] || 1);
+        const rate = parseNum(s.exchangeRate || s.exRate || s.rate || (cur === 'USD' ? systemUsdRate : (rates[cur] || 1)));
         ALL_PARTNERS.push({ 
             id: s.id, code: s.accountNo || s.code || '-', name: s.name || s.supplierName, type: 'SUPP', 
             phone: s.phone || '', taxNumber: s.taxNumber || '', currency: cur, exRate: rate,
             openingDebit: parseNum(s.openingDebit || s.debit || 0),
             openingCredit: parseNum(s.openingCredit || s.credit || 0),
-            openingBalance: parseNum(s.openingBalance || s.opening_balance || s.balance || s.currentBalance || 0),
+            openingBalance: parseNum(s.openingBalance || s.opening_balance || s.balance || 0),
             balanceType: s.balance_type || s.balanceType || 'credit',
             balance_type: s.balance_type || s.balanceType || 'credit',
             notes: s.notes || '',
             debit: 0, credit: 0, lastDate: null 
         });
     });
+
     banks.forEach(b => {
         const cur = b.currency || 'SDG';
-        const rate = parseNum(b.exchangeRate || b.exRate || b.rate || rates[cur] || 1);
+        const rate = parseNum(b.exchangeRate || b.exRate || b.rate || (cur === 'USD' ? systemUsdRate : (rates[cur] || 1)));
         ALL_PARTNERS.push({ 
             id: b.id, code: b.glAccount || b.code || '-', name: b.name || b.bankName, type: 'BANK', 
             phone: b.branch || '', taxNumber: b.accountNo || '', currency: cur, exRate: rate,
             openingDebit: parseNum(b.openingDebit || b.debit || 0),
             openingCredit: parseNum(b.openingCredit || b.credit || 0),
-            openingBalance: parseNum(b.openingBalance || b.opening_balance || b.balance || b.currentBalance || 0),
+            openingBalance: parseNum(b.openingBalance || b.opening_balance || b.balance || 0),
             balanceType: b.balance_type || b.balanceType || 'debit',
             balance_type: b.balance_type || b.balanceType || 'debit',
             notes: b.notes || '',
             debit: 0, credit: 0, lastDate: null 
         });
     });
+
     safes.forEach(s => {
         const cur = s.currency || 'SDG';
-        const rate = parseNum(s.exchangeRate || s.exRate || s.rate || rates[cur] || 1);
+        const rate = parseNum(s.exchangeRate || s.exRate || s.rate || (cur === 'USD' ? systemUsdRate : (rates[cur] || 1)));
         ALL_PARTNERS.push({ 
             id: s.id, code: s.glAccount || s.code || '-', name: s.name || s.safeName, type: 'SAFE', 
             phone: '', taxNumber: '', currency: cur, exRate: rate,
             openingDebit: parseNum(s.openingDebit || s.debit || 0),
             openingCredit: parseNum(s.openingCredit || s.credit || 0),
-            openingBalance: parseNum(s.openingBalance || s.opening_balance || s.balance || c?.currentBalance || 0),
+            openingBalance: parseNum(s.openingBalance || s.opening_balance || s.balance || 0),
             balanceType: s.balance_type || s.balanceType || 'debit',
             balance_type: s.balance_type || s.balanceType || 'debit',
             notes: s.notes || '',
             debit: 0, credit: 0, lastDate: null 
         });
     });
+
     exp.forEach(e => {
-        const cur = 'SDG';
-        const rate = 1;
+        const cur = e.currency || 'SDG';
+        const rate = parseNum(e.exchangeRate || e.exRate || e.rate || (cur === 'USD' ? systemUsdRate : (rates[cur] || 1)));
         ALL_PARTNERS.push({ 
             id: e.id, code: e.code || '-', name: e.name || e.accountName, type: 'EXP', 
             phone: '', taxNumber: '', currency: cur, exRate: rate,
@@ -555,38 +887,65 @@ function loadData() {
         });
     });
 
-    function getLedgerTxns() {
-        if (typeof window.rebuildGLFromAllTables === 'function') {
-            window.rebuildGLFromAllTables();
-        }
-        let gl = [];
-        try {
-            const getTK = window.getTenantKey || ((k) => k);
-            gl = JSON.parse(localStorage.getItem(getTK('erp_gl_v1')) || localStorage.getItem('erp_gl_v1')) || [];
-        } catch(e) {
-            gl = [];
-        }
-        return gl;
-    }
+    // Build lookup cache matching general-ledger.js
+    buildAccountsNameCache(ALL_PARTNERS);
 
-    const ledgerTxns = getLedgerTxns();
-    ALL_TXNS = ledgerTxns.map(t => ({
-        partner: t.account,
-        debit: t.debit,
-        credit: t.credit,
-        debitForeign: t.debitForeign,
-        creditForeign: t.creditForeign,
-        date: t.date,
-        time: t.time,
-        costCenter: t.costCenter,
-        exchangeRate: t.exchangeRate,
-        ref: t.ref,
-        currency: t.currency
-    }));
-    // === END PERFECT SYNC ===
+    // Read full GL transactions
+    let glTxns = [];
+    try {
+        glTxns = JSON.parse(localStorage.getItem(getTK('erp_gl_v1')) || localStorage.getItem('erp_gl_v1') || '[]');
+    } catch(e) { glTxns = []; }
+    if (!Array.isArray(glTxns)) glTxns = Object.values(glTxns || {});
+    ALL_TXNS = glTxns;
 
+    // Scan ALL_TXNS for any transacted accounts not in ALL_PARTNERS and register them
+    const existingPartnerIds = new Set(ALL_PARTNERS.map(p => String(p.id).toLowerCase()));
+    const existingPartnerNames = new Set(ALL_PARTNERS.map(p => normalizeArabic(p.name)));
+    ALL_TXNS.forEach(t => {
+        if (!t || !t.account) return;
+        const rawAcc = String(t.account).trim();
+        const bareAcc = rawAcc.replace(/^(cust|supp|bank|safe|exp|sub|sust)-/i, '').toLowerCase();
+        const normAcc = normalizeArabic(rawAcc);
+        if (!existingPartnerIds.has(rawAcc.toLowerCase()) && !existingPartnerIds.has(bareAcc) && !existingPartnerNames.has(normAcc)) {
+            let accType = 'EXP';
+            if (/^cust-/i.test(rawAcc)) accType = 'CUST';
+            else if (/^supp-/i.test(rawAcc)) accType = 'SUPP';
+            else if (/^bank-/i.test(rawAcc)) accType = 'BANK';
+            else if (/^safe-/i.test(rawAcc)) accType = 'SAFE';
+
+            const accName = getAccountName(rawAcc) || rawAcc;
+            const newPartner = {
+                id: rawAcc,
+                code: rawAcc,
+                name: accName,
+                type: accType,
+                phone: '',
+                taxNumber: '',
+                currency: t.currency || 'SDG',
+                exRate: parseNum(t.exchangeRate || systemUsdRate || 1),
+                openingDebit: 0,
+                openingCredit: 0,
+                openingBalance: 0,
+                balanceType: 'debit',
+                balance_type: 'debit',
+                notes: '',
+                debit: 0,
+                credit: 0,
+                lastDate: null
+            };
+            ALL_PARTNERS.push(newPartner);
+            existingPartnerIds.add(rawAcc.toLowerCase());
+            existingPartnerIds.add(bareAcc);
+            existingPartnerNames.add(normalizeArabic(accName));
+        }
+    });
+
+    // Rebuild cache with any newly discovered accounts
+    buildAccountsNameCache(ALL_PARTNERS);
+
+    // Populate cost centers dropdown
     const ccSet = new Set();
-    ALL_TXNS.forEach(t => { if(t.costCenter && t.costCenter !== 'ALL') ccSet.add(t.costCenter); });
+    ALL_TXNS.forEach(t => { if(t && t.costCenter && t.costCenter !== 'ALL') ccSet.add(t.costCenter); });
     const ccSelect = document.getElementById('filter-costcenter');
     if(ccSelect) {
         ccSelect.innerHTML = '<option value="ALL">جميع مراكز التكلفة (مجمعة)</option>';
@@ -628,11 +987,9 @@ function runReport(isAutoInit = false) {
     window.runReport = runReport;
     console.log('%c[balances-report.js] runReport() CALLED. Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length, 'color: #ff6b6b; font-size: 16px; font-weight: bold;');
     if (ALL_PARTNERS.length === 0) {
-        console.warn('[balances-report.js] WARNING: ALL_PARTNERS is EMPTY. loadData may not have run.');
-        // Try loading data now as a last resort
         loadData();
-        console.log('[balances-report.js] Re-ran loadData. Partners=' + ALL_PARTNERS.length + ', Txns=' + ALL_TXNS.length);
     }
+
     const grpFilter = document.getElementById('filter-group') ? document.getElementById('filter-group').value : 'ALL';
     const sortFilter = document.getElementById('filter-sort') ? document.getElementById('filter-sort').value : 'BALANCE_DESC';
     const ccFilter = document.getElementById('filter-costcenter') ? document.getElementById('filter-costcenter').value : 'ALL';
@@ -640,148 +997,18 @@ function runReport(isAutoInit = false) {
     const currFilter = document.getElementById('filter-currency') ? document.getElementById('filter-currency').value : 'ALL';
     const conditionFilter = document.getElementById('filter-condition') ? document.getElementById('filter-condition').value : 'ALL';
 
-    // Reset balances
+    const systemUsdRate = getSystemUsdRate();
+
+    // Calculate ending ledger balances for each partner using the exact same logic as general-ledger.js
     ALL_PARTNERS.forEach(p => {
-        p.endingDebitLocal = 0;
-        p.endingCreditLocal = 0;
-        p.endingDebitForeign = 0;
-        p.endingCreditForeign = 0;
-        p.lastDate = null;
-    });
-
-    // Group ALL_TXNS by partner upfront for O(N) performance
-    // We group by BOTH the raw account key AND potential variants to match how
-    // general-ledger.js filters (lines 1747-1752: matches both 'cust-xxx' AND 'xxx')
-    const txnsByPartner = {};
-    ALL_TXNS.forEach(t => {
-        const pRefStr = String(t.partner);
-        if (!txnsByPartner[pRefStr]) txnsByPartner[pRefStr] = [];
-        txnsByPartner[pRefStr].push(t);
-    });
-
-    // Get USD rate fallback (same as general-ledger.js)
-    let usdRate = 600;
-    if (typeof window.getExchangeRateForCurrency === 'function') {
-        const r = window.getExchangeRateForCurrency('USD');
-        if (r && r > 0) usdRate = parseFloat(r);
-    } else {
-        try {
-            const rates = JSON.parse(localStorage.getItem('erp_currency_rates_v1')) || {};
-            if (rates['USD'] && rates['USD'] > 0) usdRate = parseFloat(rates['USD']);
-        } catch(e){}
-    }
-
-    // Calculate for each partner sequentially to match SGL ledger EXACTLY
-    ALL_PARTNERS.forEach(p => {
-        let entityExRate = parseNum(p.exRate || p.exchangeRate || p.rate || 0);
-        if (!entityExRate || entityExRate <= 0) {
-            entityExRate = usdRate > 1 ? usdRate : 1;
-        }
-
-        // 1. Opening balance calculation (100% Identical to general-ledger.js)
-        const opDebit = parseNum(p.openingDebit || 0);
-        const opCredit = parseNum(p.openingCredit || 0);
-        const rawBal = parseNum(p.openingBalance || 0);
-
-        let intrinsicBal = 0;
-        if (opDebit > 0 || opCredit > 0) {
-            intrinsicBal = opDebit - opCredit;
-        } else if (rawBal !== 0) {
-            if (p.balance_type === 'credit' || p.balanceType === 'credit') {
-                intrinsicBal = -Math.abs(rawBal);
-            } else {
-                intrinsicBal = Math.abs(rawBal);
-            }
-        }
-
-        let intrinsicBalFc = entityExRate > 1 ? (intrinsicBal / entityExRate) : (entityExRate > 0 ? (intrinsicBal / entityExRate) : 0);
-
-        let runningBal = intrinsicBal;
-        let runningBalForeign = intrinsicBalFc;
-        
-        let pIdStr = String(p.id);
-        let pPrefix = p.type === 'CUST' ? 'cust-' : p.type === 'SUPP' ? 'supp-' : p.type === 'BANK' ? 'bank-' : p.type === 'SAFE' ? 'safe-' : 'exp-';
-        let pRefPrefixed = pIdStr.startsWith(pPrefix) ? pIdStr : (pPrefix + pIdStr);
-        let pBareId = pIdStr.replace(/^(cust|supp|bank|safe|exp)-/, '');
-
-        // Fetch all transactions for this partner without arbitrary drops
-        let partnerTxns = ALL_TXNS.filter(t => {
-            if (!t) return false;
-            const tPartner = String(t.partner || t.account || '');
-            const tBare = tPartner.replace(/^(cust|supp|bank|safe|exp)-/, '');
-            return tPartner === pRefPrefixed || tPartner === pBareId || tBare === pBareId || (pPrefix + tBare) === pRefPrefixed;
-        });
-
-        if (ccFilter !== 'ALL') {
-            partnerTxns = partnerTxns.filter(t => t.costCenter === ccFilter);
-        }
-
-        // Sort partner transactions by date & time chronologically (same as general-ledger.js)
-        partnerTxns.sort((a, b) => {
-            const da = (a.date || '') + ' ' + (a.time || '00:00');
-            const db = (b.date || '') + ' ' + (b.time || '00:00');
-            let cmp = da.localeCompare(db);
-            if (cmp === 0) {
-                cmp = String(a.ref || '').localeCompare(String(b.ref || ''), undefined, { numeric: true });
-            }
-            return cmp;
-        });
-
-        partnerTxns.forEach(t => {
-            let debLoc = parseNum(t.debit || t.dr || 0);
-            let credLoc = parseNum(t.credit || t.cr || 0);
-            let rate = parseNum(t.exchangeRate || t.exRate || t.rate || entityExRate || 1);
-            if (!rate || rate <= 0) rate = entityExRate || 1;
-
-            let df = parseNum(t.debitForeign || t.dr_foreign || 0);
-            let cf = parseNum(t.creditForeign || t.cr_foreign || 0);
-
-            if (debLoc > 0 && (df === 0 || df === debLoc) && rate > 0) {
-                df = debLoc / rate;
-            }
-            if (credLoc > 0 && (cf === 0 || cf === credLoc) && rate > 0) {
-                cf = credLoc / rate;
-            }
-            
-            runningBal += (debLoc - credLoc);
-            runningBalForeign += (df - cf);
-            
-            const tDate = t.date + ' ' + (t.time || '00:00');
-            if(!p.lastDate || tDate > p.lastDate) {
-                p.lastDate = tDate;
-            }
-        });
-
-        // Determine side (Debit or Credit) based on final local running balance
-        if (runningBal > 0.001) {
-            p.endingDebitLocal = Math.abs(runningBal);
-            p.endingCreditLocal = 0;
-            p.endingDebitForeign = Math.abs(runningBalForeign);
-            p.endingCreditForeign = 0;
-        } else if (runningBal < -0.001) {
-            p.endingDebitLocal = 0;
-            p.endingCreditLocal = Math.abs(runningBal);
-            p.endingDebitForeign = 0;
-            p.endingCreditForeign = Math.abs(runningBalForeign);
-        } else {
-            // Local is 0: check foreign balance
-            if (runningBalForeign > 0.001) {
-                p.endingDebitLocal = 0;
-                p.endingCreditLocal = 0;
-                p.endingDebitForeign = Math.abs(runningBalForeign);
-                p.endingCreditForeign = 0;
-            } else if (runningBalForeign < -0.001) {
-                p.endingDebitLocal = 0;
-                p.endingCreditLocal = 0;
-                p.endingDebitForeign = 0;
-                p.endingCreditForeign = Math.abs(runningBalForeign);
-            } else {
-                p.endingDebitLocal = 0;
-                p.endingCreditLocal = 0;
-                p.endingDebitForeign = 0;
-                p.endingCreditForeign = 0;
-            }
-        }
+        const balRes = calculateAccountLedgerBalance(p, ALL_TXNS, systemUsdRate, ccFilter);
+        p.endingDebitLocal = balRes.endingDebitLocal;
+        p.endingCreditLocal = balRes.endingCreditLocal;
+        p.endingDebitForeign = balRes.endingDebitForeign;
+        p.endingCreditForeign = balRes.endingCreditForeign;
+        p.runningBal = balRes.runningBal;
+        p.runningBalFc = balRes.runningBalFc;
+        p.lastDate = balRes.lastDate;
     });
 
     // Filter partners by group, sector, currency & condition
@@ -1704,8 +1931,8 @@ function bindColumnReorder() {
 }
 
 
-function handleRowClick(event, partnerId, partnerType) {
-    if (event.target.closest('td.num')) {
+function handleRowClick(event, partnerId, partnerType, partnerName) {
+    if (event && event.target && event.target.closest('td.num')) {
         return;
     }
     let prefix = '';
@@ -1715,18 +1942,23 @@ function handleRowClick(event, partnerId, partnerType) {
     else if (partnerType === 'SAFE') prefix = 'safe-';
     else if (partnerType === 'EXP') prefix = 'exp-';
     
-    window.location.href = `general-ledger.php?accountId=${prefix}${partnerId}`;
+    const accId = String(partnerId).startsWith(prefix) ? partnerId : (prefix + partnerId);
+    const pName = partnerName ? decodeURIComponent(partnerName) : '';
+    window.location.href = `general-ledger.php?accountId=${encodeURIComponent(accId)}&partner_id=${encodeURIComponent(partnerId)}&name=${encodeURIComponent(pName)}&autoRun=1`;
 }
 
 function renderTable(results, isAutoInit = false) {
-    // Filter out accounts with zero ending balance in all currencies
-    results = results.filter(p => {
-        const dL = Math.abs(p.endingDebitLocal || 0);
-        const cL = Math.abs(p.endingCreditLocal || 0);
-        const dF = Math.abs(p.endingDebitForeign || 0);
-        const cF = Math.abs(p.endingCreditForeign || 0);
-        return (dL > 0.001 || cL > 0.001 || dF > 0.001 || cF > 0.001);
-    });
+    const cond = document.getElementById('filter-condition') ? document.getElementById('filter-condition').value : 'ALL';
+    // Filter out accounts with zero ending balance only when NON_ZERO condition is chosen
+    if (cond === 'NON_ZERO') {
+        results = results.filter(p => {
+            const dL = Math.abs(p.endingDebitLocal || 0);
+            const cL = Math.abs(p.endingCreditLocal || 0);
+            const dF = Math.abs(p.endingDebitForeign || 0);
+            const cF = Math.abs(p.endingCreditForeign || 0);
+            return (dL > 0.001 || cL > 0.001 || dF > 0.001 || cF > 0.001);
+        });
+    }
     
     window.lastResults = results;
     const tbody = document.getElementById('balances-tbody');
@@ -1742,6 +1974,8 @@ function renderTable(results, isAutoInit = false) {
     let rows = '';
     let sumCust = 0;
     let sumSupp = 0;
+    let sumDrForeign = 0;
+    let sumCrForeign = 0;
 
     function getCellStyle(origIdx) {
         const conf = window.colConfigs[origIdx] || {};
@@ -1769,11 +2003,14 @@ function renderTable(results, isAutoInit = false) {
 
         sumCust += endingDebitLocal;
         sumSupp += endingCreditLocal;
+        sumDrForeign += endingDebitForeign;
+        sumCrForeign += endingCreditForeign;
 
         const cleanPhone = String(p.phone || '').replace(/,/g, '').replace(/\.00$/, '').trim();
+        const typeLabel = p.type === 'CUST' ? 'عميل' : (p.type === 'SUPP' ? 'مورد' : (p.type === 'BANK' ? 'بنك' : (p.type === 'SAFE' ? 'خزينة' : 'حساب')));
 
         let cells = [];
-        cells[0] = `<td style="${getCellStyle(0)}">${p.name} <span style="color:#64748b;font-size:0.7rem;margin-right:5px;">(${p.type === 'CUST' ? 'عميل' : 'مورد'})</span></td>`;
+        cells[0] = `<td style="${getCellStyle(0)}">${p.name} <span style="color:#64748b;font-size:0.7rem;margin-right:5px;">(${typeLabel})</span></td>`;
         cells[1] = `<td class="num" dir="ltr" style="${getCellStyle(1)}" onclick="window.toggleNumberMagnification(this); event.stopPropagation();">${cleanPhone || '-'}</td>`;
         cells[2] = `<td class="num" style="${getCellStyle(2)}" onclick="window.toggleNumberMagnification(this); event.stopPropagation();">${p.taxNumber || '-'}</td>`;
         cells[3] = `<td style="font-weight:bold; color:#38bdf8; ${getCellStyle(3)}">${p.currency || 'SDG'}</td>`;
@@ -1785,23 +2022,22 @@ function renderTable(results, isAutoInit = false) {
         
         let orderedCells = window.colOrder.map(idx => cells[idx]).join('');
         let delay = Math.min(idx * 0.03, 0.6).toFixed(2);
-        rows += `<tr class="partner-row animate-slide-up" data-partner-id="${p.id}" data-partner-name="${p.name}" data-partner-type="${p.type}" onclick="handleRowClick(event, '${p.id}', '${p.type}')" style="cursor: pointer; animation-delay: ${delay}s;">${orderedCells}</tr>`;
+        rows += `<tr class="partner-row animate-slide-up" data-partner-id="${p.id}" data-partner-name="${p.name}" data-partner-type="${p.type}" onclick="handleRowClick(event, '${p.id}', '${p.type}', '${encodeURIComponent(p.name || '')}')" style="cursor: pointer; animation-delay: ${delay}s;">${orderedCells}</tr>`;
     });
 
     tbody.innerHTML = rows;
 
-    const drForeign = ledgerExchangeRate > 0 ? (sumCust / ledgerExchangeRate) : 0;
-    const crForeign = ledgerExchangeRate > 0 ? (sumSupp / ledgerExchangeRate) : 0;
     const net = sumCust - sumSupp;
     const netSign = net >= 0 ? ' (لنا)' : ' (علينا)';
-    const netForeign = ledgerExchangeRate > 0 ? (Math.abs(net) / ledgerExchangeRate) : 0;
+    const netForeign = Math.abs(sumDrForeign - sumCrForeign);
+    const currName = ledgerForeignCurrency || 'USD';
 
     animateKpiNumber('kpi-dr', sumCust, 'SDG');
-    animateKpiNumber('kpi-dr-foreign', drForeign, ledgerForeignCurrency);
+    animateKpiNumber('kpi-dr-foreign', sumDrForeign, currName);
     animateKpiNumber('kpi-cr', sumSupp, 'SDG');
-    animateKpiNumber('kpi-cr-foreign', crForeign, ledgerForeignCurrency);
+    animateKpiNumber('kpi-cr-foreign', sumCrForeign, currName);
     animateKpiNumber('kpi-bal', Math.abs(net), 'SDG' + netSign);
-    animateKpiNumber('kpi-bal-foreign', netForeign, ledgerForeignCurrency + netSign);
+    animateKpiNumber('kpi-bal-foreign', netForeign, currName + netSign);
 
     const dashboardEl = document.getElementById('analytics-dashboard');
     if (dashboardEl) dashboardEl.style.display = 'block';
