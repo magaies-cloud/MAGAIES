@@ -429,7 +429,7 @@ try {
         
         .crystal-pill {
             display: flex; align-items: center; gap: 10px;
-            height: 42px; /* Slimmer height */
+            height: 48px;
             background: rgba(0, 0, 0, 0.4);
             border: 1px solid rgba(255, 255, 255, 0.1);
             border-radius: 10px;
@@ -463,7 +463,7 @@ try {
 
         /* Unused balance-container replaced by crystal-pill */
         .bal-card { display: flex; align-items: center; gap: 8px; }
-        .bal-icon { font-size: 1.3rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
+        .bal-icon { font-size: 1.6rem; filter: drop-shadow(0 2px 4px rgba(0,0,0,0.3)); }
         .bal-info { display: flex; flex-direction: column; line-height: 1.1; }
         .bal-label { font-size: 0.8rem; color: #e2e8f0; font-weight: 700; }
         .bal-val { font-size: 1.25rem; color: #f97316; font-family: 'Inter', monospace; font-weight: 900; letter-spacing: 0.5px; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
@@ -1539,13 +1539,7 @@ try {
                                 color: #94a3b8;
                                 padding: 6px 14px;
                                 border-radius: 20px;
-                                font-size: 0.9rem;
-                                font-weight: 800;
-                                cursor: pointer;
-                                transition: all 0.3s ease;
-                                display: flex;
-                                align-items: center;
-                                gap: 6px;
+                                font-size: 1.2rem; font-weight: 900; padding: 8px 18px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;
                             }
                             .pay-toggle-btn.active {
                                 background: rgba(56, 189, 248, 0.2) !important;
@@ -1616,9 +1610,9 @@ try {
                                 </div>
 
                                 <div class="payment-toggles" style="display: flex; gap: 8px; flex: none;">
-                                    <button type="button" class="pay-toggle-btn" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">💵 نقدي</button>
-                                    <button type="button" class="pay-toggle-btn active" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">🏦 تحويل بنكي</button>
-                                    <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 0.9rem; font-weight: 800; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 6px;">✍️ شيك</button>
+                                    <button type="button" class="pay-toggle-btn" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 1.2rem; font-weight: 900; padding: 8px 18px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;">💵 نقدي</button>
+                                    <button type="button" class="pay-toggle-btn active" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 1.2rem; font-weight: 900; padding: 8px 18px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;">🏦 تحويل بنكي</button>
+                                    <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 1.2rem; font-weight: 900; padding: 8px 18px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;">✍️ شيك</button>
                                 </div>
                             </div>
                             
@@ -1629,7 +1623,7 @@ try {
                                     <div id="pay-cash-section" class="payment-method-box" style="background: rgba(16, 185, 129, 0.04); border: 1px solid rgba(16, 185, 129, 0.18); border-radius: 12px; padding: 12px 15px; display: none; align-items: center; justify-content: space-between; gap: 15px; flex-wrap: wrap;">
                                         <div style="display: flex; align-items: center; gap: 8px; min-width: 200px; width: 200px; flex: none;">
                                             <span style="font-size: 1.2rem;">💵</span>
-                                            <span style="font-weight: 800; color: #34d399; font-size: 0.95rem;">الدفع النقدي (كاش)</span>
+                                            <span style="font-weight: 900; color: #34d399; font-size: 1.25rem;">الدفع النقدي (كاش)</span>
                                         </div>
                                         <div style="display: flex; gap: 10px; align-items: center; flex: 1; min-width: 320px; flex-wrap: wrap;">
                                             <span style="color: #94a3b8; font-size: 0.9rem;">سيتم السداد نقداً بالكامل من خلال الصندوق المحدد.</span>
@@ -1656,20 +1650,20 @@ try {
                                             <!-- Cheques Total -->
                                             <div class="total-glass-card cheque-glow" style="flex: 1; min-width: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; border-radius: 16px; background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.4); position: relative; overflow: hidden;">
                                                 <div class="glow-orb" style="position: absolute; top: -50px; right: -50px; width: 100px; height: 100px; background: rgba(168, 85, 247, 0.5); filter: blur(40px); border-radius: 50%; animation: pulseOrb 3s infinite alternate;"></div>
-                                                <span style="color: #c084fc; font-size: 1.1rem; font-weight: 800; z-index: 2; margin-bottom: 5px; text-shadow: 0 0 10px rgba(168,85,247,0.5);">مجموع الشيكات</span>
-                                                <span id="unified-cheque-total" style="color: #e9d5ff; font-size: 1.8rem; font-weight: 900; z-index: 2; text-shadow: 0 0 15px rgba(168,85,247,0.8); font-variant-numeric: tabular-nums;">0</span>
+                                                <span style="color: #c084fc; font-size: 1.55rem; font-weight: 900; z-index: 2; margin-bottom: 6px; text-shadow: 0 0 15px rgba(168,85,247,0.6);">مجموع الشيكات</span>
+                                                <span id="unified-cheque-total" style="color: #e9d5ff; font-size: 2.5rem; font-weight: 900; z-index: 2; text-shadow: 0 0 20px rgba(168,85,247,0.9); font-variant-numeric: tabular-nums;">0</span>
                                             </div>
                                             <!-- Bank Total -->
                                             <div class="total-glass-card bank-glow" style="flex: 1; min-width: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; border-radius: 16px; background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.4); position: relative; overflow: hidden;">
                                                 <div class="glow-orb" style="position: absolute; top: -50px; right: -50px; width: 100px; height: 100px; background: rgba(16, 185, 129, 0.5); filter: blur(40px); border-radius: 50%; animation: pulseOrb 3.5s infinite alternate-reverse;"></div>
-                                                <span style="color: #34d399; font-size: 1.1rem; font-weight: 800; z-index: 2; margin-bottom: 5px; text-shadow: 0 0 10px rgba(16,185,129,0.5);">مجموع التحويلات</span>
-                                                <span id="unified-bank-total" style="color: #a7f3d0; font-size: 1.8rem; font-weight: 900; z-index: 2; text-shadow: 0 0 15px rgba(16,185,129,0.8); font-variant-numeric: tabular-nums;">0</span>
+                                                <span style="color: #34d399; font-size: 1.55rem; font-weight: 900; z-index: 2; margin-bottom: 6px; text-shadow: 0 0 15px rgba(16,185,129,0.6);">مجموع التحويلات</span>
+                                                <span id="unified-bank-total" style="color: #a7f3d0; font-size: 2.5rem; font-weight: 900; z-index: 2; text-shadow: 0 0 20px rgba(16,185,129,0.9); font-variant-numeric: tabular-nums;">0</span>
                                             </div>
                                             <!-- Grand Total -->
                                             <div class="total-glass-card grand-glow" style="flex: 1; min-width: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; border-radius: 16px; background: rgba(56, 189, 248, 0.15); border: 2px solid rgba(56, 189, 248, 0.6); position: relative; overflow: hidden; transform: scale(1.02); box-shadow: 0 0 20px rgba(56,189,248,0.2);">
                                                 <div class="glow-orb" style="position: absolute; top: -50px; left: -50px; width: 120px; height: 120px; background: rgba(56, 189, 248, 0.6); filter: blur(50px); border-radius: 50%; animation: pulseOrb 2.5s infinite alternate;"></div>
-                                                <span style="color: #7dd3fc; font-size: 1.3rem; font-weight: 900; z-index: 2; margin-bottom: 5px; text-shadow: 0 0 15px rgba(56,189,248,0.6);">إجمالي الجملة</span>
-                                                <span id="unified-grand-total" style="color: #ffffff; font-size: 2.2rem; font-weight: 900; z-index: 2; text-shadow: 0 0 20px rgba(56,189,248,1); font-variant-numeric: tabular-nums;">0</span>
+                                                <span style="color: #7dd3fc; font-size: 1.85rem; font-weight: 900; z-index: 2; margin-bottom: 6px; text-shadow: 0 0 20px rgba(56,189,248,0.8);">إجمالي الجملة</span>
+                                                <span id="unified-grand-total" style="color: #ffffff; font-size: 3.1rem; font-weight: 900; z-index: 2; text-shadow: 0 0 30px rgba(56,189,248,1); font-variant-numeric: tabular-nums;">0</span>
                                             </div>
                                         </div>
                                     </div>
