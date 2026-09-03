@@ -1,4 +1,8 @@
 <?php
+header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
+header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
 require_once 'db_bridge.php';
 $pdo = getDBConnection();
 global $GLOBAL_TENANT_ID;
@@ -1840,7 +1844,7 @@ try {
 
     <script defer src="js/localforage.min.js"></script>
     
-    <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
+    <script defer src="js/app.js?v=<?php echo time(); ?>"></script>
     <script defer src="js/html2pdf.bundle.min.js"></script>
     <script defer src="js/whatsapp-integration.js?v=<?php echo time(); ?>"></script>
     

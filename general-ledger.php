@@ -2,6 +2,9 @@
 header("Cache-Control: no-store, no-cache, must-revalidate, max-age=0");
 header("Cache-Control: post-check=0, pre-check=0", false);
 header("Pragma: no-cache");
+header("Expires: Mon, 26 Jul 1997 05:00:00 GMT");
+header("Cache-Control: post-check=0, pre-check=0", false);
+header("Pragma: no-cache");
 $page_title = 'دفتر الأستاذ (SGL) - Launcher';
 ?>
 <!DOCTYPE html>
@@ -871,8 +874,8 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
 
 <!-- Core JS -->
 <script src="js/localforage.min.js"></script>
-<script src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
-<script src="js/general-ledger.js?v=1788470701118"></script>
+<script src="js/app.js?v=<?php echo time(); ?>"></script>
+<script src="js/general-ledger.js?v=<?php echo time(); ?>"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof window.renderLedgerPresets === 'function') {
@@ -881,6 +884,44 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 </script>
 <div id="toast-container" style="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:99999;"></div>
+<!-- 👑 BULLETPROOF REAL-TIME CHEQUE FORMATTING SCANNER 👑 -->
+<script id="bulletproof-cheque-scanner">
+(function() {
+    function cleanChequeText(text) {
+        if (!text) return text;
+        return text.replace(/(?:رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|رقم\s*الشيط|الشيك)\s*(\d+)/gi, 'شيك $1');
+    }
+
+    function scanAndCleanCells() {
+        try {
+            const table = document.getElementById('recent-table');
+            if (!table) return;
+            const cells = table.querySelectorAll('td[data-col-id="transferNo"], td[data-col-id="statement"], td');
+            cells.forEach(td => {
+                // If it's transferNo column
+                if (td.getAttribute('data-col-id') === 'transferNo') {
+                    const txt = td.textContent.trim();
+                    if (/رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|رقم\s*الشيط|الشيك\s*\d+|شيك\s*\d+/i.test(txt)) {
+                        const cleaned = cleanChequeText(txt);
+                        if (cleaned !== txt) td.textContent = cleaned;
+                    }
+                } else if (td.getAttribute('data-col-id') === 'statement') {
+                    const html = td.innerHTML;
+                    if (/رقم\s*الشيك|شيك\s*رقم|الشيك\s*رقم|رقم\s*الشيط|الشيك\s*\d+/i.test(html)) {
+                        const cleaned = cleanChequeText(html);
+                        if (cleaned !== html) td.innerHTML = cleaned;
+                    }
+                }
+            });
+        } catch(e) {}
+    }
+
+    // Run continuously to guarantee instant live update
+    setInterval(scanAndCleanCells, 250);
+    document.addEventListener('DOMContentLoaded', scanAndCleanCells);
+    window.addEventListener('load', scanAndCleanCells);
+})();
+</script>
 </body>
 </html>
 
