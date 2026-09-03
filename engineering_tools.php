@@ -490,8 +490,8 @@ $pdo = getDBConnection();
             <!-- 7. فتاوى البيوع -->
             <div class="suite-pill-card" style="--p-color:#fbbf24; --p-border:rgba(251,191,36,0.5);" onclick="switchSuite('fiqh', this)">
                 <div class="suite-pill-icon"><i class="fa-solid fa-book-quran text-amber-400"></i></div>
-                <div class="suite-pill-title">📜 فتاوى البيوع</div>
-                <div class="suite-pill-sub">موسوعة أئمة السنة (12)</div>
+                <div class="suite-pill-title">📜 فتاوى البيوع والمعاملات</div>
+                <div class="suite-pill-sub">12 إماماً وموسوعة</div>
             </div>
 
             <!-- 8. حاسبة الزكاة -->
@@ -1800,24 +1800,69 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- ⚡ Quick Search Chips (الأسئلة الشائعة بنقرة واحدة) ⚡ -->
-                <div class="p-3 bg-slate-950/70 rounded-2xl border border-slate-800 flex flex-wrap items-center gap-2 mb-4">
-                    <span class="text-xs font-black text-amber-400 flex items-center gap-1.5">
-                        <i class="fa-solid fa-bolt text-amber-400"></i> أسئلة شائعة سريعة:
-                    </span>
-                    <button type="button" class="fiqh-chip" onclick="setQuickSearch('التقسيط')">💳 حكم البيع بالتقسيط</button>
-                    <button type="button" class="fiqh-chip" onclick="setQuickSearch('غرامات التأخير')">⚠️ غرامات التأخير</button>
-                    <button type="button" class="fiqh-chip" onclick="setQuickSearch('خصم الشيكات')">📜 خصم الشيكات الآجلة</button>
-                    <button type="button" class="fiqh-chip" onclick="setQuickSearch('العربون')">🤝 بيع العربون</button>
-                    <button type="button" class="fiqh-chip" onclick="setQuickSearch('الذهب')">💎 شراء الذهب بالبطاقة</button>
-                    <button type="button" class="fiqh-chip" onclick="setQuickSearch('العِينة')">🚫 حيل الربا والعِينة</button>
-                    <button type="button" class="fiqh-chip" onclick="setQuickSearch('التأمين')">🛡️ التأمين التعاوني</button>
-                    <button type="button" class="fiqh-chip" onclick="setQuickSearch('الاستصناع')">🏗️ عقد الاستصناع</button>
-                    <button type="button" class="fiqh-chip" onclick="setQuickSearch('الغرر')">🔍 نفي الغرر والجهالة</button>
-                    <button type="button" class="fiqh-chip bg-rose-500/20 text-rose-300 border-rose-500/40" onclick="clearFiqhSearch()">✕ تفريغ البحث</button>
+                <!-- ⚡ 20 CATEGORIZED COMMON COMMERCIAL QUESTIONS (أسئلة شائعة سريعة بنقرة واحدة) ⚡ -->
+                <div class="p-4 bg-slate-950/90 rounded-2xl border border-amber-500/30 space-y-3 mb-5 shadow-lg">
+                    <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                        <span class="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-2">
+                            <i class="fa-solid fa-bolt text-amber-400"></i>
+                            20 مسألة وسؤالاً تجارياً شائعاً (اضغط للبحث الفوري محلياً وفي قوقل):
+                        </span>
+                        <button type="button" onclick="clearFiqhSearch()" class="px-3 py-1 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/40 rounded-lg text-xs font-black transition">
+                            ✕ تفريغ البحث وعرض الأساسي
+                        </button>
+                    </div>
+
+                    <!-- Category 1: التمويل والتقسيط -->
+                    <div class="space-y-1.5">
+                        <span class="text-[11px] font-black text-cyan-400 block">💳 التمويل والتقسيط والديون:</span>
+                        <div class="flex flex-wrap gap-1.5">
+                            <button type="button" class="fiqh-chip" onclick="setQuickSearch('التقسيط')">💳 البيع بالتقسيط وزيادة الأجل</button>
+                            <button type="button" class="fiqh-chip" onclick="setQuickSearch('غرامات التأخير')">⚠️ غرامات التأخير والشرط الجزائي</button>
+                            <button type="button" class="fiqh-chip" onclick="setQuickSearch('المرابحة')">🏢 المرابحة للآمر بالشراء</button>
+                            <button type="button" class="fiqh-chip" onclick="setQuickSearch('التورق')">🔄 التورق للحصول على سيولة</button>
+                            <button type="button" class="fiqh-chip" onclick="setQuickSearch('الإيجار المنتهي بالتمليك')">🚗 الإيجار المنتهي بالتمليك</button>
+                            <button type="button" class="fiqh-chip" onclick="setQuickSearch('إنظار المعسر')">⏳ إنظار المعسر والتيسير</button>
+                        </div>
+                    </div>
+
+                    <!-- Category 2: الأوراق المالية والمدفوعات -->
+                    <div class="space-y-1.5">
+                        <span class="text-[11px] font-black text-emerald-400 block">📜 الأوراق التجارية والمدفوعات:</span>
+                        <div class="flex flex-wrap gap-1.5">
+                            <button type="button" class="fiqh-chip" onclick="setQuickSearch('خصم الشيكات')">📜 خصم الشيكات والكمبيالات</button>
+                            <button type="button" class="fiqh-chip" onclick="setQuickSearch('العربون')">🤝 بيع العربون وحجز البضاعة</button>
+                            <button type="button" class="fiqh-chip" onclick="setQuickSearch('بيع الدين')">💼 بيع الدين والمقاصة المالية</button>
+                            <button type="button" class="fiqh-chip" onclick="setQuickSearch('إقالة النادم')">🔄 إقالة النادم وفسخ الصفقة</button>
+                            <button type="button" class="fiqh-chip" onclick="setQuickSearch('السلم')">📦 بيع السلم ودفع الثمن مقدماً</button>
+                        </div>
+                    </div>
+
+                    <!-- Category 3: الذهب والعملات والصرافة -->
+                    <div class="space-y-1.5">
+                        <span class="text-[11px] font-black text-amber-400 block">💎 الذهب والعملات والتحويلات:</span>
+                        <div class="flex flex-wrap gap-1.5">
+                            <button type="button" class="fiqh-chip" onclick="setQuickSearch('الذهب')">💎 شراء الذهب ببطاقات الصراف ومدى</button>
+                            <button type="button" class="fiqh-chip" onclick="setQuickSearch('الصرف بالموبايل')">📱 الصرف بتطبيقات بنكك وفوري</button>
+                            <button type="button" class="fiqh-chip" onclick="setQuickSearch('العِينة')">🚫 حيل الربا وبيوع العِينة</button>
+                            <button type="button" class="fiqh-chip" onclick="setQuickSearch('العملات المشفرة')">🪙 العملات الرقمية والفوركس</button>
+                        </div>
+                    </div>
+
+                    <!-- Category 4: المقاولات والسلع والضمانات -->
+                    <div class="space-y-1.5">
+                        <span class="text-[11px] font-black text-purple-400 block">🏗️ المقاولات والسلع والضمانات وحقوق العمال:</span>
+                        <div class="flex flex-wrap gap-1.5">
+                            <button type="button" class="fiqh-chip" onclick="setQuickSearch('الاستصناع')">🏗️ عقد الاستصناع وتوريد الحديد</button>
+                            <button type="button" class="fiqh-chip" onclick="setQuickSearch('السكراب')">🔩 بيع حديد السكراب والخردة</button>
+                            <button type="button" class="fiqh-chip" onclick="setQuickSearch('بيع ما لا يملك')">🛒 بيع ما لا يملك والوساطة</button>
+                            <button type="button" class="fiqh-chip" onclick="setQuickSearch('ضمان العيوب')">🛡️ ضمان العيوب والكفالة</button>
+                            <button type="button" class="fiqh-chip" onclick="setQuickSearch('حقوق العمال')">👥 أجور العمال ومكافأة الخدمة</button>
+                        </div>
+                    </div>
+
                 </div>
 
-                <!-- 🗂️ 4 SUB-TABS WITHIN FIQH SUITE (أقسام المنظومة الفقهية) 🗂️ -->
+                <!-- 🗂️ 6 SUB-TABS WITHIN FIQH SUITE (أقسام المنظومة الفقهية) 🗂️ -->
                 <div class="flex flex-wrap items-center gap-2 mb-6 border-b border-slate-800 pb-3">
                     <button type="button" class="fiqh-nav-pill active" onclick="switchFiqhSubTab('fatwas', this)">
                         📑 موسوعة الفتاوى والأحكام (80 مسألة كبرى)
@@ -8744,7 +8789,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن أبي هريرة رضي الله عنه:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «مَنْ أَخَذَ أَمْوَالَ النَّاسِ يُرِيدُ أَدَاءَهَا أَدَّى اللَّهُ عَنْهُ، وَمَنْ أَخَذَ يُرِيدُ إِتْلَافَهَا أَتْلَفَهُ اللَّهُ»
                 </p>
             </div>
@@ -8789,7 +8834,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن أبي هريرة رضي الله عنه:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «مَطْلُ الْغَنِيِّ ظُلْمٌ، وَإِذَا أُتْبِعَ أَحَدُكُمْ عَلَى مَلِيءٍ فَلْيَتَّبِعْ»
                 </p>
             </div>
@@ -8834,7 +8879,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن أبي هريرة رضي الله عنه:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «نَفْسُ الْمُؤْمِنِ مُعَلَّقَةٌ بِدَيْنِهِ حَتَّى يُقْضَى عَنْهُ»
                 </p>
             </div>
@@ -8879,7 +8924,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن عبد الله بن عمرو بن العاص رضي الله عنهما:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «يُغْفَرُ لِلشَّهِيدِ كُلُّ ذَنْبٍ إِلَّا الدَّيْنَ»
                 </p>
             </div>
@@ -8924,7 +8969,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن أبي هريرة رضي الله عنه:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «إِنَّ خِيَارَكُمْ أَحْسَنُكُمْ قَضَاءً»
                 </p>
             </div>
@@ -8969,7 +9014,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن عائشة رضي الله عنها:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «تُوُفِّيَ رَسُولُ اللَّهِ ﷺ وَدِرْعُهُ مَرْهُونَةٌ عِنْدَ يَهُودِيٍّ بِثَلَاثِينَ صَاعًا مِنْ شَعِيرٍ»
                 </p>
             </div>
@@ -9014,7 +9059,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن بريدة بن الحصيب رضي الله عنه:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «مَنْ أَنْظَرَ مُعْسِرًا فَلَهُ بِكُلِّ يَوْمٍ مِثْلِهِ صَدَقَةٌ، حَتَّى إِذَا حَلَّ الدَّيْنُ فَأَنْظَرَهُ فَلَهُ بِكُلِّ يَوْمٍ مِثْلَيْهِ صَدَقَةٌ»
                 </p>
             </div>
@@ -9059,7 +9104,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن حذيفة وأبي هريرة رضي الله عنهما:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «كَانَ رَجُلٌ يُدَايِنُ النَّاسَ، فَكَانَ يَقُولُ لِفَتَاهُ: إِذَا أَتَيْتَ مُعْسِرًا فَتَجَاوَزْ عَنْهُ، لَعَلَّ اللَّهَ أَنْ يَتَجَاوَزَ عَنَّا، فَلَقِيَ اللَّهَ فَتَجَاوَزَ عَنْهُ»
                 </p>
             </div>
@@ -9104,7 +9149,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن أبي أمامة الباهلي رضي الله عنه:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «الْعَارِيَّةُ مُؤَدَّاةٌ، وَالْمِنْحَةُ مَرْدُودَةٌ، وَالدَّيْنُ مَقْضِيٌّ، وَالزَّعِيمُ غَارِمٌ»
                 </p>
             </div>
@@ -9149,7 +9194,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن الشريد بن سويد رضي الله عنه:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «لَيُّ الْوَاجِدِ يُحِلُّ عِرْضَهُ وَعُقُوبَتَهُ»
                 </p>
             </div>
@@ -9194,7 +9239,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن عبد الله بن عمر رضي الله عنهما:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «أَعْطُوا الْأَجِيرَ أَجْرَهُ قَبْلَ أَنْ يَجِفَّ عَرَقُهُ»
                 </p>
             </div>
@@ -9239,7 +9284,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن أبي هريرة رضي الله عنه:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «قَالَ اللَّهُ تَعَالَى: ثَلَاثَةٌ أَنَا خَصْمُهُمْ يَوْمَ الْقِيَامَةِ... وَرَجُلٌ اسْتَأْجَرَ أَجِيرًا فَاسْتَوْفَى مِنْهُ وَلَمْ يُعْطِهِ أَجْرَهُ»
                 </p>
             </div>
@@ -9284,7 +9329,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن أبي هريرة رضي الله عنه:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «إِنَّ اللَّهَ يَقُولُ: أَنَا ثَالِثُ الشَّرِيكَيْنِ مَا لَمْ يَخُنْ أَحَدُهُمَا صَاحِبَهُ، فَإِذَا خَانَهُ خَرَجْتُ مِنْ بَيْنِهِمَا»
                 </p>
             </div>
@@ -9329,7 +9374,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن عائشة رضي الله عنها:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «إِنَّ اللَّهَ يُحِبُّ إِذَا عَمِلَ أَحَدُكُمْ عَمَلًا أَنْ يُتْقِنَهُ»
                 </p>
             </div>
@@ -9374,7 +9419,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن جابر بن عبد الله رضي الله عنهما:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «لَعَنَ رَسُولُ اللَّهِ ﷺ آكِلَ الرِّبَا، وَمُؤْكِلَهُ، وَكَاتِبَهُ، وَشَاهِدَيْهِ، وَقَالَ: هُمْ سَوَاءٌ»
                 </p>
             </div>
@@ -9419,7 +9464,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن عبادة بن الصامت رضي الله عنه:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «الذَّهَبُ بِالذَّهَبِ، وَالْفِضَّةُ بِالْفِضَّةِ، وَالْبُرُّ بِالْبُرِّ، وَالشَّعِيرُ بِالشَّعِيرِ، وَالتَّمْرُ بِالتَّمْرِ، وَالْمِلْحُ بِالْمِلْحِ، مِثْلًا بِمِثْلٍ، سَوَاءً بِسَوَاءٍ، يَدًا بِيَدٍ، فَإِذَا اخْتَلَفَتْ هَذِهِ الْأَصْنَافُ فَبِيعُوا كَيْفَ شِئْتُمْ إِذَا كَانَ يَدًا بِيَدٍ»
                 </p>
             </div>
@@ -9464,7 +9509,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن عبد الله بن عمرو وأبي هريرة رضي الله عنهما:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «لَعَنَ رَسُولُ اللَّهِ ﷺ الرَّاشِيَ وَالْمُرْتَشِيَ (وفي رواية: وَالرَّائِشَ)»
                 </p>
             </div>
@@ -9509,7 +9554,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن أبي حميد الساعدي رضي الله عنه:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «هَدَايَا الْعُمَّالِ غُلُولٌ»
                 </p>
             </div>
@@ -9554,7 +9599,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن كعب بن عجرة رضي الله عنه:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «لَا يَرْبُو لَحْمٌ نَبَتَ مِنْ سُحْتٍ إِلَّا كَانَتِ النَّارُ أَوْلَى بِهِ»
                 </p>
             </div>
@@ -9599,7 +9644,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن أبي أمامة إياس بن ثعلبة رضي الله عنه:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «مَنِ اقْتَطَعَ حَقَّ امْرِئٍ مُسْلِمٍ بِيَمِينِهِ، فَقَدْ أَوْجَبَ اللَّهُ لَهُ النَّارَ، وَحَرَّمَ عَلَيْهِ الْجَنَّةَ، فَقَالَ رَجُلٌ: وَإِنْ كَانَ شَيْئًا يَسِيرًا يَا رَسُولَ اللَّهِ؟ قَالَ: وَإِنْ قَضِيبًا مِنْ أَرَاكٍ»
                 </p>
             </div>
@@ -9644,7 +9689,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن حكيم بن حزام رضي الله عنه:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «الْبَيِّعَانِ بِالْخِيَارِ مَا لَمْ يَتَفَرَّقَا، فَإِنْ صَدَقَا وَبَيَّنَا بُورِكَ لَهُمَا فِي بَيْعِهِمَا، وَإِنْ كَتَمَا وَكَذَبَا مُحِقَتْ بَرَكَةُ بَيْعِهِمَا»
                 </p>
             </div>
@@ -9689,7 +9734,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن أبي سعيد الخدري رضي الله عنه:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «التَّاجِرُ الصَّدُوقُ الأَمِينُ مَعَ النَّبِيِّينَ وَالصِّدِّيقِينَ وَالشُّهَدَاءِ»
                 </p>
             </div>
@@ -9734,7 +9779,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن جابر بن عبد الله رضي الله عنهما:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «رَحِمَ اللَّهُ رَجُلًا سَمْحًا إِذَا بَاعَ، وَإِذَا اشْتَرَى، وَإِذَا اقْتَضَى»
                 </p>
             </div>
@@ -9779,7 +9824,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن حكيم بن حزام رضي الله عنه:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «قُلْتُ: يَا رَسُولَ اللَّهِ، يَأْتِينِي الرَّجُلُ فَيُرِيدُ مِنِّي الْبَيْعَ لَيْسَ عِنْدِي، أَفَأَبْتَاعُهُ لَهُ مِنَ السُّوقِ؟ فَقَالَ: لَا تَبِعْ مَا لَيْسَ عِنْدَكَ»
                 </p>
             </div>
@@ -9824,7 +9869,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن أبي هريرة رضي الله عنه:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «نَهَى رَسُولُ اللَّهِ ﷺ عَنْ بَيْعِ الْحَصَاةِ، وَعَنْ بَيْعِ الْغَرَرِ»
                 </p>
             </div>
@@ -9869,7 +9914,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن عمرو بن عوف المزني رضي الله عنه:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «الْمُسْلِمُونَ عَلَى شُرُوطِهِمْ، إِلَّا شَرْطًا حَرَّمَ حَلَالًا أَوْ أَحَلَّ حَرَامًا»
                 </p>
             </div>
@@ -9914,7 +9959,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن أبي هريرة رضي الله عنه:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «أَنَّ رَسُولَ اللَّهِ ﷺ مَرَّ عَلَى صُبْرَةِ طَعَامٍ فَأَدْخَلَ يَدَهُ فِيهَا، فَنَالَتْ أَصَابِعُهُ بَلَلًا، فَقَالَ: مَا هَذَا يَا صَاحِبَ الطَّعَامِ؟ قَالَ: أَصَابَتْهُ السَّمَاءُ يَا رَسُولَ اللَّهِ، قَالَ: أَفَلَا جَعَلْتَهُ فَوْقَ الطَّعَامِ كَيْ يَرَاهُ النَّاسُ، مَنْ غَشَّ فَلَيْسَ مِنِّي»
                 </p>
             </div>
@@ -9959,7 +10004,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن أبي هريرة رضي الله عنه:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «مَنْ أَقَالَ مُسْلِمًا، أَقَالَهُ اللَّهُ عَثْرَتَهُ يَوْمَ الْقِيَامَةِ»
                 </p>
             </div>
@@ -10004,7 +10049,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن أبي هريرة رضي الله عنه:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «الْحَلِفُ مُنَفِّقَةٌ لِلسِّلْعَةِ، مُمْحِقَةٌ لِلْبَرَكَةِ»
                 </p>
             </div>
@@ -10049,7 +10094,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن ابن عمر رضي الله عنهما:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «إِذَا تَبَايَعْتُمْ بِالْعِينَةِ، وَأَخَذْتُمْ أَذْنَابَ الْبَقَرِ، وَرَضِيتُمْ بِالزَّرْعِ، وَتَرَكْتُمُ الْجِهَادَ، سَلَّطَ اللَّهُ عَلَيْكُمْ ذُلًّا لَا يَنْزِعُهُ حَتَّى تَرْجِعُوا إِلَى دِينِكُمْ»
                 </p>
             </div>
@@ -10094,7 +10139,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن عبد الله بن عمر رضي الله عنهما:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «نَهَى النَّبِيُّ ﷺ عَنِ النَّجْشِ»
                 </p>
             </div>
@@ -10139,7 +10184,7 @@ $pdo = getDBConnection();
             <!-- Hadith Matn Calligraphy Box -->
             <div class="p-4 bg-slate-950/90 rounded-xl border border-slate-800">
                 <span class="text-xs text-slate-400 font-bold block mb-1.5">عن معمر بن عبد الله رضي الله عنه:</span>
-                <p class="text-base md:text-lg text-white font-black leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
+                <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-relaxed hadith-text-display" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
                     «لَا يَحْتَكِرُ إِلَّا خَاطِئٌ»
                 </p>
             </div>
