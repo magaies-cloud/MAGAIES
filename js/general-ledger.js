@@ -924,23 +924,28 @@ function runReport() {
             filtered = filtered.filter(t => t && t.currency !== 'SDG');
         }
 
+        // Global Overview Deduplication: When viewing ALL accounts, show each voucher once (primary side)
+        if (accVal === 'ALL') {
+            const seenVouchers = new Set();
+            filtered = filtered.filter(t => {
+                if (!t) return false;
+                const refKey = (t.type || '') + '_' + (t.ref || '') + '_' + (t.currency || '') + '_' + (t.transferNo || t.checkNo || '');
+                if (t.ref && t.ref !== '-' && t.type !== 'jv') {
+                    if (seenVouchers.has(refKey)) return false;
+                    seenVouchers.add(refKey);
+                }
+                return true;
+            });
+        }
+
         // Type Filter
         if (typeFilter !== 'ALL') {
             filtered = filtered.filter(t => {
                 if (!t) return false;
                 if (typeFilter === 'sales' && t.type === 'invoice' && t.account !== 'revenue-sales') return true;
                 if (typeFilter === 'purchases' && t.type === 'purchase' && t.account !== 'cost-purchases') return true;
-                
-                // If a specific account is selected, show all entries regardless of debit/credit.
-                // Otherwise, restrict to debit/credit to avoid duplicating global entries.
-                if (selectedAccName) {
-                    if (typeFilter === 'receipt' && (t.type === 'receipt' || t.type === 'multi-receipt')) return true;
-                    if (typeFilter === 'payment' && (t.type === 'payment' || t.type === 'multi-payment')) return true;
-                } else {
-                    if (typeFilter === 'receipt' && (t.type === 'receipt' || t.type === 'multi-receipt') && t.debit > 0) return true;
-                    if (typeFilter === 'payment' && (t.type === 'payment' || t.type === 'multi-payment') && t.credit > 0) return true;
-                }
-                
+                if (typeFilter === 'receipt' && (t.type === 'receipt' || t.type === 'multi-receipt')) return true;
+                if (typeFilter === 'payment' && (t.type === 'payment' || t.type === 'multi-payment')) return true;
                 if (typeFilter === 'journal' && t.type === 'jv') return true;
                 return false;
             });

@@ -5368,35 +5368,40 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
             });
         }
 
-        // Process Remaining as Cash
-        if (remainingLocal > 0.01 || remainingFc > 0.01) {
-            const singleTr = v.transferNo || v.mobileTransferNo || (v.bankTransfers && v.bankTransfers[0] ? v.bankTransfers[0].transferNo : "");
-            const singleBank = v.bankName || v.mobileNote || (v.bankTransfers && v.bankTransfers[0] ? v.bankTransfers[0].note : "");
-            const singleChk = v.checkNo || v.chequeNo || (v.cheques && v.cheques[0] ? (v.cheques[0].checkNo || v.cheques[0].chequeNo) : "");
-            txns.push({
-                date: v.date, time: time, ref: v.id, type: "receipt", typeLabel: "سند قبض",
-                account: toAcct, counterAccount: fromAcct,
-                statement: v.statement || "سند قبض #" + (v.voucherNo || v.id || "قبض_نقدي"),
-                additionalNote: v.toStatement || "سند قبض نقدي",
-                transferNo: singleTr,
-                bankName: singleBank,
-                checkNo: singleChk,
-                debit: remainingLocal > 0.01 ? remainingLocal : 0, credit: 0, 
-                debitForeign: remainingFc > 0.01 ? remainingFc : 0, creditForeign: 0,
-                costCenter, currency, exchangeRate: effRate, isPosted
-            });
-            txns.push({
-                date: v.date, time: time, ref: v.id, type: "receipt", typeLabel: "سند قبض",
-                account: fromAcct, counterAccount: toAcct,
-                statement: v.statement || "سند قبض #" + (v.voucherNo || v.id || "قبض_نقدي"),
-                additionalNote: v.toStatement || "سند قبض نقدي",
-                transferNo: singleTr,
-                bankName: singleBank,
-                checkNo: singleChk,
-                debit: 0, credit: remainingLocal > 0.01 ? remainingLocal : 0, 
-                debitForeign: 0, creditForeign: remainingFc > 0.01 ? remainingFc : 0,
-                costCenter, currency, exchangeRate: effRate, isPosted
-            });
+        // Process as Cash ONLY if not already processed as Transfer or Cheque (prevents duplicate USD/Foreign entries)
+        const hasProcessedSub = (v.bankTransfers && v.bankTransfers.length > 0) || (v.cheques && v.cheques.length > 0);
+        if (!hasProcessedSub || v.paymentMethod === 'multi' || v.paymentMethod === 'split') {
+            if ((!hasProcessedSub && (valLoc > 0.001 || valFc > 0.001)) || remainingLocal > 0.01 || remainingFc > 0.01) {
+                const cashAmtLoc = hasProcessedSub ? remainingLocal : valLoc;
+                const cashAmtFc = hasProcessedSub ? remainingFc : valFc;
+                const singleTr = v.transferNo || v.mobileTransferNo || "";
+                const singleBank = v.bankName || v.mobileNote || "";
+                const singleChk = v.checkNo || v.chequeNo || "";
+                txns.push({
+                    date: v.date, time: time, ref: v.id, type: "receipt", typeLabel: "سند قبض",
+                    account: toAcct, counterAccount: fromAcct,
+                    statement: v.statement || "سند قبض #" + (v.voucherNo || v.id || "قبض_نقدي"),
+                    additionalNote: v.fromStatement || "سند قبض نقدي",
+                    transferNo: singleTr,
+                    bankName: singleBank,
+                    checkNo: singleChk,
+                    debit: cashAmtLoc > 0.001 ? cashAmtLoc : 0, credit: 0, 
+                    debitForeign: cashAmtFc > 0.001 ? cashAmtFc : 0, creditForeign: 0,
+                    costCenter, currency, exchangeRate: effRate, isPosted
+                });
+                txns.push({
+                    date: v.date, time: time, ref: v.id, type: "receipt", typeLabel: "سند صرف",
+                    account: fromAcct, counterAccount: toAcct,
+                    statement: v.statement || "سند قبض #" + (v.voucherNo || v.id || "قبض_نقدي"),
+                    additionalNote: v.fromStatement || "سند قبض نقدي",
+                    transferNo: singleTr,
+                    bankName: singleBank,
+                    checkNo: singleChk,
+                    debit: 0, credit: cashAmtLoc > 0.001 ? cashAmtLoc : 0, 
+                    debitForeign: 0, creditForeign: cashAmtFc > 0.001 ? cashAmtFc : 0,
+                    costCenter, currency, exchangeRate: effRate, isPosted
+                });
+            }
         }
     });
 
