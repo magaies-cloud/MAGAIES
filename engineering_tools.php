@@ -1781,91 +1781,58 @@ $pdo = getDBConnection();
         <div id="suite-sec-fiqh" class="suite-section anim-suite hidden space-y-6">
             <div class="glass-panel-v3" style="--border-color: rgba(251, 191, 36, 0.45);">
                 
-                <!-- Section Master Header -->
-                <div class="flex flex-wrap items-center justify-between gap-4 border-b-2 border-amber-500/40 pb-5 mb-6">
+                <!-- 1. SECTION MASTER HEADER (العنوان الرئيسي الموحد) -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-amber-500/40 pb-4 mb-6">
                     <div>
                         <div class="flex items-center gap-2 mb-1.5">
-                            <span class="px-4 py-1.5 bg-amber-500/20 text-amber-300 rounded-xl text-sm font-black border-2 border-amber-400 shadow-md">
-                                ★ الموسوعة الكبرى لفتاوى وضوابط ومؤلفات البيوع
+                            <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 rounded-xl text-xs sm:text-sm font-black border border-amber-400/60 shadow-sm">
+                                ★ الموسوعة الكبرى لفتاوى وضوابط البيوع والمعاملات
                             </span>
-                            <span class="px-3.5 py-1.5 bg-emerald-500/20 text-emerald-300 rounded-xl text-sm font-black border-2 border-emerald-400 shadow-md">
+                            <span class="px-3.5 py-1 bg-emerald-500/20 text-emerald-300 rounded-xl text-xs sm:text-sm font-black border border-emerald-400/60 shadow-sm">
                                 12 إماماً وعالماً معتمداً ✓
                             </span>
                         </div>
-                        <h2 class="text-2xl md:text-3xl font-black text-white flex items-center gap-3">
+                        <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-white flex items-center gap-2.5">
                             <i class="fa-solid fa-book-quran text-amber-400"></i>
-                            منصة فتاوى البيوع والمعاملات التجارية ومكتبة أمهات الكتب
+                            فتاوى البيوع والمعاملات التجارية ومكتبة أمهات الكتب
                         </h2>
-                        <p class="text-xs md:text-sm font-bold text-slate-300 mt-1">
-                            تحقيقات وفتاوى: <span class="text-amber-300 font-black">أحمد بن حنبل</span> · <span class="text-amber-300 font-black">ابن تيمية</span> · <span class="text-amber-300 font-black">ابن القيم</span> · <span class="text-amber-300 font-black">النووي</span> · <span class="text-amber-300 font-black">الذهبي</span> · <span class="text-amber-300 font-black">محمد بن عبد الوهاب</span> · <span class="text-amber-300 font-black">السعدي</span> · <span class="text-amber-300 font-black">الشنقيطي</span> · <span class="text-amber-300 font-black">الألباني</span> · <span class="text-amber-300 font-black">ابن باز</span> · <span class="text-amber-300 font-black">ابن عثيمين</span> · <span class="text-amber-300 font-black">الفوزان</span>
-                        </p>
-                    </div>
-
-                    <!-- Instant Fatwa Search Bar with Live Status -->
-                    <div class="w-full lg:w-[520px] p-4 bg-slate-950/95 border-2 border-amber-400/80 rounded-2xl shadow-2xl space-y-2.5">
-                        <div class="flex items-center justify-between">
-                            <span class="text-xs font-black text-amber-300 flex items-center gap-1.5">
-                                <i class="fa-solid fa-magnifying-glass text-amber-400"></i>
-                                ابحث في الفتاوى والمسائل (محلياً وفي قوقل):
-                            </span>
-                            <span id="fiqh_search_badge" class="text-emerald-400 font-mono font-black text-[11px] px-2.5 py-0.5 bg-emerald-950 border border-emerald-500/50 rounded-lg">
-                                80 فتوى متاحة للبحث
-                            </span>
-                        </div>
-                        
-                        <div class="flex flex-wrap sm:flex-nowrap gap-2 items-center">
-                            <div class="relative flex-1 w-full">
-                                <input type="text" id="fiqh-search-input" oninput="filterFatwas()" placeholder="اكتب سؤالك: تقسيط، شيك، ذهب، عربون..." class="w-full py-2.5 pr-10 pl-3 bg-slate-900 border-2 border-amber-500/50 focus:border-amber-400 text-white rounded-xl text-xs md:text-sm font-bold shadow-inner">
-                                <i class="fa-solid fa-search absolute right-3.5 top-3.5 text-amber-400/80"></i>
-                            </div>
-                            <button type="button" onclick="executeQuickGoogleSearch()" title="ابحث في قوقل الموثق للشيوخ الـ 12" class="px-4 py-2.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-black text-xs rounded-xl shadow-lg border border-sky-300/50 flex items-center justify-center gap-1.5 flex-shrink-0 transition transform hover:-translate-y-0.5 w-full sm:w-auto">
-                                <i class="fa-brands fa-google text-sky-200"></i>
-                                <span>بحث قوقل ↗</span>
-                            </button>
-                        </div>
                     </div>
                 </div>
 
-                <!-- 🌟 DUAL MASTER SEARCH CONSOLE: 1. LOCAL SMART AI SEARCH + 2. GOOGLE SCHOLAR SEARCH 🌟 -->
-                <div class="grid grid-cols-1 lg:grid-cols-2 gap-4 mb-6">
+                <!-- 2. DUAL SEARCH CONSOLE (سطر البحث الموحد: مقسوم على جزئين متوازيين بخط كبير وواضح) -->
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
                     
-                    <!-- CONSOLE 1: البحث الفقهي الداخلي الذكي السريع -->
-                    <div class="p-5 bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 border-2 border-amber-400/80 rounded-2xl shadow-xl space-y-3">
+                    <!-- الجزء الأيمن: البحث داخل البرنامج -->
+                    <div class="p-4 sm:p-5 bg-slate-950/95 border-2 border-amber-400/80 rounded-2xl shadow-xl space-y-2.5">
                         <div class="flex items-center justify-between">
-                            <span class="text-sm font-black text-amber-300 flex items-center gap-2">
-                                <i class="fa-solid fa-magnifying-glass text-amber-400 text-base"></i>
-                                1. البحث الفقهي الذكي المباشر (داخل البرنامج):
-                            </span>
-                            <span id="fiqh_search_badge" class="text-emerald-400 font-mono font-black text-xs px-3 py-1 bg-emerald-950 border border-emerald-500/50 rounded-lg">
-                                جميع الفتاوى متاحة للبحث
+                            <label class="text-sm sm:text-base font-black text-amber-300 flex items-center gap-2">
+                                <i class="fa-solid fa-magnifying-glass text-amber-400 text-lg"></i>
+                                🔍 ابحث في الفتاوى (داخل البرنامج):
+                            </label>
+                            <span id="fiqh_search_badge" class="text-emerald-400 font-mono font-black text-xs px-2.5 py-0.5 bg-emerald-950 border border-emerald-500/40 rounded-lg">
+                                80 فتوى متاحة للبحث
                             </span>
                         </div>
-                        <p class="text-xs text-slate-300 font-bold">
-                            ابحث فورياً في فتاوى ابن باز، ابن عثيمين، الفوزان، وابن تيمية (تقسيط، شيك، عربون، ذهب، صرف...).
-                        </p>
                         <div class="relative">
-                            <input type="text" id="fiqh-search-input" oninput="filterFatwas()" placeholder="اكتب للبحث الفوري: تقسيط، شيك، ذهب، عربون، استصناع، عِينة..." class="w-full py-3 pr-11 pl-4 bg-slate-900 border-2 border-amber-500/60 focus:border-amber-400 text-white rounded-xl text-sm md:text-base font-black shadow-inner">
-                            <i class="fa-solid fa-search absolute right-3.5 top-3.5 text-amber-400 text-lg"></i>
+                            <input type="text" id="fiqh-search-input" oninput="filterFatwas()" placeholder="اكتب للبحث: تقسيط، شيك، عربون، ذهب، صرف، استصناع..." class="w-full py-3.5 pr-11 pl-4 bg-slate-900 border-2 border-amber-500/60 focus:border-amber-400 text-white rounded-xl text-sm sm:text-base font-black shadow-inner">
+                            <i class="fa-solid fa-search absolute right-3.5 top-4 text-amber-400 text-lg"></i>
                         </div>
                     </div>
 
-                    <!-- CONSOLE 2: محرك بحث قوقل الموثق للشيوخ الـ 12 عالمياً -->
-                    <div class="p-5 bg-gradient-to-br from-slate-900 via-sky-950/40 to-slate-900 border-2 border-sky-400/80 rounded-2xl shadow-xl space-y-3">
+                    <!-- الجزء الأيسر: البحث في قوقل الموثق للشيوخ الـ 12 -->
+                    <div class="p-4 sm:p-5 bg-slate-950/95 border-2 border-sky-400/80 rounded-2xl shadow-xl space-y-2.5">
                         <div class="flex items-center justify-between">
-                            <span class="text-sm font-black text-sky-300 flex items-center gap-2">
-                                <i class="fa-brands fa-google text-sky-400 text-base"></i>
-                                2. بحث قوقل العالمي الموثق (للشيوخ الـ 12 والمواقع الرسمية):
-                            </span>
-                            <span class="text-sky-300 font-black text-[11px] px-2.5 py-0.5 bg-sky-950 border border-sky-500/50 rounded-lg">
+                            <label class="text-sm sm:text-base font-black text-sky-300 flex items-center gap-2">
+                                <i class="fa-brands fa-google text-sky-400 text-lg"></i>
+                                🌐 ابحث في قوقل (خارج البرنامج للشيوخ الـ 12):
+                            </label>
+                            <span class="text-sky-300 font-black text-xs px-2.5 py-0.5 bg-sky-950 border border-sky-500/40 rounded-lg">
                                 قوقل الموثق ↗
                             </span>
                         </div>
-                        <p class="text-xs text-slate-300 font-bold">
-                            يبحث في شبكة الإنترنت العالمية مع حصر النتائج في فتاوى الشيوخ الـ 12 والمكتبات المعتمدة فقط.
-                        </p>
                         <div class="flex gap-2">
-                            <input type="text" id="google_quick_input" placeholder="اكتب مسألتك للبحث في قوقل (مثال: مرابحة بنكية، تأخير توريد...)" class="w-full py-3 pr-4 pl-3 bg-slate-900 border-2 border-sky-500/60 focus:border-sky-400 text-white rounded-xl text-sm font-black shadow-inner">
-                            <button type="button" onclick="executeHeaderGoogleSearch()" class="px-5 py-3 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-black text-sm rounded-xl shadow-lg border border-sky-300/60 flex items-center justify-center gap-2 flex-shrink-0 transition transform hover:-translate-y-0.5">
+                            <input type="text" id="google_quick_input" placeholder="اكتب مسألتك للبحث في قوقل (مرابحة، تأخير توريد...)" class="w-full py-3.5 pr-4 pl-3 bg-slate-900 border-2 border-sky-500/60 focus:border-sky-400 text-white rounded-xl text-sm sm:text-base font-black shadow-inner">
+                            <button type="button" onclick="executeHeaderGoogleSearch()" class="px-5 py-3.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-black text-sm rounded-xl shadow-lg border border-sky-300/60 flex items-center justify-center gap-1.5 flex-shrink-0 transition transform hover:-translate-y-0.5">
                                 <i class="fa-brands fa-google"></i>
                                 <span>بحث قوقل ↗</span>
                             </button>
@@ -1874,32 +1841,28 @@ $pdo = getDBConnection();
 
                 </div>
 
-                <!-- ⚡ 4 SEPARATED DISTINCT COMMERCIAL CATEGORIES (واضحة، كبيرة، ومفصولة) ⚡ -->
-                <div class="space-y-4 mb-6">
+                <!-- 3. THE 4 DISTINCT COMMERCIAL CATEGORIES (المسائل الأكثر شيوعاً - 4 مجموعات مفصولة بخطوط كبيرة) -->
+                <div class="space-y-3 mb-6">
                     
-                    <div class="flex flex-wrap items-center justify-between gap-2 border-b-2 border-amber-500/40 pb-2">
-                        <div>
-                            <h3 class="text-lg sm:text-xl font-black text-amber-300 flex items-center gap-2">
-                                <i class="fa-solid fa-layer-group text-amber-400"></i>
-                                المسائل والفتاوى التجارية الأكثر شيوعاً (مقسمة ومفصولة بوضوح تام):
-                            </h3>
-                            <p class="text-xs text-slate-300 font-bold">اضغط على أي مسألة لإظهار الحكم الشرعي والفتوى الموثقة فوراً</p>
-                        </div>
+                    <div class="flex items-center justify-between border-b-2 border-amber-500/30 pb-2">
+                        <h3 class="text-base sm:text-lg md:text-xl font-black text-amber-300 flex items-center gap-2">
+                            <i class="fa-solid fa-layer-group text-amber-400"></i>
+                            المسائل والفتاوى الأكثر شيوعاً (مقسمة ومفصولة بوضوح تام):
+                        </h3>
                         <button type="button" onclick="clearFiqhSearch()" class="px-3.5 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/50 rounded-xl text-xs font-black transition">
                             ✕ تفريغ البحث
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
                         
-                        <!-- CARD 1: التمويل والتقسيط والديون -->
-                        <div class="p-4 sm:p-5 bg-slate-950/90 rounded-2xl border-2 border-cyan-500/40 space-y-3 shadow-lg hover:border-cyan-400 transition">
-                            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                                <h4 class="text-base sm:text-lg font-black text-cyan-300 flex items-center gap-2">
-                                    <span class="p-1.5 bg-cyan-500/20 rounded-lg text-cyan-400 text-base">💳</span>
-                                    1. التمويل والتقسيط والديون
+                        <!-- المربع 1: التمويل والتقسيط والديون -->
+                        <div class="p-4 bg-slate-950/90 rounded-2xl border-2 border-cyan-500/40 space-y-3 shadow-md hover:border-cyan-400 transition">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h4 class="text-sm sm:text-base font-black text-cyan-300 flex items-center gap-2">
+                                    <span>💳</span> 1. التمويل والتقسيط والديون
                                 </h4>
-                                <span class="text-[11px] font-mono font-bold text-cyan-400 px-2 py-0.5 bg-cyan-950 rounded border border-cyan-500/30">6 مسائل كبرى</span>
+                                <span class="text-[11px] font-mono font-bold text-cyan-400 px-2 py-0.5 bg-cyan-950 rounded border border-cyan-500/30">6 مسائل</span>
                             </div>
                             <div class="flex flex-wrap gap-2">
                                 <button type="button" class="category-pill-btn" onclick="setQuickSearch('التقسيط')">💳 البيع بالتقسيط وزيادة الأجل</button>
@@ -1911,14 +1874,13 @@ $pdo = getDBConnection();
                             </div>
                         </div>
 
-                        <!-- CARD 2: الأوراق التجارية والمدفوعات -->
-                        <div class="p-4 sm:p-5 bg-slate-950/90 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-lg hover:border-emerald-400 transition">
-                            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                                <h4 class="text-base sm:text-lg font-black text-emerald-300 flex items-center gap-2">
-                                    <span class="p-1.5 bg-emerald-500/20 rounded-lg text-emerald-400 text-base">📜</span>
-                                    2. الأوراق التجارية والمدفوعات
+                        <!-- المربع 2: الأوراق التجارية والمدفوعات -->
+                        <div class="p-4 bg-slate-950/90 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-md hover:border-emerald-400 transition">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h4 class="text-sm sm:text-base font-black text-emerald-300 flex items-center gap-2">
+                                    <span>📜</span> 2. الأوراق التجارية والمدفوعات
                                 </h4>
-                                <span class="text-[11px] font-mono font-bold text-emerald-400 px-2 py-0.5 bg-emerald-950 rounded border border-emerald-500/30">5 مسائل كبرى</span>
+                                <span class="text-[11px] font-mono font-bold text-emerald-400 px-2 py-0.5 bg-emerald-950 rounded border border-emerald-500/30">5 مسائل</span>
                             </div>
                             <div class="flex flex-wrap gap-2">
                                 <button type="button" class="category-pill-btn" onclick="setQuickSearch('خصم الشيكات')">📜 خصم الشيكات والكمبيالات الآجلة</button>
@@ -1929,14 +1891,13 @@ $pdo = getDBConnection();
                             </div>
                         </div>
 
-                        <!-- CARD 3: الذهب والعملات والصرافة -->
-                        <div class="p-4 sm:p-5 bg-slate-950/90 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition">
-                            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                                <h4 class="text-base sm:text-lg font-black text-amber-300 flex items-center gap-2">
-                                    <span class="p-1.5 bg-amber-500/20 rounded-lg text-amber-400 text-base">💎</span>
-                                    3. الذهب والعملات والتحويلات
+                        <!-- المربع 3: الذهب والعملات والصرافة -->
+                        <div class="p-4 bg-slate-950/90 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-md hover:border-amber-400 transition">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h4 class="text-sm sm:text-base font-black text-amber-300 flex items-center gap-2">
+                                    <span>💎</span> 3. الذهب والعملات والتحويلات
                                 </h4>
-                                <span class="text-[11px] font-mono font-bold text-amber-400 px-2 py-0.5 bg-amber-950 rounded border border-amber-500/30">4 مسائل كبرى</span>
+                                <span class="text-[11px] font-mono font-bold text-amber-400 px-2 py-0.5 bg-amber-950 rounded border border-amber-500/30">4 مسائل</span>
                             </div>
                             <div class="flex flex-wrap gap-2">
                                 <button type="button" class="category-pill-btn" onclick="setQuickSearch('الذهب')">💎 شراء الذهب ببطاقات الصراف ومدى</button>
@@ -1946,14 +1907,13 @@ $pdo = getDBConnection();
                             </div>
                         </div>
 
-                        <!-- CARD 4: المقاولات والسلع والضمانات -->
-                        <div class="p-4 sm:p-5 bg-slate-950/90 rounded-2xl border-2 border-purple-500/40 space-y-3 shadow-lg hover:border-purple-400 transition">
-                            <div class="flex items-center justify-between border-b border-slate-800 pb-2.5">
-                                <h4 class="text-base sm:text-lg font-black text-purple-300 flex items-center gap-2">
-                                    <span class="p-1.5 bg-purple-500/20 rounded-lg text-purple-400 text-base">🏗️</span>
-                                    4. المقاولات والسلع والضمانات وحقوق العمال
+                        <!-- المربع 4: المقاولات والسلع والضمانات -->
+                        <div class="p-4 bg-slate-950/90 rounded-2xl border-2 border-purple-500/40 space-y-3 shadow-md hover:border-purple-400 transition">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h4 class="text-sm sm:text-base font-black text-purple-300 flex items-center gap-2">
+                                    <span>🏗️</span> 4. المقاولات والسلع والضمانات وحقوق العمال
                                 </h4>
-                                <span class="text-[11px] font-mono font-bold text-purple-400 px-2 py-0.5 bg-purple-950 rounded border border-purple-500/30">5 مسائل كبرى</span>
+                                <span class="text-[11px] font-mono font-bold text-purple-400 px-2 py-0.5 bg-purple-950 rounded border border-purple-500/30">5 مسائل</span>
                             </div>
                             <div class="flex flex-wrap gap-2">
                                 <button type="button" class="category-pill-btn" onclick="setQuickSearch('الاستصناع')">🏗️ عقد الاستصناع وتوريد الحديد</button>
@@ -1967,97 +1927,104 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- 🗂️ 6 SUB-TABS WITHIN FIQH SUITE (أقسام المنظومة الفقهية) 🗂️ -->
-                <div class="flex flex-wrap items-center gap-2 mb-6 border-b border-slate-800 pb-3">
+                <!-- 4. SUB-TABS NAVIGATION BAR (أقسام المنظومة الـ 6 في صندوق مستقل ومرتب) -->
+                <div class="p-3 bg-slate-950/95 rounded-2xl border-2 border-slate-800 flex flex-wrap items-center gap-2 mb-6">
                     <button type="button" class="fiqh-nav-pill active" onclick="switchFiqhSubTab('fatwas', this)">
-                        📑 موسوعة الفتاوى والأحكام (80 مسألة كبرى)
+                        📑 موسوعة الفتاوى والأحكام (80 مسألة محررة)
                     </button>
                     <button type="button" class="fiqh-nav-pill bg-gradient-to-r from-sky-500/20 to-blue-600/30 text-sky-300 border-sky-400/60 hover:border-sky-300" onclick="switchFiqhSubTab('google', this)">
                         🌐 محرك بحث قوقل للشيوخ الـ 12 (المواقع العالمية)
                     </button>
+                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('quran', this)">
+                        📖 الدستور القرآني للمعاملات (15 آية محكمة)
+                    </button>
+                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('hadiths', this)">
+                        📜 الموسوعة النبوية الصحيحة (32 حديثاً ثابتاً)
+                    </button>
                     <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('books', this)">
-                        📚 مكتبة أمهات كتب البيوع للشيوخ (26 مؤلفاً وموسوعة)
+                        📚 مكتبة أمهات كتب البيوع (26 مؤلفاً وموسوعة)
                     </button>
                     <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('maxims', this)">
                         ⚖️ القواعد الفقهية الكبرى الـ 5 الحاكمة للتجارة
                     </button>
-                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('quran', this)">
-                        📖 الآيات القرآنية في الديون والمعاملات (15 آية)
-                    </button>
-                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('hadiths', this)">
-                        📜 أحاديث البيوع والديون والمعاملات المالية (32 حديثاً صحيحة)</button>
                     <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('terms', this)">
-                        📖 معجم المصطلحات الفقهية والاقتصادية
+                        📖 معجم المصطلحات الاقتصادية (6 مصطلحات)
                     </button>
                 </div>
 
                 <!-- ════════════════════════════════════════════════════════════ -->
-                <!-- SUB-SECTION 1: FATWAS & RULINGS GRID                         -->
+                <!-- SUB-SECTION 1: 80 EXTENDED FATWAS SUITE                     -->
                 <!-- ════════════════════════════════════════════════════════════ -->
                 <div id="fiqh-sub-fatwas" class="space-y-4">
                     
-                    <!-- 🎛️ FILTER BAR 1: CHOOSE BY SCHOLAR (المشايخ الـ 12 المعتمدين - واضحة ومكبرة) 🎛️ -->
-                    <div class="bg-gradient-to-br from-slate-900 via-slate-950 to-slate-900 p-5 rounded-2xl border-2 border-amber-500/50 space-y-3 shadow-xl">
-                        <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2">
+                    <!-- 🎛️ BOX A: SCHOLAR FILTER CONSOLE (مجموعة الشيوخ الـ 12 المعتمدين في صندوق مستقل بألوان ذهبية موحدة) 🎛️ -->
+                    <div class="bg-slate-950/95 p-4 sm:p-5 rounded-2xl border-2 border-amber-500/60 space-y-3 shadow-xl">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                             <span class="text-sm sm:text-base font-black text-amber-300 flex items-center gap-2">
                                 <i class="fa-solid fa-graduation-cap text-amber-400 text-lg"></i>
-                                فلترة الفتاوى حسب الإمام أو الشيخ المعتمد (12 إماماً وعالماً):
+                                فقه كبار الأئمة والعلماء الـ 12 المعتمدين (اختر الشيخ لتصفية فتاواه فوراً):
                             </span>
-                            <span class="text-xs font-mono font-bold text-slate-400 px-2.5 py-1 bg-slate-900 rounded-lg border border-slate-800">
-                                اختر الشيخ لعرض فتاواه فوراً
+                            <span class="text-xs font-mono font-bold text-slate-400 px-2.5 py-0.5 bg-slate-900 rounded border border-slate-800">
+                                12 إماماً معتمداً
                             </span>
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
-                            <button type="button" class="fiqh-filter-btn active text-xs sm:text-sm font-black" data-filter-type="scholar" data-filter-val="all" onclick="setFiqhScholar('all', this)">
+                            <button type="button" class="fiqh-filter-btn active" data-filter-type="scholar" data-filter-val="all" onclick="setFiqhScholar('all', this)">
                                 🌟 جميع المشايخ الـ 12
                             </button>
-                            <button type="button" class="fiqh-filter-btn text-xs sm:text-sm font-black" data-filter-type="scholar" data-filter-val="ibn_baz" onclick="setFiqhScholar('ibn_baz', this)">
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="ibn_baz" onclick="setFiqhScholar('ibn_baz', this)">
                                 📜 الإمام عبد العزيز بن باز
                             </button>
-                            <button type="button" class="fiqh-filter-btn text-xs sm:text-sm font-black" data-filter-type="scholar" data-filter-val="ibn_uthaymeen" onclick="setFiqhScholar('ibn_uthaymeen', this)">
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="ibn_uthaymeen" onclick="setFiqhScholar('ibn_uthaymeen', this)">
                                 💡 الإمام محمد بن صالح العثيمين
                             </button>
-                            <button type="button" class="fiqh-filter-btn text-xs sm:text-sm font-black" data-filter-type="scholar" data-filter-val="al_fawzan" onclick="setFiqhScholar('al_fawzan', this)">
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_fawzan" onclick="setFiqhScholar('al_fawzan', this)">
                                 ⚖️ معالي الشيخ د. صالح الفوزان
                             </button>
-                            <button type="button" class="fiqh-filter-btn text-xs sm:text-sm font-black" data-filter-type="scholar" data-filter-val="ibn_taymiyyah" onclick="setFiqhScholar('ibn_taymiyyah', this)">
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="ibn_taymiyyah" onclick="setFiqhScholar('ibn_taymiyyah', this)">
                                 📖 شيخ الإسلام ابن تيمية
                             </button>
-                            <button type="button" class="fiqh-filter-btn text-xs sm:text-sm font-black" data-filter-type="scholar" data-filter-val="ibn_al_qayyim" onclick="setFiqhScholar('ibn_al_qayyim', this)">
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="ibn_al_qayyim" onclick="setFiqhScholar('ibn_al_qayyim', this)">
                                 ✨ الإمام ابن قيم الجوزية
                             </button>
-                            <button type="button" class="fiqh-filter-btn text-xs sm:text-sm font-black" data-filter-type="scholar" data-filter-val="imam_ahmad" onclick="setFiqhScholar('imam_ahmad', this)">
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="imam_ahmad" onclick="setFiqhScholar('imam_ahmad', this)">
                                 👑 الإمام أحمد بن حنبل
                             </button>
-                            <button type="button" class="fiqh-filter-btn text-xs sm:text-sm font-black" data-filter-type="scholar" data-filter-val="al_nawawi" onclick="setFiqhScholar('al_nawawi', this)">
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_nawawi" onclick="setFiqhScholar('al_nawawi', this)">
                                 📜 الإمام محيي الدين النووي
                             </button>
-                            <button type="button" class="fiqh-filter-btn text-xs sm:text-sm font-black" data-filter-type="scholar" data-filter-val="al_dhahabi" onclick="setFiqhScholar('al_dhahabi', this)">
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_dhahabi" onclick="setFiqhScholar('al_dhahabi', this)">
                                 ⚖️ الإمام الحافظ الذهبي
                             </button>
-                            <button type="button" class="fiqh-filter-btn text-xs sm:text-sm font-black" data-filter-type="scholar" data-filter-val="muhammad_bin_abdulwahhab" onclick="setFiqhScholar('muhammad_bin_abdulwahhab', this)">
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="muhammad_bin_abdulwahhab" onclick="setFiqhScholar('muhammad_bin_abdulwahhab', this)">
                                 📚 الإمام محمد بن عبد الوهاب
                             </button>
-                            <button type="button" class="fiqh-filter-btn text-xs sm:text-sm font-black" data-filter-type="scholar" data-filter-val="al_saadi" onclick="setFiqhScholar('al_saadi', this)">
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_saadi" onclick="setFiqhScholar('al_saadi', this)">
                                 💡 العلامة عبد الرحمن السعدي
                             </button>
-                            <button type="button" class="fiqh-filter-btn text-xs sm:text-sm font-black" data-filter-type="scholar" data-filter-val="al_shinqiti" onclick="setFiqhScholar('al_shinqiti', this)">
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_shinqiti" onclick="setFiqhScholar('al_shinqiti', this)">
                                 📖 العلامة محمد الأمين الشنقيطي
                             </button>
-                            <button type="button" class="fiqh-filter-btn text-xs sm:text-sm font-black" data-filter-type="scholar" data-filter-val="al_albani" onclick="setFiqhScholar('al_albani', this)">
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_albani" onclick="setFiqhScholar('al_albani', this)">
                                 📚 الإمام محمد ناصر الدين الألباني
                             </button>
                         </div>
                     </div>
 
-                    <!-- 🎛️ FILTER BAR 2: CHOOSE BY TRANSACTION / TOPIC (نوع المعاملة) 🎛️ -->
-                    <div class="bg-slate-900/90 p-4 rounded-2xl border-2 border-cyan-500/30 space-y-2">
-                        <span class="text-xs font-black text-cyan-300 block">
-                            🏷️ اختيار وتصنيف الفتاوى حسب نوع المعاملة والمسألة:
-                        </span>
+                    <!-- 🎛️ BOX B: TOPICS FILTER CONSOLE (مجموعة المعاملات في صندوق مستقل بألوان سماوية موحدة) 🎛️ -->
+                    <div class="bg-slate-950/95 p-4 sm:p-5 rounded-2xl border-2 border-cyan-500/60 space-y-3 shadow-xl">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                            <span class="text-sm sm:text-base font-black text-cyan-300 flex items-center gap-2">
+                                <i class="fa-solid fa-tags text-cyan-400 text-lg"></i>
+                                تصنيف المعاملات والعقود التجارية (اختر الموضوع لعرض المسائل ذات الصلة):
+                            </span>
+                            <span class="text-xs font-mono font-bold text-slate-400 px-2.5 py-0.5 bg-slate-900 rounded border border-slate-800">
+                                كافة العقود
+                            </span>
+                        </div>
                         <div class="flex flex-wrap items-center gap-2">
                             <button type="button" class="fiqh-filter-btn active" data-filter-type="topic" data-filter-val="all" onclick="setFiqhTopic('all', this)">
-                                📑 جميع المسائل والمعاملات
+                                📑 جميع المسائل والمعاملات (80 فتوى)
                             </button>
                             <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="ownership" onclick="setFiqhTopic('ownership', this)">
                                 🛒 بيع ما لا يملك والوساطة
@@ -2069,48 +2036,45 @@ $pdo = getDBConnection();
                                 💱 الصرف والموبايل بنك
                             </button>
                             <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="checks" onclick="setFiqhTopic('checks', this)">
-                                📜 الشيكات وخصم الأوراق المالية
+                                📜 الشيكات والأوراق المالية
                             </button>
                             <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="araboon" onclick="setFiqhTopic('araboon', this)">
-                                🤝 بيع العربون واسترداده
+                                🤝 بيع العربون وحجز البضاعة
                             </button>
                             <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="contracts" onclick="setFiqhTopic('contracts', this)">
-                                🏗️ العقود والشروط والاستصناع والتأمين
+                                📋 العقود والشروط التجارية
                             </button>
                             <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="pricing" onclick="setFiqhTopic('pricing', this)">
-                                📈 الصدق والتسعير والموازين والتطفيف
+                                ⚖️ التسعير والاحتكار والغبن
                             </button>
                             <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="gold" onclick="setFiqhTopic('gold', this)">
-                                💎 الذهب والبطاقات البنكية
+                                💎 بيع وشراء الذهب والفضة
                             </button>
                             <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="defects" onclick="setFiqhTopic('defects', this)">
-                                🔄 بيان العيوب ونفي الغرر
+                                🛡️ خيار العيب والضمان
                             </button>
                             <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="riba" onclick="setFiqhTopic('riba', this)">
-                                🚫 إبطال حيل الربا والعِينة
+                                🚫 حيل الربا والعِينة والتورق
                             </button>
                         </div>
                     </div>
 
-                    <!-- 📋 FATWAS CARDS GRID 📋 -->
-                    
-                    <!-- 💡 Smart Mode Notification Banner 💡 -->
-                    <div id="fiqh-view-mode-banner" class="p-3.5 bg-gradient-to-r from-amber-500/15 via-slate-900/90 to-emerald-500/15 border-2 border-amber-500/40 rounded-2xl flex flex-wrap items-center justify-between gap-3 text-xs">
-                        <div class="flex items-center gap-2">
-                            <span class="text-lg">💡</span>
-                            <span class="text-slate-200 font-bold" id="fiqh-mode-text">
-                                الوضع الحالي: <strong class="text-amber-300 font-black">الفتاوى الأساسية الأكثر شيوعاً (18 فتوى)</strong>. تظهر بقية الموسوعة الشاملة الـ <strong class="text-emerald-300 font-black">80 فتوى</strong> تلقائياً فور كتابة أي كلمة في البحث الذكي 🔍
-                            </span>
+                    <!-- 👁️ ON-DEMAND VISIBILITY NOTIFICATION BANNER 👁️ -->
+                    <div id="fatwas-visibility-banner" class="p-3.5 bg-slate-950/90 border-2 border-amber-500/40 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-md">
+                        <div class="flex items-center gap-2.5">
+                            <span class="text-xl">💡</span>
+                            <div>
+                                <span class="text-xs sm:text-sm font-black text-amber-300 block">نظام العرض والبحث الذكي:</span>
+                                <span class="text-xs text-slate-300 font-bold">يتم عرض الفتاوى الشائعة افتراضياً، وتظهر كافة الـ 80 فتوى فوراً عند كتابة أي كلمة في البحث أو اختيار شيخ أو موضوع.</span>
+                            </div>
                         </div>
-                        <button type="button" id="toggle-all-fatwas-btn" onclick="toggleAllFatwasMode()" class="px-3.5 py-1.5 bg-amber-500/20 hover:bg-amber-500/30 text-amber-300 border border-amber-400/50 rounded-xl font-black transition">
+                        <button type="button" id="toggle-all-fatwas-btn" onclick="toggleShowAllFatwas()" class="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs rounded-xl shadow transition">
                             👁️ عرض جميع الـ 80 فتوى دفعة واحدة
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="fatwas-grid-container">
-
-                    <!-- Fatwa Card 1 -->
-                    <div class="fiqh-master-card" data-featured="true" data-scholar="imam_ahmad" data-topic="contracts" data-search="1. الأصل في العقود والشروط الجواز والصحة وخيار الشرط والمجلس الإمام المبجل أحمد بن حنبل (رحمه الله) مذهب الإمام أحمد بن حنبل رحمه الله أن الأصل في العقود والشروط هو الحل والصحة ما لم تخالف نصاً شرعياً أو تنافي مقتضى العقد. وثبوت خيار الشرط وخيار المجلس للمتبايعين للتراضي التام. مسائل الإمام أحمد برواية ابنه عبد الله والمغني لابن قدامة تطبيق النظام: إتاحة خيار الشرط المكتوب وفترة الفحص التجاري المتفق عليها في عقود التوريد والفواتير.">
+                    <div id="fiqh_fatwas_grid" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+                        <div class="fiqh-master-card" data-featured="true" data-scholar="imam_ahmad" data-topic="contracts" data-search="1. الأصل في العقود والشروط الجواز والصحة وخيار الشرط والمجلس الإمام المبجل أحمد بن حنبل (رحمه الله) مذهب الإمام أحمد بن حنبل رحمه الله أن الأصل في العقود والشروط هو الحل والصحة ما لم تخالف نصاً شرعياً أو تنافي مقتضى العقد. وثبوت خيار الشرط وخيار المجلس للمتبايعين للتراضي التام. مسائل الإمام أحمد برواية ابنه عبد الله والمغني لابن قدامة تطبيق النظام: إتاحة خيار الشرط المكتوب وفترة الفحص التجاري المتفق عليها في عقود التوريد والفواتير.">
                         
                         <!-- Header: Title & Scholar Badge -->
                         <div class="flex flex-wrap items-start justify-between gap-3 border-b border-slate-800 pb-3 mb-3">
