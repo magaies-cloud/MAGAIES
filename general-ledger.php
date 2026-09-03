@@ -635,6 +635,8 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
                     <th width="140" style="position: relative; white-space: nowrap;">الحساب<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th width="90" style="position: relative; white-space: nowrap;">نوع الحركة<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th style="position: relative; white-space: nowrap;">البيان<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="100" style="position: relative; white-space: nowrap;">رقم التحويلة<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
+                    <th width="120" style="position: relative; white-space: nowrap;">اسم البنك<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th width="140" style="position: relative; white-space: nowrap;">الحساب المقابل<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th width="90" style="position: relative; white-space: nowrap;">مدين (عليه)<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
                     <th width="90" style="position: relative; white-space: nowrap;">دائن (له)<div class="resizer" title="اسحب لتغيير عرض العمود، انقر مرتين للتكيف الأوتوماتيكي"></div></th>
@@ -870,7 +872,7 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
 <!-- Core JS -->
 <script src="js/localforage.min.js"></script>
 <script src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
-<script src="js/general-ledger.js?v=<?php echo time(); ?>"></script>
+<script src="js/general-ledger.js?v=1788468147254"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof window.renderLedgerPresets === 'function') {
