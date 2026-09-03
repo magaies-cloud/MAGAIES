@@ -5335,12 +5335,15 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
             });
-        } else if (hasCheques && v.paymentMethod !== 'cash') {
+        }
+        
+        if (hasCheques && v.paymentMethod !== 'cash') {
             v.cheques.forEach(ch => {
                 const amt = parseNum(ch.amount);
                 const amtLoc = isBaseSDG ? amt : (amt > valFc * 1.5 ? amt : amt * effRate);
                 const amtFc = isBaseSDG ? (amt / effRate) : (amt > valFc * 1.5 ? (amt / effRate) : amt);
-                const stmt = ch.statement || ('شيك / ' + (ch.checkNo || '') + ' / قبض نقدية');
+                const chkLabel = ch.checkNo ? ('شيك ' + ch.checkNo) : 'شيك';
+                const stmt = ch.statement || (chkLabel + ' / قبض نقدية');
 
                 txns.push({
                     date: v.date, time: time, ref: refNo, type: 'receipt', typeLabel: 'سند قبض',
@@ -5359,8 +5362,10 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
             });
-        } else {
-            // Pure Cash Single Receipt (or fallback): strictly ONE pair of debit/credit
+        }
+        
+        if (!hasTransfers && !hasCheques) {
+            // Pure Cash Single Receipt
             const singleTr = v.transferNo || v.mobileTransferNo || "";
             const singleBank = v.bankName || v.mobileNote || "";
             const singleChk = v.checkNo || v.chequeNo || "";
@@ -5431,12 +5436,15 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
             });
-        } else if (hasCheques && v.paymentMethod !== 'cash') {
+        }
+        
+        if (hasCheques && v.paymentMethod !== 'cash') {
             v.cheques.forEach(ch => {
                 const amt = parseNum(ch.amount);
                 const amtLoc = isBaseSDG ? amt : (amt > valFc * 1.5 ? amt : amt * effRate);
                 const amtFc = isBaseSDG ? (amt / effRate) : (amt > valFc * 1.5 ? (amt / effRate) : amt);
-                const stmt = ch.statement || ('شيك / ' + (ch.checkNo || '') + ' / صرف نقدية');
+                const chkLabel = ch.checkNo ? ('شيك ' + ch.checkNo) : 'شيك';
+                const stmt = ch.statement || (chkLabel + ' / صرف نقدية');
 
                 txns.push({
                     date: v.date, time: time, ref: refNo, type: 'payment', typeLabel: 'سند صرف',
@@ -5455,8 +5463,10 @@ window.rebuildGLFromAllTables = function(skipSave = false) {
                     costCenter, currency, exchangeRate: effRate, isPosted
                 });
             });
-        } else {
-            // Pure Cash Single Payment: strictly ONE pair of debit/credit
+        }
+        
+        if (!hasTransfers && !hasCheques) {
+            // Pure Cash Single Payment
             const singleTr = v.transferNo || v.mobileTransferNo || "";
             const singleBank = v.bankName || v.mobileNote || "";
             const singleChk = v.checkNo || v.chequeNo || "";
