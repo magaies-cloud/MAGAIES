@@ -35,6 +35,7 @@ $pdo = getDBConnection();
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <link rel="stylesheet" href="css/tailwind.min.css">
+    <script src="js/fiqh_5500_data.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -6238,6 +6239,12 @@ $pdo = getDBConnection();
         const targetSec = document.getElementById('suite-sec-' + suiteId);
         if (targetSec) targetSec.classList.remove('hidden');
         if (el) el.classList.add('active');
+
+        if (suiteId === 'fiqh') {
+            if (typeof initFiqhEngine === 'function') {
+                initFiqhEngine();
+            }
+        }
     }
 
     // ── Fiqh Sub-Tabs Controller ──
