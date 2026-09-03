@@ -35,6 +35,7 @@ $pdo = getDBConnection();
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <link rel="stylesheet" href="css/tailwind.min.css">
+    <script src="js/fiqh_20000_data.js"></script>
     <script src="js/fiqh_5500_data.js"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
@@ -1808,14 +1809,14 @@ $pdo = getDBConnection();
                         <div class="flex items-center justify-between">
                             <label class="text-sm sm:text-base font-black text-amber-300 flex items-center gap-2">
                                 <i class="fa-solid fa-magnifying-glass text-amber-400 text-lg"></i>
-                                🔍 ابحث في الـ 5500 فتوى (داخل البرنامج):
+                                🔍 ابحث في الـ 20,000 فتوى (21 فتوى في الصفحة) (داخل البرنامج):
                             </label>
                             <span id="fiqh_search_badge" class="text-emerald-400 font-mono font-black text-xs px-2.5 py-0.5 bg-emerald-950 border border-emerald-500/40 rounded-lg">
-                                5500 فتوى متاحة للبحث والفلترة
+                                20,000 فتوى متاحة للبحث والفلترة
                             </span>
                         </div>
                         <div class="relative">
-                            <input type="text" id="fiqh-search-input" oninput="filterFatwas()" placeholder="اكتب للبحث في الـ 5500 فتوى: تقسيط، شيك، ذهب، عربون، استصناع، سكراب، دروب شيبينغ، أسهم..." class="w-full py-3.5 pr-11 pl-4 bg-slate-900 border-2 border-amber-500/60 focus:border-amber-400 text-white rounded-xl text-sm sm:text-base font-black shadow-inner">
+                            <input type="text" id="fiqh-search-input" oninput="filterFatwas()" placeholder="اكتب للبحث في الـ 20,000 فتوى (21 فتوى في الصفحة): تقسيط، شيك، ذهب، عربون، استصناع، سكراب، دروب شيبينغ، أسهم..." class="w-full py-3.5 pr-11 pl-4 bg-slate-900 border-2 border-amber-500/60 focus:border-amber-400 text-white rounded-xl text-sm sm:text-base font-black shadow-inner">
                             <i class="fa-solid fa-search absolute right-3.5 top-4 text-amber-400 text-lg"></i>
                         </div>
                     </div>
@@ -1931,7 +1932,7 @@ $pdo = getDBConnection();
                 <!-- 4. SUB-TABS NAVIGATION BAR (أقسام المنظومة الـ 6 في صندوق مستقل ومرتب) -->
                 <div class="p-3 bg-slate-950/95 rounded-2xl border-2 border-slate-800 flex flex-wrap items-center gap-2 mb-6">
                     <button type="button" class="fiqh-nav-pill active" onclick="switchFiqhSubTab('fatwas', this)">
-                        📑 موسوعة الفتاوى والأحكام (5500 مسألة محررة لكبار الأئمة الـ 12)
+                        📑 موسوعة الفتاوى والأحكام (20,000 مسألة محررة لكبار الأئمة الـ 12)
                     </button>
                     <button type="button" class="fiqh-nav-pill bg-gradient-to-r from-sky-500/20 to-blue-600/30 text-sky-300 border-sky-400/60 hover:border-sky-300" onclick="switchFiqhSubTab('google', this)">
                         🌐 محرك بحث قوقل للشيوخ الـ 12 (المواقع العالمية)
@@ -2025,7 +2026,7 @@ $pdo = getDBConnection();
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
                             <button type="button" class="fiqh-filter-btn active" data-filter-type="topic" data-filter-val="all" onclick="setFiqhTopic('all', this)">
-                                📑 جميع المسائل والمعاملات (5500 فتوى)
+                                📑 جميع المسائل والمعاملات (20,000 فتوى (21 فتوى في الصفحة))
                             </button>
                             <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="ownership" onclick="setFiqhTopic('ownership', this)">
                                 🛒 بيع ما لا يملك والوساطة
@@ -2066,11 +2067,11 @@ $pdo = getDBConnection();
                             <span class="text-xl">💡</span>
                             <div>
                                 <span class="text-xs sm:text-sm font-black text-amber-300 block">نظام العرض والبحث الذكي:</span>
-                                <span class="text-xs text-slate-300 font-bold">يتم عرض الفتاوى الشائعة افتراضياً، وتظهر كافة الـ 5500 فتوى فوراً عند كتابة أي كلمة في البحث أو اختيار شيخ أو موضوع.</span>
+                                <span class="text-xs text-slate-300 font-bold">يتم عرض الفتاوى الشائعة افتراضياً، وتظهر كافة الـ 20,000 فتوى (21 فتوى في الصفحة) فوراً عند كتابة أي كلمة في البحث أو اختيار شيخ أو موضوع.</span>
                             </div>
                         </div>
                         <button type="button" id="toggle-all-fatwas-btn" onclick="toggleShowAllFatwas()" class="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs rounded-xl shadow transition">
-                            👁️ عرض جميع الـ 5500 فتوى دفعة واحدة
+                            👁️ عرض جميع الـ 20,000 فتوى (21 فتوى في الصفحة) دفعة واحدة
                         </button>
                     </div>
 
@@ -6517,12 +6518,12 @@ $pdo = getDBConnection();
         const btn = document.getElementById('toggle-all-fatwas-btn');
         const bannerText = document.getElementById('fiqh-mode-text');
         if (btn) {
-            btn.textContent = showAllFatwasForced ? '🔒 إخفاء الفتاوى الإضافية والعودة للأساسية' : '👁️ عرض جميع الـ 5500 فتوى دفعة واحدة';
+            btn.textContent = showAllFatwasForced ? '🔒 إخفاء الفتاوى الإضافية والعودة للأساسية' : '👁️ عرض جميع الـ 20,000 فتوى (21 فتوى في الصفحة) دفعة واحدة';
         }
         if (bannerText) {
             bannerText.innerHTML = showAllFatwasForced 
-                ? 'الوضع الحالي: <strong class="text-emerald-300 font-black">عرض الموسوعة الشاملة كاملة (5500 فتوى)</strong> 📚'
-                : 'الوضع الحالي: <strong class="text-amber-300 font-black">الفتاوى الأساسية الأكثر شيوعاً (18 فتوى)</strong>. تظهر بقية الموسوعة الشاملة الـ <strong class="text-emerald-300 font-black">5500 فتوى</strong> تلقائياً فور كتابة أي كلمة في البحث الذكي 🔍';
+                ? 'الوضع الحالي: <strong class="text-emerald-300 font-black">عرض الموسوعة الشاملة كاملة (20,000 فتوى (21 فتوى في الصفحة))</strong> 📚'
+                : 'الوضع الحالي: <strong class="text-amber-300 font-black">الفتاوى الأساسية الأكثر شيوعاً (18 فتوى)</strong>. تظهر بقية الموسوعة الشاملة الـ <strong class="text-emerald-300 font-black">20,000 فتوى (21 فتوى في الصفحة)</strong> تلقائياً فور كتابة أي كلمة في البحث الذكي 🔍';
         }
         filterFatwas();
     }
@@ -6532,39 +6533,43 @@ $pdo = getDBConnection();
     // ════════════════════════════════════════════════════════════════════════════
     // ════════════════════════════════════════════════════════════════════════════
     // ════════════════════════════════════════════════════════════════════════════
-    // 🌟 ENTERPRISE REAL-TIME LIVE SEARCH & BROWSING ENGINE (5,500 FATWAS) 🌟
+    // ════════════════════════════════════════════════════════════════════════════
+    // 🌟 MASTER 20,000 FATWAS ENGINE (21 ITEMS PER PAGE PAGINATION) 🌟
     // ════════════════════════════════════════════════════════════════════════════
     let currentScholarFilter = 'all';
     let currentTopicFilter = 'all';
-    let currentDisplayCount = 60; // Initial browse count
-    const CHUNK_SIZE = 60;
+    const PAGE_SIZE = 21; // Exactly 21 fatwas per page requested
+    let currentPage = 1;
     let currentFilteredList = [];
-    let isObserverAttached = false;
 
     function getMasterFatwas() {
-        return window.MASTER_5500_FATWAS || [];
+        return window.MASTER_20000_FATWAS || window.MASTER_5500_FATWAS || [];
     }
 
     function initFiqhEngine() {
         currentFilteredList = getMasterFatwas();
-        currentDisplayCount = 60;
+        currentPage = 1;
         renderFatwaCards();
-        setupInfiniteScroll();
     }
 
     function renderFatwaCards() {
         const grid = document.getElementById('fiqh_fatwas_grid');
         const badge = document.getElementById('fiqh_search_badge');
+        const paginationBar = document.getElementById('fiqh_pagination_bar');
         if (!grid) return;
 
-        const totalAll = getMasterFatwas().length || 5500;
+        const totalAll = getMasterFatwas().length || 20000;
         const totalMatches = currentFilteredList.length;
+        const totalPages = Math.max(1, Math.ceil(totalMatches / PAGE_SIZE));
+
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
 
         if (badge) {
             if (totalMatches === totalAll) {
-                badge.innerHTML = `<i class="fa-solid fa-check-double text-emerald-400"></i> معروض ${Math.min(currentDisplayCount, totalMatches).toLocaleString()} من أصل <strong>${totalAll.toLocaleString()}</strong> فتوى متاحة للتصفح والبحث`;
+                badge.innerHTML = `<i class="fa-solid fa-layer-group text-emerald-400"></i> إجمالي <strong>${totalAll.toLocaleString()}</strong> فتوى | صفحة <strong>${currentPage.toLocaleString()}</strong> من <strong>${totalPages.toLocaleString()}</strong> (21 فتوى/صفحة)`;
             } else {
-                badge.innerHTML = `<i class="fa-solid fa-filter text-amber-400"></i> عُثر على <strong>${totalMatches.toLocaleString()}</strong> من أصل ${totalAll.toLocaleString()} فتوى مطابقة`;
+                badge.innerHTML = `<i class="fa-solid fa-filter text-amber-400"></i> عُثر على <strong>${totalMatches.toLocaleString()}</strong> من أصل ${totalAll.toLocaleString()} فتوى | صفحة <strong>${currentPage.toLocaleString()}</strong> من <strong>${totalPages.toLocaleString()}</strong>`;
             }
         }
 
@@ -6572,24 +6577,28 @@ $pdo = getDBConnection();
             grid.innerHTML = `
                 <div class="col-span-full p-10 bg-slate-900/90 border-2 border-dashed border-amber-500/40 rounded-3xl text-center space-y-3">
                     <span class="text-4xl">🔍</span>
-                    <h4 class="text-lg font-black text-amber-300">لم يتم العثور على نتائج مطابقة لبحثك في موسوعة الـ 5,500 فتوى</h4>
-                    <p class="text-xs text-slate-300 font-bold">جرب كتابة كلمة عامة مثل: تقسيط، شيك، ذهب، عربون، استصناع، سكراب، أو تصفح حسب الشيوخ الـ 12.</p>
+                    <h4 class="text-lg font-black text-amber-300">لم يتم العثور على نتائج مطابقة لبحثك في موسوعة الـ 20,000 فتوى</h4>
+                    <p class="text-xs text-slate-300 font-bold">جرب كتابة كلمة أخرى مثل: تقسيط، شيك، ذهب، عربون، استصناع، سكراب، أو تصفح حسب الشيوخ الـ 12.</p>
                     <button type="button" onclick="clearFiqhSearch()" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-lg transition">
-                        ✕ إلغاء البحث وتصفح كافة الـ 5,500 فتوى
+                        ✕ إلغاء الفلترة وعرض الـ 20,000 فتوى
                     </button>
                 </div>
             `;
+            if (paginationBar) paginationBar.innerHTML = '';
             return;
         }
 
-        const visibleItems = currentFilteredList.slice(0, currentDisplayCount);
-        let html = '';
+        // Slice exactly 21 items for current page
+        const startIndex = (currentPage - 1) * PAGE_SIZE;
+        const endIndex = Math.min(startIndex + PAGE_SIZE, totalMatches);
+        const pageItems = currentFilteredList.slice(startIndex, endIndex);
 
-        visibleItems.forEach((item) => {
+        let html = '';
+        pageItems.forEach((item) => {
             let rulingClass = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50';
             if (item.ruling.includes('محرم') || item.ruling.includes('باطل') || item.ruling.includes('لا يجوز')) {
                 rulingClass = 'bg-rose-500/20 text-rose-300 border-rose-500/50';
-            } else if (item.ruling.includes('ضوابط') || item.ruling.includes('مشروطة') || item.ruling.includes('مكروه') || item.ruling.includes('تحري')) {
+            } else if (item.ruling.includes('ضوابط') || item.ruling.includes('مشروطة') || item.ruling.includes('مكروه') || item.ruling.includes('تحري') || item.ruling.includes('مشروع')) {
                 rulingClass = 'bg-amber-500/20 text-amber-300 border-amber-500/50';
             }
 
@@ -6620,40 +6629,108 @@ $pdo = getDBConnection();
             `;
         });
 
-        // Add infinite scroll trigger & manual load more button
-        if (currentDisplayCount < totalMatches) {
-            html += `
-                <div id="fiqh_infinite_sentinel" class="col-span-full py-6 text-center space-y-2">
-                    <button type="button" onclick="loadNextChunk()" class="px-6 py-3 bg-gradient-to-r from-amber-500 via-amber-600 to-amber-500 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm rounded-2xl shadow-xl transition transform hover:-translate-y-0.5">
-                        ⬇️ تصفح المزيد من الفتاوى (يتبقى ${(totalMatches - currentDisplayCount).toLocaleString()} فتوى من أصل 5,500)
-                    </button>
-                    <p class="text-[11px] text-slate-400 font-bold">يتم التحميل تلقائياً عند التمرير لأسفل الصفحة</p>
-                </div>
-            `;
-        }
-
         grid.innerHTML = html;
-        setupInfiniteScroll();
+        renderPaginationControls(totalPages, totalMatches, startIndex + 1, endIndex);
     }
 
-    function loadNextChunk() {
-        if (currentDisplayCount < currentFilteredList.length) {
-            currentDisplayCount += CHUNK_SIZE;
-            renderFatwaCards();
+    function renderPaginationControls(totalPages, totalMatches, fromItem, toItem) {
+        const bar = document.getElementById('fiqh_pagination_bar');
+        if (!bar) return;
+
+        let pagesHtml = '';
+
+        // Previous & First Buttons
+        const prevDisabled = currentPage <= 1 ? 'disabled opacity-40 cursor-not-allowed' : 'hover:bg-amber-500 hover:text-slate-950';
+        const nextDisabled = currentPage >= totalPages ? 'disabled opacity-40 cursor-not-allowed' : 'hover:bg-amber-500 hover:text-slate-950';
+
+        pagesHtml += `
+            <div class="flex items-center gap-1.5">
+                <button type="button" onclick="goToPage(1)" class="px-3 py-1.5 bg-slate-900 text-slate-300 border border-slate-700 rounded-lg text-xs font-black transition ${prevDisabled}">
+                    ⏮️ الأولى
+                </button>
+                <button type="button" onclick="goToPage(${currentPage - 1})" class="px-3 py-1.5 bg-slate-900 text-slate-300 border border-slate-700 rounded-lg text-xs font-black transition ${prevDisabled}">
+                    ◀️ السابقة
+                </button>
+            </div>
+        `;
+
+        // Surrounding page numbers (window of 5)
+        pagesHtml += '<div class="flex items-center gap-1 overflow-x-auto max-w-[280px] sm:max-w-none py-1">';
+        let startP = Math.max(1, currentPage - 2);
+        let endP = Math.min(totalPages, startP + 4);
+        if (endP - startP < 4) {
+            startP = Math.max(1, endP - 4);
+        }
+
+        if (startP > 1) {
+            pagesHtml += `<button type="button" onclick="goToPage(1)" class="px-2.5 py-1 bg-slate-900 text-slate-400 border border-slate-800 rounded text-xs font-bold">1</button>`;
+            if (startP > 2) pagesHtml += '<span class="text-slate-600 px-1">...</span>';
+        }
+
+        for (let p = startP; p <= endP; p++) {
+            if (p === currentPage) {
+                pagesHtml += `<button type="button" class="px-3 py-1 bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black rounded-lg text-xs shadow-md border border-amber-400">
+                    ${p}
+                </button>`;
+            } else {
+                pagesHtml += `<button type="button" onclick="goToPage(${p})" class="px-2.5 py-1 bg-slate-900 text-slate-300 hover:border-amber-400 border border-slate-700 rounded-lg text-xs font-bold transition">
+                    ${p}
+                </button>`;
+            }
+        }
+
+        if (endP < totalPages) {
+            if (endP < totalPages - 1) pagesHtml += '<span class="text-slate-600 px-1">...</span>';
+            pagesHtml += `<button type="button" onclick="goToPage(${totalPages})" class="px-2.5 py-1 bg-slate-900 text-slate-400 border border-slate-800 rounded text-xs font-bold">${totalPages}</button>`;
+        }
+        pagesHtml += '</div>';
+
+        // Next & Last Buttons + Direct Jump
+        pagesHtml += `
+            <div class="flex items-center gap-1.5">
+                <button type="button" onclick="goToPage(${currentPage + 1})" class="px-3 py-1.5 bg-slate-900 text-slate-300 border border-slate-700 rounded-lg text-xs font-black transition ${nextDisabled}">
+                    التالية ▶️
+                </button>
+                <button type="button" onclick="goToPage(${totalPages})" class="px-3 py-1.5 bg-slate-900 text-slate-300 border border-slate-700 rounded-lg text-xs font-black transition ${nextDisabled}">
+                    الأخيرة ⏭️
+                </button>
+            </div>
+
+            <!-- Jump to Page Input -->
+            <div class="flex items-center gap-2 pt-2 sm:pt-0 w-full sm:w-auto justify-end border-t sm:border-t-0 border-slate-800 text-xs font-bold text-slate-300">
+                <span>عرض ${fromItem.toLocaleString()} - ${toItem.toLocaleString()} من ${totalMatches.toLocaleString()} | انتقال:</span>
+                <input type="number" id="fiqh_page_jump_input" min="1" max="${totalPages}" value="${currentPage}" class="w-16 py-1 px-2 bg-slate-900 border border-amber-500/60 focus:border-amber-400 text-white rounded text-center text-xs font-bold">
+                <button type="button" onclick="jumpToPageInput()" class="px-3 py-1 bg-amber-500 hover:bg-amber-400 text-slate-950 rounded font-black text-xs transition">
+                    ذهاب
+                </button>
+            </div>
+        `;
+
+        bar.innerHTML = pagesHtml;
+    }
+
+    function goToPage(page) {
+        const totalMatches = currentFilteredList.length;
+        const totalPages = Math.max(1, Math.ceil(totalMatches / PAGE_SIZE));
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
+        currentPage = page;
+        renderFatwaCards();
+
+        const grid = document.getElementById('fiqh_fatwas_grid');
+        if (grid) {
+            grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
 
-    function setupInfiniteScroll() {
-        const sentinel = document.getElementById('fiqh_infinite_sentinel');
-        if (!sentinel || !window.IntersectionObserver) return;
-
-        const observer = new IntersectionObserver((entries) => {
-            if (entries[0].isIntersecting) {
-                loadNextChunk();
+    function jumpToPageInput() {
+        const input = document.getElementById('fiqh_page_jump_input');
+        if (input) {
+            const val = parseInt(input.value, 10);
+            if (!isNaN(val)) {
+                goToPage(val);
             }
-        }, { rootMargin: '400px' });
-
-        observer.observe(sentinel);
+        }
     }
 
     // Real-time live filtering on every keystroke
@@ -6671,7 +6748,7 @@ $pdo = getDBConnection();
         const queryTerms = q ? q.split(/\s+/).filter(t => t.length > 0) : [];
         const dataset = getMasterFatwas();
 
-        currentDisplayCount = 60; // Reset chunk size on new query
+        currentPage = 1; // Reset to page 1 on new search query
 
         currentFilteredList = dataset.filter(item => {
             // Scholar filter match
@@ -6722,7 +6799,7 @@ $pdo = getDBConnection();
         if (input) input.value = '';
         currentScholarFilter = 'all';
         currentTopicFilter = 'all';
-        currentDisplayCount = 60;
+        currentPage = 1;
         document.querySelectorAll('.fiqh-filter-btn[data-filter-type="scholar"]').forEach(b => b.classList.remove('active'));
         document.querySelectorAll('.fiqh-filter-btn[data-filter-type="topic"]').forEach(b => b.classList.remove('active'));
         const allSchBtn = document.querySelector('.fiqh-filter-btn[data-filter-type="scholar"][data-filter-val="all"]');
