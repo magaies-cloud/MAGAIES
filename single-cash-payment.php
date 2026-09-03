@@ -49,8 +49,8 @@ try {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>حركة مالية | Al-Sajana ERP</title>
-    <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css">
-    <link rel="stylesheet" href="css/components.css?v=20260723_v14">
+    <link rel="stylesheet" href="css/design-system.css"><link rel="stylesheet" href="css/theme.css?v=1788466095950">
+    <link rel="stylesheet" href="css/components.css?v=1788466095949">
     <link rel="stylesheet" href="css/sales-invoice.css">
     
     <style>
@@ -1293,6 +1293,109 @@ try {
         .bank-glow:hover { border-color: rgba(110, 231, 183, 1) !important; box-shadow: 0 0 30px rgba(16, 185, 129, 0.8), inset 0 0 20px rgba(16, 185, 129, 0.4) !important; }
         .grand-glow:hover { border-color: rgba(125, 211, 252, 1) !important; box-shadow: 0 0 40px rgba(56, 189, 248, 1), inset 0 0 25px rgba(56, 189, 248, 0.5) !important; }
     </style>
+<!-- 👑 USER REQUESTED TYPOGRAPHY ENHANCEMENTS (+2 & +3 SIZES) 👑 -->
+    <style id="user-requested-typography-override">
+        /* 1. التاريخ (زيادة الخط درجتين) */
+        .date-input, #hdr-date {
+            font-size: 1.45rem !important; /* زيادة درجتين واضحة جداً */
+            font-weight: 900 !important;
+            height: 44px !important;
+            padding: 4px 14px !important;
+            color: #ffffff !important;
+            background: rgba(15, 23, 42, 0.9) !important;
+            border: 2px solid #38bdf8 !important;
+            border-radius: 10px !important;
+            text-shadow: 0 0 10px rgba(56, 189, 248, 0.5) !important;
+        }
+        .date-crystal .icon-box {
+            font-size: 1.4rem !important;
+            width: 36px !important;
+            height: 36px !important;
+        }
+
+        /* 2. النقد والشيك والوعد / العهد (زيادة الخط درجتين) */
+        .bal-label {
+            font-size: 1.15rem !important; /* زيادة درجتين */
+            font-weight: 900 !important;
+            color: #f1f5f9 !important;
+            letter-spacing: 0.5px !important;
+        }
+        .bal-val {
+            font-size: 1.65rem !important; /* زيادة درجتين */
+            font-weight: 900 !important;
+            letter-spacing: 1px !important;
+        }
+        .bal-icon {
+            font-size: 1.7rem !important;
+        }
+        .pay-toggle-btn {
+            font-size: 1.25rem !important; /* زيادة درجتين */
+            font-weight: 900 !important;
+            padding: 9px 20px !important;
+            border-radius: 22px !important;
+        }
+
+        /* 3. رقم السند (زيادة الخط درجتين) */
+        .badge-label {
+            font-size: 1.05rem !important; /* زيادة درجتين */
+            font-weight: 800 !important;
+            color: #cbd5e1 !important;
+        }
+        .badge-val, #voucher-number {
+            font-size: 1.85rem !important; /* زيادة درجتين مع توهج أحمر واضح */
+            font-weight: 900 !important;
+            color: #f87171 !important;
+            text-shadow: 0 0 15px rgba(239, 68, 68, 0.7) !important;
+            letter-spacing: 1.5px !important;
+        }
+        .crystal-pill {
+            height: 52px !important; /* Slim & Tall enough to comfortably frame larger fonts */
+            padding: 0 16px !important;
+        }
+
+        /* 4. في الأسفل: مجموع الشيكات، مجموع التحويلات، إجمالي الجملة (زيادة الخط 3 درجات كاملة) */
+        #unified-total-box {
+            display: block !important; /* Always visible at the bottom of the voucher */
+            margin-top: 25px !important;
+            padding: 15px 0 !important;
+        }
+        .cheque-glow span:first-of-type {
+            font-size: 1.65rem !important; /* مجموع الشيكات: زيادة 3 درجات */
+            font-weight: 900 !important;
+            color: #c084fc !important;
+            text-shadow: 0 0 15px rgba(168,85,247,0.7) !important;
+        }
+        #unified-cheque-total {
+            font-size: 2.85rem !important; /* قيمة الشيكات: زيادة 3 درجات */
+            font-weight: 900 !important;
+            color: #f3e8ff !important;
+            text-shadow: 0 0 25px rgba(168,85,247,1) !important;
+        }
+        .bank-glow span:first-of-type {
+            font-size: 1.65rem !important; /* مجموع التحويلات: زيادة 3 درجات */
+            font-weight: 900 !important;
+            color: #34d399 !important;
+            text-shadow: 0 0 15px rgba(16,185,129,0.7) !important;
+        }
+        #unified-bank-total {
+            font-size: 2.85rem !important; /* قيمة التحويلات: زيادة 3 درجات */
+            font-weight: 900 !important;
+            color: #a7f3d0 !important;
+            text-shadow: 0 0 25px rgba(16,185,129,1) !important;
+        }
+        .grand-glow span:first-of-type {
+            font-size: 1.95rem !important; /* إجمالي الجملة: زيادة 3 درجات */
+            font-weight: 900 !important;
+            color: #7dd3fc !important;
+            text-shadow: 0 0 20px rgba(56,189,248,0.8) !important;
+        }
+        #unified-grand-total {
+            font-size: 3.4rem !important; /* قيمة إجمالي الجملة: زيادة 3 درجات عملاقة وواضحة جداً */
+            font-weight: 900 !important;
+            color: #ffffff !important;
+            text-shadow: 0 0 35px rgba(56,189,248,1) !important;
+        }
+    </style>
 </head>
 <body>
 
@@ -1376,7 +1479,7 @@ try {
                                     <div class="bal-card loan-card">
                                         <span class="bal-icon">💼</span>
                                         <div class="bal-info">
-                                            <span class="bal-label">عهد</span>
+                                            <span class="bal-label">عهد / وعد</span>
                                             <strong id="bal-loan" class="bal-val">120</strong>
                                         </div>
                                     </div>
@@ -1645,7 +1748,7 @@ try {
                                     </div>
 
                                     <!-- Unified Total Box Redesign -->
-                                    <div id="unified-total-box" style="display: none; width: 100%; margin-top: 15px; padding: 10px 0;">
+                                    <div id="unified-total-box" style="display: block !important; width: 100%; margin-top: 15px; padding: 10px 0;">
                                         <div style="display: flex; justify-content: space-between; align-items: stretch; gap: 15px; flex-wrap: wrap;">
                                             <!-- Cheques Total -->
                                             <div class="total-glass-card cheque-glow" style="flex: 1; min-width: 200px; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 15px; border-radius: 16px; background: rgba(168, 85, 247, 0.1); border: 1px solid rgba(168, 85, 247, 0.4); position: relative; overflow: hidden;">
