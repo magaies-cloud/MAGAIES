@@ -125,6 +125,11 @@ document.addEventListener('DOMContentLoaded', () => {
     loadNextMultiVoucherNumber();
     updateLabels();
     
+    // Auto-fill USD exchange rate and apply initial currency UI
+    if (typeof window.onCurrencyChange === 'function') {
+        window.onCurrencyChange();
+    }
+    
     // Apply exchange rate permission on load
     setTimeout(() => applyExchangeRatePermission(), 500);
     
@@ -140,6 +145,9 @@ document.addEventListener('DOMContentLoaded', () => {
 
 document.addEventListener('DBReady', async () => {
     await loadAllAccounts();
+    if (typeof window.onCurrencyChange === 'function') {
+        window.onCurrencyChange();
+    }
     applyExchangeRatePermission();
     if (typeof populateSafesDropdown === 'function') populateSafesDropdown();
 });
@@ -213,45 +221,94 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 300);
 });
 
-// ═══ Currency Change: Auto-fill exchange rate from settings ═══
+// ═══ Get Active System Dollar Exchange Rate ═══
+window.getSystemUsdRate = function() {
+    let rate = 0;
+    if (typeof window.getExchangeRateForCurrency === 'function') {
+        rate = window.getExchangeRateForCurrency('USD');
+    }
+    if (!rate || rate <= 1) {
+        try {
+            const getTenantKey = window.getTenantKey || ((k) => k);
+            const settings = JSON.parse(localStorage.getItem(getTenantKey('erp_settings_v1')) || localStorage.getItem('erp_settings_v1')) || {};
+            rate = parseFloat(settings.exchangeRate) || 0;
+        } catch (e) {}
+    }
+    if (!rate || rate <= 1) {
+        try {
+            const glRate = parseFloat(localStorage.getItem('erp_exchange_rate_usd')) || 0;
+            if (glRate > 1) rate = glRate;
+        } catch(e) {}
+    }
+    return (rate && rate > 0) ? rate : 2600;
+};
+
+// ═══ Update Currency UI Labels & Row Placeholders ═══
+window.updateCurrencyUI = function(currency) {
+    const isSDG = (!currency || currency === 'SDG');
+    const currSymbol = isSDG ? 'SDG' : currency;
+    const currName = isSDG ? 'جنيه' : (currency === 'USD' ? '$ دولار' : currency);
+    
+    // Header labels
+    const labelLocal = document.getElementById('label-amount-local');
+    const labelForeign = document.getElementById('label-amount-foreign');
+    
+    if (isSDG) {
+        if (labelLocal) labelLocal.innerHTML = '💵 الإجمالي بالمحلي (SDG)';
+        if (labelForeign) labelForeign.innerHTML = '💵 المعادل بالأجنبي (USD)';
+    } else {
+        if (labelLocal) labelLocal.innerHTML = '💵 المعادل بالمحلي (SDG)';
+        if (labelForeign) labelForeign.innerHTML = `💵 الإجمالي بالأجنبي (${currSymbol})`;
+    }
+    
+    // Block placeholders
+    document.querySelectorAll('.block-total-amount').forEach(input => {
+        input.placeholder = `المبلغ (${currName})`;
+    });
+    document.querySelectorAll('.block-sub-amount').forEach(input => {
+        input.placeholder = `المبلغ (${currName})`;
+    });
+};
+
+// ═══ Currency Change: Auto-fill exchange rate from settings & update labels ═══
 window.onCurrencyChange = function() {
     const currencyEl = document.getElementById('currency');
     const rateEl = document.getElementById('exchange-rate');
     if (!currencyEl || !rateEl) return;
     
-    const currency = currencyEl.value;
+    const currency = currencyEl.value || 'SDG';
+    const isSDG = (currency === 'SDG');
+    const usdRate = window.getSystemUsdRate();
     
-    if (currency === 'SDG') {
-        rateEl.value = '1.0';
-        rateEl.readOnly = true;
-        rateEl.style.opacity = '0.6';
+    if (isSDG) {
+        // When SDG: Show Dollar exchange rate (NOT 1.0!)
+        let currentRate = cleanNum(rateEl.value);
+        if (!currentRate || currentRate <= 1) {
+            rateEl.value = Math.round(usdRate);
+        }
+    } else if (currency === 'USD') {
+        // When USD: Show Dollar exchange rate
+        let currentRate = cleanNum(rateEl.value);
+        if (!currentRate || currentRate <= 1) {
+            rateEl.value = Math.round(usdRate);
+        }
     } else {
-        // Get rate from settings or API
+        // Other foreign currency (e.g. AED)
         let rate = 0;
         if (typeof window.getExchangeRateForCurrency === 'function') {
             rate = window.getExchangeRateForCurrency(currency);
         }
-        
         if (rate > 0) {
-            rateEl.value = parseFloat(rate).toFixed(4);
+            rateEl.value = parseFloat(rate).toFixed(2);
         } else {
-            rateEl.value = '';
-        }
-        
-        // Check if user has permission to edit exchange rates
-        const canEdit = checkExchangeRatePermission();
-        rateEl.readOnly = !canEdit;
-        rateEl.style.opacity = canEdit ? '1' : '0.6';
-        
-        if (!canEdit && rate > 0) {
-            showToast('تم تعبئة سعر الصرف تلقائياً من الإعدادات (' + parseFloat(rate).toFixed(4) + ')', 'info');
-        } else if (rate > 0) {
-            showToast('سعر الصرف: ' + parseFloat(rate).toFixed(4) + ' - يمكنك تعديله يدوياً', 'info');
-        } else {
-            showToast('لم يتم العثور على سعر صرف. يرجى إدخاله يدوياً.', 'info');
-            rateEl.focus();
+            rateEl.value = Math.round(usdRate);
         }
     }
+    
+    const canEdit = checkExchangeRatePermission();
+    rateEl.style.opacity = canEdit ? '1' : '0.6';
+    
+    window.updateCurrencyUI(currency);
     
     if (typeof calcTotal === 'function') calcTotal();
 };
@@ -287,14 +344,9 @@ function checkExchangeRatePermission() {
 // ═══ Apply exchange rate permission on page load ═══
 function applyExchangeRatePermission() {
     const rateEl = document.getElementById('exchange-rate');
-    const currencyEl = document.getElementById('currency');
-    if (!rateEl || !currencyEl) return;
-    
-    if (currencyEl.value !== 'SDG') {
-        const canEdit = checkExchangeRatePermission();
-        rateEl.readOnly = !canEdit;
-        rateEl.style.opacity = canEdit ? '1' : '0.6';
-    }
+    if (!rateEl) return;
+    const canEdit = checkExchangeRatePermission();
+    rateEl.style.opacity = canEdit ? '1' : '0.6';
 }
 
 let mainAccountChoices = null;
@@ -644,6 +696,15 @@ window.addAccountBlock = function() {
         window.toggleBlockPaymentMethod(id, 'bank');
     }
     
+    // Update amount placeholder to match current currency
+    const currEl = document.getElementById('currency');
+    const curVal = currEl ? (currEl.value || 'SDG') : 'SDG';
+    const curPlaceholder = curVal === 'SDG' ? 'المبلغ (جنيه)' : (curVal === 'USD' ? 'المبلغ ($ دولار)' : `المبلغ (${curVal})`);
+    if (totalInput) totalInput.placeholder = curPlaceholder;
+    if (blockEl) {
+        blockEl.querySelectorAll('.block-sub-amount').forEach(si => si.placeholder = curPlaceholder);
+    }
+    
     // Update delete buttons visibility
     if (typeof window.updateDeleteButtonsVisibility === 'function') {
         window.updateDeleteButtonsVisibility();
@@ -978,23 +1039,48 @@ function calcTotal() {
     const totalRowsEl = document.getElementById('total-rows');
     if (totalRowsEl) totalRowsEl.innerText = document.querySelectorAll('.account-block').length;
     
-    // Update Foreign Amount (القيمة المعادل)
+    // Currency & Exchange Rate Calculation
+    const currencyEl = document.getElementById('currency');
+    const currency = currencyEl ? (currencyEl.value || 'SDG') : 'SDG';
+    const isSDG = (currency === 'SDG');
+
     const rateEl = document.getElementById('exchange-rate');
-    const eqEl = document.getElementById('amount-foreign');
+    let rate = rateEl ? cleanNum(rateEl.value) : 0;
+    if (rate <= 0) {
+        rate = (typeof window.getSystemUsdRate === 'function') ? window.getSystemUsdRate() : 2600;
+        if (rateEl && rate > 0) rateEl.value = Math.round(rate);
+    }
+    const effRate = rate > 0 ? rate : 1;
+
+    let localAmt = 0;
+    let foreignAmt = 0;
+
+    if (isSDG) {
+        // Any amount entered is in Sudanese Pounds (SDG)
+        // Local = entered total; Foreign = total / rate (USD equivalent)
+        localAmt = total;
+        foreignAmt = effRate > 0 ? (total / effRate) : 0;
+    } else {
+        // Any amount entered is in Foreign Currency (USD / AED / etc.)
+        // Foreign = entered total; Local = total * rate (SDG equivalent)
+        foreignAmt = total;
+        localAmt = total * effRate;
+    }
+
     const localHdrEl = document.getElementById('amount-local-hdr');
     if (localHdrEl) {
         const dec = localHdrEl.getAttribute('data-decimals') !== null ? parseInt(localHdrEl.getAttribute('data-decimals')) : null;
-        localHdrEl.value = fmtNum(total, dec);
+        localHdrEl.value = fmtNum(localAmt, dec);
     }
-    if (rateEl && eqEl) {
-        let rate = cleanNum(rateEl.value) || 1;
-        let actualRateForForeign = rate;
-        if (rate === 1 && typeof window.getExchangeRateForCurrency === 'function') {
-            const globalRate = window.getExchangeRateForCurrency('USD');
-            if (globalRate && globalRate > 1) actualRateForForeign = globalRate;
-        }
-        let eq = actualRateForForeign === 0 ? 0 : total / actualRateForForeign;
-        eqEl.value = fmtNum(eq);
+
+    const eqEl = document.getElementById('amount-foreign');
+    if (eqEl) {
+        const dec = eqEl.getAttribute('data-decimals') !== null ? parseInt(eqEl.getAttribute('data-decimals')) : null;
+        eqEl.value = fmtNum(foreignAmt, dec);
+    }
+
+    if (typeof window.updateCurrencyUI === 'function') {
+        window.updateCurrencyUI(currency);
     }
     
     if (typeof window.applySystemNumberFormatting === 'function') {
@@ -1611,9 +1697,9 @@ async function _saveVoucherCore() {
     const date = document.getElementById('voucher-date').value;
     const mainAccount = document.getElementById('main-account').getAttribute('data-id') || document.getElementById('main-account').value;
     const desc = document.getElementById('voucher-desc').value.trim();
-    const ref = document.getElementById('voucher-ref').value.trim();
-    const currency = document.getElementById('currency').value;
-    const exchangeRate = parseFloat(document.getElementById('exchange-rate').value) || 1.0;
+    const ref = document.getElementById('voucher-ref') ? document.getElementById('voucher-ref').value.trim() : '';
+    const currency = (document.getElementById('currency') ? document.getElementById('currency').value : 'SDG') || 'SDG';
+    const exchangeRate = parseFloat(document.getElementById('exchange-rate') ? document.getElementById('exchange-rate').value : 0) || (typeof window.getSystemUsdRate === 'function' ? window.getSystemUsdRate() : 1.0);
     
     const blocks = document.querySelectorAll('.account-block');
     let items = [];
@@ -1826,9 +1912,11 @@ async function _saveVoucherCore() {
         time: new Date().toLocaleTimeString('en-GB', {hour: '2-digit', minute:'2-digit'}),
         description: desc,
         totalAmount: finalTotal,
+        amountLocal: (currency === 'SDG') ? finalTotal : (finalTotal * exchangeRate),
+        foreignAmount: (currency === 'SDG') ? (exchangeRate > 0 ? (finalTotal / exchangeRate) : 0) : finalTotal,
+        amountForeign: (currency === 'SDG') ? (exchangeRate > 0 ? (finalTotal / exchangeRate) : 0) : finalTotal,
         currency: currency,
         exchangeRate: exchangeRate,
-        foreignAmount: finalTotal / exchangeRate,
         paymentMethod: 'hybrid',
         checkNo: '',
         checkBranch: '',
@@ -2347,10 +2435,20 @@ function loadVoucherIntoForm(v) {
     document.getElementById('voucher-desc').value = v.description || '';
     
     const currencyEl = document.getElementById('currency');
-    if (currencyEl) currencyEl.value = v.currency || 'SDG';
+    const currency = v.currency || 'SDG';
+    if (currencyEl) currencyEl.value = currency;
     
     const rateEl = document.getElementById('exchange-rate');
-    if (rateEl) rateEl.value = v.exchangeRate || '1.0';
+    if (rateEl) {
+        let r = parseFloat(v.exchangeRate);
+        if (!r || r <= 1) {
+            r = (typeof window.getSystemUsdRate === 'function') ? window.getSystemUsdRate() : 2600;
+        }
+        rateEl.value = Math.round(r);
+    }
+    if (typeof window.updateCurrencyUI === 'function') {
+        window.updateCurrencyUI(currency);
+    }
     
     // 3. Set main account
     const mainAccHidden = document.getElementById('main-account');
