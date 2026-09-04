@@ -1169,6 +1169,91 @@ $pdo = getDBConnection();
             box-shadow: 0 25px 60px rgba(0, 0, 0, 0.65), 0 0 35px rgba(245, 158, 11, 0.2) !important;
         }
 
+        /* ═════════════════════════════════════════════════════════════════════════ */
+        /* 🌟 شريط أزرار تصفية الأحكام الشرعية التكليفية والتحكم بالخطوط 🌟 */
+        /* ═════════════════════════════════════════════════════════════════════════ */
+        .fiqh-ruling-btn {
+            display: inline-flex;
+            align-items: center;
+            gap: 0.5rem;
+            padding: 0.55rem 1.25rem;
+            border-radius: 9999px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            cursor: pointer;
+            border-width: 2px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25);
+            background-color: rgba(15, 23, 42, 0.85);
+            color: #cbd5e1;
+            border-color: rgba(51, 65, 85, 0.8);
+            user-select: none;
+        }
+        .fiqh-ruling-btn:hover {
+            transform: translateY(-2px);
+            color: #f8fafc;
+            border-color: rgba(245, 158, 11, 0.6);
+        }
+        .fiqh-ruling-btn.active.ruling-all {
+            background: linear-gradient(135deg, #f59e0b, #d97706);
+            color: #020617;
+            border-color: #fbbf24;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.45);
+        }
+        .fiqh-ruling-btn.active.ruling-halal {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: #ffffff;
+            border-color: #34d399;
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.45);
+        }
+        .fiqh-ruling-btn.active.ruling-haram {
+            background: linear-gradient(135deg, #f43f5e, #e11d48);
+            color: #ffffff;
+            border-color: #fb7185;
+            box-shadow: 0 4px 15px rgba(244, 63, 94, 0.45);
+        }
+        .fiqh-ruling-btn.active.ruling-conditional {
+            background: linear-gradient(135deg, #f59e0b, #b45309);
+            color: #ffffff;
+            border-color: #fcd34d;
+            box-shadow: 0 4px 15px rgba(245, 158, 11, 0.45);
+        }
+        .fiqh-ruling-btn.active.ruling-wajib {
+            background: linear-gradient(135deg, #06b6d4, #0891b2);
+            color: #ffffff;
+            border-color: #67e8f9;
+            box-shadow: 0 4px 15px rgba(6, 182, 212, 0.45);
+        }
+
+        /* 🌟 تظليل الكلمات المبحوث عنها بلون ذهبي مشع 🌟 */
+        .fiqh-highlight {
+            background-color: rgba(245, 158, 11, 0.4) !important;
+            color: #fef08a !important;
+            padding: 0.1rem 0.4rem !important;
+            border-radius: 6px !important;
+            border: 1px solid rgba(251, 191, 36, 0.75) !important;
+            font-weight: 900 !important;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.35) !important;
+        }
+
+        /* 🌟 إشعار النسخ المنبثق التفاعلي Toast 🌟 */
+        #fiqh-toast {
+            position: fixed;
+            bottom: 2.5rem;
+            left: 50%;
+            transform: translateX(-50%) translateY(120px);
+            opacity: 0;
+            pointer-events: none;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1);
+            z-index: 999999;
+        }
+        #fiqh-toast.show {
+            transform: translateX(-50%) translateY(0);
+            opacity: 1;
+            pointer-events: auto;
+        }
+
+
         /* 🌟 مربع الحديث والأثر: هوامش مريحة تمنع الالتصاق بالحواف، يزيد حجمه ويتحرك بسلاسة 🌟 */
         .fiqh-hadith-card {
             border-radius: 28px !important;
@@ -3073,6 +3158,49 @@ $pdo = getDBConnection();
                 </div>
 
                     
+                    
+                    <!-- 🌟 4. شريط تصفية الأحكام الشرعية التكليفية وأدوات الخط الفاخرة 🌟 -->
+                    <div class="p-4 bg-slate-950/95 border-2 border-slate-800/90 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-xl mb-4">
+                        <!-- أزرار تصفية الحكم الشرعي -->
+                        <div class="flex flex-wrap items-center gap-2.5">
+                            <span class="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-1.5 ml-2">
+                                <i class="fa-solid fa-scale-balanced text-amber-400"></i> تصفية بالحكم الشرعي:
+                            </span>
+                            <button type="button" onclick="setFiqhRulingFilter('all', this)" class="fiqh-ruling-btn active ruling-all" title="عرض كافة الأحكام الشرعية">
+                                <i class="fa-solid fa-list-check"></i> الكل (4,500)
+                            </button>
+                            <button type="button" onclick="setFiqhRulingFilter('halal', this)" class="fiqh-ruling-btn ruling-halal" title="عرض المعاملات الجائزة والمباحة فقط">
+                                <i class="fa-solid fa-circle-check text-emerald-400"></i> 🟢 جائز ومشروع
+                            </button>
+                            <button type="button" onclick="setFiqhRulingFilter('haram', this)" class="fiqh-ruling-btn ruling-haram" title="عرض المحرمات والمحظورات في التجارة فقط">
+                                <i class="fa-solid fa-ban text-rose-400"></i> 🔴 محرم وباطل
+                            </button>
+                            <button type="button" onclick="setFiqhRulingFilter('conditional', this)" class="fiqh-ruling-btn ruling-conditional" title="عرض المعاملات المشروطة بضوابط أو المكروهة">
+                                <i class="fa-solid fa-triangle-exclamation text-amber-400"></i> 🟡 مقيد بضوابط ومكروه
+                            </button>
+                            <button type="button" onclick="setFiqhRulingFilter('wajib', this)" class="fiqh-ruling-btn ruling-wajib" title="عرض الواجبات والفرائض التعاقدية">
+                                <i class="fa-solid fa-circle-exclamation text-cyan-400"></i> 🔵 واجب وملزم
+                            </button>
+                        </div>
+
+                        <!-- أدوات تكبير وتصغير حجم الخط التفاعلية -->
+                        <div class="flex items-center gap-2 bg-slate-900/90 p-1.5 rounded-xl border border-slate-700/80 shadow-inner">
+                            <span class="text-xs font-bold text-slate-400 px-2 flex items-center gap-1">
+                                <i class="fa-solid fa-text-height text-amber-400"></i> مقاس الخط:
+                            </span>
+                            <button type="button" onclick="adjustFiqhCardFontSize(-1)" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-amber-500/20 text-slate-200 hover:text-amber-300 font-black text-xs transition border border-slate-700 flex items-center justify-center shadow-sm" title="تصغير حجم خط الفتاوى">
+                                A-
+                            </button>
+                            <span id="fiqh-font-indicator" class="text-xs font-mono font-bold text-amber-300 px-1">100%</span>
+                            <button type="button" onclick="resetFiqhCardFontSize()" class="px-2.5 h-8 rounded-lg bg-slate-800 hover:bg-amber-500/20 text-slate-200 hover:text-amber-300 font-bold text-xs transition border border-slate-700 flex items-center justify-center shadow-sm" title="استعادة حجم الخط الافتراضي">
+                                ضبط
+                            </button>
+                            <button type="button" onclick="adjustFiqhCardFontSize(1)" class="w-8 h-8 rounded-lg bg-slate-800 hover:bg-amber-500/20 text-slate-200 hover:text-amber-300 font-black text-xs transition border border-slate-700 flex items-center justify-center shadow-sm" title="تكبير حجم خط الفتاوى">
+                                A+
+                            </button>
+                        </div>
+                    </div>
+
                     <!-- 👁️ VISIBILITY NOTIFICATION BANNER 👁️ -->
                     <div id="fatwas-visibility-banner" class="p-3.5 bg-slate-950/90 border-2 border-amber-500/40 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-md">
                         <div class="flex items-center gap-2.5">
@@ -18870,6 +18998,8 @@ $pdo = getDBConnection();
     // 🌟 MASTER 4,500 FATWAS ENGINE (EXACT SCOPED FILTERING & ZERO LAG) 🌟
     // ════════════════════════════════════════════════════════════════════════════
     const PAGE_SIZE = 20;
+    let currentRulingFilter = 'all';
+    let fiqhCardFontScale = 1.0;
     let currentPage = 1;
     let currentScholarFilter = 'all';
     let currentTopicFilter = 'all';
@@ -19051,12 +19181,18 @@ $pdo = getDBConnection();
         if (currentPage < 1) currentPage = 1;
 
         if (badge) {
+            let rulingLabel = '';
+            if (currentRulingFilter === 'halal') rulingLabel = ' (المباح والجائز فقط)';
+            else if (currentRulingFilter === 'haram') rulingLabel = ' (المحرم والباطل فقط)';
+            else if (currentRulingFilter === 'conditional') rulingLabel = ' (المقيد بضوابط فقط)';
+            else if (currentRulingFilter === 'wajib') rulingLabel = ' (الواجب والملزم فقط)';
+
             if (totalMatches === totalAll) {
-                badge.innerHTML = `<i class="fa-solid fa-layer-group text-emerald-400"></i> إجمالي <strong>${totalAll.toLocaleString()}</strong> فتوى موثقة | صفحة <strong>${currentPage.toLocaleString()}</strong> من <strong>${totalPages.toLocaleString()}</strong> (20 فتوى في الصفحة)`;
+                badge.innerHTML = `<i class="fa-solid fa-layer-group text-emerald-400"></i> إجمالي <strong>${totalAll.toLocaleString()}</strong> فتوى موثقة${rulingLabel} | صفحة <strong>${currentPage.toLocaleString()}</strong> من <strong>${totalPages.toLocaleString()}</strong> (20 فتوى في الصفحة)`;
             } else if (currentActiveButtonTitle) {
-                badge.innerHTML = `<i class="fa-solid fa-filter text-amber-400"></i> عُثر على <strong>${totalMatches.toLocaleString()}</strong> فتوى تخص: <span class="text-amber-300 font-bold">${currentActiveButtonTitle}</span> | صفحة <strong>${currentPage.toLocaleString()}</strong> من <strong>${totalPages.toLocaleString()}</strong> (20 فتوى في الصفحة)`;
+                badge.innerHTML = `<i class="fa-solid fa-filter text-amber-400"></i> عُثر على <strong>${totalMatches.toLocaleString()}</strong> فتوى تخص: <span class="text-amber-300 font-bold">${currentActiveButtonTitle}</span>${rulingLabel} | صفحة <strong>${currentPage.toLocaleString()}</strong> من <strong>${totalPages.toLocaleString()}</strong> (20 فتوى في الصفحة)`;
             } else {
-                badge.innerHTML = `<i class="fa-solid fa-filter text-amber-400"></i> عُثر على <strong>${totalMatches.toLocaleString()}</strong> من أصل ${totalAll.toLocaleString()} فتوى | صفحة <strong>${currentPage.toLocaleString()}</strong> من <strong>${totalPages.toLocaleString()}</strong> (20 فتوى في الصفحة)`;
+                badge.innerHTML = `<i class="fa-solid fa-filter text-amber-400"></i> عُثر على <strong>${totalMatches.toLocaleString()}</strong> من أصل ${totalAll.toLocaleString()} فتوى${rulingLabel} | صفحة <strong>${currentPage.toLocaleString()}</strong> من <strong>${totalPages.toLocaleString()}</strong> (20 فتوى في الصفحة)`;
             }
         }
 
@@ -19065,7 +19201,7 @@ $pdo = getDBConnection();
                 <div class="col-span-full p-10 bg-slate-900/90 border-2 border-dashed border-amber-500/40 rounded-3xl text-center space-y-3">
                     <span class="text-4xl">🔍</span>
                     <h4 class="text-lg font-black text-amber-300">لم يتم العثور على نتائج مطابقة لبحثك في موسوعة الفتاوى</h4>
-                    <p class="text-xs text-slate-300 font-bold">جرب كتابة كلمة أخرى مثل: تقسيط، شيك، ذهب، عربون، توريد، أو تصفح حسب الشيوخ الـ 12.</p>
+                    <p class="text-xs text-slate-300 font-bold">جرب كتابة كلمة أخرى مثل: تقسيط، شيك، ذهب، عربون، توريد، أو قم بتغيير تصفية الحكم الشرعي والشيوخ.</p>
                     <button type="button" onclick="clearFiqhSearch()" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-lg transition">
                         ✕ إلغاء الفلترة وتصفح كافة الفتاوى
                     </button>
@@ -19076,6 +19212,10 @@ $pdo = getDBConnection();
             return;
         }
 
+        // Get current search query for text highlighting
+        const searchInput = document.getElementById('fiqh-search-input');
+        const activeSearchQuery = searchInput ? searchInput.value.trim() : '';
+
         // Slice exactly 20 items for current page
         const startIndex = (currentPage - 1) * PAGE_SIZE;
         const endIndex = Math.min(startIndex + PAGE_SIZE, totalMatches);
@@ -19084,15 +19224,31 @@ $pdo = getDBConnection();
         let html = '';
         pageItems.forEach((item) => {
             let rulingClass = 'bg-emerald-500/25 text-emerald-200 border-2 border-emerald-500/60 shadow-md';
+            let borderAccentClass = 'border-r-[8px] border-r-emerald-500';
+            let topGlowClass = 'via-emerald-400/50';
+
             if (item.ruling.includes('محرم') || item.ruling.includes('باطل') || item.ruling.includes('لا يجوز') || item.ruling.includes('كبيرة') || item.ruling.includes('سحت')) {
                 rulingClass = 'bg-rose-500/25 text-rose-200 border-2 border-rose-500/60 shadow-md';
+                borderAccentClass = 'border-r-[8px] border-r-rose-500';
+                topGlowClass = 'via-rose-400/50';
             } else if (item.ruling.includes('ضوابط') || item.ruling.includes('مشروطة') || item.ruling.includes('مكروه') || item.ruling.includes('تحري')) {
                 rulingClass = 'bg-amber-500/25 text-amber-200 border-2 border-amber-500/60 shadow-md';
-            } else if (item.ruling.includes('واجب')) {
+                borderAccentClass = 'border-r-[8px] border-r-amber-500';
+                topGlowClass = 'via-amber-400/50';
+            } else if (item.ruling.includes('واجب') || item.ruling.includes('لازم') || item.ruling.includes('فرض')) {
                 rulingClass = 'bg-cyan-500/25 text-cyan-200 border-2 border-cyan-500/60 shadow-md';
-            } else if (item.ruling.includes('مستحب') || item.ruling.includes('مندوب')) {
+                borderAccentClass = 'border-r-[8px] border-r-cyan-500';
+                topGlowClass = 'via-cyan-400/50';
+            } else if (item.ruling.includes('مستحب') || item.ruling.includes('ندب') || item.ruling.includes('سنة')) {
                 rulingClass = 'bg-teal-500/25 text-teal-200 border-2 border-teal-500/60 shadow-md';
+                borderAccentClass = 'border-r-[8px] border-r-teal-500';
+                topGlowClass = 'via-teal-400/50';
             }
+
+            // Highlighting search terms
+            const highlightedQuestion = highlightSearchKeywords(item.question, activeSearchQuery);
+            const highlightedSummary = highlightSearchKeywords(item.summary, activeSearchQuery);
+            const highlightedEvidence = item.evidence ? highlightSearchKeywords(item.evidence, activeSearchQuery) : '';
 
             // 🌟 مستطيل الحديث والأثر: خط كبير جداً وواضح وعنوان بارز وهوامش مريحة ويكبر ويتحرك لزيادة التركيز 🌟
             const hadithBox = item.evidence ? `
@@ -19110,38 +19266,52 @@ $pdo = getDBConnection();
                     </div>
                     <!-- نص الحديث والآية بخط ملكي عريض وضخم جداً وهوامش مريحة -->
                     <div class="px-4 sm:px-6 py-3 text-xl sm:text-2xl md:text-[27px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.6rem; line-height: 2.4; letter-spacing: 0.4px; color: #fef3c7; text-shadow: 0 1px 2px rgba(0,0,0,0.5); text-align: justify;">
-                        ${item.evidence}
+                        ${highlightedEvidence}
                     </div>
                 </div>
             ` : '';
 
-            // 🌟 بطاقة الفتوى بحواف دائرية وهوامش داخلية واسعة وفخمة وخطوط واضحة وكبيرة 🌟
+            // 🌟 بطاقة الفتوى بحواف دائرية وشريط إدراك بصري جانبي وزري نسخ ومشاركة عبر واتساب 🌟
             html += `
-                <div class="fiqh-fatwa-card border-2 border-slate-800/80 flex flex-col justify-between group min-h-[460px] relative space-y-6">
-                    <!-- خط توهج علوي انسيابي ناعم -->
-                    <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
+                <div class="fiqh-fatwa-card border-2 border-slate-800/80 ${borderAccentClass} flex flex-col justify-between group min-h-[460px] relative space-y-6">
+                    <!-- خط توهج علوي انسيابي ناعم بلون نوع الحكم -->
+                    <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent ${topGlowClass} to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
                     
                     <div class="space-y-6">
-                        <!-- Top Header: Ruling Badge & ID (حجم كبير، خط عريض، وحواف دائرية كاملة) -->
-                        <div class="flex items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
-                            <span class="px-6 py-2.5 text-sm sm:text-base md:text-lg font-black rounded-full ${rulingClass} backdrop-blur-sm">
-                                ${item.ruling}
-                            </span>
-                            <span class="text-sm sm:text-base font-mono text-amber-400 font-black px-4 py-2 bg-amber-500/15 rounded-full border border-amber-500/40 shadow-sm">
-                                #${item.id}
-                            </span>
+                        <!-- Top Header: Ruling Badge, ID, and Action Buttons (Copy & WhatsApp) -->
+                        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
+                            <div class="flex items-center gap-2.5">
+                                <span class="px-5 sm:px-6 py-2 sm:py-2.5 text-sm sm:text-base md:text-lg font-black rounded-full ${rulingClass} backdrop-blur-sm">
+                                    ${item.ruling}
+                                </span>
+                                <span class="text-sm sm:text-base font-mono text-amber-400 font-black px-4 py-2 bg-amber-500/15 rounded-full border border-amber-500/40 shadow-sm">
+                                    #${item.id}
+                                </span>
+                            </div>
+
+                            <!-- أزرار الإجراءات السريعة: نسخ الفتوى ومشاركتها عبر واتساب -->
+                            <div class="flex items-center gap-2 flex-shrink-0">
+                                <button type="button" onclick="copyFatwaCard(${item.id})" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الفتوى والأثر الشرعي كاملاً للحافظة">
+                                    <i class="fa-solid fa-copy text-amber-400"></i>
+                                    <span>نسخ</span>
+                                </button>
+                                <button type="button" onclick="shareFatwaWhatsApp(${item.id})" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الفتوى مباشرة عبر واتساب">
+                                    <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                                    <span>واتساب</span>
+                                </button>
+                            </div>
                         </div>
                         
                         <!-- Question (عنوان ومسألة الفتوى بخط بارز وكبير جداً ومريح) -->
                         <h4 class="px-3 sm:px-4 py-1 text-lg sm:text-xl md:text-2xl lg:text-[24px] font-black text-white group-hover:text-amber-300 transition-colors leading-relaxed" style="font-family: 'Cairo', sans-serif; line-height: 1.9;">
-                            ${item.question}
+                            ${highlightedQuestion}
                         </h4>
                         
                         ${hadithBox}
 
                         <!-- Summary (نص الفتوى والجواب بخط كبير وواضح وهوامش داخلية فسيحة) -->
                         <p class="fiqh-summary-box text-sm sm:text-base md:text-lg text-slate-100 font-bold bg-slate-900/85 hover:bg-slate-900 border border-slate-800/80 hover:border-slate-700/80 shadow-inner transition-colors duration-300" style="line-height: 2.15 !important;">
-                            ${item.summary}
+                            ${highlightedSummary}
                         </p>
                     </div>
 
@@ -19246,6 +19416,26 @@ $pdo = getDBConnection();
         }, 50); // Instant 50ms response
     }
 
+    function matchesRulingFilter(item) {
+        if (currentRulingFilter === 'all') return true;
+        const r = item.ruling || '';
+        const isHaram = r.includes('محرم') || r.includes('باطل') || r.includes('لا يجوز') || r.includes('كبيرة') || r.includes('سحت');
+        
+        if (currentRulingFilter === 'halal') {
+            return !isHaram && (r.includes('جائز') || r.includes('مباح') || r.includes('مشروع') || r.includes('صحيح') || r.includes('مستحب') || r.includes('ندب') || r.includes('سنة'));
+        }
+        if (currentRulingFilter === 'haram') {
+            return isHaram;
+        }
+        if (currentRulingFilter === 'conditional') {
+            return r.includes('ضوابط') || r.includes('مشروطة') || r.includes('مكروه') || r.includes('تحري');
+        }
+        if (currentRulingFilter === 'wajib') {
+            return r.includes('واجب') || r.includes('لازم') || r.includes('فرض');
+        }
+        return true;
+    }
+
     function executeLiveFilter() {
         ensureFiqhLoaded(() => {
             const input = document.getElementById('fiqh-search-input');
@@ -19274,6 +19464,7 @@ $pdo = getDBConnection();
                 const btnDef = FIQH_BUTTON_FILTERS[currentActiveButtonKey];
                 currentFilteredList = dataset.filter(item => {
                     if (currentScholarFilter !== 'all' && item.scholar_code !== currentScholarFilter) return false;
+                    if (!matchesRulingFilter(item)) return false;
                     return btnDef.filter(item);
                 });
             } else if (rawQ) {
@@ -19285,6 +19476,7 @@ $pdo = getDBConnection();
                 // 1. Strict match on raw tokens
                 let matches = dataset.filter(item => {
                     if (currentScholarFilter !== 'all' && item.scholar_code !== currentScholarFilter) return false;
+                    if (!matchesRulingFilter(item)) return false;
                     const s = item._normSearchStr || '';
                     return rawTokens.every(t => s.includes(t));
                 });
@@ -19293,6 +19485,7 @@ $pdo = getDBConnection();
                 if (matches.length === 0 && cleanTokens.length > 0) {
                     matches = dataset.filter(item => {
                         if (currentScholarFilter !== 'all' && item.scholar_code !== currentScholarFilter) return false;
+                        if (!matchesRulingFilter(item)) return false;
                         const s = item._normSearchStr || '';
                         return cleanTokens.every(t => s.includes(t));
                     });
@@ -19305,6 +19498,7 @@ $pdo = getDBConnection();
                     if (sig.length > 0) {
                         matches = dataset.filter(item => {
                             if (currentScholarFilter !== 'all' && item.scholar_code !== currentScholarFilter) return false;
+                            if (!matchesRulingFilter(item)) return false;
                             const s = item._normSearchStr || '';
                             return sig.some(t => s.includes(t));
                         });
@@ -19315,6 +19509,7 @@ $pdo = getDBConnection();
             } else {
                 currentFilteredList = dataset.filter(item => {
                     if (currentScholarFilter !== 'all' && item.scholar_code !== currentScholarFilter) return false;
+                    if (!matchesRulingFilter(item)) return false;
                     return true;
                 });
             }
@@ -19494,6 +19689,134 @@ $pdo = getDBConnection();
         }
     });
     
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // 🌟 HELPER FUNCTIONS: SEARCH HIGHLIGHTING, COPY, WHATSAPP, FONT RESIZING 🌟
+    // ════════════════════════════════════════════════════════════════════════════
+    function highlightSearchKeywords(text, rawQuery) {
+        if (!rawQuery || !text) return text;
+        const tokens = rawQuery.trim().split(/\s+/).filter(t => t.length >= 2);
+        if (tokens.length === 0) return text;
+
+        let result = text;
+        tokens.forEach(tok => {
+            const escaped = tok.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')
+                               .replace(/[اأإآ]/g, '[اأإآ]');
+            try {
+                const re = new RegExp('(' + escaped + ')', 'gi');
+                result = result.replace(re, '<mark class="fiqh-highlight">$1</mark>');
+            } catch (e) {}
+        });
+        return result;
+    }
+
+    function setFiqhRulingFilter(rulingKey, btn) {
+        currentRulingFilter = rulingKey;
+        document.querySelectorAll('.fiqh-ruling-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        executeLiveFilter();
+    }
+
+    function copyFatwaCard(id) {
+        const dataset = getMasterFatwas();
+        const item = dataset.find(f => f.id === id);
+        if (!item) return;
+
+        let textToCopy = `المسألة الفقهية (#${item.id}):\n${item.question}\n\n`;
+        textToCopy += `الحكم الشرعي: ${item.ruling}\n\n`;
+        if (item.evidence) {
+            textToCopy += `الأثر والدليل الشرعي من السنة الصحيحة والقرآن:\n${item.evidence}\n\n`;
+        }
+        textToCopy += `البيان والفتوى:\n${item.summary}\n\n`;
+        textToCopy += `المرجع والتوثيق:\nالشيخ: ${item.scholar_name}\nالمصدر: ${item.source}\n\n`;
+        textToCopy += `— منقول من: موسوعة فتاوى المعاملات والبيوع الإسلامية (نظام السجانة الذكي)`;
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showFiqhToast('✓ تم نسخ الفتوى والدليل الشرعي بنجاح إلى الحافظة');
+            }).catch(() => {
+                fallbackCopyText(textToCopy);
+            });
+        } else {
+            fallbackCopyText(textToCopy);
+        }
+    }
+
+    function fallbackCopyText(text) {
+        const ta = document.createElement('textarea');
+        ta.value = text;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        try {
+            document.execCommand('copy');
+            showFiqhToast('✓ تم نسخ الفتوى بنجاح');
+        } catch (e) {
+            showFiqhToast('يرجى تحديد النص ونسخه يدوياً');
+        }
+        document.body.removeChild(ta);
+    }
+
+    function shareFatwaWhatsApp(id) {
+        const dataset = getMasterFatwas();
+        const item = dataset.find(f => f.id === id);
+        if (!item) return;
+
+        let text = `*مسألة فقهية (#${item.id})*: ${item.question}\n\n`;
+        text += `*الحكم الشرعي*: ${item.ruling}\n\n`;
+        if (item.evidence) {
+            text += `*الدليل الشرعي*: ${item.evidence}\n\n`;
+        }
+        text += `*البيان والفتوى*: ${item.summary}\n\n`;
+        text += `*المرجع*: ${item.scholar_name} - ${item.source}\n`;
+        text += `_من موسوعة فتاوى المعاملات والبيوع (نظام السجانة)_`;
+
+        const url = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(text);
+        window.open(url, '_blank');
+    }
+
+    function showFiqhToast(msg) {
+        let toast = document.getElementById('fiqh-toast');
+        if (!toast) {
+            toast = document.createElement('div');
+            toast.id = 'fiqh-toast';
+            toast.className = 'px-6 py-3.5 bg-slate-900/95 border-2 border-amber-400 text-amber-200 font-black text-sm rounded-2xl shadow-2xl flex items-center gap-3 backdrop-blur-md';
+            document.body.appendChild(toast);
+        }
+        toast.innerHTML = `<i class="fa-solid fa-circle-check text-amber-400 text-lg"></i> <span>${msg}</span>`;
+        toast.classList.add('show');
+        clearTimeout(toast._timer);
+        toast._timer = setTimeout(() => {
+            toast.classList.remove('show');
+        }, 2800);
+    }
+
+    function adjustFiqhCardFontSize(direction) {
+        if (direction > 0) {
+            fiqhCardFontScale = Math.min(1.35, fiqhCardFontScale + 0.1);
+        } else if (direction < 0) {
+            fiqhCardFontScale = Math.max(0.85, fiqhCardFontScale - 0.1);
+        }
+        applyFiqhCardFontScale();
+    }
+
+    function resetFiqhCardFontSize() {
+        fiqhCardFontScale = 1.0;
+        applyFiqhCardFontScale();
+    }
+
+    function applyFiqhCardFontScale() {
+        const grid = document.getElementById('fiqh_fatwas_grid');
+        if (grid) {
+            grid.style.fontSize = `${fiqhCardFontScale}rem`;
+        }
+        const indicator = document.getElementById('fiqh-font-indicator');
+        if (indicator) {
+            indicator.textContent = `${Math.round(fiqhCardFontScale * 100)}%`;
+        }
+    }
+
 </script>
 </body>
 </html>
