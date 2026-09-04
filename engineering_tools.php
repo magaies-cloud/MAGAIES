@@ -517,7 +517,7 @@ $pdo = getDBConnection();
             <!-- 7. فتاوى البيوع -->
             <div class="suite-pill-card" style="--p-color:#fbbf24; --p-border:rgba(251,191,36,0.5);" onclick="switchSuite('fiqh', this)">
                 <div class="suite-pill-icon"><i class="fa-solid fa-book-quran text-amber-400"></i></div>
-                <div class="suite-pill-title">📜 فتاوى البيوع والمعاملات</div>
+                <div class="suite-pill-title">📜 فتاوى البيع والمعاملات</div>
                 <div class="suite-pill-sub">12 إماماً وموسوعة</div>
             </div>
 
@@ -1782,64 +1782,40 @@ $pdo = getDBConnection();
         <div id="suite-sec-fiqh" class="suite-section anim-suite hidden space-y-6">
             <div class="glass-panel-v3" style="--border-color: rgba(251, 191, 36, 0.45);">
                 
-                <!-- 1. SECTION MASTER HEADER (العنوان الرئيسي الموحد) -->
-                <div class="flex flex-wrap items-center justify-between gap-3 border-b-2 border-amber-500/40 pb-4 mb-6">
-                    <div>
-                        <div class="flex items-center gap-2 mb-1.5">
-                            <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 rounded-xl text-xs sm:text-sm font-black border border-amber-400/60 shadow-sm">
-                                ★ الموسوعة الكبرى لفتاوى وضوابط البيوع والمعاملات
-                            </span>
-                            <span class="px-3.5 py-1 bg-emerald-500/20 text-emerald-300 rounded-xl text-xs sm:text-sm font-black border border-emerald-400/60 shadow-sm">
-                                12 إماماً وعالماً معتمداً ✓
-                            </span>
-                        </div>
-                        <h2 class="text-xl sm:text-2xl md:text-3xl font-black text-white flex items-center gap-2.5">
-                            <i class="fa-solid fa-book-quran text-amber-400"></i>
-                            فتاوى البيوع والمعاملات التجارية ومكتبة أمهات الكتب
-                        </h2>
-                    </div>
+                <!-- 1. SECTION MASTER HEADER (العنوان الصريح النظيف) -->
+                <div class="border-b-2 border-amber-500/40 pb-4 mb-6">
+                    <h2 class="text-2xl sm:text-3xl font-black text-amber-300 flex items-center gap-2.5">
+                        <i class="fa-solid fa-scale-balanced text-amber-400"></i>
+                        فتاوى البيع والمعاملات
+                    </h2>
                 </div>
 
-                <!-- 2. DUAL SEARCH CONSOLE (سطر البحث الموحد: مقسوم على جزئين متوازيين بخط كبير وواضح) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    
-                    <!-- الجزء الأيمن: البحث داخل البرنامج -->
-                    <div class="p-4 sm:p-5 bg-slate-950/95 border-2 border-amber-400/80 rounded-2xl shadow-xl space-y-2.5">
-                        <div class="flex items-center justify-between">
-                            <label class="text-sm sm:text-base font-black text-amber-300 flex items-center gap-2">
-                                <i class="fa-solid fa-magnifying-glass text-amber-400 text-lg"></i>
-                                🔍 ابحث في موسوعة الـ 4,500 فتوى الشاملة (داخل البرنامج):
-                            </label>
-                            <span id="fiqh_search_badge" class="text-emerald-400 font-mono font-black text-xs px-2.5 py-0.5 bg-emerald-950 border border-emerald-500/40 rounded-lg">
-                                4,500 فتوى موثقة ومتاحة للبحث والفلترة
-                            </span>
+                <!-- 2. CLEAN SEARCH CONSOLE (مربع بحث نظيف ليس به أي كتابة مع زري البحث داخل البرنامج وبحث جوجل) -->
+                <div class="p-4 sm:p-5 bg-slate-950/95 border-2 border-amber-400/80 rounded-2xl shadow-xl mb-6">
+                    <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3">
+                        <div class="relative flex-1 min-w-[260px]">
+                            <input type="text" id="fiqh-search-input" 
+                                   oninput="filterFatwas()" 
+                                   onkeydown="if(event.key==='Enter'){executeInternalFiqhSearch();}" 
+                                   placeholder="" 
+                                   autocomplete="off"
+                                   spellcheck="false"
+                                   class="w-full py-3.5 pr-4 pl-11 bg-slate-900 border-2 border-amber-500/60 focus:border-amber-400 text-white rounded-xl text-base sm:text-lg font-black shadow-inner outline-none transition">
+                            <button type="button" onclick="clearFiqhInput()" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-400 text-lg transition p-1.5" title="تفريغ خانة البحث">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
                         </div>
-                        <div class="relative">
-                            <input type="text" id="fiqh-search-input" oninput="filterFatwas()" placeholder="اكتب للبحث في الـ 4,500 فتوى: تقسيط، ذهب، فرنشايز، اعتمادات L/C، تمويل جماعي، تايم شير، ضرائب جمركية، أسهم..." class="w-full py-3.5 pr-11 pl-4 bg-slate-900 border-2 border-amber-500/60 focus:border-amber-400 text-white rounded-xl text-sm sm:text-base font-black shadow-inner">
-                            <i class="fa-solid fa-search absolute right-3.5 top-4 text-amber-400 text-lg"></i>
-                        </div>
-                    </div>
-
-                    <!-- الجزء الأيسر: البحث في قوقل الموثق للشيوخ الـ 12 -->
-                    <div class="p-4 sm:p-5 bg-slate-950/95 border-2 border-sky-400/80 rounded-2xl shadow-xl space-y-2.5">
-                        <div class="flex items-center justify-between">
-                            <label class="text-sm sm:text-base font-black text-sky-300 flex items-center gap-2">
-                                <i class="fa-brands fa-google text-sky-400 text-lg"></i>
-                                🌐 ابحث في قوقل (خارج البرنامج للشيوخ الـ 12):
-                            </label>
-                            <span class="text-sky-300 font-black text-xs px-2.5 py-0.5 bg-sky-950 border border-sky-500/40 rounded-lg">
-                                قوقل الموثق ↗
-                            </span>
-                        </div>
-                        <div class="flex gap-2">
-                            <input type="text" id="google_quick_input" placeholder="اكتب مسألتك للبحث في قوقل (مرابحة، تأخير توريد...)" class="w-full py-3.5 pr-4 pl-3 bg-slate-900 border-2 border-sky-500/60 focus:border-sky-400 text-white rounded-xl text-sm sm:text-base font-black shadow-inner">
-                            <button type="button" onclick="executeHeaderGoogleSearch()" class="px-5 py-3.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-black text-sm rounded-xl shadow-lg border border-sky-300/60 flex items-center justify-center gap-1.5 flex-shrink-0 transition transform hover:-translate-y-0.5">
-                                <i class="fa-brands fa-google"></i>
-                                <span>بحث قوقل ↗</span>
+                        <div class="flex items-center gap-2.5 flex-shrink-0">
+                            <button type="button" onclick="executeInternalFiqhSearch()" class="px-5 py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm sm:text-base rounded-xl shadow-lg border border-amber-300/60 flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5">
+                                <i class="fa-solid fa-magnifying-glass text-lg"></i>
+                                <span>البحث داخل البرنامج</span>
+                            </button>
+                            <button type="button" onclick="executeScopedGoogle12Search()" class="px-5 py-3.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-black text-sm sm:text-base rounded-xl shadow-lg border border-sky-300/60 flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5" title="بحث جوجل مقيد بالشيوخ الـ 12 المعتمدين والمواقع الشرعية">
+                                <i class="fa-brands fa-google text-lg"></i>
+                                <span>بحث جوجل</span>
                             </button>
                         </div>
                     </div>
-
                 </div>
 
                 <!-- 3. THE 4 DISTINCT COMMERCIAL CATEGORIES (المسائل الأكثر شيوعاً - 4 مجموعات مفصولة بخطوط كبيرة) -->
@@ -6552,6 +6528,36 @@ $pdo = getDBConnection();
     };
 
     
+    // 🌟 FIQH CLEAN SEARCH CONTROLLERS 🌟
+    function executeInternalFiqhSearch() {
+        switchFiqhSubTab('fatwas');
+        executeLiveFilter();
+        const fatwasContainer = document.getElementById('fiqh-sub-fatwas');
+        if (fatwasContainer) {
+            fatwasContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    function executeScopedGoogle12Search() {
+        const input = document.getElementById('fiqh-search-input');
+        const q = input ? input.value.trim() : '';
+        const query = q !== '' ? q : 'فتاوى البيوع والمعاملات المالية';
+        const scholars = '("ابن باز" OR "ابن عثيمين" OR "صالح الفوزان" OR "ابن تيمية" OR "ابن القيم" OR "أحمد بن حنبل" OR "النووي" OR "الذهبي" OR "محمد بن عبد الوهاب" OR "السعدي" OR "الشنقيطي" OR "الألباني")';
+        const sites = '(site:binbaz.org.sa OR site:ibnothaimeen.net OR site:alfawzan.af.org.sa OR site:alalbany.org OR site:shamela.ws OR site:islamweb.net OR site:alukah.net OR site:dorar.net)';
+        const fullQuery = query + ' ' + scholars + ' ' + sites;
+        const googleUrl = 'https://www.google.com/search?q=' + encodeURIComponent(fullQuery);
+        window.open(googleUrl, '_blank');
+    }
+
+    function clearFiqhInput() {
+        const input = document.getElementById('fiqh-search-input');
+        if (input) {
+            input.value = '';
+            input.focus();
+        }
+        executeLiveFilter();
+    }
+
     function executeHeaderGoogleSearch() {
         const q = (document.getElementById('google_quick_input') ? document.getElementById('google_quick_input').value : '').trim();
         if (!q) {
