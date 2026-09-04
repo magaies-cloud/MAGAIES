@@ -438,7 +438,175 @@ $pdo = getDBConnection();
             background: rgba(30, 41, 59, 0.95);
         }
 
-    </style>
+    
+        /* 🌟 LUXURY SEARCH CONSOLE & HARMONIZED BUTTONS 🌟 */
+        .fiqh-luxury-search-wrapper {
+            position: relative;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(10, 15, 28, 0.99) 100%);
+            border: 2px solid rgba(251, 191, 36, 0.5);
+            border-radius: 24px;
+            padding: 20px 24px;
+            box-shadow: 
+                0 14px 34px -6px rgba(0, 0, 0, 0.65), 
+                0 0 25px -4px rgba(245, 158, 11, 0.2), 
+                inset 0 1px 2px rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+            transition: all 0.3s ease;
+        }
+
+        .fiqh-luxury-search-wrapper:hover {
+            border-color: rgba(251, 191, 36, 0.7);
+            box-shadow: 
+                0 18px 42px -6px rgba(0, 0, 0, 0.75), 
+                0 0 32px -2px rgba(245, 158, 11, 0.28), 
+                inset 0 1px 2px rgba(255, 255, 255, 0.12);
+        }
+
+        .fiqh-luxury-search-inner {
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+
+        @media (min-width: 768px) {
+            .fiqh-luxury-search-inner {
+                flex-direction: row;
+                align-items: center;
+                gap: 16px;
+            }
+        }
+
+        /* The Input Box */
+        .fiqh-luxury-input {
+            width: 100%;
+            height: 56px;
+            padding: 10px 20px 10px 52px;
+            background: rgba(8, 12, 22, 0.96) !important;
+            border: 2px solid rgba(251, 191, 36, 0.45) !important;
+            color: #fbbf24 !important;
+            font-size: 1.25rem !important;
+            font-weight: 800 !important;
+            border-radius: 16px !important;
+            box-shadow: inset 0 3px 10px rgba(0, 0, 0, 0.7) !important;
+            outline: none !important;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        .fiqh-luxury-input:focus {
+            border-color: #f59e0b !important;
+            background: rgba(6, 10, 18, 0.98) !important;
+            box-shadow: 
+                inset 0 3px 10px rgba(0, 0, 0, 0.8), 
+                0 0 24px rgba(245, 158, 11, 0.38) !important;
+        }
+
+        .fiqh-luxury-clear-btn {
+            position: absolute;
+            left: 14px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
+            color: #94a3b8;
+            background: rgba(30, 41, 59, 0.6);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            cursor: pointer;
+            transition: all 0.2s ease;
+        }
+
+        .fiqh-luxury-clear-btn:hover {
+            color: #ffffff;
+            background: rgba(239, 68, 68, 0.85);
+            border-color: #ef4444;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        /* Modern Elegant Buttons with Dual Harmony */
+        .fiqh-btn-glow {
+            position: relative;
+            height: 56px;
+            padding: 0 26px;
+            border-radius: 16px;
+            font-size: 1rem;
+            font-weight: 900;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            cursor: pointer;
+            white-space: nowrap;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
+            overflow: hidden;
+        }
+
+        .fiqh-btn-icon-wrap {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 1.2rem;
+            transition: transform 0.25s ease;
+        }
+
+        .fiqh-btn-glow:hover .fiqh-btn-icon-wrap {
+            transform: scale(1.18);
+        }
+
+        /* زر البحث داخل البرنامج - Golden Amber Luxury */
+        .fiqh-btn-program-glow {
+            background: linear-gradient(135deg, #f59e0b 0%, #d97706 60%, #b45309 100%);
+            color: #0f172a;
+            border: 1.5px solid #fde68a;
+            box-shadow: 
+                0 6px 20px rgba(217, 119, 6, 0.35), 
+                inset 0 1px 1px rgba(255, 255, 255, 0.4);
+        }
+
+        .fiqh-btn-program-glow:hover {
+            background: linear-gradient(135deg, #fbbf24 0%, #f59e0b 60%, #d97706 100%);
+            color: #020617;
+            transform: translateY(-2px);
+            box-shadow: 
+                0 12px 28px rgba(245, 158, 11, 0.55), 
+                0 0 20px rgba(251, 191, 36, 0.4);
+            border-color: #ffffff;
+        }
+
+        .fiqh-btn-program-glow:active {
+            transform: translateY(1px);
+            box-shadow: 0 3px 10px rgba(217, 119, 6, 0.4);
+        }
+
+        /* زر بحث جوجل - Royal Sky/Blue Google Luxury */
+        .fiqh-btn-google-glow {
+            background: linear-gradient(135deg, #0ea5e9 0%, #0284c7 60%, #0369a1 100%);
+            color: #ffffff;
+            border: 1.5px solid #7dd3fc;
+            box-shadow: 
+                0 6px 20px rgba(2, 132, 199, 0.35), 
+                inset 0 1px 1px rgba(255, 255, 255, 0.3);
+        }
+
+        .fiqh-btn-google-glow:hover {
+            background: linear-gradient(135deg, #38bdf8 0%, #0ea5e9 60%, #0284c7 100%);
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 
+                0 12px 28px rgba(2, 132, 199, 0.55), 
+                0 0 20px rgba(56, 189, 248, 0.4);
+            border-color: #ffffff;
+        }
+
+        .fiqh-btn-google-glow:active {
+            transform: translateY(1px);
+            box-shadow: 0 3px 10px rgba(2, 132, 199, 0.4);
+        }
+
+</style>
 </head>
 
 <body class="no-page-transition">
@@ -1782,39 +1950,63 @@ $pdo = getDBConnection();
         <div id="suite-sec-fiqh" class="suite-section anim-suite hidden space-y-6">
             <div class="glass-panel-v3" style="--border-color: rgba(251, 191, 36, 0.45);">
                 
-                <!-- 1. SECTION MASTER HEADER (العنوان الصريح النظيف) -->
-                <div class="border-b-2 border-amber-500/40 pb-4 mb-6">
-                    <h2 class="text-2xl sm:text-3xl font-black text-amber-300 flex items-center gap-2.5">
-                        <i class="fa-solid fa-scale-balanced text-amber-400"></i>
-                        فتاوى البيع والمعاملات
-                    </h2>
+                <!-- 1. SECTION MASTER HEADER (العنوان الصريح النظيف مع زيادة المسافة بمقدار 1.5) -->
+                <div class="pb-4 mb-9">
+                    <div class="flex flex-wrap items-center justify-between gap-3">
+                        <h2 class="text-2xl sm:text-3xl md:text-4xl font-black text-amber-300 flex items-center gap-3 tracking-wide drop-shadow-md">
+                            <span class="w-11 h-11 rounded-2xl bg-amber-500/15 border border-amber-400/40 flex items-center justify-center text-amber-400 text-2xl shadow-inner">
+                                <i class="fa-solid fa-scale-balanced"></i>
+                            </span>
+                            <span>فتاوى البيع والمعاملات</span>
+                        </h2>
+                        <div class="hidden sm:flex items-center gap-2 text-xs font-mono font-bold text-slate-400 px-3 py-1.5 bg-slate-900/80 rounded-xl border border-slate-800">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                            <span>4,500 مسألة فقهية موثقة</span>
+                        </div>
+                    </div>
+                    <!-- Decorative Golden Gradient Line -->
+                    <div class="mt-4 h-[2px] w-full bg-gradient-to-r from-amber-500/60 via-amber-400/30 to-transparent rounded-full"></div>
                 </div>
 
-                <!-- 2. CLEAN SEARCH CONSOLE (مربع بحث نظيف ليس به أي كتابة مع زري البحث داخل البرنامج وبحث جوجل) -->
-                <div class="p-4 sm:p-5 bg-slate-950/95 border-2 border-amber-400/80 rounded-2xl shadow-xl mb-6">
-                    <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3">
-                        <div class="relative flex-1 min-w-[260px]">
+                <!-- 2. LUXURY CLEAN SEARCH CONSOLE (مربع بحث أنيق فاخر مع زري البحث المباشر وبحث جوجل المتناسقين) -->
+                <div class="fiqh-luxury-search-wrapper mb-8">
+                    <div class="fiqh-luxury-search-inner">
+                        
+                        <!-- Input Box with Inset Luxury Style -->
+                        <div class="relative flex-1 min-w-[280px]">
                             <input type="text" id="fiqh-search-input" 
                                    oninput="filterFatwas()" 
                                    onkeydown="if(event.key==='Enter'){executeInternalFiqhSearch();}" 
                                    placeholder="" 
                                    autocomplete="off"
                                    spellcheck="false"
-                                   class="w-full py-3.5 pr-4 pl-11 bg-slate-900 border-2 border-amber-500/60 focus:border-amber-400 text-white rounded-xl text-base sm:text-lg font-black shadow-inner outline-none transition">
-                            <button type="button" onclick="clearFiqhInput()" class="absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-amber-400 text-lg transition p-1.5" title="تفريغ خانة البحث">
+                                   class="fiqh-luxury-input">
+                            <button type="button" onclick="clearFiqhInput()" class="fiqh-luxury-clear-btn" title="تفريغ خانة البحث">
                                 <i class="fa-solid fa-xmark"></i>
                             </button>
                         </div>
-                        <div class="flex items-center gap-2.5 flex-shrink-0">
-                            <button type="button" onclick="executeInternalFiqhSearch()" class="px-5 py-3.5 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-sm sm:text-base rounded-xl shadow-lg border border-amber-300/60 flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5">
-                                <i class="fa-solid fa-magnifying-glass text-lg"></i>
+
+                        <!-- Buttons Group: Perfectly Harmonized & Symmetrical -->
+                        <div class="flex items-center gap-3 flex-shrink-0">
+                            
+                            <!-- الزر 1: البحث داخل البرنامج -->
+                            <button type="button" onclick="executeInternalFiqhSearch()" class="fiqh-btn-glow fiqh-btn-program-glow">
+                                <div class="fiqh-btn-icon-wrap">
+                                    <i class="fa-solid fa-magnifying-glass"></i>
+                                </div>
                                 <span>البحث داخل البرنامج</span>
                             </button>
-                            <button type="button" onclick="executeScopedGoogle12Search()" class="px-5 py-3.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-black text-sm sm:text-base rounded-xl shadow-lg border border-sky-300/60 flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5" title="بحث جوجل مقيد بالشيوخ الـ 12 المعتمدين والمواقع الشرعية">
-                                <i class="fa-brands fa-google text-lg"></i>
+
+                            <!-- الزر 2: بحث جوجل المشروط بالـ 12 -->
+                            <button type="button" onclick="executeScopedGoogle12Search()" class="fiqh-btn-glow fiqh-btn-google-glow" title="بحث جوجل مقيد بالشيوخ الـ 12 المعتمدين والمواقع الشرعية">
+                                <div class="fiqh-btn-icon-wrap">
+                                    <i class="fa-brands fa-google"></i>
+                                </div>
                                 <span>بحث جوجل</span>
                             </button>
+
                         </div>
+
                     </div>
                 </div>
 
