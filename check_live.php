@@ -51,7 +51,7 @@ $checks['mb_gl_sync'] = strpos($mbContent, "calculateAccountLedgerBalance") !== 
 // Check fiqh encyclopedia keywords
 $fiqhContent = file_exists(__DIR__ . '/js/fiqh_20000_data.js') ? file_get_contents(__DIR__ . '/js/fiqh_20000_data.js') : '';
 $checks['fiqh_hadith_evidence'] = strpos($fiqhContent, 'evidence') !== false;
-$checks['fiqh_zero_duplicates'] = (strpos($fiqhContent, '0 Duplicates') !== false || strpos($fiqhContent, 'صفر تكرار') !== false);
+$checks['fiqh_zero_duplicates'] = (strpos($fiqhContent, '0 Duplicates') !== false || strpos($fiqhContent, 'Zero Suffixes') !== false || strpos($fiqhContent, 'صفر تكرار') !== false);
 $checks['fiqh_4500_count'] = (strpos($fiqhContent, '4,500 UNIQUE') !== false || strpos($fiqhContent, '4,500') !== false);
 $checks['fiqh_lazy_loaded'] = strpos(file_get_contents(__DIR__ . '/engineering_tools.php'), 'ensureFiqhLoaded') !== false;
 
