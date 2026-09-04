@@ -835,6 +835,36 @@ $pdo = getDBConnection();
             transform: translateY(1px);
         }
 
+
+        /* Master All-Transactions Button in Common Fiqh Box */
+        .fiqh-all-transactions-master-btn {
+            width: 100%;
+            padding: 14px 22px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.16) 0%, rgba(180, 83, 9, 0.12) 100%);
+            border: 2px solid rgba(251, 191, 36, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
+            user-select: none;
+        }
+
+        .fiqh-all-transactions-master-btn:hover {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.28) 0%, rgba(217, 119, 6, 0.22) 100%);
+            border-color: #fbbf24;
+            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2);
+            transform: translateY(-2px);
+        }
+
+        .fiqh-all-transactions-master-btn.active {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.35) 0%, rgba(217, 119, 6, 0.28) 100%);
+            border-color: #fde047;
+            box-shadow: 0 0 24px rgba(245, 158, 11, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.25);
+        }
+
 </style>
 </head>
 
@@ -2239,7 +2269,7 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- 3. UNIFIED MASTER BOX: الفتاوى الأكثر شيوعاً في مربع واحد مدمج وأنيق -->
+                <!-- 3. UNIFIED MASTER BOX: المسائل والفتاوى الأكثر شيوعاً + جميع المعاملات في مربع واحد مدمج -->
                 <div class="fiqh-unified-master-card">
                     
                     <!-- شريط عنوان المربع الموحد -->
@@ -2249,12 +2279,43 @@ $pdo = getDBConnection();
                                 <i class="fa-solid fa-layer-group"></i>
                             </div>
                             <div>
-                                <h3 class="fiqh-unified-title">الفتاوى الأكثر شيوعاً</h3>
+                                <h3 class="fiqh-unified-title">المسائل والفتاوى الأكثر شيوعاً</h3>
                             </div>
                         </div>
                         <button type="button" onclick="clearFiqhSearch()" class="fiqh-reset-btn" title="إعادة تعيين وتفريغ البحث">
                             <i class="fa-solid fa-rotate-left"></i>
                             <span>تفريغ البحث</span>
+                        </button>
+                    </div>
+
+                    <!-- الزر الرئيسي الجامع: عرض جميع المسائل والمعاملات المالية (الموسوعة الشاملة) -->
+                    <div class="mb-5">
+                        <button type="button" 
+                                onclick="showAllFiqhTransactions(this)" 
+                                id="btn-show-all-fiqh"
+                                class="fiqh-all-transactions-master-btn active"
+                                title="عرض وتصفح الموسوعة الكاملة لجميع المعاملات والمسائل المالية">
+                            <div class="flex items-center gap-3">
+                                <div class="w-10 h-10 rounded-xl bg-amber-400/20 border border-amber-400/40 flex items-center justify-center text-amber-300 text-lg flex-shrink-0">
+                                    <i class="fa-solid fa-book-open"></i>
+                                </div>
+                                <div class="text-right">
+                                    <div class="text-base sm:text-lg font-black text-amber-200 flex items-center gap-2">
+                                        <span>📑</span>
+                                        <span>عرض جميع المسائل والمعاملات المالية</span>
+                                        <span class="text-xs text-amber-400/80 font-normal hidden sm:inline">(الموسوعة الفقهية الشاملة)</span>
+                                    </div>
+                                    <div class="text-xs text-amber-300/70 font-semibold mt-0.5">
+                                        استعراض وتصفح كافة المسائل والأبواب والعقود التجارية الـ 3,000 بلا استثناء
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="flex items-center gap-2.5 flex-shrink-0">
+                                <span class="text-xs sm:text-sm font-mono font-black text-amber-300 px-3 py-1 bg-amber-950/90 rounded-xl border border-amber-500/40 shadow-inner">
+                                    3,000+ مسألة
+                                </span>
+                                <i class="fa-solid fa-circle-arrow-left text-amber-400 text-xl transition-transform duration-200"></i>
+                            </div>
                         </button>
                     </div>
 
@@ -2271,22 +2332,22 @@ $pdo = getDBConnection();
                                 <span class="fiqh-cat-count text-cyan-400 border-cyan-500/30">6 مسائل</span>
                             </div>
                             <div class="fiqh-cat-pills-wrap">
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('التقسيط')">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('التقسيط', this)">
                                     <span>💳</span> البيع بالتقسيط وزيادة الأجل
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('غرامات التأخير')">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('غرامات التأخير', this)">
                                     <span>⚠️</span> غرامات التأخير والشرط الجزائي
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('المرابحة')">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('المرابحة', this)">
                                     <span>🏢</span> المرابحة للآمر بالشراء
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('التورق')">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('التورق', this)">
                                     <span>🔄</span> التورق للحصول على سيولة
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('الإيجار المنتهي بالتمليك')">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('الإيجار المنتهي بالتمليك', this)">
                                     <span>🚗</span> الإيجار المنتهي بالتمليك
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('إنظار المعسر')">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('إنظار المعسر', this)">
                                     <span>⏳</span> إنظار المعسر والتيسير
                                 </button>
                             </div>
@@ -2302,19 +2363,19 @@ $pdo = getDBConnection();
                                 <span class="fiqh-cat-count text-emerald-400 border-emerald-500/30">5 مسائل</span>
                             </div>
                             <div class="fiqh-cat-pills-wrap">
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="setQuickSearch('خصم الشيكات')">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="setQuickSearch('خصم الشيكات', this)">
                                     <span>📜</span> خصم الشيكات والكمبيالات الآجلة
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="setQuickSearch('العربون')">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="setQuickSearch('العربون', this)">
                                     <span>🤝</span> بيع العربون وحجز البضاعة
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="setQuickSearch('بيع الدين')">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="setQuickSearch('بيع الدين', this)">
                                     <span>💼</span> بيع الدين والمقاصة المالية
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="setQuickSearch('إقالة النادم')">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="setQuickSearch('إقالة النادم', this)">
                                     <span>🔄</span> إقالة النادم وفسخ الصفقة
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="setQuickSearch('السلم')">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="setQuickSearch('السلم', this)">
                                     <span>📦</span> بيع السلم ودفع الثمن مقدماً
                                 </button>
                             </div>
@@ -2330,16 +2391,16 @@ $pdo = getDBConnection();
                                 <span class="fiqh-cat-count text-amber-400 border-amber-500/30">4 مسائل</span>
                             </div>
                             <div class="fiqh-cat-pills-wrap">
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('الذهب')">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('الذهب', this)">
                                     <span>💎</span> شراء الذهب ببطاقات الصراف ومدى
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('الصرف بالموبايل')">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('الصرف بالموبايل', this)">
                                     <span>📱</span> الصرف بتطبيقات بنكك وفوري
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('العِينة')">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('العِينة', this)">
                                     <span>🚫</span> حيل الربا وبيوع العِينة
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('العملات المشفرة')">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('العملات المشفرة', this)">
                                     <span>🪙</span> العملات الرقمية والفوركس
                                 </button>
                             </div>
@@ -2355,19 +2416,19 @@ $pdo = getDBConnection();
                                 <span class="fiqh-cat-count text-purple-400 border-purple-500/30">5 مسائل</span>
                             </div>
                             <div class="fiqh-cat-pills-wrap">
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('الاستصناع')">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('الاستصناع', this)">
                                     <span>🏗️</span> عقد الاستصناع وتوريد الحديد
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('السكراب')">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('السكراب', this)">
                                     <span>🔩</span> بيع حديد السكراب والخردة
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('بيع ما لا يملك')">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('بيع ما لا يملك', this)">
                                     <span>🛒</span> بيع ما لا يملك والوساطة
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('ضمان العيوب')">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('ضمان العيوب', this)">
                                     <span>🛡️</span> ضمان العيوب والكفالة
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('حقوق العمال')">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('حقوق العمال', this)">
                                     <span>👥</span> أجور العمال ومكافأة الخدمة
                                 </button>
                             </div>
@@ -7108,20 +7169,59 @@ $pdo = getDBConnection();
         filterFatwas();
     }
 
-    function setQuickSearch(word) {
-        document.getElementById('fiqh-search-input').value = word;
+    function showAllFiqhTransactions(btn) {
+        const searchInput = document.getElementById('fiqh-search-input');
+        if (searchInput) searchInput.value = '';
+        
+        activeScholarFilter = 'all';
+        activeTopicFilter = 'all';
+        
+        document.querySelectorAll('.fiqh-pill-btn').forEach(el => el.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        
+        document.querySelectorAll('.fiqh-filter-btn').forEach(b => b.classList.remove('active'));
+        const defaultTopic = document.querySelector('[data-filter-val="all"]');
+        if (defaultTopic) defaultTopic.classList.add('active');
+
+        const fatwasPill = document.querySelector('.fiqh-nav-pill');
+        if (typeof switchFiqhSubTab === 'function' && fatwasPill) {
+            switchFiqhSubTab('fatwas', fatwasPill);
+        }
+        
+        if (typeof filterFatwas === 'function') {
+            filterFatwas();
+        }
+    }
+
+    function setQuickSearch(word, el) {
+        const input = document.getElementById('fiqh-search-input');
+        if (input) input.value = word;
+        
+        const allBtn = document.getElementById('btn-show-all-fiqh');
+        if (allBtn) allBtn.classList.remove('active');
+        
+        document.querySelectorAll('.fiqh-pill-btn').forEach(btn => btn.classList.remove('active'));
+        if (el) el.classList.add('active');
+
         switchFiqhSubTab('fatwas', document.querySelector('.fiqh-nav-pill'));
         filterFatwas();
     }
 
     function clearFiqhSearch() {
-        document.getElementById('fiqh-search-input').value = '';
+        const input = document.getElementById('fiqh-search-input');
+        if (input) input.value = '';
+        
         activeScholarFilter = 'all';
         activeTopicFilter = 'all';
-        document.querySelectorAll('.fiqh-filter-btn').forEach(b => {
-            if (b.getAttribute('data-filter-val') === 'all') b.classList.add('active');
-            else b.classList.remove('active');
-        });
+        
+        const allBtn = document.getElementById('btn-show-all-fiqh');
+        if (allBtn) allBtn.classList.add('active');
+        
+        document.querySelectorAll('.fiqh-pill-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.fiqh-filter-btn').forEach(b => b.classList.remove('active'));
+        const defaultTopic = document.querySelector('[data-filter-val="all"]');
+        if (defaultTopic) defaultTopic.classList.add('active');
+
         filterFatwas();
     }
 
