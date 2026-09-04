@@ -35,8 +35,7 @@ $pdo = getDBConnection();
     <link rel="stylesheet" href="css/theme.css">
     <link rel="stylesheet" href="css/components.css?v=20260723_v14">
     <link rel="stylesheet" href="css/tailwind.min.css">
-    <script src="js/fiqh_20000_data.js"></script>
-    <script src="js/fiqh_5500_data.js"></script>
+    <!-- Fiqh Encyclopedia is Lazy-Loaded on demand for ultra-fast page rendering -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
 
     <style>
@@ -6711,22 +6710,103 @@ $pdo = getDBConnection();
     // ════════════════════════════════════════════════════════════════════════════
     // ════════════════════════════════════════════════════════════════════════════
     // ════════════════════════════════════════════════════════════════════════════
-    // 🌟 MASTER 20,000 FATWAS ENGINE (EXACT 21 PER PAGE WITH DUAL CONTROLS) 🌟
+    // ════════════════════════════════════════════════════════════════════════════
+    // 🌟 MASTER 4,500 FATWAS ENGINE (ON-DEMAND LAZY LOAD + PRE-INDEXED SEARCH) 🌟
     // ════════════════════════════════════════════════════════════════════════════
     let currentScholarFilter = 'all';
     let currentTopicFilter = 'all';
     const PAGE_SIZE = 21; // Exactly 21 fatwas per page requested
     let currentPage = 1;
     let currentFilteredList = [];
+    let fiqhLoadingPromise = null;
 
     function getMasterFatwas() {
         return window.MASTER_20000_FATWAS || window.MASTER_5500_FATWAS || [];
     }
 
+    function ensureFiqhLoaded(callback) {
+        if (window.MASTER_20000_FATWAS && Array.isArray(window.MASTER_20000_FATWAS) && window.MASTER_20000_FATWAS.length > 0) {
+            if (callback) callback();
+            return Promise.resolve();
+        }
+
+        if (fiqhLoadingPromise) {
+            return fiqhLoadingPromise.then(() => {
+                if (callback) callback();
+            });
+        }
+
+        const grid = document.getElementById('fiqh_fatwas_grid');
+        const badge = document.getElementById('fiqh_search_badge');
+        if (badge) {
+            badge.innerHTML = '<i class="fa-solid fa-cloud-arrow-down text-amber-400 animate-pulse"></i> جاري تجهيز الموسوعة (4,500 فتوى)...';
+        }
+        if (grid && (!grid.children || grid.children.length === 0)) {
+            grid.innerHTML = `
+                <div class="col-span-full py-16 px-6 text-center bg-slate-900/90 border-2 border-amber-500/50 rounded-2xl shadow-2xl space-y-4">
+                    <div class="inline-flex p-4 bg-amber-500/10 rounded-full border border-amber-400/40 animate-pulse">
+                        <i class="fa-solid fa-book-quran text-4xl text-amber-400"></i>
+                    </div>
+                    <h3 class="text-xl sm:text-2xl font-black text-white">جاري تحميل موسوعة الـ 4,500 فتوى موثقة...</h3>
+                    <p class="text-xs sm:text-sm text-slate-300 max-w-lg mx-auto leading-relaxed">
+                        يتم الآن تجهيز الموسوعة وتحميلها بخفة فائقة لتعمل مباشرة من ذاكرة المتصفح بسرعة خيالية ودون استهلاك للإنترنت في الزيارات القادمة.
+                    </p>
+                    <div class="w-48 sm:w-64 h-2 bg-slate-800 rounded-full mx-auto overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-amber-500 via-emerald-400 to-amber-500 animate-pulse w-full"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        fiqhLoadingPromise = new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'js/fiqh_20000_data.js?v=4500_v1';
+            script.async = true;
+            script.onload = () => {
+                // Pre-index search tokens once for ultra-fast zero-freeze searching
+                const dataset = getMasterFatwas();
+                for (let i = 0; i < dataset.length; i++) {
+                    const item = dataset[i];
+                    item._searchStr = (
+                        (item.question || '') + ' ' +
+                        (item.summary || '') + ' ' +
+                        (item.evidence || '') + ' ' +
+                        (item.scholar_name || '') + ' ' +
+                        (item.topic_name || '') + ' ' +
+                        (item.tags || '') + ' ' +
+                        (item.ruling || '') + ' ' +
+                        (item.source || '')
+                    ).toLowerCase();
+                }
+                resolve();
+            };
+            script.onerror = (err) => {
+                console.error('Failed to load fiqh dataset', err);
+                if (grid) {
+                    grid.innerHTML = `
+                        <div class="col-span-full py-10 px-4 text-center bg-rose-950/60 border border-rose-500/50 rounded-xl space-y-2">
+                            <i class="fa-solid fa-triangle-exclamation text-3xl text-rose-400"></i>
+                            <div class="text-white font-black">تعذر تحميل بيانات الفتاوى، يرجى التحقق من الاتصال بالإنترنت والمحاولة مجدداً.</div>
+                            <button type="button" onclick="ensureFiqhLoaded(() => initFiqhEngine())" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-black">إعادة المحاولة</button>
+                        </div>
+                    `;
+                }
+                reject(err);
+            };
+            document.body.appendChild(script);
+        }).then(() => {
+            if (callback) callback();
+        });
+
+        return fiqhLoadingPromise;
+    }
+
     function initFiqhEngine() {
-        currentFilteredList = getMasterFatwas();
-        currentPage = 1;
-        renderFatwaCards();
+        ensureFiqhLoaded(() => {
+            currentFilteredList = getMasterFatwas();
+            currentPage = 1;
+            renderFatwaCards();
+        });
     }
 
     function renderFatwaCards() {
@@ -6955,10 +7035,10 @@ $pdo = getDBConnection();
             if (currentTopicFilter !== 'all' && item.topic_code !== currentTopicFilter) {
                 return false;
             }
-            // Search query match (multi-word AND)
+            // Search query match (ultra-fast pre-indexed tokens with multi-word AND)
             if (queryTerms.length > 0) {
-                const combined = (item.question + ' ' + item.summary + ' ' + (item.evidence || '') + ' ' + item.scholar_name + ' ' + item.topic_name + ' ' + (item.tags || '') + ' ' + item.ruling + ' ' + item.source).toLowerCase();
-                return queryTerms.every(term => combined.includes(term));
+                const s = item._searchStr || (item.question + ' ' + item.summary).toLowerCase();
+                return queryTerms.every(term => s.includes(term));
             }
             return true;
         });
@@ -7005,8 +7085,20 @@ $pdo = getDBConnection();
         executeLiveFilter();
     }
 
+    // Quiet background pre-fetch during browser idle time (Low-Bandwidth Friendly)
+    if (typeof window !== 'undefined') {
+        if ('requestIdleCallback' in window) {
+            window.requestIdleCallback(() => { ensureFiqhLoaded(); }, { timeout: 4000 });
+        } else {
+            setTimeout(() => { ensureFiqhLoaded(); }, 2500);
+        }
+    }
+
     document.addEventListener("DOMContentLoaded", function() {
-        initFiqhEngine();
+        const activeSuite = document.querySelector('.suite-pill-card.active');
+        if (activeSuite && activeSuite.getAttribute('onclick') && activeSuite.getAttribute('onclick').includes("'fiqh'")) {
+            initFiqhEngine();
+        }
     });
     </script>
 </body>
