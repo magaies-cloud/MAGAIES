@@ -8362,7 +8362,34 @@ $pdo = getDBConnection();
 
         const noAlert = document.getElementById('no-quran-alert');
         if (noAlert) noAlert.classList.toggle('hidden', visibleCount > 0);
-    });
+    }
+
+    let activeBookScholar = 'all';
+    function setBookScholar(scholar, btn) {
+        activeBookScholar = scholar;
+        document.querySelectorAll('.book-filter-btn').forEach(b => b.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+        filterBooksLibrary();
+    }
+
+    function filterBooksLibrary() {
+        const query = (document.getElementById('book-search-input') ? document.getElementById('book-search-input').value : '').trim().toLowerCase();
+        let visibleCount = 0;
+
+        document.querySelectorAll('.fiqh-book-card').forEach(card => {
+            const scholar = card.getAttribute('data-book-scholar');
+            const search = card.getAttribute('data-book-search') || '';
+
+            const matchScholar = (activeBookScholar === 'all' || scholar === activeBookScholar);
+            const matchSearch = (query === '' || search.includes(query));
+
+            if (matchScholar && matchSearch) {
+                card.style.display = '';
+                visibleCount++;
+            } else {
+                card.style.display = 'none';
+            }
+        });
 
         const noAlert = document.getElementById('no-books-alert');
         if (noAlert) noAlert.classList.toggle('hidden', visibleCount > 0);
