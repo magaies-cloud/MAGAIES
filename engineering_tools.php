@@ -7141,123 +7141,313 @@ $pdo = getDBConnection();
         const target = document.getElementById('fiqh-sub-' + subId);
         if (target) target.classList.remove('hidden');
         if (el) el.classList.add('active');
-    }
 
-    // ── Fiqh Filters & Search Controller ──
-    function setFiqhScholar(scholar, btn) {
-        activeScholarFilter = scholar;
-        document.querySelectorAll('[data-filter-type="scholar"]').forEach(b => b.classList.remove('active'));
-        if (btn) btn.classList.add('active');
-        filterFatwas();
-    }
-
-    
-    function onScholarSelectChange(val) {
-        currentScholarFilter = val;
-        activeScholarFilter = val;
-        
-        // Keep google-scholar-select in sync if present
-        const googleScholarSelect = document.getElementById('google-scholar-select');
-        if (googleScholarSelect) {
-            googleScholarSelect.value = val;
-        }
-
-        const fatwasPill = document.querySelector('.fiqh-nav-pill');
-        if (typeof switchFiqhSubTab === 'function' && fatwasPill) {
-            switchFiqhSubTab('fatwas', fatwasPill);
-        }
-
-        if (typeof executeLiveFilter === 'function') {
-            executeLiveFilter();
-        } else if (typeof filterFatwas === 'function') {
-            filterFatwas();
+        if (subId === 'fatwas' && typeof initFiqhEngine === 'function') {
+            initFiqhEngine();
         }
     }
 
-    
-    function showAllFiqhTransactions(btn) {
-        const searchInput = document.getElementById('fiqh-search-input');
-        if (searchInput) searchInput.value = '';
-        
-        currentScholarFilter = 'all';
-        activeScholarFilter = 'all';
-        currentTopicFilter = 'all';
-        activeTopicFilter = 'all';
-        
-        const scholarSelect = document.getElementById('fiqh-scholar-select');
-        if (scholarSelect) scholarSelect.value = 'all';
+    // ════════════════════════════════════════════════════════════════════════════
+    // 🌟 MASTER 4,500 FATWAS ENGINE (ON-DEMAND LAZY LOAD + PRE-INDEXED SEARCH) 🌟
+    // ════════════════════════════════════════════════════════════════════════════
+    let currentScholarFilter = 'all';
+    let currentTopicFilter = 'all';
+    const PAGE_SIZE = 21; // Exactly 21 fatwas per page requested
+    let currentPage = 1;
+    let currentFilteredList = [];
+    let fiqhLoadingPromise = null;
 
-        const googleScholarSelect = document.getElementById('google-scholar-select');
-        if (googleScholarSelect) googleScholarSelect.value = 'all';
-        
-        document.querySelectorAll('.fiqh-pill-btn').forEach(el => el.classList.remove('active'));
-        if (btn) btn.classList.add('active');
+    function getMasterFatwas() {
+        return window.MASTER_20000_FATWAS || window.MASTER_5500_FATWAS || [];
+    }
 
-        const fatwasPill = document.querySelector('.fiqh-nav-pill');
-        if (typeof switchFiqhSubTab === 'function' && fatwasPill) {
-            switchFiqhSubTab('fatwas', fatwasPill);
+    function ensureFiqhLoaded(callback) {
+        if (window.MASTER_20000_FATWAS && Array.isArray(window.MASTER_20000_FATWAS) && window.MASTER_20000_FATWAS.length > 0) {
+            if (callback) callback();
+            return Promise.resolve();
         }
-        
-        if (typeof executeLiveFilter === 'function') {
-            executeLiveFilter();
-        } else if (typeof filterFatwas === 'function') {
-            filterFatwas();
+
+        if (fiqhLoadingPromise) {
+            return fiqhLoadingPromise.then(() => {
+                if (callback) callback();
+            });
+        }
+
+        const grid = document.getElementById('fiqh_fatwas_grid');
+        const badge = document.getElementById('fiqh_search_badge');
+        if (badge) {
+            badge.innerHTML = '<i class="fa-solid fa-cloud-arrow-down text-amber-400 animate-pulse"></i> جاري تجهيز الموسوعة (4,500 فتوى)...';
+        }
+        if (grid && (!grid.children || grid.children.length === 0)) {
+            grid.innerHTML = `
+                <div class="col-span-full py-16 px-6 text-center bg-slate-900/90 border-2 border-amber-500/50 rounded-2xl shadow-2xl space-y-4">
+                    <div class="inline-flex p-4 bg-amber-500/10 rounded-full border border-amber-400/40 animate-pulse">
+                        <i class="fa-solid fa-book-quran text-4xl text-amber-400"></i>
+                    </div>
+                    <h3 class="text-xl sm:text-2xl font-black text-white">جاري تحميل موسوعة الـ 4,500 فتوى موثقة...</h3>
+                    <p class="text-xs sm:text-sm text-slate-300 max-w-lg mx-auto leading-relaxed">
+                        يتم الآن تجهيز الموسوعة وتحميلها بخفة فائقة لتعمل مباشرة من ذاكرة المتصفح بسرعة خيالية ودون استهلاك للإنترنت في الزيارات القادمة.
+                    </p>
+                    <div class="w-48 sm:w-64 h-2 bg-slate-800 rounded-full mx-auto overflow-hidden">
+                        <div class="h-full bg-gradient-to-r from-amber-500 via-emerald-400 to-amber-500 animate-pulse w-full"></div>
+                    </div>
+                </div>
+            `;
+        }
+
+        fiqhLoadingPromise = new Promise((resolve, reject) => {
+            const script = document.createElement('script');
+            script.src = 'js/fiqh_20000_data.js?v=4500_v1';
+            script.async = true;
+            script.onload = () => {
+                // Pre-index search tokens once for ultra-fast zero-freeze searching
+                const dataset = getMasterFatwas();
+                for (let i = 0; i < dataset.length; i++) {
+                    const item = dataset[i];
+                    item._searchStr = (
+                        (item.question || '') + ' ' +
+                        (item.summary || '') + ' ' +
+                        (item.evidence || '') + ' ' +
+                        (item.scholar_name || '') + ' ' +
+                        (item.topic_name || '') + ' ' +
+                        (item.tags || '') + ' ' +
+                        (item.ruling || '') + ' ' +
+                        (item.source || '')
+                    ).toLowerCase();
+                }
+                resolve();
+            };
+            script.onerror = (err) => {
+                console.error('Failed to load fiqh dataset', err);
+                if (grid) {
+                    grid.innerHTML = `
+                        <div class="col-span-full py-10 px-4 text-center bg-rose-950/60 border border-rose-500/50 rounded-xl space-y-2">
+                            <i class="fa-solid fa-triangle-exclamation text-3xl text-rose-400"></i>
+                            <div class="text-white font-black">تعذر تحميل بيانات الفتاوى، يرجى التحقق من الاتصال بالإنترنت والمحاولة مجدداً.</div>
+                            <button type="button" onclick="ensureFiqhLoaded(() => initFiqhEngine())" class="px-4 py-2 bg-rose-600 hover:bg-rose-500 text-white rounded-lg text-xs font-black">إعادة المحاولة</button>
+                        </div>
+                    `;
+                }
+                reject(err);
+            };
+            document.body.appendChild(script);
+        }).then(() => {
+            if (callback) callback();
+        });
+
+        return fiqhLoadingPromise;
+    }
+
+    function initFiqhEngine() {
+        ensureFiqhLoaded(() => {
+            currentFilteredList = getMasterFatwas();
+            currentPage = 1;
+            renderFatwaCards();
+        });
+    }
+
+    function renderFatwaCards() {
+        const grid = document.getElementById('fiqh_fatwas_grid');
+        const badge = document.getElementById('fiqh_search_badge');
+        if (!grid) return;
+
+        const totalAll = getMasterFatwas().length || 4500;
+        const totalMatches = currentFilteredList.length;
+        const totalPages = Math.max(1, Math.ceil(totalMatches / PAGE_SIZE));
+
+        if (currentPage > totalPages) currentPage = totalPages;
+        if (currentPage < 1) currentPage = 1;
+
+        if (badge) {
+            if (totalMatches === totalAll) {
+                badge.innerHTML = `<i class="fa-solid fa-layer-group text-emerald-400"></i> إجمالي <strong>${totalAll.toLocaleString()}</strong> فتوى | صفحة <strong>${currentPage.toLocaleString()}</strong> من <strong>${totalPages.toLocaleString()}</strong> (21 فتوى في الصفحة)`;
+            } else {
+                badge.innerHTML = `<i class="fa-solid fa-filter text-amber-400"></i> عُثر على <strong>${totalMatches.toLocaleString()}</strong> من أصل ${totalAll.toLocaleString()} فتوى | صفحة <strong>${currentPage.toLocaleString()}</strong> من <strong>${totalPages.toLocaleString()}</strong>`;
+            }
+        }
+
+        if (totalMatches === 0) {
+            grid.innerHTML = `
+                <div class="col-span-full p-10 bg-slate-900/90 border-2 border-dashed border-amber-500/40 rounded-3xl text-center space-y-3">
+                    <span class="text-4xl">🔍</span>
+                    <h4 class="text-lg font-black text-amber-300">لم يتم العثور على نتائج مطابقة لبحثك في موسوعة الفتاوى</h4>
+                    <p class="text-xs text-slate-300 font-bold">جرب كتابة كلمة أخرى مثل: تقسيط، شيك، ذهب، عربون، استصناع، أو تصفح حسب الشيوخ الـ 12.</p>
+                    <button type="button" onclick="clearFiqhSearch()" class="px-5 py-2.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl shadow-lg transition">
+                        ✕ إلغاء الفلترة وتصفح كافة الفتاوى
+                    </button>
+                </div>
+            `;
+            updatePaginationBarHtml('fiqh_pagination_bar_top', totalPages, 0, 0, 0);
+            updatePaginationBarHtml('fiqh_pagination_bar_bottom', totalPages, 0, 0, 0);
+            return;
+        }
+
+        // Slice exactly 21 items for current page
+        const startIndex = (currentPage - 1) * PAGE_SIZE;
+        const endIndex = Math.min(startIndex + PAGE_SIZE, totalMatches);
+        const pageItems = currentFilteredList.slice(startIndex, endIndex);
+
+        let html = '';
+        pageItems.forEach((item) => {
+            let rulingClass = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50';
+            if (item.ruling.includes('محرم') || item.ruling.includes('باطل') || item.ruling.includes('لا يجوز') || item.ruling.includes('كبيرة') || item.ruling.includes('سحت')) {
+                rulingClass = 'bg-rose-500/20 text-rose-300 border-rose-500/50';
+            } else if (item.ruling.includes('ضوابط') || item.ruling.includes('مشروطة') || item.ruling.includes('مكروه') || item.ruling.includes('تحري')) {
+                rulingClass = 'bg-amber-500/20 text-amber-300 border-amber-500/50';
+            } else if (item.ruling.includes('واجب')) {
+                rulingClass = 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50';
+            } else if (item.ruling.includes('مستحب') || item.ruling.includes('مندوب')) {
+                rulingClass = 'bg-teal-500/20 text-teal-300 border-teal-500/50';
+            }
+
+            const hadithBox = item.evidence ? `
+                <div class="p-3 bg-gradient-to-r from-amber-950/40 via-slate-900/90 to-amber-950/30 border-r-4 border-amber-500/80 rounded-xl space-y-1.5 my-2.5 shadow-inner">
+                    <div class="flex items-center gap-1.5 text-[11px] font-black text-amber-300">
+                        <i class="fa-solid fa-book-quran text-amber-400"></i>
+                        <span>الأثر والدليل من السنة الصحيحة والقرآن:</span>
+                    </div>
+                    <div class="text-[12px] text-amber-100/95 font-serif leading-relaxed pr-1 font-bold">
+                        ${item.evidence}
+                    </div>
+                </div>
+            ` : '';
+
+            html += `
+                <div class="fiqh-master-card flex flex-col justify-between" data-scholar="${item.scholar_code}" data-topic="${item.topic_code}">
+                    <div class="space-y-3">
+                        <div class="flex items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                            <span class="text-xs font-black text-amber-400 flex items-center gap-1.5">
+                                <i class="fa-solid fa-graduation-cap text-amber-400"></i>
+                                ${item.scholar_name}
+                            </span>
+                            <span class="px-2.5 py-0.5 rounded-lg text-[11px] font-black border ${rulingClass}">
+                                ${item.ruling}
+                            </span>
+                        </div>
+                        <h4 class="text-sm md:text-base font-black text-white leading-snug">
+                            <span class="text-amber-400/80 font-mono text-xs">#${item.id}</span> ${item.question}
+                        </h4>
+                        ${hadithBox}
+                        <p class="text-xs text-slate-300 leading-relaxed font-bold">
+                            ${item.summary}
+                        </p>
+                    </div>
+                    <div class="mt-4 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-bold">
+                        <span class="text-cyan-400"><i class="fa-solid fa-tag ml-1"></i>${item.topic_name}</span>
+                        <span class="font-mono text-slate-500 text-[10px] truncate max-w-[180px]">${item.source}</span>
+                    </div>
+                </div>
+            `;
+        });
+
+        grid.innerHTML = html;
+        updatePaginationBarHtml('fiqh_pagination_bar_top', totalPages, totalMatches, startIndex + 1, endIndex);
+        updatePaginationBarHtml('fiqh_pagination_bar_bottom', totalPages, totalMatches, startIndex + 1, endIndex);
+    }
+
+    function updatePaginationBarHtml(barId, totalPages, totalMatches, fromItem, toItem) {
+        const bar = document.getElementById(barId);
+        if (!bar) return;
+
+        if (totalMatches === 0) {
+            bar.innerHTML = '';
+            return;
+        }
+
+        const prevDisabled = currentPage <= 1 ? 'disabled opacity-30 cursor-not-allowed pointer-events-none' : '';
+        const nextDisabled = currentPage >= totalPages ? 'disabled opacity-30 cursor-not-allowed pointer-events-none' : '';
+
+        let pagesHtml = `
+            <!-- Main Navigation Buttons -->
+            <div class="flex flex-wrap items-center gap-2">
+                <button type="button" onclick="goToPage(1)" class="px-3.5 py-2 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/50 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${prevDisabled}">
+                    ⏮️ الأولى
+                </button>
+                <button type="button" onclick="goToPage(${currentPage - 1})" class="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 border border-amber-400 rounded-xl text-xs sm:text-sm font-black shadow-lg transition flex items-center gap-1.5 ${prevDisabled}">
+                    ◀️ الصفحة السابقة
+                </button>
+                <button type="button" onclick="goToPage(${currentPage + 1})" class="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 border border-amber-400 rounded-xl text-xs sm:text-sm font-black shadow-lg transition flex items-center gap-1.5 ${nextDisabled}">
+                    الصفحة التالية ▶️
+                </button>
+                <button type="button" onclick="goToPage(${totalPages})" class="px-3.5 py-2 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/50 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${nextDisabled}">
+                    الأخيرة (${totalPages}) ⏭️
+                </button>
+            </div>
+
+            <!-- Surrounding Page Number Buttons -->
+            <div class="flex items-center gap-1.5 overflow-x-auto py-1">
+        `;
+
+        let startP = Math.max(1, currentPage - 2);
+        let endP = Math.min(totalPages, startP + 4);
+        if (endP - startP < 4) {
+            startP = Math.max(1, endP - 4);
+        }
+
+        if (startP > 1) {
+            pagesHtml += `<button type="button" onclick="goToPage(1)" class="px-3 py-1.5 bg-slate-900 text-slate-400 border border-slate-800 rounded-lg text-xs font-bold hover:border-amber-400">1</button>`;
+            if (startP > 2) pagesHtml += '<span class="text-slate-500 font-black px-1">...</span>';
+        }
+
+        for (let p = startP; p <= endP; p++) {
+            if (p === currentPage) {
+                pagesHtml += `<button type="button" class="px-4 py-1.5 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black rounded-xl text-xs sm:text-sm shadow-lg border-2 border-amber-300 transform scale-105">
+                    ${p}
+                </button>`;
+            } else {
+                pagesHtml += `<button type="button" onclick="goToPage(${p})" class="px-3 py-1.5 bg-slate-900 text-slate-300 hover:border-amber-400 border border-slate-700 rounded-lg text-xs sm:text-sm font-bold transition">
+                    ${p}
+                </button>`;
+            }
+        }
+
+        if (endP < totalPages) {
+            if (endP < totalPages - 1) pagesHtml += '<span class="text-slate-500 font-black px-1">...</span>';
+            pagesHtml += `<button type="button" onclick="goToPage(${totalPages})" class="px-3 py-1.5 bg-slate-900 text-slate-400 border border-slate-800 rounded-lg text-xs font-bold hover:border-amber-400">${totalPages}</button>`;
+        }
+
+        pagesHtml += `
+            </div>
+
+            <!-- Direct Jump to Page Box -->
+            <div class="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-300">
+                <span>عرض (${fromItem.toLocaleString()} - ${toItem.toLocaleString()}) | انتقال إلى صفحة:</span>
+                <input type="number" id="${barId}_jump_input" min="1" max="${totalPages}" value="${currentPage}" class="w-16 py-1.5 px-2 bg-slate-900 border-2 border-amber-500/60 focus:border-amber-400 text-white rounded-xl text-center text-xs sm:text-sm font-black shadow-inner">
+                <button type="button" onclick="jumpToPageInput('${barId}_jump_input')" class="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl shadow transition">
+                    انتقال ↵
+                </button>
+            </div>
+        `;
+
+        bar.innerHTML = pagesHtml;
+    }
+
+    function goToPage(page) {
+        const totalMatches = currentFilteredList.length;
+        const totalPages = Math.max(1, Math.ceil(totalMatches / PAGE_SIZE));
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
+        currentPage = page;
+        renderFatwaCards();
+
+        const grid = document.getElementById('fiqh_fatwas_grid');
+        if (grid) {
+            grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
     }
 
-    function setQuickSearch(word, el) {
-        const input = document.getElementById('fiqh-search-input');
-        if (input) input.value = word;
-        
-        currentTopicFilter = 'all';
-        activeTopicFilter = 'all';
-
-        const allBtn = document.getElementById('btn-show-all-fiqh');
-        if (allBtn) allBtn.classList.remove('active');
-        
-        document.querySelectorAll('.fiqh-pill-btn').forEach(btn => btn.classList.remove('active'));
-        if (el) el.classList.add('active');
-
-        const fatwasPill = document.querySelector('.fiqh-nav-pill');
-        if (typeof switchFiqhSubTab === 'function' && fatwasPill) {
-            switchFiqhSubTab('fatwas', fatwasPill);
-        }
-        
-        if (typeof executeLiveFilter === 'function') {
-            executeLiveFilter();
-        } else if (typeof filterFatwas === 'function') {
-            filterFatwas();
+    function jumpToPageInput(inputId) {
+        const input = document.getElementById(inputId);
+        if (input) {
+            const val = parseInt(input.value, 10);
+            if (!isNaN(val)) {
+                goToPage(val);
+            }
         }
     }
 
-    function clearFiqhSearch() {
-        const input = document.getElementById('fiqh-search-input');
-        if (input) input.value = '';
-        
-        currentScholarFilter = 'all';
-        activeScholarFilter = 'all';
-        currentTopicFilter = 'all';
-        activeTopicFilter = 'all';
-        
-        const scholarSelect = document.getElementById('fiqh-scholar-select');
-        if (scholarSelect) scholarSelect.value = 'all';
-
-        const googleScholarSelect = document.getElementById('google-scholar-select');
-        if (googleScholarSelect) googleScholarSelect.value = 'all';
-        
-        const allBtn = document.getElementById('btn-show-all-fiqh');
-        if (allBtn) allBtn.classList.add('active');
-
-        document.querySelectorAll('.fiqh-pill-btn').forEach(btn => btn.classList.remove('active'));
-
-        if (typeof executeLiveFilter === 'function') {
-            executeLiveFilter();
-        } else if (typeof filterFatwas === 'function') {
-            filterFatwas();
-        }
-    }
-
-
+    // Real-time live filtering on every keystroke
+    let searchDebounceTimer = null;
     function filterFatwas() {
         clearTimeout(searchDebounceTimer);
         searchDebounceTimer = setTimeout(() => {
@@ -7293,6 +7483,90 @@ $pdo = getDBConnection();
         renderFatwaCards();
     }
 
+    // ════════════════════════════════════════════════════════════════════════════
+    // 🌟 5-SUBBOX HUB & SCHOLAR SELECT CONTROLLERS 🌟
+    // ════════════════════════════════════════════════════════════════════════════
+    function onScholarSelectChange(val) {
+        currentScholarFilter = val;
+        
+        const googleScholarSelect = document.getElementById('google-scholar-select');
+        if (googleScholarSelect) {
+            googleScholarSelect.value = val;
+        }
+
+        const fatwasPill = document.querySelector('.fiqh-nav-pill');
+        if (typeof switchFiqhSubTab === 'function' && fatwasPill) {
+            switchFiqhSubTab('fatwas', fatwasPill);
+        }
+
+        executeLiveFilter();
+    }
+
+    function showAllFiqhTransactions(btn) {
+        const searchInput = document.getElementById('fiqh-search-input');
+        if (searchInput) searchInput.value = '';
+        
+        currentScholarFilter = 'all';
+        currentTopicFilter = 'all';
+        
+        const scholarSelect = document.getElementById('fiqh-scholar-select');
+        if (scholarSelect) scholarSelect.value = 'all';
+
+        const googleScholarSelect = document.getElementById('google-scholar-select');
+        if (googleScholarSelect) googleScholarSelect.value = 'all';
+        
+        document.querySelectorAll('.fiqh-pill-btn').forEach(el => el.classList.remove('active'));
+        if (btn) btn.classList.add('active');
+
+        const fatwasPill = document.querySelector('.fiqh-nav-pill');
+        if (typeof switchFiqhSubTab === 'function' && fatwasPill) {
+            switchFiqhSubTab('fatwas', fatwasPill);
+        }
+        
+        executeLiveFilter();
+    }
+
+    function setQuickSearch(word, el) {
+        const input = document.getElementById('fiqh-search-input');
+        if (input) input.value = word;
+        
+        currentTopicFilter = 'all';
+
+        const allBtn = document.getElementById('btn-show-all-fiqh');
+        if (allBtn) allBtn.classList.remove('active');
+        
+        document.querySelectorAll('.fiqh-pill-btn').forEach(btn => btn.classList.remove('active'));
+        if (el) el.classList.add('active');
+
+        const fatwasPill = document.querySelector('.fiqh-nav-pill');
+        if (typeof switchFiqhSubTab === 'function' && fatwasPill) {
+            switchFiqhSubTab('fatwas', fatwasPill);
+        }
+        
+        executeLiveFilter();
+    }
+
+    function clearFiqhSearch() {
+        const input = document.getElementById('fiqh-search-input');
+        if (input) input.value = '';
+        
+        currentScholarFilter = 'all';
+        currentTopicFilter = 'all';
+        
+        const scholarSelect = document.getElementById('fiqh-scholar-select');
+        if (scholarSelect) scholarSelect.value = 'all';
+
+        const googleScholarSelect = document.getElementById('google-scholar-select');
+        if (googleScholarSelect) googleScholarSelect.value = 'all';
+        
+        const allBtn = document.getElementById('btn-show-all-fiqh');
+        if (allBtn) allBtn.classList.add('active');
+
+        document.querySelectorAll('.fiqh-pill-btn').forEach(btn => btn.classList.remove('active'));
+
+        executeLiveFilter();
+    }
+
     function setFiqhScholar(scholar, el) {
         currentScholarFilter = scholar;
         document.querySelectorAll('.fiqh-filter-btn[data-filter-type="scholar"]').forEach(btn => btn.classList.remove('active'));
@@ -7307,31 +7581,6 @@ $pdo = getDBConnection();
         executeLiveFilter();
     }
 
-    function setQuickSearch(term) {
-        const input = document.getElementById('fiqh-search-input');
-        if (input) {
-            input.value = term;
-            executeLiveFilter();
-            input.scrollIntoView({ behavior: 'smooth', block: 'center' });
-            input.focus();
-        }
-    }
-
-    function clearFiqhSearch() {
-        const input = document.getElementById('fiqh-search-input');
-        if (input) input.value = '';
-        currentScholarFilter = 'all';
-        currentTopicFilter = 'all';
-        currentPage = 1;
-        document.querySelectorAll('.fiqh-filter-btn[data-filter-type="scholar"]').forEach(b => b.classList.remove('active'));
-        document.querySelectorAll('.fiqh-filter-btn[data-filter-type="topic"]').forEach(b => b.classList.remove('active'));
-        const allSchBtn = document.querySelector('.fiqh-filter-btn[data-filter-type="scholar"][data-filter-val="all"]');
-        if (allSchBtn) allSchBtn.classList.add('active');
-        const allTopBtn = document.querySelector('.fiqh-filter-btn[data-filter-type="topic"][data-filter-val="all"]');
-        if (allTopBtn) allTopBtn.classList.add('active');
-        executeLiveFilter();
-    }
-
     // Quiet background pre-fetch during browser idle time (Low-Bandwidth Friendly)
     if (typeof window !== 'undefined') {
         if ('requestIdleCallback' in window) {
@@ -7342,8 +7591,7 @@ $pdo = getDBConnection();
     }
 
     document.addEventListener("DOMContentLoaded", function() {
-        const activeSuite = document.querySelector('.suite-pill-card.active');
-        if (activeSuite && activeSuite.getAttribute('onclick') && activeSuite.getAttribute('onclick').includes("'fiqh'")) {
+        if (document.getElementById('fiqh_fatwas_grid')) {
             initFiqhEngine();
         }
     });
