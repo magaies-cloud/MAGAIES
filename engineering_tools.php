@@ -2385,7 +2385,37 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- 3. UNIFIED MASTER BOX: فتاوى المعاملات والمسائل المالية الأكثر شيوعاً في مربع واحد مدمج وأنيق وموزون -->
+                <!-- 🌟 3. MASTER NAVIGATION BAR: قائمة أقسام المنظومة المنسقة مباشرة بعد مربع البحث 🌟 -->
+                <div class="fiqh-top-nav-bar p-3.5 bg-slate-950/95 rounded-2xl border-2 border-slate-800 flex flex-wrap items-center gap-2 mb-6 shadow-2xl">
+                    <button type="button" class="fiqh-nav-pill active" onclick="switchFiqhSubTab('fatwas', this)">
+                        <span>📑</span> موسوعة الفتاوى والأحكام (4,500 مسألة محررة لكبار الأئمة)
+                    </button>
+                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('quran', this)">
+                        <span>📖</span> الدستور القرآني للمعاملات (15 آية محكمة)
+                    </button>
+                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('hadiths', this)">
+                        <span>📜</span> الموسوعة النبوية الصحيحة (32 حديثاً ثابتاً)
+                    </button>
+                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('books', this)">
+                        <span>📚</span> مكتبة أمهات كتب البيوع (26 مؤلفاً وموسوعة)
+                    </button>
+                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('maxims', this)">
+                        <span>⚖️</span> قواعد الفقه الحاكمة للتجارة (15 قاعدة حاكمة)
+                    </button>
+                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('terms', this)">
+                        <span>💡</span> معجم المصطلحات الاقتصادية
+                    </button>
+                    <button type="button" class="fiqh-nav-pill bg-gradient-to-r from-sky-500/20 to-blue-600/30 text-sky-300 border-sky-400/60 hover:border-sky-300" onclick="switchFiqhSubTab('google', this)">
+                        <span>🌐</span> محرك بحث قوقل للشيوخ الـ 12
+                    </button>
+                </div>
+
+                <!-- ════════════════════════════════════════════════════════════ -->
+                <!-- SUB-SECTION 1: FATWAS & RULINGS SUITE (الموسوعة الكبرى)       -->
+                <!-- ════════════════════════════════════════════════════════════ -->
+                <div id="fiqh-sub-fatwas" class="space-y-6">
+                    
+                    <!-- 3. UNIFIED MASTER BOX: فتاوى المعاملات والمسائل المالية الأكثر شيوعاً في مربع واحد مدمج وأنيق وموزون -->
                 <div class="fiqh-unified-master-card mb-8">
                     
                     <!-- شريط عنوان المربع الموحد -->
@@ -2586,35 +2616,6 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- 4. SUB-TABS NAVIGATION BAR (أقسام المنظومة الـ 6 في صندوق مستقل ومرتب) -->
-                <div class="p-3 bg-slate-950/95 rounded-2xl border-2 border-slate-800 flex flex-wrap items-center gap-2 mb-6">
-                    <button type="button" class="fiqh-nav-pill active" onclick="switchFiqhSubTab('fatwas', this)">
-                        📑 موسوعة الفتاوى والأحكام (3,000 مسألة محررة لكبار الأئمة الـ 12)
-                    </button>
-                    <button type="button" class="fiqh-nav-pill bg-gradient-to-r from-sky-500/20 to-blue-600/30 text-sky-300 border-sky-400/60 hover:border-sky-300" onclick="switchFiqhSubTab('google', this)">
-                        🌐 محرك بحث قوقل للشيوخ الـ 12 (المواقع العالمية)
-                    </button>
-                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('quran', this)">
-                        📖 الدستور القرآني للمعاملات (15 آية محكمة)
-                    </button>
-                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('hadiths', this)">
-                        📜 الموسوعة النبوية الصحيحة (32 حديثاً ثابتاً)
-                    </button>
-                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('books', this)">
-                        📚 مكتبة أمهات كتب البيوع (26 مؤلفاً وموسوعة)
-                    </button>
-                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('maxims', this)">
-                        ⚖️ القواعد الفقهية الكبرى الـ 5 الحاكمة للتجارة
-                    </button>
-                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('terms', this)">
-                        📖 معجم المصطلحات الاقتصادية (6 مصطلحات)
-                    </button>
-                </div>
-
-                <!-- ════════════════════════════════════════════════════════════ -->
-                <!-- SUB-SECTION 1: 80 EXTENDED FATWAS SUITE                     -->
-                <!-- ════════════════════════════════════════════════════════════ -->
-                <div id="fiqh-sub-fatwas" class="space-y-4">
                     
                     <!-- 👁️ VISIBILITY NOTIFICATION BANNER 👁️ -->
                     <div id="fatwas-visibility-banner" class="p-3.5 bg-slate-950/90 border-2 border-amber-500/40 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-md">
@@ -4311,73 +4312,257 @@ $pdo = getDBConnection();
                     
                 
 
-                id="fiqh-sub-maxims" class="space-y-4 hidden">
-                    <div class="p-4 bg-emerald-500/10 border border-emerald-500/30 rounded-2xl">
-                        <h3 class="text-lg font-black text-emerald-400 flex items-center gap-2">
-                            <i class="fa-solid fa-scale-balanced"></i>
-                            القواعد الفقهية الكبرى الـ 5 الحاكمة للبيوع والتجارة في الإسلام
-                        </h3>
-                        <p class="text-xs text-slate-300 font-bold mt-1">
-                            القواعد الكلية التي تفرعت عنها أحكام التجارة والشركات والمصارف.
-                        </p>
+                <div id="fiqh-sub-maxims" class="space-y-4 hidden">
+                    <div class="p-5 bg-gradient-to-r from-emerald-950/40 via-slate-900 to-emerald-950/30 border-2 border-emerald-500/40 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-xl">
+                        <div>
+                            <div class="flex items-center gap-2 mb-1">
+                                <span class="px-3.5 py-1 bg-emerald-500/20 text-emerald-300 font-black text-xs rounded-xl border border-emerald-400">
+                                    ★ الدستور الفقهي الكلي للأسواق
+                                </span>
+                                <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400">
+                                    15 قاعدة فقهية حاكمة للتجارة والبيوع ✓
+                                </span>
+                            </div>
+                            <h3 class="text-xl md:text-2xl font-black text-emerald-300 flex items-center gap-2">
+                                <i class="fa-solid fa-scale-balanced text-emerald-400"></i>
+                                قواعد الفقه الـ 15 الحاكمة للبيوع والمعاملات المالية في الإسلام
+                            </h3>
+                            <p class="text-xs md:text-sm text-slate-200 font-bold mt-1">
+                                القواعد والضوابط الكلية المعتمدة لدى كبار أئمة الإسلام وفقهاء المذاهب الحاكمة للشركات والمصارف وعقود التجارة الحديثة.
+                            </p>
+                        </div>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         
-                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-emerald-500/40 space-y-2">
+                        <!-- 1 -->
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-emerald-500/40 space-y-2 shadow-lg">
                             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                                <h4 class="text-base font-black text-emerald-300">1. «الأصل في العقود والشروط الحل والإباحة»</h4>
-                                <span class="text-xs font-black px-2.5 py-1 bg-emerald-500/20 text-emerald-300 rounded-lg">قاعدة عامة</span>
+                                <h4 class="text-sm md:text-base font-black text-emerald-300">1. «الأصل في العقود والشروط الحل والإباحة»</h4>
+                                <span class="text-[11px] font-black px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded-lg">قاعدة كبرى</span>
                             </div>
                             <p class="text-xs text-slate-300 leading-relaxed font-bold">
                                 كل عقد أو شرط تجاري ابتكره الناس لتحقيق مصالحهم فهو جائز ومباح شرعاً، إلا إذا تضمن ربا، أو غشاً، أو ظلماً، أو ميسراً، أو غرراً فاحشاً.
                             </p>
-                            <span class="text-[11px] text-slate-400 block font-bold">المقررون: الإمام أحمد، ابن تيمية، ابن القيم، السعدي، وابن عثيمين.</span>
+                            <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-bold">
+                                <span>المقررون: الإمام أحمد، ابن تيمية، ابن عثيمين</span>
+                                <span class="text-emerald-400">صحة العقود المستحدثة</span>
+                            </div>
                         </div>
 
-                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-amber-500/40 space-y-2">
+                        <!-- 2 -->
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-amber-500/40 space-y-2 shadow-lg">
                             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                                <h4 class="text-base font-black text-amber-300">2. «الخَرَاجُ بِالضَّمَانِ · والغُنْمُ بِالغُرْمِ»</h4>
-                                <span class="text-xs font-black px-2.5 py-1 bg-amber-500/20 text-amber-300 rounded-lg">حديث نبوي صحيح</span>
+                                <h4 class="text-sm md:text-base font-black text-amber-300">2. «الخَرَاجُ بِالضَّمَانِ · والغُنْمُ بِالغُرْمِ»</h4>
+                                <span class="text-[11px] font-black px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded-lg">حديث صحيح</span>
                             </div>
                             <p class="text-xs text-slate-300 leading-relaxed font-bold">
-                                لا يستحق التاجر أو الشريك الربح إلا إذا كان يتحمل مخاطرة الضمان وتلف البضاعة وخسارتها. أما ضمان رأس المال مع اشتراط فائدة مؤكدة فهو عين الربا المحرم.
+                                لا يستحق التاجر أو الشريك الربح إلا إذا كان يتحمل مخاطرة الضمان وتلف البضاعة وخسارتها. أما ضمان رأس المال مع فائدة مؤكدة فهو عين الربا.
                             </p>
-                            <span class="text-[11px] text-slate-400 block font-bold">التطبيق: تحريم فوائد الودائع البنكية المضمونة مع ربح ثابت، وصحة المضاربة بالمخاطرة.</span>
+                            <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-bold">
+                                <span>المقررون: جمهور الفقهاء والمحققين</span>
+                                <span class="text-amber-400">تحريم الفوائد الثابتة</span>
+                            </div>
                         </div>
 
-                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-sky-500/40 space-y-2">
+                        <!-- 3 -->
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-sky-500/40 space-y-2 shadow-lg">
                             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                                <h4 class="text-base font-black text-sky-300">3. «لا ضَرَرَ وَلا ضِرَارَ»</h4>
-                                <span class="text-xs font-black px-2.5 py-1 bg-sky-500/20 text-sky-300 rounded-lg">حديث نبوي صحيح</span>
+                                <h4 class="text-sm md:text-base font-black text-sky-300">3. «لا ضَرَرَ وَلا ضِرَارَ»</h4>
+                                <span class="text-[11px] font-black px-2 py-0.5 bg-sky-500/20 text-sky-300 rounded-lg">حديث صحيح</span>
                             </div>
                             <p class="text-xs text-slate-300 leading-relaxed font-bold">
                                 تحريم كل تصرف تجاري يلحق ضرراً بالمتعاملين أو بالأسواق، كاحتكار السلع الأساسية، التلاعب بالأسعار (النجش)، أو بيع السلع المعيبة دون بيان.
                             </p>
-                            <span class="text-[11px] text-slate-400 block font-bold">التطبيق: جواز التسعير الجبري عند احتكار أقوات الناس، وثبوت خيار العيب للمشتري.</span>
+                            <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-bold">
+                                <span>المقررون: الأئمة الأربعة وكافة العلماء</span>
+                                <span class="text-sky-400">ثبوت خيار العيب</span>
+                            </div>
                         </div>
 
-                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-purple-500/40 space-y-2">
+                        <!-- 4 -->
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-purple-500/40 space-y-2 shadow-lg">
                             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                                <h4 class="text-base font-black text-purple-300">4. «العَادَةُ مُحَكَّمَةٌ · والمَعْرُوفُ عُرْفاً كَالمَشْرُوطِ شَرْطاً»</h4>
-                                <span class="text-xs font-black px-2.5 py-1 bg-purple-500/20 text-purple-300 rounded-lg">قاعدة أصولية</span>
+                                <h4 class="text-sm md:text-base font-black text-purple-300">4. «العَادَةُ مُحَكَّمَةٌ · والمعروف عرفاً كالمشروط»</h4>
+                                <span class="text-[11px] font-black px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded-lg">قاعدة أصولية</span>
                             </div>
                             <p class="text-xs text-slate-300 leading-relaxed font-bold">
                                 ما تعارف عليه التجار وأهل السوق من مواعيد التسليم، طرق التغليف، مواعيد السداد، والخصومات، يُعد ملزماً كأنه منصوص عليه في صلب العقد.
                             </p>
-                            <span class="text-[11px] text-slate-400 block font-bold">التطبيق: تطبيق أعراف التجارة الإلكترونية والشحن والتسليم.</span>
+                            <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-bold">
+                                <span>المقررون: المذاهب الفقهية الأربعة</span>
+                                <span class="text-purple-400">أعراف التجارة والشحن</span>
+                            </div>
+                        </div>
+
+                        <!-- 5 -->
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-teal-500/40 space-y-2 shadow-lg">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h4 class="text-sm md:text-base font-black text-teal-300">5. «المَشَقَّةُ تَجْلِبُ التَّيْسِيرَ»</h4>
+                                <span class="text-[11px] font-black px-2 py-0.5 bg-teal-500/20 text-teal-300 rounded-lg">قاعدة كلية</span>
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed font-bold">
+                                التيسير والتخفيف في المعاملات ودفع الحرج والضيق عن الناس، ومن فروعها جواز بيع السلم والاستصناع والإقالة وفسخ العقود عند الجوائح.
+                            </p>
+                            <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-bold">
+                                <span>المقررون: إجماع فقهاء الإسلام</span>
+                                <span class="text-teal-400">تشريع الرخص التجارية</span>
+                            </div>
+                        </div>
+
+                        <!-- 6 -->
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-rose-500/40 space-y-2 shadow-lg">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h4 class="text-sm md:text-base font-black text-rose-300">6. «اليَقِينُ لا يَزُولُ بِالشَّكِّ»</h4>
+                                <span class="text-[11px] font-black px-2 py-0.5 bg-rose-500/20 text-rose-300 rounded-lg">قاعدة كلية</span>
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed font-bold">
+                                ثبوت الديون والعقود باليقين لا يرتفع إلا بيقين مثله (بالسداد الموثق أو الإبراء الصريح). والأصل بقاء ما كان على ما كان حتى يثبت تغييره.
+                            </p>
+                            <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-bold">
+                                <span>المقررون: المذاهب الأربعة قاطبة</span>
+                                <span class="text-rose-400">توثيق السداد بالبينة</span>
+                            </div>
+                        </div>
+
+                        <!-- 7 -->
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-indigo-500/40 space-y-2 shadow-lg">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h4 class="text-sm md:text-base font-black text-indigo-300">7. «دَرْءُ المَفَاسِدِ مُقَدَّمٌ عَلَى جَلْبِ المَصَالِحِ»</h4>
+                                <span class="text-[11px] font-black px-2 py-0.5 bg-indigo-500/20 text-indigo-300 rounded-lg">قاعدة كلية</span>
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed font-bold">
+                                إذا تعارضت منفعة تجارية مع مفسدة محرمة كالربا، أو بيع المحرمات، أو الغرر الفاحش، قُدِّم المنع والتحريم صيانة للمال والمجتمع.
+                            </p>
+                            <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-bold">
+                                <span>المقررون: العز بن عبد السلام، الشاطبي</span>
+                                <span class="text-indigo-400">حظر المشتقات الوهمية</span>
+                            </div>
+                        </div>
+
+                        <!-- 8 -->
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-emerald-500/40 space-y-2 shadow-lg">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h4 class="text-sm md:text-base font-black text-emerald-300">8. «إِنَّمَا البَيْعُ عَنْ تَرَاضٍ · الرضا جوهر العقد»</h4>
+                                <span class="text-[11px] font-black px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded-lg">أصل قرآني ونبوي</span>
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed font-bold">
+                                لا ينعقد بيع بإكراه أو تدليس أو إخفاء عيب، ويُشترط التراضي التام الخالي من الغبن الفاحش والإكراه، وثبوت خيار المجلس وخيار الشرط.
+                            </p>
+                            <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-bold">
+                                <span>المقررون: الإمام الشافعي، أحمد بن حنبل</span>
+                                <span class="text-emerald-400">بطلان شروط الإذعان</span>
+                            </div>
+                        </div>
+
+                        <!-- 9 -->
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-amber-500/40 space-y-2 shadow-lg">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h4 class="text-sm md:text-base font-black text-amber-300">9. «كُلُّ قَرْضٍ جَرَّ نَفْعاً مَشْرُوطاً فَهُوَ رِبَا»</h4>
+                                <span class="text-[11px] font-black px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded-lg">إجماع الصحابة</span>
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed font-bold">
+                                القرض في الإسلام عقد إرفاق وإحسان لا عقد استثمار، فإذا اشتُرط فيه زيادة في المال أو هدية أو منفعة مشروطة فهو عين ربا الجاهلية المحرم.
+                            </p>
+                            <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-bold">
+                                <span>المقررون: إجماع الصحابة وفقهاء الأمة</span>
+                                <span class="text-amber-400">تحريم زيادة أجل الدين</span>
+                            </div>
+                        </div>
+
+                        <!-- 10 -->
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-cyan-500/40 space-y-2 shadow-lg">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h4 class="text-sm md:text-base font-black text-cyan-300">10. «الغَرَرُ الكَثِيرُ مَفْسَدَةٌ لِلْعَقْدِ دُونَ اليَسِيرِ»</h4>
+                                <span class="text-[11px] font-black px-2 py-0.5 bg-cyan-500/20 text-cyan-300 rounded-lg">ضابط فقهي</span>
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed font-bold">
+                                الجهالة الفاحشة في السلعة أو الثمن أو موعد التسليم تبطل العقد. أما الغرر اليسير التابع الذي يشق التحرز منه في الأسواق فمعفو عنه شرعاً.
+                            </p>
+                            <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-bold">
+                                <span>المقررون: ابن رشد، ابن تيمية، القرافي</span>
+                                <span class="text-cyan-400">جواز بيع السلع المغلفة</span>
+                            </div>
+                        </div>
+
+                        <!-- 11 -->
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-purple-500/40 space-y-2 shadow-lg">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h4 class="text-sm md:text-base font-black text-purple-300">11. «تَصَرُّفُ الإِمَامِ عَلَى الرَّعِيَّةِ مَنُوطٌ بِالمَصْلَحَةِ»</h4>
+                                <span class="text-[11px] font-black px-2 py-0.5 bg-purple-500/20 text-purple-300 rounded-lg">سياسة شرعية</span>
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed font-bold">
+                                مشروعية الأنظمة التجارية الحكومية وقوانين حماية المستهلك وإلزام الفواتير ومنع التستر وغسيل الأموال، لأنها تحقق المصلحة العامة.
+                            </p>
+                            <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-bold">
+                                <span>المقررون: السيوطي، ابن نجيم، النووي</span>
+                                <span class="text-purple-400">إلزامية السجلات والتراخيص</span>
+                            </div>
+                        </div>
+
+                        <!-- 12 -->
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-yellow-500/40 space-y-2 shadow-lg">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h4 class="text-sm md:text-base font-black text-yellow-300">12. «التَّابِعُ تَابِعٌ وَلا يُفْرَدُ بِالحُكْمِ»</h4>
+                                <span class="text-[11px] font-black px-2 py-0.5 bg-yellow-500/20 text-yellow-300 rounded-lg">قاعدة فقهية</span>
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed font-bold">
+                                ما دخل في البيع تبعاً كالحمل في الشاة أو أساسات المبنى أو ملحقات المعدات، يُغتفر فيه من الجهالة والغرر ما لا يُغتفر لو بيع استقلالاً.
+                            </p>
+                            <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-bold">
+                                <span>المقررون: المذاهب الفقهية الأربعة</span>
+                                <span class="text-yellow-400">ملحقات المباني والمصانع</span>
+                            </div>
+                        </div>
+
+                        <!-- 13 -->
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-emerald-500/40 space-y-2 shadow-lg">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h4 class="text-sm md:text-base font-black text-emerald-300">13. «إِعْمَالُ الكَلامِ أَوْلَى مِنْ إِهْمَالِهِ»</h4>
+                                <span class="text-[11px] font-black px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded-lg">قاعدة أصولية</span>
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed font-bold">
+                                حمل بنود وشروط العقود التجارية على الصحة والمعنى المفيد للطرفين أولى من إلغائها وإبطالها، وتفسير بنود الاتفاق بما يحقق مقصود العاقدين.
+                            </p>
+                            <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-bold">
+                                <span>المقررون: جمهور الأصوليين والفقهاء</span>
+                                <span class="text-emerald-400">تفسير العقود التجارية</span>
+                            </div>
+                        </div>
+
+                        <!-- 14 -->
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-sky-500/40 space-y-2 shadow-lg">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h4 class="text-sm md:text-base font-black text-sky-300">14. «الجَوَازُ الشَّرْعِيُّ يُنَافِي الضَّمَانَ»</h4>
+                                <span class="text-[11px] font-black px-2 py-0.5 bg-sky-500/20 text-sky-300 rounded-lg">قاعدة فقهية</span>
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed font-bold">
+                                يد الوكيل والشريك والمضارب وأمين المستودع يد أمانة؛ فلا يضمنون تلف البضائع أو نقص الأموال إذا تصرفوا بالإذن الشرعي ما لم يثبت تعدٍّ أو تفريط.
+                            </p>
+                            <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-bold">
+                                <span>المقررون: الحنابلة والشافعية والمالكية</span>
+                                <span class="text-sky-400">أمانة الوكيل والمضارب</span>
+                            </div>
+                        </div>
+
+                        <!-- 15 -->
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-amber-500/40 space-y-2 shadow-lg">
+                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                                <h4 class="text-sm md:text-base font-black text-amber-300">15. «الأَصْلُ بَرَاءَةُ الذِّمَّةِ»</h4>
+                                <span class="text-[11px] font-black px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded-lg">قاعدة كلية</span>
+                            </div>
+                            <p class="text-xs text-slate-300 leading-relaxed font-bold">
+                                ذمة الإنسان خالية من أي دين أو غرامة أو التزام مالي حتى يثبت العكس بدليل قطعي أو إقرار صحيح، والبيّنة على من ادعى واليمين على من أنكر.
+                            </p>
+                            <div class="pt-1 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-bold">
+                                <span>المقررون: إجماع علماء المسلمين</span>
+                                <span class="text-amber-400">حماية الذمة المالية</span>
+                            </div>
                         </div>
 
                     </div>
                 </div>
 
-                <!-- ════════════════════════════════════════════════════════════ -->
-                
-                <!-- ════════════════════════════════════════════════════════════ -->
-                
-                <!-- ════════════════════════════════════════════════════════════ -->
-                <!-- SUB-SECTION 6: QURANIC VERSES OF DEBTS & TRANSACTIONS        -->
-                <!-- ════════════════════════════════════════════════════════════ -->
                 <div id="fiqh-sub-quran" class="space-y-4 hidden">
                     <div class="p-5 bg-emerald-950/40 border-2 border-emerald-500/50 rounded-2xl flex flex-wrap items-center justify-between gap-4">
                         <div>
@@ -6531,7 +6716,7 @@ $pdo = getDBConnection();
                     
                 
 
-                id="fiqh-sub-terms" class="space-y-4 hidden">
+                <div id="fiqh-sub-terms" class="space-y-4 hidden">
                     <div class="p-6 bg-slate-900/90 rounded-2xl border-2 border-amber-500/30 space-y-4">
                         <div class="border-b border-slate-800 pb-3">
                             <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-black text-xs rounded-xl border border-amber-400">
@@ -7141,27 +7326,38 @@ $pdo = getDBConnection();
     }
 
     function switchFiqhSubTab(subId, el) {
-        document.getElementById('fiqh-sub-fatwas').classList.add('hidden');
-        document.getElementById('fiqh-sub-books').classList.add('hidden');
-        document.getElementById('fiqh-sub-maxims').classList.add('hidden');
-        document.getElementById('fiqh-sub-terms').classList.add('hidden');
-        if (document.getElementById('fiqh-sub-quran')) document.getElementById('fiqh-sub-quran').classList.add('hidden');
-        if (document.getElementById('fiqh-sub-google')) document.getElementById('fiqh-sub-google').classList.add('hidden');
-        if (document.getElementById('fiqh-sub-hadiths')) document.getElementById('fiqh-sub-hadiths').classList.add('hidden');
+        const allSubIds = ['fatwas', 'quran', 'hadiths', 'books', 'maxims', 'terms', 'google'];
+        allSubIds.forEach(id => {
+            const sec = document.getElementById('fiqh-sub-' + id);
+            if (sec) sec.classList.add('hidden');
+        });
 
         document.querySelectorAll('.fiqh-nav-pill').forEach(btn => btn.classList.remove('active'));
 
         const target = document.getElementById('fiqh-sub-' + subId);
-        if (target) target.classList.remove('hidden');
-        if (el) el.classList.add('active');
+        if (target) {
+            target.classList.remove('hidden');
+        }
 
-        // Only initialize if grid is empty so we don't wipe active filtered results
+        if (el) {
+            el.classList.add('active');
+        } else {
+            const matchingBtn = document.querySelector(`.fiqh-nav-pill[onclick*="'${subId}'"]`);
+            if (matchingBtn) matchingBtn.classList.add('active');
+        }
+
         if (subId === 'fatwas') {
             const grid = document.getElementById('fiqh_fatwas_grid');
             if (grid && (!grid.children || grid.children.length === 0) && typeof initFiqhEngine === 'function') {
                 initFiqhEngine();
             }
         }
+
+        setTimeout(() => {
+            if (target) {
+                target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }
+        }, 50);
     }
 
     // ════════════════════════════════════════════════════════════════════════════
