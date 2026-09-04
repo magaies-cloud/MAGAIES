@@ -886,6 +886,53 @@ $pdo = getDBConnection();
             box-shadow: 0 10px 28px rgba(168, 85, 247, 0.2);
         }
 
+        /* Sub-box 5 Full-Width Horizontal 2-Row Layout */
+        .fiqh-cat-subgroup.fiqh-box5-full {
+            grid-column: 1 / -1 !important;
+            width: 100% !important;
+        }
+
+        .fiqh-box5-grid {
+            display: grid;
+            grid-template-columns: repeat(6, minmax(0, 1fr));
+            gap: 10px;
+            width: 100%;
+        }
+
+        .fiqh-box5-grid .fiqh-pill-btn {
+            flex: none !important;
+            min-width: 0 !important;
+            width: 100% !important;
+            min-height: 52px !important;
+            padding: 8px 10px !important;
+            font-size: 0.84rem !important;
+            font-weight: 800 !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            text-align: center !important;
+            gap: 6px !important;
+            white-space: normal !important;
+            line-height: 1.3 !important;
+            border-radius: 13px !important;
+        }
+
+        @media (max-width: 1199px) {
+            .fiqh-box5-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr));
+            }
+            .fiqh-box5-grid .fiqh-pill-btn {
+                font-size: 0.88rem !important;
+                padding: 10px 12px !important;
+            }
+        }
+
+        @media (max-width: 640px) {
+            .fiqh-box5-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr));
+            }
+        }
+
         .fiqh-cat-indigo {
             border-color: rgba(99, 102, 241, 0.4);
             background: linear-gradient(145deg, rgba(24, 20, 52, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
@@ -2695,59 +2742,68 @@ $pdo = getDBConnection();
                             </div>
                         </div>
 
-                        <!-- 5. جميع مسائل المعاملات المالية (الموسوعة الشاملة) -->
-                        <div class="fiqh-cat-subgroup fiqh-cat-indigo md:col-span-2">
-                            <div class="fiqh-cat-title-bar">
-                                <span class="fiqh-cat-tag">
-                                    <i class="fa-solid fa-scale-balanced text-indigo-400"></i>
-                                    5. جميع مسائل المعاملات المالية
-                                </span>
-                                <span class="fiqh-cat-count text-indigo-400 border-indigo-500/30">الموسوعة الشاملة (4,500 فتوى موثقة)</span>
-                            </div>
-                            <div class="fiqh-cat-pills-wrap">
-                                <button type="button" class="fiqh-pill-btn fiqh-master-full-pill active" onclick="showAllFiqhTransactions(this)" id="btn-show-all-fiqh">
+                        <!-- 5. جميع مسائل المعاملات المالية (الموسوعة الشاملة ممتدة أفقياً على كامل العرض بسطرين موزونين 6 + 6) -->
+                        <div class="fiqh-cat-subgroup fiqh-cat-indigo fiqh-box5-full">
+                            
+                            <!-- شريط عنوان المربع الخامس مع زر الموسوعة الشاملة الفاخر -->
+                            <div class="fiqh-cat-title-bar flex flex-wrap items-center justify-between gap-3">
+                                <div class="flex items-center gap-3">
+                                    <span class="fiqh-cat-tag">
+                                        <i class="fa-solid fa-scale-balanced text-indigo-400"></i>
+                                        5. جميع مسائل المعاملات المالية
+                                    </span>
+                                    <span class="fiqh-cat-count text-indigo-400 border-indigo-500/30">الموسوعة الشاملة (4,500 فتوى موثقة)</span>
+                                </div>
+                                <button type="button" class="fiqh-pill-btn fiqh-master-full-pill active" onclick="showAllFiqhTransactions(this)" id="btn-show-all-fiqh" style="flex: 0 0 auto !important; min-width: auto !important; padding: 8px 18px !important; font-size: 0.88rem !important;">
                                     <span>🌟</span> عرض كافة المسائل والمعاملات (الموسوعة الكاملة لكافة الأبواب)
                                 </button>
+                            </div>
+
+                            <!-- شبكة المسائل المنسقة أفقياً في سطرين كاملين متناسقين (6 في السطر الأول + 6 في السطر الثاني) -->
+                            <div class="fiqh-box5-grid">
+                                
+                                <!-- ════════════════ السطر الأول (6 مسائل) ════════════════ -->
                                 <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('stocks', this)">
-                                    <span>🏢</span> الشركات والأسهم والمضاربة
+                                    <span>🏢</span> <span>الشركات والأسهم والمضاربة</span>
                                 </button>
                                 <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('ecommerce', this)">
-                                    <span>📱</span> التجارة الإلكترونية ونقاط البيع POS
+                                    <span>📱</span> <span>التجارة الإلكترونية ونقاط البيع POS</span>
                                 </button>
                                 <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('insurance', this)">
-                                    <span>🛡️</span> التأمين التعاوني والتكافلي
+                                    <span>🛡️</span> <span>التأمين التعاوني والتكافلي</span>
                                 </button>
                                 <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('guarantee', this)">
-                                    <span>🤝</span> الكفالة والضمان الشخصي
+                                    <span>🤝</span> <span>الكفالة والضمان الشخصي</span>
                                 </button>
                                 <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('franchise', this)">
-                                    <span>🏢</span> الامتياز التجاري (الفرنشايز)
+                                    <span>🏷️</span> <span>الامتياز التجاري (الفرنشايز)</span>
                                 </button>
                                 <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('letters_of_credit', this)">
-                                    <span>🚢</span> الاعتمادات والشحن الدولي
+                                    <span>🚢</span> <span>الاعتمادات والشحن الدولي</span>
                                 </button>
+
+                                <!-- ════════════════ السطر الثاني (6 مسائل) ════════════════ -->
                                 <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('zakat', this)">
-                                    <span>💰</span> الزكاة وعروض التجارة والديون
+                                    <span>💰</span> <span>الزكاة وعروض التجارة والديون</span>
                                 </button>
                                 <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('pawn', this)">
-                                    <span>🏠</span> الرهن الحيازي والتجاري
+                                    <span>🏠</span> <span>الرهن الحيازي والتجاري</span>
                                 </button>
                                 <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('emergency', this)">
-                                    <span>⚡</span> الجوائح والظروف الطارئة
+                                    <span>⚡</span> <span>الجوائح والظروف الطارئة</span>
                                 </button>
                                 <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('bankruptcy', this)">
-                                    <span>⚖️</span> التفليس وقسمة الغرماء
+                                    <span>⚖️</span> <span>التفليس وقسمة الغرماء</span>
                                 </button>
                                 <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('loyalty_points', this)">
-                                    <span>🎁</span> نقاط المكافآت وبطاقات الولاء
+                                    <span>🎁</span> <span>نقاط المكافآت وبطاقات الولاء</span>
                                 </button>
                                 <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('crowdfunding', this)">
-                                    <span>👥</span> التمويل الجماعي والاستثماري
+                                    <span>👥</span> <span>التمويل الجماعي والاستثماري</span>
                                 </button>
-                            </div>
-                        </div>
 
-                    </div>
+                            </div>
+                        </div></div>
                 </div>
 
                     
