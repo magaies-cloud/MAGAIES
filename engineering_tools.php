@@ -332,28 +332,166 @@ $pdo = getDBConnection();
             border-color: #38bdf8;
         }
 
+                .fiqh-top-nav-bar {
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(2, 6, 23, 0.98));
+            border: 2px solid rgba(255, 255, 255, 0.12);
+            border-radius: 20px;
+            padding: 14px 18px;
+            box-shadow: 0 12px 35px -10px rgba(0, 0, 0, 0.75), inset 0 1px 0 rgba(255, 255, 255, 0.1);
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            align-items: center;
+        }
+
         .fiqh-nav-pill {
-            padding: 10px 18px;
+            padding: 11px 20px;
             border-radius: 14px;
-            font-size: 0.95rem;
+            font-size: 0.96rem;
             font-weight: 900;
-            background: rgba(15, 23, 42, 0.9);
-            color: #94a3b8;
-            border: 2px solid rgba(255, 255, 255, 0.1);
             cursor: pointer;
-            transition: all 0.2s ease;
+            transition: all 0.22s cubic-bezier(0.4, 0, 0.2, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 9px;
+            user-select: none;
+            line-height: 1.4;
+            border-width: 2px;
+            border-style: solid;
         }
 
-        .fiqh-nav-pill:hover {
+        .fiqh-pill-icon {
+            font-size: 1.15rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            filter: drop-shadow(0 1px 2px rgba(0,0,0,0.5));
+        }
+
+        /* 1. Fatwas: Luxury Gold / Amber */
+        .fiqh-pill-fatwas {
+            background: rgba(245, 158, 11, 0.14);
+            border-color: rgba(245, 158, 11, 0.55);
+            color: #fef08a;
+        }
+        .fiqh-pill-fatwas:hover {
+            background: rgba(245, 158, 11, 0.26);
             border-color: #fbbf24;
-            color: #fbbf24;
+            color: #ffffff;
+            box-shadow: 0 0 20px rgba(245, 158, 11, 0.45);
+            transform: translateY(-1px);
+        }
+        .fiqh-pill-fatwas.active {
+            background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+            border-color: #fef08a !important;
+            color: #020617 !important;
+            box-shadow: 0 6px 25px rgba(245, 158, 11, 0.65) !important;
+            transform: translateY(-2px);
         }
 
-        .fiqh-nav-pill.active {
-            background: linear-gradient(135deg, #f59e0b, #d97706) !important;
-            border-color: #fbbf24 !important;
+        /* 2. Quran: Noble Quranic Emerald Green */
+        .fiqh-pill-quran {
+            background: rgba(16, 185, 129, 0.14);
+            border-color: rgba(16, 185, 129, 0.55);
+            color: #a7f3d0;
+        }
+        .fiqh-pill-quran:hover {
+            background: rgba(16, 185, 129, 0.26);
+            border-color: #34d399;
+            color: #ffffff;
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.45);
+            transform: translateY(-1px);
+        }
+        .fiqh-pill-quran.active {
+            background: linear-gradient(135deg, #10b981, #059669) !important;
+            border-color: #ecfdf5 !important;
             color: #020617 !important;
-            box-shadow: 0 6px 20px rgba(245, 158, 11, 0.4);
+            box-shadow: 0 6px 25px rgba(16, 185, 129, 0.65) !important;
+            transform: translateY(-2px);
+        }
+
+        /* 3. Hadiths: Prophetic Sky Blue / Radiant Cyan */
+        .fiqh-pill-hadiths {
+            background: rgba(14, 165, 233, 0.14);
+            border-color: rgba(14, 165, 233, 0.55);
+            color: #bae6fd;
+        }
+        .fiqh-pill-hadiths:hover {
+            background: rgba(14, 165, 233, 0.26);
+            border-color: #38bdf8;
+            color: #ffffff;
+            box-shadow: 0 0 20px rgba(14, 165, 233, 0.45);
+            transform: translateY(-1px);
+        }
+        .fiqh-pill-hadiths.active {
+            background: linear-gradient(135deg, #0284c7, #0369a1) !important;
+            border-color: #f0f9ff !important;
+            color: #ffffff !important;
+            box-shadow: 0 6px 25px rgba(14, 165, 233, 0.65) !important;
+            transform: translateY(-2px);
+        }
+
+        /* 4. Books: Grand Classical Purple / Violet */
+        .fiqh-pill-books {
+            background: rgba(168, 85, 247, 0.14);
+            border-color: rgba(168, 85, 247, 0.55);
+            color: #e9d5ff;
+        }
+        .fiqh-pill-books:hover {
+            background: rgba(168, 85, 247, 0.26);
+            border-color: #c084fc;
+            color: #ffffff;
+            box-shadow: 0 0 20px rgba(168, 85, 247, 0.45);
+            transform: translateY(-1px);
+        }
+        .fiqh-pill-books.active {
+            background: linear-gradient(135deg, #9333ea, #7e22ce) !important;
+            border-color: #faf5ff !important;
+            color: #ffffff !important;
+            box-shadow: 0 6px 25px rgba(168, 85, 247, 0.65) !important;
+            transform: translateY(-2px);
+        }
+
+        /* 5. Maxims: Legal Deep Teal / Aqua */
+        .fiqh-pill-maxims {
+            background: rgba(20, 184, 166, 0.14);
+            border-color: rgba(20, 184, 166, 0.55);
+            color: #99f6e4;
+        }
+        .fiqh-pill-maxims:hover {
+            background: rgba(20, 184, 166, 0.26);
+            border-color: #2dd4bf;
+            color: #ffffff;
+            box-shadow: 0 0 20px rgba(20, 184, 166, 0.45);
+            transform: translateY(-1px);
+        }
+        .fiqh-pill-maxims.active {
+            background: linear-gradient(135deg, #0d9488, #0f766e) !important;
+            border-color: #f0fdfa !important;
+            color: #ffffff !important;
+            box-shadow: 0 6px 25px rgba(20, 184, 166, 0.65) !important;
+            transform: translateY(-2px);
+        }
+
+        /* 6. Terms: Vibrant Economic Amber-Orange */
+        .fiqh-pill-terms {
+            background: rgba(249, 115, 22, 0.14);
+            border-color: rgba(249, 115, 22, 0.55);
+            color: #fed7aa;
+        }
+        .fiqh-pill-terms:hover {
+            background: rgba(249, 115, 22, 0.26);
+            border-color: #fb923c;
+            color: #ffffff;
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.45);
+            transform: translateY(-1px);
+        }
+        .fiqh-pill-terms.active {
+            background: linear-gradient(135deg, #ea580c, #c2410c) !important;
+            border-color: #fff7ed !important;
+            color: #ffffff !important;
+            box-shadow: 0 6px 25px rgba(249, 115, 22, 0.65) !important;
+            transform: translateY(-2px);
         }
 
         @keyframes fadeInUp {
@@ -2350,13 +2488,7 @@ $pdo = getDBConnection();
                                 <span>البحث داخل البرنامج</span>
                             </button>
 
-                            <!-- الزر 2: بحث جوجل المشروط بالـ 12 -->
-                            <button type="button" onclick="executeScopedGoogle12Search()" class="fiqh-btn-glow fiqh-btn-google-glow" title="بحث جوجل مقيد بالشيوخ الـ 12 المعتمدين والمواقع الشرعية">
-                                <div class="fiqh-btn-icon-wrap">
-                                    <i class="fa-brands fa-google"></i>
-                                </div>
-                                <span>بحث جوجل</span>
-                            </button>
+                            
 
                             <!-- الزر 3 / القائمة المنسدلة: جميع الشيوخ الـ 12 المعتمدين -->
                             <div class="relative fiqh-scholar-dropdown-wrap">
@@ -2385,32 +2517,34 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- 🌟 3. MASTER NAVIGATION BAR: قائمة أقسام المنظومة المنسقة مباشرة بعد مربع البحث 🌟 -->
-                <div class="fiqh-top-nav-bar p-3.5 bg-slate-950/95 rounded-2xl border-2 border-slate-800 flex flex-wrap items-center gap-2 mb-6 shadow-2xl">
-                    <button type="button" class="fiqh-nav-pill active" onclick="switchFiqhSubTab('fatwas', this)">
-                        <span>📑</span> موسوعة الفتاوى والأحكام (4,500 مسألة محررة لكبار الأئمة)
+                <!-- 🌟 MASTER NAVIGATION BAR: قائمة أقسام المنظومة الـ 6 المعتمدة بألوان فائقة الوضوح والجمال 🌟 -->
+                <div class="fiqh-top-nav-bar mb-6">
+                    <button type="button" class="fiqh-nav-pill fiqh-pill-fatwas active" onclick="switchFiqhSubTab('fatwas', this)">
+                        <span class="fiqh-pill-icon">📑</span>
+                        <span>موسوعة الفتاوى والأحكام (4,500 مسألة محررة لكبار الأئمة)</span>
                     </button>
-                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('quran', this)">
-                        <span>📖</span> الدستور القرآني للمعاملات (15 آية محكمة)
+                    <button type="button" class="fiqh-nav-pill fiqh-pill-quran" onclick="switchFiqhSubTab('quran', this)">
+                        <span class="fiqh-pill-icon">📖</span>
+                        <span>الدستور القرآني للمعاملات (15 آية محكمة)</span>
                     </button>
-                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('hadiths', this)">
-                        <span>📜</span> الموسوعة النبوية الصحيحة (32 حديثاً ثابتاً)
+                    <button type="button" class="fiqh-nav-pill fiqh-pill-hadiths" onclick="switchFiqhSubTab('hadiths', this)">
+                        <span class="fiqh-pill-icon">📜</span>
+                        <span>الموسوعة النبوية الصحيحة (32 حديثاً ثابتاً)</span>
                     </button>
-                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('books', this)">
-                        <span>📚</span> مكتبة أمهات كتب البيوع (26 مؤلفاً وموسوعة)
+                    <button type="button" class="fiqh-nav-pill fiqh-pill-books" onclick="switchFiqhSubTab('books', this)">
+                        <span class="fiqh-pill-icon">📚</span>
+                        <span>مكتبة أمهات كتب البيوع (26 مؤلفاً وموسوعة)</span>
                     </button>
-                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('maxims', this)">
-                        <span>⚖️</span> قواعد الفقه الحاكمة للتجارة (15 قاعدة حاكمة)
+                    <button type="button" class="fiqh-nav-pill fiqh-pill-maxims" onclick="switchFiqhSubTab('maxims', this)">
+                        <span class="fiqh-pill-icon">⚖️</span>
+                        <span>قواعد الفقه الحاكمة للتجارة (15 قاعدة حاكمة)</span>
                     </button>
-                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('terms', this)">
-                        <span>💡</span> معجم المصطلحات الاقتصادية
-                    </button>
-                    <button type="button" class="fiqh-nav-pill bg-gradient-to-r from-sky-500/20 to-blue-600/30 text-sky-300 border-sky-400/60 hover:border-sky-300" onclick="switchFiqhSubTab('google', this)">
-                        <span>🌐</span> محرك بحث قوقل للشيوخ الـ 12
+                    <button type="button" class="fiqh-nav-pill fiqh-pill-terms" onclick="switchFiqhSubTab('terms', this)">
+                        <span class="fiqh-pill-icon">💡</span>
+                        <span>معجم المصطلحات الاقتصادية (قاموس فقهي شامل)</span>
                     </button>
                 </div>
-
-                <!-- ════════════════════════════════════════════════════════════ -->
+<!-- ════════════════════════════════════════════════════════════ -->
                 <!-- SUB-SECTION 1: FATWAS & RULINGS SUITE (الموسوعة الكبرى)       -->
                 <!-- ════════════════════════════════════════════════════════════ -->
                 <div id="fiqh-sub-fatwas" class="space-y-6">
@@ -2649,125 +2783,6 @@ $pdo = getDBConnection();
                     <!-- 📑 2. BOTTOM PROMINENT PAGINATION & PAGE CHANGER BAR 📑 -->
                     <div id="fiqh_pagination_bar_bottom" class="p-4 bg-slate-950/95 border-2 border-amber-500/60 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-xl mt-4">
                         <!-- Rendered by JavaScript -->
-                    </div>
-                </div>
-
-                <div id="fiqh-sub-google" class="space-y-4 hidden">
-                    <div class="p-6 bg-gradient-to-br from-slate-900 via-sky-950/40 to-slate-900 border-2 border-sky-500/50 rounded-2xl shadow-2xl space-y-4">
-                        
-                        <!-- Header -->
-                        <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-4">
-                            <div>
-                                <div class="flex items-center gap-2 mb-1.5">
-                                    <span class="px-3 py-1 bg-sky-500/20 text-sky-300 font-mono font-black text-xs rounded-xl border border-sky-400">
-                                        ★ محرك بحث قوقل الذكي الموثق (Google Search Engine)
-                                    </span>
-                                    <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-black text-xs rounded-xl border border-amber-400">
-                                        حصر النتائج في الشيوخ الـ 12 والمواقع الرسمية فقط ✓
-                                    </span>
-                                </div>
-                                <h3 class="text-xl md:text-2xl font-black text-sky-300 flex items-center gap-2">
-                                    <i class="fa-brands fa-google text-sky-400"></i>
-                                    البحث العالمي المباشر عن الفتاوى عبر قوقل للشيوخ الـ 12 المعتمدين
-                                </h3>
-                                <p class="text-xs md:text-sm text-slate-300 font-bold mt-1">
-                                    يبحث هذا المحرك الذكي في شبكة الإنترنت العالمية مع <strong class="text-amber-300 font-black">إلزام محرك قوقل بعدم إظهار أي فتوى إلا إذا كانت صادرة عن أحد الأئمة الـ 12 المعتمدين حصراً</strong> ومن المواقع والمكتبات الإسلامية الرسمية والمحققة.
-                                </p>
-                            </div>
-                            <span class="text-4xl hidden md:block">🌐</span>
-                        </div>
-
-                        <!-- Google Live Search Form -->
-                        <div class="p-5 bg-slate-950/90 rounded-2xl border border-sky-500/30 space-y-4 shadow-inner">
-                            
-                            <!-- Search Input -->
-                            <div>
-                                <label class="text-xs md:text-sm font-black text-amber-300 block mb-1.5">
-                                    🔍 اكتب سؤالك أو مسألتك الفقهية للبحث عنها في قوقل:
-                                </label>
-                                <div class="relative">
-                                    <input type="text" id="google-fiqh-query" placeholder="مثال: حكم شراء سيارة أو معدات بالمرابحة البنكية، بيع سكراب، تأخير تسليم حديد..." class="tool-input text-sm md:text-base font-bold pr-4 pl-12 py-3 bg-slate-900 border-2 border-sky-500/40 focus:border-sky-400 text-white rounded-xl w-full">
-                                    <button type="button" onclick="executeGoogleScholarSearch()" class="absolute left-2 top-2 px-4 py-1.5 bg-sky-500 hover:bg-sky-400 text-slate-950 font-black text-xs rounded-lg shadow transition">
-                                        بحث ↗
-                                    </button>
-                                </div>
-                            </div>
-
-                            <!-- Filter Grid: Scholar + Target Domain -->
-                            <div class="grid grid-cols-1 md:grid-cols-2 gap-4 pt-2">
-                                
-                                <!-- Scholar Filter Selector -->
-                                <div>
-                                    <label class="text-xs font-black text-slate-300 block mb-1">
-                                        👤 تخصيص الشيخ أو الإمام في قوقل:
-                                    </label>
-                                    <select id="google-scholar-select" class="tool-input text-xs font-black bg-slate-900 border border-slate-700 text-amber-300 py-2.5 rounded-xl w-full">
-                                        <option value="all">🌟 جميع الأئمة والعلماء الـ 12 معاً (تلقائي)</option>
-                                        <option value="ibn_baz">📜 الإمام عبد العزيز بن باز (رحمه الله)</option>
-                                        <option value="ibn_uthaymeen">💡 الإمام محمد بن صالح العثيمين (رحمه الله)</option>
-                                        <option value="al_fawzan">⚖️ معالي الشيخ د. صالح بن فوزان الفوزان (حفظه الله)</option>
-                                        <option value="ibn_taymiyyah">📖 شيخ الإسلام ابن تيمية (رحمه الله)</option>
-                                        <option value="ibn_al_qayyim">✨ الإمام ابن قيم الجوزية (رحمه الله)</option>
-                                        <option value="imam_ahmad">👑 الإمام أحمد بن حنبل (رحمه الله)</option>
-                                        <option value="al_nawawi">📜 الإمام محيي الدين النووي (رحمه الله)</option>
-                                        <option value="al_dhahabi">⚖️ الإمام الحافظ الذهبي (رحمه الله)</option>
-                                        <option value="muhammad_bin_abdulwahhab">📚 الإمام محمد بن عبد الوهاب (رحمه الله)</option>
-                                        <option value="al_saadi">💡 العلامة الشيخ عبد الرحمن السعدي (رحمه الله)</option>
-                                        <option value="al_shinqiti">📖 العلامة محمد الأمين الشنقيطي (رحمه الله)</option>
-                                        <option value="al_albani">📚 الإمام محمد ناصر الدين الألباني (رحمه الله)</option>
-                                    </select>
-                                </div>
-
-                                <!-- Target Sites Selector -->
-                                <div>
-                                    <label class="text-xs font-black text-slate-300 block mb-1">
-                                        🏛️ نطاق المواقع والمكتبات العالمية المعتمدة:
-                                    </label>
-                                    <select id="google-sites-select" class="tool-input text-xs font-black bg-slate-900 border border-slate-700 text-emerald-300 py-2.5 rounded-xl w-full">
-                                        <option value="all_approved">🌐 كافة المواقع الرسمية والمكتبة الشاملة والدرر السنية وإسلام ويب</option>
-                                        <option value="official_only">🏛️ المواقع الرسمية للشيوخ فقط (ابن باز، ابن عثيمين، الفوزان، الألباني)</option>
-                                        <option value="shamela">📚 المكتبة الشاملة الحديثة (shamela.ws)</option>
-                                        <option value="binbaz">📜 موقع الشيخ ابن باز الرسمي (binbaz.org.sa)</option>
-                                        <option value="uthaymeen">💡 موقع الشيخ ابن عثيمين الرسمي (ibnothaimeen.net)</option>
-                                        <option value="fawzan">⚖️ موقع الشيخ صالح الفوزان الرسمي (alfawzan.af.org.sa)</option>
-                                        <option value="albany">📚 موقع الشيخ الألباني الرسمي (alalbany.org)</option>
-                                        <option value="dorar">💎 موسوعة الدرر السنية (dorar.net)</option>
-                                        <option value="islamweb">📖 شبكة إسلام ويب (islamweb.net)</option>
-                                        <option value="alukah">📄 شبكة الألوكة الفقهية (alukah.net)</option>
-                                    </select>
-                                </div>
-
-                            </div>
-
-                            <!-- Main Search Execution Button -->
-                            <div class="pt-2">
-                                <button type="button" onclick="executeGoogleScholarSearch()" class="w-full py-3.5 px-6 bg-gradient-to-r from-sky-500 via-blue-600 to-indigo-600 hover:from-sky-400 hover:via-blue-500 hover:to-indigo-500 text-white font-black text-sm md:text-base rounded-xl shadow-xl flex items-center justify-center gap-2 transition transform hover:-translate-y-0.5 border border-sky-300/40">
-                                    <i class="fa-brands fa-google text-lg"></i>
-                                    <span>افتح نتائج البحث الموثق في محرك قوقل العالمي الآن ↗</span>
-                                </button>
-                            </div>
-
-                        </div>
-
-                        <!-- 10 Instant Topic Search Chips -->
-                        <div class="space-y-2 pt-2">
-                            <span class="text-xs font-black text-amber-300 block">
-                                ⚡ نماذج أسئلة وفتاوى تجارية جاهزة للبحث الفوري في قوقل (اضغط للبحث مباشرة):
-                            </span>
-                            <div class="flex flex-wrap gap-2">
-                                <button type="button" class="quick-chip" onclick="quickGoogleSearch('حكم شراء سيارات أو معدات بالمرابحة البنكية للآمر بالشراء')">🚗 المرابحة البنكية للسيارات</button>
-                                <button type="button" class="quick-chip" onclick="quickGoogleSearch('حكم الشرط الجزائي وغرامات التأخير في عقود المقاولات والتوريد')">🏗️ الشرط الجزائي للمقاولات</button>
-                                <button type="button" class="quick-chip" onclick="quickGoogleSearch('حكم بيع حديد السكراب والخردة وضوابط وزن البسكول')">🔩 بيع حديد السكراب</button>
-                                <button type="button" class="quick-chip" onclick="quickGoogleSearch('حكم التورق الفردي وسداد الديون للحصول على السيولة')">💳 التورق للحصول على سيولة</button>
-                                <button type="button" class="quick-chip" onclick="quickGoogleSearch('حكم خصم الشيكات والكمبيالات الآجلة بنقد حال')">📜 حكم خصم الشيكات</button>
-                                <button type="button" class="quick-chip" onclick="quickGoogleSearch('حكم شراء الذهب والفضة عبر بطاقات الصراف ومدى ونقاط البيع')">💎 شراء الذهب بالبطاقة</button>
-                                <button type="button" class="quick-chip" onclick="quickGoogleSearch('حكم الإيجار المنتهي بالتمليك وضوابطه الشرعية الصحيحة')">🏢 الإيجار المنتهي بالتمليك</button>
-                                <button type="button" class="quick-chip" onclick="quickGoogleSearch('حكم بيع الاسم التجاري والعلامات التجارية والفرنشايز')">🏷️ بيع العلامة التجارية</button>
-                                <button type="button" class="quick-chip" onclick="quickGoogleSearch('حكم التأمين التعاوني التكافلي للبضائع والشحن البحري')">🚢 التأمين التكافلي للبضائع</button>
-                                <button type="button" class="quick-chip" onclick="quickGoogleSearch('حكم الصرف الفوري عبر تطبيقات الموبايل بنك والقبض الحكمي')">📱 الصرف عبر الموبايل بنك</button>
-                            </div>
-                        </div>
-
                     </div>
                 </div>
 
@@ -4309,6 +4324,7 @@ $pdo = getDBConnection();
                         <h5 class="text-lg font-black text-slate-300">لا توجد كتب مطابقة للبحث الحالي</h5>
                         <p class="text-xs text-slate-400 mt-1">يرجى مسح كلمة البحث أو اختيار إمام آخر لإظهار بقية المؤلفات.</p>
                     </div>
+                </div>
                     
                 
 
@@ -4330,13 +4346,18 @@ $pdo = getDBConnection();
                             <p class="text-xs md:text-sm text-slate-200 font-bold mt-1">
                                 القواعد والضوابط الكلية المعتمدة لدى كبار أئمة الإسلام وفقهاء المذاهب الحاكمة للشركات والمصارف وعقود التجارة الحديثة.
                             </p>
-                        </div>
+                        
+                        <!-- Instant Maxims Search Box -->
+                        <div class="w-full md:w-80">
+                            <label class="text-xs font-bold text-slate-300 block mb-1">🔍 ابحث في القواعد والضوابط الكلية:</label>
+                            <input type="text" id="maxims-search-input" oninput="filterMaxims()" placeholder="اكتب للبحث: العقد، الضرر، الأصل، العرف..." class="tool-input text-xs font-bold">
+                        </div></div>
                     </div>
 
                     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                         
                         <!-- 1 -->
-                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-emerald-500/40 space-y-2 shadow-lg">
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-emerald-500/40 space-y-2 shadow-lg" fiqh-maxim-card fiqh-maxim-card>
                             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                                 <h4 class="text-sm md:text-base font-black text-emerald-300">1. «الأصل في العقود والشروط الحل والإباحة»</h4>
                                 <span class="text-[11px] font-black px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded-lg">قاعدة كبرى</span>
@@ -4351,7 +4372,7 @@ $pdo = getDBConnection();
                         </div>
 
                         <!-- 2 -->
-                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-amber-500/40 space-y-2 shadow-lg">
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-amber-500/40 space-y-2 shadow-lg" fiqh-maxim-card fiqh-maxim-card>
                             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                                 <h4 class="text-sm md:text-base font-black text-amber-300">2. «الخَرَاجُ بِالضَّمَانِ · والغُنْمُ بِالغُرْمِ»</h4>
                                 <span class="text-[11px] font-black px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded-lg">حديث صحيح</span>
@@ -4396,7 +4417,7 @@ $pdo = getDBConnection();
                         </div>
 
                         <!-- 5 -->
-                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-teal-500/40 space-y-2 shadow-lg">
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-teal-500/40 space-y-2 shadow-lg" fiqh-maxim-card fiqh-maxim-card>
                             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                                 <h4 class="text-sm md:text-base font-black text-teal-300">5. «المَشَقَّةُ تَجْلِبُ التَّيْسِيرَ»</h4>
                                 <span class="text-[11px] font-black px-2 py-0.5 bg-teal-500/20 text-teal-300 rounded-lg">قاعدة كلية</span>
@@ -4441,7 +4462,7 @@ $pdo = getDBConnection();
                         </div>
 
                         <!-- 8 -->
-                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-emerald-500/40 space-y-2 shadow-lg">
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-emerald-500/40 space-y-2 shadow-lg" fiqh-maxim-card fiqh-maxim-card>
                             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                                 <h4 class="text-sm md:text-base font-black text-emerald-300">8. «إِنَّمَا البَيْعُ عَنْ تَرَاضٍ · الرضا جوهر العقد»</h4>
                                 <span class="text-[11px] font-black px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded-lg">أصل قرآني ونبوي</span>
@@ -4456,7 +4477,7 @@ $pdo = getDBConnection();
                         </div>
 
                         <!-- 9 -->
-                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-amber-500/40 space-y-2 shadow-lg">
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-amber-500/40 space-y-2 shadow-lg" fiqh-maxim-card fiqh-maxim-card>
                             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                                 <h4 class="text-sm md:text-base font-black text-amber-300">9. «كُلُّ قَرْضٍ جَرَّ نَفْعاً مَشْرُوطاً فَهُوَ رِبَا»</h4>
                                 <span class="text-[11px] font-black px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded-lg">إجماع الصحابة</span>
@@ -4516,7 +4537,7 @@ $pdo = getDBConnection();
                         </div>
 
                         <!-- 13 -->
-                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-emerald-500/40 space-y-2 shadow-lg">
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-emerald-500/40 space-y-2 shadow-lg" fiqh-maxim-card fiqh-maxim-card>
                             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                                 <h4 class="text-sm md:text-base font-black text-emerald-300">13. «إِعْمَالُ الكَلامِ أَوْلَى مِنْ إِهْمَالِهِ»</h4>
                                 <span class="text-[11px] font-black px-2 py-0.5 bg-emerald-500/20 text-emerald-300 rounded-lg">قاعدة أصولية</span>
@@ -4546,7 +4567,7 @@ $pdo = getDBConnection();
                         </div>
 
                         <!-- 15 -->
-                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-amber-500/40 space-y-2 shadow-lg">
+                        <div class="p-5 bg-slate-900/90 rounded-2xl border-2 border-amber-500/40 space-y-2 shadow-lg" fiqh-maxim-card fiqh-maxim-card>
                             <div class="flex items-center justify-between border-b border-slate-800 pb-2">
                                 <h4 class="text-sm md:text-base font-black text-amber-300">15. «الأَصْلُ بَرَاءَةُ الذِّمَّةِ»</h4>
                                 <span class="text-[11px] font-black px-2 py-0.5 bg-amber-500/20 text-amber-300 rounded-lg">قاعدة كلية</span>
@@ -6713,56 +6734,63 @@ $pdo = getDBConnection();
                         <h5 class="text-lg font-black text-slate-300">لا توجد أحاديث مطابقة للبحث الحالي</h5>
                         <p class="text-xs text-slate-400 mt-1">يرجى مسح كلمة البحث أو اختيار تصنيف آخر لإظهار بقية الأحاديث.</p>
                     </div>
+                </div>
                     
                 
 
                 <div id="fiqh-sub-terms" class="space-y-4 hidden">
                     <div class="p-6 bg-slate-900/90 rounded-2xl border-2 border-amber-500/30 space-y-4">
-                        <div class="border-b border-slate-800 pb-3">
-                            <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-black text-xs rounded-xl border border-amber-400">
-                                📖 معجم المصطلحات الفقهية والاقتصادية
-                            </span>
-                            <h3 class="text-xl font-black text-white mt-2">
-                                قاموس مصطلحات البيوع والمعاملات للتاجر المسلم
-                            </h3>
-                            <p class="text-xs text-slate-400 font-bold mt-0.5">
-                                تعريفات موجزة ومحررة لأهم المصطلحات الفقهية المتداولة في الأسواق وعقود التجارة الحديثة.
-                            </p>
+                        <div class="border-b border-slate-800 pb-3 flex flex-wrap items-center justify-between gap-4">
+                            <div>
+                                <span class="px-3 py-1 bg-amber-500/20 text-amber-300 font-black text-xs rounded-xl border border-amber-400">
+                                    📖 معجم المصطلحات الفقهية والاقتصادية
+                                </span>
+                                <h3 class="text-xl font-black text-white mt-2">
+                                    قاموس مصطلحات البيوع والمعاملات للتاجر المسلم
+                                </h3>
+                                <p class="text-xs text-slate-400 font-bold mt-0.5">
+                                    تعريفات موجزة ومحررة لأهم المصطلحات الفقهية المتداولة في الأسواق وعقود التجارة الحديثة.
+                                </p>
+                            </div>
+                            <div class="w-full md:w-80">
+                                <label class="text-xs font-bold text-amber-300 block mb-1">🔍 ابحث في المصطلحات الاقتصادية:</label>
+                                <input type="text" id="terms-search-input" oninput="filterTerms()" placeholder="اكتب للبحث: استصناع، سلم، عربون، مرابحة..." class="tool-input text-xs font-bold">
+                            </div>
                         </div>
 
                         <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
                             
-                            <div class="p-4 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1.5 hover:border-amber-400/60 transition">
+                            <div class="p-4 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1.5 hover:border-amber-400/60 transition" fiqh-term-card fiqh-term-card>
                                 <span class="px-2 py-0.5 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded">1. عقد الاستصناع (Istisna'a)</span>
                                 <h5 class="text-sm font-black text-white">طلب تصنيع سلعة بمواصفات محددة ومواد من الصانع</h5>
                                 <p class="text-xs text-slate-300 font-bold">عقد على مبيع في الذمة شرط فيه العمل، كطلبيات حديد التسليح الخاص وتصنيع الهياكل المعدنية والخرسانات الجاهزة، ويجوز فيه تأجيل الثمن أو تقسيطه.</p>
                             </div>
 
-                            <div class="p-4 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1.5 hover:border-amber-400/60 transition">
+                            <div class="p-4 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1.5 hover:border-amber-400/60 transition" fiqh-term-card fiqh-term-card>
                                 <span class="px-2 py-0.5 bg-emerald-500/20 text-emerald-300 font-mono font-black text-xs rounded">2. بيع السلم (Salam Sale)</span>
                                 <h5 class="text-sm font-black text-white">شراء بضاعة آجلة بثمن مدفوع مقدماً بالكامل</h5>
                                 <p class="text-xs text-slate-300 font-bold">بيع موصوف في الذمة مؤجل التسليم بثمن مقبوض فوراً في مجلس العقد، وهو وسيلة شرعية ممتازة لتمويل المشروعات الزراعية والمقاولات وتوريد المواد.</p>
                             </div>
 
-                            <div class="p-4 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1.5 hover:border-amber-400/60 transition">
+                            <div class="p-4 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1.5 hover:border-amber-400/60 transition" fiqh-term-card fiqh-term-card>
                                 <span class="px-2 py-0.5 bg-sky-500/20 text-sky-300 font-mono font-black text-xs rounded">3. بيع العربون (Down Payment Sale)</span>
                                 <h5 class="text-sm font-black text-white">دفع جزء من الثمن لتأكيد الشراء أو اعتباره هدراً للبائع</h5>
                                 <p class="text-xs text-slate-300 font-bold">أن يشتري السلعة ويدفع جزءاً مقدماً فإن أتم الشراء حُسب من الثمن وإن تراجع اختص به البائع تعويضاً عن حجز السلعة (وهو مذهب الإمام أحمد وصحيح فتاوى ابن باز والعثيمين).</p>
                             </div>
 
-                            <div class="p-4 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1.5 hover:border-amber-400/60 transition">
+                            <div class="p-4 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1.5 hover:border-amber-400/60 transition" fiqh-term-card fiqh-term-card>
                                 <span class="px-2 py-0.5 bg-purple-500/20 text-purple-300 font-mono font-black text-xs rounded">4. بيع المرابحة للآمر بالشراء</span>
                                 <h5 class="text-sm font-black text-white">شراء المؤسسة للسلعة ثم بيعها للعميل بالتقسيط بربح معلوم</h5>
                                 <p class="text-xs text-slate-300 font-bold">أن يطلب العميل من البنك أو التاجر شراء معدات أو مواد محددة، فإذا تملكها وقبضها البائع باعها للعميل بالتقسيط بربح متفق عليه، بشرط خلوها من العينة.</p>
                             </div>
 
-                            <div class="p-4 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1.5 hover:border-amber-400/60 transition">
+                            <div class="p-4 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1.5 hover:border-amber-400/60 transition" fiqh-term-card fiqh-term-card>
                                 <span class="px-2 py-0.5 bg-rose-500/20 text-rose-300 font-mono font-black text-xs rounded">5. بيع العِينة المحرم (Eina Sale)</span>
                                 <h5 class="text-sm font-black text-white">بيع السلعة لأجل ثم شراؤها نقداً بثمن أقل</h5>
                                 <p class="text-xs text-slate-300 font-bold">حيلة ربوية صريحة محرمة، وصورتها أن يبيع التاجر سلعة بـ 100 ألف لأجل ثم يشتريها في نفس المجلس نقداً بـ 80 ألفاً، فيكون القصد قرض 80 واسترداد 100.</p>
                             </div>
 
-                            <div class="p-4 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1.5 hover:border-amber-400/60 transition">
+                            <div class="p-4 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1.5 hover:border-amber-400/60 transition" fiqh-term-card fiqh-term-card>
                                 <span class="px-2 py-0.5 bg-cyan-500/20 text-cyan-300 font-mono font-black text-xs rounded">6. عقد المقاصة المالية (Settlement)</span>
                                 <h5 class="text-sm font-black text-white">إسقاط دين مطلوب بدين مقابل متساوٍ</h5>
                                 <p class="text-xs text-slate-300 font-bold">براءة ذمة كل من الطرفين بما عليه لصاحبه من التزامات مالية متقابلة متماثلة، وهي جائزة شرعاً وتوفر سيولة هائلة وتسرع تسوية الديون التجارية.</p>
@@ -7325,8 +7353,32 @@ $pdo = getDBConnection();
         window.open(googleUrl, '_blank');
     }
 
+    function filterMaxims() {
+        const query = (document.getElementById('maxims-search-input') ? document.getElementById('maxims-search-input').value : '').trim().toLowerCase();
+        document.querySelectorAll('.fiqh-maxim-card').forEach(card => {
+            const text = (card.innerText || card.textContent || '').toLowerCase();
+            if (query === '' || text.includes(query)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
+    function filterTerms() {
+        const query = (document.getElementById('terms-search-input') ? document.getElementById('terms-search-input').value : '').trim().toLowerCase();
+        document.querySelectorAll('.fiqh-term-card').forEach(card => {
+            const text = (card.innerText || card.textContent || '').toLowerCase();
+            if (query === '' || text.includes(query)) {
+                card.style.display = '';
+            } else {
+                card.style.display = 'none';
+            }
+        });
+    }
+
     function switchFiqhSubTab(subId, el) {
-        const allSubIds = ['fatwas', 'quran', 'hadiths', 'books', 'maxims', 'terms', 'google'];
+        const allSubIds = ['fatwas', 'quran', 'hadiths', 'books', 'maxims', 'terms'];
         allSubIds.forEach(id => {
             const sec = document.getElementById('fiqh-sub-' + id);
             if (sec) sec.classList.add('hidden');
