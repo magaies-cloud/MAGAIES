@@ -1809,14 +1809,14 @@ $pdo = getDBConnection();
                         <div class="flex items-center justify-between">
                             <label class="text-sm sm:text-base font-black text-amber-300 flex items-center gap-2">
                                 <i class="fa-solid fa-magnifying-glass text-amber-400 text-lg"></i>
-                                🔍 ابحث في موسوعة الـ 3,000 فتوى الذهبية الشاملة (داخل البرنامج):
+                                🔍 ابحث في موسوعة الـ 4,500 فتوى الشاملة (داخل البرنامج):
                             </label>
                             <span id="fiqh_search_badge" class="text-emerald-400 font-mono font-black text-xs px-2.5 py-0.5 bg-emerald-950 border border-emerald-500/40 rounded-lg">
-                                3,000 فتوى موثقة ومتاحة للبحث والفلترة
+                                4,500 فتوى موثقة ومتاحة للبحث والفلترة
                             </span>
                         </div>
                         <div class="relative">
-                            <input type="text" id="fiqh-search-input" oninput="filterFatwas()" placeholder="اكتب للبحث في الـ 3,000 فتوى: تقسيط، ذهب، فرنشايز، اعتمادات L/C، تمويل جماعي، تايم شير، ضرائب جمركية، أسهم..." class="w-full py-3.5 pr-11 pl-4 bg-slate-900 border-2 border-amber-500/60 focus:border-amber-400 text-white rounded-xl text-sm sm:text-base font-black shadow-inner">
+                            <input type="text" id="fiqh-search-input" oninput="filterFatwas()" placeholder="اكتب للبحث في الـ 4,500 فتوى: تقسيط، ذهب، فرنشايز، اعتمادات L/C، تمويل جماعي، تايم شير، ضرائب جمركية، أسهم..." class="w-full py-3.5 pr-11 pl-4 bg-slate-900 border-2 border-amber-500/60 focus:border-amber-400 text-white rounded-xl text-sm sm:text-base font-black shadow-inner">
                             <i class="fa-solid fa-search absolute right-3.5 top-4 text-amber-400 text-lg"></i>
                         </div>
                     </div>
@@ -6734,7 +6734,7 @@ $pdo = getDBConnection();
         const badge = document.getElementById('fiqh_search_badge');
         if (!grid) return;
 
-        const totalAll = getMasterFatwas().length || 3000;
+        const totalAll = getMasterFatwas().length || 4500;
         const totalMatches = currentFilteredList.length;
         const totalPages = Math.max(1, Math.ceil(totalMatches / PAGE_SIZE));
 

@@ -52,7 +52,7 @@ $checks['mb_gl_sync'] = strpos($mbContent, "calculateAccountLedgerBalance") !== 
 $fiqhContent = file_exists(__DIR__ . '/js/fiqh_20000_data.js') ? file_get_contents(__DIR__ . '/js/fiqh_20000_data.js') : '';
 $checks['fiqh_hadith_evidence'] = strpos($fiqhContent, 'evidence') !== false;
 $checks['fiqh_zero_duplicates'] = (strpos($fiqhContent, '0 Duplicates') !== false || strpos($fiqhContent, 'صفر تكرار') !== false);
-$checks['fiqh_3000_count'] = (strpos($fiqhContent, '3,000 GOLDEN') !== false || strpos($fiqhContent, '3,000 UNIQUE') !== false);
+$checks['fiqh_4500_count'] = (strpos($fiqhContent, '4,500 UNIQUE') !== false || strpos($fiqhContent, '4,500') !== false);
 
 echo json_encode([
     'server' => (php_sapi_name() === 'cli' || ($_SERVER['SERVER_NAME'] ?? '') === 'localhost' || ($_SERVER['SERVER_NAME'] ?? '') === '127.0.0.1') ? 'LOCAL' : 'LIVE_SERVER',
