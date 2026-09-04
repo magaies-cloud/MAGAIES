@@ -7556,7 +7556,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -7566,9 +7566,22 @@ $pdo = getDBConnection();
                             آية المداينة الكبرى (أطول آية في القرآن الكريم - دستور توثيق الديون والالتزامات المالية)
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة البقرة: الآية 282
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة البقرة: الآية 282
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(1)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(1)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -7585,7 +7598,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         يَا أَيُّهَا الَّذِينَ آمَنُوا إِذَا تَدَايَنتُم بِدَيْنٍ إِلَىٰ أَجَلٍ مُّسَمًّى فَاكْتُبُوهُ ۚ وَلْيَكْتُب بَّيْنَكُمْ كَاتِبٌ بِالْعَدْلِ ۚ وَلَا يَأْبَ كَاتِبٌ أَن يَكْتُبَ كَمَا عَلَّمَهُ اللَّهُ ۚ فَلْيَكْتُبْ وَلْيُمْلِلِ الَّذِي عَلَيْهِ الْحَقُّ وَلْيَتَّقِ اللَّهَ رَبَّهُ وَلَا يَبْخَسْ مِنْهُ شَيْئًا... وَاسْتَشْهِدُوا شَهِيدَيْنِ مِن رِّجَالِكُمْ ۖ فَإِن لَّمْ يَكُونَا رَجُلَيْنِ فَرَجُلٌ وَامْرَأَتَانِ مِمَّن تَرْضَوْنَ مِنَ الشُّهَدَاءِ أَن تَضِلَّ إِحْدَاهُمَا فَتُذَكِّرَ إِحْدَاهُمَا الْأُخْرَىٰ ۚ وَلَا يَأْبَ الشُّهَدَاءُ إِذَا مَا دُعُوا ۚ وَلَا تَسْأَمُوا أَن تَكْتُبُوهُ صَغِيرًا أَوْ كَبِيرًا إِلَىٰ أَجَلِهِ ۚ ذَٰلِكُمْ أَقْسَطُ عِندَ اللَّهِ وَأَقْوَمُ لِلشَّهَادَةِ وَأَدْنَىٰ أَلَّا تَرْتَابُوا ۖ إِلَّا أَن تَكُونَ تِجَارَةً حَاضِرَةً تُدِيرُونَهَا بَيْنَكُمْ فَلَيْسَ عَلَيْكُمْ جُنَاحٌ أَلَّا تَكْتُبُوهَا ۗ وَأَشْهِدُوا إِذَا تَبَايَعْتُمْ...
                     </div>
                 </div>
@@ -7620,7 +7633,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -7630,9 +7643,22 @@ $pdo = getDBConnection();
                             مشروعية الرهن الحيازي في السفر والديون وأداء الأمانات وتحريم كتمان الشهادة
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة البقرة: الآية 283
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة البقرة: الآية 283
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(2)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(2)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -7649,7 +7675,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         وَإِن كُنتُمْ عَلَىٰ سَفَرٍ وَلَمْ تَجِدُوا كَاتِبًا فَرِهَانٌ مَّقْبُوضَةٌ ۖ فَإِنْ أَمِنَ بَعْضُكُم بَعْضًا فَلْيُؤَدِّ الَّذِي اؤْتُمِنَ أَمَانَتَهُ وَلْيَتَّقِ اللَّهَ رَبَّهُ ۗ وَلَا تَكْتُمُوا الشَّهَادَةَ ۚ وَمَن يَكْتُمْهَا فَإِنَّهُ آثِمٌ قَلْبُهُ ۗ وَاللَّهُ بِمَا تَعْمَلُونَ عَلِيمٌ
                     </div>
                 </div>
@@ -7684,7 +7710,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -7694,9 +7720,22 @@ $pdo = getDBConnection();
                             وجوب إنظار المدين المعسر شرعاً وفضل التجاوز عنه بالإسقاط والصدقة
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة البقرة: الآية 280
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة البقرة: الآية 280
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(3)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(3)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -7713,7 +7752,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         وَإِن كَانَ ذُو عُسْرَةٍ فَنَظِرَةٌ إِلَىٰ مَيْسَرَةٍ ۚ وَأَن تَصَدَّقُوا خَيْرٌ لَّكُمْ ۖ إِن كُنتُمْ تَعْلَمُونَ
                     </div>
                 </div>
@@ -7748,7 +7787,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -7758,9 +7797,22 @@ $pdo = getDBConnection();
                             القاعدة الكلية الكبرى: إحلال البيع والتجارة وتحريم الربا القاطع
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة البقرة: الآية 275
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة البقرة: الآية 275
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(4)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(4)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -7777,7 +7829,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         الَّذِينَ يَأْكُلُونَ الرِّبَا لَا يَقُومُونَ إِلَّا كَمَا يَقُومُ الَّذِي يَتَخَبَّطُهُ الشَّيْطَانُ مِنَ الْمَسِّ ۚ ذَٰلِكَ بِأَنَّهُمْ قَالُوا إِنَّمَا الْبَيْعُ مِثْلُ الرِّبَا ۗ وَأَحَلَّ اللَّهُ الْبَيْعَ وَحَرَّمَ الرِّبَا ۚ فَمَن جَاءَهُ مَوْعِظَةٌ مِّن رَّبِّهِ فَانتَهَىٰ فَلَهُ مَا سَلَفَ وَأَمْرُهُ إِلَى اللَّهِ ۖ وَمَنْ عَادَ فَأُولَٰئِكَ أَصْحَابُ النَّارِ ۖ هُمْ فِيهَا خَالِدُونَ
                     </div>
                 </div>
@@ -7812,7 +7864,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -7822,9 +7874,22 @@ $pdo = getDBConnection();
                             ركن التراضي التام في العقود وتحريم أكل أموال الناس بالباطل
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة النساء: الآية 29
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة النساء: الآية 29
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(5)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(5)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -7841,7 +7906,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         يَا أَيُّهَا الَّذِينَ آمَنُوا لَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ إِلَّا أَن تَكُونَ تِجَارَةً عَن تَرَاضٍ مِّنكُمْ ۚ وَلَا تَقْتُلُوا أَنفُسَكُمْ ۚ إِنَّ اللَّهَ كَانَ بِكُمْ رَحِيمًا
                     </div>
                 </div>
@@ -7876,7 +7941,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -7886,9 +7951,22 @@ $pdo = getDBConnection();
                             الأمر الإلهي القطعي بالوفاء بكافة العقود والعهود والالتزامات التجارية
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة المائدة: الآية 1
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة المائدة: الآية 1
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(6)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(6)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -7905,7 +7983,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ ۚ أُحِلَّتْ لَكُم بَهِيمَةُ الْأَنْعَامِ إِلَّا مَا يُتْلَىٰ عَلَيْكُمْ...
                     </div>
                 </div>
@@ -7940,7 +8018,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -7950,9 +8028,22 @@ $pdo = getDBConnection();
                             إيفاء الكيل والميزان بالقسطاس المستقيم وأثره في بركة الاقتصاد
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة الإسراء: الآية 35
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة الإسراء: الآية 35
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(7)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(7)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -7969,7 +8060,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         وَأَوْفُوا الْكَيْلَ إِذَا كِلْتُمْ وَزِنُوا بِالْقِسْطَاسِ الْمُسْتَقِيمِ ۚ ذَٰلِكَ خَيْرٌ وَأَحْسَنُ تَأْوِيلًا
                     </div>
                 </div>
@@ -8004,7 +8095,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -8014,9 +8105,22 @@ $pdo = getDBConnection();
                             الوعيد الشديد والهلاك للمطففين الذين ينقصون في الكيل والوزن والمواصفات
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة المطففين: الآيات 1-3
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة المطففين: الآيات 1-3
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(8)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(8)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -8033,7 +8137,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         وَيْلٌ لِّلْمُطَفِّفِينَ * الَّذِينَ إِذَا اكْتَالُوا عَلَى النَّاسِ يَسْتَوْفُونَ * وَإِذَا كَالُوهُمْ أَو وَّزَنُوهُمْ يُخْسِرُونَ
                     </div>
                 </div>
@@ -8068,7 +8172,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -8078,9 +8182,22 @@ $pdo = getDBConnection();
                             النهي عن بخس الناس أشياءهم وبخس مجهوداتهم والفساد في الأسواق
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة الأعراف: الآية 85
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة الأعراف: الآية 85
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(9)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(9)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -8097,7 +8214,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         فَأَوْفُوا الْكَيْلَ وَالْمِيزَانَ وَلَا تَبْخَسُوا النَّاسَ أَشْيَاءَهُمْ وَلَا تُفْسِدُوا فِي الْأَرْضِ بَعْدَ إِصْلَاحِهَا ۚ ذَٰلِكُمْ خَيْرٌ لَّكُمْ إِن كُنتُم مُّؤْمِنِينَ
                     </div>
                 </div>
@@ -8132,7 +8249,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -8142,9 +8259,22 @@ $pdo = getDBConnection();
                             وجوب أداء الأمانات المالية إلى أصحابها والحكم بالعدل في المعاملات
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة النساء: الآية 58
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة النساء: الآية 58
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(10)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(10)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -8161,7 +8291,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         إِنَّ اللَّهَ يَأْمُرُكُمْ أَن تُؤَدُّوا الْأَمَانَاتِ إِلَىٰ أَهْلِهَا وَإِذَا حَكَمْتُم بَيْنَ النَّاسِ أَن تَحْكُمُوا بِالْعَدْلِ ۚ إِنَّ اللَّهَ نِعِمَّا يَعِظُكُم بِهِ ۗ إِنَّ اللَّهَ كَانَ سَمِيعًا بَصِيرًا
                     </div>
                 </div>
@@ -8196,7 +8326,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -8206,9 +8336,22 @@ $pdo = getDBConnection();
                             التعاون على البر والتقوى: الأصل القرآني للشركات التعاونية والتأمين التكافلي
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة المائدة: الآية 2
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة المائدة: الآية 2
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(11)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(11)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -8225,7 +8368,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ ۖ وَلَا تَعَاوَنُوا عَلَى الْإِثْمِ وَالْعُدْوَانِ ۚ وَاتَّقُوا اللَّهَ ۖ إِنَّ اللَّهَ شَدِيدُ الْعِقَابِ
                     </div>
                 </div>
@@ -8260,7 +8403,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -8270,9 +8413,22 @@ $pdo = getDBConnection();
                             الأمر بإيفاء الكيل والميزان الصحيح وعدم الإفساد الاقتصادي في الأرض
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة الشعراء: الآيات 181-183
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة الشعراء: الآيات 181-183
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(12)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(12)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -8289,7 +8445,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         أَوْفُوا الْكَيْلَ وَلَا تَكُونُوا مِنَ الْمُخْسِرِينَ * وَزِنُوا بِالْقِسْطَاسِ الْمُسْتَقِيمِ * وَلَا تَبْخَسُوا النَّاسَ أَشْيَاءَهُمْ وَلَا تَعْثَوْا فِي الْأَرْضِ مُفْسِدِينَ
                     </div>
                 </div>
@@ -8324,7 +8480,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -8334,9 +8490,22 @@ $pdo = getDBConnection();
                             إعلان الحرب الإلهية على أكلة الربا وحق استرداد رأس المال الأصلي فقط
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة البقرة: الآيات 278-279
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة البقرة: الآيات 278-279
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(13)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(13)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -8353,7 +8522,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ وَذَرُوا مَا بَقِيَ مِنَ الرِّبَا إِن كُنتُم مُّؤْمِنِينَ * فَإِن لَّمْ تَفْعَلُوا فَأْذَنُوا بِحَرْبٍ مِّنَ اللَّهِ وَرَسُولِهِ ۖ وَإِن تُبْتُمْ فَلَكُمْ رُءُوسُ أَمْوَالِكُمْ لَا تَظْلِمُونَ وَلَا تُظْلَمُونَ
                     </div>
                 </div>
@@ -8388,7 +8557,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -8398,9 +8567,22 @@ $pdo = getDBConnection();
                             سنة الله في محق الربا وتدمير أرباحه ونماء أموال الصدقات والبركات
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة البقرة: الآية 276
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة البقرة: الآية 276
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(14)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(14)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -8417,7 +8599,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         يَمْحَقُ اللَّهُ الرِّبَا وَيُرْبِي الصَّدَقَاتِ ۗ وَاللَّهُ لَا يُحِبُّ كُلَّ كَفَّارٍ أَثِيمٍ
                     </div>
                 </div>
@@ -8452,7 +8634,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -8462,9 +8644,22 @@ $pdo = getDBConnection();
                             النهي الصريح عن ربا الديون وتراكم الفوائد أضعافاً مضاعفة
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة آل عمران: الآية 130
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة آل عمران: الآية 130
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(15)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(15)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -8481,7 +8676,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         يَا أَيُّهَا الَّذِينَ آمَنُوا لَا تَأْكُلُوا الرِّبَا أَضْعَافًا مُّضَاعَفَةً ۖ وَاتَّقُوا اللَّهَ لَعَلَّكُمْ تُفْلِحُونَ
                     </div>
                 </div>
@@ -8516,7 +8711,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -8526,9 +8721,22 @@ $pdo = getDBConnection();
                             تحريم الرشوة والوساطة الباطلة لأكل أموال الناس واستباحة الحقوق
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة البقرة: الآية 188
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة البقرة: الآية 188
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(16)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(16)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -8545,7 +8753,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         وَلَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ وَتُدْلُوا بِهَا إِلَى الْحُكَّامِ لِتَأْكُلُوا فَرِيقًا مِّنْ أَمْوَالِ النَّاسِ بِالْإِثْمِ وَأَنتُمْ تَعْلَمُونَ
                     </div>
                 </div>
@@ -8580,7 +8788,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -8590,9 +8798,22 @@ $pdo = getDBConnection();
                             حقيقة المال الربوي في ميزان الله ومضاعفة أجر الصدقة الخالصة
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة الروم: الآية 39
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة الروم: الآية 39
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(17)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(17)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -8609,7 +8830,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         وَمَا آتَيْتُم مِّن رِّبًا لِّيَرْبُوَ فِي أَمْوَالِ النَّاسِ فَلَا يَرْبُو عِندَ اللَّهِ ۖ وَمَا آتَيْتُم مِّن زَكَاةٍ تُرِيدُونَ وَجْهَ اللَّهِ فَأُولَٰئِكَ هُمُ الْمُضْعِفُونَ
                     </div>
                 </div>
@@ -8644,7 +8865,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -8654,9 +8875,22 @@ $pdo = getDBConnection();
                             دستور مصارف الزكاة الثمانية الحصرية في الشريعة الإسلامية
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة التوبة: الآية 60
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة التوبة: الآية 60
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(18)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(18)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -8673,7 +8907,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         إِنَّمَا الصَّدَقَاتُ لِلْفُقَرَاءِ وَالْمَسَاكِينِ وَالْعَامِلِينَ عَلَيْهَا وَالْمُؤَلَّفَةِ قُلُوبُهُمْ وَفِي الرِّقَابِ وَالْغَارِمِينَ وَفِي سَبِيلِ اللَّهِ وَابْنِ السَّبِيلِ ۖ فَرِيضَةً مِّنَ اللَّهِ ۗ وَاللَّهُ عَلِيمٌ حَكِيمٌ
                     </div>
                 </div>
@@ -8708,7 +8942,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -8718,9 +8952,22 @@ $pdo = getDBConnection();
                             وجوب جباية الزكاة وأثرها في تطهير النفوس ونماء الأموال
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة التوبة: الآية 103
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة التوبة: الآية 103
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(19)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(19)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -8737,7 +8984,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         خُذْ مِنْ أَمْوَالِهِمْ صَدَقَةً تُطَهِّرُهُمْ وَتُزَكِّيهِم بِهَا وَصَلِّ عَلَيْهِمْ ۖ إِنَّ صَلَاتَكَ سَكَنٌ لَّهُمْ ۗ وَاللَّهُ سَمِيعٌ عَلِيمٌ
                     </div>
                 </div>
@@ -8772,7 +9019,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -8782,9 +9029,22 @@ $pdo = getDBConnection();
                             تقرير الحق المالي المعلوم في أموال الأغنياء للسائل والمحروم
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة المعارج: الآيات 24-25
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة المعارج: الآيات 24-25
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(20)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(20)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -8801,7 +9061,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         وَالَّذِينَ فِي أَمْوَالِهِمْ حَقٌّ مَّعْلُومٌ * لِّلسَّائِلِ وَالْمَحْرُومِ
                     </div>
                 </div>
@@ -8836,7 +9096,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -8846,9 +9106,22 @@ $pdo = getDBConnection();
                             إيتاء زكاة الإنتاج الزراعي والثمار يوم الحصاد وجوباً
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة الأنعام: الآية 141
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة الأنعام: الآية 141
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(21)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(21)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -8865,7 +9138,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         وَهُوَ الَّذِي أَنشَأَ جَنَّاتٍ مَّعْرُوشَاتٍ وَغَيْرَ مَعْرُوشَاتٍ وَالنَّخْلَ وَالزَّرْعَ مُخْتَلِفًا أُكُلُهُ وَالزَّيْتُونَ وَالرُّمَّانَ مُتَشَابِهًا وَغَيْرَ مُتَشَابِهٍ ۚ كُلُوا مِن ثَمَرِهِ إِذَا أَثْمَرَ وَآتُوا حَقَّهُ يَوْمَ حَصَادِهِ ۖ وَلَا تُسْرِفُوا ۚ إِنَّهُ لَا يُحِبُّ الْمُسْرِفِينَ
                     </div>
                 </div>
@@ -8900,7 +9173,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -8910,9 +9183,22 @@ $pdo = getDBConnection();
                             دستور قسمة المواريث الأول: أنصبة الأولاد والوالدين وتقديم الدين والوصية
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة النساء: الآية 11
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة النساء: الآية 11
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(22)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(22)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -8929,7 +9215,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         يُوصِيكُمُ اللَّهُ فِي أَوْلَادِكُمْ ۖ لِلذَّكَرِ مِثْلُ حَظِّ الْأُنثَيَيْنِ ۚ فَإِن كُنَّ نِسَاءً فَوْقَ اثْنَتَيْنِ فَلَهُنَّ ثُلُثَا مَا تَرَكَ ۖ وَإِن كَانَتْ وَاحِدَةً فَلَهَا النِّصْفُ ۚ وَلِأَبَوَيْهِ لِكُلِّ وَاحِدٍ مِّنْهُمَا السُّدُسُ مِمَّا تَرَكَ إِن كَانَ لَهُ وَلَدٌ... مِن بَعْدِ وَصِيَّةٍ يُوصِي بِهَا أَوْ دَيْنٍ ۗ آبَاؤُكُمْ وَأَبْنَاؤُكُمْ لَا تَدْرُونَ أَيُّهُمْ أَقْرَبُ لَكُمْ نَفْعًا ۚ فَرِيضَةً مِّنَ اللَّهِ ۗ إِنَّ اللَّهَ كَانَ عَلِيمًا حَكِيمًا
                     </div>
                 </div>
@@ -8964,7 +9250,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -8974,9 +9260,22 @@ $pdo = getDBConnection();
                             دستور قسمة المواريث الثاني: أنصبة الأزواج والزوجات والإخوة لأم والنهي عن الإضرار
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة النساء: الآية 12
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة النساء: الآية 12
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(23)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(23)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -8993,7 +9292,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         وَلَكُمْ نِصْفُ مَا تَرَكَ أَزْوَاجُكُمْ إِن لَّمْ يَكُن لَّهُنَّ وَلَدٌ ۚ فَإِن كَانَ لَهُنَّ وَلَدٌ فَلَكُمُ الرُّبُعُ مِمَّا تَرَكْنَ ۚ مِن بَعْدِ وَصِيَّةٍ يُوصِينَ بِهَا أَوْ دَيْنٍ ۚ وَلَهُنَّ الرُّبُعُ مِمَّا تَرَكْتُمْ إِن لَّمْ يَكُن لَّكُمْ وَلَدٌ ۚ فَإِن كَانَ لَكُمْ وَلَدٌ فَلَهُنَّ الثُّمُنُ مِمَّا تَرَكْتُم ۚ مِن بَعْدِ وَصِيَّةٍ تُوصُونَ بِهَا أَوْ دَيْنٍ... غَيْرَ مُضَارٍّ ۚ وَصِيَّةً مِّنَ اللَّهِ ۗ وَاللَّهُ عَلِيمٌ حَلِيمٌ
                     </div>
                 </div>
@@ -9028,7 +9327,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -9038,9 +9337,22 @@ $pdo = getDBConnection();
                             فرائض المواريث حدود إلهية ملزمة والوعيد الشديد لمن يعتدي عليها ويحرم الورثة
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة النساء: الآيات 13-14
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة النساء: الآيات 13-14
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(24)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(24)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -9057,7 +9369,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         تِلْكَ حُدُودُ اللَّهِ ۚ وَمَن يُطِعِ اللَّهَ وَرَسُولَهُ يُدْخِلْهُ جَنَّاتٍ تَجْرِي مِن تَحْتِهَا الْأَنْهَارُ خَالِدِينَ فِيهَا ۚ وَذَٰلِكَ الْفَوْزُ الْعَظِيمُ * وَمَن يَعْصِ اللَّهَ وَيَتَعَدَّ حُدُودَهُ يُدْخِلْهُ نَارًا خَالِدًا فِيهَا وَلَهُ عَذَابٌ مُّهِينٌ
                     </div>
                 </div>
@@ -9092,7 +9404,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -9102,9 +9414,22 @@ $pdo = getDBConnection();
                             ميراث الكلالة: أحكام الإخوة والأخوات الأشقاء ولأب عند عدم الأصول والفروع
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة النساء: الآية 176
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة النساء: الآية 176
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(25)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(25)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -9121,7 +9446,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         يَسْتَفْتُونَكَ قُلِ اللَّهُ يُفْتِيكُمْ فِي الْكَلَالَةِ ۚ إِنِ امْرُؤٌ هَلَكَ لَيْسَ لَهُ وَلَدٌ وَلَهُ أُخْتٌ فَلَهَا نِصْفُ مَا تَرَكَ ۚ وَهُوَ يَرِثُهَا إِن لَّمْ يَكُن لَّهَا وَلَدٌ ۚ فَإِن كَانَتَا اثْنَتَيْنِ فَلَهُمَا الثُّلُثَانِ مِمَّا تَرَكَ ۚ وَإِن كَانُوا إِخْوَةً رِّجَالًا وَنِسَاءً فَلِلذَّكَرِ مِثْلُ حَظِّ الْأُنثَيَيْنِ ۗ يُبَيِّنُ اللَّهُ لَكُمْ أَن تَضِلُّوا ۗ وَاللَّهُ بِكُلِّ شَيْءٍ عَلِيمٌ
                     </div>
                 </div>
@@ -9156,7 +9481,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -9166,9 +9491,22 @@ $pdo = getDBConnection();
                             إثبات استقلال الذمة المالية للرجال والنساء وحقهم القطعي في التركات
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة النساء: الآية 7
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة النساء: الآية 7
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(26)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(26)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -9185,7 +9523,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         لِّلرِّجَالِ نَصِيبٌ مِّمَّا تَرَكَ الْوَالِدَانِ وَالْأَقْرَبُونَ وَلِلنِّسَاءِ نَصِيبٌ مِّمَّا تَرَكَ الْوَالِدَانِ وَالْأَقْرَبُونَ مِمَّا قَلَّ مِنْهُ أَوْ كَثُرَ ۚ نَصِيبًا مَّفْرُوضًا
                     </div>
                 </div>
@@ -9220,7 +9558,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -9230,9 +9568,22 @@ $pdo = getDBConnection();
                             معيارا التوظيف والعمل في عقود الإجارة: الكفاءة الفنية والنزاهة والأمانة
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة القصص: الآية 26
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة القصص: الآية 26
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(27)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(27)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -9249,7 +9600,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         قَالَتْ إِحْدَاهُمَا يَا أَبَتِ اسْتَأْجِرْهُ ۖ إِنَّ خَيْرَ مَنِ اسْتَأْجَرْتَ الْقَوِيُّ الْأَمِينُ
                     </div>
                 </div>
@@ -9284,7 +9635,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -9294,9 +9645,22 @@ $pdo = getDBConnection();
                             عقد العمل محدد المدة ومبادلة العمل بالأجر والمهر
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة القصص: الآية 27
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة القصص: الآية 27
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(28)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(28)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -9313,7 +9677,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         قَالَ إِنِّي أُرِيدُ أَنْ أُنكِحَكَ إِحْدَى ابْنَتَيَّ هَاتَيْنِ عَلَىٰ أَن تَأْجُرَنِي ثَمَانِيَ حِجَجٍ ۖ فَإِنْ أَتْمَمْتَ عَشْرًا فَمِنْ عِندِكَ ۖ وَمَا أُرِيدُ أَنْ أَشُقَّ عَلَيْكَ ۚ سَتَجِدُنِي إِن شَاءَ اللَّهُ مِنَ الصَّالِحِينَ
                     </div>
                 </div>
@@ -9348,7 +9712,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -9358,9 +9722,22 @@ $pdo = getDBConnection();
                             وجوب دفع أجور العاملين فور أداء العمل والتعامل المالي بالمعروف
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة الطلاق: الآية 6
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة الطلاق: الآية 6
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(29)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(29)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -9377,7 +9754,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         ... فَإِنْ أَرْضَعْنَ لَكُمْ فَآتُوهُنَّ أُجُورَهُنَّ ۖ وَأْتَمِرُوا بَيْنَكُم بِمَعْرُوفٍ ۖ وَإِن تَعَاسَرْتُمْ فَسَتُرْضِعُ لَهُ أُخْرَىٰ
                     </div>
                 </div>
@@ -9412,7 +9789,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -9422,9 +9799,22 @@ $pdo = getDBConnection();
                             أصل عقدي الجعالة (المكافأة المشروطة) والكفالة الشخصية والضمان المالي
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة يوسف: الآية 72
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة يوسف: الآية 72
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(30)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(30)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -9441,7 +9831,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         قَالُوا نَفْقِدُ صُوَاعَ الْمَلِكِ وَلِمَن جَاءَ بِهِ حِمْلُ بَعِيرٍ وَأَنَا بِهِ زَعِيمٌ
                     </div>
                 </div>
@@ -9476,7 +9866,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -9486,9 +9876,22 @@ $pdo = getDBConnection();
                             مشروعية الشركات والمخالطة في الأموال والتحذير من بغي وخيانة الشركاء
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة ص: الآية 24
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة ص: الآية 24
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(31)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(31)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -9505,7 +9908,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         ... وَإِنَّ كَثِيرًا مِّنَ الْخُلَطَاءِ لَيَبْغِي بَعْضُهُمْ عَلَىٰ بَعْضٍ إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ وَقَلِيلٌ مَّا هُمْ ۗ وَظَنَّ دَاوُودُ أَنَّمَا فَتَنَّاهُ فَاسْتَغْفَرَ رَبَّهُ وَخَرَّ رَاكِعًا وَأَنَابَ
                     </div>
                 </div>
@@ -9540,7 +9943,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -9550,9 +9953,22 @@ $pdo = getDBConnection();
                             اختبار الرشد المالي لليتيم وتأهيله تجارياً قبل تسليمه الثروة والأموال
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة النساء: الآية 6
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة النساء: الآية 6
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(32)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(32)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -9569,7 +9985,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         وَابْتَلُوا الْيَتَامَىٰ حَتَّىٰ إِذَا بَلَغُوا النِّكَاحَ فَإِنْ آنَسْتُم مِّنْهُمْ رُشْدًا فَادْفَعُوا إِلَيْهِمْ أَمْوَالَهُمْ ۖ وَلَا تَأْكُلُوهَا إِسْرَافًا وَبِدَارًا أَن يَكْبَرُوا ۚ وَمَن كَانَ غَنِيًّا فَلْيَسْتَعْفِفْ ۖ وَمَن كَانَ فَقِيرًا فَلْيَأْكُلْ بِالْمَعْرُوفِ ۚ فَإِذَا دَفَعْتُمْ إِلَيْهِمْ أَمْوَالَهُمْ فَأَشْهِدُوا عَلَيْهِمْ ۚ وَكَفَىٰ بِاللَّهِ حَسِيبًا
                     </div>
                 </div>
@@ -9604,7 +10020,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -9614,9 +10030,22 @@ $pdo = getDBConnection();
                             مشروعية الحجر المالي على غير الرشيد لحفظ الثروة وتنميتها بالاستثمار
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة النساء: الآية 5
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة النساء: الآية 5
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(33)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(33)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -9633,7 +10062,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         وَلَا تُؤْتُوا السُّفَهَاءَ أَمْوَالَكُمُ الَّتِي جَعَلَ اللَّهُ لَكُمْ قِيَامًا وَارْزُقُوهُمْ فِيهَا وَاكْسُوهُمْ وَقُولُوا لَهُمْ قَوْلًا مَّعْرُوفًا
                     </div>
                 </div>
@@ -9668,7 +10097,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -9678,9 +10107,22 @@ $pdo = getDBConnection();
                             الوعيد الشديد على أكل أموال اليتامى ظلماً والاعتداء على حقوق الضعفاء
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة النساء: الآية 10
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة النساء: الآية 10
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(34)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(34)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -9697,7 +10139,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         إِنَّ الَّذِينَ يَأْكُلُونَ أَمْوَالَ الْيَتَامَىٰ ظُلْمًا إِنَّمَا يَأْكُلُونَ فِي بُطُونِهِمْ نَارًا ۖ وَسَيَصْلَوْنَ سَعِيرًا
                     </div>
                 </div>
@@ -9732,7 +10174,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -9742,9 +10184,22 @@ $pdo = getDBConnection();
                             الوعيد الشديد على كنز الذهب والفضة والسيولة ومنعها من الدورة الاقتصادية
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة التوبة: الآيات 34-35
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة التوبة: الآيات 34-35
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(35)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(35)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -9761,7 +10216,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         ... وَالَّذِينَ يَكْنِزُونَ الذَّهَبَ وَالْفِضَّةَ وَلَا يُنفِقُونَهَا فِي سَبِيلِ اللَّهِ فَبَشِّرْهُم بِعَذَابٍ أَلِيمٍ * يَوْمَ يُحْمَىٰ عَلَيْهَا فِي نَارِ جَهَنَّمَ فَتُكْوَىٰ بِهَا جِبَاهُهُمْ وَجُنُوبُهُمْ وَظُهُورُهُمْ ۖ هَٰذَا مَا كَنَزْتُمْ لِأَنفُسِكُمْ فَذُوقُوا مَا كُنتُمْ تَكْنِزُونَ
                     </div>
                 </div>
@@ -9796,7 +10251,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -9806,9 +10261,22 @@ $pdo = getDBConnection();
                             قانون تداول الأموال العظيم: منع تركز الثروة في يد فئة قليلة واحتكار الأسواق
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة الحشر: الآية 7
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة الحشر: الآية 7
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(36)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(36)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -9825,7 +10293,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         ... كَيْ لَا يَكُونَ دُولَةً بَيْنَ الْأَغْنِيَاءِ مِنكُمْ ۚ وَمَا آتَاكُمُ الرَّسُولُ فَخُذُوهُ وَمَا نَهَاكُمْ عَنْهُ فَانتَهُوا ۚ وَاتَّقُوا اللَّهَ ۖ إِنَّ اللَّهَ شَدِيدُ الْعِقَابِ
                     </div>
                 </div>
@@ -9860,7 +10328,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -9870,9 +10338,22 @@ $pdo = getDBConnection();
                             قاعدة إدارة الميزانية والإنفاق الرشيد: التوازن بين الإسراف والتقتير
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة الفرقان: الآية 67
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة الفرقان: الآية 67
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(37)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(37)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -9889,7 +10370,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         وَالَّذِينَ إِذَا أَنفَقُوا لَمْ يُسْرِفُوا وَلَمْ يَقْتُرُوا وَكَانَ بَيْنَ ذَٰلِكَ قَوَامًا
                     </div>
                 </div>
@@ -9924,7 +10405,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-emerald-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Surah Badge -->
+                <!-- Top Header: Number + Title + Surah Badge + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-lg md:text-xl flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -9934,9 +10415,22 @@ $pdo = getDBConnection();
                             فضل الضرب في الأرض وابتغاء فضل الله بالتجارة والكسب الشريف
                         </h4>
                     </div>
-                    <span class="px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
-                        سورة المزمل: الآية 20
-                    </span>
+                    
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
+                        <span class="px-4 sm:px-5 py-2 bg-slate-900/90 text-emerald-300 font-mono font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 shadow-sm flex-shrink-0">
+                            سورة المزمل: الآية 20
+                        </span>
+
+                        <!-- أزرار نسخ ومشاركة الآية الكريمة -->
+                        <button type="button" onclick="copyAyahCard(38)" class="px-3.5 py-2 bg-slate-800 hover:bg-emerald-500/25 text-slate-200 hover:text-emerald-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-emerald-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الآية الكريمة والأحكام الفقهية للحافظة">
+                            <i class="fa-solid fa-copy text-emerald-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareAyahWhatsApp(38)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الآية الكريمة مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- Quranic Verse Box (مستطيل الآية الكريمة: هوامش واسعة ويكبر ويتحرك لزيادة التركيز) -->
@@ -9953,7 +10447,7 @@ $pdo = getDBConnection();
                         </span>
                     </div>
                     <!-- نص الآية الكريمة بخط أميري عريض وكبير جداً وهوامش مريحة لا تلتصق بالأطراف -->
-                    <div class="px-4 sm:px-6 py-2.5 text-2xl sm:text-3xl md:text-[30px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.65rem; line-height: 2.45; letter-spacing: 0.5px; color: #fef9c3; text-shadow: 0 1px 3px rgba(0,0,0,0.6); text-align: justify;">
+                    <div class="px-4 sm:px-6 py-2.5 text-lg sm:text-xl md:text-2xl text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.3; letter-spacing: 0.3px; text-align: justify;">
                         ... وَآخَرُونَ يَضْرِبُونَ فِي الْأَرْضِ يَبْتَغُونَ مِن فَضْلِ اللَّهِ ۙ وَآخَرُونَ يُقَاتِلُونَ فِي سَبِيلِ اللَّهِ ۖ فَاقْرَءُوا مَا تَيَسَّرَ مِنْهُ...
                     </div>
                 </div>
@@ -10067,7 +10561,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -10077,13 +10571,23 @@ $pdo = getDBConnection();
                             الأصل في البيوع والتجارة هو التراضي الخالص بين الطرفين
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🛒 بيوع ومرابحة وتجارة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(1)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(1)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -10149,7 +10653,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -10159,13 +10663,23 @@ $pdo = getDBConnection();
                             خيار المجلس والبركة الكبرى في الصدق والبيان وشؤم الكتمان
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🛒 بيوع ومرابحة وتجارة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(2)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(2)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -10231,7 +10745,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -10241,13 +10755,23 @@ $pdo = getDBConnection();
                             النهي الصارم عن بيع السلع قبل تملكها وقبضها (لا تبع ما ليس عندك)
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🛒 بيوع ومرابحة وتجارة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(3)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(3)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -10313,7 +10837,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -10323,13 +10847,23 @@ $pdo = getDBConnection();
                             النهي عن بيوع الغرر والمخاطرة والمجهولات في الأسواق
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🛒 بيوع ومرابحة وتجارة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح مسلم
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(4)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(4)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -10395,7 +10929,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -10405,13 +10939,23 @@ $pdo = getDBConnection();
                             اشتراط حيازة المبيع واستيفاء القبض قبل إعادة تصريفه وبيعه
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🛒 بيوع ومرابحة وتجارة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(5)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(5)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -10477,7 +11021,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -10487,13 +11031,23 @@ $pdo = getDBConnection();
                             النهي عن البيع على بيع المسلم والنجش واحتكار السلع بالخداع
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🛒 بيوع ومرابحة وتجارة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(6)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(6)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -10559,7 +11113,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -10569,13 +11123,23 @@ $pdo = getDBConnection();
                             النهي عن بيعتين في بيعة والصفقات المشروطة الملتوية
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🛒 بيوع ومرابحة وتجارة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(7)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(7)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -10641,7 +11205,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -10651,13 +11215,23 @@ $pdo = getDBConnection();
                             النهي عن بيع الثمار والمحاصيل قبل بدو صلاحها وأمن العاهة
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🛒 بيوع ومرابحة وتجارة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(8)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(8)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -10723,7 +11297,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -10733,13 +11307,23 @@ $pdo = getDBConnection();
                             تشريع وضع الجوائح والكوارث الطارئة عن المشترين والمزارعين
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🛒 بيوع ومرابحة وتجارة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح مسلم
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(9)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(9)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -10805,7 +11389,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -10815,13 +11399,23 @@ $pdo = getDBConnection();
                             وجوب الوفاء بالشروط التجارية والعقود الرضائية المبرمة
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🛒 بيوع ومرابحة وتجارة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(10)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(10)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -10887,7 +11481,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -10897,13 +11491,23 @@ $pdo = getDBConnection();
                             تحريم الغش والتطفيف في البضائع والمواصفات والبراءة النبوية من الغاش
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🛒 بيوع ومرابحة وتجارة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح مسلم
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(11)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(11)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -10969,7 +11573,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -10979,13 +11583,23 @@ $pdo = getDBConnection();
                             فضل التاجر الصدوق الأمين ومنزلته العالية في الجنة مع النبيين والشهداء
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🛒 بيوع ومرابحة وتجارة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(12)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(12)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -11051,7 +11665,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -11061,13 +11675,23 @@ $pdo = getDBConnection();
                             السماحة واليسر في البيع والشراء والمطالبة بالحقوق واستجلاب رحمة الله
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🛒 بيوع ومرابحة وتجارة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح البخاري
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(13)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(13)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -11133,7 +11757,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -11143,13 +11767,23 @@ $pdo = getDBConnection();
                             فضل إقالة النادم وقبول المرتجع وفسخ الصفقة لراحة الزبون
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🛒 بيوع ومرابحة وتجارة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(14)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(14)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -11215,7 +11849,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -11225,13 +11859,23 @@ $pdo = getDBConnection();
                             تحريم الحلف الكاذب أو الصادق لتنفيق البضائع وترويج المبيعات
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🛒 بيوع ومرابحة وتجارة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(15)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(15)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -11297,7 +11941,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -11307,13 +11951,23 @@ $pdo = getDBConnection();
                             دستور الأصناف الربوية الستة وضوابط صرف العملات والسلع الأساسية
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🚫 ربا وصرف وعملات
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح مسلم
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(16)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(16)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -11379,7 +12033,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -11389,13 +12043,23 @@ $pdo = getDBConnection();
                             تحريم التفاضل في مبادلة الجنس الواحد من الذهب والفضة وصرفهما
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🚫 ربا وصرف وعملات
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(17)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(17)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -11461,7 +12125,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -11471,13 +12135,23 @@ $pdo = getDBConnection();
                             حديث تمر خيبر والقاعدة الذهبية في تجنب ربا الفضل عبر النقد
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🚫 ربا وصرف وعملات
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(18)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(18)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -11543,7 +12217,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -11553,13 +12227,23 @@ $pdo = getDBConnection();
                             لعن آكل الربا وموكله وموثقه وشاهديه واستواء الجميع في الوزر
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🚫 ربا وصرف وعملات
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح مسلم
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(19)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(19)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -11625,7 +12309,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -11635,13 +12319,23 @@ $pdo = getDBConnection();
                             التغليظ الشديد في جرم الربا وبيان شناعته وخطورته على المجتمع
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🚫 ربا وصرف وعملات
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(20)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(20)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -11707,7 +12401,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -11717,13 +12411,23 @@ $pdo = getDBConnection();
                             ربا النسيئة وخطورة تأجيل تسليم البدلين في عقود الصرف
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🚫 ربا وصرف وعملات
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(21)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(21)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -11789,7 +12493,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -11799,13 +12503,23 @@ $pdo = getDBConnection();
                             النهي عن بيع الكالئ بالكالئ (بيع الدين بالدين وتوريق الديون)
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🚫 ربا وصرف وعملات
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح بمعناه إجماعاً
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(22)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(22)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -11871,7 +12585,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -11881,13 +12595,23 @@ $pdo = getDBConnection();
                             تحريم بيع العِينة والتحايل الصوري على القروض الربوية بالسلع
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🚫 ربا وصرف وعملات
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(23)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(23)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -11953,7 +12677,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -11963,13 +12687,23 @@ $pdo = getDBConnection();
                             تحريم الجمع بين سلف وبيع واشتراط نفع تجاري في القروض
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🚫 ربا وصرف وعملات
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(24)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(24)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -12035,7 +12769,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -12045,13 +12779,23 @@ $pdo = getDBConnection();
                             عقوبة المرابين في البرزخ والسباحة في نهر الدم مع الحجارة
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🚫 ربا وصرف وعملات
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح البخاري
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(25)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(25)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -12117,7 +12861,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -12127,13 +12871,23 @@ $pdo = getDBConnection();
                             نية سداد الدين واستجلاب عون الله وتيسير الرزق وعقوبة الإتلاف
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             💳 ديون وقروض ورهن
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح البخاري
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(26)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(26)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -12199,7 +12953,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -12209,13 +12963,23 @@ $pdo = getDBConnection();
                             تحريم مَطْل الغني والمماطلة في الديون الحالة ومشروعية الحوالة المالية
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             💳 ديون وقروض ورهن
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(27)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(27)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -12281,7 +13045,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -12291,13 +13055,23 @@ $pdo = getDBConnection();
                             مشروعية ملاحقة المماطل الموسر قضائياً وجواز عقوبته وحبسه
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             💳 ديون وقروض ورهن
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(28)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(28)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -12363,7 +13137,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -12373,13 +13147,23 @@ $pdo = getDBConnection();
                             خطورة الدين وتعلق نفس المؤمن وذمته به بعد الوفاة حتى يُقضى
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             💳 ديون وقروض ورهن
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(29)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(29)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -12445,7 +13229,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -12455,13 +13239,23 @@ $pdo = getDBConnection();
                             قدسية حقوق العباد: الدين لا يسقط حتى بالشهادة في سبيل الله
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             💳 ديون وقروض ورهن
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح مسلم
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(30)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(30)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -12527,7 +13321,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -12537,13 +13331,23 @@ $pdo = getDBConnection();
                             فضل حسن القضاء وإعطاء الأفضل والزيادة غير المشروطة عند السداد
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             💳 ديون وقروض ورهن
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(31)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(31)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -12609,7 +13413,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -12619,13 +13423,23 @@ $pdo = getDBConnection();
                             مشروعية الرهن التجاري في الديون لتوثيق وضمان الحقوق المالية
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             💳 ديون وقروض ورهن
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(32)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(32)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -12691,7 +13505,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -12701,13 +13515,23 @@ $pdo = getDBConnection();
                             بقاء ملكية المرهون للراهن: له نماء العين وغلّتها وعليه ضمانها
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             💳 ديون وقروض ورهن
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(33)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(33)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -12773,7 +13597,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -12783,13 +13607,23 @@ $pdo = getDBConnection();
                             فضل إنظار المعسر والتجاوز عنه والاستظلال في ظل عرش الرحمن
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             💳 ديون وقروض ورهن
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح مسلم
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(34)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(34)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -12855,7 +13689,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -12865,13 +13699,23 @@ $pdo = getDBConnection();
                             مضاعفة أجر الصدقة عن كل يوم تأخير يُنظَر فيه المدين المعسر
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             💳 ديون وقروض ورهن
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(35)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(35)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -12937,7 +13781,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -12947,13 +13791,23 @@ $pdo = getDBConnection();
                             مشروعية الكفالة والضمان المالي (الزعيم غارم وضامن للدين)
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             💳 ديون وقروض ورهن
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(36)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(36)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -13019,7 +13873,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -13029,13 +13883,23 @@ $pdo = getDBConnection();
                             أحكام إفلاس المدين وحق البائع في استرداد عين سلعته قبل الغرماء
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             💳 ديون وقروض ورهن
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(37)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(37)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -13101,7 +13965,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -13111,13 +13975,23 @@ $pdo = getDBConnection();
                             فريضة الزكاة كركن مالي تعبدي ثالث بني عليه صرح الإسلام
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🌾 فريضة الزكاة وأنصبتها
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(38)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(38)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -13183,7 +14057,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -13193,13 +14067,23 @@ $pdo = getDBConnection();
                             دستور الزكاة النبوي: تؤخذ من أغنياء المجتمع وترد إلى فقرائه
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🌾 فريضة الزكاة وأنصبتها
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(39)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(39)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -13265,7 +14149,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -13275,13 +14159,23 @@ $pdo = getDBConnection();
                             تحديد أنصبة الزكاة الأساسية في النقد والمواشي والإنتاج الزراعي
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🌾 فريضة الزكاة وأنصبتها
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(40)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(40)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -13347,7 +14241,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -13357,13 +14251,23 @@ $pdo = getDBConnection();
                             تحديد النسبة المحاسبية الشرعية لزكاة الأموال والنقود (ربع العُشر 2.5%)
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🌾 فريضة الزكاة وأنصبتها
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح البخاري
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(41)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(41)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -13429,7 +14333,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -13439,13 +14343,23 @@ $pdo = getDBConnection();
                             تحديد نصاب الذهب بـ عشرين ديناراً (85 غراماً عيار 24) وشرط الحول
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🌾 فريضة الزكاة وأنصبتها
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(42)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(42)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -13511,7 +14425,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -13521,13 +14435,23 @@ $pdo = getDBConnection();
                             تفاوت زكاة الزروع والمحاصيل بحسب كلفة وتعب الري والتشغيل
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🌾 فريضة الزكاة وأنصبتها
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح البخاري
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(43)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(43)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -13593,7 +14517,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -13603,13 +14527,23 @@ $pdo = getDBConnection();
                             فرض زكاة الفطر صاعاً من طعام وتعميمها على جميع فئات الأسرة
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🌾 فريضة الزكاة وأنصبتها
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(44)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(44)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -13675,7 +14609,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -13685,13 +14619,23 @@ $pdo = getDBConnection();
                             حكمة زكاة الفطر: طهرة للصائم من اللغو والرفث وإطعام للمساكين
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🌾 فريضة الزكاة وأنصبتها
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(45)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(45)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -13757,7 +14701,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -13767,13 +14711,23 @@ $pdo = getDBConnection();
                             وعيد الله الشديد لمن كنز المال ومنع زكاته وتحوله لشجاع أقرع يعذبه
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🌾 فريضة الزكاة وأنصبتها
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح البخاري
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(46)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(46)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -13839,7 +14793,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -13849,13 +14803,23 @@ $pdo = getDBConnection();
                             تحريم أخذ أموال الزكاة للأغنياء والمكتفين والأقوياء القادرين على الكسب
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🌾 فريضة الزكاة وأنصبتها
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(47)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(47)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -13921,7 +14885,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -13931,13 +14895,23 @@ $pdo = getDBConnection();
                             اشتراط تمام الحول القمري (عام كامل) لوجوب زكاة الأموال والتجارة
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🌾 فريضة الزكاة وأنصبتها
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(48)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(48)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -14003,7 +14977,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -14013,13 +14987,23 @@ $pdo = getDBConnection();
                             مشروعية تعجيل إخراج الزكاة مقدماً قبل حلول الحول للمصلحة والأزمات
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🌾 فريضة الزكاة وأنصبتها
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(49)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(49)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -14085,7 +15069,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -14095,13 +15079,23 @@ $pdo = getDBConnection();
                             النهي عن أخذ نفائس وكرائم أموال الناس في جباية الزكاة والعدل مع المالك
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🌾 فريضة الزكاة وأنصبتها
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(50)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(50)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -14167,7 +15161,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -14177,13 +15171,23 @@ $pdo = getDBConnection();
                             تحريم الحيل المحاسبية والتهرب الزكوي بتفريق المجتمع أو جمع المفترق
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🌾 فريضة الزكاة وأنصبتها
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح البخاري
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(51)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(51)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -14249,7 +15253,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -14259,13 +15263,23 @@ $pdo = getDBConnection();
                             قانون البركة الرباني: نفي النقصان عن المال المتصدق به وزيادته حقيقة
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             💎 صدقات وإنفاق ونماء
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح مسلم
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(52)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(52)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -14331,7 +15345,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -14341,13 +15355,23 @@ $pdo = getDBConnection();
                             دعاء الملكين اليومي: الاستخلاف بالخلف للمنفق والهلاك والتلف للبخيل الممسك
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             💎 صدقات وإنفاق ونماء
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(53)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(53)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -14413,7 +15437,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -14423,13 +15447,23 @@ $pdo = getDBConnection();
                             فضل صدقة السر وإخفاء البذل المالي كأحد أسباب الظل في عرصات القيامة
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             💎 صدقات وإنفاق ونماء
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(54)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(54)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -14495,7 +15529,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -14505,13 +15539,23 @@ $pdo = getDBConnection();
                             تزكية الثروة والغنى الحلال: نعم المال الصالح للرجل الصالح
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             💎 صدقات وإنفاق ونماء
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(55)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(55)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -14577,7 +15621,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -14587,13 +15631,23 @@ $pdo = getDBConnection();
                             مشروعية الوقف الإسلامي والصدقة الجارية التي لا ينقطع أثرها بعد الموت
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             💎 صدقات وإنفاق ونماء
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح مسلم
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(56)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(56)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -14659,7 +15713,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -14669,13 +15723,23 @@ $pdo = getDBConnection();
                             فقه أولويات الموازنة المالية: أعظم الصدقات أجراً النفقة على الأهل والعيال
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             💎 صدقات وإنفاق ونماء
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح مسلم
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(57)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(57)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -14741,7 +15805,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -14751,13 +15815,23 @@ $pdo = getDBConnection();
                             عزة اليد العليا المنفقة وفضل التعفف والكسب على التكفف والمسألة
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             💎 صدقات وإنفاق ونماء
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(58)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(58)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -14823,7 +15897,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -14833,13 +15907,23 @@ $pdo = getDBConnection();
                             عدم احتقار أي قدر من البذل المالي: الوقاية من النار ولو بنصف تمرة
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             💎 صدقات وإنفاق ونماء
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(59)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(59)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -14905,7 +15989,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -14915,13 +15999,23 @@ $pdo = getDBConnection();
                             الصدقة تطفئ غضب الرب وتدفع ميتة السوء ومصائب المال
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             💎 صدقات وإنفاق ونماء
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(60)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(60)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -14987,7 +16081,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -14997,13 +16091,23 @@ $pdo = getDBConnection();
                             الأثر النفسي للبذل والبخل: انشراح صدر المنفق وضيق صدر البخيل
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             💎 صدقات وإنفاق ونماء
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(61)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(61)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -15069,7 +16173,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -15079,13 +16183,23 @@ $pdo = getDBConnection();
                             القانون النبوي الأساسي لقسمة التركات: ألحقوا الفرائض بأهلها
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             📜 مواريث وفرائض ووصايا
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(62)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(62)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -15151,7 +16265,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -15161,13 +16275,23 @@ $pdo = getDBConnection();
                             تحديد سقف الوصية بالثلث كحد أقصى وأولوية إغناء الورثة وكفايتهم
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             📜 مواريث وفرائض ووصايا
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(63)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(63)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -15233,7 +16357,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -15243,13 +16367,23 @@ $pdo = getDBConnection();
                             تحريم الوصية لأي وارث منعاً للظلم وتغيير أنصبة الميراث الإلهية
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             📜 مواريث وفرائض ووصايا
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(64)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(64)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -15315,7 +16449,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -15325,13 +16459,23 @@ $pdo = getDBConnection();
                             وجوب توثيق الوصايا والحقوق والديون كتابةً دون تأخير
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             📜 مواريث وفرائض ووصايا
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(65)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(65)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -15397,7 +16541,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -15407,13 +16551,23 @@ $pdo = getDBConnection();
                             موانع الميراث الشرعية: اختلاف الدين يمنع التوارث التلقائي في التركات
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             📜 مواريث وفرائض ووصايا
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(66)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(66)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -15479,7 +16633,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -15489,13 +16643,23 @@ $pdo = getDBConnection();
                             موانع الميراث: حرمان القاتل من تركة مورّثه منعاً للاستعجال غير المشروع
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             📜 مواريث وفرائض ووصايا
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(67)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(67)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -15561,7 +16725,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -15571,13 +16735,23 @@ $pdo = getDBConnection();
                             قضاء النبي ﷺ بفرض السُّدس للجدة عند عدم وجود الأم
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             📜 مواريث وفرائض ووصايا
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(68)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(68)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -15643,7 +16817,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -15653,13 +16827,23 @@ $pdo = getDBConnection();
                             قضاء النبوة في ميراث الابنة وبنت الابن والأخت (تكملة الثلثين)
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             📜 مواريث وفرائض ووصايا
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح البخاري
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(69)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(69)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -15725,7 +16909,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -15735,13 +16919,23 @@ $pdo = getDBConnection();
                             حرمة بيع أسباب الميراث: الولاء لحمة كلحمة النسب لا يباع ولا يوهب
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             📜 مواريث وفرائض ووصايا
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(70)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(70)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -15807,7 +17001,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -15817,13 +17011,23 @@ $pdo = getDBConnection();
                             كفالة الدولة النبوية لديون المتوفى المعسر وتسليم صافي التركة للورثة
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             📜 مواريث وفرائض ووصايا
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(71)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(71)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -15889,7 +17093,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -15899,13 +17103,23 @@ $pdo = getDBConnection();
                             وجوب المبادرة الفورية بدفع أجور العمال والموظفين دون مماطلة
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             👥 أجور وعمال وشركات
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(72)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(72)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -15971,7 +17185,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -15981,13 +17195,23 @@ $pdo = getDBConnection();
                             خصومة الله العظمى يوم القيامة لمن استوفى جهد العامل وبخسه حقه
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             👥 أجور وعمال وشركات
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح البخاري
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(73)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(73)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -16053,7 +17277,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -16063,13 +17287,23 @@ $pdo = getDBConnection();
                             بركة الأمانة والشفافية بين الشركاء وخروج البركة وحلول الخسارة بالخيانة
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             👥 أجور وعمال وشركات
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(74)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(74)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -16135,7 +17369,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -16145,13 +17379,23 @@ $pdo = getDBConnection();
                             إلزامية معايير الجودة والإتقان المهني والمالي في الأعمال والخدمات
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             👥 أجور وعمال وشركات
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(75)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(75)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -16217,7 +17461,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -16227,13 +17471,23 @@ $pdo = getDBConnection();
                             وجوب تحديد الراتب والمهام الوظيفية بوضوح تام قبل مباشرة العمل
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             👥 أجور وعمال وشركات
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(76)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(76)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -16299,7 +17553,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -16309,13 +17563,23 @@ $pdo = getDBConnection();
                             تحريم الاستئجار والتكسب من المهن المحرمة والأنشطة غير الأخلاقية
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             👥 أجور وعمال وشركات
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(77)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(77)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -16381,7 +17645,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -16391,13 +17655,23 @@ $pdo = getDBConnection();
                             النهي عن إجارة قفيز الطحان (أخذ الأجر من عين العمل المعرض للتلف)
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             👥 أجور وعمال وشركات
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح بمجموع طرقه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(78)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(78)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -16463,7 +17737,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -16473,13 +17747,23 @@ $pdo = getDBConnection();
                             أعظم الكسب والرزق شرفاً وبركة: ما كسبه العبد من كدّ يده وعمله
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             👥 أجور وعمال وشركات
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح البخاري
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(79)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(79)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -16545,7 +17829,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -16555,13 +17839,23 @@ $pdo = getDBConnection();
                             شرف المهن والإنتاج: ما بعث الله نبياً إلا رعى الغنم وتكسب بجهده
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             👥 أجور وعمال وشركات
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح البخاري
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(80)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(80)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -16627,7 +17921,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -16637,13 +17931,23 @@ $pdo = getDBConnection();
                             دستور عقد السَّلَم والتمويل المسبق للإنتاج وضوابطه الصارمة
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             📑 سلم وشفعة ومساقاة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(81)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(81)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -16709,7 +18013,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -16719,13 +18023,23 @@ $pdo = getDBConnection();
                             قضاء النبوة بالشفعة في العقارات والأراضي المشتركة قبل القسمة
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             📑 سلم وشفعة ومساقاة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(82)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(82)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -16791,7 +18105,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -16801,13 +18115,23 @@ $pdo = getDBConnection();
                             حق الجار الملاصق في أولوية الشراء والعرض عليه قبل الغريب
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             📑 سلم وشفعة ومساقاة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح البخاري
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(83)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(83)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -16873,7 +18197,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -16883,13 +18207,23 @@ $pdo = getDBConnection();
                             مشروعية عقود المساقاة والمزارعة والمشاركة في المحصول بنسبة شائعة
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             📑 سلم وشفعة ومساقاة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(84)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(84)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -16955,7 +18289,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -16965,13 +18299,23 @@ $pdo = getDBConnection();
                             تشجيع الاستثمار واستصلاح الأراضي المهملة: من أحيا أرضاً ميتة فهي له
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             📑 سلم وشفعة ومساقاة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(85)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(85)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -17037,7 +18381,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -17047,13 +18391,23 @@ $pdo = getDBConnection();
                             دستور المرافق العامة والملكية المشتركة: الناس شركاء في ثلاث
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             📑 سلم وشفعة ومساقاة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(86)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(86)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -17119,7 +18473,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -17129,13 +18483,23 @@ $pdo = getDBConnection();
                             تحريم بيع فضل الماء في الآبار والأنهار لمنع رعي الماشية والأراضي
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             📑 سلم وشفعة ومساقاة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(87)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(87)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -17201,7 +18565,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -17211,13 +18575,23 @@ $pdo = getDBConnection();
                             مشروعية عقد الجِعالة واستحقاق المكافأة المالية المشروطة عند إتمام الإنجاز
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             📑 سلم وشفعة ومساقاة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(88)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(88)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -17283,7 +18657,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -17293,13 +18667,23 @@ $pdo = getDBConnection();
                             دستور اللقطة والمال الضائع: حفظ الأوصاف والإعلان والتعريف لمدة عام
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🛡️ لقطة وأمانات وحفظ مال
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(89)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(89)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -17365,7 +18749,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -17375,13 +18759,23 @@ $pdo = getDBConnection();
                             التفريق بين اللقطة المعرضة للضياع والحيوانات والممتلكات المصونة
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🛡️ لقطة وأمانات وحفظ مال
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(90)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(90)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -17447,7 +18841,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -17457,13 +18851,23 @@ $pdo = getDBConnection();
                             وجوب رد الأمانات والودائع المصرفية والتجارية وتحريم خيانة الخائن
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🛡️ لقطة وأمانات وحفظ مال
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(91)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(91)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -17529,7 +18933,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -17539,13 +18943,23 @@ $pdo = getDBConnection();
                             المسؤولية القانونية والضمان الشامل للأموال المقبوضة تحت يد الشخص
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🛡️ لقطة وأمانات وحفظ مال
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(92)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(92)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -17611,7 +19025,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -17621,13 +19035,23 @@ $pdo = getDBConnection();
                             حرمة الملكية الفردية الخاصة ومشروعية الدفاع عن المال حتى الشهادة
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🛡️ لقطة وأمانات وحفظ مال
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(93)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(93)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -17693,7 +19117,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -17703,13 +19127,23 @@ $pdo = getDBConnection();
                             عقوبة غصب العقارات وتزوير حجج الأراضي والتعدي على المخططات
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             🛡️ لقطة وأمانات وحفظ مال
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(94)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(94)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -17775,7 +19209,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -17785,13 +19219,23 @@ $pdo = getDBConnection();
                             لعن الراشي والمرتشي في المعاملات والمناقصات والقضاء والوظائف
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             ⚖️ نزاهة ومحاربة الرشوة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(95)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(95)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -17857,7 +19301,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -17867,13 +19311,23 @@ $pdo = getDBConnection();
                             تجريم عمولات الموظفين وهدايا المشتريات: هدايا العمال غلول وخيانة
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             ⚖️ نزاهة ومحاربة الرشوة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(96)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(96)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -17939,7 +19393,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -17949,13 +19403,23 @@ $pdo = getDBConnection();
                             شؤم التكسب من السحت والحرام واستحقاق النار للجسد النابت منه
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             ⚖️ نزاهة ومحاربة الرشوة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(97)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(97)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -18021,7 +19485,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -18031,13 +19495,23 @@ $pdo = getDBConnection();
                             عقوبة اقتطاع أموال الناس وابتلاع حقوقهم بالأيمان الكاذبة المغلظة
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             ⚖️ نزاهة ومحاربة الرشوة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(98)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(98)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -18103,7 +19577,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -18113,13 +19587,23 @@ $pdo = getDBConnection();
                             حرمة مال المسلم المطلقة: لا يحل أخذ أي جزء منه إلا بطيب نفس ورضا
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             ⚖️ نزاهة ومحاربة الرشوة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ صحيح
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(99)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(99)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -18185,7 +19669,7 @@ $pdo = getDBConnection();
             <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
             
             <div class="space-y-6">
-                <!-- Top Header: Number + Title + Badges -->
+                <!-- Top Header: Number + Title + Badges + Copy & WhatsApp -->
                 <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
                     <div class="flex items-center gap-3.5 flex-1 min-w-[240px]">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 text-amber-300 font-mono font-black text-xl md:text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
@@ -18195,13 +19679,23 @@ $pdo = getDBConnection();
                             دستور الحوكمة وإدارة الثروات: النهي القاطع عن إضاعة المال والتبذير
                         </h4>
                     </div>
-                    <div class="flex items-center gap-2.5 flex-shrink-0">
+                    <div class="flex flex-wrap items-center gap-2.5 flex-shrink-0">
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-amber-500/20 text-amber-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-amber-500/50 shadow-sm">
                             ⚖️ نزاهة ومحاربة الرشوة
                         </span>
                         <span class="px-5 sm:px-6 py-2 sm:py-2.5 bg-emerald-500/25 text-emerald-300 font-black text-sm sm:text-base md:text-lg rounded-full border-2 border-emerald-400/60 shadow-sm">
                             ✓ متفق عليه
                         </span>
+
+                        <!-- أزرار نسخ ومشاركة الحديث الشريف -->
+                        <button type="button" onclick="copyHadithCard(100)" class="px-3.5 py-2 bg-slate-800 hover:bg-amber-500/25 text-slate-200 hover:text-amber-300 font-black text-xs sm:text-sm rounded-full border border-slate-700 hover:border-amber-400/60 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="نسخ نص الحديث الشريف والتخريج والفائدة للحافظة">
+                            <i class="fa-solid fa-copy text-amber-400"></i>
+                            <span>نسخ</span>
+                        </button>
+                        <button type="button" onclick="shareHadithWhatsApp(100)" class="px-3.5 py-2 bg-emerald-950/60 hover:bg-emerald-600/30 text-emerald-300 hover:text-emerald-200 font-black text-xs sm:text-sm rounded-full border border-emerald-500/40 hover:border-emerald-400 shadow-sm transition-all duration-300 flex items-center gap-1.5" title="مشاركة الحديث الشريف مباشرة عبر واتساب">
+                            <i class="fa-brands fa-whatsapp text-emerald-400 text-sm"></i>
+                            <span>واتساب</span>
+                        </button>
                     </div>
                 </div>
 
@@ -19815,6 +21309,99 @@ $pdo = getDBConnection();
         if (indicator) {
             indicator.textContent = `${Math.round(fiqhCardFontScale * 100)}%`;
         }
+    }
+
+
+    // ════════════════════════════════════════════════════════════════════════════
+    // 🌟 QURAN & HADITH DATASETS & COPY / WHATSAPP HANDLERS 🌟
+    // ════════════════════════════════════════════════════════════════════════════
+    window.QURAN_VERSES_DATA = [{"num":1,"topic":"debts","search":"آية المداينة الكبرى (أطول آية في القرآن الكريم - دستور توثيق الديون والالتزامات المالية) يَا أَيُّهَا الَّذِينَ آمَنُوا إِذَا تَدَايَنتُم بِدَيْنٍ إِلَىٰ أَجَلٍ مُّسَمًّى فَاكْتُبُوهُ ۚ وَلْيَكْتُب بَّيْنَكُمْ كَاتِبٌ بِالْعَدْلِ ۚ وَلَا يَأْبَ كَاتِبٌ أَن يَكْتُبَ كَمَا عَلَّمَهُ اللَّهُ ۚ فَلْيَكْتُبْ وَلْيُمْلِلِ الَّذِي عَلَيْهِ الْحَقُّ وَلْيَتَّقِ اللَّهَ رَبَّهُ وَلَا يَبْخَسْ مِنْهُ شَيْئًا... وَاسْتَشْهِدُوا شَهِيدَيْنِ مِن رِّجَالِكُمْ ۖ فَإِن لَّمْ يَكُونَا رَجُلَيْنِ فَرَجُلٌ وَامْرَأَتَانِ مِمَّن تَرْضَوْنَ مِنَ الشُّهَدَاءِ أَن تَضِلَّ إِحْدَاهُمَا فَتُذَكِّرَ إِحْدَاهُمَا الْأُخْرَىٰ ۚ وَلَا يَأْبَ الشُّهَدَاءُ إِذَا مَا دُعُوا ۚ وَلَا تَسْأَمُوا أَن تَكْتُبُوهُ صَغِيرًا أَوْ كَبِيرًا إِلَىٰ أَجَلِهِ ۚ ذَٰلِكُمْ أَقْسَطُ عِندَ اللَّهِ وَأَقْوَمُ لِلشَّهَادَةِ وَأَدْنَىٰ أَلَّا تَرْتَابُوا ۖ إِلَّا أَن تَكُونَ تِجَارَةً حَاضِرَةً تُدِيرُونَهَا بَيْنَكُمْ فَلَيْسَ عَلَيْكُمْ جُنَاحٌ أَلَّا تَكْتُبُوهَا ۗ وَأَشْهِدُوا إِذَا تَبَايَعْتُمْ... سورة البقرة: الآية 282 الأحكام الاقتصادية: وجوب/ندب توثيق الديون المؤجلة بالكتابة الرسمية، وتحديد أجل السداد بدقة، وإملاء المدين بنفسه اعترافاً بالحق، والإشهاد العدلي، واستثناء التجارة الحاضرة النقدية لتيسير حركة السوق وسرعة تداول السلع. الديون والتوثيق","title":"آية المداينة الكبرى (أطول آية في القرآن الكريم - دستور توثيق الديون والالتزامات المالية)","surah":"سورة البقرة: الآية 282","verseText":"يَا أَيُّهَا الَّذِينَ آمَنُوا إِذَا تَدَايَنتُم بِدَيْنٍ إِلَىٰ أَجَلٍ مُّسَمًّى فَاكْتُبُوهُ ۚ وَلْيَكْتُب بَّيْنَكُمْ كَاتِبٌ بِالْعَدْلِ ۚ وَلَا يَأْبَ كَاتِبٌ أَن يَكْتُبَ كَمَا عَلَّمَهُ اللَّهُ ۚ فَلْيَكْتُبْ وَلْيُمْلِلِ الَّذِي عَلَيْهِ الْحَقُّ وَلْيَتَّقِ اللَّهَ رَبَّهُ وَلَا يَبْخَسْ مِنْهُ شَيْئًا... وَاسْتَشْهِدُوا شَهِيدَيْنِ مِن رِّجَالِكُمْ ۖ فَإِن لَّمْ يَكُونَا رَجُلَيْنِ فَرَجُلٌ وَامْرَأَتَانِ مِمَّن تَرْضَوْنَ مِنَ الشُّهَدَاءِ أَن تَضِلَّ إِحْدَاهُمَا فَتُذَكِّرَ إِحْدَاهُمَا الْأُخْرَىٰ ۚ وَلَا يَأْبَ الشُّهَدَاءُ إِذَا مَا دُعُوا ۚ وَلَا تَسْأَمُوا أَن تَكْتُبُوهُ صَغِيرًا أَوْ كَبِيرًا إِلَىٰ أَجَلِهِ ۚ ذَٰلِكُمْ أَقْسَطُ عِندَ اللَّهِ وَأَقْوَمُ لِلشَّهَادَةِ وَأَدْنَىٰ أَلَّا تَرْتَابُوا ۖ إِلَّا أَن تَكُونَ تِجَارَةً حَاضِرَةً تُدِيرُونَهَا بَيْنَكُمْ فَلَيْسَ عَلَيْكُمْ جُنَاحٌ أَلَّا تَكْتُبُوهَا ۗ وَأَشْهِدُوا إِذَا تَبَايَعْتُمْ...","guidance":"الأحكام الاقتصادية: وجوب/ندب توثيق الديون المؤجلة بالكتابة الرسمية، وتحديد أجل السداد بدقة، وإملاء المدين بنفسه اعترافاً بالحق، والإشهاد العدلي، واستثناء التجارة الحاضرة النقدية لتيسير حركة السوق وسرعة تداول السلع.","catBadge":"الديون والتوثيق"},{"num":2,"topic":"debts","search":"مشروعية الرهن الحيازي في السفر والديون وأداء الأمانات وتحريم كتمان الشهادة وَإِن كُنتُمْ عَلَىٰ سَفَرٍ وَلَمْ تَجِدُوا كَاتِبًا فَرِهَانٌ مَّقْبُوضَةٌ ۖ فَإِنْ أَمِنَ بَعْضُكُم بَعْضًا فَلْيُؤَدِّ الَّذِي اؤْتُمِنَ أَمَانَتَهُ وَلْيَتَّقِ اللَّهَ رَبَّهُ ۗ وَلَا تَكْتُمُوا الشَّهَادَةَ ۚ وَمَن يَكْتُمْهَا فَإِنَّهُ آثِمٌ قَلْبُهُ ۗ وَاللَّهُ بِمَا تَعْمَلُونَ عَلِيمٌ سورة البقرة: الآية 283 الأحكام الاقتصادية: مشروعية أخذ الرهن لضمان استرداد الدين المالي عند تعذر التوثيق الكتابي، وكون الرهن مقبوضاً بيد الدائن، وتأكيد أداء الأمانة المالية للطرفين، وتحريم كتمان الشهادات المالية في المنازعات القضائية. الرهن والأمانات","title":"مشروعية الرهن الحيازي في السفر والديون وأداء الأمانات وتحريم كتمان الشهادة","surah":"سورة البقرة: الآية 283","verseText":"وَإِن كُنتُمْ عَلَىٰ سَفَرٍ وَلَمْ تَجِدُوا كَاتِبًا فَرِهَانٌ مَّقْبُوضَةٌ ۖ فَإِنْ أَمِنَ بَعْضُكُم بَعْضًا فَلْيُؤَدِّ الَّذِي اؤْتُمِنَ أَمَانَتَهُ وَلْيَتَّقِ اللَّهَ رَبَّهُ ۗ وَلَا تَكْتُمُوا الشَّهَادَةَ ۚ وَمَن يَكْتُمْهَا فَإِنَّهُ آثِمٌ قَلْبُهُ ۗ وَاللَّهُ بِمَا تَعْمَلُونَ عَلِيمٌ","guidance":"الأحكام الاقتصادية: مشروعية أخذ الرهن لضمان استرداد الدين المالي عند تعذر التوثيق الكتابي، وكون الرهن مقبوضاً بيد الدائن، وتأكيد أداء الأمانة المالية للطرفين، وتحريم كتمان الشهادات المالية في المنازعات القضائية.","catBadge":"الرهن والأمانات"},{"num":3,"topic":"debts","search":"وجوب إنظار المدين المعسر شرعاً وفضل التجاوز عنه بالإسقاط والصدقة وَإِن كَانَ ذُو عُسْرَةٍ فَنَظِرَةٌ إِلَىٰ مَيْسَرَةٍ ۚ وَأَن تَصَدَّقُوا خَيْرٌ لَّكُمْ ۖ إِن كُنتُمْ تَعْلَمُونَ سورة البقرة: الآية 280 الأحكام الاقتصادية: وجوب تأجيل سداد الدين على المدين العاجز دون فرض أي غرامات تأخير أو فوائد إضافية، واستحباب التصدق بإبراء ذمة المدين كلياً أو جزئياً من باب الإحسان والمعونة الاجتماعية. إنظار المعسر","title":"وجوب إنظار المدين المعسر شرعاً وفضل التجاوز عنه بالإسقاط والصدقة","surah":"سورة البقرة: الآية 280","verseText":"وَإِن كَانَ ذُو عُسْرَةٍ فَنَظِرَةٌ إِلَىٰ مَيْسَرَةٍ ۚ وَأَن تَصَدَّقُوا خَيْرٌ لَّكُمْ ۖ إِن كُنتُمْ تَعْلَمُونَ","guidance":"الأحكام الاقتصادية: وجوب تأجيل سداد الدين على المدين العاجز دون فرض أي غرامات تأخير أو فوائد إضافية، واستحباب التصدق بإبراء ذمة المدين كلياً أو جزئياً من باب الإحسان والمعونة الاجتماعية.","catBadge":"إنظار المعسر"},{"num":4,"topic":"trade","search":"القاعدة الكلية الكبرى: إحلال البيع والتجارة وتحريم الربا القاطع الَّذِينَ يَأْكُلُونَ الرِّبَا لَا يَقُومُونَ إِلَّا كَمَا يَقُومُ الَّذِي يَتَخَبَّطُهُ الشَّيْطَانُ مِنَ الْمَسِّ ۚ ذَٰلِكَ بِأَنَّهُمْ قَالُوا إِنَّمَا الْبَيْعُ مِثْلُ الرِّبَا ۗ وَأَحَلَّ اللَّهُ الْبَيْعَ وَحَرَّمَ الرِّبَا ۚ فَمَن جَاءَهُ مَوْعِظَةٌ مِّن رَّبِّهِ فَانتَهَىٰ فَلَهُ مَا سَلَفَ وَأَمْرُهُ إِلَى اللَّهِ ۖ وَمَنْ عَادَ فَأُولَٰئِكَ أَصْحَابُ النَّارِ ۖ هُمْ فِيهَا خَالِدُونَ سورة البقرة: الآية 275 الأحكام الاقتصادية: التفريق الجذري بين الربح الناتج عن بيع السلع والخدمات وتحمل المخاطر وتداول الأموال الحقيقية (المباح)، وبين الزيادة المشروطة على القرض والنقد بلا عوض ولا مخاطرة (المحرم قطيعاً). إحلال البيع","title":"القاعدة الكلية الكبرى: إحلال البيع والتجارة وتحريم الربا القاطع","surah":"سورة البقرة: الآية 275","verseText":"الَّذِينَ يَأْكُلُونَ الرِّبَا لَا يَقُومُونَ إِلَّا كَمَا يَقُومُ الَّذِي يَتَخَبَّطُهُ الشَّيْطَانُ مِنَ الْمَسِّ ۚ ذَٰلِكَ بِأَنَّهُمْ قَالُوا إِنَّمَا الْبَيْعُ مِثْلُ الرِّبَا ۗ وَأَحَلَّ اللَّهُ الْبَيْعَ وَحَرَّمَ الرِّبَا ۚ فَمَن جَاءَهُ مَوْعِظَةٌ مِّن رَّبِّهِ فَانتَهَىٰ فَلَهُ مَا سَلَفَ وَأَمْرُهُ إِلَى اللَّهِ ۖ وَمَنْ عَادَ فَأُولَٰئِكَ أَصْحَابُ النَّارِ ۖ هُمْ فِيهَا خَالِدُونَ","guidance":"الأحكام الاقتصادية: التفريق الجذري بين الربح الناتج عن بيع السلع والخدمات وتحمل المخاطر وتداول الأموال الحقيقية (المباح)، وبين الزيادة المشروطة على القرض والنقد بلا عوض ولا مخاطرة (المحرم قطيعاً).","catBadge":"إحلال البيع"},{"num":5,"topic":"trade","search":"ركن التراضي التام في العقود وتحريم أكل أموال الناس بالباطل يَا أَيُّهَا الَّذِينَ آمَنُوا لَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ إِلَّا أَن تَكُونَ تِجَارَةً عَن تَرَاضٍ مِّنكُمْ ۚ وَلَا تَقْتُلُوا أَنفُسَكُمْ ۚ إِنَّ اللَّهَ كَانَ بِكُمْ رَحِيمًا سورة النساء: الآية 29 الأحكام الاقتصادية: بطلان أي معاملة مالية قائمة على الغصب أو التدليس أو الغرر أو الإكراه، واشتراط التراضي الحقيقي والإيجاب والقبول الصحيح بين المتبايعين لصحة انتقال الملكية. التراضي في التجارة","title":"ركن التراضي التام في العقود وتحريم أكل أموال الناس بالباطل","surah":"سورة النساء: الآية 29","verseText":"يَا أَيُّهَا الَّذِينَ آمَنُوا لَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ إِلَّا أَن تَكُونَ تِجَارَةً عَن تَرَاضٍ مِّنكُمْ ۚ وَلَا تَقْتُلُوا أَنفُسَكُمْ ۚ إِنَّ اللَّهَ كَانَ بِكُمْ رَحِيمًا","guidance":"الأحكام الاقتصادية: بطلان أي معاملة مالية قائمة على الغصب أو التدليس أو الغرر أو الإكراه، واشتراط التراضي الحقيقي والإيجاب والقبول الصحيح بين المتبايعين لصحة انتقال الملكية.","catBadge":"التراضي في التجارة"},{"num":6,"topic":"trade","search":"الأمر الإلهي القطعي بالوفاء بكافة العقود والعهود والالتزامات التجارية يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ ۚ أُحِلَّتْ لَكُم بَهِيمَةُ الْأَنْعَامِ إِلَّا مَا يُتْلَىٰ عَلَيْكُمْ... سورة المائدة: الآية 1 الأحكام الاقتصادية: قاعدة 'العقد شريعة المتعاقدين' في الفقه الإسلامي؛ وجوب الالتزام التام بكافة بنود وشروط عقود التوريد والمقاولات والوكالة والشراكة والبيع ما لم تحرم حلالاً أو تحل حراماً. الوفاء بالعقود","title":"الأمر الإلهي القطعي بالوفاء بكافة العقود والعهود والالتزامات التجارية","surah":"سورة المائدة: الآية 1","verseText":"يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ ۚ أُحِلَّتْ لَكُم بَهِيمَةُ الْأَنْعَامِ إِلَّا مَا يُتْلَىٰ عَلَيْكُمْ...","guidance":"الأحكام الاقتصادية: قاعدة 'العقد شريعة المتعاقدين' في الفقه الإسلامي؛ وجوب الالتزام التام بكافة بنود وشروط عقود التوريد والمقاولات والوكالة والشراكة والبيع ما لم تحرم حلالاً أو تحل حراماً.","catBadge":"الوفاء بالعقود"},{"num":7,"topic":"trade","search":"إيفاء الكيل والميزان بالقسطاس المستقيم وأثره في بركة الاقتصاد وَأَوْفُوا الْكَيْلَ إِذَا كِلْتُمْ وَزِنُوا بِالْقِسْطَاسِ الْمُسْتَقِيمِ ۚ ذَٰلِكَ خَيْرٌ وَأَحْسَنُ تَأْوِيلًا سورة الإسراء: الآية 35 الأحكام الاقتصادية: وجوب دقة المعايير والمكاييل والأوزان والمواصفات القياسية الهندسية والتجارية في تسليم البضائع والسلع، واعتبار العدل أساس استقرار الأسواق. الموازين والمكاييل","title":"إيفاء الكيل والميزان بالقسطاس المستقيم وأثره في بركة الاقتصاد","surah":"سورة الإسراء: الآية 35","verseText":"وَأَوْفُوا الْكَيْلَ إِذَا كِلْتُمْ وَزِنُوا بِالْقِسْطَاسِ الْمُسْتَقِيمِ ۚ ذَٰلِكَ خَيْرٌ وَأَحْسَنُ تَأْوِيلًا","guidance":"الأحكام الاقتصادية: وجوب دقة المعايير والمكاييل والأوزان والمواصفات القياسية الهندسية والتجارية في تسليم البضائع والسلع، واعتبار العدل أساس استقرار الأسواق.","catBadge":"الموازين والمكاييل"},{"num":8,"topic":"trade","search":"الوعيد الشديد والهلاك للمطففين الذين ينقصون في الكيل والوزن والمواصفات وَيْلٌ لِّلْمُطَفِّفِينَ * الَّذِينَ إِذَا اكْتَالُوا عَلَى النَّاسِ يَسْتَوْفُونَ * وَإِذَا كَالُوهُمْ أَو وَّزَنُوهُمْ يُخْسِرُونَ سورة المطففين: الآيات 1-3 الأحكام الاقتصادية: تجريم الازدواجية والمخادعة في البيع والشراء؛ أن يطلب حقه كاملاً في الشراء وينقص حقوق الناس عند البيع والتسليم في الجودة أو الكمية أو الوزن. تحريم التطفيف","title":"الوعيد الشديد والهلاك للمطففين الذين ينقصون في الكيل والوزن والمواصفات","surah":"سورة المطففين: الآيات 1-3","verseText":"وَيْلٌ لِّلْمُطَفِّفِينَ * الَّذِينَ إِذَا اكْتَالُوا عَلَى النَّاسِ يَسْتَوْفُونَ * وَإِذَا كَالُوهُمْ أَو وَّزَنُوهُمْ يُخْسِرُونَ","guidance":"الأحكام الاقتصادية: تجريم الازدواجية والمخادعة في البيع والشراء؛ أن يطلب حقه كاملاً في الشراء وينقص حقوق الناس عند البيع والتسليم في الجودة أو الكمية أو الوزن.","catBadge":"تحريم التطفيف"},{"num":9,"topic":"trade","search":"النهي عن بخس الناس أشياءهم وبخس مجهوداتهم والفساد في الأسواق فَأَوْفُوا الْكَيْلَ وَالْمِيزَانَ وَلَا تَبْخَسُوا النَّاسَ أَشْيَاءَهُمْ وَلَا تُفْسِدُوا فِي الْأَرْضِ بَعْدَ إِصْلَاحِهَا ۚ ذَٰلِكُمْ خَيْرٌ لَّكُمْ إِن كُنتُم مُّؤْمِنِينَ سورة الأعراف: الآية 85 الأحكام الاقتصادية: تحريم التقليل المصطنع من قيمة سلع الناس أو خدماتهم أو كفاءاتهم لشرائها بأقل من قيمتها العادلة، والنهي عن الاحتكار والممارسات الاحتكارية الضارة بالسوق. عدم بخس السلع","title":"النهي عن بخس الناس أشياءهم وبخس مجهوداتهم والفساد في الأسواق","surah":"سورة الأعراف: الآية 85","verseText":"فَأَوْفُوا الْكَيْلَ وَالْمِيزَانَ وَلَا تَبْخَسُوا النَّاسَ أَشْيَاءَهُمْ وَلَا تُفْسِدُوا فِي الْأَرْضِ بَعْدَ إِصْلَاحِهَا ۚ ذَٰلِكُمْ خَيْرٌ لَّكُمْ إِن كُنتُم مُّؤْمِنِينَ","guidance":"الأحكام الاقتصادية: تحريم التقليل المصطنع من قيمة سلع الناس أو خدماتهم أو كفاءاتهم لشرائها بأقل من قيمتها العادلة، والنهي عن الاحتكار والممارسات الاحتكارية الضارة بالسوق.","catBadge":"عدم بخس السلع"},{"num":10,"topic":"trade","search":"وجوب أداء الأمانات المالية إلى أصحابها والحكم بالعدل في المعاملات إِنَّ اللَّهَ يَأْمُرُكُمْ أَن تُؤَدُّوا الْأَمَانَاتِ إِلَىٰ أَهْلِهَا وَإِذَا حَكَمْتُم بَيْنَ النَّاسِ أَن تَحْكُمُوا بِالْعَدْلِ ۚ إِنَّ اللَّهَ نِعِمَّا يَعِظُكُم بِهِ ۗ إِنَّ اللَّهَ كَانَ سَمِيعًا بَصِيرًا سورة النساء: الآية 58 الأحكام الاقتصادية: إلزامية رد الودائع، وحفظ أموال الشركاء والمساهمين، وسداد مستحقات الموردين والعمال دون مماطلة، والعدل في الفصل في النزاعات التجارية والتحكيم المالي. أداء الأمانات","title":"وجوب أداء الأمانات المالية إلى أصحابها والحكم بالعدل في المعاملات","surah":"سورة النساء: الآية 58","verseText":"إِنَّ اللَّهَ يَأْمُرُكُمْ أَن تُؤَدُّوا الْأَمَانَاتِ إِلَىٰ أَهْلِهَا وَإِذَا حَكَمْتُم بَيْنَ النَّاسِ أَن تَحْكُمُوا بِالْعَدْلِ ۚ إِنَّ اللَّهَ نِعِمَّا يَعِظُكُم بِهِ ۗ إِنَّ اللَّهَ كَانَ سَمِيعًا بَصِيرًا","guidance":"الأحكام الاقتصادية: إلزامية رد الودائع، وحفظ أموال الشركاء والمساهمين، وسداد مستحقات الموردين والعمال دون مماطلة، والعدل في الفصل في النزاعات التجارية والتحكيم المالي.","catBadge":"أداء الأمانات"},{"num":11,"topic":"trade","search":"التعاون على البر والتقوى: الأصل القرآني للشركات التعاونية والتأمين التكافلي وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ ۖ وَلَا تَعَاوَنُوا عَلَى الْإِثْمِ وَالْعُدْوَانِ ۚ وَاتَّقُوا اللَّهَ ۖ إِنَّ اللَّهَ شَدِيدُ الْعِقَابِ سورة المائدة: الآية 2 الأحكام الاقتصادية: تأصيل العمل التكافلي التعاوني، وصناديق الضمان الاجتماعي، والتأمين الإسلامي القائم على التعاون والتبرع المتبادل دون ربا ولا قمار. التأمين التكافلي والتعاون","title":"التعاون على البر والتقوى: الأصل القرآني للشركات التعاونية والتأمين التكافلي","surah":"سورة المائدة: الآية 2","verseText":"وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ ۖ وَلَا تَعَاوَنُوا عَلَى الْإِثْمِ وَالْعُدْوَانِ ۚ وَاتَّقُوا اللَّهَ ۖ إِنَّ اللَّهَ شَدِيدُ الْعِقَابِ","guidance":"الأحكام الاقتصادية: تأصيل العمل التكافلي التعاوني، وصناديق الضمان الاجتماعي، والتأمين الإسلامي القائم على التعاون والتبرع المتبادل دون ربا ولا قمار.","catBadge":"التأمين التكافلي والتعاون"},{"num":12,"topic":"trade","search":"الأمر بإيفاء الكيل والميزان الصحيح وعدم الإفساد الاقتصادي في الأرض أَوْفُوا الْكَيْلَ وَلَا تَكُونُوا مِنَ الْمُخْسِرِينَ * وَزِنُوا بِالْقِسْطَاسِ الْمُسْتَقِيمِ * وَلَا تَبْخَسُوا النَّاسَ أَشْيَاءَهُمْ وَلَا تَعْثَوْا فِي الْأَرْضِ مُفْسِدِينَ سورة الشعراء: الآيات 181-183 الأحكام الاقتصادية: ربط سلامة الممارسات التجارية والمعايير الفنية بالإيمان وتقوى الله، والتحذير من أن الفساد التجاري والتلاعب بالموازين يؤدي إلى هلاك الأمم وزوال النعم. الكيل الصادق","title":"الأمر بإيفاء الكيل والميزان الصحيح وعدم الإفساد الاقتصادي في الأرض","surah":"سورة الشعراء: الآيات 181-183","verseText":"أَوْفُوا الْكَيْلَ وَلَا تَكُونُوا مِنَ الْمُخْسِرِينَ * وَزِنُوا بِالْقِسْطَاسِ الْمُسْتَقِيمِ * وَلَا تَبْخَسُوا النَّاسَ أَشْيَاءَهُمْ وَلَا تَعْثَوْا فِي الْأَرْضِ مُفْسِدِينَ","guidance":"الأحكام الاقتصادية: ربط سلامة الممارسات التجارية والمعايير الفنية بالإيمان وتقوى الله، والتحذير من أن الفساد التجاري والتلاعب بالموازين يؤدي إلى هلاك الأمم وزوال النعم.","catBadge":"الكيل الصادق"},{"num":13,"topic":"riba","search":"إعلان الحرب الإلهية على أكلة الربا وحق استرداد رأس المال الأصلي فقط يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ وَذَرُوا مَا بَقِيَ مِنَ الرِّبَا إِن كُنتُم مُّؤْمِنِينَ * فَإِن لَّمْ تَفْعَلُوا فَأْذَنُوا بِحَرْبٍ مِّنَ اللَّهِ وَرَسُولِهِ ۖ وَإِن تُبْتُمْ فَلَكُمْ رُءُوسُ أَمْوَالِكُمْ لَا تَظْلِمُونَ وَلَا تُظْلَمُونَ سورة البقرة: الآيات 278-279 الأحكام الاقتصادية: أعظم تحذير مالي في الشريعة، وبطلان الزيادة الربوية في القروض، وحق الدائن التائب في استرجاع رأس ماله الأساسي فقط دون زيادة (ظلم للمدين) ودون نقصان (ظلم للدائن). تحريم الربا القاطع","title":"إعلان الحرب الإلهية على أكلة الربا وحق استرداد رأس المال الأصلي فقط","surah":"سورة البقرة: الآيات 278-279","verseText":"يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ وَذَرُوا مَا بَقِيَ مِنَ الرِّبَا إِن كُنتُم مُّؤْمِنِينَ * فَإِن لَّمْ تَفْعَلُوا فَأْذَنُوا بِحَرْبٍ مِّنَ اللَّهِ وَرَسُولِهِ ۖ وَإِن تُبْتُمْ فَلَكُمْ رُءُوسُ أَمْوَالِكُمْ لَا تَظْلِمُونَ وَلَا تُظْلَمُونَ","guidance":"الأحكام الاقتصادية: أعظم تحذير مالي في الشريعة، وبطلان الزيادة الربوية في القروض، وحق الدائن التائب في استرجاع رأس ماله الأساسي فقط دون زيادة (ظلم للمدين) ودون نقصان (ظلم للدائن).","catBadge":"تحريم الربا القاطع"},{"num":14,"topic":"riba","search":"سنة الله في محق الربا وتدمير أرباحه ونماء أموال الصدقات والبركات يَمْحَقُ اللَّهُ الرِّبَا وَيُرْبِي الصَّدَقَاتِ ۗ وَاللَّهُ لَا يُحِبُّ كُلَّ كَفَّارٍ أَثِيمٍ سورة البقرة: الآية 276 الأحكام الاقتصادية: الحقيقة الاقتصادية الإلهية بزوال بركة المال الربوي وانهياره في النهاية عبر الأزمات والتضخم، ونماء الأموال الحلال المزكاة وحمايتها من التلف والجوائح. محق الربا وبركة الصدقات","title":"سنة الله في محق الربا وتدمير أرباحه ونماء أموال الصدقات والبركات","surah":"سورة البقرة: الآية 276","verseText":"يَمْحَقُ اللَّهُ الرِّبَا وَيُرْبِي الصَّدَقَاتِ ۗ وَاللَّهُ لَا يُحِبُّ كُلَّ كَفَّارٍ أَثِيمٍ","guidance":"الأحكام الاقتصادية: الحقيقة الاقتصادية الإلهية بزوال بركة المال الربوي وانهياره في النهاية عبر الأزمات والتضخم، ونماء الأموال الحلال المزكاة وحمايتها من التلف والجوائح.","catBadge":"محق الربا وبركة الصدقات"},{"num":15,"topic":"riba","search":"النهي الصريح عن ربا الديون وتراكم الفوائد أضعافاً مضاعفة يَا أَيُّهَا الَّذِينَ آمَنُوا لَا تَأْكُلُوا الرِّبَا أَضْعَافًا مُّضَاعَفَةً ۖ وَاتَّقُوا اللَّهَ لَعَلَّكُمْ تُفْلِحُونَ سورة آل عمران: الآية 130 الأحكام الاقتصادية: تحريم ربا الجاهلية المتمثل في مضاعفة الديون عند عجز المدين عن السداد في الأجل، وهو ما تطبقه البنوك الربوية المعاصرة في الفوائد التراكمية المركبة. الربا المضاعف","title":"النهي الصريح عن ربا الديون وتراكم الفوائد أضعافاً مضاعفة","surah":"سورة آل عمران: الآية 130","verseText":"يَا أَيُّهَا الَّذِينَ آمَنُوا لَا تَأْكُلُوا الرِّبَا أَضْعَافًا مُّضَاعَفَةً ۖ وَاتَّقُوا اللَّهَ لَعَلَّكُمْ تُفْلِحُونَ","guidance":"الأحكام الاقتصادية: تحريم ربا الجاهلية المتمثل في مضاعفة الديون عند عجز المدين عن السداد في الأجل، وهو ما تطبقه البنوك الربوية المعاصرة في الفوائد التراكمية المركبة.","catBadge":"الربا المضاعف"},{"num":16,"topic":"riba","search":"تحريم الرشوة والوساطة الباطلة لأكل أموال الناس واستباحة الحقوق وَلَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ وَتُدْلُوا بِهَا إِلَى الْحُكَّامِ لِتَأْكُلُوا فَرِيقًا مِّنْ أَمْوَالِ النَّاسِ بِالْإِثْمِ وَأَنتُمْ تَعْلَمُونَ سورة البقرة: الآية 188 الأحكام الاقتصادية: تجريم دفع الرشاوى والعمولات الخفية للمسؤولين أو القضاة للاستيلاء على مناقصات أو أراضٍ أو عقارات بغير وجه حق، وبطلان كل عقد استند إلى رشوة. تحريم الرشوة","title":"تحريم الرشوة والوساطة الباطلة لأكل أموال الناس واستباحة الحقوق","surah":"سورة البقرة: الآية 188","verseText":"وَلَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ وَتُدْلُوا بِهَا إِلَى الْحُكَّامِ لِتَأْكُلُوا فَرِيقًا مِّنْ أَمْوَالِ النَّاسِ بِالْإِثْمِ وَأَنتُمْ تَعْلَمُونَ","guidance":"الأحكام الاقتصادية: تجريم دفع الرشاوى والعمولات الخفية للمسؤولين أو القضاة للاستيلاء على مناقصات أو أراضٍ أو عقارات بغير وجه حق، وبطلان كل عقد استند إلى رشوة.","catBadge":"تحريم الرشوة"},{"num":17,"topic":"riba","search":"حقيقة المال الربوي في ميزان الله ومضاعفة أجر الصدقة الخالصة وَمَا آتَيْتُم مِّن رِّبًا لِّيَرْبُوَ فِي أَمْوَالِ النَّاسِ فَلَا يَرْبُو عِندَ اللَّهِ ۖ وَمَا آتَيْتُم مِّن زَكَاةٍ تُرِيدُونَ وَجْهَ اللَّهِ فَأُولَٰئِكَ هُمُ الْمُضْعِفُونَ سورة الروم: الآية 39 الأحكام الاقتصادية: بيان أن الفوائد المالية الربوية لا تحقق نمواً حقيقياً مستداماً في الثروة ولا بركة فيها، بينما الزكاة والصدقات هي التي تضاعف الثروات وتنشط الطلب الحقيقي. الربا المالي المحرم","title":"حقيقة المال الربوي في ميزان الله ومضاعفة أجر الصدقة الخالصة","surah":"سورة الروم: الآية 39","verseText":"وَمَا آتَيْتُم مِّن رِّبًا لِّيَرْبُوَ فِي أَمْوَالِ النَّاسِ فَلَا يَرْبُو عِندَ اللَّهِ ۖ وَمَا آتَيْتُم مِّن زَكَاةٍ تُرِيدُونَ وَجْهَ اللَّهِ فَأُولَٰئِكَ هُمُ الْمُضْعِفُونَ","guidance":"الأحكام الاقتصادية: بيان أن الفوائد المالية الربوية لا تحقق نمواً حقيقياً مستداماً في الثروة ولا بركة فيها، بينما الزكاة والصدقات هي التي تضاعف الثروات وتنشط الطلب الحقيقي.","catBadge":"الربا المالي المحرم"},{"num":18,"topic":"zakat","search":"دستور مصارف الزكاة الثمانية الحصرية في الشريعة الإسلامية إِنَّمَا الصَّدَقَاتُ لِلْفُقَرَاءِ وَالْمَسَاكِينِ وَالْعَامِلِينَ عَلَيْهَا وَالْمُؤَلَّفَةِ قُلُوبُهُمْ وَفِي الرِّقَابِ وَالْغَارِمِينَ وَفِي سَبِيلِ اللَّهِ وَابْنِ السَّبِيلِ ۖ فَرِيضَةً مِّنَ اللَّهِ ۗ وَاللَّهُ عَلِيمٌ حَكِيمٌ سورة التوبة: الآية 60 الأحكام الاقتصادية: حصر مصارف الزكاة المفروضة في الأصناف الثمانية بدقة تشريعية، وأبرزهم الغارمون (المدينون العاجزون عن سداد ديونهم المشروعة)، وإعادة تدوير الثروة لتأمين الحماية الاجتماعية. مصارف الزكاة الثمانية","title":"دستور مصارف الزكاة الثمانية الحصرية في الشريعة الإسلامية","surah":"سورة التوبة: الآية 60","verseText":"إِنَّمَا الصَّدَقَاتُ لِلْفُقَرَاءِ وَالْمَسَاكِينِ وَالْعَامِلِينَ عَلَيْهَا وَالْمُؤَلَّفَةِ قُلُوبُهُمْ وَفِي الرِّقَابِ وَالْغَارِمِينَ وَفِي سَبِيلِ اللَّهِ وَابْنِ السَّبِيلِ ۖ فَرِيضَةً مِّنَ اللَّهِ ۗ وَاللَّهُ عَلِيمٌ حَكِيمٌ","guidance":"الأحكام الاقتصادية: حصر مصارف الزكاة المفروضة في الأصناف الثمانية بدقة تشريعية، وأبرزهم الغارمون (المدينون العاجزون عن سداد ديونهم المشروعة)، وإعادة تدوير الثروة لتأمين الحماية الاجتماعية.","catBadge":"مصارف الزكاة الثمانية"},{"num":19,"topic":"zakat","search":"وجوب جباية الزكاة وأثرها في تطهير النفوس ونماء الأموال خُذْ مِنْ أَمْوَالِهِمْ صَدَقَةً تُطَهِّرُهُمْ وَتُزَكِّيهِم بِهَا وَصَلِّ عَلَيْهِمْ ۖ إِنَّ صَلَاتَكَ سَكَنٌ لَّهُمْ ۗ وَاللَّهُ سَمِيعٌ عَلِيمٌ سورة التوبة: الآية 103 الأحكام الاقتصادية: الزكاة ليست منحة اختيارية بل حق مالي واجب تؤخذ من الأغنياء لدعم استقرار المجتمع وتطهير المال من الشبهات، ونماء المال بالبركة والتوسعة على المحتاجين. وجوب أخذ الزكاة","title":"وجوب جباية الزكاة وأثرها في تطهير النفوس ونماء الأموال","surah":"سورة التوبة: الآية 103","verseText":"خُذْ مِنْ أَمْوَالِهِمْ صَدَقَةً تُطَهِّرُهُمْ وَتُزَكِّيهِم بِهَا وَصَلِّ عَلَيْهِمْ ۖ إِنَّ صَلَاتَكَ سَكَنٌ لَّهُمْ ۗ وَاللَّهُ سَمِيعٌ عَلِيمٌ","guidance":"الأحكام الاقتصادية: الزكاة ليست منحة اختيارية بل حق مالي واجب تؤخذ من الأغنياء لدعم استقرار المجتمع وتطهير المال من الشبهات، ونماء المال بالبركة والتوسعة على المحتاجين.","catBadge":"وجوب أخذ الزكاة"},{"num":20,"topic":"zakat","search":"تقرير الحق المالي المعلوم في أموال الأغنياء للسائل والمحروم وَالَّذِينَ فِي أَمْوَالِهِمْ حَقٌّ مَّعْلُومٌ * لِّلسَّائِلِ وَالْمَحْرُومِ سورة المعارج: الآيات 24-25 الأحكام الاقتصادية: ترسيخ مبدأ 'الحق المعلوم' وهو نسبة الزكاة المحددة شرعاً (ربع العشر 2.5% في النقدين وعروض التجارة)، وحق الفقير المتعفف الذي لا يسأل الناس إلحافاً. حق معلوم في الأموال","title":"تقرير الحق المالي المعلوم في أموال الأغنياء للسائل والمحروم","surah":"سورة المعارج: الآيات 24-25","verseText":"وَالَّذِينَ فِي أَمْوَالِهِمْ حَقٌّ مَّعْلُومٌ * لِّلسَّائِلِ وَالْمَحْرُومِ","guidance":"الأحكام الاقتصادية: ترسيخ مبدأ 'الحق المعلوم' وهو نسبة الزكاة المحددة شرعاً (ربع العشر 2.5% في النقدين وعروض التجارة)، وحق الفقير المتعفف الذي لا يسأل الناس إلحافاً.","catBadge":"حق معلوم في الأموال"},{"num":21,"topic":"zakat","search":"إيتاء زكاة الإنتاج الزراعي والثمار يوم الحصاد وجوباً وَهُوَ الَّذِي أَنشَأَ جَنَّاتٍ مَّعْرُوشَاتٍ وَغَيْرَ مَعْرُوشَاتٍ وَالنَّخْلَ وَالزَّرْعَ مُخْتَلِفًا أُكُلُهُ وَالزَّيْتُونَ وَالرُّمَّانَ مُتَشَابِهًا وَغَيْرَ مُتَشَابِهٍ ۚ كُلُوا مِن ثَمَرِهِ إِذَا أَثْمَرَ وَآتُوا حَقَّهُ يَوْمَ حَصَادِهِ ۖ وَلَا تُسْرِفُوا ۚ إِنَّهُ لَا يُحِبُّ الْمُسْرِفِينَ سورة الأنعام: الآية 141 الأحكام الاقتصادية: وجوب إخراج زكاة المحاصيل الزراعية فور الحصاد دون انتظار حولان الحول، بمقدار 10% فيما سقي بلا كلفة (ماء المطر) و5% فيما سقي بكلفة وآلات. زكاة الزروع والثمار","title":"إيتاء زكاة الإنتاج الزراعي والثمار يوم الحصاد وجوباً","surah":"سورة الأنعام: الآية 141","verseText":"وَهُوَ الَّذِي أَنشَأَ جَنَّاتٍ مَّعْرُوشَاتٍ وَغَيْرَ مَعْرُوشَاتٍ وَالنَّخْلَ وَالزَّرْعَ مُخْتَلِفًا أُكُلُهُ وَالزَّيْتُونَ وَالرُّمَّانَ مُتَشَابِهًا وَغَيْرَ مُتَشَابِهٍ ۚ كُلُوا مِن ثَمَرِهِ إِذَا أَثْمَرَ وَآتُوا حَقَّهُ يَوْمَ حَصَادِهِ ۖ وَلَا تُسْرِفُوا ۚ إِنَّهُ لَا يُحِبُّ الْمُسْرِفِينَ","guidance":"الأحكام الاقتصادية: وجوب إخراج زكاة المحاصيل الزراعية فور الحصاد دون انتظار حولان الحول، بمقدار 10% فيما سقي بلا كلفة (ماء المطر) و5% فيما سقي بكلفة وآلات.","catBadge":"زكاة الزروع والثمار"},{"num":22,"topic":"inheritance","search":"دستور قسمة المواريث الأول: أنصبة الأولاد والوالدين وتقديم الدين والوصية يُوصِيكُمُ اللَّهُ فِي أَوْلَادِكُمْ ۖ لِلذَّكَرِ مِثْلُ حَظِّ الْأُنثَيَيْنِ ۚ فَإِن كُنَّ نِسَاءً فَوْقَ اثْنَتَيْنِ فَلَهُنَّ ثُلُثَا مَا تَرَكَ ۖ وَإِن كَانَتْ وَاحِدَةً فَلَهَا النِّصْفُ ۚ وَلِأَبَوَيْهِ لِكُلِّ وَاحِدٍ مِّنْهُمَا السُّدُسُ مِمَّا تَرَكَ إِن كَانَ لَهُ وَلَدٌ... مِن بَعْدِ وَصِيَّةٍ يُوصِي بِهَا أَوْ دَيْنٍ ۗ آبَاؤُكُمْ وَأَبْنَاؤُكُمْ لَا تَدْرُونَ أَيُّهُمْ أَقْرَبُ لَكُمْ نَفْعًا ۚ فَرِيضَةً مِّنَ اللَّهِ ۗ إِنَّ اللَّهَ كَانَ عَلِيمًا حَكِيمًا سورة النساء: الآية 11 الأحكام الاقتصادية: توزيع التركات بأنصبة محكمة قطعية الدلالة تمنع النزاع العائلي، وقاعدة تقديم سداد ديون المتوفى أولاً ثم تنفيذ الوصية المشروعة (في حدود ثلث التركة لغير وارث) قبل قسمة التركة. مواريث الأولاد والوالدين","title":"دستور قسمة المواريث الأول: أنصبة الأولاد والوالدين وتقديم الدين والوصية","surah":"سورة النساء: الآية 11","verseText":"يُوصِيكُمُ اللَّهُ فِي أَوْلَادِكُمْ ۖ لِلذَّكَرِ مِثْلُ حَظِّ الْأُنثَيَيْنِ ۚ فَإِن كُنَّ نِسَاءً فَوْقَ اثْنَتَيْنِ فَلَهُنَّ ثُلُثَا مَا تَرَكَ ۖ وَإِن كَانَتْ وَاحِدَةً فَلَهَا النِّصْفُ ۚ وَلِأَبَوَيْهِ لِكُلِّ وَاحِدٍ مِّنْهُمَا السُّدُسُ مِمَّا تَرَكَ إِن كَانَ لَهُ وَلَدٌ... مِن بَعْدِ وَصِيَّةٍ يُوصِي بِهَا أَوْ دَيْنٍ ۗ آبَاؤُكُمْ وَأَبْنَاؤُكُمْ لَا تَدْرُونَ أَيُّهُمْ أَقْرَبُ لَكُمْ نَفْعًا ۚ فَرِيضَةً مِّنَ اللَّهِ ۗ إِنَّ اللَّهَ كَانَ عَلِيمًا حَكِيمًا","guidance":"الأحكام الاقتصادية: توزيع التركات بأنصبة محكمة قطعية الدلالة تمنع النزاع العائلي، وقاعدة تقديم سداد ديون المتوفى أولاً ثم تنفيذ الوصية المشروعة (في حدود ثلث التركة لغير وارث) قبل قسمة التركة.","catBadge":"مواريث الأولاد والوالدين"},{"num":23,"topic":"inheritance","search":"دستور قسمة المواريث الثاني: أنصبة الأزواج والزوجات والإخوة لأم والنهي عن الإضرار وَلَكُمْ نِصْفُ مَا تَرَكَ أَزْوَاجُكُمْ إِن لَّمْ يَكُن لَّهُنَّ وَلَدٌ ۚ فَإِن كَانَ لَهُنَّ وَلَدٌ فَلَكُمُ الرُّبُعُ مِمَّا تَرَكْنَ ۚ مِن بَعْدِ وَصِيَّةٍ يُوصِينَ بِهَا أَوْ دَيْنٍ ۚ وَلَهُنَّ الرُّبُعُ مِمَّا تَرَكْتُمْ إِن لَّمْ يَكُن لَّكُمْ وَلَدٌ ۚ فَإِن كَانَ لَكُمْ وَلَدٌ فَلَهُنَّ الثُّمُنُ مِمَّا تَرَكْتُم ۚ مِن بَعْدِ وَصِيَّةٍ تُوصُونَ بِهَا أَوْ دَيْنٍ... غَيْرَ مُضَارٍّ ۚ وَصِيَّةً مِّنَ اللَّهِ ۗ وَاللَّهُ عَلِيمٌ حَلِيمٌ سورة النساء: الآية 12 الأحكام الاقتصادية: تفصيل أنصبة الزوج والزوجة في التركة حال وجود الولد وحال عدمه، وتحريم المضارة في الوصية كالإقرار بديون مصطنعة أو حرمان الورثة الشرعيين. مواريث الأزواج والإخوة","title":"دستور قسمة المواريث الثاني: أنصبة الأزواج والزوجات والإخوة لأم والنهي عن الإضرار","surah":"سورة النساء: الآية 12","verseText":"وَلَكُمْ نِصْفُ مَا تَرَكَ أَزْوَاجُكُمْ إِن لَّمْ يَكُن لَّهُنَّ وَلَدٌ ۚ فَإِن كَانَ لَهُنَّ وَلَدٌ فَلَكُمُ الرُّبُعُ مِمَّا تَرَكْنَ ۚ مِن بَعْدِ وَصِيَّةٍ يُوصِينَ بِهَا أَوْ دَيْنٍ ۚ وَلَهُنَّ الرُّبُعُ مِمَّا تَرَكْتُمْ إِن لَّمْ يَكُن لَّكُمْ وَلَدٌ ۚ فَإِن كَانَ لَكُمْ وَلَدٌ فَلَهُنَّ الثُّمُنُ مِمَّا تَرَكْتُم ۚ مِن بَعْدِ وَصِيَّةٍ تُوصُونَ بِهَا أَوْ دَيْنٍ... غَيْرَ مُضَارٍّ ۚ وَصِيَّةً مِّنَ اللَّهِ ۗ وَاللَّهُ عَلِيمٌ حَلِيمٌ","guidance":"الأحكام الاقتصادية: تفصيل أنصبة الزوج والزوجة في التركة حال وجود الولد وحال عدمه، وتحريم المضارة في الوصية كالإقرار بديون مصطنعة أو حرمان الورثة الشرعيين.","catBadge":"مواريث الأزواج والإخوة"},{"num":24,"topic":"inheritance","search":"فرائض المواريث حدود إلهية ملزمة والوعيد الشديد لمن يعتدي عليها ويحرم الورثة تِلْكَ حُدُودُ اللَّهِ ۚ وَمَن يُطِعِ اللَّهَ وَرَسُولَهُ يُدْخِلْهُ جَنَّاتٍ تَجْرِي مِن تَحْتِهَا الْأَنْهَارُ خَالِدِينَ فِيهَا ۚ وَذَٰلِكَ الْفَوْزُ الْعَظِيمُ * وَمَن يَعْصِ اللَّهَ وَيَتَعَدَّ حُدُودَهُ يُدْخِلْهُ نَارًا خَالِدًا فِيهَا وَلَهُ عَذَابٌ مُّهِينٌ سورة النساء: الآيات 13-14 الأحكام الاقتصادية: تأكيد أن قسمة المواريث ليست خاضعة للأهواء ولا التقاليد القبلية؛ فتحريم حرمان البنات أو الزوجات أو الإخوة من حقهم المالي المفروض، والوعيد بالنار لمن يتعدى حدود القسمة. حدود الله في الميراث","title":"فرائض المواريث حدود إلهية ملزمة والوعيد الشديد لمن يعتدي عليها ويحرم الورثة","surah":"سورة النساء: الآيات 13-14","verseText":"تِلْكَ حُدُودُ اللَّهِ ۚ وَمَن يُطِعِ اللَّهَ وَرَسُولَهُ يُدْخِلْهُ جَنَّاتٍ تَجْرِي مِن تَحْتِهَا الْأَنْهَارُ خَالِدِينَ فِيهَا ۚ وَذَٰلِكَ الْفَوْزُ الْعَظِيمُ * وَمَن يَعْصِ اللَّهَ وَيَتَعَدَّ حُدُودَهُ يُدْخِلْهُ نَارًا خَالِدًا فِيهَا وَلَهُ عَذَابٌ مُّهِينٌ","guidance":"الأحكام الاقتصادية: تأكيد أن قسمة المواريث ليست خاضعة للأهواء ولا التقاليد القبلية؛ فتحريم حرمان البنات أو الزوجات أو الإخوة من حقهم المالي المفروض، والوعيد بالنار لمن يتعدى حدود القسمة.","catBadge":"حدود الله في الميراث"},{"num":25,"topic":"inheritance","search":"ميراث الكلالة: أحكام الإخوة والأخوات الأشقاء ولأب عند عدم الأصول والفروع يَسْتَفْتُونَكَ قُلِ اللَّهُ يُفْتِيكُمْ فِي الْكَلَالَةِ ۚ إِنِ امْرُؤٌ هَلَكَ لَيْسَ لَهُ وَلَدٌ وَلَهُ أُخْتٌ فَلَهَا نِصْفُ مَا تَرَكَ ۚ وَهُوَ يَرِثُهَا إِن لَّمْ يَكُن لَّهَا وَلَدٌ ۚ فَإِن كَانَتَا اثْنَتَيْنِ فَلَهُمَا الثُّلُثَانِ مِمَّا تَرَكَ ۚ وَإِن كَانُوا إِخْوَةً رِّجَالًا وَنِسَاءً فَلِلذَّكَرِ مِثْلُ حَظِّ الْأُنثَيَيْنِ ۗ يُبَيِّنُ اللَّهُ لَكُمْ أَن تَضِلُّوا ۗ وَاللَّهُ بِكُلِّ شَيْءٍ عَلِيمٌ سورة النساء: الآية 176 الأحكام الاقتصادية: أحكام توريث الإخوة والأخوات للمتوفى الذي ليس له ولد يرثه ولا والد (الكلالة)، واكتمال منظومة الفرائض المالية التي لا تترك مالاً ضائعاً أو مشاعاً. ميراث الكلالة","title":"ميراث الكلالة: أحكام الإخوة والأخوات الأشقاء ولأب عند عدم الأصول والفروع","surah":"سورة النساء: الآية 176","verseText":"يَسْتَفْتُونَكَ قُلِ اللَّهُ يُفْتِيكُمْ فِي الْكَلَالَةِ ۚ إِنِ امْرُؤٌ هَلَكَ لَيْسَ لَهُ وَلَدٌ وَلَهُ أُخْتٌ فَلَهَا نِصْفُ مَا تَرَكَ ۚ وَهُوَ يَرِثُهَا إِن لَّمْ يَكُن لَّهَا وَلَدٌ ۚ فَإِن كَانَتَا اثْنَتَيْنِ فَلَهُمَا الثُّلُثَانِ مِمَّا تَرَكَ ۚ وَإِن كَانُوا إِخْوَةً رِّجَالًا وَنِسَاءً فَلِلذَّكَرِ مِثْلُ حَظِّ الْأُنثَيَيْنِ ۗ يُبَيِّنُ اللَّهُ لَكُمْ أَن تَضِلُّوا ۗ وَاللَّهُ بِكُلِّ شَيْءٍ عَلِيمٌ","guidance":"الأحكام الاقتصادية: أحكام توريث الإخوة والأخوات للمتوفى الذي ليس له ولد يرثه ولا والد (الكلالة)، واكتمال منظومة الفرائض المالية التي لا تترك مالاً ضائعاً أو مشاعاً.","catBadge":"ميراث الكلالة"},{"num":26,"topic":"inheritance","search":"إثبات استقلال الذمة المالية للرجال والنساء وحقهم القطعي في التركات لِّلرِّجَالِ نَصِيبٌ مِّمَّا تَرَكَ الْوَالِدَانِ وَالْأَقْرَبُونَ وَلِلنِّسَاءِ نَصِيبٌ مِّمَّا تَرَكَ الْوَالِدَانِ وَالْأَقْرَبُونَ مِمَّا قَلَّ مِنْهُ أَوْ كَثُرَ ۚ نَصِيبًا مَّفْرُوضًا سورة النساء: الآية 7 الأحكام الاقتصادية: تقرير قاعدة العدالة المالية التامة؛ أن المال الموروث حق مقدر للرجل والمرأة مهما صغر حجم المال أو كبر، وإبطال حرمان الصغار والنساء من الثروات. حق النساء والرجال في التركة","title":"إثبات استقلال الذمة المالية للرجال والنساء وحقهم القطعي في التركات","surah":"سورة النساء: الآية 7","verseText":"لِّلرِّجَالِ نَصِيبٌ مِّمَّا تَرَكَ الْوَالِدَانِ وَالْأَقْرَبُونَ وَلِلنِّسَاءِ نَصِيبٌ مِّمَّا تَرَكَ الْوَالِدَانِ وَالْأَقْرَبُونَ مِمَّا قَلَّ مِنْهُ أَوْ كَثُرَ ۚ نَصِيبًا مَّفْرُوضًا","guidance":"الأحكام الاقتصادية: تقرير قاعدة العدالة المالية التامة؛ أن المال الموروث حق مقدر للرجل والمرأة مهما صغر حجم المال أو كبر، وإبطال حرمان الصغار والنساء من الثروات.","catBadge":"حق النساء والرجال في التركة"},{"num":27,"topic":"contracts","search":"معيارا التوظيف والعمل في عقود الإجارة: الكفاءة الفنية والنزاهة والأمانة قَالَتْ إِحْدَاهُمَا يَا أَبَتِ اسْتَأْجِرْهُ ۖ إِنَّ خَيْرَ مَنِ اسْتَأْجَرْتَ الْقَوِيُّ الْأَمِينُ سورة القصص: الآية 26 الأحكام الاقتصادية: مشروعية عقد الإجارة واستئجار الأشخاص للأعمال الهندسية والتجارية، والمعياران الحاكمان للنجاح: القوة (المهارة والكفاءة في العمل) والأمانة (الصدق وحفظ أموال المنشأة). عقد الإجارة والكفاءة","title":"معيارا التوظيف والعمل في عقود الإجارة: الكفاءة الفنية والنزاهة والأمانة","surah":"سورة القصص: الآية 26","verseText":"قَالَتْ إِحْدَاهُمَا يَا أَبَتِ اسْتَأْجِرْهُ ۖ إِنَّ خَيْرَ مَنِ اسْتَأْجَرْتَ الْقَوِيُّ الْأَمِينُ","guidance":"الأحكام الاقتصادية: مشروعية عقد الإجارة واستئجار الأشخاص للأعمال الهندسية والتجارية، والمعياران الحاكمان للنجاح: القوة (المهارة والكفاءة في العمل) والأمانة (الصدق وحفظ أموال المنشأة).","catBadge":"عقد الإجارة والكفاءة"},{"num":28,"topic":"contracts","search":"عقد العمل محدد المدة ومبادلة العمل بالأجر والمهر قَالَ إِنِّي أُرِيدُ أَنْ أُنكِحَكَ إِحْدَى ابْنَتَيَّ هَاتَيْنِ عَلَىٰ أَن تَأْجُرَنِي ثَمَانِيَ حِجَجٍ ۖ فَإِنْ أَتْمَمْتَ عَشْرًا فَمِنْ عِندِكَ ۖ وَمَا أُرِيدُ أَنْ أَشُقَّ عَلَيْكَ ۚ سَتَجِدُنِي إِن شَاءَ اللَّهُ مِنَ الصَّالِحِينَ سورة القصص: الآية 27 الأحكام الاقتصادية: صحة عقد العمل المشروط بمدة محددة (8 أو 10 سنوات)، وجواز جعل العمل والمنفعة عوضاً مالياً، وحسن معاملة الأجراء وعدم تكليفهم بما يشق عليهم. تحديد مدة عقد العمل","title":"عقد العمل محدد المدة ومبادلة العمل بالأجر والمهر","surah":"سورة القصص: الآية 27","verseText":"قَالَ إِنِّي أُرِيدُ أَنْ أُنكِحَكَ إِحْدَى ابْنَتَيَّ هَاتَيْنِ عَلَىٰ أَن تَأْجُرَنِي ثَمَانِيَ حِجَجٍ ۖ فَإِنْ أَتْمَمْتَ عَشْرًا فَمِنْ عِندِكَ ۖ وَمَا أُرِيدُ أَنْ أَشُقَّ عَلَيْكَ ۚ سَتَجِدُنِي إِن شَاءَ اللَّهُ مِنَ الصَّالِحِينَ","guidance":"الأحكام الاقتصادية: صحة عقد العمل المشروط بمدة محددة (8 أو 10 سنوات)، وجواز جعل العمل والمنفعة عوضاً مالياً، وحسن معاملة الأجراء وعدم تكليفهم بما يشق عليهم.","catBadge":"تحديد مدة عقد العمل"},{"num":29,"topic":"contracts","search":"وجوب دفع أجور العاملين فور أداء العمل والتعامل المالي بالمعروف ... فَإِنْ أَرْضَعْنَ لَكُمْ فَآتُوهُنَّ أُجُورَهُنَّ ۖ وَأْتَمِرُوا بَيْنَكُم بِمَعْرُوفٍ ۖ وَإِن تَعَاسَرْتُمْ فَسَتُرْضِعُ لَهُ أُخْرَىٰ سورة الطلاق: الآية 6 الأحكام الاقتصادية: وجوب الوفاء التام بأجور العمال والموظفين فور إنجاز العمل دون تأخير أو خصم تعسفي، وتراضي الطرفين على الأجر العادل المناسب لظروف السوق. وفاء أجور العاملين","title":"وجوب دفع أجور العاملين فور أداء العمل والتعامل المالي بالمعروف","surah":"سورة الطلاق: الآية 6","verseText":"... فَإِنْ أَرْضَعْنَ لَكُمْ فَآتُوهُنَّ أُجُورَهُنَّ ۖ وَأْتَمِرُوا بَيْنَكُم بِمَعْرُوفٍ ۖ وَإِن تَعَاسَرْتُمْ فَسَتُرْضِعُ لَهُ أُخْرَىٰ","guidance":"الأحكام الاقتصادية: وجوب الوفاء التام بأجور العمال والموظفين فور إنجاز العمل دون تأخير أو خصم تعسفي، وتراضي الطرفين على الأجر العادل المناسب لظروف السوق.","catBadge":"وفاء أجور العاملين"},{"num":30,"topic":"contracts","search":"أصل عقدي الجعالة (المكافأة المشروطة) والكفالة الشخصية والضمان المالي قَالُوا نَفْقِدُ صُوَاعَ الْمَلِكِ وَلِمَن جَاءَ بِهِ حِمْلُ بَعِيرٍ وَأَنَا بِهِ زَعِيمٌ سورة يوسف: الآية 72 الأحكام الاقتصادية: الأصل القرآني لعقد الجعالة (جائزة أو عمولة لمن ينجز مهمة محددة: 'حمل بعير')، وأصل عقد الكفالة والضمان الشخصي والمالي ('وأنا به زعيم' أي ضامن متعهد بالسداد). عقدا الجعالة والكفالة","title":"أصل عقدي الجعالة (المكافأة المشروطة) والكفالة الشخصية والضمان المالي","surah":"سورة يوسف: الآية 72","verseText":"قَالُوا نَفْقِدُ صُوَاعَ الْمَلِكِ وَلِمَن جَاءَ بِهِ حِمْلُ بَعِيرٍ وَأَنَا بِهِ زَعِيمٌ","guidance":"الأحكام الاقتصادية: الأصل القرآني لعقد الجعالة (جائزة أو عمولة لمن ينجز مهمة محددة: 'حمل بعير')، وأصل عقد الكفالة والضمان الشخصي والمالي ('وأنا به زعيم' أي ضامن متعهد بالسداد).","catBadge":"عقدا الجعالة والكفالة"},{"num":31,"topic":"contracts","search":"مشروعية الشركات والمخالطة في الأموال والتحذير من بغي وخيانة الشركاء ... وَإِنَّ كَثِيرًا مِّنَ الْخُلَطَاءِ لَيَبْغِي بَعْضُهُمْ عَلَىٰ بَعْضٍ إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ وَقَلِيلٌ مَّا هُمْ ۗ وَظَنَّ دَاوُودُ أَنَّمَا فَتَنَّاهُ فَاسْتَغْفَرَ رَبَّهُ وَخَرَّ رَاكِعًا وَأَنَابَ سورة ص: الآية 24 الأحكام الاقتصادية: مشروعية الشراكة التجارية وخلط الأموال لتنمية الاستثمار، والتحذير الشديد من خيانة الشريك لأخيه باختلاس الأرباح أو استغلال الصلاحيات بغير عدل. عقد الشركة وحقوق الشركاء","title":"مشروعية الشركات والمخالطة في الأموال والتحذير من بغي وخيانة الشركاء","surah":"سورة ص: الآية 24","verseText":"... وَإِنَّ كَثِيرًا مِّنَ الْخُلَطَاءِ لَيَبْغِي بَعْضُهُمْ عَلَىٰ بَعْضٍ إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ وَقَلِيلٌ مَّا هُمْ ۗ وَظَنَّ دَاوُودُ أَنَّمَا فَتَنَّاهُ فَاسْتَغْفَرَ رَبَّهُ وَخَرَّ رَاكِعًا وَأَنَابَ","guidance":"الأحكام الاقتصادية: مشروعية الشراكة التجارية وخلط الأموال لتنمية الاستثمار، والتحذير الشديد من خيانة الشريك لأخيه باختلاس الأرباح أو استغلال الصلاحيات بغير عدل.","catBadge":"عقد الشركة وحقوق الشركاء"},{"num":32,"topic":"orphans","search":"اختبار الرشد المالي لليتيم وتأهيله تجارياً قبل تسليمه الثروة والأموال وَابْتَلُوا الْيَتَامَىٰ حَتَّىٰ إِذَا بَلَغُوا النِّكَاحَ فَإِنْ آنَسْتُم مِّنْهُمْ رُشْدًا فَادْفَعُوا إِلَيْهِمْ أَمْوَالَهُمْ ۖ وَلَا تَأْكُلُوهَا إِسْرَافًا وَبِدَارًا أَن يَكْبَرُوا ۚ وَمَن كَانَ غَنِيًّا فَلْيَسْتَعْفِفْ ۖ وَمَن كَانَ فَقِيرًا فَلْيَأْكُلْ بِالْمَعْرُوفِ ۚ فَإِذَا دَفَعْتُمْ إِلَيْهِمْ أَمْوَالَهُمْ فَأَشْهِدُوا عَلَيْهِمْ ۚ وَكَفَىٰ بِاللَّهِ حَسِيبًا سورة النساء: الآية 6 الأحكام الاقتصادية: قاعدة 'التأهيل المالي'؛ لا يُسلَّم المال لمن لا يحسن إدارته حتى يثبت رشده وقدرته على التجارة وحفظ الأصول، وتنظيم أتعاب الوصي أو مدير الصناديق بالمعروف. اختبار الرشد المالي","title":"اختبار الرشد المالي لليتيم وتأهيله تجارياً قبل تسليمه الثروة والأموال","surah":"سورة النساء: الآية 6","verseText":"وَابْتَلُوا الْيَتَامَىٰ حَتَّىٰ إِذَا بَلَغُوا النِّكَاحَ فَإِنْ آنَسْتُم مِّنْهُمْ رُشْدًا فَادْفَعُوا إِلَيْهِمْ أَمْوَالَهُمْ ۖ وَلَا تَأْكُلُوهَا إِسْرَافًا وَبِدَارًا أَن يَكْبَرُوا ۚ وَمَن كَانَ غَنِيًّا فَلْيَسْتَعْفِفْ ۖ وَمَن كَانَ فَقِيرًا فَلْيَأْكُلْ بِالْمَعْرُوفِ ۚ فَإِذَا دَفَعْتُمْ إِلَيْهِمْ أَمْوَالَهُمْ فَأَشْهِدُوا عَلَيْهِمْ ۚ وَكَفَىٰ بِاللَّهِ حَسِيبًا","guidance":"الأحكام الاقتصادية: قاعدة 'التأهيل المالي'؛ لا يُسلَّم المال لمن لا يحسن إدارته حتى يثبت رشده وقدرته على التجارة وحفظ الأصول، وتنظيم أتعاب الوصي أو مدير الصناديق بالمعروف.","catBadge":"اختبار الرشد المالي"},{"num":33,"topic":"orphans","search":"مشروعية الحجر المالي على غير الرشيد لحفظ الثروة وتنميتها بالاستثمار وَلَا تُؤْتُوا السُّفَهَاءَ أَمْوَالَكُمُ الَّتِي جَعَلَ اللَّهُ لَكُمْ قِيَامًا وَارْزُقُوهُمْ فِيهَا وَاكْسُوهُمْ وَقُولُوا لَهُمْ قَوْلًا مَّعْرُوفًا سورة النساء: الآية 5 الأحكام الاقتصادية: الحجر المالي على المبذرين والسفهاء لحماية الثروات من التبدد، واستثمار أموال القاصرين في التجارة والإنفاق عليهم من الأرباح ('وارزقوهم فيها') لحفظ رأس المال الأصلي. الحجر المالي على السفيه","title":"مشروعية الحجر المالي على غير الرشيد لحفظ الثروة وتنميتها بالاستثمار","surah":"سورة النساء: الآية 5","verseText":"وَلَا تُؤْتُوا السُّفَهَاءَ أَمْوَالَكُمُ الَّتِي جَعَلَ اللَّهُ لَكُمْ قِيَامًا وَارْزُقُوهُمْ فِيهَا وَاكْسُوهُمْ وَقُولُوا لَهُمْ قَوْلًا مَّعْرُوفًا","guidance":"الأحكام الاقتصادية: الحجر المالي على المبذرين والسفهاء لحماية الثروات من التبدد، واستثمار أموال القاصرين في التجارة والإنفاق عليهم من الأرباح ('وارزقوهم فيها') لحفظ رأس المال الأصلي.","catBadge":"الحجر المالي على السفيه"},{"num":34,"topic":"orphans","search":"الوعيد الشديد على أكل أموال اليتامى ظلماً والاعتداء على حقوق الضعفاء إِنَّ الَّذِينَ يَأْكُلُونَ أَمْوَالَ الْيَتَامَىٰ ظُلْمًا إِنَّمَا يَأْكُلُونَ فِي بُطُونِهِمْ نَارًا ۖ وَسَيَصْلَوْنَ سَعِيرًا سورة النساء: الآية 10 الأحكام الاقتصادية: أشد تحذير في الشريعة على خيانة الأمانة المالية للوصي والوكيل، وتجريم التربح غير المشروع من أموال القاصرين ومن لا حيلة لهم. حرمة أكل أموال اليتامى","title":"الوعيد الشديد على أكل أموال اليتامى ظلماً والاعتداء على حقوق الضعفاء","surah":"سورة النساء: الآية 10","verseText":"إِنَّ الَّذِينَ يَأْكُلُونَ أَمْوَالَ الْيَتَامَىٰ ظُلْمًا إِنَّمَا يَأْكُلُونَ فِي بُطُونِهِمْ نَارًا ۖ وَسَيَصْلَوْنَ سَعِيرًا","guidance":"الأحكام الاقتصادية: أشد تحذير في الشريعة على خيانة الأمانة المالية للوصي والوكيل، وتجريم التربح غير المشروع من أموال القاصرين ومن لا حيلة لهم.","catBadge":"حرمة أكل أموال اليتامى"},{"num":35,"topic":"macro","search":"الوعيد الشديد على كنز الذهب والفضة والسيولة ومنعها من الدورة الاقتصادية ... وَالَّذِينَ يَكْنِزُونَ الذَّهَبَ وَالْفِضَّةَ وَلَا يُنفِقُونَهَا فِي سَبِيلِ اللَّهِ فَبَشِّرْهُم بِعَذَابٍ أَلِيمٍ * يَوْمَ يُحْمَىٰ عَلَيْهَا فِي نَارِ جَهَنَّمَ فَتُكْوَىٰ بِهَا جِبَاهُهُمْ وَجُنُوبُهُمْ وَظُهُورُهُمْ ۖ هَٰذَا مَا كَنَزْتُمْ لِأَنفُسِكُمْ فَذُوقُوا مَا كُنتُمْ تَكْنِزُونَ سورة التوبة: الآيات 34-35 الأحكام الاقتصادية: تحريم تعطيل السيولة وحبس النقود عن الاستثمار وعمارة الأسواق، وإيجاب الزكاة والإنفاق عليها لتبقى الأموال متدفقة في شرايين الاقتصاد لخدمة الإنتاج. تحريم كنز الأموال","title":"الوعيد الشديد على كنز الذهب والفضة والسيولة ومنعها من الدورة الاقتصادية","surah":"سورة التوبة: الآيات 34-35","verseText":"... وَالَّذِينَ يَكْنِزُونَ الذَّهَبَ وَالْفِضَّةَ وَلَا يُنفِقُونَهَا فِي سَبِيلِ اللَّهِ فَبَشِّرْهُم بِعَذَابٍ أَلِيمٍ * يَوْمَ يُحْمَىٰ عَلَيْهَا فِي نَارِ جَهَنَّمَ فَتُكْوَىٰ بِهَا جِبَاهُهُمْ وَجُنُوبُهُمْ وَظُهُورُهُمْ ۖ هَٰذَا مَا كَنَزْتُمْ لِأَنفُسِكُمْ فَذُوقُوا مَا كُنتُمْ تَكْنِزُونَ","guidance":"الأحكام الاقتصادية: تحريم تعطيل السيولة وحبس النقود عن الاستثمار وعمارة الأسواق، وإيجاب الزكاة والإنفاق عليها لتبقى الأموال متدفقة في شرايين الاقتصاد لخدمة الإنتاج.","catBadge":"تحريم كنز الأموال"},{"num":36,"topic":"macro","search":"قانون تداول الأموال العظيم: منع تركز الثروة في يد فئة قليلة واحتكار الأسواق ... كَيْ لَا يَكُونَ دُولَةً بَيْنَ الْأَغْنِيَاءِ مِنكُمْ ۚ وَمَا آتَاكُمُ الرَّسُولُ فَخُذُوهُ وَمَا نَهَاكُمْ عَنْهُ فَانتَهُوا ۚ وَاتَّقُوا اللَّهَ ۖ إِنَّ اللَّهَ شَدِيدُ الْعِقَابِ سورة الحشر: الآية 7 الأحكام الاقتصادية: أهم قاعدة في الاقتصاد الكلي والعدالة الاجتماعية؛ تحريم تركيز الثروة واحتكار الأسواق لدى القلة من أصحاب رؤوس الأموال، ووجوب توزيع الفرص الاقتصادية على المجتمع ككل. قانون دوران الثروة","title":"قانون تداول الأموال العظيم: منع تركز الثروة في يد فئة قليلة واحتكار الأسواق","surah":"سورة الحشر: الآية 7","verseText":"... كَيْ لَا يَكُونَ دُولَةً بَيْنَ الْأَغْنِيَاءِ مِنكُمْ ۚ وَمَا آتَاكُمُ الرَّسُولُ فَخُذُوهُ وَمَا نَهَاكُمْ عَنْهُ فَانتَهُوا ۚ وَاتَّقُوا اللَّهَ ۖ إِنَّ اللَّهَ شَدِيدُ الْعِقَابِ","guidance":"الأحكام الاقتصادية: أهم قاعدة في الاقتصاد الكلي والعدالة الاجتماعية؛ تحريم تركيز الثروة واحتكار الأسواق لدى القلة من أصحاب رؤوس الأموال، ووجوب توزيع الفرص الاقتصادية على المجتمع ككل.","catBadge":"قانون دوران الثروة"},{"num":37,"topic":"macro","search":"قاعدة إدارة الميزانية والإنفاق الرشيد: التوازن بين الإسراف والتقتير وَالَّذِينَ إِذَا أَنفَقُوا لَمْ يُسْرِفُوا وَلَمْ يَقْتُرُوا وَكَانَ بَيْنَ ذَٰلِكَ قَوَامًا سورة الفرقان: الآية 67 الأحكام الاقتصادية: التوازن المالي في الإنفاق الاستهلاكي والاستثماري؛ تحريم التبذير المهدور وتحريم البخل والشح الذي يضر بالنشاط، وتحقيق الوسطية في الإنفاق. الاعتدال المالي","title":"قاعدة إدارة الميزانية والإنفاق الرشيد: التوازن بين الإسراف والتقتير","surah":"سورة الفرقان: الآية 67","verseText":"وَالَّذِينَ إِذَا أَنفَقُوا لَمْ يُسْرِفُوا وَلَمْ يَقْتُرُوا وَكَانَ بَيْنَ ذَٰلِكَ قَوَامًا","guidance":"الأحكام الاقتصادية: التوازن المالي في الإنفاق الاستهلاكي والاستثماري؛ تحريم التبذير المهدور وتحريم البخل والشح الذي يضر بالنشاط، وتحقيق الوسطية في الإنفاق.","catBadge":"الاعتدال المالي"},{"num":38,"topic":"macro","search":"فضل الضرب في الأرض وابتغاء فضل الله بالتجارة والكسب الشريف ... وَآخَرُونَ يَضْرِبُونَ فِي الْأَرْضِ يَبْتَغُونَ مِن فَضْلِ اللَّهِ ۙ وَآخَرُونَ يُقَاتِلُونَ فِي سَبِيلِ اللَّهِ ۖ فَاقْرَءُوا مَا تَيَسَّرَ مِنْهُ... سورة المزمل: الآية 20 الأحكام الاقتصادية: مدح السعي التجاري والضرب في الأرض لطلب الرزق الحلال وقرنه بالجهاد في سبيل الله، وتأصيل السفر والاستيراد والتصدير وتنمية الاستثمارات المشروعة. السعي والتجارة الحلال","title":"فضل الضرب في الأرض وابتغاء فضل الله بالتجارة والكسب الشريف","surah":"سورة المزمل: الآية 20","verseText":"... وَآخَرُونَ يَضْرِبُونَ فِي الْأَرْضِ يَبْتَغُونَ مِن فَضْلِ اللَّهِ ۙ وَآخَرُونَ يُقَاتِلُونَ فِي سَبِيلِ اللَّهِ ۖ فَاقْرَءُوا مَا تَيَسَّرَ مِنْهُ...","guidance":"الأحكام الاقتصادية: مدح السعي التجاري والضرب في الأرض لطلب الرزق الحلال وقرنه بالجهاد في سبيل الله، وتأصيل السفر والاستيراد والتصدير وتنمية الاستثمارات المشروعة.","catBadge":"السعي والتجارة الحلال"}];
+    window.HADITHS_DATA = [{"num":1,"cat":"sales","search":"1 الأصل في البيوع والتجارة هو التراضي الخالص بين الطرفين عن أبي سعيد الخدري رضي الله عنه قال: قال رسول الله ﷺ: «إِنَّمَا الْبَيْعُ عَنْ تَرَاضٍ» رواه ابن ماجه (2185) وابن حبان (4967) وصححه الألباني في الإرواء (1283) القاعدة العظمى في كافة العقود والمعاملات والمرابحات: بطلان أي عقد يشوبه إكراه أو غش أو تدليس أو غبن فاحش، واشتراط الرضا التام المتبادل لصحّة انتقال الملكية. البيع عن تراض الرضا الإكراه صحة البيع العقود التجارة","title":"الأصل في البيوع والتجارة هو التراضي الخالص بين الطرفين","catBadge":"🛒 بيوع ومرابحة وتجارة","gradeBadge":"✓ صحيح","sanad":"عن أبي سعيد الخدري رضي الله عنه قال: قال رسول الله ﷺ:","matn":"«إِنَّمَا الْبَيْعُ عَنْ تَرَاضٍ»","source":"رواه ابن ماجه (2185) وابن حبان (4967) وصححه الألباني في الإرواء (1283)","benefit":"القاعدة العظمى في كافة العقود والمعاملات والمرابحات: بطلان أي عقد يشوبه إكراه أو غش أو تدليس أو غبن فاحش، واشتراط الرضا التام المتبادل لصحّة انتقال الملكية."},{"num":2,"cat":"sales","search":"2 خيار المجلس والبركة الكبرى في الصدق والبيان وشؤم الكتمان عن حكيم بن حزام رضي الله عنه قال: قال رسول الله ﷺ: «الْبَيِّعَانِ بِالْخِيَارِ مَا لَمْ يَتَفَرَّقَا، فَإِنْ صَدَقَا وَبَيَّنَا بُورِكَ لَهُمَا فِي بَيْعِهِمَا، وَإِنْ كَذَبَا وَكَتَمَا مُحِقَتْ بَرَكَةُ بَيْعِهِمَا» صحيح البخاري (2079) وصحيح مسلم (1532) إثبات خيار المجلس لكلا العاقدين، وبيان أن أرباح التجارة لا بركة فيها إن بنيت على إخفاء عيوب السلع أو المبالغة الكاذبة، وأن الشفافية التامة هي جالبة النماء. البيعان بالخيار ما لم يتفرقا صدقا وبينا محقت بركة بيعهما خيار المجلس الصدق","title":"خيار المجلس والبركة الكبرى في الصدق والبيان وشؤم الكتمان","catBadge":"🛒 بيوع ومرابحة وتجارة","gradeBadge":"✓ متفق عليه","sanad":"عن حكيم بن حزام رضي الله عنه قال: قال رسول الله ﷺ:","matn":"«الْبَيِّعَانِ بِالْخِيَارِ مَا لَمْ يَتَفَرَّقَا، فَإِنْ صَدَقَا وَبَيَّنَا بُورِكَ لَهُمَا فِي بَيْعِهِمَا، وَإِنْ كَذَبَا وَكَتَمَا مُحِقَتْ بَرَكَةُ بَيْعِهِمَا»","source":"صحيح البخاري (2079) وصحيح مسلم (1532)","benefit":"إثبات خيار المجلس لكلا العاقدين، وبيان أن أرباح التجارة لا بركة فيها إن بنيت على إخفاء عيوب السلع أو المبالغة الكاذبة، وأن الشفافية التامة هي جالبة النماء."},{"num":3,"cat":"sales","search":"3 النهي الصارم عن بيع السلع قبل تملكها وقبضها (لا تبع ما ليس عندك) عن حكيم بن حزام رضي الله عنه قال: سألت النبي ﷺ فقلت: يأتيني الرجل فيريد مني البيع ليس عندي أفأبتاعه له من السوق؟ فقال: «لَا تَبِعْ مَا لَيْسَ عِنْدَكَ» رواه أبو داود (3503) والترمذي (1232) والنسائي (4613) وصححه الترمذي والألباني تحريم بيع الأعيان غير المملوكة للبائع درءاً للعجز عن التسليم والغرر والمخاطرة، وهو أصل تشريعي يضبط تجارة الدروب شيبينغ المعاصرة والبيع على المكشوف (Short Selling). لا تبع ما ليس عندك حكيم بن حزام بيع المعدوم الدروب شيبينغ البيع على المكشوف","title":"النهي الصارم عن بيع السلع قبل تملكها وقبضها (لا تبع ما ليس عندك)","catBadge":"🛒 بيوع ومرابحة وتجارة","gradeBadge":"✓ صحيح","sanad":"عن حكيم بن حزام رضي الله عنه قال: سألت النبي ﷺ فقلت: يأتيني الرجل فيريد مني البيع ليس عندي أفأبتاعه له من السوق؟ فقال:","matn":"«لَا تَبِعْ مَا لَيْسَ عِنْدَكَ»","source":"رواه أبو داود (3503) والترمذي (1232) والنسائي (4613) وصححه الترمذي والألباني","benefit":"تحريم بيع الأعيان غير المملوكة للبائع درءاً للعجز عن التسليم والغرر والمخاطرة، وهو أصل تشريعي يضبط تجارة الدروب شيبينغ المعاصرة والبيع على المكشوف (Short Selling)."},{"num":4,"cat":"sales","search":"4 النهي عن بيوع الغرر والمخاطرة والمجهولات في الأسواق عن أبي هريرة رضي الله عنه قال: «نَهَى رَسُولُ اللَّهِ ﷺ عَنْ بَيْعِ الْحَصَاةِ، وَعَنْ بَيْعِ الْغَرَرِ» صحيح مسلم (1513) الأصل الجوهري في تحريم المعاملات المالية المشتملة على مجهول العاقبة، كعقود المشتقات المالية الاحتيالية والمقامرات الرقمية وبيع الصناديق العشوائية مجهولة المحتوى. نهى عن بيع الغرر بيع الحصاة الجهالة المخاطرة المشتقات المالية القمار","title":"النهي عن بيوع الغرر والمخاطرة والمجهولات في الأسواق","catBadge":"🛒 بيوع ومرابحة وتجارة","gradeBadge":"✓ صحيح مسلم","sanad":"عن أبي هريرة رضي الله عنه قال:","matn":"«نَهَى رَسُولُ اللَّهِ ﷺ عَنْ بَيْعِ الْحَصَاةِ، وَعَنْ بَيْعِ الْغَرَرِ»","source":"صحيح مسلم (1513)","benefit":"الأصل الجوهري في تحريم المعاملات المالية المشتملة على مجهول العاقبة، كعقود المشتقات المالية الاحتيالية والمقامرات الرقمية وبيع الصناديق العشوائية مجهولة المحتوى."},{"num":5,"cat":"sales","search":"5 اشتراط حيازة المبيع واستيفاء القبض قبل إعادة تصريفه وبيعه عن عبد الله بن عمر رضي الله عنهما قال: قال رسول الله ﷺ: «مَنِ اشْتَرَى طَعَامًا فَلَا يَبِعْهُ حَتَّى يَسْتَوْفِيَهُ» وفي رواية: «حَتَّى يَقْبِضَهُ» صحيح البخاري (2136) وصحيح مسلم (1525) عدم جواز المتاجرة بالسلع وبيعها قبل دخولها في ضمان المشتري وحيازتها الفعلية أو الحكمية (كاستلام أوراق الشحن وبوالص التخزين الرسمية المعاصرة). من اشترى طعاما فلا يبعه حتى يستوفيه حتى يقبضه قبض المبيع الحيازة","title":"اشتراط حيازة المبيع واستيفاء القبض قبل إعادة تصريفه وبيعه","catBadge":"🛒 بيوع ومرابحة وتجارة","gradeBadge":"✓ متفق عليه","sanad":"عن عبد الله بن عمر رضي الله عنهما قال: قال رسول الله ﷺ:","matn":"«مَنِ اشْتَرَى طَعَامًا فَلَا يَبِعْهُ حَتَّى يَسْتَوْفِيَهُ» وفي رواية: «حَتَّى يَقْبِضَهُ»","source":"صحيح البخاري (2136) وصحيح مسلم (1525)","benefit":"عدم جواز المتاجرة بالسلع وبيعها قبل دخولها في ضمان المشتري وحيازتها الفعلية أو الحكمية (كاستلام أوراق الشحن وبوالص التخزين الرسمية المعاصرة)."},{"num":6,"cat":"sales","search":"6 النهي عن البيع على بيع المسلم والنجش واحتكار السلع بالخداع عن عبد الله بن عمر رضي الله عنهما أن رسول الله ﷺ قال: «لَا يَبِعْ بَعْضُكُمْ عَلَى بَيْعِ بَعْضٍ، وَلَا تَنَاجَشُوا، وَلَا يَبِعْ حَاضِرٌ لِبَادٍ» صحيح البخاري (2139) وصحيح مسلم (1412) حماية المنافسة الشريفة ومنع المزايدات الوهمية (النجش) في المزادات العلنية والرقمية، ومنع استغلال جهل القادمين من خارج السوق بالأسعار الحقيقية. لا يبع بعضكم على بيع بعض ولا تناجشوا ولا يبع حاضر لباد المزادات النجش","title":"النهي عن البيع على بيع المسلم والنجش واحتكار السلع بالخداع","catBadge":"🛒 بيوع ومرابحة وتجارة","gradeBadge":"✓ متفق عليه","sanad":"عن عبد الله بن عمر رضي الله عنهما أن رسول الله ﷺ قال:","matn":"«لَا يَبِعْ بَعْضُكُمْ عَلَى بَيْعِ بَعْضٍ، وَلَا تَنَاجَشُوا، وَلَا يَبِعْ حَاضِرٌ لِبَادٍ»","source":"صحيح البخاري (2139) وصحيح مسلم (1412)","benefit":"حماية المنافسة الشريفة ومنع المزايدات الوهمية (النجش) في المزادات العلنية والرقمية، ومنع استغلال جهل القادمين من خارج السوق بالأسعار الحقيقية."},{"num":7,"cat":"sales","search":"7 النهي عن بيعتين في بيعة والصفقات المشروطة الملتوية عن أبي هريرة رضي الله عنه قال: «نَهَى رَسُولُ اللَّهِ ﷺ عَنْ بَيْعَتَيْنِ فِي بَيْعَةٍ» رواه الترمذي (1231) والنسائي (4632) وأحمد (9582) وصححه الترمذي والألباني تحريم العقود المتضمنة حيل الربا (كالعينة: أبيعك نقداً بـ 100 على أن تبيعني مؤجلاً بـ 120)، أو العقود التي تترك الثمن مجهولاً بين النقد والتقسيط دون حسم عند التعاقد. نهى عن بيعتين في بيعة العينة بيع وسلف الصفقات المشروطة","title":"النهي عن بيعتين في بيعة والصفقات المشروطة الملتوية","catBadge":"🛒 بيوع ومرابحة وتجارة","gradeBadge":"✓ صحيح","sanad":"عن أبي هريرة رضي الله عنه قال:","matn":"«نَهَى رَسُولُ اللَّهِ ﷺ عَنْ بَيْعَتَيْنِ فِي بَيْعَةٍ»","source":"رواه الترمذي (1231) والنسائي (4632) وأحمد (9582) وصححه الترمذي والألباني","benefit":"تحريم العقود المتضمنة حيل الربا (كالعينة: أبيعك نقداً بـ 100 على أن تبيعني مؤجلاً بـ 120)، أو العقود التي تترك الثمن مجهولاً بين النقد والتقسيط دون حسم عند التعاقد."},{"num":8,"cat":"sales","search":"8 النهي عن بيع الثمار والمحاصيل قبل بدو صلاحها وأمن العاهة عن أنس بن مالك رضي الله عنه أن رسول الله ﷺ: «نَهَى عَنْ بَيْعِ الثِّمَارِ حَتَّى تُزْهِيَ، قِيلَ: وَمَا تُزْهِي؟ قَالَ: حَتَّى تَحْمَرَّ، فَقَالَ: أَرَأَيْتَ إِذَا مَنَعَ اللَّهُ الثَّمَرَةَ بِمَ يَأْخُذُ أَحَدُكُمْ مَالَ أَخِيهِ؟» صحيح البخاري (2198) وصحيح مسلم (1555) قاعدة منع بيع الإنتاج الزراعي قبل وصوله للطور الصالح للاستعمال وأمنه من الآفات، منعاً للخصومة وأكل أموال المشترين بغير مقابل مشروع. نهى عن بيع الثمار حتى تزهي تحمر بم يأخذ أحدكم مال أخيه ضمان المحاصيل","title":"النهي عن بيع الثمار والمحاصيل قبل بدو صلاحها وأمن العاهة","catBadge":"🛒 بيوع ومرابحة وتجارة","gradeBadge":"✓ متفق عليه","sanad":"عن أنس بن مالك رضي الله عنه أن رسول الله ﷺ:","matn":"«نَهَى عَنْ بَيْعِ الثِّمَارِ حَتَّى تُزْهِيَ، قِيلَ: وَمَا تُزْهِي؟ قَالَ: حَتَّى تَحْمَرَّ، فَقَالَ: أَرَأَيْتَ إِذَا مَنَعَ اللَّهُ الثَّمَرَةَ بِمَ يَأْخُذُ أَحَدُكُمْ مَالَ أَخِيهِ؟»","source":"صحيح البخاري (2198) وصحيح مسلم (1555)","benefit":"قاعدة منع بيع الإنتاج الزراعي قبل وصوله للطور الصالح للاستعمال وأمنه من الآفات، منعاً للخصومة وأكل أموال المشترين بغير مقابل مشروع."},{"num":9,"cat":"sales","search":"9 تشريع وضع الجوائح والكوارث الطارئة عن المشترين والمزارعين عن جابر بن عبد الله رضي الله عنهما أن النبي ﷺ قال: «لَوْ بِعْتَ مِنْ أَخِيكَ ثَمَرًا فَأَصَابَتْهُ جَائِحَةٌ، فَلَا يَحِلُّ لَكَ أَنْ تَأْخُذَ مِنْهُ شَيْئًا، بِمَ تَأْخُذُ مَالَ أَخِيكَ بِغَيْرِ حَقٍّ؟» صحيح مسلم (1554) أصل فقهي عظيم في نظرية الظروف الطارئة والقوة القاهرة المعاصرة: إسقاط التكاليف عن المشتري إذا تلفت البضاعة بآفة سماوية لا يد له فيها قبل التمكن من حيازتها. وضع الجوائح جائحة بم تأخذ مال أخيك بغير حق القوة القاهرة الكوارث","title":"تشريع وضع الجوائح والكوارث الطارئة عن المشترين والمزارعين","catBadge":"🛒 بيوع ومرابحة وتجارة","gradeBadge":"✓ صحيح مسلم","sanad":"عن جابر بن عبد الله رضي الله عنهما أن النبي ﷺ قال:","matn":"«لَوْ بِعْتَ مِنْ أَخِيكَ ثَمَرًا فَأَصَابَتْهُ جَائِحَةٌ، فَلَا يَحِلُّ لَكَ أَنْ تَأْخُذَ مِنْهُ شَيْئًا، بِمَ تَأْخُذُ مَالَ أَخِيكَ بِغَيْرِ حَقٍّ؟»","source":"صحيح مسلم (1554)","benefit":"أصل فقهي عظيم في نظرية الظروف الطارئة والقوة القاهرة المعاصرة: إسقاط التكاليف عن المشتري إذا تلفت البضاعة بآفة سماوية لا يد له فيها قبل التمكن من حيازتها."},{"num":10,"cat":"sales","search":"10 وجوب الوفاء بالشروط التجارية والعقود الرضائية المبرمة عن عمرو بن عوف المزني رضي الله عنه أن رسول الله ﷺ قال: «الْمُسْلِمُونَ عَلَى شُرُوطِهِمْ، إِلَّا شَرْطًا حَرَّمَ حَلَالًا، أَوْ أَحَلَّ حَرَامًا» رواه الترمذي (1352) وصححه، وأبو داود (3594)، وصححه الألباني في الإرواء (1303) حرية الاشتراط والتنظيم التعاقدي في المعاملات المالية، وإلزامية مواعيد التسليم والدفعات وجداول السداد وغرامات التأخير غير الربوية ما دامت متفقة مع أحكام الشريعة. المسلمون على شروطهم الشروط العقدية الالتزامات الوفاء بالعقود","title":"وجوب الوفاء بالشروط التجارية والعقود الرضائية المبرمة","catBadge":"🛒 بيوع ومرابحة وتجارة","gradeBadge":"✓ صحيح","sanad":"عن عمرو بن عوف المزني رضي الله عنه أن رسول الله ﷺ قال:","matn":"«الْمُسْلِمُونَ عَلَى شُرُوطِهِمْ، إِلَّا شَرْطًا حَرَّمَ حَلَالًا، أَوْ أَحَلَّ حَرَامًا»","source":"رواه الترمذي (1352) وصححه، وأبو داود (3594)، وصححه الألباني في الإرواء (1303)","benefit":"حرية الاشتراط والتنظيم التعاقدي في المعاملات المالية، وإلزامية مواعيد التسليم والدفعات وجداول السداد وغرامات التأخير غير الربوية ما دامت متفقة مع أحكام الشريعة."},{"num":11,"cat":"sales","search":"11 تحريم الغش والتطفيف في البضائع والمواصفات والبراءة النبوية من الغاش عن أبي هريرة رضي الله عنه أن رسول الله ﷺ مر على صُبرة طعام فأدخل يده فيها فنالت أصابعه بللاً، فقال: ما هذا يا صاحب الطعام؟ قال: أصابته السماء يا رسول الله، قال: «أَفَلَا جَعَلْتَهُ فَوْقَ الطَّعَامِ كَيْ يَرَاهُ النَّاسُ، مَنْ غَشَّ فَلَيْسَ مِنِّي» صحيح مسلم (102) وجوب الإفصاح والشفافية التامة عن كل عيب خفي في السلع أو الخدمات، وتحريم التلاعب بتاريخ الصلاحية أو بلد المنشأ أو إخفاء المعيب تحت السليم. من غش فليس مني صبرة طعام أصابته السماء عيوب السلع الغش التجاري","title":"تحريم الغش والتطفيف في البضائع والمواصفات والبراءة النبوية من الغاش","catBadge":"🛒 بيوع ومرابحة وتجارة","gradeBadge":"✓ صحيح مسلم","sanad":"عن أبي هريرة رضي الله عنه أن رسول الله ﷺ مر على صُبرة طعام فأدخل يده فيها فنالت أصابعه بللاً، فقال: ما هذا يا صاحب الطعام؟ قال: أصابته السماء يا رسول الله، قال:","matn":"«أَفَلَا جَعَلْتَهُ فَوْقَ الطَّعَامِ كَيْ يَرَاهُ النَّاسُ، مَنْ غَشَّ فَلَيْسَ مِنِّي»","source":"صحيح مسلم (102)","benefit":"وجوب الإفصاح والشفافية التامة عن كل عيب خفي في السلع أو الخدمات، وتحريم التلاعب بتاريخ الصلاحية أو بلد المنشأ أو إخفاء المعيب تحت السليم."},{"num":12,"cat":"sales","search":"12 فضل التاجر الصدوق الأمين ومنزلته العالية في الجنة مع النبيين والشهداء عن أبي سعيد الخدري رضي الله عنه عن النبي ﷺ قال: «التَّاجِرُ الصَّدُوقُ الْأَمِينُ مَعَ النَّبِيِّينَ، وَالصِّدِّيقِينَ، وَالشُّهَدَاءِ» رواه الترمذي (1209) وصححه، والدارمي (2539)، وصححه الألباني في صحيح الترغيب (1782) بيان شرف مهنة التجارة والمحاسبة والمال إذا التزم صاحبها بصدق الوصف والأمانة في الحسابات والفواتير والوفاء بالعهود دون جشع أو احتيال. التاجر الصدوق الأمين مع النبيين والصديقين والشهداء بركة التجارة الأمانة","title":"فضل التاجر الصدوق الأمين ومنزلته العالية في الجنة مع النبيين والشهداء","catBadge":"🛒 بيوع ومرابحة وتجارة","gradeBadge":"✓ صحيح","sanad":"عن أبي سعيد الخدري رضي الله عنه عن النبي ﷺ قال:","matn":"«التَّاجِرُ الصَّدُوقُ الْأَمِينُ مَعَ النَّبِيِّينَ، وَالصِّدِّيقِينَ، وَالشُّهَدَاءِ»","source":"رواه الترمذي (1209) وصححه، والدارمي (2539)، وصححه الألباني في صحيح الترغيب (1782)","benefit":"بيان شرف مهنة التجارة والمحاسبة والمال إذا التزم صاحبها بصدق الوصف والأمانة في الحسابات والفواتير والوفاء بالعهود دون جشع أو احتيال."},{"num":13,"cat":"sales","search":"13 السماحة واليسر في البيع والشراء والمطالبة بالحقوق واستجلاب رحمة الله عن جابر بن عبد الله رضي الله عنهما أن رسول الله ﷺ قال: «رَحِمَ اللَّهُ رَجُلًا سَمْحًا إِذَا بَاعَ، وَإِذَا اشْتَرَى، وَإِذَا اقْتَضَى» صحيح البخاري (2076) الحث على المرونة والتيسير وعدم المشاحة والتعنت في الأسعار والتفاوض وسداد المطالبات المالية، وهي روح الأخلاق الاقتصادية الإسلامية. رحم الله رجلا سمحا إذا باع وإذا اشترى وإذا اقتضى السماحة اليسر المعاملة الحسنة","title":"السماحة واليسر في البيع والشراء والمطالبة بالحقوق واستجلاب رحمة الله","catBadge":"🛒 بيوع ومرابحة وتجارة","gradeBadge":"✓ صحيح البخاري","sanad":"عن جابر بن عبد الله رضي الله عنهما أن رسول الله ﷺ قال:","matn":"«رَحِمَ اللَّهُ رَجُلًا سَمْحًا إِذَا بَاعَ، وَإِذَا اشْتَرَى، وَإِذَا اقْتَضَى»","source":"صحيح البخاري (2076)","benefit":"الحث على المرونة والتيسير وعدم المشاحة والتعنت في الأسعار والتفاوض وسداد المطالبات المالية، وهي روح الأخلاق الاقتصادية الإسلامية."},{"num":14,"cat":"sales","search":"14 فضل إقالة النادم وقبول المرتجع وفسخ الصفقة لراحة الزبون عن أبي هريرة رضي الله عنه قال: قال رسول الله ﷺ: «مَنْ أَقَالَ مُسْلِمًا، أَقَالَهُ اللَّهُ عَثْرَتَهُ يَوْمَ الْقِيَامَةِ» رواه أبو داود (3460) وابن ماجه (2199) وصححه ابن حبان (4931) والألباني استحباب قبول سياسة إرجاع البضائع واسترداد المشتري لماله إن ندم أو تبين عدم حاجته للسلعة، وأن جزاء ذلك تكفير الذنوب وتفريج الكربات يوم القيامة. من أقال مسلما أقاله الله عثرته إقالة النادم سياسة الاسترجاع المرتجعات","title":"فضل إقالة النادم وقبول المرتجع وفسخ الصفقة لراحة الزبون","catBadge":"🛒 بيوع ومرابحة وتجارة","gradeBadge":"✓ صحيح","sanad":"عن أبي هريرة رضي الله عنه قال: قال رسول الله ﷺ:","matn":"«مَنْ أَقَالَ مُسْلِمًا، أَقَالَهُ اللَّهُ عَثْرَتَهُ يَوْمَ الْقِيَامَةِ»","source":"رواه أبو داود (3460) وابن ماجه (2199) وصححه ابن حبان (4931) والألباني","benefit":"استحباب قبول سياسة إرجاع البضائع واسترداد المشتري لماله إن ندم أو تبين عدم حاجته للسلعة، وأن جزاء ذلك تكفير الذنوب وتفريج الكربات يوم القيامة."},{"num":15,"cat":"sales","search":"15 تحريم الحلف الكاذب أو الصادق لتنفيق البضائع وترويج المبيعات عن أبي هريرة رضي الله عنه قال: سمعت رسول الله ﷺ يقول: «الْحَلِفُ مُنَفِّقَةٌ لِلسِّلْعَةِ، مُمْحِقَةٌ لِلْبَرَكَةِ» صحيح البخاري (2087) وصحيح مسلم (1606) تحريم وتجريم الترويج الإعلاني المضلل باستخدام الأيمان والأقسام لاستدراج المشترين، والتحذير من أن المبيعات الناتجة عن ذلك تنزع البركة من رأس المال كلياً. الحلف منفقة للسلعة ممحقة للبركة الأيمان الكاذبة التسويق المضلل الإعلانات","title":"تحريم الحلف الكاذب أو الصادق لتنفيق البضائع وترويج المبيعات","catBadge":"🛒 بيوع ومرابحة وتجارة","gradeBadge":"✓ متفق عليه","sanad":"عن أبي هريرة رضي الله عنه قال: سمعت رسول الله ﷺ يقول:","matn":"«الْحَلِفُ مُنَفِّقَةٌ لِلسِّلْعَةِ، مُمْحِقَةٌ لِلْبَرَكَةِ»","source":"صحيح البخاري (2087) وصحيح مسلم (1606)","benefit":"تحريم وتجريم الترويج الإعلاني المضلل باستخدام الأيمان والأقسام لاستدراج المشترين، والتحذير من أن المبيعات الناتجة عن ذلك تنزع البركة من رأس المال كلياً."},{"num":16,"cat":"riba","search":"16 دستور الأصناف الربوية الستة وضوابط صرف العملات والسلع الأساسية عن عبادة بن الصامت رضي الله عنه قال: قال رسول الله ﷺ: «الذَّهَبُ بِالذَّهَبِ، وَالْفِضَّةُ بِالْفِضَّةِ، وَالْبُرُّ بِالْبُرِّ، وَالشَّعِيرُ بِالشَّعِيرِ، وَالتَّمْرُ بِالتَّمْرِ، وَالْمِلْحُ بِالْمِلْحِ، مِثْلًا بِمِثْلٍ، سَوَاءً بِسَوَاءٍ، يَدًا بِيَدٍ، فَإِذَا اخْتَلَفَتْ هَذِهِ الْأَصْنَافُ، فَبِيعُوا كَيْفَ شِئْتُمْ إِذَا كَانَ يَدًا بِيَدٍ» صحيح مسلم (1587) القانون الأساسي في تحريم ربا الفضل وربا النسيئة، واشتراط التقابض الفوري يداً بيد (Spot Exchange) عند تحويل العملات المختلفة كالدولار والريال واليورو لمنع الوقوع في الصرف المؤجل المحرم. الذهب بالذهب والفضة بالفضة مثلا بمثل يدا بيد الأصناف الستة الصرف العملات ربا الفضل ربا النسيئة","title":"دستور الأصناف الربوية الستة وضوابط صرف العملات والسلع الأساسية","catBadge":"🚫 ربا وصرف وعملات","gradeBadge":"✓ صحيح مسلم","sanad":"عن عبادة بن الصامت رضي الله عنه قال: قال رسول الله ﷺ:","matn":"«الذَّهَبُ بِالذَّهَبِ، وَالْفِضَّةُ بِالْفِضَّةِ، وَالْبُرُّ بِالْبُرِّ، وَالشَّعِيرُ بِالشَّعِيرِ، وَالتَّمْرُ بِالتَّمْرِ، وَالْمِلْحُ بِالْمِلْحِ، مِثْلًا بِمِثْلٍ، سَوَاءً بِسَوَاءٍ، يَدًا بِيَدٍ، فَإِذَا اخْتَلَفَتْ هَذِهِ الْأَصْنَافُ، فَبِيعُوا كَيْفَ شِئْتُمْ إِذَا كَانَ يَدًا بِيَدٍ»","source":"صحيح مسلم (1587)","benefit":"القانون الأساسي في تحريم ربا الفضل وربا النسيئة، واشتراط التقابض الفوري يداً بيد (Spot Exchange) عند تحويل العملات المختلفة كالدولار والريال واليورو لمنع الوقوع في الصرف المؤجل المحرم."},{"num":17,"cat":"riba","search":"17 تحريم التفاضل في مبادلة الجنس الواحد من الذهب والفضة وصرفهما عن أبي سعيد الخدري رضي الله عنه أن رسول الله ﷺ قال: «لَا تَبِيعُوا الذَّهَبَ بِالذَّهَبِ إِلَّا مِثْلًا بِمِثْلٍ، وَلَا تُشِفُّوا بَعْضَهَا عَلَى بَعْضٍ، وَلَا تَبِيعُوا الْوَرِقَ بِالْوَرِقِ إِلَّا مِثْلًا بِمِثْلٍ، وَلَا تُشِفُّوا بَعْضَهَا عَلَى بَعْضٍ، وَلَا تَبِيعُوا مِنْهَا غَائِبًا بِنَاجِزٍ» صحيح البخاري (2177) وصحيح مسلم (1584) منع دفع أي زيادة (تشفوا) عند استبدال ذهب قديم بذهب جديد أو مكسور بمصاغ، ووجوب التماثل التام في الوزن وزناً بوزن، أو البيع نقداً ثم الشراء نقداً. لا تبيعوا الذهب بالذهب إلا مثلا بمثل ولا تشفوا الورق غائبا بناجز مصاغ الذهب ربا الفضل","title":"تحريم التفاضل في مبادلة الجنس الواحد من الذهب والفضة وصرفهما","catBadge":"🚫 ربا وصرف وعملات","gradeBadge":"✓ متفق عليه","sanad":"عن أبي سعيد الخدري رضي الله عنه أن رسول الله ﷺ قال:","matn":"«لَا تَبِيعُوا الذَّهَبَ بِالذَّهَبِ إِلَّا مِثْلًا بِمِثْلٍ، وَلَا تُشِفُّوا بَعْضَهَا عَلَى بَعْضٍ، وَلَا تَبِيعُوا الْوَرِقَ بِالْوَرِقِ إِلَّا مِثْلًا بِمِثْلٍ، وَلَا تُشِفُّوا بَعْضَهَا عَلَى بَعْضٍ، وَلَا تَبِيعُوا مِنْهَا غَائِبًا بِنَاجِزٍ»","source":"صحيح البخاري (2177) وصحيح مسلم (1584)","benefit":"منع دفع أي زيادة (تشفوا) عند استبدال ذهب قديم بذهب جديد أو مكسور بمصاغ، ووجوب التماثل التام في الوزن وزناً بوزن، أو البيع نقداً ثم الشراء نقداً."},{"num":18,"cat":"riba","search":"18 حديث تمر خيبر والقاعدة الذهبية في تجنب ربا الفضل عبر النقد عن أبي سعيد الخدري وأبي هريرة رضي الله عنهما أن رسول الله ﷺ استعمل رجلاً على خيبر فجاءه بتمر جَنِيب، فقال: أكلُّ تمر خيبر هكذا؟ قال: لا والله يا رسول الله! إنا لنأخذ الصاع من هذا بالصاعين، والصاعين بالثلاثة، فقال ﷺ: «أَوَّهْ! عَيْنُ الرِّبَا! لَا تَفْعَلْ، وَلَكِنْ بِعِ الْجَمْعَ بِالدَّرَاهِمِ، ثُمَّ اشْتَرِ بِالدَّرَاهِمِ جَنِيبًا» صحيح البخاري (2201) وصحيح مسلم (1593) وضع الآلية المصرفية والتجارية الشرعية للخروج من مبادلة الأعيان الربوية المتفاوتة الجودة: بيع الرديء بالنقود أولاً، ثم شراء الجيد بالنقود في صفقة مستقلة منفصلة. تمر خيبر عين الربا بع الجمع بالدراهم ثم اشتر بالدراهم جنيبا ربا الفضل المبادلة العينية","title":"حديث تمر خيبر والقاعدة الذهبية في تجنب ربا الفضل عبر النقد","catBadge":"🚫 ربا وصرف وعملات","gradeBadge":"✓ متفق عليه","sanad":"عن أبي سعيد الخدري وأبي هريرة رضي الله عنهما أن رسول الله ﷺ استعمل رجلاً على خيبر فجاءه بتمر جَنِيب، فقال: أكلُّ تمر خيبر هكذا؟ قال: لا والله يا رسول الله! إنا لنأخذ الصاع من هذا بالصاعين، والصاعين بالثلاثة، فقال ﷺ:","matn":"«أَوَّهْ! عَيْنُ الرِّبَا! لَا تَفْعَلْ، وَلَكِنْ بِعِ الْجَمْعَ بِالدَّرَاهِمِ، ثُمَّ اشْتَرِ بِالدَّرَاهِمِ جَنِيبًا»","source":"صحيح البخاري (2201) وصحيح مسلم (1593)","benefit":"وضع الآلية المصرفية والتجارية الشرعية للخروج من مبادلة الأعيان الربوية المتفاوتة الجودة: بيع الرديء بالنقود أولاً، ثم شراء الجيد بالنقود في صفقة مستقلة منفصلة."},{"num":19,"cat":"riba","search":"19 لعن آكل الربا وموكله وموثقه وشاهديه واستواء الجميع في الوزر عن جابر بن عبد الله رضي الله عنهما قال: «لَعَنَ رَسُولُ اللَّهِ ﷺ آكِلَ الرِّبَا، وَمُؤْكِلَهُ، وَكَاتِبَهُ، وَشَاهِدَيْهِ، وَقَالَ: هُمْ سَوَاءٌ» صحيح مسلم (1598) تجريم كل وسيط أو محاسب أو مدقق أو موثق يتعاقد على فوائد ربوية أو يصيغ بنود الربا أو يوقع عليها، وإثبات أن الإعانة على المعاملة الربوية كأكلها تماماً. لعن آكل الربا وموكله وكاتبه وشاهديه هم سواء الإعانة على الحرام العقود الربوية","title":"لعن آكل الربا وموكله وموثقه وشاهديه واستواء الجميع في الوزر","catBadge":"🚫 ربا وصرف وعملات","gradeBadge":"✓ صحيح مسلم","sanad":"عن جابر بن عبد الله رضي الله عنهما قال:","matn":"«لَعَنَ رَسُولُ اللَّهِ ﷺ آكِلَ الرِّبَا، وَمُؤْكِلَهُ، وَكَاتِبَهُ، وَشَاهِدَيْهِ، وَقَالَ: هُمْ سَوَاءٌ»","source":"صحيح مسلم (1598)","benefit":"تجريم كل وسيط أو محاسب أو مدقق أو موثق يتعاقد على فوائد ربوية أو يصيغ بنود الربا أو يوقع عليها، وإثبات أن الإعانة على المعاملة الربوية كأكلها تماماً."},{"num":20,"cat":"riba","search":"20 التغليظ الشديد في جرم الربا وبيان شناعته وخطورته على المجتمع عن عبد الله بن مسعود رضي الله عنه عن النبي ﷺ قال: «الرِّبَا ثَلَاثَةٌ وَسَبْعُونَ بَابًا، أَيْسَرُهَا مِثْلُ أَنْ يَنْكِحَ الرَّجُلُ أُمَّهُ» رواه الحاكم في المستدرك (2259) وصححه، ورواه ابن ماجه (2275) وصححه الألباني في صحيح الجامع (3533) تحذير المسلمين والمستثمرين من الاستهانة بفوائد القروض والربا المقنع بألفاظ حديثة، وبيان أنه من أشد المحرمات الماحقة للبركة والمفسدة للأخلاق والاقتصاد. الربا ثلاثة وسبعون بابا أيسرها خطورة الربا الفوائد البنكية القروض الربوية","title":"التغليظ الشديد في جرم الربا وبيان شناعته وخطورته على المجتمع","catBadge":"🚫 ربا وصرف وعملات","gradeBadge":"✓ صحيح","sanad":"عن عبد الله بن مسعود رضي الله عنه عن النبي ﷺ قال:","matn":"«الرِّبَا ثَلَاثَةٌ وَسَبْعُونَ بَابًا، أَيْسَرُهَا مِثْلُ أَنْ يَنْكِحَ الرَّجُلُ أُمَّهُ»","source":"رواه الحاكم في المستدرك (2259) وصححه، ورواه ابن ماجه (2275) وصححه الألباني في صحيح الجامع (3533)","benefit":"تحذير المسلمين والمستثمرين من الاستهانة بفوائد القروض والربا المقنع بألفاظ حديثة، وبيان أنه من أشد المحرمات الماحقة للبركة والمفسدة للأخلاق والاقتصاد."},{"num":21,"cat":"riba","search":"21 ربا النسيئة وخطورة تأجيل تسليم البدلين في عقود الصرف عن أسامة بن زيد رضي الله عنهما أن رسول الله ﷺ قال: «إِنَّمَا الرِّبَا فِي النَّسِيئَةِ» صحيح البخاري (2178) وصحيح مسلم (1596) تأكيد أن الربا الأعظم والأخطر هو ربا النسيئة (تأجيل القبض أو زيادة المال مقابل مد أجل السداد)، وهو المعمول به في القروض الربوية والفوائد المركبة. إنما الربا في النسيئة تأخير القبض الصرف المؤجل الفوائد المركبة ربا الجاهلية","title":"ربا النسيئة وخطورة تأجيل تسليم البدلين في عقود الصرف","catBadge":"🚫 ربا وصرف وعملات","gradeBadge":"✓ متفق عليه","sanad":"عن أسامة بن زيد رضي الله عنهما أن رسول الله ﷺ قال:","matn":"«إِنَّمَا الرِّبَا فِي النَّسِيئَةِ»","source":"صحيح البخاري (2178) وصحيح مسلم (1596)","benefit":"تأكيد أن الربا الأعظم والأخطر هو ربا النسيئة (تأجيل القبض أو زيادة المال مقابل مد أجل السداد)، وهو المعمول به في القروض الربوية والفوائد المركبة."},{"num":22,"cat":"riba","search":"22 النهي عن بيع الكالئ بالكالئ (بيع الدين بالدين وتوريق الديون) عن عبد الله بن عمر رضي الله عنهما قال: «نَهَى النَّبِيُّ ﷺ عَنْ بَيْعِ الْكَالِئِ بِالْكَالِئِ» [أي: الدَّيْنِ بِالدَّيْنِ] رواه الحاكم (2341) والدارقطني (3079) والنووي في المجموع ونقل الإجماع على تحريمه شيخ الإسلام ابن تيمية تحريم بيع الديون المؤجلة بديون مؤجلة أخرى، وهو أصل قطعي يبطل تداول سندات الديون وخصم الكمبيالات المؤجلة بآجال أخرى والمشتقات المالية الائتمانية المعاصرة. نهى عن بيع الكالئ بالكالئ بيع الدين بالدين توريق الديون السندات خصم الأوراق التجارية","title":"النهي عن بيع الكالئ بالكالئ (بيع الدين بالدين وتوريق الديون)","catBadge":"🚫 ربا وصرف وعملات","gradeBadge":"✓ صحيح بمعناه إجماعاً","sanad":"عن عبد الله بن عمر رضي الله عنهما قال:","matn":"«نَهَى النَّبِيُّ ﷺ عَنْ بَيْعِ الْكَالِئِ بِالْكَالِئِ» [أي: الدَّيْنِ بِالدَّيْنِ]","source":"رواه الحاكم (2341) والدارقطني (3079) والنووي في المجموع ونقل الإجماع على تحريمه شيخ الإسلام ابن تيمية","benefit":"تحريم بيع الديون المؤجلة بديون مؤجلة أخرى، وهو أصل قطعي يبطل تداول سندات الديون وخصم الكمبيالات المؤجلة بآجال أخرى والمشتقات المالية الائتمانية المعاصرة."},{"num":23,"cat":"riba","search":"23 تحريم بيع العِينة والتحايل الصوري على القروض الربوية بالسلع عن عبد الله بن عمر رضي الله عنهما قال: سمعت رسول الله ﷺ يقول: «إِذَا تَبَايَعْتُمْ بِالْعِينَةِ، وَأَخَذْتُمْ أَذْنَابَ الْبَقَرِ، وَرَضِيتُمْ بِالزَّرْعِ، وَتَرَكْتُمُ الْجِهَادَ، سَلَّطَ اللَّهُ عَلَيْكُمْ ذُلًّا لَا يَنْزِعُهُ حَتَّى تَرْجِعُوا إِلَى دِينِكُمْ» رواه أبو داود (3462) وصححه الألباني في السلسلة الصحيحة (11) تحريم صور البيع الشكلي الذي يتخذ السلعة حيلة لأخذ نقد عاجل مقابل نقد آجل أكبر (كأن يبيع سلعة بالآجل بـ 120 ثم يشتريها نقداً بـ 100 في مجلس واحد). إذا تبايعتم بالعينة الحيل الربوية التورق المنظم القروض الصوريه أخذتم أذناب البقر","title":"تحريم بيع العِينة والتحايل الصوري على القروض الربوية بالسلع","catBadge":"🚫 ربا وصرف وعملات","gradeBadge":"✓ صحيح","sanad":"عن عبد الله بن عمر رضي الله عنهما قال: سمعت رسول الله ﷺ يقول:","matn":"«إِذَا تَبَايَعْتُمْ بِالْعِينَةِ، وَأَخَذْتُمْ أَذْنَابَ الْبَقَرِ، وَرَضِيتُمْ بِالزَّرْعِ، وَتَرَكْتُمُ الْجِهَادَ، سَلَّطَ اللَّهُ عَلَيْكُمْ ذُلًّا لَا يَنْزِعُهُ حَتَّى تَرْجِعُوا إِلَى دِينِكُمْ»","source":"رواه أبو داود (3462) وصححه الألباني في السلسلة الصحيحة (11)","benefit":"تحريم صور البيع الشكلي الذي يتخذ السلعة حيلة لأخذ نقد عاجل مقابل نقد آجل أكبر (كأن يبيع سلعة بالآجل بـ 120 ثم يشتريها نقداً بـ 100 في مجلس واحد)."},{"num":24,"cat":"riba","search":"24 تحريم الجمع بين سلف وبيع واشتراط نفع تجاري في القروض عن عبد الله بن عمرو رضي الله عنهما أن رسول الله ﷺ قال: «لَا يَحِلُّ سَلَفٌ وَبَيْعٌ، وَلَا شَرْطَانِ فِي بَيْعٍ، وَلَا رِبْحُ مَا لَمْ يُضْمَنْ، وَلَا بَيْعُ مَا لَيْسَ عِنْدَكَ» رواه الترمذي (1234) وأبو داود (3504) والنسائي (4611) وصححه الترمذي والألباني قاعدة مانعة لتحويل عقود التبرع (القرض) إلى عقود معاوضة وربح (كل قرض جر نفعاً مشروطاً فهو ربا)، ومنع اشتراط الشراء أو البيع لمنحه قرضاً حسناً. لا يحل سلف وبيع شرطان في بيع ربح ما لم يضمن قرض جر نفعا ربا القروض","title":"تحريم الجمع بين سلف وبيع واشتراط نفع تجاري في القروض","catBadge":"🚫 ربا وصرف وعملات","gradeBadge":"✓ صحيح","sanad":"عن عبد الله بن عمرو رضي الله عنهما أن رسول الله ﷺ قال:","matn":"«لَا يَحِلُّ سَلَفٌ وَبَيْعٌ، وَلَا شَرْطَانِ فِي بَيْعٍ، وَلَا رِبْحُ مَا لَمْ يُضْمَنْ، وَلَا بَيْعُ مَا لَيْسَ عِنْدَكَ»","source":"رواه الترمذي (1234) وأبو داود (3504) والنسائي (4611) وصححه الترمذي والألباني","benefit":"قاعدة مانعة لتحويل عقود التبرع (القرض) إلى عقود معاوضة وربح (كل قرض جر نفعاً مشروطاً فهو ربا)، ومنع اشتراط الشراء أو البيع لمنحه قرضاً حسناً."},{"num":25,"cat":"riba","search":"25 عقوبة المرابين في البرزخ والسباحة في نهر الدم مع الحجارة عن سمرة بن جندب رضي الله عنه في حديث الرؤيا الطويل عن النبي ﷺ قال: «فَانْطَلَقْنَا حَتَّى أَتَيْنَا عَلَى نَهَرٍ مِنْ دَمٍ فِيهِ رَجُلٌ قَائِمٌ، وَعَلَى شَطِّ النَّهَرِ رَجُلٌ بَيْنَ يَدَيْهِ حِجَارَةٌ، فَأَقْبَلَ الرَّجُلُ الَّذِي فِي النَّهَرِ، فَإِذَا أَرَادَ أَنْ يَخْرُجَ رَمَى فِي فِيهِ بِحَجَرٍ، فَرَجَعَ حَيْثُ كَانَ... فَقُلْتُ: مَنْ هَذَا؟ قَالَا: الَّذِي يَأْكُلُ الرِّبَا» صحيح البخاري (2085) تحذير إيماني قاطع من كبائر المال الحرام، وبيان الجزاء البرزخي الصارم لمن يستحل امتصاص جهود ودماء المعوزين والمقترضين بفوائد الربا. حديث الرؤيا نهر الدم آكل الربا عقوبة الربا كبائر الأموال","title":"عقوبة المرابين في البرزخ والسباحة في نهر الدم مع الحجارة","catBadge":"🚫 ربا وصرف وعملات","gradeBadge":"✓ صحيح البخاري","sanad":"عن سمرة بن جندب رضي الله عنه في حديث الرؤيا الطويل عن النبي ﷺ قال:","matn":"«فَانْطَلَقْنَا حَتَّى أَتَيْنَا عَلَى نَهَرٍ مِنْ دَمٍ فِيهِ رَجُلٌ قَائِمٌ، وَعَلَى شَطِّ النَّهَرِ رَجُلٌ بَيْنَ يَدَيْهِ حِجَارَةٌ، فَأَقْبَلَ الرَّجُلُ الَّذِي فِي النَّهَرِ، فَإِذَا أَرَادَ أَنْ يَخْرُجَ رَمَى فِي فِيهِ بِحَجَرٍ، فَرَجَعَ حَيْثُ كَانَ... فَقُلْتُ: مَنْ هَذَا؟ قَالَا: الَّذِي يَأْكُلُ الرِّبَا»","source":"صحيح البخاري (2085)","benefit":"تحذير إيماني قاطع من كبائر المال الحرام، وبيان الجزاء البرزخي الصارم لمن يستحل امتصاص جهود ودماء المعوزين والمقترضين بفوائد الربا."},{"num":26,"cat":"debts","search":"26 نية سداد الدين واستجلاب عون الله وتيسير الرزق وعقوبة الإتلاف عن أبي هريرة رضي الله عنه عن النبي ﷺ قال: «مَنْ أَخَذَ أَمْوَالَ النَّاسِ يُرِيدُ أَدَاءَهَا أَدَّى اللَّهُ عَنْهُ، وَمَنْ أَخَذَ يُرِيدُ إِتْلَافَهَا أَتْلَفَهُ اللَّهُ» صحيح البخاري (2387) النية الصادقة في سداد الالتزامات المالية والديون تستجلب معونة الله وتيسير أبواب الكسب، ونية المماطلة وأكل أموال الدائنين سبب مباشر لمحق رأس المال والهلاك. من أخذ أموال الناس يريد أداءها أدى الله عنه إتلافها أتلفه الله نية السداد القروض","title":"نية سداد الدين واستجلاب عون الله وتيسير الرزق وعقوبة الإتلاف","catBadge":"💳 ديون وقروض ورهن","gradeBadge":"✓ صحيح البخاري","sanad":"عن أبي هريرة رضي الله عنه عن النبي ﷺ قال:","matn":"«مَنْ أَخَذَ أَمْوَالَ النَّاسِ يُرِيدُ أَدَاءَهَا أَدَّى اللَّهُ عَنْهُ، وَمَنْ أَخَذَ يُرِيدُ إِتْلَافَهَا أَتْلَفَهُ اللَّهُ»","source":"صحيح البخاري (2387)","benefit":"النية الصادقة في سداد الالتزامات المالية والديون تستجلب معونة الله وتيسير أبواب الكسب، ونية المماطلة وأكل أموال الدائنين سبب مباشر لمحق رأس المال والهلاك."},{"num":27,"cat":"debts","search":"27 تحريم مَطْل الغني والمماطلة في الديون الحالة ومشروعية الحوالة المالية عن أبي هريرة رضي الله عنه أن رسول الله ﷺ قال: «مَطْلُ الْغَنِيِّ ظُلْمٌ، فَإِذَا أُتْبِعَ أَحَدُكُمْ عَلَى مَلِيءٍ فَلْيَتْبَعْ» صحيح البخاري (2287) وصحيح مسلم (1564) تحريم تأخير سداد المستحقات والفواتير من المقتدر، ومشروعية عقد الحوالة المالية المصرفية والتجارية إذا حُوِّل الدائن إلى طرف موسر قادر على الوفاء. مطل الغني ظلم إذا أتبع أحدكم على مليء فليتبع الحوالة المالية تسديد الديون المماطلة","title":"تحريم مَطْل الغني والمماطلة في الديون الحالة ومشروعية الحوالة المالية","catBadge":"💳 ديون وقروض ورهن","gradeBadge":"✓ متفق عليه","sanad":"عن أبي هريرة رضي الله عنه أن رسول الله ﷺ قال:","matn":"«مَطْلُ الْغَنِيِّ ظُلْمٌ، فَإِذَا أُتْبِعَ أَحَدُكُمْ عَلَى مَلِيءٍ فَلْيَتْبَعْ»","source":"صحيح البخاري (2287) وصحيح مسلم (1564)","benefit":"تحريم تأخير سداد المستحقات والفواتير من المقتدر، ومشروعية عقد الحوالة المالية المصرفية والتجارية إذا حُوِّل الدائن إلى طرف موسر قادر على الوفاء."},{"num":28,"cat":"debts","search":"28 مشروعية ملاحقة المماطل الموسر قضائياً وجواز عقوبته وحبسه عن عمرو بن الشريد عن أبيه رضي الله عنه عن رسول الله ﷺ قال: «لَيُّ الْوَاجِدِ يُحِلُّ عِرْضَهُ وَعُقُوبَتَهُ» رواه أبو داود (3628) والنسائي (4689) وابن ماجه (2427) وصححه الألباني في الإرواء (1434) المماطل المقتدر (الواجد) يجوز شرعاً وقانوناً رفع الشكوى ضده، والتشهير به في السجلات الائتمانية الرسمية، وفرض العقوبات المالية والإدارية وحبسه لإلزامه بالوفاء. لي الواجد يحل عرضه وعقوبته المماطل حبس المدين القضاء التنفيذي السجلات الائتمانية","title":"مشروعية ملاحقة المماطل الموسر قضائياً وجواز عقوبته وحبسه","catBadge":"💳 ديون وقروض ورهن","gradeBadge":"✓ صحيح","sanad":"عن عمرو بن الشريد عن أبيه رضي الله عنه عن رسول الله ﷺ قال:","matn":"«لَيُّ الْوَاجِدِ يُحِلُّ عِرْضَهُ وَعُقُوبَتَهُ»","source":"رواه أبو داود (3628) والنسائي (4689) وابن ماجه (2427) وصححه الألباني في الإرواء (1434)","benefit":"المماطل المقتدر (الواجد) يجوز شرعاً وقانوناً رفع الشكوى ضده، والتشهير به في السجلات الائتمانية الرسمية، وفرض العقوبات المالية والإدارية وحبسه لإلزامه بالوفاء."},{"num":29,"cat":"debts","search":"29 خطورة الدين وتعلق نفس المؤمن وذمته به بعد الوفاة حتى يُقضى عن أبي هريرة رضي الله عنه قال: قال رسول الله ﷺ: «نَفْسُ الْمُؤْمِنِ مُعَلَّقَةٌ بِدَيْنِهِ حَتَّى يُقْضَى عَنْهُ» رواه الترمذي (1078) وصححه، وابن ماجه (2413)، وصححه الألباني في صحيح الجامع (6779) وجوب المبادرة فور الوفاة بتصفية تركة الميت وسداد ديونه قبل توزيع أي ميراث أو تنفيذ أي وصية تبرعية، لأن براءة الذمة مقدمة على حقوق الورثة. نفس المؤمن معلقة بدينه حتى يقضى عنه قضاء الديون تصفية التركات سداد الديون","title":"خطورة الدين وتعلق نفس المؤمن وذمته به بعد الوفاة حتى يُقضى","catBadge":"💳 ديون وقروض ورهن","gradeBadge":"✓ صحيح","sanad":"عن أبي هريرة رضي الله عنه قال: قال رسول الله ﷺ:","matn":"«نَفْسُ الْمُؤْمِنِ مُعَلَّقَةٌ بِدَيْنِهِ حَتَّى يُقْضَى عَنْهُ»","source":"رواه الترمذي (1078) وصححه، وابن ماجه (2413)، وصححه الألباني في صحيح الجامع (6779)","benefit":"وجوب المبادرة فور الوفاة بتصفية تركة الميت وسداد ديونه قبل توزيع أي ميراث أو تنفيذ أي وصية تبرعية، لأن براءة الذمة مقدمة على حقوق الورثة."},{"num":30,"cat":"debts","search":"30 قدسية حقوق العباد: الدين لا يسقط حتى بالشهادة في سبيل الله عن عبد الله بن عمرو بن العاص رضي الله عنهما أن رسول الله ﷺ قال: «يُغْفَرُ لِلشَّهِيدِ كُلُّ ذَنْبٍ إِلَّا الدَّيْنَ» صحيح مسلم (1886) التأكيد القاطع على أن حقوق العباد والديون والمعاملات المالية مبنية على المشاحة ولا تسقطها العبادات مهما عظمت، ووجوب حفظ سجلات الديون بدقة متناهية. يغفر للشهيد كل ذنب إلا الدين حقوق العباد التوثيق المحاسبي الديون والالتزامات","title":"قدسية حقوق العباد: الدين لا يسقط حتى بالشهادة في سبيل الله","catBadge":"💳 ديون وقروض ورهن","gradeBadge":"✓ صحيح مسلم","sanad":"عن عبد الله بن عمرو بن العاص رضي الله عنهما أن رسول الله ﷺ قال:","matn":"«يُغْفَرُ لِلشَّهِيدِ كُلُّ ذَنْبٍ إِلَّا الدَّيْنَ»","source":"صحيح مسلم (1886)","benefit":"التأكيد القاطع على أن حقوق العباد والديون والمعاملات المالية مبنية على المشاحة ولا تسقطها العبادات مهما عظمت، ووجوب حفظ سجلات الديون بدقة متناهية."},{"num":31,"cat":"debts","search":"31 فضل حسن القضاء وإعطاء الأفضل والزيادة غير المشروطة عند السداد عن أبي هريرة رضي الله عنه في قصة اقتضاء الأعرابي لبعيره من النبي ﷺ فقال ﷺ لأصحابه: اشتروا له، فطلبوا فلم يجدوا إلا سناً أفضل من سنه، فقال: «أَعْطُوهُ، فَإِنَّ مِنْ خَيْرِكُمْ أَحْسَنَكُمْ قَضَاءً» صحيح البخاري (2306) وصحيح مسلم (1601) استحباب مكافأة الدائن ورد الدين بأفضل منه صفةً أو زيادة في القدر بطيب نفس ورضا من المدين، ما لم تكن تلك الزيادة مشروطة مسبقاً أو متفقاً عليها فتصير ربا. خيركم أحسنكم قضاء حسن الوفاء رد القرض الزيادة غير المشروطة البركة في السداد","title":"فضل حسن القضاء وإعطاء الأفضل والزيادة غير المشروطة عند السداد","catBadge":"💳 ديون وقروض ورهن","gradeBadge":"✓ متفق عليه","sanad":"عن أبي هريرة رضي الله عنه في قصة اقتضاء الأعرابي لبعيره من النبي ﷺ فقال ﷺ لأصحابه: اشتروا له، فطلبوا فلم يجدوا إلا سناً أفضل من سنه، فقال:","matn":"«أَعْطُوهُ، فَإِنَّ مِنْ خَيْرِكُمْ أَحْسَنَكُمْ قَضَاءً»","source":"صحيح البخاري (2306) وصحيح مسلم (1601)","benefit":"استحباب مكافأة الدائن ورد الدين بأفضل منه صفةً أو زيادة في القدر بطيب نفس ورضا من المدين، ما لم تكن تلك الزيادة مشروطة مسبقاً أو متفقاً عليها فتصير ربا."},{"num":32,"cat":"debts","search":"32 مشروعية الرهن التجاري في الديون لتوثيق وضمان الحقوق المالية عن عائشة رضي الله عنها قالت: «تُوُفِّيَ رَسُولُ اللَّهِ ﷺ وَدِرْعُهُ مَرْهُونَةٌ عِنْدَ يَهُودِيٍّ بِثَلَاثِينَ صَاعًا مِنْ شَعِيرٍ» صحيح البخاري (2916) وصحيح مسلم (1603) مشروعية توثيق الديون بالضمانات العينية والرهون العقارية والتجارية لضمان استرداد الحقوق، وجواز معاملة غير المسلمين في المعاملات المالية المباحة. درعه مرهونة عند يهودي الرهن التجاري الضمانات العينية توثيق الديون","title":"مشروعية الرهن التجاري في الديون لتوثيق وضمان الحقوق المالية","catBadge":"💳 ديون وقروض ورهن","gradeBadge":"✓ متفق عليه","sanad":"عن عائشة رضي الله عنها قالت:","matn":"«تُوُفِّيَ رَسُولُ اللَّهِ ﷺ وَدِرْعُهُ مَرْهُونَةٌ عِنْدَ يَهُودِيٍّ بِثَلَاثِينَ صَاعًا مِنْ شَعِيرٍ»","source":"صحيح البخاري (2916) وصحيح مسلم (1603)","benefit":"مشروعية توثيق الديون بالضمانات العينية والرهون العقارية والتجارية لضمان استرداد الحقوق، وجواز معاملة غير المسلمين في المعاملات المالية المباحة."},{"num":33,"cat":"debts","search":"33 بقاء ملكية المرهون للراهن: له نماء العين وغلّتها وعليه ضمانها عن سعيد بن المسيب عن رسول الله ﷺ أنه قال: «لَا يَغْلَقُ الرَّهْنُ مِنْ صَاحِبِهِ الَّذِي رَهَنَهُ، لَهُ غُنْمُهُ، وَعَلَيْهِ غُرْمُهُ» رواه الشافعي والدارقطني (3031) والحاكم (2371) وصححه، وصححه الألباني في الإرواء (1401) الرهن لا يسلب المالك ملكيته، وأرباح وعوائد العين المرهونة (كإيجار العقار المرهون) ملك للراهن، ولا يحق للمرتهن (الدائن) الاستيلاء على الرهن إلا عبر بيعه لسداد دينه فقط ورد الباقي. لا يغلق الرهن له غنمه وعليه غرمه ملكية المرهون عوائد الرهن حماية حقوق المدين","title":"بقاء ملكية المرهون للراهن: له نماء العين وغلّتها وعليه ضمانها","catBadge":"💳 ديون وقروض ورهن","gradeBadge":"✓ صحيح","sanad":"عن سعيد بن المسيب عن رسول الله ﷺ أنه قال:","matn":"«لَا يَغْلَقُ الرَّهْنُ مِنْ صَاحِبِهِ الَّذِي رَهَنَهُ، لَهُ غُنْمُهُ، وَعَلَيْهِ غُرْمُهُ»","source":"رواه الشافعي والدارقطني (3031) والحاكم (2371) وصححه، وصححه الألباني في الإرواء (1401)","benefit":"الرهن لا يسلب المالك ملكيته، وأرباح وعوائد العين المرهونة (كإيجار العقار المرهون) ملك للراهن، ولا يحق للمرتهن (الدائن) الاستيلاء على الرهن إلا عبر بيعه لسداد دينه فقط ورد الباقي."},{"num":34,"cat":"debts","search":"34 فضل إنظار المعسر والتجاوز عنه والاستظلال في ظل عرش الرحمن عن أبي قتادة رضي الله عنه قال: سمعت رسول الله ﷺ يقول: «مَنْ سَرَّهُ أَنْ يُنْجِيَهُ اللَّهُ مِنْ كُرَبِ يَوْمِ الْقِيَامَةِ، فَلْيُنَفِّسْ عَنْ مُعْسِرٍ، أَوْ يَضَعْ عَنْهُ» صحيح مسلم (1563) الأجر الإيماني العظيم في تأجيل مواعيد سداد الديون للمتعثرين مالياً أو إسقاط جزء منها (التنازل والخصم)، وتفريج كربهم في مواسم الأزمات المالية. من سره أن ينجيه الله من كرب يوم القيامة فلينفس عن معسر أو يضع عنه إنظار المعسر","title":"فضل إنظار المعسر والتجاوز عنه والاستظلال في ظل عرش الرحمن","catBadge":"💳 ديون وقروض ورهن","gradeBadge":"✓ صحيح مسلم","sanad":"عن أبي قتادة رضي الله عنه قال: سمعت رسول الله ﷺ يقول:","matn":"«مَنْ سَرَّهُ أَنْ يُنْجِيَهُ اللَّهُ مِنْ كُرَبِ يَوْمِ الْقِيَامَةِ، فَلْيُنَفِّسْ عَنْ مُعْسِرٍ، أَوْ يَضَعْ عَنْهُ»","source":"صحيح مسلم (1563)","benefit":"الأجر الإيماني العظيم في تأجيل مواعيد سداد الديون للمتعثرين مالياً أو إسقاط جزء منها (التنازل والخصم)، وتفريج كربهم في مواسم الأزمات المالية."},{"num":35,"cat":"debts","search":"35 مضاعفة أجر الصدقة عن كل يوم تأخير يُنظَر فيه المدين المعسر عن بريدة الأسلمي رضي الله عنه قال: سمعت رسول الله ﷺ يقول: «مَنْ أَنْظَرَ مُعْسِرًا فَلَهُ بِكُلِّ يَوْمٍ مِثْلِهِ صَدَقَةٌ، ثُمَّ سَمِعْتُهُ يَقُولُ: مَنْ أَنْظَرَ مُعْسِرًا فَلَهُ بِكُلِّ يَوْمٍ مِثْلَيْهِ صَدَقَةٌ، فَقُلْتُ: سَمِعْتُكَ يَا رَسُولَ اللَّهِ تَقُولُ... فَقَالَ: لَهُ بِكُلِّ يَوْمٍ مِثْلُهُ صَدَقَةٌ قَبْلَ أَنْ يَحِلَّ الدَّيْنُ، فَإِذَا حَلَّ الدَّيْنُ فَأَنْظَرَهُ فَلَهُ بِكُلِّ يَوْمٍ مِثْلَاهُ صَدَقَةٌ» رواه أحمد (22998) وابن ماجه (2418) والحاكم وصححه، وصححه الألباني في السلسلة الصحيحة (86) أعظم استثمار أخروي لرأس المال: اعتبار مهلة السداد الممنوحة للمدين المعسر صدقة يومية مضاعفة تعادل أصل الدين ومثليه في الميزان. من أنظر معسرا فله بكل يوم مثله صدقة مثلاه صدقة ثواب إنظار المعسر التمويل التنموي","title":"مضاعفة أجر الصدقة عن كل يوم تأخير يُنظَر فيه المدين المعسر","catBadge":"💳 ديون وقروض ورهن","gradeBadge":"✓ صحيح","sanad":"عن بريدة الأسلمي رضي الله عنه قال: سمعت رسول الله ﷺ يقول:","matn":"«مَنْ أَنْظَرَ مُعْسِرًا فَلَهُ بِكُلِّ يَوْمٍ مِثْلِهِ صَدَقَةٌ، ثُمَّ سَمِعْتُهُ يَقُولُ: مَنْ أَنْظَرَ مُعْسِرًا فَلَهُ بِكُلِّ يَوْمٍ مِثْلَيْهِ صَدَقَةٌ، فَقُلْتُ: سَمِعْتُكَ يَا رَسُولَ اللَّهِ تَقُولُ... فَقَالَ: لَهُ بِكُلِّ يَوْمٍ مِثْلُهُ صَدَقَةٌ قَبْلَ أَنْ يَحِلَّ الدَّيْنُ، فَإِذَا حَلَّ الدَّيْنُ فَأَنْظَرَهُ فَلَهُ بِكُلِّ يَوْمٍ مِثْلَاهُ صَدَقَةٌ»","source":"رواه أحمد (22998) وابن ماجه (2418) والحاكم وصححه، وصححه الألباني في السلسلة الصحيحة (86)","benefit":"أعظم استثمار أخروي لرأس المال: اعتبار مهلة السداد الممنوحة للمدين المعسر صدقة يومية مضاعفة تعادل أصل الدين ومثليه في الميزان."},{"num":36,"cat":"debts","search":"36 مشروعية الكفالة والضمان المالي (الزعيم غارم وضامن للدين) عن أبي أمامة الباهلي رضي الله عنه قال: سمعت رسول الله ﷺ يقول: «الْعَارِيَّةُ مُؤَدَّاةٌ، وَالْمِنْحَةُ مَرْدُودَةٌ، وَالدَّيْنُ مَقْضِيٌّ، وَالزَّعِيمُ غَارِمٌ» رواه أبو داود (3565) والترمذي (2120) وصححه، وصححه الألباني في صحيح الجامع (4068) تأصيل مشروعية عقود الكفالة والضمان المصرفي وخطابات الضمان البنكية، والتزام الكفيل قانوناً وشرعاً بسداد الدين كاملاً إذا تعذر السداد من المدين الأصلي. الزعيم غارم الكفالة الضمان خطابات الضمان العارية مؤداة الدين مقضي","title":"مشروعية الكفالة والضمان المالي (الزعيم غارم وضامن للدين)","catBadge":"💳 ديون وقروض ورهن","gradeBadge":"✓ صحيح","sanad":"عن أبي أمامة الباهلي رضي الله عنه قال: سمعت رسول الله ﷺ يقول:","matn":"«الْعَارِيَّةُ مُؤَدَّاةٌ، وَالْمِنْحَةُ مَرْدُودَةٌ، وَالدَّيْنُ مَقْضِيٌّ، وَالزَّعِيمُ غَارِمٌ»","source":"رواه أبو داود (3565) والترمذي (2120) وصححه، وصححه الألباني في صحيح الجامع (4068)","benefit":"تأصيل مشروعية عقود الكفالة والضمان المصرفي وخطابات الضمان البنكية، والتزام الكفيل قانوناً وشرعاً بسداد الدين كاملاً إذا تعذر السداد من المدين الأصلي."},{"num":37,"cat":"debts","search":"37 أحكام إفلاس المدين وحق البائع في استرداد عين سلعته قبل الغرماء عن أبي هريرة رضي الله عنه أن رسول الله ﷺ قال: «مَنْ أَدْرَكَ مَالَهُ بِعَيْنِهِ عِنْدَ رَجُلٍ قَدْ أَفْلَسَ، فَهُوَ أَحَقُّ بِهِ مِنْ غَيْرِهِ» صحيح البخاري (2402) وصحيح مسلم (1559) قاعدة حقوق الأولوية والامتياز عند إفلاس الشركات أو الأفراد: إذا وجد المورد أو التاجر بضاعته لم تتغير ولم تُبع، فله الأولوية في استردادها بعينها دون الدخول في قسمة الغرماء. من أدرك ماله بعينه عند رجل قد أفلس الإفلاس قسمة الغرماء حقوق الأولوية استرداد البضاعة","title":"أحكام إفلاس المدين وحق البائع في استرداد عين سلعته قبل الغرماء","catBadge":"💳 ديون وقروض ورهن","gradeBadge":"✓ متفق عليه","sanad":"عن أبي هريرة رضي الله عنه أن رسول الله ﷺ قال:","matn":"«مَنْ أَدْرَكَ مَالَهُ بِعَيْنِهِ عِنْدَ رَجُلٍ قَدْ أَفْلَسَ، فَهُوَ أَحَقُّ بِهِ مِنْ غَيْرِهِ»","source":"صحيح البخاري (2402) وصحيح مسلم (1559)","benefit":"قاعدة حقوق الأولوية والامتياز عند إفلاس الشركات أو الأفراد: إذا وجد المورد أو التاجر بضاعته لم تتغير ولم تُبع، فله الأولوية في استردادها بعينها دون الدخول في قسمة الغرماء."},{"num":38,"cat":"zakat","search":"38 فريضة الزكاة كركن مالي تعبدي ثالث بني عليه صرح الإسلام عن عبد الله بن عمر رضي الله عنهما قال: قال رسول الله ﷺ: «بُنِيَ الْإِسْلَامُ عَلَى خَمْسٍ: شَهَادَةِ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَأَنَّ مُحَمَّدًا رَسُولُ اللَّهِ، وَإِقَامِ الصَّلَاةِ، وَإِيتَاءِ الزَّكَاةِ، وَالْحَجِّ، وَصَوْمِ رَمَضَانَ» صحيح البخاري (8) وصحيح مسلم (16) الزكاة ركن مالي واجتماعي واقتصادي قطعي لا يقوم إسلام العبد إلا بأدائه، وهي ليست ضريبة بشرية بل فريضة إلهية تطهر النفوس وتنمي الثروة. بني الإسلام على خمس وإيتاء الزكاة ركن الإسلام فريضة الزكاة","title":"فريضة الزكاة كركن مالي تعبدي ثالث بني عليه صرح الإسلام","catBadge":"🌾 فريضة الزكاة وأنصبتها","gradeBadge":"✓ متفق عليه","sanad":"عن عبد الله بن عمر رضي الله عنهما قال: قال رسول الله ﷺ:","matn":"«بُنِيَ الْإِسْلَامُ عَلَى خَمْسٍ: شَهَادَةِ أَنْ لَا إِلَهَ إِلَّا اللَّهُ وَأَنَّ مُحَمَّدًا رَسُولُ اللَّهِ، وَإِقَامِ الصَّلَاةِ، وَإِيتَاءِ الزَّكَاةِ، وَالْحَجِّ، وَصَوْمِ رَمَضَانَ»","source":"صحيح البخاري (8) وصحيح مسلم (16)","benefit":"الزكاة ركن مالي واجتماعي واقتصادي قطعي لا يقوم إسلام العبد إلا بأدائه، وهي ليست ضريبة بشرية بل فريضة إلهية تطهر النفوس وتنمي الثروة."},{"num":39,"cat":"zakat","search":"39 دستور الزكاة النبوي: تؤخذ من أغنياء المجتمع وترد إلى فقرائه عن عبد الله بن عباس رضي الله عنهما أن رسول الله ﷺ لما بعث معاذاً رضي الله عنه إلى اليمن قال: «فَأَعْلِمْهُمْ أَنَّ اللَّهَ افْتَرَضَ عَلَيْهِمْ صَدَقَةً فِي أَمْوَالِهِمْ، تُؤْخَذُ مِنْ أَغْنِيَائِهِمْ، وَتُرَدُّ عَلَى فُقَرَائِهِمْ» صحيح البخاري (1395) وصحيح مسلم (19) أصل التكافل المالي المحلي: أولوية توزيع حصيلة الزكاة على فقراء ومحتاجي البلد أو المنطقة التي جُمعت منها الأموال لتحقيق الاستقرار الاجتماعي ومحاربة الفقر. تؤخذ من أغنيائهم وترد على فقرائهم معاذ بن جبل فريضة الزكاة التكافل الاجتماعي","title":"دستور الزكاة النبوي: تؤخذ من أغنياء المجتمع وترد إلى فقرائه","catBadge":"🌾 فريضة الزكاة وأنصبتها","gradeBadge":"✓ متفق عليه","sanad":"عن عبد الله بن عباس رضي الله عنهما أن رسول الله ﷺ لما بعث معاذاً رضي الله عنه إلى اليمن قال:","matn":"«فَأَعْلِمْهُمْ أَنَّ اللَّهَ افْتَرَضَ عَلَيْهِمْ صَدَقَةً فِي أَمْوَالِهِمْ، تُؤْخَذُ مِنْ أَغْنِيَائِهِمْ، وَتُرَدُّ عَلَى فُقَرَائِهِمْ»","source":"صحيح البخاري (1395) وصحيح مسلم (19)","benefit":"أصل التكافل المالي المحلي: أولوية توزيع حصيلة الزكاة على فقراء ومحتاجي البلد أو المنطقة التي جُمعت منها الأموال لتحقيق الاستقرار الاجتماعي ومحاربة الفقر."},{"num":40,"cat":"zakat","search":"40 تحديد أنصبة الزكاة الأساسية في النقد والمواشي والإنتاج الزراعي عن أبي سعيد الخدري رضي الله عنه عن النبي ﷺ قال: «لَيْسَ فِيمَا دُونَ خَمْسِ أَوَاقٍ صَدَقَةٌ، وَلَيْسَ فِيمَا دُونَ خَمْسِ ذَوْدٍ صَدَقَةٌ، وَلَيْسَ فِيمَا دُونَ خَمْسَةِ أَوْسُقٍ صَدَقَةٌ» صحيح البخاري (1405) وصحيح مسلم (979) حماية صغار الكسبة والملاك: لا تجب الزكاة إلا بعد بلوغ النصاب المحكم (5 أواق فضة = 595 غراماً، 5 جمال، 5 أوسق حبوب وثمار = حوالي 653 كغ). ليس فيما دون خمس أواق صدقة خمس ذود خمسة أوسق نصاب الزكاة الفضة الحبوب","title":"تحديد أنصبة الزكاة الأساسية في النقد والمواشي والإنتاج الزراعي","catBadge":"🌾 فريضة الزكاة وأنصبتها","gradeBadge":"✓ متفق عليه","sanad":"عن أبي سعيد الخدري رضي الله عنه عن النبي ﷺ قال:","matn":"«لَيْسَ فِيمَا دُونَ خَمْسِ أَوَاقٍ صَدَقَةٌ، وَلَيْسَ فِيمَا دُونَ خَمْسِ ذَوْدٍ صَدَقَةٌ، وَلَيْسَ فِيمَا دُونَ خَمْسَةِ أَوْسُقٍ صَدَقَةٌ»","source":"صحيح البخاري (1405) وصحيح مسلم (979)","benefit":"حماية صغار الكسبة والملاك: لا تجب الزكاة إلا بعد بلوغ النصاب المحكم (5 أواق فضة = 595 غراماً، 5 جمال، 5 أوسق حبوب وثمار = حوالي 653 كغ)."},{"num":41,"cat":"zakat","search":"41 تحديد النسبة المحاسبية الشرعية لزكاة الأموال والنقود (ربع العُشر 2.5%) عن أنس بن مالك رضي الله عنه أن أبا بكر الصديق رضي الله عنه كتب له كتاب فريضة الصدقة التي فرض رسول الله ﷺ وفيه: «وَفِي الرِّقَّةِ: رُبْعُ الْعُشْرِ، فَإِنْ لَمْ تَكُنْ إِلَّا تِسْعِينَ وَمِائَةً فَلَيْسَ فِيهَا شَيْءٌ إِلَّا أَنْ يَشَاءَ رَبُّهَا» صحيح البخاري (1454) المعيار المحاسبي والمالي الثابت في كافة البنوك والمؤسسات والشركات: نسبة زكاة النقد والأرصدة البنكية وعروض التجارة والأسهم الاستثمارية هي 2.5% سنوياً. وفي الرقة ربع العشر تسعين ومائة نسبة الزكاة 2.5% عروض التجارة الأسهم السيولة النقدية","title":"تحديد النسبة المحاسبية الشرعية لزكاة الأموال والنقود (ربع العُشر 2.5%)","catBadge":"🌾 فريضة الزكاة وأنصبتها","gradeBadge":"✓ صحيح البخاري","sanad":"عن أنس بن مالك رضي الله عنه أن أبا بكر الصديق رضي الله عنه كتب له كتاب فريضة الصدقة التي فرض رسول الله ﷺ وفيه:","matn":"«وَفِي الرِّقَّةِ: رُبْعُ الْعُشْرِ، فَإِنْ لَمْ تَكُنْ إِلَّا تِسْعِينَ وَمِائَةً فَلَيْسَ فِيهَا شَيْءٌ إِلَّا أَنْ يَشَاءَ رَبُّهَا»","source":"صحيح البخاري (1454)","benefit":"المعيار المحاسبي والمالي الثابت في كافة البنوك والمؤسسات والشركات: نسبة زكاة النقد والأرصدة البنكية وعروض التجارة والأسهم الاستثمارية هي 2.5% سنوياً."},{"num":42,"cat":"zakat","search":"42 تحديد نصاب الذهب بـ عشرين ديناراً (85 غراماً عيار 24) وشرط الحول عن علي بن أبي طالب رضي الله عنه عن النبي ﷺ قال: «إِذَا كَانَتْ لَكَ مِائَتَا دِرْهَمٍ وَحَالَ عَلَيْهَا الْحَوْلُ فَفِيهَا خَمْسَةُ دَرَاهِمَ، وَلَيْسَ عَلَيْكَ شَيْءٌ - يَعْنِي فِي الذَّهَبِ - حَتَّى يَكُونَ لَكَ عِشْرُونَ دِينَارًا، فَإِذَا كَانَتْ لَكَ عِشْرُونَ دِينَارًا وَحَالَ عَلَيْهَا الْحَوْلُ فَفِيهَا نِصْفُ دِينَارٍ» رواه أبو داود (1573) وصححه الألباني في صحيح أبي داود نصاب الذهب المعتمد عالمياً في الفقه الإسلامي هو 20 ديناراً ذهبياً يعادل 85 غراماً من الذهب الخالص، فإذا ملك المسلم قيمتها وحال عليها الحول وجب إخراج 2.5%. عشرون دينارا نصف دينار مائتا درهم نصاب الذهب 85 غرام عيار 24 حولان الحول","title":"تحديد نصاب الذهب بـ عشرين ديناراً (85 غراماً عيار 24) وشرط الحول","catBadge":"🌾 فريضة الزكاة وأنصبتها","gradeBadge":"✓ صحيح","sanad":"عن علي بن أبي طالب رضي الله عنه عن النبي ﷺ قال:","matn":"«إِذَا كَانَتْ لَكَ مِائَتَا دِرْهَمٍ وَحَالَ عَلَيْهَا الْحَوْلُ فَفِيهَا خَمْسَةُ دَرَاهِمَ، وَلَيْسَ عَلَيْكَ شَيْءٌ - يَعْنِي فِي الذَّهَبِ - حَتَّى يَكُونَ لَكَ عِشْرُونَ دِينَارًا، فَإِذَا كَانَتْ لَكَ عِشْرُونَ دِينَارًا وَحَالَ عَلَيْهَا الْحَوْلُ فَفِيهَا نِصْفُ دِينَارٍ»","source":"رواه أبو داود (1573) وصححه الألباني في صحيح أبي داود","benefit":"نصاب الذهب المعتمد عالمياً في الفقه الإسلامي هو 20 ديناراً ذهبياً يعادل 85 غراماً من الذهب الخالص، فإذا ملك المسلم قيمتها وحال عليها الحول وجب إخراج 2.5%."},{"num":43,"cat":"zakat","search":"43 تفاوت زكاة الزروع والمحاصيل بحسب كلفة وتعب الري والتشغيل عن عبد الله بن عمر رضي الله عنهما عن النبي ﷺ قال: «فِيمَا سَقَتِ السَّمَاءُ وَالْعُيُونُ أَوْ كَانَ عَثَرِيًّا: الْعُشْرُ، وَمَا سُقِيَ بِالنَّضْحِ: نِصْفُ الْعُشْرِ» صحيح البخاري (1483) العدالة التشريعية في التكاليف الاقتصادية: المحاصيل المروية بماء المطر دون كلفة تخرج 10%، والمروية بالآبار والماكينات والمضخات المكلفة تخرج 5% تقديراً لنفقات الإنتاج. فيما سقت السماء العشر وما سقي بالنضح نصف العشر زكاة الزروع الثمار كلفة الري","title":"تفاوت زكاة الزروع والمحاصيل بحسب كلفة وتعب الري والتشغيل","catBadge":"🌾 فريضة الزكاة وأنصبتها","gradeBadge":"✓ صحيح البخاري","sanad":"عن عبد الله بن عمر رضي الله عنهما عن النبي ﷺ قال:","matn":"«فِيمَا سَقَتِ السَّمَاءُ وَالْعُيُونُ أَوْ كَانَ عَثَرِيًّا: الْعُشْرُ، وَمَا سُقِيَ بِالنَّضْحِ: نِصْفُ الْعُشْرِ»","source":"صحيح البخاري (1483)","benefit":"العدالة التشريعية في التكاليف الاقتصادية: المحاصيل المروية بماء المطر دون كلفة تخرج 10%، والمروية بالآبار والماكينات والمضخات المكلفة تخرج 5% تقديراً لنفقات الإنتاج."},{"num":44,"cat":"zakat","search":"44 فرض زكاة الفطر صاعاً من طعام وتعميمها على جميع فئات الأسرة عن عبد الله بن عمر رضي الله عنهما قال: «فَرَضَ رَسُولُ اللَّهِ ﷺ زَكَاةَ الْفِطْرِ صَاعًا مِنْ تَمْرٍ، أَوْ صَاعًا مِنْ شَعِيرٍ، عَلَى الْعَبْدِ وَالْحُرِّ، وَالذَّكَرِ وَالْأُنْثَى، وَالصَّغِيرِ وَالْكَبِيرِ مِنَ الْمُسْلِمِينَ، وَأَمَرَ بِهَا أَنْ تُؤَدَّى قَبْلَ خُرُوجِ النَّاسِ إِلَى الصَّلَاةِ» صحيح البخاري (1503) وصحيح مسلم (984) وجوب إخراج زكاة الفطر عن كل فرد يعوله المسلم قبل صلاة عيد الفطر، ومقدارها صاع (نحو 2.5 - 3 كغ) من غالب قوت البلد، لإغناء المحتاجين عن السؤال في يوم العيد. فرض رسول الله زكاة الفطر صاعا من تمر صاعا من شعير العبد والحر صلاة العيد","title":"فرض زكاة الفطر صاعاً من طعام وتعميمها على جميع فئات الأسرة","catBadge":"🌾 فريضة الزكاة وأنصبتها","gradeBadge":"✓ متفق عليه","sanad":"عن عبد الله بن عمر رضي الله عنهما قال:","matn":"«فَرَضَ رَسُولُ اللَّهِ ﷺ زَكَاةَ الْفِطْرِ صَاعًا مِنْ تَمْرٍ، أَوْ صَاعًا مِنْ شَعِيرٍ، عَلَى الْعَبْدِ وَالْحُرِّ، وَالذَّكَرِ وَالْأُنْثَى، وَالصَّغِيرِ وَالْكَبِيرِ مِنَ الْمُسْلِمِينَ، وَأَمَرَ بِهَا أَنْ تُؤَدَّى قَبْلَ خُرُوجِ النَّاسِ إِلَى الصَّلَاةِ»","source":"صحيح البخاري (1503) وصحيح مسلم (984)","benefit":"وجوب إخراج زكاة الفطر عن كل فرد يعوله المسلم قبل صلاة عيد الفطر، ومقدارها صاع (نحو 2.5 - 3 كغ) من غالب قوت البلد، لإغناء المحتاجين عن السؤال في يوم العيد."},{"num":45,"cat":"zakat","search":"45 حكمة زكاة الفطر: طهرة للصائم من اللغو والرفث وإطعام للمساكين عن عبد الله بن عباس رضي الله عنهما قال: «فَرَضَ رَسُولُ اللَّهِ ﷺ زَكَاةَ الْفِطْرِ طُهْرَةً لِلصَّائِمِ مِنَ اللَّغْوِ وَالرَّفَثِ، وَطُعْمَةً لِلْمَسَاكِينِ، مَنْ أَدَّاهَا قَبْلَ الصَّلَاةِ فَهِيَ زَكَاةٌ مَقْبُولَةٌ، وَمَنْ أَدَّاهَا بَعْدَ الصَّلَاةِ فَهِيَ صَدَقَةٌ مِنَ الصَّدَقَاتِ» رواه أبو داود (1609) وابن ماجه (1827) والحاكم وصححه، وصححه الألباني في صحيح أبي داود بيان الأثر الروحي والاجتماعي المزدوج لزكاة الفطر: تطهير عمل الصائم وسد حاجة الجائع، وتأكيد وقتها الشرعي المستحب قبل صلاة العيد. زكاة الفطر طهرة للصائم طعمة للمساكين قبل الصلاة صدقة من الصدقات","title":"حكمة زكاة الفطر: طهرة للصائم من اللغو والرفث وإطعام للمساكين","catBadge":"🌾 فريضة الزكاة وأنصبتها","gradeBadge":"✓ صحيح","sanad":"عن عبد الله بن عباس رضي الله عنهما قال:","matn":"«فَرَضَ رَسُولُ اللَّهِ ﷺ زَكَاةَ الْفِطْرِ طُهْرَةً لِلصَّائِمِ مِنَ اللَّغْوِ وَالرَّفَثِ، وَطُعْمَةً لِلْمَسَاكِينِ، مَنْ أَدَّاهَا قَبْلَ الصَّلَاةِ فَهِيَ زَكَاةٌ مَقْبُولَةٌ، وَمَنْ أَدَّاهَا بَعْدَ الصَّلَاةِ فَهِيَ صَدَقَةٌ مِنَ الصَّدَقَاتِ»","source":"رواه أبو داود (1609) وابن ماجه (1827) والحاكم وصححه، وصححه الألباني في صحيح أبي داود","benefit":"بيان الأثر الروحي والاجتماعي المزدوج لزكاة الفطر: تطهير عمل الصائم وسد حاجة الجائع، وتأكيد وقتها الشرعي المستحب قبل صلاة العيد."},{"num":46,"cat":"zakat","search":"46 وعيد الله الشديد لمن كنز المال ومنع زكاته وتحوله لشجاع أقرع يعذبه عن أبي هريرة رضي الله عنه قال: قال رسول الله ﷺ: «مَنْ آتَاهُ اللَّهُ مَالًا فَلَمْ يُؤَدِّ زَكَاتَهُ، مُثِّلَ لَهُ مَالُهُ يَوْمَ الْقِيَامَةِ شُجَاعًا أَقْرَعَ لَهُ زَبِيبَتَانِ يُطَوَّقُهُ يَوْمَ الْقِيَامَةِ، ثُمَّ يَأْخُذُ بِلِهْزِمَتَيْهِ - يَعْنِي بِشِدْقَيْهِ - ثُمَّ يَقُولُ: أَنَا مَالُكَ، أَنَا كَنْزُكَ» صحيح البخاري (1403) تحذير أصحاب الثروات والمستثمرين من التقاعس عن حساب وإخراج زكاة أموالهم، وأن المال غير المزكى ينقلب عذاباً وحسرة على صاحبه يوم الحساب. شجاعا أقرع له زبيبتان أنا مالك أنا كنزك عقوبة مانع الزكاة كنز الأموال","title":"وعيد الله الشديد لمن كنز المال ومنع زكاته وتحوله لشجاع أقرع يعذبه","catBadge":"🌾 فريضة الزكاة وأنصبتها","gradeBadge":"✓ صحيح البخاري","sanad":"عن أبي هريرة رضي الله عنه قال: قال رسول الله ﷺ:","matn":"«مَنْ آتَاهُ اللَّهُ مَالًا فَلَمْ يُؤَدِّ زَكَاتَهُ، مُثِّلَ لَهُ مَالُهُ يَوْمَ الْقِيَامَةِ شُجَاعًا أَقْرَعَ لَهُ زَبِيبَتَانِ يُطَوَّقُهُ يَوْمَ الْقِيَامَةِ، ثُمَّ يَأْخُذُ بِلِهْزِمَتَيْهِ - يَعْنِي بِشِدْقَيْهِ - ثُمَّ يَقُولُ: أَنَا مَالُكَ، أَنَا كَنْزُكَ»","source":"صحيح البخاري (1403)","benefit":"تحذير أصحاب الثروات والمستثمرين من التقاعس عن حساب وإخراج زكاة أموالهم، وأن المال غير المزكى ينقلب عذاباً وحسرة على صاحبه يوم الحساب."},{"num":47,"cat":"zakat","search":"47 تحريم أخذ أموال الزكاة للأغنياء والمكتفين والأقوياء القادرين على الكسب عن عبد الله بن عمرو رضي الله عنهما عن النبي ﷺ قال: «لَا تَحِلُّ الصَّدَقَةُ لِغَنِيٍّ، وَلَا لِذِي مِرَّةٍ سَوِيٍّ» رواه أبو داود (1634) والترمذي (652) والنسائي (2597) وصححه الألباني حصر استحقاق الزكاة في الضعفاء والعاجزين والغارمين الحقيقيين، وتحريم تحايل المقتدرين أو الأصحاء القادرين على العمل والإنتاج في طلب أموال الزكاة. لا تحل الصدقة لغني ولا لذي مرة سوي استحقاق الزكاة القادر على الكسب الغنى","title":"تحريم أخذ أموال الزكاة للأغنياء والمكتفين والأقوياء القادرين على الكسب","catBadge":"🌾 فريضة الزكاة وأنصبتها","gradeBadge":"✓ صحيح","sanad":"عن عبد الله بن عمرو رضي الله عنهما عن النبي ﷺ قال:","matn":"«لَا تَحِلُّ الصَّدَقَةُ لِغَنِيٍّ، وَلَا لِذِي مِرَّةٍ سَوِيٍّ»","source":"رواه أبو داود (1634) والترمذي (652) والنسائي (2597) وصححه الألباني","benefit":"حصر استحقاق الزكاة في الضعفاء والعاجزين والغارمين الحقيقيين، وتحريم تحايل المقتدرين أو الأصحاء القادرين على العمل والإنتاج في طلب أموال الزكاة."},{"num":48,"cat":"zakat","search":"48 اشتراط تمام الحول القمري (عام كامل) لوجوب زكاة الأموال والتجارة عن عبد الله بن عمر رضي الله عنهما قال: قال رسول الله ﷺ: «لَا زَكَاةَ فِي مَالٍ حَتَّى يَحُولَ عَلَيْهِ الْحَوْلُ» رواه الترمذي (631) وأبو داود (1573) وابن ماجه (1792) وصححه الألباني بشواهده في الإرواء (787) الشرط المحاسبي الحاسم لزكاة الثروة النقدية والتجارية: مرور 354 يوماً (سنة هجرية قمرية) على بقاء المال بالغاً للنصاب، تيسيراً على الملاك والمستثمرين. لا زكاة في مال حتى يحول عليه الحول تمام الحول السنة القمرية الميزانية الزكوية","title":"اشتراط تمام الحول القمري (عام كامل) لوجوب زكاة الأموال والتجارة","catBadge":"🌾 فريضة الزكاة وأنصبتها","gradeBadge":"✓ صحيح","sanad":"عن عبد الله بن عمر رضي الله عنهما قال: قال رسول الله ﷺ:","matn":"«لَا زَكَاةَ فِي مَالٍ حَتَّى يَحُولَ عَلَيْهِ الْحَوْلُ»","source":"رواه الترمذي (631) وأبو داود (1573) وابن ماجه (1792) وصححه الألباني بشواهده في الإرواء (787)","benefit":"الشرط المحاسبي الحاسم لزكاة الثروة النقدية والتجارية: مرور 354 يوماً (سنة هجرية قمرية) على بقاء المال بالغاً للنصاب، تيسيراً على الملاك والمستثمرين."},{"num":49,"cat":"zakat","search":"49 مشروعية تعجيل إخراج الزكاة مقدماً قبل حلول الحول للمصلحة والأزمات عن علي بن أبي طالب رضي الله عنه: «أَنَّ الْعَبَّاسَ رَضِيَ اللَّهُ عَنْهُ سَأَلَ رَسُولَ اللَّهِ ﷺ فِي تَعْجِيلِ صَدَقَتِهِ قَبْلَ أَنْ تَحِلَّ، فَرَخَّصَ لَهُ فِي ذَلِكَ» رواه أبو داود (1624) والترمذي (678) وحسنه، وابن ماجه (1795) وصححه الحاكم والنووي والألباني جواز تقديم دفع الزكاة لعام أو عامين مقدماً في حالات الكوارث أو الحروب أو إغاثة المنكوبين ومشاريع الإغاثة العاجلة، كمرونة تمويلية إسلامية رائدة. تعجيل الصدقة قبل أن تحل العباس رضي الله عنه إخراج الزكاة مقدما الأزمات والكوارث","title":"مشروعية تعجيل إخراج الزكاة مقدماً قبل حلول الحول للمصلحة والأزمات","catBadge":"🌾 فريضة الزكاة وأنصبتها","gradeBadge":"✓ صحيح","sanad":"عن علي بن أبي طالب رضي الله عنه:","matn":"«أَنَّ الْعَبَّاسَ رَضِيَ اللَّهُ عَنْهُ سَأَلَ رَسُولَ اللَّهِ ﷺ فِي تَعْجِيلِ صَدَقَتِهِ قَبْلَ أَنْ تَحِلَّ، فَرَخَّصَ لَهُ فِي ذَلِكَ»","source":"رواه أبو داود (1624) والترمذي (678) وحسنه، وابن ماجه (1795) وصححه الحاكم والنووي والألباني","benefit":"جواز تقديم دفع الزكاة لعام أو عامين مقدماً في حالات الكوارث أو الحروب أو إغاثة المنكوبين ومشاريع الإغاثة العاجلة، كمرونة تمويلية إسلامية رائدة."},{"num":50,"cat":"zakat","search":"50 النهي عن أخذ نفائس وكرائم أموال الناس في جباية الزكاة والعدل مع المالك عن عبد الله بن عباس رضي الله عنهما في وصية النبي ﷺ لمعاذ لما بعثه لليمن: «فَإِيَّاكَ وَكَرَائِمَ أَمْوَالِهِمْ، وَاتَّقِ دَعْوَةَ الْمَظْلُومِ؛ فَإِنَّهُ لَيْسَ بَيْنَهَا وَبَيْنَ اللَّهِ حِجَابٌ» صحيح البخاري (1496) وصحيح مسلم (19) حظر التعسف في التقدير الزكوي أو الضريبي وأخذ خيار مال المكلف (كرائم أمواله)، بل يؤخذ الوسط العدل حماية لرأس مال التاجر والمستثمر من الجور. إياك وكرائم أموالهم دعوة المظلوم ليس بينها وبين الله حجاب جباية الزكاة العدالة المالية","title":"النهي عن أخذ نفائس وكرائم أموال الناس في جباية الزكاة والعدل مع المالك","catBadge":"🌾 فريضة الزكاة وأنصبتها","gradeBadge":"✓ متفق عليه","sanad":"عن عبد الله بن عباس رضي الله عنهما في وصية النبي ﷺ لمعاذ لما بعثه لليمن:","matn":"«فَإِيَّاكَ وَكَرَائِمَ أَمْوَالِهِمْ، وَاتَّقِ دَعْوَةَ الْمَظْلُومِ؛ فَإِنَّهُ لَيْسَ بَيْنَهَا وَبَيْنَ اللَّهِ حِجَابٌ»","source":"صحيح البخاري (1496) وصحيح مسلم (19)","benefit":"حظر التعسف في التقدير الزكوي أو الضريبي وأخذ خيار مال المكلف (كرائم أمواله)، بل يؤخذ الوسط العدل حماية لرأس مال التاجر والمستثمر من الجور."},{"num":51,"cat":"zakat","search":"51 تحريم الحيل المحاسبية والتهرب الزكوي بتفريق المجتمع أو جمع المفترق عن أنس بن مالك رضي الله عنه في كتاب الصدقة الذي كتبه أبو بكر عن رسول الله ﷺ: «وَلَا يُجْمَعُ بَيْنَ مُتَفَرِّقٍ، وَلَا يُفَرَّقُ بَيْنَ مُجْتَمِعٍ، خَشْيَةَ الصَّدَقَةِ» صحيح البخاري (1450) التأصيل النبوي الصارم لمكافحة التهرب من الزكاة: تحريم تفريق الحسابات البنكية أو تشتيت رؤوس الأموال بين شركات وهمية صورية بقصد خفض الوعاء الزكوي. لا يجمع بين متفرق ولا يفرق بين مجتمع خشية الصدقة التهرب الزكوي الحيل المحاسبية","title":"تحريم الحيل المحاسبية والتهرب الزكوي بتفريق المجتمع أو جمع المفترق","catBadge":"🌾 فريضة الزكاة وأنصبتها","gradeBadge":"✓ صحيح البخاري","sanad":"عن أنس بن مالك رضي الله عنه في كتاب الصدقة الذي كتبه أبو بكر عن رسول الله ﷺ:","matn":"«وَلَا يُجْمَعُ بَيْنَ مُتَفَرِّقٍ، وَلَا يُفَرَّقُ بَيْنَ مُجْتَمِعٍ، خَشْيَةَ الصَّدَقَةِ»","source":"صحيح البخاري (1450)","benefit":"التأصيل النبوي الصارم لمكافحة التهرب من الزكاة: تحريم تفريق الحسابات البنكية أو تشتيت رؤوس الأموال بين شركات وهمية صورية بقصد خفض الوعاء الزكوي."},{"num":52,"cat":"charity","search":"52 قانون البركة الرباني: نفي النقصان عن المال المتصدق به وزيادته حقيقة عن أبي هريرة رضي الله عنه أن رسول الله ﷺ قال: «مَا نَقَصَتْ صَدَقَةٌ مِنْ مَالٍ، وَمَا زَادَ اللَّهُ عَبْدًا بِعَفْوٍ إِلَّا عِزًّا، وَمَا تَوَاضَعَ أَحَدٌ لِلَّهِ إِلَّا رَفَعَهُ اللَّهُ» صحيح مسلم (2588) اليقين الاقتصادي الإسلامي بأن البذل والإنفاق لا ينقص رأس المال في المآل بل ينميه بالبركة ويدفع عنه الآفات والمصائب المهلكة. ما نقصت صدقة من مال بركة الصدقة نماء المال الإنفاق التواضع العفو","title":"قانون البركة الرباني: نفي النقصان عن المال المتصدق به وزيادته حقيقة","catBadge":"💎 صدقات وإنفاق ونماء","gradeBadge":"✓ صحيح مسلم","sanad":"عن أبي هريرة رضي الله عنه أن رسول الله ﷺ قال:","matn":"«مَا نَقَصَتْ صَدَقَةٌ مِنْ مَالٍ، وَمَا زَادَ اللَّهُ عَبْدًا بِعَفْوٍ إِلَّا عِزًّا، وَمَا تَوَاضَعَ أَحَدٌ لِلَّهِ إِلَّا رَفَعَهُ اللَّهُ»","source":"صحيح مسلم (2588)","benefit":"اليقين الاقتصادي الإسلامي بأن البذل والإنفاق لا ينقص رأس المال في المآل بل ينميه بالبركة ويدفع عنه الآفات والمصائب المهلكة."},{"num":53,"cat":"charity","search":"53 دعاء الملكين اليومي: الاستخلاف بالخلف للمنفق والهلاك والتلف للبخيل الممسك عن أبي هريرة رضي الله عنه أن النبي ﷺ قال: «مَا مِنْ يَوْمٍ يُصْبِحُ الْعِبَادُ فِيهِ، إِلَّا مَلَكَانِ يَنْزِلَانِ، فَيَقُولُ أَحَدُهُمَا: اللَّهُمَّ أَعْطِ مُنْفِقًا خَلَفًا، وَيَقُولُ الْآخَرُ: اللَّهُمَّ أَعْطِ مُمْسِكًا تَلَفًا» صحيح البخاري (1442) وصحيح مسلم (1010) قانون التدفق المالي الكوني: كثرة الإنفاق في وجوه الخير والمسؤولية المجتمعية تستجلب الخلف العاجل وتجدد رأس المال، والبخل والشح سبب لتلف الثروات. اللهم أعط منفقا خلفا أعط ممسكا تلفا دعاء الملكين البخل والشح المسؤولية الاجتماعية","title":"دعاء الملكين اليومي: الاستخلاف بالخلف للمنفق والهلاك والتلف للبخيل الممسك","catBadge":"💎 صدقات وإنفاق ونماء","gradeBadge":"✓ متفق عليه","sanad":"عن أبي هريرة رضي الله عنه أن النبي ﷺ قال:","matn":"«مَا مِنْ يَوْمٍ يُصْبِحُ الْعِبَادُ فِيهِ، إِلَّا مَلَكَانِ يَنْزِلَانِ، فَيَقُولُ أَحَدُهُمَا: اللَّهُمَّ أَعْطِ مُنْفِقًا خَلَفًا، وَيَقُولُ الْآخَرُ: اللَّهُمَّ أَعْطِ مُمْسِكًا تَلَفًا»","source":"صحيح البخاري (1442) وصحيح مسلم (1010)","benefit":"قانون التدفق المالي الكوني: كثرة الإنفاق في وجوه الخير والمسؤولية المجتمعية تستجلب الخلف العاجل وتجدد رأس المال، والبخل والشح سبب لتلف الثروات."},{"num":54,"cat":"charity","search":"54 فضل صدقة السر وإخفاء البذل المالي كأحد أسباب الظل في عرصات القيامة عن أبي هريرة رضي الله عنه في حديث السبعة الذين يظلهم الله في ظله قال ﷺ: «وَرَجُلٌ تَصَدَّقَ بِصَدَقَةٍ فَأَخْفَاهَا حَتَّى لَا تَعْلَمَ شِمَالُهُ مَا تُنْفِقُ يَمِينُهُ» صحيح البخاري (1423) وصحيح مسلم (1031) عظمة الإخلاص وتجريد النية في التبرعات المالية والأوقاف، والبعد عن الرياء والسمعة أو المن والأذى الذي يحبط أجر الصدقات ويثلم مروءة الفقراء. تصدق بصدقة فأخفاها لا تعلم شماله ما تنفق يمينه صدقة السر السبعة الذين يظلهم الله الإخلاص","title":"فضل صدقة السر وإخفاء البذل المالي كأحد أسباب الظل في عرصات القيامة","catBadge":"💎 صدقات وإنفاق ونماء","gradeBadge":"✓ متفق عليه","sanad":"عن أبي هريرة رضي الله عنه في حديث السبعة الذين يظلهم الله في ظله قال ﷺ:","matn":"«وَرَجُلٌ تَصَدَّقَ بِصَدَقَةٍ فَأَخْفَاهَا حَتَّى لَا تَعْلَمَ شِمَالُهُ مَا تُنْفِقُ يَمِينُهُ»","source":"صحيح البخاري (1423) وصحيح مسلم (1031)","benefit":"عظمة الإخلاص وتجريد النية في التبرعات المالية والأوقاف، والبعد عن الرياء والسمعة أو المن والأذى الذي يحبط أجر الصدقات ويثلم مروءة الفقراء."},{"num":55,"cat":"charity","search":"55 تزكية الثروة والغنى الحلال: نعم المال الصالح للرجل الصالح عن عمرو بن العاص رضي الله عنه قال: قال لي رسول الله ﷺ: «يَا عَمْرُو، نِعْمَ الْمَالُ الصَّالِحُ لِلْمَرْءِ الصَّالِحِ» رواه أحمد (17763) والبخاري في الأدب المفرد (299) وصححه ابن حبان (3210) والألباني تقرير شرعي حاسم بأن الإسلام لا يذم امتلاك الثروات ورؤوس الأموال الكبرى إذا اكتسبت من حلال وأُنفقت في حلال، بل هي قوة للمسلم وللأمة. نعم المال الصالح للمرء الصالح عمرو بن العاص الغنى الحلال كسب المال الثروة","title":"تزكية الثروة والغنى الحلال: نعم المال الصالح للرجل الصالح","catBadge":"💎 صدقات وإنفاق ونماء","gradeBadge":"✓ صحيح","sanad":"عن عمرو بن العاص رضي الله عنه قال: قال لي رسول الله ﷺ:","matn":"«يَا عَمْرُو، نِعْمَ الْمَالُ الصَّالِحُ لِلْمَرْءِ الصَّالِحِ»","source":"رواه أحمد (17763) والبخاري في الأدب المفرد (299) وصححه ابن حبان (3210) والألباني","benefit":"تقرير شرعي حاسم بأن الإسلام لا يذم امتلاك الثروات ورؤوس الأموال الكبرى إذا اكتسبت من حلال وأُنفقت في حلال، بل هي قوة للمسلم وللأمة."},{"num":56,"cat":"charity","search":"56 مشروعية الوقف الإسلامي والصدقة الجارية التي لا ينقطع أثرها بعد الموت عن أبي هريرة رضي الله عنه أن رسول الله ﷺ قال: «إِذَا مَاتَ الْإِنْسَانُ انْقَطَعَ عَنْهُ عَمَلُهُ إِلَّا مِنْ ثَلَاثَةٍ: إِلَّا مِنْ صَدَقَةٍ جَارِيَةٍ، أَوْ عِلْمٍ يُنْتَفَعُ بِهِ، أَوْ وَلَدٍ صَالِحٍ يَدْعُو لَهُ» صحيح مسلم (1631) التأسيس النبوي الأعظم لمنظومة الأوقاف الخيرية والاستثمارية المستدامة (المستشفيات، المدارس، آبار المياه، العقارات الوقفية) كأعظم ادخار مالي للمؤمن بعد وفاته. إذا مات الإنسان انقطع عمله إلا من ثلاثة صدقة جارية علم ينتفع به الوقف الخيري الاستدامة","title":"مشروعية الوقف الإسلامي والصدقة الجارية التي لا ينقطع أثرها بعد الموت","catBadge":"💎 صدقات وإنفاق ونماء","gradeBadge":"✓ صحيح مسلم","sanad":"عن أبي هريرة رضي الله عنه أن رسول الله ﷺ قال:","matn":"«إِذَا مَاتَ الْإِنْسَانُ انْقَطَعَ عَنْهُ عَمَلُهُ إِلَّا مِنْ ثَلَاثَةٍ: إِلَّا مِنْ صَدَقَةٍ جَارِيَةٍ، أَوْ عِلْمٍ يُنْتَفَعُ بِهِ، أَوْ وَلَدٍ صَالِحٍ يَدْعُو لَهُ»","source":"صحيح مسلم (1631)","benefit":"التأسيس النبوي الأعظم لمنظومة الأوقاف الخيرية والاستثمارية المستدامة (المستشفيات، المدارس، آبار المياه، العقارات الوقفية) كأعظم ادخار مالي للمؤمن بعد وفاته."},{"num":57,"cat":"charity","search":"57 فقه أولويات الموازنة المالية: أعظم الصدقات أجراً النفقة على الأهل والعيال عن أبي هريرة رضي الله عنه قال: قال رسول الله ﷺ: «دِينَارٌ أَنْفَقْتَهُ فِي سَبِيلِ اللَّهِ، وَدِينَارٌ أَنْفَقْتَهُ فِي رَقَبَةٍ، وَدِينَارٌ تَصَدَّقْتَ بِهِ عَلَى مِسْكِينٍ، وَدِينَارٌ أَنْفَقْتَهُ عَلَى أَهْلِكَ، أَعْظَمُهَا أَجْرًا الَّذِي أَنْفَقْتَهُ عَلَى أَهْلِكَ» صحيح مسلم (995) ترتيب الأولويات في التخطيط المالي للأسرة: كفاية الأهل والأبناء والوفاء بحاجاتهم المعيشية الكريمة فريضة مقدمة في الأجر على صدقات التطوع الخارجية. دينار أنفقته في سبيل الله دينار أنفقته على أهلك أعظمها أجرا نفقة الأهل التخطيط المالي للأسرة","title":"فقه أولويات الموازنة المالية: أعظم الصدقات أجراً النفقة على الأهل والعيال","catBadge":"💎 صدقات وإنفاق ونماء","gradeBadge":"✓ صحيح مسلم","sanad":"عن أبي هريرة رضي الله عنه قال: قال رسول الله ﷺ:","matn":"«دِينَارٌ أَنْفَقْتَهُ فِي سَبِيلِ اللَّهِ، وَدِينَارٌ أَنْفَقْتَهُ فِي رَقَبَةٍ، وَدِينَارٌ تَصَدَّقْتَ بِهِ عَلَى مِسْكِينٍ، وَدِينَارٌ أَنْفَقْتَهُ عَلَى أَهْلِكَ، أَعْظَمُهَا أَجْرًا الَّذِي أَنْفَقْتَهُ عَلَى أَهْلِكَ»","source":"صحيح مسلم (995)","benefit":"ترتيب الأولويات في التخطيط المالي للأسرة: كفاية الأهل والأبناء والوفاء بحاجاتهم المعيشية الكريمة فريضة مقدمة في الأجر على صدقات التطوع الخارجية."},{"num":58,"cat":"charity","search":"58 عزة اليد العليا المنفقة وفضل التعفف والكسب على التكفف والمسألة عن حكيم بن حزام رضي الله عنه عن النبي ﷺ قال: «الْيَدُ الْعُلْيَا خَيْرٌ مِنَ الْيَدِ السُّفْلَى، وَابْدَأْ بِمَنْ تَعُولُ، وَخَيْرُ الصَّدَقَةِ عَنْ ظَهْرِ غِنًى، وَمَنْ يَسْتَعْفِفْ يُعِفَّهُ اللَّهُ، وَمَنْ يَسْتَغْنِ يُغْنِهِ اللَّهُ» صحيح البخاري (1427) وصحيح مسلم (1053) الحث على الإنتاجية والعمل والاستقلال المالي لتكون يد المسلم معطية مانحة لا آخذة سائلة، واشتراط أن تكون الصدقة بعد استيفاء الكفاية الذاتية (عن ظهر غنى). اليد العليا خير من اليد السفلى ابدأ بمن تعول خير الصدقة عن ظهر غنى يستعفف يعفه الله","title":"عزة اليد العليا المنفقة وفضل التعفف والكسب على التكفف والمسألة","catBadge":"💎 صدقات وإنفاق ونماء","gradeBadge":"✓ متفق عليه","sanad":"عن حكيم بن حزام رضي الله عنه عن النبي ﷺ قال:","matn":"«الْيَدُ الْعُلْيَا خَيْرٌ مِنَ الْيَدِ السُّفْلَى، وَابْدَأْ بِمَنْ تَعُولُ، وَخَيْرُ الصَّدَقَةِ عَنْ ظَهْرِ غِنًى، وَمَنْ يَسْتَعْفِفْ يُعِفَّهُ اللَّهُ، وَمَنْ يَسْتَغْنِ يُغْنِهِ اللَّهُ»","source":"صحيح البخاري (1427) وصحيح مسلم (1053)","benefit":"الحث على الإنتاجية والعمل والاستقلال المالي لتكون يد المسلم معطية مانحة لا آخذة سائلة، واشتراط أن تكون الصدقة بعد استيفاء الكفاية الذاتية (عن ظهر غنى)."},{"num":59,"cat":"charity","search":"59 عدم احتقار أي قدر من البذل المالي: الوقاية من النار ولو بنصف تمرة عن عدي بن حاتم رضي الله عنه قال: سمعت النبي ﷺ يقول: «اتَّقُوا النَّارَ وَلَوْ بِشِقِّ تَمْرَةٍ، فَمَنْ لَمْ يَجِدْ فَبِكَلِمَةٍ طَيِّبَةٍ» صحيح البخاري (1417) وصحيح مسلم (1016) تشجيع ثقافة العطاء المالي الميسور للجميع دون استصغار، فكل مساهمة مالية مهما قلت تدفع الشر وتنجي صاحبها من المهالك يوم القيامة. اتقوا النار ولو بشق تمرة كلمة طيبة الصدقة القليلة ثقافة العطاء","title":"عدم احتقار أي قدر من البذل المالي: الوقاية من النار ولو بنصف تمرة","catBadge":"💎 صدقات وإنفاق ونماء","gradeBadge":"✓ متفق عليه","sanad":"عن عدي بن حاتم رضي الله عنه قال: سمعت النبي ﷺ يقول:","matn":"«اتَّقُوا النَّارَ وَلَوْ بِشِقِّ تَمْرَةٍ، فَمَنْ لَمْ يَجِدْ فَبِكَلِمَةٍ طَيِّبَةٍ»","source":"صحيح البخاري (1417) وصحيح مسلم (1016)","benefit":"تشجيع ثقافة العطاء المالي الميسور للجميع دون استصغار، فكل مساهمة مالية مهما قلت تدفع الشر وتنجي صاحبها من المهالك يوم القيامة."},{"num":60,"cat":"charity","search":"60 الصدقة تطفئ غضب الرب وتدفع ميتة السوء ومصائب المال عن أنس بن مالك رضي الله عنه قال: قال رسول الله ﷺ: «إِنَّ الصَّدَقَةَ لَتُطْفِئُ غَضَبَ الرَّبِّ، وَتَدْفَعُ مِيتَةَ السُّوءِ» رواه الترمذي (664) وحسنه، وصححه الألباني في صحيح الترغيب (864) الصدقة حصن حصين للأموال والأنفس، وهي صمام أمان لدفع تقلبات الزمان والمصائب الفجائية، وبوابة للمغفرة ورضا الله تعالى. إن الصدقة لتطفئ غضب الرب تدفع ميتة السوء حفظ الأموال دفع البلاء","title":"الصدقة تطفئ غضب الرب وتدفع ميتة السوء ومصائب المال","catBadge":"💎 صدقات وإنفاق ونماء","gradeBadge":"✓ صحيح","sanad":"عن أنس بن مالك رضي الله عنه قال: قال رسول الله ﷺ:","matn":"«إِنَّ الصَّدَقَةَ لَتُطْفِئُ غَضَبَ الرَّبِّ، وَتَدْفَعُ مِيتَةَ السُّوءِ»","source":"رواه الترمذي (664) وحسنه، وصححه الألباني في صحيح الترغيب (864)","benefit":"الصدقة حصن حصين للأموال والأنفس، وهي صمام أمان لدفع تقلبات الزمان والمصائب الفجائية، وبوابة للمغفرة ورضا الله تعالى."},{"num":61,"cat":"charity","search":"61 الأثر النفسي للبذل والبخل: انشراح صدر المنفق وضيق صدر البخيل عن أبي هريرة رضي الله عنه أنه سمع رسول الله ﷺ يقول: «مَثَلُ الْبَخِيلِ وَالْمُنْفِقِ، كَمَثَلِ رَجُلَيْنِ عَلَيْهِمَا جُبَّتَانِ مِنْ حَدِيدٍ مِنْ ثُدِيِّهِمَا إِلَى تَرَاقِيهِمَا، فَأَمَّا الْمُنْفِقُ فَلَا يُنْفِقُ إِلَّا سَبَغَتْ أَوْ وَفَرَتْ عَلَى جِلْدِهِ... وَأَمَّا الْبَخِيلُ فَلَا يُرِيدُ أَنْ يُنْفِقَ شَيْئًا إِلَّا لَزِقَتْ كُلُّ حَلْقَةٍ مَكَانَهَا» صحيح البخاري (1443) وصحيح مسلم (1021) تصوير نبوي عبقري لراحة النفس وسعة الصدر والبركة التي يجدها منفق المال، بينما يعيش الشحيح البخيل في ضيق وهم وخوف دائم من الفقر. مثل البخيل والمنفق جبتان من حديد انشراح الصدر الشح البخل علم النفس المالي","title":"الأثر النفسي للبذل والبخل: انشراح صدر المنفق وضيق صدر البخيل","catBadge":"💎 صدقات وإنفاق ونماء","gradeBadge":"✓ متفق عليه","sanad":"عن أبي هريرة رضي الله عنه أنه سمع رسول الله ﷺ يقول:","matn":"«مَثَلُ الْبَخِيلِ وَالْمُنْفِقِ، كَمَثَلِ رَجُلَيْنِ عَلَيْهِمَا جُبَّتَانِ مِنْ حَدِيدٍ مِنْ ثُدِيِّهِمَا إِلَى تَرَاقِيهِمَا، فَأَمَّا الْمُنْفِقُ فَلَا يُنْفِقُ إِلَّا سَبَغَتْ أَوْ وَفَرَتْ عَلَى جِلْدِهِ... وَأَمَّا الْبَخِيلُ فَلَا يُرِيدُ أَنْ يُنْفِقَ شَيْئًا إِلَّا لَزِقَتْ كُلُّ حَلْقَةٍ مَكَانَهَا»","source":"صحيح البخاري (1443) وصحيح مسلم (1021)","benefit":"تصوير نبوي عبقري لراحة النفس وسعة الصدر والبركة التي يجدها منفق المال، بينما يعيش الشحيح البخيل في ضيق وهم وخوف دائم من الفقر."},{"num":62,"cat":"inheritance","search":"62 القانون النبوي الأساسي لقسمة التركات: ألحقوا الفرائض بأهلها عن عبد الله بن عباس رضي الله عنهما عن النبي ﷺ قال: «أَلْحِقُوا الْفَرَائِضَ بِأَهْلِهَا، فَمَا بَقِيَ فَهُوَ لِأَوْلَى رَجُلٍ ذَكَرٍ» صحيح البخاري (6732) وصحيح مسلم (1615) القاعدة الأم التي يبنى عليها علم المواريث والتركات بأكمله: البدء بأصحاب الفروض المقدرة في كتاب الله أولاً، ثم دفع الفائض من التركة إلى أقرب عصبة من الرجال الذكور. ألحقوا الفرائض بأهلها فما بقي فلأولى رجل ذكر قسمة التركات المواريث أصحاب الفروض العصبات","title":"القانون النبوي الأساسي لقسمة التركات: ألحقوا الفرائض بأهلها","catBadge":"📜 مواريث وفرائض ووصايا","gradeBadge":"✓ متفق عليه","sanad":"عن عبد الله بن عباس رضي الله عنهما عن النبي ﷺ قال:","matn":"«أَلْحِقُوا الْفَرَائِضَ بِأَهْلِهَا، فَمَا بَقِيَ فَهُوَ لِأَوْلَى رَجُلٍ ذَكَرٍ»","source":"صحيح البخاري (6732) وصحيح مسلم (1615)","benefit":"القاعدة الأم التي يبنى عليها علم المواريث والتركات بأكمله: البدء بأصحاب الفروض المقدرة في كتاب الله أولاً، ثم دفع الفائض من التركة إلى أقرب عصبة من الرجال الذكور."},{"num":63,"cat":"inheritance","search":"63 تحديد سقف الوصية بالثلث كحد أقصى وأولوية إغناء الورثة وكفايتهم عن سعد بن أبي وقاص رضي الله عنه قال: قلت: يا رسول الله، أوصي بمالي كله؟ قال: لا، قلت: فالشطر؟ قال: لا، قلت: فالثلث؟ قال: «فَالثُّلُثُ، وَالثُّلُثُ كَثِيرٌ، إِنَّكَ أَنْ تَذَرَ وَرَثَتَكَ أَغْنِيَاءَ خَيْرٌ مِنْ أَنْ تَذَرَهُمْ عَالَةً يَتَكَفَّفُونَ النَّاسَ» صحيح البخاري (2742) وصحيح مسلم (1628) ضابط جوهري في إدارة الثروات العائلية: منع التبرع بالوصايا لما زاد عن ثلث التركة بعد سداد الديون، وتفضيل توريث المال للأبناء والأهل على التبرع الخارجي لحمايتهم من الفقر. الثلث والثلث كثير أن تذر ورثتك أغنياء خير من أن تذرهم عالة سعد بن أبي وقاص سقف الوصية","title":"تحديد سقف الوصية بالثلث كحد أقصى وأولوية إغناء الورثة وكفايتهم","catBadge":"📜 مواريث وفرائض ووصايا","gradeBadge":"✓ متفق عليه","sanad":"عن سعد بن أبي وقاص رضي الله عنه قال: قلت: يا رسول الله، أوصي بمالي كله؟ قال: لا، قلت: فالشطر؟ قال: لا، قلت: فالثلث؟ قال:","matn":"«فَالثُّلُثُ، وَالثُّلُثُ كَثِيرٌ، إِنَّكَ أَنْ تَذَرَ وَرَثَتَكَ أَغْنِيَاءَ خَيْرٌ مِنْ أَنْ تَذَرَهُمْ عَالَةً يَتَكَفَّفُونَ النَّاسَ»","source":"صحيح البخاري (2742) وصحيح مسلم (1628)","benefit":"ضابط جوهري في إدارة الثروات العائلية: منع التبرع بالوصايا لما زاد عن ثلث التركة بعد سداد الديون، وتفضيل توريث المال للأبناء والأهل على التبرع الخارجي لحمايتهم من الفقر."},{"num":64,"cat":"inheritance","search":"64 تحريم الوصية لأي وارث منعاً للظلم وتغيير أنصبة الميراث الإلهية عن أبي أمامة الباهلي رضي الله عنه قال: سمعت رسول الله ﷺ يقول في خطبته عام حجة الوداع: «إِنَّ اللَّهَ قَدْ أَعْطَى كُلَّ ذِي حَقٍّ حَقَّهُ، فَلَا وَصِيَّةَ لِوَارِثٍ» رواه أبو داود (2870) والترمذي (2120) وابن ماجه (2713) وصححه الألباني في الإرواء (1655) إبطال أي وصية مخصصة لأحد الورثة الشرعيين تميزه عن بقية إخوته أو شركائه في الإرث، حماية للروابط الأسرية من النزاع والحسد والجور. إن الله قد أعطى كل ذي حق حقه فلا وصية لوارث حجة الوداع بطلان الوصية للوارث","title":"تحريم الوصية لأي وارث منعاً للظلم وتغيير أنصبة الميراث الإلهية","catBadge":"📜 مواريث وفرائض ووصايا","gradeBadge":"✓ صحيح","sanad":"عن أبي أمامة الباهلي رضي الله عنه قال: سمعت رسول الله ﷺ يقول في خطبته عام حجة الوداع:","matn":"«إِنَّ اللَّهَ قَدْ أَعْطَى كُلَّ ذِي حَقٍّ حَقَّهُ، فَلَا وَصِيَّةَ لِوَارِثٍ»","source":"رواه أبو داود (2870) والترمذي (2120) وابن ماجه (2713) وصححه الألباني في الإرواء (1655)","benefit":"إبطال أي وصية مخصصة لأحد الورثة الشرعيين تميزه عن بقية إخوته أو شركائه في الإرث، حماية للروابط الأسرية من النزاع والحسد والجور."},{"num":65,"cat":"inheritance","search":"65 وجوب توثيق الوصايا والحقوق والديون كتابةً دون تأخير عن عبد الله بن عمر رضي الله عنهما أن رسول الله ﷺ قال: «مَا حَقُّ امْرِئٍ مُسْلِمٍ لَهُ شَيْءٌ يُوصِي فِيهِ، يَبِيتُ لَيْلَتَيْنِ إِلَّا وَوَصِيَّتُهُ مَكْتُوبَةٌ عِنْدَهُ» صحيح البخاري (2738) وصحيح مسلم (1627) أمر نبوي حاسم بتدوين المستندات المالية والوصايا والديون والأمانات والحسابات المعلقة خطياً ومحاسبياً، تحسباً للموت المفاجئ وضماناً لحقوق الدائنين والورثة. ما حق امرئ مسلم له شيء يوصي فيه يبيت ليلتين إلا ووصيته مكتوبة عنده توثيق الوصية الحقوق","title":"وجوب توثيق الوصايا والحقوق والديون كتابةً دون تأخير","catBadge":"📜 مواريث وفرائض ووصايا","gradeBadge":"✓ متفق عليه","sanad":"عن عبد الله بن عمر رضي الله عنهما أن رسول الله ﷺ قال:","matn":"«مَا حَقُّ امْرِئٍ مُسْلِمٍ لَهُ شَيْءٌ يُوصِي فِيهِ، يَبِيتُ لَيْلَتَيْنِ إِلَّا وَوَصِيَّتُهُ مَكْتُوبَةٌ عِنْدَهُ»","source":"صحيح البخاري (2738) وصحيح مسلم (1627)","benefit":"أمر نبوي حاسم بتدوين المستندات المالية والوصايا والديون والأمانات والحسابات المعلقة خطياً ومحاسبياً، تحسباً للموت المفاجئ وضماناً لحقوق الدائنين والورثة."},{"num":66,"cat":"inheritance","search":"66 موانع الميراث الشرعية: اختلاف الدين يمنع التوارث التلقائي في التركات عن أسامة بن زيد رضي الله عنهما أن النبي ﷺ قال: «لَا يَرِثُ الْمُسْلِمُ الْكَافِرَ، وَلَا الْكَافِرُ الْمُسْلِمَ» صحيح البخاري (6764) وصحيح مسلم (1614) المانع الأول من موانع الإرث في الفقه الإسلامي: اختلاف الملة يمنع استحقاق الفريضة المقدرة في التركة، ويبقى التبرع عبر الوصية في حدود الثلث جائزاً لغير الوارث. لا يرث المسلم الكافر ولا الكافر المسلم موانع الميراث اختلاف الدين التركات","title":"موانع الميراث الشرعية: اختلاف الدين يمنع التوارث التلقائي في التركات","catBadge":"📜 مواريث وفرائض ووصايا","gradeBadge":"✓ متفق عليه","sanad":"عن أسامة بن زيد رضي الله عنهما أن النبي ﷺ قال:","matn":"«لَا يَرِثُ الْمُسْلِمُ الْكَافِرَ، وَلَا الْكَافِرُ الْمُسْلِمَ»","source":"صحيح البخاري (6764) وصحيح مسلم (1614)","benefit":"المانع الأول من موانع الإرث في الفقه الإسلامي: اختلاف الملة يمنع استحقاق الفريضة المقدرة في التركة، ويبقى التبرع عبر الوصية في حدود الثلث جائزاً لغير الوارث."},{"num":67,"cat":"inheritance","search":"67 موانع الميراث: حرمان القاتل من تركة مورّثه منعاً للاستعجال غير المشروع عن أبي هريرة رضي الله عنه قال: قال رسول الله ﷺ: «الْقَاتِلُ لَا يَرِثُ» وفي رواية: «لَيْسَ لِلْقَاتِلِ مِنَ الْمِيرَاثِ شَيْءٌ» رواه الترمذي (2109) وابن ماجه (2645) وصححه الألباني في الإرواء (1672) القاعدة الفقهية الجنائية والمالية الكبرى: (من استعجل الشيء قبل أوانه عوقب بحرمانه)، فإذا قتل الوارث مورثه سقط حقه في الميراث والدية كلياً. القاتل لا يرث ليس للقاتل من الميراث شيء موانع الإرث من استعجل الشيء قبل أوانه","title":"موانع الميراث: حرمان القاتل من تركة مورّثه منعاً للاستعجال غير المشروع","catBadge":"📜 مواريث وفرائض ووصايا","gradeBadge":"✓ صحيح","sanad":"عن أبي هريرة رضي الله عنه قال: قال رسول الله ﷺ:","matn":"«الْقَاتِلُ لَا يَرِثُ» وفي رواية: «لَيْسَ لِلْقَاتِلِ مِنَ الْمِيرَاثِ شَيْءٌ»","source":"رواه الترمذي (2109) وابن ماجه (2645) وصححه الألباني في الإرواء (1672)","benefit":"القاعدة الفقهية الجنائية والمالية الكبرى: (من استعجل الشيء قبل أوانه عوقب بحرمانه)، فإذا قتل الوارث مورثه سقط حقه في الميراث والدية كلياً."},{"num":68,"cat":"inheritance","search":"68 قضاء النبي ﷺ بفرض السُّدس للجدة عند عدم وجود الأم عن قبيصة بن ذؤيب رضي الله عنه قال: «جَاءَتِ الْجَدَّةُ إِلَى أَبِي بَكْرٍ الصِّدِّيقِ تَسْأَلُهُ مِيرَاثَهَا، فَقَالَ: مَا لَكِ فِي كِتَابِ اللَّهِ شَيْءٌ... حَتَّى شَهِدَ الْمُغِيرَةُ بْنُ شُعْبَةَ وَمُحَمَّدُ بْنُ مَسْلَمَةَ أَنَّ رَسُولَ اللَّهِ ﷺ أَعْطَاهَا السُّدُسَ، فَأَنْفَذَهُ لَهَا أَبُو بَكْرٍ» رواه أبو داود (2894) والترمذي (2101) وصححه، وابن ماجه (2724) وصححه الألباني بيان فرض الجدة الشرعي الثابت بالسنة النبوية وإجماع الصحابة (السدس)، تقديراً للأمومة الكبرى عند فقد الأم المباشرة. ميراث الجدة السدس قبيصة بن ذؤيب المغيرة بن شعبة أصحاب الفروض","title":"قضاء النبي ﷺ بفرض السُّدس للجدة عند عدم وجود الأم","catBadge":"📜 مواريث وفرائض ووصايا","gradeBadge":"✓ صحيح","sanad":"عن قبيصة بن ذؤيب رضي الله عنه قال:","matn":"«جَاءَتِ الْجَدَّةُ إِلَى أَبِي بَكْرٍ الصِّدِّيقِ تَسْأَلُهُ مِيرَاثَهَا، فَقَالَ: مَا لَكِ فِي كِتَابِ اللَّهِ شَيْءٌ... حَتَّى شَهِدَ الْمُغِيرَةُ بْنُ شُعْبَةَ وَمُحَمَّدُ بْنُ مَسْلَمَةَ أَنَّ رَسُولَ اللَّهِ ﷺ أَعْطَاهَا السُّدُسَ، فَأَنْفَذَهُ لَهَا أَبُو بَكْرٍ»","source":"رواه أبو داود (2894) والترمذي (2101) وصححه، وابن ماجه (2724) وصححه الألباني","benefit":"بيان فرض الجدة الشرعي الثابت بالسنة النبوية وإجماع الصحابة (السدس)، تقديراً للأمومة الكبرى عند فقد الأم المباشرة."},{"num":69,"cat":"inheritance","search":"69 قضاء النبوة في ميراث الابنة وبنت الابن والأخت (تكملة الثلثين) عن عبد الله بن مسعود رضي الله عنه في قضائه المشهور الذي وافق قضاء رسول الله ﷺ قال: «لِلِابْنَةِ النِّصْفُ، وَلِابْنَةِ الِابْنِ السُّدُسُ تَكْمِلَةَ الثُّلُثَيْنِ، وَمَا بَقِيَ فَلِلْأُخْتِ» صحيح البخاري (6736) تطبيق حسابي فرائضي بالغ الدقة: إذا اجتمعت ابنة واحدة صلبة مع بنت ابن، فللصلبية النصف، ولبنت الابن السدس استيفاءً لحد الثلثين المخصص لإناث البنات، والباقي تعصيباً للأخت. للابنة النصف ولبنت الابن السدس تكملة الثلثين وما بقي فللأخت ابن مسعود الفرائض","title":"قضاء النبوة في ميراث الابنة وبنت الابن والأخت (تكملة الثلثين)","catBadge":"📜 مواريث وفرائض ووصايا","gradeBadge":"✓ صحيح البخاري","sanad":"عن عبد الله بن مسعود رضي الله عنه في قضائه المشهور الذي وافق قضاء رسول الله ﷺ قال:","matn":"«لِلِابْنَةِ النِّصْفُ، وَلِابْنَةِ الِابْنِ السُّدُسُ تَكْمِلَةَ الثُّلُثَيْنِ، وَمَا بَقِيَ فَلِلْأُخْتِ»","source":"صحيح البخاري (6736)","benefit":"تطبيق حسابي فرائضي بالغ الدقة: إذا اجتمعت ابنة واحدة صلبة مع بنت ابن، فللصلبية النصف، ولبنت الابن السدس استيفاءً لحد الثلثين المخصص لإناث البنات، والباقي تعصيباً للأخت."},{"num":70,"cat":"inheritance","search":"70 حرمة بيع أسباب الميراث: الولاء لحمة كلحمة النسب لا يباع ولا يوهب عن عبد الله بن عمر رضي الله عنهما قال: «نَهَى رَسُولُ اللَّهِ ﷺ عَنْ بَيْعِ الْوَلَاءِ، وَعَنْ هِبَتِهِ» صحيح البخاري (2535) وصحيح مسلم (1506) عدم جواز المتاجرة أو التنازل بمقابل مالي عن حقوق وأسباب التوارث والنسب، لأن أسباب الميراث في الشريعة صلات قرابة ثابتة بحكم الشرع لا تقبل المعاوضة التجارية. نهى عن بيع الولاء وعن هبته لحمة كلحمة النسب تجارة المواريث المتاجرة بالحقوق","title":"حرمة بيع أسباب الميراث: الولاء لحمة كلحمة النسب لا يباع ولا يوهب","catBadge":"📜 مواريث وفرائض ووصايا","gradeBadge":"✓ متفق عليه","sanad":"عن عبد الله بن عمر رضي الله عنهما قال:","matn":"«نَهَى رَسُولُ اللَّهِ ﷺ عَنْ بَيْعِ الْوَلَاءِ، وَعَنْ هِبَتِهِ»","source":"صحيح البخاري (2535) وصحيح مسلم (1506)","benefit":"عدم جواز المتاجرة أو التنازل بمقابل مالي عن حقوق وأسباب التوارث والنسب، لأن أسباب الميراث في الشريعة صلات قرابة ثابتة بحكم الشرع لا تقبل المعاوضة التجارية."},{"num":71,"cat":"inheritance","search":"71 كفالة الدولة النبوية لديون المتوفى المعسر وتسليم صافي التركة للورثة عن أبي هريرة رضي الله عنه أن رسول الله ﷺ قال: «مَنْ تَرَكَ مَالًا فَلِوَرَثَتِهِ، وَمَنْ تَرَكَ كَلًّا أَوْ ضَيَاعًا فَإِلَيَّ، وَعَلَيَّ» صحيح البخاري (2298) وصحيح مسلم (1619) أصل الضمان الاجتماعي الحكومي الإسلامي: سلامة تركة المتوفى وخلوصها لورثته، وتكفل بيت مال الدولة بسداد ديون المعسرين الذين ماتوا وعجزت تركاتهم عن الوفاء. من ترك مالا فلورثته ومن ترك كلا أو ضياعا فإلي وعلي ديون الميت الضمان الاجتماعي","title":"كفالة الدولة النبوية لديون المتوفى المعسر وتسليم صافي التركة للورثة","catBadge":"📜 مواريث وفرائض ووصايا","gradeBadge":"✓ متفق عليه","sanad":"عن أبي هريرة رضي الله عنه أن رسول الله ﷺ قال:","matn":"«مَنْ تَرَكَ مَالًا فَلِوَرَثَتِهِ، وَمَنْ تَرَكَ كَلًّا أَوْ ضَيَاعًا فَإِلَيَّ، وَعَلَيَّ»","source":"صحيح البخاري (2298) وصحيح مسلم (1619)","benefit":"أصل الضمان الاجتماعي الحكومي الإسلامي: سلامة تركة المتوفى وخلوصها لورثته، وتكفل بيت مال الدولة بسداد ديون المعسرين الذين ماتوا وعجزت تركاتهم عن الوفاء."},{"num":72,"cat":"labor","search":"72 وجوب المبادرة الفورية بدفع أجور العمال والموظفين دون مماطلة عن عبد الله بن عمر رضي الله عنهما قال: قال رسول الله ﷺ: «أَعْطُوا الْأَجِيرَ أَجْرَهُ قَبْلَ أَنْ يَجِفَّ عَرَقُهُ» رواه ابن ماجه (2443) وصححه الألباني في الإرواء (1498) إلزام أصحاب العمل والمنشآت بتحويل رواتب ومستحقات الموظفين والعمال في مواعيدها المحددة فور الانتهاء من أداء العمل، وتجريم تأخير الرواتب بحجج واهية. أعطوا الأجير أجره قبل أن يجف عرقه أجور العمال الرواتب نظام حماية الأجور حقوق العمال","title":"وجوب المبادرة الفورية بدفع أجور العمال والموظفين دون مماطلة","catBadge":"👥 أجور وعمال وشركات","gradeBadge":"✓ صحيح","sanad":"عن عبد الله بن عمر رضي الله عنهما قال: قال رسول الله ﷺ:","matn":"«أَعْطُوا الْأَجِيرَ أَجْرَهُ قَبْلَ أَنْ يَجِفَّ عَرَقُهُ»","source":"رواه ابن ماجه (2443) وصححه الألباني في الإرواء (1498)","benefit":"إلزام أصحاب العمل والمنشآت بتحويل رواتب ومستحقات الموظفين والعمال في مواعيدها المحددة فور الانتهاء من أداء العمل، وتجريم تأخير الرواتب بحجج واهية."},{"num":73,"cat":"labor","search":"73 خصومة الله العظمى يوم القيامة لمن استوفى جهد العامل وبخسه حقه عن أبي هريرة رضي الله عنه عن النبي ﷺ قال: قال الله تعالى: «ثَلَاثَةٌ أَنَا خَصْمُهُمْ يَوْمَ الْقِيَامَةِ: رَجُلٌ أَعْطَى بِي ثُمَّ غَدَرَ، وَرَجُلٌ بَاعَ حُرًّا فَأَكَلَ ثَمَنَهُ، وَرَجُلٌ اسْتَأْجَرَ أَجِيرًا فَاسْتَوْفَى مِنْهُ وَلَمْ يُعْطِهِ أَجْرَهُ» صحيح البخاري (2227) وعيد إلهي مرعب لأي مدير أو صاحب شركة يستغل حاجة العمال فيكلفهم بأعمال شاقة ثم ينكر مستحقاتهم أو يقتطع منها ظلماً وعدواناً. ثلاثة أنا خصمهم يوم القيامة استأجر أجيرا فاستوفى منه ولم يعطه أجره بخس الأجور","title":"خصومة الله العظمى يوم القيامة لمن استوفى جهد العامل وبخسه حقه","catBadge":"👥 أجور وعمال وشركات","gradeBadge":"✓ صحيح البخاري","sanad":"عن أبي هريرة رضي الله عنه عن النبي ﷺ قال: قال الله تعالى:","matn":"«ثَلَاثَةٌ أَنَا خَصْمُهُمْ يَوْمَ الْقِيَامَةِ: رَجُلٌ أَعْطَى بِي ثُمَّ غَدَرَ، وَرَجُلٌ بَاعَ حُرًّا فَأَكَلَ ثَمَنَهُ، وَرَجُلٌ اسْتَأْجَرَ أَجِيرًا فَاسْتَوْفَى مِنْهُ وَلَمْ يُعْطِهِ أَجْرَهُ»","source":"صحيح البخاري (2227)","benefit":"وعيد إلهي مرعب لأي مدير أو صاحب شركة يستغل حاجة العمال فيكلفهم بأعمال شاقة ثم ينكر مستحقاتهم أو يقتطع منها ظلماً وعدواناً."},{"num":74,"cat":"labor","search":"74 بركة الأمانة والشفافية بين الشركاء وخروج البركة وحلول الخسارة بالخيانة عن أبي هريرة رضي الله عنه رفعه قال: إن الله يقول: «أَنَا ثَالِثُ الشَّرِيكَيْنِ مَا لَمْ يَخُنْ أَحَدُهُمَا صَاحِبَهُ، فَإِذَا خَانَهُ خَرَجْتُ مِنْ بَيْنِهِمَا» رواه أبو داود (3383) والحاكم (2322) وصححه، وصححه الألباني في غاية المرام (329) ميثاق الشراكة والمضاربة والمساهمة الاستثمارية: التوفيق الإلهي والربح يرافق الشركاء ما دامت الحسابات مكشوفة وصادقة، وتنزع البركة فور إخفاء الأرباح أو التلاعب بالدفاتر. أنا ثالث الشريكين ما لم يخن أحدهما صاحبه عقد الشراكة المضاربة الاستثمار الأمانة","title":"بركة الأمانة والشفافية بين الشركاء وخروج البركة وحلول الخسارة بالخيانة","catBadge":"👥 أجور وعمال وشركات","gradeBadge":"✓ صحيح","sanad":"عن أبي هريرة رضي الله عنه رفعه قال: إن الله يقول:","matn":"«أَنَا ثَالِثُ الشَّرِيكَيْنِ مَا لَمْ يَخُنْ أَحَدُهُمَا صَاحِبَهُ، فَإِذَا خَانَهُ خَرَجْتُ مِنْ بَيْنِهِمَا»","source":"رواه أبو داود (3383) والحاكم (2322) وصححه، وصححه الألباني في غاية المرام (329)","benefit":"ميثاق الشراكة والمضاربة والمساهمة الاستثمارية: التوفيق الإلهي والربح يرافق الشركاء ما دامت الحسابات مكشوفة وصادقة، وتنزع البركة فور إخفاء الأرباح أو التلاعب بالدفاتر."},{"num":75,"cat":"labor","search":"75 إلزامية معايير الجودة والإتقان المهني والمالي في الأعمال والخدمات عن عائشة رضي الله عنها أن رسول الله ﷺ قال: «إِنَّ اللَّهَ يُحِبُّ إِذَا عَمِلَ أَحَدُكُمْ عَمَلًا أَنْ يُتْقِنَهُ» رواه البيهقي في شعب الإيمان (4929) وأبو يعلى (4386) وصححه الألباني في السلسلة الصحيحة (1113) أصل الجودة وإدارة التميز التشغيلي في الفكر الإسلامي: وجوب مطابقة المواصفات الهندسية والتجارية، وتحريم الغش في المواد الخام أو إنهاء الأعمال بنواقص معيبة. إن الله يحب إذا عمل أحدكم عملا أن يتقنه معايير الجودة الإتقان المهني مواصفات العمل","title":"إلزامية معايير الجودة والإتقان المهني والمالي في الأعمال والخدمات","catBadge":"👥 أجور وعمال وشركات","gradeBadge":"✓ صحيح","sanad":"عن عائشة رضي الله عنها أن رسول الله ﷺ قال:","matn":"«إِنَّ اللَّهَ يُحِبُّ إِذَا عَمِلَ أَحَدُكُمْ عَمَلًا أَنْ يُتْقِنَهُ»","source":"رواه البيهقي في شعب الإيمان (4929) وأبو يعلى (4386) وصححه الألباني في السلسلة الصحيحة (1113)","benefit":"أصل الجودة وإدارة التميز التشغيلي في الفكر الإسلامي: وجوب مطابقة المواصفات الهندسية والتجارية، وتحريم الغش في المواد الخام أو إنهاء الأعمال بنواقص معيبة."},{"num":76,"cat":"labor","search":"76 وجوب تحديد الراتب والمهام الوظيفية بوضوح تام قبل مباشرة العمل عن أبي سعيد الخدري رضي الله عنه أن النبي ﷺ قال: «مَنِ اسْتَأْجَرَ أَجِيرًا، فَلْيُعْلِمْهُ أَجْرَهُ» رواه أحمد (11525) والبيهقي في السنن الكبرى (12071) وصححه الألباني في الإرواء (1497) اشتراط وضوح بنود عقد العمل (توصيف الوظيفة، ساعات الدوام، الراتب الإجمالي والبدلات) لقطع النزاع والجهالة والغرر في سوق العمل والتوظيف. من استأجر أجيرا فليعلمه أجره تحديد الراتب عقد العمل التوصيف الوظيفي وضوح الأجر","title":"وجوب تحديد الراتب والمهام الوظيفية بوضوح تام قبل مباشرة العمل","catBadge":"👥 أجور وعمال وشركات","gradeBadge":"✓ صحيح","sanad":"عن أبي سعيد الخدري رضي الله عنه أن النبي ﷺ قال:","matn":"«مَنِ اسْتَأْجَرَ أَجِيرًا، فَلْيُعْلِمْهُ أَجْرَهُ»","source":"رواه أحمد (11525) والبيهقي في السنن الكبرى (12071) وصححه الألباني في الإرواء (1497)","benefit":"اشتراط وضوح بنود عقد العمل (توصيف الوظيفة، ساعات الدوام، الراتب الإجمالي والبدلات) لقطع النزاع والجهالة والغرر في سوق العمل والتوظيف."},{"num":77,"cat":"labor","search":"77 تحريم الاستئجار والتكسب من المهن المحرمة والأنشطة غير الأخلاقية عن أبي مسعود الأنصاري رضي الله عنه: «أَنَّ رَسُولَ اللَّهِ ﷺ نَهَى عَنْ ثَمَنِ الْكَلْبِ، وَمَهْرِ الْبَغِيِّ، وَحُلْوَانِ الْكَاهِنِ» صحيح البخاري (2237) وصحيح مسلم (1567) بطلان كافة عقود العمل والتوظيف في الأنشطة المحرمة كالرهانات وتجارة المخدرات أو المنصات الإباحية والربوية، واعتبار الدخل الناتج عنها سحتاً باطلاً. نهى عن ثمن الكلب ومهر البغي وحلوان الكاهن المهن المحرمة الكسب الحرام بطلان العقد","title":"تحريم الاستئجار والتكسب من المهن المحرمة والأنشطة غير الأخلاقية","catBadge":"👥 أجور وعمال وشركات","gradeBadge":"✓ متفق عليه","sanad":"عن أبي مسعود الأنصاري رضي الله عنه:","matn":"«أَنَّ رَسُولَ اللَّهِ ﷺ نَهَى عَنْ ثَمَنِ الْكَلْبِ، وَمَهْرِ الْبَغِيِّ، وَحُلْوَانِ الْكَاهِنِ»","source":"صحيح البخاري (2237) وصحيح مسلم (1567)","benefit":"بطلان كافة عقود العمل والتوظيف في الأنشطة المحرمة كالرهانات وتجارة المخدرات أو المنصات الإباحية والربوية، واعتبار الدخل الناتج عنها سحتاً باطلاً."},{"num":78,"cat":"labor","search":"78 النهي عن إجارة قفيز الطحان (أخذ الأجر من عين العمل المعرض للتلف) عن أبي سعيد الخدري رضي الله عنه: «أَنَّ النَّبِيَّ ﷺ نَهَى عَنْ عَسِيبِ الْفَحْلِ، وَعَنْ قَفِيزِ الطَّحَّانِ» رواه الدارقطني (2998) والبيهقي في السنن (11984) وصححه الألباني في الإرواء (1492) قاعدة فقهية في تحديد الأجرة: اشتراط أن تكون الأجرة معلومة ومضمونة ومستقلة، وألا تكون جزءاً مجهولاً من عين ما ينتجه العمل إن كان عرضة للتلف دون ضمان. قفيز الطحان عسيب الفحل تحديد الأجرة ضمان الأجر عقود التشغيل","title":"النهي عن إجارة قفيز الطحان (أخذ الأجر من عين العمل المعرض للتلف)","catBadge":"👥 أجور وعمال وشركات","gradeBadge":"✓ صحيح بمجموع طرقه","sanad":"عن أبي سعيد الخدري رضي الله عنه:","matn":"«أَنَّ النَّبِيَّ ﷺ نَهَى عَنْ عَسِيبِ الْفَحْلِ، وَعَنْ قَفِيزِ الطَّحَّانِ»","source":"رواه الدارقطني (2998) والبيهقي في السنن (11984) وصححه الألباني في الإرواء (1492)","benefit":"قاعدة فقهية في تحديد الأجرة: اشتراط أن تكون الأجرة معلومة ومضمونة ومستقلة، وألا تكون جزءاً مجهولاً من عين ما ينتجه العمل إن كان عرضة للتلف دون ضمان."},{"num":79,"cat":"labor","search":"79 أعظم الكسب والرزق شرفاً وبركة: ما كسبه العبد من كدّ يده وعمله عن المقدام بن معديكرب رضي الله عنه عن النبي ﷺ قال: «مَا أَكَلَ أَحَدٌ طَعَامًا قَطُّ، خَيْرًا مِنْ أَنْ يَأْكُلَ مِنْ عَمَلِ يَدِهِ، وَإِنَّ نَبِيَّ اللَّهِ دَاوُدَ عَلَيْهِ السَّلَامُ كَانَ يَأْكُلُ مِنْ عَمَلِ يَدِهِ» صحيح البخاري (2072) التعظيم النبوي للعمل اليدوي والمهني والصناعي والحرفي، وبيان أن الاعتماد على الكسب الذاتي والشرف المهني هو منهاج الأنبياء والمرسلين. ما أكل أحد طعاما قط خيرا من أن يأكل من عمل يده نبي الله داود كسب اليد العمل الحرفي","title":"أعظم الكسب والرزق شرفاً وبركة: ما كسبه العبد من كدّ يده وعمله","catBadge":"👥 أجور وعمال وشركات","gradeBadge":"✓ صحيح البخاري","sanad":"عن المقدام بن معديكرب رضي الله عنه عن النبي ﷺ قال:","matn":"«مَا أَكَلَ أَحَدٌ طَعَامًا قَطُّ، خَيْرًا مِنْ أَنْ يَأْكُلَ مِنْ عَمَلِ يَدِهِ، وَإِنَّ نَبِيَّ اللَّهِ دَاوُدَ عَلَيْهِ السَّلَامُ كَانَ يَأْكُلُ مِنْ عَمَلِ يَدِهِ»","source":"صحيح البخاري (2072)","benefit":"التعظيم النبوي للعمل اليدوي والمهني والصناعي والحرفي، وبيان أن الاعتماد على الكسب الذاتي والشرف المهني هو منهاج الأنبياء والمرسلين."},{"num":80,"cat":"labor","search":"80 شرف المهن والإنتاج: ما بعث الله نبياً إلا رعى الغنم وتكسب بجهده عن أبي هريرة رضي الله عنه عن النبي ﷺ قال: «مَا بَعَثَ اللَّهُ نَبِيًّا إِلَّا رَعَى الْغَنَمَ، فَقَالَ أَصْحَابُهُ: وَأَنْتَ؟ فَقَالَ: نَعَمْ، كُنْتُ أَرْعَاهَا عَلَى قَرَارِيطَ لِأَهْلِ مَكَّةَ» صحيح البخاري (2262) إرساء التواضع المهني ومحاربة ثقافة العيب في العمل الميداني والإنتاجي، وإثبات أن أعظم الخلق ﷺ عمل أجيراً بأجر محدد (قراريط) قبل النبوة. ما بعث الله نبيا إلا رعى الغنم قراريط لأهل مكة ثقافة العمل الميداني التواضع المهني","title":"شرف المهن والإنتاج: ما بعث الله نبياً إلا رعى الغنم وتكسب بجهده","catBadge":"👥 أجور وعمال وشركات","gradeBadge":"✓ صحيح البخاري","sanad":"عن أبي هريرة رضي الله عنه عن النبي ﷺ قال:","matn":"«مَا بَعَثَ اللَّهُ نَبِيًّا إِلَّا رَعَى الْغَنَمَ، فَقَالَ أَصْحَابُهُ: وَأَنْتَ؟ فَقَالَ: نَعَمْ، كُنْتُ أَرْعَاهَا عَلَى قَرَارِيطَ لِأَهْلِ مَكَّةَ»","source":"صحيح البخاري (2262)","benefit":"إرساء التواضع المهني ومحاربة ثقافة العيب في العمل الميداني والإنتاجي، وإثبات أن أعظم الخلق ﷺ عمل أجيراً بأجر محدد (قراريط) قبل النبوة."},{"num":81,"cat":"contracts","search":"81 دستور عقد السَّلَم والتمويل المسبق للإنتاج وضوابطه الصارمة عن عبد الله بن عباس رضي الله عنهما قال: قَدِمَ النبيُّ ﷺ المدينةَ وهُمْ يُسْلِفُونَ بالتَّمْرِ السَّنَتَيْنِ والثَّلَاثَ، فقال: «مَنْ أَسْلَفَ فِي شَيْءٍ، فَفِي كَيْلٍ مَعْلُومٍ، وَوَزْنٍ مَعْلُومٍ، إِلَى أَجَلٍ مَعْلُومٍ» صحيح البخاري (2240) وصحيح مسلم (1604) أركان عقد السلم الاستثماري المعتمد في البنوك الإسلامية: دفع الثمن نقداً بالكامل مقدماً لتوفير السيولة للجهة الصانعة أو المزارعة، مع التحديد القاطع للمواصفات والكمية وتاريخ التسليم لمنع النزاع. من أسلف في شيء ففي كيل معلوم ووزن معلوم إلى أجل معلوم عقد السلم التمويل الإسلامي","title":"دستور عقد السَّلَم والتمويل المسبق للإنتاج وضوابطه الصارمة","catBadge":"📑 سلم وشفعة ومساقاة","gradeBadge":"✓ متفق عليه","sanad":"عن عبد الله بن عباس رضي الله عنهما قال: قَدِمَ النبيُّ ﷺ المدينةَ وهُمْ يُسْلِفُونَ بالتَّمْرِ السَّنَتَيْنِ والثَّلَاثَ، فقال:","matn":"«مَنْ أَسْلَفَ فِي شَيْءٍ، فَفِي كَيْلٍ مَعْلُومٍ، وَوَزْنٍ مَعْلُومٍ، إِلَى أَجَلٍ مَعْلُومٍ»","source":"صحيح البخاري (2240) وصحيح مسلم (1604)","benefit":"أركان عقد السلم الاستثماري المعتمد في البنوك الإسلامية: دفع الثمن نقداً بالكامل مقدماً لتوفير السيولة للجهة الصانعة أو المزارعة، مع التحديد القاطع للمواصفات والكمية وتاريخ التسليم لمنع النزاع."},{"num":82,"cat":"contracts","search":"82 قضاء النبوة بالشفعة في العقارات والأراضي المشتركة قبل القسمة عن جابر بن عبد الله رضي الله عنهما قال: «قَضَى رَسُولُ اللَّهِ ﷺ بِالشُّفْعَةِ فِي كُلِّ مَا لَمْ يُقْسَمْ، فَإِذَا وَقَعَتِ الْحُدُودُ، وَصُرِّفَتِ الطُّرُقُ، فَلَا شُفْعَةَ» صحيح البخاري (2257) وصحيح مسلم (1608) حق الشفعة للشريك في العقار أو الأرض غير المفرزة لدرء الضرر عنه بشراء حصة شريكه بنفس الثمن الذي اتفق عليه مع المشتري الأجنبي، وسقوط الشفعة بعد الفرز وتحديد الحدود. قضى بالشفعة في كل ما لم يقسم وقعت الحدود صرفت الطرق حق الشفعة العقارات الأراضي","title":"قضاء النبوة بالشفعة في العقارات والأراضي المشتركة قبل القسمة","catBadge":"📑 سلم وشفعة ومساقاة","gradeBadge":"✓ متفق عليه","sanad":"عن جابر بن عبد الله رضي الله عنهما قال:","matn":"«قَضَى رَسُولُ اللَّهِ ﷺ بِالشُّفْعَةِ فِي كُلِّ مَا لَمْ يُقْسَمْ، فَإِذَا وَقَعَتِ الْحُدُودُ، وَصُرِّفَتِ الطُّرُقُ، فَلَا شُفْعَةَ»","source":"صحيح البخاري (2257) وصحيح مسلم (1608)","benefit":"حق الشفعة للشريك في العقار أو الأرض غير المفرزة لدرء الضرر عنه بشراء حصة شريكه بنفس الثمن الذي اتفق عليه مع المشتري الأجنبي، وسقوط الشفعة بعد الفرز وتحديد الحدود."},{"num":83,"cat":"contracts","search":"83 حق الجار الملاصق في أولوية الشراء والعرض عليه قبل الغريب عن الشريد بن سويد رضي الله عنه قال: سمعت رسول الله ﷺ يقول: «الْجَارُ أَحَقُّ بِصَقَبِهِ مَا كَانَ» [أي: بِقُرْبِهِ وَشُفْعَتِهِ] صحيح البخاري (2258) استحباب -وفي مذهب الحنفية وجوب- عرض العقار أو الدار على الجار الملاصق قبل بيعه للأجنبي، حفاظاً على حسن الجوار ومنعاً لدخول من قد يضر بالحي أو البناء. الجار أحق بصقبه حق الجوار أولوية الشراء شفعة الجوار بيع العقارات","title":"حق الجار الملاصق في أولوية الشراء والعرض عليه قبل الغريب","catBadge":"📑 سلم وشفعة ومساقاة","gradeBadge":"✓ صحيح البخاري","sanad":"عن الشريد بن سويد رضي الله عنه قال: سمعت رسول الله ﷺ يقول:","matn":"«الْجَارُ أَحَقُّ بِصَقَبِهِ مَا كَانَ» [أي: بِقُرْبِهِ وَشُفْعَتِهِ]","source":"صحيح البخاري (2258)","benefit":"استحباب -وفي مذهب الحنفية وجوب- عرض العقار أو الدار على الجار الملاصق قبل بيعه للأجنبي، حفاظاً على حسن الجوار ومنعاً لدخول من قد يضر بالحي أو البناء."},{"num":84,"cat":"contracts","search":"84 مشروعية عقود المساقاة والمزارعة والمشاركة في المحصول بنسبة شائعة عن عبد الله بن عمر رضي الله عنهما: «أَنَّ رَسُولَ اللَّهِ ﷺ أَعْطَى خَيْبَرَ الْيَهُودَ، عَلَى أَنْ يَعْمَلُوهَا وَيَزْرَعُوهَا، وَلَهُمْ شَطْرُ مَا يَخْرُجُ مِنْهَا مِنْ ثَمَرٍ أَوْ زَرْعٍ» صحيح البخاري (2328) وصحيح مسلم (1551) تأصيل عقود الاستثمار الزراعي (المساقاة والمزارعة): تقديم الأرض والمزارع من طرف والعمل من طرف آخر، وتقاسم صافي الإنتاج بنسبة مئوية شائعة (كـ 50% أو 30%) دون تحديد أجر نقدي ثابت مشروط. أعطى خيبر على أن يعملوها ويزرعوها ولهم شطر ما يخرج منها المساقاة المزارعة الاستثمار الزراعي","title":"مشروعية عقود المساقاة والمزارعة والمشاركة في المحصول بنسبة شائعة","catBadge":"📑 سلم وشفعة ومساقاة","gradeBadge":"✓ متفق عليه","sanad":"عن عبد الله بن عمر رضي الله عنهما:","matn":"«أَنَّ رَسُولَ اللَّهِ ﷺ أَعْطَى خَيْبَرَ الْيَهُودَ، عَلَى أَنْ يَعْمَلُوهَا وَيَزْرَعُوهَا، وَلَهُمْ شَطْرُ مَا يَخْرُجُ مِنْهَا مِنْ ثَمَرٍ أَوْ زَرْعٍ»","source":"صحيح البخاري (2328) وصحيح مسلم (1551)","benefit":"تأصيل عقود الاستثمار الزراعي (المساقاة والمزارعة): تقديم الأرض والمزارع من طرف والعمل من طرف آخر، وتقاسم صافي الإنتاج بنسبة مئوية شائعة (كـ 50% أو 30%) دون تحديد أجر نقدي ثابت مشروط."},{"num":85,"cat":"contracts","search":"85 تشجيع الاستثمار واستصلاح الأراضي المهملة: من أحيا أرضاً ميتة فهي له عن سعيد بن زيد رضي الله عنه عن النبي ﷺ قال: «مَنْ أَحْيَا أَرْضًا مَيْتَةً فَهِيَ لَهُ، وَلَيْسَ لِعِرْقٍ ظَالِمٍ حَقٌّ» رواه أبو داود (3073) والترمذي (1378) وصححه، وصححه الألباني في الإرواء (1550) تحفيز التنمية العمرانية والزراعية: من استصلح أرضاً بواراً لا مالك لها بإذن الدولة وحفر فيها بئراً أو زرعها تملكها شرعاً، وبطلان وضع اليد الجائر الغاصب (العرق الظالم). من أحيا أرضا ميتة فهي له ليس لعرق ظالم حق إحياء الموات استصلاح الأراضي وضع اليد","title":"تشجيع الاستثمار واستصلاح الأراضي المهملة: من أحيا أرضاً ميتة فهي له","catBadge":"📑 سلم وشفعة ومساقاة","gradeBadge":"✓ صحيح","sanad":"عن سعيد بن زيد رضي الله عنه عن النبي ﷺ قال:","matn":"«مَنْ أَحْيَا أَرْضًا مَيْتَةً فَهِيَ لَهُ، وَلَيْسَ لِعِرْقٍ ظَالِمٍ حَقٌّ»","source":"رواه أبو داود (3073) والترمذي (1378) وصححه، وصححه الألباني في الإرواء (1550)","benefit":"تحفيز التنمية العمرانية والزراعية: من استصلح أرضاً بواراً لا مالك لها بإذن الدولة وحفر فيها بئراً أو زرعها تملكها شرعاً، وبطلان وضع اليد الجائر الغاصب (العرق الظالم)."},{"num":86,"cat":"contracts","search":"86 دستور المرافق العامة والملكية المشتركة: الناس شركاء في ثلاث عن رجل من المهاجرين من أصحاب النبي ﷺ قال: قال رسول الله ﷺ: «الْمُسْلِمُونَ شُرَكَاءُ فِي ثَلَاثٍ: فِي الْمَاءِ، وَالْكَلَإِ، وَالنَّارِ» رواه أبو داود (3477) وابن ماجه (2472) وصححه الألباني في صحيح الجامع (6701) حظر احتكار الموارد الطبيعية الحيوية ومصادر الطاقة والمياه العامة والمراعي الطبيعية، ووجوب إتاحتها لعموم المواطنين كمرافق عامة دون احتكار تجاري جائر. المسلمون شركاء في ثلاث في الماء والكلإ والنار المرافق العامة مصادر الطاقة حظر الاحتكار","title":"دستور المرافق العامة والملكية المشتركة: الناس شركاء في ثلاث","catBadge":"📑 سلم وشفعة ومساقاة","gradeBadge":"✓ صحيح","sanad":"عن رجل من المهاجرين من أصحاب النبي ﷺ قال: قال رسول الله ﷺ:","matn":"«الْمُسْلِمُونَ شُرَكَاءُ فِي ثَلَاثٍ: فِي الْمَاءِ، وَالْكَلَإِ، وَالنَّارِ»","source":"رواه أبو داود (3477) وابن ماجه (2472) وصححه الألباني في صحيح الجامع (6701)","benefit":"حظر احتكار الموارد الطبيعية الحيوية ومصادر الطاقة والمياه العامة والمراعي الطبيعية، ووجوب إتاحتها لعموم المواطنين كمرافق عامة دون احتكار تجاري جائر."},{"num":87,"cat":"contracts","search":"87 تحريم بيع فضل الماء في الآبار والأنهار لمنع رعي الماشية والأراضي عن أبي هريرة رضي الله عنه أن رسول الله ﷺ قال: «لَا يُمْنَعُ فَضْلُ الْمَاءِ؛ لِيُمْنَعَ بِهِ الْكَلَأُ» صحيح البخاري (2353) وصحيح مسلم (1566) حماية الموارد المائية من التعسف في استعمال الحق، وإلزام الملاك بالسماح للآخرين بالاستفادة من الفائض من المياه للشرب والري دون أخذ مقابل تعسفي. لا يمنع فضل الماء ليمنع به الكلأ الموارد المائية التعسف في استعمال الحق","title":"تحريم بيع فضل الماء في الآبار والأنهار لمنع رعي الماشية والأراضي","catBadge":"📑 سلم وشفعة ومساقاة","gradeBadge":"✓ متفق عليه","sanad":"عن أبي هريرة رضي الله عنه أن رسول الله ﷺ قال:","matn":"«لَا يُمْنَعُ فَضْلُ الْمَاءِ؛ لِيُمْنَعَ بِهِ الْكَلَأُ»","source":"صحيح البخاري (2353) وصحيح مسلم (1566)","benefit":"حماية الموارد المائية من التعسف في استعمال الحق، وإلزام الملاك بالسماح للآخرين بالاستفادة من الفائض من المياه للشرب والري دون أخذ مقابل تعسفي."},{"num":88,"cat":"contracts","search":"88 مشروعية عقد الجِعالة واستحقاق المكافأة المالية المشروطة عند إتمام الإنجاز عن أبي سعيد الخدري رضي الله عنه في قصة رقية سيد الحي بديغ بفاتحة الكتاب واشتراط قطيع من الغنم كجُعْل ومكافأة، فقال رسول الله ﷺ مقراً لهم: «اقْسِمُوا وَاضْرِبُوا لِي مَعَكُمْ بِسَهْمٍ» صحيح البخاري (2276) وصحيح مسلم (2201) تأصيل عقود الجعالة والمكافآت المرتبطة بالنتائج ومكافآت النجاح (Success Fees) وعمولات السمسرة المشروطة بإنجاز العمل كاملاً وقبض الجعل المستحق. عقد الجعالة اقسموا واضربوا لي معكم بسهم رقية اللديغ مكافآت الإنجاز عمولات السمسرة","title":"مشروعية عقد الجِعالة واستحقاق المكافأة المالية المشروطة عند إتمام الإنجاز","catBadge":"📑 سلم وشفعة ومساقاة","gradeBadge":"✓ متفق عليه","sanad":"عن أبي سعيد الخدري رضي الله عنه في قصة رقية سيد الحي بديغ بفاتحة الكتاب واشتراط قطيع من الغنم كجُعْل ومكافأة، فقال رسول الله ﷺ مقراً لهم:","matn":"«اقْسِمُوا وَاضْرِبُوا لِي مَعَكُمْ بِسَهْمٍ»","source":"صحيح البخاري (2276) وصحيح مسلم (2201)","benefit":"تأصيل عقود الجعالة والمكافآت المرتبطة بالنتائج ومكافآت النجاح (Success Fees) وعمولات السمسرة المشروطة بإنجاز العمل كاملاً وقبض الجعل المستحق."},{"num":89,"cat":"property","search":"89 دستور اللقطة والمال الضائع: حفظ الأوصاف والإعلان والتعريف لمدة عام عن زيد بن خالد الجهني رضي الله عنه أن رجلاً سأل رسول الله ﷺ عن اللُّقَطَةِ، فقال: «اعْرِفْ عِفَاصَهَا وَوِكَاءَهَا، ثُمَّ عَرِّفْهَا سَنَةً، فَإِنْ جَاءَ صَاحِبُهَا، وَإِلَّا فَشَأْنُكَ بِهَا» صحيح البخاري (2426) وصحيح مسلم (1722) التوثيق القانوني والشرعي للأموال والمفقودات الثمينة المعثور عليها: فحص وحفظ مواصفاتها وأغلفتها بدقة، والإعلان عنها في الوسائل المعاصرة لمدة سنة كاملة قبل التصرف فيها كوديعة مضمونة. اعرف عفاصها ووكاءها ثم عرفها سنة اللقطة الأموال الضائعة المفقودات التوثيق","title":"دستور اللقطة والمال الضائع: حفظ الأوصاف والإعلان والتعريف لمدة عام","catBadge":"🛡️ لقطة وأمانات وحفظ مال","gradeBadge":"✓ متفق عليه","sanad":"عن زيد بن خالد الجهني رضي الله عنه أن رجلاً سأل رسول الله ﷺ عن اللُّقَطَةِ، فقال:","matn":"«اعْرِفْ عِفَاصَهَا وَوِكَاءَهَا، ثُمَّ عَرِّفْهَا سَنَةً، فَإِنْ جَاءَ صَاحِبُهَا، وَإِلَّا فَشَأْنُكَ بِهَا»","source":"صحيح البخاري (2426) وصحيح مسلم (1722)","benefit":"التوثيق القانوني والشرعي للأموال والمفقودات الثمينة المعثور عليها: فحص وحفظ مواصفاتها وأغلفتها بدقة، والإعلان عنها في الوسائل المعاصرة لمدة سنة كاملة قبل التصرف فيها كوديعة مضمونة."},{"num":90,"cat":"property","search":"90 التفريق بين اللقطة المعرضة للضياع والحيوانات والممتلكات المصونة عن زيد بن خالد الجهني رضي الله عنه قال: سئل النبي ﷺ عن ضالة الغنم؟ قال: «هِيَ لَكَ أَوْ لِأَخِيكَ أَوْ لِلذِّئْبِ»، وسئل عن ضالة الإبل؟ فغضب وقال: «مَا لَكَ وَلَهَا؟ مَعَهَا حِذَاؤُهَا وَسِقَاؤُهَا، تَرِدُ الْمَاءَ، وَتَأْكُلُ الشَّجَرَ، حَتَّى يَلْقَاهَا رَبُّهَا» صحيح البخاري (2427) وصحيح مسلم (1722) المنع من حيازة والتقاط الممتلكات القادرة على حماية نفسها أو المحفوظة في أماكنها الآمنة خشية التعدي، ووجوب إنقاذ وحفظ الأموال الهشة المعرضة للتلف والضياع الفوري. ضالة الغنم لك أو لأخيك أو للذئب ضالة الإبل معها حذاؤها وسقاؤها حفظ الممتلكات","title":"التفريق بين اللقطة المعرضة للضياع والحيوانات والممتلكات المصونة","catBadge":"🛡️ لقطة وأمانات وحفظ مال","gradeBadge":"✓ متفق عليه","sanad":"عن زيد بن خالد الجهني رضي الله عنه قال: سئل النبي ﷺ عن ضالة الغنم؟ قال: «هِيَ لَكَ أَوْ لِأَخِيكَ أَوْ لِلذِّئْبِ»، وسئل عن ضالة الإبل؟ فغضب وقال:","matn":"«مَا لَكَ وَلَهَا؟ مَعَهَا حِذَاؤُهَا وَسِقَاؤُهَا، تَرِدُ الْمَاءَ، وَتَأْكُلُ الشَّجَرَ، حَتَّى يَلْقَاهَا رَبُّهَا»","source":"صحيح البخاري (2427) وصحيح مسلم (1722)","benefit":"المنع من حيازة والتقاط الممتلكات القادرة على حماية نفسها أو المحفوظة في أماكنها الآمنة خشية التعدي، ووجوب إنقاذ وحفظ الأموال الهشة المعرضة للتلف والضياع الفوري."},{"num":91,"cat":"property","search":"91 وجوب رد الأمانات والودائع المصرفية والتجارية وتحريم خيانة الخائن عن أبي هريرة رضي الله عنه قال: قال رسول الله ﷺ: «أَدِّ الْأَمَانَةَ إِلَى مَنِ ائْتَمَنَكَ، وَلَا تَخُنْ مَنْ خَانَكَ» رواه أبو داود (3535) والترمذي (1264) وصححه، وصححه الألباني في السلسلة الصحيحة (423) قدسية حسابات الأمانات والودائع المصرفية والودائع العينية؛ ووجوب ردها كاملة لمالكها عند الطلب، والنهي الصارم عن مجاراة الخيانة بخيانة مقابلة أو اختلاس أموال من غدر بك. أد الأمانة إلى من ائتمنك ولا تخن من خانك الودائع المصرفية حسابات الأمانة رد الحقوق","title":"وجوب رد الأمانات والودائع المصرفية والتجارية وتحريم خيانة الخائن","catBadge":"🛡️ لقطة وأمانات وحفظ مال","gradeBadge":"✓ صحيح","sanad":"عن أبي هريرة رضي الله عنه قال: قال رسول الله ﷺ:","matn":"«أَدِّ الْأَمَانَةَ إِلَى مَنِ ائْتَمَنَكَ، وَلَا تَخُنْ مَنْ خَانَكَ»","source":"رواه أبو داود (3535) والترمذي (1264) وصححه، وصححه الألباني في السلسلة الصحيحة (423)","benefit":"قدسية حسابات الأمانات والودائع المصرفية والودائع العينية؛ ووجوب ردها كاملة لمالكها عند الطلب، والنهي الصارم عن مجاراة الخيانة بخيانة مقابلة أو اختلاس أموال من غدر بك."},{"num":92,"cat":"property","search":"92 المسؤولية القانونية والضمان الشامل للأموال المقبوضة تحت يد الشخص عن سمرة بن جندب رضي الله عنه عن النبي ﷺ قال: «عَلَى الْيَدِ مَا أَخَذَتْ حَتَّى تُؤَدِّيَهُ» رواه أبو داود (3561) والترمذي (1266) وصححه، والنسائي وابن ماجه وصححه الحاكم والألباني القاعدة الأساسية في الضمان والتعويض والمسؤولية المدنية: كل من وضع يده على مال غيره بطريق عارية أو غصب أو استلام تجاري فهو ضامن لسلامته حتى يرجعه سالماً لمالكه الشرعي. على اليد ما أخذت حتى تؤديه قاعدة الضمان المسؤولية المدنية التعويض حيازة الأموال","title":"المسؤولية القانونية والضمان الشامل للأموال المقبوضة تحت يد الشخص","catBadge":"🛡️ لقطة وأمانات وحفظ مال","gradeBadge":"✓ صحيح","sanad":"عن سمرة بن جندب رضي الله عنه عن النبي ﷺ قال:","matn":"«عَلَى الْيَدِ مَا أَخَذَتْ حَتَّى تُؤَدِّيَهُ»","source":"رواه أبو داود (3561) والترمذي (1266) وصححه، والنسائي وابن ماجه وصححه الحاكم والألباني","benefit":"القاعدة الأساسية في الضمان والتعويض والمسؤولية المدنية: كل من وضع يده على مال غيره بطريق عارية أو غصب أو استلام تجاري فهو ضامن لسلامته حتى يرجعه سالماً لمالكه الشرعي."},{"num":93,"cat":"property","search":"93 حرمة الملكية الفردية الخاصة ومشروعية الدفاع عن المال حتى الشهادة عن عبد الله بن عمرو بن العاص رضي الله عنهما قال: سمعت النبي ﷺ يقول: «مَنْ قُتِلَ دُونَ مَالِهِ فَهُوَ شَهِيدٌ» صحيح البخاري (2480) وصحيح مسلم (141) تقرير قدسية الملكية الفردية والأموال الخاصة في الإسلام، ومنح صاحب المال الحق الكامل في حماية تجارته ومستودعاته وممتلكاته من اللصوص والغاصبين. من قتل دون ماله فهو شهيد حماية الملكية الخاصة الدفاع عن المال مكافحة السطو والسرقة","title":"حرمة الملكية الفردية الخاصة ومشروعية الدفاع عن المال حتى الشهادة","catBadge":"🛡️ لقطة وأمانات وحفظ مال","gradeBadge":"✓ متفق عليه","sanad":"عن عبد الله بن عمرو بن العاص رضي الله عنهما قال: سمعت النبي ﷺ يقول:","matn":"«مَنْ قُتِلَ دُونَ مَالِهِ فَهُوَ شَهِيدٌ»","source":"صحيح البخاري (2480) وصحيح مسلم (141)","benefit":"تقرير قدسية الملكية الفردية والأموال الخاصة في الإسلام، ومنح صاحب المال الحق الكامل في حماية تجارته ومستودعاته وممتلكاته من اللصوص والغاصبين."},{"num":94,"cat":"property","search":"94 عقوبة غصب العقارات وتزوير حجج الأراضي والتعدي على المخططات عن سعيد بن زيد رضي الله عنه قال: سمعت رسول الله ﷺ يقول: «مَنْ ظَلَمَ قِيدَ شِبْرٍ مِنَ الْأَرْضِ، طُوِّقَهُ مِنْ سَبْعِ أَرَضِينَ» صحيح البخاري (2452) وصحيح مسلم (1610) التغليظ الشديد في تحريم التعدي على الأراضي والعقارات وتغيير حدود المخططات أو الاستيلاء على أملاك الجيران والورثة، وبيان شناعة عقوبتها الأخروية. من ظلم قيد شبر من الأرض طوقه من سبع أرضين غصب العقارات الاستيلاء على الأراضي تزوير الحجج","title":"عقوبة غصب العقارات وتزوير حجج الأراضي والتعدي على المخططات","catBadge":"🛡️ لقطة وأمانات وحفظ مال","gradeBadge":"✓ متفق عليه","sanad":"عن سعيد بن زيد رضي الله عنه قال: سمعت رسول الله ﷺ يقول:","matn":"«مَنْ ظَلَمَ قِيدَ شِبْرٍ مِنَ الْأَرْضِ، طُوِّقَهُ مِنْ سَبْعِ أَرَضِينَ»","source":"صحيح البخاري (2452) وصحيح مسلم (1610)","benefit":"التغليظ الشديد في تحريم التعدي على الأراضي والعقارات وتغيير حدود المخططات أو الاستيلاء على أملاك الجيران والورثة، وبيان شناعة عقوبتها الأخروية."},{"num":95,"cat":"integrity","search":"95 لعن الراشي والمرتشي في المعاملات والمناقصات والقضاء والوظائف عن عبد الله بن عمرو رضي الله عنهما قال: «لَعَنَ رَسُولُ اللَّهِ ﷺ الرَّاشِي وَالْمُرْتَشِي» رواه أبو داود (3580) والترمذي (1337) وصححه، وابن ماجه (2313) وصححه الألباني التحريم القطعي لكافة أشكال الرشاوى والإكراميات غير المشروعة لتمرير الصفقات أو الحصول على عقود أو تزييف التدقيق المالي، واستحقاق الطرد من رحمة الله للطرفين. لعن رسول الله الراشي والمرتشي الرشوة الفساد المالي المناقصات النزاهة الشفافية","title":"لعن الراشي والمرتشي في المعاملات والمناقصات والقضاء والوظائف","catBadge":"⚖️ نزاهة ومحاربة الرشوة","gradeBadge":"✓ صحيح","sanad":"عن عبد الله بن عمرو رضي الله عنهما قال:","matn":"«لَعَنَ رَسُولُ اللَّهِ ﷺ الرَّاشِي وَالْمُرْتَشِي»","source":"رواه أبو داود (3580) والترمذي (1337) وصححه، وابن ماجه (2313) وصححه الألباني","benefit":"التحريم القطعي لكافة أشكال الرشاوى والإكراميات غير المشروعة لتمرير الصفقات أو الحصول على عقود أو تزييف التدقيق المالي، واستحقاق الطرد من رحمة الله للطرفين."},{"num":96,"cat":"integrity","search":"96 تجريم عمولات الموظفين وهدايا المشتريات: هدايا العمال غلول وخيانة عن أبي حميد الساعدي رضي الله عنه أن رسول الله ﷺ استعمل ابن اللُّتْبِيَّة على الصدقة فجاء فقال: هذا لكم وهذا أهدي لي، فقام ﷺ خطيباً وقال: «مَا بَالُ الْعَامِلِ نَبْعَثُهُ فَيَقُولُ: هَذَا لَكُمْ وَهَذَا أُهْدِيَ لِي! أَفَلَا جَلَسَ فِي بَيْتِ أَبِيهِ أَوْ بَيْتِ أُمِّهِ فَيَنْظُرَ أَيُهْدَى إِلَيْهِ أَمْ لَا؟ وَالَّذِي نَفْسِي بِيَدِهِ لَا يَأْخُذُ أَحَدٌ مِنْهُ شَيْئًا إِلَّا جَاءَ بِهِ يَوْمَ الْقِيَامَةِ يَحْمِلُهُ عَلَى رَقَبَتِهِ» صحيح البخاري (2597) وصحيح مسلم (1832) المعيار النبوي الدقيق في مكافحة تضارب المصالح والحوكمة المؤسسية: تحريم قبول موظفي المشتريات أو العقود أو الجباية لأي هدايا أو عمولات خاصة من الموردين والعملاء. هدايا العمال غلول ابن اللتبية أفلا جلس في بيت أبيه تضارب المصالح عمولات المشتريات الحوكمة","title":"تجريم عمولات الموظفين وهدايا المشتريات: هدايا العمال غلول وخيانة","catBadge":"⚖️ نزاهة ومحاربة الرشوة","gradeBadge":"✓ متفق عليه","sanad":"عن أبي حميد الساعدي رضي الله عنه أن رسول الله ﷺ استعمل ابن اللُّتْبِيَّة على الصدقة فجاء فقال: هذا لكم وهذا أهدي لي، فقام ﷺ خطيباً وقال:","matn":"«مَا بَالُ الْعَامِلِ نَبْعَثُهُ فَيَقُولُ: هَذَا لَكُمْ وَهَذَا أُهْدِيَ لِي! أَفَلَا جَلَسَ فِي بَيْتِ أَبِيهِ أَوْ بَيْتِ أُمِّهِ فَيَنْظُرَ أَيُهْدَى إِلَيْهِ أَمْ لَا؟ وَالَّذِي نَفْسِي بِيَدِهِ لَا يَأْخُذُ أَحَدٌ مِنْهُ شَيْئًا إِلَّا جَاءَ بِهِ يَوْمَ الْقِيَامَةِ يَحْمِلُهُ عَلَى رَقَبَتِهِ»","source":"صحيح البخاري (2597) وصحيح مسلم (1832)","benefit":"المعيار النبوي الدقيق في مكافحة تضارب المصالح والحوكمة المؤسسية: تحريم قبول موظفي المشتريات أو العقود أو الجباية لأي هدايا أو عمولات خاصة من الموردين والعملاء."},{"num":97,"cat":"integrity","search":"97 شؤم التكسب من السحت والحرام واستحقاق النار للجسد النابت منه عن كعب بن عجرة رضي الله عنه قال: قال لي رسول الله ﷺ: «يَا كَعْبُ بْنَ عُجْرَةَ، إِنَّهُ لَا يَرْبُو لَحْمٌ نَبَتَ مِنْ سُحْتٍ إِلَّا كَانَتِ النَّارُ أَوْلَى بِهِ» رواه الترمذي (614) وصححه، وأحمد (14441) وصححه الألباني في صحيح الترغيب (1729) التحذير الرهيب من إدخال المال الحرام أو العمولات المشبوهة في طعام الأهل والذرية، وبيان أن أكل السحت يحرم العبد من استجابة الدعاء ويجلب الأمراض ومحق البركة. لا يربو لحم نبت من سحت إلا كانت النار أولى به أكل الحرام كسب السحت إطعام الأهل","title":"شؤم التكسب من السحت والحرام واستحقاق النار للجسد النابت منه","catBadge":"⚖️ نزاهة ومحاربة الرشوة","gradeBadge":"✓ صحيح","sanad":"عن كعب بن عجرة رضي الله عنه قال: قال لي رسول الله ﷺ:","matn":"«يَا كَعْبُ بْنَ عُجْرَةَ، إِنَّهُ لَا يَرْبُو لَحْمٌ نَبَتَ مِنْ سُحْتٍ إِلَّا كَانَتِ النَّارُ أَوْلَى بِهِ»","source":"رواه الترمذي (614) وصححه، وأحمد (14441) وصححه الألباني في صحيح الترغيب (1729)","benefit":"التحذير الرهيب من إدخال المال الحرام أو العمولات المشبوهة في طعام الأهل والذرية، وبيان أن أكل السحت يحرم العبد من استجابة الدعاء ويجلب الأمراض ومحق البركة."},{"num":98,"cat":"integrity","search":"98 عقوبة اقتطاع أموال الناس وابتلاع حقوقهم بالأيمان الكاذبة المغلظة عن عبد الله بن مسعود رضي الله عنه قال: قال رسول الله ﷺ: «مَنْ حَلَفَ عَلَى يَمِينِ صَبْرٍ يَقْتَطِعُ بِهَا مَالَ امْرِئٍ مُسْلِمٍ، هُوَ فِيهَا فَاجِرٌ؛ لَقِيَ اللَّهَ وَهُوَ عَلَيْهِ غَضْبَانُ» صحيح البخاري (2666) وصحيح مسلم (138) تجريم شهادة الزور والأيمان الكاذبة في المحاكم والمرافعات لنهب الشركات أو حقوق الشركاء والورثة، وبيان أنها اليمين الغموس التي تغمس صاحبها في نار جهنم. من حلف على يمين صبر يقتطع بها مال امرئ مسلم اليمين الغموس شهادة الزور نهب الأموال","title":"عقوبة اقتطاع أموال الناس وابتلاع حقوقهم بالأيمان الكاذبة المغلظة","catBadge":"⚖️ نزاهة ومحاربة الرشوة","gradeBadge":"✓ متفق عليه","sanad":"عن عبد الله بن مسعود رضي الله عنه قال: قال رسول الله ﷺ:","matn":"«مَنْ حَلَفَ عَلَى يَمِينِ صَبْرٍ يَقْتَطِعُ بِهَا مَالَ امْرِئٍ مُسْلِمٍ، هُوَ فِيهَا فَاجِرٌ؛ لَقِيَ اللَّهَ وَهُوَ عَلَيْهِ غَضْبَانُ»","source":"صحيح البخاري (2666) وصحيح مسلم (138)","benefit":"تجريم شهادة الزور والأيمان الكاذبة في المحاكم والمرافعات لنهب الشركات أو حقوق الشركاء والورثة، وبيان أنها اليمين الغموس التي تغمس صاحبها في نار جهنم."},{"num":99,"cat":"integrity","search":"99 حرمة مال المسلم المطلقة: لا يحل أخذ أي جزء منه إلا بطيب نفس ورضا عن أبي حرة الرقاشي عن عمه رضي الله عنه أن رسول الله ﷺ قال في خطبة أيام التشريق: «أَلَا لَا تَظْلِمُوا، أَلَا لَا تَظْلِمُوا، أَلَا لَا تَظْلِمُوا، إِنَّهُ لَا يَحِلُّ مَالُ امْرِئٍ إِلَّا بِطِيبِ نَفْسٍ مِنْهُ» رواه أحمد (20695) والبيهقي في السنن (11325) والدارقطني وصححه الألباني في الإرواء (1459) أصل أصيل في حرمة الملكيات وحسابات الأفراد: بطلان أي استقطاع مالي أو فرض رسوم أو أخذ ممتلكات بالحياء أو الإحراج أو التحايل دون رضا قلبي تام واختيار حر. لا يحل مال امرئ إلا بطيب نفس منه ألا لا تظلموا طيب النفس الرضا التام استقطاع الأموال","title":"حرمة مال المسلم المطلقة: لا يحل أخذ أي جزء منه إلا بطيب نفس ورضا","catBadge":"⚖️ نزاهة ومحاربة الرشوة","gradeBadge":"✓ صحيح","sanad":"عن أبي حرة الرقاشي عن عمه رضي الله عنه أن رسول الله ﷺ قال في خطبة أيام التشريق:","matn":"«أَلَا لَا تَظْلِمُوا، أَلَا لَا تَظْلِمُوا، أَلَا لَا تَظْلِمُوا، إِنَّهُ لَا يَحِلُّ مَالُ امْرِئٍ إِلَّا بِطِيبِ نَفْسٍ مِنْهُ»","source":"رواه أحمد (20695) والبيهقي في السنن (11325) والدارقطني وصححه الألباني في الإرواء (1459)","benefit":"أصل أصيل في حرمة الملكيات وحسابات الأفراد: بطلان أي استقطاع مالي أو فرض رسوم أو أخذ ممتلكات بالحياء أو الإحراج أو التحايل دون رضا قلبي تام واختيار حر."},{"num":100,"cat":"integrity","search":"100 دستور الحوكمة وإدارة الثروات: النهي القاطع عن إضاعة المال والتبذير عن المغيرة بن شعبة رضي الله عنه قال: سمعت النبي ﷺ يقول: «إِنَّ اللَّهَ كَرِهَ لَكُمْ ثَلَاثًا: قِيلَ وَقَالَ، وَكَثْرَةَ السُّؤَالِ، وَإِضَاعَةَ الْمَالِ» صحيح البخاري (1477) وصحيح مسلم (593) التوجيه النبوي الأعلى في ترشيد الإنفاق وحسن التدبير المحاسبي والاستثماري: تحريم هدر الموارد المالية، ومحاربة المشاريع الخاسرة الناتجة عن الإهمال والتبذير وسوء التخطيط. إن الله كره لكم ثلاثا قيل وقال وكثرة السؤال وإضاعة المال ترشيد الإنفاق التبذير الحوكمة المالية","title":"دستور الحوكمة وإدارة الثروات: النهي القاطع عن إضاعة المال والتبذير","catBadge":"⚖️ نزاهة ومحاربة الرشوة","gradeBadge":"✓ متفق عليه","sanad":"عن المغيرة بن شعبة رضي الله عنه قال: سمعت النبي ﷺ يقول:","matn":"«إِنَّ اللَّهَ كَرِهَ لَكُمْ ثَلَاثًا: قِيلَ وَقَالَ، وَكَثْرَةَ السُّؤَالِ، وَإِضَاعَةَ الْمَالِ»","source":"صحيح البخاري (1477) وصحيح مسلم (593)","benefit":"التوجيه النبوي الأعلى في ترشيد الإنفاق وحسن التدبير المحاسبي والاستثماري: تحريم هدر الموارد المالية، ومحاربة المشاريع الخاسرة الناتجة عن الإهمال والتبذير وسوء التخطيط."}];
+
+    function copyAyahCard(num) {
+        const dataset = window.QURAN_VERSES_DATA || [];
+        const item = dataset.find(v => v.num === num);
+        if (!item) return;
+
+        let textToCopy = `الدستور القرآني للمعاملات المالية (الآية #${item.num}):\n`;
+        textToCopy += `المسألة: ${item.title}\n`;
+        textToCopy += `الموضع: ${item.surah}\n\n`;
+        textToCopy += `النص القرآني المحكم:\n${item.verseText}\n\n`;
+        textToCopy += `الأحكام والفوائد الفقهية والاقتصادية المستنبطة:\n${item.guidance}\n\n`;
+        textToCopy += `التصنيف: ${item.catBadge} | نص قطعي الثبوت والدلالة\n`;
+        textToCopy += `— منقول من: الدستور القرآني للمعاملات المالية (نظام السجانة الذكي)`;
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showFiqhToast('✓ تم نسخ نص الآية الكريمة والأحكام بنجاح إلى الحافظة');
+            }).catch(() => {
+                fallbackCopyText(textToCopy);
+            });
+        } else {
+            fallbackCopyText(textToCopy);
+        }
+    }
+
+    function shareAyahWhatsApp(num) {
+        const dataset = window.QURAN_VERSES_DATA || [];
+        const item = dataset.find(v => v.num === num);
+        if (!item) return;
+
+        let text = `*الدستور القرآني للمعاملات المالية (#${item.num})*:\n`;
+        text += `*الموضع*: ${item.surah}\n\n`;
+        text += `${item.verseText}\n\n`;
+        text += `*الأحكام والفوائد*: ${item.guidance}\n\n`;
+        text += `_منظومة السجانة الذكية_`;
+
+        const url = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(text);
+        window.open(url, '_blank');
+    }
+
+    function copyHadithCard(num) {
+        const dataset = window.HADITHS_DATA || [];
+        const item = dataset.find(h => h.num === num);
+        if (!item) return;
+
+        let textToCopy = `الموسوعة النبوية الصحيحة للمعاملات المالية (الحديث #${item.num}):\n`;
+        textToCopy += `الموضوع: ${item.title}\n`;
+        textToCopy += `الباب: ${item.catBadge} | درجة الحديث: ${item.gradeBadge}\n\n`;
+        if (item.sanad) {
+            textToCopy += `السند:\n${item.sanad}\n`;
+        }
+        textToCopy += `الحديث النبوي الشريف:\n${item.matn}\n\n`;
+        textToCopy += `التخريج والمصدر المعتمد:\n${item.source}\n\n`;
+        textToCopy += `الضابط والفائدة للتاجر والمحاسب:\n${item.benefit}\n\n`;
+        textToCopy += `— منقول من: الموسوعة النبوية الصحيحة للمعاملات المالية (نظام السجانة الذكي)`;
+
+        if (navigator.clipboard && navigator.clipboard.writeText) {
+            navigator.clipboard.writeText(textToCopy).then(() => {
+                showFiqhToast('✓ تم نسخ نص الحديث الشريف والتخريج بنجاح إلى الحافظة');
+            }).catch(() => {
+                fallbackCopyText(textToCopy);
+            });
+        } else {
+            fallbackCopyText(textToCopy);
+        }
+    }
+
+    function shareHadithWhatsApp(num) {
+        const dataset = window.HADITHS_DATA || [];
+        const item = dataset.find(h => h.num === num);
+        if (!item) return;
+
+        let text = `*الحديث النبوي الشريف (#${item.num})*:\n`;
+        text += `*${item.title}*\n`;
+        text += `الباب: ${item.catBadge} | درجة الصحة: ${item.gradeBadge}\n\n`;
+        if (item.sanad) {
+            text += `${item.sanad}\n`;
+        }
+        text += `${item.matn}\n\n`;
+        text += `*التخريج*: ${item.source}\n\n`;
+        text += `*الضابط والفائدة*: ${item.benefit}\n\n`;
+        text += `_منظومة السجانة الذكية_`;
+
+        const url = 'https://api.whatsapp.com/send?text=' + encodeURIComponent(text);
+        window.open(url, '_blank');
     }
 
 </script>
