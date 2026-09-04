@@ -438,6 +438,276 @@ $pdo = getDBConnection();
             background: rgba(30, 41, 59, 0.95);
         }
 
+        /* 🌟 FIQH REFINED V4 DESIGN SYSTEM 🌟 */
+        .fiqh-unified-console {
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.96), rgba(10, 15, 28, 0.99));
+            border: 2px solid rgba(251, 191, 36, 0.45);
+            border-radius: 22px;
+            padding: 22px;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+        }
+
+        .fiqh-search-input-wrap {
+            position: relative;
+            flex: 1;
+            min-width: 260px;
+        }
+
+        .fiqh-search-input-field {
+            width: 100%;
+            padding: 14px 20px 14px 44px;
+            background: rgba(10, 15, 26, 0.95) !important;
+            border: 2px solid rgba(251, 191, 36, 0.5) !important;
+            color: #fbbf24 !important;
+            font-size: 1.25rem !important;
+            font-weight: 800 !important;
+            border-radius: 16px !important;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.6) !important;
+            transition: all 0.25s ease !important;
+        }
+
+        .fiqh-search-input-field:focus {
+            border-color: #f59e0b !important;
+            box-shadow: inset 0 2px 8px rgba(0,0,0,0.6), 0 0 20px rgba(245, 158, 11, 0.35) !important;
+            outline: none !important;
+        }
+
+        .fiqh-clear-input-btn {
+            position: absolute;
+            left: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            width: 28px;
+            height: 28px;
+            border-radius: 50%;
+            background: rgba(239, 68, 68, 0.2);
+            color: #f87171;
+            border: 1px solid rgba(239, 68, 68, 0.4);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        .fiqh-clear-input-btn:hover {
+            background: rgba(239, 68, 68, 0.4);
+            color: #ffffff;
+            transform: translateY(-50%) scale(1.1);
+        }
+
+        /* Grand FAQ Master Card */
+        .faq-master-card {
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.94), rgba(20, 30, 50, 0.85));
+            border: 2px solid rgba(56, 189, 248, 0.35);
+            border-radius: 24px;
+            padding: 24px;
+            box-shadow: 0 16px 36px rgba(0, 0, 0, 0.45);
+        }
+
+        /* Thematic Color Pill Buttons */
+        .faq-pill-btn {
+            padding: 9px 15px;
+            border-radius: 12px;
+            font-size: 0.9rem;
+            font-weight: 800;
+            background: rgba(15, 23, 42, 0.92);
+            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+            white-space: nowrap;
+        }
+
+        .faq-pill-btn:hover {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        /* 1. Cyan (Financing/Installments) */
+        .faq-pill-cyan {
+            color: #a5f3fc;
+            border-color: rgba(6, 182, 212, 0.4);
+        }
+        .faq-pill-cyan:hover {
+            background: rgba(6, 182, 212, 0.18);
+            border-color: #22d3ee;
+            color: #ffffff;
+            box-shadow: 0 4px 16px rgba(6, 182, 212, 0.35);
+        }
+
+        /* 2. Emerald (Commercial papers/Checks/Sales) */
+        .faq-pill-emerald {
+            color: #a7f3d0;
+            border-color: rgba(16, 185, 129, 0.4);
+        }
+        .faq-pill-emerald:hover {
+            background: rgba(16, 185, 129, 0.18);
+            border-color: #34d399;
+            color: #ffffff;
+            box-shadow: 0 4px 16px rgba(16, 185, 129, 0.35);
+        }
+
+        /* 3. Amber (Gold/Currencies/Banking apps) */
+        .faq-pill-amber {
+            color: #fde68a;
+            border-color: rgba(245, 158, 11, 0.45);
+        }
+        .faq-pill-amber:hover {
+            background: rgba(245, 158, 11, 0.2);
+            border-color: #fbbf24;
+            color: #ffffff;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.35);
+        }
+
+        /* 4. Purple (Contracting/Scrap/Labor) */
+        .faq-pill-purple {
+            color: #e9d5ff;
+            border-color: rgba(168, 85, 247, 0.4);
+        }
+        .faq-pill-purple:hover {
+            background: rgba(168, 85, 247, 0.18);
+            border-color: #c084fc;
+            color: #ffffff;
+            box-shadow: 0 4px 16px rgba(168, 85, 247, 0.35);
+        }
+
+        /* 5. Orange (Customs/Marketing/Trading) */
+        .faq-pill-orange {
+            color: #fed7aa;
+            border-color: rgba(249, 115, 22, 0.4);
+        }
+        .faq-pill-orange:hover {
+            background: rgba(249, 115, 22, 0.18);
+            border-color: #fb923c;
+            color: #ffffff;
+            box-shadow: 0 4px 16px rgba(249, 115, 22, 0.35);
+        }
+
+        /* Master Section Portals Toolbar */
+        .portal-bar-card {
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.95), rgba(10, 15, 28, 0.98));
+            border: 2px solid rgba(255, 255, 255, 0.1);
+            border-radius: 22px;
+            padding: 16px 20px;
+            box-shadow: 0 12px 30px rgba(0,0,0,0.4);
+        }
+
+        .fiqh-portal-btn {
+            padding: 12px 20px;
+            border-radius: 16px;
+            font-size: 0.95rem;
+            font-weight: 900;
+            background: rgba(15, 23, 42, 0.9);
+            border: 2px solid var(--portal-border, rgba(255,255,255,0.15));
+            color: var(--portal-color, #ffffff);
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+            flex: 1;
+            min-width: 180px;
+            justify-content: center;
+            text-align: center;
+        }
+
+        .fiqh-portal-btn:hover {
+            transform: translateY(-3px) scale(1.02);
+            border-color: var(--portal-color, #fbbf24);
+            box-shadow: 0 8px 24px var(--portal-glow, rgba(251, 191, 36, 0.3));
+        }
+
+        .fiqh-portal-btn.active {
+            background: var(--portal-gradient, linear-gradient(135deg, #f59e0b, #d97706)) !important;
+            color: #020617 !important;
+            border-color: var(--portal-color, #fbbf24) !important;
+            box-shadow: 0 8px 25px var(--portal-glow, rgba(245, 158, 11, 0.45)) !important;
+            transform: translateY(-2px) scale(1.03);
+        }
+
+        /* Hadith Question Clickable Pills */
+        .hadith-q-pill {
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            background: rgba(15, 23, 42, 0.92);
+            border: 1.5px solid rgba(245, 158, 11, 0.35);
+            color: #fde68a;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .hadith-q-pill:hover, .hadith-q-pill.active {
+            background: rgba(245, 158, 11, 0.2);
+            border-color: #fbbf24;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.35);
+        }
+
+        .quran-q-pill {
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            background: rgba(15, 23, 42, 0.92);
+            border: 1.5px solid rgba(16, 185, 129, 0.35);
+            color: #a7f3d0;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .quran-q-pill:hover, .quran-q-pill.active {
+            background: rgba(16, 185, 129, 0.25);
+            border-color: #34d399;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(16, 185, 129, 0.35);
+        }
+
+        .book-q-pill {
+            padding: 8px 14px;
+            border-radius: 12px;
+            font-size: 0.85rem;
+            font-weight: 800;
+            background: rgba(15, 23, 42, 0.92);
+            border: 1.5px solid rgba(56, 189, 248, 0.35);
+            color: #bae6fd;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+        }
+        .book-q-pill:hover, .book-q-pill.active {
+            background: rgba(56, 189, 248, 0.25);
+            border-color: #38bdf8;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(56, 189, 248, 0.35);
+        }
+
+        /* Pulse animation for targeted card */
+        @keyframes cardPulseHighlight {
+            0% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0.8); }
+            50% { box-shadow: 0 0 35px 8px rgba(245, 158, 11, 0.6); }
+            100% { box-shadow: 0 0 0 0 rgba(245, 158, 11, 0); }
+        }
+        .fiqh-card-highlighted {
+            animation: cardPulseHighlight 2.5s ease-out;
+            border-color: #fbbf24 !important;
+        }
+
     </style>
 </head>
 
@@ -1800,161 +2070,259 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- 2. DUAL SEARCH CONSOLE (سطر البحث الموحد: مقسوم على جزئين متوازيين بخط كبير وواضح) -->
-                <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-                    
-                    <!-- الجزء الأيمن: البحث داخل البرنامج -->
-                    <div class="p-4 sm:p-5 bg-slate-950/95 border-2 border-amber-400/80 rounded-2xl shadow-xl space-y-2.5">
-                        <div class="flex items-center justify-between">
-                            <label class="text-sm sm:text-base font-black text-amber-300 flex items-center gap-2">
-                                <i class="fa-solid fa-magnifying-glass text-amber-400 text-lg"></i>
-                                🔍 ابحث في موسوعة الـ 4,500 فتوى الشاملة (داخل البرنامج):
-                            </label>
-                            <span id="fiqh_search_badge" class="text-emerald-400 font-mono font-black text-xs px-2.5 py-0.5 bg-emerald-950 border border-emerald-500/40 rounded-lg">
-                                4,500 فتوى موثقة ومتاحة للبحث والفلترة
-                            </span>
+                <!-- 🌟 1. UNIFIED SEARCH CONSOLE (خانة بحث موحدة خالية من الكتابات مع أزرار البحث الداخلية وقوقل المشروط بالـ 12) 🌟 -->
+                <div class="fiqh-unified-console mb-6">
+                    <div class="flex flex-col md:flex-row items-stretch md:items-center gap-3">
+                        <div class="fiqh-search-input-wrap">
+                            <input type="text" id="fiqh-search-input" 
+                                   oninput="filterFatwas()" 
+                                   onkeydown="if(event.key==='Enter'){executeInternalFiqhSearch();}" 
+                                   placeholder="" 
+                                   autocomplete="off"
+                                   spellcheck="false"
+                                   class="fiqh-search-input-field">
+                            <button type="button" onclick="clearFiqhInput()" class="fiqh-clear-input-btn" title="تفريغ خانة البحث">
+                                <i class="fa-solid fa-xmark"></i>
+                            </button>
                         </div>
-                        <div class="relative">
-                            <input type="text" id="fiqh-search-input" oninput="filterFatwas()" placeholder="اكتب للبحث في الـ 4,500 فتوى: تقسيط، ذهب، فرنشايز، اعتمادات L/C، تمويل جماعي، تايم شير، ضرائب جمركية، أسهم..." class="w-full py-3.5 pr-11 pl-4 bg-slate-900 border-2 border-amber-500/60 focus:border-amber-400 text-white rounded-xl text-sm sm:text-base font-black shadow-inner">
-                            <i class="fa-solid fa-search absolute right-3.5 top-4 text-amber-400 text-lg"></i>
-                        </div>
-                    </div>
 
-                    <!-- الجزء الأيسر: البحث في قوقل الموثق للشيوخ الـ 12 -->
-                    <div class="p-4 sm:p-5 bg-slate-950/95 border-2 border-sky-400/80 rounded-2xl shadow-xl space-y-2.5">
-                        <div class="flex items-center justify-between">
-                            <label class="text-sm sm:text-base font-black text-sky-300 flex items-center gap-2">
-                                <i class="fa-brands fa-google text-sky-400 text-lg"></i>
-                                🌐 ابحث في قوقل (خارج البرنامج للشيوخ الـ 12):
-                            </label>
-                            <span class="text-sky-300 font-black text-xs px-2.5 py-0.5 bg-sky-950 border border-sky-500/40 rounded-lg">
-                                قوقل الموثق ↗
-                            </span>
-                        </div>
-                        <div class="flex gap-2">
-                            <input type="text" id="google_quick_input" placeholder="اكتب مسألتك للبحث في قوقل (مرابحة، تأخير توريد...)" class="w-full py-3.5 pr-4 pl-3 bg-slate-900 border-2 border-sky-500/60 focus:border-sky-400 text-white rounded-xl text-sm sm:text-base font-black shadow-inner">
-                            <button type="button" onclick="executeHeaderGoogleSearch()" class="px-5 py-3.5 bg-gradient-to-r from-sky-500 to-blue-600 hover:from-sky-400 hover:to-blue-500 text-white font-black text-sm rounded-xl shadow-lg border border-sky-300/60 flex items-center justify-center gap-1.5 flex-shrink-0 transition transform hover:-translate-y-0.5">
-                                <i class="fa-brands fa-google"></i>
-                                <span>بحث قوقل ↗</span>
+                        <!-- أزرار البحث المباشر وقوقل المشروط بالـ 12 -->
+                        <div class="flex flex-wrap items-center gap-2.5">
+                            <button type="button" onclick="executeInternalFiqhSearch()" class="fiqh-search-action-btn fiqh-btn-internal">
+                                <i class="fa-solid fa-magnifying-glass text-lg"></i>
+                                <span>🔍 بحث داخل البرنامج</span>
+                            </button>
+
+                            <button type="button" onclick="executeScopedGoogle12Search()" class="fiqh-search-action-btn fiqh-btn-google" title="بحث في قوقل مقيد بالمشايخ الـ 12 والمواقع الشرعية المعتمدة">
+                                <i class="fa-brands fa-google text-lg"></i>
+                                <span>🌐 بحث في قوقل (المشايخ الـ 12 ↗)</span>
                             </button>
                         </div>
                     </div>
 
+                    <div class="flex flex-wrap items-center justify-between gap-2 mt-3 pt-2.5 border-t border-slate-800/80 text-xs">
+                        <span class="text-slate-400 font-bold flex items-center gap-1.5">
+                            <i class="fa-solid fa-circle-info text-amber-400"></i>
+                            اكتب مسألتك واضغط <kbd class="px-1.5 py-0.5 bg-slate-800 text-amber-300 rounded border border-slate-700 font-mono">Enter</kbd> أو اختر أحد الأزرار، أو انقر على المسائل الشائعة أدناه.
+                        </span>
+                        <span id="fiqh_search_badge" class="font-mono font-black text-amber-300 px-2.5 py-0.5 bg-amber-950/60 border border-amber-500/40 rounded-lg">
+                            4,500 فتوى محررة ومفهرسة
+                        </span>
+                    </div>
                 </div>
 
-                <!-- 3. THE 4 DISTINCT COMMERCIAL CATEGORIES (المسائل الأكثر شيوعاً - 4 مجموعات مفصولة بخطوط كبيرة) -->
-                <div class="space-y-3 mb-6">
-                    
-                    <div class="flex items-center justify-between border-b-2 border-amber-500/30 pb-2">
-                        <h3 class="text-base sm:text-lg md:text-xl font-black text-amber-300 flex items-center gap-2">
-                            <i class="fa-solid fa-layer-group text-amber-400"></i>
-                            المسائل والفتاوى الأكثر شيوعاً (مقسمة ومفصولة بوضوح تام):
-                        </h3>
-                        <button type="button" onclick="clearFiqhSearch()" class="px-3.5 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/50 rounded-xl text-xs font-black transition">
-                            ✕ تفريغ البحث
+                <!-- 🌟 2. GRAND FAQ MASTER CARD (صندوق المسائل الأكثر شيوعاً الموحد الشامل - كل الأسئلة في مربع واحد بتنسيق متناسق وظريف) 🌟 -->
+                <div class="faq-master-card mb-6">
+                    <div class="faq-master-header">
+                        <div class="flex items-center gap-2.5">
+                            <span class="w-9 h-9 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center border border-amber-400/40 text-lg font-black">
+                                <i class="fa-solid fa-fire text-amber-400"></i>
+                            </span>
+                            <div>
+                                <h3 class="text-base sm:text-lg md:text-xl font-black text-amber-300">
+                                    الأسئلة والمسائل الفقهية الأكثر شيوعاً في المعاملات والتجارة
+                                </h3>
+                                <p class="text-xs text-slate-400 font-bold">
+                                    اضغط على أي مسألة للانتقال الفوري إلى نص الفتوى وحكمها وتوجيه أئمة الإسلام
+                                </p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="clearFiqhSearch()" class="px-3.5 py-1.5 bg-rose-500/15 hover:bg-rose-500/25 text-rose-300 border border-rose-500/40 rounded-xl text-xs font-black transition flex items-center gap-1.5">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            <span>تفريغ وفلترة الكل</span>
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
-                        
-                        <!-- المربع 1: التمويل والتقسيط والديون -->
-                        <div class="p-4 bg-slate-950/90 rounded-2xl border-2 border-cyan-500/40 space-y-3 shadow-md hover:border-cyan-400 transition">
-                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                                <h4 class="text-sm sm:text-base font-black text-cyan-300 flex items-center gap-2">
-                                    <span>💳</span> 1. التمويل والتقسيط والديون
-                                </h4>
-                                <span class="text-[11px] font-mono font-bold text-cyan-400 px-2 py-0.5 bg-cyan-950 rounded border border-cyan-500/30">6 مسائل</span>
+                    <div class="space-y-4">
+                        <!-- القسم 1: التمويل والتقسيط والديون -->
+                        <div>
+                            <div class="faq-category-title">
+                                <span class="text-cyan-400">💳</span>
+                                <span class="text-cyan-300">التمويل والتقسيط والديون والشرط الجزائي:</span>
+                                <span class="faq-badge-counter border-cyan-500/30 text-cyan-400 bg-cyan-950/60">6 مسائل</span>
                             </div>
                             <div class="flex flex-wrap gap-2">
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('التقسيط')">💳 البيع بالتقسيط وزيادة الأجل</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('غرامات التأخير')">⚠️ غرامات التأخير والشرط الجزائي</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('المرابحة')">🏢 المرابحة للآمر بالشراء</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('التورق')">🔄 التورق للحصول على سيولة</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('الإيجار المنتهي بالتمليك')">🚗 الإيجار المنتهي بالتمليك</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('إنظار المعسر')">⏳ إنظار المعسر والتيسير</button>
+                                <button type="button" class="faq-pill-btn faq-pill-cyan" onclick="setQuickSearch('التقسيط')">
+                                    <span>💳</span> البيع بالتقسيط وزيادة السعر للأجل
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-cyan" onclick="setQuickSearch('غرامات التأخير')">
+                                    <span>⚠️</span> غرامات التأخير والشرط الجزائي في الديون
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-cyan" onclick="setQuickSearch('المرابحة للآمر بالشراء')">
+                                    <span>🏢</span> المرابحة للآمر بالشراء وضوابطها
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-cyan" onclick="setQuickSearch('التورق')">
+                                    <span>🔄</span> التورق المنظم والفردي للحصول على سيولة
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-cyan" onclick="setQuickSearch('الإيجار المنتهي بالتمليك')">
+                                    <span>🚗</span> الإيجار المنتهي بالتمليك وشروطه
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-cyan" onclick="setQuickSearch('إنظار المعسر')">
+                                    <span>⏳</span> حكم إنظار المدين المعسر والتجاوز عنه
+                                </button>
                             </div>
                         </div>
 
-                        <!-- المربع 2: الأوراق التجارية والمدفوعات -->
-                        <div class="p-4 bg-slate-950/90 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-md hover:border-emerald-400 transition">
-                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                                <h4 class="text-sm sm:text-base font-black text-emerald-300 flex items-center gap-2">
-                                    <span>📜</span> 2. الأوراق التجارية والمدفوعات
-                                </h4>
-                                <span class="text-[11px] font-mono font-bold text-emerald-400 px-2 py-0.5 bg-emerald-950 rounded border border-emerald-500/30">5 مسائل</span>
+                        <!-- القسم 2: الأوراق التجارية والمدفوعات البنكية -->
+                        <div>
+                            <div class="faq-category-title">
+                                <span class="text-emerald-400">📜</span>
+                                <span class="text-emerald-300">الأوراق التجارية والمدفوعات والحسابات البنكية:</span>
+                                <span class="faq-badge-counter border-emerald-500/30 text-emerald-400 bg-emerald-950/60">6 مسائل</span>
                             </div>
                             <div class="flex flex-wrap gap-2">
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('خصم الشيكات')">📜 خصم الشيكات والكمبيالات الآجلة</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('العربون')">🤝 بيع العربون وحجز البضاعة</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('بيع الدين')">💼 بيع الدين والمقاصة المالية</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('إقالة النادم')">🔄 إقالة النادم وفسخ الصفقة</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('السلم')">📦 بيع السلم ودفع الثمن مقدماً</button>
+                                <button type="button" class="faq-pill-btn faq-pill-emerald" onclick="setQuickSearch('خصم الشيكات')">
+                                    <span>📜</span> خصم الشيكات والكمبيالات الآجلة لدى البنوك
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-emerald" onclick="setQuickSearch('العربون')">
+                                    <span>🤝</span> بيع العربون وحكم استرداده عند الرجوع
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-emerald" onclick="setQuickSearch('بيع الدين')">
+                                    <span>💼</span> بيع الدين لغير المدين والمقاصة المالية
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-emerald" onclick="setQuickSearch('إقالة النادم')">
+                                    <span>🔄</span> فضل إقالة النادم وفسخ البيع بعد العقد
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-emerald" onclick="setQuickSearch('السلم')">
+                                    <span>📦</span> بيع السلَم وتقديم رأس المال كاملاً في المجلس
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-emerald" onclick="setQuickSearch('الاعتمادات المستندية')">
+                                    <span>🌐</span> الاعتمادات المستندية المغطاة وغير المغطاة (L/C)
+                                </button>
                             </div>
                         </div>
 
-                        <!-- المربع 3: الذهب والعملات والصرافة -->
-                        <div class="p-4 bg-slate-950/90 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-md hover:border-amber-400 transition">
-                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                                <h4 class="text-sm sm:text-base font-black text-amber-300 flex items-center gap-2">
-                                    <span>💎</span> 3. الذهب والعملات والتحويلات
-                                </h4>
-                                <span class="text-[11px] font-mono font-bold text-amber-400 px-2 py-0.5 bg-amber-950 rounded border border-amber-500/30">4 مسائل</span>
+                        <!-- القسم 3: الذهب والعملات وتطبيقات الدفع -->
+                        <div>
+                            <div class="faq-category-title">
+                                <span class="text-amber-400">💎</span>
+                                <span class="text-amber-300">الذهب والعملات وتطبيقات الدفع الإلكتروني والصرافة:</span>
+                                <span class="faq-badge-counter border-amber-500/30 text-amber-400 bg-amber-950/60">6 مسائل</span>
                             </div>
                             <div class="flex flex-wrap gap-2">
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('الذهب')">💎 شراء الذهب ببطاقات الصراف ومدى</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('الصرف بالموبايل')">📱 الصرف بتطبيقات بنكك وفوري</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('العِينة')">🚫 حيل الربا وبيوع العِينة</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('العملات المشفرة')">🪙 العملات الرقمية والفوركس</button>
+                                <button type="button" class="faq-pill-btn faq-pill-amber" onclick="setQuickSearch('شراء الذهب بالبطاقة')">
+                                    <span>💎</span> شراء الذهب ببطاقات الصراف ومدى والفيزا
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-amber" onclick="setQuickSearch('الصرف بالموبايل')">
+                                    <span>📱</span> الصرف والتحويل عبر بنكك وفوري وإنستاباي
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-amber" onclick="setQuickSearch('العينة')">
+                                    <span>🚫</span> حيل الربا وبيوع العِينة وسد الذرائع
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-amber" onclick="setQuickSearch('العملات الرقمية')">
+                                    <span>🪙</span> العملات المشفرة (بيتكوين) والمتاجرة بالفوركس
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-amber" onclick="setQuickSearch('استبدال العملة القديمة بالجديدة')">
+                                    <span>💵</span> استبدال الفئات النقدية القديمة بالجديدة مع التفاضل
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-amber" onclick="setQuickSearch('تأخير القبض في الصرف')">
+                                    <span>⚖️</span> شرط التقابض الفوري في صرف العملات
+                                </button>
                             </div>
                         </div>
 
-                        <!-- المربع 4: المقاولات والسلع والضمانات -->
-                        <div class="p-4 bg-slate-950/90 rounded-2xl border-2 border-purple-500/40 space-y-3 shadow-md hover:border-purple-400 transition">
-                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                                <h4 class="text-sm sm:text-base font-black text-purple-300 flex items-center gap-2">
-                                    <span>🏗️</span> 4. المقاولات والسلع والضمانات وحقوق العمال
-                                </h4>
-                                <span class="text-[11px] font-mono font-bold text-purple-400 px-2 py-0.5 bg-purple-950 rounded border border-purple-500/30">5 مسائل</span>
+                        <!-- القسم 4: المقاولات والسلع والتجارة الرقمية وحقوق العمال -->
+                        <div>
+                            <div class="faq-category-title">
+                                <span class="text-purple-400">🏗️</span>
+                                <span class="text-purple-300">عقود المقاولات والتوريد وحقوق العمال والسلع:</span>
+                                <span class="faq-badge-counter border-purple-500/30 text-purple-400 bg-purple-950/60">6 مسائل</span>
                             </div>
                             <div class="flex flex-wrap gap-2">
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('الاستصناع')">🏗️ عقد الاستصناع وتوريد الحديد</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('السكراب')">🔩 بيع حديد السكراب والخردة</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('بيع ما لا يملك')">🛒 بيع ما لا يملك والوساطة</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('ضمان العيوب')">🛡️ ضمان العيوب والكفالة</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('حقوق العمال')">👥 أجور العمال ومكافأة الخدمة</button>
+                                <button type="button" class="faq-pill-btn faq-pill-purple" onclick="setQuickSearch('الاستصناع')">
+                                    <span>🏗️</span> عقد الاستصناع وتوريد مواد البناء والحديد
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-purple" onclick="setQuickSearch('السكراب')">
+                                    <span>🔩</span> بيع حديد السكراب والخردة والمجازفة
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-purple" onclick="setQuickSearch('بيع ما لا يملك')">
+                                    <span>🛒</span> بيع السلعة قبل حيازتها والدروب شيبينغ
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-purple" onclick="setQuickSearch('ضمان العيوب')">
+                                    <span>🛡️</span> ضمان العيوب الخفية وكفالة المنتجات
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-purple" onclick="setQuickSearch('أجور العمال')">
+                                    <span>👥</span> دفع أجور العمال قبل جفاف عرقهم وتأخير الراتب
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-purple" onclick="setQuickSearch('مكافأة نهاية الخدمة')">
+                                    <span>📋</span> مكافأة نهاية الخدمة والتأمينات الاجتماعية
+                                </button>
                             </div>
                         </div>
 
+                        <!-- القسم 5: الجمارك والتسويق والشركات والغرر -->
+                        <div>
+                            <div class="faq-category-title">
+                                <span class="text-orange-400">⚖️</span>
+                                <span class="text-orange-300">الجمارك والضرائب والتسويق والشركات والوساطة:</span>
+                                <span class="faq-badge-counter border-orange-500/30 text-orange-400 bg-orange-950/60">5 مسائل</span>
+                            </div>
+                            <div class="flex flex-wrap gap-2">
+                                <button type="button" class="faq-pill-btn faq-pill-orange" onclick="setQuickSearch('الجمارك')">
+                                    <span>🏛️</span> التهرب الجمركي والفواتير المخفضة بالموانئ
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-orange" onclick="setQuickSearch('التسويق الشبكي')">
+                                    <span>🌐</span> التسويق الهرمي والشبكي والشجري
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-orange" onclick="setQuickSearch('السمسرة')">
+                                    <span>🤝</span> أجرة السمسار وعمولات الوساطة العقارية
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-orange" onclick="setQuickSearch('الفرنشايز')">
+                                    <span>📑</span> عقود الامتياز التجاري (الفرنشايز) وحقوق الاسم
+                                </button>
+                                <button type="button" class="faq-pill-btn faq-pill-orange" onclick="setQuickSearch('الاحتكار')">
+                                    <span>🚫</span> احتكار السلع والمواد ورفع الأسعار وقت الأزمات
+                                </button>
+                            </div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- 4. SUB-TABS NAVIGATION BAR (أقسام المنظومة الـ 6 في صندوق مستقل ومرتب) -->
-                <div class="p-3 bg-slate-950/95 rounded-2xl border-2 border-slate-800 flex flex-wrap items-center gap-2 mb-6">
-                    <button type="button" class="fiqh-nav-pill active" onclick="switchFiqhSubTab('fatwas', this)">
-                        📑 موسوعة الفتاوى والأحكام (3,000 مسألة محررة لكبار الأئمة الـ 12)
-                    </button>
-                    <button type="button" class="fiqh-nav-pill bg-gradient-to-r from-sky-500/20 to-blue-600/30 text-sky-300 border-sky-400/60 hover:border-sky-300" onclick="switchFiqhSubTab('google', this)">
-                        🌐 محرك بحث قوقل للشيوخ الـ 12 (المواقع العالمية)
-                    </button>
-                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('quran', this)">
-                        📖 الدستور القرآني للمعاملات (15 آية محكمة)
-                    </button>
-                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('hadiths', this)">
-                        📜 الموسوعة النبوية الصحيحة (32 حديثاً ثابتاً)
-                    </button>
-                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('books', this)">
-                        📚 مكتبة أمهات كتب البيوع (26 مؤلفاً وموسوعة)
-                    </button>
-                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('maxims', this)">
-                        ⚖️ القواعد الفقهية الكبرى الـ 5 الحاكمة للتجارة
-                    </button>
-                    <button type="button" class="fiqh-nav-pill" onclick="switchFiqhSubTab('terms', this)">
-                        📖 معجم المصطلحات الاقتصادية (6 مصطلحات)
-                    </button>
+                <!-- 🌟 3. MASTER SECTION PORTALS TOOLBAR (بوابة أقسام المنظومة بألوانها المخصصة المستقلة) 🌟 -->
+                <div class="portal-bar-card mb-6">
+                    <div class="flex items-center justify-between border-b border-slate-800/80 pb-2 mb-3">
+                        <span class="text-xs sm:text-sm font-black text-slate-300 flex items-center gap-2">
+                            <i class="fa-solid fa-compass text-amber-400 text-base"></i>
+                            الانتقال المباشر بين بوابات وأقسام المنظومة الفقهية الشاملة:
+                        </span>
+                        <span class="text-[11px] font-bold text-slate-400">
+                            اختر القسم للعرض الفوري
+                        </span>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-2.5">
+                        <button type="button" class="fiqh-portal-btn portal-fatwas active" onclick="switchFiqhSubTab('fatwas', this)">
+                            <i class="fa-solid fa-book-bookmark"></i>
+                            <span>📑 موسوعة الفتاوى الـ 4,500</span>
+                        </button>
+                        <button type="button" class="fiqh-portal-btn portal-hadiths" onclick="switchFiqhSubTab('hadiths', this)">
+                            <i class="fa-solid fa-scroll"></i>
+                            <span>📜 الأحاديث النبوية الصحيحة (32)</span>
+                        </button>
+                        <button type="button" class="fiqh-portal-btn portal-quran" onclick="switchFiqhSubTab('quran', this)">
+                            <i class="fa-solid fa-book-quran"></i>
+                            <span>📖 الآيات القرآنية المحكمة (15)</span>
+                        </button>
+                        <button type="button" class="fiqh-portal-btn portal-books" onclick="switchFiqhSubTab('books', this)">
+                            <i class="fa-solid fa-lines-leaning"></i>
+                            <span>📚 أمهات كتب وموسوعات البيوع (26)</span>
+                        </button>
+                        <button type="button" class="fiqh-portal-btn portal-maxims" onclick="switchFiqhSubTab('maxims', this)">
+                            <i class="fa-solid fa-scale-balanced"></i>
+                            <span>⚖️ القواعد الفقهية الكبرى الـ 5</span>
+                        </button>
+                        <button type="button" class="fiqh-portal-btn portal-terms" onclick="switchFiqhSubTab('terms', this)">
+                            <i class="fa-solid fa-spell-check"></i>
+                            <span>💡 معجم المصطلحات الاقتصادية</span>
+                        </button>
+                        <button type="button" class="fiqh-portal-btn portal-google" onclick="switchFiqhSubTab('google', this)">
+                            <i class="fa-brands fa-google"></i>
+                            <span>🌐 محرك قوقل للمشايخ الـ 12</span>
+                        </button>
+                    </div>
                 </div>
 
                 <!-- ════════════════════════════════════════════════════════════ -->
-                <!-- SUB-SECTION 1: 80 EXTENDED FATWAS SUITE                     -->
+                <!-- SUB-SECTION 1: 4,500 FATWAS SUITE                            -->
                 <!-- ════════════════════════════════════════════════════════════ -->
                 <div id="fiqh-sub-fatwas" class="space-y-4">
                     
@@ -3923,10 +4291,55 @@ $pdo = getDBConnection();
                     </div>
 
                     <!-- Verses Grid -->
+                    <!-- 🌟 QURANIC QUESTIONS DIRECT ACCESS BAR (الأسئلة القرآنية التفاعلية) 🌟 -->
+                    <div class="p-4 bg-slate-950/95 rounded-2xl border-2 border-emerald-500/50 space-y-2.5 shadow-xl">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                            <span class="text-sm font-black text-emerald-300 flex items-center gap-2">
+                                <i class="fa-solid fa-circle-question text-emerald-400 text-base"></i>
+                                المسائل والتوجيهات القرآنية الكبرى (اضغط على أي مسألة للانتقال الفوري إلى الآية المحكمة وتفسيرها):
+                            </span>
+                            <span class="text-xs font-mono font-bold text-emerald-400 px-2.5 py-0.5 bg-emerald-950 rounded border border-emerald-500/30">
+                                10 هدايات قرآنية
+                            </span>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" class="quran-q-pill" onclick="jumpToQuran(1)">
+                                <span>📜</span> ما توجيه القرآن في كتابة وتوثيق الديون والإشهاد؟
+                            </button>
+                            <button type="button" class="quran-q-pill" onclick="jumpToQuran(2)">
+                                <span>🤝</span> ما مشروعية الرهن المقبوض في المعاملات والسفر؟
+                            </button>
+                            <button type="button" class="quran-q-pill" onclick="jumpToQuran(3)">
+                                <span>⏳</span> ما حكم وفضل إنظار المعسر أو التصدق برأس المال؟
+                            </button>
+                            <button type="button" class="quran-q-pill" onclick="jumpToQuran(4)">
+                                <span>⚖️</span> ما الفرق الإلهي الحاسم بين إحلال البيع وتحريم الربا؟
+                            </button>
+                            <button type="button" class="quran-q-pill" onclick="jumpToQuran(6)">
+                                <span>🚫</span> ما نذير الله للمصرين على الربا وحق استرداد رأس المال؟
+                            </button>
+                            <button type="button" class="quran-q-pill" onclick="jumpToQuran(7)">
+                                <span>💼</span> ما الأصل الحاكم في التجارة والتراضي وتحريم الباطل؟
+                            </button>
+                            <button type="button" class="quran-q-pill" onclick="jumpToQuran(8)">
+                                <span>📑</span> ما الأمر الإلهي القاطع بالوفاء بكافة العقود والشروط؟
+                            </button>
+                            <button type="button" class="quran-q-pill" onclick="jumpToQuran(10)">
+                                <span>⚖️</span> ما وعيد الله للمطففين وناقصي الكيل والميزان في الأسواق؟
+                            </button>
+                            <button type="button" class="quran-q-pill" onclick="jumpToQuran(12)">
+                                <span>🏛️</span> ما حكم الرشوة واستغلال النفوذ لأكل أموال الناس؟
+                            </button>
+                            <button type="button" class="quran-q-pill" onclick="jumpToQuran(15)">
+                                <span>👥</span> ما معيار الكفاءة والأمانة والقوة في العمل والتوظيف؟
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="quran-verses-grid-container">
 
         <!-- Quranic Verse Card 1 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="debts" data-ayah-search="آية المداينة (أطول آية في القرآن الكريم - دستور التوثيق المالي والديون) ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا إِذَا تَدَايَنتُم بِدَيْنٍ إِلَىٰ أَجَلٍ مُّسَمًّى فَاكْتُبُوهُ ۚ وَلْيَكْتُب بَّيْنَكُمْ كَاتِبٌ بِالْعَدْلِ ۚ وَلَا يَأْبَ كَاتِبٌ أَن يَكْتُبَ كَمَا عَلَّمَهُ اللَّهُ ۚ فَلْيَكْتُبْ وَلْيُمْلِلِ الَّذِي عَلَيْهِ الْحَقُّ وَلْيَتَّقِ اللَّهَ رَبَّهُ وَلَا يَبْخَسْ مِنْهُ شَيْئًا... وَأَشْهِدُوا إِذَا تَبَايَعْتُمْ ۚ وَلَا يُضَارَّ كَاتِبٌ وَلَا شَهِيدٌ﴾ سورة البقرة: الآية 282 التوجيه المحاسبي والتجاري: وجوب وتأكيد توثيق كافة المعاملات الآجلة والفواتير كتابياً، وتحديد الأجل والمقدار بدقة، والعدالة التامة في القيود المحاسبية لقطع النزاع وحفظ الحقوق.">
+        <div id="quran-card-1" class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="debts" data-ayah-search="آية المداينة (أطول آية في القرآن الكريم - دستور التوثيق المالي والديون) ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا إِذَا تَدَايَنتُم بِدَيْنٍ إِلَىٰ أَجَلٍ مُّسَمًّى فَاكْتُبُوهُ ۚ وَلْيَكْتُب بَّيْنَكُمْ كَاتِبٌ بِالْعَدْلِ ۚ وَلَا يَأْبَ كَاتِبٌ أَن يَكْتُبَ كَمَا عَلَّمَهُ اللَّهُ ۚ فَلْيَكْتُبْ وَلْيُمْلِلِ الَّذِي عَلَيْهِ الْحَقُّ وَلْيَتَّقِ اللَّهَ رَبَّهُ وَلَا يَبْخَسْ مِنْهُ شَيْئًا... وَأَشْهِدُوا إِذَا تَبَايَعْتُمْ ۚ وَلَا يُضَارَّ كَاتِبٌ وَلَا شَهِيدٌ﴾ سورة البقرة: الآية 282 التوجيه المحاسبي والتجاري: وجوب وتأكيد توثيق كافة المعاملات الآجلة والفواتير كتابياً، وتحديد الأجل والمقدار بدقة، والعدالة التامة في القيود المحاسبية لقطع النزاع وحفظ الحقوق.">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -3942,6 +4355,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40">
                         💳 الديون وتوثيق العقود
                     </span>
+                    <button type="button" onclick="copyQuranCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ الآية وتوجيهها المحاسبي">
+                        <i class="fa-regular fa-copy text-emerald-400"></i>
+                        <span>نسخ</span>
+                    </button>
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         📖 سورة البقرة: الآية 282
                     </span>
@@ -3965,7 +4382,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Quranic Verse Card 2 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="debts" data-ayah-search="مشروعية الرهن المقبوض في السفر والديون وأداء الأمانات ﴿وَإِن كُنتُمْ عَلَىٰ سَفَرٍ وَلَمْ تَجِدُوا كَاتِبًا فَرِهَانٌ مَّقْبُوضَةٌ ۖ فَإِنْ أَمِنَ بَعْضُكُم بَعْضًا فَلْيُؤَدِّ الَّذِي اؤْتُمِنَ أَمَانَتَهُ وَلْيَتَّقِ اللَّهَ رَبَّهُ ۗ وَلَا تَكْتُمُوا الشَّهَادَةَ ۚ وَمَن يَكْتُمْهَا فَإِنَّهُ آثِمٌ قَلْبُهُ ۗ وَاللَّهُ بِمَا تَعْمَلُونَ عَلِيمٌ﴾ سورة البقرة: الآية 283 التوجيه المحاسبي والتجاري: مشروعية أخذ الرهونات والضمانات العينية لتوثيق الديون عند تعذر التوثيق الكتابي، ووجوب أداء الأمانات والشهادات دون كتمان.">
+        <div id="quran-card-2" class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="debts" data-ayah-search="مشروعية الرهن المقبوض في السفر والديون وأداء الأمانات ﴿وَإِن كُنتُمْ عَلَىٰ سَفَرٍ وَلَمْ تَجِدُوا كَاتِبًا فَرِهَانٌ مَّقْبُوضَةٌ ۖ فَإِنْ أَمِنَ بَعْضُكُم بَعْضًا فَلْيُؤَدِّ الَّذِي اؤْتُمِنَ أَمَانَتَهُ وَلْيَتَّقِ اللَّهَ رَبَّهُ ۗ وَلَا تَكْتُمُوا الشَّهَادَةَ ۚ وَمَن يَكْتُمْهَا فَإِنَّهُ آثِمٌ قَلْبُهُ ۗ وَاللَّهُ بِمَا تَعْمَلُونَ عَلِيمٌ﴾ سورة البقرة: الآية 283 التوجيه المحاسبي والتجاري: مشروعية أخذ الرهونات والضمانات العينية لتوثيق الديون عند تعذر التوثيق الكتابي، ووجوب أداء الأمانات والشهادات دون كتمان.">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -3981,6 +4398,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40">
                         💳 الرهن والضمانات
                     </span>
+                    <button type="button" onclick="copyQuranCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ الآية وتوجيهها المحاسبي">
+                        <i class="fa-regular fa-copy text-emerald-400"></i>
+                        <span>نسخ</span>
+                    </button>
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         📖 سورة البقرة: الآية 283
                     </span>
@@ -4004,7 +4425,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Quranic Verse Card 3 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="debts" data-ayah-search="وجوب إنظار المعسر والتجاوز عنه بالصدقة والإبراء ﴿وَإِن كَانَ ذُو عُسْرَةٍ فَنَظِرَةٌ إِلَىٰ مَيْسَرَةٍ ۚ وَأَن تَصَدَّقُوا خَيْرٌ لَّكُمْ ۖ إِن كُنتُمْ تَعْلَمُونَ﴾ سورة البقرة: الآية 280 التوجيه المحاسبي والتجاري: وجوب إمهال المدين المعسر شرعاً دون فرض أي غرامات تأخير أو فوائد، واستحباب التنازل عن الدين أو إسقاط جزء منه كصدقة لوجه الله.">
+        <div id="quran-card-3" class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="debts" data-ayah-search="وجوب إنظار المعسر والتجاوز عنه بالصدقة والإبراء ﴿وَإِن كَانَ ذُو عُسْرَةٍ فَنَظِرَةٌ إِلَىٰ مَيْسَرَةٍ ۚ وَأَن تَصَدَّقُوا خَيْرٌ لَّكُمْ ۖ إِن كُنتُمْ تَعْلَمُونَ﴾ سورة البقرة: الآية 280 التوجيه المحاسبي والتجاري: وجوب إمهال المدين المعسر شرعاً دون فرض أي غرامات تأخير أو فوائد، واستحباب التنازل عن الدين أو إسقاط جزء منه كصدقة لوجه الله.">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4020,6 +4441,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40">
                         💳 إنظار المعسر والتيسير
                     </span>
+                    <button type="button" onclick="copyQuranCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ الآية وتوجيهها المحاسبي">
+                        <i class="fa-regular fa-copy text-emerald-400"></i>
+                        <span>نسخ</span>
+                    </button>
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         📖 سورة البقرة: الآية 280
                     </span>
@@ -4043,7 +4468,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Quranic Verse Card 4 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="riba" data-ayah-search="إحلال البيع والتجارة وتحريم الربا القاطع ﴿الَّذِينَ يَأْكُلُونَ الرِّبَا لَا يَقُومُونَ إِلَّا كَمَا يَقُومُ الَّذِي يَتَخَبَّطُهُ الشَّيْطَانُ مِنَ الْمَسِّ ۚ ذَٰلِكَ بِأَنَّهُمْ قَالُوا إِنَّمَا الْبَيْعُ مِثْلُ الرِّبَا ۗ وَأَحَلَّ اللَّهُ الْبَيْعَ وَحَرَّمَ الرِّبَا ۚ فَمَن جَاءَهُ مَوْعِظَةٌ مِّن رَّبِّهِ فَانتَهَىٰ فَلَهُ مَا سَلَفَ وَأَمْرُهُ إِلَى اللَّهِ ۖ وَمَنْ عَادَ فَأُولَٰئِكَ أَصْحَابُ النَّارِ ۖ هُمْ فِيهَا خَالِدُونَ﴾ سورة البقرة: الآية 275 التوجيه المحاسبي والتجاري: الأصل الشرعي هو إباحة البيع والتجارة وتحقيق الأرباح العادلة، والتحريم القاطع للربا والزيادات المشروطة على الديون والقروض.">
+        <div id="quran-card-4" class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="riba" data-ayah-search="إحلال البيع والتجارة وتحريم الربا القاطع ﴿الَّذِينَ يَأْكُلُونَ الرِّبَا لَا يَقُومُونَ إِلَّا كَمَا يَقُومُ الَّذِي يَتَخَبَّطُهُ الشَّيْطَانُ مِنَ الْمَسِّ ۚ ذَٰلِكَ بِأَنَّهُمْ قَالُوا إِنَّمَا الْبَيْعُ مِثْلُ الرِّبَا ۗ وَأَحَلَّ اللَّهُ الْبَيْعَ وَحَرَّمَ الرِّبَا ۚ فَمَن جَاءَهُ مَوْعِظَةٌ مِّن رَّبِّهِ فَانتَهَىٰ فَلَهُ مَا سَلَفَ وَأَمْرُهُ إِلَى اللَّهِ ۖ وَمَنْ عَادَ فَأُولَٰئِكَ أَصْحَابُ النَّارِ ۖ هُمْ فِيهَا خَالِدُونَ﴾ سورة البقرة: الآية 275 التوجيه المحاسبي والتجاري: الأصل الشرعي هو إباحة البيع والتجارة وتحقيق الأرباح العادلة، والتحريم القاطع للربا والزيادات المشروطة على الديون والقروض.">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4082,7 +4507,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Quranic Verse Card 5 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="riba" data-ayah-search="محق الربا وبركة الصدقات ونماء المال الحلال ﴿يَمْحَقُ اللَّهُ الرِّبَا وَيُرْبِي الصَّدَقَاتِ ۗ وَاللَّهُ لَا يُحِبُّ كُلَّ كَفَّارٍ أَثِيمٍ﴾ سورة البقرة: الآية 276 التوجيه المحاسبي والتجاري: زوال البركة والهلاك الحتمي للأموال الربوية وإن كثرت أرقامها، ونماء وبركة التجارة الصادقة المصحوبة بإخراج الزكاة والصدقات.">
+        <div id="quran-card-5" class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="riba" data-ayah-search="محق الربا وبركة الصدقات ونماء المال الحلال ﴿يَمْحَقُ اللَّهُ الرِّبَا وَيُرْبِي الصَّدَقَاتِ ۗ وَاللَّهُ لَا يُحِبُّ كُلَّ كَفَّارٍ أَثِيمٍ﴾ سورة البقرة: الآية 276 التوجيه المحاسبي والتجاري: زوال البركة والهلاك الحتمي للأموال الربوية وإن كثرت أرقامها، ونماء وبركة التجارة الصادقة المصحوبة بإخراج الزكاة والصدقات.">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4121,7 +4546,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Quranic Verse Card 6 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="riba" data-ayah-search="إعلان الحرب الإلهية على من لم يذر الربا وحق استرداد رأس المال فقط ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ وَذَرُوا مَا بَقِيَ مِنَ الرِّبَا إِن كُنتُم مُّؤْمِنِينَ * فَإِن لَّمْ تَفْعَلُوا فَأْذَنُوا بِحَرْبٍ مِّنَ اللَّهِ وَرَسُولِهِ ۖ وَإِن تُبْتُمْ فَلَكُمْ رُءُوسُ أَمْوَالِكُمْ لَا تَظْلِمُونَ وَلَا تُظْلَمُونَ﴾ سورة البقرة: الآيات 278-279 التوجيه المحاسبي والتجاري: تحريم تقاضي أي زيادة فوق مبلغ الدين الأصلي، وحق الدائن محصور في استرداد رأس ماله الفعلي فقط دون ظلم أو مظلمة.">
+        <div id="quran-card-6" class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="riba" data-ayah-search="إعلان الحرب الإلهية على من لم يذر الربا وحق استرداد رأس المال فقط ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ وَذَرُوا مَا بَقِيَ مِنَ الرِّبَا إِن كُنتُم مُّؤْمِنِينَ * فَإِن لَّمْ تَفْعَلُوا فَأْذَنُوا بِحَرْبٍ مِّنَ اللَّهِ وَرَسُولِهِ ۖ وَإِن تُبْتُمْ فَلَكُمْ رُءُوسُ أَمْوَالِكُمْ لَا تَظْلِمُونَ وَلَا تُظْلَمُونَ﴾ سورة البقرة: الآيات 278-279 التوجيه المحاسبي والتجاري: تحريم تقاضي أي زيادة فوق مبلغ الدين الأصلي، وحق الدائن محصور في استرداد رأس ماله الفعلي فقط دون ظلم أو مظلمة.">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4160,7 +4585,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Quranic Verse Card 7 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="contracts" data-ayah-search="ركن التراضي في التجارة وتحريم أكل أموال الناس بالباطل ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا لَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ إِلَّا أَن تَكُونَ تِجَارَةً عَن تَرَاضٍ مِّنكُمْ ۚ وَلَا تَقْتُلُوا أَنفُسَكُمْ ۚ إِنَّ اللَّهَ كَانَ بِكُمْ رَحِيمًا﴾ سورة النساء: الآية 29 التوجيه المحاسبي والتجاري: اشتراط التراضي التام ونفي الإكراه والغرر في عقود البيع، وتحريم كافة صور أكل أموال الناس بالحيل والسرقة والغش والاحتيال.">
+        <div id="quran-card-7" class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="contracts" data-ayah-search="ركن التراضي في التجارة وتحريم أكل أموال الناس بالباطل ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا لَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ إِلَّا أَن تَكُونَ تِجَارَةً عَن تَرَاضٍ مِّنكُمْ ۚ وَلَا تَقْتُلُوا أَنفُسَكُمْ ۚ إِنَّ اللَّهَ كَانَ بِكُمْ رَحِيمًا﴾ سورة النساء: الآية 29 التوجيه المحاسبي والتجاري: اشتراط التراضي التام ونفي الإكراه والغرر في عقود البيع، وتحريم كافة صور أكل أموال الناس بالحيل والسرقة والغش والاحتيال.">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4199,7 +4624,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Quranic Verse Card 8 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="contracts" data-ayah-search="الأمر الإلهي القاطع بالوفاء بكافة العقود والشروط ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ ۚ أُحِلَّتْ لَكُم بَهِيمَةُ الْأَنْعَامِ إِلَّا مَا يُتْلَىٰ عَلَيْكُمْ...﴾ سورة المائدة: الآية 1 التوجيه المحاسبي والتجاري: الإلزام الشرعي التام بالوفاء بكافة بنود العقود المبرمة (عقود التوريد، المقاولات، الشراكات، والتوكيلات التجارية).">
+        <div id="quran-card-8" class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="contracts" data-ayah-search="الأمر الإلهي القاطع بالوفاء بكافة العقود والشروط ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ ۚ أُحِلَّتْ لَكُم بَهِيمَةُ الْأَنْعَامِ إِلَّا مَا يُتْلَىٰ عَلَيْكُمْ...﴾ سورة المائدة: الآية 1 التوجيه المحاسبي والتجاري: الإلزام الشرعي التام بالوفاء بكافة بنود العقود المبرمة (عقود التوريد، المقاولات، الشراكات، والتوكيلات التجارية).">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4238,7 +4663,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Quranic Verse Card 9 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="weights" data-ayah-search="إيفاء الكيل والميزان بالقسطاس المستقيم ﴿وَأَوْفُوا الْكَيْلَ إِذَا كِلْتُمْ وَزِنُوا بِالْقِسْطَاسِ الْمُسْتَقِيمِ ۚ ذَٰلِكَ خَيْرٌ وَأَحْسَنُ تَأْوِيلًا﴾ سورة الإسراء: الآية 35 التوجيه المحاسبي والتجاري: الأمر الرباني بالمعايرة الدقيقة للموازين الرقمية والمكاييل وتطابق وزن بضائع التسليح والمخازن مع الفواتير الصادرة.">
+        <div id="quran-card-9" class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="weights" data-ayah-search="إيفاء الكيل والميزان بالقسطاس المستقيم ﴿وَأَوْفُوا الْكَيْلَ إِذَا كِلْتُمْ وَزِنُوا بِالْقِسْطَاسِ الْمُسْتَقِيمِ ۚ ذَٰلِكَ خَيْرٌ وَأَحْسَنُ تَأْوِيلًا﴾ سورة الإسراء: الآية 35 التوجيه المحاسبي والتجاري: الأمر الرباني بالمعايرة الدقيقة للموازين الرقمية والمكاييل وتطابق وزن بضائع التسليح والمخازن مع الفواتير الصادرة.">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4277,7 +4702,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Quranic Verse Card 10 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="weights" data-ayah-search="الوعيد الشديد والهلاك للمطففين في الكيل والوزن ﴿وَيْلٌ لِّلْمُطَفِّفِينَ * الَّذِينَ إِذَا اكْتَالُوا عَلَى النَّاسِ يَسْتَوْفُونَ * وَإِذَا كَالُوهُمْ أَو وَّزَنُوهُمْ يُخْسِرُونَ * أَلَا يَظُنُّ أُولَٰئِكَ أَنَّهُم مَّبْعُوثُونَ * لِيَوْمٍ عَظِيمٍ﴾ سورة المطففين: الآيات 1-5 التوجيه المحاسبي والتجاري: تحريم إنقاص أوزان الحديد أو الخرسانة أو أمتار الأقمشة والأراضي عند البيع للزبائن، وبيان أن التطفيف من كبائر الذنوب.">
+        <div id="quran-card-10" class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="weights" data-ayah-search="الوعيد الشديد والهلاك للمطففين في الكيل والوزن ﴿وَيْلٌ لِّلْمُطَفِّفِينَ * الَّذِينَ إِذَا اكْتَالُوا عَلَى النَّاسِ يَسْتَوْفُونَ * وَإِذَا كَالُوهُمْ أَو وَّزَنُوهُمْ يُخْسِرُونَ * أَلَا يَظُنُّ أُولَٰئِكَ أَنَّهُم مَّبْعُوثُونَ * لِيَوْمٍ عَظِيمٍ﴾ سورة المطففين: الآيات 1-5 التوجيه المحاسبي والتجاري: تحريم إنقاص أوزان الحديد أو الخرسانة أو أمتار الأقمشة والأراضي عند البيع للزبائن، وبيان أن التطفيف من كبائر الذنوب.">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4316,7 +4741,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Quranic Verse Card 11 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="trust" data-ayah-search="وجوب أداء الأمانات إلى أهلها والعدل في المعاملات ﴿إِنَّ اللَّهَ يَأْمُرُكُمْ أَن تُؤَدُّوا الْأَمَانَاتِ إِلَىٰ أَهْلِهَا وَإِذَا حَكَمْتُم بَيْنَ النَّاسِ أَن تَحْكُمُوا بِالْعَدْلِ ۚ إِنَّ اللَّهَ نِعِمَّا يَعِظُكُم بِهِ ۗ إِنَّ اللَّهَ كَانَ سَمِيعًا بَصِيرًا﴾ سورة النساء: الآية 58 التوجيه المحاسبي والتجاري: وجوب رد الودائع، حفظ أموال الشركاء، أداء مستحقات الموردين والعملاء، وإقامة العدل في الحسابات.">
+        <div id="quran-card-11" class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="trust" data-ayah-search="وجوب أداء الأمانات إلى أهلها والعدل في المعاملات ﴿إِنَّ اللَّهَ يَأْمُرُكُمْ أَن تُؤَدُّوا الْأَمَانَاتِ إِلَىٰ أَهْلِهَا وَإِذَا حَكَمْتُم بَيْنَ النَّاسِ أَن تَحْكُمُوا بِالْعَدْلِ ۚ إِنَّ اللَّهَ نِعِمَّا يَعِظُكُم بِهِ ۗ إِنَّ اللَّهَ كَانَ سَمِيعًا بَصِيرًا﴾ سورة النساء: الآية 58 التوجيه المحاسبي والتجاري: وجوب رد الودائع، حفظ أموال الشركاء، أداء مستحقات الموردين والعملاء، وإقامة العدل في الحسابات.">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4355,7 +4780,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Quranic Verse Card 12 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="riba" data-ayah-search="تحريم الرشوة والوساطة غير المشروعة لأكل أموال الناس ﴿وَلَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ وَتُدْلُوا بِهَا إِلَى الْحُكَّامِ لِتَأْكُلُوا فَرِيقًا مِّنْ أَمْوَالِ النَّاسِ بِالْإِثْمِ وَأَنتُمْ تَعْلَمُونَ﴾ سورة البقرة: الآية 188 التوجيه المحاسبي والتجاري: تحريم دفع الرشاوى والعمولات الخفية للمسؤولين أو موظفي المشتريات لكسب المناقصات أو تجاوز اللوائح بالباطل.">
+        <div id="quran-card-12" class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="riba" data-ayah-search="تحريم الرشوة والوساطة غير المشروعة لأكل أموال الناس ﴿وَلَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ وَتُدْلُوا بِهَا إِلَى الْحُكَّامِ لِتَأْكُلُوا فَرِيقًا مِّنْ أَمْوَالِ النَّاسِ بِالْإِثْمِ وَأَنتُمْ تَعْلَمُونَ﴾ سورة البقرة: الآية 188 التوجيه المحاسبي والتجاري: تحريم دفع الرشاوى والعمولات الخفية للمسؤولين أو موظفي المشتريات لكسب المناقصات أو تجاوز اللوائح بالباطل.">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4394,7 +4819,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Quranic Verse Card 13 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="contracts" data-ayah-search="التعاون على البر والتقوى في الشراكات والتأمين التكافلي ﴿وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ ۖ وَلَا تَعَاوَنُوا عَلَى الْإِثْمِ وَالْعُدْوَانِ ۚ وَاتَّقُوا اللَّهَ ۖ إِنَّ اللَّهَ شَدِيدُ الْعِقَابِ﴾ سورة المائدة: الآية 2 التوجيه المحاسبي والتجاري: مشروعية وتأصيل عقود التأمين التعاوني الإسلامي وصناديق التكافل والشركات الإنتاجية، وتحريم الشراكة في الحرام.">
+        <div id="quran-card-13" class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="contracts" data-ayah-search="التعاون على البر والتقوى في الشراكات والتأمين التكافلي ﴿وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ ۖ وَلَا تَعَاوَنُوا عَلَى الْإِثْمِ وَالْعُدْوَانِ ۚ وَاتَّقُوا اللَّهَ ۖ إِنَّ اللَّهَ شَدِيدُ الْعِقَابِ﴾ سورة المائدة: الآية 2 التوجيه المحاسبي والتجاري: مشروعية وتأصيل عقود التأمين التعاوني الإسلامي وصناديق التكافل والشركات الإنتاجية، وتحريم الشراكة في الحرام.">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4433,7 +4858,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Quranic Verse Card 14 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="weights" data-ayah-search="إتمام الكيل والعدل وعدم بخس الناس أشياءهم ﴿وَيَا قَوْمِ أَوْفُوا الْمِكْيَالَ وَالْمِيزَانَ بِالْقِسْطِ ۖ وَلَا تَبْخَسُوا النَّاسَ أَشْيَاءَهُمْ وَلَا تَعْثَوْا فِي الْأَرْضِ مُفْسِدِينَ * بَقِيَّتُ اللَّهِ خَيْرٌ لَّكُمْ إِن كُنتُم مُّؤْمِنِينَ ۚ وَمَا أَنَا عَلَيْكُم بِحَفِيظٍ﴾ سورة هود: الآيات 85-86 التوجيه المحاسبي والتجاري: تحريم التقليل من قيمة وجودة سلع الموردين أو البائعين ظلماً، والتأكيد على أن الربح الحلال القليل خير وأبقى من الحرام الكثير.">
+        <div id="quran-card-14" class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="weights" data-ayah-search="إتمام الكيل والعدل وعدم بخس الناس أشياءهم ﴿وَيَا قَوْمِ أَوْفُوا الْمِكْيَالَ وَالْمِيزَانَ بِالْقِسْطِ ۖ وَلَا تَبْخَسُوا النَّاسَ أَشْيَاءَهُمْ وَلَا تَعْثَوْا فِي الْأَرْضِ مُفْسِدِينَ * بَقِيَّتُ اللَّهِ خَيْرٌ لَّكُمْ إِن كُنتُم مُّؤْمِنِينَ ۚ وَمَا أَنَا عَلَيْكُم بِحَفِيظٍ﴾ سورة هود: الآيات 85-86 التوجيه المحاسبي والتجاري: تحريم التقليل من قيمة وجودة سلع الموردين أو البائعين ظلماً، والتأكيد على أن الربح الحلال القليل خير وأبقى من الحرام الكثير.">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4452,6 +4877,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         📖 سورة هود: الآيات 85-86
                     </span>
+                    <button type="button" onclick="copyQuranCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ الآية وتوجيهها المحاسبي">
+                        <i class="fa-regular fa-copy text-emerald-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -4472,7 +4901,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Quranic Verse Card 15 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="trust" data-ayah-search="معيار الكفاءة والأمانة في التوظيف وعقود العمل والمقاولات ﴿قَالَتْ إِحْدَاهُمَا يَا أَبَتِ اسْتَأْجِرْهُ ۖ إِنَّ خَيْرَ مَنِ اسْتَأْجَرْتَ الْقَوِيُّ الْأَمِينُ﴾ سورة القصص: الآية 26 التوجيه المحاسبي والتجاري: ركنا النجاح والبركة في إدارة الأعمال والمؤسسات: الكفاءة الفنية والمهنية (القوة) والصدق والنزاهة المحاسبية (الأمانة).">
+        <div id="quran-card-15" class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="trust" data-ayah-search="معيار الكفاءة والأمانة في التوظيف وعقود العمل والمقاولات ﴿قَالَتْ إِحْدَاهُمَا يَا أَبَتِ اسْتَأْجِرْهُ ۖ إِنَّ خَيْرَ مَنِ اسْتَأْجَرْتَ الْقَوِيُّ الْأَمِينُ﴾ سورة القصص: الآية 26 التوجيه المحاسبي والتجاري: ركنا النجاح والبركة في إدارة الأعمال والمؤسسات: الكفاءة الفنية والمهنية (القوة) والصدق والنزاهة المحاسبية (الأمانة).">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4491,6 +4920,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         📖 سورة القصص: الآية 26
                     </span>
+                    <button type="button" onclick="copyQuranCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ الآية وتوجيهها المحاسبي">
+                        <i class="fa-regular fa-copy text-emerald-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -4571,10 +5004,61 @@ $pdo = getDBConnection();
                     </div>
 
                     <!-- Hadiths Grid -->
+                    <!-- 🌟 PROPHETIC QUESTIONS DIRECT ACCESS BAR (الأسئلة النبوية الصحيحة التفاعلية) 🌟 -->
+                    <div class="p-4 bg-slate-950/95 rounded-2xl border-2 border-amber-500/50 space-y-2.5 shadow-xl">
+                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
+                            <span class="text-sm font-black text-amber-300 flex items-center gap-2">
+                                <i class="fa-solid fa-circle-question text-amber-400 text-base"></i>
+                                الأسئلة النبوية الصحيحة (اضغط على أي مسألة للانتقال الفوري إلى الحديث الشريف وتخريجه وفائدته):
+                            </span>
+                            <span class="text-xs font-mono font-bold text-amber-400 px-2.5 py-0.5 bg-amber-950 rounded border border-amber-500/30">
+                                12 مسألة نبوية كبرى
+                            </span>
+                        </div>
+                        <div class="flex flex-wrap gap-2">
+                            <button type="button" class="hadith-q-pill" onclick="jumpToHadith(2, 'مطل الغني ظلم')">
+                                <span>⚖️</span> ما حكم مماطلة القادر في سداد الديون؟
+                            </button>
+                            <button type="button" class="hadith-q-pill" onclick="jumpToHadith(22, 'التاجر الصدوق الأمين')">
+                                <span>🌟</span> ما فضل التاجر الصدوق الأمين في الإسلام؟
+                            </button>
+                            <button type="button" class="hadith-q-pill" onclick="jumpToHadith(24, 'لا تبع ما ليس عندك')">
+                                <span>🛒</span> هل يجوز بيع السلعة قبل حيازتها وقبضها؟
+                            </button>
+                            <button type="button" class="hadith-q-pill" onclick="jumpToHadith(7, 'من أنظر معسرا')">
+                                <span>⏳</span> ما فضل إنظار المعسر والتجاوز عنه؟
+                            </button>
+                            <button type="button" class="hadith-q-pill" onclick="jumpToHadith(11, 'أعطوا الأجير أجره')">
+                                <span>👥</span> متى يجب أداء أجر العامل والأجير؟
+                            </button>
+                            <button type="button" class="hadith-q-pill" onclick="jumpToHadith(30, 'العينة')">
+                                <span>🚫</span> ما حكم بيع العِينة والتحايل على الربا؟
+                            </button>
+                            <button type="button" class="hadith-q-pill" onclick="jumpToHadith(32, 'الاحتكار')">
+                                <span>📦</span> ما حكم الاحتكار وحبس الأقوات لرفع الأسعار؟
+                            </button>
+                            <button type="button" class="hadith-q-pill" onclick="jumpToHadith(25, 'الغرر')">
+                                <span>⚠️</span> ما حكم بيع الغرر والجهالة في المعاملات؟
+                            </button>
+                            <button type="button" class="hadith-q-pill" onclick="jumpToHadith(31, 'النجش')">
+                                <span>🔨</span> ما حكم المزايدة الكاذبة (النَّجْش) في الأسواق؟
+                            </button>
+                            <button type="button" class="hadith-q-pill" onclick="jumpToHadith(21, 'البيعان بالخيار')">
+                                <span>💎</span> ما البركة في الصدق والبيان وشؤم الكتمان؟
+                            </button>
+                            <button type="button" class="hadith-q-pill" onclick="jumpToHadith(29, 'الحلف الكاذب')">
+                                <span>📜</span> ما عقوبة الحلف والأيمان لترويج السلع؟
+                            </button>
+                            <button type="button" class="hadith-q-pill" onclick="jumpToHadith(28, 'إقالة النادم')">
+                                <span>🤝</span> ما فضل إقالة النادم وقبول إرجاع البضاعة؟
+                            </button>
+                        </div>
+                    </div>
+
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="hadiths-grid-container">
 
         <!-- Hadith Card 1 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="debts" data-hadith-search="نية سداد الدين وعون الله للمدين الصادق وعقوبة المتلف «مَنْ أَخَذَ أَمْوَالَ النَّاسِ يُرِيدُ أَدَاءَهَا أَدَّى اللَّهُ عَنْهُ، وَمَنْ أَخَذَ يُرِيدُ إِتْلَافَهَا أَتْلَفَهُ اللَّهُ» صحيح البخاري (2387) النية الصادقة في سداد الديون تستجلب معونة الله وتيسير الرزق، ونية المماطلة وأكل أموال الناس سبب لهلاك المال وصاحبه.">
+        <div id="hadith-card-1" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="debts" data-hadith-search="نية سداد الدين وعون الله للمدين الصادق وعقوبة المتلف «مَنْ أَخَذَ أَمْوَالَ النَّاسِ يُرِيدُ أَدَاءَهَا أَدَّى اللَّهُ عَنْهُ، وَمَنْ أَخَذَ يُرِيدُ إِتْلَافَهَا أَتْلَفَهُ اللَّهُ» صحيح البخاري (2387) النية الصادقة في سداد الديون تستجلب معونة الله وتيسير الرزق، ونية المماطلة وأكل أموال الناس سبب لهلاك المال وصاحبه.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4590,9 +5074,17 @@ $pdo = getDBConnection();
                     <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40">
                         💳 ديون وقروض
                     </span>
+                    <button type="button" onclick="copyQuranCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ الآية وتوجيهها المحاسبي">
+                        <i class="fa-regular fa-copy text-emerald-400"></i>
+                        <span>نسخ</span>
+                    </button>
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -4619,7 +5111,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 2 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="debts" data-hadith-search="تحريم مَطْل الغني والمماطلة في سداد الديون الحالة «مَطْلُ الْغَنِيِّ ظُلْمٌ، وَإِذَا أُتْبِعَ أَحَدُكُمْ عَلَى مَلِيءٍ فَلْيَتَّبِعْ» صحيح البخاري (2287) وصحيح مسلم (1564) تأخير سداد الدين مع القدرة المالية ظلم صريح وكبيرة، وجواز الحوالة المالية على الشخص القادر المليء.">
+        <div id="hadith-card-2" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="debts" data-hadith-search="تحريم مَطْل الغني والمماطلة في سداد الديون الحالة «مَطْلُ الْغَنِيِّ ظُلْمٌ، وَإِذَا أُتْبِعَ أَحَدُكُمْ عَلَى مَلِيءٍ فَلْيَتَّبِعْ» صحيح البخاري (2287) وصحيح مسلم (1564) تأخير سداد الدين مع القدرة المالية ظلم صريح وكبيرة، وجواز الحوالة المالية على الشخص القادر المليء.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4635,9 +5127,17 @@ $pdo = getDBConnection();
                     <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40">
                         💳 ديون وقروض
                     </span>
+                    <button type="button" onclick="copyQuranCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ الآية وتوجيهها المحاسبي">
+                        <i class="fa-regular fa-copy text-emerald-400"></i>
+                        <span>نسخ</span>
+                    </button>
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -4664,7 +5164,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 3 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="debts" data-hadith-search="خطورة الدين وتعلق نفس المؤمن به بعد الموت «نَفْسُ الْمُؤْمِنِ مُعَلَّقَةٌ بِدَيْنِهِ حَتَّى يُقْضَى عَنْهُ» رواه الترمذي (1078) وابن ماجه وصححه الألباني وجوب المبادرة بقضاء الديون وتوثيقها وكتابة الوصية بها لإبراء ذمة المتوفى قبل تقسيم التركة.">
+        <div id="hadith-card-3" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="debts" data-hadith-search="خطورة الدين وتعلق نفس المؤمن به بعد الموت «نَفْسُ الْمُؤْمِنِ مُعَلَّقَةٌ بِدَيْنِهِ حَتَّى يُقْضَى عَنْهُ» رواه الترمذي (1078) وابن ماجه وصححه الألباني وجوب المبادرة بقضاء الديون وتوثيقها وكتابة الوصية بها لإبراء ذمة المتوفى قبل تقسيم التركة.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4680,9 +5180,17 @@ $pdo = getDBConnection();
                     <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40">
                         💳 ديون وقروض
                     </span>
+                    <button type="button" onclick="copyQuranCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ الآية وتوجيهها المحاسبي">
+                        <i class="fa-regular fa-copy text-emerald-400"></i>
+                        <span>نسخ</span>
+                    </button>
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -4709,7 +5217,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 4 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="debts" data-hadith-search="الدين لا يسقط حتى بالشهادة في سبيل الله «يُغْفَرُ لِلشَّهِيدِ كُلُّ ذَنْبٍ إِلَّا الدَّيْنَ» صحيح مسلم (1886) حقوق العباد والديون مبنية على المشاحة ولا تسقط إلا بالأداء أو الإبراء من صاحب الحق.">
+        <div id="hadith-card-4" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="debts" data-hadith-search="الدين لا يسقط حتى بالشهادة في سبيل الله «يُغْفَرُ لِلشَّهِيدِ كُلُّ ذَنْبٍ إِلَّا الدَّيْنَ» صحيح مسلم (1886) حقوق العباد والديون مبنية على المشاحة ولا تسقط إلا بالأداء أو الإبراء من صاحب الحق.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4725,9 +5233,17 @@ $pdo = getDBConnection();
                     <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40">
                         💳 ديون وقروض
                     </span>
+                    <button type="button" onclick="copyQuranCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ الآية وتوجيهها المحاسبي">
+                        <i class="fa-regular fa-copy text-emerald-400"></i>
+                        <span>نسخ</span>
+                    </button>
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -4754,7 +5270,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 5 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="debts" data-hadith-search="فضل الوفاء وحسن القضاء والزيادة غير المشروطة عند السداد «إِنَّ خِيَارَكُمْ أَحْسَنُكُمْ قَضَاءً» صحيح البخاري (2305) وصحيح مسلم (1601) استحباب رد الدين بأحسن منه في الوصف أو زيادة طيبة من غير شرط ولا تواطؤ مسبق إكراماً للمقرض.">
+        <div id="hadith-card-5" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="debts" data-hadith-search="فضل الوفاء وحسن القضاء والزيادة غير المشروطة عند السداد «إِنَّ خِيَارَكُمْ أَحْسَنُكُمْ قَضَاءً» صحيح البخاري (2305) وصحيح مسلم (1601) استحباب رد الدين بأحسن منه في الوصف أو زيادة طيبة من غير شرط ولا تواطؤ مسبق إكراماً للمقرض.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4770,9 +5286,17 @@ $pdo = getDBConnection();
                     <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40">
                         💳 ديون وقروض
                     </span>
+                    <button type="button" onclick="copyQuranCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ الآية وتوجيهها المحاسبي">
+                        <i class="fa-regular fa-copy text-emerald-400"></i>
+                        <span>نسخ</span>
+                    </button>
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -4799,7 +5323,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 6 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="debts" data-hadith-search="مشروعية الرهن التجاري في الديون لتوثيق الحقوق «تُوُفِّيَ رَسُولُ اللَّهِ ﷺ وَدِرْعُهُ مَرْهُونَةٌ عِنْدَ يَهُودِيٍّ بِثَلَاثِينَ صَاعًا مِنْ شَعِيرٍ» صحيح البخاري (2916) وصحيح مسلم (1603) جواز رهن الأصول والضمانات العينية لتوثيق الديون والمشتريات الآجلة حفظاً للحقوق المالية.">
+        <div id="hadith-card-6" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="debts" data-hadith-search="مشروعية الرهن التجاري في الديون لتوثيق الحقوق «تُوُفِّيَ رَسُولُ اللَّهِ ﷺ وَدِرْعُهُ مَرْهُونَةٌ عِنْدَ يَهُودِيٍّ بِثَلَاثِينَ صَاعًا مِنْ شَعِيرٍ» صحيح البخاري (2916) وصحيح مسلم (1603) جواز رهن الأصول والضمانات العينية لتوثيق الديون والمشتريات الآجلة حفظاً للحقوق المالية.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4815,9 +5339,17 @@ $pdo = getDBConnection();
                     <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40">
                         💳 ديون وقروض
                     </span>
+                    <button type="button" onclick="copyQuranCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ الآية وتوجيهها المحاسبي">
+                        <i class="fa-regular fa-copy text-emerald-400"></i>
+                        <span>نسخ</span>
+                    </button>
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -4844,7 +5376,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 7 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="debts" data-hadith-search="فضل إنظار المعسر ومضاعفة أجر الصدقة عن كل يوم تأخير «مَنْ أَنْظَرَ مُعْسِرًا فَلَهُ بِكُلِّ يَوْمٍ مِثْلِهِ صَدَقَةٌ، حَتَّى إِذَا حَلَّ الدَّيْنُ فَأَنْظَرَهُ فَلَهُ بِكُلِّ يَوْمٍ مِثْلَيْهِ صَدَقَةٌ» رواه أحمد (23046) وابن ماجه وصححه الألباني في السلسلة الصحيحة (860) الأجر المضاعف للتاجر الذي يمهل المدين المعسر عن تاريخ الاستحقاق دون احتساب أي فوائد ربوية.">
+        <div id="hadith-card-7" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="debts" data-hadith-search="فضل إنظار المعسر ومضاعفة أجر الصدقة عن كل يوم تأخير «مَنْ أَنْظَرَ مُعْسِرًا فَلَهُ بِكُلِّ يَوْمٍ مِثْلِهِ صَدَقَةٌ، حَتَّى إِذَا حَلَّ الدَّيْنُ فَأَنْظَرَهُ فَلَهُ بِكُلِّ يَوْمٍ مِثْلَيْهِ صَدَقَةٌ» رواه أحمد (23046) وابن ماجه وصححه الألباني في السلسلة الصحيحة (860) الأجر المضاعف للتاجر الذي يمهل المدين المعسر عن تاريخ الاستحقاق دون احتساب أي فوائد ربوية.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4860,9 +5392,17 @@ $pdo = getDBConnection();
                     <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40">
                         💳 ديون وقروض
                     </span>
+                    <button type="button" onclick="copyQuranCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ الآية وتوجيهها المحاسبي">
+                        <i class="fa-regular fa-copy text-emerald-400"></i>
+                        <span>نسخ</span>
+                    </button>
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -4889,7 +5429,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 8 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="debts" data-hadith-search="تجاوز الله ومغفرته لمن كان يتجاوز عن المعسرين في الأسواق «كَانَ رَجُلٌ يُدَايِنُ النَّاسَ، فَكَانَ يَقُولُ لِفَتَاهُ: إِذَا أَتَيْتَ مُعْسِرًا فَتَجَاوَزْ عَنْهُ، لَعَلَّ اللَّهَ أَنْ يَتَجَاوَزَ عَنَّا، فَلَقِيَ اللَّهَ فَتَجَاوَزَ عَنْهُ» صحيح البخاري (2078) وصحيح مسلم (1562) التيسير على المدينين وإسقاط جزء من الدين أو المسامحة فيه سبب مباشر لمغفرة الله يوم القيامة.">
+        <div id="hadith-card-8" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="debts" data-hadith-search="تجاوز الله ومغفرته لمن كان يتجاوز عن المعسرين في الأسواق «كَانَ رَجُلٌ يُدَايِنُ النَّاسَ، فَكَانَ يَقُولُ لِفَتَاهُ: إِذَا أَتَيْتَ مُعْسِرًا فَتَجَاوَزْ عَنْهُ، لَعَلَّ اللَّهَ أَنْ يَتَجَاوَزَ عَنَّا، فَلَقِيَ اللَّهَ فَتَجَاوَزَ عَنْهُ» صحيح البخاري (2078) وصحيح مسلم (1562) التيسير على المدينين وإسقاط جزء من الدين أو المسامحة فيه سبب مباشر لمغفرة الله يوم القيامة.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4905,9 +5445,17 @@ $pdo = getDBConnection();
                     <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40">
                         💳 ديون وقروض
                     </span>
+                    <button type="button" onclick="copyQuranCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ الآية وتوجيهها المحاسبي">
+                        <i class="fa-regular fa-copy text-emerald-400"></i>
+                        <span>نسخ</span>
+                    </button>
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -4934,7 +5482,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 9 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="debts" data-hadith-search="مشروعية الكفالة والضمان المالي (الزعيم غارم) «الْعَارِيَّةُ مُؤَدَّاةٌ، وَالْمِنْحَةُ مَرْدُودَةٌ، وَالدَّيْنُ مَقْضِيٌّ، وَالزَّعِيمُ غَارِمٌ» رواه الترمذي (1265) وأبو داود (3565) وصححه الألباني التزام الكفيل والغارم بسداد الدين عند تعذر المدين الأصلي، وثبوت أحكام الكفالة والضمان في المعاملات.">
+        <div id="hadith-card-9" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="debts" data-hadith-search="مشروعية الكفالة والضمان المالي (الزعيم غارم) «الْعَارِيَّةُ مُؤَدَّاةٌ، وَالْمِنْحَةُ مَرْدُودَةٌ، وَالدَّيْنُ مَقْضِيٌّ، وَالزَّعِيمُ غَارِمٌ» رواه الترمذي (1265) وأبو داود (3565) وصححه الألباني التزام الكفيل والغارم بسداد الدين عند تعذر المدين الأصلي، وثبوت أحكام الكفالة والضمان في المعاملات.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4950,9 +5498,17 @@ $pdo = getDBConnection();
                     <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40">
                         💳 ديون وقروض
                     </span>
+                    <button type="button" onclick="copyQuranCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ الآية وتوجيهها المحاسبي">
+                        <i class="fa-regular fa-copy text-emerald-400"></i>
+                        <span>نسخ</span>
+                    </button>
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -4979,7 +5535,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 10 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="debts" data-hadith-search="عقوبة المماطل المقتدر وجواز شكايته وحبسه شرعاً «لَيُّ الْوَاجِدِ يُحِلُّ عِرْضَهُ وَعُقُوبَتَهُ» رواه أبو داود (3628) والنسائي وصححه الألباني، وعلقه البخاري بصيغة الجزم المماطلة في السداد مع القدرة المالية تجيز للدائن رفع أمره للقضاء وللحاكم تعزيره وإلزامه بالتنفيذ الجبري.">
+        <div id="hadith-card-10" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="debts" data-hadith-search="عقوبة المماطل المقتدر وجواز شكايته وحبسه شرعاً «لَيُّ الْوَاجِدِ يُحِلُّ عِرْضَهُ وَعُقُوبَتَهُ» رواه أبو داود (3628) والنسائي وصححه الألباني، وعلقه البخاري بصيغة الجزم المماطلة في السداد مع القدرة المالية تجيز للدائن رفع أمره للقضاء وللحاكم تعزيره وإلزامه بالتنفيذ الجبري.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4995,9 +5551,17 @@ $pdo = getDBConnection();
                     <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40">
                         💳 ديون وقروض
                     </span>
+                    <button type="button" onclick="copyQuranCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ الآية وتوجيهها المحاسبي">
+                        <i class="fa-regular fa-copy text-emerald-400"></i>
+                        <span>نسخ</span>
+                    </button>
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -5024,7 +5588,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 11 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="labor" data-hadith-search="وجوب دفع أجر العامل والأجير فور الفراغ من عمله «أَعْطُوا الْأَجِيرَ أَجْرَهُ قَبْلَ أَنْ يَجِفَّ عَرَقُهُ» رواه ابن ماجه (2443) وصححه الألباني في صحيح الجامع (1055) تحريم تأخير صرف رواتب ومستحقات العمال والموظفين والمقاولين بعد إتمام المهام المطلوبة.">
+        <div id="hadith-card-11" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="labor" data-hadith-search="وجوب دفع أجر العامل والأجير فور الفراغ من عمله «أَعْطُوا الْأَجِيرَ أَجْرَهُ قَبْلَ أَنْ يَجِفَّ عَرَقُهُ» رواه ابن ماجه (2443) وصححه الألباني في صحيح الجامع (1055) تحريم تأخير صرف رواتب ومستحقات العمال والموظفين والمقاولين بعد إتمام المهام المطلوبة.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5043,6 +5607,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -5069,7 +5637,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 12 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="labor" data-hadith-search="وعيد الله الشديد لمن استأجر أجيراً ولم يوفه أجره كاملاً «قَالَ اللَّهُ تَعَالَى: ثَلَاثَةٌ أَنَا خَصْمُهُمْ يَوْمَ الْقِيَامَةِ... وَرَجُلٌ اسْتَأْجَرَ أَجِيرًا فَاسْتَوْفَى مِنْهُ وَلَمْ يُعْطِهِ أَجْرَهُ» صحيح البخاري (2227) إنقاص مستحقات العامل أو بخسه حقه بعد أداء عمله من أعظم الظلم الذي يجعل الله خصماً لصاحب العمل.">
+        <div id="hadith-card-12" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="labor" data-hadith-search="وعيد الله الشديد لمن استأجر أجيراً ولم يوفه أجره كاملاً «قَالَ اللَّهُ تَعَالَى: ثَلَاثَةٌ أَنَا خَصْمُهُمْ يَوْمَ الْقِيَامَةِ... وَرَجُلٌ اسْتَأْجَرَ أَجِيرًا فَاسْتَوْفَى مِنْهُ وَلَمْ يُعْطِهِ أَجْرَهُ» صحيح البخاري (2227) إنقاص مستحقات العامل أو بخسه حقه بعد أداء عمله من أعظم الظلم الذي يجعل الله خصماً لصاحب العمل.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5088,6 +5656,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -5114,7 +5686,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 13 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="labor" data-hadith-search="بركة الشراكة والأمانة بين الشركاء وخروج البركة بالخيانة «إِنَّ اللَّهَ يَقُولُ: أَنَا ثَالِثُ الشَّرِيكَيْنِ مَا لَمْ يَخُنْ أَحَدُهُمَا صَاحِبَهُ، فَإِذَا خَانَهُ خَرَجْتُ مِنْ بَيْنِهِمَا» رواه أبو داود (3383) وصححه الحاكم ووافقه الذهبي الأمانة والشفافية المحاسبية التامة بين الشركاء سبب توفيق واستثمار ونماء الشركة، والخيانة تمحق المال.">
+        <div id="hadith-card-13" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="labor" data-hadith-search="بركة الشراكة والأمانة بين الشركاء وخروج البركة بالخيانة «إِنَّ اللَّهَ يَقُولُ: أَنَا ثَالِثُ الشَّرِيكَيْنِ مَا لَمْ يَخُنْ أَحَدُهُمَا صَاحِبَهُ، فَإِذَا خَانَهُ خَرَجْتُ مِنْ بَيْنِهِمَا» رواه أبو داود (3383) وصححه الحاكم ووافقه الذهبي الأمانة والشفافية المحاسبية التامة بين الشركاء سبب توفيق واستثمار ونماء الشركة، والخيانة تمحق المال.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5133,6 +5705,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -5159,7 +5735,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 14 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="labor" data-hadith-search="وجوب الإتقان والجودة في الأعمال والتصنيع والخدمات «إِنَّ اللَّهَ يُحِبُّ إِذَا عَمِلَ أَحَدُكُمْ عَمَلًا أَنْ يُتْقِنَهُ» رواه البيهقي في شعب الإيمان وصححه الألباني في السلسلة الصحيحة (1113) معيار الجودة والإتقان في الإنتاج الصناعي والمقاولات والخدمات واجب شرعي وأخلاقي في الإسلام.">
+        <div id="hadith-card-14" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="labor" data-hadith-search="وجوب الإتقان والجودة في الأعمال والتصنيع والخدمات «إِنَّ اللَّهَ يُحِبُّ إِذَا عَمِلَ أَحَدُكُمْ عَمَلًا أَنْ يُتْقِنَهُ» رواه البيهقي في شعب الإيمان وصححه الألباني في السلسلة الصحيحة (1113) معيار الجودة والإتقان في الإنتاج الصناعي والمقاولات والخدمات واجب شرعي وأخلاقي في الإسلام.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5178,6 +5754,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -5204,7 +5784,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 15 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="prohibitions" data-hadith-search="لعن آكل الربا وموكله وكاتبه وشاهديه ومساواتهم في الإثم «لَعَنَ رَسُولُ اللَّهِ ﷺ آكِلَ الرِّبَا، وَمُؤْكِلَهُ، وَكَاتِبَهُ، وَشَاهِدَيْهِ، وَقَالَ: هُمْ سَوَاءٌ» صحيح مسلم (1598) تحريم التعامل بالربا أو توثيقه أو برمجته أو قيده في السجلات المحاسبية والأنظمة المالية.">
+        <div id="hadith-card-15" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="prohibitions" data-hadith-search="لعن آكل الربا وموكله وكاتبه وشاهديه ومساواتهم في الإثم «لَعَنَ رَسُولُ اللَّهِ ﷺ آكِلَ الرِّبَا، وَمُؤْكِلَهُ، وَكَاتِبَهُ، وَشَاهِدَيْهِ، وَقَالَ: هُمْ سَوَاءٌ» صحيح مسلم (1598) تحريم التعامل بالربا أو توثيقه أو برمجته أو قيده في السجلات المحاسبية والأنظمة المالية.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5223,6 +5803,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -5249,7 +5833,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 16 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="prohibitions" data-hadith-search="الأصناف الربوية وشرط التقابض الفوري في صرف العملات «الذَّهَبُ بِالذَّهَبِ، وَالْفِضَّةُ بِالْفِضَّةِ، وَالْبُرُّ بِالْبُرِّ، وَالشَّعِيرُ بِالشَّعِيرِ، وَالتَّمْرُ بِالتَّمْرِ، وَالْمِلْحُ بِالْمِلْحِ، مِثْلًا بِمِثْلٍ، سَوَاءً بِسَوَاءٍ، يَدًا بِيَدٍ، فَإِذَا اخْتَلَفَتْ هَذِهِ الْأَصْنَافُ فَبِيعُوا كَيْفَ شِئْتُمْ إِذَا كَانَ يَدًا بِيَدٍ» صحيح مسلم (1587) اشتراط التقابض الفوري الحقيقي أو الحكمي (التحويل البنكي الفوري) عند مبادلة العملات المختلفة.">
+        <div id="hadith-card-16" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="prohibitions" data-hadith-search="الأصناف الربوية وشرط التقابض الفوري في صرف العملات «الذَّهَبُ بِالذَّهَبِ، وَالْفِضَّةُ بِالْفِضَّةِ، وَالْبُرُّ بِالْبُرِّ، وَالشَّعِيرُ بِالشَّعِيرِ، وَالتَّمْرُ بِالتَّمْرِ، وَالْمِلْحُ بِالْمِلْحِ، مِثْلًا بِمِثْلٍ، سَوَاءً بِسَوَاءٍ، يَدًا بِيَدٍ، فَإِذَا اخْتَلَفَتْ هَذِهِ الْأَصْنَافُ فَبِيعُوا كَيْفَ شِئْتُمْ إِذَا كَانَ يَدًا بِيَدٍ» صحيح مسلم (1587) اشتراط التقابض الفوري الحقيقي أو الحكمي (التحويل البنكي الفوري) عند مبادلة العملات المختلفة.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5268,6 +5852,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -5294,7 +5882,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 17 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="prohibitions" data-hadith-search="لعن الراشي والمرتشي في المعاملات والوظائف والمناقصات «لَعَنَ رَسُولُ اللَّهِ ﷺ الرَّاشِيَ وَالْمُرْتَشِيَ (وفي رواية: وَالرَّائِشَ)» رواه الترمذي (1337) وأبو داود (3580) وصححه الألباني تحريم دفع أو قبول أي مبالغ أو عمولات خفية للتأثير على المناقصات أو العقود أو الإجراءات الرسمية.">
+        <div id="hadith-card-17" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="prohibitions" data-hadith-search="لعن الراشي والمرتشي في المعاملات والوظائف والمناقصات «لَعَنَ رَسُولُ اللَّهِ ﷺ الرَّاشِيَ وَالْمُرْتَشِيَ (وفي رواية: وَالرَّائِشَ)» رواه الترمذي (1337) وأبو داود (3580) وصححه الألباني تحريم دفع أو قبول أي مبالغ أو عمولات خفية للتأثير على المناقصات أو العقود أو الإجراءات الرسمية.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5313,6 +5901,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -5339,7 +5931,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 18 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="prohibitions" data-hadith-search="تحريم هدايا وعمولات الموظفين والمسؤولين والمشترين (الغلول) «هَدَايَا الْعُمَّالِ غُلُولٌ» رواه أحمد (23604) والبيهقي وصححه الألباني في صحيح الجامع (7021) تحريم الهدايا والعمولات الخاصة التي يأخذها مسؤول المشتريات أو الموظف من الموردين دون إذن صاحب المنشأة.">
+        <div id="hadith-card-18" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="prohibitions" data-hadith-search="تحريم هدايا وعمولات الموظفين والمسؤولين والمشترين (الغلول) «هَدَايَا الْعُمَّالِ غُلُولٌ» رواه أحمد (23604) والبيهقي وصححه الألباني في صحيح الجامع (7021) تحريم الهدايا والعمولات الخاصة التي يأخذها مسؤول المشتريات أو الموظف من الموردين دون إذن صاحب المنشأة.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5358,6 +5950,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -5384,7 +5980,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 19 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="prohibitions" data-hadith-search="شؤم المال الحرام واستحقاق النار للجسد النابت من السحت «لَا يَرْبُو لَحْمٌ نَبَتَ مِنْ سُحْتٍ إِلَّا كَانَتِ النَّارُ أَوْلَى بِهِ» رواه الترمذي (614) وصححه الألباني في صحيح سنن الترمذي تطهير التجارة من أي مكاسب خبيثة لأن أكل الحرام يحبط العمل ويمنع إجابة الدعاء ويمحق البركة.">
+        <div id="hadith-card-19" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="prohibitions" data-hadith-search="شؤم المال الحرام واستحقاق النار للجسد النابت من السحت «لَا يَرْبُو لَحْمٌ نَبَتَ مِنْ سُحْتٍ إِلَّا كَانَتِ النَّارُ أَوْلَى بِهِ» رواه الترمذي (614) وصححه الألباني في صحيح سنن الترمذي تطهير التجارة من أي مكاسب خبيثة لأن أكل الحرام يحبط العمل ويمنع إجابة الدعاء ويمحق البركة.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5403,6 +5999,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -5429,7 +6029,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 20 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="prohibitions" data-hadith-search="عقوبة اقتطاع أموال الناس وحقوقهم بالأيمان الكاذبة «مَنِ اقْتَطَعَ حَقَّ امْرِئٍ مُسْلِمٍ بِيَمِينِهِ، فَقَدْ أَوْجَبَ اللَّهُ لَهُ النَّارَ، وَحَرَّمَ عَلَيْهِ الْجَنَّةَ، فَقَالَ رَجُلٌ: وَإِنْ كَانَ شَيْئًا يَسِيرًا يَا رَسُولَ اللَّهِ؟ قَالَ: وَإِنْ قَضِيبًا مِنْ أَرَاكٍ» صحيح مسلم (137) حرمة أكل أموال الناس بالباطل أو إنكار الديون أو الفواتير المستحقة مهما كانت قيمتها ضئيلة.">
+        <div id="hadith-card-20" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="prohibitions" data-hadith-search="عقوبة اقتطاع أموال الناس وحقوقهم بالأيمان الكاذبة «مَنِ اقْتَطَعَ حَقَّ امْرِئٍ مُسْلِمٍ بِيَمِينِهِ، فَقَدْ أَوْجَبَ اللَّهُ لَهُ النَّارَ، وَحَرَّمَ عَلَيْهِ الْجَنَّةَ، فَقَالَ رَجُلٌ: وَإِنْ كَانَ شَيْئًا يَسِيرًا يَا رَسُولَ اللَّهِ؟ قَالَ: وَإِنْ قَضِيبًا مِنْ أَرَاكٍ» صحيح مسلم (137) حرمة أكل أموال الناس بالباطل أو إنكار الديون أو الفواتير المستحقة مهما كانت قيمتها ضئيلة.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5448,6 +6048,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -5474,7 +6078,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 21 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="البركة في الصدق والبيان وشؤم الكتمان والكذب «الْبَيِّعَانِ بِالْخِيَارِ مَا لَمْ يَتَفَرَّقَا، فَإِنْ صَدَقَا وَبَيَّنَا بُورِكَ لَهُمَا فِي بَيْعِهِمَا، وَإِنْ كَتَمَا وَكَذَبَا مُحِقَتْ بَرَكَةُ بَيْعِهِمَا» صحيح البخاري (2079) وصحيح مسلم (1532) الصدق في بيان تكلفة وسعر السلعة وعيوبها هو مفتاح البركة والنماء، والكتمان والكذب يمحق الأرباح.">
+        <div id="hadith-card-21" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="البركة في الصدق والبيان وشؤم الكتمان والكذب «الْبَيِّعَانِ بِالْخِيَارِ مَا لَمْ يَتَفَرَّقَا، فَإِنْ صَدَقَا وَبَيَّنَا بُورِكَ لَهُمَا فِي بَيْعِهِمَا، وَإِنْ كَتَمَا وَكَذَبَا مُحِقَتْ بَرَكَةُ بَيْعِهِمَا» صحيح البخاري (2079) وصحيح مسلم (1532) الصدق في بيان تكلفة وسعر السلعة وعيوبها هو مفتاح البركة والنماء، والكتمان والكذب يمحق الأرباح.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5493,6 +6097,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -5519,7 +6127,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 22 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="فضل التاجر الصدوق الأمين ومنزلته مع النبيين والشهداء «التَّاجِرُ الصَّدُوقُ الأَمِينُ مَعَ النَّبِيِّينَ وَالصِّدِّيقِينَ وَالشُّهَدَاءِ» رواه الترمذي (1209) وصححه الألباني في صحيح الترغيب (1782) بيان شرف مهنة التجارة إذا اقترنت بالأمانة والصدق والبعد عن الغش والخيانة.">
+        <div id="hadith-card-22" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="فضل التاجر الصدوق الأمين ومنزلته مع النبيين والشهداء «التَّاجِرُ الصَّدُوقُ الأَمِينُ مَعَ النَّبِيِّينَ وَالصِّدِّيقِينَ وَالشُّهَدَاءِ» رواه الترمذي (1209) وصححه الألباني في صحيح الترغيب (1782) بيان شرف مهنة التجارة إذا اقترنت بالأمانة والصدق والبعد عن الغش والخيانة.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5538,6 +6146,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -5564,7 +6176,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 23 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="السماحة واليسر في البيع والشراء والقضاء والمطالبة «رَحِمَ اللَّهُ رَجُلًا سَمْحًا إِذَا بَاعَ، وَإِذَا اشْتَرَى، وَإِذَا اقْتَضَى» صحيح البخاري (2076) الدعاء بالرحمة النبوية لكل من يتساهل ولا يشدد على الناس في المماكسة وسداد الديون.">
+        <div id="hadith-card-23" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="السماحة واليسر في البيع والشراء والقضاء والمطالبة «رَحِمَ اللَّهُ رَجُلًا سَمْحًا إِذَا بَاعَ، وَإِذَا اشْتَرَى، وَإِذَا اقْتَضَى» صحيح البخاري (2076) الدعاء بالرحمة النبوية لكل من يتساهل ولا يشدد على الناس في المماكسة وسداد الديون.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5583,6 +6195,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -5609,7 +6225,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 24 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="النهي الصريح عن بيع ما لا يملك التاجر (بيع ما ليس عندك) «قُلْتُ: يَا رَسُولَ اللَّهِ، يَأْتِينِي الرَّجُلُ فَيُرِيدُ مِنِّي الْبَيْعَ لَيْسَ عِنْدِي، أَفَأَبْتَاعُهُ لَهُ مِنَ السُّوقِ؟ فَقَالَ: لَا تَبِعْ مَا لَيْسَ عِنْدَكَ» رواه أبو داود (3503) والترمذي (1232) وصححه الألباني تحريم إبرام عقد بيع باتّ على سلعة معينة قبل شرائها وقبضها ودخولها في ملك وضمان التاجر.">
+        <div id="hadith-card-24" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="النهي الصريح عن بيع ما لا يملك التاجر (بيع ما ليس عندك) «قُلْتُ: يَا رَسُولَ اللَّهِ، يَأْتِينِي الرَّجُلُ فَيُرِيدُ مِنِّي الْبَيْعَ لَيْسَ عِنْدِي، أَفَأَبْتَاعُهُ لَهُ مِنَ السُّوقِ؟ فَقَالَ: لَا تَبِعْ مَا لَيْسَ عِنْدَكَ» رواه أبو داود (3503) والترمذي (1232) وصححه الألباني تحريم إبرام عقد بيع باتّ على سلعة معينة قبل شرائها وقبضها ودخولها في ملك وضمان التاجر.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5628,6 +6244,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -5654,7 +6274,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 25 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="النهي عن بيوع الغرر والمخاطرة والجهالة في السلع «نَهَى رَسُولُ اللَّهِ ﷺ عَنْ بَيْعِ الْحَصَاةِ، وَعَنْ بَيْعِ الْغَرَرِ» صحيح مسلم (1513) وجوب نفي الجهالة وتحديد مواصفات وأبعاد وأوزان وأسعار السلع بدقة بالفاتورة لقطع النزاع.">
+        <div id="hadith-card-25" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="النهي عن بيوع الغرر والمخاطرة والجهالة في السلع «نَهَى رَسُولُ اللَّهِ ﷺ عَنْ بَيْعِ الْحَصَاةِ، وَعَنْ بَيْعِ الْغَرَرِ» صحيح مسلم (1513) وجوب نفي الجهالة وتحديد مواصفات وأبعاد وأوزان وأسعار السلع بدقة بالفاتورة لقطع النزاع.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5673,6 +6293,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -5699,7 +6323,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 26 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="وجوب الوفاء بالشروط التجارية والعقود المبرمة «الْمُسْلِمُونَ عَلَى شُرُوطِهِمْ، إِلَّا شَرْطًا حَرَّمَ حَلَالًا أَوْ أَحَلَّ حَرَامًا» رواه الترمذي (1352) وصححه الألباني في الإرواء (1303) إلزامية كافة الشروط التجارية المتفق عليها (مواعيد التسليم، الدفعات، المواصفات) ما لم تخالف الشرع.">
+        <div id="hadith-card-26" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="وجوب الوفاء بالشروط التجارية والعقود المبرمة «الْمُسْلِمُونَ عَلَى شُرُوطِهِمْ، إِلَّا شَرْطًا حَرَّمَ حَلَالًا أَوْ أَحَلَّ حَرَامًا» رواه الترمذي (1352) وصححه الألباني في الإرواء (1303) إلزامية كافة الشروط التجارية المتفق عليها (مواعيد التسليم، الدفعات، المواصفات) ما لم تخالف الشرع.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5718,6 +6342,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -5744,7 +6372,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 27 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="تحريم الغش والتطفيف والبراءة النبوية من الغاش «أَنَّ رَسُولَ اللَّهِ ﷺ مَرَّ عَلَى صُبْرَةِ طَعَامٍ فَأَدْخَلَ يَدَهُ فِيهَا، فَنَالَتْ أَصَابِعُهُ بَلَلًا، فَقَالَ: مَا هَذَا يَا صَاحِبَ الطَّعَامِ؟ قَالَ: أَصَابَتْهُ السَّمَاءُ يَا رَسُولَ اللَّهِ، قَالَ: أَفَلَا جَعَلْتَهُ فَوْقَ الطَّعَامِ كَيْ يَرَاهُ النَّاسُ، مَنْ غَشَّ فَلَيْسَ مِنِّي» صحيح مسلم (102) تحريم إخفاء البضاعة التالفة تحت السليمة أو تغيير المواصفات، ووجوب إظهار العيوب للمشتري.">
+        <div id="hadith-card-27" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="تحريم الغش والتطفيف والبراءة النبوية من الغاش «أَنَّ رَسُولَ اللَّهِ ﷺ مَرَّ عَلَى صُبْرَةِ طَعَامٍ فَأَدْخَلَ يَدَهُ فِيهَا، فَنَالَتْ أَصَابِعُهُ بَلَلًا، فَقَالَ: مَا هَذَا يَا صَاحِبَ الطَّعَامِ؟ قَالَ: أَصَابَتْهُ السَّمَاءُ يَا رَسُولَ اللَّهِ، قَالَ: أَفَلَا جَعَلْتَهُ فَوْقَ الطَّعَامِ كَيْ يَرَاهُ النَّاسُ، مَنْ غَشَّ فَلَيْسَ مِنِّي» صحيح مسلم (102) تحريم إخفاء البضاعة التالفة تحت السليمة أو تغيير المواصفات، ووجوب إظهار العيوب للمشتري.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5763,6 +6391,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -5789,7 +6421,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 28 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="فضل إقالة النادم وفسخ البيع برضا وقبول المرتجع «مَنْ أَقَالَ مُسْلِمًا، أَقَالَهُ اللَّهُ عَثْرَتَهُ يَوْمَ الْقِيَامَةِ» رواه أبو داود (3460) وابن ماجه (2199) وصححه الألباني استحباب قبول إرجاع البضاعة واسترداد الثمن للزبون النادم الذي لم يعد بحاجة للسلعة وتفريج كربته.">
+        <div id="hadith-card-28" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="فضل إقالة النادم وفسخ البيع برضا وقبول المرتجع «مَنْ أَقَالَ مُسْلِمًا، أَقَالَهُ اللَّهُ عَثْرَتَهُ يَوْمَ الْقِيَامَةِ» رواه أبو داود (3460) وابن ماجه (2199) وصححه الألباني استحباب قبول إرجاع البضاعة واسترداد الثمن للزبون النادم الذي لم يعد بحاجة للسلعة وتفريج كربته.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5808,6 +6440,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -5834,7 +6470,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 29 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="النهي والتحذير الشديد من الحلف الكاذب لترويج البضائع «الْحَلِفُ مُنَفِّقَةٌ لِلسِّلْعَةِ، مُمْحِقَةٌ لِلْبَرَكَةِ» صحيح البخاري (2087) وصحيح مسلم (1606) تحريم الإكثار من الحلف بالله في الأسواق لإقناع المشتري بالسعر أو جودة البضاعة.">
+        <div id="hadith-card-29" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="النهي والتحذير الشديد من الحلف الكاذب لترويج البضائع «الْحَلِفُ مُنَفِّقَةٌ لِلسِّلْعَةِ، مُمْحِقَةٌ لِلْبَرَكَةِ» صحيح البخاري (2087) وصحيح مسلم (1606) تحريم الإكثار من الحلف بالله في الأسواق لإقناع المشتري بالسعر أو جودة البضاعة.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5853,6 +6489,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -5879,7 +6519,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 30 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="تحريم الحيل الربوية وبيع العِينة «إِذَا تَبَايَعْتُمْ بِالْعِينَةِ، وَأَخَذْتُمْ أَذْنَابَ الْبَقَرِ، وَرَضِيتُمْ بِالزَّرْعِ، وَتَرَكْتُمُ الْجِهَادَ، سَلَّطَ اللَّهُ عَلَيْكُمْ ذُلًّا لَا يَنْزِعُهُ حَتَّى تَرْجِعُوا إِلَى دِينِكُمْ» رواه أبو داود (3462) وصححه الألباني في السلسلة الصحيحة (11) تحريم التحايل على القرض الربوي بصور بيع صورية، كبيع السلعة بالآجل ثم شراؤها نقداً بأقل.">
+        <div id="hadith-card-30" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="تحريم الحيل الربوية وبيع العِينة «إِذَا تَبَايَعْتُمْ بِالْعِينَةِ، وَأَخَذْتُمْ أَذْنَابَ الْبَقَرِ، وَرَضِيتُمْ بِالزَّرْعِ، وَتَرَكْتُمُ الْجِهَادَ، سَلَّطَ اللَّهُ عَلَيْكُمْ ذُلًّا لَا يَنْزِعُهُ حَتَّى تَرْجِعُوا إِلَى دِينِكُمْ» رواه أبو داود (3462) وصححه الألباني في السلسلة الصحيحة (11) تحريم التحايل على القرض الربوي بصور بيع صورية، كبيع السلعة بالآجل ثم شراؤها نقداً بأقل.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5898,6 +6538,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -5924,7 +6568,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 31 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="تحريم النَّجْش (المزايدة الكاذبة في الأسواق والمزادات) «نَهَى النَّبِيُّ ﷺ عَنِ النَّجْشِ» صحيح البخاري (2142) وصحيح مسلم (1516) تحريم أن يرفع شخص سعر السلعة في المزاد أو السوق وهو لا يريد شراءها بل ليغر المشتري ويرفع السعر عليه.">
+        <div id="hadith-card-31" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="تحريم النَّجْش (المزايدة الكاذبة في الأسواق والمزادات) «نَهَى النَّبِيُّ ﷺ عَنِ النَّجْشِ» صحيح البخاري (2142) وصحيح مسلم (1516) تحريم أن يرفع شخص سعر السلعة في المزاد أو السوق وهو لا يريد شراءها بل ليغر المشتري ويرفع السعر عليه.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5943,6 +6587,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -5969,7 +6617,7 @@ $pdo = getDBConnection();
         </div>
     
         <!-- Hadith Card 32 -->
-        <div class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="تحريم الاحتكار وحبس السلع الأساسية لرفع أسعارها «لَا يَحْتَكِرُ إِلَّا خَاطِئٌ» صحيح مسلم (1605) تحريم شراء أقوات وحاجات الناس وتخزينها لحبسها عن الأسواق بغرض إغلاء الأسعار واستغلال الأزمات.">
+        <div id="hadith-card-32" class="fiqh-hadith-card p-5 bg-slate-900/95 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-lg hover:border-amber-400 transition" data-hadith-cat="sales" data-hadith-search="تحريم الاحتكار وحبس السلع الأساسية لرفع أسعارها «لَا يَحْتَكِرُ إِلَّا خَاطِئٌ» صحيح مسلم (1605) تحريم شراء أقوات وحاجات الناس وتخزينها لحبسها عن الأسواق بغرض إغلاء الأسعار واستغلال الأزمات.">
             
             <!-- Top Badge & Number -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5988,6 +6636,10 @@ $pdo = getDBConnection();
                     <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
                         ✓ صحيح
                     </span>
+                    <button type="button" onclick="copyHadithCard(this)" class="px-2.5 py-1 bg-slate-800 hover:bg-slate-700 text-slate-300 hover:text-white rounded-xl text-xs font-black border border-slate-700 transition flex items-center gap-1.5" title="نسخ نص الحديث وتخريجه">
+                        <i class="fa-regular fa-copy text-amber-400"></i>
+                        <span>نسخ</span>
+                    </button>
                 </div>
             </div>
 
@@ -6599,6 +7251,117 @@ $pdo = getDBConnection();
         window.open(googleUrl, '_blank');
     }
 
+    // 🌟 UNIFIED FIQH CONSOLE & DIRECT NAVIGATION CONTROLLERS 🌟
+    function executeInternalFiqhSearch() {
+        const input = document.getElementById('fiqh-search-input');
+        switchFiqhSubTab('fatwas');
+        filterFatwas();
+        const fatwasContainer = document.getElementById('fiqh-sub-fatwas');
+        if (fatwasContainer) {
+            fatwasContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }
+
+    function executeScopedGoogle12Search() {
+        const input = document.getElementById('fiqh-search-input');
+        const val = input ? input.value.trim() : '';
+        const query = val !== '' ? val : 'فتاوى البيوع والمعاملات المالية المعاصرة';
+        const scholars = '("ابن باز" OR "ابن عثيمين" OR "صالح الفوزان" OR "ابن تيمية" OR "ابن القيم" OR "أحمد بن حنبل" OR "النووي" OR "الذهبي" OR "محمد بن عبد الوهاب" OR "السعدي" OR "الشنقيطي" OR "الألباني")';
+        const sites = '(site:binbaz.org.sa OR site:ibnothaimeen.net OR site:alfawzan.af.org.sa OR site:alalbany.org OR site:shamela.ws OR site:islamweb.net OR site:alukah.net OR site:dorar.net)';
+        const fullQuery = query + ' ' + scholars + ' ' + sites;
+        const googleUrl = 'https://www.google.com/search?q=' + encodeURIComponent(fullQuery);
+        window.open(googleUrl, '_blank');
+    }
+
+    function clearFiqhInput() {
+        const input = document.getElementById('fiqh-search-input');
+        if (input) {
+            input.value = '';
+            input.focus();
+        }
+        filterFatwas();
+    }
+
+    function jumpToHadith(num, queryText) {
+        switchFiqhSubTab('hadiths');
+        // Reset hadith category to all
+        const allBtn = document.querySelector('.hadith-filter-btn[data-hcat="all"]');
+        if (allBtn) setHadithCategory('all', allBtn);
+        const searchInput = document.getElementById('hadith-search-input');
+        if (searchInput) {
+            searchInput.value = '';
+            filterHadiths();
+        }
+        // Highlight pill
+        document.querySelectorAll('.hadith-q-pill').forEach(p => p.classList.remove('active'));
+        if (typeof event !== 'undefined' && event && event.currentTarget) {
+            event.currentTarget.classList.add('active');
+        }
+        // Find target card
+        const card = document.getElementById('hadith-card-' + num);
+        if (card) {
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            card.classList.remove('fiqh-card-highlighted');
+            void card.offsetWidth;
+            card.classList.add('fiqh-card-highlighted');
+        }
+    }
+
+    function jumpToQuran(verseNum) {
+        switchFiqhSubTab('quran');
+        // Reset quran topic to all
+        const allBtn = document.querySelector('.quran-filter-btn[data-qcat="all"]');
+        if (allBtn) setQuranTopic('all', allBtn);
+        const searchInput = document.getElementById('quran-search-input');
+        if (searchInput) {
+            searchInput.value = '';
+            filterQuranVerses();
+        }
+        // Highlight pill
+        document.querySelectorAll('.quran-q-pill').forEach(p => p.classList.remove('active'));
+        if (typeof event !== 'undefined' && event && event.currentTarget) {
+            event.currentTarget.classList.add('active');
+        }
+        // Find target card
+        const card = document.getElementById('quran-card-' + verseNum);
+        if (card) {
+            card.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            card.classList.remove('fiqh-card-highlighted');
+            void card.offsetWidth;
+            card.classList.add('fiqh-card-highlighted');
+        }
+    }
+
+    function copyHadithCard(btn) {
+        const card = btn.closest('.fiqh-hadith-card');
+        if (!card) return;
+        const textEl = card.querySelector('.hadith-text-display') || card.querySelector('p');
+        const titleEl = card.querySelector('h4');
+        const textToCopy = (titleEl ? titleEl.innerText + '\n' : '') + (textEl ? textEl.innerText : '');
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> تم النسخ!';
+            setTimeout(() => { btn.innerHTML = originalHTML; }, 2000);
+        }).catch(err => {
+            console.error('Copy failed:', err);
+        });
+    }
+
+    function copyQuranCard(btn) {
+        const card = btn.closest('.fiqh-ayah-card');
+        if (!card) return;
+        const textEl = card.querySelector('.ayah-text-display') || card.querySelector('p');
+        const titleEl = card.querySelector('h4');
+        const textToCopy = (titleEl ? titleEl.innerText + '\n' : '') + (textEl ? textEl.innerText : '');
+        navigator.clipboard.writeText(textToCopy).then(() => {
+            const originalHTML = btn.innerHTML;
+            btn.innerHTML = '<i class="fa-solid fa-check text-emerald-400"></i> تم النسخ!';
+            setTimeout(() => { btn.innerHTML = originalHTML; }, 2000);
+        }).catch(err => {
+            console.error('Copy failed:', err);
+        });
+    }
+
     function switchFiqhSubTab(subId, el) {
         document.getElementById('fiqh-sub-fatwas').classList.add('hidden');
         document.getElementById('fiqh-sub-books').classList.add('hidden');
@@ -6609,15 +7372,21 @@ $pdo = getDBConnection();
         if (document.getElementById('fiqh-sub-hadiths')) document.getElementById('fiqh-sub-hadiths').classList.add('hidden');
 
         document.querySelectorAll('.fiqh-nav-pill').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.fiqh-portal-btn').forEach(btn => btn.classList.remove('active'));
 
         const target = document.getElementById('fiqh-sub-' + subId);
         if (target) target.classList.remove('hidden');
-        if (el) el.classList.add('active');
+
+        if (el && (el.classList.contains('fiqh-portal-btn') || el.classList.contains('fiqh-nav-pill'))) {
+            el.classList.add('active');
+        } else {
+            const portalBtn = document.querySelector('.portal-' + subId);
+            if (portalBtn) portalBtn.classList.add('active');
+        }
     }
 
     // ── Fiqh Filters & Search Controller ──
-    function setFiqhScholar(scholar, btn) {
-        activeScholarFilter = scholar;
+    tiveScholarFilter = scholar;
         document.querySelectorAll('[data-filter-type="scholar"]').forEach(b => b.classList.remove('active'));
         if (btn) btn.classList.add('active');
         filterFatwas();
@@ -6631,9 +7400,14 @@ $pdo = getDBConnection();
     }
 
     function setQuickSearch(word) {
-        document.getElementById('fiqh-search-input').value = word;
-        switchFiqhSubTab('fatwas', document.querySelector('.fiqh-nav-pill'));
+        const input = document.getElementById('fiqh-search-input');
+        if (input) input.value = word;
+        switchFiqhSubTab('fatwas');
         filterFatwas();
+        const fatwasContainer = document.getElementById('fiqh-sub-fatwas');
+        if (fatwasContainer) {
+            fatwasContainer.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
     }
 
     function clearFiqhSearch() {
