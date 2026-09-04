@@ -27,6 +27,8 @@ $files = [
     'db_bridge.php' => getNormalizedHash(__DIR__ . '/db_bridge.php'),
     'login.php' => getNormalizedHash(__DIR__ . '/login.php'),
     'index.php' => getNormalizedHash(__DIR__ . '/index.php'),
+    'engineering_tools.php' => getNormalizedHash(__DIR__ . '/engineering_tools.php'),
+    'js/fiqh_20000_data.js' => getNormalizedHash(__DIR__ . '/js/fiqh_20000_data.js'),
 ];
 
 // Check specific keywords inside single-cash-payment.php
@@ -45,6 +47,11 @@ $checks['gl_transfer_opening'] = strpos($glContent, "transferNo: 'رصيد اف�
 // Check mainbalances-report.js keywords
 $mbContent = file_exists(__DIR__ . '/js/mainbalances-report.js') ? file_get_contents(__DIR__ . '/js/mainbalances-report.js') : '';
 $checks['mb_gl_sync'] = strpos($mbContent, "calculateAccountLedgerBalance") !== false;
+
+// Check fiqh encyclopedia keywords
+$fiqhContent = file_exists(__DIR__ . '/js/fiqh_20000_data.js') ? file_get_contents(__DIR__ . '/js/fiqh_20000_data.js') : '';
+$checks['fiqh_hadith_evidence'] = strpos($fiqhContent, 'evidence') !== false;
+$checks['fiqh_zero_duplicates'] = strpos($fiqhContent, 'صفر تكرار 100%') !== false;
 
 echo json_encode([
     'server' => (php_sapi_name() === 'cli' || ($_SERVER['SERVER_NAME'] ?? '') === 'localhost' || ($_SERVER['SERVER_NAME'] ?? '') === '127.0.0.1') ? 'LOCAL' : 'LIVE_SERVER',

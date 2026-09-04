@@ -2026,53 +2026,79 @@ $pdo = getDBConnection();
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
                             <button type="button" class="fiqh-filter-btn active" data-filter-type="topic" data-filter-val="all" onclick="setFiqhTopic('all', this)">
-                                📑 جميع المسائل والمعاملات (20,000 فتوى (21 فتوى في الصفحة))
+                                📑 جميع المسائل والمعاملات المالية
                             </button>
                             <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="ownership" onclick="setFiqhTopic('ownership', this)">
-                                🛒 بيع ما لا يملك والوساطة
+                                🛒 بيع ما لا يملك والوساطة والقبض
                             </button>
                             <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="installments" onclick="setFiqhTopic('installments', this)">
-                                💳 التقسيط وغرامات التأخير
+                                💳 التقسيط والتمويل المعاصر
                             </button>
                             <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="exchange" onclick="setFiqhTopic('exchange', this)">
-                                💱 الصرف والموبايل بنك
+                                💱 الصرف والموبايل بنك (بنكك)
                             </button>
                             <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="checks" onclick="setFiqhTopic('checks', this)">
-                                📜 الشيكات والأوراق المالية
+                                📜 الشيكات والكمبيالات والمقاصة
                             </button>
                             <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="araboon" onclick="setFiqhTopic('araboon', this)">
                                 🤝 بيع العربون وحجز البضاعة
                             </button>
                             <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="contracts" onclick="setFiqhTopic('contracts', this)">
-                                📋 العقود والشروط التجارية
+                                📋 العقود والشروط وحرية الاتفاق
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="penalties" onclick="setFiqhTopic('penalties', this)">
+                                ⏱️ الشرط الجزائي وغرامات التأخير
                             </button>
                             <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="pricing" onclick="setFiqhTopic('pricing', this)">
-                                ⚖️ التسعير والاحتكار والغبن
+                                ⚖️ التسعير وتطفيف الكيل والميزان
                             </button>
                             <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="gold" onclick="setFiqhTopic('gold', this)">
                                 💎 بيع وشراء الذهب والفضة
                             </button>
                             <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="defects" onclick="setFiqhTopic('defects', this)">
-                                🛡️ خيار العيب والضمان
+                                🛡️ خيار العيب والضمان المصنعي
                             </button>
                             <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="riba" onclick="setFiqhTopic('riba', this)">
                                 🚫 حيل الربا والعِينة والتورق
                             </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="zakat" onclick="setFiqhTopic('zakat', this)">
+                                💰 الزكاة وعروض التجارة والديون
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="charity" onclick="setFiqhTopic('charity', this)">
+                                🤲 الصدقات وحقوق الأجراء والعمال
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="companies" onclick="setFiqhTopic('companies', this)">
+                                🏢 الشركات والأسهم والمضاربة
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="emergency" onclick="setFiqhTopic('emergency', this)">
+                                ⚡ الجوائح والظروف الطارئة
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="brokerage" onclick="setFiqhTopic('brokerage', this)">
+                                📦 السمسرة والعمولات والمزادات
+                            </button>
+                            <button type="button" class="fiqh-filter-btn" data-filter-type="topic" data-filter-val="ecommerce" onclick="setFiqhTopic('ecommerce', this)">
+                                📱 التجارة الإلكترونية ونقاط البيع POS
+                            </button>
                         </div>
                     </div>
 
-                    <!-- 👁️ ON-DEMAND VISIBILITY NOTIFICATION BANNER 👁️ -->
+                    <!-- 👁️ VISIBILITY NOTIFICATION BANNER 👁️ -->
                     <div id="fatwas-visibility-banner" class="p-3.5 bg-slate-950/90 border-2 border-amber-500/40 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-md">
                         <div class="flex items-center gap-2.5">
-                            <span class="text-xl">💡</span>
+                            <span class="text-2xl">🌟</span>
                             <div>
-                                <span class="text-xs sm:text-sm font-black text-amber-300 block">نظام العرض والبحث الذكي:</span>
-                                <span class="text-xs text-slate-300 font-bold">يتم عرض الفتاوى الشائعة افتراضياً، وتظهر كافة الـ 20,000 فتوى (21 فتوى في الصفحة) فوراً عند كتابة أي كلمة في البحث أو اختيار شيخ أو موضوع.</span>
+                                <span class="text-xs sm:text-sm font-black text-amber-300 block">الموسوعة الكبرى المحررة لفقه المعاملات والبيوع الإسلامية:</span>
+                                <span class="text-xs text-slate-300 font-bold">موسوعة محررة متكاملة بدون أي تكرار، مدعمة بالأحاديث النبوية الصحيحة والأدلة الشرعية لكبار الأئمة الـ 12 المعتمدين (21 مسألة في الصفحة).</span>
                             </div>
                         </div>
-                        <button type="button" id="toggle-all-fatwas-btn" onclick="toggleShowAllFatwas()" class="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 font-black text-xs rounded-xl shadow transition">
-                            👁️ عرض جميع الـ 20,000 فتوى (21 فتوى في الصفحة) دفعة واحدة
-                        </button>
+                        <div class="flex items-center gap-2">
+                            <span class="px-3 py-1.5 bg-emerald-500/20 text-emerald-300 font-black text-xs rounded-xl border border-emerald-500/40 flex items-center gap-1">
+                                <i class="fa-solid fa-check-circle"></i> صفر تكرار (مسائل فريدة 100%)
+                            </span>
+                            <span class="px-3 py-1.5 bg-amber-500/20 text-amber-300 font-black text-xs rounded-xl border border-amber-500/40 flex items-center gap-1">
+                                <i class="fa-solid fa-book-quran"></i> مدعمة بالأحاديث الصحيحة
+                            </span>
+                        </div>
                     </div>
 
                     <!-- 📑 1. TOP PROMINENT PAGINATION & PAGE CHANGER BAR 📑 -->
@@ -6720,11 +6746,27 @@ $pdo = getDBConnection();
         let html = '';
         pageItems.forEach((item) => {
             let rulingClass = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50';
-            if (item.ruling.includes('محرم') || item.ruling.includes('باطل') || item.ruling.includes('لا يجوز')) {
+            if (item.ruling.includes('محرم') || item.ruling.includes('باطل') || item.ruling.includes('لا يجوز') || item.ruling.includes('كبيرة') || item.ruling.includes('سحت')) {
                 rulingClass = 'bg-rose-500/20 text-rose-300 border-rose-500/50';
-            } else if (item.ruling.includes('ضوابط') || item.ruling.includes('مشروطة') || item.ruling.includes('مكروه') || item.ruling.includes('تحري') || item.ruling.includes('مشروع')) {
+            } else if (item.ruling.includes('ضوابط') || item.ruling.includes('مشروطة') || item.ruling.includes('مكروه') || item.ruling.includes('تحري')) {
                 rulingClass = 'bg-amber-500/20 text-amber-300 border-amber-500/50';
+            } else if (item.ruling.includes('واجب')) {
+                rulingClass = 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50';
+            } else if (item.ruling.includes('مستحب') || item.ruling.includes('مندوب')) {
+                rulingClass = 'bg-teal-500/20 text-teal-300 border-teal-500/50';
             }
+
+            const hadithBox = item.evidence ? `
+                <div class="p-3 bg-gradient-to-r from-amber-950/40 via-slate-900/90 to-amber-950/30 border-r-4 border-amber-500/80 rounded-xl space-y-1.5 my-2.5 shadow-inner">
+                    <div class="flex items-center gap-1.5 text-[11px] font-black text-amber-300">
+                        <i class="fa-solid fa-book-quran text-amber-400"></i>
+                        <span>الأثر والدليل من السنة الصحيحة والقرآن:</span>
+                    </div>
+                    <div class="text-[12px] text-amber-100/95 font-serif leading-relaxed pr-1 font-bold">
+                        ${item.evidence}
+                    </div>
+                </div>
+            ` : '';
 
             html += `
                 <div class="fiqh-master-card flex flex-col justify-between" data-scholar="${item.scholar_code}" data-topic="${item.topic_code}">
@@ -6741,6 +6783,7 @@ $pdo = getDBConnection();
                         <h4 class="text-sm md:text-base font-black text-white leading-snug">
                             <span class="text-amber-400/80 font-mono text-xs">#${item.id}</span> ${item.question}
                         </h4>
+                        ${hadithBox}
                         <p class="text-xs text-slate-300 leading-relaxed font-bold">
                             ${item.summary}
                         </p>
@@ -6887,7 +6930,7 @@ $pdo = getDBConnection();
             }
             // Search query match (multi-word AND)
             if (queryTerms.length > 0) {
-                const combined = (item.question + ' ' + item.summary + ' ' + item.scholar_name + ' ' + item.topic_name + ' ' + (item.tags || '') + ' ' + item.ruling + ' ' + item.source).toLowerCase();
+                const combined = (item.question + ' ' + item.summary + ' ' + (item.evidence || '') + ' ' + item.scholar_name + ' ' + item.topic_name + ' ' + (item.tags || '') + ' ' + item.ruling + ' ' + item.source).toLowerCase();
                 return queryTerms.every(term => combined.includes(term));
             }
             return true;
