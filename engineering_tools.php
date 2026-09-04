@@ -2535,6 +2535,14 @@ $pdo = getDBConnection();
                                 <span>البحث داخل البرنامج</span>
                             </button>
 
+                            <!-- الزر 2: بحث قوقل للشيوخ الـ 12 المعتمدين فقط -->
+                            <button type="button" onclick="executeScopedGoogle12Search()" class="fiqh-btn-glow fiqh-btn-google-glow" title="البحث في فتاوى الشيوخ والعلماء الـ 12 المعتمدين فقط عبر قوقل">
+                                <div class="fiqh-btn-icon-wrap">
+                                    <i class="fa-brands fa-google"></i>
+                                </div>
+                                <span>البحث في قوقل (الشيوخ الـ 12 فقط)</span>
+                            </button>
+
                             
 
                             <!-- الزر 3 / القائمة المنسدلة: جميع الشيوخ الـ 12 المعتمدين -->
@@ -4406,37 +4414,38 @@ $pdo = getDBConnection();
                     
                 
 
-                <div id="fiqh-sub-maxims" class="space-y-4 hidden">
-                    <div class="p-5 bg-gradient-to-r from-emerald-950/60 via-slate-900 to-emerald-950/40 border-2 border-emerald-500/40 rounded-2xl flex flex-wrap items-center justify-between gap-4 shadow-xl">
+                <div id="fiqh-sub-maxims" class="space-y-6 hidden">
+                    <div class="p-6 md:p-8 bg-gradient-to-r from-emerald-950/70 via-slate-900 to-emerald-950/50 border-2 border-emerald-500/50 rounded-3xl flex flex-wrap items-center justify-between gap-5 shadow-2xl">
                         <div>
-                            <div class="flex items-center gap-2 mb-1">
-                                <span class="px-3.5 py-1 bg-emerald-500/20 text-emerald-300 font-black text-xs rounded-xl border border-emerald-400">
+                            <div class="flex items-center gap-2.5 mb-2">
+                                <span class="px-4 py-1.5 bg-emerald-500/20 text-emerald-300 font-black text-xs md:text-sm rounded-xl border border-emerald-400/60 shadow-sm">
                                     ★ الدستور الفقهي الكلي للأسواق والتجارة
                                 </span>
-                                <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400">
+                                <span class="px-4 py-1.5 bg-amber-500/20 text-amber-300 font-mono font-black text-xs md:text-sm rounded-xl border border-amber-400/60 shadow-sm">
                                     30 قاعدة فقهية كبرى من القرآن والسنة الصحيحة 100% ✓
                                 </span>
                             </div>
-                            <h3 class="text-xl md:text-2xl font-black text-emerald-300 flex items-center gap-2">
+                            <h3 class="text-xl sm:text-2xl md:text-3xl font-black text-emerald-300 flex items-center gap-2.5">
                                 <i class="fa-solid fa-scale-balanced text-emerald-400"></i>
                                 قواعد الفقه الكبرى الحاكمة للتجارة والبيوع والمعاملات المالية المعاصرة
                             </h3>
-                            <p class="text-xs md:text-sm text-slate-200 font-bold mt-1 leading-relaxed">
+                            <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold mt-2 leading-relaxed">
                                 القواعد والضوابط الكلية المؤسسة مباشرة على <span class="text-amber-300 font-black">نصوص القرآن الكريم المحكمة</span> و<span class="text-emerald-300 font-black">الأحاديث النبوية الصحيحة الثابتة</span> الحاكمة للشركات والمصارف وعقود التجارة.
                             </p>
                         </div>
 
                         <!-- Instant Maxim Search Box -->
-                        <div class="w-full md:w-80">
-                            <label class="text-xs font-bold text-slate-300 block mb-1">🔍 ابحث في القواعد والأصول والتطبيقات:</label>
-                            <input type="text" id="maxims-search-input" oninput="filterMaxims()" placeholder="ابحث: العقد، الشروط، الضمان، الغرر، الخراج، براءة الذمة..." class="tool-input text-xs font-bold">
+                        <div class="w-full md:w-96">
+                            <label class="text-xs sm:text-sm font-bold text-slate-200 block mb-1.5">🔍 ابحث في القواعد والأصول والتطبيقات:</label>
+                            <input type="text" id="maxims-search-input" oninput="filterMaxims()" placeholder="ابحث: العقد، الشروط، الضمان، الغرر، الخراج، براءة الذمة..." class="tool-input text-xs sm:text-sm font-bold">
                         </div>
                     </div>
 
-                    <!-- 🎛️ Maxims Category Filter Bar (6 تصنيفات فقهية) 🎛️ -->
-                    <div class="bg-slate-900/90 p-3.5 rounded-2xl border border-emerald-500/30 flex flex-wrap items-center gap-2 shadow-lg">
-                        <span class="text-xs font-black text-emerald-400 block w-full mb-1">
-                            🏷️ تصفية القواعد الفقهية حسب المحور الاقتصادي والتجاري:
+                    <!-- 🎛️ Maxims Category Filter Bar (6 تصنيفات فقهية متوازنة) 🎛️ -->
+                    <div class="bg-slate-900/90 p-4 sm:p-5 rounded-3xl border border-emerald-500/40 flex flex-wrap items-center gap-2.5 shadow-xl">
+                        <span class="text-xs sm:text-sm font-black text-emerald-300 block w-full mb-1 flex items-center gap-2">
+                            <i class="fa-solid fa-filter"></i>
+                            <span>تصفية القواعد الفقهية حسب المحور الاقتصادي والتجاري:</span>
                         </span>
                         <button type="button" class="maxim-filter-btn fiqh-filter-btn active" data-mcat="all" onclick="setMaximCategory('all', this)">
                             🌟 جميع القواعد الفقهية الكلية (30)
@@ -4461,1594 +4470,2014 @@ $pdo = getDBConnection();
                         </button>
                     </div>
 
-                    <!-- Maxims Grid -->
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="maxims-grid-container">
+                    <!-- Maxims Grid (Balanced Responsive Grid) -->
+                    <div class="grid grid-cols-1 md:grid-cols-2 gap-5 items-stretch" id="maxims-grid-container">
 
         <!-- Maxim Card 1 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="contracts" data-maxim-search="1 «الأَصْلُ فِي الْعُقُودِ وَالشُّرُوطِ الْحِلُّ وَالإِبَاحَةُ» 📖 أصل قرآني ونبوي محكم قوله تعالى: ﴿وَأَحَلَّ اللَّهُ الْبَيْعَ﴾ [البقرة: 275]، وقوله: ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ﴾ [المائدة: 1]، وحديث: «المسلمون على شروطهم إلا شرطاً حرم حلالاً أو أحل حراماً» [صحيح الترمذي وأبو داود]. الأصل في كافة المعاملات والأنشطة والعقود والاتفاقيات التجارية التي يبتكرها الناس لمصالحهم هو الصحة والجواز، ولا يحرم عقد إلا بنص شرعي قطعي يحرمه لربا أو غرر أو ظلم أو ميسر. صحة العقود والابتكارات الاستثمارية الحديثة كالتجارة الإلكترونية، الصكوك، التمويل الجماعي، والإجارة المنتهية بالتمليك دون حاجة لنص قديم يسميها بأعيانها. الإمام أحمد، شيخ الإسلام ابن تيمية، ابن القيم، ابن عثيمين الأصل في العقود والشروط الحل والإباحة العقود المستحدثة المعاملات المالية المباحة">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="contracts" data-maxim-search="1 «الأَصْلُ فِي الْعُقُودِ وَالشُّرُوطِ الْحِلُّ وَالإِبَاحَةُ» 📖 أصل قرآني ونبوي محكم قوله تعالى: ﴿وَأَحَلَّ اللَّهُ الْبَيْعَ﴾ [البقرة: 275]، وقوله: ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ﴾ [المائدة: 1]، وحديث: «المسلمون على شروطهم إلا شرطاً حرم حلالاً أو أحل حراماً» [صحيح الترمذي وأبو داود]. الأصل في كافة المعاملات والأنشطة والعقود والاتفاقيات التجارية التي يبتكرها الناس لمصالحهم هو الصحة والجواز، ولا يحرم عقد إلا بنص شرعي قطعي يحرمه لربا أو غرر أو ظلم أو ميسر. صحة العقود والابتكارات الاستثمارية الحديثة كالتجارة الإلكترونية، الصكوك، التمويل الجماعي، والإجارة المنتهية بالتمليك دون حاجة لنص قديم يسميها بأعيانها. الإمام أحمد، شيخ الإسلام ابن تيمية، ابن القيم، ابن عثيمين الأصل في العقود والشروط الحل والإباحة العقود المستحدثة المعاملات المالية المباحة">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        1
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «الأَصْلُ فِي الْعُقُودِ وَالشُّرُوطِ الْحِلُّ وَالإِبَاحَةُ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            1
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «الأَصْلُ فِي الْعُقُودِ وَالشُّرُوطِ الْحِلُّ وَالإِبَاحَةُ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-emerald-500/20 text-emerald-300 border-emerald-400/40 shadow-sm">
+                            📜 أصول العقود والتراضي
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📖 أصل قرآني ونبوي محكم
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-emerald-500/20 text-emerald-300 border-emerald-400/40">
-                        📜 أصول العقود والتراضي
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📖 أصل قرآني ونبوي محكم
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        قوله تعالى: ﴿وَأَحَلَّ اللَّهُ الْبَيْعَ﴾ [البقرة: 275]، وقوله: ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ﴾ [المائدة: 1]، وحديث: «المسلمون على شروطهم إلا شرطاً حرم حلالاً أو أحل حراماً» [صحيح الترمذي وأبو داود].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        الأصل في كافة المعاملات والأنشطة والعقود والاتفاقيات التجارية التي يبتكرها الناس لمصالحهم هو الصحة والجواز، ولا يحرم عقد إلا بنص شرعي قطعي يحرمه لربا أو غرر أو ظلم أو ميسر.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    قوله تعالى: ﴿وَأَحَلَّ اللَّهُ الْبَيْعَ﴾ [البقرة: 275]، وقوله: ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ﴾ [المائدة: 1]، وحديث: «المسلمون على شروطهم إلا شرطاً حرم حلالاً أو أحل حراماً» [صحيح الترمذي وأبو داود].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    الأصل في كافة المعاملات والأنشطة والعقود والاتفاقيات التجارية التي يبتكرها الناس لمصالحهم هو الصحة والجواز، ولا يحرم عقد إلا بنص شرعي قطعي يحرمه لربا أو غرر أو ظلم أو ميسر.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">صحة العقود والابتكارات الاستثمارية الحديثة كالتجارة الإلكترونية، الصكوك، التمويل الجماعي، والإجارة المنتهية بالتمليك دون حاجة لنص قديم يسميها بأعيانها.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">صحة العقود والابتكارات الاستثمارية الحديثة كالتجارة الإلكترونية، الصكوك، التمويل الجماعي، والإجارة المنتهية بالتمليك دون حاجة لنص قديم يسميها بأعيانها.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">الإمام أحمد، شيخ الإسلام ابن تيمية، ابن القيم، ابن عثيمين</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">الإمام أحمد، شيخ الإسلام ابن تيمية، ابن القيم، ابن عثيمين</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 2 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="contracts" data-maxim-search="2 «أَوْفُوا بِالْعُقُودِ · العَقْدُ شَرِيعَةُ الْمُتَعَاقِدِينَ» 📖 نص قرآني قطعي الدلالة قوله تعالى: ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ﴾ [المائدة: 1]. إلزامية العقد ووجوب تنفيذ كافة الالتزامات والتعهدات التعاقدية المتفق عليها بين البائع والمشتري أو الشركاء، وحظر نكث العهود أو الفسخ الانفرادي بغير رضا أو سبب شرعي. إلزامية شروط التسليم، جداول الدفعات المالية، الاعتمادات المستندية، وبوالص الشحن، والقوة القاهرة فقط هي التي تسوغ التعديل. إجماع فقهاء المذاهب الأربعة وكافة المجامع الفقهية المعاصرة أوفوا بالعقود العقد شريعة المتعاقدين الالتزام بالعقود الوفاء بالعهود">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="contracts" data-maxim-search="2 «أَوْفُوا بِالْعُقُودِ · العَقْدُ شَرِيعَةُ الْمُتَعَاقِدِينَ» 📖 نص قرآني قطعي الدلالة قوله تعالى: ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ﴾ [المائدة: 1]. إلزامية العقد ووجوب تنفيذ كافة الالتزامات والتعهدات التعاقدية المتفق عليها بين البائع والمشتري أو الشركاء، وحظر نكث العهود أو الفسخ الانفرادي بغير رضا أو سبب شرعي. إلزامية شروط التسليم، جداول الدفعات المالية، الاعتمادات المستندية، وبوالص الشحن، والقوة القاهرة فقط هي التي تسوغ التعديل. إجماع فقهاء المذاهب الأربعة وكافة المجامع الفقهية المعاصرة أوفوا بالعقود العقد شريعة المتعاقدين الالتزام بالعقود الوفاء بالعهود">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        2
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «أَوْفُوا بِالْعُقُودِ · العَقْدُ شَرِيعَةُ الْمُتَعَاقِدِينَ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            2
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «أَوْفُوا بِالْعُقُودِ · العَقْدُ شَرِيعَةُ الْمُتَعَاقِدِينَ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-emerald-500/20 text-emerald-300 border-emerald-400/40 shadow-sm">
+                            📜 أصول العقود والتراضي
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📖 نص قرآني قطعي الدلالة
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-emerald-500/20 text-emerald-300 border-emerald-400/40">
-                        📜 أصول العقود والتراضي
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📖 نص قرآني قطعي الدلالة
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        قوله تعالى: ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ﴾ [المائدة: 1].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        إلزامية العقد ووجوب تنفيذ كافة الالتزامات والتعهدات التعاقدية المتفق عليها بين البائع والمشتري أو الشركاء، وحظر نكث العهود أو الفسخ الانفرادي بغير رضا أو سبب شرعي.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    قوله تعالى: ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ﴾ [المائدة: 1].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    إلزامية العقد ووجوب تنفيذ كافة الالتزامات والتعهدات التعاقدية المتفق عليها بين البائع والمشتري أو الشركاء، وحظر نكث العهود أو الفسخ الانفرادي بغير رضا أو سبب شرعي.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">إلزامية شروط التسليم، جداول الدفعات المالية، الاعتمادات المستندية، وبوالص الشحن، والقوة القاهرة فقط هي التي تسوغ التعديل.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">إلزامية شروط التسليم، جداول الدفعات المالية، الاعتمادات المستندية، وبوالص الشحن، والقوة القاهرة فقط هي التي تسوغ التعديل.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">إجماع فقهاء المذاهب الأربعة وكافة المجامع الفقهية المعاصرة</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">إجماع فقهاء المذاهب الأربعة وكافة المجامع الفقهية المعاصرة</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 3 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="contracts" data-maxim-search="3 «الْمُسْلِمُونَ عَلَى شُرُوطِهِمْ إِلَّا شَرْطاً حَرَّمَ حَلَالاً أَوْ أَحَلَّ حَرَاماً» 📜 نص نبوي صحيح صريح حديث رسول الله ﷺ: «الْمُسْلِمُونَ عَلَى شُرُوطِهِمْ، إِلَّا شَرْطًا حَرَّمَ حَلَالًا، أَوْ أَحَلَّ حَرَامًا» [رواه الترمذي (1352) وصححه، وأبو داود، وصححه الألباني]. حرية التراضي على الشروط الخاصة في البيع والشراء والشركات، وتعتبر ملزمة لكلا الطرفين كأصل العقد تماماً، ما لم تخالف حكماً شرعياً ثابتاً كالاشتراط الربوي. صحة الشروط الجزائية في عقود التوريد والمقاولات (دون الديون)، واشتراط خدمات الصيانة وما بعد البيع والضمانات المصنعية. عمر بن الخطاب، الإمام البخاري، الإمام أحمد، مجمع الفقه الإسلامي الدولي المسلمون على شروطهم الشروط الجزائية التوريد المقاولات حرية الاشتراط">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="contracts" data-maxim-search="3 «الْمُسْلِمُونَ عَلَى شُرُوطِهِمْ إِلَّا شَرْطاً حَرَّمَ حَلَالاً أَوْ أَحَلَّ حَرَاماً» 📜 نص نبوي صحيح صريح حديث رسول الله ﷺ: «الْمُسْلِمُونَ عَلَى شُرُوطِهِمْ، إِلَّا شَرْطًا حَرَّمَ حَلَالًا، أَوْ أَحَلَّ حَرَامًا» [رواه الترمذي (1352) وصححه، وأبو داود، وصححه الألباني]. حرية التراضي على الشروط الخاصة في البيع والشراء والشركات، وتعتبر ملزمة لكلا الطرفين كأصل العقد تماماً، ما لم تخالف حكماً شرعياً ثابتاً كالاشتراط الربوي. صحة الشروط الجزائية في عقود التوريد والمقاولات (دون الديون)، واشتراط خدمات الصيانة وما بعد البيع والضمانات المصنعية. عمر بن الخطاب، الإمام البخاري، الإمام أحمد، مجمع الفقه الإسلامي الدولي المسلمون على شروطهم الشروط الجزائية التوريد المقاولات حرية الاشتراط">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        3
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «الْمُسْلِمُونَ عَلَى شُرُوطِهِمْ إِلَّا شَرْطاً حَرَّمَ حَلَالاً أَوْ أَحَلَّ حَرَاماً»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            3
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «الْمُسْلِمُونَ عَلَى شُرُوطِهِمْ إِلَّا شَرْطاً حَرَّمَ حَلَالاً أَوْ أَحَلَّ حَرَاماً»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-emerald-500/20 text-emerald-300 border-emerald-400/40 shadow-sm">
+                            📜 أصول العقود والتراضي
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📜 نص نبوي صحيح صريح
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-emerald-500/20 text-emerald-300 border-emerald-400/40">
-                        📜 أصول العقود والتراضي
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📜 نص نبوي صحيح صريح
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        حديث رسول الله ﷺ: «الْمُسْلِمُونَ عَلَى شُرُوطِهِمْ، إِلَّا شَرْطًا حَرَّمَ حَلَالًا، أَوْ أَحَلَّ حَرَامًا» [رواه الترمذي (1352) وصححه، وأبو داود، وصححه الألباني].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        حرية التراضي على الشروط الخاصة في البيع والشراء والشركات، وتعتبر ملزمة لكلا الطرفين كأصل العقد تماماً، ما لم تخالف حكماً شرعياً ثابتاً كالاشتراط الربوي.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    حديث رسول الله ﷺ: «الْمُسْلِمُونَ عَلَى شُرُوطِهِمْ، إِلَّا شَرْطًا حَرَّمَ حَلَالًا، أَوْ أَحَلَّ حَرَامًا» [رواه الترمذي (1352) وصححه، وأبو داود، وصححه الألباني].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    حرية التراضي على الشروط الخاصة في البيع والشراء والشركات، وتعتبر ملزمة لكلا الطرفين كأصل العقد تماماً، ما لم تخالف حكماً شرعياً ثابتاً كالاشتراط الربوي.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">صحة الشروط الجزائية في عقود التوريد والمقاولات (دون الديون)، واشتراط خدمات الصيانة وما بعد البيع والضمانات المصنعية.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">صحة الشروط الجزائية في عقود التوريد والمقاولات (دون الديون)، واشتراط خدمات الصيانة وما بعد البيع والضمانات المصنعية.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">عمر بن الخطاب، الإمام البخاري، الإمام أحمد، مجمع الفقه الإسلامي الدولي</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">عمر بن الخطاب، الإمام البخاري، الإمام أحمد، مجمع الفقه الإسلامي الدولي</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 4 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="contracts" data-maxim-search="4 «إِنَّمَا الْبَيْعُ عَنْ تَرَاضٍ · الرِّضَا جَوْهَرُ الْعَقْدِ» 📖 قرآن وحديث صحيح متطابقان قوله تعالى: ﴿إِلَّا أَن تَكُونَ تِجَارَةً عَن تَرَاضٍ مِّنكُمْ﴾ [النساء: 29]، وحديث: «إِنَّمَا الْبَيْعُ عَنْ تَرَاضٍ» [رواه ابن ماجه (2185) وابن حبان وصححه الألباني]. التراضي التام الخالي من العيوب هو روح العقد وأساس نقل الملكية؛ فإذا شاب الرضا إكراه أو تدليس أو غبن فاحش بطل العقد أو ثبت للمتضرر حق الفسخ. بطلان عقود الإذعان الجائرة، وحق المشتري الإلكتروني في فسخ الشراء عند التغرير بالمواصفات أو الضغط النفسي غير المشروع. جمهور الفقهاء والمحققين، الشافعي، مالك، أبو حنيفة، أحمد إنما البيع عن تراض تراضي الطرفين عيوب الرضا الإكراه التدليس الغبن">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="contracts" data-maxim-search="4 «إِنَّمَا الْبَيْعُ عَنْ تَرَاضٍ · الرِّضَا جَوْهَرُ الْعَقْدِ» 📖 قرآن وحديث صحيح متطابقان قوله تعالى: ﴿إِلَّا أَن تَكُونَ تِجَارَةً عَن تَرَاضٍ مِّنكُمْ﴾ [النساء: 29]، وحديث: «إِنَّمَا الْبَيْعُ عَنْ تَرَاضٍ» [رواه ابن ماجه (2185) وابن حبان وصححه الألباني]. التراضي التام الخالي من العيوب هو روح العقد وأساس نقل الملكية؛ فإذا شاب الرضا إكراه أو تدليس أو غبن فاحش بطل العقد أو ثبت للمتضرر حق الفسخ. بطلان عقود الإذعان الجائرة، وحق المشتري الإلكتروني في فسخ الشراء عند التغرير بالمواصفات أو الضغط النفسي غير المشروع. جمهور الفقهاء والمحققين، الشافعي، مالك، أبو حنيفة، أحمد إنما البيع عن تراض تراضي الطرفين عيوب الرضا الإكراه التدليس الغبن">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        4
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «إِنَّمَا الْبَيْعُ عَنْ تَرَاضٍ · الرِّضَا جَوْهَرُ الْعَقْدِ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            4
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «إِنَّمَا الْبَيْعُ عَنْ تَرَاضٍ · الرِّضَا جَوْهَرُ الْعَقْدِ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-emerald-500/20 text-emerald-300 border-emerald-400/40 shadow-sm">
+                            📜 أصول العقود والتراضي
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📖 قرآن وحديث صحيح متطابقان
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-emerald-500/20 text-emerald-300 border-emerald-400/40">
-                        📜 أصول العقود والتراضي
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📖 قرآن وحديث صحيح متطابقان
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        قوله تعالى: ﴿إِلَّا أَن تَكُونَ تِجَارَةً عَن تَرَاضٍ مِّنكُمْ﴾ [النساء: 29]، وحديث: «إِنَّمَا الْبَيْعُ عَنْ تَرَاضٍ» [رواه ابن ماجه (2185) وابن حبان وصححه الألباني].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        التراضي التام الخالي من العيوب هو روح العقد وأساس نقل الملكية؛ فإذا شاب الرضا إكراه أو تدليس أو غبن فاحش بطل العقد أو ثبت للمتضرر حق الفسخ.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    قوله تعالى: ﴿إِلَّا أَن تَكُونَ تِجَارَةً عَن تَرَاضٍ مِّنكُمْ﴾ [النساء: 29]، وحديث: «إِنَّمَا الْبَيْعُ عَنْ تَرَاضٍ» [رواه ابن ماجه (2185) وابن حبان وصححه الألباني].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    التراضي التام الخالي من العيوب هو روح العقد وأساس نقل الملكية؛ فإذا شاب الرضا إكراه أو تدليس أو غبن فاحش بطل العقد أو ثبت للمتضرر حق الفسخ.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">بطلان عقود الإذعان الجائرة، وحق المشتري الإلكتروني في فسخ الشراء عند التغرير بالمواصفات أو الضغط النفسي غير المشروع.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">بطلان عقود الإذعان الجائرة، وحق المشتري الإلكتروني في فسخ الشراء عند التغرير بالمواصفات أو الضغط النفسي غير المشروع.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">جمهور الفقهاء والمحققين، الشافعي، مالك، أبو حنيفة، أحمد</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">جمهور الفقهاء والمحققين، الشافعي، مالك، أبو حنيفة، أحمد</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 5 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="contracts" data-maxim-search="5 «الْعِبْرَةُ فِي الْعُقُودِ بِالْمَقَاصِدِ وَالْمَعَانِي لَا بِالأَلْفَاظِ وَالْمَبَانِي» 📜 مأخوذة من حديث الأعمال بالنيات حديث عمر بن الخطاب رضي الله عنه متفق عليه: «إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى» [صحيح البخاري ومسلم]. الحكم على حقيقة المعاملة وجوهرها الاقتصادي لا على التسميات والش كليات المصطنعة؛ فالحيل الربوية والممارسات الاحتيالية لا تصير حلالاً بتسميتها بيوعاً أو مرابحات صورية. إبطال بيوع العِينة والتورق المنظم الصوري الذي لا قصد فيه للسلعة، وتدقيق العمليات المصرفية وفق مقاصدها الجوهرية لا ألفاظها. الإمام مالك، الإمام أحمد، ابن تيمية، ابن القيم، مجلة الأحكام العدلية (مادة 3) العبرة في العقود بالمقاصد والمعاني لا بالألفاظ والمباني الحيل الربوية التورق الصوري النيات">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="contracts" data-maxim-search="5 «الْعِبْرَةُ فِي الْعُقُودِ بِالْمَقَاصِدِ وَالْمَعَانِي لَا بِالأَلْفَاظِ وَالْمَبَانِي» 📜 مأخوذة من حديث الأعمال بالنيات حديث عمر بن الخطاب رضي الله عنه متفق عليه: «إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى» [صحيح البخاري ومسلم]. الحكم على حقيقة المعاملة وجوهرها الاقتصادي لا على التسميات والش كليات المصطنعة؛ فالحيل الربوية والممارسات الاحتيالية لا تصير حلالاً بتسميتها بيوعاً أو مرابحات صورية. إبطال بيوع العِينة والتورق المنظم الصوري الذي لا قصد فيه للسلعة، وتدقيق العمليات المصرفية وفق مقاصدها الجوهرية لا ألفاظها. الإمام مالك، الإمام أحمد، ابن تيمية، ابن القيم، مجلة الأحكام العدلية (مادة 3) العبرة في العقود بالمقاصد والمعاني لا بالألفاظ والمباني الحيل الربوية التورق الصوري النيات">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        5
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «الْعِبْرَةُ فِي الْعُقُودِ بِالْمَقَاصِدِ وَالْمَعَانِي لَا بِالأَلْفَاظِ وَالْمَبَانِي»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            5
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «الْعِبْرَةُ فِي الْعُقُودِ بِالْمَقَاصِدِ وَالْمَعَانِي لَا بِالأَلْفَاظِ وَالْمَبَانِي»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-emerald-500/20 text-emerald-300 border-emerald-400/40 shadow-sm">
+                            📜 أصول العقود والتراضي
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📜 مأخوذة من حديث الأعمال بالنيات
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-emerald-500/20 text-emerald-300 border-emerald-400/40">
-                        📜 أصول العقود والتراضي
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📜 مأخوذة من حديث الأعمال بالنيات
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        حديث عمر بن الخطاب رضي الله عنه متفق عليه: «إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى» [صحيح البخاري ومسلم].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        الحكم على حقيقة المعاملة وجوهرها الاقتصادي لا على التسميات والش كليات المصطنعة؛ فالحيل الربوية والممارسات الاحتيالية لا تصير حلالاً بتسميتها بيوعاً أو مرابحات صورية.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    حديث عمر بن الخطاب رضي الله عنه متفق عليه: «إِنَّمَا الأَعْمَالُ بِالنِّيَّاتِ، وَإِنَّمَا لِكُلِّ امْرِئٍ مَا نَوَى» [صحيح البخاري ومسلم].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    الحكم على حقيقة المعاملة وجوهرها الاقتصادي لا على التسميات والش كليات المصطنعة؛ فالحيل الربوية والممارسات الاحتيالية لا تصير حلالاً بتسميتها بيوعاً أو مرابحات صورية.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">إبطال بيوع العِينة والتورق المنظم الصوري الذي لا قصد فيه للسلعة، وتدقيق العمليات المصرفية وفق مقاصدها الجوهرية لا ألفاظها.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">إبطال بيوع العِينة والتورق المنظم الصوري الذي لا قصد فيه للسلعة، وتدقيق العمليات المصرفية وفق مقاصدها الجوهرية لا ألفاظها.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">الإمام مالك، الإمام أحمد، ابن تيمية، ابن القيم، مجلة الأحكام العدلية (مادة 3)</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">الإمام مالك، الإمام أحمد، ابن تيمية، ابن القيم، مجلة الأحكام العدلية (مادة 3)</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 6 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="contracts" data-maxim-search="6 «إِعْمَالُ الْكَلامِ أَوْلَى مِنْ إِهْمَالِهِ» 📖 مستنبطة من مقاصد القرآن وأصول البيان قوله تعالى: ﴿وَقُولُوا قَوْلًا سَدِيدًا﴾ [الأحزاب: 70] وقوله: ﴿وَقُولُوا لِلنَّاسِ حُسْنًا﴾ [البقرة: 83]. إذا دار كلام العاقدين بين حمله على معنى مفيد يصحح العقد وبين إلغائه وإهداره، وجب حمله على المعنى الصحيح النافذ احتراماً لإرادة المتعاقدين واستقراراً للسوق. تفسير بنود العقود الغامضة والملحقات الفنية بما يحقق نفاذ العقد واستمراره وحفظ حقوق الطرفين وتفادي فسخ الشراكات القائمة. الحنفية والمالكية والشافعية والحنابلة، مجلة الأحكام العدلية (مادة 60) إعمال الكلام أولى من إهماله تفسير العقود بنود الاتفاقيات استقرار المعاملات">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="contracts" data-maxim-search="6 «إِعْمَالُ الْكَلامِ أَوْلَى مِنْ إِهْمَالِهِ» 📖 مستنبطة من مقاصد القرآن وأصول البيان قوله تعالى: ﴿وَقُولُوا قَوْلًا سَدِيدًا﴾ [الأحزاب: 70] وقوله: ﴿وَقُولُوا لِلنَّاسِ حُسْنًا﴾ [البقرة: 83]. إذا دار كلام العاقدين بين حمله على معنى مفيد يصحح العقد وبين إلغائه وإهداره، وجب حمله على المعنى الصحيح النافذ احتراماً لإرادة المتعاقدين واستقراراً للسوق. تفسير بنود العقود الغامضة والملحقات الفنية بما يحقق نفاذ العقد واستمراره وحفظ حقوق الطرفين وتفادي فسخ الشراكات القائمة. الحنفية والمالكية والشافعية والحنابلة، مجلة الأحكام العدلية (مادة 60) إعمال الكلام أولى من إهماله تفسير العقود بنود الاتفاقيات استقرار المعاملات">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        6
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «إِعْمَالُ الْكَلامِ أَوْلَى مِنْ إِهْمَالِهِ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            6
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «إِعْمَالُ الْكَلامِ أَوْلَى مِنْ إِهْمَالِهِ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-emerald-500/20 text-emerald-300 border-emerald-400/40 shadow-sm">
+                            📜 أصول العقود والتراضي
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📖 مستنبطة من مقاصد القرآن وأصول البيان
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-emerald-500/20 text-emerald-300 border-emerald-400/40">
-                        📜 أصول العقود والتراضي
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📖 مستنبطة من مقاصد القرآن وأصول البيان
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        قوله تعالى: ﴿وَقُولُوا قَوْلًا سَدِيدًا﴾ [الأحزاب: 70] وقوله: ﴿وَقُولُوا لِلنَّاسِ حُسْنًا﴾ [البقرة: 83].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        إذا دار كلام العاقدين بين حمله على معنى مفيد يصحح العقد وبين إلغائه وإهداره، وجب حمله على المعنى الصحيح النافذ احتراماً لإرادة المتعاقدين واستقراراً للسوق.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    قوله تعالى: ﴿وَقُولُوا قَوْلًا سَدِيدًا﴾ [الأحزاب: 70] وقوله: ﴿وَقُولُوا لِلنَّاسِ حُسْنًا﴾ [البقرة: 83].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    إذا دار كلام العاقدين بين حمله على معنى مفيد يصحح العقد وبين إلغائه وإهداره، وجب حمله على المعنى الصحيح النافذ احتراماً لإرادة المتعاقدين واستقراراً للسوق.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">تفسير بنود العقود الغامضة والملحقات الفنية بما يحقق نفاذ العقد واستمراره وحفظ حقوق الطرفين وتفادي فسخ الشراكات القائمة.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">تفسير بنود العقود الغامضة والملحقات الفنية بما يحقق نفاذ العقد واستمراره وحفظ حقوق الطرفين وتفادي فسخ الشراكات القائمة.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">الحنفية والمالكية والشافعية والحنابلة، مجلة الأحكام العدلية (مادة 60)</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">الحنفية والمالكية والشافعية والحنابلة، مجلة الأحكام العدلية (مادة 60)</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 7 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="liability" data-maxim-search="7 «الْخَرَاجُ بِالضَّمَانِ» 📜 نص حديث نبوي صحيح بلفظه حديث عائشة رضي الله عنها: «أَنَّ النَّبِيَّ ﷺ قَضَى أَنَّ الْخَرَاجَ بِالضَّمَانِ» [رواه أبو داود (3508) والترمذي (1285) والنسائي (4490) وصححه الترمذي وابن حبان والألباني]. استحقاق غلة الأصل وأرباحه وعوائده الاستثمارية يكون لمن يتحمل مخاطرة تلفه وهلاكه وضمانه، فمن يضمن الأصل يحل له ريعه وخراجه. التفريق بين الاستثمار الحلال والربا؛ فالبنك الإسلامي يملك السلعة ويتحمل ضمانها قبل بيعها مرابحة، بينما البنك التقليدي يقرض بفائدة دون تحمل أي ضمان. الفقهاء الأربعة، ابن حزم، الشوكاني، مجلة الأحكام العدلية (مادة 85) الخراج بالضمان استحقاق الربح مخاطرة الاستثمار الفارق بين الربا والمرابحة">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="liability" data-maxim-search="7 «الْخَرَاجُ بِالضَّمَانِ» 📜 نص حديث نبوي صحيح بلفظه حديث عائشة رضي الله عنها: «أَنَّ النَّبِيَّ ﷺ قَضَى أَنَّ الْخَرَاجَ بِالضَّمَانِ» [رواه أبو داود (3508) والترمذي (1285) والنسائي (4490) وصححه الترمذي وابن حبان والألباني]. استحقاق غلة الأصل وأرباحه وعوائده الاستثمارية يكون لمن يتحمل مخاطرة تلفه وهلاكه وضمانه، فمن يضمن الأصل يحل له ريعه وخراجه. التفريق بين الاستثمار الحلال والربا؛ فالبنك الإسلامي يملك السلعة ويتحمل ضمانها قبل بيعها مرابحة، بينما البنك التقليدي يقرض بفائدة دون تحمل أي ضمان. الفقهاء الأربعة، ابن حزم، الشوكاني، مجلة الأحكام العدلية (مادة 85) الخراج بالضمان استحقاق الربح مخاطرة الاستثمار الفارق بين الربا والمرابحة">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        7
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «الْخَرَاجُ بِالضَّمَانِ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            7
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «الْخَرَاجُ بِالضَّمَانِ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-amber-500/20 text-amber-300 border-amber-400/40 shadow-sm">
+                            ⚖️ موازين الربح والضمان
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📜 نص حديث نبوي صحيح بلفظه
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-amber-500/20 text-amber-300 border-amber-400/40">
-                        ⚖️ موازين الربح والضمان
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📜 نص حديث نبوي صحيح بلفظه
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        حديث عائشة رضي الله عنها: «أَنَّ النَّبِيَّ ﷺ قَضَى أَنَّ الْخَرَاجَ بِالضَّمَانِ» [رواه أبو داود (3508) والترمذي (1285) والنسائي (4490) وصححه الترمذي وابن حبان والألباني].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        استحقاق غلة الأصل وأرباحه وعوائده الاستثمارية يكون لمن يتحمل مخاطرة تلفه وهلاكه وضمانه، فمن يضمن الأصل يحل له ريعه وخراجه.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    حديث عائشة رضي الله عنها: «أَنَّ النَّبِيَّ ﷺ قَضَى أَنَّ الْخَرَاجَ بِالضَّمَانِ» [رواه أبو داود (3508) والترمذي (1285) والنسائي (4490) وصححه الترمذي وابن حبان والألباني].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    استحقاق غلة الأصل وأرباحه وعوائده الاستثمارية يكون لمن يتحمل مخاطرة تلفه وهلاكه وضمانه، فمن يضمن الأصل يحل له ريعه وخراجه.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">التفريق بين الاستثمار الحلال والربا؛ فالبنك الإسلامي يملك السلعة ويتحمل ضمانها قبل بيعها مرابحة، بينما البنك التقليدي يقرض بفائدة دون تحمل أي ضمان.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">التفريق بين الاستثمار الحلال والربا؛ فالبنك الإسلامي يملك السلعة ويتحمل ضمانها قبل بيعها مرابحة، بينما البنك التقليدي يقرض بفائدة دون تحمل أي ضمان.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">الفقهاء الأربعة، ابن حزم، الشوكاني، مجلة الأحكام العدلية (مادة 85)</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">الفقهاء الأربعة، ابن حزم، الشوكاني، مجلة الأحكام العدلية (مادة 85)</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 8 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="liability" data-maxim-search="8 «الْغُنْمُ بِالْغُرْمِ» 📜 مستنبطة من صريح الحديث النبوي تأسست على قضاء النبي ﷺ بالخراج بالضمان، وحديث: «لا يغلق الرهن من صاحبه، له غنمه وعليه غرمه» [صحيح الدارقطني والحاكم]. المستفيد من عوائد ومغانم أي أصل أو شراكة مالية يجب أن يتحمل أعباءه وتكاليفه وخسائره ومخاطره المحتملة، ولا يجوز اشتراط الربح دون الغرم. بطلان اشتراط ضمان رأس المال في شركات العنان والمضاربة، واشتراك المساهمين في تحمل الخسائر بنسبة حصصهم في رأس المال. جمهور الفقهاء وأئمة الأصول، مجلة الأحكام العدلية (مادة 87) الغنم بالغرم تحمل التكاليف توزيع الأرباح والخسائر المضاربة المساهمة">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="liability" data-maxim-search="8 «الْغُنْمُ بِالْغُرْمِ» 📜 مستنبطة من صريح الحديث النبوي تأسست على قضاء النبي ﷺ بالخراج بالضمان، وحديث: «لا يغلق الرهن من صاحبه، له غنمه وعليه غرمه» [صحيح الدارقطني والحاكم]. المستفيد من عوائد ومغانم أي أصل أو شراكة مالية يجب أن يتحمل أعباءه وتكاليفه وخسائره ومخاطره المحتملة، ولا يجوز اشتراط الربح دون الغرم. بطلان اشتراط ضمان رأس المال في شركات العنان والمضاربة، واشتراك المساهمين في تحمل الخسائر بنسبة حصصهم في رأس المال. جمهور الفقهاء وأئمة الأصول، مجلة الأحكام العدلية (مادة 87) الغنم بالغرم تحمل التكاليف توزيع الأرباح والخسائر المضاربة المساهمة">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        8
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «الْغُنْمُ بِالْغُرْمِ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            8
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «الْغُنْمُ بِالْغُرْمِ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-amber-500/20 text-amber-300 border-amber-400/40 shadow-sm">
+                            ⚖️ موازين الربح والضمان
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📜 مستنبطة من صريح الحديث النبوي
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-amber-500/20 text-amber-300 border-amber-400/40">
-                        ⚖️ موازين الربح والضمان
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📜 مستنبطة من صريح الحديث النبوي
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        تأسست على قضاء النبي ﷺ بالخراج بالضمان، وحديث: «لا يغلق الرهن من صاحبه، له غنمه وعليه غرمه» [صحيح الدارقطني والحاكم].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        المستفيد من عوائد ومغانم أي أصل أو شراكة مالية يجب أن يتحمل أعباءه وتكاليفه وخسائره ومخاطره المحتملة، ولا يجوز اشتراط الربح دون الغرم.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    تأسست على قضاء النبي ﷺ بالخراج بالضمان، وحديث: «لا يغلق الرهن من صاحبه، له غنمه وعليه غرمه» [صحيح الدارقطني والحاكم].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    المستفيد من عوائد ومغانم أي أصل أو شراكة مالية يجب أن يتحمل أعباءه وتكاليفه وخسائره ومخاطره المحتملة، ولا يجوز اشتراط الربح دون الغرم.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">بطلان اشتراط ضمان رأس المال في شركات العنان والمضاربة، واشتراك المساهمين في تحمل الخسائر بنسبة حصصهم في رأس المال.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">بطلان اشتراط ضمان رأس المال في شركات العنان والمضاربة، واشتراك المساهمين في تحمل الخسائر بنسبة حصصهم في رأس المال.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">جمهور الفقهاء وأئمة الأصول، مجلة الأحكام العدلية (مادة 87)</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">جمهور الفقهاء وأئمة الأصول، مجلة الأحكام العدلية (مادة 87)</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 9 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="liability" data-maxim-search="9 «كُلُّ قَرْضٍ جَرَّ نَفْعاً مَشْرُوطاً فَهُوَ رِبَا» 📖 أصل قرآني وإجماع قطعي قوله تعالى: ﴿وَذَرُوا مَا بَقِيَ مِنَ الرِّبَا﴾ [البقرة: 278]، وأثر فضالة بن عبيد رضي الله عنه صحيحاً: «كل قرض جر منفعة فهو وجه من وجوه الربا» [البيهقي وصححه الألباني في الإرواء (1398)]. عقد القرض في الإسلام عقد إرفاق وإحسان وتبرع لا معاوضة واسترباح؛ فإذا اشترط الدائن على المقترض أي فائدة نقدية أو عينية أو هدية فهو ربا محرم بإجماع الأمة. تحريم فوائد السحب على المكشوف، الفوائد التأخيرية على بطاقات الائتمان، واشتراط عمولات خاصة لتقديم القروض. إجماع الصحابة والتابعين والأئمة الأربعة وكافة المجامع الفقهية المعاصرة كل قرض جر نفعا فهو ربا ربا القروض بطاقات الائتمان الفوائد التأخيرية">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="liability" data-maxim-search="9 «كُلُّ قَرْضٍ جَرَّ نَفْعاً مَشْرُوطاً فَهُوَ رِبَا» 📖 أصل قرآني وإجماع قطعي قوله تعالى: ﴿وَذَرُوا مَا بَقِيَ مِنَ الرِّبَا﴾ [البقرة: 278]، وأثر فضالة بن عبيد رضي الله عنه صحيحاً: «كل قرض جر منفعة فهو وجه من وجوه الربا» [البيهقي وصححه الألباني في الإرواء (1398)]. عقد القرض في الإسلام عقد إرفاق وإحسان وتبرع لا معاوضة واسترباح؛ فإذا اشترط الدائن على المقترض أي فائدة نقدية أو عينية أو هدية فهو ربا محرم بإجماع الأمة. تحريم فوائد السحب على المكشوف، الفوائد التأخيرية على بطاقات الائتمان، واشتراط عمولات خاصة لتقديم القروض. إجماع الصحابة والتابعين والأئمة الأربعة وكافة المجامع الفقهية المعاصرة كل قرض جر نفعا فهو ربا ربا القروض بطاقات الائتمان الفوائد التأخيرية">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        9
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «كُلُّ قَرْضٍ جَرَّ نَفْعاً مَشْرُوطاً فَهُوَ رِبَا»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            9
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «كُلُّ قَرْضٍ جَرَّ نَفْعاً مَشْرُوطاً فَهُوَ رِبَا»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-amber-500/20 text-amber-300 border-amber-400/40 shadow-sm">
+                            ⚖️ موازين الربح والضمان
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📖 أصل قرآني وإجماع قطعي
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-amber-500/20 text-amber-300 border-amber-400/40">
-                        ⚖️ موازين الربح والضمان
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📖 أصل قرآني وإجماع قطعي
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        قوله تعالى: ﴿وَذَرُوا مَا بَقِيَ مِنَ الرِّبَا﴾ [البقرة: 278]، وأثر فضالة بن عبيد رضي الله عنه صحيحاً: «كل قرض جر منفعة فهو وجه من وجوه الربا» [البيهقي وصححه الألباني في الإرواء (1398)].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        عقد القرض في الإسلام عقد إرفاق وإحسان وتبرع لا معاوضة واسترباح؛ فإذا اشترط الدائن على المقترض أي فائدة نقدية أو عينية أو هدية فهو ربا محرم بإجماع الأمة.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    قوله تعالى: ﴿وَذَرُوا مَا بَقِيَ مِنَ الرِّبَا﴾ [البقرة: 278]، وأثر فضالة بن عبيد رضي الله عنه صحيحاً: «كل قرض جر منفعة فهو وجه من وجوه الربا» [البيهقي وصححه الألباني في الإرواء (1398)].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    عقد القرض في الإسلام عقد إرفاق وإحسان وتبرع لا معاوضة واسترباح؛ فإذا اشترط الدائن على المقترض أي فائدة نقدية أو عينية أو هدية فهو ربا محرم بإجماع الأمة.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">تحريم فوائد السحب على المكشوف، الفوائد التأخيرية على بطاقات الائتمان، واشتراط عمولات خاصة لتقديم القروض.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">تحريم فوائد السحب على المكشوف، الفوائد التأخيرية على بطاقات الائتمان، واشتراط عمولات خاصة لتقديم القروض.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">إجماع الصحابة والتابعين والأئمة الأربعة وكافة المجامع الفقهية المعاصرة</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">إجماع الصحابة والتابعين والأئمة الأربعة وكافة المجامع الفقهية المعاصرة</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 10 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="liability" data-maxim-search="10 «عَلَى الْيَدِ مَا أَخَذَتْ حَتَّى تُؤَدِّيَهُ» 📜 نص نبوي صحيح بلفظه حديث سمرة بن جندب رضي الله عنه عن النبي ﷺ قال: «عَلَى الْيَدِ مَا أَخَذَتْ حَتَّى تُؤَدِّيَهُ» [رواه أبو داود والترمذي وصححه والحاكم وصححه الألباني]. كل من قبض مالاً لغيره بطريق غير مشروع (كالغصب والسرقة) أو بطريق مشروع مقيد (كالعارية والمستأجر المتعدي) فهو ضامن لرد عينه أو بدله ومثله وقيمته إن هلك. المسؤولية المدنية والتعويض عن إتلاف البضائع أثناء الشحن والنقل، وضمان الأصول المستأجرة في حال سوء الاستخدام والإهمال. الحنفية والشافعية والحنابلة والمالكية، مجلة الأحكام العدلية (مادة 763) على اليد ما أخذت حتى تؤديه الضمان الشامل المسؤولية المدنية التعويض عن التلف">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="liability" data-maxim-search="10 «عَلَى الْيَدِ مَا أَخَذَتْ حَتَّى تُؤَدِّيَهُ» 📜 نص نبوي صحيح بلفظه حديث سمرة بن جندب رضي الله عنه عن النبي ﷺ قال: «عَلَى الْيَدِ مَا أَخَذَتْ حَتَّى تُؤَدِّيَهُ» [رواه أبو داود والترمذي وصححه والحاكم وصححه الألباني]. كل من قبض مالاً لغيره بطريق غير مشروع (كالغصب والسرقة) أو بطريق مشروع مقيد (كالعارية والمستأجر المتعدي) فهو ضامن لرد عينه أو بدله ومثله وقيمته إن هلك. المسؤولية المدنية والتعويض عن إتلاف البضائع أثناء الشحن والنقل، وضمان الأصول المستأجرة في حال سوء الاستخدام والإهمال. الحنفية والشافعية والحنابلة والمالكية، مجلة الأحكام العدلية (مادة 763) على اليد ما أخذت حتى تؤديه الضمان الشامل المسؤولية المدنية التعويض عن التلف">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        10
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «عَلَى الْيَدِ مَا أَخَذَتْ حَتَّى تُؤَدِّيَهُ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            10
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «عَلَى الْيَدِ مَا أَخَذَتْ حَتَّى تُؤَدِّيَهُ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-amber-500/20 text-amber-300 border-amber-400/40 shadow-sm">
+                            ⚖️ موازين الربح والضمان
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📜 نص نبوي صحيح بلفظه
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-amber-500/20 text-amber-300 border-amber-400/40">
-                        ⚖️ موازين الربح والضمان
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📜 نص نبوي صحيح بلفظه
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        حديث سمرة بن جندب رضي الله عنه عن النبي ﷺ قال: «عَلَى الْيَدِ مَا أَخَذَتْ حَتَّى تُؤَدِّيَهُ» [رواه أبو داود والترمذي وصححه والحاكم وصححه الألباني].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        كل من قبض مالاً لغيره بطريق غير مشروع (كالغصب والسرقة) أو بطريق مشروع مقيد (كالعارية والمستأجر المتعدي) فهو ضامن لرد عينه أو بدله ومثله وقيمته إن هلك.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    حديث سمرة بن جندب رضي الله عنه عن النبي ﷺ قال: «عَلَى الْيَدِ مَا أَخَذَتْ حَتَّى تُؤَدِّيَهُ» [رواه أبو داود والترمذي وصححه والحاكم وصححه الألباني].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    كل من قبض مالاً لغيره بطريق غير مشروع (كالغصب والسرقة) أو بطريق مشروع مقيد (كالعارية والمستأجر المتعدي) فهو ضامن لرد عينه أو بدله ومثله وقيمته إن هلك.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">المسؤولية المدنية والتعويض عن إتلاف البضائع أثناء الشحن والنقل، وضمان الأصول المستأجرة في حال سوء الاستخدام والإهمال.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">المسؤولية المدنية والتعويض عن إتلاف البضائع أثناء الشحن والنقل، وضمان الأصول المستأجرة في حال سوء الاستخدام والإهمال.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">الحنفية والشافعية والحنابلة والمالكية، مجلة الأحكام العدلية (مادة 763)</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">الحنفية والشافعية والحنابلة والمالكية، مجلة الأحكام العدلية (مادة 763)</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 11 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="liability" data-maxim-search="11 «لَا ضَمَانَ عَلَى مُؤْتَمَنٍ إِلَّا بِتَعَدٍّ أَوْ تَفْرِيطٍ» 📜 نص نبوي صحيح المعنى حديث: «لَيْسَ عَلَى الْمُسْتَوْدَعِ غَيْرِ الْمُغِلِّ ضَمَانٌ» [رواه الدارقطني والبيهقي وصححه ابن عبد البر والألباني في الإرواء (1546)]. الأمين (كالوكيل، المستودع، الشريك، والمضارب) لا يضمن ما تحت يده من أموال وبضائع إذا تلفت بآفة سماوية أو سبب لا يد له فيه، ما لم يثبت تعديه أو إهماله الفاحش. حماية مديري المحافظ الاستثمارية وأمناء المستودعات وحسابات الأمانات من التضمين الجائر عند تقلبات الأسواق العالمية ما داموا التزموا بالحوكمة المهنية. الأئمة الأربعة وسائر فقهاء الإسلام، مجلة الأحكام العدلية (مادة 777) لا ضمان على مؤتمن إلا بتعد أو تفريط يد الأمانة الوكالة الاستثمارية الودائع">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="liability" data-maxim-search="11 «لَا ضَمَانَ عَلَى مُؤْتَمَنٍ إِلَّا بِتَعَدٍّ أَوْ تَفْرِيطٍ» 📜 نص نبوي صحيح المعنى حديث: «لَيْسَ عَلَى الْمُسْتَوْدَعِ غَيْرِ الْمُغِلِّ ضَمَانٌ» [رواه الدارقطني والبيهقي وصححه ابن عبد البر والألباني في الإرواء (1546)]. الأمين (كالوكيل، المستودع، الشريك، والمضارب) لا يضمن ما تحت يده من أموال وبضائع إذا تلفت بآفة سماوية أو سبب لا يد له فيه، ما لم يثبت تعديه أو إهماله الفاحش. حماية مديري المحافظ الاستثمارية وأمناء المستودعات وحسابات الأمانات من التضمين الجائر عند تقلبات الأسواق العالمية ما داموا التزموا بالحوكمة المهنية. الأئمة الأربعة وسائر فقهاء الإسلام، مجلة الأحكام العدلية (مادة 777) لا ضمان على مؤتمن إلا بتعد أو تفريط يد الأمانة الوكالة الاستثمارية الودائع">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        11
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «لَا ضَمَانَ عَلَى مُؤْتَمَنٍ إِلَّا بِتَعَدٍّ أَوْ تَفْرِيطٍ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            11
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «لَا ضَمَانَ عَلَى مُؤْتَمَنٍ إِلَّا بِتَعَدٍّ أَوْ تَفْرِيطٍ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-amber-500/20 text-amber-300 border-amber-400/40 shadow-sm">
+                            ⚖️ موازين الربح والضمان
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📜 نص نبوي صحيح المعنى
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-amber-500/20 text-amber-300 border-amber-400/40">
-                        ⚖️ موازين الربح والضمان
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📜 نص نبوي صحيح المعنى
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        حديث: «لَيْسَ عَلَى الْمُسْتَوْدَعِ غَيْرِ الْمُغِلِّ ضَمَانٌ» [رواه الدارقطني والبيهقي وصححه ابن عبد البر والألباني في الإرواء (1546)].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        الأمين (كالوكيل، المستودع، الشريك، والمضارب) لا يضمن ما تحت يده من أموال وبضائع إذا تلفت بآفة سماوية أو سبب لا يد له فيه، ما لم يثبت تعديه أو إهماله الفاحش.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    حديث: «لَيْسَ عَلَى الْمُسْتَوْدَعِ غَيْرِ الْمُغِلِّ ضَمَانٌ» [رواه الدارقطني والبيهقي وصححه ابن عبد البر والألباني في الإرواء (1546)].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    الأمين (كالوكيل، المستودع، الشريك، والمضارب) لا يضمن ما تحت يده من أموال وبضائع إذا تلفت بآفة سماوية أو سبب لا يد له فيه، ما لم يثبت تعديه أو إهماله الفاحش.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">حماية مديري المحافظ الاستثمارية وأمناء المستودعات وحسابات الأمانات من التضمين الجائر عند تقلبات الأسواق العالمية ما داموا التزموا بالحوكمة المهنية.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">حماية مديري المحافظ الاستثمارية وأمناء المستودعات وحسابات الأمانات من التضمين الجائر عند تقلبات الأسواق العالمية ما داموا التزموا بالحوكمة المهنية.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">الأئمة الأربعة وسائر فقهاء الإسلام، مجلة الأحكام العدلية (مادة 777)</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">الأئمة الأربعة وسائر فقهاء الإسلام، مجلة الأحكام العدلية (مادة 777)</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 12 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="harm" data-maxim-search="12 «لَا ضَرَرَ وَلَا ضِرَارَ · الضَّرَرُ يُزَالُ» 📜 نص نبوي صحيح محكم حديث رسول الله ﷺ: «لَا ضَرَرَ وَلَا ضِرَارَ» [رواه ابن ماجه (2340) وأحمد ومالك في الموطأ وصححه الحاكم والنووي والألباني]. تحريم إلحاق أي ضرر مالي أو تجاري بالآخرين ابتداءً، وتحريم مقابلة الضرر بالضرر، ووجوب رفع كل ما يضر بسلامة الأسواق والمستهلكين والشركاء. منع المنافسة غير الشريفة، منع احتكار السلع، منع تسريب البيانات الحساسة، وإلزام المنشآت الصناعية بإزالة الأضرار البيئية على الجيران. القاعدة الكبرى بالإجماع، السيوطي، ابن نجيم، مجلة الأحكام العدلية (مادة 19 و 20) لا ضرر ولا ضرار الضرر يزال حماية الأسواق المنافسة الشريفة منع الإضرار">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="harm" data-maxim-search="12 «لَا ضَرَرَ وَلَا ضِرَارَ · الضَّرَرُ يُزَالُ» 📜 نص نبوي صحيح محكم حديث رسول الله ﷺ: «لَا ضَرَرَ وَلَا ضِرَارَ» [رواه ابن ماجه (2340) وأحمد ومالك في الموطأ وصححه الحاكم والنووي والألباني]. تحريم إلحاق أي ضرر مالي أو تجاري بالآخرين ابتداءً، وتحريم مقابلة الضرر بالضرر، ووجوب رفع كل ما يضر بسلامة الأسواق والمستهلكين والشركاء. منع المنافسة غير الشريفة، منع احتكار السلع، منع تسريب البيانات الحساسة، وإلزام المنشآت الصناعية بإزالة الأضرار البيئية على الجيران. القاعدة الكبرى بالإجماع، السيوطي، ابن نجيم، مجلة الأحكام العدلية (مادة 19 و 20) لا ضرر ولا ضرار الضرر يزال حماية الأسواق المنافسة الشريفة منع الإضرار">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        12
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «لَا ضَرَرَ وَلَا ضِرَارَ · الضَّرَرُ يُزَالُ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            12
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «لَا ضَرَرَ وَلَا ضِرَارَ · الضَّرَرُ يُزَالُ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-rose-500/20 text-rose-300 border-rose-400/40 shadow-sm">
+                            🛡️ درء المفاسد ونفي الغرر
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📜 نص نبوي صحيح محكم
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-rose-500/20 text-rose-300 border-rose-400/40">
-                        🛡️ درء المفاسد ونفي الغرر
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📜 نص نبوي صحيح محكم
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        حديث رسول الله ﷺ: «لَا ضَرَرَ وَلَا ضِرَارَ» [رواه ابن ماجه (2340) وأحمد ومالك في الموطأ وصححه الحاكم والنووي والألباني].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        تحريم إلحاق أي ضرر مالي أو تجاري بالآخرين ابتداءً، وتحريم مقابلة الضرر بالضرر، ووجوب رفع كل ما يضر بسلامة الأسواق والمستهلكين والشركاء.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    حديث رسول الله ﷺ: «لَا ضَرَرَ وَلَا ضِرَارَ» [رواه ابن ماجه (2340) وأحمد ومالك في الموطأ وصححه الحاكم والنووي والألباني].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    تحريم إلحاق أي ضرر مالي أو تجاري بالآخرين ابتداءً، وتحريم مقابلة الضرر بالضرر، ووجوب رفع كل ما يضر بسلامة الأسواق والمستهلكين والشركاء.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">منع المنافسة غير الشريفة، منع احتكار السلع، منع تسريب البيانات الحساسة، وإلزام المنشآت الصناعية بإزالة الأضرار البيئية على الجيران.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">منع المنافسة غير الشريفة، منع احتكار السلع، منع تسريب البيانات الحساسة، وإلزام المنشآت الصناعية بإزالة الأضرار البيئية على الجيران.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">القاعدة الكبرى بالإجماع، السيوطي، ابن نجيم، مجلة الأحكام العدلية (مادة 19 و 20)</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">القاعدة الكبرى بالإجماع، السيوطي، ابن نجيم، مجلة الأحكام العدلية (مادة 19 و 20)</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 13 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="harm" data-maxim-search="13 «دَرْءُ الْمَفَاسِدِ مُقَدَّمٌ عَلَى جَلْبِ الْمَصَالِحِ» 📖 أصل قرآني في ميزان المنافع والمفاسد قوله تعالى: ﴿يَسْأَلُونَكَ عَنِ الْخَمْرِ وَالْمَيْسِرِ ۖ قُلْ فِيهِمَا إِثْمٌ كَبِيرٌ وَمَنَافِعُ لِلنَّاسِ وَإِثْمُهُمَا أَكْبَرُ مِن نَّفْعِهِمَا﴾ [البقرة: 219]. إذا تعارضت مصلحة ربحية مع مفسدة تجارية أو مجتمعية راجحة، قُدِّم منع المفسدة ودفعها على تحقيق المكسب المالي. حظر المشاريع الاستثمارية التي تروج للمخدرات أو الإباحية أو المقامرات المالية الرقمية مهما بلغت إيراداتها وعوائدها المالية المغرية. العز بن عبد السلام (قواعد الأحكام)، الشاطبي (الموافقات)، مجلة الأحكام العدلية (مادة 30) درء المفاسد مقدم على جلب المصالح الميسر المقامرة الاستثمار الأخلاقي">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="harm" data-maxim-search="13 «دَرْءُ الْمَفَاسِدِ مُقَدَّمٌ عَلَى جَلْبِ الْمَصَالِحِ» 📖 أصل قرآني في ميزان المنافع والمفاسد قوله تعالى: ﴿يَسْأَلُونَكَ عَنِ الْخَمْرِ وَالْمَيْسِرِ ۖ قُلْ فِيهِمَا إِثْمٌ كَبِيرٌ وَمَنَافِعُ لِلنَّاسِ وَإِثْمُهُمَا أَكْبَرُ مِن نَّفْعِهِمَا﴾ [البقرة: 219]. إذا تعارضت مصلحة ربحية مع مفسدة تجارية أو مجتمعية راجحة، قُدِّم منع المفسدة ودفعها على تحقيق المكسب المالي. حظر المشاريع الاستثمارية التي تروج للمخدرات أو الإباحية أو المقامرات المالية الرقمية مهما بلغت إيراداتها وعوائدها المالية المغرية. العز بن عبد السلام (قواعد الأحكام)، الشاطبي (الموافقات)، مجلة الأحكام العدلية (مادة 30) درء المفاسد مقدم على جلب المصالح الميسر المقامرة الاستثمار الأخلاقي">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        13
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «دَرْءُ الْمَفَاسِدِ مُقَدَّمٌ عَلَى جَلْبِ الْمَصَالِحِ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            13
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «دَرْءُ الْمَفَاسِدِ مُقَدَّمٌ عَلَى جَلْبِ الْمَصَالِحِ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-rose-500/20 text-rose-300 border-rose-400/40 shadow-sm">
+                            🛡️ درء المفاسد ونفي الغرر
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📖 أصل قرآني في ميزان المنافع والمفاسد
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-rose-500/20 text-rose-300 border-rose-400/40">
-                        🛡️ درء المفاسد ونفي الغرر
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📖 أصل قرآني في ميزان المنافع والمفاسد
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        قوله تعالى: ﴿يَسْأَلُونَكَ عَنِ الْخَمْرِ وَالْمَيْسِرِ ۖ قُلْ فِيهِمَا إِثْمٌ كَبِيرٌ وَمَنَافِعُ لِلنَّاسِ وَإِثْمُهُمَا أَكْبَرُ مِن نَّفْعِهِمَا﴾ [البقرة: 219].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        إذا تعارضت مصلحة ربحية مع مفسدة تجارية أو مجتمعية راجحة، قُدِّم منع المفسدة ودفعها على تحقيق المكسب المالي.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    قوله تعالى: ﴿يَسْأَلُونَكَ عَنِ الْخَمْرِ وَالْمَيْسِرِ ۖ قُلْ فِيهِمَا إِثْمٌ كَبِيرٌ وَمَنَافِعُ لِلنَّاسِ وَإِثْمُهُمَا أَكْبَرُ مِن نَّفْعِهِمَا﴾ [البقرة: 219].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    إذا تعارضت مصلحة ربحية مع مفسدة تجارية أو مجتمعية راجحة، قُدِّم منع المفسدة ودفعها على تحقيق المكسب المالي.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">حظر المشاريع الاستثمارية التي تروج للمخدرات أو الإباحية أو المقامرات المالية الرقمية مهما بلغت إيراداتها وعوائدها المالية المغرية.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">حظر المشاريع الاستثمارية التي تروج للمخدرات أو الإباحية أو المقامرات المالية الرقمية مهما بلغت إيراداتها وعوائدها المالية المغرية.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">العز بن عبد السلام (قواعد الأحكام)، الشاطبي (الموافقات)، مجلة الأحكام العدلية (مادة 30)</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">العز بن عبد السلام (قواعد الأحكام)، الشاطبي (الموافقات)، مجلة الأحكام العدلية (مادة 30)</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 14 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="harm" data-maxim-search="14 «الْغَرَرُ الْكَثِيرُ مَفْسَدَةٌ لِلْعَقْدِ دُونَ الْيَسِيرِ» 📜 صريح صحيح مسلم حديث أبي هريرة رضي الله عنه: «نَهَى رَسُولُ اللَّهِ ﷺ عَنْ بَيْعِ الْحَصَاةِ، وَعَنْ بَيْعِ الْغَرَرِ» [صحيح مسلم (1513)]. الجهالة الكبيرة التي تؤدي للنزاع والمقامرة تبطل العقد المالي، أما الغرر التافه أو اليسير الذي يشق التحرز منه فيعفى عنه تيسيراً لحركة الأسواق. جواز بيع السيارات المستعملة مع وجود غرر يسير في باطن المحرك لا يمكن كشفه إلا بالتفكيك، وبطلان عقود المشتقات المالية والمقامرات المشوبة بغرر فاحش. الإمام مالك، القرافي (الفروق)، النووي، ابن رشد، مجمع الفقه الإسلامي الدولي الغرر الكثير مفسدة للعقد بيع الغرر بيع الحصاة المشتقات المالية الجهالة الفاحشة">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="harm" data-maxim-search="14 «الْغَرَرُ الْكَثِيرُ مَفْسَدَةٌ لِلْعَقْدِ دُونَ الْيَسِيرِ» 📜 صريح صحيح مسلم حديث أبي هريرة رضي الله عنه: «نَهَى رَسُولُ اللَّهِ ﷺ عَنْ بَيْعِ الْحَصَاةِ، وَعَنْ بَيْعِ الْغَرَرِ» [صحيح مسلم (1513)]. الجهالة الكبيرة التي تؤدي للنزاع والمقامرة تبطل العقد المالي، أما الغرر التافه أو اليسير الذي يشق التحرز منه فيعفى عنه تيسيراً لحركة الأسواق. جواز بيع السيارات المستعملة مع وجود غرر يسير في باطن المحرك لا يمكن كشفه إلا بالتفكيك، وبطلان عقود المشتقات المالية والمقامرات المشوبة بغرر فاحش. الإمام مالك، القرافي (الفروق)، النووي، ابن رشد، مجمع الفقه الإسلامي الدولي الغرر الكثير مفسدة للعقد بيع الغرر بيع الحصاة المشتقات المالية الجهالة الفاحشة">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        14
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «الْغَرَرُ الْكَثِيرُ مَفْسَدَةٌ لِلْعَقْدِ دُونَ الْيَسِيرِ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            14
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «الْغَرَرُ الْكَثِيرُ مَفْسَدَةٌ لِلْعَقْدِ دُونَ الْيَسِيرِ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-rose-500/20 text-rose-300 border-rose-400/40 shadow-sm">
+                            🛡️ درء المفاسد ونفي الغرر
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📜 صريح صحيح مسلم
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-rose-500/20 text-rose-300 border-rose-400/40">
-                        🛡️ درء المفاسد ونفي الغرر
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📜 صريح صحيح مسلم
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        حديث أبي هريرة رضي الله عنه: «نَهَى رَسُولُ اللَّهِ ﷺ عَنْ بَيْعِ الْحَصَاةِ، وَعَنْ بَيْعِ الْغَرَرِ» [صحيح مسلم (1513)].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        الجهالة الكبيرة التي تؤدي للنزاع والمقامرة تبطل العقد المالي، أما الغرر التافه أو اليسير الذي يشق التحرز منه فيعفى عنه تيسيراً لحركة الأسواق.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    حديث أبي هريرة رضي الله عنه: «نَهَى رَسُولُ اللَّهِ ﷺ عَنْ بَيْعِ الْحَصَاةِ، وَعَنْ بَيْعِ الْغَرَرِ» [صحيح مسلم (1513)].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    الجهالة الكبيرة التي تؤدي للنزاع والمقامرة تبطل العقد المالي، أما الغرر التافه أو اليسير الذي يشق التحرز منه فيعفى عنه تيسيراً لحركة الأسواق.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">جواز بيع السيارات المستعملة مع وجود غرر يسير في باطن المحرك لا يمكن كشفه إلا بالتفكيك، وبطلان عقود المشتقات المالية والمقامرات المشوبة بغرر فاحش.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">جواز بيع السيارات المستعملة مع وجود غرر يسير في باطن المحرك لا يمكن كشفه إلا بالتفكيك، وبطلان عقود المشتقات المالية والمقامرات المشوبة بغرر فاحش.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">الإمام مالك، القرافي (الفروق)، النووي، ابن رشد، مجمع الفقه الإسلامي الدولي</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">الإمام مالك، القرافي (الفروق)، النووي، ابن رشد، مجمع الفقه الإسلامي الدولي</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 15 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="harm" data-maxim-search="15 «الْجَوَازُ الشَّرْعِيُّ يُنَافِي الضَّمَانَ» 📖 مستنبطة من نفي السبيل عن المحسنين قوله تعالى: ﴿مَا عَلَى الْمُحْسِنِينَ مِن سَبِيلٍ﴾ [التوبة: 91]. من مارس فعلاً أذن له الشارع فيه أو كان بتفويض مشروع من صاحب العمل دون تعدٍ ولا تقصير، فلا يضمن ما قد يترتب على ذلك الفعل من ضرر غير مقصود. عدم تضمين الطبيب الحاذق أو المقاول المرخص إذا التزم بالمعايير الهندسية والطبية المعتمدة وحدث تلف خارج عن الإرادة وبلا إهمال. الفقهاء الأربعة، مجلة الأحكام العدلية (مادة 91) الجواز الشرعي ينافي الضمان ما على المحسنين من سبيل المسؤولية المهنية المقاولات">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="harm" data-maxim-search="15 «الْجَوَازُ الشَّرْعِيُّ يُنَافِي الضَّمَانَ» 📖 مستنبطة من نفي السبيل عن المحسنين قوله تعالى: ﴿مَا عَلَى الْمُحْسِنِينَ مِن سَبِيلٍ﴾ [التوبة: 91]. من مارس فعلاً أذن له الشارع فيه أو كان بتفويض مشروع من صاحب العمل دون تعدٍ ولا تقصير، فلا يضمن ما قد يترتب على ذلك الفعل من ضرر غير مقصود. عدم تضمين الطبيب الحاذق أو المقاول المرخص إذا التزم بالمعايير الهندسية والطبية المعتمدة وحدث تلف خارج عن الإرادة وبلا إهمال. الفقهاء الأربعة، مجلة الأحكام العدلية (مادة 91) الجواز الشرعي ينافي الضمان ما على المحسنين من سبيل المسؤولية المهنية المقاولات">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        15
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «الْجَوَازُ الشَّرْعِيُّ يُنَافِي الضَّمَانَ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            15
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «الْجَوَازُ الشَّرْعِيُّ يُنَافِي الضَّمَانَ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-rose-500/20 text-rose-300 border-rose-400/40 shadow-sm">
+                            🛡️ درء المفاسد ونفي الغرر
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📖 مستنبطة من نفي السبيل عن المحسنين
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-rose-500/20 text-rose-300 border-rose-400/40">
-                        🛡️ درء المفاسد ونفي الغرر
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📖 مستنبطة من نفي السبيل عن المحسنين
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        قوله تعالى: ﴿مَا عَلَى الْمُحْسِنِينَ مِن سَبِيلٍ﴾ [التوبة: 91].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        من مارس فعلاً أذن له الشارع فيه أو كان بتفويض مشروع من صاحب العمل دون تعدٍ ولا تقصير، فلا يضمن ما قد يترتب على ذلك الفعل من ضرر غير مقصود.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    قوله تعالى: ﴿مَا عَلَى الْمُحْسِنِينَ مِن سَبِيلٍ﴾ [التوبة: 91].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    من مارس فعلاً أذن له الشارع فيه أو كان بتفويض مشروع من صاحب العمل دون تعدٍ ولا تقصير، فلا يضمن ما قد يترتب على ذلك الفعل من ضرر غير مقصود.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">عدم تضمين الطبيب الحاذق أو المقاول المرخص إذا التزم بالمعايير الهندسية والطبية المعتمدة وحدث تلف خارج عن الإرادة وبلا إهمال.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">عدم تضمين الطبيب الحاذق أو المقاول المرخص إذا التزم بالمعايير الهندسية والطبية المعتمدة وحدث تلف خارج عن الإرادة وبلا إهمال.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">الفقهاء الأربعة، مجلة الأحكام العدلية (مادة 91)</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">الفقهاء الأربعة، مجلة الأحكام العدلية (مادة 91)</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 16 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="harm" data-maxim-search="16 «مَنِ اسْتَعْجَلَ الشَّيْءَ قَبْلَ أَوَانِهِ عُوقِبَ بِحِرْمَانِهِ» 📜 مأخوذة من قضاء النبوة في حرمان القاتل حديث رسول الله ﷺ: «الْقَاتِلُ لَا يَرِثُ» [رواه الترمذي وابن ماجه وصححه الألباني]. كل من سلك طريقاً غير مشروع للتعجيل بالحصول على حق مالي أو صفقة قبل وقتها، عاقبه الشارع بإبطال تصرفه وحرمانه من ذلك المكسب كلياً. حرمان الموظف الذي يسرب معلومات المناقصات لصالحه، وبطلان التنازل عن الديون والحقوق تحت وطأة التحايل والتعجيل غير العادل. الفقهاء الأربعة، مجلة الأحكام العدلية (مادة 99) من استعجل الشيء قبل أوانه عوقب بحرمانه سد الذرائع تسريب المناقصات التحايل المالي">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="harm" data-maxim-search="16 «مَنِ اسْتَعْجَلَ الشَّيْءَ قَبْلَ أَوَانِهِ عُوقِبَ بِحِرْمَانِهِ» 📜 مأخوذة من قضاء النبوة في حرمان القاتل حديث رسول الله ﷺ: «الْقَاتِلُ لَا يَرِثُ» [رواه الترمذي وابن ماجه وصححه الألباني]. كل من سلك طريقاً غير مشروع للتعجيل بالحصول على حق مالي أو صفقة قبل وقتها، عاقبه الشارع بإبطال تصرفه وحرمانه من ذلك المكسب كلياً. حرمان الموظف الذي يسرب معلومات المناقصات لصالحه، وبطلان التنازل عن الديون والحقوق تحت وطأة التحايل والتعجيل غير العادل. الفقهاء الأربعة، مجلة الأحكام العدلية (مادة 99) من استعجل الشيء قبل أوانه عوقب بحرمانه سد الذرائع تسريب المناقصات التحايل المالي">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        16
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «مَنِ اسْتَعْجَلَ الشَّيْءَ قَبْلَ أَوَانِهِ عُوقِبَ بِحِرْمَانِهِ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            16
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «مَنِ اسْتَعْجَلَ الشَّيْءَ قَبْلَ أَوَانِهِ عُوقِبَ بِحِرْمَانِهِ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-rose-500/20 text-rose-300 border-rose-400/40 shadow-sm">
+                            🛡️ درء المفاسد ونفي الغرر
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📜 مأخوذة من قضاء النبوة في حرمان القاتل
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-rose-500/20 text-rose-300 border-rose-400/40">
-                        🛡️ درء المفاسد ونفي الغرر
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📜 مأخوذة من قضاء النبوة في حرمان القاتل
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        حديث رسول الله ﷺ: «الْقَاتِلُ لَا يَرِثُ» [رواه الترمذي وابن ماجه وصححه الألباني].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        كل من سلك طريقاً غير مشروع للتعجيل بالحصول على حق مالي أو صفقة قبل وقتها، عاقبه الشارع بإبطال تصرفه وحرمانه من ذلك المكسب كلياً.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    حديث رسول الله ﷺ: «الْقَاتِلُ لَا يَرِثُ» [رواه الترمذي وابن ماجه وصححه الألباني].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    كل من سلك طريقاً غير مشروع للتعجيل بالحصول على حق مالي أو صفقة قبل وقتها، عاقبه الشارع بإبطال تصرفه وحرمانه من ذلك المكسب كلياً.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">حرمان الموظف الذي يسرب معلومات المناقصات لصالحه، وبطلان التنازل عن الديون والحقوق تحت وطأة التحايل والتعجيل غير العادل.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">حرمان الموظف الذي يسرب معلومات المناقصات لصالحه، وبطلان التنازل عن الديون والحقوق تحت وطأة التحايل والتعجيل غير العادل.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">الفقهاء الأربعة، مجلة الأحكام العدلية (مادة 99)</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">الفقهاء الأربعة، مجلة الأحكام العدلية (مادة 99)</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 17 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="integrity" data-maxim-search="17 «تَحْرِيمُ أَكْلِ أَمْوَالِ النَّاسِ بِالْبَاطِلِ» 📖 نص قرآني قطعي متكرر قوله تعالى: ﴿وَلَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ وَتُدْلُوا بِهَا إِلَى الْحُكَّامِ لِتَأْكُلُوا فَرِيقًا مِّنْ أَمْوَالِ النَّاسِ بِالإِثْمِ﴾ [البقرة: 188]. الأصل العام الحاكم لكافة أموال الخلق: بطلان وتجريم كل كسب مالي لا يقابله عوض مشروع أو طيب نفس أو سبب شرعي صحيح كالرشوة والاحتيال والغصب. تجريم عمولات الشراء السرية، الرشاوى الوظيفية، النصب الإلكتروني، والتلاعب في الميزانيات المحاسبية. إجماع علماء الأمة بلا خلاف لا تأكلوا أموالكم بينكم بالباطل الرشوة أكل الحرام النصب الاحتيال الكسب غير المشروع">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="integrity" data-maxim-search="17 «تَحْرِيمُ أَكْلِ أَمْوَالِ النَّاسِ بِالْبَاطِلِ» 📖 نص قرآني قطعي متكرر قوله تعالى: ﴿وَلَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ وَتُدْلُوا بِهَا إِلَى الْحُكَّامِ لِتَأْكُلُوا فَرِيقًا مِّنْ أَمْوَالِ النَّاسِ بِالإِثْمِ﴾ [البقرة: 188]. الأصل العام الحاكم لكافة أموال الخلق: بطلان وتجريم كل كسب مالي لا يقابله عوض مشروع أو طيب نفس أو سبب شرعي صحيح كالرشوة والاحتيال والغصب. تجريم عمولات الشراء السرية، الرشاوى الوظيفية، النصب الإلكتروني، والتلاعب في الميزانيات المحاسبية. إجماع علماء الأمة بلا خلاف لا تأكلوا أموالكم بينكم بالباطل الرشوة أكل الحرام النصب الاحتيال الكسب غير المشروع">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        17
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «تَحْرِيمُ أَكْلِ أَمْوَالِ النَّاسِ بِالْبَاطِلِ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            17
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «تَحْرِيمُ أَكْلِ أَمْوَالِ النَّاسِ بِالْبَاطِلِ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-red-500/20 text-red-300 border-red-400/40 shadow-sm">
+                            ⚖️ النزاهة وحماية الحقوق
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📖 نص قرآني قطعي متكرر
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-red-500/20 text-red-300 border-red-400/40">
-                        ⚖️ النزاهة وحماية الحقوق
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📖 نص قرآني قطعي متكرر
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        قوله تعالى: ﴿وَلَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ وَتُدْلُوا بِهَا إِلَى الْحُكَّامِ لِتَأْكُلُوا فَرِيقًا مِّنْ أَمْوَالِ النَّاسِ بِالإِثْمِ﴾ [البقرة: 188].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        الأصل العام الحاكم لكافة أموال الخلق: بطلان وتجريم كل كسب مالي لا يقابله عوض مشروع أو طيب نفس أو سبب شرعي صحيح كالرشوة والاحتيال والغصب.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    قوله تعالى: ﴿وَلَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ وَتُدْلُوا بِهَا إِلَى الْحُكَّامِ لِتَأْكُلُوا فَرِيقًا مِّنْ أَمْوَالِ النَّاسِ بِالإِثْمِ﴾ [البقرة: 188].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    الأصل العام الحاكم لكافة أموال الخلق: بطلان وتجريم كل كسب مالي لا يقابله عوض مشروع أو طيب نفس أو سبب شرعي صحيح كالرشوة والاحتيال والغصب.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">تجريم عمولات الشراء السرية، الرشاوى الوظيفية، النصب الإلكتروني، والتلاعب في الميزانيات المحاسبية.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">تجريم عمولات الشراء السرية، الرشاوى الوظيفية، النصب الإلكتروني، والتلاعب في الميزانيات المحاسبية.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">إجماع علماء الأمة بلا خلاف</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">إجماع علماء الأمة بلا خلاف</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 18 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="integrity" data-maxim-search="18 «حُرْمَةُ مَالِ الْمُسْلِمِ كَحُرْمَةِ دَمِهِ» 📜 صريح خطبة حجة الوداع المتواترة حديث النبي ﷺ في حجة الوداع: «إِنَّ دِمَاءَكُمْ وَأَمْوَالَكُمْ وَأَعْرَاضَكُمْ عَلَيْكُمْ حَرَامٌ، كَحُرْمَةِ يَوْمِكُمْ هَذَا، فِي شَهْرِكُمْ هَذَا، فِي بَلَدِكُمْ هَذَا» [متفق عليه]. قدسية الملكية الفردية والأموال والحسابات المصرفية؛ فلا يجوز مصادرتها أو تجميدها أو الاقتطاع منها بغير حكم قضائي عادل وبسبب شرعي ثابت. حماية أموال المودعين والمستثمرين، ومنع الاستيلاء على أملاك الشركات بحجج واهية، وحق الدفاع الشرعي عن المال. إجماع كافة فقهاء الإسلام حرمة مال المسلم كحرمة دمه حجة الوداع الملكية الخاصة حماية الودائع المصادرة">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="integrity" data-maxim-search="18 «حُرْمَةُ مَالِ الْمُسْلِمِ كَحُرْمَةِ دَمِهِ» 📜 صريح خطبة حجة الوداع المتواترة حديث النبي ﷺ في حجة الوداع: «إِنَّ دِمَاءَكُمْ وَأَمْوَالَكُمْ وَأَعْرَاضَكُمْ عَلَيْكُمْ حَرَامٌ، كَحُرْمَةِ يَوْمِكُمْ هَذَا، فِي شَهْرِكُمْ هَذَا، فِي بَلَدِكُمْ هَذَا» [متفق عليه]. قدسية الملكية الفردية والأموال والحسابات المصرفية؛ فلا يجوز مصادرتها أو تجميدها أو الاقتطاع منها بغير حكم قضائي عادل وبسبب شرعي ثابت. حماية أموال المودعين والمستثمرين، ومنع الاستيلاء على أملاك الشركات بحجج واهية، وحق الدفاع الشرعي عن المال. إجماع كافة فقهاء الإسلام حرمة مال المسلم كحرمة دمه حجة الوداع الملكية الخاصة حماية الودائع المصادرة">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        18
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «حُرْمَةُ مَالِ الْمُسْلِمِ كَحُرْمَةِ دَمِهِ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            18
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «حُرْمَةُ مَالِ الْمُسْلِمِ كَحُرْمَةِ دَمِهِ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-red-500/20 text-red-300 border-red-400/40 shadow-sm">
+                            ⚖️ النزاهة وحماية الحقوق
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📜 صريح خطبة حجة الوداع المتواترة
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-red-500/20 text-red-300 border-red-400/40">
-                        ⚖️ النزاهة وحماية الحقوق
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📜 صريح خطبة حجة الوداع المتواترة
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        حديث النبي ﷺ في حجة الوداع: «إِنَّ دِمَاءَكُمْ وَأَمْوَالَكُمْ وَأَعْرَاضَكُمْ عَلَيْكُمْ حَرَامٌ، كَحُرْمَةِ يَوْمِكُمْ هَذَا، فِي شَهْرِكُمْ هَذَا، فِي بَلَدِكُمْ هَذَا» [متفق عليه].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        قدسية الملكية الفردية والأموال والحسابات المصرفية؛ فلا يجوز مصادرتها أو تجميدها أو الاقتطاع منها بغير حكم قضائي عادل وبسبب شرعي ثابت.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    حديث النبي ﷺ في حجة الوداع: «إِنَّ دِمَاءَكُمْ وَأَمْوَالَكُمْ وَأَعْرَاضَكُمْ عَلَيْكُمْ حَرَامٌ، كَحُرْمَةِ يَوْمِكُمْ هَذَا، فِي شَهْرِكُمْ هَذَا، فِي بَلَدِكُمْ هَذَا» [متفق عليه].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    قدسية الملكية الفردية والأموال والحسابات المصرفية؛ فلا يجوز مصادرتها أو تجميدها أو الاقتطاع منها بغير حكم قضائي عادل وبسبب شرعي ثابت.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">حماية أموال المودعين والمستثمرين، ومنع الاستيلاء على أملاك الشركات بحجج واهية، وحق الدفاع الشرعي عن المال.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">حماية أموال المودعين والمستثمرين، ومنع الاستيلاء على أملاك الشركات بحجج واهية، وحق الدفاع الشرعي عن المال.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">إجماع كافة فقهاء الإسلام</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">إجماع كافة فقهاء الإسلام</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 19 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="integrity" data-maxim-search="19 «لَا يَحِلُّ مَالُ امْرِئٍ مُسْلِمٍ إِلَّا بِطِيبِ نَفْسٍ مِنْهُ» 📜 نص نبوي صحيح بلفظه حديث رسول الله ﷺ: «أَلَا لَا تَظْلِمُوا، أَلَا لَا تَظْلِمُوا، أَلَا لَا تَظْلِمُوا، إِنَّهُ لَا يَحِلُّ مَالُ امْرِئٍ إِلَّا بِطِيبِ نَفْسٍ مِنْهُ» [رواه أحمد والبيهقي والدارقطني وصححه الألباني]. كل مال أُخذ بالحياء أو الإحراج أو الضغط الأدبي دون رضا باطني واختيار حر فهو سحت باطل ومردود على صاحبه شرعاً. بطلان التبرعات الإجبارية المقتطعة من رواتب الموظفين دون موافقتهم الصريحة، وبطلان فرض رسوم خدمات إضافية مخفية دون موافقة العميل. الفقهاء الأربعة وسائر أئمة المذاهب لا يحل مال امرئ إلا بطيب نفس منه ألا لا تظلموا طيب النفس الاقتطاعات الإجبارية">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="integrity" data-maxim-search="19 «لَا يَحِلُّ مَالُ امْرِئٍ مُسْلِمٍ إِلَّا بِطِيبِ نَفْسٍ مِنْهُ» 📜 نص نبوي صحيح بلفظه حديث رسول الله ﷺ: «أَلَا لَا تَظْلِمُوا، أَلَا لَا تَظْلِمُوا، أَلَا لَا تَظْلِمُوا، إِنَّهُ لَا يَحِلُّ مَالُ امْرِئٍ إِلَّا بِطِيبِ نَفْسٍ مِنْهُ» [رواه أحمد والبيهقي والدارقطني وصححه الألباني]. كل مال أُخذ بالحياء أو الإحراج أو الضغط الأدبي دون رضا باطني واختيار حر فهو سحت باطل ومردود على صاحبه شرعاً. بطلان التبرعات الإجبارية المقتطعة من رواتب الموظفين دون موافقتهم الصريحة، وبطلان فرض رسوم خدمات إضافية مخفية دون موافقة العميل. الفقهاء الأربعة وسائر أئمة المذاهب لا يحل مال امرئ إلا بطيب نفس منه ألا لا تظلموا طيب النفس الاقتطاعات الإجبارية">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        19
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «لَا يَحِلُّ مَالُ امْرِئٍ مُسْلِمٍ إِلَّا بِطِيبِ نَفْسٍ مِنْهُ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            19
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «لَا يَحِلُّ مَالُ امْرِئٍ مُسْلِمٍ إِلَّا بِطِيبِ نَفْسٍ مِنْهُ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-red-500/20 text-red-300 border-red-400/40 shadow-sm">
+                            ⚖️ النزاهة وحماية الحقوق
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📜 نص نبوي صحيح بلفظه
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-red-500/20 text-red-300 border-red-400/40">
-                        ⚖️ النزاهة وحماية الحقوق
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📜 نص نبوي صحيح بلفظه
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        حديث رسول الله ﷺ: «أَلَا لَا تَظْلِمُوا، أَلَا لَا تَظْلِمُوا، أَلَا لَا تَظْلِمُوا، إِنَّهُ لَا يَحِلُّ مَالُ امْرِئٍ إِلَّا بِطِيبِ نَفْسٍ مِنْهُ» [رواه أحمد والبيهقي والدارقطني وصححه الألباني].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        كل مال أُخذ بالحياء أو الإحراج أو الضغط الأدبي دون رضا باطني واختيار حر فهو سحت باطل ومردود على صاحبه شرعاً.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    حديث رسول الله ﷺ: «أَلَا لَا تَظْلِمُوا، أَلَا لَا تَظْلِمُوا، أَلَا لَا تَظْلِمُوا، إِنَّهُ لَا يَحِلُّ مَالُ امْرِئٍ إِلَّا بِطِيبِ نَفْسٍ مِنْهُ» [رواه أحمد والبيهقي والدارقطني وصححه الألباني].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    كل مال أُخذ بالحياء أو الإحراج أو الضغط الأدبي دون رضا باطني واختيار حر فهو سحت باطل ومردود على صاحبه شرعاً.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">بطلان التبرعات الإجبارية المقتطعة من رواتب الموظفين دون موافقتهم الصريحة، وبطلان فرض رسوم خدمات إضافية مخفية دون موافقة العميل.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">بطلان التبرعات الإجبارية المقتطعة من رواتب الموظفين دون موافقتهم الصريحة، وبطلان فرض رسوم خدمات إضافية مخفية دون موافقة العميل.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">الفقهاء الأربعة وسائر أئمة المذاهب</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">الفقهاء الأربعة وسائر أئمة المذاهب</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 20 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="integrity" data-maxim-search="20 «وَلَا تَبْخَسُوا النَّاسَ أَشْيَاءَهُمْ · عَدَالَةُ التَّثْمِينِ» 📖 نص قرآني في آيات المعاملات قوله تعالى: ﴿وَلَا تَبْخَسُوا النَّاسَ أَشْيَاءَهُمْ وَلَا تُفْسِدُوا فِي الْأَرْضِ بَعْدَ إِصْلَاحِهَا﴾ [الأعراف: 85 وسورة هود: 85 والشعراء: 183]. وجوب تقييم السلع والأصول والجهود المهنية بقيمتها العادلة، وتحريم إنقاص أثمان السلع وأجور العمال أو استغلال اضطرار البائع للشراء منه بأقل من سعر السوق. التقييم المحاسبي العادل للأصول، النزاهة في دراسات الجدوى، وإنصاف الموظفين في جداول الأجور والمكافآت. جمهور المفسرين والفقهاء ولا تبخسوا الناس أشياءهم عدالة التثمين تقييم الأصول بخس الأجور دراسات الجدوى">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="integrity" data-maxim-search="20 «وَلَا تَبْخَسُوا النَّاسَ أَشْيَاءَهُمْ · عَدَالَةُ التَّثْمِينِ» 📖 نص قرآني في آيات المعاملات قوله تعالى: ﴿وَلَا تَبْخَسُوا النَّاسَ أَشْيَاءَهُمْ وَلَا تُفْسِدُوا فِي الْأَرْضِ بَعْدَ إِصْلَاحِهَا﴾ [الأعراف: 85 وسورة هود: 85 والشعراء: 183]. وجوب تقييم السلع والأصول والجهود المهنية بقيمتها العادلة، وتحريم إنقاص أثمان السلع وأجور العمال أو استغلال اضطرار البائع للشراء منه بأقل من سعر السوق. التقييم المحاسبي العادل للأصول، النزاهة في دراسات الجدوى، وإنصاف الموظفين في جداول الأجور والمكافآت. جمهور المفسرين والفقهاء ولا تبخسوا الناس أشياءهم عدالة التثمين تقييم الأصول بخس الأجور دراسات الجدوى">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        20
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «وَلَا تَبْخَسُوا النَّاسَ أَشْيَاءَهُمْ · عَدَالَةُ التَّثْمِينِ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            20
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «وَلَا تَبْخَسُوا النَّاسَ أَشْيَاءَهُمْ · عَدَالَةُ التَّثْمِينِ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-red-500/20 text-red-300 border-red-400/40 shadow-sm">
+                            ⚖️ النزاهة وحماية الحقوق
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📖 نص قرآني في آيات المعاملات
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-red-500/20 text-red-300 border-red-400/40">
-                        ⚖️ النزاهة وحماية الحقوق
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📖 نص قرآني في آيات المعاملات
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        قوله تعالى: ﴿وَلَا تَبْخَسُوا النَّاسَ أَشْيَاءَهُمْ وَلَا تُفْسِدُوا فِي الْأَرْضِ بَعْدَ إِصْلَاحِهَا﴾ [الأعراف: 85 وسورة هود: 85 والشعراء: 183].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        وجوب تقييم السلع والأصول والجهود المهنية بقيمتها العادلة، وتحريم إنقاص أثمان السلع وأجور العمال أو استغلال اضطرار البائع للشراء منه بأقل من سعر السوق.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    قوله تعالى: ﴿وَلَا تَبْخَسُوا النَّاسَ أَشْيَاءَهُمْ وَلَا تُفْسِدُوا فِي الْأَرْضِ بَعْدَ إِصْلَاحِهَا﴾ [الأعراف: 85 وسورة هود: 85 والشعراء: 183].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    وجوب تقييم السلع والأصول والجهود المهنية بقيمتها العادلة، وتحريم إنقاص أثمان السلع وأجور العمال أو استغلال اضطرار البائع للشراء منه بأقل من سعر السوق.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">التقييم المحاسبي العادل للأصول، النزاهة في دراسات الجدوى، وإنصاف الموظفين في جداول الأجور والمكافآت.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">التقييم المحاسبي العادل للأصول، النزاهة في دراسات الجدوى، وإنصاف الموظفين في جداول الأجور والمكافآت.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">جمهور المفسرين والفقهاء</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">جمهور المفسرين والفقهاء</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 21 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="integrity" data-maxim-search="21 «إِيفَاءُ الْكَيْلِ وَالْمِيزَانِ وَحُرْمَةُ التَّطْفِيفِ الْمَالِي» 📖 نص قرآني صريح في سورة المطففين قوله تعالى: ﴿وَيْلٌ لِّلْمُطَفِّفِينَ · الَّذِينَ إِذَا اكْتَالُوا عَلَى النَّاسِ يَسْتَوْفُونَ · وَإِذَا كَالُوهُمْ أَو وَّزَنُوهُمْ يُخْسِرُونَ﴾ [المطففين: 1-3]. وجوب الدقة المطلقة والنزاهة في المقاييس والأوزان والكميات المبيعة، وتجريم أخذ الحق كاملاً عند الشراء وإنقاصه عند البيع والتسليم. التدقيق المحاسبي الصارم، منع التلاعب بالكميات في التعبئة والتغليف، وضبط عدادات الوقود والموازين الرقمية في الأسواق. إجماع علماء الأمة ويل للمطففين إيفاء الكيل والميزان التطفيف المالي التدقيق المحاسبي النزاهة">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="integrity" data-maxim-search="21 «إِيفَاءُ الْكَيْلِ وَالْمِيزَانِ وَحُرْمَةُ التَّطْفِيفِ الْمَالِي» 📖 نص قرآني صريح في سورة المطففين قوله تعالى: ﴿وَيْلٌ لِّلْمُطَفِّفِينَ · الَّذِينَ إِذَا اكْتَالُوا عَلَى النَّاسِ يَسْتَوْفُونَ · وَإِذَا كَالُوهُمْ أَو وَّزَنُوهُمْ يُخْسِرُونَ﴾ [المطففين: 1-3]. وجوب الدقة المطلقة والنزاهة في المقاييس والأوزان والكميات المبيعة، وتجريم أخذ الحق كاملاً عند الشراء وإنقاصه عند البيع والتسليم. التدقيق المحاسبي الصارم، منع التلاعب بالكميات في التعبئة والتغليف، وضبط عدادات الوقود والموازين الرقمية في الأسواق. إجماع علماء الأمة ويل للمطففين إيفاء الكيل والميزان التطفيف المالي التدقيق المحاسبي النزاهة">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        21
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «إِيفَاءُ الْكَيْلِ وَالْمِيزَانِ وَحُرْمَةُ التَّطْفِيفِ الْمَالِي»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            21
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «إِيفَاءُ الْكَيْلِ وَالْمِيزَانِ وَحُرْمَةُ التَّطْفِيفِ الْمَالِي»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-red-500/20 text-red-300 border-red-400/40 shadow-sm">
+                            ⚖️ النزاهة وحماية الحقوق
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📖 نص قرآني صريح في سورة المطففين
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-red-500/20 text-red-300 border-red-400/40">
-                        ⚖️ النزاهة وحماية الحقوق
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📖 نص قرآني صريح في سورة المطففين
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        قوله تعالى: ﴿وَيْلٌ لِّلْمُطَفِّفِينَ · الَّذِينَ إِذَا اكْتَالُوا عَلَى النَّاسِ يَسْتَوْفُونَ · وَإِذَا كَالُوهُمْ أَو وَّزَنُوهُمْ يُخْسِرُونَ﴾ [المطففين: 1-3].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        وجوب الدقة المطلقة والنزاهة في المقاييس والأوزان والكميات المبيعة، وتجريم أخذ الحق كاملاً عند الشراء وإنقاصه عند البيع والتسليم.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    قوله تعالى: ﴿وَيْلٌ لِّلْمُطَفِّفِينَ · الَّذِينَ إِذَا اكْتَالُوا عَلَى النَّاسِ يَسْتَوْفُونَ · وَإِذَا كَالُوهُمْ أَو وَّزَنُوهُمْ يُخْسِرُونَ﴾ [المطففين: 1-3].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    وجوب الدقة المطلقة والنزاهة في المقاييس والأوزان والكميات المبيعة، وتجريم أخذ الحق كاملاً عند الشراء وإنقاصه عند البيع والتسليم.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">التدقيق المحاسبي الصارم، منع التلاعب بالكميات في التعبئة والتغليف، وضبط عدادات الوقود والموازين الرقمية في الأسواق.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">التدقيق المحاسبي الصارم، منع التلاعب بالكميات في التعبئة والتغليف، وضبط عدادات الوقود والموازين الرقمية في الأسواق.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">إجماع علماء الأمة</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">إجماع علماء الأمة</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 22 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="market" data-maxim-search="22 «حَظْرُ الِاحْتِكَارِ وَإِغْلَاءِ الأَسْعَارِ» 📜 صريح صحيح مسلم حديث رسول الله ﷺ: «لَا يَحْتَكِرُ إِلَّا خَاطِئٌ» [صحيح مسلم (1605)]. تحريم حبس السلع التموينية والحاجات الأساسية عن السوق بهدف تقليل المعروض وإجبار الناس على شرائها بأسعار مضاعفة واستغلال الأزمات. قوانين حماية المنافسة ومنع الاحتكار ومكافحة الممارسات الاحتكارية وتخزين الأقوات والمستلزمات الطبية في أوقات الطوارئ. الفقهاء الأربعة وسائر أئمة الاقتصاد الإسلامي لا يحتكر إلا خاطئ حظر الاحتكار إغلاء الأسعار حماية المنافسة السلع الأساسية">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="market" data-maxim-search="22 «حَظْرُ الِاحْتِكَارِ وَإِغْلَاءِ الأَسْعَارِ» 📜 صريح صحيح مسلم حديث رسول الله ﷺ: «لَا يَحْتَكِرُ إِلَّا خَاطِئٌ» [صحيح مسلم (1605)]. تحريم حبس السلع التموينية والحاجات الأساسية عن السوق بهدف تقليل المعروض وإجبار الناس على شرائها بأسعار مضاعفة واستغلال الأزمات. قوانين حماية المنافسة ومنع الاحتكار ومكافحة الممارسات الاحتكارية وتخزين الأقوات والمستلزمات الطبية في أوقات الطوارئ. الفقهاء الأربعة وسائر أئمة الاقتصاد الإسلامي لا يحتكر إلا خاطئ حظر الاحتكار إغلاء الأسعار حماية المنافسة السلع الأساسية">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        22
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «حَظْرُ الِاحْتِكَارِ وَإِغْلَاءِ الأَسْعَارِ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            22
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «حَظْرُ الِاحْتِكَارِ وَإِغْلَاءِ الأَسْعَارِ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40 shadow-sm">
+                            🏪 أخلاقيات السوق والتنافس
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📜 صريح صحيح مسلم
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40">
-                        🏪 أخلاقيات السوق والتنافس
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📜 صريح صحيح مسلم
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        حديث رسول الله ﷺ: «لَا يَحْتَكِرُ إِلَّا خَاطِئٌ» [صحيح مسلم (1605)].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        تحريم حبس السلع التموينية والحاجات الأساسية عن السوق بهدف تقليل المعروض وإجبار الناس على شرائها بأسعار مضاعفة واستغلال الأزمات.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    حديث رسول الله ﷺ: «لَا يَحْتَكِرُ إِلَّا خَاطِئٌ» [صحيح مسلم (1605)].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    تحريم حبس السلع التموينية والحاجات الأساسية عن السوق بهدف تقليل المعروض وإجبار الناس على شرائها بأسعار مضاعفة واستغلال الأزمات.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">قوانين حماية المنافسة ومنع الاحتكار ومكافحة الممارسات الاحتكارية وتخزين الأقوات والمستلزمات الطبية في أوقات الطوارئ.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">قوانين حماية المنافسة ومنع الاحتكار ومكافحة الممارسات الاحتكارية وتخزين الأقوات والمستلزمات الطبية في أوقات الطوارئ.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">الفقهاء الأربعة وسائر أئمة الاقتصاد الإسلامي</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">الفقهاء الأربعة وسائر أئمة الاقتصاد الإسلامي</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 23 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="market" data-maxim-search="23 «شَفَافِيَّةُ السُّوقِ وَمَنْعُ اسْتِغْلَالِ جَهَالَةِ الْمُتَعَامِلِينَ» 📜 متفق عليه في الصحيحين حديث ابن عمر رضي الله عنهما: «نَهَى النَّبِيُّ ﷺ عَنِ النَّجْشِ، وَأَنْ يَبِيعَ حَاضِرٌ لِبَادٍ، وَأَنْ تُلَقَّى السِّلَعُ حَتَّى تَهْبِطَ إِلَى الأَسْوَاقِ» [متفق عليه]. وجوب إتاحة معلومات الأسعار العادلة للجميع، وحظر تلقي البضائع خارج الأسواق لشرائها بغبن من أصحابها الجاهلين بالسعر الحقيقي، وحظر المزايدات الوهمية (النجش). شفافية أسواق الأسهم والبورصات، تجريم التداول بناءً على معلومات داخلية مسربة، ومنع تزييف المزادات بالبوتات الرقمية. الأئمة الأربعة، ابن تيمية، مجلة الأحكام العدلية شفافية السوق النجش بيع حاضر لباد تلقي الركبان البورصة التداول الداخلي">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="market" data-maxim-search="23 «شَفَافِيَّةُ السُّوقِ وَمَنْعُ اسْتِغْلَالِ جَهَالَةِ الْمُتَعَامِلِينَ» 📜 متفق عليه في الصحيحين حديث ابن عمر رضي الله عنهما: «نَهَى النَّبِيُّ ﷺ عَنِ النَّجْشِ، وَأَنْ يَبِيعَ حَاضِرٌ لِبَادٍ، وَأَنْ تُلَقَّى السِّلَعُ حَتَّى تَهْبِطَ إِلَى الأَسْوَاقِ» [متفق عليه]. وجوب إتاحة معلومات الأسعار العادلة للجميع، وحظر تلقي البضائع خارج الأسواق لشرائها بغبن من أصحابها الجاهلين بالسعر الحقيقي، وحظر المزايدات الوهمية (النجش). شفافية أسواق الأسهم والبورصات، تجريم التداول بناءً على معلومات داخلية مسربة، ومنع تزييف المزادات بالبوتات الرقمية. الأئمة الأربعة، ابن تيمية، مجلة الأحكام العدلية شفافية السوق النجش بيع حاضر لباد تلقي الركبان البورصة التداول الداخلي">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        23
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «شَفَافِيَّةُ السُّوقِ وَمَنْعُ اسْتِغْلَالِ جَهَالَةِ الْمُتَعَامِلِينَ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            23
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «شَفَافِيَّةُ السُّوقِ وَمَنْعُ اسْتِغْلَالِ جَهَالَةِ الْمُتَعَامِلِينَ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40 shadow-sm">
+                            🏪 أخلاقيات السوق والتنافس
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📜 متفق عليه في الصحيحين
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40">
-                        🏪 أخلاقيات السوق والتنافس
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📜 متفق عليه في الصحيحين
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        حديث ابن عمر رضي الله عنهما: «نَهَى النَّبِيُّ ﷺ عَنِ النَّجْشِ، وَأَنْ يَبِيعَ حَاضِرٌ لِبَادٍ، وَأَنْ تُلَقَّى السِّلَعُ حَتَّى تَهْبِطَ إِلَى الأَسْوَاقِ» [متفق عليه].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        وجوب إتاحة معلومات الأسعار العادلة للجميع، وحظر تلقي البضائع خارج الأسواق لشرائها بغبن من أصحابها الجاهلين بالسعر الحقيقي، وحظر المزايدات الوهمية (النجش).
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    حديث ابن عمر رضي الله عنهما: «نَهَى النَّبِيُّ ﷺ عَنِ النَّجْشِ، وَأَنْ يَبِيعَ حَاضِرٌ لِبَادٍ، وَأَنْ تُلَقَّى السِّلَعُ حَتَّى تَهْبِطَ إِلَى الأَسْوَاقِ» [متفق عليه].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    وجوب إتاحة معلومات الأسعار العادلة للجميع، وحظر تلقي البضائع خارج الأسواق لشرائها بغبن من أصحابها الجاهلين بالسعر الحقيقي، وحظر المزايدات الوهمية (النجش).
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">شفافية أسواق الأسهم والبورصات، تجريم التداول بناءً على معلومات داخلية مسربة، ومنع تزييف المزادات بالبوتات الرقمية.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">شفافية أسواق الأسهم والبورصات، تجريم التداول بناءً على معلومات داخلية مسربة، ومنع تزييف المزادات بالبوتات الرقمية.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">الأئمة الأربعة، ابن تيمية، مجلة الأحكام العدلية</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">الأئمة الأربعة، ابن تيمية، مجلة الأحكام العدلية</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 24 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="market" data-maxim-search="24 «تَحْرِيمُ الْغِشِّ وَثُبُوتُ خِيَارِ الْعَيْبِ» 📜 صريح صحيح مسلم حديث رسول الله ﷺ: «مَنْ غَشَّ فَلَيْسَ مِنِّي» [صحيح مسلم (102)]. وجوب الإفصاح الكامل عن كل عيب أو نقص في البضاعة المباعة، وثبوت حق المشتري في رد السلعة واسترداد ثمنها فور اكتشاف أي عيب خفي. حقوق حماية المستهلك، سياسات استرجاع البضائع المعيبة، وتجريم التلاعب ببلد المنشأ وتواريخ الصلاحية. إجماع فقهاء الإسلام من غش فليس مني خيار العيب حماية المستهلك استرجاع البضائع الغش التجاري">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="market" data-maxim-search="24 «تَحْرِيمُ الْغِشِّ وَثُبُوتُ خِيَارِ الْعَيْبِ» 📜 صريح صحيح مسلم حديث رسول الله ﷺ: «مَنْ غَشَّ فَلَيْسَ مِنِّي» [صحيح مسلم (102)]. وجوب الإفصاح الكامل عن كل عيب أو نقص في البضاعة المباعة، وثبوت حق المشتري في رد السلعة واسترداد ثمنها فور اكتشاف أي عيب خفي. حقوق حماية المستهلك، سياسات استرجاع البضائع المعيبة، وتجريم التلاعب ببلد المنشأ وتواريخ الصلاحية. إجماع فقهاء الإسلام من غش فليس مني خيار العيب حماية المستهلك استرجاع البضائع الغش التجاري">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        24
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «تَحْرِيمُ الْغِشِّ وَثُبُوتُ خِيَارِ الْعَيْبِ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            24
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «تَحْرِيمُ الْغِشِّ وَثُبُوتُ خِيَارِ الْعَيْبِ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40 shadow-sm">
+                            🏪 أخلاقيات السوق والتنافس
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📜 صريح صحيح مسلم
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40">
-                        🏪 أخلاقيات السوق والتنافس
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📜 صريح صحيح مسلم
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        حديث رسول الله ﷺ: «مَنْ غَشَّ فَلَيْسَ مِنِّي» [صحيح مسلم (102)].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        وجوب الإفصاح الكامل عن كل عيب أو نقص في البضاعة المباعة، وثبوت حق المشتري في رد السلعة واسترداد ثمنها فور اكتشاف أي عيب خفي.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    حديث رسول الله ﷺ: «مَنْ غَشَّ فَلَيْسَ مِنِّي» [صحيح مسلم (102)].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    وجوب الإفصاح الكامل عن كل عيب أو نقص في البضاعة المباعة، وثبوت حق المشتري في رد السلعة واسترداد ثمنها فور اكتشاف أي عيب خفي.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">حقوق حماية المستهلك، سياسات استرجاع البضائع المعيبة، وتجريم التلاعب ببلد المنشأ وتواريخ الصلاحية.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">حقوق حماية المستهلك، سياسات استرجاع البضائع المعيبة، وتجريم التلاعب ببلد المنشأ وتواريخ الصلاحية.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">إجماع فقهاء الإسلام</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">إجماع فقهاء الإسلام</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 25 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="market" data-maxim-search="25 «دَفْعُ الضَّرَرِ عَنِ الشَّرِيكِ وَالْجَارِ بِالشُّفْعَةِ» 📜 متفق عليه في الصحيحين حديث جابر رضي الله عنه: «قَضَى رَسُولُ اللَّهِ ﷺ بِالشُّفْعَةِ فِي كُلِّ مَا لَمْ يُقْسَمْ» [صحيح البخاري ومسلم]. تشريع حق الشفعة لمنع دخول شريك أجنبي غير مرغوب فيه قد يضر ببقية الشركاء أو الجيران، بإعطاء الشريك القائم أولوية الشراء بذات الثمن المتفق عليه. أحقية الشركاء في شراء حصص الشريك المنسحب في الشركات ذات المسؤولية المحدودة قبل طرحها للغير حفاظاً على استقرار المنشأة. جمهور الفقهاء الأربعة، مجلة الأحكام العدلية (مادة 950) قضى بالشفعة في كل ما لم يقسم حق الشفعة استقرار الشركات خروج الشريك">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="market" data-maxim-search="25 «دَفْعُ الضَّرَرِ عَنِ الشَّرِيكِ وَالْجَارِ بِالشُّفْعَةِ» 📜 متفق عليه في الصحيحين حديث جابر رضي الله عنه: «قَضَى رَسُولُ اللَّهِ ﷺ بِالشُّفْعَةِ فِي كُلِّ مَا لَمْ يُقْسَمْ» [صحيح البخاري ومسلم]. تشريع حق الشفعة لمنع دخول شريك أجنبي غير مرغوب فيه قد يضر ببقية الشركاء أو الجيران، بإعطاء الشريك القائم أولوية الشراء بذات الثمن المتفق عليه. أحقية الشركاء في شراء حصص الشريك المنسحب في الشركات ذات المسؤولية المحدودة قبل طرحها للغير حفاظاً على استقرار المنشأة. جمهور الفقهاء الأربعة، مجلة الأحكام العدلية (مادة 950) قضى بالشفعة في كل ما لم يقسم حق الشفعة استقرار الشركات خروج الشريك">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        25
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «دَفْعُ الضَّرَرِ عَنِ الشَّرِيكِ وَالْجَارِ بِالشُّفْعَةِ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            25
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «دَفْعُ الضَّرَرِ عَنِ الشَّرِيكِ وَالْجَارِ بِالشُّفْعَةِ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40 shadow-sm">
+                            🏪 أخلاقيات السوق والتنافس
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📜 متفق عليه في الصحيحين
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40">
-                        🏪 أخلاقيات السوق والتنافس
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📜 متفق عليه في الصحيحين
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        حديث جابر رضي الله عنه: «قَضَى رَسُولُ اللَّهِ ﷺ بِالشُّفْعَةِ فِي كُلِّ مَا لَمْ يُقْسَمْ» [صحيح البخاري ومسلم].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        تشريع حق الشفعة لمنع دخول شريك أجنبي غير مرغوب فيه قد يضر ببقية الشركاء أو الجيران، بإعطاء الشريك القائم أولوية الشراء بذات الثمن المتفق عليه.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    حديث جابر رضي الله عنه: «قَضَى رَسُولُ اللَّهِ ﷺ بِالشُّفْعَةِ فِي كُلِّ مَا لَمْ يُقْسَمْ» [صحيح البخاري ومسلم].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    تشريع حق الشفعة لمنع دخول شريك أجنبي غير مرغوب فيه قد يضر ببقية الشركاء أو الجيران، بإعطاء الشريك القائم أولوية الشراء بذات الثمن المتفق عليه.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">أحقية الشركاء في شراء حصص الشريك المنسحب في الشركات ذات المسؤولية المحدودة قبل طرحها للغير حفاظاً على استقرار المنشأة.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">أحقية الشركاء في شراء حصص الشريك المنسحب في الشركات ذات المسؤولية المحدودة قبل طرحها للغير حفاظاً على استقرار المنشأة.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">جمهور الفقهاء الأربعة، مجلة الأحكام العدلية (مادة 950)</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">جمهور الفقهاء الأربعة، مجلة الأحكام العدلية (مادة 950)</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 26 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="evidence" data-maxim-search="26 «الْيَقِينُ لَا يَزُولُ بِالشَّكِّ · الأَصْلُ بَقَاءُ مَا كَانَ» 📜 مستنبطة من أصح الأحاديث النبوية حديث صحيح مسلم فيمن شك في الصلاة أو الحدث: «لَا يَنْصَرِفْ حَتَّى يَسْمَعَ صَوْتًا أَوْ يَجِدَ رِيحًا»، وقوله تعالى: ﴿إِنَّ الظَّنَّ لَا يُغْنِي مِنَ الْحَقِّ شَيْئًا﴾ [يونس: 36]. الأمر الثابت المتيقن لا يرتفع بمجرد الشك والتردد والظنون؛ بل يبقى الحكم على ما كان عليه حتى يثبت العكس ببرهان قاطع. بقاء العقد صحيحاً ما لم يثبت فسخه بدليل، استمرار ملكية الأصل لمالكه حتى تثبت الحوالة، وبقاء المديونية مسجلة حتى يثبت سند السداد. القاعدة الكبرى بالإجماع، الشافعي، السيوطي، ابن نجيم، مجلة الأحكام العدلية (مادة 4) اليقين لا يزول بالشك الأصل بقاء ما كان استصحاب الحال استقرار المعاملات سند السداد">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="evidence" data-maxim-search="26 «الْيَقِينُ لَا يَزُولُ بِالشَّكِّ · الأَصْلُ بَقَاءُ مَا كَانَ» 📜 مستنبطة من أصح الأحاديث النبوية حديث صحيح مسلم فيمن شك في الصلاة أو الحدث: «لَا يَنْصَرِفْ حَتَّى يَسْمَعَ صَوْتًا أَوْ يَجِدَ رِيحًا»، وقوله تعالى: ﴿إِنَّ الظَّنَّ لَا يُغْنِي مِنَ الْحَقِّ شَيْئًا﴾ [يونس: 36]. الأمر الثابت المتيقن لا يرتفع بمجرد الشك والتردد والظنون؛ بل يبقى الحكم على ما كان عليه حتى يثبت العكس ببرهان قاطع. بقاء العقد صحيحاً ما لم يثبت فسخه بدليل، استمرار ملكية الأصل لمالكه حتى تثبت الحوالة، وبقاء المديونية مسجلة حتى يثبت سند السداد. القاعدة الكبرى بالإجماع، الشافعي، السيوطي، ابن نجيم، مجلة الأحكام العدلية (مادة 4) اليقين لا يزول بالشك الأصل بقاء ما كان استصحاب الحال استقرار المعاملات سند السداد">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        26
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «الْيَقِينُ لَا يَزُولُ بِالشَّكِّ · الأَصْلُ بَقَاءُ مَا كَانَ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            26
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «الْيَقِينُ لَا يَزُولُ بِالشَّكِّ · الأَصْلُ بَقَاءُ مَا كَانَ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-purple-500/20 text-purple-300 border-purple-400/40 shadow-sm">
+                            ⚖️ الإثبات واستقرار المعاملات
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📜 مستنبطة من أصح الأحاديث النبوية
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-purple-500/20 text-purple-300 border-purple-400/40">
-                        ⚖️ الإثبات واستقرار المعاملات
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📜 مستنبطة من أصح الأحاديث النبوية
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        حديث صحيح مسلم فيمن شك في الصلاة أو الحدث: «لَا يَنْصَرِفْ حَتَّى يَسْمَعَ صَوْتًا أَوْ يَجِدَ رِيحًا»، وقوله تعالى: ﴿إِنَّ الظَّنَّ لَا يُغْنِي مِنَ الْحَقِّ شَيْئًا﴾ [يونس: 36].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        الأمر الثابت المتيقن لا يرتفع بمجرد الشك والتردد والظنون؛ بل يبقى الحكم على ما كان عليه حتى يثبت العكس ببرهان قاطع.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    حديث صحيح مسلم فيمن شك في الصلاة أو الحدث: «لَا يَنْصَرِفْ حَتَّى يَسْمَعَ صَوْتًا أَوْ يَجِدَ رِيحًا»، وقوله تعالى: ﴿إِنَّ الظَّنَّ لَا يُغْنِي مِنَ الْحَقِّ شَيْئًا﴾ [يونس: 36].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    الأمر الثابت المتيقن لا يرتفع بمجرد الشك والتردد والظنون؛ بل يبقى الحكم على ما كان عليه حتى يثبت العكس ببرهان قاطع.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">بقاء العقد صحيحاً ما لم يثبت فسخه بدليل، استمرار ملكية الأصل لمالكه حتى تثبت الحوالة، وبقاء المديونية مسجلة حتى يثبت سند السداد.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">بقاء العقد صحيحاً ما لم يثبت فسخه بدليل، استمرار ملكية الأصل لمالكه حتى تثبت الحوالة، وبقاء المديونية مسجلة حتى يثبت سند السداد.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">القاعدة الكبرى بالإجماع، الشافعي، السيوطي، ابن نجيم، مجلة الأحكام العدلية (مادة 4)</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">القاعدة الكبرى بالإجماع، الشافعي، السيوطي، ابن نجيم، مجلة الأحكام العدلية (مادة 4)</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 27 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="evidence" data-maxim-search="27 «الأَصْلُ بَرَاءَةُ الذِّمَّةِ» 📖 أصل قرآني في العدالة الجنائية والمالية قوله تعالى: ﴿وَلَا تَزِرُ وَازِرَةٌ وِزْرَ أُخْرَىٰ﴾ [الإسراء: 15]، وحديث: «الْبَيِّنَةُ عَلَى الْمُدَّعِي» [صحيح الترمذي]. ذمة الإنسان المالية بريئة وخالية من أي التزام أو دين أو ضمان ما لم يقم المدعي الدليل الحاسم والبينة المحاسبية المثبتة للحق. عدم جواز إلزام أي شخص أو تاجر بفاتورة أو مطالبة مالية إلا بوجود سند قبض أو عقد موقع أو مستند تحويل مصرفي معتمد. إجماع أئمة الفقه والقضاء، مجلة الأحكام العدلية (مادة 8) الأصل براءة الذمة عبء الإثبات خلو الذمة المطالبات المالية الفواتير">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="evidence" data-maxim-search="27 «الأَصْلُ بَرَاءَةُ الذِّمَّةِ» 📖 أصل قرآني في العدالة الجنائية والمالية قوله تعالى: ﴿وَلَا تَزِرُ وَازِرَةٌ وِزْرَ أُخْرَىٰ﴾ [الإسراء: 15]، وحديث: «الْبَيِّنَةُ عَلَى الْمُدَّعِي» [صحيح الترمذي]. ذمة الإنسان المالية بريئة وخالية من أي التزام أو دين أو ضمان ما لم يقم المدعي الدليل الحاسم والبينة المحاسبية المثبتة للحق. عدم جواز إلزام أي شخص أو تاجر بفاتورة أو مطالبة مالية إلا بوجود سند قبض أو عقد موقع أو مستند تحويل مصرفي معتمد. إجماع أئمة الفقه والقضاء، مجلة الأحكام العدلية (مادة 8) الأصل براءة الذمة عبء الإثبات خلو الذمة المطالبات المالية الفواتير">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        27
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «الأَصْلُ بَرَاءَةُ الذِّمَّةِ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            27
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «الأَصْلُ بَرَاءَةُ الذِّمَّةِ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-purple-500/20 text-purple-300 border-purple-400/40 shadow-sm">
+                            ⚖️ الإثبات واستقرار المعاملات
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📖 أصل قرآني في العدالة الجنائية والمالية
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-purple-500/20 text-purple-300 border-purple-400/40">
-                        ⚖️ الإثبات واستقرار المعاملات
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📖 أصل قرآني في العدالة الجنائية والمالية
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        قوله تعالى: ﴿وَلَا تَزِرُ وَازِرَةٌ وِزْرَ أُخْرَىٰ﴾ [الإسراء: 15]، وحديث: «الْبَيِّنَةُ عَلَى الْمُدَّعِي» [صحيح الترمذي].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        ذمة الإنسان المالية بريئة وخالية من أي التزام أو دين أو ضمان ما لم يقم المدعي الدليل الحاسم والبينة المحاسبية المثبتة للحق.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    قوله تعالى: ﴿وَلَا تَزِرُ وَازِرَةٌ وِزْرَ أُخْرَىٰ﴾ [الإسراء: 15]، وحديث: «الْبَيِّنَةُ عَلَى الْمُدَّعِي» [صحيح الترمذي].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    ذمة الإنسان المالية بريئة وخالية من أي التزام أو دين أو ضمان ما لم يقم المدعي الدليل الحاسم والبينة المحاسبية المثبتة للحق.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">عدم جواز إلزام أي شخص أو تاجر بفاتورة أو مطالبة مالية إلا بوجود سند قبض أو عقد موقع أو مستند تحويل مصرفي معتمد.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">عدم جواز إلزام أي شخص أو تاجر بفاتورة أو مطالبة مالية إلا بوجود سند قبض أو عقد موقع أو مستند تحويل مصرفي معتمد.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">إجماع أئمة الفقه والقضاء، مجلة الأحكام العدلية (مادة 8)</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">إجماع أئمة الفقه والقضاء، مجلة الأحكام العدلية (مادة 8)</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 28 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="evidence" data-maxim-search="28 «الْبَيِّنَةُ عَلَى الْمُدَّعِي، وَالْيَمِينُ عَلَى مَنْ أَنْكَرَ» 📜 نص نبوي صحيح صريح حديث رسول الله ﷺ: «لَوْ يُعْطَى النَّاسُ بِدَعْوَاهُمْ لَادَّعَى رِجَالٌ أَمْوَالَ قَوْمٍ وَدِمَاءَهُمْ، لَكِنَّ الْبَيِّنَةَ عَلَى الْمُدَّعِي، وَالْيَمِينَ عَلَى مَنْ أَنْكَرَ» [رواه البيهقي والترمذي وصححه النووي]. توزيع عبء الإثبات القضائي والمحاسبي العادل: على من يدعي خلاف الأصل تقديم الوثائق والفواتير والشهود، فإن عجز فالقول قول المنكر بيمينه تبرئة لذمته. أساس قانون المرافعات والإثبات التجاري والمحاسبي والتحكيم المالي في فض النزاعات بين الشركات والتجار. إجماع علماء الإسلام وكافة قوانين الإثبات في العالم الإسلامي، مجلة الأحكام العدلية (مادة 76) البينة على المدعي واليمين على من أنكر عبء الإثبات المحاكم التجارية التحكيم المالي">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="evidence" data-maxim-search="28 «الْبَيِّنَةُ عَلَى الْمُدَّعِي، وَالْيَمِينُ عَلَى مَنْ أَنْكَرَ» 📜 نص نبوي صحيح صريح حديث رسول الله ﷺ: «لَوْ يُعْطَى النَّاسُ بِدَعْوَاهُمْ لَادَّعَى رِجَالٌ أَمْوَالَ قَوْمٍ وَدِمَاءَهُمْ، لَكِنَّ الْبَيِّنَةَ عَلَى الْمُدَّعِي، وَالْيَمِينَ عَلَى مَنْ أَنْكَرَ» [رواه البيهقي والترمذي وصححه النووي]. توزيع عبء الإثبات القضائي والمحاسبي العادل: على من يدعي خلاف الأصل تقديم الوثائق والفواتير والشهود، فإن عجز فالقول قول المنكر بيمينه تبرئة لذمته. أساس قانون المرافعات والإثبات التجاري والمحاسبي والتحكيم المالي في فض النزاعات بين الشركات والتجار. إجماع علماء الإسلام وكافة قوانين الإثبات في العالم الإسلامي، مجلة الأحكام العدلية (مادة 76) البينة على المدعي واليمين على من أنكر عبء الإثبات المحاكم التجارية التحكيم المالي">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        28
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «الْبَيِّنَةُ عَلَى الْمُدَّعِي، وَالْيَمِينُ عَلَى مَنْ أَنْكَرَ»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            28
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «الْبَيِّنَةُ عَلَى الْمُدَّعِي، وَالْيَمِينُ عَلَى مَنْ أَنْكَرَ»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-purple-500/20 text-purple-300 border-purple-400/40 shadow-sm">
+                            ⚖️ الإثبات واستقرار المعاملات
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📜 نص نبوي صحيح صريح
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-purple-500/20 text-purple-300 border-purple-400/40">
-                        ⚖️ الإثبات واستقرار المعاملات
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📜 نص نبوي صحيح صريح
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        حديث رسول الله ﷺ: «لَوْ يُعْطَى النَّاسُ بِدَعْوَاهُمْ لَادَّعَى رِجَالٌ أَمْوَالَ قَوْمٍ وَدِمَاءَهُمْ، لَكِنَّ الْبَيِّنَةَ عَلَى الْمُدَّعِي، وَالْيَمِينَ عَلَى مَنْ أَنْكَرَ» [رواه البيهقي والترمذي وصححه النووي].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        توزيع عبء الإثبات القضائي والمحاسبي العادل: على من يدعي خلاف الأصل تقديم الوثائق والفواتير والشهود، فإن عجز فالقول قول المنكر بيمينه تبرئة لذمته.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    حديث رسول الله ﷺ: «لَوْ يُعْطَى النَّاسُ بِدَعْوَاهُمْ لَادَّعَى رِجَالٌ أَمْوَالَ قَوْمٍ وَدِمَاءَهُمْ، لَكِنَّ الْبَيِّنَةَ عَلَى الْمُدَّعِي، وَالْيَمِينَ عَلَى مَنْ أَنْكَرَ» [رواه البيهقي والترمذي وصححه النووي].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    توزيع عبء الإثبات القضائي والمحاسبي العادل: على من يدعي خلاف الأصل تقديم الوثائق والفواتير والشهود، فإن عجز فالقول قول المنكر بيمينه تبرئة لذمته.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">أساس قانون المرافعات والإثبات التجاري والمحاسبي والتحكيم المالي في فض النزاعات بين الشركات والتجار.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">أساس قانون المرافعات والإثبات التجاري والمحاسبي والتحكيم المالي في فض النزاعات بين الشركات والتجار.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">إجماع علماء الإسلام وكافة قوانين الإثبات في العالم الإسلامي، مجلة الأحكام العدلية (مادة 76)</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">إجماع علماء الإسلام وكافة قوانين الإثبات في العالم الإسلامي، مجلة الأحكام العدلية (مادة 76)</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 29 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="evidence" data-maxim-search="29 «الْعَادَةُ مُحَكَّمَةٌ · الْمَعْرُوفُ عُرْفاً كَالْمَشْرُوطِ شَرْطاً» 📖 نص قرآني وأثر ابن مسعود الصحيح قوله تعالى: ﴿خُذِ الْعَفْوَ وَأْمُرْ بِالْعُرْفِ وَأَعْرِضْ عَنِ الْجَاهِلِينَ﴾ [الأعراف: 199]، وأثر عبد الله بن مسعود رضي الله عنه: «مَا رَآهُ الْمُسْلِمُونَ حَسَنًا فَهُوَ عِنْدَ اللَّهِ حَسَنٌ» [رواه أحمد وصححه الحاكم والنووي]. الأعراف التجارية المستقرة والممارسات المهنية المعتادة في بيئة العمل تعتبر حجة ملزمة كالشروط المكتوبة تماماً ما لم تخالف نصاً شرعياً صريحاً. اعتماد أعراف الشحن والتسليم المعتمدة (Incoterms)، تحديد مواعيد تسليم البضائع بحسب عرف السوق، وتحكيم العرف في أجور الخدمات عند عدم التسمية. القاعدة الكبرى بالإجماع، السرخسي، القرافي، مجلة الأحكام العدلية (مادة 36 و 43) العادة محكمة المعروف عرفا كالمشروط شرطا الأعراف التجارية Incoterms عرف السوق">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="evidence" data-maxim-search="29 «الْعَادَةُ مُحَكَّمَةٌ · الْمَعْرُوفُ عُرْفاً كَالْمَشْرُوطِ شَرْطاً» 📖 نص قرآني وأثر ابن مسعود الصحيح قوله تعالى: ﴿خُذِ الْعَفْوَ وَأْمُرْ بِالْعُرْفِ وَأَعْرِضْ عَنِ الْجَاهِلِينَ﴾ [الأعراف: 199]، وأثر عبد الله بن مسعود رضي الله عنه: «مَا رَآهُ الْمُسْلِمُونَ حَسَنًا فَهُوَ عِنْدَ اللَّهِ حَسَنٌ» [رواه أحمد وصححه الحاكم والنووي]. الأعراف التجارية المستقرة والممارسات المهنية المعتادة في بيئة العمل تعتبر حجة ملزمة كالشروط المكتوبة تماماً ما لم تخالف نصاً شرعياً صريحاً. اعتماد أعراف الشحن والتسليم المعتمدة (Incoterms)، تحديد مواعيد تسليم البضائع بحسب عرف السوق، وتحكيم العرف في أجور الخدمات عند عدم التسمية. القاعدة الكبرى بالإجماع، السرخسي، القرافي، مجلة الأحكام العدلية (مادة 36 و 43) العادة محكمة المعروف عرفا كالمشروط شرطا الأعراف التجارية Incoterms عرف السوق">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        29
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «الْعَادَةُ مُحَكَّمَةٌ · الْمَعْرُوفُ عُرْفاً كَالْمَشْرُوطِ شَرْطاً»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            29
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «الْعَادَةُ مُحَكَّمَةٌ · الْمَعْرُوفُ عُرْفاً كَالْمَشْرُوطِ شَرْطاً»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-purple-500/20 text-purple-300 border-purple-400/40 shadow-sm">
+                            ⚖️ الإثبات واستقرار المعاملات
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📖 نص قرآني وأثر ابن مسعود الصحيح
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-purple-500/20 text-purple-300 border-purple-400/40">
-                        ⚖️ الإثبات واستقرار المعاملات
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📖 نص قرآني وأثر ابن مسعود الصحيح
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        قوله تعالى: ﴿خُذِ الْعَفْوَ وَأْمُرْ بِالْعُرْفِ وَأَعْرِضْ عَنِ الْجَاهِلِينَ﴾ [الأعراف: 199]، وأثر عبد الله بن مسعود رضي الله عنه: «مَا رَآهُ الْمُسْلِمُونَ حَسَنًا فَهُوَ عِنْدَ اللَّهِ حَسَنٌ» [رواه أحمد وصححه الحاكم والنووي].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        الأعراف التجارية المستقرة والممارسات المهنية المعتادة في بيئة العمل تعتبر حجة ملزمة كالشروط المكتوبة تماماً ما لم تخالف نصاً شرعياً صريحاً.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    قوله تعالى: ﴿خُذِ الْعَفْوَ وَأْمُرْ بِالْعُرْفِ وَأَعْرِضْ عَنِ الْجَاهِلِينَ﴾ [الأعراف: 199]، وأثر عبد الله بن مسعود رضي الله عنه: «مَا رَآهُ الْمُسْلِمُونَ حَسَنًا فَهُوَ عِنْدَ اللَّهِ حَسَنٌ» [رواه أحمد وصححه الحاكم والنووي].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    الأعراف التجارية المستقرة والممارسات المهنية المعتادة في بيئة العمل تعتبر حجة ملزمة كالشروط المكتوبة تماماً ما لم تخالف نصاً شرعياً صريحاً.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">اعتماد أعراف الشحن والتسليم المعتمدة (Incoterms)، تحديد مواعيد تسليم البضائع بحسب عرف السوق، وتحكيم العرف في أجور الخدمات عند عدم التسمية.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">اعتماد أعراف الشحن والتسليم المعتمدة (Incoterms)، تحديد مواعيد تسليم البضائع بحسب عرف السوق، وتحكيم العرف في أجور الخدمات عند عدم التسمية.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">القاعدة الكبرى بالإجماع، السرخسي، القرافي، مجلة الأحكام العدلية (مادة 36 و 43)</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">القاعدة الكبرى بالإجماع، السرخسي، القرافي، مجلة الأحكام العدلية (مادة 36 و 43)</span>
                 </div>
             </div>
 
         </div>
 
         <!-- Maxim Card 30 -->
-        <div class="fiqh-maxim-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3.5 shadow-xl hover:border-emerald-400 transition" data-maxim-cat="evidence" data-maxim-search="30 «الْمَشَقَّةُ تَجْلِبُ التَّيْسِيرَ · وَالضَّرُورَاتُ تُبِيحُ الْمَحْظُورَاتِ بِقَدْرِهَا» 📖 نص قرآني في رفع الحرج والتيسير قوله تعالى: ﴿يُرِيدُ اللَّهُ بِكُمُ الْيُسْرَ وَلَا يُرِيدُ بِكُمُ الْعُسْرَ﴾ [البقرة: 185]، وقوله: ﴿وَمَا جَعَلَ عَلَيْكُمْ فِي الدِّينِ مِنْ حَرَجٍ﴾ [الحج: 78]، وقوله: ﴿فَمَنِ اضْطُرَّ غَيْرَ بَاغٍ وَلَا عَادٍ فَلَا إِثْمَ عَلَيْهِ﴾ [البقرة: 173]. الصعوبات والحرج والظروف الطارئة والاستثنائية تجلب التخفيف الشرعي والرخص المناسبة لإنقاذ رؤوس الأموال ومصالح المتعاقدين بقدر الحاجة دون توسع مفرط. إعادة جدولة ديون الشركات المتعثرة في الأزمات الاقتصادية، إقرار عقود التأمين عند الحاجة العامة، وإسقاط التكاليف التعجيزية بالقوة القاهرة. القاعدة الكبرى بالإجماع، الشاطبي، السيوطي، ابن نجيم، مجلة الأحكام العدلية (مادة 17 و 21) المشقة تجلب التيسير الضرورات تبيح المحظورات رفع الحرج القوة القاهرة إعادة جدولة الديون">
+        <div class="fiqh-maxim-card p-6 md:p-7 bg-slate-900/95 rounded-3xl border-2 border-emerald-500/50 space-y-4 shadow-2xl hover:border-emerald-400 transition flex flex-col justify-between h-full group" data-maxim-cat="evidence" data-maxim-search="30 «الْمَشَقَّةُ تَجْلِبُ التَّيْسِيرَ · وَالضَّرُورَاتُ تُبِيحُ الْمَحْظُورَاتِ بِقَدْرِهَا» 📖 نص قرآني في رفع الحرج والتيسير قوله تعالى: ﴿يُرِيدُ اللَّهُ بِكُمُ الْيُسْرَ وَلَا يُرِيدُ بِكُمُ الْعُسْرَ﴾ [البقرة: 185]، وقوله: ﴿وَمَا جَعَلَ عَلَيْكُمْ فِي الدِّينِ مِنْ حَرَجٍ﴾ [الحج: 78]، وقوله: ﴿فَمَنِ اضْطُرَّ غَيْرَ بَاغٍ وَلَا عَادٍ فَلَا إِثْمَ عَلَيْهِ﴾ [البقرة: 173]. الصعوبات والحرج والظروف الطارئة والاستثنائية تجلب التخفيف الشرعي والرخص المناسبة لإنقاذ رؤوس الأموال ومصالح المتعاقدين بقدر الحاجة دون توسع مفرط. إعادة جدولة ديون الشركات المتعثرة في الأزمات الاقتصادية، إقرار عقود التأمين عند الحاجة العامة، وإسقاط التكاليف التعجيزية بالقوة القاهرة. القاعدة الكبرى بالإجماع، الشاطبي، السيوطي، ابن نجيم، مجلة الأحكام العدلية (مادة 17 و 21) المشقة تجلب التيسير الضرورات تبيح المحظورات رفع الحرج القوة القاهرة إعادة جدولة الديون">
             
-            <!-- Top Header with Badge & Number -->
-            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                <div class="flex items-center gap-2">
-                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
-                        30
-                    </span>
-                    <h4 class="text-base md:text-lg font-black text-emerald-300 leading-tight">
-                        «الْمَشَقَّةُ تَجْلِبُ التَّيْسِيرَ · وَالضَّرُورَاتُ تُبِيحُ الْمَحْظُورَاتِ بِقَدْرِهَا»
-                    </h4>
+            <div class="space-y-4">
+                <!-- Top Header with Badge & Number -->
+                <div class="flex flex-wrap items-center justify-between gap-3 border-b border-slate-800 pb-3.5">
+                    <div class="flex items-center gap-3">
+                        <span class="w-10 h-10 rounded-2xl bg-emerald-500/20 text-emerald-300 font-mono font-black text-base md:text-lg flex items-center justify-center border-2 border-emerald-400/60 shadow-inner flex-shrink-0 group-hover:scale-105 transition">
+                            30
+                        </span>
+                        <h4 class="text-lg sm:text-xl md:text-2xl font-black text-emerald-300 leading-tight">
+                            «الْمَشَقَّةُ تَجْلِبُ التَّيْسِيرَ · وَالضَّرُورَاتُ تُبِيحُ الْمَحْظُورَاتِ بِقَدْرِهَا»
+                        </h4>
+                    </div>
+                    <div class="flex items-center gap-2 flex-shrink-0">
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl border bg-purple-500/20 text-purple-300 border-purple-400/40 shadow-sm">
+                            ⚖️ الإثبات واستقرار المعاملات
+                        </span>
+                        <span class="text-xs sm:text-sm font-black px-3.5 py-1.5 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50 shadow-sm">
+                            📖 نص قرآني في رفع الحرج والتيسير
+                        </span>
+                    </div>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-purple-500/20 text-purple-300 border-purple-400/40">
-                        ⚖️ الإثبات واستقرار المعاملات
+
+                <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
+                <div class="p-4 sm:p-5 bg-gradient-to-br from-slate-950/95 via-slate-900/90 to-slate-950/95 rounded-2xl border-2 border-emerald-500/40 shadow-inner">
+                    <span class="text-xs sm:text-sm text-amber-400 font-black block mb-2 flex items-center gap-1.5">
+                        <i class="fa-solid fa-book-quran"></i>
+                        <span>الأصل والنص الشرعي المؤسس للقاعدة:</span>
                     </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-amber-500/20 text-amber-300 border border-amber-400/50">
-                        📖 نص قرآني في رفع الحرج والتيسير
+                    <p class="text-base sm:text-lg md:text-xl text-amber-200 font-black leading-loose" style="font-family: 'Amiri', 'Cairo', serif; line-height: 2.1; letter-spacing: 0.3px;">
+                        قوله تعالى: ﴿يُرِيدُ اللَّهُ بِكُمُ الْيُسْرَ وَلَا يُرِيدُ بِكُمُ الْعُسْرَ﴾ [البقرة: 185]، وقوله: ﴿وَمَا جَعَلَ عَلَيْكُمْ فِي الدِّينِ مِنْ حَرَجٍ﴾ [الحج: 78]، وقوله: ﴿فَمَنِ اضْطُرَّ غَيْرَ بَاغٍ وَلَا عَادٍ فَلَا إِثْمَ عَلَيْهِ﴾ [البقرة: 173].
+                    </p>
+                </div>
+
+                <!-- Detailed Explanation & Economic Rationale -->
+                <div class="p-4 bg-slate-950/70 rounded-2xl border border-slate-800 space-y-1.5">
+                    <span class="text-xs sm:text-sm text-emerald-400 font-black block flex items-center gap-1.5">
+                        <i class="fa-solid fa-scale-balanced"></i>
+                        <span>المعنى الفقهي والضابط الاقتصادي:</span>
                     </span>
+                    <p class="text-xs sm:text-sm md:text-base text-slate-200 font-bold leading-relaxed">
+                        الصعوبات والحرج والظروف الطارئة والاستثنائية تجلب التخفيف الشرعي والرخص المناسبة لإنقاذ رؤوس الأموال ومصالح المتعاقدين بقدر الحاجة دون توسع مفرط.
+                    </p>
                 </div>
             </div>
 
-            <!-- Evidence Calligraphy Box (النص المؤسس من القرآن أو الحديث) -->
-            <div class="p-3.5 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <span class="text-xs text-amber-400 font-black block mb-1">📖 الأصل والنص الشرعي المؤسس للقاعدة:</span>
-                <p class="text-sm md:text-base text-slate-100 font-bold leading-relaxed" style="font-family: 'Amiri', 'Cairo', serif; line-height: 1.9;">
-                    قوله تعالى: ﴿يُرِيدُ اللَّهُ بِكُمُ الْيُسْرَ وَلَا يُرِيدُ بِكُمُ الْعُسْرَ﴾ [البقرة: 185]، وقوله: ﴿وَمَا جَعَلَ عَلَيْكُمْ فِي الدِّينِ مِنْ حَرَجٍ﴾ [الحج: 78]، وقوله: ﴿فَمَنِ اضْطُرَّ غَيْرَ بَاغٍ وَلَا عَادٍ فَلَا إِثْمَ عَلَيْهِ﴾ [البقرة: 173].
-                </p>
-            </div>
-
-            <!-- Detailed Explanation & Economic Rationale -->
-            <div class="p-3 bg-slate-950/60 rounded-xl border border-slate-800">
-                <span class="text-xs text-emerald-400 font-black block mb-0.5">📌 المعنى الفقهي والضابط الاقتصادي:</span>
-                <p class="text-xs text-slate-300 font-bold leading-relaxed">
-                    الصعوبات والحرج والظروف الطارئة والاستثنائية تجلب التخفيف الشرعي والرخص المناسبة لإنقاذ رؤوس الأموال ومصالح المتعاقدين بقدر الحاجة دون توسع مفرط.
-                </p>
-            </div>
-
-            <!-- Modern Accounting & Trade Application -->
-            <div class="grid grid-cols-1 md:grid-cols-2 gap-2 text-xs">
-                <div class="p-2.5 bg-sky-950/30 rounded-xl border border-sky-500/30">
-                    <span class="text-sky-400 font-black block mb-0.5">💡 التطبيق المحاسبي والتجاري المعاصر:</span>
-                    <span class="text-slate-200 font-bold leading-relaxed">إعادة جدولة ديون الشركات المتعثرة في الأزمات الاقتصادية، إقرار عقود التأمين عند الحاجة العامة، وإسقاط التكاليف التعجيزية بالقوة القاهرة.</span>
+            <!-- Modern Accounting & Trade Application (Bottom Anchored) -->
+            <div class="grid grid-cols-1 md:grid-cols-2 gap-3 pt-3 border-t border-slate-800/80 mt-2">
+                <div class="p-3.5 bg-sky-950/40 rounded-2xl border border-sky-500/40 shadow-sm">
+                    <span class="text-xs sm:text-sm text-sky-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-lightbulb"></i>
+                        <span>التطبيق المحاسبي والتجاري المعاصر:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-200 font-bold leading-relaxed block">إعادة جدولة ديون الشركات المتعثرة في الأزمات الاقتصادية، إقرار عقود التأمين عند الحاجة العامة، وإسقاط التكاليف التعجيزية بالقوة القاهرة.</span>
                 </div>
-                <div class="p-2.5 bg-slate-950/70 rounded-xl border border-slate-800">
-                    <span class="text-amber-400 font-black block mb-0.5">🏛️ المقررون والمصادر الفقهية المعتمدة:</span>
-                    <span class="text-slate-300 font-bold">القاعدة الكبرى بالإجماع، الشاطبي، السيوطي، ابن نجيم، مجلة الأحكام العدلية (مادة 17 و 21)</span>
+                <div class="p-3.5 bg-slate-950/80 rounded-2xl border border-amber-500/30 shadow-sm">
+                    <span class="text-xs sm:text-sm text-amber-300 font-black block mb-1 flex items-center gap-1.5">
+                        <i class="fa-solid fa-landmark"></i>
+                        <span>المقررون والمصادر الفقهية المعتمدة:</span>
+                    </span>
+                    <span class="text-xs sm:text-sm text-slate-300 font-bold leading-relaxed block">القاعدة الكبرى بالإجماع، الشاطبي، السيوطي، ابن نجيم، مجلة الأحكام العدلية (مادة 17 و 21)</span>
                 </div>
             </div>
 
@@ -12943,7 +13372,29 @@ $pdo = getDBConnection();
         const input = document.getElementById('fiqh-search-input');
         const q = input ? input.value.trim() : '';
         const query = q !== '' ? q : 'فتاوى البيوع والمعاملات المالية';
-        const scholars = '("ابن باز" OR "ابن عثيمين" OR "صالح الفوزان" OR "ابن تيمية" OR "ابن القيم" OR "أحمد بن حنبل" OR "النووي" OR "الذهبي" OR "محمد بن عبد الوهاب" OR "السعدي" OR "الشنقيطي" OR "الألباني")';
+        
+        const scholarSelect = document.getElementById('fiqh-scholar-select');
+        const selectedScholar = scholarSelect ? scholarSelect.value : 'all';
+        
+        const allScholarsDork = '("ابن باز" OR "ابن عثيمين" OR "صالح الفوزان" OR "ابن تيمية" OR "ابن القيم" OR "أحمد بن حنبل" OR "النووي" OR "الذهبي" OR "محمد بن عبد الوهاب" OR "السعدي" OR "الشنقيطي" OR "الألباني")';
+        
+        const scholarMap = {
+            'all': allScholarsDork,
+            'ibn_baz': '"ابن باز"',
+            'ibn_uthaymeen': '"ابن عثيمين"',
+            'al_fawzan': '"صالح الفوزان"',
+            'ibn_taymiyyah': '"ابن تيمية"',
+            'ibn_al_qayyim': '"ابن القيم"',
+            'imam_ahmad': '"أحمد بن حنبل"',
+            'al_nawawi': '"النووي"',
+            'al_dhahabi': '"الذهبي"',
+            'muhammad_bin_abdulwahhab': '"محمد بن عبد الوهاب"',
+            'al_saadi': '"السعدي"',
+            'al_shinqiti': '"الشنقيطي"',
+            'al_albani': '"الألباني"'
+        };
+        
+        const scholars = scholarMap[selectedScholar] || allScholarsDork;
         const sites = '(site:binbaz.org.sa OR site:ibnothaimeen.net OR site:alfawzan.af.org.sa OR site:alalbany.org OR site:shamela.ws OR site:islamweb.net OR site:alukah.net OR site:dorar.net)';
         const fullQuery = query + ' ' + scholars + ' ' + sites;
         const googleUrl = 'https://www.google.com/search?q=' + encodeURIComponent(fullQuery);
