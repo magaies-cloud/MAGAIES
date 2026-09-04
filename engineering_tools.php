@@ -2417,22 +2417,22 @@ $pdo = getDBConnection();
                                 <span class="fiqh-cat-count text-cyan-400 border-cyan-500/30">6 مسائل</span>
                             </div>
                             <div class="fiqh-cat-pills-wrap">
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('التقسيط', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="filterByFiqhButton('installment', this)">
                                     <span>💳</span> البيع بالتقسيط وزيادة الأجل
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('غرامات التأخير', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="filterByFiqhButton('penalties', this)">
                                     <span>⚠️</span> غرامات التأخير والشرط الجزائي
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('المرابحة', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="filterByFiqhButton('murabaha', this)">
                                     <span>🏢</span> المرابحة للآمر بالشراء
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('التورق', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="filterByFiqhButton('tawarruq', this)">
                                     <span>🔄</span> التورق للحصول على سيولة
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('التمليك', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="filterByFiqhButton('leasing', this)">
                                     <span>🚗</span> الإيجار المنتهي بالتمليك
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('المعسر', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="filterByFiqhButton('insolvency', this)">
                                     <span>⏳</span> إنظار المعسر والتيسير في السداد
                                 </button>
                             </div>
@@ -2448,22 +2448,22 @@ $pdo = getDBConnection();
                                 <span class="fiqh-cat-count text-purple-400 border-purple-500/30">6 مسائل</span>
                             </div>
                             <div class="fiqh-cat-pills-wrap">
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('بيع ما لا يملك', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="filterByFiqhButton('unowned_sale', this)">
                                     <span>🛒</span> بيع ما لا يملك والوساطة التجارية
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('توريد', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="filterByFiqhButton('istisna_supply', this)">
                                     <span>🏗️</span> عقد الاستصناع وتوريد البضائع
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('السكراب', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="filterByFiqhButton('scrap', this)">
                                     <span>🔩</span> بيع حديد السكراب والخردة
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('خيار العيب', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="filterByFiqhButton('defects', this)">
                                     <span>🛡️</span> خيار العيب والضمان المصنعي
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('العمال', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="filterByFiqhButton('workers_wages', this)">
                                     <span>👥</span> أجور العمال وحقوق الأجراء
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('التسعير', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="filterByFiqhButton('pricing', this)">
                                     <span>⚖️</span> التسعير وتطفيف الكيل والميزان
                                 </button>
                             </div>
@@ -2479,22 +2479,22 @@ $pdo = getDBConnection();
                                 <span class="fiqh-cat-count text-amber-400 border-amber-500/30">6 مسائل</span>
                             </div>
                             <div class="fiqh-cat-pills-wrap">
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('الذهب', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="filterByFiqhButton('gold_mada', this)">
                                     <span>💎</span> شراء الذهب ببطاقات الصراف ومدى
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('بنكك', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="filterByFiqhButton('bankak_fawry', this)">
                                     <span>📱</span> الصرف بتطبيقات بنكك وفوري
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('الذهب القديم', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="filterByFiqhButton('gold_exchange', this)">
                                     <span>🔄</span> بيع الذهب القديم بالجديد والمصنعية
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('التقابض', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="filterByFiqhButton('immediate_possession', this)">
                                     <span>🤝</span> التقابض الفوري في مجلس عقد الصرف
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('العينة', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="filterByFiqhButton('riba_inah', this)">
                                     <span>🚫</span> حيل الربا وبيوع العِينة
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('العملات', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="filterByFiqhButton('crypto_forex', this)">
                                     <span>🪙</span> العملات الرقمية والفوركس
                                 </button>
                             </div>
@@ -2510,22 +2510,22 @@ $pdo = getDBConnection();
                                 <span class="fiqh-cat-count text-emerald-400 border-emerald-500/30">6 مسائل</span>
                             </div>
                             <div class="fiqh-cat-pills-wrap">
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="setQuickSearch('الشيكات', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="filterByFiqhButton('checks', this)">
                                     <span>📜</span> خصم الشيكات والكمبيالات الآجلة
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="setQuickSearch('العربون', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="filterByFiqhButton('earnest_money', this)">
                                     <span>🤝</span> بيع العربون وحجز البضاعة
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="setQuickSearch('بيع الدين', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="filterByFiqhButton('debt_sale', this)">
                                     <span>💼</span> بيع الدين والمقاصة المالية
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="setQuickSearch('إقالة', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="filterByFiqhButton('iqala', this)">
                                     <span>🔄</span> إقالة النادم والفسخ الرضائي
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="setQuickSearch('السلم', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="filterByFiqhButton('salam', this)">
                                     <span>📦</span> بيع السلم ودفع الثمن مقدماً
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="setQuickSearch('الشروط', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="filterByFiqhButton('contracts_terms', this)">
                                     <span>📋</span> العقود والشروط وحرية الاتفاق
                                 </button>
                             </div>
@@ -2544,40 +2544,40 @@ $pdo = getDBConnection();
                                 <button type="button" class="fiqh-pill-btn fiqh-master-full-pill active" onclick="showAllFiqhTransactions(this)" id="btn-show-all-fiqh">
                                     <span>🌟</span> عرض كافة المسائل والمعاملات (الموسوعة الكاملة لكافة الأبواب)
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="setQuickSearch('الأسهم', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('stocks', this)">
                                     <span>🏢</span> الشركات والأسهم والمضاربة
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="setQuickSearch('التجارة الإلكترونية', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('ecommerce', this)">
                                     <span>📱</span> التجارة الإلكترونية ونقاط البيع POS
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="setQuickSearch('التأمين', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('insurance', this)">
                                     <span>🛡️</span> التأمين التعاوني والتكافلي
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="setQuickSearch('الكفالة', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('guarantee', this)">
                                     <span>🤝</span> الكفالة والضمان الشخصي
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="setQuickSearch('الفرنشايز', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('franchise', this)">
                                     <span>🏢</span> الامتياز التجاري (الفرنشايز)
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="setQuickSearch('الاعتمادات', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('letters_of_credit', this)">
                                     <span>🚢</span> الاعتمادات والشحن الدولي
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="setQuickSearch('الزكاة', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('zakat', this)">
                                     <span>💰</span> الزكاة وعروض التجارة والديون
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="setQuickSearch('الرهن', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('pawn', this)">
                                     <span>🏠</span> الرهن الحيازي والتجاري
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="setQuickSearch('الجوائح', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('emergency', this)">
                                     <span>⚡</span> الجوائح والظروف الطارئة
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="setQuickSearch('التفليس', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('bankruptcy', this)">
                                     <span>⚖️</span> التفليس وقسمة الغرماء
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="setQuickSearch('نقاط المكافآت', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('loyalty_points', this)">
                                     <span>🎁</span> نقاط المكافآت وبطاقات الولاء
                                 </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="setQuickSearch('التمويل الجماعي', this)">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="filterByFiqhButton('crowdfunding', this)">
                                     <span>👥</span> التمويل الجماعي والاستثماري
                                 </button>
                             </div>
@@ -6784,6 +6784,9 @@ $pdo = getDBConnection();
         </div>
 
     </div>
+    <!-- Master Fiqh 4,500 Fatwas Data Library (Synchronous Instant Memory Preload) -->
+    <script src="js/fiqh_20000_data.js?v=4500_v2"></script>
+
 
     <!-- JavaScript Controllers -->
     <script>
@@ -7162,25 +7165,90 @@ $pdo = getDBConnection();
     }
 
     // ════════════════════════════════════════════════════════════════════════════
-    // 🌟 MASTER 4,500 FATWAS ENGINE (ON-DEMAND LAZY LOAD + NORMALIZED SEARCH) 🌟
+
     // ════════════════════════════════════════════════════════════════════════════
+    // 🌟 MASTER 4,500 FATWAS ENGINE (EXACT SCOPED FILTERING & ZERO LAG) 🌟
+    // ════════════════════════════════════════════════════════════════════════════
+    const PAGE_SIZE = 21;
+    let currentPage = 1;
     let currentScholarFilter = 'all';
     let currentTopicFilter = 'all';
-    const PAGE_SIZE = 21; // Exactly 21 fatwas per page requested
-    let currentPage = 1;
     let currentFilteredList = [];
+    let searchDebounceTimer = null;
     let fiqhLoadingPromise = null;
+    let currentActiveButtonKey = null;
+    let currentActiveButtonTitle = '';
 
+    // 🌟 ARABIC TEXT NORMALIZER & PREFIX STRIPPER (FOR ACCURATE FREE SEARCH) 🌟
     function normalizeArabicText(text) {
         if (!text) return '';
         return text.toString()
-            .replace(/[\u064B-\u065F\u0670]/g, '') // remove tashkeel / harakat
+            .replace(/[\u064B-\u065F\u0670]/g, '') // remove tashkeel
             .replace(/[إأآا]/g, 'ا')
             .replace(/ة/g, 'ه')
             .replace(/ى/g, 'ي')
             .toLowerCase()
             .trim();
     }
+
+    function cleanToken(t) {
+        let s = t;
+        if (s.startsWith('و') && s.length > 3) s = s.slice(1);
+        if (s.startsWith('بال') && s.length > 4) s = s.slice(3);
+        else if (s.startsWith('ال') && s.length > 3) s = s.slice(2);
+        else if (s.startsWith('ب') && s.length > 3) s = s.slice(1);
+        else if (s.startsWith('ل') && s.length > 3) s = s.slice(1);
+        return s;
+    }
+
+    // 🌟 36 BUTTON SPECIFIC TOPIC DEFINITIONS (EXACT FILTERING FOR EACH BUTTON) 🌟
+    const FIQH_BUTTON_FILTERS = {
+        // 1. التمويل والتقسيط والديون
+        'installment': { title: 'البيع بالتقسيط وزيادة الأجل', filter: (item) => item.topic_code === 'installments' },
+        'penalties': { title: 'غرامات التأخير والشرط الجزائي', filter: (item) => item.topic_code === 'penalties' },
+        'murabaha': { title: 'المرابحة للآمر بالشراء', filter: (item) => item.topic_code === 'installments' || (item._normSearchStr && item._normSearchStr.includes('مرابحه')) },
+        'tawarruq': { title: 'التورق للحصول على سيولة', filter: (item) => item.topic_code === 'riba' || (item._normSearchStr && item._normSearchStr.includes('تورق')) },
+        'leasing': { title: 'الإيجار المنتهي بالتمليك', filter: (item) => item.topic_code === 'leasing' },
+        'insolvency': { title: 'إنظار المعسر والتيسير في السداد', filter: (item) => item.topic_code === 'bankruptcy' || (item._normSearchStr && item._normSearchStr.includes('معسر')) },
+
+        // 2. مقاولات السلع والضمان
+        'unowned_sale': { title: 'بيع ما لا يملك والوساطة التجارية', filter: (item) => item.topic_code === 'brokerage' },
+        'istisna_supply': { title: 'عقد الاستصناع وتوريد البضائع', filter: (item) => item.topic_code === 'contracts' || (item._normSearchStr && (item._normSearchStr.includes('استصناع') || item._normSearchStr.includes('توريد'))) },
+        'scrap': { title: 'بيع حديد السكراب والخردة', filter: (item) => item.topic_code === 'brokerage' || (item._normSearchStr && (item._normSearchStr.includes('سكراب') || item._normSearchStr.includes('خرده'))) },
+        'defects': { title: 'خيار العيب والضمان المصنعي', filter: (item) => item.topic_code === 'defects' },
+        'workers_wages': { title: 'أجور العمال وحقوق الأجراء', filter: (item) => item.topic_code === 'charity' },
+        'pricing': { title: 'التسعير وتطفيف الكيل والميزان', filter: (item) => item.topic_code === 'pricing' },
+
+        // 3. الذهب والعملات والتحويلات
+        'gold_mada': { title: 'شراء الذهب ببطاقات الصراف ومدى', filter: (item) => item.topic_code === 'gold' },
+        'bankak_fawry': { title: 'الصرف بتطبيقات بنكك وفوري', filter: (item) => (item._normSearchStr && (item._normSearchStr.includes('بنكك') || item._normSearchStr.includes('فوري'))) || (item.topic_code === 'exchange' && item._normSearchStr && (item._normSearchStr.includes('تطبيق') || item._normSearchStr.includes('محفظ') || item._normSearchStr.includes('تحويل'))) },
+        'gold_exchange': { title: 'بيع الذهب القديم بالجديد والمصنعية', filter: (item) => item.topic_code === 'gold' },
+        'immediate_possession': { title: 'التقابض الفوري في مجلس عقد الصرف', filter: (item) => item.topic_code === 'exchange' },
+        'riba_inah': { title: 'حيل الربا وبيوع العِينة', filter: (item) => item.topic_code === 'riba' },
+        'crypto_forex': { title: 'العملات الرقمية والفوركس', filter: (item) => (item._normSearchStr && (item._normSearchStr.includes('رقمي') || item._normSearchStr.includes('فوركس') || item._normSearchStr.includes('بيتكوين'))) || item.topic_code === 'digital_assets' },
+
+        // 4. الأوراق التجارية والمدفوعات
+        'checks': { title: 'خصم الشيكات والكمبيالات الآجلة', filter: (item) => item.topic_code === 'checks' },
+        'earnest_money': { title: 'بيع العربون وحجز البضاعة', filter: (item) => item.topic_code === 'contracts' || (item._normSearchStr && item._normSearchStr.includes('عربون')) },
+        'debt_sale': { title: 'بيع الدين والمقاصة المالية', filter: (item) => item.topic_code === 'checks' || item.topic_code === 'installments' },
+        'iqala': { title: 'إقالة النادم والفسخ الرضائي', filter: (item) => item.topic_code === 'contracts' },
+        'salam': { title: 'بيع السلم ودفع الثمن مقدماً', filter: (item) => item.topic_code === 'contracts' || item.topic_code === 'letters_of_credit' },
+        'contracts_terms': { title: 'العقود والشروط وحرية الاتفاق', filter: (item) => item.topic_code === 'contracts' },
+
+        // 5. جميع مسائل المعاملات المالية (الموسوعة الشاملة)
+        'stocks': { title: 'الشركات والأسهم والمضاربة', filter: (item) => item.topic_code === 'companies' },
+        'ecommerce': { title: 'التجارة الإلكترونية ونقاط البيع POS', filter: (item) => item.topic_code === 'ecommerce' },
+        'insurance': { title: 'التأمين التعاوني والتكافلي', filter: (item) => item.topic_code === 'insurance' },
+        'guarantee': { title: 'الكفالة والضمان الشخصي', filter: (item) => item.topic_code === 'guarantee' },
+        'franchise': { title: 'الامتياز التجاري (الفرنشايز)', filter: (item) => item.topic_code === 'franchise' },
+        'letters_of_credit': { title: 'الاعتمادات والشحن الدولي', filter: (item) => item.topic_code === 'letters_of_credit' },
+        'zakat': { title: 'الزكاة وعروض التجارة والديون', filter: (item) => item.topic_code === 'zakat' },
+        'pawn': { title: 'الرهن الحيازي والتجاري', filter: (item) => item.topic_code === 'pawn' },
+        'emergency': { title: 'الجوائح والظروف الطارئة', filter: (item) => item.topic_code === 'emergency' },
+        'bankruptcy': { title: 'التفليس وقسمة الغرماء', filter: (item) => item.topic_code === 'bankruptcy' },
+        'loyalty_points': { title: 'نقاط المكافآت وبطاقات الولاء', filter: (item) => item.topic_code === 'timeshare_realestate' || (item._normSearchStr && (item._normSearchStr.includes('مكافا') || item._normSearchStr.includes('ولاء'))) },
+        'crowdfunding': { title: 'التمويل الجماعي والاستثماري', filter: (item) => item.topic_code === 'crowdfunding' }
+    };
 
     function getMasterFatwas() {
         return window.MASTER_20000_FATWAS || window.MASTER_5500_FATWAS || [];
@@ -7225,26 +7293,10 @@ $pdo = getDBConnection();
         if (badge) {
             badge.innerHTML = '<i class="fa-solid fa-cloud-arrow-down text-amber-400 animate-pulse"></i> جاري تجهيز الموسوعة (4,500 فتوى)...';
         }
-        if (grid && (!grid.children || grid.children.length === 0)) {
-            grid.innerHTML = `
-                <div class="col-span-full py-16 px-6 text-center bg-slate-900/90 border-2 border-amber-500/50 rounded-2xl shadow-2xl space-y-4">
-                    <div class="inline-flex p-4 bg-amber-500/10 rounded-full border border-amber-400/40 animate-pulse">
-                        <i class="fa-solid fa-book-quran text-4xl text-amber-400"></i>
-                    </div>
-                    <h3 class="text-xl sm:text-2xl font-black text-white">جاري تحميل موسوعة الـ 4,500 فتوى موثقة...</h3>
-                    <p class="text-xs sm:text-sm text-slate-300 max-w-lg mx-auto leading-relaxed">
-                        يتم الآن تجهيز الموسوعة وتحميلها بخفة فائقة لتعمل مباشرة من ذاكرة المتصفح بسرعة خيالية ودون استهلاك للإنترنت في الزيارات القادمة.
-                    </p>
-                    <div class="w-48 sm:w-64 h-2 bg-slate-800 rounded-full mx-auto overflow-hidden">
-                        <div class="h-full bg-gradient-to-r from-amber-500 via-emerald-400 to-amber-500 animate-pulse w-full"></div>
-                    </div>
-                </div>
-            `;
-        }
 
         fiqhLoadingPromise = new Promise((resolve, reject) => {
             const script = document.createElement('script');
-            script.src = 'js/fiqh_20000_data.js?v=4500_v1';
+            script.src = 'js/fiqh_20000_data.js?v=4500_v2';
             script.async = true;
             script.onload = () => {
                 indexFatwasDataset();
@@ -7277,6 +7329,8 @@ $pdo = getDBConnection();
             if (input && input.value.trim() !== '') {
                 executeLiveFilter();
             } else {
+                currentActiveButtonKey = null;
+                currentActiveButtonTitle = '';
                 currentFilteredList = getMasterFatwas();
                 currentPage = 1;
                 renderFatwaCards();
@@ -7298,9 +7352,11 @@ $pdo = getDBConnection();
 
         if (badge) {
             if (totalMatches === totalAll) {
-                badge.innerHTML = `<i class="fa-solid fa-layer-group text-emerald-400"></i> إجمالي <strong>${totalAll.toLocaleString()}</strong> فتوى | صفحة <strong>${currentPage.toLocaleString()}</strong> من <strong>${totalPages.toLocaleString()}</strong> (21 فتوى في الصفحة)`;
+                badge.innerHTML = `<i class="fa-solid fa-layer-group text-emerald-400"></i> إجمالي <strong>${totalAll.toLocaleString()}</strong> فتوى موثقة | صفحة <strong>${currentPage.toLocaleString()}</strong> من <strong>${totalPages.toLocaleString()}</strong> (21 فتوى في الصفحة)`;
+            } else if (currentActiveButtonTitle) {
+                badge.innerHTML = `<i class="fa-solid fa-filter text-amber-400"></i> عُثر على <strong>${totalMatches.toLocaleString()}</strong> فتوى تخص: <span class="text-amber-300 font-bold">${currentActiveButtonTitle}</span> | صفحة <strong>${currentPage.toLocaleString()}</strong> من <strong>${totalPages.toLocaleString()}</strong> (21 فتوى في الصفحة)`;
             } else {
-                badge.innerHTML = `<i class="fa-solid fa-filter text-amber-400"></i> عُثر على <strong>${totalMatches.toLocaleString()}</strong> من أصل ${totalAll.toLocaleString()} فتوى | صفحة <strong>${currentPage.toLocaleString()}</strong> من <strong>${totalPages.toLocaleString()}</strong>`;
+                badge.innerHTML = `<i class="fa-solid fa-filter text-amber-400"></i> عُثر على <strong>${totalMatches.toLocaleString()}</strong> من أصل ${totalAll.toLocaleString()} فتوى | صفحة <strong>${currentPage.toLocaleString()}</strong> من <strong>${totalPages.toLocaleString()}</strong> (21 فتوى في الصفحة)`;
             }
         }
 
@@ -7351,141 +7407,115 @@ $pdo = getDBConnection();
             ` : '';
 
             html += `
-                <div class="fiqh-master-card flex flex-col justify-between" data-scholar="${item.scholar_code}" data-topic="${item.topic_code}">
+                <div class="p-5 bg-slate-950/90 border-2 border-slate-800/90 hover:border-amber-500/60 rounded-2xl flex flex-col justify-between transition-all duration-300 shadow-xl hover:shadow-2xl hover:shadow-amber-500/10 group">
                     <div class="space-y-3">
-                        <div class="flex items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
-                            <span class="text-xs font-black text-amber-400 flex items-center gap-1.5">
-                                <i class="fa-solid fa-graduation-cap text-amber-400"></i>
-                                ${item.scholar_name}
-                            </span>
-                            <span class="px-2.5 py-0.5 rounded-lg text-[11px] font-black border ${rulingClass}">
+                        <div class="flex items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+                            <span class="px-2.5 py-1 text-[11px] font-black rounded-lg border ${rulingClass} shadow-sm">
                                 ${item.ruling}
                             </span>
+                            <span class="text-[11px] font-mono text-amber-400/90 font-black px-2 py-0.5 bg-amber-500/10 rounded-md border border-amber-500/20">
+                                #${item.id}
+                            </span>
                         </div>
-                        <h4 class="text-sm md:text-base font-black text-white leading-snug">
-                            <span class="text-amber-400/80 font-mono text-xs">#${item.id}</span> ${item.question}
+                        
+                        <h4 class="text-sm font-black text-white group-hover:text-amber-300 transition-colors leading-snug">
+                            ${item.question}
                         </h4>
+                        
                         ${hadithBox}
-                        <p class="text-xs text-slate-300 leading-relaxed font-bold">
+
+                        <p class="text-xs text-slate-300 leading-relaxed font-bold bg-slate-900/70 p-3 rounded-xl border border-slate-800/60">
                             ${item.summary}
                         </p>
                     </div>
-                    <div class="mt-4 pt-2.5 border-t border-slate-800/80 flex items-center justify-between text-[11px] text-slate-400 font-bold">
-                        <span class="text-cyan-400"><i class="fa-solid fa-tag ml-1"></i>${item.topic_name}</span>
-                        <span class="font-mono text-slate-500 text-[10px] truncate max-w-[180px]">${item.source}</span>
+
+                    <div class="mt-4 pt-3 border-t border-slate-800/80 flex flex-wrap items-center justify-between gap-2 text-[11px] text-slate-400 font-bold">
+                        <span class="text-amber-300/90 font-black flex items-center gap-1">
+                            <i class="fa-solid fa-user-tie text-[10px]"></i> ${item.scholar_name}
+                        </span>
+                        <span class="text-slate-400 truncate max-w-[200px]" title="${item.source}">
+                            <i class="fa-solid fa-book text-[10px]"></i> ${item.source}
+                        </span>
                     </div>
                 </div>
             `;
         });
 
         grid.innerHTML = html;
+
+        // Render Pagination Bars
         updatePaginationBarHtml('fiqh_pagination_bar_top', totalPages, totalMatches, startIndex + 1, endIndex);
         updatePaginationBarHtml('fiqh_pagination_bar_bottom', totalPages, totalMatches, startIndex + 1, endIndex);
     }
 
-    function updatePaginationBarHtml(barId, totalPages, totalMatches, fromItem, toItem) {
-        const bar = document.getElementById(barId);
+    function updatePaginationBarHtml(containerId, totalPages, totalMatches, fromItem, toItem) {
+        const bar = document.getElementById(containerId);
         if (!bar) return;
 
         if (totalMatches === 0) {
-            bar.innerHTML = '';
+            bar.innerHTML = '<div class="text-xs text-slate-400 font-bold w-full text-center">لا توجد صفحات للعرض</div>';
             return;
         }
 
-        const prevDisabled = currentPage <= 1 ? 'disabled opacity-30 cursor-not-allowed pointer-events-none' : '';
-        const nextDisabled = currentPage >= totalPages ? 'disabled opacity-30 cursor-not-allowed pointer-events-none' : '';
-
-        let pagesHtml = `
-            <!-- Main Navigation Buttons -->
-            <div class="flex flex-wrap items-center gap-2">
-                <button type="button" onclick="goToPage(1)" class="px-3.5 py-2 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/50 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${prevDisabled}">
-                    ⏮️ الأولى
-                </button>
-                <button type="button" onclick="goToPage(${currentPage - 1})" class="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 border border-amber-400 rounded-xl text-xs sm:text-sm font-black shadow-lg transition flex items-center gap-1.5 ${prevDisabled}">
-                    ◀️ الصفحة السابقة
-                </button>
-                <button type="button" onclick="goToPage(${currentPage + 1})" class="px-4 py-2 bg-gradient-to-r from-amber-500 to-amber-600 hover:from-amber-400 hover:to-amber-500 text-slate-950 border border-amber-400 rounded-xl text-xs sm:text-sm font-black shadow-lg transition flex items-center gap-1.5 ${nextDisabled}">
-                    الصفحة التالية ▶️
-                </button>
-                <button type="button" onclick="goToPage(${totalPages})" class="px-3.5 py-2 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-amber-400 border border-amber-500/50 rounded-xl text-xs sm:text-sm font-black transition flex items-center gap-1 ${nextDisabled}">
-                    الأخيرة (${totalPages}) ⏭️
-                </button>
-            </div>
-
-            <!-- Surrounding Page Number Buttons -->
-            <div class="flex items-center gap-1.5 overflow-x-auto py-1">
-        `;
-
+        let pagesHtml = '';
+        const maxButtons = 5;
         let startP = Math.max(1, currentPage - 2);
-        let endP = Math.min(totalPages, startP + 4);
-        if (endP - startP < 4) {
-            startP = Math.max(1, endP - 4);
+        let endP = Math.min(totalPages, startP + maxButtons - 1);
+        if (endP - startP < maxButtons - 1) {
+            startP = Math.max(1, endP - maxButtons + 1);
         }
 
         if (startP > 1) {
-            pagesHtml += `<button type="button" onclick="goToPage(1)" class="px-3 py-1.5 bg-slate-900 text-slate-400 border border-slate-800 rounded-lg text-xs font-bold hover:border-amber-400">1</button>`;
-            if (startP > 2) pagesHtml += '<span class="text-slate-500 font-black px-1">...</span>';
+            pagesHtml += `<button type="button" onclick="goToFiqhPage(1)" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 hover:border-amber-500 text-slate-300 text-xs font-black transition">1</button>`;
+            if (startP > 2) {
+                pagesHtml += `<span class="text-slate-500 text-xs px-1">...</span>`;
+            }
         }
 
         for (let p = startP; p <= endP; p++) {
-            if (p === currentPage) {
-                pagesHtml += `<button type="button" class="px-4 py-1.5 bg-gradient-to-r from-amber-400 to-amber-500 text-slate-950 font-black rounded-xl text-xs sm:text-sm shadow-lg border-2 border-amber-300 transform scale-105">
-                    ${p}
-                </button>`;
-            } else {
-                pagesHtml += `<button type="button" onclick="goToPage(${p})" class="px-3 py-1.5 bg-slate-900 text-slate-300 hover:border-amber-400 border border-slate-700 rounded-lg text-xs sm:text-sm font-bold transition">
-                    ${p}
-                </button>`;
-            }
+            const isActive = (p === currentPage);
+            const activeClasses = isActive 
+                ? 'bg-gradient-to-r from-amber-500 to-amber-600 text-slate-950 font-black shadow-md shadow-amber-500/20 border-amber-400' 
+                : 'bg-slate-900 border border-slate-800 hover:border-amber-500 text-slate-300 font-bold';
+            pagesHtml += `<button type="button" onclick="goToFiqhPage(${p})" class="w-8 h-8 rounded-lg text-xs transition ${activeClasses}">${p}</button>`;
         }
 
         if (endP < totalPages) {
-            if (endP < totalPages - 1) pagesHtml += '<span class="text-slate-500 font-black px-1">...</span>';
-            pagesHtml += `<button type="button" onclick="goToPage(${totalPages})" class="px-3 py-1.5 bg-slate-900 text-slate-400 border border-slate-800 rounded-lg text-xs font-bold hover:border-amber-400">${totalPages}</button>`;
+            if (endP < totalPages - 1) {
+                pagesHtml += `<span class="text-slate-500 text-xs px-1">...</span>`;
+            }
+            pagesHtml += `<button type="button" onclick="goToFiqhPage(${totalPages})" class="w-8 h-8 rounded-lg bg-slate-900 border border-slate-800 hover:border-amber-500 text-slate-300 text-xs font-black transition">${totalPages}</button>`;
         }
 
-        pagesHtml += `
+        bar.innerHTML = `
+            <div class="flex items-center gap-2">
+                <span class="text-xs text-amber-300 font-black">
+                    عرض المسائل (${fromItem.toLocaleString()} - ${toItem.toLocaleString()}) من أصل ${totalMatches.toLocaleString()} مسألة
+                </span>
             </div>
 
-            <!-- Direct Jump to Page Box -->
-            <div class="flex items-center gap-2 text-xs sm:text-sm font-bold text-slate-300">
-                <span>عرض (${fromItem.toLocaleString()} - ${toItem.toLocaleString()}) | انتقال إلى صفحة:</span>
-                <input type="number" id="${barId}_jump_input" min="1" max="${totalPages}" value="${currentPage}" class="w-16 py-1.5 px-2 bg-slate-900 border-2 border-amber-500/60 focus:border-amber-400 text-white rounded-xl text-center text-xs sm:text-sm font-black shadow-inner">
-                <button type="button" onclick="jumpToPageInput('${barId}_jump_input')" class="px-3.5 py-1.5 bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-xs rounded-xl shadow transition">
-                    انتقال ↵
+            <div class="flex items-center gap-1.5 flex-wrap justify-center">
+                <button type="button" onclick="goToFiqhPage(${currentPage - 1})" ${currentPage === 1 ? 'disabled class="opacity-40 cursor-not-allowed px-3 py-1.5 bg-slate-900 text-slate-400 text-xs font-black rounded-lg border border-slate-800"' : 'class="px-3 py-1.5 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-amber-300 text-xs font-black rounded-lg border border-slate-800 hover:border-amber-400 transition shadow-sm"'}>
+                    <i class="fa-solid fa-chevron-right"></i> السابق
+                </button>
+                ${pagesHtml}
+                <button type="button" onclick="goToFiqhPage(${currentPage + 1})" ${currentPage === totalPages ? 'disabled class="opacity-40 cursor-not-allowed px-3 py-1.5 bg-slate-900 text-slate-400 text-xs font-black rounded-lg border border-slate-800"' : 'class="px-3 py-1.5 bg-slate-900 hover:bg-amber-500 hover:text-slate-950 text-amber-300 text-xs font-black rounded-lg border border-slate-800 hover:border-amber-400 transition shadow-sm"'}>
+                    التالي <i class="fa-solid fa-chevron-left"></i>
                 </button>
             </div>
         `;
-
-        bar.innerHTML = pagesHtml;
     }
 
-    function goToPage(page) {
+    function goToFiqhPage(page) {
         const totalMatches = currentFilteredList.length;
         const totalPages = Math.max(1, Math.ceil(totalMatches / PAGE_SIZE));
-        if (page < 1) page = 1;
-        if (page > totalPages) page = totalPages;
+        if (page < 1 || page > totalPages) return;
         currentPage = page;
         renderFatwaCards();
-
-        const grid = document.getElementById('fiqh_fatwas_grid');
-        if (grid) {
-            grid.scrollIntoView({ behavior: 'smooth', block: 'start' });
-        }
+        const el = document.getElementById('fiqh_pagination_bar_top');
+        if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
 
-    function jumpToPageInput(inputId) {
-        const input = document.getElementById(inputId);
-        if (input) {
-            const val = parseInt(input.value, 10);
-            if (!isNaN(val)) {
-                goToPage(val);
-            }
-        }
-    }
-
-    // Real-time live filtering on every keystroke
-    let searchDebounceTimer = null;
     function filterFatwas() {
         clearTimeout(searchDebounceTimer);
         searchDebounceTimer = setTimeout(() => {
@@ -7497,41 +7527,73 @@ $pdo = getDBConnection();
         ensureFiqhLoaded(() => {
             const input = document.getElementById('fiqh-search-input');
             const rawQ = input ? input.value.trim() : '';
-            const queryTerms = rawQ ? normalizeArabicText(rawQ).split(/\s+/).filter(t => t.length > 0) : [];
+
+            // If user cleared input, reset button filter
+            if (!rawQ) {
+                currentActiveButtonKey = null;
+                currentActiveButtonTitle = '';
+                const allBtn = document.getElementById('btn-show-all-fiqh');
+                if (allBtn) {
+                    document.querySelectorAll('.fiqh-pill-btn').forEach(b => b.classList.remove('active'));
+                    allBtn.classList.add('active');
+                }
+            } else if (currentActiveButtonTitle && rawQ !== currentActiveButtonTitle) {
+                // User is actively editing text away from clicked button title
+                currentActiveButtonKey = null;
+                currentActiveButtonTitle = '';
+                document.querySelectorAll('.fiqh-pill-btn').forEach(b => b.classList.remove('active'));
+            }
+
             const dataset = getMasterFatwas();
+            currentPage = 1;
 
-            currentPage = 1; // Reset to page 1 on new search query
+            if (currentActiveButtonKey && FIQH_BUTTON_FILTERS[currentActiveButtonKey]) {
+                const btnDef = FIQH_BUTTON_FILTERS[currentActiveButtonKey];
+                currentFilteredList = dataset.filter(item => {
+                    if (currentScholarFilter !== 'all' && item.scholar_code !== currentScholarFilter) return false;
+                    return btnDef.filter(item);
+                });
+            } else if (rawQ) {
+                // Free text search with smart token matching and Arabic prefix stripping
+                const normQ = normalizeArabicText(rawQ);
+                const rawTokens = normQ.split(/\s+/).filter(t => t.length > 0);
+                const cleanTokens = rawTokens.map(cleanToken).filter(t => t.length > 1);
 
-            currentFilteredList = dataset.filter(item => {
-                // Scholar filter match
-                if (currentScholarFilter !== 'all' && item.scholar_code !== currentScholarFilter) {
-                    return false;
-                }
-                // Topic filter match
-                if (currentTopicFilter !== 'all' && item.topic_code !== currentTopicFilter) {
-                    return false;
-                }
-                // Pre-indexed normalized search match
-                if (queryTerms.length > 0) {
-                    const s = item._normSearchStr || normalizeArabicText((item.question || '') + ' ' + (item.summary || '') + ' ' + (item.evidence || '') + ' ' + (item.topic_name || '') + ' ' + (item.tags || '') + ' ' + (item.ruling || ''));
-                    return queryTerms.every(term => s.includes(term));
-                }
-                return true;
-            });
+                // 1. Strict match on raw tokens
+                let matches = dataset.filter(item => {
+                    if (currentScholarFilter !== 'all' && item.scholar_code !== currentScholarFilter) return false;
+                    const s = item._normSearchStr || '';
+                    return rawTokens.every(t => s.includes(t));
+                });
 
-            // Smart fallback if strict multi-word query returned 0 matches:
-            // Match items containing ANY of the significant terms (length > 2 and not stop words)
-            if (currentFilteredList.length === 0 && queryTerms.length > 1) {
-                const stopWords = ['في', 'من', 'عن', 'على', 'الي', 'الى', 'مع', 'او', 'و', 'ما', 'هل', 'حكم'];
-                const sigTerms = queryTerms.filter(t => !stopWords.includes(t) && t.length > 2);
-                if (sigTerms.length > 0) {
-                    currentFilteredList = dataset.filter(item => {
+                // 2. Strict match on cleaned tokens (without ال, و, بال prefixes)
+                if (matches.length === 0 && cleanTokens.length > 0) {
+                    matches = dataset.filter(item => {
                         if (currentScholarFilter !== 'all' && item.scholar_code !== currentScholarFilter) return false;
-                        if (currentTopicFilter !== 'all' && item.topic_code !== currentTopicFilter) return false;
-                        const s = item._normSearchStr || normalizeArabicText((item.question || '') + ' ' + (item.summary || '') + ' ' + (item.evidence || '') + ' ' + (item.topic_name || '') + ' ' + (item.tags || '') + ' ' + (item.ruling || ''));
-                        return sigTerms.some(term => s.includes(term));
+                        const s = item._normSearchStr || '';
+                        return cleanTokens.every(t => s.includes(t));
                     });
                 }
+
+                // 3. Fallback: match any significant token
+                if (matches.length === 0 && cleanTokens.length > 1) {
+                    const stopWords = ['في', 'من', 'عن', 'على', 'الي', 'الى', 'مع', 'او', 'و', 'ما', 'هل', 'حكم'];
+                    const sig = cleanTokens.filter(t => !stopWords.includes(t) && t.length > 2);
+                    if (sig.length > 0) {
+                        matches = dataset.filter(item => {
+                            if (currentScholarFilter !== 'all' && item.scholar_code !== currentScholarFilter) return false;
+                            const s = item._normSearchStr || '';
+                            return sig.some(t => s.includes(t));
+                        });
+                    }
+                }
+
+                currentFilteredList = matches;
+            } else {
+                currentFilteredList = dataset.filter(item => {
+                    if (currentScholarFilter !== 'all' && item.scholar_code !== currentScholarFilter) return false;
+                    return true;
+                });
             }
 
             renderFatwaCards();
@@ -7539,8 +7601,55 @@ $pdo = getDBConnection();
     }
 
     // ════════════════════════════════════════════════════════════════════════════
-    // 🌟 5-SUBBOX HUB & SCHOLAR SELECT CONTROLLERS 🌟
+    // 🌟 36 BUTTON CONTROLLER & SCHOLAR SELECT CONTROLLERS 🌟
     // ════════════════════════════════════════════════════════════════════════════
+    function filterByFiqhButton(btnKey, el) {
+        ensureFiqhLoaded(() => {
+            currentActiveButtonKey = btnKey;
+            const filterDef = FIQH_BUTTON_FILTERS[btnKey];
+            if (!filterDef) return;
+
+            currentActiveButtonTitle = filterDef.title;
+
+            const input = document.getElementById('fiqh-search-input');
+            if (input) {
+                input.value = filterDef.title;
+            }
+
+            // Update active state on buttons
+            document.querySelectorAll('.fiqh-pill-btn').forEach(btn => btn.classList.remove('active'));
+            if (el) el.classList.add('active');
+
+            const allBtn = document.getElementById('btn-show-all-fiqh');
+            if (allBtn && el !== allBtn) allBtn.classList.remove('active');
+
+            // Switch to fatwas subtab
+            const fatwasPill = document.querySelector('.fiqh-nav-pill');
+            if (typeof switchFiqhSubTab === 'function' && fatwasPill) {
+                switchFiqhSubTab('fatwas', fatwasPill);
+            }
+
+            const dataset = getMasterFatwas();
+            currentFilteredList = dataset.filter(item => {
+                if (currentScholarFilter !== 'all' && item.scholar_code !== currentScholarFilter) {
+                    return false;
+                }
+                return filterDef.filter(item);
+            });
+
+            currentPage = 1;
+            renderFatwaCards();
+
+            // 🚀 Smooth scroll directly to the fatwas cards so the user sees results immediately! 🚀
+            setTimeout(() => {
+                const fatwasSection = document.getElementById('fiqh-sub-fatwas');
+                if (fatwasSection) {
+                    fatwasSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 60);
+        });
+    }
+
     function onScholarSelectChange(val) {
         currentScholarFilter = val;
         
@@ -7561,72 +7670,68 @@ $pdo = getDBConnection();
             if (fatwasSection) {
                 fatwasSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
             }
-        }, 80);
+        }, 60);
     }
 
     function showAllFiqhTransactions(btn) {
-        const searchInput = document.getElementById('fiqh-search-input');
-        if (searchInput) searchInput.value = '';
-        
-        currentScholarFilter = 'all';
-        currentTopicFilter = 'all';
-        
-        const scholarSelect = document.getElementById('fiqh-scholar-select');
-        if (scholarSelect) scholarSelect.value = 'all';
+        ensureFiqhLoaded(() => {
+            currentActiveButtonKey = null;
+            currentActiveButtonTitle = '';
 
-        const googleScholarSelect = document.getElementById('google-scholar-select');
-        if (googleScholarSelect) googleScholarSelect.value = 'all';
-        
-        document.querySelectorAll('.fiqh-pill-btn').forEach(el => el.classList.remove('active'));
-        if (btn) btn.classList.add('active');
+            const searchInput = document.getElementById('fiqh-search-input');
+            if (searchInput) searchInput.value = '';
+            
+            currentScholarFilter = 'all';
+            currentTopicFilter = 'all';
+            
+            const scholarSelect = document.getElementById('fiqh-scholar-select');
+            if (scholarSelect) scholarSelect.value = 'all';
 
-        const fatwasPill = document.querySelector('.fiqh-nav-pill');
-        if (typeof switchFiqhSubTab === 'function' && fatwasPill) {
-            switchFiqhSubTab('fatwas', fatwasPill);
-        }
-        
-        executeLiveFilter();
+            const googleScholarSelect = document.getElementById('google-scholar-select');
+            if (googleScholarSelect) googleScholarSelect.value = 'all';
+            
+            document.querySelectorAll('.fiqh-pill-btn').forEach(el => el.classList.remove('active'));
+            if (btn) btn.classList.add('active');
 
-        setTimeout(() => {
-            const fatwasSection = document.getElementById('fiqh-sub-fatwas');
-            if (fatwasSection) {
-                fatwasSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            const fatwasPill = document.querySelector('.fiqh-nav-pill');
+            if (typeof switchFiqhSubTab === 'function' && fatwasPill) {
+                switchFiqhSubTab('fatwas', fatwasPill);
             }
-        }, 80);
+            
+            currentFilteredList = getMasterFatwas();
+            currentPage = 1;
+            renderFatwaCards();
+
+            setTimeout(() => {
+                const fatwasSection = document.getElementById('fiqh-sub-fatwas');
+                if (fatwasSection) {
+                    fatwasSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }
+            }, 60);
+        });
     }
 
     function setQuickSearch(word, el) {
+        // Find if word matches any of the button filter keys or titles
+        for (const [key, def] of Object.entries(FIQH_BUTTON_FILTERS)) {
+            if (def.title.includes(word) || word.includes(def.title)) {
+                filterByFiqhButton(key, el);
+                return;
+            }
+        }
         const input = document.getElementById('fiqh-search-input');
         if (input) input.value = word;
-        
-        currentTopicFilter = 'all';
-
-        const allBtn = document.getElementById('btn-show-all-fiqh');
-        if (allBtn) allBtn.classList.remove('active');
-        
-        document.querySelectorAll('.fiqh-pill-btn').forEach(btn => btn.classList.remove('active'));
-        if (el) el.classList.add('active');
-
-        const fatwasPill = document.querySelector('.fiqh-nav-pill');
-        if (typeof switchFiqhSubTab === 'function' && fatwasPill) {
-            switchFiqhSubTab('fatwas', fatwasPill);
-        }
-        
+        currentActiveButtonKey = null;
+        currentActiveButtonTitle = '';
         executeLiveFilter();
-
-        // 🚀 Smooth scroll directly to the fatwas cards so the user sees results immediately! 🚀
-        setTimeout(() => {
-            const fatwasSection = document.getElementById('fiqh-sub-fatwas');
-            if (fatwasSection) {
-                fatwasSection.scrollIntoView({ behavior: 'smooth', block: 'start' });
-            }
-        }, 80);
     }
 
     function clearFiqhSearch() {
         const input = document.getElementById('fiqh-search-input');
         if (input) input.value = '';
         
+        currentActiveButtonKey = null;
+        currentActiveButtonTitle = '';
         currentScholarFilter = 'all';
         currentTopicFilter = 'all';
         
@@ -7639,7 +7744,9 @@ $pdo = getDBConnection();
         const allBtn = document.getElementById('btn-show-all-fiqh');
         if (allBtn) allBtn.classList.add('active');
 
-        document.querySelectorAll('.fiqh-pill-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.fiqh-pill-btn').forEach(btn => {
+            if (btn !== allBtn) btn.classList.remove('active');
+        });
 
         executeLiveFilter();
     }
@@ -7658,20 +7765,12 @@ $pdo = getDBConnection();
         executeLiveFilter();
     }
 
-    // Quiet background pre-fetch during browser idle time (Low-Bandwidth Friendly)
-    if (typeof window !== 'undefined') {
-        if ('requestIdleCallback' in window) {
-            window.requestIdleCallback(() => { ensureFiqhLoaded(); }, { timeout: 4000 });
-        } else {
-            setTimeout(() => { ensureFiqhLoaded(); }, 2500);
-        }
-    }
-
     document.addEventListener("DOMContentLoaded", function() {
         if (document.getElementById('fiqh_fatwas_grid')) {
             initFiqhEngine();
         }
     });
-    </script>
+    
+</script>
 </body>
 </html>
