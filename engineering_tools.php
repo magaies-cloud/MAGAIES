@@ -4645,50 +4645,59 @@ $pdo = getDBConnection();
                         <div>
                             <div class="flex items-center gap-2 mb-1">
                                 <span class="px-3.5 py-1 bg-emerald-500/20 text-emerald-300 font-black text-xs rounded-xl border border-emerald-400">
-                                    ★ الدستور الإلهي الحاكم للمعاملات والديون
+                                    ★ الدستور الإلهي الحاكم للمعاملات والديون والأموال
                                 </span>
                                 <span class="px-3.5 py-1 bg-amber-500/20 text-amber-300 font-mono font-black text-xs rounded-xl border border-amber-400">
-                                    15 آية قرآنية محكمة ✓
+                                    38 آية قرآنية محكمة شاملة لكافة أبواب المال ✓
                                 </span>
                             </div>
                             <h3 class="text-xl md:text-2xl font-black text-emerald-300 flex items-center gap-2">
                                 <i class="fa-solid fa-book-open-reader text-emerald-400"></i>
-                                الآيات القرآنية في الديون، القروض، توثيق العقود، إحلال البيع، وتحريم الربا
+                                الموسوعة القرآنية الشاملة في المعاملات المالية، البيوع، الديون، الربا، الزكاة، والمواريث
                             </h3>
                             <p class="text-xs md:text-sm text-slate-200 font-bold mt-1">
-                                تشمل: <span class="text-amber-300 font-black">آية المداينة (أطول آية)</span> · <span class="text-sky-300 font-black">آيات إنظار المعسر والرهن</span> · <span class="text-rose-300 font-black">تحريم الربا والرشوة</span> · <span class="text-emerald-300 font-black">ضبط الموازين والمكاييل</span> · <span class="text-purple-300 font-black">التراضي وأداء الأمانات</span>.
+                                تشمل: <span class="text-amber-300 font-black">المداينة والرهن</span> · <span class="text-sky-300 font-black">البيوع والتراضي</span> · <span class="text-rose-300 font-black">الربا والرشوة</span> · <span class="text-emerald-300 font-black">الزكاة والصدقات</span> · <span class="text-purple-300 font-black">المواريث والتركات</span> · <span class="text-cyan-300 font-black">الإجارة والشركات</span> · <span class="text-pink-300 font-black">أموال اليتامى</span> · <span class="text-yellow-300 font-black">كنز الأموال والاقتصاد الكلي</span>.
                             </p>
                         </div>
 
                         <!-- Instant Quranic Search Box -->
                         <div class="w-full md:w-80">
                             <label class="text-xs font-bold text-slate-300 block mb-1">🔍 ابحث في نصوص وتوجيهات الآيات:</label>
-                            <input type="text" id="quran-search-input" oninput="filterQuranVerses()" placeholder="اكتب للبحث: دين، رهن، ربا، ميزان، تراضي..." class="tool-input text-xs font-bold">
+                            <input type="text" id="quran-search-input" oninput="filterQuranVerses()" placeholder="اكتب للبحث: دين، رهن، ربا، زكاة، ميراث، إجارة..." class="tool-input text-xs font-bold">
                         </div>
                     </div>
 
                     <!-- 🎛️ Quranic Topic Filter Bar 🎛️ -->
                     <div class="bg-slate-900/90 p-3.5 rounded-2xl border border-emerald-500/30 flex flex-wrap items-center gap-2">
-                        <span class="text-xs font-black text-emerald-400 block">
-                            🏷️ تصفية الآيات حسب الموضوع:
+                        <span class="text-xs font-black text-emerald-400 block w-full mb-1">
+                            🏷️ تصفية الآيات حسب الموضوع المالي:
                         </span>
                         <button type="button" class="quran-filter-btn fiqh-filter-btn active" data-qcat="all" onclick="setQuranTopic('all', this)">
-                            🌟 جميع الآيات القرآنية (15)
+                            🌟 جميع الآيات المالية (38)
                         </button>
                         <button type="button" class="quran-filter-btn fiqh-filter-btn" data-qcat="debts" onclick="setQuranTopic('debts', this)">
-                            💳 الديون والمداينة والرهن وإنظار المعسر
+                            💳 الديون والتوثيق والرهن (3)
+                        </button>
+                        <button type="button" class="quran-filter-btn fiqh-filter-btn" data-qcat="trade" onclick="setQuranTopic('trade', this)">
+                            ⚖️ البيوع والتجارة والموازين (9)
                         </button>
                         <button type="button" class="quran-filter-btn fiqh-filter-btn" data-qcat="riba" onclick="setQuranTopic('riba', this)">
-                            🚫 إحلال البيع وتحريم الربا والرشوة
+                            🚫 الربا والرشوة وأكل المال بالباطل (5)
+                        </button>
+                        <button type="button" class="quran-filter-btn fiqh-filter-btn" data-qcat="zakat" onclick="setQuranTopic('zakat', this)">
+                            💰 الزكاة المفروضة ومصارفها الثمانية (4)
+                        </button>
+                        <button type="button" class="quran-filter-btn fiqh-filter-btn" data-qcat="inheritance" onclick="setQuranTopic('inheritance', this)">
+                            📜 المواريث وقسمة التركات (5)
                         </button>
                         <button type="button" class="quran-filter-btn fiqh-filter-btn" data-qcat="contracts" onclick="setQuranTopic('contracts', this)">
-                            🤝 التراضي والوفاء بالعقود والتكافل
+                            🤝 الإجارة والجعالة والشركات (5)
                         </button>
-                        <button type="button" class="quran-filter-btn fiqh-filter-btn" data-qcat="weights" onclick="setQuranTopic('weights', this)">
-                            ⚖️ إيفاء المكيال والميزان ونفي التطفيف
+                        <button type="button" class="quran-filter-btn fiqh-filter-btn" data-qcat="orphans" onclick="setQuranTopic('orphans', this)">
+                            🛡️ أموال اليتامى وحفظ الثروة (3)
                         </button>
-                        <button type="button" class="quran-filter-btn fiqh-filter-btn" data-qcat="trust" onclick="setQuranTopic('trust', this)">
-                            👥 أداء الأمانات والكفاءة في العمل
+                        <button type="button" class="quran-filter-btn fiqh-filter-btn" data-qcat="macro" onclick="setQuranTopic('macro', this)">
+                            💎 كنز الأموال ودوران الثروة والاعتدال (4)
                         </button>
                     </div>
 
@@ -4696,7 +4705,7 @@ $pdo = getDBConnection();
                     <div class="grid grid-cols-1 md:grid-cols-2 gap-4" id="quran-verses-grid-container">
 
         <!-- Quranic Verse Card 1 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="debts" data-ayah-search="آية المداينة (أطول آية في القرآن الكريم - دستور التوثيق المالي والديون) ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا إِذَا تَدَايَنتُم بِدَيْنٍ إِلَىٰ أَجَلٍ مُّسَمًّى فَاكْتُبُوهُ ۚ وَلْيَكْتُب بَّيْنَكُمْ كَاتِبٌ بِالْعَدْلِ ۚ وَلَا يَأْبَ كَاتِبٌ أَن يَكْتُبَ كَمَا عَلَّمَهُ اللَّهُ ۚ فَلْيَكْتُبْ وَلْيُمْلِلِ الَّذِي عَلَيْهِ الْحَقُّ وَلْيَتَّقِ اللَّهَ رَبَّهُ وَلَا يَبْخَسْ مِنْهُ شَيْئًا... وَأَشْهِدُوا إِذَا تَبَايَعْتُمْ ۚ وَلَا يُضَارَّ كَاتِبٌ وَلَا شَهِيدٌ﴾ سورة البقرة: الآية 282 التوجيه المحاسبي والتجاري: وجوب وتأكيد توثيق كافة المعاملات الآجلة والفواتير كتابياً، وتحديد الأجل والمقدار بدقة، والعدالة التامة في القيود المحاسبية لقطع النزاع وحفظ الحقوق.">
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="debts" data-ayah-search="آية المداينة الكبرى (أطول آية في القرآن الكريم - دستور توثيق الديون والالتزامات المالية) يَا أَيُّهَا الَّذِينَ آمَنُوا إِذَا تَدَايَنتُم بِدَيْنٍ إِلَىٰ أَجَلٍ مُّسَمًّى فَاكْتُبُوهُ ۚ وَلْيَكْتُب بَّيْنَكُمْ كَاتِبٌ بِالْعَدْلِ ۚ وَلَا يَأْبَ كَاتِبٌ أَن يَكْتُبَ كَمَا عَلَّمَهُ اللَّهُ ۚ فَلْيَكْتُبْ وَلْيُمْلِلِ الَّذِي عَلَيْهِ الْحَقُّ وَلْيَتَّقِ اللَّهَ رَبَّهُ وَلَا يَبْخَسْ مِنْهُ شَيْئًا... وَاسْتَشْهِدُوا شَهِيدَيْنِ مِن رِّجَالِكُمْ ۖ فَإِن لَّمْ يَكُونَا رَجُلَيْنِ فَرَجُلٌ وَامْرَأَتَانِ مِمَّن تَرْضَوْنَ مِنَ الشُّهَدَاءِ أَن تَضِلَّ إِحْدَاهُمَا فَتُذَكِّرَ إِحْدَاهُمَا الْأُخْرَىٰ ۚ وَلَا يَأْبَ الشُّهَدَاءُ إِذَا مَا دُعُوا ۚ وَلَا تَسْأَمُوا أَن تَكْتُبُوهُ صَغِيرًا أَوْ كَبِيرًا إِلَىٰ أَجَلِهِ ۚ ذَٰلِكُمْ أَقْسَطُ عِندَ اللَّهِ وَأَقْوَمُ لِلشَّهَادَةِ وَأَدْنَىٰ أَلَّا تَرْتَابُوا ۖ إِلَّا أَن تَكُونَ تِجَارَةً حَاضِرَةً تُدِيرُونَهَا بَيْنَكُمْ فَلَيْسَ عَلَيْكُمْ جُنَاحٌ أَلَّا تَكْتُبُوهَا ۗ وَأَشْهِدُوا إِذَا تَبَايَعْتُمْ... سورة البقرة: الآية 282 الأحكام الاقتصادية: وجوب/ندب توثيق الديون المؤجلة بالكتابة الرسمية، وتحديد أجل السداد بدقة، وإملاء المدين بنفسه اعترافاً بالحق، والإشهاد العدلي، واستثناء التجارة الحاضرة النقدية لتيسير حركة السوق وسرعة تداول السلع. الديون والتوثيق">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4705,37 +4714,42 @@ $pdo = getDBConnection();
                         1
                     </span>
                     <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                        آية المداينة (أطول آية في القرآن الكريم - دستور التوثيق المالي والديون)
+                        آية المداينة الكبرى (أطول آية في القرآن الكريم - دستور توثيق الديون والالتزامات المالية)
                     </h4>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40">
-                        💳 الديون وتوثيق العقود
-                    </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
-                        📖 سورة البقرة: الآية 282
-                    </span>
-                </div>
-            </div>
-
-            <!-- Ayah Calligraphy Box -->
-            <div class="p-4 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <p class="text-lg md:text-xl text-emerald-200 font-black leading-loose text-center" style="font-family: 'Amiri', serif; line-height: 2.1;">
-                    ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا إِذَا تَدَايَنتُم بِدَيْنٍ إِلَىٰ أَجَلٍ مُّسَمًّى فَاكْتُبُوهُ ۚ وَلْيَكْتُب بَّيْنَكُمْ كَاتِبٌ بِالْعَدْلِ ۚ وَلَا يَأْبَ كَاتِبٌ أَن يَكْتُبَ كَمَا عَلَّمَهُ اللَّهُ ۚ فَلْيَكْتُبْ وَلْيُمْلِلِ الَّذِي عَلَيْهِ الْحَقُّ وَلْيَتَّقِ اللَّهَ رَبَّهُ وَلَا يَبْخَسْ مِنْهُ شَيْئًا... وَأَشْهِدُوا إِذَا تَبَايَعْتُمْ ۚ وَلَا يُضَارَّ كَاتِبٌ وَلَا شَهِيدٌ﴾
-                </p>
-            </div>
-
-            <!-- Guidance & Accounting Impact -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-1">
-                    💡 التوجيه المحاسبي والتجاري: وجوب وتأكيد توثيق كافة المعاملات الآجلة والفواتير كتابياً، وتحديد الأجل والمقدار بدقة، والعدالة التامة في القيود المحاسبية لقطع النزاع وحفظ الحقوق.
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة البقرة: الآية 282
                 </span>
             </div>
 
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                يَا أَيُّهَا الَّذِينَ آمَنُوا إِذَا تَدَايَنتُم بِدَيْنٍ إِلَىٰ أَجَلٍ مُّسَمًّى فَاكْتُبُوهُ ۚ وَلْيَكْتُب بَّيْنَكُمْ كَاتِبٌ بِالْعَدْلِ ۚ وَلَا يَأْبَ كَاتِبٌ أَن يَكْتُبَ كَمَا عَلَّمَهُ اللَّهُ ۚ فَلْيَكْتُبْ وَلْيُمْلِلِ الَّذِي عَلَيْهِ الْحَقُّ وَلْيَتَّقِ اللَّهَ رَبَّهُ وَلَا يَبْخَسْ مِنْهُ شَيْئًا... وَاسْتَشْهِدُوا شَهِيدَيْنِ مِن رِّجَالِكُمْ ۖ فَإِن لَّمْ يَكُونَا رَجُلَيْنِ فَرَجُلٌ وَامْرَأَتَانِ مِمَّن تَرْضَوْنَ مِنَ الشُّهَدَاءِ أَن تَضِلَّ إِحْدَاهُمَا فَتُذَكِّرَ إِحْدَاهُمَا الْأُخْرَىٰ ۚ وَلَا يَأْبَ الشُّهَدَاءُ إِذَا مَا دُعُوا ۚ وَلَا تَسْأَمُوا أَن تَكْتُبُوهُ صَغِيرًا أَوْ كَبِيرًا إِلَىٰ أَجَلِهِ ۚ ذَٰلِكُمْ أَقْسَطُ عِندَ اللَّهِ وَأَقْوَمُ لِلشَّهَادَةِ وَأَدْنَىٰ أَلَّا تَرْتَابُوا ۖ إِلَّا أَن تَكُونَ تِجَارَةً حَاضِرَةً تُدِيرُونَهَا بَيْنَكُمْ فَلَيْسَ عَلَيْكُمْ جُنَاحٌ أَلَّا تَكْتُبُوهَا ۗ وَأَشْهِدُوا إِذَا تَبَايَعْتُمْ...
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: وجوب/ندب توثيق الديون المؤجلة بالكتابة الرسمية، وتحديد أجل السداد بدقة، وإملاء المدين بنفسه اعترافاً بالحق، والإشهاد العدلي، واستثناء التجارة الحاضرة النقدية لتيسير حركة السوق وسرعة تداول السلع.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: الديون والتوثيق</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
         </div>
-    
+
         <!-- Quranic Verse Card 2 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="debts" data-ayah-search="مشروعية الرهن المقبوض في السفر والديون وأداء الأمانات ﴿وَإِن كُنتُمْ عَلَىٰ سَفَرٍ وَلَمْ تَجِدُوا كَاتِبًا فَرِهَانٌ مَّقْبُوضَةٌ ۖ فَإِنْ أَمِنَ بَعْضُكُم بَعْضًا فَلْيُؤَدِّ الَّذِي اؤْتُمِنَ أَمَانَتَهُ وَلْيَتَّقِ اللَّهَ رَبَّهُ ۗ وَلَا تَكْتُمُوا الشَّهَادَةَ ۚ وَمَن يَكْتُمْهَا فَإِنَّهُ آثِمٌ قَلْبُهُ ۗ وَاللَّهُ بِمَا تَعْمَلُونَ عَلِيمٌ﴾ سورة البقرة: الآية 283 التوجيه المحاسبي والتجاري: مشروعية أخذ الرهونات والضمانات العينية لتوثيق الديون عند تعذر التوثيق الكتابي، ووجوب أداء الأمانات والشهادات دون كتمان.">
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="debts" data-ayah-search="مشروعية الرهن الحيازي في السفر والديون وأداء الأمانات وتحريم كتمان الشهادة وَإِن كُنتُمْ عَلَىٰ سَفَرٍ وَلَمْ تَجِدُوا كَاتِبًا فَرِهَانٌ مَّقْبُوضَةٌ ۖ فَإِنْ أَمِنَ بَعْضُكُم بَعْضًا فَلْيُؤَدِّ الَّذِي اؤْتُمِنَ أَمَانَتَهُ وَلْيَتَّقِ اللَّهَ رَبَّهُ ۗ وَلَا تَكْتُمُوا الشَّهَادَةَ ۚ وَمَن يَكْتُمْهَا فَإِنَّهُ آثِمٌ قَلْبُهُ ۗ وَاللَّهُ بِمَا تَعْمَلُونَ عَلِيمٌ سورة البقرة: الآية 283 الأحكام الاقتصادية: مشروعية أخذ الرهن لضمان استرداد الدين المالي عند تعذر التوثيق الكتابي، وكون الرهن مقبوضاً بيد الدائن، وتأكيد أداء الأمانة المالية للطرفين، وتحريم كتمان الشهادات المالية في المنازعات القضائية. الرهن والأمانات">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4744,37 +4758,42 @@ $pdo = getDBConnection();
                         2
                     </span>
                     <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                        مشروعية الرهن المقبوض في السفر والديون وأداء الأمانات
+                        مشروعية الرهن الحيازي في السفر والديون وأداء الأمانات وتحريم كتمان الشهادة
                     </h4>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40">
-                        💳 الرهن والضمانات
-                    </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
-                        📖 سورة البقرة: الآية 283
-                    </span>
-                </div>
-            </div>
-
-            <!-- Ayah Calligraphy Box -->
-            <div class="p-4 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <p class="text-lg md:text-xl text-emerald-200 font-black leading-loose text-center" style="font-family: 'Amiri', serif; line-height: 2.1;">
-                    ﴿وَإِن كُنتُمْ عَلَىٰ سَفَرٍ وَلَمْ تَجِدُوا كَاتِبًا فَرِهَانٌ مَّقْبُوضَةٌ ۖ فَإِنْ أَمِنَ بَعْضُكُم بَعْضًا فَلْيُؤَدِّ الَّذِي اؤْتُمِنَ أَمَانَتَهُ وَلْيَتَّقِ اللَّهَ رَبَّهُ ۗ وَلَا تَكْتُمُوا الشَّهَادَةَ ۚ وَمَن يَكْتُمْهَا فَإِنَّهُ آثِمٌ قَلْبُهُ ۗ وَاللَّهُ بِمَا تَعْمَلُونَ عَلِيمٌ﴾
-                </p>
-            </div>
-
-            <!-- Guidance & Accounting Impact -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-1">
-                    💡 التوجيه المحاسبي والتجاري: مشروعية أخذ الرهونات والضمانات العينية لتوثيق الديون عند تعذر التوثيق الكتابي، ووجوب أداء الأمانات والشهادات دون كتمان.
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة البقرة: الآية 283
                 </span>
             </div>
 
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                وَإِن كُنتُمْ عَلَىٰ سَفَرٍ وَلَمْ تَجِدُوا كَاتِبًا فَرِهَانٌ مَّقْبُوضَةٌ ۖ فَإِنْ أَمِنَ بَعْضُكُم بَعْضًا فَلْيُؤَدِّ الَّذِي اؤْتُمِنَ أَمَانَتَهُ وَلْيَتَّقِ اللَّهَ رَبَّهُ ۗ وَلَا تَكْتُمُوا الشَّهَادَةَ ۚ وَمَن يَكْتُمْهَا فَإِنَّهُ آثِمٌ قَلْبُهُ ۗ وَاللَّهُ بِمَا تَعْمَلُونَ عَلِيمٌ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: مشروعية أخذ الرهن لضمان استرداد الدين المالي عند تعذر التوثيق الكتابي، وكون الرهن مقبوضاً بيد الدائن، وتأكيد أداء الأمانة المالية للطرفين، وتحريم كتمان الشهادات المالية في المنازعات القضائية.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: الرهن والأمانات</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
         </div>
-    
+
         <!-- Quranic Verse Card 3 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="debts" data-ayah-search="وجوب إنظار المعسر والتجاوز عنه بالصدقة والإبراء ﴿وَإِن كَانَ ذُو عُسْرَةٍ فَنَظِرَةٌ إِلَىٰ مَيْسَرَةٍ ۚ وَأَن تَصَدَّقُوا خَيْرٌ لَّكُمْ ۖ إِن كُنتُمْ تَعْلَمُونَ﴾ سورة البقرة: الآية 280 التوجيه المحاسبي والتجاري: وجوب إمهال المدين المعسر شرعاً دون فرض أي غرامات تأخير أو فوائد، واستحباب التنازل عن الدين أو إسقاط جزء منه كصدقة لوجه الله.">
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="debts" data-ayah-search="وجوب إنظار المدين المعسر شرعاً وفضل التجاوز عنه بالإسقاط والصدقة وَإِن كَانَ ذُو عُسْرَةٍ فَنَظِرَةٌ إِلَىٰ مَيْسَرَةٍ ۚ وَأَن تَصَدَّقُوا خَيْرٌ لَّكُمْ ۖ إِن كُنتُمْ تَعْلَمُونَ سورة البقرة: الآية 280 الأحكام الاقتصادية: وجوب تأجيل سداد الدين على المدين العاجز دون فرض أي غرامات تأخير أو فوائد إضافية، واستحباب التصدق بإبراء ذمة المدين كلياً أو جزئياً من باب الإحسان والمعونة الاجتماعية. إنظار المعسر">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4783,37 +4802,42 @@ $pdo = getDBConnection();
                         3
                     </span>
                     <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                        وجوب إنظار المعسر والتجاوز عنه بالصدقة والإبراء
+                        وجوب إنظار المدين المعسر شرعاً وفضل التجاوز عنه بالإسقاط والصدقة
                     </h4>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-sky-500/20 text-sky-300 border-sky-400/40">
-                        💳 إنظار المعسر والتيسير
-                    </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
-                        📖 سورة البقرة: الآية 280
-                    </span>
-                </div>
-            </div>
-
-            <!-- Ayah Calligraphy Box -->
-            <div class="p-4 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <p class="text-lg md:text-xl text-emerald-200 font-black leading-loose text-center" style="font-family: 'Amiri', serif; line-height: 2.1;">
-                    ﴿وَإِن كَانَ ذُو عُسْرَةٍ فَنَظِرَةٌ إِلَىٰ مَيْسَرَةٍ ۚ وَأَن تَصَدَّقُوا خَيْرٌ لَّكُمْ ۖ إِن كُنتُمْ تَعْلَمُونَ﴾
-                </p>
-            </div>
-
-            <!-- Guidance & Accounting Impact -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-1">
-                    💡 التوجيه المحاسبي والتجاري: وجوب إمهال المدين المعسر شرعاً دون فرض أي غرامات تأخير أو فوائد، واستحباب التنازل عن الدين أو إسقاط جزء منه كصدقة لوجه الله.
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة البقرة: الآية 280
                 </span>
             </div>
 
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                وَإِن كَانَ ذُو عُسْرَةٍ فَنَظِرَةٌ إِلَىٰ مَيْسَرَةٍ ۚ وَأَن تَصَدَّقُوا خَيْرٌ لَّكُمْ ۖ إِن كُنتُمْ تَعْلَمُونَ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: وجوب تأجيل سداد الدين على المدين العاجز دون فرض أي غرامات تأخير أو فوائد إضافية، واستحباب التصدق بإبراء ذمة المدين كلياً أو جزئياً من باب الإحسان والمعونة الاجتماعية.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: إنظار المعسر</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
         </div>
-    
+
         <!-- Quranic Verse Card 4 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="riba" data-ayah-search="إحلال البيع والتجارة وتحريم الربا القاطع ﴿الَّذِينَ يَأْكُلُونَ الرِّبَا لَا يَقُومُونَ إِلَّا كَمَا يَقُومُ الَّذِي يَتَخَبَّطُهُ الشَّيْطَانُ مِنَ الْمَسِّ ۚ ذَٰلِكَ بِأَنَّهُمْ قَالُوا إِنَّمَا الْبَيْعُ مِثْلُ الرِّبَا ۗ وَأَحَلَّ اللَّهُ الْبَيْعَ وَحَرَّمَ الرِّبَا ۚ فَمَن جَاءَهُ مَوْعِظَةٌ مِّن رَّبِّهِ فَانتَهَىٰ فَلَهُ مَا سَلَفَ وَأَمْرُهُ إِلَى اللَّهِ ۖ وَمَنْ عَادَ فَأُولَٰئِكَ أَصْحَابُ النَّارِ ۖ هُمْ فِيهَا خَالِدُونَ﴾ سورة البقرة: الآية 275 التوجيه المحاسبي والتجاري: الأصل الشرعي هو إباحة البيع والتجارة وتحقيق الأرباح العادلة، والتحريم القاطع للربا والزيادات المشروطة على الديون والقروض.">
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="trade" data-ayah-search="القاعدة الكلية الكبرى: إحلال البيع والتجارة وتحريم الربا القاطع الَّذِينَ يَأْكُلُونَ الرِّبَا لَا يَقُومُونَ إِلَّا كَمَا يَقُومُ الَّذِي يَتَخَبَّطُهُ الشَّيْطَانُ مِنَ الْمَسِّ ۚ ذَٰلِكَ بِأَنَّهُمْ قَالُوا إِنَّمَا الْبَيْعُ مِثْلُ الرِّبَا ۗ وَأَحَلَّ اللَّهُ الْبَيْعَ وَحَرَّمَ الرِّبَا ۚ فَمَن جَاءَهُ مَوْعِظَةٌ مِّن رَّبِّهِ فَانتَهَىٰ فَلَهُ مَا سَلَفَ وَأَمْرُهُ إِلَى اللَّهِ ۖ وَمَنْ عَادَ فَأُولَٰئِكَ أَصْحَابُ النَّارِ ۖ هُمْ فِيهَا خَالِدُونَ سورة البقرة: الآية 275 الأحكام الاقتصادية: التفريق الجذري بين الربح الناتج عن بيع السلع والخدمات وتحمل المخاطر وتداول الأموال الحقيقية (المباح)، وبين الزيادة المشروطة على القرض والنقد بلا عوض ولا مخاطرة (المحرم قطيعاً). إحلال البيع">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4822,37 +4846,42 @@ $pdo = getDBConnection();
                         4
                     </span>
                     <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                        إحلال البيع والتجارة وتحريم الربا القاطع
+                        القاعدة الكلية الكبرى: إحلال البيع والتجارة وتحريم الربا القاطع
                     </h4>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-rose-500/20 text-rose-300 border-rose-400/40">
-                        🚫 إحلال البيع وتحريم الربا
-                    </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
-                        📖 سورة البقرة: الآية 275
-                    </span>
-                </div>
-            </div>
-
-            <!-- Ayah Calligraphy Box -->
-            <div class="p-4 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <p class="text-lg md:text-xl text-emerald-200 font-black leading-loose text-center" style="font-family: 'Amiri', serif; line-height: 2.1;">
-                    ﴿الَّذِينَ يَأْكُلُونَ الرِّبَا لَا يَقُومُونَ إِلَّا كَمَا يَقُومُ الَّذِي يَتَخَبَّطُهُ الشَّيْطَانُ مِنَ الْمَسِّ ۚ ذَٰلِكَ بِأَنَّهُمْ قَالُوا إِنَّمَا الْبَيْعُ مِثْلُ الرِّبَا ۗ وَأَحَلَّ اللَّهُ الْبَيْعَ وَحَرَّمَ الرِّبَا ۚ فَمَن جَاءَهُ مَوْعِظَةٌ مِّن رَّبِّهِ فَانتَهَىٰ فَلَهُ مَا سَلَفَ وَأَمْرُهُ إِلَى اللَّهِ ۖ وَمَنْ عَادَ فَأُولَٰئِكَ أَصْحَابُ النَّارِ ۖ هُمْ فِيهَا خَالِدُونَ﴾
-                </p>
-            </div>
-
-            <!-- Guidance & Accounting Impact -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-1">
-                    💡 التوجيه المحاسبي والتجاري: الأصل الشرعي هو إباحة البيع والتجارة وتحقيق الأرباح العادلة، والتحريم القاطع للربا والزيادات المشروطة على الديون والقروض.
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة البقرة: الآية 275
                 </span>
             </div>
 
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                الَّذِينَ يَأْكُلُونَ الرِّبَا لَا يَقُومُونَ إِلَّا كَمَا يَقُومُ الَّذِي يَتَخَبَّطُهُ الشَّيْطَانُ مِنَ الْمَسِّ ۚ ذَٰلِكَ بِأَنَّهُمْ قَالُوا إِنَّمَا الْبَيْعُ مِثْلُ الرِّبَا ۗ وَأَحَلَّ اللَّهُ الْبَيْعَ وَحَرَّمَ الرِّبَا ۚ فَمَن جَاءَهُ مَوْعِظَةٌ مِّن رَّبِّهِ فَانتَهَىٰ فَلَهُ مَا سَلَفَ وَأَمْرُهُ إِلَى اللَّهِ ۖ وَمَنْ عَادَ فَأُولَٰئِكَ أَصْحَابُ النَّارِ ۖ هُمْ فِيهَا خَالِدُونَ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: التفريق الجذري بين الربح الناتج عن بيع السلع والخدمات وتحمل المخاطر وتداول الأموال الحقيقية (المباح)، وبين الزيادة المشروطة على القرض والنقد بلا عوض ولا مخاطرة (المحرم قطيعاً).
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: إحلال البيع</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
         </div>
-    
+
         <!-- Quranic Verse Card 5 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="riba" data-ayah-search="محق الربا وبركة الصدقات ونماء المال الحلال ﴿يَمْحَقُ اللَّهُ الرِّبَا وَيُرْبِي الصَّدَقَاتِ ۗ وَاللَّهُ لَا يُحِبُّ كُلَّ كَفَّارٍ أَثِيمٍ﴾ سورة البقرة: الآية 276 التوجيه المحاسبي والتجاري: زوال البركة والهلاك الحتمي للأموال الربوية وإن كثرت أرقامها، ونماء وبركة التجارة الصادقة المصحوبة بإخراج الزكاة والصدقات.">
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="trade" data-ayah-search="ركن التراضي التام في العقود وتحريم أكل أموال الناس بالباطل يَا أَيُّهَا الَّذِينَ آمَنُوا لَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ إِلَّا أَن تَكُونَ تِجَارَةً عَن تَرَاضٍ مِّنكُمْ ۚ وَلَا تَقْتُلُوا أَنفُسَكُمْ ۚ إِنَّ اللَّهَ كَانَ بِكُمْ رَحِيمًا سورة النساء: الآية 29 الأحكام الاقتصادية: بطلان أي معاملة مالية قائمة على الغصب أو التدليس أو الغرر أو الإكراه، واشتراط التراضي الحقيقي والإيجاب والقبول الصحيح بين المتبايعين لصحة انتقال الملكية. التراضي في التجارة">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4861,37 +4890,42 @@ $pdo = getDBConnection();
                         5
                     </span>
                     <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                        محق الربا وبركة الصدقات ونماء المال الحلال
+                        ركن التراضي التام في العقود وتحريم أكل أموال الناس بالباطل
                     </h4>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-rose-500/20 text-rose-300 border-rose-400/40">
-                        🚫 محق الربا ونماء الصدقات
-                    </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
-                        📖 سورة البقرة: الآية 276
-                    </span>
-                </div>
-            </div>
-
-            <!-- Ayah Calligraphy Box -->
-            <div class="p-4 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <p class="text-lg md:text-xl text-emerald-200 font-black leading-loose text-center" style="font-family: 'Amiri', serif; line-height: 2.1;">
-                    ﴿يَمْحَقُ اللَّهُ الرِّبَا وَيُرْبِي الصَّدَقَاتِ ۗ وَاللَّهُ لَا يُحِبُّ كُلَّ كَفَّارٍ أَثِيمٍ﴾
-                </p>
-            </div>
-
-            <!-- Guidance & Accounting Impact -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-1">
-                    💡 التوجيه المحاسبي والتجاري: زوال البركة والهلاك الحتمي للأموال الربوية وإن كثرت أرقامها، ونماء وبركة التجارة الصادقة المصحوبة بإخراج الزكاة والصدقات.
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة النساء: الآية 29
                 </span>
             </div>
 
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                يَا أَيُّهَا الَّذِينَ آمَنُوا لَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ إِلَّا أَن تَكُونَ تِجَارَةً عَن تَرَاضٍ مِّنكُمْ ۚ وَلَا تَقْتُلُوا أَنفُسَكُمْ ۚ إِنَّ اللَّهَ كَانَ بِكُمْ رَحِيمًا
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: بطلان أي معاملة مالية قائمة على الغصب أو التدليس أو الغرر أو الإكراه، واشتراط التراضي الحقيقي والإيجاب والقبول الصحيح بين المتبايعين لصحة انتقال الملكية.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: التراضي في التجارة</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
         </div>
-    
+
         <!-- Quranic Verse Card 6 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="riba" data-ayah-search="إعلان الحرب الإلهية على من لم يذر الربا وحق استرداد رأس المال فقط ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ وَذَرُوا مَا بَقِيَ مِنَ الرِّبَا إِن كُنتُم مُّؤْمِنِينَ * فَإِن لَّمْ تَفْعَلُوا فَأْذَنُوا بِحَرْبٍ مِّنَ اللَّهِ وَرَسُولِهِ ۖ وَإِن تُبْتُمْ فَلَكُمْ رُءُوسُ أَمْوَالِكُمْ لَا تَظْلِمُونَ وَلَا تُظْلَمُونَ﴾ سورة البقرة: الآيات 278-279 التوجيه المحاسبي والتجاري: تحريم تقاضي أي زيادة فوق مبلغ الدين الأصلي، وحق الدائن محصور في استرداد رأس ماله الفعلي فقط دون ظلم أو مظلمة.">
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="trade" data-ayah-search="الأمر الإلهي القطعي بالوفاء بكافة العقود والعهود والالتزامات التجارية يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ ۚ أُحِلَّتْ لَكُم بَهِيمَةُ الْأَنْعَامِ إِلَّا مَا يُتْلَىٰ عَلَيْكُمْ... سورة المائدة: الآية 1 الأحكام الاقتصادية: قاعدة 'العقد شريعة المتعاقدين' في الفقه الإسلامي؛ وجوب الالتزام التام بكافة بنود وشروط عقود التوريد والمقاولات والوكالة والشراكة والبيع ما لم تحرم حلالاً أو تحل حراماً. الوفاء بالعقود">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4900,37 +4934,42 @@ $pdo = getDBConnection();
                         6
                     </span>
                     <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                        إعلان الحرب الإلهية على من لم يذر الربا وحق استرداد رأس المال فقط
+                        الأمر الإلهي القطعي بالوفاء بكافة العقود والعهود والالتزامات التجارية
                     </h4>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-rose-500/20 text-rose-300 border-rose-400/40">
-                        🚫 وجوب ترك الربا
-                    </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
-                        📖 سورة البقرة: الآيات 278-279
-                    </span>
-                </div>
-            </div>
-
-            <!-- Ayah Calligraphy Box -->
-            <div class="p-4 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <p class="text-lg md:text-xl text-emerald-200 font-black leading-loose text-center" style="font-family: 'Amiri', serif; line-height: 2.1;">
-                    ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ وَذَرُوا مَا بَقِيَ مِنَ الرِّبَا إِن كُنتُم مُّؤْمِنِينَ * فَإِن لَّمْ تَفْعَلُوا فَأْذَنُوا بِحَرْبٍ مِّنَ اللَّهِ وَرَسُولِهِ ۖ وَإِن تُبْتُمْ فَلَكُمْ رُءُوسُ أَمْوَالِكُمْ لَا تَظْلِمُونَ وَلَا تُظْلَمُونَ﴾
-                </p>
-            </div>
-
-            <!-- Guidance & Accounting Impact -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-1">
-                    💡 التوجيه المحاسبي والتجاري: تحريم تقاضي أي زيادة فوق مبلغ الدين الأصلي، وحق الدائن محصور في استرداد رأس ماله الفعلي فقط دون ظلم أو مظلمة.
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة المائدة: الآية 1
                 </span>
             </div>
 
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ ۚ أُحِلَّتْ لَكُم بَهِيمَةُ الْأَنْعَامِ إِلَّا مَا يُتْلَىٰ عَلَيْكُمْ...
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: قاعدة 'العقد شريعة المتعاقدين' في الفقه الإسلامي؛ وجوب الالتزام التام بكافة بنود وشروط عقود التوريد والمقاولات والوكالة والشراكة والبيع ما لم تحرم حلالاً أو تحل حراماً.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: الوفاء بالعقود</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
         </div>
-    
+
         <!-- Quranic Verse Card 7 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="contracts" data-ayah-search="ركن التراضي في التجارة وتحريم أكل أموال الناس بالباطل ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا لَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ إِلَّا أَن تَكُونَ تِجَارَةً عَن تَرَاضٍ مِّنكُمْ ۚ وَلَا تَقْتُلُوا أَنفُسَكُمْ ۚ إِنَّ اللَّهَ كَانَ بِكُمْ رَحِيمًا﴾ سورة النساء: الآية 29 التوجيه المحاسبي والتجاري: اشتراط التراضي التام ونفي الإكراه والغرر في عقود البيع، وتحريم كافة صور أكل أموال الناس بالحيل والسرقة والغش والاحتيال.">
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="trade" data-ayah-search="إيفاء الكيل والميزان بالقسطاس المستقيم وأثره في بركة الاقتصاد وَأَوْفُوا الْكَيْلَ إِذَا كِلْتُمْ وَزِنُوا بِالْقِسْطَاسِ الْمُسْتَقِيمِ ۚ ذَٰلِكَ خَيْرٌ وَأَحْسَنُ تَأْوِيلًا سورة الإسراء: الآية 35 الأحكام الاقتصادية: وجوب دقة المعايير والمكاييل والأوزان والمواصفات القياسية الهندسية والتجارية في تسليم البضائع والسلع، واعتبار العدل أساس استقرار الأسواق. الموازين والمكاييل">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4939,37 +4978,42 @@ $pdo = getDBConnection();
                         7
                     </span>
                     <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                        ركن التراضي في التجارة وتحريم أكل أموال الناس بالباطل
+                        إيفاء الكيل والميزان بالقسطاس المستقيم وأثره في بركة الاقتصاد
                     </h4>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-amber-500/20 text-amber-300 border-amber-400/40">
-                        🤝 التراضي والعقود
-                    </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
-                        📖 سورة النساء: الآية 29
-                    </span>
-                </div>
-            </div>
-
-            <!-- Ayah Calligraphy Box -->
-            <div class="p-4 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <p class="text-lg md:text-xl text-emerald-200 font-black leading-loose text-center" style="font-family: 'Amiri', serif; line-height: 2.1;">
-                    ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا لَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ إِلَّا أَن تَكُونَ تِجَارَةً عَن تَرَاضٍ مِّنكُمْ ۚ وَلَا تَقْتُلُوا أَنفُسَكُمْ ۚ إِنَّ اللَّهَ كَانَ بِكُمْ رَحِيمًا﴾
-                </p>
-            </div>
-
-            <!-- Guidance & Accounting Impact -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-1">
-                    💡 التوجيه المحاسبي والتجاري: اشتراط التراضي التام ونفي الإكراه والغرر في عقود البيع، وتحريم كافة صور أكل أموال الناس بالحيل والسرقة والغش والاحتيال.
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة الإسراء: الآية 35
                 </span>
             </div>
 
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                وَأَوْفُوا الْكَيْلَ إِذَا كِلْتُمْ وَزِنُوا بِالْقِسْطَاسِ الْمُسْتَقِيمِ ۚ ذَٰلِكَ خَيْرٌ وَأَحْسَنُ تَأْوِيلًا
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: وجوب دقة المعايير والمكاييل والأوزان والمواصفات القياسية الهندسية والتجارية في تسليم البضائع والسلع، واعتبار العدل أساس استقرار الأسواق.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: الموازين والمكاييل</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
         </div>
-    
+
         <!-- Quranic Verse Card 8 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="contracts" data-ayah-search="الأمر الإلهي القاطع بالوفاء بكافة العقود والشروط ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ ۚ أُحِلَّتْ لَكُم بَهِيمَةُ الْأَنْعَامِ إِلَّا مَا يُتْلَىٰ عَلَيْكُمْ...﴾ سورة المائدة: الآية 1 التوجيه المحاسبي والتجاري: الإلزام الشرعي التام بالوفاء بكافة بنود العقود المبرمة (عقود التوريد، المقاولات، الشراكات، والتوكيلات التجارية).">
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="trade" data-ayah-search="الوعيد الشديد والهلاك للمطففين الذين ينقصون في الكيل والوزن والمواصفات وَيْلٌ لِّلْمُطَفِّفِينَ * الَّذِينَ إِذَا اكْتَالُوا عَلَى النَّاسِ يَسْتَوْفُونَ * وَإِذَا كَالُوهُمْ أَو وَّزَنُوهُمْ يُخْسِرُونَ سورة المطففين: الآيات 1-3 الأحكام الاقتصادية: تجريم الازدواجية والمخادعة في البيع والشراء؛ أن يطلب حقه كاملاً في الشراء وينقص حقوق الناس عند البيع والتسليم في الجودة أو الكمية أو الوزن. تحريم التطفيف">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -4978,37 +5022,42 @@ $pdo = getDBConnection();
                         8
                     </span>
                     <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                        الأمر الإلهي القاطع بالوفاء بكافة العقود والشروط
+                        الوعيد الشديد والهلاك للمطففين الذين ينقصون في الكيل والوزن والمواصفات
                     </h4>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-amber-500/20 text-amber-300 border-amber-400/40">
-                        🤝 الوفاء بالعقود
-                    </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
-                        📖 سورة المائدة: الآية 1
-                    </span>
-                </div>
-            </div>
-
-            <!-- Ayah Calligraphy Box -->
-            <div class="p-4 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <p class="text-lg md:text-xl text-emerald-200 font-black leading-loose text-center" style="font-family: 'Amiri', serif; line-height: 2.1;">
-                    ﴿يَا أَيُّهَا الَّذِينَ آمَنُوا أَوْفُوا بِالْعُقُودِ ۚ أُحِلَّتْ لَكُم بَهِيمَةُ الْأَنْعَامِ إِلَّا مَا يُتْلَىٰ عَلَيْكُمْ...﴾
-                </p>
-            </div>
-
-            <!-- Guidance & Accounting Impact -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-1">
-                    💡 التوجيه المحاسبي والتجاري: الإلزام الشرعي التام بالوفاء بكافة بنود العقود المبرمة (عقود التوريد، المقاولات، الشراكات، والتوكيلات التجارية).
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة المطففين: الآيات 1-3
                 </span>
             </div>
 
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                وَيْلٌ لِّلْمُطَفِّفِينَ * الَّذِينَ إِذَا اكْتَالُوا عَلَى النَّاسِ يَسْتَوْفُونَ * وَإِذَا كَالُوهُمْ أَو وَّزَنُوهُمْ يُخْسِرُونَ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: تجريم الازدواجية والمخادعة في البيع والشراء؛ أن يطلب حقه كاملاً في الشراء وينقص حقوق الناس عند البيع والتسليم في الجودة أو الكمية أو الوزن.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: تحريم التطفيف</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
         </div>
-    
+
         <!-- Quranic Verse Card 9 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="weights" data-ayah-search="إيفاء الكيل والميزان بالقسطاس المستقيم ﴿وَأَوْفُوا الْكَيْلَ إِذَا كِلْتُمْ وَزِنُوا بِالْقِسْطَاسِ الْمُسْتَقِيمِ ۚ ذَٰلِكَ خَيْرٌ وَأَحْسَنُ تَأْوِيلًا﴾ سورة الإسراء: الآية 35 التوجيه المحاسبي والتجاري: الأمر الرباني بالمعايرة الدقيقة للموازين الرقمية والمكاييل وتطابق وزن بضائع التسليح والمخازن مع الفواتير الصادرة.">
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="trade" data-ayah-search="النهي عن بخس الناس أشياءهم وبخس مجهوداتهم والفساد في الأسواق فَأَوْفُوا الْكَيْلَ وَالْمِيزَانَ وَلَا تَبْخَسُوا النَّاسَ أَشْيَاءَهُمْ وَلَا تُفْسِدُوا فِي الْأَرْضِ بَعْدَ إِصْلَاحِهَا ۚ ذَٰلِكُمْ خَيْرٌ لَّكُمْ إِن كُنتُم مُّؤْمِنِينَ سورة الأعراف: الآية 85 الأحكام الاقتصادية: تحريم التقليل المصطنع من قيمة سلع الناس أو خدماتهم أو كفاءاتهم لشرائها بأقل من قيمتها العادلة، والنهي عن الاحتكار والممارسات الاحتكارية الضارة بالسوق. عدم بخس السلع">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5017,37 +5066,42 @@ $pdo = getDBConnection();
                         9
                     </span>
                     <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                        إيفاء الكيل والميزان بالقسطاس المستقيم
+                        النهي عن بخس الناس أشياءهم وبخس مجهوداتهم والفساد في الأسواق
                     </h4>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-emerald-500/20 text-emerald-300 border-emerald-400/40">
-                        ⚖️ ضبط الموازين والمكاييل
-                    </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
-                        📖 سورة الإسراء: الآية 35
-                    </span>
-                </div>
-            </div>
-
-            <!-- Ayah Calligraphy Box -->
-            <div class="p-4 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <p class="text-lg md:text-xl text-emerald-200 font-black leading-loose text-center" style="font-family: 'Amiri', serif; line-height: 2.1;">
-                    ﴿وَأَوْفُوا الْكَيْلَ إِذَا كِلْتُمْ وَزِنُوا بِالْقِسْطَاسِ الْمُسْتَقِيمِ ۚ ذَٰلِكَ خَيْرٌ وَأَحْسَنُ تَأْوِيلًا﴾
-                </p>
-            </div>
-
-            <!-- Guidance & Accounting Impact -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-1">
-                    💡 التوجيه المحاسبي والتجاري: الأمر الرباني بالمعايرة الدقيقة للموازين الرقمية والمكاييل وتطابق وزن بضائع التسليح والمخازن مع الفواتير الصادرة.
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة الأعراف: الآية 85
                 </span>
             </div>
 
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                فَأَوْفُوا الْكَيْلَ وَالْمِيزَانَ وَلَا تَبْخَسُوا النَّاسَ أَشْيَاءَهُمْ وَلَا تُفْسِدُوا فِي الْأَرْضِ بَعْدَ إِصْلَاحِهَا ۚ ذَٰلِكُمْ خَيْرٌ لَّكُمْ إِن كُنتُم مُّؤْمِنِينَ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: تحريم التقليل المصطنع من قيمة سلع الناس أو خدماتهم أو كفاءاتهم لشرائها بأقل من قيمتها العادلة، والنهي عن الاحتكار والممارسات الاحتكارية الضارة بالسوق.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: عدم بخس السلع</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
         </div>
-    
+
         <!-- Quranic Verse Card 10 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="weights" data-ayah-search="الوعيد الشديد والهلاك للمطففين في الكيل والوزن ﴿وَيْلٌ لِّلْمُطَفِّفِينَ * الَّذِينَ إِذَا اكْتَالُوا عَلَى النَّاسِ يَسْتَوْفُونَ * وَإِذَا كَالُوهُمْ أَو وَّزَنُوهُمْ يُخْسِرُونَ * أَلَا يَظُنُّ أُولَٰئِكَ أَنَّهُم مَّبْعُوثُونَ * لِيَوْمٍ عَظِيمٍ﴾ سورة المطففين: الآيات 1-5 التوجيه المحاسبي والتجاري: تحريم إنقاص أوزان الحديد أو الخرسانة أو أمتار الأقمشة والأراضي عند البيع للزبائن، وبيان أن التطفيف من كبائر الذنوب.">
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="trade" data-ayah-search="وجوب أداء الأمانات المالية إلى أصحابها والحكم بالعدل في المعاملات إِنَّ اللَّهَ يَأْمُرُكُمْ أَن تُؤَدُّوا الْأَمَانَاتِ إِلَىٰ أَهْلِهَا وَإِذَا حَكَمْتُم بَيْنَ النَّاسِ أَن تَحْكُمُوا بِالْعَدْلِ ۚ إِنَّ اللَّهَ نِعِمَّا يَعِظُكُم بِهِ ۗ إِنَّ اللَّهَ كَانَ سَمِيعًا بَصِيرًا سورة النساء: الآية 58 الأحكام الاقتصادية: إلزامية رد الودائع، وحفظ أموال الشركاء والمساهمين، وسداد مستحقات الموردين والعمال دون مماطلة، والعدل في الفصل في النزاعات التجارية والتحكيم المالي. أداء الأمانات">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5056,37 +5110,42 @@ $pdo = getDBConnection();
                         10
                     </span>
                     <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                        الوعيد الشديد والهلاك للمطففين في الكيل والوزن
+                        وجوب أداء الأمانات المالية إلى أصحابها والحكم بالعدل في المعاملات
                     </h4>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-emerald-500/20 text-emerald-300 border-emerald-400/40">
-                        ⚖️ تحريم التطفيف
-                    </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
-                        📖 سورة المطففين: الآيات 1-5
-                    </span>
-                </div>
-            </div>
-
-            <!-- Ayah Calligraphy Box -->
-            <div class="p-4 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <p class="text-lg md:text-xl text-emerald-200 font-black leading-loose text-center" style="font-family: 'Amiri', serif; line-height: 2.1;">
-                    ﴿وَيْلٌ لِّلْمُطَفِّفِينَ * الَّذِينَ إِذَا اكْتَالُوا عَلَى النَّاسِ يَسْتَوْفُونَ * وَإِذَا كَالُوهُمْ أَو وَّزَنُوهُمْ يُخْسِرُونَ * أَلَا يَظُنُّ أُولَٰئِكَ أَنَّهُم مَّبْعُوثُونَ * لِيَوْمٍ عَظِيمٍ﴾
-                </p>
-            </div>
-
-            <!-- Guidance & Accounting Impact -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-1">
-                    💡 التوجيه المحاسبي والتجاري: تحريم إنقاص أوزان الحديد أو الخرسانة أو أمتار الأقمشة والأراضي عند البيع للزبائن، وبيان أن التطفيف من كبائر الذنوب.
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة النساء: الآية 58
                 </span>
             </div>
 
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                إِنَّ اللَّهَ يَأْمُرُكُمْ أَن تُؤَدُّوا الْأَمَانَاتِ إِلَىٰ أَهْلِهَا وَإِذَا حَكَمْتُم بَيْنَ النَّاسِ أَن تَحْكُمُوا بِالْعَدْلِ ۚ إِنَّ اللَّهَ نِعِمَّا يَعِظُكُم بِهِ ۗ إِنَّ اللَّهَ كَانَ سَمِيعًا بَصِيرًا
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: إلزامية رد الودائع، وحفظ أموال الشركاء والمساهمين، وسداد مستحقات الموردين والعمال دون مماطلة، والعدل في الفصل في النزاعات التجارية والتحكيم المالي.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: أداء الأمانات</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
         </div>
-    
+
         <!-- Quranic Verse Card 11 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="trust" data-ayah-search="وجوب أداء الأمانات إلى أهلها والعدل في المعاملات ﴿إِنَّ اللَّهَ يَأْمُرُكُمْ أَن تُؤَدُّوا الْأَمَانَاتِ إِلَىٰ أَهْلِهَا وَإِذَا حَكَمْتُم بَيْنَ النَّاسِ أَن تَحْكُمُوا بِالْعَدْلِ ۚ إِنَّ اللَّهَ نِعِمَّا يَعِظُكُم بِهِ ۗ إِنَّ اللَّهَ كَانَ سَمِيعًا بَصِيرًا﴾ سورة النساء: الآية 58 التوجيه المحاسبي والتجاري: وجوب رد الودائع، حفظ أموال الشركاء، أداء مستحقات الموردين والعملاء، وإقامة العدل في الحسابات.">
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="trade" data-ayah-search="التعاون على البر والتقوى: الأصل القرآني للشركات التعاونية والتأمين التكافلي وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ ۖ وَلَا تَعَاوَنُوا عَلَى الْإِثْمِ وَالْعُدْوَانِ ۚ وَاتَّقُوا اللَّهَ ۖ إِنَّ اللَّهَ شَدِيدُ الْعِقَابِ سورة المائدة: الآية 2 الأحكام الاقتصادية: تأصيل العمل التكافلي التعاوني، وصناديق الضمان الاجتماعي، والتأمين الإسلامي القائم على التعاون والتبرع المتبادل دون ربا ولا قمار. التأمين التكافلي والتعاون">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5095,37 +5154,42 @@ $pdo = getDBConnection();
                         11
                     </span>
                     <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                        وجوب أداء الأمانات إلى أهلها والعدل في المعاملات
+                        التعاون على البر والتقوى: الأصل القرآني للشركات التعاونية والتأمين التكافلي
                     </h4>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-purple-500/20 text-purple-300 border-purple-400/40">
-                        🛡️ أداء الأمانات والعدل
-                    </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
-                        📖 سورة النساء: الآية 58
-                    </span>
-                </div>
-            </div>
-
-            <!-- Ayah Calligraphy Box -->
-            <div class="p-4 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <p class="text-lg md:text-xl text-emerald-200 font-black leading-loose text-center" style="font-family: 'Amiri', serif; line-height: 2.1;">
-                    ﴿إِنَّ اللَّهَ يَأْمُرُكُمْ أَن تُؤَدُّوا الْأَمَانَاتِ إِلَىٰ أَهْلِهَا وَإِذَا حَكَمْتُم بَيْنَ النَّاسِ أَن تَحْكُمُوا بِالْعَدْلِ ۚ إِنَّ اللَّهَ نِعِمَّا يَعِظُكُم بِهِ ۗ إِنَّ اللَّهَ كَانَ سَمِيعًا بَصِيرًا﴾
-                </p>
-            </div>
-
-            <!-- Guidance & Accounting Impact -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-1">
-                    💡 التوجيه المحاسبي والتجاري: وجوب رد الودائع، حفظ أموال الشركاء، أداء مستحقات الموردين والعملاء، وإقامة العدل في الحسابات.
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة المائدة: الآية 2
                 </span>
             </div>
 
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ ۖ وَلَا تَعَاوَنُوا عَلَى الْإِثْمِ وَالْعُدْوَانِ ۚ وَاتَّقُوا اللَّهَ ۖ إِنَّ اللَّهَ شَدِيدُ الْعِقَابِ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: تأصيل العمل التكافلي التعاوني، وصناديق الضمان الاجتماعي، والتأمين الإسلامي القائم على التعاون والتبرع المتبادل دون ربا ولا قمار.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: التأمين التكافلي والتعاون</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
         </div>
-    
+
         <!-- Quranic Verse Card 12 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="riba" data-ayah-search="تحريم الرشوة والوساطة غير المشروعة لأكل أموال الناس ﴿وَلَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ وَتُدْلُوا بِهَا إِلَى الْحُكَّامِ لِتَأْكُلُوا فَرِيقًا مِّنْ أَمْوَالِ النَّاسِ بِالْإِثْمِ وَأَنتُمْ تَعْلَمُونَ﴾ سورة البقرة: الآية 188 التوجيه المحاسبي والتجاري: تحريم دفع الرشاوى والعمولات الخفية للمسؤولين أو موظفي المشتريات لكسب المناقصات أو تجاوز اللوائح بالباطل.">
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="trade" data-ayah-search="الأمر بإيفاء الكيل والميزان الصحيح وعدم الإفساد الاقتصادي في الأرض أَوْفُوا الْكَيْلَ وَلَا تَكُونُوا مِنَ الْمُخْسِرِينَ * وَزِنُوا بِالْقِسْطَاسِ الْمُسْتَقِيمِ * وَلَا تَبْخَسُوا النَّاسَ أَشْيَاءَهُمْ وَلَا تَعْثَوْا فِي الْأَرْضِ مُفْسِدِينَ سورة الشعراء: الآيات 181-183 الأحكام الاقتصادية: ربط سلامة الممارسات التجارية والمعايير الفنية بالإيمان وتقوى الله، والتحذير من أن الفساد التجاري والتلاعب بالموازين يؤدي إلى هلاك الأمم وزوال النعم. الكيل الصادق">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5134,37 +5198,42 @@ $pdo = getDBConnection();
                         12
                     </span>
                     <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                        تحريم الرشوة والوساطة غير المشروعة لأكل أموال الناس
+                        الأمر بإيفاء الكيل والميزان الصحيح وعدم الإفساد الاقتصادي في الأرض
                     </h4>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-rose-500/20 text-rose-300 border-rose-400/40">
-                        🚫 تحريم الرشوة والفساد
-                    </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
-                        📖 سورة البقرة: الآية 188
-                    </span>
-                </div>
-            </div>
-
-            <!-- Ayah Calligraphy Box -->
-            <div class="p-4 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <p class="text-lg md:text-xl text-emerald-200 font-black leading-loose text-center" style="font-family: 'Amiri', serif; line-height: 2.1;">
-                    ﴿وَلَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ وَتُدْلُوا بِهَا إِلَى الْحُكَّامِ لِتَأْكُلُوا فَرِيقًا مِّنْ أَمْوَالِ النَّاسِ بِالْإِثْمِ وَأَنتُمْ تَعْلَمُونَ﴾
-                </p>
-            </div>
-
-            <!-- Guidance & Accounting Impact -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-1">
-                    💡 التوجيه المحاسبي والتجاري: تحريم دفع الرشاوى والعمولات الخفية للمسؤولين أو موظفي المشتريات لكسب المناقصات أو تجاوز اللوائح بالباطل.
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة الشعراء: الآيات 181-183
                 </span>
             </div>
 
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                أَوْفُوا الْكَيْلَ وَلَا تَكُونُوا مِنَ الْمُخْسِرِينَ * وَزِنُوا بِالْقِسْطَاسِ الْمُسْتَقِيمِ * وَلَا تَبْخَسُوا النَّاسَ أَشْيَاءَهُمْ وَلَا تَعْثَوْا فِي الْأَرْضِ مُفْسِدِينَ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: ربط سلامة الممارسات التجارية والمعايير الفنية بالإيمان وتقوى الله، والتحذير من أن الفساد التجاري والتلاعب بالموازين يؤدي إلى هلاك الأمم وزوال النعم.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: الكيل الصادق</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
         </div>
-    
+
         <!-- Quranic Verse Card 13 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="contracts" data-ayah-search="التعاون على البر والتقوى في الشراكات والتأمين التكافلي ﴿وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ ۖ وَلَا تَعَاوَنُوا عَلَى الْإِثْمِ وَالْعُدْوَانِ ۚ وَاتَّقُوا اللَّهَ ۖ إِنَّ اللَّهَ شَدِيدُ الْعِقَابِ﴾ سورة المائدة: الآية 2 التوجيه المحاسبي والتجاري: مشروعية وتأصيل عقود التأمين التعاوني الإسلامي وصناديق التكافل والشركات الإنتاجية، وتحريم الشراكة في الحرام.">
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="riba" data-ayah-search="إعلان الحرب الإلهية على أكلة الربا وحق استرداد رأس المال الأصلي فقط يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ وَذَرُوا مَا بَقِيَ مِنَ الرِّبَا إِن كُنتُم مُّؤْمِنِينَ * فَإِن لَّمْ تَفْعَلُوا فَأْذَنُوا بِحَرْبٍ مِّنَ اللَّهِ وَرَسُولِهِ ۖ وَإِن تُبْتُمْ فَلَكُمْ رُءُوسُ أَمْوَالِكُمْ لَا تَظْلِمُونَ وَلَا تُظْلَمُونَ سورة البقرة: الآيات 278-279 الأحكام الاقتصادية: أعظم تحذير مالي في الشريعة، وبطلان الزيادة الربوية في القروض، وحق الدائن التائب في استرجاع رأس ماله الأساسي فقط دون زيادة (ظلم للمدين) ودون نقصان (ظلم للدائن). تحريم الربا القاطع">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5173,37 +5242,42 @@ $pdo = getDBConnection();
                         13
                     </span>
                     <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                        التعاون على البر والتقوى في الشراكات والتأمين التكافلي
+                        إعلان الحرب الإلهية على أكلة الربا وحق استرداد رأس المال الأصلي فقط
                     </h4>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-amber-500/20 text-amber-300 border-amber-400/40">
-                        🤝 التعاون والتكافل التجاري
-                    </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
-                        📖 سورة المائدة: الآية 2
-                    </span>
-                </div>
-            </div>
-
-            <!-- Ayah Calligraphy Box -->
-            <div class="p-4 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <p class="text-lg md:text-xl text-emerald-200 font-black leading-loose text-center" style="font-family: 'Amiri', serif; line-height: 2.1;">
-                    ﴿وَتَعَاوَنُوا عَلَى الْبِرِّ وَالتَّقْوَىٰ ۖ وَلَا تَعَاوَنُوا عَلَى الْإِثْمِ وَالْعُدْوَانِ ۚ وَاتَّقُوا اللَّهَ ۖ إِنَّ اللَّهَ شَدِيدُ الْعِقَابِ﴾
-                </p>
-            </div>
-
-            <!-- Guidance & Accounting Impact -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-1">
-                    💡 التوجيه المحاسبي والتجاري: مشروعية وتأصيل عقود التأمين التعاوني الإسلامي وصناديق التكافل والشركات الإنتاجية، وتحريم الشراكة في الحرام.
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة البقرة: الآيات 278-279
                 </span>
             </div>
 
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                يَا أَيُّهَا الَّذِينَ آمَنُوا اتَّقُوا اللَّهَ وَذَرُوا مَا بَقِيَ مِنَ الرِّبَا إِن كُنتُم مُّؤْمِنِينَ * فَإِن لَّمْ تَفْعَلُوا فَأْذَنُوا بِحَرْبٍ مِّنَ اللَّهِ وَرَسُولِهِ ۖ وَإِن تُبْتُمْ فَلَكُمْ رُءُوسُ أَمْوَالِكُمْ لَا تَظْلِمُونَ وَلَا تُظْلَمُونَ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: أعظم تحذير مالي في الشريعة، وبطلان الزيادة الربوية في القروض، وحق الدائن التائب في استرجاع رأس ماله الأساسي فقط دون زيادة (ظلم للمدين) ودون نقصان (ظلم للدائن).
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: تحريم الربا القاطع</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
         </div>
-    
+
         <!-- Quranic Verse Card 14 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="weights" data-ayah-search="إتمام الكيل والعدل وعدم بخس الناس أشياءهم ﴿وَيَا قَوْمِ أَوْفُوا الْمِكْيَالَ وَالْمِيزَانَ بِالْقِسْطِ ۖ وَلَا تَبْخَسُوا النَّاسَ أَشْيَاءَهُمْ وَلَا تَعْثَوْا فِي الْأَرْضِ مُفْسِدِينَ * بَقِيَّتُ اللَّهِ خَيْرٌ لَّكُمْ إِن كُنتُم مُّؤْمِنِينَ ۚ وَمَا أَنَا عَلَيْكُم بِحَفِيظٍ﴾ سورة هود: الآيات 85-86 التوجيه المحاسبي والتجاري: تحريم التقليل من قيمة وجودة سلع الموردين أو البائعين ظلماً، والتأكيد على أن الربح الحلال القليل خير وأبقى من الحرام الكثير.">
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="riba" data-ayah-search="سنة الله في محق الربا وتدمير أرباحه ونماء أموال الصدقات والبركات يَمْحَقُ اللَّهُ الرِّبَا وَيُرْبِي الصَّدَقَاتِ ۗ وَاللَّهُ لَا يُحِبُّ كُلَّ كَفَّارٍ أَثِيمٍ سورة البقرة: الآية 276 الأحكام الاقتصادية: الحقيقة الاقتصادية الإلهية بزوال بركة المال الربوي وانهياره في النهاية عبر الأزمات والتضخم، ونماء الأموال الحلال المزكاة وحمايتها من التلف والجوائح. محق الربا وبركة الصدقات">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5212,37 +5286,42 @@ $pdo = getDBConnection();
                         14
                     </span>
                     <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                        إتمام الكيل والعدل وعدم بخس الناس أشياءهم
+                        سنة الله في محق الربا وتدمير أرباحه ونماء أموال الصدقات والبركات
                     </h4>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-emerald-500/20 text-emerald-300 border-emerald-400/40">
-                        ⚖️ عدم بخس سلع الناس
-                    </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
-                        📖 سورة هود: الآيات 85-86
-                    </span>
-                </div>
-            </div>
-
-            <!-- Ayah Calligraphy Box -->
-            <div class="p-4 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <p class="text-lg md:text-xl text-emerald-200 font-black leading-loose text-center" style="font-family: 'Amiri', serif; line-height: 2.1;">
-                    ﴿وَيَا قَوْمِ أَوْفُوا الْمِكْيَالَ وَالْمِيزَانَ بِالْقِسْطِ ۖ وَلَا تَبْخَسُوا النَّاسَ أَشْيَاءَهُمْ وَلَا تَعْثَوْا فِي الْأَرْضِ مُفْسِدِينَ * بَقِيَّتُ اللَّهِ خَيْرٌ لَّكُمْ إِن كُنتُم مُّؤْمِنِينَ ۚ وَمَا أَنَا عَلَيْكُم بِحَفِيظٍ﴾
-                </p>
-            </div>
-
-            <!-- Guidance & Accounting Impact -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-1">
-                    💡 التوجيه المحاسبي والتجاري: تحريم التقليل من قيمة وجودة سلع الموردين أو البائعين ظلماً، والتأكيد على أن الربح الحلال القليل خير وأبقى من الحرام الكثير.
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة البقرة: الآية 276
                 </span>
             </div>
 
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                يَمْحَقُ اللَّهُ الرِّبَا وَيُرْبِي الصَّدَقَاتِ ۗ وَاللَّهُ لَا يُحِبُّ كُلَّ كَفَّارٍ أَثِيمٍ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: الحقيقة الاقتصادية الإلهية بزوال بركة المال الربوي وانهياره في النهاية عبر الأزمات والتضخم، ونماء الأموال الحلال المزكاة وحمايتها من التلف والجوائح.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: محق الربا وبركة الصدقات</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
         </div>
-    
+
         <!-- Quranic Verse Card 15 -->
-        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="trust" data-ayah-search="معيار الكفاءة والأمانة في التوظيف وعقود العمل والمقاولات ﴿قَالَتْ إِحْدَاهُمَا يَا أَبَتِ اسْتَأْجِرْهُ ۖ إِنَّ خَيْرَ مَنِ اسْتَأْجَرْتَ الْقَوِيُّ الْأَمِينُ﴾ سورة القصص: الآية 26 التوجيه المحاسبي والتجاري: ركنا النجاح والبركة في إدارة الأعمال والمؤسسات: الكفاءة الفنية والمهنية (القوة) والصدق والنزاهة المحاسبية (الأمانة).">
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="riba" data-ayah-search="النهي الصريح عن ربا الديون وتراكم الفوائد أضعافاً مضاعفة يَا أَيُّهَا الَّذِينَ آمَنُوا لَا تَأْكُلُوا الرِّبَا أَضْعَافًا مُّضَاعَفَةً ۖ وَاتَّقُوا اللَّهَ لَعَلَّكُمْ تُفْلِحُونَ سورة آل عمران: الآية 130 الأحكام الاقتصادية: تحريم ربا الجاهلية المتمثل في مضاعفة الديون عند عجز المدين عن السداد في الأجل، وهو ما تطبقه البنوك الربوية المعاصرة في الفوائد التراكمية المركبة. الربا المضاعف">
             
             <!-- Top Row: Title + Surah Badge -->
             <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
@@ -5251,35 +5330,1052 @@ $pdo = getDBConnection();
                         15
                     </span>
                     <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
-                        معيار الكفاءة والأمانة في التوظيف وعقود العمل والمقاولات
+                        النهي الصريح عن ربا الديون وتراكم الفوائد أضعافاً مضاعفة
                     </h4>
                 </div>
-                <div class="flex items-center gap-1.5 flex-shrink-0">
-                    <span class="text-xs font-black px-2.5 py-1 rounded-xl border bg-purple-500/20 text-purple-300 border-purple-400/40">
-                        👥 الأمانة والكفاءة في العمل
-                    </span>
-                    <span class="text-xs font-bold px-2.5 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50">
-                        📖 سورة القصص: الآية 26
-                    </span>
-                </div>
-            </div>
-
-            <!-- Ayah Calligraphy Box -->
-            <div class="p-4 bg-slate-950/90 rounded-xl border border-emerald-500/30">
-                <p class="text-lg md:text-xl text-emerald-200 font-black leading-loose text-center" style="font-family: 'Amiri', serif; line-height: 2.1;">
-                    ﴿قَالَتْ إِحْدَاهُمَا يَا أَبَتِ اسْتَأْجِرْهُ ۖ إِنَّ خَيْرَ مَنِ اسْتَأْجَرْتَ الْقَوِيُّ الْأَمِينُ﴾
-                </p>
-            </div>
-
-            <!-- Guidance & Accounting Impact -->
-            <div class="p-3 bg-emerald-950/30 rounded-xl border border-emerald-500/30 text-xs">
-                <span class="text-emerald-400 font-black block mb-1">
-                    💡 التوجيه المحاسبي والتجاري: ركنا النجاح والبركة في إدارة الأعمال والمؤسسات: الكفاءة الفنية والمهنية (القوة) والصدق والنزاهة المحاسبية (الأمانة).
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة آل عمران: الآية 130
                 </span>
             </div>
 
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                يَا أَيُّهَا الَّذِينَ آمَنُوا لَا تَأْكُلُوا الرِّبَا أَضْعَافًا مُّضَاعَفَةً ۖ وَاتَّقُوا اللَّهَ لَعَلَّكُمْ تُفْلِحُونَ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: تحريم ربا الجاهلية المتمثل في مضاعفة الديون عند عجز المدين عن السداد في الأجل، وهو ما تطبقه البنوك الربوية المعاصرة في الفوائد التراكمية المركبة.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: الربا المضاعف</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
         </div>
-    
+
+        <!-- Quranic Verse Card 16 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="riba" data-ayah-search="تحريم الرشوة والوساطة الباطلة لأكل أموال الناس واستباحة الحقوق وَلَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ وَتُدْلُوا بِهَا إِلَى الْحُكَّامِ لِتَأْكُلُوا فَرِيقًا مِّنْ أَمْوَالِ النَّاسِ بِالْإِثْمِ وَأَنتُمْ تَعْلَمُونَ سورة البقرة: الآية 188 الأحكام الاقتصادية: تجريم دفع الرشاوى والعمولات الخفية للمسؤولين أو القضاة للاستيلاء على مناقصات أو أراضٍ أو عقارات بغير وجه حق، وبطلان كل عقد استند إلى رشوة. تحريم الرشوة">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        16
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        تحريم الرشوة والوساطة الباطلة لأكل أموال الناس واستباحة الحقوق
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة البقرة: الآية 188
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                وَلَا تَأْكُلُوا أَمْوَالَكُم بَيْنَكُم بِالْبَاطِلِ وَتُدْلُوا بِهَا إِلَى الْحُكَّامِ لِتَأْكُلُوا فَرِيقًا مِّنْ أَمْوَالِ النَّاسِ بِالْإِثْمِ وَأَنتُمْ تَعْلَمُونَ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: تجريم دفع الرشاوى والعمولات الخفية للمسؤولين أو القضاة للاستيلاء على مناقصات أو أراضٍ أو عقارات بغير وجه حق، وبطلان كل عقد استند إلى رشوة.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: تحريم الرشوة</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
+        <!-- Quranic Verse Card 17 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="riba" data-ayah-search="حقيقة المال الربوي في ميزان الله ومضاعفة أجر الصدقة الخالصة وَمَا آتَيْتُم مِّن رِّبًا لِّيَرْبُوَ فِي أَمْوَالِ النَّاسِ فَلَا يَرْبُو عِندَ اللَّهِ ۖ وَمَا آتَيْتُم مِّن زَكَاةٍ تُرِيدُونَ وَجْهَ اللَّهِ فَأُولَٰئِكَ هُمُ الْمُضْعِفُونَ سورة الروم: الآية 39 الأحكام الاقتصادية: بيان أن الفوائد المالية الربوية لا تحقق نمواً حقيقياً مستداماً في الثروة ولا بركة فيها، بينما الزكاة والصدقات هي التي تضاعف الثروات وتنشط الطلب الحقيقي. الربا المالي المحرم">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        17
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        حقيقة المال الربوي في ميزان الله ومضاعفة أجر الصدقة الخالصة
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة الروم: الآية 39
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                وَمَا آتَيْتُم مِّن رِّبًا لِّيَرْبُوَ فِي أَمْوَالِ النَّاسِ فَلَا يَرْبُو عِندَ اللَّهِ ۖ وَمَا آتَيْتُم مِّن زَكَاةٍ تُرِيدُونَ وَجْهَ اللَّهِ فَأُولَٰئِكَ هُمُ الْمُضْعِفُونَ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: بيان أن الفوائد المالية الربوية لا تحقق نمواً حقيقياً مستداماً في الثروة ولا بركة فيها، بينما الزكاة والصدقات هي التي تضاعف الثروات وتنشط الطلب الحقيقي.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: الربا المالي المحرم</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
+        <!-- Quranic Verse Card 18 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="zakat" data-ayah-search="دستور مصارف الزكاة الثمانية الحصرية في الشريعة الإسلامية إِنَّمَا الصَّدَقَاتُ لِلْفُقَرَاءِ وَالْمَسَاكِينِ وَالْعَامِلِينَ عَلَيْهَا وَالْمُؤَلَّفَةِ قُلُوبُهُمْ وَفِي الرِّقَابِ وَالْغَارِمِينَ وَفِي سَبِيلِ اللَّهِ وَابْنِ السَّبِيلِ ۖ فَرِيضَةً مِّنَ اللَّهِ ۗ وَاللَّهُ عَلِيمٌ حَكِيمٌ سورة التوبة: الآية 60 الأحكام الاقتصادية: حصر مصارف الزكاة المفروضة في الأصناف الثمانية بدقة تشريعية، وأبرزهم الغارمون (المدينون العاجزون عن سداد ديونهم المشروعة)، وإعادة تدوير الثروة لتأمين الحماية الاجتماعية. مصارف الزكاة الثمانية">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        18
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        دستور مصارف الزكاة الثمانية الحصرية في الشريعة الإسلامية
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة التوبة: الآية 60
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                إِنَّمَا الصَّدَقَاتُ لِلْفُقَرَاءِ وَالْمَسَاكِينِ وَالْعَامِلِينَ عَلَيْهَا وَالْمُؤَلَّفَةِ قُلُوبُهُمْ وَفِي الرِّقَابِ وَالْغَارِمِينَ وَفِي سَبِيلِ اللَّهِ وَابْنِ السَّبِيلِ ۖ فَرِيضَةً مِّنَ اللَّهِ ۗ وَاللَّهُ عَلِيمٌ حَكِيمٌ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: حصر مصارف الزكاة المفروضة في الأصناف الثمانية بدقة تشريعية، وأبرزهم الغارمون (المدينون العاجزون عن سداد ديونهم المشروعة)، وإعادة تدوير الثروة لتأمين الحماية الاجتماعية.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: مصارف الزكاة الثمانية</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
+        <!-- Quranic Verse Card 19 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="zakat" data-ayah-search="وجوب جباية الزكاة وأثرها في تطهير النفوس ونماء الأموال خُذْ مِنْ أَمْوَالِهِمْ صَدَقَةً تُطَهِّرُهُمْ وَتُزَكِّيهِم بِهَا وَصَلِّ عَلَيْهِمْ ۖ إِنَّ صَلَاتَكَ سَكَنٌ لَّهُمْ ۗ وَاللَّهُ سَمِيعٌ عَلِيمٌ سورة التوبة: الآية 103 الأحكام الاقتصادية: الزكاة ليست منحة اختيارية بل حق مالي واجب تؤخذ من الأغنياء لدعم استقرار المجتمع وتطهير المال من الشبهات، ونماء المال بالبركة والتوسعة على المحتاجين. وجوب أخذ الزكاة">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        19
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        وجوب جباية الزكاة وأثرها في تطهير النفوس ونماء الأموال
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة التوبة: الآية 103
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                خُذْ مِنْ أَمْوَالِهِمْ صَدَقَةً تُطَهِّرُهُمْ وَتُزَكِّيهِم بِهَا وَصَلِّ عَلَيْهِمْ ۖ إِنَّ صَلَاتَكَ سَكَنٌ لَّهُمْ ۗ وَاللَّهُ سَمِيعٌ عَلِيمٌ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: الزكاة ليست منحة اختيارية بل حق مالي واجب تؤخذ من الأغنياء لدعم استقرار المجتمع وتطهير المال من الشبهات، ونماء المال بالبركة والتوسعة على المحتاجين.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: وجوب أخذ الزكاة</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
+        <!-- Quranic Verse Card 20 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="zakat" data-ayah-search="تقرير الحق المالي المعلوم في أموال الأغنياء للسائل والمحروم وَالَّذِينَ فِي أَمْوَالِهِمْ حَقٌّ مَّعْلُومٌ * لِّلسَّائِلِ وَالْمَحْرُومِ سورة المعارج: الآيات 24-25 الأحكام الاقتصادية: ترسيخ مبدأ 'الحق المعلوم' وهو نسبة الزكاة المحددة شرعاً (ربع العشر 2.5% في النقدين وعروض التجارة)، وحق الفقير المتعفف الذي لا يسأل الناس إلحافاً. حق معلوم في الأموال">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        20
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        تقرير الحق المالي المعلوم في أموال الأغنياء للسائل والمحروم
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة المعارج: الآيات 24-25
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                وَالَّذِينَ فِي أَمْوَالِهِمْ حَقٌّ مَّعْلُومٌ * لِّلسَّائِلِ وَالْمَحْرُومِ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: ترسيخ مبدأ 'الحق المعلوم' وهو نسبة الزكاة المحددة شرعاً (ربع العشر 2.5% في النقدين وعروض التجارة)، وحق الفقير المتعفف الذي لا يسأل الناس إلحافاً.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: حق معلوم في الأموال</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
+        <!-- Quranic Verse Card 21 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="zakat" data-ayah-search="إيتاء زكاة الإنتاج الزراعي والثمار يوم الحصاد وجوباً وَهُوَ الَّذِي أَنشَأَ جَنَّاتٍ مَّعْرُوشَاتٍ وَغَيْرَ مَعْرُوشَاتٍ وَالنَّخْلَ وَالزَّرْعَ مُخْتَلِفًا أُكُلُهُ وَالزَّيْتُونَ وَالرُّمَّانَ مُتَشَابِهًا وَغَيْرَ مُتَشَابِهٍ ۚ كُلُوا مِن ثَمَرِهِ إِذَا أَثْمَرَ وَآتُوا حَقَّهُ يَوْمَ حَصَادِهِ ۖ وَلَا تُسْرِفُوا ۚ إِنَّهُ لَا يُحِبُّ الْمُسْرِفِينَ سورة الأنعام: الآية 141 الأحكام الاقتصادية: وجوب إخراج زكاة المحاصيل الزراعية فور الحصاد دون انتظار حولان الحول، بمقدار 10% فيما سقي بلا كلفة (ماء المطر) و5% فيما سقي بكلفة وآلات. زكاة الزروع والثمار">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        21
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        إيتاء زكاة الإنتاج الزراعي والثمار يوم الحصاد وجوباً
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة الأنعام: الآية 141
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                وَهُوَ الَّذِي أَنشَأَ جَنَّاتٍ مَّعْرُوشَاتٍ وَغَيْرَ مَعْرُوشَاتٍ وَالنَّخْلَ وَالزَّرْعَ مُخْتَلِفًا أُكُلُهُ وَالزَّيْتُونَ وَالرُّمَّانَ مُتَشَابِهًا وَغَيْرَ مُتَشَابِهٍ ۚ كُلُوا مِن ثَمَرِهِ إِذَا أَثْمَرَ وَآتُوا حَقَّهُ يَوْمَ حَصَادِهِ ۖ وَلَا تُسْرِفُوا ۚ إِنَّهُ لَا يُحِبُّ الْمُسْرِفِينَ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: وجوب إخراج زكاة المحاصيل الزراعية فور الحصاد دون انتظار حولان الحول، بمقدار 10% فيما سقي بلا كلفة (ماء المطر) و5% فيما سقي بكلفة وآلات.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: زكاة الزروع والثمار</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
+        <!-- Quranic Verse Card 22 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="inheritance" data-ayah-search="دستور قسمة المواريث الأول: أنصبة الأولاد والوالدين وتقديم الدين والوصية يُوصِيكُمُ اللَّهُ فِي أَوْلَادِكُمْ ۖ لِلذَّكَرِ مِثْلُ حَظِّ الْأُنثَيَيْنِ ۚ فَإِن كُنَّ نِسَاءً فَوْقَ اثْنَتَيْنِ فَلَهُنَّ ثُلُثَا مَا تَرَكَ ۖ وَإِن كَانَتْ وَاحِدَةً فَلَهَا النِّصْفُ ۚ وَلِأَبَوَيْهِ لِكُلِّ وَاحِدٍ مِّنْهُمَا السُّدُسُ مِمَّا تَرَكَ إِن كَانَ لَهُ وَلَدٌ... مِن بَعْدِ وَصِيَّةٍ يُوصِي بِهَا أَوْ دَيْنٍ ۗ آبَاؤُكُمْ وَأَبْنَاؤُكُمْ لَا تَدْرُونَ أَيُّهُمْ أَقْرَبُ لَكُمْ نَفْعًا ۚ فَرِيضَةً مِّنَ اللَّهِ ۗ إِنَّ اللَّهَ كَانَ عَلِيمًا حَكِيمًا سورة النساء: الآية 11 الأحكام الاقتصادية: توزيع التركات بأنصبة محكمة قطعية الدلالة تمنع النزاع العائلي، وقاعدة تقديم سداد ديون المتوفى أولاً ثم تنفيذ الوصية المشروعة (في حدود ثلث التركة لغير وارث) قبل قسمة التركة. مواريث الأولاد والوالدين">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        22
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        دستور قسمة المواريث الأول: أنصبة الأولاد والوالدين وتقديم الدين والوصية
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة النساء: الآية 11
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                يُوصِيكُمُ اللَّهُ فِي أَوْلَادِكُمْ ۖ لِلذَّكَرِ مِثْلُ حَظِّ الْأُنثَيَيْنِ ۚ فَإِن كُنَّ نِسَاءً فَوْقَ اثْنَتَيْنِ فَلَهُنَّ ثُلُثَا مَا تَرَكَ ۖ وَإِن كَانَتْ وَاحِدَةً فَلَهَا النِّصْفُ ۚ وَلِأَبَوَيْهِ لِكُلِّ وَاحِدٍ مِّنْهُمَا السُّدُسُ مِمَّا تَرَكَ إِن كَانَ لَهُ وَلَدٌ... مِن بَعْدِ وَصِيَّةٍ يُوصِي بِهَا أَوْ دَيْنٍ ۗ آبَاؤُكُمْ وَأَبْنَاؤُكُمْ لَا تَدْرُونَ أَيُّهُمْ أَقْرَبُ لَكُمْ نَفْعًا ۚ فَرِيضَةً مِّنَ اللَّهِ ۗ إِنَّ اللَّهَ كَانَ عَلِيمًا حَكِيمًا
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: توزيع التركات بأنصبة محكمة قطعية الدلالة تمنع النزاع العائلي، وقاعدة تقديم سداد ديون المتوفى أولاً ثم تنفيذ الوصية المشروعة (في حدود ثلث التركة لغير وارث) قبل قسمة التركة.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: مواريث الأولاد والوالدين</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
+        <!-- Quranic Verse Card 23 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="inheritance" data-ayah-search="دستور قسمة المواريث الثاني: أنصبة الأزواج والزوجات والإخوة لأم والنهي عن الإضرار وَلَكُمْ نِصْفُ مَا تَرَكَ أَزْوَاجُكُمْ إِن لَّمْ يَكُن لَّهُنَّ وَلَدٌ ۚ فَإِن كَانَ لَهُنَّ وَلَدٌ فَلَكُمُ الرُّبُعُ مِمَّا تَرَكْنَ ۚ مِن بَعْدِ وَصِيَّةٍ يُوصِينَ بِهَا أَوْ دَيْنٍ ۚ وَلَهُنَّ الرُّبُعُ مِمَّا تَرَكْتُمْ إِن لَّمْ يَكُن لَّكُمْ وَلَدٌ ۚ فَإِن كَانَ لَكُمْ وَلَدٌ فَلَهُنَّ الثُّمُنُ مِمَّا تَرَكْتُم ۚ مِن بَعْدِ وَصِيَّةٍ تُوصُونَ بِهَا أَوْ دَيْنٍ... غَيْرَ مُضَارٍّ ۚ وَصِيَّةً مِّنَ اللَّهِ ۗ وَاللَّهُ عَلِيمٌ حَلِيمٌ سورة النساء: الآية 12 الأحكام الاقتصادية: تفصيل أنصبة الزوج والزوجة في التركة حال وجود الولد وحال عدمه، وتحريم المضارة في الوصية كالإقرار بديون مصطنعة أو حرمان الورثة الشرعيين. مواريث الأزواج والإخوة">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        23
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        دستور قسمة المواريث الثاني: أنصبة الأزواج والزوجات والإخوة لأم والنهي عن الإضرار
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة النساء: الآية 12
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                وَلَكُمْ نِصْفُ مَا تَرَكَ أَزْوَاجُكُمْ إِن لَّمْ يَكُن لَّهُنَّ وَلَدٌ ۚ فَإِن كَانَ لَهُنَّ وَلَدٌ فَلَكُمُ الرُّبُعُ مِمَّا تَرَكْنَ ۚ مِن بَعْدِ وَصِيَّةٍ يُوصِينَ بِهَا أَوْ دَيْنٍ ۚ وَلَهُنَّ الرُّبُعُ مِمَّا تَرَكْتُمْ إِن لَّمْ يَكُن لَّكُمْ وَلَدٌ ۚ فَإِن كَانَ لَكُمْ وَلَدٌ فَلَهُنَّ الثُّمُنُ مِمَّا تَرَكْتُم ۚ مِن بَعْدِ وَصِيَّةٍ تُوصُونَ بِهَا أَوْ دَيْنٍ... غَيْرَ مُضَارٍّ ۚ وَصِيَّةً مِّنَ اللَّهِ ۗ وَاللَّهُ عَلِيمٌ حَلِيمٌ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: تفصيل أنصبة الزوج والزوجة في التركة حال وجود الولد وحال عدمه، وتحريم المضارة في الوصية كالإقرار بديون مصطنعة أو حرمان الورثة الشرعيين.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: مواريث الأزواج والإخوة</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
+        <!-- Quranic Verse Card 24 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="inheritance" data-ayah-search="فرائض المواريث حدود إلهية ملزمة والوعيد الشديد لمن يعتدي عليها ويحرم الورثة تِلْكَ حُدُودُ اللَّهِ ۚ وَمَن يُطِعِ اللَّهَ وَرَسُولَهُ يُدْخِلْهُ جَنَّاتٍ تَجْرِي مِن تَحْتِهَا الْأَنْهَارُ خَالِدِينَ فِيهَا ۚ وَذَٰلِكَ الْفَوْزُ الْعَظِيمُ * وَمَن يَعْصِ اللَّهَ وَيَتَعَدَّ حُدُودَهُ يُدْخِلْهُ نَارًا خَالِدًا فِيهَا وَلَهُ عَذَابٌ مُّهِينٌ سورة النساء: الآيات 13-14 الأحكام الاقتصادية: تأكيد أن قسمة المواريث ليست خاضعة للأهواء ولا التقاليد القبلية؛ فتحريم حرمان البنات أو الزوجات أو الإخوة من حقهم المالي المفروض، والوعيد بالنار لمن يتعدى حدود القسمة. حدود الله في الميراث">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        24
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        فرائض المواريث حدود إلهية ملزمة والوعيد الشديد لمن يعتدي عليها ويحرم الورثة
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة النساء: الآيات 13-14
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                تِلْكَ حُدُودُ اللَّهِ ۚ وَمَن يُطِعِ اللَّهَ وَرَسُولَهُ يُدْخِلْهُ جَنَّاتٍ تَجْرِي مِن تَحْتِهَا الْأَنْهَارُ خَالِدِينَ فِيهَا ۚ وَذَٰلِكَ الْفَوْزُ الْعَظِيمُ * وَمَن يَعْصِ اللَّهَ وَيَتَعَدَّ حُدُودَهُ يُدْخِلْهُ نَارًا خَالِدًا فِيهَا وَلَهُ عَذَابٌ مُّهِينٌ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: تأكيد أن قسمة المواريث ليست خاضعة للأهواء ولا التقاليد القبلية؛ فتحريم حرمان البنات أو الزوجات أو الإخوة من حقهم المالي المفروض، والوعيد بالنار لمن يتعدى حدود القسمة.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: حدود الله في الميراث</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
+        <!-- Quranic Verse Card 25 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="inheritance" data-ayah-search="ميراث الكلالة: أحكام الإخوة والأخوات الأشقاء ولأب عند عدم الأصول والفروع يَسْتَفْتُونَكَ قُلِ اللَّهُ يُفْتِيكُمْ فِي الْكَلَالَةِ ۚ إِنِ امْرُؤٌ هَلَكَ لَيْسَ لَهُ وَلَدٌ وَلَهُ أُخْتٌ فَلَهَا نِصْفُ مَا تَرَكَ ۚ وَهُوَ يَرِثُهَا إِن لَّمْ يَكُن لَّهَا وَلَدٌ ۚ فَإِن كَانَتَا اثْنَتَيْنِ فَلَهُمَا الثُّلُثَانِ مِمَّا تَرَكَ ۚ وَإِن كَانُوا إِخْوَةً رِّجَالًا وَنِسَاءً فَلِلذَّكَرِ مِثْلُ حَظِّ الْأُنثَيَيْنِ ۗ يُبَيِّنُ اللَّهُ لَكُمْ أَن تَضِلُّوا ۗ وَاللَّهُ بِكُلِّ شَيْءٍ عَلِيمٌ سورة النساء: الآية 176 الأحكام الاقتصادية: أحكام توريث الإخوة والأخوات للمتوفى الذي ليس له ولد يرثه ولا والد (الكلالة)، واكتمال منظومة الفرائض المالية التي لا تترك مالاً ضائعاً أو مشاعاً. ميراث الكلالة">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        25
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        ميراث الكلالة: أحكام الإخوة والأخوات الأشقاء ولأب عند عدم الأصول والفروع
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة النساء: الآية 176
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                يَسْتَفْتُونَكَ قُلِ اللَّهُ يُفْتِيكُمْ فِي الْكَلَالَةِ ۚ إِنِ امْرُؤٌ هَلَكَ لَيْسَ لَهُ وَلَدٌ وَلَهُ أُخْتٌ فَلَهَا نِصْفُ مَا تَرَكَ ۚ وَهُوَ يَرِثُهَا إِن لَّمْ يَكُن لَّهَا وَلَدٌ ۚ فَإِن كَانَتَا اثْنَتَيْنِ فَلَهُمَا الثُّلُثَانِ مِمَّا تَرَكَ ۚ وَإِن كَانُوا إِخْوَةً رِّجَالًا وَنِسَاءً فَلِلذَّكَرِ مِثْلُ حَظِّ الْأُنثَيَيْنِ ۗ يُبَيِّنُ اللَّهُ لَكُمْ أَن تَضِلُّوا ۗ وَاللَّهُ بِكُلِّ شَيْءٍ عَلِيمٌ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: أحكام توريث الإخوة والأخوات للمتوفى الذي ليس له ولد يرثه ولا والد (الكلالة)، واكتمال منظومة الفرائض المالية التي لا تترك مالاً ضائعاً أو مشاعاً.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: ميراث الكلالة</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
+        <!-- Quranic Verse Card 26 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="inheritance" data-ayah-search="إثبات استقلال الذمة المالية للرجال والنساء وحقهم القطعي في التركات لِّلرِّجَالِ نَصِيبٌ مِّمَّا تَرَكَ الْوَالِدَانِ وَالْأَقْرَبُونَ وَلِلنِّسَاءِ نَصِيبٌ مِّمَّا تَرَكَ الْوَالِدَانِ وَالْأَقْرَبُونَ مِمَّا قَلَّ مِنْهُ أَوْ كَثُرَ ۚ نَصِيبًا مَّفْرُوضًا سورة النساء: الآية 7 الأحكام الاقتصادية: تقرير قاعدة العدالة المالية التامة؛ أن المال الموروث حق مقدر للرجل والمرأة مهما صغر حجم المال أو كبر، وإبطال حرمان الصغار والنساء من الثروات. حق النساء والرجال في التركة">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        26
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        إثبات استقلال الذمة المالية للرجال والنساء وحقهم القطعي في التركات
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة النساء: الآية 7
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                لِّلرِّجَالِ نَصِيبٌ مِّمَّا تَرَكَ الْوَالِدَانِ وَالْأَقْرَبُونَ وَلِلنِّسَاءِ نَصِيبٌ مِّمَّا تَرَكَ الْوَالِدَانِ وَالْأَقْرَبُونَ مِمَّا قَلَّ مِنْهُ أَوْ كَثُرَ ۚ نَصِيبًا مَّفْرُوضًا
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: تقرير قاعدة العدالة المالية التامة؛ أن المال الموروث حق مقدر للرجل والمرأة مهما صغر حجم المال أو كبر، وإبطال حرمان الصغار والنساء من الثروات.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: حق النساء والرجال في التركة</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
+        <!-- Quranic Verse Card 27 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="contracts" data-ayah-search="معيارا التوظيف والعمل في عقود الإجارة: الكفاءة الفنية والنزاهة والأمانة قَالَتْ إِحْدَاهُمَا يَا أَبَتِ اسْتَأْجِرْهُ ۖ إِنَّ خَيْرَ مَنِ اسْتَأْجَرْتَ الْقَوِيُّ الْأَمِينُ سورة القصص: الآية 26 الأحكام الاقتصادية: مشروعية عقد الإجارة واستئجار الأشخاص للأعمال الهندسية والتجارية، والمعياران الحاكمان للنجاح: القوة (المهارة والكفاءة في العمل) والأمانة (الصدق وحفظ أموال المنشأة). عقد الإجارة والكفاءة">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        27
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        معيارا التوظيف والعمل في عقود الإجارة: الكفاءة الفنية والنزاهة والأمانة
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة القصص: الآية 26
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                قَالَتْ إِحْدَاهُمَا يَا أَبَتِ اسْتَأْجِرْهُ ۖ إِنَّ خَيْرَ مَنِ اسْتَأْجَرْتَ الْقَوِيُّ الْأَمِينُ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: مشروعية عقد الإجارة واستئجار الأشخاص للأعمال الهندسية والتجارية، والمعياران الحاكمان للنجاح: القوة (المهارة والكفاءة في العمل) والأمانة (الصدق وحفظ أموال المنشأة).
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: عقد الإجارة والكفاءة</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
+        <!-- Quranic Verse Card 28 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="contracts" data-ayah-search="عقد العمل محدد المدة ومبادلة العمل بالأجر والمهر قَالَ إِنِّي أُرِيدُ أَنْ أُنكِحَكَ إِحْدَى ابْنَتَيَّ هَاتَيْنِ عَلَىٰ أَن تَأْجُرَنِي ثَمَانِيَ حِجَجٍ ۖ فَإِنْ أَتْمَمْتَ عَشْرًا فَمِنْ عِندِكَ ۖ وَمَا أُرِيدُ أَنْ أَشُقَّ عَلَيْكَ ۚ سَتَجِدُنِي إِن شَاءَ اللَّهُ مِنَ الصَّالِحِينَ سورة القصص: الآية 27 الأحكام الاقتصادية: صحة عقد العمل المشروط بمدة محددة (8 أو 10 سنوات)، وجواز جعل العمل والمنفعة عوضاً مالياً، وحسن معاملة الأجراء وعدم تكليفهم بما يشق عليهم. تحديد مدة عقد العمل">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        28
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        عقد العمل محدد المدة ومبادلة العمل بالأجر والمهر
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة القصص: الآية 27
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                قَالَ إِنِّي أُرِيدُ أَنْ أُنكِحَكَ إِحْدَى ابْنَتَيَّ هَاتَيْنِ عَلَىٰ أَن تَأْجُرَنِي ثَمَانِيَ حِجَجٍ ۖ فَإِنْ أَتْمَمْتَ عَشْرًا فَمِنْ عِندِكَ ۖ وَمَا أُرِيدُ أَنْ أَشُقَّ عَلَيْكَ ۚ سَتَجِدُنِي إِن شَاءَ اللَّهُ مِنَ الصَّالِحِينَ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: صحة عقد العمل المشروط بمدة محددة (8 أو 10 سنوات)، وجواز جعل العمل والمنفعة عوضاً مالياً، وحسن معاملة الأجراء وعدم تكليفهم بما يشق عليهم.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: تحديد مدة عقد العمل</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
+        <!-- Quranic Verse Card 29 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="contracts" data-ayah-search="وجوب دفع أجور العاملين فور أداء العمل والتعامل المالي بالمعروف ... فَإِنْ أَرْضَعْنَ لَكُمْ فَآتُوهُنَّ أُجُورَهُنَّ ۖ وَأْتَمِرُوا بَيْنَكُم بِمَعْرُوفٍ ۖ وَإِن تَعَاسَرْتُمْ فَسَتُرْضِعُ لَهُ أُخْرَىٰ سورة الطلاق: الآية 6 الأحكام الاقتصادية: وجوب الوفاء التام بأجور العمال والموظفين فور إنجاز العمل دون تأخير أو خصم تعسفي، وتراضي الطرفين على الأجر العادل المناسب لظروف السوق. وفاء أجور العاملين">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        29
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        وجوب دفع أجور العاملين فور أداء العمل والتعامل المالي بالمعروف
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة الطلاق: الآية 6
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                ... فَإِنْ أَرْضَعْنَ لَكُمْ فَآتُوهُنَّ أُجُورَهُنَّ ۖ وَأْتَمِرُوا بَيْنَكُم بِمَعْرُوفٍ ۖ وَإِن تَعَاسَرْتُمْ فَسَتُرْضِعُ لَهُ أُخْرَىٰ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: وجوب الوفاء التام بأجور العمال والموظفين فور إنجاز العمل دون تأخير أو خصم تعسفي، وتراضي الطرفين على الأجر العادل المناسب لظروف السوق.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: وفاء أجور العاملين</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
+        <!-- Quranic Verse Card 30 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="contracts" data-ayah-search="أصل عقدي الجعالة (المكافأة المشروطة) والكفالة الشخصية والضمان المالي قَالُوا نَفْقِدُ صُوَاعَ الْمَلِكِ وَلِمَن جَاءَ بِهِ حِمْلُ بَعِيرٍ وَأَنَا بِهِ زَعِيمٌ سورة يوسف: الآية 72 الأحكام الاقتصادية: الأصل القرآني لعقد الجعالة (جائزة أو عمولة لمن ينجز مهمة محددة: 'حمل بعير')، وأصل عقد الكفالة والضمان الشخصي والمالي ('وأنا به زعيم' أي ضامن متعهد بالسداد). عقدا الجعالة والكفالة">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        30
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        أصل عقدي الجعالة (المكافأة المشروطة) والكفالة الشخصية والضمان المالي
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة يوسف: الآية 72
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                قَالُوا نَفْقِدُ صُوَاعَ الْمَلِكِ وَلِمَن جَاءَ بِهِ حِمْلُ بَعِيرٍ وَأَنَا بِهِ زَعِيمٌ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: الأصل القرآني لعقد الجعالة (جائزة أو عمولة لمن ينجز مهمة محددة: 'حمل بعير')، وأصل عقد الكفالة والضمان الشخصي والمالي ('وأنا به زعيم' أي ضامن متعهد بالسداد).
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: عقدا الجعالة والكفالة</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
+        <!-- Quranic Verse Card 31 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="contracts" data-ayah-search="مشروعية الشركات والمخالطة في الأموال والتحذير من بغي وخيانة الشركاء ... وَإِنَّ كَثِيرًا مِّنَ الْخُلَطَاءِ لَيَبْغِي بَعْضُهُمْ عَلَىٰ بَعْضٍ إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ وَقَلِيلٌ مَّا هُمْ ۗ وَظَنَّ دَاوُودُ أَنَّمَا فَتَنَّاهُ فَاسْتَغْفَرَ رَبَّهُ وَخَرَّ رَاكِعًا وَأَنَابَ سورة ص: الآية 24 الأحكام الاقتصادية: مشروعية الشراكة التجارية وخلط الأموال لتنمية الاستثمار، والتحذير الشديد من خيانة الشريك لأخيه باختلاس الأرباح أو استغلال الصلاحيات بغير عدل. عقد الشركة وحقوق الشركاء">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        31
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        مشروعية الشركات والمخالطة في الأموال والتحذير من بغي وخيانة الشركاء
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة ص: الآية 24
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                ... وَإِنَّ كَثِيرًا مِّنَ الْخُلَطَاءِ لَيَبْغِي بَعْضُهُمْ عَلَىٰ بَعْضٍ إِلَّا الَّذِينَ آمَنُوا وَعَمِلُوا الصَّالِحَاتِ وَقَلِيلٌ مَّا هُمْ ۗ وَظَنَّ دَاوُودُ أَنَّمَا فَتَنَّاهُ فَاسْتَغْفَرَ رَبَّهُ وَخَرَّ رَاكِعًا وَأَنَابَ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: مشروعية الشراكة التجارية وخلط الأموال لتنمية الاستثمار، والتحذير الشديد من خيانة الشريك لأخيه باختلاس الأرباح أو استغلال الصلاحيات بغير عدل.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: عقد الشركة وحقوق الشركاء</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
+        <!-- Quranic Verse Card 32 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="orphans" data-ayah-search="اختبار الرشد المالي لليتيم وتأهيله تجارياً قبل تسليمه الثروة والأموال وَابْتَلُوا الْيَتَامَىٰ حَتَّىٰ إِذَا بَلَغُوا النِّكَاحَ فَإِنْ آنَسْتُم مِّنْهُمْ رُشْدًا فَادْفَعُوا إِلَيْهِمْ أَمْوَالَهُمْ ۖ وَلَا تَأْكُلُوهَا إِسْرَافًا وَبِدَارًا أَن يَكْبَرُوا ۚ وَمَن كَانَ غَنِيًّا فَلْيَسْتَعْفِفْ ۖ وَمَن كَانَ فَقِيرًا فَلْيَأْكُلْ بِالْمَعْرُوفِ ۚ فَإِذَا دَفَعْتُمْ إِلَيْهِمْ أَمْوَالَهُمْ فَأَشْهِدُوا عَلَيْهِمْ ۚ وَكَفَىٰ بِاللَّهِ حَسِيبًا سورة النساء: الآية 6 الأحكام الاقتصادية: قاعدة 'التأهيل المالي'؛ لا يُسلَّم المال لمن لا يحسن إدارته حتى يثبت رشده وقدرته على التجارة وحفظ الأصول، وتنظيم أتعاب الوصي أو مدير الصناديق بالمعروف. اختبار الرشد المالي">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        32
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        اختبار الرشد المالي لليتيم وتأهيله تجارياً قبل تسليمه الثروة والأموال
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة النساء: الآية 6
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                وَابْتَلُوا الْيَتَامَىٰ حَتَّىٰ إِذَا بَلَغُوا النِّكَاحَ فَإِنْ آنَسْتُم مِّنْهُمْ رُشْدًا فَادْفَعُوا إِلَيْهِمْ أَمْوَالَهُمْ ۖ وَلَا تَأْكُلُوهَا إِسْرَافًا وَبِدَارًا أَن يَكْبَرُوا ۚ وَمَن كَانَ غَنِيًّا فَلْيَسْتَعْفِفْ ۖ وَمَن كَانَ فَقِيرًا فَلْيَأْكُلْ بِالْمَعْرُوفِ ۚ فَإِذَا دَفَعْتُمْ إِلَيْهِمْ أَمْوَالَهُمْ فَأَشْهِدُوا عَلَيْهِمْ ۚ وَكَفَىٰ بِاللَّهِ حَسِيبًا
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: قاعدة 'التأهيل المالي'؛ لا يُسلَّم المال لمن لا يحسن إدارته حتى يثبت رشده وقدرته على التجارة وحفظ الأصول، وتنظيم أتعاب الوصي أو مدير الصناديق بالمعروف.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: اختبار الرشد المالي</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
+        <!-- Quranic Verse Card 33 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="orphans" data-ayah-search="مشروعية الحجر المالي على غير الرشيد لحفظ الثروة وتنميتها بالاستثمار وَلَا تُؤْتُوا السُّفَهَاءَ أَمْوَالَكُمُ الَّتِي جَعَلَ اللَّهُ لَكُمْ قِيَامًا وَارْزُقُوهُمْ فِيهَا وَاكْسُوهُمْ وَقُولُوا لَهُمْ قَوْلًا مَّعْرُوفًا سورة النساء: الآية 5 الأحكام الاقتصادية: الحجر المالي على المبذرين والسفهاء لحماية الثروات من التبدد، واستثمار أموال القاصرين في التجارة والإنفاق عليهم من الأرباح ('وارزقوهم فيها') لحفظ رأس المال الأصلي. الحجر المالي على السفيه">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        33
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        مشروعية الحجر المالي على غير الرشيد لحفظ الثروة وتنميتها بالاستثمار
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة النساء: الآية 5
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                وَلَا تُؤْتُوا السُّفَهَاءَ أَمْوَالَكُمُ الَّتِي جَعَلَ اللَّهُ لَكُمْ قِيَامًا وَارْزُقُوهُمْ فِيهَا وَاكْسُوهُمْ وَقُولُوا لَهُمْ قَوْلًا مَّعْرُوفًا
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: الحجر المالي على المبذرين والسفهاء لحماية الثروات من التبدد، واستثمار أموال القاصرين في التجارة والإنفاق عليهم من الأرباح ('وارزقوهم فيها') لحفظ رأس المال الأصلي.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: الحجر المالي على السفيه</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
+        <!-- Quranic Verse Card 34 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="orphans" data-ayah-search="الوعيد الشديد على أكل أموال اليتامى ظلماً والاعتداء على حقوق الضعفاء إِنَّ الَّذِينَ يَأْكُلُونَ أَمْوَالَ الْيَتَامَىٰ ظُلْمًا إِنَّمَا يَأْكُلُونَ فِي بُطُونِهِمْ نَارًا ۖ وَسَيَصْلَوْنَ سَعِيرًا سورة النساء: الآية 10 الأحكام الاقتصادية: أشد تحذير في الشريعة على خيانة الأمانة المالية للوصي والوكيل، وتجريم التربح غير المشروع من أموال القاصرين ومن لا حيلة لهم. حرمة أكل أموال اليتامى">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        34
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        الوعيد الشديد على أكل أموال اليتامى ظلماً والاعتداء على حقوق الضعفاء
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة النساء: الآية 10
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                إِنَّ الَّذِينَ يَأْكُلُونَ أَمْوَالَ الْيَتَامَىٰ ظُلْمًا إِنَّمَا يَأْكُلُونَ فِي بُطُونِهِمْ نَارًا ۖ وَسَيَصْلَوْنَ سَعِيرًا
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: أشد تحذير في الشريعة على خيانة الأمانة المالية للوصي والوكيل، وتجريم التربح غير المشروع من أموال القاصرين ومن لا حيلة لهم.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: حرمة أكل أموال اليتامى</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
+        <!-- Quranic Verse Card 35 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="macro" data-ayah-search="الوعيد الشديد على كنز الذهب والفضة والسيولة ومنعها من الدورة الاقتصادية ... وَالَّذِينَ يَكْنِزُونَ الذَّهَبَ وَالْفِضَّةَ وَلَا يُنفِقُونَهَا فِي سَبِيلِ اللَّهِ فَبَشِّرْهُم بِعَذَابٍ أَلِيمٍ * يَوْمَ يُحْمَىٰ عَلَيْهَا فِي نَارِ جَهَنَّمَ فَتُكْوَىٰ بِهَا جِبَاهُهُمْ وَجُنُوبُهُمْ وَظُهُورُهُمْ ۖ هَٰذَا مَا كَنَزْتُمْ لِأَنفُسِكُمْ فَذُوقُوا مَا كُنتُمْ تَكْنِزُونَ سورة التوبة: الآيات 34-35 الأحكام الاقتصادية: تحريم تعطيل السيولة وحبس النقود عن الاستثمار وعمارة الأسواق، وإيجاب الزكاة والإنفاق عليها لتبقى الأموال متدفقة في شرايين الاقتصاد لخدمة الإنتاج. تحريم كنز الأموال">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        35
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        الوعيد الشديد على كنز الذهب والفضة والسيولة ومنعها من الدورة الاقتصادية
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة التوبة: الآيات 34-35
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                ... وَالَّذِينَ يَكْنِزُونَ الذَّهَبَ وَالْفِضَّةَ وَلَا يُنفِقُونَهَا فِي سَبِيلِ اللَّهِ فَبَشِّرْهُم بِعَذَابٍ أَلِيمٍ * يَوْمَ يُحْمَىٰ عَلَيْهَا فِي نَارِ جَهَنَّمَ فَتُكْوَىٰ بِهَا جِبَاهُهُمْ وَجُنُوبُهُمْ وَظُهُورُهُمْ ۖ هَٰذَا مَا كَنَزْتُمْ لِأَنفُسِكُمْ فَذُوقُوا مَا كُنتُمْ تَكْنِزُونَ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: تحريم تعطيل السيولة وحبس النقود عن الاستثمار وعمارة الأسواق، وإيجاب الزكاة والإنفاق عليها لتبقى الأموال متدفقة في شرايين الاقتصاد لخدمة الإنتاج.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: تحريم كنز الأموال</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
+        <!-- Quranic Verse Card 36 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="macro" data-ayah-search="قانون تداول الأموال العظيم: منع تركز الثروة في يد فئة قليلة واحتكار الأسواق ... كَيْ لَا يَكُونَ دُولَةً بَيْنَ الْأَغْنِيَاءِ مِنكُمْ ۚ وَمَا آتَاكُمُ الرَّسُولُ فَخُذُوهُ وَمَا نَهَاكُمْ عَنْهُ فَانتَهُوا ۚ وَاتَّقُوا اللَّهَ ۖ إِنَّ اللَّهَ شَدِيدُ الْعِقَابِ سورة الحشر: الآية 7 الأحكام الاقتصادية: أهم قاعدة في الاقتصاد الكلي والعدالة الاجتماعية؛ تحريم تركيز الثروة واحتكار الأسواق لدى القلة من أصحاب رؤوس الأموال، ووجوب توزيع الفرص الاقتصادية على المجتمع ككل. قانون دوران الثروة">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        36
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        قانون تداول الأموال العظيم: منع تركز الثروة في يد فئة قليلة واحتكار الأسواق
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة الحشر: الآية 7
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                ... كَيْ لَا يَكُونَ دُولَةً بَيْنَ الْأَغْنِيَاءِ مِنكُمْ ۚ وَمَا آتَاكُمُ الرَّسُولُ فَخُذُوهُ وَمَا نَهَاكُمْ عَنْهُ فَانتَهُوا ۚ وَاتَّقُوا اللَّهَ ۖ إِنَّ اللَّهَ شَدِيدُ الْعِقَابِ
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: أهم قاعدة في الاقتصاد الكلي والعدالة الاجتماعية؛ تحريم تركيز الثروة واحتكار الأسواق لدى القلة من أصحاب رؤوس الأموال، ووجوب توزيع الفرص الاقتصادية على المجتمع ككل.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: قانون دوران الثروة</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
+        <!-- Quranic Verse Card 37 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="macro" data-ayah-search="قاعدة إدارة الميزانية والإنفاق الرشيد: التوازن بين الإسراف والتقتير وَالَّذِينَ إِذَا أَنفَقُوا لَمْ يُسْرِفُوا وَلَمْ يَقْتُرُوا وَكَانَ بَيْنَ ذَٰلِكَ قَوَامًا سورة الفرقان: الآية 67 الأحكام الاقتصادية: التوازن المالي في الإنفاق الاستهلاكي والاستثماري؛ تحريم التبذير المهدور وتحريم البخل والشح الذي يضر بالنشاط، وتحقيق الوسطية في الإنفاق. الاعتدال المالي">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        37
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        قاعدة إدارة الميزانية والإنفاق الرشيد: التوازن بين الإسراف والتقتير
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة الفرقان: الآية 67
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                وَالَّذِينَ إِذَا أَنفَقُوا لَمْ يُسْرِفُوا وَلَمْ يَقْتُرُوا وَكَانَ بَيْنَ ذَٰلِكَ قَوَامًا
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: التوازن المالي في الإنفاق الاستهلاكي والاستثماري؛ تحريم التبذير المهدور وتحريم البخل والشح الذي يضر بالنشاط، وتحقيق الوسطية في الإنفاق.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: الاعتدال المالي</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
+        <!-- Quranic Verse Card 38 -->
+        <div class="fiqh-ayah-card p-5 bg-slate-900/95 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-xl hover:border-emerald-400 transition" data-ayah-topic="macro" data-ayah-search="فضل الضرب في الأرض وابتغاء فضل الله بالتجارة والكسب الشريف ... وَآخَرُونَ يَضْرِبُونَ فِي الْأَرْضِ يَبْتَغُونَ مِن فَضْلِ اللَّهِ ۙ وَآخَرُونَ يُقَاتِلُونَ فِي سَبِيلِ اللَّهِ ۖ فَاقْرَءُوا مَا تَيَسَّرَ مِنْهُ... سورة المزمل: الآية 20 الأحكام الاقتصادية: مدح السعي التجاري والضرب في الأرض لطلب الرزق الحلال وقرنه بالجهاد في سبيل الله، وتأصيل السفر والاستيراد والتصدير وتنمية الاستثمارات المشروعة. السعي والتجارة الحلال">
+            
+            <!-- Top Row: Title + Surah Badge -->
+            <div class="flex flex-wrap items-center justify-between gap-2 border-b border-slate-800 pb-2.5">
+                <div class="flex items-center gap-2">
+                    <span class="w-8 h-8 rounded-xl bg-emerald-500/20 text-emerald-300 font-mono font-black flex items-center justify-center border border-emerald-400/50 flex-shrink-0">
+                        38
+                    </span>
+                    <h4 class="text-base md:text-lg font-black text-amber-300 leading-tight">
+                        فضل الضرب في الأرض وابتغاء فضل الله بالتجارة والكسب الشريف
+                    </h4>
+                </div>
+                <span class="px-3 py-1 bg-slate-800 text-emerald-400 font-mono font-black text-xs rounded-xl border border-slate-700">
+                    سورة المزمل: الآية 20
+                </span>
+            </div>
+
+            <!-- Verse Body -->
+            <div class="p-4 bg-emerald-950/20 rounded-xl border border-emerald-500/30 text-emerald-100 font-bold leading-relaxed text-sm md:text-base font-amiri shadow-inner">
+                <i class="fa-solid fa-quote-right text-emerald-400/50 ml-1.5 text-xs"></i>
+                ... وَآخَرُونَ يَضْرِبُونَ فِي الْأَرْضِ يَبْتَغُونَ مِن فَضْلِ اللَّهِ ۙ وَآخَرُونَ يُقَاتِلُونَ فِي سَبِيلِ اللَّهِ ۖ فَاقْرَءُوا مَا تَيَسَّرَ مِنْهُ...
+                <i class="fa-solid fa-quote-left text-emerald-400/50 mr-1.5 text-xs"></i>
+            </div>
+
+            <!-- Fiqh & Economic Guidance -->
+            <div class="p-3 bg-slate-950/80 rounded-xl border border-slate-800 space-y-1">
+                <div class="flex items-center gap-1.5 text-xs font-black text-amber-400">
+                    <i class="fa-solid fa-scale-balanced"></i>
+                    <span>الأحكام والفوائد الفقهية والاقتصادية المستنبطة:</span>
+                </div>
+                <p class="text-xs text-slate-300 font-bold leading-relaxed">
+                    الأحكام الاقتصادية: مدح السعي التجاري والضرب في الأرض لطلب الرزق الحلال وقرنه بالجهاد في سبيل الله، وتأصيل السفر والاستيراد والتصدير وتنمية الاستثمارات المشروعة.
+                </p>
+            </div>
+
+            <!-- Bottom Badge -->
+            <div class="flex items-center justify-between text-xs text-slate-400 font-bold pt-1">
+                <span class="text-emerald-400 font-black">🏷️ التصنيف: السعي والتجارة الحلال</span>
+                <span class="text-slate-500 font-mono">نص قطعي الثبوت والدلالة ✓</span>
+            </div>
+
+        </div>
+
                     </div>
 
                     <div id="no-quran-alert" class="p-8 text-center bg-slate-900/60 rounded-2xl border border-slate-800 hidden">
@@ -5289,8 +6385,6 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- SUB-SECTION 5: AUTHENTIC HADITHS OF DEBTS & ALL TRANSACTIONS -->
-                <!-- ════════════════════════════════════════════════════════════ -->
                 <div id="fiqh-sub-hadiths" class="space-y-4 hidden">
                     <div class="p-5 bg-amber-500/15 border-2 border-amber-500/40 rounded-2xl flex flex-wrap items-center justify-between gap-4">
                         <div>
@@ -7246,15 +8340,17 @@ $pdo = getDBConnection();
     }
 
     function filterQuranVerses() {
-        const query = (document.getElementById('quran-search-input') ? document.getElementById('quran-search-input').value : '').trim().toLowerCase();
+        const rawQuery = (document.getElementById('quran-search-input') ? document.getElementById('quran-search-input').value : '').trim();
+        const normQuery = typeof normalizeArabicText === 'function' ? normalizeArabicText(rawQuery) : rawQuery.toLowerCase();
         let visibleCount = 0;
 
         document.querySelectorAll('.fiqh-ayah-card').forEach(card => {
             const cat = card.getAttribute('data-ayah-topic');
-            const search = card.getAttribute('data-ayah-search') || '';
+            const rawSearch = card.getAttribute('data-ayah-search') || '';
+            const normSearch = typeof normalizeArabicText === 'function' ? normalizeArabicText(rawSearch) : rawSearch.toLowerCase();
 
             const matchCat = (activeQuranTopic === 'all' || cat === activeQuranTopic);
-            const matchSearch = (query === '' || search.includes(query));
+            const matchSearch = (normQuery === '' || normSearch.includes(normQuery) || rawSearch.toLowerCase().includes(rawQuery.toLowerCase()));
 
             if (matchCat && matchSearch) {
                 card.style.display = '';
@@ -7266,35 +8362,7 @@ $pdo = getDBConnection();
 
         const noAlert = document.getElementById('no-quran-alert');
         if (noAlert) noAlert.classList.toggle('hidden', visibleCount > 0);
-    }
-
-    
-    let activeBookScholar = 'all';
-    function setBookScholar(scholar, btn) {
-        activeBookScholar = scholar;
-        document.querySelectorAll('.book-filter-btn').forEach(b => b.classList.remove('active'));
-        if (btn) btn.classList.add('active');
-        filterBooksLibrary();
-    }
-
-    function filterBooksLibrary() {
-        const query = (document.getElementById('book-search-input') ? document.getElementById('book-search-input').value : '').trim().toLowerCase();
-        let visibleCount = 0;
-
-        document.querySelectorAll('.fiqh-book-card').forEach(card => {
-            const scholar = card.getAttribute('data-book-scholar');
-            const search = card.getAttribute('data-book-search') || '';
-
-            const matchScholar = (activeBookScholar === 'all' || scholar === activeBookScholar);
-            const matchSearch = (query === '' || search.includes(query));
-
-            if (matchScholar && matchSearch) {
-                card.style.display = '';
-                visibleCount++;
-            } else {
-                card.style.display = 'none';
-            }
-        });
+    });
 
         const noAlert = document.getElementById('no-books-alert');
         if (noAlert) noAlert.classList.toggle('hidden', visibleCount > 0);
