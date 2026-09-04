@@ -9,11 +9,24 @@ function getNormalizedHash($filePath) {
 }
 
 $gitCommit = trim(@shell_exec('git rev-parse HEAD 2>&1') ?: '');
+$gitTree = trim(@shell_exec('git rev-parse "HEAD^{tree}" 2>&1') ?: '');
+$gitStatus = trim(@shell_exec('git status --porcelain 2>&1') ?: '');
+$gitDiff = trim(@shell_exec('git diff 2>&1') ?: '');
+$trackedFilesOutput = trim(@shell_exec('git ls-files 2>&1') ?: '');
+$trackedCount = !empty($trackedFilesOutput) ? count(array_filter(preg_split('/\r\n|\r|\n/', $trackedFilesOutput))) : 0;
 
 $files = [
-    'js/general-ledger.js' => getNormalizedHash(__DIR__ . '/js/general-ledger.js'),
-    'js/mainbalances-report.js' => getNormalizedHash(__DIR__ . '/js/mainbalances-report.js'),
     'single-cash-payment.php' => getNormalizedHash(__DIR__ . '/single-cash-payment.php'),
+    'js/single-cash-payment.js' => getNormalizedHash(__DIR__ . '/js/single-cash-payment.js'),
+    'general-ledger.php' => getNormalizedHash(__DIR__ . '/general-ledger.php'),
+    'js/general-ledger.js' => getNormalizedHash(__DIR__ . '/js/general-ledger.js'),
+    'mainbalances-report.php' => getNormalizedHash(__DIR__ . '/mainbalances-report.php'),
+    'js/mainbalances-report.js' => getNormalizedHash(__DIR__ . '/js/mainbalances-report.js'),
+    'api_index.php' => getNormalizedHash(__DIR__ . '/api_index.php'),
+    'js/api.js' => getNormalizedHash(__DIR__ . '/js/api.js'),
+    'db_bridge.php' => getNormalizedHash(__DIR__ . '/db_bridge.php'),
+    'login.php' => getNormalizedHash(__DIR__ . '/login.php'),
+    'index.php' => getNormalizedHash(__DIR__ . '/index.php'),
 ];
 
 // Check specific keywords inside single-cash-payment.php
@@ -36,6 +49,11 @@ $checks['mb_gl_sync'] = strpos($mbContent, "calculateAccountLedgerBalance") !== 
 echo json_encode([
     'server' => (php_sapi_name() === 'cli' || ($_SERVER['SERVER_NAME'] ?? '') === 'localhost' || ($_SERVER['SERVER_NAME'] ?? '') === '127.0.0.1') ? 'LOCAL' : 'LIVE_SERVER',
     'git_commit' => $gitCommit,
+    'git_tree' => $gitTree,
+    'git_clean' => empty($gitStatus),
+    'git_diff_clean' => empty($gitDiff),
+    'git_status_porcelain' => $gitStatus,
+    'tracked_files_count' => $trackedCount,
     'files' => $files,
     'checks' => $checks,
     'timestamp' => date('Y-m-d H:i:s')
