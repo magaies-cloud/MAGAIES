@@ -2840,8 +2840,23 @@ document.addEventListener('focus', function(event) {
 
 document.addEventListener('blur', function(event) {
     const input = event.target;
-    if (input.classList.contains('sub-amount')) {
+    if (input.classList.contains('sub-amount') || input.classList.contains('block-cheque-amount')) {
         const val = parseFloat(input.value.replace(/,/g, '')) || 0;
+        if (input.classList.contains('block-cheque-amount')) {
+            const container = input.closest('.cheque-rows-container') || (input.closest('.account-block') ? input.closest('.account-block').querySelector('.cheque-rows-container') : null);
+            if (!input.value || val <= 0) {
+                if (container && container.querySelectorAll('.cheque-row').length > 1) {
+                    const row = input.closest('.cheque-row');
+                    if (row) {
+                        const block = input.closest('.account-block');
+                        const blockId = block ? block.getAttribute('data-block-id') : null;
+                        row.remove();
+                        if (blockId) recalcBlockTotal(blockId);
+                        return;
+                    }
+                }
+            }
+        }
         if (input.value.trim() === '') {
             input.value = '';
         } else {
@@ -2856,6 +2871,80 @@ document.addEventListener('blur', function(event) {
 // ═══════════════════════════════════════════════════════
 // Multiple Bank Transfers & Cheques Dynamic Manipulation
 // ═══════════════════════════════════════════════════════
+
+window.refreshTransferRowButtons = function() {
+    const container = document.getElementById('transfers-container');
+    if (!container) return;
+    const rows = container.querySelectorAll('.transfer-row');
+    rows.forEach((row, idx) => {
+        const btnBox = row.querySelector('div:last-child');
+        if (!btnBox) return;
+        if (idx === 0) {
+            btnBox.innerHTML = `<button type="button" onclick="addTransferRow()" class="pay-toggle-btn" style="background: rgba(251, 191, 36, 0.2); border: 1px solid #fbbf24; color:#fbbf24; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">➕</button>`;
+        } else {
+            btnBox.innerHTML = `<button type="button" onclick="removeTransferRow(this)" class="btn-del-row" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; border: none; font-size: 0.9rem;">✖</button>`;
+        }
+    });
+};
+
+window.refreshChequeRowButtons = function() {
+    const container = document.getElementById('cheques-container');
+    if (!container) return;
+    const rows = container.querySelectorAll('.cheque-row');
+    rows.forEach((row, idx) => {
+        const btnBox = row.querySelector('div:last-child');
+        if (!btnBox) return;
+        if (idx === 0) {
+            btnBox.innerHTML = `<button type="button" onclick="addChequeRow()" class="pay-toggle-btn" style="background: rgba(139,92,246,0.2); border: 1px solid #c084fc; color:#c084fc; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; font-size: 1.1rem;">➕</button>`;
+        } else {
+            btnBox.innerHTML = `<button type="button" onclick="removeChequeRow(this)" class="btn-del-row" style="background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.4); color: #f87171; border-radius: 6px; width: 32px; height: 32px; cursor: pointer; display: flex; align-items: center; justify-content: center; border: none; font-size: 0.9rem;">✖</button>`;
+        }
+    });
+};
+
+window.handleTransferAmountBlur = function(input) {
+    const container = document.getElementById('transfers-container');
+    const val = cleanNum(input.value);
+    const row = input.closest('.transfer-row');
+    if (!input.value || val <= 0) {
+        if (container && container.querySelectorAll('.transfer-row').length > 1) {
+            if (row) {
+                row.remove();
+                refreshTransferRowButtons();
+                syncFirstRowAmount();
+                if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();
+            }
+            return;
+        } else {
+            input.value = '';
+        }
+    } else {
+        input.value = parseFloat(val).toFixed(2);
+    }
+    if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();
+};
+
+window.handleChequeAmountBlur = function(input) {
+    const container = document.getElementById('cheques-container');
+    const val = cleanNum(input.value);
+    const row = input.closest('.cheque-row');
+    if (!input.value || val <= 0) {
+        if (container && container.querySelectorAll('.cheque-row').length > 1) {
+            if (row) {
+                row.remove();
+                refreshChequeRowButtons();
+                syncFirstRowAmount();
+                if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();
+            }
+            return;
+        } else {
+            input.value = '';
+        }
+    } else {
+        input.value = parseFloat(val).toFixed(2);
+    }
+    if (typeof recalcPaymentSummary === 'function') recalcPaymentSummary();
+};
 
 window.addTransferRow = function(no = '', note = '', amt = 0) {
     const container = document.getElementById('transfers-container');
@@ -2884,7 +2973,7 @@ window.addTransferRow = function(no = '', note = '', amt = 0) {
         ${labelHTML}
         <div style="width: 220px; flex: none; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #ffffff; font-weight: bold; white-space: nowrap;">المبلغ:</label>
-            <input type="text" autocomplete="off" class="v-input ctrl-input transfer-amount" value="${amt > 0 ? parseFloat(amt).toFixed(2) : ''}" placeholder="0.00" onfocus="if(parseFloat(this.value.replace(/,/g, '') || 0) === 0) this.value = '';" oninput="restrictToNumbers(this); recalcPaymentSummary();" onblur="if(this.value) this.value = parseFloat(this.value.replace(/,/g, '') || 0).toFixed(2); recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:1.35rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
+            <input type="text" autocomplete="off" class="v-input ctrl-input transfer-amount" value="${amt > 0 ? parseFloat(amt).toFixed(2) : ''}" placeholder="0.00" onfocus="if(parseFloat(this.value.replace(/,/g, '') || 0) === 0) this.value = '';" oninput="restrictToNumbers(this); recalcPaymentSummary();" onblur="handleTransferAmountBlur(this);" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:1.35rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
         </div>
         <div style="flex: 1.2; min-width: 170px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #ffffff; font-weight: bold; white-space: nowrap;">اسم البنك:</label>
@@ -2914,7 +3003,11 @@ window.removeTransferRow = function(btn) {
     const row = btn.closest('.transfer-row');
     if (row) {
         row.classList.add('removing');
-        setTimeout(() => { row.remove(); syncFirstRowAmount(); }, 300);
+        setTimeout(() => { 
+            row.remove(); 
+            refreshTransferRowButtons();
+            syncFirstRowAmount(); 
+        }, 300);
     }
 };
 
@@ -2945,7 +3038,7 @@ window.addChequeRow = function(branch = '', no = '', date = '', amt = 0) {
         ${labelHTML}
         <div style="width: 220px; flex: none; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #ffffff; font-weight: bold; white-space: nowrap;">المبلغ:</label>
-            <input type="text" class="v-input ctrl-input cheque-amount" value="${amt > 0 ? parseFloat(amt).toFixed(2) : ''}" placeholder="0.00" onfocus="if(parseFloat(this.value.replace(/,/g, '') || 0) === 0) this.value = '';" oninput="restrictToNumbers(this); recalcPaymentSummary();" onblur="if(this.value) this.value = parseFloat(this.value.replace(/,/g, '') || 0).toFixed(2); recalcPaymentSummary();" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:1.35rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
+            <input type="text" class="v-input ctrl-input cheque-amount" value="${amt > 0 ? parseFloat(amt).toFixed(2) : ''}" placeholder="0.00" onfocus="if(parseFloat(this.value.replace(/,/g, '') || 0) === 0) this.value = '';" oninput="restrictToNumbers(this); recalcPaymentSummary();" onblur="handleChequeAmountBlur(this);" style="background: rgba(15,23,42,0.6); border: 1px solid rgba(255,255,255,0.1); height: 36px; font-size:1.35rem; padding: 0 8px; width: 100%; border-radius: 6px; color:#10b981; font-family: monospace; font-weight: bold; text-align: center;">
         </div>
         <div style="flex: 1.2; min-width: 170px; display: flex; align-items: center; gap: 5px;">
             <label style="font-size: 0.75rem; color: #ffffff; font-weight: bold; white-space: nowrap;">اسم البنك:</label>
@@ -2979,7 +3072,11 @@ window.removeChequeRow = function(btn) {
     const row = btn.closest('.cheque-row');
     if (row) {
         row.classList.add('removing');
-        setTimeout(() => { row.remove(); syncFirstRowAmount(); }, 300);
+        setTimeout(() => { 
+            row.remove(); 
+            refreshChequeRowButtons();
+            syncFirstRowAmount(); 
+        }, 300);
     }
 };
 

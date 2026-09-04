@@ -118,7 +118,7 @@ function addRow() {
             </div>
         </td>
         <td>
-            <input type="text" class="grid-input amount" id="amt-${rowId}" value="0" inputmode="decimal" onfocus="this.select()" oninput="calcEquiv(${rowId}, 'local')" onblur="this.value=fmtNum(parseNum(this.value)); calcTotals()">
+            <input type="text" class="grid-input amount" id="amt-${rowId}" value="0" inputmode="decimal" onfocus="this.select()" oninput="calcEquiv(${rowId}, 'local')" onblur="handleGridAmountBlur(${rowId}, this)">
         </td>
         <td>
             <select class="grid-input" id="curr-${rowId}" onchange="updateCurrency(${rowId})">
@@ -148,6 +148,16 @@ function addRow() {
     
     document.getElementById('grid-body').appendChild(tr);
     rows.push(rowId);
+}
+
+function handleGridAmountBlur(rowId, input) {
+    const num = parseNum(input.value);
+    if ((!input.value || num <= 0) && rows.length > 1) {
+        removeRow(rowId);
+    } else {
+        input.value = fmtNum(num);
+        calcTotals();
+    }
 }
 
 function removeRow(id) {
@@ -313,7 +323,7 @@ function renderVoucher(v) {
                 <select class="grid-input" id="acc-${rowId}">${accOptions}</select>
             </td>
             <td>
-                <input type="text" class="grid-input amount" id="amt-${rowId}" value="${det.amountLocal}" inputmode="decimal" onfocus="this.select()" oninput="calcEquiv(${rowId}, 'local')" onblur="this.value=fmtNum(parseNum(this.value)); calcTotals()">
+                <input type="text" class="grid-input amount" id="amt-${rowId}" value="${det.amountLocal}" inputmode="decimal" onfocus="this.select()" oninput="calcEquiv(${rowId}, 'local')" onblur="handleGridAmountBlur(${rowId}, this)">
             </td>
             <td>
                 <select class="grid-input" id="curr-${rowId}" onchange="updateCurrency(${rowId})">
