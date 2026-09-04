@@ -2572,7 +2572,7 @@ $pdo = getDBConnection();
                     </button>
                     <button type="button" class="fiqh-nav-pill fiqh-pill-quran" onclick="switchFiqhSubTab('quran', this)">
                         <span class="fiqh-pill-icon">📖</span>
-                        <span>الدستور القرآني للمعاملات (15 آية محكمة)</span>
+                        <span>الدستور القرآني للمعاملات والمال (38 آية محكمة)</span>
                     </button>
                     <button type="button" class="fiqh-nav-pill fiqh-pill-hadiths" onclick="switchFiqhSubTab('hadiths', this)">
                         <span class="fiqh-pill-icon">📜</span>
@@ -2595,6 +2595,28 @@ $pdo = getDBConnection();
                 <!-- SUB-SECTION 1: FATWAS & RULINGS SUITE (الموسوعة الكبرى)       -->
                 <!-- ════════════════════════════════════════════════════════════ -->
                 <div id="fiqh-sub-fatwas" class="space-y-6">
+                    
+                    <!-- 🌟 شريط وصول مباشر فوري للدستور القرآني (38 آية محكمة) 🌟 -->
+                    <div class="p-4 bg-gradient-to-r from-emerald-950/70 via-slate-900 to-emerald-950/50 border-2 border-emerald-500/60 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-xl cursor-pointer hover:border-emerald-400 transition transform hover:-translate-y-0.5" onclick="switchFiqhSubTab('quran')">
+                        <div class="flex items-center gap-3">
+                            <span class="w-12 h-12 rounded-2xl bg-emerald-500/20 text-emerald-300 flex items-center justify-center text-2xl border border-emerald-400/50 shadow-inner flex-shrink-0">
+                                📖
+                            </span>
+                            <div>
+                                <h4 class="text-sm md:text-base font-black text-emerald-300 flex flex-wrap items-center gap-2">
+                                    <span>الموسوعة القرآنية الشاملة للمعاملات المالية والديون والمواريث</span>
+                                    <span class="text-xs font-black px-2.5 py-0.5 bg-emerald-500/20 text-emerald-300 rounded-full border border-emerald-400/40">38 آية محكمة ✓</span>
+                                </h4>
+                                <p class="text-xs text-slate-300 font-bold mt-1">
+                                    تضم كامل الآيات في: البيوع، المداينة والرهن، تحريم الربا والرشوة، مصارف الزكاة، المواريث والتركات، الإجارة والشركات، أموال اليتامى، وكنز الأموال.
+                                </p>
+                            </div>
+                        </div>
+                        <button type="button" onclick="switchFiqhSubTab('quran')" class="px-5 py-2.5 bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-xs md:text-sm rounded-xl shadow-lg transition flex items-center gap-2 flex-shrink-0">
+                            <span>افتح الآيات الـ 38 الآن</span>
+                            <i class="fa-solid fa-arrow-left"></i>
+                        </button>
+                    </div>
                     
                     <!-- 3. UNIFIED MASTER BOX: فتاوى المعاملات والمسائل المالية الأكثر شيوعاً في مربع واحد مدمج وأنيق وموزون -->
                 <div class="fiqh-unified-master-card mb-8">
