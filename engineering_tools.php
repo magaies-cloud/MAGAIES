@@ -606,6 +606,235 @@ $pdo = getDBConnection();
             box-shadow: 0 3px 10px rgba(2, 132, 199, 0.4);
         }
 
+
+        /* ══════════════════════════════════════════════════════════════════════
+           UNIFIED MASTER CARD: المسائل والفتاوى الأكثر شيوعاً في مربع واحد مدمج
+           ══════════════════════════════════════════════════════════════════════ */
+        .fiqh-unified-master-card {
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.98) 0%, rgba(10, 15, 28, 0.99) 100%);
+            border: 2px solid rgba(251, 191, 36, 0.4);
+            border-radius: 26px;
+            padding: 24px;
+            box-shadow: 
+                0 18px 45px -8px rgba(0, 0, 0, 0.75), 
+                0 0 28px -4px rgba(245, 158, 11, 0.18), 
+                inset 0 1px 2px rgba(255, 255, 255, 0.1);
+            backdrop-filter: blur(16px);
+            transition: all 0.3s ease;
+            margin-bottom: 2rem;
+        }
+
+        .fiqh-unified-master-card:hover {
+            border-color: rgba(251, 191, 36, 0.65);
+            box-shadow: 
+                0 22px 55px -8px rgba(0, 0, 0, 0.85), 
+                0 0 35px -2px rgba(245, 158, 11, 0.28);
+        }
+
+        .fiqh-unified-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 2px solid rgba(251, 191, 36, 0.25);
+            padding-bottom: 16px;
+            margin-bottom: 20px;
+        }
+
+        .fiqh-header-badge {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(217, 119, 6, 0.12));
+            border: 1.5px solid rgba(251, 191, 36, 0.45);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #fbbf24;
+            font-size: 1.25rem;
+            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.22);
+        }
+
+        .fiqh-unified-title {
+            font-size: 1.35rem;
+            font-weight: 900;
+            color: #fef08a;
+            letter-spacing: -0.01em;
+            margin: 0;
+            line-height: 1.2;
+        }
+
+        .fiqh-reset-btn {
+            padding: 8px 18px;
+            border-radius: 12px;
+            background: rgba(244, 63, 94, 0.14);
+            border: 1.5px solid rgba(244, 63, 94, 0.4);
+            color: #fda4af;
+            font-size: 0.85rem;
+            font-weight: 800;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            cursor: pointer;
+            transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+            user-select: none;
+        }
+
+        .fiqh-reset-btn:hover {
+            background: rgba(244, 63, 94, 0.3);
+            border-color: #f43f5e;
+            color: #ffffff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 14px rgba(244, 63, 94, 0.35);
+        }
+
+        .fiqh-categories-merged-grid {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 16px;
+        }
+
+        @media (min-width: 900px) {
+            .fiqh-categories-merged-grid {
+                grid-template-columns: 1fr 1fr;
+                gap: 20px;
+            }
+        }
+
+        .fiqh-cat-subgroup {
+            background: rgba(11, 17, 32, 0.8);
+            border-radius: 20px;
+            padding: 18px;
+            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+        }
+
+        .fiqh-cat-cyan {
+            border-color: rgba(6, 182, 212, 0.35);
+            background: linear-gradient(145deg, rgba(8, 25, 42, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+        }
+        .fiqh-cat-cyan:hover {
+            border-color: rgba(6, 182, 212, 0.65);
+            box-shadow: 0 8px 24px rgba(6, 182, 212, 0.18);
+        }
+
+        .fiqh-cat-emerald {
+            border-color: rgba(16, 185, 129, 0.35);
+            background: linear-gradient(145deg, rgba(6, 32, 24, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+        }
+        .fiqh-cat-emerald:hover {
+            border-color: rgba(16, 185, 129, 0.65);
+            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.18);
+        }
+
+        .fiqh-cat-amber {
+            border-color: rgba(245, 158, 11, 0.35);
+            background: linear-gradient(145deg, rgba(38, 26, 10, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+        }
+        .fiqh-cat-amber:hover {
+            border-color: rgba(245, 158, 11, 0.65);
+            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.18);
+        }
+
+        .fiqh-cat-purple {
+            border-color: rgba(168, 85, 247, 0.35);
+            background: linear-gradient(145deg, rgba(30, 16, 44, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+        }
+        .fiqh-cat-purple:hover {
+            border-color: rgba(168, 85, 247, 0.65);
+            box-shadow: 0 8px 24px rgba(168, 85, 247, 0.18);
+        }
+
+        .fiqh-cat-title-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+            padding-bottom: 10px;
+        }
+
+        .fiqh-cat-tag {
+            font-size: 0.98rem;
+            font-weight: 900;
+            color: #f8fafc;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .fiqh-cat-count {
+            font-size: 0.72rem;
+            font-weight: 800;
+            font-family: monospace;
+            padding: 3px 10px;
+            border-radius: 8px;
+            background: rgba(0, 0, 0, 0.45);
+            border-width: 1px;
+            border-style: solid;
+        }
+
+        .fiqh-cat-pills-wrap {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        /* The Pills */
+        .fiqh-pill-btn {
+            padding: 9px 15px;
+            border-radius: 13px;
+            font-size: 0.86rem;
+            font-weight: 800;
+            background: rgba(15, 23, 42, 0.92);
+            color: #e2e8f0;
+            border: 1.5px solid rgba(255, 255, 255, 0.12);
+            cursor: pointer;
+            transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+            user-select: none;
+        }
+
+        .fiqh-pill-btn:hover {
+            transform: translateY(-2px) scale(1.02);
+        }
+
+        .fiqh-pill-cyan:hover {
+            border-color: #22d3ee;
+            color: #22d3ee;
+            background: rgba(8, 51, 68, 0.95);
+            box-shadow: 0 6px 16px rgba(6, 182, 212, 0.4);
+        }
+
+        .fiqh-pill-emerald:hover {
+            border-color: #34d399;
+            color: #34d399;
+            background: rgba(6, 78, 59, 0.95);
+            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
+        }
+
+        .fiqh-pill-amber:hover {
+            border-color: #fbbf24;
+            color: #fbbf24;
+            background: rgba(69, 26, 3, 0.95);
+            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
+        }
+
+        .fiqh-pill-purple:hover {
+            border-color: #c084fc;
+            color: #c084fc;
+            background: rgba(59, 7, 100, 0.95);
+            box-shadow: 0 6px 16px rgba(168, 85, 247, 0.4);
+        }
+
+        .fiqh-pill-btn:active {
+            transform: translateY(1px);
+        }
+
 </style>
 </head>
 
@@ -2010,86 +2239,137 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- 3. THE 4 DISTINCT COMMERCIAL CATEGORIES (المسائل الأكثر شيوعاً - 4 مجموعات مفصولة بخطوط كبيرة) -->
-                <div class="space-y-3 mb-6">
+                <!-- 3. UNIFIED MASTER BOX: الفتاوى الأكثر شيوعاً في مربع واحد مدمج وأنيق -->
+                <div class="fiqh-unified-master-card">
                     
-                    <div class="flex items-center justify-between border-b-2 border-amber-500/30 pb-2">
-                        <h3 class="text-base sm:text-lg md:text-xl font-black text-amber-300 flex items-center gap-2">
-                            <i class="fa-solid fa-layer-group text-amber-400"></i>
-                            المسائل والفتاوى الأكثر شيوعاً (مقسمة ومفصولة بوضوح تام):
-                        </h3>
-                        <button type="button" onclick="clearFiqhSearch()" class="px-3.5 py-1.5 bg-rose-500/20 hover:bg-rose-500/30 text-rose-300 border border-rose-500/50 rounded-xl text-xs font-black transition">
-                            ✕ تفريغ البحث
+                    <!-- شريط عنوان المربع الموحد -->
+                    <div class="fiqh-unified-header">
+                        <div class="flex items-center gap-3">
+                            <div class="fiqh-header-badge">
+                                <i class="fa-solid fa-layer-group"></i>
+                            </div>
+                            <div>
+                                <h3 class="fiqh-unified-title">الفتاوى الأكثر شيوعاً</h3>
+                            </div>
+                        </div>
+                        <button type="button" onclick="clearFiqhSearch()" class="fiqh-reset-btn" title="إعادة تعيين وتفريغ البحث">
+                            <i class="fa-solid fa-rotate-left"></i>
+                            <span>تفريغ البحث</span>
                         </button>
                     </div>
 
-                    <div class="grid grid-cols-1 md:grid-cols-2 gap-3.5">
+                    <!-- شبكة المجموعات الأربعة المدمجة داخل المربع الواحد -->
+                    <div class="fiqh-categories-merged-grid">
                         
-                        <!-- المربع 1: التمويل والتقسيط والديون -->
-                        <div class="p-4 bg-slate-950/90 rounded-2xl border-2 border-cyan-500/40 space-y-3 shadow-md hover:border-cyan-400 transition">
-                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                                <h4 class="text-sm sm:text-base font-black text-cyan-300 flex items-center gap-2">
-                                    <span>💳</span> 1. التمويل والتقسيط والديون
-                                </h4>
-                                <span class="text-[11px] font-mono font-bold text-cyan-400 px-2 py-0.5 bg-cyan-950 rounded border border-cyan-500/30">6 مسائل</span>
+                        <!-- 1. التمويل والتقسيط والديون -->
+                        <div class="fiqh-cat-subgroup fiqh-cat-cyan">
+                            <div class="fiqh-cat-title-bar">
+                                <span class="fiqh-cat-tag">
+                                    <i class="fa-solid fa-credit-card text-cyan-400"></i>
+                                    التمويل والتقسيط والديون
+                                </span>
+                                <span class="fiqh-cat-count text-cyan-400 border-cyan-500/30">6 مسائل</span>
                             </div>
-                            <div class="flex flex-wrap gap-2">
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('التقسيط')">💳 البيع بالتقسيط وزيادة الأجل</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('غرامات التأخير')">⚠️ غرامات التأخير والشرط الجزائي</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('المرابحة')">🏢 المرابحة للآمر بالشراء</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('التورق')">🔄 التورق للحصول على سيولة</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('الإيجار المنتهي بالتمليك')">🚗 الإيجار المنتهي بالتمليك</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('إنظار المعسر')">⏳ إنظار المعسر والتيسير</button>
-                            </div>
-                        </div>
-
-                        <!-- المربع 2: الأوراق التجارية والمدفوعات -->
-                        <div class="p-4 bg-slate-950/90 rounded-2xl border-2 border-emerald-500/40 space-y-3 shadow-md hover:border-emerald-400 transition">
-                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                                <h4 class="text-sm sm:text-base font-black text-emerald-300 flex items-center gap-2">
-                                    <span>📜</span> 2. الأوراق التجارية والمدفوعات
-                                </h4>
-                                <span class="text-[11px] font-mono font-bold text-emerald-400 px-2 py-0.5 bg-emerald-950 rounded border border-emerald-500/30">5 مسائل</span>
-                            </div>
-                            <div class="flex flex-wrap gap-2">
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('خصم الشيكات')">📜 خصم الشيكات والكمبيالات الآجلة</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('العربون')">🤝 بيع العربون وحجز البضاعة</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('بيع الدين')">💼 بيع الدين والمقاصة المالية</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('إقالة النادم')">🔄 إقالة النادم وفسخ الصفقة</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('السلم')">📦 بيع السلم ودفع الثمن مقدماً</button>
+                            <div class="fiqh-cat-pills-wrap">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('التقسيط')">
+                                    <span>💳</span> البيع بالتقسيط وزيادة الأجل
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('غرامات التأخير')">
+                                    <span>⚠️</span> غرامات التأخير والشرط الجزائي
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('المرابحة')">
+                                    <span>🏢</span> المرابحة للآمر بالشراء
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('التورق')">
+                                    <span>🔄</span> التورق للحصول على سيولة
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('الإيجار المنتهي بالتمليك')">
+                                    <span>🚗</span> الإيجار المنتهي بالتمليك
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('إنظار المعسر')">
+                                    <span>⏳</span> إنظار المعسر والتيسير
+                                </button>
                             </div>
                         </div>
 
-                        <!-- المربع 3: الذهب والعملات والصرافة -->
-                        <div class="p-4 bg-slate-950/90 rounded-2xl border-2 border-amber-500/40 space-y-3 shadow-md hover:border-amber-400 transition">
-                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                                <h4 class="text-sm sm:text-base font-black text-amber-300 flex items-center gap-2">
-                                    <span>💎</span> 3. الذهب والعملات والتحويلات
-                                </h4>
-                                <span class="text-[11px] font-mono font-bold text-amber-400 px-2 py-0.5 bg-amber-950 rounded border border-amber-500/30">4 مسائل</span>
+                        <!-- 2. الأوراق التجارية والمدفوعات -->
+                        <div class="fiqh-cat-subgroup fiqh-cat-emerald">
+                            <div class="fiqh-cat-title-bar">
+                                <span class="fiqh-cat-tag">
+                                    <i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i>
+                                    الأوراق التجارية والمدفوعات
+                                </span>
+                                <span class="fiqh-cat-count text-emerald-400 border-emerald-500/30">5 مسائل</span>
                             </div>
-                            <div class="flex flex-wrap gap-2">
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('الذهب')">💎 شراء الذهب ببطاقات الصراف ومدى</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('الصرف بالموبايل')">📱 الصرف بتطبيقات بنكك وفوري</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('العِينة')">🚫 حيل الربا وبيوع العِينة</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('العملات المشفرة')">🪙 العملات الرقمية والفوركس</button>
+                            <div class="fiqh-cat-pills-wrap">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="setQuickSearch('خصم الشيكات')">
+                                    <span>📜</span> خصم الشيكات والكمبيالات الآجلة
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="setQuickSearch('العربون')">
+                                    <span>🤝</span> بيع العربون وحجز البضاعة
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="setQuickSearch('بيع الدين')">
+                                    <span>💼</span> بيع الدين والمقاصة المالية
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="setQuickSearch('إقالة النادم')">
+                                    <span>🔄</span> إقالة النادم وفسخ الصفقة
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-emerald" onclick="setQuickSearch('السلم')">
+                                    <span>📦</span> بيع السلم ودفع الثمن مقدماً
+                                </button>
                             </div>
                         </div>
 
-                        <!-- المربع 4: المقاولات والسلع والضمانات -->
-                        <div class="p-4 bg-slate-950/90 rounded-2xl border-2 border-purple-500/40 space-y-3 shadow-md hover:border-purple-400 transition">
-                            <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                                <h4 class="text-sm sm:text-base font-black text-purple-300 flex items-center gap-2">
-                                    <span>🏗️</span> 4. المقاولات والسلع والضمانات وحقوق العمال
-                                </h4>
-                                <span class="text-[11px] font-mono font-bold text-purple-400 px-2 py-0.5 bg-purple-950 rounded border border-purple-500/30">5 مسائل</span>
+                        <!-- 3. الذهب والعملات والتحويلات -->
+                        <div class="fiqh-cat-subgroup fiqh-cat-amber">
+                            <div class="fiqh-cat-title-bar">
+                                <span class="fiqh-cat-tag">
+                                    <i class="fa-solid fa-coins text-amber-400"></i>
+                                    الذهب والعملات والتحويلات
+                                </span>
+                                <span class="fiqh-cat-count text-amber-400 border-amber-500/30">4 مسائل</span>
                             </div>
-                            <div class="flex flex-wrap gap-2">
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('الاستصناع')">🏗️ عقد الاستصناع وتوريد الحديد</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('السكراب')">🔩 بيع حديد السكراب والخردة</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('بيع ما لا يملك')">🛒 بيع ما لا يملك والوساطة</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('ضمان العيوب')">🛡️ ضمان العيوب والكفالة</button>
-                                <button type="button" class="category-pill-btn" onclick="setQuickSearch('حقوق العمال')">👥 أجور العمال ومكافأة الخدمة</button>
+                            <div class="fiqh-cat-pills-wrap">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('الذهب')">
+                                    <span>💎</span> شراء الذهب ببطاقات الصراف ومدى
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('الصرف بالموبايل')">
+                                    <span>📱</span> الصرف بتطبيقات بنكك وفوري
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('العِينة')">
+                                    <span>🚫</span> حيل الربا وبيوع العِينة
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('العملات المشفرة')">
+                                    <span>🪙</span> العملات الرقمية والفوركس
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 4. المقاولات والسلع والضمانات والمعاملات المالية -->
+                        <div class="fiqh-cat-subgroup fiqh-cat-purple">
+                            <div class="fiqh-cat-title-bar">
+                                <span class="fiqh-cat-tag">
+                                    <i class="fa-solid fa-trowel-bricks text-purple-400"></i>
+                                    المقاولات والسلع والضمانات
+                                </span>
+                                <span class="fiqh-cat-count text-purple-400 border-purple-500/30">5 مسائل</span>
+                            </div>
+                            <div class="fiqh-cat-pills-wrap">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('الاستصناع')">
+                                    <span>🏗️</span> عقد الاستصناع وتوريد الحديد
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('السكراب')">
+                                    <span>🔩</span> بيع حديد السكراب والخردة
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('بيع ما لا يملك')">
+                                    <span>🛒</span> بيع ما لا يملك والوساطة
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('ضمان العيوب')">
+                                    <span>🛡️</span> ضمان العيوب والكفالة
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('حقوق العمال')">
+                                    <span>👥</span> أجور العمال ومكافأة الخدمة
+                                </button>
                             </div>
                         </div>
 
