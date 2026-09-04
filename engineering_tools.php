@@ -19083,75 +19083,77 @@ $pdo = getDBConnection();
 
         let html = '';
         pageItems.forEach((item) => {
-            let rulingClass = 'bg-emerald-500/20 text-emerald-300 border-emerald-500/50';
+            let rulingClass = 'bg-emerald-500/25 text-emerald-200 border-2 border-emerald-500/60 shadow-md';
             if (item.ruling.includes('محرم') || item.ruling.includes('باطل') || item.ruling.includes('لا يجوز') || item.ruling.includes('كبيرة') || item.ruling.includes('سحت')) {
-                rulingClass = 'bg-rose-500/20 text-rose-300 border-rose-500/50';
+                rulingClass = 'bg-rose-500/25 text-rose-200 border-2 border-rose-500/60 shadow-md';
             } else if (item.ruling.includes('ضوابط') || item.ruling.includes('مشروطة') || item.ruling.includes('مكروه') || item.ruling.includes('تحري')) {
-                rulingClass = 'bg-amber-500/20 text-amber-300 border-amber-500/50';
+                rulingClass = 'bg-amber-500/25 text-amber-200 border-2 border-amber-500/60 shadow-md';
             } else if (item.ruling.includes('واجب')) {
-                rulingClass = 'bg-cyan-500/20 text-cyan-300 border-cyan-500/50';
+                rulingClass = 'bg-cyan-500/25 text-cyan-200 border-2 border-cyan-500/60 shadow-md';
             } else if (item.ruling.includes('مستحب') || item.ruling.includes('مندوب')) {
-                rulingClass = 'bg-teal-500/20 text-teal-300 border-teal-500/50';
+                rulingClass = 'bg-teal-500/25 text-teal-200 border-2 border-teal-500/60 shadow-md';
             }
 
-            // 🌟 مربع الحديث والأثر: حواف دائرية ناعمة وهوامش واسعة تبعد النص عن الحافة بمسافة مريحة جداً (مستحيل الالتصاق) 🌟
+            // 🌟 مستطيل الحديث والأثر: خط كبير جداً وواضح وعنوان بارز وهوامش مريحة ويكبر ويتحرك لزيادة التركيز 🌟
             const hadithBox = item.evidence ? `
-                <div class="fiqh-hadith-card bg-gradient-to-r from-amber-950/60 via-slate-900/95 to-amber-950/50 border-2 border-amber-500/40 border-r-[6px] border-r-amber-400 shadow-lg select-text" title="الأثر والدليل الشرعي من السنة الصحيحة والقرآن الكريم (يكبر ويتحرك بتمرير المؤشر)">
+                <div class="fiqh-hadith-card bg-gradient-to-r from-amber-950/60 via-slate-900/95 to-amber-950/50 border-2 border-amber-500/45 border-r-[6px] border-r-amber-400 shadow-lg select-text" title="الأثر والدليل الشرعي من السنة الصحيحة والقرآن الكريم (يكبر ويتحرك بتمرير المؤشر)">
                     <div class="flex items-center justify-between gap-3 border-b border-amber-500/20 pb-3 mb-3.5 px-2">
-                        <div class="flex items-center gap-3 text-xs sm:text-sm font-black text-amber-300">
-                            <span class="hadith-icon-bubble w-9 h-9 rounded-full bg-amber-500/20 border border-amber-400/40 flex items-center justify-center text-amber-300 shadow-inner flex-shrink-0">
-                                <i class="fa-solid fa-book-quran text-sm"></i>
+                        <div class="flex items-center gap-3 text-sm sm:text-base md:text-lg font-black text-amber-300">
+                            <span class="hadith-icon-bubble w-10 h-10 rounded-full bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-300 shadow-inner flex-shrink-0">
+                                <i class="fa-solid fa-book-quran text-base"></i>
                             </span>
                             <span>الأثر والدليل من السنة الصحيحة والقرآن الكريم:</span>
                         </div>
-                        <span class="text-[11px] font-bold text-amber-300/90 bg-amber-500/15 px-3.5 py-1 rounded-full border border-amber-500/30 flex items-center gap-1.5 shadow-sm flex-shrink-0">
-                            <i class="fa-solid fa-sparkles text-[10px] text-amber-400"></i> سند وحجة شرعية
+                        <span class="text-xs sm:text-sm font-black text-amber-300 bg-amber-500/20 px-4 py-1.5 rounded-full border border-amber-400/40 flex items-center gap-1.5 shadow-sm flex-shrink-0">
+                            <i class="fa-solid fa-sparkles text-xs text-amber-400"></i> سند وحجة شرعية
                         </span>
                     </div>
-                    <!-- نص الحديث والآية بخط كبير وبارز وفخم جداً وهامش مريح -->
-                    <div class="px-4 sm:px-6 py-3 text-xl sm:text-2xl md:text-[25px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.45rem; line-height: 2.35; letter-spacing: 0.4px; color: #fef3c7; text-shadow: 0 1px 2px rgba(0,0,0,0.5); text-align: justify;">
+                    <!-- نص الحديث والآية بخط ملكي عريض وضخم جداً وهوامش مريحة -->
+                    <div class="px-4 sm:px-6 py-3 text-xl sm:text-2xl md:text-[27px] text-amber-100 font-black leading-loose font-serif select-text" style="font-family: 'Amiri', 'Cairo', serif; font-size: 1.6rem; line-height: 2.4; letter-spacing: 0.4px; color: #fef3c7; text-shadow: 0 1px 2px rgba(0,0,0,0.5); text-align: justify;">
                         ${item.evidence}
                     </div>
                 </div>
             ` : '';
 
-            // 🌟 بطاقة الفتوى بحواف دائرية وهوامش داخلية واسعة وفخمة غير متكدسة (مساحات مريحة) 🌟
+            // 🌟 بطاقة الفتوى بحواف دائرية وهوامش داخلية واسعة وفخمة وخطوط واضحة وكبيرة 🌟
             html += `
-                <div class="fiqh-fatwa-card border-2 border-slate-800/80 flex flex-col justify-between group min-h-[460px] relative">
+                <div class="fiqh-fatwa-card border-2 border-slate-800/80 flex flex-col justify-between group min-h-[460px] relative space-y-6">
                     <!-- خط توهج علوي انسيابي ناعم -->
                     <div class="absolute top-0 right-0 left-0 h-1.5 bg-gradient-to-r from-transparent via-amber-400/50 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-t-[36px]"></div>
                     
                     <div class="space-y-6">
-                        <!-- Top Header: Ruling Badge & ID (حواف دائرية كاملة وهوامش متباعدة) -->
+                        <!-- Top Header: Ruling Badge & ID (حجم كبير، خط عريض، وحواف دائرية كاملة) -->
                         <div class="flex items-center justify-between gap-3 border-b border-slate-800/90 pb-4 px-2">
-                            <span class="px-5 py-2 text-xs sm:text-sm font-black rounded-full border ${rulingClass} shadow-md backdrop-blur-sm">
+                            <span class="px-6 py-2.5 text-sm sm:text-base md:text-lg font-black rounded-full ${rulingClass} backdrop-blur-sm">
                                 ${item.ruling}
                             </span>
-                            <span class="text-xs sm:text-sm font-mono text-amber-400 font-black px-4 py-2 bg-amber-500/15 rounded-full border border-amber-500/30 shadow-sm">
+                            <span class="text-sm sm:text-base font-mono text-amber-400 font-black px-4 py-2 bg-amber-500/15 rounded-full border border-amber-500/40 shadow-sm">
                                 #${item.id}
                             </span>
                         </div>
                         
-                        <!-- Question (عنوان ومسألة الفتوى بهوامش مريحة غير ملتصقة بالطرف) -->
-                        <h4 class="px-3 sm:px-4 py-1 text-base sm:text-lg md:text-xl font-black text-white group-hover:text-amber-300 transition-colors leading-relaxed" style="font-family: 'Cairo', sans-serif; line-height: 1.85;">
+                        <!-- Question (عنوان ومسألة الفتوى بخط بارز وكبير جداً ومريح) -->
+                        <h4 class="px-3 sm:px-4 py-1 text-lg sm:text-xl md:text-2xl lg:text-[24px] font-black text-white group-hover:text-amber-300 transition-colors leading-relaxed" style="font-family: 'Cairo', sans-serif; line-height: 1.9;">
                             ${item.question}
                         </h4>
                         
                         ${hadithBox}
 
-                        <!-- Summary (نص الفتوى والجواب بهوامش داخلية فسيحة ومريحة للقراءة وغير مكدسة) -->
-                        <p class="fiqh-summary-box text-xs sm:text-sm md:text-base text-slate-200 font-bold bg-slate-900/85 hover:bg-slate-900 border border-slate-800/80 hover:border-slate-700/80 shadow-inner transition-colors duration-300">
+                        <!-- Summary (نص الفتوى والجواب بخط كبير وواضح وهوامش داخلية فسيحة) -->
+                        <p class="fiqh-summary-box text-sm sm:text-base md:text-lg text-slate-100 font-bold bg-slate-900/85 hover:bg-slate-900 border border-slate-800/80 hover:border-slate-700/80 shadow-inner transition-colors duration-300" style="line-height: 2.15 !important;">
                             ${item.summary}
                         </p>
                     </div>
 
-                    <!-- Bottom Metadata: الشيخ والمصدر كاملين بأزرار كبسولية دائرية وهوامش رحبة -->
-                    <div class="mt-6 pt-5 border-t border-slate-800/90 flex flex-wrap items-center justify-between gap-4 px-2 text-xs sm:text-sm font-bold">
-                        <span class="text-amber-300 font-black flex items-center gap-2.5 px-5 py-2.5 bg-amber-500/15 hover:bg-amber-500/25 rounded-full border border-amber-500/30 hover:border-amber-400/60 shadow-sm transition-all duration-300">
-                            <i class="fa-solid fa-user-tie text-amber-400"></i> ${item.scholar_name}
+                    <!-- Bottom Metadata: الشيخ والمصدر كاملين بأزرار كبسولية عريضة وخطوط بارزة وكبيرة -->
+                    <div class="mt-6 pt-5 border-t border-slate-800/90 flex flex-wrap items-center justify-between gap-4 px-2 text-sm sm:text-base font-black">
+                        <span class="text-amber-300 font-black flex items-center gap-3 px-6 py-3 bg-amber-500/15 hover:bg-amber-500/25 rounded-full border-2 border-amber-500/40 hover:border-amber-400 shadow-md transition-all duration-300">
+                            <i class="fa-solid fa-user-tie text-amber-400 text-base sm:text-lg"></i>
+                            <span>${item.scholar_name}</span>
                         </span>
-                        <span class="text-sky-200 font-bold flex items-center gap-2.5 px-5 py-2.5 bg-sky-950/70 hover:bg-sky-950/90 rounded-full border border-sky-500/30 hover:border-sky-400/60 shadow-sm transition-all duration-300" title="${item.source}">
-                            <i class="fa-solid fa-book-bookmark text-sky-400"></i> ${item.source}
+                        <span class="text-sky-200 font-bold flex items-center gap-3 px-6 py-3 bg-sky-950/80 hover:bg-sky-950 rounded-full border-2 border-sky-500/40 hover:border-sky-400 shadow-md transition-all duration-300" title="${item.source}">
+                            <i class="fa-solid fa-book-bookmark text-sky-400 text-base sm:text-lg"></i>
+                            <span>${item.source}</span>
                         </span>
                     </div>
                 </div>
