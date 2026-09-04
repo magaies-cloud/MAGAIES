@@ -1809,14 +1809,14 @@ $pdo = getDBConnection();
                         <div class="flex items-center justify-between">
                             <label class="text-sm sm:text-base font-black text-amber-300 flex items-center gap-2">
                                 <i class="fa-solid fa-magnifying-glass text-amber-400 text-lg"></i>
-                                🔍 ابحث في موسوعة الـ 12,000 فتوى المحررة (داخل البرنامج):
+                                🔍 ابحث في موسوعة الـ 3,000 فتوى الذهبية الشاملة (داخل البرنامج):
                             </label>
                             <span id="fiqh_search_badge" class="text-emerald-400 font-mono font-black text-xs px-2.5 py-0.5 bg-emerald-950 border border-emerald-500/40 rounded-lg">
-                                12,000 فتوى موثقة ومتاحة للبحث والفلترة
+                                3,000 فتوى موثقة ومتاحة للبحث والفلترة
                             </span>
                         </div>
                         <div class="relative">
-                            <input type="text" id="fiqh-search-input" oninput="filterFatwas()" placeholder="اكتب للبحث في الـ 12,000 فتوى: تقسيط، شيك، ذهب، عربون، استصناع، سكراب، فرنشايز، أسهم، تمويل..." class="w-full py-3.5 pr-11 pl-4 bg-slate-900 border-2 border-amber-500/60 focus:border-amber-400 text-white rounded-xl text-sm sm:text-base font-black shadow-inner">
+                            <input type="text" id="fiqh-search-input" oninput="filterFatwas()" placeholder="اكتب للبحث في الـ 3,000 فتوى: تقسيط، ذهب، فرنشايز، اعتمادات L/C، تمويل جماعي، تايم شير، ضرائب جمركية، أسهم..." class="w-full py-3.5 pr-11 pl-4 bg-slate-900 border-2 border-amber-500/60 focus:border-amber-400 text-white rounded-xl text-sm sm:text-base font-black shadow-inner">
                             <i class="fa-solid fa-search absolute right-3.5 top-4 text-amber-400 text-lg"></i>
                         </div>
                     </div>
@@ -1932,7 +1932,7 @@ $pdo = getDBConnection();
                 <!-- 4. SUB-TABS NAVIGATION BAR (أقسام المنظومة الـ 6 في صندوق مستقل ومرتب) -->
                 <div class="p-3 bg-slate-950/95 rounded-2xl border-2 border-slate-800 flex flex-wrap items-center gap-2 mb-6">
                     <button type="button" class="fiqh-nav-pill active" onclick="switchFiqhSubTab('fatwas', this)">
-                        📑 موسوعة الفتاوى والأحكام (12,000 مسألة محررة لكبار الأئمة الـ 12)
+                        📑 موسوعة الفتاوى والأحكام (3,000 مسألة محررة لكبار الأئمة الـ 12)
                     </button>
                     <button type="button" class="fiqh-nav-pill bg-gradient-to-r from-sky-500/20 to-blue-600/30 text-sky-300 border-sky-400/60 hover:border-sky-300" onclick="switchFiqhSubTab('google', this)">
                         🌐 محرك بحث قوقل للشيوخ الـ 12 (المواقع العالمية)
@@ -6734,7 +6734,7 @@ $pdo = getDBConnection();
         const badge = document.getElementById('fiqh_search_badge');
         if (!grid) return;
 
-        const totalAll = getMasterFatwas().length || 12000;
+        const totalAll = getMasterFatwas().length || 3000;
         const totalMatches = currentFilteredList.length;
         const totalPages = Math.max(1, Math.ceil(totalMatches / PAGE_SIZE));
 
