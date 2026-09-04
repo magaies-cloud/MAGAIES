@@ -20039,11 +20039,25 @@ $pdo = getDBConnection();
     document.addEventListener('DOMContentLoaded', function() {
         const urlParams = new URLSearchParams(window.location.search);
         const tabParam = urlParams.get('tab') || window.location.hash.replace('#', '');
+        const subParam = urlParams.get('sub');
+        const qParam = urlParams.get('q');
         
         if (tabParam) {
             const targetPill = document.querySelector('[onclick*="switchSuite(\'' + tabParam + '\'"]');
             if (targetPill) {
                 switchSuite(tabParam, targetPill);
+            }
+        }
+        if (tabParam === 'fiqh' && subParam) {
+            switchFiqhSubTab(subParam);
+            if (subParam === 'fatwas' && qParam) {
+                setTimeout(() => {
+                    const input = document.getElementById('fiqh-search-input');
+                    if (input) {
+                        input.value = qParam;
+                        if (typeof executeLiveFilter === 'function') executeLiveFilter();
+                    }
+                }, 300);
             }
         }
     });
@@ -21404,6 +21418,79 @@ $pdo = getDBConnection();
         window.open(url, '_blank');
     }
 
+    // ════════════════════════════════════════════════════════════════════════════
+    // 🤖 SMART AI ASSISTANT BRIDGE (openToolSuite & ensureFiqhLoaded) 🤖
+    // ════════════════════════════════════════════════════════════════════════════
+    window.ensureFiqhLoaded = ensureFiqhLoaded;
+
+    window.openToolSuite = function(suiteId, subTab, searchKeyword, itemNum) {
+        if (!window.location.pathname.includes('engineering_tools.php')) {
+            let url = 'engineering_tools.php?tab=' + encodeURIComponent(suiteId);
+            if (subTab) url += '&sub=' + encodeURIComponent(subTab);
+            if (searchKeyword) url += '&q=' + encodeURIComponent(searchKeyword);
+            if (itemNum) url += '&id=' + encodeURIComponent(itemNum);
+            window.location.href = url;
+            return;
+        }
+
+        const targetPill = document.querySelector('[onclick*="switchSuite(\'' + suiteId + '\'"]');
+        switchSuite(suiteId, targetPill);
+
+        if (suiteId === 'fiqh' && subTab) {
+            switchFiqhSubTab(subTab);
+            if (subTab === 'fatwas') {
+                ensureFiqhLoaded(() => {
+                    const input = document.getElementById('fiqh-search-input');
+                    if (input && searchKeyword) {
+                        input.value = searchKeyword;
+                        if (typeof executeLiveFilter === 'function') executeLiveFilter();
+                    }
+                    setTimeout(() => {
+                        const sec = document.getElementById('fiqh-sub-fatwas');
+                        if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                    }, 150);
+                });
+            } else if (subTab === 'quran') {
+                setTimeout(() => {
+                    const input = document.getElementById('quran-search-input');
+                    if (input && searchKeyword) {
+                        input.value = searchKeyword;
+                        if (typeof filterQuranVerses === 'function') filterQuranVerses();
+                    }
+                    const sec = document.getElementById('fiqh-sub-quran');
+                    if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 150);
+            } else if (subTab === 'hadiths') {
+                setTimeout(() => {
+                    const input = document.getElementById('hadith-search-input');
+                    if (input && searchKeyword) {
+                        input.value = searchKeyword;
+                        if (typeof filterHadiths === 'function') filterHadiths();
+                    }
+                    const sec = document.getElementById('fiqh-sub-hadiths');
+                    if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 150);
+            } else if (subTab === 'maxims') {
+                setTimeout(() => {
+                    const input = document.getElementById('maxims-search-input');
+                    if (input && searchKeyword) {
+                        input.value = searchKeyword;
+                        if (typeof filterMaxims === 'function') filterMaxims();
+                    }
+                    const sec = document.getElementById('fiqh-sub-maxims');
+                    if (sec) sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                }, 150);
+            }
+        } else {
+            setTimeout(() => {
+                const targetSec = document.getElementById('suite-sec-' + suiteId);
+                if (targetSec) targetSec.scrollIntoView({ behavior: 'smooth', block: 'start' });
+            }, 150);
+        }
+    };
+
 </script>
+    <!-- 🤖 SMART AI ASSISTANT FOR DATA, FIQH & ENGINEERING TOOLS 🤖 -->
+    <script src="js/chatbot.js?v=2026_fiqh" defer></script>
 </body>
 </html>

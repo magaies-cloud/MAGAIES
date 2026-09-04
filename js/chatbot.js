@@ -48,6 +48,36 @@
     `;
     document.head.appendChild(style);
 
+    const isToolsPage = window.location.pathname.includes('engineering_tools.php');
+    const welcomeHtml = isToolsPage ? `
+        أهلاً بك في نظام السجانة الذكي! 🌟<br>
+        أنا مرتبط ببيانات النظام الحية، وموسوعة فتاوى البيوع والمعاملات (4,500 فتوى)، وجميع الأدوات المساعدة. جرب أن تسألني:
+        <div class="chat-options">
+            <span class="chat-pill" onclick="sendPill('حكم البيع بالتقسيط؟')">حكم بيع التقسيط 💳</span>
+            <span class="chat-pill" onclick="sendPill('ما حكم غرامات التأخير؟')">غرامات التأخير ⚠️</span>
+            <span class="chat-pill" onclick="sendPill('حاسبة زكاة المال')">حاسبة الزكاة 💰</span>
+            <span class="chat-pill" onclick="sendPill('سويفت كود بنك الخرطوم')">سويفت بنك الخرطوم 🏦</span>
+            <span class="chat-pill" onclick="sendPill('كم السيولة النقدية؟')">كم السيولة؟ 💵</span>
+            <span class="chat-pill" onclick="sendPill('آية الدين والمداينة')">آية الدين 📖</span>
+            <span class="chat-pill" onclick="sendPill('أحاديث البيوع الصحيحة')">أحاديث البيوع 📜</span>
+            <span class="chat-pill" onclick="sendPill('حساب وزن سيخ 12 مم')">أوزان الحديد 🏗️</span>
+        </div>
+    ` : `
+        أهلاً بك! 🌟<br>أنا مرتبط بقاعدة بيانات النظام مباشرة الآن. جرب أن تسألني:
+        <div class="chat-options">
+            <span class="chat-pill" onclick="sendPill('كم السيولة؟')">كم السيولة؟ 💰</span>
+            <span class="chat-pill" onclick="sendPill('كم مديونية عميل محمد؟')">مديونية عميل...</span>
+            <span class="chat-pill" onclick="sendPill('كم عدد فواتير اليوم؟')">فواتير اليوم 📊</span>
+            <span class="chat-pill" onclick="sendPill('أريد شاشة الكاشير')">شاشة الكاشير 🛒</span>
+            <span class="chat-pill" onclick="sendPill('حكم البيع بالتقسيط؟')">فتاوى البيوع ⚖️</span>
+            <span class="chat-pill" onclick="sendPill('من هم أكبر المدينين؟')">أكبر المديونيات ⚠️</span>
+        </div>
+    `;
+
+    const placeholderText = isToolsPage ? 
+        'اسأل عن أي فتوى، آية، حديث، سويفت، أو بيانات النظام...' : 
+        'اسأل عن أي مديونية أو فاتورة أو فتوى بيوع...';
+
     const container = document.createElement('div');
     container.id = 'magaees-chatbot-container';
     
@@ -66,18 +96,11 @@
             </div>
             <div id="chatbot-body">
                 <div class="chat-msg bot">
-                    أهلاً بك! 🌟<br>أنا مرتبط بقاعدة بيانات النظام مباشرة الآن. جرب أن تسألني:
-                    <div class="chat-options">
-                        <span class="chat-pill" onclick="sendPill('كم السيولة؟')">كم السيولة؟ 💰</span>
-                        <span class="chat-pill" onclick="sendPill('كم مديونية عميل محمد؟')">مديونية عميل...</span>
-                        <span class="chat-pill" onclick="sendPill('كم عدد فواتير اليوم؟')">فواتير اليوم 📊</span>
-                        <span class="chat-pill" onclick="sendPill('أريد شاشة الكاشير')">شاشة الكاشير 🛒</span>
-                        <span class="chat-pill" onclick="sendPill('من هم أكبر المدينين؟')">أكبر المديونيات ⚠️</span>
-                    </div>
+                    ${welcomeHtml}
                 </div>
             </div>
             <div id="chatbot-input-area">
-                <input type="text" id="chatbot-input" placeholder="اسأل عن أي مديونية أو فاتورة..." autocomplete="off">
+                <input type="text" id="chatbot-input" placeholder="${placeholderText}" autocomplete="off">
                 <button id="chatbot-mic" title="تحدث بالصوت">🎤</button>
                 <button id="chatbot-send">➤</button>
             </div>
@@ -649,6 +672,374 @@
         return msg;
     }
 
+    // ════════════════════════════════════════════════════════════════════════════
+    // 🕌 FIQH & ENGINEERING TOOLS KNOWLEDGE ENGINE 🕌
+    // ════════════════════════════════════════════════════════════════════════════
+    window.openToolSuite = window.openToolSuite || function(suiteId, subTab, searchKeyword, itemNum) {
+        let url = 'engineering_tools.php?tab=' + encodeURIComponent(suiteId);
+        if (subTab) url += '&sub=' + encodeURIComponent(subTab);
+        if (searchKeyword) url += '&q=' + encodeURIComponent(searchKeyword);
+        if (itemNum) url += '&id=' + encodeURIComponent(itemNum);
+        window.location.href = url;
+    };
+
+    function normalizeArabicSearch(str) {
+        if (!str) return '';
+        return str.toString()
+            .replace(/[\u061F\u060C\u061B!?.؟،;:()\[\]{}«»\-\/\\\"'\`]/g, ' ')
+            .replace(/[أإآ]/g, 'ا')
+            .replace(/ة/g, 'ه')
+            .replace(/ى/g, 'ي')
+            .replace(/[\u064B-\u065F]/g, '')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .toLowerCase();
+    }
+
+    function extractTokens(query) {
+        const norm = normalizeArabicSearch(query);
+        const rawTokens = norm.split(' ').filter(t => t.length > 0);
+        const stopWords = ['ما', 'هو', 'هي', 'هل', 'في', 'من', 'عن', 'على', 'الي', 'الى', 'مع', 'هذا', 'هذه', 'كم', 'اين', 'كيف', 'اريد', 'ابحث', 'اعطني', 'حكم', 'الحكم', 'شرعي', 'الشرعي', 'فقهي', 'الفقهي', 'يجوز', 'حلال', 'حرام', 'شرعا', 'مسالة'];
+        let tokens = [];
+        rawTokens.forEach(w => {
+            if (stopWords.includes(w)) return;
+            tokens.push(w);
+            if ((w.startsWith('بال') || w.startsWith('كال') || w.startsWith('فال') || w.startsWith('وال')) && w.length > 4) {
+                tokens.push(w.substring(3));
+            } else if ((w.startsWith('لل') || w.startsWith('ال')) && w.length > 3) {
+                tokens.push(w.substring(2));
+            }
+        });
+        return [...new Set(tokens)];
+    }
+
+    function detectFiqhAndToolsIntent(query) {
+        const norm = normalizeArabicSearch(query);
+        const words = norm.split(/\s+/);
+        const hasAnyWord = (targets) => words.some(w => targets.includes(w));
+        
+        if (hasAnyWord(['ايه', 'ايات', 'الايه', 'الايات', 'قران', 'القران', 'سوره', 'السوره', 'مداينه', 'المداينه', 'المطففين'])) return 'quran';
+        if (hasAnyWord(['حديث', 'احاديث', 'الحديث', 'الاحاديث', 'الرسول', 'النبي', 'البخاري', 'مسلم', 'الترمذي', 'ابوداود', 'السنن', 'البيعان', 'بالخيار', 'الخيار'])) return 'hadith';
+        if (hasAnyWord(['قاعده', 'قواعد', 'القاعده', 'القواعد', 'الغرم', 'الخراج', 'الضمان'])) return 'maxim';
+        
+        if (norm.includes('سويفت') || norm.includes('swift') || norm.includes('ايبان') || norm.includes('iban') || norm.includes('bban') || norm.includes('بنكك') || norm.includes('اوكاش') || norm.includes('بنك الخرطوم') || norm.includes('بنك فيصل') || norm.includes('تحويل بنكي') || norm.includes('تحويلات البنوك')) return 'banks';
+        if (norm.includes('زكاه') || norm.includes('نصاب') || norm.includes('عروض التجاره')) return 'zakat';
+        if (norm.includes('حديد') || norm.includes('تسليح') || norm.includes('سيخ') || norm.includes('زنك') || norm.includes('مواسير') || norm.includes('كمرات') || norm.includes('لينة') || norm.includes('لينه')) return 'steel';
+        if (norm.includes('خرسانه') || norm.includes('اسمنت') || norm.includes('بلوك') || norm.includes('طوب') || norm.includes('مونه') || norm.includes('بياض') || norm.includes('صبة') || norm.includes('صبه')) return 'concrete';
+        if (norm.includes('طاقه') || norm.includes('شمسيه') || norm.includes('انفرتر') || norm.includes('الواح شمسيه') || norm.includes('بطاريات')) return 'solar';
+        if (norm.includes('شحن') || norm.includes('نولون') || norm.includes('حاويه') || norm.includes('تريلا') || norm.includes('حاويات')) return 'freight';
+        if (norm.includes('تحويل وحدات') || norm.includes('فدان') || norm.includes('بوصه') || norm.includes('يارده') || norm.includes('متر مربع')) return 'units';
+        if (norm.includes('جدوى') || norm.includes('جدوي') || norm.includes('نقطه التعادل') || norm.includes('تدفق نقدي')) return 'feasibility';
+        if (norm.includes('نهايه الخدمه') || norm.includes('مكافاه نهايه') || norm.includes('مستحقات العامل') || norm.includes('حقوق العمال')) return 'hr_gratuity';
+        
+        if (norm.includes('حكم') || norm.includes('فتوى') || norm.includes('فتاوى') || norm.includes('فتاوي') || norm.includes('يجوز') || norm.includes('حلال') || norm.includes('حرام') || norm.includes('تقسيط') || norm.includes('مرابحه') || norm.includes('تورق') || norm.includes('عربون') || norm.includes('ذهب') || norm.includes('فضه') || norm.includes('ربا') || norm.includes('سلم') || norm.includes('استصناع') || norm.includes('عثيمين') || norm.includes('ابن باز') || norm.includes('الفقه') || norm.includes('غرامات') || norm.includes('تاخير') || norm.includes('شيك')) return 'fatwa';
+        
+        return null;
+    }
+
+    let _cachedFiqhDataset = null;
+    function getOrLoadFiqhDataset(callback) {
+        if (_cachedFiqhDataset && _cachedFiqhDataset.length > 0) {
+            callback(_cachedFiqhDataset);
+            return;
+        }
+        if (window.MASTER_20000_FATWAS && Array.isArray(window.MASTER_20000_FATWAS) && window.MASTER_20000_FATWAS.length > 0) {
+            _cachedFiqhDataset = window.MASTER_20000_FATWAS;
+            callback(_cachedFiqhDataset);
+            return;
+        }
+        if (typeof window.ensureFiqhLoaded === 'function') {
+            window.ensureFiqhLoaded(() => {
+                _cachedFiqhDataset = window.MASTER_20000_FATWAS || window.MASTER_5500_FATWAS || [];
+                callback(_cachedFiqhDataset);
+            });
+            return;
+        }
+        const script = document.createElement('script');
+        script.src = 'js/fiqh_20000_data.js?v=4500_v2';
+        script.async = true;
+        script.onload = () => {
+            _cachedFiqhDataset = window.MASTER_20000_FATWAS || window.MASTER_5500_FATWAS || [];
+            callback(_cachedFiqhDataset);
+        };
+        script.onerror = () => {
+            callback([]);
+        };
+        document.head.appendChild(script);
+    }
+
+    function handleFiqhAndTools(query, callback) {
+        const intent = detectFiqhAndToolsIntent(query);
+        if (!intent) {
+            callback(false);
+            return;
+        }
+
+        const tokens = extractTokens(query);
+
+        if (intent === 'quran') {
+            const verses = window.QURAN_VERSES_DATA || [];
+            let top = null;
+            let maxScore = 0;
+            for (let v of verses) {
+                let score = 0;
+                const norm = normalizeArabicSearch((v.search || '') + ' ' + (v.title || '') + ' ' + (v.verseText || ''));
+                for (let t of tokens) {
+                    if (norm.includes(t)) score += 3;
+                }
+                if (score > maxScore) { maxScore = score; top = v; }
+            }
+            if (!top && verses.length > 0) top = verses[0];
+
+            if (top) {
+                const responseHtml = `
+                    📖 <b>الدستور القرآني للمعاملات المالية (الآية #${top.num}):</b><br>
+                    <b style="color:#38bdf8; font-size:0.95rem; display:block; margin:4px 0;">${top.title}</b>
+                    <span style="font-size:0.8rem; color:#94a3b8;">${top.surah}</span><br>
+                    <div style="font-family:'Amiri', serif; font-size:1.15rem; line-height:1.9; color:#f8fafc; background:rgba(56,189,248,0.08); padding:10px 14px; border-radius:10px; border-right:4px solid #38bdf8; margin:8px 0;">
+                        ﴿ ${top.verseText} ﴾
+                    </div>
+                    <span style="font-size:0.85rem; color:#cbd5e1; display:block; margin-top:4px;">💡 <b>الأحكام والفوائد الاقتصادية:</b> ${top.guidance}</span>
+                `;
+                const btnHtml = `<br><button type="button" class="chat-action-btn" onclick="openToolSuite('fiqh', 'quran', '${encodeURIComponent(top.title)}', ${top.num})">📖 عرض الآية في الدستور القرآني (#${top.num})</button>`;
+                callback(true, responseHtml, btnHtml);
+                return;
+            }
+            const responseHtml = `
+                📖 <b>الدستور القرآني للمعاملات المالية:</b><br><br>
+                يضم الدستور القرآني 38 آية محكمة تؤصل أحكام الديون (آية المداينة الكبرى 282 البقرة)، وتحريم الربا القطعي، والوفاء بالعقود، والأمانات المالية، وحرمة التطفيف في الكيل والميزان.
+            `;
+            const btnHtml = `<br><button type="button" class="chat-action-btn" onclick="openToolSuite('fiqh', 'quran')">📖 فتح الدستور القرآني في الأدوات</button>`;
+            callback(true, responseHtml, btnHtml);
+            return;
+        }
+
+        if (intent === 'hadith') {
+            const hadiths = window.HADITHS_DATA || [];
+            let top = null;
+            let maxScore = 0;
+            for (let h of hadiths) {
+                let score = 0;
+                const norm = normalizeArabicSearch((h.search || '') + ' ' + (h.title || '') + ' ' + (h.matn || ''));
+                for (let t of tokens) {
+                    if (norm.includes(t)) score += 3;
+                }
+                if (score > maxScore) { maxScore = score; top = h; }
+            }
+            if (!top && hadiths.length > 0) top = hadiths[0];
+
+            if (top) {
+                const responseHtml = `
+                    📜 <b>الموسوعة النبوية الصحيحة في المعاملات (الحديث #${top.num}):</b><br>
+                    <b style="color:#facc15; font-size:0.95rem; display:block; margin:4px 0;">${top.title}</b>
+                    <span style="font-size:0.8rem; color:#4ade80; background:rgba(74,222,128,0.15); padding:2px 8px; border-radius:6px;">${top.gradeBadge}</span> 
+                    <span style="font-size:0.8rem; color:#cbd5e1;">${top.catBadge}</span><br>
+                    <div style="font-family:'Amiri', serif; font-size:1.1rem; line-height:1.8; color:#fef08a; background:rgba(250,204,21,0.08); padding:10px 14px; border-radius:10px; border-right:4px solid #facc15; margin:8px 0;">
+                        ${top.sanad ? '<span style="color:#cbd5e1; font-size:0.9rem;">' + top.sanad + '</span><br>' : ''}${top.matn}
+                    </div>
+                    <span style="font-size:0.82rem; color:#94a3b8; display:block; margin-top:4px;">📚 <b>التخريج:</b> ${top.source}</span>
+                    <span style="font-size:0.85rem; color:#cbd5e1; display:block; margin-top:3px;">💎 <b>الضابط والفائدة للتاجر والمحاسب:</b> ${top.benefit}</span>
+                `;
+                const btnHtml = `<br><button type="button" class="chat-action-btn" onclick="openToolSuite('fiqh', 'hadiths', '${encodeURIComponent(top.title)}', ${top.num})">📜 عرض الحديث في الموسوعة النبوية (#${top.num})</button>`;
+                callback(true, responseHtml, btnHtml);
+                return;
+            }
+            const responseHtml = `
+                📜 <b>الموسوعة النبوية الصحيحة للمعاملات المالية:</b><br><br>
+                تضم الموسوعة 100 حديث نبوي صحيح مخرجة من الصحيحين والسنن في أصول التجارة والبيوع: خيار المجلس، النهي عن بيع ما لا يملك، السماحة في البيع والشراء، وتحريم الربا والغرر.
+            `;
+            const btnHtml = `<br><button type="button" class="chat-action-btn" onclick="openToolSuite('fiqh', 'hadiths')">📜 فتح الموسوعة النبوية في الأدوات</button>`;
+            callback(true, responseHtml, btnHtml);
+            return;
+        }
+
+        if (intent === 'maxim') {
+            const responseHtml = `
+                ⚖️ <b>القواعد الفقهية الكبرى الـ 30 في البيوع والمعاملات:</b><br><br>
+                • <b>الأصل في المعاملات الإباحة:</b> كل شرط أو عقد مباح ما لم يقم دليل على تحريمه.<br>
+                • <b>الغرم بالغنم:</b> من يستحق ربح السلعة يجب أن يتحمل مخاطرها وضمانها.<br>
+                • <b>الخراج بالضمان:</b> منافع المبيع للمشتري في مقابل تحمله مخاطر تلفه.<br>
+                • <b>الضرر يزال:</b> تحريم التدليس والغش والاحتكار والإضرار بالمتعاملين.<br>
+                • <b>المعروف عرفاً كالمشروط شرطاً:</b> الأعراف التجارية الصحيحة لها قوة الشروط التعاقدية.
+            `;
+            const btnHtml = `<br><button type="button" class="chat-action-btn" onclick="openToolSuite('fiqh', 'maxims')">⚖️ عرض القواعد الفقهية الـ 30</button>`;
+            callback(true, responseHtml, btnHtml);
+            return;
+        }
+
+        if (intent === 'banks') {
+            const responseHtml = `
+                🏛️ <b>دليل مفاتيح تحويلات البنوك وسويفت و BBAN:</b><br><br>
+                💡 <b>القاعدة الذهبية لكافة البنوك:</b> يتم حذف الصفر في بداية رقم الحساب دائماً حتى تكتمل الـ 14 خانة بنجاح!<br><br>
+                • <b>بنك الخرطوم (تطبيق بنكك):</b> المفتاح <code>040</code> + 7 أرقام حساب + <code>0001</code><br>
+                • <b>بنك أم درمان الوطني (تطبيق أوكاش):</b> المفتاح <code>240</code> + 7 أرقام حساب + <code>0001</code><br>
+                • <b>بنك فيصل الإسلامي (تطبيق فوري):</b> المفتاح <code>02</code> + 8 أرقام حساب + <code>0001</code><br>
+                • <b>البنك الإسلامي السوداني:</b> المفتاح <code>14000</code> + 4 أرقام حساب + <code>00001</code>
+            `;
+            const btnHtml = `<br><button type="button" class="chat-action-btn" onclick="openToolSuite('banks')">🏦 فتح دليل البنوك ومولد BBAN</button>`;
+            callback(true, responseHtml, btnHtml);
+            return;
+        }
+
+        if (intent === 'zakat') {
+            const responseHtml = `
+                💰 <b>حاسبة زكاة المال وعروض التجارة والذهب:</b><br><br>
+                • <b>نصاب الزكاة الشرعي:</b> ما يعادل قيمة <b>85 جراماً من الذهب الخالص (عيار 24)</b>.<br>
+                • <b>نسبة الزكاة الواجبة:</b> <b>2.5% (ربع العشر)</b>.<br>
+                • <b>شروط الوجوب:</b> بلوغ النصاب + حولان الحول (مرور سنة قمرية) + فضل المال عن الحاجات والديون العاجلة.<br><br>
+                يمكنك إدخال السيولة النقدية والذهب والمخزون لحساب الزكاة المستحقة فورياً:
+            `;
+            const btnHtml = `<br><button type="button" class="chat-action-btn" onclick="openToolSuite('zakat')">🧮 فتح حاسبة زكاة المال</button>`;
+            callback(true, responseHtml, btnHtml);
+            return;
+        }
+
+        if (intent === 'steel') {
+            const responseHtml = `
+                🏗️ <b>حاسبة أوزان وقطع حديد التسليح والمواسير والزنك:</b><br><br>
+                • <b>معادلة وزن المتر الطولي للسيخ:</b> <code>الوزن (كجم/متر) = القطر² ÷ 162</code><br>
+                • <b>أوزان أسياخ التسليح القياسية (طول السيخة 12 متر):</b><br>
+                  - سيخ 12 مم (4 لينة): 10.65 كجم/سيخة (الطن ≈ 94 سيخة)<br>
+                  - سيخ 16 مم (5 لينة): 18.96 كجم/سيخة (الطن ≈ 53 سيخة)<br>
+                  - سيخ 10 مم (3 لينة): 7.40 كجم/سيخة (الطن ≈ 135 سيخة)<br>
+                  - سيخ 8 مم (لينة وربع): 4.74 كجم/سيخة (الطن ≈ 211 سيخة)
+            `;
+            const btnHtml = `<br><button type="button" class="chat-action-btn" onclick="openToolSuite('steel')">📏 فتح حاسبة أوزان الحديد والزنك</button>`;
+            callback(true, responseHtml, btnHtml);
+            return;
+        }
+
+        if (intent === 'concrete') {
+            const responseHtml = `
+                🧱 <b>حاسبة الخرسانة المسلحة والبلوك ومواد البناء:</b><br><br>
+                • <b>الخلطة القياسية للخرسانة المسلحة (1 : 2 : 4):</b><br>
+                  - لكل 1 م³ خرسانة مسلحة: <b>7 شكائر أسمنت (350 كجم)</b> + <b>0.43 م³ رمل</b> + <b>0.86 م³ سن/حصى</b> + <b>175 لتر ماء</b>.<br>
+                • <b>المونة والبلوك:</b> لحساب كميات البلوك الأسمنتي بدقة ومونة البناء واللياسة:
+            `;
+            const btnHtml = `<br><button type="button" class="chat-action-btn" onclick="openToolSuite('concrete')">🧱 فتح حاسبة الخرسانة ومواد البناء</button>`;
+            callback(true, responseHtml, btnHtml);
+            return;
+        }
+
+        if (intent === 'solar') {
+            const responseHtml = `
+                ☀️ <b>حاسبة منظومات الطاقة الشمسية والكهرباء:</b><br><br>
+                تساعدك الحاسبة على تحديد قدرة الألواح الشمسية المطلوبة، وسعة الانفرتر المناسب، وبنك البطاريات (أمبير/ساعة) لتشغيل المنشأة أو المخازن باستقرار تام.
+            `;
+            const btnHtml = `<br><button type="button" class="chat-action-btn" onclick="openToolSuite('solar')">⚡ فتح حاسبة الطاقة الشمسية</button>`;
+            callback(true, responseHtml, btnHtml);
+            return;
+        }
+
+        if (intent === 'freight') {
+            const responseHtml = `
+                🚚 <b>حاسبة الشحن والنولون والحاويات وتوزيع الحمولات:</b><br><br>
+                • <b>حاوية 20 قدم:</b> الحجم ~33 م³، أقصى حمولة ~28 طن.<br>
+                • <b>حاوية 40 قدم:</b> الحجم ~67 م³، أقصى حمولة ~28 طن.<br>
+                • <b>تريلا جامبو:</b> حمولة قياسية ~25 إلى 30 طن.<br>
+                لحساب النولون وتوزيع الأوزان على الشاحنات:
+            `;
+            const btnHtml = `<br><button type="button" class="chat-action-btn" onclick="openToolSuite('freight')">📦 فتح حاسبة الشحن والحاويات</button>`;
+            callback(true, responseHtml, btnHtml);
+            return;
+        }
+
+        if (intent === 'units') {
+            const responseHtml = `
+                📐 <b>محول المقاييس والوحدات العالمية:</b><br><br>
+                • 1 فدان = 4200.83 متر مربع.<br>
+                • 1 متر = 39.37 بوصة = 3.281 قدم.<br>
+                • 1 طن = 1000 كجم = 2204.62 رطل.
+            `;
+            const btnHtml = `<br><button type="button" class="chat-action-btn" onclick="openToolSuite('units')">🔄 فتح محول المقاييس والوحدات</button>`;
+            callback(true, responseHtml, btnHtml);
+            return;
+        }
+
+        if (intent === 'feasibility') {
+            const responseHtml = `
+                📊 <b>دراسة الجدوى الاستثمارية وحساب نقطة التعادل:</b><br><br>
+                • <b>نقطة التعادل (Break-even):</b> التكاليف الثابتة ÷ (سعر بيع الوحدة - التكلفة المتغيرة للوحدة).<br>
+                • <b>فترة استرداد رأس المال:</b> إجمالي الاستثمار الأولي ÷ صافي التدفق النقدي السنوي.
+            `;
+            const btnHtml = `<br><button type="button" class="chat-action-btn" onclick="openToolSuite('feasibility')">📈 فتح حاسبة دراسة الجدوى</button>`;
+            callback(true, responseHtml, btnHtml);
+            return;
+        }
+
+        if (intent === 'hr_gratuity') {
+            const responseHtml = `
+                👥 <b>حاسبة مكافأة نهاية الخدمة ومستحقات العمال:</b><br><br>
+                تحسب مكافأة نهاية الخدمة النظامية وفق قانون العمل بناءً على سنوات الخدمة، والراتب الأساسي الأخير، ورصيد الإجازات، ونوع انتهاء العقد.
+            `;
+            const btnHtml = `<br><button type="button" class="chat-action-btn" onclick="openToolSuite('hr_gratuity')">⚖️ فتح حاسبة مكافأة نهاية الخدمة</button>`;
+            callback(true, responseHtml, btnHtml);
+            return;
+        }
+
+        if (intent === 'fatwa') {
+            const typingEl = appendMessage('<div class="typing-indicator" style="font-size:12px;opacity:0.8;">جاري البحث المباشر في موسوعة فتاوى البيوع والمعاملات (4,500 فتوى)... 📚</div>', 'bot');
+            
+            getOrLoadFiqhDataset((dataset) => {
+                if (!dataset || dataset.length === 0) {
+                    typingEl.innerHTML = `
+                        🕌 <b>فتاوى البيوع والمعاملات المالية:</b><br><br>
+                        الأصل في المعاملات المالية الحل والإباحة والتراضي، ما لم تخالط المعاملة ربا أو غرر فاحش أو ظلم.<br>
+                        <button type="button" class="chat-action-btn" onclick="openToolSuite('fiqh', 'fatwas')">🔍 فتح موسوعة فتاوى البيوع (4,500 فتوى)</button>
+                    `;
+                    body.scrollTop = body.scrollHeight;
+                    return;
+                }
+
+                let scored = [];
+                for (let f of dataset) {
+                    let score = 0;
+                    const normQues = normalizeArabicSearch(f.question || '');
+                    const normTags = normalizeArabicSearch(f.tags || '');
+                    const normTopic = normalizeArabicSearch(f.topic_name || '');
+                    const normSumm = normalizeArabicSearch(f.summary || '');
+                    for (let t of tokens) {
+                        if (normQues.includes(t)) score += 6;
+                        if (normTags.includes(t)) score += 4;
+                        if (normTopic.includes(t)) score += 4;
+                        if (normSumm.includes(t)) score += 2;
+                    }
+                    if (score > 0) scored.push({ fatwa: f, score });
+                }
+
+                scored.sort((a,b) => b.score - a.score);
+                const topItem = scored.length > 0 ? scored[0].fatwa : dataset[0];
+
+                let badgeColor = '#10b981';
+                const rulingText = topItem.ruling || '';
+                if (rulingText.includes('محرم') || rulingText.includes('باطل') || rulingText.includes('ربا')) {
+                    badgeColor = '#ef4444';
+                } else if (rulingText.includes('مكروه') || rulingText.includes('ضوابط')) {
+                    badgeColor = '#f59e0b';
+                } else if (rulingText.includes('واجب') || rulingText.includes('ملزم')) {
+                    badgeColor = '#0ea5e9';
+                }
+
+                typingEl.innerHTML = `
+                    🕌 <b>مسألة فقهية في المعاملات المالية (#${topItem.id}):</b><br>
+                    <b style="color:#f1f5f9; font-size:0.95rem; display:block; margin:6px 0;">${topItem.question}</b>
+                    <div style="background:rgba(255,255,255,0.06); padding:8px 12px; border-radius:10px; border-right:4px solid ${badgeColor}; margin:8px 0;">
+                        <span style="color:${badgeColor}; font-weight:bold; font-size:0.95rem;">⚖️ الحكم الشرعي: ${topItem.ruling}</span><br>
+                        <span style="font-size:0.85rem; color:#cbd5e1; margin-top:4px; display:block; line-height:1.5;"><b>البيان والضابط:</b> ${topItem.summary}</span>
+                    </div>
+                    <span style="font-size:0.85rem; color:#94a3b8; display:block; margin-top:4px;">📖 <b>الدليل الشرعي:</b> ${topItem.evidence}</span>
+                    <span style="font-size:0.8rem; color:#64748b; display:block; margin-top:3px;">📚 <b>المصدر:</b> ${topItem.scholar_name} — ${topItem.source}</span>
+                    <button type="button" class="chat-action-btn" onclick="openToolSuite('fiqh', 'fatwas', '${topItem.id}', ${topItem.id})">🔍 عرض الفتوى في الموسوعة (#${topItem.id})</button>
+                `;
+                body.scrollTop = body.scrollHeight;
+            });
+            callback(true);
+            return;
+        }
+
+        callback(false);
+    }
+
     function processUserMessage(text) {
         const query = text.trim();
         if(!query) return;
@@ -659,7 +1050,7 @@
         setTimeout(() => {
             let matched = false;
             
-            // 1. Try Dynamic Queries (NLP Regex)
+            // 1. Try Dynamic Queries (NLP Regex) for Live ERP Data
             for(let rule of dynamicKb) {
                 const match = query.match(rule.regex);
                 if(match) {
@@ -671,24 +1062,34 @@
 
             if(matched) return;
 
-            // 2. Try Static Keywords
-            const lowerQuery = query.toLowerCase();
-            for(let item of staticKb) {
-                if(item.keywords.some(kw => lowerQuery.includes(kw))) {
-                    let btn = '';
-                    if(item.link) {
-                        const target = item.isExternal ? 'target="_blank"' : '';
-                        const btnClass = item.isExternal ? 'chat-action-btn chat-whatsapp-btn' : 'chat-action-btn';
-                        btn = `<br><a href="${item.link}" class="${btnClass}" ${target}>${item.linkText}</a>`;
+            // 2. Try Fiqh & Engineering Tools Engine
+            handleFiqhAndTools(query, (handled, responseHtml, actionBtnHtml) => {
+                if (handled) {
+                    if (responseHtml) {
+                        appendMessage(responseHtml, 'bot', actionBtnHtml || '');
                     }
-                    appendMessage(item.response, 'bot', btn);
-                    matched = true;
-                    break;
+                    return;
                 }
-            }
 
-            // 3. Fallback -> Use AI
-            if(!matched) {
+                // 3. Try Static Keywords
+                const lowerQuery = query.toLowerCase();
+                for(let item of staticKb) {
+                    if(item.keywords.some(kw => lowerQuery.includes(kw))) {
+                        let btn = '';
+                        if(item.link) {
+                            const target = item.isExternal ? 'target="_blank"' : '';
+                            const btnClass = item.isExternal ? 'chat-action-btn chat-whatsapp-btn' : 'chat-action-btn';
+                            btn = `<br><a href="${item.link}" class="${btnClass}" ${target}>${item.linkText}</a>`;
+                        }
+                        appendMessage(item.response, 'bot', btn);
+                        matched = true;
+                        break;
+                    }
+                }
+
+                if (matched) return;
+
+                // 4. Fallback -> Use AI Assistant
                 const msgEl = appendMessage('<div class="typing-indicator" style="font-size:12px;opacity:0.7;">جاري التفكير... 🤖</div>', 'bot');
                 
                 let contextStr = "لا توجد بيانات حالية";
@@ -794,7 +1195,7 @@
                     console.error(err);
                     msgEl.innerHTML = 'عذراً، لم أتمكن من الوصول للخادم.';
                 });
-            }
+            });
         }, 500);
     }
 
@@ -827,7 +1228,7 @@
             
             recognition.onerror = (e) => {
                 console.error('Speech Recognition Error:', e.error);
-                input.placeholder = 'اسأل عن أي مديونية أو فاتورة...';
+                input.placeholder = placeholderText;
                 stopRec();
             };
             
@@ -842,7 +1243,7 @@
                 isRecording = false;
                 micBtn.innerHTML = '🎤';
                 micBtn.classList.remove('recording');
-                input.placeholder = 'اسأل عن أي مديونية أو فاتورة...';
+                input.placeholder = placeholderText;
             }
             
             micBtn.addEventListener('click', () => {
