@@ -874,6 +874,71 @@ $pdo = getDBConnection();
             transform: translateY(-2px);
         }
 
+
+        /* Scholar Dropdown Selector in Search Console */
+        .fiqh-scholar-dropdown-wrap {
+            position: relative;
+            min-width: 230px;
+        }
+
+        .fiqh-luxury-select-scholar {
+            width: 100%;
+            height: 56px;
+            padding: 0 18px 0 42px !important; /* RTL: left padding for chevron */
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.98) 0%, rgba(20, 30, 48, 0.98) 100%) !important;
+            border: 1.5px solid rgba(251, 191, 36, 0.5) !important;
+            color: #fef08a !important;
+            font-size: 0.95rem !important;
+            font-weight: 800 !important;
+            border-radius: 16px !important;
+            box-shadow: 
+                0 4px 16px rgba(0, 0, 0, 0.4), 
+                inset 0 1px 1px rgba(255, 255, 255, 0.1) !important;
+            outline: none !important;
+            cursor: pointer !important;
+            appearance: none !important;
+            -webkit-appearance: none !important;
+            -moz-appearance: none !important;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        .fiqh-luxury-select-scholar:hover {
+            border-color: #fbbf24 !important;
+            box-shadow: 
+                0 8px 24px rgba(245, 158, 11, 0.28), 
+                0 0 16px rgba(251, 191, 36, 0.25) !important;
+            transform: translateY(-1px);
+        }
+
+        .fiqh-luxury-select-scholar:focus {
+            border-color: #f59e0b !important;
+            box-shadow: 
+                0 0 20px rgba(245, 158, 11, 0.45), 
+                inset 0 1px 2px rgba(255, 255, 255, 0.15) !important;
+        }
+
+        .fiqh-luxury-select-scholar option {
+            background: #0f172a !important;
+            color: #f8fafc !important;
+            font-weight: 700 !important;
+            padding: 10px !important;
+        }
+
+        .fiqh-select-chevron {
+            position: absolute;
+            left: 16px; /* RTL position */
+            top: 50%;
+            transform: translateY(-50%);
+            color: #fbbf24;
+            font-size: 0.85rem;
+            pointer-events: none;
+            transition: transform 0.2s ease;
+        }
+
+        .fiqh-scholar-dropdown-wrap:hover .fiqh-select-chevron {
+            transform: translateY(-50%) scale(1.2);
+        }
+
 </style>
 </head>
 
@@ -2273,6 +2338,28 @@ $pdo = getDBConnection();
                                 <span>بحث جوجل</span>
                             </button>
 
+                            <!-- الزر 3 / القائمة المنسدلة: جميع الشيوخ الـ 12 المعتمدين -->
+                            <div class="relative fiqh-scholar-dropdown-wrap">
+                                <select id="fiqh-scholar-select" onchange="onScholarSelectChange(this.value)" class="fiqh-luxury-select-scholar" title="تصفية فتاوى الشيوخ والعلماء الـ 12 المعتمدين">
+                                    <option value="all">🌟 جميع الشيوخ الـ 12</option>
+                                    <option value="ibn_baz">📜 الإمام عبد العزيز بن باز</option>
+                                    <option value="ibn_uthaymeen">💡 الإمام محمد بن صالح العثيمين</option>
+                                    <option value="al_fawzan">⚖️ معالي الشيخ د. صالح الفوزان</option>
+                                    <option value="ibn_taymiyyah">📖 شيخ الإسلام ابن تيمية</option>
+                                    <option value="ibn_al_qayyim">✨ الإمام ابن قيم الجوزية</option>
+                                    <option value="imam_ahmad">👑 الإمام أحمد بن حنبل</option>
+                                    <option value="al_nawawi">📜 الإمام محيي الدين النووي</option>
+                                    <option value="al_dhahabi">⚖️ الإمام الحافظ الذهبي</option>
+                                    <option value="muhammad_bin_abdulwahhab">📚 الإمام محمد بن عبد الوهاب</option>
+                                    <option value="al_saadi">💡 العلامة عبد الرحمن السعدي</option>
+                                    <option value="al_shinqiti">📖 العلامة محمد الأمين الشنقيطي</option>
+                                    <option value="al_albani">📚 الإمام محمد ناصر الدين الألباني</option>
+                                </select>
+                                <div class="fiqh-select-chevron">
+                                    <i class="fa-solid fa-chevron-down"></i>
+                                </div>
+                            </div>
+
                         </div>
 
                     </div>
@@ -2549,60 +2636,6 @@ $pdo = getDBConnection();
                 <!-- ════════════════════════════════════════════════════════════ -->
                 <div id="fiqh-sub-fatwas" class="space-y-4">
                     
-                    <!-- 🎛️ BOX A: SCHOLAR FILTER CONSOLE (مجموعة الشيوخ الـ 12 المعتمدين في صندوق مستقل بألوان ذهبية موحدة) 🎛️ -->
-                    <div class="bg-slate-950/95 p-4 sm:p-5 rounded-2xl border-2 border-amber-500/60 space-y-3 shadow-xl">
-                        <div class="flex items-center justify-between border-b border-slate-800 pb-2">
-                            <span class="text-sm sm:text-base font-black text-amber-300 flex items-center gap-2">
-                                <i class="fa-solid fa-graduation-cap text-amber-400 text-lg"></i>
-                                فقه كبار الأئمة والعلماء الـ 12 المعتمدين (اختر الشيخ لتصفية فتاواه فوراً):
-                            </span>
-                            <span class="text-xs font-mono font-bold text-slate-400 px-2.5 py-0.5 bg-slate-900 rounded border border-slate-800">
-                                12 إماماً معتمداً
-                            </span>
-                        </div>
-                        <div class="flex flex-wrap items-center gap-2">
-                            <button type="button" class="fiqh-filter-btn active" data-filter-type="scholar" data-filter-val="all" onclick="setFiqhScholar('all', this)">
-                                🌟 جميع المشايخ الـ 12
-                            </button>
-                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="ibn_baz" onclick="setFiqhScholar('ibn_baz', this)">
-                                📜 الإمام عبد العزيز بن باز
-                            </button>
-                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="ibn_uthaymeen" onclick="setFiqhScholar('ibn_uthaymeen', this)">
-                                💡 الإمام محمد بن صالح العثيمين
-                            </button>
-                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_fawzan" onclick="setFiqhScholar('al_fawzan', this)">
-                                ⚖️ معالي الشيخ د. صالح الفوزان
-                            </button>
-                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="ibn_taymiyyah" onclick="setFiqhScholar('ibn_taymiyyah', this)">
-                                📖 شيخ الإسلام ابن تيمية
-                            </button>
-                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="ibn_al_qayyim" onclick="setFiqhScholar('ibn_al_qayyim', this)">
-                                ✨ الإمام ابن قيم الجوزية
-                            </button>
-                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="imam_ahmad" onclick="setFiqhScholar('imam_ahmad', this)">
-                                👑 الإمام أحمد بن حنبل
-                            </button>
-                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_nawawi" onclick="setFiqhScholar('al_nawawi', this)">
-                                📜 الإمام محيي الدين النووي
-                            </button>
-                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_dhahabi" onclick="setFiqhScholar('al_dhahabi', this)">
-                                ⚖️ الإمام الحافظ الذهبي
-                            </button>
-                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="muhammad_bin_abdulwahhab" onclick="setFiqhScholar('muhammad_bin_abdulwahhab', this)">
-                                📚 الإمام محمد بن عبد الوهاب
-                            </button>
-                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_saadi" onclick="setFiqhScholar('al_saadi', this)">
-                                💡 العلامة عبد الرحمن السعدي
-                            </button>
-                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_shinqiti" onclick="setFiqhScholar('al_shinqiti', this)">
-                                📖 العلامة محمد الأمين الشنقيطي
-                            </button>
-                            <button type="button" class="fiqh-filter-btn" data-filter-type="scholar" data-filter-val="al_albani" onclick="setFiqhScholar('al_albani', this)">
-                                📚 الإمام محمد ناصر الدين الألباني
-                            </button>
-                        </div>
-                    </div>
-
                     <!-- 👁️ VISIBILITY NOTIFICATION BANNER 👁️ -->
                     <div id="fatwas-visibility-banner" class="p-3.5 bg-slate-950/90 border-2 border-amber-500/40 rounded-2xl flex flex-wrap items-center justify-between gap-3 shadow-md">
                         <div class="flex items-center gap-2.5">
@@ -7148,6 +7181,29 @@ $pdo = getDBConnection();
         filterFatwas();
     }
 
+    
+    function onScholarSelectChange(val) {
+        currentScholarFilter = val;
+        activeScholarFilter = val;
+        
+        // Keep google-scholar-select in sync if present
+        const googleScholarSelect = document.getElementById('google-scholar-select');
+        if (googleScholarSelect) {
+            googleScholarSelect.value = val;
+        }
+
+        const fatwasPill = document.querySelector('.fiqh-nav-pill');
+        if (typeof switchFiqhSubTab === 'function' && fatwasPill) {
+            switchFiqhSubTab('fatwas', fatwasPill);
+        }
+
+        if (typeof executeLiveFilter === 'function') {
+            executeLiveFilter();
+        } else if (typeof filterFatwas === 'function') {
+            filterFatwas();
+        }
+    }
+
     function setFiqhTopic(topic, btn) {
         activeTopicFilter = topic;
         document.querySelectorAll('[data-filter-type="topic"]').forEach(b => b.classList.remove('active'));
@@ -7182,6 +7238,9 @@ $pdo = getDBConnection();
     }
 
     function clearFiqhSearch() {
+        const scholarSelect = document.getElementById('fiqh-scholar-select');
+        if (scholarSelect) scholarSelect.value = 'all';
+        currentScholarFilter = 'all';
         const input = document.getElementById('fiqh-search-input');
         if (input) input.value = '';
         
