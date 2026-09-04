@@ -608,27 +608,27 @@ $pdo = getDBConnection();
 
 
         /* ══════════════════════════════════════════════════════════════════════
-           UNIFIED MASTER CARD: المسائل والفتاوى الأكثر شيوعاً في مربع واحد مدمج
+           UNIFIED MASTER CARD: المسائل وفتاوى المعاملات المالية الأكثر شيوعاً
            ══════════════════════════════════════════════════════════════════════ */
         .fiqh-unified-master-card {
             background: linear-gradient(145deg, rgba(15, 23, 42, 0.98) 0%, rgba(10, 15, 28, 0.99) 100%);
-            border: 2px solid rgba(251, 191, 36, 0.4);
-            border-radius: 26px;
-            padding: 24px;
+            border: 2px solid rgba(251, 191, 36, 0.45);
+            border-radius: 28px;
+            padding: 26px;
             box-shadow: 
-                0 18px 45px -8px rgba(0, 0, 0, 0.75), 
-                0 0 28px -4px rgba(245, 158, 11, 0.18), 
-                inset 0 1px 2px rgba(255, 255, 255, 0.1);
+                0 20px 50px -8px rgba(0, 0, 0, 0.8), 
+                0 0 30px -4px rgba(245, 158, 11, 0.2), 
+                inset 0 1px 2px rgba(255, 255, 255, 0.12);
             backdrop-filter: blur(16px);
             transition: all 0.3s ease;
             margin-bottom: 2rem;
         }
 
         .fiqh-unified-master-card:hover {
-            border-color: rgba(251, 191, 36, 0.65);
+            border-color: rgba(251, 191, 36, 0.7);
             box-shadow: 
-                0 22px 55px -8px rgba(0, 0, 0, 0.85), 
-                0 0 35px -2px rgba(245, 158, 11, 0.28);
+                0 24px 60px -8px rgba(0, 0, 0, 0.9), 
+                0 0 38px -2px rgba(245, 158, 11, 0.3);
         }
 
         .fiqh-unified-header {
@@ -636,40 +636,40 @@ $pdo = getDBConnection();
             align-items: center;
             justify-content: space-between;
             border-bottom: 2px solid rgba(251, 191, 36, 0.25);
-            padding-bottom: 16px;
-            margin-bottom: 20px;
+            padding-bottom: 18px;
+            margin-bottom: 22px;
         }
 
         .fiqh-header-badge {
-            width: 44px;
-            height: 44px;
-            border-radius: 14px;
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(217, 119, 6, 0.12));
-            border: 1.5px solid rgba(251, 191, 36, 0.45);
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(217, 119, 6, 0.15));
+            border: 2px solid rgba(251, 191, 36, 0.5);
             display: flex;
             align-items: center;
             justify-content: center;
             color: #fbbf24;
-            font-size: 1.25rem;
-            box-shadow: 0 4px 14px rgba(245, 158, 11, 0.22);
+            font-size: 1.4rem;
+            box-shadow: 0 4px 16px rgba(245, 158, 11, 0.25);
         }
 
         .fiqh-unified-title {
-            font-size: 1.35rem;
+            font-size: 1.55rem; /* زيادة الخط درجة واحدة للعنوان */
             font-weight: 900;
             color: #fef08a;
             letter-spacing: -0.01em;
             margin: 0;
-            line-height: 1.2;
+            line-height: 1.3;
         }
 
         .fiqh-reset-btn {
-            padding: 8px 18px;
-            border-radius: 12px;
-            background: rgba(244, 63, 94, 0.14);
-            border: 1.5px solid rgba(244, 63, 94, 0.4);
+            padding: 9px 20px;
+            border-radius: 14px;
+            background: rgba(244, 63, 94, 0.15);
+            border: 1.5px solid rgba(244, 63, 94, 0.45);
             color: #fda4af;
-            font-size: 0.85rem;
+            font-size: 0.94rem; /* خط أوضح وأكبر درجة */
             font-weight: 800;
             display: inline-flex;
             align-items: center;
@@ -680,71 +680,81 @@ $pdo = getDBConnection();
         }
 
         .fiqh-reset-btn:hover {
-            background: rgba(244, 63, 94, 0.3);
+            background: rgba(244, 63, 94, 0.35);
             border-color: #f43f5e;
             color: #ffffff;
             transform: translateY(-2px);
-            box-shadow: 0 4px 14px rgba(244, 63, 94, 0.35);
+            box-shadow: 0 4px 16px rgba(244, 63, 94, 0.4);
         }
 
         .fiqh-categories-merged-grid {
             display: grid;
             grid-template-columns: 1fr;
-            gap: 16px;
+            gap: 20px;
         }
 
         @media (min-width: 900px) {
             .fiqh-categories-merged-grid {
                 grid-template-columns: 1fr 1fr;
-                gap: 20px;
+                gap: 22px;
             }
         }
 
         .fiqh-cat-subgroup {
-            background: rgba(11, 17, 32, 0.8);
-            border-radius: 20px;
-            padding: 18px;
-            border: 1.5px solid rgba(255, 255, 255, 0.08);
+            background: rgba(11, 17, 32, 0.85);
+            border-radius: 22px;
+            padding: 20px;
+            border: 1.5px solid rgba(255, 255, 255, 0.09);
             display: flex;
             flex-direction: column;
-            gap: 14px;
+            justify-content: space-between;
+            gap: 16px;
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
         }
 
         .fiqh-cat-cyan {
-            border-color: rgba(6, 182, 212, 0.35);
-            background: linear-gradient(145deg, rgba(8, 25, 42, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border-color: rgba(6, 182, 212, 0.4);
+            background: linear-gradient(145deg, rgba(8, 28, 48, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
         }
         .fiqh-cat-cyan:hover {
-            border-color: rgba(6, 182, 212, 0.65);
-            box-shadow: 0 8px 24px rgba(6, 182, 212, 0.18);
+            border-color: rgba(6, 182, 212, 0.7);
+            box-shadow: 0 10px 28px rgba(6, 182, 212, 0.2);
         }
 
         .fiqh-cat-emerald {
-            border-color: rgba(16, 185, 129, 0.35);
-            background: linear-gradient(145deg, rgba(6, 32, 24, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border-color: rgba(16, 185, 129, 0.4);
+            background: linear-gradient(145deg, rgba(6, 36, 26, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
         }
         .fiqh-cat-emerald:hover {
-            border-color: rgba(16, 185, 129, 0.65);
-            box-shadow: 0 8px 24px rgba(16, 185, 129, 0.18);
+            border-color: rgba(16, 185, 129, 0.7);
+            box-shadow: 0 10px 28px rgba(16, 185, 129, 0.2);
         }
 
         .fiqh-cat-amber {
-            border-color: rgba(245, 158, 11, 0.35);
-            background: linear-gradient(145deg, rgba(38, 26, 10, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border-color: rgba(245, 158, 11, 0.4);
+            background: linear-gradient(145deg, rgba(42, 28, 10, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
         }
         .fiqh-cat-amber:hover {
-            border-color: rgba(245, 158, 11, 0.65);
-            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.18);
+            border-color: rgba(245, 158, 11, 0.7);
+            box-shadow: 0 10px 28px rgba(245, 158, 11, 0.2);
         }
 
         .fiqh-cat-purple {
-            border-color: rgba(168, 85, 247, 0.35);
-            background: linear-gradient(145deg, rgba(30, 16, 44, 0.8) 0%, rgba(15, 23, 42, 0.9) 100%);
+            border-color: rgba(168, 85, 247, 0.4);
+            background: linear-gradient(145deg, rgba(34, 16, 50, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
         }
         .fiqh-cat-purple:hover {
-            border-color: rgba(168, 85, 247, 0.65);
-            box-shadow: 0 8px 24px rgba(168, 85, 247, 0.18);
+            border-color: rgba(168, 85, 247, 0.7);
+            box-shadow: 0 10px 28px rgba(168, 85, 247, 0.2);
+        }
+
+        .fiqh-cat-indigo {
+            border-color: rgba(99, 102, 241, 0.4);
+            background: linear-gradient(145deg, rgba(24, 20, 52, 0.85) 0%, rgba(15, 23, 42, 0.95) 100%);
+        }
+        .fiqh-cat-indigo:hover {
+            border-color: rgba(99, 102, 241, 0.7);
+            box-shadow: 0 10px 28px rgba(99, 102, 241, 0.2);
         }
 
         .fiqh-cat-title-bar {
@@ -752,128 +762,122 @@ $pdo = getDBConnection();
             align-items: center;
             justify-content: space-between;
             border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-            padding-bottom: 10px;
+            padding-bottom: 12px;
         }
 
         .fiqh-cat-tag {
-            font-size: 0.98rem;
+            font-size: 1.15rem; /* زيادة الخط درجة واحدة للترويسة */
             font-weight: 900;
             color: #f8fafc;
             display: inline-flex;
             align-items: center;
-            gap: 8px;
+            gap: 10px;
         }
 
         .fiqh-cat-count {
-            font-size: 0.72rem;
+            font-size: 0.82rem; /* زيادة الخط درجة واحدة للعداد */
             font-weight: 800;
-            font-family: monospace;
-            padding: 3px 10px;
-            border-radius: 8px;
-            background: rgba(0, 0, 0, 0.45);
+            font-family: inherit;
+            padding: 4px 12px;
+            border-radius: 10px;
+            background: rgba(0, 0, 0, 0.5);
             border-width: 1px;
             border-style: solid;
         }
 
+        /* 🎯 ملء الفراغات وتوازن الأزرار بدقة هندسية عالية */
         .fiqh-cat-pills-wrap {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
+            width: 100%;
         }
 
         /* The Pills */
         .fiqh-pill-btn {
-            padding: 9px 15px;
-            border-radius: 13px;
-            font-size: 0.86rem;
+            flex: 1 1 calc(50% - 10px); /* يملأ الفراغ بالتساوي في كل صف 2 في كل سطر */
+            min-width: 220px;
+            padding: 11px 16px; /* زيادة مساحة الخط والزر */
+            border-radius: 14px;
+            font-size: 0.96rem; /* زيادة الخط درجة واحدة كاملة */
             font-weight: 800;
             background: rgba(15, 23, 42, 0.92);
-            color: #e2e8f0;
+            color: #f1f5f9;
             border: 1.5px solid rgba(255, 255, 255, 0.12);
             cursor: pointer;
             transition: all 0.22s cubic-bezier(0.16, 1, 0.3, 1);
             display: inline-flex;
             align-items: center;
-            gap: 7px;
+            justify-content: flex-start;
+            gap: 9px;
             box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
             user-select: none;
+            line-height: 1.35;
+        }
+
+        .fiqh-cat-indigo .fiqh-pill-btn:not(.fiqh-master-full-pill) {
+            flex: 1 1 calc(25% - 10px); /* 4 في كل صف في المربع الخامس العريض لملء كامل الفراغ */
+            min-width: 210px;
         }
 
         .fiqh-pill-btn:hover {
-            transform: translateY(-2px) scale(1.02);
+            transform: translateY(-2px) scale(1.015);
         }
 
-        .fiqh-pill-cyan:hover {
-            border-color: #22d3ee;
-            color: #22d3ee;
-            background: rgba(8, 51, 68, 0.95);
-            box-shadow: 0 6px 16px rgba(6, 182, 212, 0.4);
-        }
-
-        .fiqh-pill-emerald:hover {
-            border-color: #34d399;
-            color: #34d399;
-            background: rgba(6, 78, 59, 0.95);
-            box-shadow: 0 6px 16px rgba(16, 185, 129, 0.4);
-        }
-
-        .fiqh-pill-amber:hover {
-            border-color: #fbbf24;
-            color: #fbbf24;
-            background: rgba(69, 26, 3, 0.95);
-            box-shadow: 0 6px 16px rgba(245, 158, 11, 0.4);
-        }
-
-        .fiqh-pill-purple:hover {
-            border-color: #c084fc;
-            color: #c084fc;
-            background: rgba(59, 7, 100, 0.95);
-            box-shadow: 0 6px 16px rgba(168, 85, 247, 0.4);
-        }
-
-        .fiqh-pill-btn:active {
-            transform: translateY(1px);
-        }
-
-
-        /* Master All-Transactions Button in Common Fiqh Box */
-        .fiqh-all-transactions-master-btn {
-            width: 100%;
-            padding: 14px 22px;
-            border-radius: 18px;
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.16) 0%, rgba(180, 83, 9, 0.12) 100%);
-            border: 2px solid rgba(251, 191, 36, 0.45);
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            box-shadow: 0 4px 18px rgba(0, 0, 0, 0.35);
-            user-select: none;
-        }
-
-        .fiqh-all-transactions-master-btn:hover {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.28) 0%, rgba(217, 119, 6, 0.22) 100%);
-            border-color: #fbbf24;
-            box-shadow: 0 8px 25px rgba(245, 158, 11, 0.3), inset 0 1px 1px rgba(255, 255, 255, 0.2);
-            transform: translateY(-2px);
-        }
-
-        .fiqh-all-transactions-master-btn.active {
-            background: linear-gradient(135deg, rgba(245, 158, 11, 0.35) 0%, rgba(217, 119, 6, 0.28) 100%);
-            border-color: #fde047;
-            box-shadow: 0 0 24px rgba(245, 158, 11, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.25);
-        }
-
-
-        .fiqh-pill-btn.active {
+        .fiqh-pill-cyan:hover, .fiqh-pill-cyan.active {
             border-color: #22d3ee !important;
-            color: #ffffff !important;
-            background: linear-gradient(135deg, rgba(6, 182, 212, 0.45) 0%, rgba(8, 51, 68, 0.95) 100%) !important;
-            box-shadow: 0 0 18px rgba(6, 182, 212, 0.5) !important;
-            transform: translateY(-2px);
+            color: #67e8f9 !important;
+            background: rgba(8, 51, 68, 0.95) !important;
+            box-shadow: 0 6px 18px rgba(6, 182, 212, 0.45) !important;
         }
 
+        .fiqh-pill-emerald:hover, .fiqh-pill-emerald.active {
+            border-color: #34d399 !important;
+            color: #6ee7b7 !important;
+            background: rgba(6, 78, 59, 0.95) !important;
+            box-shadow: 0 6px 18px rgba(168, 243, 208, 0.45) !important;
+        }
+
+        .fiqh-pill-amber:hover, .fiqh-pill-amber.active {
+            border-color: #fbbf24 !important;
+            color: #fef08a !important;
+            background: rgba(69, 26, 3, 0.95) !important;
+            box-shadow: 0 6px 18px rgba(245, 158, 11, 0.45) !important;
+        }
+
+        .fiqh-pill-purple:hover, .fiqh-pill-purple.active {
+            border-color: #c084fc !important;
+            color: #e9d5ff !important;
+            background: rgba(59, 7, 100, 0.95) !important;
+            box-shadow: 0 6px 18px rgba(168, 85, 247, 0.45) !important;
+        }
+
+        .fiqh-pill-indigo:hover, .fiqh-pill-indigo.active {
+            border-color: #818cf8 !important;
+            color: #c7d2fe !important;
+            background: rgba(49, 46, 129, 0.95) !important;
+            box-shadow: 0 6px 18px rgba(99, 102, 241, 0.45) !important;
+        }
+
+        /* Master full-width gold pill in box 5 */
+        .fiqh-master-full-pill {
+            flex: 1 1 100% !important;
+            width: 100%;
+            padding: 13px 20px !important;
+            font-size: 1.06rem !important; /* خط أكبر للزر الرئيسي */
+            font-weight: 900 !important;
+            border: 2px solid #fbbf24 !important;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.28) 0%, rgba(180, 83, 9, 0.22) 100%) !important;
+            color: #fef08a !important;
+            justify-content: center !important;
+            box-shadow: 0 4px 18px rgba(245, 158, 11, 0.3) !important;
+        }
+
+        .fiqh-master-full-pill:hover, .fiqh-master-full-pill.active {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.45) 0%, rgba(217, 119, 6, 0.35) 100%) !important;
+            box-shadow: 0 8px 24px rgba(245, 158, 11, 0.45), 0 0 16px rgba(251, 191, 36, 0.4) !important;
+            transform: translateY(-2px) !important;
+        }
 
         /* Scholar Dropdown Selector in Search Console */
         .fiqh-scholar-dropdown-wrap {
@@ -2381,12 +2385,12 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- 3. UNIFIED MASTER BOX: المسائل وفتاوى المعاملات المالية الأكثر شيوعاً في مربع واحد مدمج وأنيق -->
+                <!-- 3. UNIFIED MASTER BOX: فتاوى المعاملات والمسائل المالية الأكثر شيوعاً في مربع واحد مدمج وأنيق وموزون -->
                 <div class="fiqh-unified-master-card mb-8">
                     
                     <!-- شريط عنوان المربع الموحد -->
                     <div class="fiqh-unified-header">
-                        <div class="flex items-center gap-3">
+                        <div class="flex items-center gap-3.5">
                             <div class="fiqh-header-badge">
                                 <i class="fa-solid fa-layer-group"></i>
                             </div>
@@ -2400,10 +2404,10 @@ $pdo = getDBConnection();
                         </button>
                     </div>
 
-                    <!-- شبكة المربعات الخمسة المدمجة ومرصوصة رصاً أنيقاً خالية من التكرار -->
+                    <!-- شبكة المربعات الخمسة المدمجة ومرصوصة رصاً متناسقاً وموزوناً لملء الفراغات -->
                     <div class="fiqh-categories-merged-grid">
                         
-                        <!-- 1. التمويل والتقسيط والدين -->
+                        <!-- 1. التمويل والتقسيط والديون (6 مسائل موزونة) -->
                         <div class="fiqh-cat-subgroup fiqh-cat-cyan">
                             <div class="fiqh-cat-title-bar">
                                 <span class="fiqh-cat-tag">
@@ -2429,17 +2433,79 @@ $pdo = getDBConnection();
                                     <span>🚗</span> الإيجار المنتهي بالتمليك
                                 </button>
                                 <button type="button" class="fiqh-pill-btn fiqh-pill-cyan" onclick="setQuickSearch('إنظار المعسر', this)">
-                                    <span>⏳</span> إنظار المعسر والتيسير
+                                    <span>⏳</span> إنظار المعسر والتيسير في السداد
                                 </button>
                             </div>
                         </div>
 
-                        <!-- 2. الأوراق التجارية والمدفوعات -->
+                        <!-- 2. مقاولات السلع والضمان (6 مسائل موزونة) -->
+                        <div class="fiqh-cat-subgroup fiqh-cat-purple">
+                            <div class="fiqh-cat-title-bar">
+                                <span class="fiqh-cat-tag">
+                                    <i class="fa-solid fa-trowel-bricks text-purple-400"></i>
+                                    2. مقاولات السلع والضمان
+                                </span>
+                                <span class="fiqh-cat-count text-purple-400 border-purple-500/30">6 مسائل</span>
+                            </div>
+                            <div class="fiqh-cat-pills-wrap">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('بيع ما لا يملك', this)">
+                                    <span>🛒</span> بيع ما لا يملك والوساطة التجارية
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('الاستصناع', this)">
+                                    <span>🏗️</span> عقد الاستصناع وتوريد البضائع
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('السكراب', this)">
+                                    <span>🔩</span> بيع حديد السكراب والخردة
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('ضمان العيوب', this)">
+                                    <span>🛡️</span> خيار العيب والضمان المصنعي
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('حقوق العمال', this)">
+                                    <span>👥</span> أجور العمال وحقوق الأجراء
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('التسعير', this)">
+                                    <span>⚖️</span> التسعير وتطفيف الكيل والميزان
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 3. الذهب والعملات والتحويلات (6 مسائل موزونة) -->
+                        <div class="fiqh-cat-subgroup fiqh-cat-amber">
+                            <div class="fiqh-cat-title-bar">
+                                <span class="fiqh-cat-tag">
+                                    <i class="fa-solid fa-coins text-amber-400"></i>
+                                    3. الذهب والعملات والتحويلات
+                                </span>
+                                <span class="fiqh-cat-count text-amber-400 border-amber-500/30">6 مسائل</span>
+                            </div>
+                            <div class="fiqh-cat-pills-wrap">
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('الذهب', this)">
+                                    <span>💎</span> شراء الذهب ببطاقات الصراف ومدى
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('الصرف بالموبايل', this)">
+                                    <span>📱</span> الصرف بتطبيقات بنكك وفوري
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('الذهب القديم', this)">
+                                    <span>🔄</span> بيع الذهب القديم بالجديد والمصنعية
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('التقابض', this)">
+                                    <span>🤝</span> التقابض الفوري في مجلس عقد الصرف
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('العِينة', this)">
+                                    <span>🚫</span> حيل الربا وبيوع العِينة
+                                </button>
+                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('العملات المشفرة', this)">
+                                    <span>🪙</span> العملات الرقمية والفوركس
+                                </button>
+                            </div>
+                        </div>
+
+                        <!-- 4. الأوراق التجارية والمدفوعات (6 مسائل موزونة) -->
                         <div class="fiqh-cat-subgroup fiqh-cat-emerald">
                             <div class="fiqh-cat-title-bar">
                                 <span class="fiqh-cat-tag">
                                     <i class="fa-solid fa-file-invoice-dollar text-emerald-400"></i>
-                                    2. الأوراق التجارية والمدفوعات
+                                    4. الأوراق التجارية والمدفوعات
                                 </span>
                                 <span class="fiqh-cat-count text-emerald-400 border-emerald-500/30">6 مسائل</span>
                             </div>
@@ -2465,74 +2531,18 @@ $pdo = getDBConnection();
                             </div>
                         </div>
 
-                        <!-- 3. مقاولات السلع والضمان -->
-                        <div class="fiqh-cat-subgroup fiqh-cat-purple">
-                            <div class="fiqh-cat-title-bar">
-                                <span class="fiqh-cat-tag">
-                                    <i class="fa-solid fa-trowel-bricks text-purple-400"></i>
-                                    3. مقاولات السلع والضمان
-                                </span>
-                                <span class="fiqh-cat-count text-purple-400 border-purple-500/30">6 مسائل</span>
-                            </div>
-                            <div class="fiqh-cat-pills-wrap">
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('بيع ما لا يملك', this)">
-                                    <span>🛒</span> بيع ما لا يملك والوساطة التجارية
-                                </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('الاستصناع', this)">
-                                    <span>🏗️</span> عقد الاستصناع وتوريد الحديد
-                                </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('السكراب', this)">
-                                    <span>🔩</span> بيع حديد السكراب والخردة
-                                </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('ضمان العيوب', this)">
-                                    <span>🛡️</span> خيار العيب والضمان المصنعي
-                                </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('حقوق العمال', this)">
-                                    <span>👥</span> أجور العمال وحقوق الأجراء
-                                </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-purple" onclick="setQuickSearch('التسعير', this)">
-                                    <span>⚖️</span> التسعير وتطفيف الكيل والميزان
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- 4. الذهب والعملات والتمويل (والتحويلات) -->
-                        <div class="fiqh-cat-subgroup fiqh-cat-amber">
-                            <div class="fiqh-cat-title-bar">
-                                <span class="fiqh-cat-tag">
-                                    <i class="fa-solid fa-coins text-amber-400"></i>
-                                    4. الذهب والعملات والتحويلات
-                                </span>
-                                <span class="fiqh-cat-count text-amber-400 border-amber-500/30">4 مسائل</span>
-                            </div>
-                            <div class="fiqh-cat-pills-wrap">
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('الذهب', this)">
-                                    <span>💎</span> شراء الذهب ببطاقات الصراف ومدى
-                                </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('الصرف بالموبايل', this)">
-                                    <span>📱</span> الصرف بتطبيقات بنكك وفوري
-                                </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('العِينة', this)">
-                                    <span>🚫</span> حيل الربا وبيوع العِينة
-                                </button>
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber" onclick="setQuickSearch('العملات المشفرة', this)">
-                                    <span>🪙</span> العملات الرقمية والفوركس
-                                </button>
-                            </div>
-                        </div>
-
-                        <!-- 5. جميع مسائل المعاملات المالية (العقود والشركات والخدمات الحديثة) -->
+                        <!-- 5. جميع مسائل المعاملات المالية (الموسوعة الشاملة) -->
                         <div class="fiqh-cat-subgroup fiqh-cat-indigo md:col-span-2">
                             <div class="fiqh-cat-title-bar">
                                 <span class="fiqh-cat-tag">
                                     <i class="fa-solid fa-scale-balanced text-indigo-400"></i>
                                     5. جميع مسائل المعاملات المالية
                                 </span>
-                                <span class="fiqh-cat-count text-indigo-400 border-indigo-500/30">الموسوعة الشاملة (3,000+ مسألة)</span>
+                                <span class="fiqh-cat-count text-indigo-400 border-indigo-500/30">الموسوعة الشاملة (4,500 فتوى موثقة)</span>
                             </div>
                             <div class="fiqh-cat-pills-wrap">
-                                <button type="button" class="fiqh-pill-btn fiqh-pill-amber active" onclick="showAllFiqhTransactions(this)" id="btn-show-all-fiqh" style="border-color: #fbbf24; background: rgba(245, 158, 11, 0.2); color: #fef08a;">
-                                    <span>🌟</span> عرض كافة المسائل والمعاملات (الموسوعة الكاملة)
+                                <button type="button" class="fiqh-pill-btn fiqh-master-full-pill active" onclick="showAllFiqhTransactions(this)" id="btn-show-all-fiqh">
+                                    <span>🌟</span> عرض كافة المسائل والمعاملات (الموسوعة الكاملة لكافة الأبواب)
                                 </button>
                                 <button type="button" class="fiqh-pill-btn fiqh-pill-indigo" onclick="setQuickSearch('الشركات والأسهم', this)">
                                     <span>🏢</span> الشركات والأسهم والمضاربة
