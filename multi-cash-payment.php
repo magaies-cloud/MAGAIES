@@ -755,130 +755,229 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
         /* ══════════════════════════════════════════════════════════════════════
            VOUCHER TYPE TOGGLE BUTTONS (صرف إلى مجموعة 📤 / استلام من مجموعة 📥)
-           ستايل فاخر، متناسق ومتقن، بألوان مخففة وأحمر غامق مريح للعين فائق الرقي
+           ستايل فاخر، متناسق ومتقن، بألوان مخففة، كتابة متناسقة، وإنارة حواف أخاذة
            ══════════════════════════════════════════════════════════════════════ */
         .voucher-type-btn {
             position: relative !important;
-            min-width: 180px !important;
-            height: 48px !important;
+            min-width: 215px !important;
+            height: 52px !important;
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
-            gap: 10px !important;
-            border-radius: 12px !important;
+            gap: 12px !important;
+            border-radius: 14px !important;
             cursor: pointer !important;
             font-family: 'Tajawal', sans-serif !important;
-            font-size: 1.02rem !important;
+            font-size: 1.12rem !important;
             font-weight: 800 !important;
-            letter-spacing: 0.2px !important;
+            letter-spacing: 0.3px !important;
             white-space: nowrap !important;
             user-select: none !important;
             -webkit-user-select: none !important;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
             backdrop-filter: blur(14px) !important;
             -webkit-backdrop-filter: blur(14px) !important;
             box-sizing: border-box !important;
-            padding: 0 20px !important;
+            padding: 0 24px !important;
             text-decoration: none !important;
             overflow: hidden !important;
+            z-index: 2 !important;
+        }
+
+        /* حماية خط النص والأيقونات من أي تأثير خارجي وضمان تناسق ألوان الخط */
+        .voucher-type-btn .btn-text,
+        .voucher-type-btn .btn-icon,
+        .voucher-type-btn span,
+        .voucher-type-btn i {
+            color: inherit !important;
+            font-family: inherit !important;
+            text-decoration: none !important;
+        }
+
+        /* ─── إيماءة لمعان زجاجي سائل عند المرور بالفأرة (Kinetic Glass Sweep) ─── */
+        .voucher-type-btn::after {
+            content: '' !important;
+            position: absolute !important;
+            top: 0 !important;
+            left: -140% !important;
+            width: 80% !important;
+            height: 100% !important;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.28), transparent) !important;
+            transform: skewX(-25deg) !important;
+            pointer-events: none !important;
+            transition: left 0.65s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            z-index: 3 !important;
+        }
+        .voucher-type-btn:hover::after {
+            left: 140% !important;
         }
 
         /* ─── 1. زر صرف إلى مجموعة (حالة الراحة / غير مفعل) ─── */
         #btn-payment:not(.active-payment) {
             background: linear-gradient(135deg, rgba(50, 16, 24, 0.55), rgba(20, 8, 14, 0.75)) !important;
-            border: 1.5px solid rgba(159, 18, 57, 0.35) !important;
-            color: rgba(255, 235, 240, 0.75) !important;
+            border: 1.6px solid rgba(159, 18, 57, 0.4) !important;
+            color: rgba(255, 225, 230, 0.85) !important;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
             transform: scale(0.98) !important;
         }
         #btn-payment:not(.active-payment):hover {
-            background: linear-gradient(135deg, rgba(80, 22, 34, 0.75), rgba(35, 12, 20, 0.85)) !important;
-            border-color: rgba(190, 24, 93, 0.6) !important;
+            background: linear-gradient(135deg, rgba(80, 22, 34, 0.8), rgba(35, 12, 20, 0.9)) !important;
+            border-color: #fb7185 !important;
             color: #ffffff !important;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), 0 0 14px rgba(159, 18, 57, 0.35) !important;
-            transform: translateY(-2px) scale(1.01) !important;
+            box-shadow: 0 0 24px rgba(244, 63, 94, 0.85), 0 0 45px rgba(190, 24, 93, 0.5), inset 0 0 10px rgba(251, 113, 133, 0.3) !important;
+            transform: translateY(-3px) scale(1.03) !important;
         }
 
-        /* ─── زر صرف إلى مجموعة (مفعل: أحمر غامق فاخر، مخفف ومريح وراقٍ) ─── */
+        /* ─── زر صرف إلى مجموعة (مفعل: أحمر غامق فاخر، كتابة ناصعة متناسقة، إنارة حواف) ─── */
         .voucher-type-btn.active-payment,
         #btn-payment.active-payment {
             background: linear-gradient(135deg, #781827 0%, #4a0e19 100%) !important;
-            border: 1.8px solid rgba(225, 29, 72, 0.65) !important;
+            border: 2px solid rgba(244, 63, 94, 0.75) !important;
             color: #ffffff !important;
             font-weight: 800 !important;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), 0 0 18px rgba(159, 18, 57, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 20px rgba(159, 18, 57, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
             transform: translateY(-2px) scale(1.03) !important;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
-            animation: voucherPulsePayment 3.5s infinite alternate ease-in-out;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8) !important;
+            animation: voucherEdgePulsePayment 3.5s infinite alternate ease-in-out;
         }
         .voucher-type-btn.active-payment:hover,
         #btn-payment.active-payment:hover {
             background: linear-gradient(135deg, #881c2d 0%, #55111d 100%) !important;
-            border-color: rgba(244, 63, 94, 0.8) !important;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 24px rgba(159, 18, 57, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.35) !important;
+            border-color: #fb7185 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 28px rgba(244, 63, 94, 0.95), 0 0 50px rgba(190, 24, 93, 0.65), inset 0 0 14px rgba(251, 113, 133, 0.35) !important;
+            transform: translateY(-3px) scale(1.05) !important;
         }
 
         /* ─── 2. زر استلام من مجموعة (حالة الراحة / غير مفعل) ─── */
         #btn-receipt:not(.active-receipt) {
             background: linear-gradient(135deg, rgba(14, 42, 34, 0.55), rgba(8, 24, 18, 0.75)) !important;
-            border: 1.5px solid rgba(16, 185, 129, 0.35) !important;
-            color: rgba(230, 255, 245, 0.75) !important;
+            border: 1.6px solid rgba(16, 185, 129, 0.4) !important;
+            color: rgba(220, 252, 235, 0.85) !important;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
             transform: scale(0.98) !important;
         }
         #btn-receipt:not(.active-receipt):hover {
-            background: linear-gradient(135deg, rgba(20, 65, 52, 0.75), rgba(10, 36, 28, 0.85)) !important;
-            border-color: rgba(16, 185, 129, 0.6) !important;
+            background: linear-gradient(135deg, rgba(20, 65, 52, 0.8), rgba(10, 36, 28, 0.9)) !important;
+            border-color: #34d399 !important;
             color: #ffffff !important;
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), 0 0 14px rgba(16, 185, 129, 0.35) !important;
-            transform: translateY(-2px) scale(1.01) !important;
+            box-shadow: 0 0 24px rgba(16, 185, 129, 0.85), 0 0 45px rgba(5, 150, 105, 0.5), inset 0 0 10px rgba(52, 211, 153, 0.3) !important;
+            transform: translateY(-3px) scale(1.03) !important;
         }
 
-        /* ─── زر استلام من مجموعة (مفعل: زمردي غامق فاخر، متناسق بنفس العمق) ─── */
+        /* ─── زر استلام من مجموعة (مفعل: زمردي غامق فاخر، كتابة ناصعة متناسقة، إنارة حواف) ─── */
         .voucher-type-btn.active-receipt,
         #btn-receipt.active-receipt {
             background: linear-gradient(135deg, #0d5440 0%, #063326 100%) !important;
-            border: 1.8px solid rgba(16, 185, 129, 0.65) !important;
+            border: 2px solid rgba(16, 185, 129, 0.75) !important;
             color: #ffffff !important;
             font-weight: 800 !important;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), 0 0 18px rgba(16, 185, 129, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 20px rgba(16, 185, 129, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
             transform: translateY(-2px) scale(1.03) !important;
-            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
-            animation: voucherPulseReceipt 3.5s infinite alternate ease-in-out;
+            text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8) !important;
+            animation: voucherEdgePulseReceipt 3.5s infinite alternate ease-in-out;
         }
         .voucher-type-btn.active-receipt:hover,
         #btn-receipt.active-receipt:hover {
             background: linear-gradient(135deg, #10634c 0%, #083d2e 100%) !important;
-            border-color: rgba(52, 211, 153, 0.8) !important;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 24px rgba(16, 185, 129, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.35) !important;
+            border-color: #34d399 !important;
+            color: #ffffff !important;
+            box-shadow: 0 0 28px rgba(16, 185, 129, 0.95), 0 0 50px rgba(5, 150, 105, 0.65), inset 0 0 14px rgba(52, 211, 153, 0.35) !important;
+            transform: translateY(-3px) scale(1.05) !important;
         }
 
-        /* ─── نبض ضوئي هادئ وفاخر للزرين ─── */
-        @keyframes voucherPulsePayment {
-            0% { box-shadow: 0 6px 20px rgba(0,0,0,0.45), 0 0 16px rgba(159, 18, 57, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.25); }
-            100% { box-shadow: 0 7px 24px rgba(0,0,0,0.5), 0 0 22px rgba(159, 18, 57, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.35); }
+        /* ─── نبض إنارة الحواف الهادئ والمستمر لكلا الزرين المفعلين ─── */
+        @keyframes voucherEdgePulsePayment {
+            0% { 
+                border-color: rgba(244, 63, 94, 0.7);
+                box-shadow: 0 6px 20px rgba(0,0,0,0.45), 0 0 16px rgba(159, 18, 57, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25); 
+            }
+            100% { 
+                border-color: #fb7185;
+                box-shadow: 0 8px 26px rgba(0,0,0,0.5), 0 0 26px rgba(244, 63, 94, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.4); 
+            }
         }
-        @keyframes voucherPulseReceipt {
-            0% { box-shadow: 0 6px 20px rgba(0,0,0,0.45), 0 0 16px rgba(16, 185, 129, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.25); }
-            100% { box-shadow: 0 7px 24px rgba(0,0,0,0.5), 0 0 22px rgba(16, 185, 129, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.35); }
+        @keyframes voucherEdgePulseReceipt {
+            0% { 
+                border-color: rgba(16, 185, 129, 0.7);
+                box-shadow: 0 6px 20px rgba(0,0,0,0.45), 0 0 16px rgba(16, 185, 129, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25); 
+            }
+            100% { 
+                border-color: #34d399;
+                box-shadow: 0 8px 26px rgba(0,0,0,0.5), 0 0 26px rgba(16, 185, 129, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.4); 
+            }
         }
 
-        /* ─── الأيقونة الداخلية في كلا الزرين ─── */
+        /* ─── حركة إيماءات الأيقونة الداخلية ─── */
         .voucher-type-btn .btn-icon {
-            font-size: 1.15rem !important;
+            font-size: 1.3rem !important;
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
-            transition: transform 0.3s ease, filter 0.3s ease !important;
+            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease !important;
         }
         .voucher-type-btn.active-payment .btn-icon i {
-            filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.6));
+            filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.75));
         }
         .voucher-type-btn.active-receipt .btn-icon i {
-            filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.6));
+            filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.75));
         }
         .voucher-type-btn:hover .btn-icon {
-            transform: scale(1.15) !important;
+            transform: scale(1.22) rotate(-8deg) !important;
+        }
+
+        /* ══════════════════════════════════════════════════════════════════════
+           ULTRA-SUBTLE AMBIENT GLASS RIPPLES & SCREEN-WIDE LIGHT WAVES
+           تموجات زجاجية خفيفة هادئة جداً لا تؤثر على البصر وتضفي لمسة جمالية راقية
+           ══════════════════════════════════════════════════════════════════════ */
+        .glass-ripple-mesh {
+            position: fixed !important;
+            top: 0 !important; left: 0 !important; right: 0 !important; bottom: 0 !important;
+            width: 100vw !important; height: 100vh !important;
+            pointer-events: none !important;
+            z-index: 0 !important;
+        }
+
+        .glass-ripple-1 {
+            background: radial-gradient(ellipse 70% 50% at 25% 25%, rgba(255, 255, 255, 0.035) 0%, rgba(56, 189, 248, 0.02) 40%, transparent 70%) !important;
+            filter: blur(45px) !important;
+            animation: slowGlassWave1 36s ease-in-out infinite alternate !important;
+        }
+
+        .glass-ripple-2 {
+            background: radial-gradient(ellipse 65% 45% at 75% 75%, rgba(255, 255, 255, 0.03) 0%, rgba(168, 85, 247, 0.018) 40%, transparent 70%) !important;
+            filter: blur(55px) !important;
+            animation: slowGlassWave2 46s ease-in-out infinite alternate !important;
+        }
+
+        @keyframes slowGlassWave1 {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.55; }
+            50% { transform: translate(3%, 3%) scale(1.08) rotate(2deg); opacity: 0.85; }
+            100% { transform: translate(-3%, 4%) scale(0.96) rotate(-2deg); opacity: 0.55; }
+        }
+
+        @keyframes slowGlassWave2 {
+            0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.5; }
+            50% { transform: translate(-4%, -3%) scale(1.1) rotate(-3deg); opacity: 0.8; }
+            100% { transform: translate(3%, -2%) scale(0.95) rotate(2deg); opacity: 0.5; }
+        }
+
+        /* لمسة ضوئية زجاجية فائقة الرقة وغير محسوسة تتهادى فوق اللوحة الرئيسية */
+        #main-form-panel::before {
+            content: '' !important;
+            position: absolute !important;
+            top: -30% !important; left: -30% !important;
+            width: 160% !important; height: 160% !important;
+            background: radial-gradient(ellipse 60% 40% at 50% 50%, rgba(255, 255, 255, 0.02) 0%, transparent 60%) !important;
+            pointer-events: none !important;
+            animation: glassSubtleDrift 28s ease-in-out infinite alternate !important;
+            z-index: 0 !important;
+        }
+
+        @keyframes glassSubtleDrift {
+            0% { transform: translate(0, 0); opacity: 0.4; }
+            50% { transform: translate(30px, 20px); opacity: 0.75; }
+            100% { transform: translate(-20px, 30px); opacity: 0.4; }
         }
 
         /* Color Wave Animation */
@@ -1288,6 +1387,8 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
     <div class="ambient-bg">
         <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
+        <div class="glass-ripple-mesh glass-ripple-1"></div>
+        <div class="glass-ripple-mesh glass-ripple-2"></div>
     </div>
     <div class="toast-container" id="toast-container"></div>
 
