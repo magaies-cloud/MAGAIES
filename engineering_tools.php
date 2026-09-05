@@ -1667,6 +1667,36 @@ $pdo = getDBConnection();
                 <div class="suite-pill-sub">قوانين العمل والرواتب</div>
             </div>
 
+            <!-- 11. تلفزيون المجد (القرآن الكريم) -->
+            <div class="suite-pill-card" style="--p-color:#fbbf24; --p-border:rgba(251,191,36,0.5);" onclick="switchSuite('tv_majd', this)">
+                <div class="suite-pill-icon"><i class="fa-solid fa-tv text-amber-400"></i></div>
+                <div class="suite-pill-title text-amber-300">📺 تلفزيون المجد</div>
+                <div class="suite-pill-sub text-amber-400/80">القرآن الكريم مباشر</div>
+            </div>
+
+            <!-- 12. تلفزيون مكة المكرمة -->
+            <div class="suite-pill-card" style="--p-color:#f59e0b; --p-border:rgba(245,158,11,0.5);" onclick="switchSuite('tv_makkah', this)">
+                <div class="suite-pill-icon"><i class="fa-solid fa-kaaba text-yellow-400"></i></div>
+                <div class="suite-pill-title text-yellow-300">🕋 تلفزيون مكة</div>
+                <div class="suite-pill-sub text-yellow-400/80">الحرم المكي مباشر</div>
+            </div>
+
+            <!-- 13. تلفزيون المدينة المنورة (السنة النبوية) -->
+            <div class="suite-pill-card" style="--p-color:#10b981; --p-border:rgba(16,185,129,0.5);" onclick="switchSuite('tv_madinah', this)">
+                <div class="suite-pill-icon"><i class="fa-solid fa-mosque text-emerald-400"></i></div>
+                <div class="suite-pill-title text-emerald-300">🕌 تلفزيون المدينة</div>
+                <div class="suite-pill-sub text-emerald-400/80">السنة النبوية مباشر</div>
+            </div>
+
+            <!-- 14. القرآن الكريم MP3 -->
+            <div class="suite-pill-card" style="--p-color:#06b6d4; --p-border:rgba(6,182,212,0.5);" onclick="switchSuite('quran_mp3', this)">
+                <div class="suite-pill-icon"><i class="fa-solid fa-headphones text-cyan-400"></i></div>
+                <div class="suite-pill-title text-cyan-300">🎧 القرآن MP3</div>
+                <div class="suite-pill-sub text-cyan-400/80">تلاوات كبار القراء</div>
+            </div>
+
+
+
         </div>
 
         <!-- ════════════════════════════════════════════════════════════════ -->
@@ -21769,6 +21799,429 @@ $pdo = getDBConnection();
         </div>
 
     </div>
+    
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- 11. SUITE: AL-MAJD QURAN TV & RADIO (تلفزيون وإذاعة المجد)       -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <div id="suite-sec-tv_majd" class="suite-section anim-suite hidden space-y-8">
+            <div class="glass-panel-v3 p-6 sm:p-8" style="--border-color: rgba(251, 191, 36, 0.55); border-radius: 32px;">
+                
+                <!-- Suite Header -->
+                <div class="flex flex-wrap items-center justify-between gap-6 pb-6 mb-8 border-b border-amber-500/30">
+                    <div class="flex items-center gap-4">
+                        <span class="w-16 h-16 rounded-2xl bg-amber-500/20 border-2 border-amber-400/60 flex items-center justify-center text-amber-300 text-3xl shadow-xl">
+                            <i class="fa-solid fa-tv"></i>
+                        </span>
+                        <div>
+                            <h2 class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-500">
+                                تلفزيون وإذاعة المجد للقرآن الكريم
+                            </h2>
+                            <p class="text-base text-slate-200 font-bold mt-1">
+                                تلاوات عطرة خاشعة على مدار 24 ساعة بأصوات كبار قراء العالم الإسلامي مع تفسير الآيات
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <a href="https://al-majdtv.com/" target="_blank" rel="noopener noreferrer" class="px-6 py-3 rounded-2xl bg-amber-500/25 hover:bg-amber-500/35 border-2 border-amber-400 text-amber-200 font-black text-sm flex items-center gap-2.5 transition shadow-lg hover:scale-105">
+                            <i class="fa-solid fa-arrow-up-right-from-square"></i>
+                            <span>فتح موقع شبكة المجد</span>
+                        </a>
+                        <a href="https://www.youtube.com/@AlmajdChannels/streams" target="_blank" rel="noopener noreferrer" class="px-6 py-3 rounded-2xl bg-rose-600/30 hover:bg-rose-600/40 border-2 border-rose-500 text-rose-200 font-black text-sm flex items-center gap-2.5 transition shadow-lg hover:scale-105">
+                            <i class="fa-brands fa-youtube text-lg text-rose-400"></i>
+                            <span>قناة المجد يوتيوب مباشر</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Video / Broadcast Center Container -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    <!-- Main TV Player Screen (2 Cols) -->
+                    <div class="lg:col-span-2 space-y-4">
+                        <div class="relative w-full aspect-video rounded-3xl overflow-hidden border-2 border-amber-500/60 shadow-2xl bg-slate-950 flex items-center justify-center">
+                            <!-- Embedded Live Stream Iframe -->
+                            <iframe class="w-full h-full" 
+                                    src="https://www.youtube.com/embed/live_stream?channel=UC5m8h8pW7vM4P7o6A" 
+                                    title="تلفزيون المجد للقرآن الكريم بث مباشر" 
+                                    frameborder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                    allowfullscreen>
+                            </iframe>
+                            <div class="absolute top-4 right-4 px-3.5 py-1.5 rounded-xl bg-red-600/90 text-white font-black text-xs flex items-center gap-2 shadow-lg backdrop-blur-md">
+                                <span class="w-2.5 h-2.5 rounded-full bg-white animate-ping"></span>
+                                <span>🔴 بث حي مباشر 24/7</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-xs sm:text-sm font-bold text-amber-200 px-2">
+                            <span>📡 المصدر: شبكة قنوات المجد الفضائية الرسمية</span>
+                            <span>📖 القرآن الكريم - تلاوات متواصلة</span>
+                        </div>
+                    </div>
+
+                    <!-- Side Info & Quick Audio Streams -->
+                    <div class="space-y-4">
+                        <div class="p-6 rounded-3xl bg-slate-900/95 border-2 border-amber-500/40 shadow-xl space-y-4">
+                            <div class="text-lg font-black text-amber-300 flex items-center gap-2.5">
+                                <i class="fa-solid fa-radio text-amber-400 text-xl"></i>
+                                <span>إذاعة المجد الصوتية:</span>
+                            </div>
+                            <p class="text-sm text-slate-300 font-medium leading-relaxed">
+                                استمع إلى البث الصوتي المباشر لإذاعة القرآن الكريم بأعلى نقاوة صوتية وبدون استهلاك عالي للبيانات.
+                            </p>
+                            <div class="pt-2">
+                                <audio controls class="w-full rounded-xl bg-slate-950" style="filter: drop-shadow(0 2px 8px rgba(0,0,0,0.5));">
+                                    <source src="https://live.mp3quran.net:9702/;" type="audio/mp3">
+                                    متصفحك لا يدعم تشغيل الصوت المباشر.
+                                </audio>
+                            </div>
+                        </div>
+
+                        <!-- Quick Features Card -->
+                        <div class="p-6 rounded-3xl bg-slate-900/95 border-2 border-white/10 shadow-xl space-y-3">
+                            <div class="text-base font-black text-slate-200 flex items-center gap-2">
+                                <i class="fa-solid fa-star text-amber-400"></i>
+                                <span>مميزات قناة المجد للقرآن:</span>
+                            </div>
+                            <ul class="text-xs sm:text-sm text-slate-300 space-y-2 font-medium">
+                                <li class="flex items-center gap-2"><span class="text-amber-400 font-bold">✓</span> تلاوات بأصوات أشهر القراء في العالم الإسلامي.</li>
+                                <li class="flex items-center gap-2"><span class="text-amber-400 font-bold">✓</span> كتابة الآيات بالرسم العثماني المطابق لمصحف المدينة.</li>
+                                <li class="flex items-center gap-2"><span class="text-amber-400 font-bold">✓</span> معاني الكلمات وتفسير ميسر مصاحب لكل آية.</li>
+                            </ul>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- 12. SUITE: MAKKAH AL-MUKARRAMAH LIVE TV (تلفزيون مكة المكرمة)     -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <div id="suite-sec-tv_makkah" class="suite-section anim-suite hidden space-y-8">
+            <div class="glass-panel-v3 p-6 sm:p-8" style="--border-color: rgba(245, 158, 11, 0.55); border-radius: 32px;">
+                
+                <!-- Suite Header -->
+                <div class="flex flex-wrap items-center justify-between gap-6 pb-6 mb-8 border-b border-yellow-500/30">
+                    <div class="flex items-center gap-4">
+                        <span class="w-16 h-16 rounded-2xl bg-yellow-500/20 border-2 border-yellow-400/60 flex items-center justify-center text-yellow-300 text-3xl shadow-xl">
+                            <i class="fa-solid fa-kaaba"></i>
+                        </span>
+                        <div>
+                            <h2 class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-yellow-300 via-amber-200 to-yellow-500">
+                                تلفزيون مكة المكرمة - قناة القرآن الكريم مباشر
+                            </h2>
+                            <p class="text-base text-slate-200 font-bold mt-1">
+                                البث الحي المباشر لصلوات الحرم المكي الشريف، الطواف، والتلاوات الخاشعة من بيت الله الحرام على مدار الساعة
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <a href="https://www.youtube.com/@QuranTvLive" target="_blank" rel="noopener noreferrer" class="px-6 py-3 rounded-2xl bg-yellow-500/25 hover:bg-yellow-500/35 border-2 border-yellow-400 text-yellow-200 font-black text-sm flex items-center gap-2.5 transition shadow-lg hover:scale-105">
+                            <i class="fa-brands fa-youtube text-lg text-yellow-400"></i>
+                            <span>قناة القرآن الكريم مكة مباشر</span>
+                        </a>
+                        <a href="https://gph.gov.sa/" target="_blank" rel="noopener noreferrer" class="px-6 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 text-slate-200 font-black text-sm flex items-center gap-2.5 transition shadow-lg hover:scale-105">
+                            <i class="fa-solid fa-landmark"></i>
+                            <span>رئاسة شؤون الحرمين</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Video / Broadcast Center Container -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    <!-- Main TV Player Screen (2 Cols) -->
+                    <div class="lg:col-span-2 space-y-4">
+                        <div class="relative w-full aspect-video rounded-3xl overflow-hidden border-2 border-yellow-500/60 shadow-2xl bg-slate-950 flex items-center justify-center">
+                            <!-- Embedded Live Stream Iframe -->
+                            <iframe class="w-full h-full" 
+                                    src="https://www.youtube.com/embed/live_stream?channel=UCZ3O0qA6a-gI9_q-z1J3jLg" 
+                                    title="تلفزيون مكة المكرمة بث مباشر" 
+                                    frameborder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                    allowfullscreen>
+                            </iframe>
+                            <div class="absolute top-4 right-4 px-3.5 py-1.5 rounded-xl bg-red-600/90 text-white font-black text-xs flex items-center gap-2 shadow-lg backdrop-blur-md">
+                                <span class="w-2.5 h-2.5 rounded-full bg-white animate-ping"></span>
+                                <span>🔴 مكة المكرمة مباشر</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-xs sm:text-sm font-bold text-yellow-200 px-2">
+                            <span>🕋 المسجد الحرام - مكة المكرمة</span>
+                            <span>🔴 بث الصلوات الخمس والتراويح والطواف</span>
+                        </div>
+                    </div>
+
+                    <!-- Side Info Card -->
+                    <div class="space-y-4">
+                        <div class="p-6 rounded-3xl bg-slate-900/95 border-2 border-yellow-500/40 shadow-xl space-y-4">
+                            <div class="text-lg font-black text-yellow-300 flex items-center gap-2.5">
+                                <i class="fa-solid fa-kaaba text-yellow-400 text-xl"></i>
+                                <span>عن قناة القرآن الكريم (مكة):</span>
+                            </div>
+                            <p class="text-sm text-slate-300 font-medium leading-relaxed">
+                                قناة رسمية تابعة لهيئة الإذاعة والتلفزيون بالمملكة العربية السعودية تنقل البث الحي المباشر من الكعبة المشرفة والمسجد الحرام على مدار 24 ساعة بدون انقطاع.
+                            </p>
+                            <div class="p-4 rounded-2xl bg-yellow-500/15 border border-yellow-400/40 text-yellow-200 text-xs sm:text-sm font-bold">
+                                🌟 فضيلة الصلاة في المسجد الحرام: الصلاة فيه بمائة ألف صلاة فيما سواه.
+                            </div>
+                        </div>
+
+                        <!-- Direct Launch Button -->
+                        <div class="p-6 rounded-3xl bg-slate-900/95 border-2 border-white/10 shadow-xl text-center space-y-3">
+                            <div class="text-sm font-black text-slate-200">مشاهدة البث بملء الشاشة بجودة 4K:</div>
+                            <a href="https://www.youtube.com/@QuranTvLive" target="_blank" rel="noopener noreferrer" class="w-full py-3.5 rounded-2xl bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-lg transition active:scale-95">
+                                <i class="fa-solid fa-expand"></i>
+                                <span>مشاهدة شاشة كاملة (Full HD)</span>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- 13. SUITE: MADINAH MUNAWWARAH LIVE TV (تلفزيون المدينة المنورة)    -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <div id="suite-sec-tv_madinah" class="suite-section anim-suite hidden space-y-8">
+            <div class="glass-panel-v3 p-6 sm:p-8" style="--border-color: rgba(16, 185, 129, 0.55); border-radius: 32px;">
+                
+                <!-- Suite Header -->
+                <div class="flex flex-wrap items-center justify-between gap-6 pb-6 mb-8 border-b border-emerald-500/30">
+                    <div class="flex items-center gap-4">
+                        <span class="w-16 h-16 rounded-2xl bg-emerald-500/20 border-2 border-emerald-400/60 flex items-center justify-center text-emerald-300 text-3xl shadow-xl">
+                            <i class="fa-solid fa-mosque"></i>
+                        </span>
+                        <div>
+                            <h2 class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-emerald-300 via-teal-200 to-emerald-500">
+                                تلفزيون المدينة المنورة - قناة السنة النبوية مباشر
+                            </h2>
+                            <p class="text-base text-slate-200 font-bold mt-1">
+                                البث الحي المباشر من المسجد النبوي الشريف والروضة المباركة مع قراءة صحاح الأحاديث النبوية
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <a href="https://www.youtube.com/@SunnahTvLive" target="_blank" rel="noopener noreferrer" class="px-6 py-3 rounded-2xl bg-emerald-500/25 hover:bg-emerald-500/35 border-2 border-emerald-400 text-emerald-200 font-black text-sm flex items-center gap-2.5 transition shadow-lg hover:scale-105">
+                            <i class="fa-brands fa-youtube text-lg text-emerald-400"></i>
+                            <span>قناة السنة النبوية يوتيوب مباشر</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Video / Broadcast Center Container -->
+                <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                    
+                    <!-- Main TV Player Screen (2 Cols) -->
+                    <div class="lg:col-span-2 space-y-4">
+                        <div class="relative w-full aspect-video rounded-3xl overflow-hidden border-2 border-emerald-500/60 shadow-2xl bg-slate-950 flex items-center justify-center">
+                            <!-- Embedded Live Stream Iframe -->
+                            <iframe class="w-full h-full" 
+                                    src="https://www.youtube.com/embed/live_stream?channel=UC04G7v4UuIqK9Xn_cW3y9Lg" 
+                                    title="تلفزيون المدينة المنورة قناة السنة النبوية بث مباشر" 
+                                    frameborder="0" 
+                                    allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture; web-share" 
+                                    allowfullscreen>
+                            </iframe>
+                            <div class="absolute top-4 right-4 px-3.5 py-1.5 rounded-xl bg-red-600/90 text-white font-black text-xs flex items-center gap-2 shadow-lg backdrop-blur-md">
+                                <span class="w-2.5 h-2.5 rounded-full bg-white animate-ping"></span>
+                                <span>🔴 المدينة المنورة مباشر</span>
+                            </div>
+                        </div>
+                        <div class="flex items-center justify-between text-xs sm:text-sm font-bold text-emerald-200 px-2">
+                            <span>🕌 المسجد النبوي الشريف - المدينة المنورة</span>
+                            <span>📜 صحيح البخاري ومسلم - قراءة متواصلة للأحاديث</span>
+                        </div>
+                    </div>
+
+                    <!-- Side Info Card -->
+                    <div class="space-y-4">
+                        <div class="p-6 rounded-3xl bg-slate-900/95 border-2 border-emerald-500/40 shadow-xl space-y-4">
+                            <div class="text-lg font-black text-emerald-300 flex items-center gap-2.5">
+                                <i class="fa-solid fa-scroll text-emerald-400 text-xl"></i>
+                                <span>عن قناة السنة النبوية:</span>
+                            </div>
+                            <p class="text-sm text-slate-300 font-medium leading-relaxed">
+                                تنقل البث الحي المباشر من رحاب المسجد النبوي الشريف بالمدينة المنورة، وتصدح بأحاديث رسول الله ﷺ من صحيحي البخاري ومسلم وكتب السنة المعتمدة.
+                            </p>
+                            <div class="p-4 rounded-2xl bg-emerald-500/15 border border-emerald-400/40 text-emerald-200 text-xs sm:text-sm font-bold">
+                                🌟 فضيلة الصلاة في المسجد النبوي: الصلاة فيه بألف صلاة فيما سواه إلا المسجد الحرام.
+                            </div>
+                        </div>
+
+                        <!-- Direct Launch Button -->
+                        <div class="p-6 rounded-3xl bg-slate-900/95 border-2 border-white/10 shadow-xl text-center space-y-3">
+                            <div class="text-sm font-black text-slate-200">مشاهدة البث بملء الشاشة بجودة 4K:</div>
+                            <a href="https://www.youtube.com/@SunnahTvLive" target="_blank" rel="noopener noreferrer" class="w-full py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-lg transition active:scale-95">
+                                <i class="fa-solid fa-expand"></i>
+                                <span>مشاهدة شاشة كاملة (Full HD)</span>
+                            </a>
+                        </div>
+                    </div>
+
+                </div>
+
+            </div>
+        </div>
+
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- 14. SUITE: QURAN MP3 NETWORK (موقع القرآن الكريم MP3 الشامل)      -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <div id="suite-sec-quran_mp3" class="suite-section anim-suite hidden space-y-8">
+            <div class="glass-panel-v3 p-6 sm:p-8" style="--border-color: rgba(6, 182, 212, 0.55); border-radius: 32px;">
+                
+                <!-- Suite Header -->
+                <div class="flex flex-wrap items-center justify-between gap-6 pb-6 mb-8 border-b border-cyan-500/30">
+                    <div class="flex items-center gap-4">
+                        <span class="w-16 h-16 rounded-2xl bg-cyan-500/20 border-2 border-cyan-400/60 flex items-center justify-center text-cyan-300 text-3xl shadow-xl">
+                            <i class="fa-solid fa-headphones"></i>
+                        </span>
+                        <div>
+                            <h2 class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-200 to-cyan-500">
+                                موقع القرآن الكريم MP3 - المكتبة الصوتية الشاملة
+                            </h2>
+                            <p class="text-base text-slate-200 font-bold mt-1">
+                                استمع وتصفح تلاوات القرآن الكريم كاملاً بجودة عالية لكبار قراء العالم الإسلامي
+                            </p>
+                        </div>
+                    </div>
+                    <div class="flex flex-wrap items-center gap-3">
+                        <a href="https://mp3quran.net/ar" target="_blank" rel="noopener noreferrer" class="px-6 py-3 rounded-2xl bg-cyan-500/25 hover:bg-cyan-500/35 border-2 border-cyan-400 text-cyan-200 font-black text-sm flex items-center gap-2.5 transition shadow-lg hover:scale-105">
+                            <i class="fa-solid fa-globe"></i>
+                            <span>فتح موقع MP3Quran.net الكامل</span>
+                        </a>
+                    </div>
+                </div>
+
+                <!-- Reciter Selection & Interactive Audio Player Studio -->
+                <div class="space-y-6">
+                    <div class="p-6 rounded-3xl bg-slate-900/95 border-2 border-cyan-500/40 shadow-xl space-y-6">
+                        <div class="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
+                            <div class="text-xl font-black text-cyan-300 flex items-center gap-3">
+                                <i class="fa-solid fa-compact-disc text-cyan-400"></i>
+                                <span>مشغل التلاوات المباشرة الفوري (كبار القراء):</span>
+                            </div>
+                            <span class="text-xs px-3 py-1 rounded-xl bg-cyan-500/20 text-cyan-200 font-black border border-cyan-400/40">صوت فائق النقاوة (HQ 128-192kbps)</span>
+                        </div>
+
+                        <!-- Reciter Cards Grid -->
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
+                            
+                            <!-- Reciter 1: عبد الباسط -->
+                            <button type="button" onclick="playQuranAudio('https://server7.mp3quran.net/basit/001.mp3', 'الشيخ عبد الباسط عبد الصمد - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-1.5 transition cursor-pointer shadow-md group">
+                                <div class="text-sm font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
+                                    <span>عبد الباسط عبد الصمد</span>
+                                    <i class="fa-solid fa-circle-play text-cyan-400 text-lg"></i>
+                                </div>
+                                <div class="text-xs text-slate-400">المصحف المرتل (حفص)</div>
+                            </button>
+
+                            <!-- Reciter 2: ماهر المعيقلي -->
+                            <button type="button" onclick="playQuranAudio('https://server12.mp3quran.net/maher/001.mp3', 'الشيخ ماهر المعيقلي - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-1.5 transition cursor-pointer shadow-md group">
+                                <div class="text-sm font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
+                                    <span>ماهر المعيقلي</span>
+                                    <i class="fa-solid fa-circle-play text-cyan-400 text-lg"></i>
+                                </div>
+                                <div class="text-xs text-slate-400">المصحف المرتل (حفص)</div>
+                            </button>
+
+                            <!-- Reciter 3: مشاري العفاسي -->
+                            <button type="button" onclick="playQuranAudio('https://server8.mp3quran.net/afs/001.mp3', 'الشيخ مشاري راشد العفاسي - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-1.5 transition cursor-pointer shadow-md group">
+                                <div class="text-sm font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
+                                    <span>مشاري العفاسي</span>
+                                    <i class="fa-solid fa-circle-play text-cyan-400 text-lg"></i>
+                                </div>
+                                <div class="text-xs text-slate-400">المصحف المرتل (حفص)</div>
+                            </button>
+
+                            <!-- Reciter 4: عبد الرحمن السديس -->
+                            <button type="button" onclick="playQuranAudio('https://server11.mp3quran.net/sds/001.mp3', 'الشيخ عبد الرحمن السديس - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-1.5 transition cursor-pointer shadow-md group">
+                                <div class="text-sm font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
+                                    <span>عبد الرحمن السديس</span>
+                                    <i class="fa-solid fa-circle-play text-cyan-400 text-lg"></i>
+                                </div>
+                                <div class="text-xs text-slate-400">المصحف المرتل (حفص)</div>
+                            </button>
+
+                            <!-- Reciter 5: سعد الغامدي -->
+                            <button type="button" onclick="playQuranAudio('https://server7.mp3quran.net/s_gmd/001.mp3', 'الشيخ سعد الغامدي - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-1.5 transition cursor-pointer shadow-md group">
+                                <div class="text-sm font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
+                                    <span>سعد الغامدي</span>
+                                    <i class="fa-solid fa-circle-play text-cyan-400 text-lg"></i>
+                                </div>
+                                <div class="text-xs text-slate-400">المصحف المرتل (حفص)</div>
+                            </button>
+
+                            <!-- Reciter 6: المنشاوي -->
+                            <button type="button" onclick="playQuranAudio('https://server10.mp3quran.net/minsh/001.mp3', 'الشيخ محمد صديق المنشاوي - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-1.5 transition cursor-pointer shadow-md group">
+                                <div class="text-sm font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
+                                    <span>محمد صديق المنشاوي</span>
+                                    <i class="fa-solid fa-circle-play text-cyan-400 text-lg"></i>
+                                </div>
+                                <div class="text-xs text-slate-400">المصحف المرتل (حفص)</div>
+                            </button>
+
+                            <!-- Reciter 7: الحصري -->
+                            <button type="button" onclick="playQuranAudio('https://server13.mp3quran.net/husr/001.mp3', 'الشيخ محمود خليل الحصري - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-1.5 transition cursor-pointer shadow-md group">
+                                <div class="text-sm font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
+                                    <span>محمود خليل الحصري</span>
+                                    <i class="fa-solid fa-circle-play text-cyan-400 text-lg"></i>
+                                </div>
+                                <div class="text-xs text-slate-400">المصحف المرتل (حفص)</div>
+                            </button>
+
+                            <!-- Reciter 8: ياسر الدوسري -->
+                            <button type="button" onclick="playQuranAudio('https://server11.mp3quran.net/yasser/001.mp3', 'الشيخ ياسر الدوسري - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-1.5 transition cursor-pointer shadow-md group">
+                                <div class="text-sm font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
+                                    <span>ياسر الدوسري</span>
+                                    <i class="fa-solid fa-circle-play text-cyan-400 text-lg"></i>
+                                </div>
+                                <div class="text-xs text-slate-400">المصحف المرتل (حفص)</div>
+                            </button>
+
+                            <!-- Reciter 9: علي الحذيفي -->
+                            <button type="button" onclick="playQuranAudio('https://server9.mp3quran.net/hthfi/001.mp3', 'الشيخ علي بن عبد الرحمن الحذيفي - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-1.5 transition cursor-pointer shadow-md group">
+                                <div class="text-sm font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
+                                    <span>علي الحذيفي</span>
+                                    <i class="fa-solid fa-circle-play text-cyan-400 text-lg"></i>
+                                </div>
+                                <div class="text-xs text-slate-400">المصحف المرتل (حفص)</div>
+                            </button>
+
+                            <!-- Reciter 10: سعود الشريم -->
+                            <button type="button" onclick="playQuranAudio('https://server7.mp3quran.net/shur/001.mp3', 'الشيخ سعود الشريم - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-1.5 transition cursor-pointer shadow-md group">
+                                <div class="text-sm font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
+                                    <span>سعود الشريم</span>
+                                    <i class="fa-solid fa-circle-play text-cyan-400 text-lg"></i>
+                                </div>
+                                <div class="text-xs text-slate-400">المصحف المرتل (حفص)</div>
+                            </button>
+
+                        </div>
+
+                        <!-- Active Audio Player Bar -->
+                        <div class="p-5 rounded-2xl bg-slate-950 border-2 border-cyan-500/50 shadow-2xl space-y-3">
+                            <div class="flex items-center justify-between">
+                                <div class="text-sm sm:text-base font-black text-cyan-300 flex items-center gap-2">
+                                    <span class="w-3 h-3 rounded-full bg-cyan-400 animate-pulse"></span>
+                                    <span id="active-quran-title">اختر قارئاً من القائمة أعلاه لبدء الاستماع مباشرة...</span>
+                                </div>
+                            </div>
+                            <audio id="main-quran-audio-player" controls autoplay class="w-full rounded-xl bg-slate-900 border border-cyan-500/30 shadow-inner">
+                                <source src="https://server7.mp3quran.net/basit/001.mp3" type="audio/mp3">
+                            </audio>
+                        </div>
+
+                    </div>
+                </div>
+
+            </div>
+        </div>
+
+
     <!-- Master Fiqh 4,500 Fatwas Data Library (Synchronous Instant Memory Preload) -->
     <script src="js/fiqh_20000_data.js?v=4500_v2"></script>
 
@@ -21918,7 +22371,21 @@ $pdo = getDBConnection();
         }
     }
 
-        function switchSuite(suiteId, el) {
+        
+    function playQuranAudio(url, title) {
+        const player = document.getElementById('main-quran-audio-player');
+        const titleEl = document.getElementById('active-quran-title');
+        if (player) {
+            player.src = url;
+            player.play();
+        }
+        if (titleEl) {
+            titleEl.innerText = '🔊 جارِ الاستماع الآن: ' + title;
+        }
+    }
+    window.playQuranAudio = playQuranAudio;
+
+    function switchSuite(suiteId, el) {
         document.querySelectorAll('.suite-section').forEach(sec => sec.classList.add('hidden'));
         document.querySelectorAll('.suite-pill-card').forEach(btn => btn.classList.remove('active'));
 
