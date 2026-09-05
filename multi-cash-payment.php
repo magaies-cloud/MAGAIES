@@ -1156,58 +1156,67 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
 
-        /* عند وقوف المؤشر على أي حقل مبلغ (Hover Glow) */
+        /* عند وقوف المؤشر على أي حقل مبلغ (Hover) */
         .block-total-amount:hover,
         input[id^="amount-"]:hover,
         .transfer-amount:hover,
         .cheque-amount:hover,
         .block-sub-amount:hover,
         .multi-input[placeholder*="المبلغ"]:hover {
-            border: 2.2px solid #fbbf24 !important;
-            box-shadow: 0 0 28px rgba(251, 191, 36, 0.9), 0 0 50px rgba(245, 158, 11, 0.55), inset 0 0 10px rgba(251, 191, 36, 0.3) !important;
-            background: rgba(251, 191, 36, 0.15) !important;
+            border: 2px solid #fbbf24 !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 12px rgba(251, 191, 36, 0.35) !important;
+            background: rgba(251, 191, 36, 0.12) !important;
             transform: translateY(-2px) scale(1.02) !important;
         }
 
-        /* عند الضغط على المبلغ والتركيز (Focus Glow) */
+        /* عند الضغط على المبلغ والتركيز (Focus) */
         .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus, .multi-input[placeholder*="المبلغ"]:focus {
-            border: 3px solid #fbbf24 !important;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.95), 0 0 38px rgba(251, 191, 36, 0.95), 0 0 75px rgba(245, 158, 11, 0.6), inset 0 0 16px rgba(251, 191, 36, 0.4) !important;
+            border: 2.5px solid #fbbf24 !important;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.95), 0 0 15px rgba(251, 191, 36, 0.4) !important;
             outline: none !important;
         }
 
         /* حقول مبالغ التحويلات البنكية عند الوقوف */
         .block-bank-amount:hover {
-            border: 2.2px solid #22d3ee !important;
-            box-shadow: 0 0 28px rgba(34, 211, 238, 0.95), 0 0 50px rgba(6, 182, 212, 0.6), inset 0 0 12px rgba(34, 211, 238, 0.35) !important;
-            background: rgba(6, 182, 212, 0.22) !important;
+            border: 2px solid #22d3ee !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 12px rgba(34, 211, 238, 0.35) !important;
+            background: rgba(6, 182, 212, 0.18) !important;
             color: #ffffff !important;
             transform: translateY(-2px) scale(1.02) !important;
         }
 
         /* حقول مبالغ الشيكات عند الوقوف */
         .block-cheque-amount:hover {
-            border: 2.2px solid #c084fc !important;
-            box-shadow: 0 0 28px rgba(192, 132, 252, 0.95), 0 0 50px rgba(147, 51, 234, 0.6), inset 0 0 12px rgba(192, 132, 252, 0.35) !important;
-            background: rgba(147, 51, 234, 0.22) !important;
+            border: 2px solid #c084fc !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 12px rgba(192, 132, 252, 0.35) !important;
+            background: rgba(147, 51, 234, 0.18) !important;
             color: #ffffff !important;
             transform: translateY(-2px) scale(1.02) !important;
         }
 
-        /* ─── 2. منطقة الدولار (سعر التعادل): إضاءة الحواف تأتي لوحدها تلقائياً ─── */
+        /* ─── 2. منطقة الدولار (سعر التعادل): أرقام حادة بدون ظل أو هالة ─── */
         #exchange-rate {
             font-size: 1.8rem !important;
             font-weight: 900 !important;
+            text-shadow: none !important;
+            -webkit-text-stroke: 0px !important;
+            filter: none !important;
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+            text-rendering: geometricPrecision !important;
+            font-family: 'Consolas', 'Courier New', monospace !important;
             transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
         #exchange-rate:hover,
         #exchange-rate:focus,
         #exchange-rate:active {
-            border: 2.2px solid #10b981 !important;
-            box-shadow: 0 0 28px rgba(16, 185, 129, 0.95), 0 0 55px rgba(5, 150, 105, 0.65), inset 0 0 12px rgba(52, 211, 153, 0.35) !important;
-            background: rgba(16, 185, 129, 0.25) !important;
+            border: 2px solid #10b981 !important;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 12px rgba(16, 185, 129, 0.4) !important;
+            background: rgba(16, 185, 129, 0.2) !important;
             color: #ffffff !important;
-            transform: translateY(-2px) scale(1.05) !important;
+            text-shadow: none !important;
+            -webkit-text-stroke: 0px !important;
+            transform: translateY(-2px) scale(1.04) !important;
             outline: none !important;
         }
         #label-exchange-rate {
@@ -1215,14 +1224,14 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
         #label-exchange-rate:hover {
             color: #34d399 !important;
-            text-shadow: 0 0 12px rgba(52, 211, 153, 0.85) !important;
+            text-shadow: none !important;
         }
         #label-exchange-rate:hover span:last-child {
             transform: rotate(90deg) scale(1.25);
-            filter: drop-shadow(0 0 8px #fbbf24);
+            filter: drop-shadow(0 0 4px rgba(251,191,36,0.6));
         }
 
-        /* ─── 3. منطقة إجمالي المحلي والمعادل بالأجنبي (كتابة حمراء وخلفية بيضاء ومساحة متساوية مناصفة) ─── */
+        /* ─── 3. منطقة إجمالي المحلي والمعادل بالأجنبي (حواف أرقام حادة بدون أي ظل أو هالة وخلفية بيضاء ومساحة متساوية) ─── */
         #amount-local-hdr, #amount-foreign {
             font-size: 2.6rem !important;
             font-weight: 900 !important;
@@ -1231,23 +1240,32 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             background: #ffffff !important;
             background-color: #ffffff !important;
             text-align: center !important;
-            border: 2.5px solid #ef4444 !important;
-            border-radius: 12px !important;
-            box-shadow: 0 0 20px rgba(239, 68, 68, 0.45), inset 0 0 8px rgba(239, 68, 68, 0.1) !important;
+            border: 2px solid #ef4444 !important;
+            border-radius: 10px !important;
+            box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
             text-shadow: none !important;
+            -webkit-text-stroke: 0px !important;
+            filter: none !important;
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+            text-rendering: geometricPrecision !important;
+            font-family: 'Consolas', 'Courier New', monospace !important;
             width: 100% !important;
             box-sizing: border-box !important;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            transition: all 0.25s ease !important;
         }
         #amount-local-hdr:hover, #amount-local-hdr:focus,
         #amount-foreign:hover, #amount-foreign:focus {
-            border: 3px solid #dc2626 !important;
-            box-shadow: 0 0 35px rgba(239, 68, 68, 0.75), 0 0 60px rgba(220, 38, 38, 0.45), inset 0 0 10px rgba(239, 68, 68, 0.15) !important;
+            border: 2.5px solid #dc2626 !important;
+            box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2) !important;
             color: #ef4444 !important;
             -webkit-text-fill-color: #ef4444 !important;
             background: #ffffff !important;
             background-color: #ffffff !important;
-            transform: scale(1.025) !important;
+            text-shadow: none !important;
+            -webkit-text-stroke: 0px !important;
+            filter: none !important;
+            transform: scale(1.02) !important;
             outline: none !important;
         }
 
@@ -1359,12 +1377,19 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             box-shadow: 0 0 12px rgba(16, 185, 129, 0.7) !important;
         }
         
-        /* 🌟 مقاسات الوضع الطبيعي الأساسي (تمت زيادتها 3 درجات إضافية لتكون الأرقام واضحة ومقروءة جداً) */
+        /* 🌟 مقاسات الوضع الطبيعي الأساسي (حواف أرقام حادة ونقية بدون أي ظل أو هالة) */
         input.block-total-amount, input.block-bank-amount, input.block-cheque-amount, input.transfer-amount, input.cheque-amount, input.block-sub-amount {
             font-size: 3.1rem !important;
             height: 62px !important;
             font-weight: 900 !important;
             color: #ffffff !important;
+            text-shadow: none !important;
+            -webkit-text-stroke: 0px !important;
+            filter: none !important;
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+            text-rendering: geometricPrecision !important;
+            font-family: 'Consolas', 'Courier New', monospace !important;
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
         
@@ -1372,12 +1397,19 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             font-size: 2.8rem !important;
             height: 62px !important;
             font-weight: 900 !important;
-            letter-spacing: 1.5px !important;
+            letter-spacing: 1px !important;
             color: #ffffff !important;
+            text-shadow: none !important;
+            -webkit-text-stroke: 0px !important;
+            filter: none !important;
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+            text-rendering: geometricPrecision !important;
+            font-family: 'Consolas', 'Courier New', monospace !important;
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
         
-        /* 🔍 مقاس موحد ومكبر بدقة 4.5rem لجميع حقول المبالغ والأرقام عند الضغط والتركيز والكتابة باللون الذهبي */
+        /* 🔍 مقاس موحد ومكبر بدقة 4.5rem لجميع حقول المبالغ والأرقام عند الضغط والتركيز والكتابة باللون الذهبي بحواف حادة */
         input.block-total-amount:focus,
         input.block-bank-amount:focus,
         input.block-cheque-amount:focus,
@@ -1395,11 +1427,17 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             color: #fbbf24 !important; /* Gold / Yellow */
             -webkit-text-fill-color: #fbbf24 !important;
             caret-color: #fbbf24 !important;
-            text-shadow: 0 0 16px rgba(251, 191, 36, 0.65) !important;
+            text-shadow: none !important;
+            -webkit-text-stroke: 0px !important;
+            filter: none !important;
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+            text-rendering: geometricPrecision !important;
+            font-family: 'Consolas', 'Courier New', monospace !important;
             background: rgba(15, 23, 42, 0.98) !important;
             border: 2.5px solid #fbbf24 !important;
             border-radius: 10px !important;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 35px rgba(251, 191, 36, 0.8) !important;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9), 0 0 15px rgba(251, 191, 36, 0.35) !important;
         }
         
         input.block-transfer-no-input:focus,
@@ -1414,12 +1452,19 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             position: relative !important;
             z-index: 99999 !important;
             margin-right: -60px !important;
-            letter-spacing: 2px !important;
+            letter-spacing: 1.5px !important;
             color: #38bdf8 !important; /* Sky Blue */
+            text-shadow: none !important;
+            -webkit-text-stroke: 0px !important;
+            filter: none !important;
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+            text-rendering: geometricPrecision !important;
+            font-family: 'Consolas', 'Courier New', monospace !important;
             background: rgba(15, 23, 42, 0.98) !important;
             border: 2.5px solid #38bdf8 !important;
             border-radius: 10px !important;
-            box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 35px rgba(56, 189, 248, 0.8) !important;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9), 0 0 15px rgba(56, 189, 248, 0.35) !important;
         }
 
         /* Larger Bank Name Font */
@@ -1441,6 +1486,53 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         .cheque-row > div:nth-child(4) { flex: 0.8 !important; min-width: 90px !important; } /* Cheque No (Smaller) */
         .cheque-row > div:nth-child(5) { flex: 1.2 !important; min-width: 120px !important; } /* Cheque Date */
         .cheque-row > div:nth-child(6) { flex: 2.5 !important; min-width: 210px !important; } /* Cheque Desc (Wider) */
+
+        /* ═══════════════════════════════════════════════════════════════════════════════
+           🎯 حواف أرقام ومبالغ حادة ونقية جداً بدون أي ظل أو إضاءة أو هالة (Sharp & Crisp Numbers)
+           ═══════════════════════════════════════════════════════════════════════════════ */
+        #amount-local-hdr,
+        #amount-foreign,
+        #exchange-rate,
+        input.block-total-amount,
+        input.block-bank-amount,
+        input.block-cheque-amount,
+        input.block-sub-amount,
+        input.transfer-amount,
+        input.cheque-amount,
+        input.block-transfer-no-input,
+        input.block-cheque-no-input,
+        input.transfer-no,
+        input.cheque-no,
+        input[id^="amount-"] {
+            text-shadow: none !important;
+            -webkit-text-stroke: 0px !important;
+            filter: none !important;
+            -webkit-font-smoothing: antialiased !important;
+            -moz-osx-font-smoothing: grayscale !important;
+            text-rendering: geometricPrecision !important;
+            font-feature-settings: "tnum" 1, "zero" 1 !important;
+            font-variant-numeric: tabular-nums !important;
+        }
+
+        #amount-local-hdr:focus, #amount-local-hdr:hover,
+        #amount-foreign:focus, #amount-foreign:hover,
+        #exchange-rate:focus, #exchange-rate:hover,
+        input.block-total-amount:focus, input.block-total-amount:hover,
+        input.block-bank-amount:focus, input.block-bank-amount:hover,
+        input.block-cheque-amount:focus, input.block-cheque-amount:hover,
+        input.block-sub-amount:focus, input.block-sub-amount:hover,
+        input.transfer-amount:focus, input.transfer-amount:hover,
+        input.cheque-amount:focus, input.cheque-amount:hover,
+        input.block-transfer-no-input:focus, input.block-transfer-no-input:hover,
+        input.block-cheque-no-input:focus, input.block-cheque-no-input:hover,
+        input.transfer-no:focus, input.transfer-no:hover,
+        input.cheque-no:focus, input.cheque-no:hover,
+        input[id^="amount-"]:focus, input[id^="amount-"]:hover {
+            text-shadow: none !important;
+            -webkit-text-stroke: 0px !important;
+            filter: none !important;
+        }
+
         /* Custom Number Properties Menu (Enhanced Luxury) */
         #custom-num-menu {
             display: none;
@@ -1633,16 +1725,16 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             <input type="text" inputmode="decimal" autocomplete="off" id="exchange-rate" class="form-input" value="1" readonly style="font-weight: 900; font-family: monospace; text-align: center; cursor: pointer; background: rgba(16,185,129,0.1); color: #10b981; border-radius: 10px;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.dataset.raw=r; this.value=r; if(typeof applyNumPropsToAll === 'function') applyNumPropsToAll(); if(typeof calcTotal === 'function') calcTotal(); else if(typeof recalcAll === 'function') recalcAll();});" oninput="if(typeof calcTotal === 'function') calcTotal();" title="كليك يسار لتعديل السعر | كليك يمين لتخصيص (السمك، الحجم، اللون، الخانات، الفاصلة)">
                         </div>
                         
-                        <!-- إجمالي المحلي والمعادل بالأجنبي متساويين مناصفة 50% / 50% -->
+                        <!-- إجمالي المحلي والمعادل بالأجنبي متساويين مناصفة 50% / 50% (حواف أرقام حادة بدون ظل أو هالة) -->
                         <div id="totals-equal-container" style="display: flex; gap: 15px; flex: 2.8; min-width: 380px; align-items: flex-end;">
                             <div style="flex: 1 1 50%; min-width: 0; width: 50%;">
                                 <label id="label-amount-local" style="color: #10b981; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالمحلي (SDG)</label>
-                                <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: monospace; color: #ef4444 !important; -webkit-text-fill-color: #ef4444 !important; background: #ffffff !important; text-align: center; border: 2.5px solid #ef4444 !important; border-radius: 12px !important; box-shadow: 0 0 20px rgba(239, 68, 68, 0.45), inset 0 0 8px rgba(239, 68, 68, 0.1) !important; width: 100%;">
+                                <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: 'Consolas', 'Courier New', monospace; color: #ef4444 !important; -webkit-text-fill-color: #ef4444 !important; background: #ffffff !important; text-align: center; border: 2px solid #ef4444 !important; border-radius: 10px !important; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important; text-shadow: none !important; -webkit-text-stroke: 0px !important; filter: none !important; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; width: 100%;">
                             </div>
                             
                             <div style="flex: 1 1 50%; min-width: 0; width: 50%;">
                                 <label id="label-amount-foreign" style="color: #ef4444; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 المعادل بالأجنبي (USD)</label>
-                                <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: monospace; color: #ef4444 !important; -webkit-text-fill-color: #ef4444 !important; background: #ffffff !important; text-align: center; border: 2.5px solid #ef4444 !important; border-radius: 12px !important; box-shadow: 0 0 20px rgba(239, 68, 68, 0.45), inset 0 0 8px rgba(239, 68, 68, 0.1) !important; width: 100%;">
+                                <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: 'Consolas', 'Courier New', monospace; color: #ef4444 !important; -webkit-text-fill-color: #ef4444 !important; background: #ffffff !important; text-align: center; border: 2px solid #ef4444 !important; border-radius: 10px !important; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important; text-shadow: none !important; -webkit-text-stroke: 0px !important; filter: none !important; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; width: 100%;">
                             </div>
                         </div>
                     </div>
@@ -1691,7 +1783,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             
                             <!-- Total Amount (auto-calculated or direct) -->
                             <div style="flex: 1.2; min-width: 150px; display: flex; flex-direction: column; position: relative;">
-                                <input type="text" id="amount-{ID}" oninput="formatInput(this)" class="form-input block-total-amount" placeholder="المبلغ (جنيه)" style="font-weight: 900; font-family: monospace; text-align: center; flex: 1; margin-bottom: 0; border-color: #fbbf24; box-shadow: 0 0 8px rgba(251,191,36,0.3); background: rgba(251,191,36,0.08); transition: all 0.4s ease; -webkit-text-stroke: 1px currentColor; letter-spacing: 1px;">
+                                <input type="text" id="amount-{ID}" oninput="formatInput(this)" class="form-input block-total-amount" placeholder="المبلغ (جنيه)" style="font-weight: 900; font-family: 'Consolas', monospace; text-align: center; flex: 1; margin-bottom: 0; border: 1.8px solid #fbbf24; background: rgba(251,191,36,0.08); transition: all 0.25s ease; text-shadow: none !important; -webkit-text-stroke: 0px !important; letter-spacing: 0.5px;">
                             </div>
                             
                             <!-- Statement (بيان التحويل) -->
@@ -1713,7 +1805,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                                 <div class="bank-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
                                     <div class="bank-icon-label" style="width: 80px; font-weight: bold; display: flex; align-items: center; gap: 5px; flex-shrink: 0; transition: color 0.4s ease;">🏦 بنكي</div>
                                     <div style="width: 150px; flex-shrink: 0;">
-                                        <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: 900; text-align: center; -webkit-text-stroke: 0.5px currentColor;">
+                                        <input type="text" autocomplete="off" class="form-input block-bank-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: 'Consolas', monospace; font-weight: 900; text-align: center; text-shadow: none !important; -webkit-text-stroke: 0px !important;">
                                     </div>
                                     <div style="flex: 1; min-width: 120px;">
                                         <input type="text" autocomplete="off" class="form-input block-bank-name-input" placeholder="اسم البنك" style="margin-bottom: 0;">
@@ -1735,7 +1827,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                                 <div class="cheque-row" style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 6px;">
                                     <div style="width: 80px; font-weight: bold; color: #d8b4fe; display: flex; align-items: center; gap: 5px; flex-shrink: 0;">✍️ شيك</div>
                                     <div style="width: 150px; flex-shrink: 0;">
-                                        <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: monospace; font-weight: 900; text-align: center; -webkit-text-stroke: 0.5px currentColor;">
+                                        <input type="text" autocomplete="off" class="form-input block-cheque-amount block-sub-amount" data-block-id="{ID}" placeholder="المبلغ" style="margin-bottom: 0; font-family: 'Consolas', monospace; font-weight: 900; text-align: center; text-shadow: none !important; -webkit-text-stroke: 0px !important;">
                                     </div>
                                     <div style="flex: 1; min-width: 90px;">
                                         <input type="text" autocomplete="off" class="form-input block-cheque-bank-input" placeholder="اسم البنك" style="margin-bottom: 0;">
@@ -2362,9 +2454,18 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             if(!el) return;
             const conf = getPropFor(el);
             
+            // Force razor-sharp digits with zero shadow / zero stroke
+            el.style.setProperty('text-shadow', 'none', 'important');
+            el.style.setProperty('-webkit-text-stroke', '0px', 'important');
+            el.style.setProperty('filter', 'none', 'important');
+            el.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
+            el.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
+            el.style.setProperty('text-rendering', 'geometricPrecision', 'important');
+            
             // 1. Apply font family
             if (conf.fontFamily) {
-                el.style.setProperty('font-family', conf.fontFamily, 'important');
+                let fam = (conf.fontFamily === 'monospace' || !conf.fontFamily) ? "'Consolas', 'Courier New', monospace" : conf.fontFamily;
+                el.style.setProperty('font-family', fam, 'important');
             }
             
             // 2. Apply font weight (السمك)
@@ -2372,7 +2473,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 el.style.setProperty('font-weight', conf.fontWeight, 'important');
             }
             
-            // 3. Apply color (اللون - المبالغ في الحجم الكبير باللون الذهبي)
+            // 3. Apply color (اللون - المبالغ في الحجم الكبير باللون الذهبي بدون ظل)
             if (el === document.activeElement && (
                 el.classList.contains('block-total-amount') ||
                 el.classList.contains('block-bank-amount') ||
@@ -2384,13 +2485,15 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 el.style.setProperty('color', '#fbbf24', 'important');
                 el.style.setProperty('-webkit-text-fill-color', '#fbbf24', 'important');
                 el.style.setProperty('caret-color', '#fbbf24', 'important');
-                el.style.setProperty('text-shadow', '0 0 16px rgba(251, 191, 36, 0.65)', 'important');
+                el.style.setProperty('text-shadow', 'none', 'important');
+                el.style.setProperty('-webkit-text-stroke', '0px', 'important');
             } else if (el.id === 'amount-local-hdr' || el.id === 'amount-foreign') {
                 el.style.setProperty('color', '#ef4444', 'important');
                 el.style.setProperty('-webkit-text-fill-color', '#ef4444', 'important');
                 el.style.setProperty('background', '#ffffff', 'important');
                 el.style.setProperty('background-color', '#ffffff', 'important');
-                el.style.removeProperty('text-shadow');
+                el.style.setProperty('text-shadow', 'none', 'important');
+                el.style.setProperty('-webkit-text-stroke', '0px', 'important');
             } else if (conf.color) {
                 el.style.setProperty('color', conf.color, 'important');
             }
@@ -2563,16 +2666,29 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 el.style.setProperty('color', '#fbbf24', 'important');
                 el.style.setProperty('-webkit-text-fill-color', '#fbbf24', 'important');
                 el.style.setProperty('caret-color', '#fbbf24', 'important');
-                el.style.setProperty('text-shadow', '0 0 16px rgba(251, 191, 36, 0.65)', 'important');
+                el.style.setProperty('text-shadow', 'none', 'important');
+                el.style.setProperty('-webkit-text-stroke', '0px', 'important');
+                el.style.setProperty('filter', 'none', 'important');
+                el.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
+                el.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
+                el.style.setProperty('text-rendering', 'geometricPrecision', 'important');
+                el.style.setProperty('font-family', "'Consolas', 'Courier New', monospace", 'important');
                 el.style.setProperty('border', '2.5px solid #fbbf24', 'important');
-                el.style.setProperty('box-shadow', '0 15px 50px rgba(0,0,0,0.9), 0 0 35px rgba(251, 191, 36, 0.8)', 'important');
+                el.style.setProperty('box-shadow', '0 15px 40px rgba(0,0,0,0.9), 0 0 15px rgba(251, 191, 36, 0.35)', 'important');
             } else {
                 el.style.setProperty('color', '#38bdf8', 'important');
                 el.style.setProperty('-webkit-text-fill-color', '#38bdf8', 'important');
                 el.style.setProperty('caret-color', '#38bdf8', 'important');
+                el.style.setProperty('text-shadow', 'none', 'important');
+                el.style.setProperty('-webkit-text-stroke', '0px', 'important');
+                el.style.setProperty('filter', 'none', 'important');
+                el.style.setProperty('-webkit-font-smoothing', 'antialiased', 'important');
+                el.style.setProperty('-moz-osx-font-smoothing', 'grayscale', 'important');
+                el.style.setProperty('text-rendering', 'geometricPrecision', 'important');
+                el.style.setProperty('font-family', "'Consolas', 'Courier New', monospace", 'important');
                 el.style.setProperty('border', '2.5px solid #38bdf8', 'important');
-                el.style.setProperty('box-shadow', '0 15px 50px rgba(0,0,0,0.9), 0 0 35px rgba(56, 189, 248, 0.8)', 'important');
-                el.style.setProperty('letter-spacing', '2px', 'important');
+                el.style.setProperty('box-shadow', '0 15px 40px rgba(0,0,0,0.9), 0 0 15px rgba(56, 189, 248, 0.35)', 'important');
+                el.style.setProperty('letter-spacing', '1.5px', 'important');
             }
             
             if (el.parentElement && el.parentElement.style) {
