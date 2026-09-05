@@ -2677,6 +2677,7 @@
             { id: 'alerts_mgr', href: 'alerts_manager.php', label: 'تنبيهات التقارير', category: 'التقارير والتنبيهات', icon: 'fa-triangle-exclamation', color: '#fb7185', bg: 'rgba(244, 63, 94, 0.2)', border: '#f43f5e' },
             { id: 'settings', href: 'settings.php', label: 'الإعدادات والقواعد', category: 'الإدارة والصلاحيات', icon: 'fa-gear', color: '#94a3b8', bg: 'rgba(100, 116, 139, 0.2)', border: '#64748b' },
             { id: 'tools', href: 'engineering_tools.php', label: 'أدوات مساعدة', category: 'أدوات مساعدة', icon: 'fa-toolbox', color: '#f472b6', bg: 'rgba(236, 72, 153, 0.2)', border: '#ec4899' },
+            { id: 'inheritance', href: 'engineering_tools.php?tab=inheritance', label: 'الميراث الشرعي', category: 'أدوات مساعدة', icon: 'fa-scale-balanced', color: '#d97706', bg: 'rgba(217, 119, 6, 0.2)', border: '#d97706' },
             { id: 'smart_inv_rep', href: 'smart_inventory_report.php', label: 'تقارير الذكاء', category: 'التقارير والتنبيهات', icon: 'fa-chart-line', color: '#34d399', bg: 'rgba(16, 185, 129, 0.2)', border: '#10b981' },
             { id: 'sales', href: 'direct-sales.php', label: 'مبيعات', category: 'المبيعات والمشتريات', icon: 'fa-cart-shopping', color: '#38bdf8', bg: 'rgba(56, 189, 248, 0.2)', border: '#38bdf8' },
             { id: 'purchase', href: 'purchase.php', label: 'مشتريات', category: 'المبيعات والمشتريات', icon: 'fa-bag-shopping', color: '#fbbf24', bg: 'rgba(251, 191, 36, 0.2)', border: '#fbbf24' },

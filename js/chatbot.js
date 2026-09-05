@@ -717,7 +717,9 @@
         const norm = normalizeArabicSearch(query);
         const words = norm.split(/\s+/);
         const hasAnyWord = (targets) => words.some(w => targets.includes(w));
-        
+
+        if (hasAnyWord(['ميراث', 'ورثه', 'ورثة', 'تركه', 'تركة', 'فرائض', 'الفرائض', 'الميراث', 'التركة', 'عول', 'العول', 'حجب', 'الحجب', 'رد', 'الرد', 'العمريتان', 'كلاله', 'كلالة', 'عصبه', 'عصبة', 'توزيع_الميراث', 'تقسيم_الميراث', 'حساب_الميراث'])) return 'inheritance';
+
         if (hasAnyWord(['ايه', 'ايات', 'الايه', 'الايات', 'قران', 'القران', 'سوره', 'السوره', 'مداينه', 'المداينه', 'المطففين'])) return 'quran';
         if (hasAnyWord(['حديث', 'احاديث', 'الحديث', 'الاحاديث', 'الرسول', 'النبي', 'البخاري', 'مسلم', 'الترمذي', 'ابوداود', 'السنن', 'البيعان', 'بالخيار', 'الخيار'])) return 'hadith';
         if (hasAnyWord(['قاعده', 'قواعد', 'القاعده', 'القواعد', 'الغرم', 'الخراج', 'الضمان'])) return 'maxim';
@@ -776,6 +778,32 @@
         }
 
         const tokens = extractTokens(query);
+
+        if (intent === 'inheritance') {
+            const responseHtml = `
+                <div style="direction:rtl; text-align:right; font-family:'Segoe UI', Tahoma, sans-serif;">
+                    <div style="display:flex; align-items:center; gap:8px; margin-bottom:8px;">
+                        <span style="font-size:1.4rem;">⚖️</span>
+                        <b style="color:#f59e0b; font-size:1rem;">نظام الميراث والفرائض الشرعي (حساب وتوزيع التركات):</b>
+                    </div>
+                    <div style="font-size:0.85rem; color:#cbd5e1; line-height:1.6; margin-bottom:10px; background:rgba(217,119,6,0.1); border:1px solid rgba(217,119,6,0.3); border-radius:10px; padding:10px;">
+                        يتيح لك النظام توزيع التركات بدقة رياضية وفقهية معتمدة وفق أحكام القرآن الكريم والسنة النبوية:<br>
+                        • حساب <b>الفروض المقدرة</b> (النصف، الربع، الثمن، الثلثين، الثلث، السدس).<br>
+                        • تصنيف <b>العصبات</b> بأنواعها (بالنفس، بالغير، مع الغير).<br>
+                        • تطبيق قواعد <b>الحجب الكامل وحجب النقصان</b> تلقائياً.<br>
+                        • معالجة حالات <b>العول</b> و<b>الرد</b> و<b>المسألتين العمريتين</b>.<br>
+                        • استخراج وثيقة رسمية A4 معتمدة ومشاركتها عبر واتساب.
+                    </div>
+                    <button onclick="if(typeof openToolSuite==='function'){openToolSuite('inheritance');}else{location.href='engineering_tools.php?tab=inheritance';}" 
+                            style="padding:8px 16px; background:linear-gradient(135deg, #d97706, #b45309); color:#fff; border:none; border-radius:10px; font-weight:bold; cursor:pointer; font-size:0.85rem; box-shadow:0 3px 10px rgba(217,119,6,0.3); display:inline-flex; align-items:center; gap:6px;">
+                        <span>⚖️ فتح حاسبة الميراث وقسمة التركة الآن</span>
+                    </button>
+                </div>
+            `;
+            callback(true, responseHtml);
+            return;
+        }
+
 
         if (intent === 'quran') {
             const verses = window.QURAN_VERSES_DATA || [];
