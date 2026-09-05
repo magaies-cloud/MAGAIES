@@ -1500,7 +1500,6 @@ $pdo = getDBConnection();
         
         <!-- ════════════════════════════════════════════════════════════════ -->
         <!-- 📡 ISLAMIC SACRED MEDIA & LIVE BROADCAST HUB (إذاعات وقنوات البث المباشر) -->
-        <!-- ════════════════════════════════════════════════════════════════ -->
         <div class="mb-6 p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-slate-900 via-emerald-950/40 to-slate-900 border-2 border-amber-500/50 shadow-2xl">
             <div class="flex flex-col md:flex-row items-center justify-between gap-4 pb-3 mb-3 border-b border-amber-500/30">
                 <div class="flex items-center gap-3">
@@ -1511,7 +1510,7 @@ $pdo = getDBConnection();
                         <h4 class="text-lg sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-500">
                             البث المباشر والإذاعات الإسلامية المباركة
                         </h4>
-                        <p class="text-xs sm:text-sm text-slate-300 font-bold">استمع وشاهد البث الحي المباشر من مكة والمدينة وإذاعات القرآن الكريم</p>
+                        <p class="text-xs sm:text-sm text-slate-300 font-bold">استمع وشاهد البث الحي المباشر من مكة والمدينة وإذاعات القرآن الكريم مع إمكانية التشغيل في الخلفية</p>
                     </div>
                 </div>
                 <div class="flex items-center gap-2 text-xs font-mono font-black text-emerald-400 bg-emerald-950/60 px-3.5 py-1.5 rounded-xl border border-emerald-500/40 shadow-inner">
@@ -1523,65 +1522,65 @@ $pdo = getDBConnection();
             <!-- 4 Royal Broadcast Cards Grid -->
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
                 
-                <!-- 1. إذاعة المجد للقرآن الكريم -->
-                <a href="https://al-majdtv.com/" target="_blank" rel="noopener noreferrer" 
-                   class="group p-3.5 sm:p-4 rounded-2xl bg-slate-950/80 hover:bg-amber-950/40 border-2 border-amber-500/40 hover:border-amber-400 flex items-center gap-3.5 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 block cursor-pointer">
+                <!-- 1. إذاعة وتلفزيون المجد للقرآن الكريم -->
+                <div onclick="switchSuite('tv_majd', document.querySelector('[onclick*=\'tv_majd\']'))" 
+                   class="group p-3.5 sm:p-4 rounded-2xl bg-slate-950/80 hover:bg-amber-950/40 border-2 border-amber-500/40 hover:border-amber-400 flex items-center gap-3.5 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 cursor-pointer">
                     <span class="w-12 h-12 rounded-xl bg-amber-500/20 border-2 border-amber-400/60 flex items-center justify-center text-2xl text-amber-300 shadow-md group-hover:scale-110 transition-transform flex-shrink-0">
-                        <i class="fa-solid fa-radio"></i>
+                        <i class="fa-solid fa-tv"></i>
                     </span>
                     <div class="flex-1 text-right">
                         <div class="text-sm sm:text-base font-black text-amber-200 group-hover:text-amber-100 flex items-center justify-between">
-                            <span>إذاعة المجد</span>
-                            <i class="fa-solid fa-arrow-up-right-from-square text-xs text-amber-400/80"></i>
+                            <span>تلفزيون المجد</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/40">فتح الشاشة</span>
                         </div>
-                        <div class="text-xs text-amber-400/90 font-bold mt-0.5">للقرآن الكريم (بث مباشر)</div>
+                        <div class="text-xs text-amber-400/90 font-bold mt-0.5">القرآن الكريم (بث مباشر)</div>
                     </div>
-                </a>
+                </div>
 
                 <!-- 2. تلفزيون المدينة المنورة للأحاديث النبوية -->
-                <a href="https://www.youtube.com/@SunnahTvLive" target="_blank" rel="noopener noreferrer" 
-                   class="group p-3.5 sm:p-4 rounded-2xl bg-slate-950/80 hover:bg-emerald-950/40 border-2 border-emerald-500/40 hover:border-emerald-400 flex items-center gap-3.5 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 block cursor-pointer">
+                <div onclick="switchSuite('tv_madinah', document.querySelector('[onclick*=\'tv_madinah\']'))" 
+                   class="group p-3.5 sm:p-4 rounded-2xl bg-slate-950/80 hover:bg-emerald-950/40 border-2 border-emerald-500/40 hover:border-emerald-400 flex items-center gap-3.5 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 cursor-pointer">
                     <span class="w-12 h-12 rounded-xl bg-emerald-500/20 border-2 border-emerald-400/60 flex items-center justify-center text-2xl text-emerald-300 shadow-md group-hover:scale-110 transition-transform flex-shrink-0">
                         <i class="fa-solid fa-mosque"></i>
                     </span>
                     <div class="flex-1 text-right">
                         <div class="text-sm sm:text-base font-black text-emerald-200 group-hover:text-emerald-100 flex items-center justify-between">
-                            <span>تلفزيون المدينة المنورة</span>
-                            <i class="fa-solid fa-arrow-up-right-from-square text-xs text-emerald-400/80"></i>
+                            <span>تلفزيون المدينة</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">فتح الشاشة</span>
                         </div>
                         <div class="text-xs text-emerald-400/90 font-bold mt-0.5">قناة السنة النبوية (مباشر)</div>
                     </div>
-                </a>
+                </div>
 
                 <!-- 3. تلفزيون مكة المكرمة للقرآن الكريم -->
-                <a href="https://www.youtube.com/@QuranTvLive" target="_blank" rel="noopener noreferrer" 
-                   class="group p-3.5 sm:p-4 rounded-2xl bg-slate-950/80 hover:bg-yellow-950/40 border-2 border-yellow-500/40 hover:border-yellow-400 flex items-center gap-3.5 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 block cursor-pointer">
+                <div onclick="switchSuite('tv_makkah', document.querySelector('[onclick*=\'tv_makkah\']'))" 
+                   class="group p-3.5 sm:p-4 rounded-2xl bg-slate-950/80 hover:bg-yellow-950/40 border-2 border-yellow-500/40 hover:border-yellow-400 flex items-center gap-3.5 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 cursor-pointer">
                     <span class="w-12 h-12 rounded-xl bg-yellow-500/20 border-2 border-yellow-400/60 flex items-center justify-center text-2xl text-yellow-300 shadow-md group-hover:scale-110 transition-transform flex-shrink-0">
                         <i class="fa-solid fa-kaaba"></i>
                     </span>
                     <div class="flex-1 text-right">
                         <div class="text-sm sm:text-base font-black text-yellow-200 group-hover:text-yellow-100 flex items-center justify-between">
-                            <span>تلفزيون مكة المكرمة</span>
-                            <i class="fa-solid fa-arrow-up-right-from-square text-xs text-yellow-400/80"></i>
+                            <span>تلفزيون مكة</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-yellow-500/20 text-yellow-300 border border-yellow-500/40">فتح الشاشة</span>
                         </div>
                         <div class="text-xs text-yellow-400/90 font-bold mt-0.5">قناة القرآن الكريم (مباشر)</div>
                     </div>
-                </a>
+                </div>
 
                 <!-- 4. موقع القرآن الكريم MP3 -->
-                <a href="https://mp3quran.net/ar" target="_blank" rel="noopener noreferrer" 
-                   class="group p-3.5 sm:p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/40 border-2 border-cyan-500/40 hover:border-cyan-400 flex items-center gap-3.5 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 block cursor-pointer">
+                <div onclick="switchSuite('quran_mp3', document.querySelector('[onclick*=\'quran_mp3\']'))" 
+                   class="group p-3.5 sm:p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/40 border-2 border-cyan-500/40 hover:border-cyan-400 flex items-center gap-3.5 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 cursor-pointer">
                     <span class="w-12 h-12 rounded-xl bg-cyan-500/20 border-2 border-cyan-400/60 flex items-center justify-center text-2xl text-cyan-300 shadow-md group-hover:scale-110 transition-transform flex-shrink-0">
                         <i class="fa-solid fa-headphones"></i>
                     </span>
                     <div class="flex-1 text-right">
                         <div class="text-sm sm:text-base font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
-                            <span>موقع القرآن الكريم MP3</span>
-                            <i class="fa-solid fa-arrow-up-right-from-square text-xs text-cyan-400/80"></i>
+                            <span>القرآن الكريم MP3</span>
+                            <span class="text-[11px] px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">قائمة القراء</span>
                         </div>
                         <div class="text-xs text-cyan-400/90 font-bold mt-0.5">المكتبة الصوتية الشاملة</div>
                     </div>
-                </a>
+                </div>
 
             </div>
         </div>
@@ -21805,6 +21804,8 @@ $pdo = getDBConnection();
         <!-- ════════════════════════════════════════════════════════════════ -->
         <!-- 11. SUITE: AL-MAJD QURAN TV & RADIO (تلفزيون وإذاعة المجد)       -->
         <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- 11. SUITE: AL-MAJD QURAN TV & RADIO (تلفزيون وإذاعة المجد)       -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
         <div id="suite-sec-tv_majd" class="suite-section anim-suite hidden space-y-8">
             <div class="glass-panel-v3 p-6 sm:p-8" style="--border-color: rgba(251, 191, 36, 0.55); border-radius: 32px;">
                 
@@ -21816,21 +21817,25 @@ $pdo = getDBConnection();
                         </span>
                         <div>
                             <h2 class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-500">
-                                تلفزيون وإذاعة المجد للقرآن الكريم
+                                تلفزيون وإذاعة المجد للقرآن الكريم (بث مباشر 24/7)
                             </h2>
                             <p class="text-base text-slate-200 font-bold mt-1">
-                                تلاوات عطرة خاشعة على مدار 24 ساعة بأصوات كبار قراء العالم الإسلامي مع تفسير الآيات
+                                تلاوات عطرة متواصلة بأصوات نخبة قراء العالم الإسلامي مع كتابة الآيات والتفسير الميسر
                             </p>
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-3">
-                        <a href="https://al-majdtv.com/" target="_blank" rel="noopener noreferrer" class="px-6 py-3 rounded-2xl bg-amber-500/25 hover:bg-amber-500/35 border-2 border-amber-400 text-amber-200 font-black text-sm flex items-center gap-2.5 transition shadow-lg hover:scale-105 cursor-pointer">
-                            <i class="fa-solid fa-globe"></i>
-                            <span>موقع شبكة المجد</span>
-                        </a>
+                        <button type="button" onclick="playPersistentMedia('tv', 'https://www.youtube-nocookie.com/embed/live_stream?channel=UC5m8h8pW7vM4P7o6A', 'تلفزيون المجد للقرآن الكريم (بث حي)')" class="px-6 py-3 rounded-2xl bg-amber-500 hover:bg-amber-400 text-slate-950 font-black text-sm flex items-center gap-2.5 transition shadow-lg hover:scale-105 cursor-pointer">
+                            <i class="fa-solid fa-play"></i>
+                            <span>تشغيل في الخلفية أثناء العمل</span>
+                        </button>
                         <a href="https://www.youtube.com/@AlmajdChannels/streams" target="_blank" rel="noopener noreferrer" class="px-6 py-3 rounded-2xl bg-rose-600/30 hover:bg-rose-600/40 border-2 border-rose-500 text-rose-200 font-black text-sm flex items-center gap-2.5 transition shadow-lg hover:scale-105 cursor-pointer">
                             <i class="fa-brands fa-youtube text-lg text-rose-400"></i>
                             <span>قناة المجد يوتيوب مباشر</span>
+                        </a>
+                        <a href="https://al-majdtv.com/" target="_blank" rel="noopener noreferrer" class="px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 text-slate-200 font-black text-sm flex items-center gap-2 transition shadow-lg hover:scale-105 cursor-pointer">
+                            <i class="fa-solid fa-globe"></i>
+                            <span>موقع شبكة المجد</span>
                         </a>
                     </div>
                 </div>
@@ -21840,7 +21845,7 @@ $pdo = getDBConnection();
                     
                     <!-- Main TV Player Screen (2 Cols) -->
                     <div class="lg:col-span-2 space-y-4">
-                        <div class="relative w-full aspect-video rounded-3xl overflow-hidden border-2 border-amber-500/60 shadow-2xl bg-slate-950 flex flex-col items-center justify-center text-center p-4">
+                        <div class="relative w-full aspect-video rounded-3xl overflow-hidden border-2 border-amber-500/60 shadow-2xl bg-slate-950 flex flex-col items-center justify-center text-center p-2">
                             <iframe id="majd-iframe-player" 
                                     class="w-full h-full rounded-2xl" 
                                     src="https://www.youtube-nocookie.com/embed/live_stream?channel=UC5m8h8pW7vM4P7o6A" 
@@ -21851,14 +21856,14 @@ $pdo = getDBConnection();
                             </iframe>
                             <div class="absolute top-4 right-4 px-3.5 py-1.5 rounded-xl bg-red-600/90 text-white font-black text-xs flex items-center gap-2 shadow-lg backdrop-blur-md">
                                 <span class="w-2.5 h-2.5 rounded-full bg-white animate-ping"></span>
-                                <span>🔴 قناة المجد مباشر</span>
+                                <span>🔴 بث حي ومباشر 24/7</span>
                             </div>
                         </div>
                         <div class="flex flex-wrap items-center justify-between text-xs sm:text-sm font-bold text-amber-200 px-2 gap-2">
                             <span>📡 المصدر: شبكة قنوات المجد الفضائية الرسمية</span>
                             <a href="https://www.youtube.com/@AlmajdChannels/streams" target="_blank" rel="noopener noreferrer" class="text-amber-400 hover:text-amber-300 underline flex items-center gap-1">
                                 <i class="fa-solid fa-arrow-up-right-from-square text-xs"></i>
-                                <span>فتح البث في نافذة مستقلة بملء الشاشة</span>
+                                <span>مشاهدة شاشة كاملة على يوتيوب</span>
                             </a>
                         </div>
                     </div>
@@ -21871,16 +21876,16 @@ $pdo = getDBConnection();
                                 <span>إذاعة القرآن الكريم (صوت مباشر):</span>
                             </div>
                             <p class="text-sm text-slate-300 font-medium leading-relaxed">
-                                استمع إلى البث الصوتي المباشر للقرآن الكريم بأعلى نقاوة صوتية وبدون استهلاك للبيانات، مع إمكانية استمرار الاستماع في الخلفية أثناء التنقل بين الحسابات.
+                                استمع إلى البث الصوتي المباشر للقرآن الكريم بأعلى نقاوة صوتية مع إمكانية استمرار الاستماع في الخلفية أثناء العمل على الحسابات.
                             </p>
                             <div class="pt-2 space-y-3">
-                                <button type="button" onclick="startBackgroundAudio('https://live.mp3quran.net:9702/;', 'إذاعة القرآن الكريم (بث صوتي مباشر)')" class="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-amber-950 font-black text-sm flex items-center justify-center gap-2.5 shadow-xl transition active:scale-95 cursor-pointer">
-                                    <i class="fa-solid fa-play text-lg"></i>
-                                    <span>▶️ تشغيل الإذاعة الآن في الخلفية</span>
+                                <button type="button" onclick="playPersistentMedia('audio', 'https://live.mp3quran.net:9702/;', 'إذاعة القرآن الكريم (بث صوتي مباشر)')" class="w-full py-3.5 px-5 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-amber-950 font-black text-sm flex items-center justify-center gap-2.5 shadow-xl transition active:scale-95 cursor-pointer">
+                                    <i class="fa-solid fa-headphones text-lg"></i>
+                                    <span>▶️ استماع في الخلفية أثناء العمل</span>
                                 </button>
-                                <button type="button" onclick="stopBackgroundAudio()" class="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs flex items-center justify-center gap-2 border border-slate-600 cursor-pointer">
+                                <button type="button" onclick="stopPersistentMedia()" class="w-full py-2.5 px-4 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold text-xs flex items-center justify-center gap-2 border border-slate-600 cursor-pointer">
                                     <i class="fa-solid fa-pause"></i>
-                                    <span>إيقاف الصوت</span>
+                                    <span>إيقاف البث</span>
                                 </button>
                             </div>
                         </div>
@@ -21892,7 +21897,7 @@ $pdo = getDBConnection();
                                 <span>مميزات قناة المجد للقرآن:</span>
                             </div>
                             <ul class="text-xs sm:text-sm text-slate-300 space-y-2 font-medium">
-                                <li class="flex items-center gap-2"><span class="text-amber-400 font-bold">✓</span> تلاوات بأصوات أشهر القراء في العالم الإسلامي.</li>
+                                <li class="flex items-center gap-2"><span class="text-amber-400 font-bold">✓</span> تلاوات خاشعة متواصلة على مدار 24 ساعة.</li>
                                 <li class="flex items-center gap-2"><span class="text-amber-400 font-bold">✓</span> كتابة الآيات بالرسم العثماني المطابق لمصحف المدينة.</li>
                                 <li class="flex items-center gap-2"><span class="text-amber-400 font-bold">✓</span> معاني الكلمات وتفسير ميسر مصاحب لكل آية.</li>
                             </ul>
@@ -21926,13 +21931,17 @@ $pdo = getDBConnection();
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-3">
+                        <button type="button" onclick="playPersistentMedia('tv', 'https://www.youtube-nocookie.com/embed/live_stream?channel=UCZ3O0qA6a-gI9_q-z1J3jLg', 'تلفزيون مكة المكرمة - الحرم المكي (بث حي)')" class="px-6 py-3 rounded-2xl bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black text-sm flex items-center gap-2.5 transition shadow-lg hover:scale-105 cursor-pointer">
+                            <i class="fa-solid fa-play"></i>
+                            <span>تشغيل في الخلفية أثناء العمل</span>
+                        </button>
                         <a href="https://www.youtube.com/@QuranTvLive/streams" target="_blank" rel="noopener noreferrer" class="px-6 py-3 rounded-2xl bg-yellow-500/25 hover:bg-yellow-500/35 border-2 border-yellow-400 text-yellow-200 font-black text-sm flex items-center gap-2.5 transition shadow-lg hover:scale-105 cursor-pointer">
                             <i class="fa-brands fa-youtube text-lg text-yellow-400"></i>
                             <span>قناة القرآن الكريم مكة مباشر</span>
                         </a>
-                        <a href="https://gph.gov.sa/" target="_blank" rel="noopener noreferrer" class="px-6 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 text-slate-200 font-black text-sm flex items-center gap-2.5 transition shadow-lg hover:scale-105 cursor-pointer">
+                        <a href="https://gph.gov.sa/" target="_blank" rel="noopener noreferrer" class="px-5 py-3 rounded-2xl bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 text-slate-200 font-black text-sm flex items-center gap-2 transition shadow-lg hover:scale-105 cursor-pointer">
                             <i class="fa-solid fa-landmark"></i>
-                            <span>رئاسة شؤون الحرمين</span>
+                            <span>شؤون الحرمين</span>
                         </a>
                     </div>
                 </div>
@@ -21942,9 +21951,9 @@ $pdo = getDBConnection();
                     
                     <!-- Main TV Player Screen (2 Cols) -->
                     <div class="lg:col-span-2 space-y-4">
-                        <div class="relative w-full aspect-video rounded-3xl overflow-hidden border-2 border-yellow-500/60 shadow-2xl bg-slate-950 flex items-center justify-center">
-                            <!-- Embedded Live Stream Iframe -->
-                            <iframe class="w-full h-full" 
+                        <div class="relative w-full aspect-video rounded-3xl overflow-hidden border-2 border-yellow-500/60 shadow-2xl bg-slate-950 flex items-center justify-center p-2">
+                            <iframe id="makkah-suite-iframe" 
+                                    class="w-full h-full rounded-2xl" 
                                     src="https://www.youtube-nocookie.com/embed/live_stream?channel=UCZ3O0qA6a-gI9_q-z1J3jLg" 
                                     title="تلفزيون مكة المكرمة بث مباشر" 
                                     frameborder="0" 
@@ -21973,7 +21982,7 @@ $pdo = getDBConnection();
                                 <span>عن قناة القرآن الكريم (مكة):</span>
                             </div>
                             <p class="text-sm text-slate-300 font-medium leading-relaxed">
-                                قناة رسمية تنقل البث الحي المباشر من الكعبة المشرفة والمسجد الحرام على مدار 24 ساعة بدون انقطاع، مع صلوات التراويح والتهجد والفرائض الخمس.
+                                تنقل البث الحي المباشر من الكعبة المشرفة والمسجد الحرام على مدار 24 ساعة بدون انقطاع، مع صلوات التراويح والتهجد والفرائض الخمس.
                             </p>
                             <div class="p-4 rounded-2xl bg-yellow-500/15 border border-yellow-400/40 text-yellow-200 text-xs sm:text-sm font-bold">
                                 🌟 فضيلة الصلاة في المسجد الحرام: الصلاة فيه بمائة ألف صلاة فيما سواه.
@@ -21983,9 +21992,9 @@ $pdo = getDBConnection();
                         <!-- Quick Radio Button -->
                         <div class="p-6 rounded-3xl bg-slate-900/95 border-2 border-white/10 shadow-xl space-y-3">
                             <div class="text-sm font-black text-slate-200">الاستماع في الخلفية أثناء العمل:</div>
-                            <button type="button" onclick="startBackgroundAudio('https://live.mp3quran.net:9702/;', 'إذاعة القرآن الكريم - مكة المكرمة')" class="w-full py-3.5 rounded-2xl bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-lg transition active:scale-95 cursor-pointer">
+                            <button type="button" onclick="playPersistentMedia('audio', 'https://live.mp3quran.net:9702/;', 'إذاعة القرآن الكريم - مكة المكرمة')" class="w-full py-3.5 rounded-2xl bg-yellow-500 hover:bg-yellow-400 text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-lg transition active:scale-95 cursor-pointer">
                                 <i class="fa-solid fa-headphones text-lg"></i>
-                                <span>▶️ استماع في الخلفية</span>
+                                <span>▶️ استماع صوتي في الخلفية</span>
                             </button>
                         </div>
                     </div>
@@ -22017,6 +22026,10 @@ $pdo = getDBConnection();
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-3">
+                        <button type="button" onclick="playPersistentMedia('tv', 'https://www.youtube-nocookie.com/embed/live_stream?channel=UC04G7v4UuIqK9Xn_cW3y9Lg', 'تلفزيون المدينة المنورة - المسجد النبوي (بث حي)')" class="px-6 py-3 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm flex items-center gap-2.5 transition shadow-lg hover:scale-105 cursor-pointer">
+                            <i class="fa-solid fa-play"></i>
+                            <span>تشغيل في الخلفية أثناء العمل</span>
+                        </button>
                         <a href="https://www.youtube.com/@SunnahTvLive/streams" target="_blank" rel="noopener noreferrer" class="px-6 py-3 rounded-2xl bg-emerald-500/25 hover:bg-emerald-500/35 border-2 border-emerald-400 text-emerald-200 font-black text-sm flex items-center gap-2.5 transition shadow-lg hover:scale-105 cursor-pointer">
                             <i class="fa-brands fa-youtube text-lg text-emerald-400"></i>
                             <span>قناة السنة النبوية يوتيوب مباشر</span>
@@ -22029,9 +22042,9 @@ $pdo = getDBConnection();
                     
                     <!-- Main TV Player Screen (2 Cols) -->
                     <div class="lg:col-span-2 space-y-4">
-                        <div class="relative w-full aspect-video rounded-3xl overflow-hidden border-2 border-emerald-500/60 shadow-2xl bg-slate-950 flex items-center justify-center">
-                            <!-- Embedded Live Stream Iframe -->
-                            <iframe class="w-full h-full" 
+                        <div class="relative w-full aspect-video rounded-3xl overflow-hidden border-2 border-emerald-500/60 shadow-2xl bg-slate-950 flex items-center justify-center p-2">
+                            <iframe id="madinah-suite-iframe" 
+                                    class="w-full h-full rounded-2xl" 
                                     src="https://www.youtube-nocookie.com/embed/live_stream?channel=UC04G7v4UuIqK9Xn_cW3y9Lg" 
                                     title="تلفزيون المدينة المنورة قناة السنة النبوية بث مباشر" 
                                     frameborder="0" 
@@ -22070,9 +22083,9 @@ $pdo = getDBConnection();
                         <!-- Quick Radio Button -->
                         <div class="p-6 rounded-3xl bg-slate-900/95 border-2 border-white/10 shadow-xl space-y-3">
                             <div class="text-sm font-black text-slate-200">الاستماع في الخلفية أثناء العمل:</div>
-                            <button type="button" onclick="startBackgroundAudio('https://live.mp3quran.net:9702/;', 'قناة السنة النبوية - المدينة المنورة')" class="w-full py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-lg transition active:scale-95 cursor-pointer">
+                            <button type="button" onclick="playPersistentMedia('audio', 'https://live.mp3quran.net:9702/;', 'قناة السنة النبوية - المدينة المنورة')" class="w-full py-3.5 rounded-2xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-black text-sm flex items-center justify-center gap-2 shadow-lg transition active:scale-95 cursor-pointer">
                                 <i class="fa-solid fa-headphones text-lg"></i>
-                                <span>▶️ استماع في الخلفية</span>
+                                <span>▶️ استماع صوتي في الخلفية</span>
                             </button>
                         </div>
                     </div>
@@ -22096,10 +22109,10 @@ $pdo = getDBConnection();
                         </span>
                         <div>
                             <h2 class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-200 to-cyan-500">
-                                موقع القرآن الكريم MP3 - المكتبة الصوتية الشاملة
+                                موقع القرآن الكريم MP3 - قائمة كبار القراء
                             </h2>
                             <p class="text-base text-slate-200 font-bold mt-1">
-                                استمع وتصفح تلاوات القرآن الكريم كاملاً بجودة عالية لكبار قراء العالم الإسلامي (لا يعمل إلا بالنقر)
+                                اختر قارئك المفضل واضغط للاستماع مباشرة في الخلفية وأنت تعمل على البرنامج بكل سلاسة
                             </p>
                         </div>
                     </div>
@@ -22117,7 +22130,7 @@ $pdo = getDBConnection();
                         <div class="flex items-center justify-between gap-4 border-b border-white/10 pb-4">
                             <div class="text-xl font-black text-cyan-300 flex items-center gap-3">
                                 <i class="fa-solid fa-compact-disc text-cyan-400"></i>
-                                <span>مشغل التلاوات المباشرة (انقر على القارئ لبدء الاستماع):</span>
+                                <span>قائمة كبار القراء (انقر على القارئ للتشغيل الفوري):</span>
                             </div>
                             <span class="text-xs px-3 py-1 rounded-xl bg-cyan-500/20 text-cyan-200 font-black border border-cyan-400/40">صوت فائق النقاوة (HQ)</span>
                         </div>
@@ -22126,7 +22139,10 @@ $pdo = getDBConnection();
                         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-4">
                             
                             <!-- Reciter 1: عبد الباسط -->
-                            <button type="button" onclick="playQuranAudio('https://server7.mp3quran.net/basit/001.mp3', 'الشيخ عبد الباسط عبد الصمد - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-1.5 transition cursor-pointer shadow-md group">
+                            <button type="button" onclick="playPersistentMedia('audio', 'https://server7.mp3quran.net/basit/001.mp3', 'الشيخ عبد الباسط عبد الصمد - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-2 transition cursor-pointer shadow-md group">
+                                <div class="w-12 h-12 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-xl text-cyan-300 shadow-inner group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                </div>
                                 <div class="text-sm font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
                                     <span>عبد الباسط عبد الصمد</span>
                                     <i class="fa-solid fa-circle-play text-cyan-400 text-lg group-hover:scale-125 transition-transform"></i>
@@ -22135,34 +22151,46 @@ $pdo = getDBConnection();
                             </button>
 
                             <!-- Reciter 2: ماهر المعيقلي -->
-                            <button type="button" onclick="playQuranAudio('https://server12.mp3quran.net/maher/001.mp3', 'الشيخ ماهر المعيقلي - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-1.5 transition cursor-pointer shadow-md group">
+                            <button type="button" onclick="playPersistentMedia('audio', 'https://server12.mp3quran.net/maher/001.mp3', 'الشيخ ماهر المعيقلي - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-2 transition cursor-pointer shadow-md group">
+                                <div class="w-12 h-12 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-xl text-cyan-300 shadow-inner group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                </div>
                                 <div class="text-sm font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
                                     <span>ماهر المعيقلي</span>
                                     <i class="fa-solid fa-circle-play text-cyan-400 text-lg group-hover:scale-125 transition-transform"></i>
                                 </div>
-                                <div class="text-xs text-slate-400">المصحف المرتل (حفص)</div>
+                                <div class="text-xs text-slate-400">إمام الحرم المكي الشريف</div>
                             </button>
 
                             <!-- Reciter 3: مشاري العفاسي -->
-                            <button type="button" onclick="playQuranAudio('https://server8.mp3quran.net/afs/001.mp3', 'الشيخ مشاري راشد العفاسي - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-1.5 transition cursor-pointer shadow-md group">
+                            <button type="button" onclick="playPersistentMedia('audio', 'https://server8.mp3quran.net/afs/001.mp3', 'الشيخ مشاري راشد العفاسي - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-2 transition cursor-pointer shadow-md group">
+                                <div class="w-12 h-12 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-xl text-cyan-300 shadow-inner group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                </div>
                                 <div class="text-sm font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
                                     <span>مشاري العفاسي</span>
                                     <i class="fa-solid fa-circle-play text-cyan-400 text-lg group-hover:scale-125 transition-transform"></i>
                                 </div>
-                                <div class="text-xs text-slate-400">المصحف المرتل (حفص)</div>
+                                <div class="text-xs text-slate-400">تلاوة خاشعة مميزة</div>
                             </button>
 
                             <!-- Reciter 4: عبد الرحمن السديس -->
-                            <button type="button" onclick="playQuranAudio('https://server11.mp3quran.net/sds/001.mp3', 'الشيخ عبد الرحمن السديس - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-1.5 transition cursor-pointer shadow-md group">
+                            <button type="button" onclick="playPersistentMedia('audio', 'https://server11.mp3quran.net/sds/001.mp3', 'الشيخ عبد الرحمن السديس - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-2 transition cursor-pointer shadow-md group">
+                                <div class="w-12 h-12 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-xl text-cyan-300 shadow-inner group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                </div>
                                 <div class="text-sm font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
                                     <span>عبد الرحمن السديس</span>
                                     <i class="fa-solid fa-circle-play text-cyan-400 text-lg group-hover:scale-125 transition-transform"></i>
                                 </div>
-                                <div class="text-xs text-slate-400">المصحف المرتل (حفص)</div>
+                                <div class="text-xs text-slate-400">إمام وخطيب المسجد الحرام</div>
                             </button>
 
                             <!-- Reciter 5: سعد الغامدي -->
-                            <button type="button" onclick="playQuranAudio('https://server7.mp3quran.net/s_gmd/001.mp3', 'الشيخ سعد الغامدي - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-1.5 transition cursor-pointer shadow-md group">
+                            <button type="button" onclick="playPersistentMedia('audio', 'https://server7.mp3quran.net/s_gmd/001.mp3', 'الشيخ سعد الغامدي - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-2 transition cursor-pointer shadow-md group">
+                                <div class="w-12 h-12 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-xl text-cyan-300 shadow-inner group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                </div>
                                 <div class="text-sm font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
                                     <span>سعد الغامدي</span>
                                     <i class="fa-solid fa-circle-play text-cyan-400 text-lg group-hover:scale-125 transition-transform"></i>
@@ -22171,48 +22199,63 @@ $pdo = getDBConnection();
                             </button>
 
                             <!-- Reciter 6: المنشاوي -->
-                            <button type="button" onclick="playQuranAudio('https://server10.mp3quran.net/minsh/001.mp3', 'الشيخ محمد صديق المنشاوي - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-1.5 transition cursor-pointer shadow-md group">
+                            <button type="button" onclick="playPersistentMedia('audio', 'https://server10.mp3quran.net/minsh/001.mp3', 'الشيخ محمد صديق المنشاوي - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-2 transition cursor-pointer shadow-md group">
+                                <div class="w-12 h-12 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-xl text-cyan-300 shadow-inner group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                </div>
                                 <div class="text-sm font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
                                     <span>محمد صديق المنشاوي</span>
                                     <i class="fa-solid fa-circle-play text-cyan-400 text-lg group-hover:scale-125 transition-transform"></i>
                                 </div>
-                                <div class="text-xs text-slate-400">المصحف المرتل (حفص)</div>
+                                <div class="text-xs text-slate-400">الصوت الباكي الخاشع</div>
                             </button>
 
                             <!-- Reciter 7: الحصري -->
-                            <button type="button" onclick="playQuranAudio('https://server13.mp3quran.net/husr/001.mp3', 'الشيخ محمود خليل الحصري - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-1.5 transition cursor-pointer shadow-md group">
+                            <button type="button" onclick="playPersistentMedia('audio', 'https://server13.mp3quran.net/husr/001.mp3', 'الشيخ محمود خليل الحصري - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-2 transition cursor-pointer shadow-md group">
+                                <div class="w-12 h-12 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-xl text-cyan-300 shadow-inner group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                </div>
                                 <div class="text-sm font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
                                     <span>محمود خليل الحصري</span>
                                     <i class="fa-solid fa-circle-play text-cyan-400 text-lg group-hover:scale-125 transition-transform"></i>
                                 </div>
-                                <div class="text-xs text-slate-400">المصحف المرتل (حفص)</div>
+                                <div class="text-xs text-slate-400">شيخ المقارئ المصرية</div>
                             </button>
 
                             <!-- Reciter 8: ياسر الدوسري -->
-                            <button type="button" onclick="playQuranAudio('https://server11.mp3quran.net/yasser/001.mp3', 'الشيخ ياسر الدوسري - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-1.5 transition cursor-pointer shadow-md group">
+                            <button type="button" onclick="playPersistentMedia('audio', 'https://server11.mp3quran.net/yasser/001.mp3', 'الشيخ ياسر الدوسري - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-2 transition cursor-pointer shadow-md group">
+                                <div class="w-12 h-12 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-xl text-cyan-300 shadow-inner group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                </div>
                                 <div class="text-sm font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
                                     <span>ياسر الدوسري</span>
                                     <i class="fa-solid fa-circle-play text-cyan-400 text-lg group-hover:scale-125 transition-transform"></i>
                                 </div>
-                                <div class="text-xs text-slate-400">المصحف المرتل (حفص)</div>
+                                <div class="text-xs text-slate-400">إمام المسجد الحرام</div>
                             </button>
 
                             <!-- Reciter 9: علي الحذيفي -->
-                            <button type="button" onclick="playQuranAudio('https://server9.mp3quran.net/hthfi/001.mp3', 'الشيخ علي بن عبد الرحمن الحذيفي - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-1.5 transition cursor-pointer shadow-md group">
+                            <button type="button" onclick="playPersistentMedia('audio', 'https://server9.mp3quran.net/hthfi/001.mp3', 'الشيخ علي بن عبد الرحمن الحذيفي - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-2 transition cursor-pointer shadow-md group">
+                                <div class="w-12 h-12 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-xl text-cyan-300 shadow-inner group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                </div>
                                 <div class="text-sm font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
                                     <span>علي الحذيفي</span>
                                     <i class="fa-solid fa-circle-play text-cyan-400 text-lg group-hover:scale-125 transition-transform"></i>
                                 </div>
-                                <div class="text-xs text-slate-400">المصحف المرتل (حفص)</div>
+                                <div class="text-xs text-slate-400">إمام المسجد النبوي الشريف</div>
                             </button>
 
                             <!-- Reciter 10: سعود الشريم -->
-                            <button type="button" onclick="playQuranAudio('https://server7.mp3quran.net/shur/001.mp3', 'الشيخ سعود الشريم - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-1.5 transition cursor-pointer shadow-md group">
+                            <button type="button" onclick="playPersistentMedia('audio', 'https://server7.mp3quran.net/shur/001.mp3', 'الشيخ سعود الشريم - سورة الفاتحة')" class="p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/50 border-2 border-cyan-500/30 hover:border-cyan-400 text-right space-y-2 transition cursor-pointer shadow-md group">
+                                <div class="w-12 h-12 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-xl text-cyan-300 shadow-inner group-hover:scale-110 transition-transform">
+                                    <i class="fa-solid fa-user-tie"></i>
+                                </div>
                                 <div class="text-sm font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
                                     <span>سعود الشريم</span>
                                     <i class="fa-solid fa-circle-play text-cyan-400 text-lg group-hover:scale-125 transition-transform"></i>
                                 </div>
-                                <div class="text-xs text-slate-400">المصحف المرتل (حفص)</div>
+                                <div class="text-xs text-slate-400">إمام المسجد الحرام السابق</div>
                             </button>
 
                         </div>
@@ -22222,9 +22265,9 @@ $pdo = getDBConnection();
                             <div class="flex items-center justify-between">
                                 <div class="text-sm sm:text-base font-black text-cyan-300 flex items-center gap-2">
                                     <span class="w-3 h-3 rounded-full bg-cyan-400 animate-pulse"></span>
-                                    <span id="active-quran-title">اختر قارئاً من القائمة أعلاه لبدء الاستماع...</span>
+                                    <span id="active-quran-title">انقر على أي قارئ من القائمة أعلاه لبدء الاستماع مباشرة...</span>
                                 </div>
-                                <button type="button" onclick="stopBackgroundAudio()" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-rose-950 text-slate-300 hover:text-rose-300 text-xs font-bold border border-slate-700 transition cursor-pointer">
+                                <button type="button" onclick="stopPersistentMedia()" class="px-3 py-1 rounded-lg bg-slate-800 hover:bg-rose-950 text-slate-300 hover:text-rose-300 text-xs font-bold border border-slate-700 transition cursor-pointer">
                                     ✕ إيقاف
                                 </button>
                             </div>
@@ -22388,69 +22431,115 @@ $pdo = getDBConnection();
     }
 
         
-    function playQuranAudio(url, title) {
-        const player = document.getElementById('main-quran-audio-player');
-        const titleEl = document.getElementById('active-quran-title');
-        if (player) {
-            player.src = url;
-            player.play();
-        }
+    
+    // ════════════════════════════════════════════════════════════════════════════
+    // 📡 GLOBAL UNIFIED PERSISTENT BACKGROUND MEDIA ENGINE (TV & AUDIO) 📡
+    // ════════════════════════════════════════════════════════════════════════════
+    let persistentMediaType = null;
+    let isPersistentVideoExpanded = true;
+
+    function playPersistentMedia(type, sourceUrl, title) {
+        const dock = document.getElementById('persistent-media-dock');
+        const titleEl = document.getElementById('persistent-media-title');
+        const videoBox = document.getElementById('persistent-video-box');
+        const audioBox = document.getElementById('persistent-audio-box');
+        const tvIframe = document.getElementById('persistent-tv-iframe');
+        const audioPlayer = document.getElementById('persistent-audio-player');
+        const mainQuranPlayer = document.getElementById('main-quran-audio-player');
+        const activeQuranTitle = document.getElementById('active-quran-title');
+
+        if (!dock) return;
+        persistentMediaType = type;
+
         if (titleEl) {
-            titleEl.innerText = '🔊 جارِ الاستماع الآن: ' + title;
+            titleEl.innerText = title || 'بث مباشر شغال في الخلفية';
+        }
+        if (activeQuranTitle && type === 'audio') {
+            activeQuranTitle.innerText = '🔊 جارِ الاستماع الآن: ' + (title || '');
+        }
+
+        if (type === 'tv') {
+            if (audioPlayer) {
+                audioPlayer.pause();
+                audioPlayer.src = '';
+            }
+            if (mainQuranPlayer) {
+                mainQuranPlayer.pause();
+                mainQuranPlayer.src = '';
+            }
+            if (audioBox) audioBox.classList.add('hidden');
+            if (videoBox) videoBox.classList.remove('hidden');
+            if (tvIframe) {
+                tvIframe.src = sourceUrl;
+            }
+        } else if (type === 'audio') {
+            if (tvIframe) {
+                tvIframe.src = '';
+            }
+            if (videoBox) videoBox.classList.add('hidden');
+            if (audioBox) audioBox.classList.remove('hidden');
+            if (audioPlayer) {
+                audioPlayer.src = sourceUrl;
+                audioPlayer.play().catch(e => console.log('Audio error:', e));
+            }
+            if (mainQuranPlayer) {
+                mainQuranPlayer.src = sourceUrl;
+            }
+        }
+
+        dock.classList.remove('hidden');
+    }
+
+    function stopPersistentMedia() {
+        const dock = document.getElementById('persistent-media-dock');
+        const tvIframe = document.getElementById('persistent-tv-iframe');
+        const audioPlayer = document.getElementById('persistent-audio-player');
+        const mainQuranPlayer = document.getElementById('main-quran-audio-player');
+
+        if (tvIframe) tvIframe.src = '';
+        if (audioPlayer) {
+            audioPlayer.pause();
+            audioPlayer.src = '';
+        }
+        if (mainQuranPlayer) {
+            mainQuranPlayer.pause();
+            mainQuranPlayer.src = '';
+        }
+        if (dock) dock.classList.add('hidden');
+        persistentMediaType = null;
+    }
+
+    function togglePersistentVideoSize() {
+        const videoBox = document.getElementById('persistent-video-box');
+        const btn = document.getElementById('persistent-toggle-btn');
+        if (!videoBox) return;
+
+        if (isPersistentVideoExpanded) {
+            videoBox.classList.add('hidden');
+            if (btn) btn.innerHTML = '<i class="fa-solid fa-tv text-xs"></i>';
+            isPersistentVideoExpanded = false;
+        } else {
+            videoBox.classList.remove('hidden');
+            if (btn) btn.innerHTML = '<i class="fa-solid fa-up-right-and-down-left-from-center text-xs"></i>';
+            isPersistentVideoExpanded = true;
         }
     }
-    window.playQuranAudio = playQuranAudio;
 
-    
-    // 📻 Global Background Audio Engine
+    function playQuranAudio(url, title) {
+        playPersistentMedia('audio', url, title);
+    }
+
     function startBackgroundAudio(url, label) {
-        const globalPlayer = document.getElementById('global-bg-audio-player');
-        const floatingBar = document.getElementById('floating-bg-audio-bar');
-        const labelEl = document.getElementById('floating-audio-label');
-        
-        if (globalPlayer) {
-            globalPlayer.src = url;
-            globalPlayer.play().catch(e => console.log('Audio play error:', e));
-        }
-        if (labelEl && label) {
-            labelEl.innerText = '🔊 ' + label;
-        }
-        if (floatingBar) {
-            floatingBar.classList.remove('hidden');
-        }
+        playPersistentMedia('audio', url, label);
     }
 
     function stopBackgroundAudio() {
-        const globalPlayer = document.getElementById('global-bg-audio-player');
-        const mainPlayer = document.getElementById('main-quran-audio-player');
-        const floatingBar = document.getElementById('floating-bg-audio-bar');
-        
-        if (globalPlayer) {
-            globalPlayer.pause();
-            globalPlayer.src = '';
-        }
-        if (mainPlayer) {
-            mainPlayer.pause();
-            mainPlayer.src = '';
-        }
-        if (floatingBar) {
-            floatingBar.classList.add('hidden');
-        }
+        stopPersistentMedia();
     }
 
-    function playQuranAudio(url, title) {
-        const player = document.getElementById('main-quran-audio-player');
-        const titleEl = document.getElementById('active-quran-title');
-        if (player) {
-            player.src = url;
-            player.play().catch(e => console.log('Audio play error:', e));
-        }
-        if (titleEl) {
-            titleEl.innerText = '🔊 جارِ الاستماع الآن: ' + title;
-        }
-        startBackgroundAudio(url, title);
-    }
-
+    window.playPersistentMedia = playPersistentMedia;
+    window.stopPersistentMedia = stopPersistentMedia;
+    window.togglePersistentVideoSize = togglePersistentVideoSize;
     window.startBackgroundAudio = startBackgroundAudio;
     window.stopBackgroundAudio = stopBackgroundAudio;
     window.playQuranAudio = playQuranAudio;
@@ -23786,18 +23875,35 @@ $pdo = getDBConnection();
 
 
 <!-- ════════════════════════════════════════════════════════════════ -->
-<!-- 📻 FLOATING BACKGROUND ISLAMIC AUDIO BAR (مشغل الصوت في الخلفية) -->
 <!-- ════════════════════════════════════════════════════════════════ -->
-<div id="floating-bg-audio-bar" class="hidden fixed bottom-4 left-4 z-[999999] max-w-md w-full p-4 rounded-3xl bg-slate-900/95 border-2 border-amber-500/70 shadow-2xl backdrop-blur-xl text-right animate-slideUp" dir="rtl" style="box-shadow: 0 10px 40px rgba(0,0,0,0.8), 0 0 20px rgba(245,158,11,0.3);">
-    <div class="flex items-center justify-between pb-2 border-b border-white/10 mb-2">
+<!-- 📡 PERSISTENT GLOBAL FLOATING MEDIA DOCK (مشغل البث في الخلفية) -->
+<!-- ════════════════════════════════════════════════════════════════ -->
+<div id="persistent-media-dock" class="hidden fixed bottom-5 left-5 z-[9999999] max-w-sm sm:max-w-md w-full p-4 rounded-3xl bg-slate-900/98 border-2 border-amber-500/80 shadow-2xl backdrop-blur-2xl text-right animate-slideUp" dir="rtl" style="box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 30px rgba(245,158,11,0.4);">
+    
+    <!-- Dock Header -->
+    <div class="flex items-center justify-between pb-2.5 border-b border-amber-500/30 mb-2.5">
         <div class="flex items-center gap-2 text-xs sm:text-sm font-black text-amber-300">
-            <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-            <span id="floating-audio-label">🔊 جارِ الاستماع في الخلفية...</span>
+            <span class="w-3 h-3 rounded-full bg-emerald-400 animate-ping"></span>
+            <span id="persistent-media-title" class="truncate max-w-[220px]">بث مباشر شغال في الخلفية</span>
         </div>
-        <button type="button" onclick="stopBackgroundAudio()" class="w-7 h-7 rounded-xl bg-slate-800 hover:bg-rose-950 border border-slate-600 hover:border-rose-500 text-slate-300 hover:text-rose-200 flex items-center justify-center text-xs transition cursor-pointer" title="إيقاف وإغلاق">✕</button>
+        <div class="flex items-center gap-1.5">
+            <button type="button" id="persistent-toggle-btn" onclick="togglePersistentVideoSize()" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 flex items-center justify-center text-xs transition cursor-pointer" title="تصغير/تكبير"><i class="fa-solid fa-up-right-and-down-left-from-center text-xs"></i></button>
+            <button type="button" onclick="stopPersistentMedia()" class="w-7 h-7 rounded-lg bg-rose-950/80 hover:bg-rose-900 border border-rose-600/70 text-rose-200 flex items-center justify-center text-xs font-black transition cursor-pointer" title="إيقاف وإغلاق">✕</button>
+        </div>
     </div>
-    <div class="flex items-center gap-2">
-        <audio id="global-bg-audio-player" preload="none" controls class="w-full h-9 rounded-xl bg-slate-950" style="filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));"></audio>
+
+    <!-- Mini Video Container (For TV Streams) -->
+    <div id="persistent-video-box" class="hidden mb-3 relative w-full aspect-video rounded-2xl overflow-hidden border border-amber-500/40 bg-slate-950 shadow-inner">
+        <iframe id="persistent-tv-iframe" class="w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
+    </div>
+
+    <!-- Audio Player (For Radio and MP3 Quran) -->
+    <div id="persistent-audio-box" class="w-full">
+        <audio id="persistent-audio-player" preload="none" controls class="w-full h-9 rounded-xl bg-slate-950" style="filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));"></audio>
+    </div>
+
+    <div class="mt-2 flex items-center justify-between text-[11px] font-bold text-slate-400">
+        <span class="flex items-center gap-1 text-emerald-400"><i class="fa-solid fa-check"></i><span>شغال في الخلفية أثناء تنقلك في البرنامج</span></span>
     </div>
 </div>
 
