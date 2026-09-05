@@ -1517,6 +1517,58 @@ const HEIR_EVIDENCES = {
 /**
  * دالة استدعاء وعرض نافذة الدليل الشرعي المستقلة لكل وارث
  */
+
+/**
+ * دالة تبديل وتفعيل الدليل الشرعي لكل وارث (عرض فوري في البطاقة + فتح النافذة المكبرة)
+ */
+function toggleHeirEvidence(heirKey) {
+    console.log('toggleHeirEvidence called for:', heirKey);
+    var data = (typeof HEIR_EVIDENCES !== 'undefined' && HEIR_EVIDENCES[heirKey]) ? HEIR_EVIDENCES[heirKey] : null;
+    if (!data) {
+        console.warn('Evidence data not found for key:', heirKey);
+        return;
+    }
+
+    // 1. تحديث وعرض الصندوق التوسعي داخل البطاقة (Inline Evidence Drawer)
+    var inlineBox = document.getElementById('inh-inline-evidence-' + heirKey);
+    if (inlineBox) {
+        if (inlineBox.classList.contains('hidden')) {
+            var rules = data.fiqhRules.map(function(r) {
+                return '<li class="flex items-start gap-2 text-slate-200 text-xs sm:text-sm"><span class="text-amber-400 font-bold">•</span><span>' + r + '</span></li>';
+            }).join('');
+            
+            inlineBox.innerHTML = 
+                '<div class="flex items-center justify-between pb-2 border-b border-amber-500/40 text-amber-300 font-black">' +
+                    '<span class="text-sm flex items-center gap-2"><span>📖</span><span>السند والدليل الشرعي [' + data.title + ']</span></span>' +
+                    '<button type="button" onclick="document.getElementById(\'inh-inline-evidence-' + heirKey + '\').classList.add(\'hidden\')" class="text-xs text-rose-400 hover:text-rose-200 cursor-pointer font-black px-2 py-0.5 rounded-lg bg-rose-950/50 border border-rose-800/60">✕ إغلاق</button>' +
+                '</div>' +
+                '<div class="p-3 rounded-2xl bg-amber-500/15 border border-amber-500/30 text-amber-200 space-y-1.5">' +
+                    '<div class="font-black text-xs sm:text-sm text-amber-300 flex items-center gap-1.5"><i class="fa-solid fa-book-quran text-amber-400"></i><span>الدليل من القرآن الكريم [' + data.quranRef + ']:</span></div>' +
+                    '<div class="text-xs sm:text-sm font-serif leading-relaxed text-amber-100/95 bg-slate-950/60 p-2.5 rounded-xl border border-amber-500/20 text-center font-bold">« ' + data.quranVerse + ' »</div>' +
+                '</div>' +
+                '<div class="p-3 rounded-2xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-200 space-y-1.5">' +
+                    '<div class="font-black text-xs sm:text-sm text-emerald-300 flex items-center gap-1.5"><i class="fa-solid fa-scroll text-emerald-400"></i><span>الدليل من السنة الصحيحة [' + data.hadithSource + ']:</span></div>' +
+                    '<div class="text-xs sm:text-sm leading-relaxed text-emerald-100/95 bg-slate-950/60 p-2.5 rounded-xl border border-emerald-500/20 text-center font-bold">« ' + data.hadithText + ' »</div>' +
+                '</div>' +
+                '<div class="p-3 rounded-2xl bg-slate-900/90 border border-white/10 space-y-1.5">' +
+                    '<div class="font-black text-xs sm:text-sm text-slate-200 flex items-center gap-1.5"><i class="fa-solid fa-scale-balanced text-amber-400"></i><span>الأحكام الفقهية والضوابط:</span></div>' +
+                    '<ul class="space-y-1.5 pr-1">' + rules + '</ul>' +
+                '</div>' +
+                '<div class="flex items-center justify-between pt-1 gap-2">' +
+                    '<button type="button" onclick="showHeirEvidenceModal(\'' + heirKey + '\')" class="text-xs sm:text-sm font-black text-amber-300 hover:text-amber-200 bg-amber-500/20 hover:bg-amber-500/30 px-3.5 py-1.5 rounded-xl border border-amber-400/50 cursor-pointer flex items-center gap-1.5 transition"><i class="fa-solid fa-up-right-and-down-left-from-center"></i><span>نافذة مكبرة</span></button>' +
+                    '<button type="button" onclick="copyHeirEvidenceText(\'' + heirKey + '\')" class="text-xs sm:text-sm font-black text-slate-300 hover:text-white bg-slate-800 hover:bg-slate-700 px-3.5 py-1.5 rounded-xl border border-slate-600 cursor-pointer flex items-center gap-1.5 transition"><i class="fa-regular fa-copy"></i><span>نسخ الدليل</span></button>' +
+                '</div>';
+            inlineBox.classList.remove('hidden');
+        } else {
+            inlineBox.classList.add('hidden');
+        }
+    }
+
+    // 2. فتح النافذة الكبرى المكبرة مباشرة لتقديم أفضل تجربة مستخدم ممكنة
+    showHeirEvidenceModal(heirKey);
+}
+
+
 function showHeirEvidenceModal(heirKey) {
     console.log('showHeirEvidenceModal called for:', heirKey);
     var data = (typeof HEIR_EVIDENCES !== 'undefined' && HEIR_EVIDENCES[heirKey]) ? HEIR_EVIDENCES[heirKey] : null;
@@ -1634,6 +1686,7 @@ window.shareIslamicInheritanceWhatsApp = shareIslamicInheritanceWhatsApp;
 window.copyIslamicInheritanceSummary = copyIslamicInheritanceSummary;
 window.initInheritanceEngine = initInheritanceEngine;
 
+window.toggleHeirEvidence = toggleHeirEvidence;
 window.showHeirEvidenceModal = showHeirEvidenceModal;
 window.closeHeirEvidenceModal = closeHeirEvidenceModal;
 window.copyHeirEvidenceText = copyHeirEvidenceText;
