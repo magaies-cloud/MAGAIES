@@ -722,43 +722,39 @@ function setDeceasedGender(gender) {
 
     if (gender === 'male') {
         if (btnMale) {
-            btnMale.className = 'gender-toggle-card gender-active-male p-5 rounded-2xl border-2 border-emerald-500 bg-emerald-500/10 flex items-center justify-between shadow-lg';
+            btnMale.className = 'gender-toggle-card gender-active-male p-6 rounded-3xl border-2 border-emerald-500 bg-emerald-500/20 flex items-center justify-center gap-4 shadow-xl';
             const checkIcon = btnMale.querySelector('i');
             if (checkIcon) checkIcon.classList.remove('hidden');
         }
         if (btnFemale) {
-            btnFemale.className = 'gender-toggle-card p-5 rounded-2xl border-2 border-white/10 bg-slate-900/60 flex items-center justify-between shadow-lg text-slate-400';
+            btnFemale.className = 'gender-toggle-card p-6 rounded-3xl border-2 border-white/10 bg-slate-900/90 flex items-center justify-center gap-4 shadow-xl text-slate-400';
             const checkIcon = btnFemale.querySelector('i');
             if (checkIcon) checkIcon.classList.add('hidden');
         }
         if (wivesBox) wivesBox.classList.remove('hidden');
         if (husbandBox) {
             husbandBox.classList.add('hidden');
-            const hInput = document.getElementById('inh-inp-husband');
-            if (hInput) {
-                hInput.value = 0;
-                highlightCounterCard('husband');
-            }
+            const hInp = document.getElementById('inh-inp-husband');
+            if (hInp) hInp.value = 0;
+            highlightCounterCard('husband');
         }
     } else {
         if (btnFemale) {
-            btnFemale.className = 'gender-toggle-card gender-active-female p-5 rounded-2xl border-2 border-rose-500 bg-rose-500/10 flex items-center justify-between shadow-lg';
+            btnFemale.className = 'gender-toggle-card gender-active-female p-6 rounded-3xl border-2 border-rose-500 bg-rose-500/20 flex items-center justify-center gap-4 shadow-xl';
             const checkIcon = btnFemale.querySelector('i');
             if (checkIcon) checkIcon.classList.remove('hidden');
         }
         if (btnMale) {
-            btnMale.className = 'gender-toggle-card p-5 rounded-2xl border-2 border-white/10 bg-slate-900/60 flex items-center justify-between shadow-lg text-slate-400';
+            btnMale.className = 'gender-toggle-card p-6 rounded-3xl border-2 border-white/10 bg-slate-900/90 flex items-center justify-center gap-4 shadow-xl text-slate-400';
             const checkIcon = btnMale.querySelector('i');
             if (checkIcon) checkIcon.classList.add('hidden');
         }
         if (husbandBox) husbandBox.classList.remove('hidden');
         if (wivesBox) {
             wivesBox.classList.add('hidden');
-            const wInput = document.getElementById('inh-inp-wives');
-            if (wInput) {
-                wInput.value = 0;
-                highlightCounterCard('wives');
-            }
+            const wInp = document.getElementById('inh-inp-wives');
+            if (wInp) wInp.value = 0;
+            highlightCounterCard('wives');
         }
     }
 }
@@ -1529,53 +1525,60 @@ function showHeirEvidenceModal(heirKey) {
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'inh-evidence-modal';
-        modal.className = 'fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md transition-all duration-300';
+        modal.className = 'fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 bg-slate-950/90 backdrop-blur-md transition-all duration-300';
         document.body.appendChild(modal);
     }
 
     var rulesHtml = data.fiqhRules.map(function(r) {
-        return '<li class="flex items-start gap-2.5 text-slate-200 text-sm sm:text-base leading-relaxed"><span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-300 flex items-center justify-center text-xs flex-shrink-0 mt-0.5 border border-amber-400/40 font-bold">✓</span><span>' + r + '</span></li>';
+        return '<li class="flex items-start gap-3.5 text-slate-100 text-base sm:text-lg leading-relaxed"><span class="w-6 h-6 rounded-full bg-amber-500/25 text-amber-300 flex items-center justify-center text-sm flex-shrink-0 mt-0.5 border border-amber-400/50 font-black">✓</span><span>' + r + '</span></li>';
     }).join('');
 
     var htmlParts = [];
-    htmlParts.push('<div class="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-2 border-amber-500/60 shadow-2xl p-6 sm:p-8 space-y-6 animate-scaleIn text-right" dir="rtl" style="box-shadow: 0 0 50px rgba(245, 158, 11, 0.25);">');
-    htmlParts.push('  <div class="flex items-center justify-between pb-4 border-b border-amber-500/30">');
-    htmlParts.push('    <div class="flex items-center gap-3.5">');
-    htmlParts.push('      <span class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-300 font-bold text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0">' + data.icon + '</span>');
+    htmlParts.push('<div class="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-2 border-amber-500/70 shadow-2xl p-7 sm:p-10 space-y-7 animate-scaleIn text-right" dir="rtl" style="box-shadow: 0 0 60px rgba(245, 158, 11, 0.35); border-radius: 32px;">');
+    htmlParts.push('  <!-- Modal Header -->');
+    htmlParts.push('  <div class="flex items-center justify-between pb-5 border-b border-amber-500/40">');
+    htmlParts.push('    <div class="flex items-center gap-4">');
+    htmlParts.push('      <span class="w-16 h-16 rounded-2xl bg-amber-500/25 text-amber-300 font-bold text-3xl flex items-center justify-center border-2 border-amber-400/70 shadow-inner flex-shrink-0">' + data.icon + '</span>');
     htmlParts.push('      <div>');
-    htmlParts.push('        <h3 class="text-xl sm:text-2xl font-black text-amber-300 font-sans tracking-wide">' + data.title + '</h3>');
-    htmlParts.push('        <div class="text-xs sm:text-sm font-bold text-emerald-300 flex items-center gap-1.5 mt-0.5"><i class="fa-solid fa-certificate text-emerald-400"></i><span>الدليل الشرعي القطعي من الكتاب وصحيح السنة</span></div>');
+    htmlParts.push('        <h3 class="text-2xl sm:text-3xl font-black text-amber-300 font-sans tracking-wide">' + data.title + '</h3>');
+    htmlParts.push('        <div class="text-sm sm:text-base font-bold text-emerald-300 flex items-center gap-2 mt-1"><i class="fa-solid fa-certificate text-emerald-400 text-lg"></i><span>الدليل الشرعي القطعي من القرآن وصحيح السنة</span></div>');
     htmlParts.push('      </div>');
     htmlParts.push('    </div>');
-    htmlParts.push('    <button type="button" onclick="closeHeirEvidenceModal()" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-rose-900/60 border border-slate-700 hover:border-rose-500/50 text-slate-300 hover:text-white flex items-center justify-center transition-all"><i class="fa-solid fa-xmark text-lg"></i></button>');
+    htmlParts.push('    <button type="button" onclick="closeHeirEvidenceModal()" class="w-12 h-12 rounded-2xl bg-slate-800 hover:bg-rose-900/70 border-2 border-slate-700 hover:border-rose-500/60 text-slate-300 hover:text-white flex items-center justify-center transition-all cursor-pointer"><i class="fa-solid fa-xmark text-2xl"></i></button>');
     htmlParts.push('  </div>');
-    htmlParts.push('  <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/40 flex items-center gap-3">');
-    htmlParts.push('    <span class="px-3 py-1 rounded-xl bg-amber-500/20 text-amber-300 font-black text-xs border border-amber-400/50">الصفة الفقهية:</span>');
-    htmlParts.push('    <span class="text-sm sm:text-base font-black text-amber-200">' + data.fard + '</span>');
+    htmlParts.push('  <!-- Fiqh Fard Badge -->');
+    htmlParts.push('  <div class="p-4 rounded-2xl bg-amber-500/15 border-2 border-amber-500/40 flex flex-wrap items-center gap-3">');
+    htmlParts.push('    <span class="px-4 py-1.5 rounded-xl bg-amber-500/30 text-amber-200 font-black text-sm border border-amber-400/60">الصفة الفقهية:</span>');
+    htmlParts.push('    <span class="text-base sm:text-lg font-black text-amber-100">' + data.fard + '</span>');
     htmlParts.push('  </div>');
-    htmlParts.push('  <div class="p-5 rounded-2xl bg-slate-900/95 border-2 border-amber-500/40 shadow-lg space-y-2.5">');
+    htmlParts.push('  <!-- 1. Quranic Evidence Box -->');
+    htmlParts.push('  <div class="p-6 rounded-3xl bg-slate-900/95 border-2 border-amber-500/50 shadow-xl space-y-3">');
     htmlParts.push('    <div class="flex items-center justify-between">');
-    htmlParts.push('      <div class="text-sm sm:text-base font-black text-amber-300 flex items-center gap-2"><i class="fa-solid fa-book-quran text-amber-400"></i><span>الدليل الصريح من القرآن الكريم المحكم:</span></div>');
-    htmlParts.push('      <span class="px-3 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 font-black text-xs border border-amber-400/30 font-mono">' + data.quranRef + '</span>');
+    htmlParts.push('      <div class="text-base sm:text-lg font-black text-amber-300 flex items-center gap-2.5"><i class="fa-solid fa-book-quran text-amber-400 text-xl"></i><span>الدليل الصريح من القرآن الكريم المحكم:</span></div>');
+    htmlParts.push('      <span class="px-3.5 py-1 rounded-xl bg-amber-500/25 text-amber-200 font-black text-xs sm:text-sm border border-amber-400/40 font-mono">' + data.quranRef + '</span>');
     htmlParts.push('    </div>');
-    htmlParts.push('    <div class="p-4 rounded-xl bg-slate-950/80 border border-amber-500/25 text-base sm:text-lg text-amber-100 font-serif leading-relaxed text-center" style="font-family: Amiri, Cairo, serif;">« ' + data.quranVerse + ' »</div>');
+    htmlParts.push('    <div class="p-5 rounded-2xl bg-slate-950/90 border border-amber-500/30 text-lg sm:text-2xl text-amber-100 font-serif leading-relaxed text-center" style="font-family: Amiri, Cairo, serif; line-height: 2;">« ' + data.quranVerse + ' »</div>');
     htmlParts.push('  </div>');
-    htmlParts.push('  <div class="p-5 rounded-2xl bg-slate-900/95 border-2 border-emerald-500/40 shadow-lg space-y-2.5">');
+    htmlParts.push('  <!-- 2. Sahih Sunnah Evidence Box -->');
+    htmlParts.push('  <div class="p-6 rounded-3xl bg-slate-900/95 border-2 border-emerald-500/50 shadow-xl space-y-3">');
     htmlParts.push('    <div class="flex items-center justify-between">');
-    htmlParts.push('      <div class="text-sm sm:text-base font-black text-emerald-300 flex items-center gap-2"><i class="fa-solid fa-scroll text-emerald-400"></i><span>الدليل من السنة النبوية الصحيحة:</span></div>');
-    htmlParts.push('      <span class="px-3 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 font-black text-xs border border-emerald-400/30">حديث صحيح محكم ✓</span>');
+    htmlParts.push('      <div class="text-base sm:text-lg font-black text-emerald-300 flex items-center gap-2.5"><i class="fa-solid fa-scroll text-emerald-400 text-xl"></i><span>الدليل من السنة النبوية الصحيحة:</span></div>');
+    htmlParts.push('      <span class="px-3.5 py-1 rounded-xl bg-emerald-500/25 text-emerald-200 font-black text-xs sm:text-sm border border-emerald-400/40">حديث صحيح محكم ✓</span>');
     htmlParts.push('    </div>');
-    htmlParts.push('    <div class="p-4 rounded-xl bg-slate-950/80 border border-emerald-500/25 text-base sm:text-lg text-emerald-100 font-serif leading-relaxed text-center" style="font-family: Amiri, Cairo, serif;">' + data.hadithText + '</div>');
-    htmlParts.push('    <div class="text-xs text-emerald-300/80 font-mono font-bold text-left" dir="ltr">' + data.hadithSource + '</div>');
+    htmlParts.push('    <div class="p-5 rounded-2xl bg-slate-950/90 border border-emerald-500/30 text-lg sm:text-2xl text-emerald-100 font-serif leading-relaxed text-center" style="font-family: Amiri, Cairo, serif; line-height: 2;">' + data.hadithText + '</div>');
+    htmlParts.push('    <div class="text-xs sm:text-sm text-emerald-300 font-mono font-bold text-left pt-1" dir="ltr">' + data.hadithSource + '</div>');
     htmlParts.push('  </div>');
-    htmlParts.push('  <div class="p-5 rounded-2xl bg-slate-900/95 border-2 border-sky-500/30 shadow-lg space-y-3">');
-    htmlParts.push('    <div class="text-sm sm:text-base font-black text-sky-300 flex items-center gap-2"><i class="fa-solid fa-scale-unbalanced-flip text-sky-400"></i><span>الأحكام الفقهية وضوابط الاستحقاق والحجب:</span></div>');
-    htmlParts.push('    <ul class="space-y-2">' + rulesHtml + '</ul>');
+    htmlParts.push('  <!-- 3. Fiqh Conditions Box -->');
+    htmlParts.push('  <div class="p-6 rounded-3xl bg-slate-900/95 border-2 border-sky-500/40 shadow-xl space-y-4">');
+    htmlParts.push('    <div class="text-base sm:text-lg font-black text-sky-300 flex items-center gap-2.5"><i class="fa-solid fa-scale-unbalanced-flip text-sky-400 text-xl"></i><span>الأحكام الفقهية وضوابط الاستحقاق والحجب:</span></div>');
+    htmlParts.push('    <ul class="space-y-3">' + rulesHtml + '</ul>');
     htmlParts.push('  </div>');
-    htmlParts.push('  <div class="p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-center text-xs sm:text-sm font-bold text-emerald-300">⭐ مأخوذ حصراً من نصوص القرآن القطعية وصحيحي البخاري ومسلم والسنن الثابتة بإسناد صحيح (لا نعمل بالأحاديث الضعيفة).</div>');
-    htmlParts.push('  <div class="flex items-center justify-between pt-4 border-t border-white/10">');
-    htmlParts.push('    <button type="button" onclick="copyHeirEvidenceText(\'' + heirKey + '\')" class="px-5 py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 text-amber-300 font-black text-xs sm:text-sm flex items-center gap-2 transition-all"><i class="fa-regular fa-copy"></i><span id="copy-evidence-text">نسخ الدليل الشرعي</span></button>');
-    htmlParts.push('    <button type="button" onclick="closeHeirEvidenceModal()" class="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-black text-xs sm:text-sm transition-all">إغلاق النافذة</button>');
+    htmlParts.push('  <!-- Authenticity Guarantee Seal -->');
+    htmlParts.push('  <div class="p-4 rounded-2xl bg-emerald-950/40 border-2 border-emerald-500/40 text-center text-sm sm:text-base font-black text-emerald-300">⭐ مأخوذ حصراً من نصوص القرآن القطعية وصحيحي البخاري ومسلم والسنن الثابتة بإسناد صحيح (لا نعمل بالأحاديث الضعيفة إطلاقاً).</div>');
+    htmlParts.push('  <!-- Modal Footer -->');
+    htmlParts.push('  <div class="flex items-center justify-between pt-5 border-t border-white/15">');
+    htmlParts.push('    <button type="button" onclick="copyHeirEvidenceText(\'' + heirKey + '\')" class="px-6 py-3.5 rounded-2xl bg-amber-500/25 hover:bg-amber-500/35 border-2 border-amber-400/60 text-amber-200 font-black text-sm sm:text-base flex items-center gap-2.5 transition-all cursor-pointer"><i class="fa-regular fa-copy text-lg"></i><span id="copy-evidence-text">نسخ الدليل الشرعي</span></button>');
+    htmlParts.push('    <button type="button" onclick="closeHeirEvidenceModal()" class="px-7 py-3.5 rounded-2xl bg-slate-800 hover:bg-slate-700 border-2 border-slate-600 text-white font-black text-sm sm:text-base transition-all cursor-pointer">إغلاق النافذة</button>');
     htmlParts.push('  </div>');
     htmlParts.push('</div>');
 
