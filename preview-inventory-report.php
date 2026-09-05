@@ -502,5 +502,7 @@ window.toggleDarkMode = function() { document.body.classList.toggle('dark-mode')
 window.renderTable = function() { applyColumnSettings(); };
 </script>
 <script src="js/universal-report-studio.js?v=<?php echo time(); ?>"></script>
+
+<script src="js/magaiees_back.js?v=2026_back_v1" defer></script>
 </body>
 </html>

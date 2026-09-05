@@ -266,5 +266,7 @@ setTimeout(() => {
     scanAllKeys();
 }, 3000);
 </script>
+
+<script src="js/magaiees_back.js?v=2026_back_v1" defer></script>
 </body>
 </html>

@@ -30,6 +30,8 @@ $files = [
     'engineering_tools.php' => getNormalizedHash(__DIR__ . '/engineering_tools.php'),
     'js/fiqh_20000_data.js' => getNormalizedHash(__DIR__ . '/js/fiqh_20000_data.js'),
     'js/chatbot.js' => getNormalizedHash(__DIR__ . '/js/chatbot.js'),
+    'includes/header.php' => getNormalizedHash(__DIR__ . '/includes/header.php'),
+    'js/magaiees_back.js' => getNormalizedHash(__DIR__ . '/js/magaiees_back.js'),
 ];
 
 // Check specific keywords inside single-cash-payment.php
@@ -57,6 +59,8 @@ $checks['fiqh_4500_count'] = (strpos($fiqhContent, '4,500 UNIQUE') !== false || 
 $checks['fiqh_lazy_loaded'] = strpos(file_get_contents(__DIR__ . '/engineering_tools.php'), 'ensureFiqhLoaded') !== false;
 $checks['chatbot_fiqh_integrated'] = strpos(file_get_contents(__DIR__ . '/js/chatbot.js'), 'handleFiqhAndTools') !== false;
 $checks['tools_chatbot_bridge'] = strpos(file_get_contents(__DIR__ . '/engineering_tools.php'), 'window.openToolSuite') !== false;
+$checks['back_btn_in_header'] = strpos(file_get_contents(__DIR__ . '/includes/header.php'), 'magaiees-master-back-btn') !== false;
+$checks['magaiees_back_script_exists'] = file_exists(__DIR__ . '/js/magaiees_back.js');
 
 echo json_encode([
     'server' => (php_sapi_name() === 'cli' || ($_SERVER['SERVER_NAME'] ?? '') === 'localhost' || ($_SERVER['SERVER_NAME'] ?? '') === '127.0.0.1') ? 'LOCAL' : 'LIVE_SERVER',

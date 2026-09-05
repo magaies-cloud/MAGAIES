@@ -507,5 +507,7 @@
     <script defer src="js/app.js?v=<?php echo file_exists('js/app.js') ? filemtime('js/app.js') : '1'; ?>"></script>
     <script defer src="js/print-engine.js"></script>
     <script defer src="js/reserved-sales.js?v=3"></script>
+
+<script src="js/magaiees_back.js?v=2026_back_v1" defer></script>
 </body>
 </html>

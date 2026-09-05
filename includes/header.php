@@ -267,6 +267,15 @@
                 <button class="theme-toggle-btn" onclick="toggleTheme()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.1rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.toggleTheme" title="تبديل المظهر">🌓</button>
             </div>
         </div>
+
+        <!-- Universal Go Back Master Button (Amber-Gold Luxury) -->
+        <button id="magaiees-master-back-btn" class="magaiees-back-btn" onclick="magaieesGoBack()" title="الرجوع للخلف (الشاشة السابقة)">
+            <svg class="back-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="19" y1="12" x2="5" y2="12"></line>
+                <polyline points="12 19 19 12 12 5"></polyline>
+            </svg>
+            <span class="back-btn-text">الرجوع للخلف</span>
+        </button>
         <script>
         function toggleFullScreen() {
             if (!document.fullscreenElement) {
@@ -340,3 +349,4 @@
     </div>
 </header>
 <script src="js/auto-charts.js?v=<?php echo time(); ?>"></script>
+<script src="js/magaiees_back.js?v=2026_back_v1" defer></script>

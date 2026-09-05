@@ -545,5 +545,7 @@
     <script defer src="js/localforage.min.js"></script>
     <script defer src="js/app.js"></script>
     <script defer src="js/comprehensive-receipt.js"></script>
+
+<script src="js/magaiees_back.js?v=2026_back_v1" defer></script>
 </body>
 </html>
