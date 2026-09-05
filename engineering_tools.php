@@ -1497,6 +1497,96 @@ $pdo = getDBConnection();
             </div>
         </div>
 
+        
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <!-- 📡 ISLAMIC SACRED MEDIA & LIVE BROADCAST HUB (إذاعات وقنوات البث المباشر) -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <div class="mb-6 p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-slate-900 via-emerald-950/40 to-slate-900 border-2 border-amber-500/50 shadow-2xl">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4 pb-3 mb-3 border-b border-amber-500/30">
+                <div class="flex items-center gap-3">
+                    <span class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center text-xl border border-amber-400/50 shadow-md animate-pulse">
+                        <i class="fa-solid fa-tower-broadcast"></i>
+                    </span>
+                    <div>
+                        <h4 class="text-lg sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-500">
+                            البث المباشر والإذاعات الإسلامية المباركة
+                        </h4>
+                        <p class="text-xs sm:text-sm text-slate-300 font-bold">استمع وشاهد البث الحي المباشر من مكة والمدينة وإذاعات القرآن الكريم</p>
+                    </div>
+                </div>
+                <div class="flex items-center gap-2 text-xs font-mono font-black text-emerald-400 bg-emerald-950/60 px-3.5 py-1.5 rounded-xl border border-emerald-500/40 shadow-inner">
+                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
+                    <span>بث مباشر متواصل 24/7</span>
+                </div>
+            </div>
+
+            <!-- 4 Royal Broadcast Cards Grid -->
+            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+                
+                <!-- 1. إذاعة المجد للقرآن الكريم -->
+                <a href="https://al-majdtv.com/" target="_blank" rel="noopener noreferrer" 
+                   class="group p-3.5 sm:p-4 rounded-2xl bg-slate-950/80 hover:bg-amber-950/40 border-2 border-amber-500/40 hover:border-amber-400 flex items-center gap-3.5 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 block cursor-pointer">
+                    <span class="w-12 h-12 rounded-xl bg-amber-500/20 border-2 border-amber-400/60 flex items-center justify-center text-2xl text-amber-300 shadow-md group-hover:scale-110 transition-transform flex-shrink-0">
+                        <i class="fa-solid fa-radio"></i>
+                    </span>
+                    <div class="flex-1 text-right">
+                        <div class="text-sm sm:text-base font-black text-amber-200 group-hover:text-amber-100 flex items-center justify-between">
+                            <span>إذاعة المجد</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-xs text-amber-400/80"></i>
+                        </div>
+                        <div class="text-xs text-amber-400/90 font-bold mt-0.5">للقرآن الكريم (بث مباشر)</div>
+                    </div>
+                </a>
+
+                <!-- 2. تلفزيون المدينة المنورة للأحاديث النبوية -->
+                <a href="https://www.youtube.com/@SunnahTvLive" target="_blank" rel="noopener noreferrer" 
+                   class="group p-3.5 sm:p-4 rounded-2xl bg-slate-950/80 hover:bg-emerald-950/40 border-2 border-emerald-500/40 hover:border-emerald-400 flex items-center gap-3.5 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 block cursor-pointer">
+                    <span class="w-12 h-12 rounded-xl bg-emerald-500/20 border-2 border-emerald-400/60 flex items-center justify-center text-2xl text-emerald-300 shadow-md group-hover:scale-110 transition-transform flex-shrink-0">
+                        <i class="fa-solid fa-mosque"></i>
+                    </span>
+                    <div class="flex-1 text-right">
+                        <div class="text-sm sm:text-base font-black text-emerald-200 group-hover:text-emerald-100 flex items-center justify-between">
+                            <span>تلفزيون المدينة المنورة</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-xs text-emerald-400/80"></i>
+                        </div>
+                        <div class="text-xs text-emerald-400/90 font-bold mt-0.5">قناة السنة النبوية (مباشر)</div>
+                    </div>
+                </a>
+
+                <!-- 3. تلفزيون مكة المكرمة للقرآن الكريم -->
+                <a href="https://www.youtube.com/@QuranTvLive" target="_blank" rel="noopener noreferrer" 
+                   class="group p-3.5 sm:p-4 rounded-2xl bg-slate-950/80 hover:bg-yellow-950/40 border-2 border-yellow-500/40 hover:border-yellow-400 flex items-center gap-3.5 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 block cursor-pointer">
+                    <span class="w-12 h-12 rounded-xl bg-yellow-500/20 border-2 border-yellow-400/60 flex items-center justify-center text-2xl text-yellow-300 shadow-md group-hover:scale-110 transition-transform flex-shrink-0">
+                        <i class="fa-solid fa-kaaba"></i>
+                    </span>
+                    <div class="flex-1 text-right">
+                        <div class="text-sm sm:text-base font-black text-yellow-200 group-hover:text-yellow-100 flex items-center justify-between">
+                            <span>تلفزيون مكة المكرمة</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-xs text-yellow-400/80"></i>
+                        </div>
+                        <div class="text-xs text-yellow-400/90 font-bold mt-0.5">قناة القرآن الكريم (مباشر)</div>
+                    </div>
+                </a>
+
+                <!-- 4. موقع القرآن الكريم MP3 -->
+                <a href="https://mp3quran.net/ar" target="_blank" rel="noopener noreferrer" 
+                   class="group p-3.5 sm:p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/40 border-2 border-cyan-500/40 hover:border-cyan-400 flex items-center gap-3.5 shadow-lg transition-all duration-300 hover:scale-[1.02] hover:-translate-y-1 block cursor-pointer">
+                    <span class="w-12 h-12 rounded-xl bg-cyan-500/20 border-2 border-cyan-400/60 flex items-center justify-center text-2xl text-cyan-300 shadow-md group-hover:scale-110 transition-transform flex-shrink-0">
+                        <i class="fa-solid fa-headphones"></i>
+                    </span>
+                    <div class="flex-1 text-right">
+                        <div class="text-sm sm:text-base font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
+                            <span>موقع القرآن الكريم MP3</span>
+                            <i class="fa-solid fa-arrow-up-right-from-square text-xs text-cyan-400/80"></i>
+                        </div>
+                        <div class="text-xs text-cyan-400/90 font-bold mt-0.5">المكتبة الصوتية الشاملة</div>
+                    </div>
+                </a>
+
+            </div>
+        </div>
+
+
         <!-- 🎛️ 10 PROMINENT SUITE TABS (3D CENTERED NEUMORPHIC) 🎛️ -->
         <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-11 gap-2.5" id="suite-tabs-container">
             
