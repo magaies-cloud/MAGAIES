@@ -1064,13 +1064,102 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         .cheque-row > div:nth-child(4) { flex: 0.8 !important; min-width: 90px !important; } /* Cheque No (Smaller) */
         .cheque-row > div:nth-child(5) { flex: 1.2 !important; min-width: 120px !important; } /* Cheque Date */
         .cheque-row > div:nth-child(6) { flex: 2.5 !important; min-width: 210px !important; } /* Cheque Desc (Wider) */
-        /* Custom Number Properties Menu */
-        #num-props-menu { display: none; position: absolute; z-index: 9999; background: rgba(15, 23, 42, 0.95); backdrop-filter: blur(10px); border: 1px solid rgba(255, 255, 255, 0.1); box-shadow: 0 10px 25px rgba(0, 0, 0, 0.5); border-radius: 12px; padding: 10px; width: 260px; color: #cbd5e1; font-family: 'Inter', sans-serif; direction: rtl; }
-        #num-props-menu .props-header { font-weight: bold; color: #38bdf8; margin-bottom: 10px; padding-bottom: 5px; border-bottom: 1px solid rgba(255, 255, 255, 0.1); text-align: center; font-size: 1.1rem; }
-        #num-props-menu .props-item { display: flex; justify-content: space-between; align-items: center; padding: 8px 5px; cursor: pointer; border-radius: 6px; transition: background 0.2s; font-size: 0.95rem; }
-        #num-props-menu .props-item:hover { background: rgba(255, 255, 255, 0.1); }
-        #num-props-menu button.prop-btn { background: rgba(59, 130, 246, 0.2); border: 1px solid rgba(59, 130, 246, 0.5); color: #60a5fa; border-radius: 4px; padding: 2px 8px; cursor: pointer; font-size: 0.9rem; transition: all 0.2s; }
-        #num-props-menu button.prop-btn:hover { background: rgba(59, 130, 246, 0.4); color: #fff; }
+        /* Custom Number Properties Menu (Enhanced Luxury) */
+        #custom-num-menu {
+            display: none;
+            position: absolute;
+            z-index: 100000;
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(30, 41, 59, 0.96));
+            backdrop-filter: blur(14px);
+            border: 1.5px solid rgba(56, 189, 248, 0.6);
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.8), 0 0 25px rgba(56, 189, 248, 0.25);
+            border-radius: 14px;
+            padding: 18px 20px;
+            width: 320px;
+            color: #e2e8f0;
+            font-family: 'Tajawal', 'Inter', sans-serif;
+            direction: rtl;
+            user-select: none;
+        }
+        #custom-num-menu .props-header {
+            font-weight: 800;
+            color: #38bdf8;
+            margin-bottom: 14px;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(255, 255, 255, 0.12);
+            text-align: center;
+            font-size: 1.12rem;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+        #custom-num-menu .props-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        #custom-num-menu .props-row-label {
+            color: #cbd5e1;
+            font-size: 0.92rem;
+            font-weight: 700;
+        }
+        #custom-num-menu .weight-btn {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #94a3b8;
+            border-radius: 6px;
+            padding: 4px 8px;
+            font-size: 0.8rem;
+            font-weight: 700;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        #custom-num-menu .weight-btn.active {
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.3), rgba(217, 119, 6, 0.5));
+            border-color: #fbbf24;
+            color: #fbbf24;
+            box-shadow: 0 0 10px rgba(245, 158, 11, 0.4);
+        }
+        #custom-num-menu .color-dot {
+            width: 22px;
+            height: 22px;
+            border-radius: 50%;
+            cursor: pointer;
+            border: 2px solid transparent;
+            transition: transform 0.15s, border-color 0.15s;
+        }
+        #custom-num-menu .color-dot:hover {
+            transform: scale(1.25);
+            border-color: #ffffff;
+        }
+        #custom-num-menu .color-dot.active {
+            border-color: #ffffff;
+            box-shadow: 0 0 10px currentColor;
+            transform: scale(1.15);
+        }
+        #custom-num-menu .prop-action-btn {
+            background: #1e293b;
+            border: 1px solid #334155;
+            color: #38bdf8;
+            border-radius: 6px;
+            width: 32px;
+            height: 32px;
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.15rem;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.15s;
+        }
+        #custom-num-menu .prop-action-btn:hover {
+            background: #334155;
+            border-color: #38bdf8;
+            color: #fff;
+            transform: scale(1.08);
+        }
     </style>
 </head>
 <body>
@@ -1155,9 +1244,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             </select>
                         </div>
                         
-                        <div style="flex: 0.8; min-width: 80px;">
-                            <label style="color: #fbbf24; font-size: 0.85rem; margin-bottom: 5px; display: block; white-space: nowrap;">التعادل</label>
-                            <input type="number" autocomplete="off" id="exchange-rate" class="form-input" value="1" readonly style="font-weight: bold; font-family: monospace; text-align: center; cursor:pointer; background:rgba(16,185,129,0.1); color:#10b981; border-radius: 10px;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=Math.round(r); if(typeof calcTotal === 'function') calcTotal(); else if(typeof recalcAll === 'function') recalcAll();});" oninput="if(typeof calcTotal === 'function') calcTotal();">
+                        <div style="flex: 0.8; min-width: 95px; position: relative;">
+                            <label id="label-exchange-rate" style="color: #fbbf24; font-size: 0.85rem; margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between; white-space: nowrap; cursor: pointer;" onclick="openNumPropsFor('exchange-rate', event)" title="كليك يمين أو يسار لتخصيص الخصائص">
+                                <span>التعادل (سعر $)</span>
+                                <span style="font-size: 0.85rem; opacity: 0.85; transition: transform 0.2s;" onmouseover="this.style.transform='rotate(45deg)'" onmouseout="this.style.transform='rotate(0deg)'" title="خصائص سعر الدولار">⚙️</span>
+                            </label>
+                            <input type="text" inputmode="decimal" autocomplete="off" id="exchange-rate" class="form-input" value="1" readonly style="font-weight: 900; font-family: monospace; text-align: center; cursor: pointer; background: rgba(16,185,129,0.1); color: #10b981; border-radius: 10px;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.dataset.raw=r; this.value=r; if(typeof applyNumPropsToAll === 'function') applyNumPropsToAll(); if(typeof calcTotal === 'function') calcTotal(); else if(typeof recalcAll === 'function') recalcAll();});" oninput="if(typeof calcTotal === 'function') calcTotal();" title="كليك يسار لتعديل السعر | كليك يمين لتخصيص (السمك، الحجم، اللون، الخانات، الفاصلة)">
                         </div>
                         
                         <div style="flex: 1.5; min-width: 180px;">
@@ -1471,45 +1563,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         </div>
     </div>
 
-    <!-- Custom Context Menu for Numbers -->
-    <div id="num-props-menu">
-        <div class="props-header">خصائص الرقم المتقدمة</div>
-        <div class="props-item">
-            <span>حجم الخط (التقريب)</span>
-            <div style="display: flex; gap: 5px;">
-                <button class="prop-btn" onclick="applyNumProp('font-inc'); event.stopPropagation();">كبر</button>
-                <button class="prop-btn" onclick="applyNumProp('font-dec'); event.stopPropagation();">صغر</button>
-            </div>
-        </div>
-        <div class="props-item" onclick="applyNumProp('toggle-comma')">
-            <span>فواصل الآلاف (,)</span>
-            <span id="prop-comma-status" style="color:#10b981; font-weight:bold;">مفعل</span>
-        </div>
-        <div class="props-item">
-            <span>الخانات العشرية</span>
-            <div style="display: flex; gap: 5px; align-items: center;">
-                <span id="prop-dec-val" style="color:#fbbf24; font-weight:bold;">0</span>
-                <button class="prop-btn" onclick="applyNumProp('dec-set-2'); event.stopPropagation();">.00</button>
-                <button class="prop-btn" onclick="applyNumProp('dec-inc'); event.stopPropagation();">+</button>
-                <button class="prop-btn" onclick="applyNumProp('dec-dec'); event.stopPropagation();">-</button>
-            </div>
-        </div>
-        <div class="props-item" onclick="applyNumProp('toggle-font')">
-            <span>نوع الخط</span>
-            <span id="prop-font-status" style="color:#fbbf24; font-size:0.8rem; font-weight:bold;">Inter</span>
-        </div>
-        <div class="props-item">
-            <span>لون الرقم</span>
-            <input type="color" id="prop-color-picker" style="width: 30px; height: 30px; border: none; cursor: pointer; border-radius: 4px; padding: 0; background: transparent;" onchange="applyNumProp('color-change', this.value)">
-        </div>
-        <div class="props-item" onclick="applyNumProp('toggle-rounding')">
-            <span>تفعيل التقريب</span>
-            <span id="prop-rounding-status" style="color:#10b981; font-weight:bold;">معطل</span>
-        </div>
-        <div class="props-item" style="justify-content: center; margin-top: 10px; border-top: 1px solid rgba(255,255,255,0.1); padding-top: 10px;">
-            <button id="save-props-btn" onclick="saveNumberProperties(); event.stopPropagation();" style="background: #10b981; color: #fff; border: none; padding: 6px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; transition: background 0.2s;">حفظ الإعدادات</button>
-        </div>
-    </div>
+
 
     <!-- Scripts -->
     <script defer src="js/localforage.min.js"></script>
@@ -1580,61 +1634,125 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
     }
     </script>
-    <!-- Custom Number Properties Menu -->
-    <div id="custom-num-menu" style="display: none; position: absolute; z-index: 10000; background: #0f172a; border: 1px solid #1e293b; border-radius: 12px; padding: 18px; width: 280px; box-shadow: 0 10px 30px rgba(0,0,0,0.6); font-family: Inter, Tahoma, Arial, sans-serif; direction: rtl; user-select: none;">
-        <div style="text-align: center; color: #38bdf8; font-weight: bold; margin-bottom: 18px; border-bottom: 1px solid #1e293b; padding-bottom: 10px; font-size: 1.1rem; display: flex; align-items: center; justify-content: center; gap: 8px;">
-            ⚙️ خصائص الأرقام
+    <!-- Custom Number Properties Menu (Enhanced Luxury) -->
+    <div id="custom-num-menu">
+        <div class="props-header">
+            <span>⚙️</span> خصائص: <span id="custom-num-target-name" style="color:#fbbf24; font-weight:800; margin-right:4px;">سعر الدولار</span>
         </div>
         
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <span style="color: #cbd5e1; font-size: 0.95rem;">حجم الخط (تعديل)</span>
-            <div style="display: flex; gap: 6px;">
-                <button onclick="changeNumProp('font', -1)" style="background: #1e293b; border: 1px solid #334155; color: #a855f7; border-radius: 6px; width: 34px; height: 34px; cursor: pointer; font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">−</button>
-                <button onclick="changeNumProp('font', 1)" style="background: #1e293b; border: 1px solid #334155; color: #a855f7; border-radius: 6px; width: 34px; height: 34px; cursor: pointer; font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">+</button>
-            </div>
-        </div>
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
-            <span style="color: #cbd5e1; font-size: 0.95rem;">الفاصلة الألفية (،)</span>
-            <span id="num-prop-sep-status" onclick="toggleNumPropSep()" style="color: #10b981; font-weight: bold; cursor: pointer; font-size: 0.95rem;">مفعل</span>
-        </div>
-        
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-            <span style="color: #cbd5e1; font-size: 0.95rem;">الخانات العشرية</span>
+        <!-- 1. حجم الخط -->
+        <div class="props-row">
+            <span class="props-row-label">📏 حجم الخط</span>
             <div style="display: flex; align-items: center; gap: 6px;">
-                <button onclick="changeNumProp('dec', -1)" style="background: #1e293b; border: 1px solid #334155; color: #a855f7; border-radius: 6px; width: 34px; height: 34px; cursor: pointer; font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">−</button>
-                <span id="num-prop-dec-val" style="color: #fbbf24; width: 24px; text-align: center; font-weight: bold; font-size: 1.1rem;">0</span>
-                <button onclick="changeNumProp('dec', 1)" style="background: #1e293b; border: 1px solid #334155; color: #a855f7; border-radius: 6px; width: 34px; height: 34px; cursor: pointer; font-weight: bold; font-size: 1.2rem; display: flex; align-items: center; justify-content: center;">+</button>
+                <button type="button" class="prop-action-btn" onclick="changeNumProp('font', -1); event.stopPropagation();">−</button>
+                <span id="num-prop-font-size-val" style="color: #38bdf8; width: 34px; text-align: center; font-weight: bold; font-size: 1rem;">0</span>
+                <button type="button" class="prop-action-btn" onclick="changeNumProp('font', 1); event.stopPropagation();">+</button>
             </div>
         </div>
-        
-        <div style="display: flex; justify-content: space-between; align-items: flex-end;">
-            <button onclick="saveNumProps()" style="background: #10b981; border: none; color: white; padding: 12px 16px; border-radius: 8px; font-weight: bold; font-size: 1rem; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: transform 0.1s;">
-                حفظ الخصائص 💾
-            </button>
-            
-            <div style="text-align: left; display: flex; flex-direction: column; align-items: center; cursor: pointer;" onclick="toggleNumPropFontFamily()">
-                <span style="color: #cbd5e1; font-size: 0.85rem; margin-bottom: 4px;">نوع الخط</span>
-                <span id="num-prop-font-val" style="color: #fbbf24; font-weight: bold; font-size: 0.95rem;">Inter</span>
+
+        <!-- 2. سمك الخط (Font Weight) -->
+        <div class="props-row">
+            <span class="props-row-label">💪 سمك الخط</span>
+            <div style="display: flex; gap: 4px;" id="weight-btn-group">
+                <button type="button" class="weight-btn" data-weight="400" onclick="setNumPropWeight('400'); event.stopPropagation();">عادي</button>
+                <button type="button" class="weight-btn" data-weight="600" onclick="setNumPropWeight('600'); event.stopPropagation();">متوسط</button>
+                <button type="button" class="weight-btn" data-weight="700" onclick="setNumPropWeight('700'); event.stopPropagation();">عريض</button>
+                <button type="button" class="weight-btn" data-weight="900" onclick="setNumPropWeight('900'); event.stopPropagation();">ضخم</button>
             </div>
         </div>
+
+        <!-- 3. لون الرقم (Color) -->
+        <div class="props-row">
+            <span class="props-row-label">🎨 لون الرقم</span>
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <span class="color-dot" data-color="#10b981" onclick="setNumPropColor('#10b981'); event.stopPropagation();" style="background:#10b981;" title="أخضر زمردي"></span>
+                <span class="color-dot" data-color="#fbbf24" onclick="setNumPropColor('#fbbf24'); event.stopPropagation();" style="background:#fbbf24;" title="أصفر ذهبي"></span>
+                <span class="color-dot" data-color="#38bdf8" onclick="setNumPropColor('#38bdf8'); event.stopPropagation();" style="background:#38bdf8;" title="سماوي"></span>
+                <span class="color-dot" data-color="#ef4444" onclick="setNumPropColor('#ef4444'); event.stopPropagation();" style="background:#ef4444;" title="أحمر"></span>
+                <span class="color-dot" data-color="#c084fc" onclick="setNumPropColor('#c084fc'); event.stopPropagation();" style="background:#c084fc;" title="بنفسجي"></span>
+                <span class="color-dot" data-color="#ffffff" onclick="setNumPropColor('#ffffff'); event.stopPropagation();" style="background:#ffffff; border:1px solid #aaa;" title="أبيض"></span>
+                <input type="color" id="num-prop-color-input" onchange="setNumPropColor(this.value); event.stopPropagation();" oninput="setNumPropColor(this.value); event.stopPropagation();" style="width: 26px; height: 26px; border: none; cursor: pointer; background: transparent; padding: 0; border-radius: 4px;" title="منتقي ألوان مخصص">
+            </div>
+        </div>
+
+        <!-- 4. الفاصلة الألفية (Thousands Separator) -->
+        <div class="props-row">
+            <span class="props-row-label">🔢 الفاصلة الألفية (،)</span>
+            <span id="num-prop-sep-status" onclick="toggleNumPropSep(); event.stopPropagation();" style="color: #10b981; font-weight: bold; cursor: pointer; background: rgba(16,185,129,0.15); padding: 4px 14px; border-radius: 6px; border: 1px solid #10b981; font-size: 0.9rem;">مفعل</span>
+        </div>
+
+        <!-- 5. الخانات العشرية (Decimals) -->
+        <div class="props-row">
+            <span class="props-row-label">✨ الخانات العشرية</span>
+            <div style="display: flex; align-items: center; gap: 6px;">
+                <button type="button" class="prop-action-btn" onclick="changeNumProp('dec', -1); event.stopPropagation();">−</button>
+                <span id="num-prop-dec-val" style="color: #fbbf24; width: 30px; text-align: center; font-weight: bold; font-size: 1.1rem;">0</span>
+                <button type="button" class="prop-action-btn" onclick="changeNumProp('dec', 1); event.stopPropagation();">+</button>
+                <button type="button" onclick="setNumPropDecimals(0); event.stopPropagation();" style="background:#1e293b; border:1px solid #334155; color:#94a3b8; border-radius:4px; padding:3px 6px; cursor:pointer; font-size:0.75rem;">.0</button>
+                <button type="button" onclick="setNumPropDecimals(2); event.stopPropagation();" style="background:#1e293b; border:1px solid #334155; color:#94a3b8; border-radius:4px; padding:3px 6px; cursor:pointer; font-size:0.75rem;">.00</button>
+            </div>
+        </div>
+
+        <!-- 6. نوع الخط (Font Family) -->
+        <div class="props-row" style="margin-bottom: 16px;">
+            <span class="props-row-label">🔤 نوع الخط</span>
+            <div onclick="toggleNumPropFontFamily(); event.stopPropagation();" style="cursor: pointer; background: rgba(255,255,255,0.08); padding: 5px 14px; border-radius: 6px; border: 1px solid rgba(255,255,255,0.18);">
+                <span id="num-prop-font-val" style="color: #fbbf24; font-weight: bold; font-size: 0.95rem;">monospace</span>
+            </div>
+        </div>
+
+        <!-- 7. زر الحفظ -->
+        <button type="button" id="save-num-props-btn" onclick="saveNumProps(); event.stopPropagation();" style="width: 100%; background: linear-gradient(135deg, #10b981, #059669); border: none; color: white; padding: 11px; border-radius: 8px; font-weight: 800; font-size: 1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 8px; box-shadow: 0 4px 15px rgba(16,185,129,0.35); transition: transform 0.15s, box-shadow 0.15s;">
+            حفظ وتطبيق الخصائص 💾
+        </button>
     </div>
 
     <script>
     let dbNumProps = <?php echo $db_num_props_json ?: '{}'; ?>;
     let allNumProps = Object.keys(dbNumProps).length > 0 ? dbNumProps : (JSON.parse(localStorage.getItem('all-num-props')) || {});
-    let currentPropId = 'default';
+    let currentPropId = 'exchange-rate';
+
+    const targetNames = {
+        'exchange-rate': 'سعر الدولار / التعادل',
+        'amount-local-hdr': 'الإجمالي بالمحلي (SDG)',
+        'amount-foreign': 'المعادل بالأجنبي (USD)',
+        'block-bank-amount': 'مبالغ البنك',
+        'block-cheque-amount': 'مبالغ الشيكات',
+        'block-total-amount': 'مبالغ الحسابات الإجمالية',
+        'block-sub-amount': 'مبالغ الحسابات الفرعية',
+        'default': 'الرقم المالي'
+    };
 
     function getActiveProp() {
         if(!allNumProps[currentPropId]) {
-            allNumProps[currentPropId] = {
-                fontSizeMod: 0,
-                thousandsSep: true,
-                decimals: 2,
-                fontFamily: 'monospace'
-            };
+            if (currentPropId === 'exchange-rate') {
+                allNumProps[currentPropId] = {
+                    fontSizeMod: 0,
+                    thousandsSep: true,
+                    decimals: 0,
+                    fontFamily: 'monospace',
+                    fontWeight: '900',
+                    color: '#10b981'
+                };
+            } else {
+                allNumProps[currentPropId] = {
+                    fontSizeMod: 0,
+                    thousandsSep: true,
+                    decimals: 2,
+                    fontFamily: 'monospace',
+                    fontWeight: '900',
+                    color: '#ffffff'
+                };
+            }
         }
-        return allNumProps[currentPropId];
+        const p = allNumProps[currentPropId];
+        if (p.fontWeight === undefined) p.fontWeight = '900';
+        if (p.color === undefined) p.color = (currentPropId === 'exchange-rate') ? '#10b981' : '#ffffff';
+        if (p.fontSizeMod === undefined) p.fontSizeMod = 0;
+        if (p.thousandsSep === undefined) p.thousandsSep = true;
+        if (p.decimals === undefined) p.decimals = (currentPropId === 'exchange-rate') ? 0 : 2;
+        if (p.fontFamily === undefined) p.fontFamily = 'monospace';
+        return p;
     }
 
     function getPropFor(el) {
@@ -1642,27 +1760,109 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         if (!id) {
             if (el.classList.contains('block-bank-amount')) id = 'block-bank-amount';
             else if (el.classList.contains('block-cheque-amount')) id = 'block-cheque-amount';
+            else if (el.classList.contains('block-total-amount')) id = 'block-total-amount';
+            else if (el.classList.contains('block-sub-amount')) id = 'block-sub-amount';
             else id = 'default';
         }
         if(!allNumProps[id]) {
-            allNumProps[id] = {
-                fontSizeMod: 0,
-                thousandsSep: true,
-                decimals: 2,
-                fontFamily: 'monospace'
-            };
+            if (id === 'exchange-rate') {
+                allNumProps[id] = {
+                    fontSizeMod: 0,
+                    thousandsSep: true,
+                    decimals: 0,
+                    fontFamily: 'monospace',
+                    fontWeight: '900',
+                    color: '#10b981'
+                };
+            } else {
+                allNumProps[id] = {
+                    fontSizeMod: 0,
+                    thousandsSep: true,
+                    decimals: 2,
+                    fontFamily: 'monospace',
+                    fontWeight: '900',
+                    color: '#ffffff'
+                };
+            }
         }
-        return allNumProps[id];
+        const p = allNumProps[id];
+        if (p.fontWeight === undefined) p.fontWeight = '900';
+        if (p.color === undefined) p.color = (id === 'exchange-rate') ? '#10b981' : '#ffffff';
+        if (p.fontSizeMod === undefined) p.fontSizeMod = 0;
+        if (p.thousandsSep === undefined) p.thousandsSep = true;
+        if (p.decimals === undefined) p.decimals = (id === 'exchange-rate') ? 0 : 2;
+        if (p.fontFamily === undefined) p.fontFamily = 'monospace';
+        return p;
     }
 
-    const fontFamilies = ['monospace', 'Inter', 'Arial', 'Tahoma'];
+    const fontFamilies = ['monospace', 'Inter', 'Tajawal', 'Cairo', 'Arial', 'Tahoma'];
 
     function updateMenuUI() {
         const conf = getActiveProp();
-        document.getElementById('num-prop-sep-status').textContent = conf.thousandsSep ? 'مفعل' : 'معطل';
-        document.getElementById('num-prop-sep-status').style.color = conf.thousandsSep ? '#10b981' : '#ef4444';
-        document.getElementById('num-prop-dec-val').textContent = conf.decimals;
-        document.getElementById('num-prop-font-val').textContent = conf.fontFamily;
+        const targetTitle = document.getElementById('custom-num-target-name');
+        if (targetTitle) targetTitle.textContent = targetNames[currentPropId] || 'سعر الدولار / التعادل';
+
+        // 1. Font size mod
+        const fontSizeVal = document.getElementById('num-prop-font-size-val');
+        if (fontSizeVal) fontSizeVal.textContent = (conf.fontSizeMod > 0 ? '+' : '') + conf.fontSizeMod;
+
+        // 2. Font weight
+        document.querySelectorAll('#weight-btn-group .weight-btn').forEach(btn => {
+            if (btn.getAttribute('data-weight') === String(conf.fontWeight)) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        // 3. Color
+        document.querySelectorAll('#custom-num-menu .color-dot').forEach(dot => {
+            if (dot.getAttribute('data-color').toLowerCase() === (conf.color || '').toLowerCase()) {
+                dot.classList.add('active');
+            } else {
+                dot.classList.remove('active');
+            }
+        });
+        const colorInput = document.getElementById('num-prop-color-input');
+        if (colorInput && conf.color) colorInput.value = conf.color;
+
+        // 4. Thousands sep
+        const sepStatus = document.getElementById('num-prop-sep-status');
+        if (sepStatus) {
+            sepStatus.textContent = conf.thousandsSep ? 'مفعل (،)' : 'معطل';
+            sepStatus.style.color = conf.thousandsSep ? '#10b981' : '#ef4444';
+            sepStatus.style.borderColor = conf.thousandsSep ? '#10b981' : '#ef4444';
+            sepStatus.style.background = conf.thousandsSep ? 'rgba(16,185,129,0.15)' : 'rgba(239,68,68,0.15)';
+        }
+
+        // 5. Decimals
+        const decVal = document.getElementById('num-prop-dec-val');
+        if (decVal) decVal.textContent = conf.decimals;
+
+        // 6. Font family
+        const fontVal = document.getElementById('num-prop-font-val');
+        if (fontVal) fontVal.textContent = conf.fontFamily;
+    }
+
+    function setNumPropWeight(weight) {
+        const conf = getActiveProp();
+        conf.fontWeight = weight;
+        updateMenuUI();
+        applyNumPropsToAll();
+    }
+
+    function setNumPropColor(color) {
+        const conf = getActiveProp();
+        conf.color = color;
+        updateMenuUI();
+        applyNumPropsToAll();
+    }
+
+    function setNumPropDecimals(dec) {
+        const conf = getActiveProp();
+        conf.decimals = dec;
+        updateMenuUI();
+        applyNumPropsToAll();
     }
 
     function changeNumProp(type, val) {
@@ -1670,10 +1870,11 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         if(type === 'font') {
             conf.fontSizeMod += val;
             applyNumPropsToAll();
+            updateMenuUI();
         } else if(type === 'dec') {
             conf.decimals += val;
             if(conf.decimals < 0) conf.decimals = 0;
-            if(conf.decimals > 4) conf.decimals = 4;
+            if(conf.decimals > 6) conf.decimals = 6;
             updateMenuUI();
             applyNumPropsToAll();
         }
@@ -1698,24 +1899,42 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
     function saveNumProps() {
         localStorage.setItem('all-num-props', JSON.stringify(allNumProps));
         
-        // Save to Database via AJAX
         let formData = new FormData();
         formData.append('action', 'save_num_props');
         formData.append('num_props', JSON.stringify(allNumProps));
         
+        const saveBtn = document.getElementById('save-num-props-btn');
+        if (saveBtn) {
+            saveBtn.textContent = 'جاري الحفظ... ⏳';
+            saveBtn.style.opacity = '0.7';
+        }
+
         fetch(window.location.href, {
             method: 'POST',
             body: formData
         }).then(r => r.text()).then(txt => {
-            console.log('Saved to DB:', txt);
+            if (saveBtn) {
+                saveBtn.textContent = 'تم الحفظ بنجاح ✅';
+                saveBtn.style.background = 'linear-gradient(135deg, #10b981, #047857)';
+                saveBtn.style.opacity = '1';
+                setTimeout(() => {
+                    saveBtn.textContent = 'حفظ وتطبيق الخصائص 💾';
+                    const menu = document.getElementById('custom-num-menu');
+                    if (menu) menu.style.display = 'none';
+                }, 700);
+            }
+        }).catch(err => {
+            if (saveBtn) {
+                saveBtn.textContent = 'حفظ وتطبيق الخصائص 💾';
+                saveBtn.style.opacity = '1';
+            }
         });
 
-        document.getElementById('custom-num-menu').style.display = 'none';
         applyNumPropsToAll();
     }
 
     function formatNumberCustom(valStr, conf) {
-        if(!valStr && valStr !== 0) return "";
+        if(!valStr && valStr !== 0 && valStr !== "0") return "";
         let val = parseFloat(valStr.toString().replace(/,/g, ''));
         if(isNaN(val)) return valStr;
         
@@ -1728,31 +1947,49 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
     function applyNumPropsToAll() {
         const targets = [
+            document.getElementById('exchange-rate'),
             document.getElementById('amount-local-hdr'),
             document.getElementById('amount-foreign'),
             ...document.querySelectorAll('.block-bank-amount'),
-            ...document.querySelectorAll('.block-cheque-amount')
+            ...document.querySelectorAll('.block-cheque-amount'),
+            ...document.querySelectorAll('.block-total-amount'),
+            ...document.querySelectorAll('.block-sub-amount')
         ];
         
         targets.forEach(el => {
             if(!el) return;
             const conf = getPropFor(el);
             
-            // Apply font family
-            el.style.setProperty('font-family', conf.fontFamily, 'important');
+            // 1. Apply font family
+            if (conf.fontFamily) {
+                el.style.setProperty('font-family', conf.fontFamily, 'important');
+            }
             
-            // Apply font size modifier (only if element is NOT currently focused)
+            // 2. Apply font weight (السمك)
+            if (conf.fontWeight) {
+                el.style.setProperty('font-weight', conf.fontWeight, 'important');
+            }
+            
+            // 3. Apply color (اللون)
+            if (conf.color) {
+                el.style.setProperty('color', conf.color, 'important');
+            }
+            
+            // 4. Apply font size (الحجم)
             if (el !== document.activeElement) {
-                let baseSize = (el.id === 'amount-local-hdr' || el.id === 'amount-foreign') ? 2.6 : 2.4;
+                let baseSize = 1.4;
+                if (el.id === 'exchange-rate') baseSize = 1.6;
+                else if (el.id === 'amount-local-hdr' || el.id === 'amount-foreign') baseSize = 2.6;
+                else baseSize = 2.4;
+
                 let newSize = baseSize + (conf.fontSizeMod * 0.1);
-                if(newSize < 0.5) newSize = 0.5;
+                if(newSize < 0.6) newSize = 0.6;
                 el.style.setProperty('font-size', newSize + 'rem', 'important');
             }
             
-            // Format value
+            // 5. Format value
             if(el.value !== "") {
                 let cleanVal = el.value.toString().replace(/,/g, '');
-                // Store raw if not exists, or update if typing manually didn't trigger dataset update yet
                 if(!el.dataset.raw) el.dataset.raw = cleanVal;
                 else if (cleanVal !== el.dataset.raw && !el.dataset.isFormatting) {
                      el.dataset.raw = cleanVal;
@@ -1765,77 +2002,112 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         });
     }
 
-    // Context menu binding via mousedown to bypass blockers
-    document.addEventListener('mousedown', function(e) {
-        if(e.button !== 2) return; // only right click
-        
-        let target = e.target;
-        if (target && target.closest) {
-            target = target.closest('#amount-local-hdr, #amount-foreign, .block-bank-amount, .block-cheque-amount');
-        } else {
-            if (target.id === 'amount-local-hdr' || target.id === 'amount-foreign' || target.classList.contains('block-bank-amount') || target.classList.contains('block-cheque-amount')) {
-                // target is already correct
-            } else {
-                target = null;
-            }
+    // Direct function to open the menu for any target
+    window.openNumPropsFor = function(targetIdOrEl, e) {
+        if (e) {
+            e.preventDefault();
+            e.stopPropagation();
         }
+        
+        let el = null;
+        if (typeof targetIdOrEl === 'string') {
+            currentPropId = targetIdOrEl;
+            el = document.getElementById(targetIdOrEl);
+        } else if (targetIdOrEl && targetIdOrEl.id) {
+            currentPropId = targetIdOrEl.id;
+            el = targetIdOrEl;
+        } else if (targetIdOrEl && targetIdOrEl.classList) {
+            if (targetIdOrEl.classList.contains('block-bank-amount')) currentPropId = 'block-bank-amount';
+            else if (targetIdOrEl.classList.contains('block-cheque-amount')) currentPropId = 'block-cheque-amount';
+            else if (targetIdOrEl.classList.contains('block-total-amount')) currentPropId = 'block-total-amount';
+            else if (targetIdOrEl.classList.contains('block-sub-amount')) currentPropId = 'block-sub-amount';
+            else currentPropId = 'default';
+            el = targetIdOrEl;
+        }
+        
+        updateMenuUI();
+        
+        const menu = document.getElementById('custom-num-menu');
+        if (!menu) return;
+        
+        menu.style.display = 'block';
+        
+        let x = (e && e.pageX) ? e.pageX : (el ? el.getBoundingClientRect().left + window.scrollX : 200);
+        let y = (e && e.pageY) ? e.pageY : (el ? el.getBoundingClientRect().bottom + window.scrollY + 5 : 200);
+        
+        if (x + 330 > window.innerWidth) {
+            x = Math.max(10, window.innerWidth - 340);
+        }
+        menu.style.left = x + 'px';
+        menu.style.top = y + 'px';
+    };
 
-        if(target) {
+    // Right-click context menu event listener
+    document.addEventListener('contextmenu', function(e) {
+        let target = e.target;
+        if (!target) return;
+        
+        let matched = null;
+        if (target.id === 'exchange-rate' || target.closest('#exchange-rate') || target.closest('#label-exchange-rate') || (target.textContent && target.textContent.includes('التعادل') && target.closest('div') && target.closest('div').querySelector('#exchange-rate'))) {
+            matched = document.getElementById('exchange-rate');
+        } else if (target.closest) {
+            matched = target.closest('#exchange-rate, #amount-local-hdr, #amount-foreign, .block-bank-amount, .block-cheque-amount, .block-total-amount, .block-sub-amount');
+        }
+        
+        if (matched) {
             e.preventDefault();
             e.stopPropagation();
             e.stopImmediatePropagation();
-            
-            // Set current target ID for specific configuration
-            if (target.id) {
-                currentPropId = target.id;
-            } else if (target.classList.contains('block-bank-amount')) {
-                currentPropId = 'block-bank-amount';
-            } else if (target.classList.contains('block-cheque-amount')) {
-                currentPropId = 'block-cheque-amount';
-            } else {
-                currentPropId = 'default';
-            }
-            
-            updateMenuUI();
-            
-            const menu = document.getElementById('custom-num-menu');
-            menu.style.display = 'block';
-            menu.style.left = e.pageX + 'px';
-            menu.style.top = e.pageY + 'px';
-            
-            if(e.pageX + 280 > window.innerWidth) {
-                menu.style.left = (e.pageX - 280) + 'px';
-            }
-        }
-    }, true);
-    
-    document.addEventListener('contextmenu', function(e) {
-        let target = e.target;
-        if (target && target.closest) {
-            target = target.closest('#amount-local-hdr, #amount-foreign, .block-bank-amount, .block-cheque-amount');
-            if (target) {
-                e.preventDefault();
-                e.stopPropagation();
-                e.stopImmediatePropagation();
-            }
+            openNumPropsFor(matched, e);
         }
     }, true);
 
+    // Mousedown right-click listener (button === 2)
+    document.addEventListener('mousedown', function(e) {
+        if (e.button !== 2) return;
+        let target = e.target;
+        if (!target) return;
+        
+        let matched = null;
+        if (target.id === 'exchange-rate' || target.closest('#exchange-rate') || target.closest('#label-exchange-rate') || (target.textContent && target.textContent.includes('التعادل') && target.closest('div') && target.closest('div').querySelector('#exchange-rate'))) {
+            matched = document.getElementById('exchange-rate');
+        } else if (target.closest) {
+            matched = target.closest('#exchange-rate, #amount-local-hdr, #amount-foreign, .block-bank-amount, .block-cheque-amount, .block-total-amount, .block-sub-amount');
+        }
+        
+        if (matched) {
+            e.preventDefault();
+            e.stopPropagation();
+            e.stopImmediatePropagation();
+            openNumPropsFor(matched, e);
+        }
+    }, true);
+
+    // Close menu when clicking outside
     document.addEventListener('click', function(e) {
         const menu = document.getElementById('custom-num-menu');
-        if(menu && menu.style.display === 'block' && !menu.contains(e.target)) {
+        if (menu && menu.style.display === 'block' && !menu.contains(e.target)) {
             menu.style.display = 'none';
         }
     });
 
     // Handle raw value tracking
     document.addEventListener('input', function(e) {
-        if(e.target.id === 'amount-local-hdr' || 
-           e.target.id === 'amount-foreign' || 
-           e.target.classList.contains('block-bank-amount') || 
-           e.target.classList.contains('block-cheque-amount')) {
+        if (e.target.id === 'exchange-rate' || 
+            e.target.id === 'amount-local-hdr' || 
+            e.target.id === 'amount-foreign' || 
+            e.target.classList.contains('block-bank-amount') || 
+            e.target.classList.contains('block-cheque-amount') ||
+            e.target.classList.contains('block-total-amount') ||
+            e.target.classList.contains('block-sub-amount')) {
             e.target.dataset.raw = e.target.value.replace(/,/g, '');
         }
+    });
+
+    // Initial formatting on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        applyNumPropsToAll();
+        setTimeout(applyNumPropsToAll, 400);
     });
 
     // 🔍 محرك التضخيم والتكبير الفوري عند التركيز والكتابة (Dynamic Focus Magnification Engine)

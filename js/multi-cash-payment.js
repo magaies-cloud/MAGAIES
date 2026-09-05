@@ -1699,7 +1699,7 @@ async function _saveVoucherCore() {
     const desc = document.getElementById('voucher-desc').value.trim();
     const ref = document.getElementById('voucher-ref') ? document.getElementById('voucher-ref').value.trim() : '';
     const currency = (document.getElementById('currency') ? document.getElementById('currency').value : 'SDG') || 'SDG';
-    const exchangeRate = parseFloat(document.getElementById('exchange-rate') ? document.getElementById('exchange-rate').value : 0) || (typeof window.getSystemUsdRate === 'function' ? window.getSystemUsdRate() : 1.0);
+    const exchangeRate = cleanNum(document.getElementById('exchange-rate') ? document.getElementById('exchange-rate').value : 0) || (typeof window.getSystemUsdRate === 'function' ? window.getSystemUsdRate() : 1.0);
     
     const blocks = document.querySelectorAll('.account-block');
     let items = [];
@@ -3469,63 +3469,16 @@ window.checkTransferDuplicate = async function(tno, currentVoucherId) {
 let currentTargetInput = null;
 
 window.showNumberProperties = function(e, input) {
-    e.preventDefault();
-    currentTargetInput = input;
-    
-    const menu = document.getElementById('num-props-menu');
-    if (!menu) return;
-    
-    const hasComma = input.getAttribute('data-thousands') !== 'false';
-    const decimals = parseInt(input.getAttribute('data-decimals') || '0');
-    const font = input.getAttribute('data-font') || 'inter';
-    const numColor = input.getAttribute('data-color') || '#ffffff';
-    const isRounding = input.getAttribute('data-rounding') === 'true';
-    
-    document.getElementById('prop-comma-status').textContent = hasComma ? 'مفعل' : 'معطل';
-    document.getElementById('prop-comma-status').style.color = hasComma ? '#10b981' : '#ef4444';
-    document.getElementById('prop-dec-val').textContent = decimals;
-    document.getElementById('prop-font-status').textContent = font === 'inter' ? 'Inter' : 'Roboto Mono';
-    
-    const colorPicker = document.getElementById('prop-color-picker');
-    if (colorPicker) colorPicker.value = numColor;
-    
-    const roundingStatus = document.getElementById('prop-rounding-status');
-    if (roundingStatus) {
-        roundingStatus.textContent = isRounding ? 'مفعل' : 'معطل';
-        roundingStatus.style.color = isRounding ? '#10b981' : '#ef4444';
+    if (typeof window.openNumPropsFor === 'function') {
+        window.openNumPropsFor(input, e);
+        return;
     }
-    
-    menu.style.display = 'block';
-    
-    let x = e.pageX;
-    let y = e.pageY;
-    if (x + menu.offsetWidth > window.innerWidth) x = window.innerWidth - menu.offsetWidth - 10;
-    if (y + menu.offsetHeight > window.innerHeight) y = window.innerHeight - menu.offsetHeight - 10;
-    
-    menu.style.left = x + 'px';
-    menu.style.top = y + 'px';
 };
 
 window.closeNumberProperties = function() {
-    const menu = document.getElementById('num-props-menu');
+    const menu = document.getElementById('custom-num-menu');
     if (menu) menu.style.display = 'none';
 };
-
-document.addEventListener('click', function(e) {
-    const menu = document.getElementById('num-props-menu');
-    if (menu && menu.style.display === 'block') {
-        if (!menu.contains(e.target)) {
-            closeNumberProperties();
-        }
-    }
-});
-
-// Attach context menu to total fields
-document.addEventListener('contextmenu', function(e) {
-    if (e.target.classList.contains('block-total-amount') || e.target.classList.contains('block-sub-amount') || e.target.id === 'total-amount' || e.target.id === 'amount-local-hdr' || e.target.classList.contains('transfer-amount') || e.target.classList.contains('cheque-amount')) {
-        showNumberProperties(e, e.target);
-    }
-});
 
 window.applyNumProp = function(action, val) {
     if (!currentTargetInput) return;
