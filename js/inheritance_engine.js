@@ -816,25 +816,26 @@ function applyInhPreset(preset) {
         const d = document.getElementById('inh-inp-daughters'); if (d) d.value = 2;
         const m = document.getElementById('inh-inp-mother'); if (m) m.value = 1;
         const f = document.getElementById('inh-inp-father'); if (f) f.value = 1;
-    } else if (preset === 'husband_children') {
-        setDeceasedGender('female');
-        const h = document.getElementById('inh-inp-husband'); if (h) h.value = 1;
-        const s = document.getElementById('inh-inp-sons'); if (s) s.value = 1;
-        const d = document.getElementById('inh-inp-daughters'); if (d) d.value = 3;
     } else if (preset === 'umariyyatan') {
         setDeceasedGender('female');
         const h = document.getElementById('inh-inp-husband'); if (h) h.value = 1;
         const m = document.getElementById('inh-inp-mother'); if (m) m.value = 1;
         const f = document.getElementById('inh-inp-father'); if (f) f.value = 1;
+    } else if (preset === 'awl_minbariyya') {
+        setDeceasedGender('male');
+        const w = document.getElementById('inh-inp-wives'); if (w) w.value = 1;
+        const d = document.getElementById('inh-inp-daughters'); if (d) d.value = 2;
+        const f = document.getElementById('inh-inp-father'); if (f) f.value = 1;
+        const m = document.getElementById('inh-inp-mother'); if (m) m.value = 1;
+    } else if (preset === 'radd_case') {
+        setDeceasedGender('male');
+        const d = document.getElementById('inh-inp-daughters'); if (d) d.value = 1;
+        const m = document.getElementById('inh-inp-mother'); if (m) m.value = 1;
+        const gm = document.getElementById('inh-inp-maternalGrandmother'); if (gm) gm.value = 0;
     } else if (preset === 'kalalah_siblings') {
         setDeceasedGender('male');
         const fb = document.getElementById('inh-inp-fullBrothers'); if (fb) fb.value = 2;
         const fs = document.getElementById('inh-inp-fullSisters'); if (fs) fs.value = 3;
-    } else if (preset === 'daughters_only') {
-        setDeceasedGender('male');
-        const w = document.getElementById('inh-inp-wives'); if (w) w.value = 1;
-        const d = document.getElementById('inh-inp-daughters'); if (d) d.value = 3;
-        const fb = document.getElementById('inh-inp-fullBrothers'); if (fb) fb.value = 1;
     }
 
     INH_HEIR_KEYS.forEach(k => highlightCounterCard(k));
@@ -1209,6 +1210,406 @@ function initInheritanceEngine() {
     }
 }
 
+const HEIR_EVIDENCES = {
+    husband: {
+        title: "ميراث الزوج",
+        icon: "👨‍💼",
+        fard: "النصف أو الربع فرضاً (لا يحجب حجب حرمان أبداً)",
+        quranVerse: "وَلَكُمْ نِصْفُ مَا تَرَكَ أَزْوَاجُكُمْ إِنْ لَمْ يَكُنْ لَهُنَّ وَلَدٌ فَإِنْ كَانَ لَهُنَّ وَلَدٌ فَلَكُمُ الرُّبُعُ مِمَّا تَرَكْنَ مِنْ بَعْدِ وَصِيَّةٍ يُوصِينَ بِهَا أَوْ دَيْنٍ",
+        quranRef: "سورة النساء: الآية 12",
+        hadithText: "«أَلْحِقُوا الْفَرَائِضَ بِأَهْلِهَا، فَمَا بَقِيَ فَهُوَ لأَوْلَى رَجُلٍ ذَكَرٍ»",
+        hadithSource: "صحيح البخاري (6732)، صحيح مسلم (1614) من حديث عبد الله بن عباس رضي الله عنهما",
+        fiqhRules: [
+            "يرث النصف (1/2) فرضاً كاملاً إذا لم يكن للزوجة المتوفاة فرع وارث (ابن، بنت، ابن ابن، بنت ابن).",
+            "يرث الربع (1/4) فرضاً إذا كان للزوجة المتوفاة فرع وارث منها أو من غيرها.",
+            "الزوج من الورثة الذين لا يحجبون حجب حرمان أبداً بإجماع علماء الأمة."
+        ]
+    },
+    wives: {
+        title: "ميراث الزوجة / الزوجات",
+        icon: "🧕",
+        fard: "الربع أو الثمن فرضاً (بالتساوي بينهن)",
+        quranVerse: "وَلَهُنَّ الرُّبُعُ مِمَّا تَرَكْتُمْ إِنْ لَمْ يَكُنْ لَكُمْ وَلَدٌ فَإِنْ كَانَ لَكُمْ وَلَدٌ فَلَهُنَّ الثُّمُنُ مِمَّا تَرَكْتُمْ مِنْ بَعْدِ وَصِيَّةٍ تُوصُونَ بِهَا أَوْ دَيْنٍ",
+        quranRef: "سورة النساء: الآية 12",
+        hadithText: "«أن النبي ﷺ أعطى امرأة سعد بن الربيع الثمن، وابنتيه الثلثين، وما بقي فللعم»",
+        hadithSource: "سنن أبي داود (2891)، سنن الترمذي (2092) وصححه الألباني",
+        fiqhRules: [
+            "ترث الزوجة الربع (1/4) فرضاً عند عدم وجود الفرع الوارث للزوج المتوفى.",
+            "ترث الثمن (1/8) فرضاً عند وجود الفرع الوارث للزوج المتوفى.",
+            "إذا تعددت الزوجات (حتى 4) اشتركن في الربع أو الثمن بالسوية بينهن بإجماع الصحابة والفقهاء.",
+            "الزوجة لا تُحجب حجب حرمان أبداً."
+        ]
+    },
+    father: {
+        title: "ميراث الأب",
+        icon: "👴",
+        fard: "السدس فرضاً، أو السدس مع التعصيب، أو التعصيب المحض",
+        quranVerse: "وَلأَبَوَيْهِ لِكُلِّ وَاحِدٍ مِنْهُمَا السُّدُسُ مِمَّا تَرَكَ إِنْ كَانَ لَهُ وَلَدٌ فَإِنْ لَمْ يَكُنْ لَهُ وَلَدٌ وَوَرِثَهُ أَبَوَاهُ فَلأُمِّهِ الثُّلُثُ",
+        quranRef: "سورة النساء: الآية 11",
+        hadithText: "«أَلْحِقُوا الْفَرَائِضَ بِأَهْلِهَا، فَمَا بَقِيَ فَهُوَ لأَوْلَى رَجُلٍ ذَكَرٍ»",
+        hadithSource: "صحيح البخاري (6732)، صحيح مسلم (1614) من حديث عبد الله بن عباس رضي الله عنهما",
+        fiqhRules: [
+            "السدس فرضاً فقط: عند وجود الفرع الوارث المذكر (الابن أو ابن الابن).",
+            "السدس فرضاً + الباقي تعصيباً: عند وجود الفرع الوارث المؤنث فقط (البنت أو بنت الابن).",
+            "التعصيب المحض: يحوز كامل التركة أو ما بقي بعد الفروض عند عدم وجود أي فرع وارث.",
+            "الأب يحجب جميع الأجداد والجدات من جهته وجميع الإخوة والأخوات حجب حرمان تام."
+        ]
+    },
+    mother: {
+        title: "ميراث الأم",
+        icon: "👵",
+        fard: "الثلث كاملاً، أو السدس، أو ثلث الباقي (العمريتان)",
+        quranVerse: "فَإِنْ لَمْ يَكُنْ لَهُ وَلَدٌ وَوَرِثَهُ أَبَوَاهُ فَلأُمِّهِ الثُّلُثُ فَإِنْ كَانَ لَهُ إِخْوَةٌ فَلأُمِّهِ السُّدُسُ مِنْ بَعْدِ وَصِيَّةٍ يُوصِي بِهَا أَوْ دَيْنٍ",
+        quranRef: "سورة النساء: الآية 11",
+        hadithText: "«إجماع الصحابة رضي الله عنهم (عمر وعثمان وعلي وزيد وابن مسعود) في إعطاء الأم ثلث الباقي في مسألتي الغراوين»",
+        hadithSource: "المصنف لعبد الرزاق (19033)، سنن البيهقي الكبرى (12228) بإسناد صحيح",
+        fiqhRules: [
+            "الثلث (1/3) فرضاً: عند عدم الفرع الوارث، وعدم الجمع من الإخوة (اثنان فأكثر).",
+            "السدس (1/6) فرضاً: عند وجود فرع وارث، أو وجود اثنين فأكثر من الإخوة والأخوات (أشقاء، لأب، أو لأم).",
+            "ثلث الباقي (1/3 الباقي): في المسألتين العمريتين (زوج وأم وأب، أو زوجة وأم وأب).",
+            "الأم تحجب جميع الجدات من أي جهة كنّ حجب حرمان تام."
+        ]
+    },
+    paternalGrandfather: {
+        title: "ميراث الجد لأب (أبو الأب)",
+        icon: "🧓",
+        fard: "السدس، أو السدس مع التعصيب، أو التعصيب المحض (يحل محل الأب عند عدمه)",
+        quranVerse: "مِلَّةَ أَبِيكُمْ إِبْرَاهِيمَ هُوَ سَمَّاكُمُ الْمُسْلِمِينَ مِنْ قَبْلُ",
+        quranRef: "سورة الحج: الآية 78 (دلالة إطلاق اسم الأب على الجد عند عدم الأب المباشر)",
+        hadithText: "«أَنَّ رَجُلاً أَتَى النَّبِيَّ ﷺ فَقَالَ: إِنَّ ابْنَ ابْنِي مَاتَ، فَمَا لِي مِنْ مِيرَاثِهِ؟ قَالَ: لَكَ السُّدُسُ، فَلَمَّا أَدْبَرَ دَعَاهُ فَقَالَ: لَكَ سُدُسٌ آخَرُ، فَلَمَّا أَدْبَرَ دَعَاهُ فَقَالَ: إِنَّ السُّدُسَ الآخَرَ طُعْمَةٌ»",
+        hadithSource: "سنن أبي داود (2896)، سنن الترمذي (2099) وصححه الألباني",
+        fiqhRules: [
+            "يحل محل الأب في جميع أحواله الثلاثة عند عدم وجود الأب المباشر.",
+            "يُحجب الجد بالأب إجماعاً، كما يُحجب بالجد الأقرب منه.",
+            "يحجب الإخوة لأم إجماعاً، ويحجب الإخوة الأشقاء ولأب في مذهب أبي حنيفة وإحدى الروايتين عن أحمد."
+        ]
+    },
+    paternalGrandmother: {
+        title: "ميراث الجدة لأب (أم الأب)",
+        icon: "👵",
+        fard: "السدس فرضاً (منفردة أو مشتركة)",
+        quranVerse: "مبني على السنة الصحيحة وإجماع الصحابة رضي الله عنهم",
+        quranRef: "السنة النبوية وإجماع الصحابة",
+        hadithText: "«جَاءَتِ الْجَدَّةُ إِلَى أَبِي بَكْرٍ الصِّدِّيقِ تَسْأَلُهُ مِيرَاثَهَا... فَشَهِدَ الْمُغِيرَةُ بْنُ شُعْبَةَ وَمُحَمَّدُ بْنُ مَسْلَمَةَ: أَنَّ رَسُولَ اللَّهِ ﷺ أَعْطَاهَا السُّدُسَ، فَأَنْفَذَهُ لَهَا أَبُو بَكْرٍ رَضِيَ اللَّهُ عَنْهُ»",
+        hadithSource: "موطأ مالك (1079)، سنن أبي داود (2894)، سنن الترمذي (2101) وصححه",
+        fiqhRules: [
+            "ترث السدس (1/6) فرضاً منفردة، أو تقتسمه بالسوية مع الجدة لأم.",
+            "تُحجب بالأم إجماعاً، وتُحجب بالأب وبالجد الذي تُدلي به."
+        ]
+    },
+    maternalGrandmother: {
+        title: "ميراث الجدة لأم (أم الأم)",
+        icon: "👵",
+        fard: "السدس فرضاً (منفردة أو مشتركة)",
+        quranVerse: "مبني على السنة الصحيحة وإجماع الصحابة رضي الله عنهم",
+        quranRef: "السنة النبوية وإجماع الصحابة",
+        hadithText: "«قضاء رسول الله ﷺ للجدة بالسدس بشهادة المغيرة بن شعبة ومحمد بن مسلمة»",
+        hadithSource: "سنن أبي داود (2894)، سنن الترمذي (2101) وصححه الحاكم والذهبي والألباني",
+        fiqhRules: [
+            "ترث السدس (1/6) فرضاً منفردة، أو تشترك فيه مع الجدة لأب بالسوية.",
+            "تُحجب بالأم فقط، ولا يحجبها الأب ولا الجد لأنها لا تدلي بهما."
+        ]
+    },
+    sons: {
+        title: "ميراث الأبناء (الذكور)",
+        icon: "👦",
+        fard: "عصبة بالنفس (أقوى عصبات الميراث على الإطلاق)",
+        quranVerse: "يُوصِيكُمُ اللَّهُ فِي أَوْلادِكُمْ لِلذَّكَرِ مِثْلُ حَظِّ الأُنْثَيَيْنِ",
+        quranRef: "سورة النساء: الآية 11",
+        hadithText: "«أَلْحِقُوا الْفَرَائِضَ بِأَهْلِهَا، فَمَا بَقِيَ فَهُوَ لأَوْلَى رَجُلٍ ذَكَرٍ»",
+        hadithSource: "صحيح البخاري (6732)، صحيح مسلم (1614) من حديث عبد الله بن عباس رضي الله عنهما",
+        fiqhRules: [
+            "الابن عصبة بالنفس: يأخذ كل التركة إذا انفرد، أو ما بقي بعد أصحاب الفروض.",
+            "يعصّب البنت (أخته) ويكون للذكر مثل حظ الأنثيين.",
+            "الابن يحجب جميع أولاد الابن (ذكوراً وإناثاً) وجميع الإخوة والأخوات والأعمام حجب حرمان تام."
+        ]
+    },
+    daughters: {
+        title: "ميراث البنات (الإناث الصلبيات)",
+        icon: "👧",
+        fard: "النصف للواحدة، والثلثان للاثنتين فأكثر، أو عصبة بالغير مع الابن",
+        quranVerse: "فَإِنْ كُنَّ نِسَاءً فَوْقَ اثْنَتَيْنِ فَلَهُنَّ ثُلُثَا مَا تَرَكَ وَإِنْ كَانَتْ وَاحِدَةً فَلَهَا النِّصْفُ",
+        quranRef: "سورة النساء: الآية 11",
+        hadithText: "«أَعْطِ ابْنَتَيْ سَعْدٍ الثُّلُثَيْنِ، وَأَعْطِ أُمَّهُمَا الثُّمُنَ، وَمَا بَقِيَ فَهُوَ لَكَ»",
+        hadithSource: "صحيح البخاري، سنن أبي داود (2892)، سنن الترمذي (2092) وصححه الألباني",
+        fiqhRules: [
+            "النصف (1/2) فرضاً: للبنت الواحدة المنفردة عن أخيها المعصب وعن أختها المماثلة.",
+            "الثلثان (2/3) فرضاً: للاثنتين فصاعداً عند عدم وجود أخ معصب.",
+            "عصبة بالغير: إذا وجد معهن ابن (أخوهن) فيقتسمون الباقي (للذكر مثل حظ الأنثيين)."
+        ]
+    },
+    sonsSons: {
+        title: "ميراث أبناء الابن (ذكور)",
+        icon: "👦",
+        fard: "عصبة بالنفس (ينزلون منزلة الابن عند عدمه)",
+        quranVerse: "يُوصِيكُمُ اللَّهُ فِي أَوْلادِكُمْ لِلذَّكَرِ مِثْلُ حَظِّ الأُنْثَيَيْنِ",
+        quranRef: "سورة النساء: الآية 11 (يشمل أولاد الابن عند عدم الولد الصلبي)",
+        hadithText: "«أَلْحِقُوا الْفَرَائِضَ بِأَهْلِهَا، فَمَا بَقِيَ فَهُوَ لأَوْلَى رَجُلٍ ذَكَرٍ»",
+        hadithSource: "صحيح البخاري (6732)، صحيح مسلم (1614)",
+        fiqhRules: [
+            "ينزل منزلة الابن الصلبي عند عدم وجود الابن المباشر.",
+            "يُحجب بالابن المباشر الصلبي وبالابن الابن الأعلى منه درجة."
+        ]
+    },
+    sonsDaughters: {
+        title: "ميراث بنات الابن (إناث)",
+        icon: "👧",
+        fard: "النصف، أو الثلثان، أو السدس تكملة الثلثين، أو عصبة بالغير",
+        quranVerse: "مبني على القرآن الكريم وقضاء النبي ﷺ الثابت في الصحيح",
+        quranRef: "سورة النساء: 11 وصحيح البخاري",
+        hadithText: "«قَضَى النَّبِيُّ ﷺ لِلابْنَةِ النِّصْفَ، وَلابْنَةِ الابْنِ السُّدُسَ تَكْمِلَةَ الثُّلُثَيْنِ، وَمَا بَقِيَ فَلِلأُخْتِ»",
+        hadithSource: "صحيح البخاري (6736) من حديث عبد الله بن مسعود رضي الله عنه",
+        fiqhRules: [
+            "السدس (1/6) تكملة الثلثين: إذا كانت مع بنت صلبية واحدة صاحبة فرض النصف.",
+            "تأخذ النصف إن كانت منفردة، والثلثين إن كن اثنتين فأكثر عند عدم البنت الصلبية والابن.",
+            "تُحجب بالابن المباشر، وتُحجب بالبنتين الصلبيتين إلا إذا وجد معها ابن ابن يعصبها (القريب المبارك)."
+        ]
+    },
+    fullBrothers: {
+        title: "ميراث الإخوة الأشقاء (ذكور)",
+        icon: "🧔",
+        fard: "عصبة بالنفس (أقوى عصبات الحواشي)",
+        quranVerse: "وَهُوَ يَرِثُهَا إِنْ لَمْ يَكُنْ لَهَا وَلَدٌ... وَإِنْ كَانُوا إِخْوَةً رِجَالاً وَنِسَاءً فَلِلذَّكَرِ مِثْلُ حَظِّ الأُنْثَيَيْنِ",
+        quranRef: "سورة النساء: الآية 176 (آية الصيف والكلالة)",
+        hadithText: "«أَلْحِقُوا الْفَرَائِضَ بِأَهْلِهَا، فَمَا بَقِيَ فَهُوَ لأَوْلَى رَجُلٍ ذَكَرٍ»",
+        hadithSource: "صحيح البخاري (6732)، صحيح مسلم (1614)",
+        fiqhRules: [
+            "عصبة بالنفس: يأخذ التركة أو ما بقي بعد أصحاب الفروض.",
+            "يُعصب الأخت الشقيقة (للذكر مثل حظ الأنثيين).",
+            "يُحجب بالأب المباشر وبالفرع الوارث المذكر (الابن وابن الابن) إجماعاً."
+        ]
+    },
+    fullSisters: {
+        title: "ميراث الأخوات الشقيقات (إناث)",
+        icon: "🧕",
+        fard: "النصف، أو الثلثان، أو عصبة بالغير، أو عصبة مع الغير",
+        quranVerse: "إِنِ امْرُؤٌ هَلَكَ لَيْسَ لَهُ وَلَدٌ وَلَهُ أُخْتٌ فَلَهَا نِصْفُ مَا تَرَكَ... فَإِنْ كَانَتَا اثْنَتَيْنِ فَلَهُمَا الثُّلُثَانِ مِمَّا تَرَكَ",
+        quranRef: "سورة النساء: الآية 176",
+        hadithText: "«قَضَى النَّبِيُّ ﷺ لِلابْنَةِ النِّصْفَ، وَلابْنَةِ الابْنِ السُّدُسَ تَكْمِلَةَ الثُّلُثَيْنِ، وَمَا بَقِيَ فَلِلأُخْتِ»",
+        hadithSource: "صحيح البخاري (6736، 6742) حديث هزيل بن شرحبيل (عصبة مع الغير مع البنات)",
+        fiqhRules: [
+            "النصف (1/2) للواحدة المنفردة، والثلثان (2/3) للاثنتين فأكثر عند عدم الفرع الوارث والأب والأخ المعصب.",
+            "عصبة بالغير: مع الأخ الشقيق (للذكر مثل حظ الأنثيين).",
+            "عصبة مع الغير: مع البنات أو بنات الابن، فتأخذ الباقي وتصير بقوة الأخ الشقيق فتحجب الإخوة لأب."
+        ]
+    },
+    paternalBrothers: {
+        title: "ميراث الإخوة لأب (ذكور)",
+        icon: "🧔",
+        fard: "عصبة بالنفس عند عدم الإخوة الأشقاء",
+        quranVerse: "يندرجون تحت آية الكلالة (سورة النساء: 176) عند انعدام الشقيق",
+        quranRef: "سورة النساء: الآية 176",
+        hadithText: "«أَلْحِقُوا الْفَرَائِضَ بِأَهْلِهَا، فَمَا بَقِيَ فَهُوَ لأَوْلَى رَجُلٍ ذَكَرٍ»",
+        hadithSource: "صحيح البخاري (6732)، صحيح مسلم (1614)",
+        fiqhRules: [
+            "يأخذون ما بقي بعد الفروض كعصبة بالنفس.",
+            "يُحجبون بالأب وبالفرع المذكر وبالأخ الشقيق وبالأخت الشقيقة إذا صارت عصبة مع البنات."
+        ]
+    },
+    paternalSisters: {
+        title: "ميراث الأخوات لأب (إناث)",
+        icon: "🧕",
+        fard: "النصف، أو الثلثان، أو السدس تكملة الثلثين، أو عصبة",
+        quranVerse: "سورة النساء: 176 وقضاء الصحابة بالسدس تكملة الثلثين",
+        quranRef: "سورة النساء: الآية 176",
+        hadithText: "«أَلْحِقُوا الْفَرَائِضَ بِأَهْلِهَا، فَمَا بَقِيَ فَهُوَ لأَوْلَى رَجُلٍ ذَكَرٍ» وإجماع الصحابة على السدس تكملة الثلثين مع الشقيقة المنفردة",
+        hadithSource: "صحيح البخاري (6732)، سنن البيهقي (12310) وصححه",
+        fiqhRules: [
+            "السدس (1/6) تكملة الثلثين مع الشقيقة الواحدة صاحبة النصف.",
+            "تأخذ النصف منفردة والثلثين جمعاً عند عدم الشقائق والفرع الوارث والأب.",
+            "تُحجب بالأخ الشقيق وبالشقيقتين فأكثر (إلا إذا كان معها أخ لأب يعصبها)."
+        ]
+    },
+    maternalSiblings: {
+        title: "ميراث الإخوة والأخوات لأم",
+        icon: "👥",
+        fard: "السدس للواحد، والثلث للاثنين فأكثر بالتساوي التام بين الذكر والأنثى",
+        quranVerse: "وَإِنْ كَانَ رَجُلٌ يُورَثُ كَلالَةً أَوِ امْرَأَةٌ وَلَهُ أَخٌ أَوْ أُخْتٌ فَلِكُلِّ وَاحِدٍ مِنْهُمَا السُّدُسُ فَإِنْ كَانُوا أَكْثَرَ مِنْ ذَلِكَ فَهُمْ شُرَكَاءُ فِي الثُّلُثِ مِنْ بَعْدِ وَصِيَّةٍ يُوصَى بِهَا أَوْ دَيْنٍ غَيْرَ مُضَارٍّ",
+        quranRef: "سورة النساء: الآية 12",
+        hadithText: "«إجماع الصحابة والفقهاء كافة على استواء الذكر والأنثى في ميراث الإخوة لأم دون تفاضل»",
+        hadithSource: "الإجماع لابن المنذر (ص 44)، بداية المجتهد لابن رشد (2/344)",
+        fiqhRules: [
+            "السدس (1/6) للواحد المنفرد (ذكراً كان أو أنثى).",
+            "الثلث (1/3) للاثنين فصاعداً يشتركون فيه بالسوية التامة.",
+            "يُحجبون حجب حرمان تام بالفرع الوارث (ذكراً أو أنثى) وبالأصل الوارث المذكر (الأب والجد)."
+        ]
+    },
+    fullNephews: {
+        title: "ميراث أبناء الأخ الشقيق",
+        icon: "👦",
+        fard: "عصبة بالنفس (لا يرث معهم إناث)",
+        quranVerse: "وَأُولُو الأَرْحَامِ بَعْضُهُمْ أَوْلَى بِبَعْضٍ فِي كِتَابِ اللَّهِ",
+        quranRef: "سورة الأنفال: الآية 75",
+        hadithText: "«أَلْحِقُوا الْفَرَائِضَ بِأَهْلِهَا، فَمَا بَقِيَ فَهُوَ لأَوْلَى رَجُلٍ ذَكَرٍ»",
+        hadithSource: "صحيح البخاري (6732)، صحيح مسلم (1614)",
+        fiqhRules: [
+            "عصبة بالنفس يأخذون الباقي بعد أصحاب الفروض.",
+            "يُحجبون بالأصل المذكر (الأب والجد) وبالفرع المذكر وبالإخوة الأشقاء ولأب."
+        ]
+    },
+    paternalNephews: {
+        title: "ميراث أبناء الأخ لأب",
+        icon: "👦",
+        fard: "عصبة بالنفس",
+        quranVerse: "وَأُولُو الأَرْحَامِ بَعْضُهُمْ أَوْلَى بِبَعْضٍ فِي كِتَابِ اللَّهِ",
+        quranRef: "سورة الأنفال: الآية 75",
+        hadithText: "«أَلْحِقُوا الْفَرَائِضَ بِأَهْلِهَا، فَمَا بَقِيَ فَهُوَ لأَوْلَى رَجُلٍ ذَكَرٍ»",
+        hadithSource: "صحيح البخاري (6732)، صحيح مسلم (1614)",
+        fiqhRules: [
+            "عصبة بالنفس بعد أبناء الأخ الشقيق.",
+            "يُحجبون بابن الأخ الشقيق وبكل من يحجب ابن الأخ الشقيق."
+        ]
+    },
+    fullUncles: {
+        title: "ميراث الأعمام الأشقاء",
+        icon: "🧔",
+        fard: "عصبة بالنفس",
+        quranVerse: "وَأُولُو الأَرْحَامِ بَعْضُهُمْ أَوْلَى بِبَعْضٍ فِي كِتَابِ اللَّهِ",
+        quranRef: "سورة الأحزاب: الآية 6",
+        hadithText: "«أَعْطِ ابْنَتَيْ سَعْدٍ الثُّلُثَيْنِ، وَأَعْطِ أُمَّهُمَا الثُّمُنَ، وَمَا بَقِيَ فَهُوَ لَكَ (لِلْعَمِّ)»",
+        hadithSource: "صحيح البخاري، سنن الترمذي (2092) وصححه",
+        fiqhRules: [
+            "عصبة بالنفس يأخذ ما بقي بعد الفروض.",
+            "يُحجب بالأب والجد والفرع المذكر وجميع الإخوة وبنيهم."
+        ]
+    },
+    paternalUncles: {
+        title: "ميراث الأعمام لأب",
+        icon: "🧔",
+        fard: "عصبة بالنفس",
+        quranVerse: "وَأُولُو الأَرْحَامِ بَعْضُهُمْ أَوْلَى بِبَعْضٍ فِي كِتَابِ اللَّهِ",
+        quranRef: "سورة الأنفال: الآية 75",
+        hadithText: "«أَلْحِقُوا الْفَرَائِضَ بِأَهْلِهَا، فَمَا بَقِيَ فَهُوَ لأَوْلَى رَجُلٍ ذَكَرٍ»",
+        hadithSource: "صحيح البخاري (6732)، صحيح مسلم (1614)",
+        fiqhRules: [
+            "عصبة بالنفس عند عدم العم الشقيق.",
+            "يُحجب بالعم الشقيق وكل من يحجب العم الشقيق."
+        ]
+    },
+    fullCousins: {
+        title: "ميراث أبناء العم الشقيق",
+        icon: "👦",
+        fard: "عصبة بالنفس",
+        quranVerse: "وَأُولُو الأَرْحَامِ بَعْضُهُمْ أَوْلَى بِبَعْضٍ فِي كِتَابِ اللَّهِ",
+        quranRef: "سورة الأنفال: الآية 75",
+        hadithText: "«أَلْحِقُوا الْفَرَائِضَ بِأَهْلِهَا، فَمَا بَقِيَ فَهُوَ لأَوْلَى رَجُلٍ ذَكَرٍ»",
+        hadithSource: "صحيح البخاري (6732)، صحيح مسلم (1614)",
+        fiqhRules: [
+            "عصبة بالنفس تأتي بعد الأعمام.",
+            "يُحجب بالأعمام الأشقاء ولأب وبكل من يحجبهم."
+        ]
+    },
+    paternalCousins: {
+        title: "ميراث أبناء العم لأب",
+        icon: "👦",
+        fard: "عصبة بالنفس",
+        quranVerse: "وَأُولُو الأَرْحَامِ بَعْضُهُمْ أَوْلَى بِبَعْضٍ فِي كِتَابِ اللَّهِ",
+        quranRef: "سورة الأحزاب: الآية 6",
+        hadithText: "«أَلْحِقُوا الْفَرَائِضَ بِأَهْلِهَا، فَمَا بَقِيَ فَهُوَ لأَوْلَى رَجُلٍ ذَكَرٍ»",
+        hadithSource: "صحيح البخاري (6732)، صحيح مسلم (1614)",
+        fiqhRules: [
+            "آخر درجات عصبات الحواشي بالنفس.",
+            "يُحجب بابن العم الشقيق وبكل من قبله من العصبات."
+        ]
+    }
+};
+
+
+
+
+
+/**
+ * دالة استدعاء وعرض نافذة الدليل الشرعي المستقلة لكل وارث
+ */
+function showHeirEvidenceModal(heirKey) {
+    var data = HEIR_EVIDENCES[heirKey];
+    if (!data) return;
+
+    var modal = document.getElementById('inh-evidence-modal');
+    if (!modal) {
+        modal = document.createElement('div');
+        modal.id = 'inh-evidence-modal';
+        modal.className = 'fixed inset-0 z-[99999] flex items-center justify-center p-4 bg-slate-950/85 backdrop-blur-md transition-all duration-300';
+        document.body.appendChild(modal);
+    }
+
+    var rulesHtml = data.fiqhRules.map(function(r) {
+        return '<li class="flex items-start gap-2.5 text-slate-200 text-sm sm:text-base leading-relaxed"><span class="w-5 h-5 rounded-full bg-amber-500/20 text-amber-300 flex items-center justify-center text-xs flex-shrink-0 mt-0.5 border border-amber-400/40 font-bold">✓</span><span>' + r + '</span></li>';
+    }).join('');
+
+    var htmlParts = [];
+    htmlParts.push('<div class="relative w-full max-w-2xl max-h-[90vh] overflow-y-auto rounded-3xl bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-2 border-amber-500/60 shadow-2xl p-6 sm:p-8 space-y-6 animate-scaleIn text-right" dir="rtl" style="box-shadow: 0 0 50px rgba(245, 158, 11, 0.25);">');
+    htmlParts.push('  <div class="flex items-center justify-between pb-4 border-b border-amber-500/30">');
+    htmlParts.push('    <div class="flex items-center gap-3.5">');
+    htmlParts.push('      <span class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-300 font-bold text-2xl flex items-center justify-center border-2 border-amber-400/60 shadow-inner flex-shrink-0">' + data.icon + '</span>');
+    htmlParts.push('      <div>');
+    htmlParts.push('        <h3 class="text-xl sm:text-2xl font-black text-amber-300 font-sans tracking-wide">' + data.title + '</h3>');
+    htmlParts.push('        <div class="text-xs sm:text-sm font-bold text-emerald-300 flex items-center gap-1.5 mt-0.5"><i class="fa-solid fa-certificate text-emerald-400"></i><span>الدليل الشرعي القطعي من الكتاب وصحيح السنة</span></div>');
+    htmlParts.push('      </div>');
+    htmlParts.push('    </div>');
+    htmlParts.push('    <button type="button" onclick="closeHeirEvidenceModal()" class="w-10 h-10 rounded-xl bg-slate-800 hover:bg-rose-900/60 border border-slate-700 hover:border-rose-500/50 text-slate-300 hover:text-white flex items-center justify-center transition-all"><i class="fa-solid fa-xmark text-lg"></i></button>');
+    htmlParts.push('  </div>');
+    htmlParts.push('  <div class="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/40 flex items-center gap-3">');
+    htmlParts.push('    <span class="px-3 py-1 rounded-xl bg-amber-500/20 text-amber-300 font-black text-xs border border-amber-400/50">الصفة الفقهية:</span>');
+    htmlParts.push('    <span class="text-sm sm:text-base font-black text-amber-200">' + data.fard + '</span>');
+    htmlParts.push('  </div>');
+    htmlParts.push('  <div class="p-5 rounded-2xl bg-slate-900/95 border-2 border-amber-500/40 shadow-lg space-y-2.5">');
+    htmlParts.push('    <div class="flex items-center justify-between">');
+    htmlParts.push('      <div class="text-sm sm:text-base font-black text-amber-300 flex items-center gap-2"><i class="fa-solid fa-book-quran text-amber-400"></i><span>الدليل الصريح من القرآن الكريم المحكم:</span></div>');
+    htmlParts.push('      <span class="px-3 py-0.5 rounded-lg bg-amber-500/20 text-amber-300 font-black text-xs border border-amber-400/30 font-mono">' + data.quranRef + '</span>');
+    htmlParts.push('    </div>');
+    htmlParts.push('    <div class="p-4 rounded-xl bg-slate-950/80 border border-amber-500/25 text-base sm:text-lg text-amber-100 font-serif leading-relaxed text-center" style="font-family: Amiri, Cairo, serif;">« ' + data.quranVerse + ' »</div>');
+    htmlParts.push('  </div>');
+    htmlParts.push('  <div class="p-5 rounded-2xl bg-slate-900/95 border-2 border-emerald-500/40 shadow-lg space-y-2.5">');
+    htmlParts.push('    <div class="flex items-center justify-between">');
+    htmlParts.push('      <div class="text-sm sm:text-base font-black text-emerald-300 flex items-center gap-2"><i class="fa-solid fa-scroll text-emerald-400"></i><span>الدليل من السنة النبوية الصحيحة:</span></div>');
+    htmlParts.push('      <span class="px-3 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 font-black text-xs border border-emerald-400/30">حديث صحيح محكم ✓</span>');
+    htmlParts.push('    </div>');
+    htmlParts.push('    <div class="p-4 rounded-xl bg-slate-950/80 border border-emerald-500/25 text-base sm:text-lg text-emerald-100 font-serif leading-relaxed text-center" style="font-family: Amiri, Cairo, serif;">' + data.hadithText + '</div>');
+    htmlParts.push('    <div class="text-xs text-emerald-300/80 font-mono font-bold text-left" dir="ltr">' + data.hadithSource + '</div>');
+    htmlParts.push('  </div>');
+    htmlParts.push('  <div class="p-5 rounded-2xl bg-slate-900/95 border-2 border-sky-500/30 shadow-lg space-y-3">');
+    htmlParts.push('    <div class="text-sm sm:text-base font-black text-sky-300 flex items-center gap-2"><i class="fa-solid fa-scale-unbalanced-flip text-sky-400"></i><span>الأحكام الفقهية وضوابط الاستحقاق والحجب:</span></div>');
+    htmlParts.push('    <ul class="space-y-2">' + rulesHtml + '</ul>');
+    htmlParts.push('  </div>');
+    htmlParts.push('  <div class="p-3 rounded-xl bg-emerald-950/30 border border-emerald-500/30 text-center text-xs sm:text-sm font-bold text-emerald-300">⭐ مأخوذ حصراً من نصوص القرآن القطعية وصحيحي البخاري ومسلم والسنن الثابتة بإسناد صحيح (لا نعمل بالأحاديث الضعيفة).</div>');
+    htmlParts.push('  <div class="flex items-center justify-between pt-4 border-t border-white/10">');
+    htmlParts.push('    <button type="button" onclick="copyHeirEvidenceText(\'' + heirKey + '\')" class="px-5 py-2.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-400/50 text-amber-300 font-black text-xs sm:text-sm flex items-center gap-2 transition-all"><i class="fa-regular fa-copy"></i><span id="copy-evidence-text">نسخ الدليل الشرعي</span></button>');
+    htmlParts.push('    <button type="button" onclick="closeHeirEvidenceModal()" class="px-6 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-slate-600 text-white font-black text-xs sm:text-sm transition-all">إغلاق النافذة</button>');
+    htmlParts.push('  </div>');
+    htmlParts.push('</div>');
+
+    modal.innerHTML = htmlParts.join('\n');
+    modal.classList.remove('hidden');
+}
+
+
+function closeHeirEvidenceModal() {
+    const modal = document.getElementById('inh-evidence-modal');
+    if (modal) modal.classList.add('hidden');
+}
+
+function copyHeirEvidenceText(heirKey) {
+    const data = HEIR_EVIDENCES[heirKey];
+    if (!data) return;
+    const txt = data.title + ' في الشريعة الإسلامية:\n\n• الصفة: ' + data.fard + '\n• الدليل القرآني [' + data.quranRef + ']: «' + data.quranVerse + '»\n• دليل السنة النبوية: ' + data.hadithText + ' [' + data.hadithSource + ']\n\nالأحكام والضوابط:\n' + data.fiqhRules.map(r => '- ' + r).join('\n') + '\n\n(المصدر: نظام المواريث والفرائض الشرعية - السجانة)';
+    
+    if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(txt).then(() => {
+            const btnSpan = document.getElementById('copy-evidence-text');
+            if (btnSpan) {
+                btnSpan.innerText = 'تم النسخ بنجاح ✓';
+                setTimeout(() => { btnSpan.innerText = 'نسخ الدليل الشرعي'; }, 2500);
+            }
+        });
+    }
+}
+
+function onHeirCountChanged(key, val) {
+    highlightCounterCard(key);
+}
+
+
 // Expose functions globally
 window.calculateIslamicInheritance = calculateIslamicInheritance;
 window.setDeceasedGender = setDeceasedGender;
@@ -1220,3 +1621,9 @@ window.printIslamicInheritanceReport = printIslamicInheritanceReport;
 window.shareIslamicInheritanceWhatsApp = shareIslamicInheritanceWhatsApp;
 window.copyIslamicInheritanceSummary = copyIslamicInheritanceSummary;
 window.initInheritanceEngine = initInheritanceEngine;
+
+window.showHeirEvidenceModal = showHeirEvidenceModal;
+window.closeHeirEvidenceModal = closeHeirEvidenceModal;
+window.copyHeirEvidenceText = copyHeirEvidenceText;
+window.onHeirCountChanged = onHeirCountChanged;
+window.HEIR_EVIDENCES = HEIR_EVIDENCES;
