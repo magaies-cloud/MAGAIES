@@ -717,8 +717,8 @@ function setDeceasedGender(gender) {
     window.inheritanceData.deceasedGender = gender;
     const btnMale = document.getElementById('inh-btn-gender-male');
     const btnFemale = document.getElementById('inh-btn-gender-female');
-    const wivesBox = document.getElementById('inh-box-wives');
-    const husbandBox = document.getElementById('inh-box-husband');
+    const wivesBox = document.getElementById('inh-card-wives') || document.getElementById('inh-box-wives');
+    const husbandBox = document.getElementById('inh-card-husband') || document.getElementById('inh-box-husband');
 
     if (gender === 'male') {
         if (btnMale) btnMale.className = 'flex-1 py-2 px-4 rounded-xl border-2 border-emerald-500 bg-emerald-500/20 text-emerald-300 font-bold transition flex items-center justify-center gap-2 shadow-sm';
@@ -755,7 +755,7 @@ function adjustInhCounter(key, delta) {
 }
 
 function highlightCounterCard(key) {
-    const card = document.getElementById('inh-card-' + key);
+    const card = document.getElementById('inh-card-' + key) || document.getElementById('inh-box-' + key);
     if (!card) return;
     const input = document.getElementById('inh-inp-' + key);
     const val = parseInt(input ? input.value : 0);
@@ -1173,13 +1173,17 @@ function copyIslamicInheritanceSummary() {
 // Initialization function called when suite is selected
 function initInheritanceEngine() {
     console.log('⚖️ Islamic Inheritance Engine initialized.');
-    // Check if auto calculation should trigger on enter key
+    setDeceasedGender(window.inheritanceData.deceasedGender || 'male');
     const grossInp = document.getElementById('inh-inp-grossEstate');
     if (grossInp && !grossInp.hasAttribute('data-inh-listener')) {
         grossInp.setAttribute('data-inh-listener', 'true');
         grossInp.addEventListener('keypress', function(e) {
             if (e.key === 'Enter') runIslamicInheritanceCalculation();
         });
+    }
+    // Update counter card highlights on init
+    if (typeof INH_HEIR_KEYS !== 'undefined') {
+        INH_HEIR_KEYS.forEach(k => highlightCounterCard(k));
     }
 }
 

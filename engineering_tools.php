@@ -37,6 +37,7 @@ $pdo = getDBConnection();
     <link rel="stylesheet" href="css/tailwind.min.css">
     <!-- Fiqh Encyclopedia is Lazy-Loaded on demand for ultra-fast page rendering -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/inheritance_engine.js?v=2026_v2"></script>
 
     <style>
         :root {
@@ -1497,7 +1498,7 @@ $pdo = getDBConnection();
         </div>
 
         <!-- 🎛️ 10 PROMINENT SUITE TABS (3D CENTERED NEUMORPHIC) 🎛️ -->
-        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-10 gap-2.5" id="suite-tabs-container">
+        <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 xl:grid-cols-11 gap-2.5" id="suite-tabs-container">
             
             <!-- 1. الحديد -->
             <div class="suite-pill-card active" style="--p-color:#ec4899; --p-border:rgba(236,72,153,0.5);" onclick="switchSuite('steel', this)">
@@ -1546,16 +1547,16 @@ $pdo = getDBConnection();
                 <div class="suite-pill-icon"><i class="fa-solid fa-book-quran text-amber-400"></i></div>
                 <div class="suite-pill-title">📜 فتاوى البيع والمعاملات</div>
                 <div class="suite-pill-sub">12 إماماً وموسوعة</div>
-
-            <!-- 7.5. الميراث والفرائض الشرعية -->
-            <div class="suite-pill-card" style="--p-color:#d97706; --p-border:rgba(217,119,6,0.6);" onclick="switchSuite('inheritance', this)">
-                <div class="suite-pill-icon"><i class="fa-solid fa-scale-balanced text-amber-400"></i></div>
-                <div class="suite-pill-title">⚖️ الميراث الشرعي</div>
-                <div class="suite-pill-sub">حساب وتوزيع التركات وفق الشرع</div>
-            </div>
             </div>
 
-            <!-- 8. حاسبة الزكاة -->
+            <!-- 8. الميراث والفرائض الشرعية (منفصلة ومميزة) -->
+            <div class="suite-pill-card" style="--p-color:#10b981; --p-border:rgba(16,185,129,0.6); background:linear-gradient(180deg, rgba(16,185,129,0.06), rgba(6,78,59,0.15));" onclick="switchSuite('inheritance', this)">
+                <div class="suite-pill-icon"><i class="fa-solid fa-scale-balanced text-emerald-400 text-xl"></i></div>
+                <div class="suite-pill-title text-emerald-300">⚖️ الميراث الشرعي</div>
+                <div class="suite-pill-sub text-emerald-400/80">قسمة وحساب التركات</div>
+            </div>
+
+            <!-- 9. حاسبة الزكاة -->
             <div class="suite-pill-card" style="--p-color:#10b981; --p-border:rgba(167,243,208,0.5);" onclick="switchSuite('zakat', this)">
                 <div class="suite-pill-icon"><i class="fa-solid fa-hand-holding-dollar text-emerald-400"></i></div>
                 <div class="suite-pill-title">⚖️ الزكاة</div>
@@ -20003,7 +20004,7 @@ $pdo = getDBConnection();
                             </div>
                             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
                                 <!-- Wives (if deceased male) -->
-                                <div id="inh-box-wives" class="p-3 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
+                                <div id="inh-card-wives" class="p-3 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
                                     <div>
                                         <div class="text-xs font-bold text-slate-200">الزوجات (الأرامل)</div>
                                         <div class="text-[11px] text-slate-400">الحد الأقصى 4 زوجات</div>
@@ -20016,7 +20017,7 @@ $pdo = getDBConnection();
                                 </div>
 
                                 <!-- Husband (if deceased female) -->
-                                <div id="inh-box-husband" class="hidden p-3 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
+                                <div id="inh-card-husband" class="hidden p-3 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
                                     <div>
                                         <div class="text-xs font-bold text-slate-200">الزوج</div>
                                         <div class="text-[11px] text-slate-400">زوج المتوفاة</div>
@@ -20732,7 +20733,7 @@ $pdo = getDBConnection();
         }
     }
 
-    function switchSuite(suiteId, el) {
+        function switchSuite(suiteId, el) {
         document.querySelectorAll('.suite-section').forEach(sec => sec.classList.add('hidden'));
         document.querySelectorAll('.suite-pill-card').forEach(btn => btn.classList.remove('active'));
 
@@ -20747,10 +20748,6 @@ $pdo = getDBConnection();
         } else if (suiteId === 'inheritance') {
             if (typeof initInheritanceEngine === 'function') {
                 initInheritanceEngine();
-            }
-        } else if (false) {
-            if (typeof initFiqhEngine === 'function') {
-                initFiqhEngine();
             }
         }
     }
@@ -22057,7 +22054,7 @@ $pdo = getDBConnection();
 
 </script>
     <!-- 🤖 SMART AI ASSISTANT FOR DATA, FIQH & ENGINEERING TOOLS 🤖 -->
-    <script src="js/inheritance_engine.js?v=2026_v1"></script>
+    <script src="js/inheritance_engine.js?v=2026_v2"></script>
     <script src="js/chatbot.js?v=2026_fiqh" defer></script>
 </body>
 </html>
