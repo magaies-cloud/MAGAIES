@@ -1222,22 +1222,26 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             filter: drop-shadow(0 0 8px #fbbf24);
         }
 
-        /* ─── 3. منطقة إجمالي المحلي والمعادل بالأجنبي بحواف مضيئة باللون الأحمر ─── */
+        /* ─── 3. منطقة إجمالي المحلي والمعادل بالأجنبي بالحجم الكبير باللون الذهبي الفاخر ─── */
         #amount-local-hdr, #amount-foreign {
             font-size: 2.6rem !important;
             font-weight: 900 !important;
-            color: #ef4444 !important;
-            background-color: #ffffff !important;
+            color: #fbbf24 !important;
+            -webkit-text-fill-color: #fbbf24 !important;
+            background-color: rgba(15, 23, 42, 0.95) !important;
             text-align: center !important;
             border: 2.5px solid #ef4444 !important;
             border-radius: 12px !important;
-            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), inset 0 0 10px rgba(239, 68, 68, 0.15) !important;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), inset 0 0 10px rgba(251, 191, 36, 0.15) !important;
+            text-shadow: 0 0 16px rgba(251, 191, 36, 0.65) !important;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
         #amount-local-hdr:hover, #amount-local-hdr:focus,
         #amount-foreign:hover, #amount-foreign:focus {
             border: 3px solid #f43f5e !important;
-            box-shadow: 0 0 38px rgba(244, 63, 94, 0.98), 0 0 75px rgba(225, 29, 72, 0.7), inset 0 0 15px rgba(251, 113, 133, 0.4) !important;
+            box-shadow: 0 0 38px rgba(244, 63, 94, 0.98), 0 0 75px rgba(225, 29, 72, 0.7), inset 0 0 15px rgba(251, 191, 36, 0.25) !important;
+            color: #fbbf24 !important;
+            -webkit-text-fill-color: #fbbf24 !important;
             transform: scale(1.035) !important;
             outline: none !important;
         }
@@ -1368,7 +1372,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
         
-        /* 🔍 مقاس موحد ومكبر بدقة 4.5rem لجميع حقول المبالغ والأرقام عند الضغط والتركيز والكتابة */
+        /* 🔍 مقاس موحد ومكبر بدقة 4.5rem لجميع حقول المبالغ والأرقام عند الضغط والتركيز والكتابة باللون الذهبي */
         input.block-total-amount:focus,
         input.block-bank-amount:focus,
         input.block-cheque-amount:focus,
@@ -1384,6 +1388,9 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             z-index: 99999 !important;
             margin-right: -60px !important;
             color: #fbbf24 !important; /* Gold / Yellow */
+            -webkit-text-fill-color: #fbbf24 !important;
+            caret-color: #fbbf24 !important;
+            text-shadow: 0 0 16px rgba(251, 191, 36, 0.65) !important;
             background: rgba(15, 23, 42, 0.98) !important;
             border: 2.5px solid #fbbf24 !important;
             border-radius: 10px !important;
@@ -1623,12 +1630,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         
                         <div style="flex: 1.5; min-width: 180px;">
                             <label id="label-amount-local" style="color: #10b981; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالمحلي (SDG)</label>
-                            <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: monospace; color: #ef4444 !important; background: #ffffff !important; text-align: center; border: 2.5px solid #ef4444 !important; border-radius: 12px !important; box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), inset 0 0 10px rgba(239, 68, 68, 0.15) !important;">
+                            <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: monospace; color: #fbbf24 !important; -webkit-text-fill-color: #fbbf24 !important; background: rgba(15, 23, 42, 0.95) !important; text-align: center; border: 2.5px solid #ef4444 !important; border-radius: 12px !important; box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), inset 0 0 10px rgba(251, 191, 36, 0.15) !important; text-shadow: 0 0 16px rgba(251, 191, 36, 0.65) !important;">
                         </div>
                         
                         <div style="flex: 1.5; min-width: 180px;">
                             <label id="label-amount-foreign" style="color: #ef4444; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 المعادل بالأجنبي (USD)</label>
-                            <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: monospace; color: #ef4444 !important; background: #ffffff !important; text-align: center; border: 2.5px solid #ef4444 !important; border-radius: 12px !important; box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), inset 0 0 10px rgba(239, 68, 68, 0.15) !important;">
+                            <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: monospace; color: #fbbf24 !important; -webkit-text-fill-color: #fbbf24 !important; background: rgba(15, 23, 42, 0.95) !important; text-align: center; border: 2.5px solid #ef4444 !important; border-radius: 12px !important; box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), inset 0 0 10px rgba(251, 191, 36, 0.15) !important; text-shadow: 0 0 16px rgba(251, 191, 36, 0.65) !important;">
                         </div>
                     </div>
 
@@ -2150,13 +2157,13 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                     decimals: 2,
                     fontFamily: 'monospace',
                     fontWeight: '900',
-                    color: '#ffffff'
+                    color: '#fbbf24'
                 };
             }
         }
         const p = allNumProps[id];
         if (p.fontWeight === undefined) p.fontWeight = '900';
-        if (p.color === undefined) p.color = (id === 'exchange-rate') ? '#10b981' : '#ffffff';
+        if (p.color === undefined) p.color = (id === 'exchange-rate') ? '#10b981' : '#fbbf24';
         if (p.fontSizeMod === undefined) p.fontSizeMod = 0;
         if (p.thousandsSep === undefined) p.thousandsSep = true;
         if (p.decimals === undefined) p.decimals = (id === 'exchange-rate') ? 0 : 2;
@@ -2339,8 +2346,24 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 el.style.setProperty('font-weight', conf.fontWeight, 'important');
             }
             
-            // 3. Apply color (اللون)
-            if (conf.color) {
+            // 3. Apply color (اللون - المبالغ في الحجم الكبير باللون الذهبي)
+            if (el === document.activeElement && (
+                el.classList.contains('block-total-amount') ||
+                el.classList.contains('block-bank-amount') ||
+                el.classList.contains('block-cheque-amount') ||
+                el.classList.contains('block-sub-amount') ||
+                el.classList.contains('transfer-amount') ||
+                el.classList.contains('cheque-amount')
+            )) {
+                el.style.setProperty('color', '#fbbf24', 'important');
+                el.style.setProperty('-webkit-text-fill-color', '#fbbf24', 'important');
+                el.style.setProperty('caret-color', '#fbbf24', 'important');
+                el.style.setProperty('text-shadow', '0 0 16px rgba(251, 191, 36, 0.65)', 'important');
+            } else if (el.id === 'amount-local-hdr' || el.id === 'amount-foreign') {
+                el.style.setProperty('color', '#fbbf24', 'important');
+                el.style.setProperty('-webkit-text-fill-color', '#fbbf24', 'important');
+                el.style.setProperty('text-shadow', '0 0 16px rgba(251, 191, 36, 0.65)', 'important');
+            } else if (conf.color) {
                 el.style.setProperty('color', conf.color, 'important');
             }
             
@@ -2510,10 +2533,15 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             
             if (isAmount) {
                 el.style.setProperty('color', '#fbbf24', 'important');
+                el.style.setProperty('-webkit-text-fill-color', '#fbbf24', 'important');
+                el.style.setProperty('caret-color', '#fbbf24', 'important');
+                el.style.setProperty('text-shadow', '0 0 16px rgba(251, 191, 36, 0.65)', 'important');
                 el.style.setProperty('border', '2.5px solid #fbbf24', 'important');
                 el.style.setProperty('box-shadow', '0 15px 50px rgba(0,0,0,0.9), 0 0 35px rgba(251, 191, 36, 0.8)', 'important');
             } else {
                 el.style.setProperty('color', '#38bdf8', 'important');
+                el.style.setProperty('-webkit-text-fill-color', '#38bdf8', 'important');
+                el.style.setProperty('caret-color', '#38bdf8', 'important');
                 el.style.setProperty('border', '2.5px solid #38bdf8', 'important');
                 el.style.setProperty('box-shadow', '0 15px 50px rgba(0,0,0,0.9), 0 0 35px rgba(56, 189, 248, 0.8)', 'important');
                 el.style.setProperty('letter-spacing', '2px', 'important');
@@ -2555,6 +2583,9 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             el.style.removeProperty('border-radius');
             el.style.removeProperty('box-shadow');
             el.style.removeProperty('color');
+            el.style.removeProperty('-webkit-text-fill-color');
+            el.style.removeProperty('caret-color');
+            el.style.removeProperty('text-shadow');
             el.style.removeProperty('letter-spacing');
             
             if (isAmount) {
