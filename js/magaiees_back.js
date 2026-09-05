@@ -1,9 +1,10 @@
 /**
  * MAGAIEES ERP — Universal "الرجوع للخلف" (Go Back) Master Component
  * 
- * Provides a standardized, high-prestige Amber-Gold glowing Back button across ALL screens.
+ * Standardized, high-prestige Amber-Gold glowing Back button across ALL screens.
  * Features:
  * - Smart 1-step back navigation via history.back() & document.referrer
+ * - Total suppression of "Leave site?" beforeunload warnings during back navigation
  * - Graceful fallback to magaiees_unified_dashboard.php if opened directly
  * - Dynamic scroll-docking: stays accessible at top-left even when scrolling long reports
  * - Self-injected responsive styling with zero dependencies
@@ -22,8 +23,29 @@
         return;
     }
 
-    // 2. Global Go Back Navigation Function
+    // 2. Global Flag & Capturing BeforeUnload Interceptor
+    // This intercepts beforeunload in the CAPTURE phase before any page listener can show a dialog
+    window.isNavigatingBack = false;
+
+    window.addEventListener('beforeunload', function (e) {
+        if (window.isNavigatingBack) {
+            // Cancel any unsaved changes prompt completely
+            window.formDirty = false;
+            window.isSettingsDirty = false;
+            delete e.returnValue;
+            delete e.defaultPrevented;
+            e.returnValue = undefined;
+        }
+    }, true); // Capture phase: runs FIRST!
+
+    // 3. Global Go Back Navigation Function
     window.magaieesGoBack = function () {
+        // Flag navigation back immediately to bypass beforeunload alerts
+        window.isNavigatingBack = true;
+        window.formDirty = false;
+        window.isSettingsDirty = false;
+        window.onbeforeunload = null;
+
         const isDashboard = pageFile.includes('magaiees_unified_dashboard.php') || pageFile === 'dashboard-pro.php';
 
         // Check referrer
@@ -54,7 +76,6 @@
         if (!isDashboard) {
             window.location.href = 'magaiees_unified_dashboard.php';
         } else {
-            // If already on dashboard and no history, quick polite pulse
             const btn = document.getElementById('magaiees-master-back-btn');
             if (btn) {
                 btn.style.transform = 'scale(0.92)';
@@ -63,7 +84,7 @@
         }
     };
 
-    // 3. Inject Self-Contained Styles
+    // 4. Inject Self-Contained Styles
     function injectStyles() {
         if (document.getElementById('magaiees-back-btn-styles')) return;
 
@@ -73,15 +94,15 @@
                 display: inline-flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                gap: 8px !important;
+                gap: 7px !important;
                 background: linear-gradient(135deg, #f59e0b 0%, #d97706 100%) !important;
                 color: #ffffff !important;
                 font-family: 'Tajawal', sans-serif !important;
                 font-size: 0.88rem !important;
                 font-weight: 800 !important;
-                padding: 7px 16px !important;
+                padding: 7px 15px !important;
                 border-radius: 12px !important;
-                border: 1.5px solid rgba(254, 240, 138, 0.75) !important;
+                border: 1.5px solid rgba(254, 240, 138, 0.85) !important;
                 box-shadow: 0 4px 16px rgba(245, 158, 11, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4) !important;
                 cursor: pointer !important;
                 text-decoration: none !important;
@@ -94,6 +115,8 @@
                 box-sizing: border-box !important;
                 position: relative !important;
                 overflow: hidden !important;
+                flex-shrink: 0 !important;
+                margin: 0 4px !important;
             }
 
             .magaiees-back-btn::after {
@@ -137,7 +160,7 @@
                 transform: translateX(3px) !important;
             }
 
-            /* Floating Mode (when scrolled or on headerless pages) */
+            /* Floating Mode (when scrolled down or on headerless pages) */
             .magaiees-back-btn.floating-docked {
                 position: fixed !important;
                 top: 16px !important;
@@ -171,7 +194,7 @@
         document.head.appendChild(style);
     }
 
-    // 4. Generate Back Button HTML
+    // 5. Generate Back Button HTML
     function createBackButtonElement() {
         const btn = document.createElement('button');
         btn.id = 'magaiees-master-back-btn';
@@ -191,16 +214,14 @@
         return btn;
     }
 
-    // 5. Mount or Ensure Button in DOM
+    // 6. Mount or Ensure Button in DOM
     function ensureBackButton() {
         injectStyles();
 
-        // If button already exists in DOM, just make sure scroll listener is attached
         let existingBtn = document.getElementById('magaiees-master-back-btn');
         if (!existingBtn) {
             const header = document.querySelector('header.premium-header, .magical-glass-header');
             if (header) {
-                // Find controls container inside header (rendered on the left in RTL)
                 let controlsWrap = header.querySelector('.header-controls, div[style*="justify-content:flex-end"], div[style*="justify-content: flex-end"]');
                 if (controlsWrap) {
                     const btn = createBackButtonElement();
@@ -212,7 +233,6 @@
                     existingBtn = btn;
                 }
             } else {
-                // No header present on page: inject as floating docked button at top-left
                 const btn = createBackButtonElement();
                 btn.classList.add('floating-docked');
                 document.body.appendChild(btn);

@@ -2549,6 +2549,7 @@ function confirmCustomModal({ title, subtitle, confirmText = "استمرار", i
     }, true);
 
     window.addEventListener('beforeunload', function(e) {
+        if (window.isNavigatingBack) return;
         if (window.isSettingsDirty) {
             e.preventDefault();
             e.returnValue = 'توجد تعديلات غير محفوظة على الإعدادات!';

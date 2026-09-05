@@ -187,7 +187,7 @@
 </style>
 <header class="premium-header magical-glass-header <?php echo isset($header_theme_class) ? $header_theme_class : ''; ?>" style="display:flex; justify-content:space-between; align-items:center; gap:15px;">
     <!-- Left: Logo / Brand -->
-    <div style="display:flex; align-items:center; gap:12px; flex:1;">
+    <div style="display:flex; align-items:center; gap:12px; flex:0 0 auto;">
         <div style="background:linear-gradient(135deg,#10b981,#34d399); width:40px; height:40px; border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:1.2rem; box-shadow: 0 4px 15px rgba(0,0,0,0.3);">📦</div>
         <div>
             <div style="color:#fff; font-weight:800; font-size:1rem; letter-spacing:0.5px;" id="header-company-name-top" data-i18n="sidebar.brand">مقاييس (MAGAIEES)</div>
@@ -213,7 +213,7 @@
         elseif (strpos($page_title, 'Audit') !== false || strpos($page_title, 'الصندوق') !== false) $dynamic_icon = '🔒';
     }
     ?>
-    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center;">
+    <div style="flex:1; display:flex; flex-direction:column; align-items:center; justify-content:center; min-width:0; padding:0 12px; overflow:hidden;">
         <h2 class="header-page-title">
             <span class="header-page-title-icon"><?php echo $dynamic_icon; ?></span>
             <?php echo isset($page_title) ? htmlspecialchars($page_title) : 'مقاييس (MAGAIEES)'; ?>
@@ -226,7 +226,7 @@
     </div>
 
     <!-- Right: Controls -->
-    <div style="display:flex; align-items:center; gap:12px; flex:1; justify-content:flex-end;">
+    <div style="display:flex; align-items:center; gap:10px; flex:0 0 auto; justify-content:flex-end;">
         <!-- User Info & Online Users -->
         <div style="display:flex; flex-direction:column; align-items:flex-end; justify-content:center; gap:6px; margin:6px 0;">
             <div class="user-info" style="display: flex; flex-direction: column; align-items: center; justify-content: center; background: rgba(255,255,255,0.05); padding: 5px 15px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08); cursor: pointer; min-width: 90px;" onclick="document.getElementById('profile-modal').style.display='flex'">

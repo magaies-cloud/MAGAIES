@@ -3306,6 +3306,7 @@ document.addEventListener('input', function(e) {
     }
 });
 window.addEventListener('beforeunload', function(e) {
+    if (window.isNavigatingBack) return;
     if (formDirty) {
         e.preventDefault();
         e.returnValue = 'لديك تغييرات غير محفوظة. هل تريد المغادرة؟';
