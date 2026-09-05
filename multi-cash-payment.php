@@ -166,19 +166,21 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             padding-bottom: 6px !important;
         }
 
-        /* Crystal Red Container (المستطيل الرئيسي للصرف) */
+        /* Crystal Red Container (المستطيل الرئيسي للصرف - منطقة من حساب) */
         .glass-red {
             position: relative; overflow: hidden;
             background: linear-gradient(135deg, rgba(110, 30, 45, 0.75), rgba(15, 23, 42, 0.85)) !important;
-            border: 1px solid rgba(244, 63, 94, 0.45) !important;
-            border-right: 5px solid #f43f5e !important;
-            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(244, 63, 94, 0.35), 0 0 25px rgba(244, 63, 94, 0.15) !important;
+            border: 1.5px solid rgba(244, 63, 94, 0.5) !important;
+            border-right: 6px solid #f43f5e !important;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(244, 63, 94, 0.35), 0 0 25px rgba(244, 63, 94, 0.25) !important;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
-        .glass-red:hover {
+        .glass-red:hover,
+        .glass-red:focus-within {
             background: linear-gradient(135deg, rgba(130, 35, 50, 0.85), rgba(15, 23, 42, 0.92)) !important;
-            border-color: rgba(244, 63, 94, 0.8) !important;
+            border-color: #f43f5e !important;
             border-right-color: #fb7185 !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.6), 0 0 45px rgba(244, 63, 94, 0.6) !important;
+            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.8), 0 0 35px rgba(244, 63, 94, 0.8), 0 0 70px rgba(225, 29, 72, 0.45), inset 0 0 20px rgba(244, 63, 94, 0.3) !important;
         }
 
         /* Crystal Green Container (مستطيلات الحسابات المستلمة) */
@@ -593,9 +595,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 inset 0 1px 3px rgba(255, 255, 255, 0.5) !important;
         }
 
-        .glass-red:hover {
-            --block-glow-color: rgba(212, 122, 126, 0.5);
-            border-color: rgba(212, 122, 126, 0.75) !important;
+        .glass-red:hover,
+        .glass-red:focus-within {
+            --block-glow-color: rgba(244, 63, 94, 0.85);
+            border-color: #f43f5e !important;
+            border-right-color: #fb7185 !important;
+            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.8), 0 0 35px rgba(244, 63, 94, 0.8), 0 0 70px rgba(225, 29, 72, 0.45), inset 0 0 20px rgba(244, 63, 94, 0.3) !important;
         }
         .glass-green:hover {
             --block-glow-color: rgba(39, 174, 96, 0.5);
@@ -977,12 +982,101 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             font-size: 1.8rem !important;
             font-weight: 900 !important;
         }
+        /* ═══ منطقة إجمالي المحلي والمعادل بالأجنبي بحواف مضيئة باللون الأحمر ═══ */
         #amount-local-hdr, #amount-foreign {
             font-size: 2.6rem !important;
             font-weight: 900 !important;
             color: #ef4444 !important;
             background-color: #ffffff !important;
             text-align: center !important;
+            border: 2.5px solid #ef4444 !important;
+            border-radius: 12px !important;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), inset 0 0 10px rgba(239, 68, 68, 0.15) !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        #amount-local-hdr:hover, #amount-local-hdr:focus,
+        #amount-foreign:hover, #amount-foreign:focus {
+            border-color: #f87171 !important;
+            box-shadow: 0 0 32px rgba(239, 68, 68, 0.95), 0 0 55px rgba(239, 68, 68, 0.5), inset 0 0 14px rgba(239, 68, 68, 0.3) !important;
+            transform: scale(1.025) !important;
+            outline: none !important;
+        }
+
+        /* ═══ إنارة الحواف في منطقة من حساب (أحمر بالأطراف وأصفر بالحقول) ═══ */
+        #primary-inputs-container .custom-dropdown-input-wrap {
+            border-radius: 10px;
+            transition: all 0.3s ease;
+        }
+        #primary-inputs-container .custom-dropdown-input-wrap:hover,
+        #primary-inputs-container .custom-dropdown-input-wrap:focus-within {
+            box-shadow: 0 0 18px rgba(251, 191, 36, 0.65), 0 0 32px rgba(245, 158, 11, 0.35);
+        }
+
+        #main-account-search {
+            border: 1.5px solid rgba(244, 63, 94, 0.6) !important;
+            transition: all 0.3s ease !important;
+        }
+        #main-account-search:hover,
+        #main-account-search:focus {
+            border-color: #fbbf24 !important;
+            box-shadow: 0 0 22px rgba(251, 191, 36, 0.85), inset 0 0 10px rgba(251, 191, 36, 0.25) !important;
+            outline: none !important;
+        }
+
+        #currency:hover, #currency:focus {
+            border-color: #fbbf24 !important;
+            box-shadow: 0 0 18px rgba(251, 191, 36, 0.8), inset 0 0 8px rgba(251, 191, 36, 0.25) !important;
+        }
+
+        #exchange-rate:hover, #exchange-rate:focus {
+            border-color: #fbbf24 !important;
+            box-shadow: 0 0 18px rgba(251, 191, 36, 0.8), inset 0 0 8px rgba(251, 191, 36, 0.25) !important;
+        }
+
+        #voucher-desc:hover, #voucher-desc:focus {
+            border-color: #fbbf24 !important;
+            box-shadow: 0 0 16px rgba(251, 191, 36, 0.7), inset 0 0 8px rgba(251, 191, 36, 0.2) !important;
+        }
+
+        /* ═══ زر كشف الحساب: إنارة خضراء ساطعة بالحواف عند الوقوف عليه ═══ */
+        .btn-statement-glow {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.3)) !important;
+            border: 1.5px solid rgba(16, 185, 129, 0.55) !important;
+            border-right: none !important;
+            color: #34d399 !important;
+            padding: 0 14px !important;
+            border-top-left-radius: 8px !important;
+            border-bottom-left-radius: 8px !important;
+            cursor: pointer !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            height: auto !important;
+            font-size: 0.8rem !important;
+            font-weight: bold !important;
+            white-space: nowrap !important;
+            box-shadow: 0 0 10px rgba(16, 185, 129, 0.3), inset 0 1px 2px rgba(255, 255, 255, 0.2) !important;
+            position: relative !important;
+            overflow: hidden !important;
+            user-select: none !important;
+        }
+
+        .btn-statement-glow:hover, 
+        .btn-statement-glow:focus {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.5), rgba(5, 150, 105, 0.8)) !important;
+            color: #ffffff !important;
+            border: 1.5px solid #10b981 !important;
+            border-right: none !important;
+            box-shadow: 0 0 22px rgba(16, 185, 129, 0.95), 0 0 42px rgba(5, 150, 105, 0.75), inset 0 0 12px rgba(52, 211, 153, 0.7) !important;
+            transform: scale(1.03) !important;
+            filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.85)) !important;
+            z-index: 5 !important;
+        }
+
+        .btn-statement-glow:active {
+            transform: scale(0.97) !important;
+            box-shadow: 0 0 12px rgba(16, 185, 129, 0.7) !important;
         }
         
         /* 🌟 مقاسات الوضع الطبيعي الأساسي (تمت زيادتها 3 درجات إضافية لتكون الأرقام واضحة ومقروءة جداً) */
@@ -1230,7 +1324,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative; display: flex;">
                                 <input type="hidden" id="main-account">
                                 <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: #fbbf24 !important; font-size: 1.4rem !important; font-weight: 900 !important; border: 1px solid rgba(244, 63, 94, 0.5); flex: 1; border-top-left-radius: 0; border-bottom-left-radius: 0;">
-                                <button type="button" onclick="openLedgerForMainAccount()" title="دفتر الأستاذ العام" style="background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(16,185,129,0.25)); border: 1px solid var(--border-color); border-right: none; color: #34d399; padding: 0 10px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; height: auto; font-size: 0.75rem; font-weight: bold; white-space: nowrap; box-shadow: inset 0 1px 3px rgba(255,255,255,0.1);" onmouseover="this.style.background='linear-gradient(135deg, rgba(52,211,153,0.3), rgba(16,185,129,0.5))'; this.style.color='#fff';" onmouseout="this.style.background='linear-gradient(135deg, rgba(52,211,153,0.15), rgba(16,185,129,0.25))'; this.style.color='#34d399';"><i class="fa fa-book" style="margin-left: 4px;"></i> كشف حساب</button>
+                                <button type="button" class="btn-statement-glow" onclick="openLedgerForMainAccount()" title="دفتر الأستاذ العام"><i class="fa fa-book" style="margin-left: 4px;"></i> كشف حساب</button>
                                 <div class="custom-dropdown-list" id="main-account-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                             </div>
                         </div>
@@ -1254,12 +1348,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         
                         <div style="flex: 1.5; min-width: 180px;">
                             <label id="label-amount-local" style="color: #10b981; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالمحلي (SDG)</label>
-                            <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: monospace; color: #ef4444 !important; background: #ffffff !important; text-align: center;">
+                            <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: monospace; color: #ef4444 !important; background: #ffffff !important; text-align: center; border: 2.5px solid #ef4444 !important; border-radius: 12px !important; box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), inset 0 0 10px rgba(239, 68, 68, 0.15) !important;">
                         </div>
                         
                         <div style="flex: 1.5; min-width: 180px;">
                             <label id="label-amount-foreign" style="color: #ef4444; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 المعادل بالأجنبي (USD)</label>
-                            <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: monospace; color: #ef4444 !important; background: #ffffff !important; text-align: center;">
+                            <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: monospace; color: #ef4444 !important; background: #ffffff !important; text-align: center; border: 2.5px solid #ef4444 !important; border-radius: 12px !important; box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), inset 0 0 10px rgba(239, 68, 68, 0.15) !important;">
                         </div>
                     </div>
 
@@ -1300,7 +1394,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                                     <input type="hidden" id="account-{ID}-id" class="block-account-id">
                                     <input type="hidden" id="account-{ID}" class="block-account-name">
                                     <input type="text" autocomplete="off" class="form-input block-account-search" id="account-{ID}-search" placeholder="الحساب / الجهة المستفيدة..." onfocus="showAccountDropdown('account-{ID}')" onblur="hideAccountDropdownDelayed('account-{ID}')" oninput="filterAccountDropdown('account-{ID}')" style="font-size: 1.4rem !important; font-weight: 900 !important; color: #fbbf24 !important; flex: 1; margin-bottom: 0; border-top-left-radius: 0; border-bottom-left-radius: 0;">
-                                    <button type="button" onclick="openLedgerForBlockAccount('{ID}')" title="دفتر الأستاذ العام" style="background: linear-gradient(135deg, rgba(52,211,153,0.15), rgba(16,185,129,0.25)); border: 1px solid rgba(255,255,255,0.1); border-right: none; color: #34d399; padding: 0 10px; border-top-left-radius: 8px; border-bottom-left-radius: 8px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; height: auto; font-size: 0.75rem; font-weight: bold; white-space: nowrap; box-shadow: inset 0 1px 3px rgba(255,255,255,0.1);" onmouseover="this.style.background='linear-gradient(135deg, rgba(52,211,153,0.3), rgba(16,185,129,0.5))'; this.style.color='#fff';" onmouseout="this.style.background='linear-gradient(135deg, rgba(52,211,153,0.15), rgba(16,185,129,0.25))'; this.style.color='#34d399';"><i class="fa fa-book" style="margin-left: 4px;"></i> كشف حساب</button>
+                                    <button type="button" class="btn-statement-glow" onclick="openLedgerForBlockAccount('{ID}')" title="دفتر الأستاذ العام"><i class="fa fa-book" style="margin-left: 4px;"></i> كشف حساب</button>
                                     <div class="custom-dropdown-list" id="account-{ID}-dropdown-list" style="position: absolute; top: 100%; left: 0; right: 0; margin-top: 5px; z-index: 9999;"></div>
                                 </div>
                             </div>

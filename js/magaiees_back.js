@@ -143,7 +143,7 @@
         if (document.getElementById('magaiees-back-btn-styles')) return;
 
         const css = `
-            /* ═══ Universal Master Back Button Styling (Amber-Gold Luxury) ═══ */
+            /* ═══ Universal Master Back Button Styling (Amber-Gold Luxury with Glowing Edges) ═══ */
             .magaiees-back-btn {
                 display: inline-flex !important;
                 align-items: center !important;
@@ -154,10 +154,10 @@
                 font-family: 'Tajawal', sans-serif !important;
                 font-size: 0.88rem !important;
                 font-weight: 800 !important;
-                padding: 7px 15px !important;
+                padding: 7px 16px !important;
                 border-radius: 12px !important;
-                border: 1.5px solid rgba(254, 240, 138, 0.85) !important;
-                box-shadow: 0 4px 16px rgba(245, 158, 11, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.4) !important;
+                border: 2px solid #fef08a !important;
+                box-shadow: 0 0 16px rgba(245, 158, 11, 0.65), 0 0 32px rgba(217, 119, 6, 0.4), inset 0 0 10px rgba(254, 240, 138, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.7) !important;
                 cursor: pointer !important;
                 text-decoration: none !important;
                 user-select: none !important;
@@ -171,6 +171,18 @@
                 overflow: hidden !important;
                 flex-shrink: 0 !important;
                 margin: 0 4px !important;
+                animation: magaieesBorderPulse 3.5s infinite alternate !important;
+            }
+
+            @keyframes magaieesBorderPulse {
+                0% {
+                    border-color: #fef08a;
+                    box-shadow: 0 0 14px rgba(245, 158, 11, 0.55), 0 0 28px rgba(217, 119, 6, 0.35), inset 0 0 8px rgba(254, 240, 138, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.6);
+                }
+                100% {
+                    border-color: #ffffff;
+                    box-shadow: 0 0 22px rgba(251, 191, 36, 0.85), 0 0 38px rgba(245, 158, 11, 0.55), inset 0 0 12px rgba(254, 240, 138, 0.65), inset 0 1px 3px rgba(255, 255, 255, 0.85);
+                }
             }
 
             .magaiees-back-btn::after {
@@ -178,7 +190,7 @@
                 position: absolute !important;
                 top: 0 !important; left: -100% !important;
                 width: 60% !important; height: 100% !important;
-                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.25), transparent) !important;
+                background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.3), transparent) !important;
                 transform: skewX(-20deg) !important;
                 animation: magaieesBackShine 5s infinite !important;
                 pointer-events: none !important;
@@ -191,16 +203,17 @@
             }
 
             .magaiees-back-btn:hover {
-                transform: translateY(-2px) scale(1.04) !important;
+                transform: translateY(-2px) scale(1.05) !important;
                 background: linear-gradient(135deg, #fbbf24 0%, #ea580c 100%) !important;
                 border-color: #ffffff !important;
-                box-shadow: 0 6px 24px rgba(245, 158, 11, 0.7), inset 0 1px 2px rgba(255, 255, 255, 0.6) !important;
+                box-shadow: 0 0 25px rgba(251, 191, 36, 0.95), 0 0 45px rgba(245, 158, 11, 0.75), inset 0 0 14px rgba(255, 255, 255, 0.85) !important;
                 color: #ffffff !important;
+                filter: drop-shadow(0 0 10px rgba(245, 158, 11, 0.8)) !important;
             }
 
             .magaiees-back-btn:active {
                 transform: scale(0.95) !important;
-                box-shadow: 0 2px 8px rgba(245, 158, 11, 0.5) !important;
+                box-shadow: 0 2px 10px rgba(245, 158, 11, 0.6) !important;
             }
 
             .magaiees-back-btn .back-icon-svg {
@@ -220,7 +233,8 @@
                 top: 16px !important;
                 left: 24px !important;
                 z-index: 99998 !important;
-                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.75), 0 0 20px rgba(245, 158, 11, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.5) !important;
+                border: 2px solid #fef08a !important;
+                box-shadow: 0 8px 30px rgba(0, 0, 0, 0.75), 0 0 24px rgba(245, 158, 11, 0.75), inset 0 0 12px rgba(254, 240, 138, 0.5) !important;
                 backdrop-filter: blur(12px) !important;
                 animation: backBtnFloatIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
             }
