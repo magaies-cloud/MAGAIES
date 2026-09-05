@@ -198,6 +198,6 @@
         </a>
     </div>
 
-<script src="js/magaiees_back.js?v=2026_back_v1" defer></script>
+<script src="js/magaiees_back.js?v=2026_back_v2" defer></script>
 </body>
 </html>

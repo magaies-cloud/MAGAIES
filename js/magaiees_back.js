@@ -23,24 +23,60 @@
         return;
     }
 
-    // 2. Global Flag & Capturing BeforeUnload Interceptor
-    // This intercepts beforeunload in the CAPTURE phase before any page listener can show a dialog
-    window.isNavigatingBack = false;
+    // 2. Global Engine-Level Neutralization of BeforeUnload Prompt
+    const cleanBeforeUnload = function(e) {
+        if (!e) return;
+        try {
+            delete e.returnValue;
+            e.returnValue = undefined;
+        } catch(err) {}
+    };
+
+    try {
+        const origAEL = EventTarget.prototype.addEventListener;
+        EventTarget.prototype.addEventListener = function(type, listener, options) {
+            if (type === 'beforeunload') {
+                const safeListener = function(e) {
+                    try {
+                        if (typeof listener === 'function') listener.call(this, e);
+                        else if (listener && typeof listener.handleEvent === 'function') listener.handleEvent(e);
+                    } catch(err) {}
+                    cleanBeforeUnload(e);
+                };
+                return origAEL.call(this, type, safeListener, options);
+            }
+            return origAEL.call(this, type, listener, options);
+        };
+    } catch(e) {}
+
+    try {
+        Object.defineProperty(window, 'onbeforeunload', {
+            get: function() { return null; },
+            set: function() {},
+            configurable: false
+        });
+    } catch(e) {}
+
+    try {
+        if (window.BeforeUnloadEvent && window.BeforeUnloadEvent.prototype) {
+            window.BeforeUnloadEvent.prototype.preventDefault = function() {};
+            Object.defineProperty(window.BeforeUnloadEvent.prototype, 'returnValue', {
+                get: function() { return undefined; },
+                set: function() {},
+                configurable: true
+            });
+        }
+    } catch(e) {}
 
     window.addEventListener('beforeunload', function (e) {
-        if (window.isNavigatingBack) {
-            // Cancel any unsaved changes prompt completely
-            window.formDirty = false;
-            window.isSettingsDirty = false;
-            delete e.returnValue;
-            delete e.defaultPrevented;
-            e.returnValue = undefined;
-        }
-    }, true); // Capture phase: runs FIRST!
+        e.stopImmediatePropagation();
+        cleanBeforeUnload(e);
+    }, true);
+
+    window.isNavigatingBack = false;
 
     // 3. Global Go Back Navigation Function
     window.magaieesGoBack = function () {
-        // Flag navigation back immediately to bypass beforeunload alerts
         window.isNavigatingBack = true;
         window.formDirty = false;
         window.isSettingsDirty = false;
@@ -50,24 +86,32 @@
 
         // 1. Primary: True session history step back
         if (window.history.length > 1) {
-            window.history.back();
-            // Fallback timeout in case history.back doesn't navigate (e.g., initial tab opened directly)
-            setTimeout(function () {
-                if (!isDashboard) {
-                    const ref = document.referrer;
-                    if (ref && ref !== window.location.href) {
-                        try {
-                            const refUrl = new URL(ref);
-                            if (refUrl.origin === window.location.origin && !refUrl.pathname.toLowerCase().includes('login.php')) {
-                                window.location.href = ref;
-                                return;
-                            }
-                        } catch (e) {}
+            let isExternal = false;
+            if (document.referrer) {
+                try {
+                    const r = new URL(document.referrer);
+                    if (r.origin !== window.location.origin) isExternal = true;
+                } catch(err) {}
+            }
+            if (!isExternal) {
+                window.history.back();
+                setTimeout(function () {
+                    if (!isDashboard) {
+                        const ref = document.referrer;
+                        if (ref && ref !== window.location.href) {
+                            try {
+                                const refUrl = new URL(ref);
+                                if (refUrl.origin === window.location.origin && !refUrl.pathname.toLowerCase().includes('login.php')) {
+                                    window.location.href = ref;
+                                    return;
+                                }
+                            } catch (e) {}
+                        }
+                        window.location.href = 'magaiees_unified_dashboard.php';
                     }
-                    window.location.href = 'magaiees_unified_dashboard.php';
-                }
-            }, 500);
-            return;
+                }, 350);
+                return;
+            }
         }
 
         // 2. Secondary: Check referrer if no history stack

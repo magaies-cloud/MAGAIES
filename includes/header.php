@@ -1,5 +1,59 @@
 <script src="js/bban_auto_helper.js"></script>
 <script>
+    // ═══════════════════════════════════════════════════════════════════
+    // 🛡️ الحماية المطلقة الشاملة لمنع ظهور رسالة المتصفح (Leave Site) نهائياً
+    // ═══════════════════════════════════════════════════════════════════
+    (function() {
+        const cleanBeforeUnload = function(e) {
+            if (!e) return;
+            try {
+                delete e.returnValue;
+                e.returnValue = undefined;
+            } catch(err) {}
+        };
+
+        try {
+            const origAEL = EventTarget.prototype.addEventListener;
+            EventTarget.prototype.addEventListener = function(type, listener, options) {
+                if (type === 'beforeunload') {
+                    const safeListener = function(e) {
+                        try {
+                            if (typeof listener === 'function') listener.call(this, e);
+                            else if (listener && typeof listener.handleEvent === 'function') listener.handleEvent(e);
+                        } catch(err) {}
+                        cleanBeforeUnload(e);
+                    };
+                    return origAEL.call(this, type, safeListener, options);
+                }
+                return origAEL.call(this, type, listener, options);
+            };
+        } catch(e) {}
+
+        try {
+            Object.defineProperty(window, 'onbeforeunload', {
+                get: function() { return null; },
+                set: function() {},
+                configurable: false
+            });
+        } catch(e) {}
+
+        try {
+            if (window.BeforeUnloadEvent && window.BeforeUnloadEvent.prototype) {
+                window.BeforeUnloadEvent.prototype.preventDefault = function() {};
+                Object.defineProperty(window.BeforeUnloadEvent.prototype, 'returnValue', {
+                    get: function() { return undefined; },
+                    set: function() {},
+                    configurable: true
+                });
+            }
+        } catch(e) {}
+
+        window.addEventListener('beforeunload', function(e) {
+            e.stopImmediatePropagation();
+            cleanBeforeUnload(e);
+        }, true);
+    })();
+
     // قراءة الثيم الذي اختاره الباشمهندس مهدي من الشاشة الموحدة وتطبيقه طالما الصفحة تفتح
     const currentTheme = localStorage.getItem('magaiees_global_theme') || 'theme-imperial';
     document.documentElement.className = currentTheme;
@@ -299,54 +353,9 @@
             window.dispatchEvent(new Event('themeChanged'));
         }
 
-        // Global Backdrop Click to Go Back Interaction (Immediate, bypasses JS cache)
-        document.addEventListener('click', function(e) {
-            try {
-                if (!e || !e.target) return;
-                
-                // Exclude home/dashboard and login screens
-                const path = window.location.pathname.toLowerCase();
-                if (path.includes('dashboard') || path.includes('login') || path.includes('index') || path === '/' || path.endsWith('/magaees') || path.endsWith('/magaees/')) {
-                    return;
-                }
-
-                const target = e.target;
-                if (typeof target.closest !== 'function') return;
-
-                // التقييد: تفعيل زر الرجوع للخلف عند الضغط في المساحات الفارغة داخل الترويسة والشريط الجانبي فقط
-                if (!target.closest('.global-sidebar') && !target.closest('header.premium-header')) {
-                    return; // تجاهل النقرات في أي مكان آخر (مثل شاشة التقارير أو الحاويات الرئيسية)
-                }
-
-                // Protect ONLY interactive elements. We want background/empty areas to trigger 'back'
-                const interactiveSelectors = [
-                    'button', 'input', 'select', 'textarea', 'a', 'label', 'table', 'form', 'li', 'ul',
-                    '.modal-overlay', '.modal', '.custom-dropdown-list', '.toast-container', '.choices',
-                    '.user-info', '#online-users-badge', '.clock-container', '.crystal-pill', '.bal-card',
-                    '.autocomplete-list', '[onclick]' // Any element with an onclick attribute
-                ];
-
-                for (let i = 0; i < interactiveSelectors.length; i++) {
-                    if (target.closest(interactiveSelectors[i])) {
-                        return; // Ignored as click is in or on an interactive component
-                    }
-                }
-
-                // If we get here, it's an empty space, margin, or layout container
-                // Navigate back immediately
-                e.preventDefault();
-                e.stopPropagation();
-                if (document.referrer) {
-                    window.history.back();
-                } else {
-                    window.location.href = 'magaiees_unified_dashboard.php';
-                }
-            } catch (err) {
-                console.error('Error in backdrop click:', err);
-            }
-        }, true); // Use CAPTURE phase to intercept before any other script calls stopPropagation
         </script>
     </div>
 </header>
 <script src="js/auto-charts.js?v=<?php echo time(); ?>"></script>
-<script src="js/magaiees_back.js?v=2026_back_v1" defer></script>
+<script src="js/magaiees_back.js?v=<?php echo file_exists(__DIR__ . '/../js/magaiees_back.js') ? filemtime(__DIR__ . '/../js/magaiees_back.js') : time(); ?>" defer></script>
+
