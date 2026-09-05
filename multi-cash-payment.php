@@ -1222,27 +1222,32 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             filter: drop-shadow(0 0 8px #fbbf24);
         }
 
-        /* ─── 3. منطقة إجمالي المحلي والمعادل بالأجنبي بالحجم الكبير باللون الذهبي الفاخر ─── */
+        /* ─── 3. منطقة إجمالي المحلي والمعادل بالأجنبي (كتابة حمراء وخلفية بيضاء ومساحة متساوية مناصفة) ─── */
         #amount-local-hdr, #amount-foreign {
             font-size: 2.6rem !important;
             font-weight: 900 !important;
-            color: #fbbf24 !important;
-            -webkit-text-fill-color: #fbbf24 !important;
-            background-color: rgba(15, 23, 42, 0.95) !important;
+            color: #ef4444 !important;
+            -webkit-text-fill-color: #ef4444 !important;
+            background: #ffffff !important;
+            background-color: #ffffff !important;
             text-align: center !important;
             border: 2.5px solid #ef4444 !important;
             border-radius: 12px !important;
-            box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), inset 0 0 10px rgba(251, 191, 36, 0.15) !important;
-            text-shadow: 0 0 16px rgba(251, 191, 36, 0.65) !important;
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.45), inset 0 0 8px rgba(239, 68, 68, 0.1) !important;
+            text-shadow: none !important;
+            width: 100% !important;
+            box-sizing: border-box !important;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
         #amount-local-hdr:hover, #amount-local-hdr:focus,
         #amount-foreign:hover, #amount-foreign:focus {
-            border: 3px solid #f43f5e !important;
-            box-shadow: 0 0 38px rgba(244, 63, 94, 0.98), 0 0 75px rgba(225, 29, 72, 0.7), inset 0 0 15px rgba(251, 191, 36, 0.25) !important;
-            color: #fbbf24 !important;
-            -webkit-text-fill-color: #fbbf24 !important;
-            transform: scale(1.035) !important;
+            border: 3px solid #dc2626 !important;
+            box-shadow: 0 0 35px rgba(239, 68, 68, 0.75), 0 0 60px rgba(220, 38, 38, 0.45), inset 0 0 10px rgba(239, 68, 68, 0.15) !important;
+            color: #ef4444 !important;
+            -webkit-text-fill-color: #ef4444 !important;
+            background: #ffffff !important;
+            background-color: #ffffff !important;
+            transform: scale(1.025) !important;
             outline: none !important;
         }
 
@@ -1628,14 +1633,17 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             <input type="text" inputmode="decimal" autocomplete="off" id="exchange-rate" class="form-input" value="1" readonly style="font-weight: 900; font-family: monospace; text-align: center; cursor: pointer; background: rgba(16,185,129,0.1); color: #10b981; border-radius: 10px;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.dataset.raw=r; this.value=r; if(typeof applyNumPropsToAll === 'function') applyNumPropsToAll(); if(typeof calcTotal === 'function') calcTotal(); else if(typeof recalcAll === 'function') recalcAll();});" oninput="if(typeof calcTotal === 'function') calcTotal();" title="كليك يسار لتعديل السعر | كليك يمين لتخصيص (السمك، الحجم، اللون، الخانات، الفاصلة)">
                         </div>
                         
-                        <div style="flex: 1.5; min-width: 180px;">
-                            <label id="label-amount-local" style="color: #10b981; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالمحلي (SDG)</label>
-                            <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: monospace; color: #fbbf24 !important; -webkit-text-fill-color: #fbbf24 !important; background: rgba(15, 23, 42, 0.95) !important; text-align: center; border: 2.5px solid #ef4444 !important; border-radius: 12px !important; box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), inset 0 0 10px rgba(251, 191, 36, 0.15) !important; text-shadow: 0 0 16px rgba(251, 191, 36, 0.65) !important;">
-                        </div>
-                        
-                        <div style="flex: 1.5; min-width: 180px;">
-                            <label id="label-amount-foreign" style="color: #ef4444; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 المعادل بالأجنبي (USD)</label>
-                            <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: monospace; color: #fbbf24 !important; -webkit-text-fill-color: #fbbf24 !important; background: rgba(15, 23, 42, 0.95) !important; text-align: center; border: 2.5px solid #ef4444 !important; border-radius: 12px !important; box-shadow: 0 0 20px rgba(239, 68, 68, 0.6), inset 0 0 10px rgba(251, 191, 36, 0.15) !important; text-shadow: 0 0 16px rgba(251, 191, 36, 0.65) !important;">
+                        <!-- إجمالي المحلي والمعادل بالأجنبي متساويين مناصفة 50% / 50% -->
+                        <div id="totals-equal-container" style="display: flex; gap: 15px; flex: 2.8; min-width: 380px; align-items: flex-end;">
+                            <div style="flex: 1 1 50%; min-width: 0; width: 50%;">
+                                <label id="label-amount-local" style="color: #10b981; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالمحلي (SDG)</label>
+                                <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: monospace; color: #ef4444 !important; -webkit-text-fill-color: #ef4444 !important; background: #ffffff !important; text-align: center; border: 2.5px solid #ef4444 !important; border-radius: 12px !important; box-shadow: 0 0 20px rgba(239, 68, 68, 0.45), inset 0 0 8px rgba(239, 68, 68, 0.1) !important; width: 100%;">
+                            </div>
+                            
+                            <div style="flex: 1 1 50%; min-width: 0; width: 50%;">
+                                <label id="label-amount-foreign" style="color: #ef4444; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 المعادل بالأجنبي (USD)</label>
+                                <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: monospace; color: #ef4444 !important; -webkit-text-fill-color: #ef4444 !important; background: #ffffff !important; text-align: center; border: 2.5px solid #ef4444 !important; border-radius: 12px !important; box-shadow: 0 0 20px rgba(239, 68, 68, 0.45), inset 0 0 8px rgba(239, 68, 68, 0.1) !important; width: 100%;">
+                            </div>
                         </div>
                     </div>
 
@@ -2110,6 +2118,15 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                     fontWeight: '900',
                     color: '#10b981'
                 };
+            } else if (currentPropId === 'amount-local-hdr' || currentPropId === 'amount-foreign') {
+                allNumProps[currentPropId] = {
+                    fontSizeMod: 0,
+                    thousandsSep: true,
+                    decimals: 2,
+                    fontFamily: 'monospace',
+                    fontWeight: '900',
+                    color: '#ef4444'
+                };
             } else {
                 allNumProps[currentPropId] = {
                     fontSizeMod: 0,
@@ -2117,13 +2134,13 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                     decimals: 2,
                     fontFamily: 'monospace',
                     fontWeight: '900',
-                    color: '#ffffff'
+                    color: '#fbbf24'
                 };
             }
         }
         const p = allNumProps[currentPropId];
         if (p.fontWeight === undefined) p.fontWeight = '900';
-        if (p.color === undefined) p.color = (currentPropId === 'exchange-rate') ? '#10b981' : '#ffffff';
+        if (p.color === undefined) p.color = (currentPropId === 'exchange-rate') ? '#10b981' : ((currentPropId === 'amount-local-hdr' || currentPropId === 'amount-foreign') ? '#ef4444' : '#fbbf24');
         if (p.fontSizeMod === undefined) p.fontSizeMod = 0;
         if (p.thousandsSep === undefined) p.thousandsSep = true;
         if (p.decimals === undefined) p.decimals = (currentPropId === 'exchange-rate') ? 0 : 2;
@@ -2150,6 +2167,15 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                     fontWeight: '900',
                     color: '#10b981'
                 };
+            } else if (id === 'amount-local-hdr' || id === 'amount-foreign') {
+                allNumProps[id] = {
+                    fontSizeMod: 0,
+                    thousandsSep: true,
+                    decimals: 2,
+                    fontFamily: 'monospace',
+                    fontWeight: '900',
+                    color: '#ef4444'
+                };
             } else {
                 allNumProps[id] = {
                     fontSizeMod: 0,
@@ -2163,7 +2189,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
         const p = allNumProps[id];
         if (p.fontWeight === undefined) p.fontWeight = '900';
-        if (p.color === undefined) p.color = (id === 'exchange-rate') ? '#10b981' : '#fbbf24';
+        if (p.color === undefined) p.color = (id === 'exchange-rate') ? '#10b981' : ((id === 'amount-local-hdr' || id === 'amount-foreign') ? '#ef4444' : '#fbbf24');
         if (p.fontSizeMod === undefined) p.fontSizeMod = 0;
         if (p.thousandsSep === undefined) p.thousandsSep = true;
         if (p.decimals === undefined) p.decimals = (id === 'exchange-rate') ? 0 : 2;
@@ -2360,9 +2386,11 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 el.style.setProperty('caret-color', '#fbbf24', 'important');
                 el.style.setProperty('text-shadow', '0 0 16px rgba(251, 191, 36, 0.65)', 'important');
             } else if (el.id === 'amount-local-hdr' || el.id === 'amount-foreign') {
-                el.style.setProperty('color', '#fbbf24', 'important');
-                el.style.setProperty('-webkit-text-fill-color', '#fbbf24', 'important');
-                el.style.setProperty('text-shadow', '0 0 16px rgba(251, 191, 36, 0.65)', 'important');
+                el.style.setProperty('color', '#ef4444', 'important');
+                el.style.setProperty('-webkit-text-fill-color', '#ef4444', 'important');
+                el.style.setProperty('background', '#ffffff', 'important');
+                el.style.setProperty('background-color', '#ffffff', 'important');
+                el.style.removeProperty('text-shadow');
             } else if (conf.color) {
                 el.style.setProperty('color', conf.color, 'important');
             }
