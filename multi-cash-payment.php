@@ -175,27 +175,36 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(244, 63, 94, 0.35), 0 0 25px rgba(244, 63, 94, 0.25) !important;
             transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
+        /* إنارة الحواف باللون الأصفر عند القدوم إلى من حساب */
         .glass-red:hover,
-        .glass-red:focus-within {
+        .glass-red:focus-within,
+        #primary-inputs-container:hover,
+        #primary-inputs-container:focus-within {
             background: linear-gradient(135deg, rgba(130, 35, 50, 0.85), rgba(15, 23, 42, 0.92)) !important;
-            border-color: #f43f5e !important;
-            border-right-color: #fb7185 !important;
-            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.8), 0 0 35px rgba(244, 63, 94, 0.8), 0 0 70px rgba(225, 29, 72, 0.45), inset 0 0 20px rgba(244, 63, 94, 0.3) !important;
+            border-color: #fbbf24 !important;
+            border-right-color: #f59e0b !important;
+            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.8), 0 0 35px rgba(251, 191, 36, 0.85), 0 0 70px rgba(245, 158, 11, 0.45), inset 0 0 20px rgba(251, 191, 36, 0.25) !important;
         }
 
-        /* Crystal Green Container (مستطيلات الحسابات المستلمة) */
+        /* Crystal Green Container (مستطيلات الحسابات المستلمة - إلى حساب) */
         .glass-green {
             position: relative; overflow: hidden;
             background: linear-gradient(135deg, rgba(16, 60, 40, 0.85), rgba(15, 23, 42, 0.95)) !important;
             border: 1px solid rgba(39, 174, 96, 0.45) !important;
             border-right: 5px solid #27ae60 !important;
             box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(39, 174, 96, 0.35), 0 0 25px rgba(39, 174, 96, 0.2) !important;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
-        .glass-green:hover {
+        /* إضاءة الحواف التلقائية بمجرد قدوم المؤشر إلى حساب */
+        .glass-green:hover,
+        .glass-green:focus-within,
+        .account-block:hover,
+        .account-block:focus-within {
             background: linear-gradient(135deg, rgba(20, 75, 50, 0.9), rgba(15, 23, 42, 0.98)) !important;
-            border-color: rgba(39, 174, 96, 0.8) !important;
-            border-right-color: #2ecc71 !important;
-            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.75), inset 0 1px 2px rgba(255, 255, 255, 0.6), 0 0 45px rgba(39, 174, 96, 0.6) !important;
+            border-color: #34d399 !important;
+            border-right-color: #10b981 !important;
+            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.8), 0 0 35px rgba(16, 185, 129, 0.85), 0 0 70px rgba(5, 150, 105, 0.45), inset 0 0 20px rgba(52, 211, 153, 0.25) !important;
+            transform: translateY(-3px) scale(1.005) !important;
         }
 
         /* High Contrast Inputs, Placeholders, and Labels */
@@ -569,15 +578,22 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
 
         .glass-red:hover,
-        .glass-red:focus-within {
-            --block-glow-color: rgba(244, 63, 94, 0.85);
-            border-color: #f43f5e !important;
-            border-right-color: #fb7185 !important;
-            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.8), 0 0 35px rgba(244, 63, 94, 0.8), 0 0 70px rgba(225, 29, 72, 0.45), inset 0 0 20px rgba(244, 63, 94, 0.3) !important;
+        .glass-red:focus-within,
+        #primary-inputs-container:hover,
+        #primary-inputs-container:focus-within {
+            --block-glow-color: rgba(251, 191, 36, 0.85);
+            border-color: #fbbf24 !important;
+            border-right-color: #f59e0b !important;
+            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.8), 0 0 35px rgba(251, 191, 36, 0.85), 0 0 70px rgba(245, 158, 11, 0.45), inset 0 0 20px rgba(251, 191, 36, 0.25) !important;
         }
-        .glass-green:hover {
-            --block-glow-color: rgba(39, 174, 96, 0.5);
-            border-color: rgba(39, 174, 96, 0.75) !important;
+        .glass-green:hover,
+        .glass-green:focus-within,
+        .account-block:hover,
+        .account-block:focus-within {
+            --block-glow-color: rgba(16, 185, 129, 0.85);
+            border-color: #34d399 !important;
+            border-right-color: #10b981 !important;
+            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.8), 0 0 35px rgba(16, 185, 129, 0.85), 0 0 70px rgba(5, 150, 105, 0.45), inset 0 0 20px rgba(52, 211, 153, 0.25) !important;
         }
 
         .block-cash-details:hover {
@@ -928,7 +944,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
         /* ══════════════════════════════════════════════════════════════════════
            ULTRA-SUBTLE AMBIENT GLASS RIPPLES & SCREEN-WIDE LIGHT WAVES
-           تموجات زجاجية خفيفة هادئة جداً لا تؤثر على البصر وتضفي لمسة جمالية راقية
+           تموجات ولمعات زجاجية خفيفة جداً لكامل الشاشة لا تؤثر على البصر
            ══════════════════════════════════════════════════════════════════════ */
         .glass-ripple-mesh {
             position: fixed !important;
@@ -940,14 +956,30 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
         .glass-ripple-1 {
             background: radial-gradient(ellipse 70% 50% at 25% 25%, rgba(255, 255, 255, 0.035) 0%, rgba(56, 189, 248, 0.02) 40%, transparent 70%) !important;
-            filter: blur(45px) !important;
+            filter: blur(48px) !important;
             animation: slowGlassWave1 36s ease-in-out infinite alternate !important;
         }
 
         .glass-ripple-2 {
             background: radial-gradient(ellipse 65% 45% at 75% 75%, rgba(255, 255, 255, 0.03) 0%, rgba(168, 85, 247, 0.018) 40%, transparent 70%) !important;
-            filter: blur(55px) !important;
+            filter: blur(56px) !important;
             animation: slowGlassWave2 46s ease-in-out infinite alternate !important;
+        }
+
+        .glass-ripple-3 {
+            background: radial-gradient(ellipse 80% 55% at 50% 50%, rgba(255, 255, 255, 0.025) 0%, rgba(16, 185, 129, 0.015) 35%, rgba(251, 191, 36, 0.012) 65%, transparent 80%) !important;
+            filter: blur(65px) !important;
+            animation: slowGlassWave3 54s ease-in-out infinite alternate !important;
+        }
+
+        .glass-specular-shimmer {
+            position: fixed !important;
+            top: 0 !important; left: -100% !important;
+            width: 300% !important; height: 100vh !important;
+            background: linear-gradient(115deg, transparent 0%, transparent 42%, rgba(255, 255, 255, 0.02) 50%, transparent 58%, transparent 100%) !important;
+            pointer-events: none !important;
+            animation: specularGlassSweep 42s linear infinite !important;
+            z-index: 0 !important;
         }
 
         @keyframes slowGlassWave1 {
@@ -960,6 +992,17 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             0% { transform: translate(0, 0) scale(1) rotate(0deg); opacity: 0.5; }
             50% { transform: translate(-4%, -3%) scale(1.1) rotate(-3deg); opacity: 0.8; }
             100% { transform: translate(3%, -2%) scale(0.95) rotate(2deg); opacity: 0.5; }
+        }
+
+        @keyframes slowGlassWave3 {
+            0% { transform: scale(1) translate(0, 0); opacity: 0.45; }
+            50% { transform: scale(1.12) translate(2%, -3%); opacity: 0.8; }
+            100% { transform: scale(0.92) translate(-2%, 2%); opacity: 0.45; }
+        }
+
+        @keyframes specularGlassSweep {
+            0% { transform: translateX(-35%); }
+            100% { transform: translateX(35%); }
         }
 
         /* لمسة ضوئية زجاجية فائقة الرقة وغير محسوسة تتهادى فوق اللوحة الرئيسية */
@@ -978,6 +1021,14 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             0% { transform: translate(0, 0); opacity: 0.4; }
             50% { transform: translate(30px, 20px); opacity: 0.75; }
             100% { transform: translate(-20px, 30px); opacity: 0.4; }
+        }
+
+        /* خط كريستالي علوي شفاف يضفي لمسة زجاجية مصقولة راقية */
+        #main-form-panel,
+        #payment-methods-row,
+        .glass-container,
+        .account-block {
+            border-top: 1.5px solid rgba(255, 255, 255, 0.22) !important;
         }
 
         /* Color Wave Animation */
@@ -1092,24 +1143,86 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             border-radius: 6px;
         }
 
-        /* ═══ High legibility white background for Amount/Value fields ═══ */
+        /* ══════════════════════════════════════════════════════════════════════
+           AUTOMATIC LUMINOUS EDGE ILLUMINATION (إضاءة الحواف التلقائية التفاعلية)
+           تأتي الإضاءة لوحدها بمجرد وقوف المؤشر (Hover) أو الضغط والتركيز (Focus)
+           ══════════════════════════════════════════════════════════════════════ */
+
+        /* ─── 1. حقول المبالغ والأرقام: إضاءة الحواف التلقائية بمجرد الوقوف والضغط ─── */
         .transfer-amount, .cheque-amount, .block-sub-amount, .block-cash-amount, .block-bank-amount, .block-cheque-amount, .block-total-amount, .total-val, .val, .value-field, .multi-input[placeholder*="المبلغ"], .multi-input[placeholder*="القيمة"] {
             background: rgba(15, 23, 42, 0.45) !important;
             color: #ffffff !important;
-            border: 1.5px solid rgba(255, 255, 255, 0.2) !important;
-        }
-        .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus, .multi-input[placeholder*="المبلغ"]:focus {
-            border-color: #f97316 !important;
-            box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25) !important;
+            border: 1.8px solid rgba(255, 255, 255, 0.22) !important;
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
 
-        /* Large Totals & Rates */
-        /* Large Totals & Rates */
+        /* عند وقوف المؤشر على أي حقل مبلغ (Hover Glow) */
+        .block-total-amount:hover,
+        input[id^="amount-"]:hover,
+        .transfer-amount:hover,
+        .cheque-amount:hover,
+        .block-sub-amount:hover,
+        .multi-input[placeholder*="المبلغ"]:hover {
+            border: 2.2px solid #fbbf24 !important;
+            box-shadow: 0 0 28px rgba(251, 191, 36, 0.9), 0 0 50px rgba(245, 158, 11, 0.55), inset 0 0 10px rgba(251, 191, 36, 0.3) !important;
+            background: rgba(251, 191, 36, 0.15) !important;
+            transform: translateY(-2px) scale(1.02) !important;
+        }
+
+        /* عند الضغط على المبلغ والتركيز (Focus Glow) */
+        .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus, .multi-input[placeholder*="المبلغ"]:focus {
+            border: 3px solid #fbbf24 !important;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.95), 0 0 38px rgba(251, 191, 36, 0.95), 0 0 75px rgba(245, 158, 11, 0.6), inset 0 0 16px rgba(251, 191, 36, 0.4) !important;
+            outline: none !important;
+        }
+
+        /* حقول مبالغ التحويلات البنكية عند الوقوف */
+        .block-bank-amount:hover {
+            border: 2.2px solid #22d3ee !important;
+            box-shadow: 0 0 28px rgba(34, 211, 238, 0.95), 0 0 50px rgba(6, 182, 212, 0.6), inset 0 0 12px rgba(34, 211, 238, 0.35) !important;
+            background: rgba(6, 182, 212, 0.22) !important;
+            color: #ffffff !important;
+            transform: translateY(-2px) scale(1.02) !important;
+        }
+
+        /* حقول مبالغ الشيكات عند الوقوف */
+        .block-cheque-amount:hover {
+            border: 2.2px solid #c084fc !important;
+            box-shadow: 0 0 28px rgba(192, 132, 252, 0.95), 0 0 50px rgba(147, 51, 234, 0.6), inset 0 0 12px rgba(192, 132, 252, 0.35) !important;
+            background: rgba(147, 51, 234, 0.22) !important;
+            color: #ffffff !important;
+            transform: translateY(-2px) scale(1.02) !important;
+        }
+
+        /* ─── 2. منطقة الدولار (سعر التعادل): إضاءة الحواف تأتي لوحدها تلقائياً ─── */
         #exchange-rate {
             font-size: 1.8rem !important;
             font-weight: 900 !important;
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
-        /* ═══ منطقة إجمالي المحلي والمعادل بالأجنبي بحواف مضيئة باللون الأحمر ═══ */
+        #exchange-rate:hover,
+        #exchange-rate:focus,
+        #exchange-rate:active {
+            border: 2.2px solid #10b981 !important;
+            box-shadow: 0 0 28px rgba(16, 185, 129, 0.95), 0 0 55px rgba(5, 150, 105, 0.65), inset 0 0 12px rgba(52, 211, 153, 0.35) !important;
+            background: rgba(16, 185, 129, 0.25) !important;
+            color: #ffffff !important;
+            transform: translateY(-2px) scale(1.05) !important;
+            outline: none !important;
+        }
+        #label-exchange-rate {
+            transition: all 0.25s ease;
+        }
+        #label-exchange-rate:hover {
+            color: #34d399 !important;
+            text-shadow: 0 0 12px rgba(52, 211, 153, 0.85) !important;
+        }
+        #label-exchange-rate:hover span:last-child {
+            transform: rotate(90deg) scale(1.25);
+            filter: drop-shadow(0 0 8px #fbbf24);
+        }
+
+        /* ─── 3. منطقة إجمالي المحلي والمعادل بالأجنبي بحواف مضيئة باللون الأحمر ─── */
         #amount-local-hdr, #amount-foreign {
             font-size: 2.6rem !important;
             font-weight: 900 !important;
@@ -1123,20 +1236,20 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
         #amount-local-hdr:hover, #amount-local-hdr:focus,
         #amount-foreign:hover, #amount-foreign:focus {
-            border-color: #f87171 !important;
-            box-shadow: 0 0 32px rgba(239, 68, 68, 0.95), 0 0 55px rgba(239, 68, 68, 0.5), inset 0 0 14px rgba(239, 68, 68, 0.3) !important;
-            transform: scale(1.025) !important;
+            border: 3px solid #f43f5e !important;
+            box-shadow: 0 0 38px rgba(244, 63, 94, 0.98), 0 0 75px rgba(225, 29, 72, 0.7), inset 0 0 15px rgba(251, 113, 133, 0.4) !important;
+            transform: scale(1.035) !important;
             outline: none !important;
         }
 
-        /* ═══ إنارة الحواف في منطقة من حساب (أحمر بالأطراف وأصفر بالحقول) ═══ */
+        /* ─── 4. إنارة الحواف في منطقة «من حساب» باللون الأصفر ─── */
         #primary-inputs-container .custom-dropdown-input-wrap {
             border-radius: 10px;
             transition: all 0.3s ease;
         }
         #primary-inputs-container .custom-dropdown-input-wrap:hover,
         #primary-inputs-container .custom-dropdown-input-wrap:focus-within {
-            box-shadow: 0 0 18px rgba(251, 191, 36, 0.65), 0 0 32px rgba(245, 158, 11, 0.35);
+            box-shadow: 0 0 24px rgba(251, 191, 36, 0.85), 0 0 45px rgba(245, 158, 11, 0.45);
         }
 
         #main-account-search {
@@ -1145,24 +1258,55 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
         #main-account-search:hover,
         #main-account-search:focus {
-            border-color: #fbbf24 !important;
-            box-shadow: 0 0 22px rgba(251, 191, 36, 0.85), inset 0 0 10px rgba(251, 191, 36, 0.25) !important;
+            border: 2px solid #fbbf24 !important;
+            box-shadow: 0 0 28px rgba(251, 191, 36, 0.95), 0 0 50px rgba(245, 158, 11, 0.5), inset 0 0 10px rgba(251, 191, 36, 0.25) !important;
+            transform: translateY(-2px);
             outline: none !important;
         }
 
+        /* ─── 5. إنارة الحواف في منطقة «إلى حساب» التلقائية ─── */
+        .block-account-search {
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        .block-account-search:hover,
+        .block-account-search:focus {
+            border: 2px solid #34d399 !important;
+            box-shadow: 0 0 28px rgba(52, 211, 153, 0.95), 0 0 50px rgba(16, 185, 129, 0.5), inset 0 0 10px rgba(52, 211, 153, 0.25) !important;
+            transform: translateY(-2px);
+            outline: none !important;
+        }
+
+        /* ─── 6. كل شيء عندما نأتي إليه الإضاءة تأتي لوحدها (Universal Controls) ─── */
         #currency:hover, #currency:focus {
-            border-color: #fbbf24 !important;
-            box-shadow: 0 0 18px rgba(251, 191, 36, 0.8), inset 0 0 8px rgba(251, 191, 36, 0.25) !important;
+            border: 2px solid #fbbf24 !important;
+            box-shadow: 0 0 22px rgba(251, 191, 36, 0.9), 0 0 40px rgba(245, 158, 11, 0.45), inset 0 0 8px rgba(251, 191, 36, 0.25) !important;
+            transform: translateY(-2px);
+            outline: none !important;
         }
 
-        #exchange-rate:hover, #exchange-rate:focus {
+        #voucher-desc:hover, #voucher-desc:focus,
+        input[id^="statement-"]:hover, input[id^="statement-"]:focus,
+        .block-bank-desc-input:hover, .block-bank-desc-input:focus,
+        .block-cheque-desc-input:hover, .block-cheque-desc-input:focus {
             border-color: #fbbf24 !important;
-            box-shadow: 0 0 18px rgba(251, 191, 36, 0.8), inset 0 0 8px rgba(251, 191, 36, 0.25) !important;
+            box-shadow: 0 0 22px rgba(251, 191, 36, 0.85), inset 0 0 8px rgba(251, 191, 36, 0.25) !important;
+            outline: none !important;
         }
 
-        #voucher-desc:hover, #voucher-desc:focus {
-            border-color: #fbbf24 !important;
-            box-shadow: 0 0 16px rgba(251, 191, 36, 0.7), inset 0 0 8px rgba(251, 191, 36, 0.2) !important;
+        /* تفاصيل السند العلوية (السند، التاريخ، المرجع) */
+        #payment-methods-row > div:last-child > div {
+            transition: all 0.28s ease;
+        }
+        #payment-methods-row > div:last-child > div:hover,
+        #payment-methods-row > div:last-child > div:focus-within {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 24px rgba(56, 189, 248, 0.8), inset 0 0 8px rgba(56, 189, 248, 0.25) !important;
+            transform: translateY(-2px);
+        }
+        #voucher-ref:hover, #voucher-ref:focus {
+            border-color: #38bdf8 !important;
+            box-shadow: 0 0 20px rgba(56, 189, 248, 0.85) !important;
+            outline: none !important;
         }
 
         /* ═══ زر كشف الحساب: إنارة خضراء ساطعة بالحواف عند الوقوف عليه ═══ */
@@ -1389,6 +1533,8 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         <div class="orb orb-1"></div><div class="orb orb-2"></div><div class="orb orb-3"></div>
         <div class="glass-ripple-mesh glass-ripple-1"></div>
         <div class="glass-ripple-mesh glass-ripple-2"></div>
+        <div class="glass-ripple-mesh glass-ripple-3"></div>
+        <div class="glass-specular-shimmer"></div>
     </div>
     <div class="toast-container" id="toast-container"></div>
 
