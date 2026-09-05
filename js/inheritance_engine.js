@@ -721,22 +721,44 @@ function setDeceasedGender(gender) {
     const husbandBox = document.getElementById('inh-card-husband') || document.getElementById('inh-box-husband');
 
     if (gender === 'male') {
-        if (btnMale) btnMale.className = 'flex-1 py-2 px-4 rounded-xl border-2 border-emerald-500 bg-emerald-500/20 text-emerald-300 font-bold transition flex items-center justify-center gap-2 shadow-sm';
-        if (btnFemale) btnFemale.className = 'flex-1 py-2 px-4 rounded-xl border border-white/10 bg-white/5 text-slate-400 hover:text-white transition flex items-center justify-center gap-2';
+        if (btnMale) {
+            btnMale.className = 'gender-toggle-card gender-active-male p-5 rounded-2xl border-2 border-emerald-500 bg-emerald-500/10 flex items-center justify-between shadow-lg';
+            const checkIcon = btnMale.querySelector('i');
+            if (checkIcon) checkIcon.classList.remove('hidden');
+        }
+        if (btnFemale) {
+            btnFemale.className = 'gender-toggle-card p-5 rounded-2xl border-2 border-white/10 bg-slate-900/60 flex items-center justify-between shadow-lg text-slate-400';
+            const checkIcon = btnFemale.querySelector('i');
+            if (checkIcon) checkIcon.classList.add('hidden');
+        }
         if (wivesBox) wivesBox.classList.remove('hidden');
         if (husbandBox) {
             husbandBox.classList.add('hidden');
             const hInput = document.getElementById('inh-inp-husband');
-            if (hInput) hInput.value = 0;
+            if (hInput) {
+                hInput.value = 0;
+                highlightCounterCard('husband');
+            }
         }
     } else {
-        if (btnFemale) btnFemale.className = 'flex-1 py-2 px-4 rounded-xl border-2 border-pink-500 bg-pink-500/20 text-pink-300 font-bold transition flex items-center justify-center gap-2 shadow-sm';
-        if (btnMale) btnMale.className = 'flex-1 py-2 px-4 rounded-xl border border-white/10 bg-white/5 text-slate-400 hover:text-white transition flex items-center justify-center gap-2';
+        if (btnFemale) {
+            btnFemale.className = 'gender-toggle-card gender-active-female p-5 rounded-2xl border-2 border-rose-500 bg-rose-500/10 flex items-center justify-between shadow-lg';
+            const checkIcon = btnFemale.querySelector('i');
+            if (checkIcon) checkIcon.classList.remove('hidden');
+        }
+        if (btnMale) {
+            btnMale.className = 'gender-toggle-card p-5 rounded-2xl border-2 border-white/10 bg-slate-900/60 flex items-center justify-between shadow-lg text-slate-400';
+            const checkIcon = btnMale.querySelector('i');
+            if (checkIcon) checkIcon.classList.add('hidden');
+        }
         if (husbandBox) husbandBox.classList.remove('hidden');
         if (wivesBox) {
             wivesBox.classList.add('hidden');
             const wInput = document.getElementById('inh-inp-wives');
-            if (wInput) wInput.value = 0;
+            if (wInput) {
+                wInput.value = 0;
+                highlightCounterCard('wives');
+            }
         }
     }
 }
@@ -916,26 +938,26 @@ function renderInheritanceResults(out) {
                                'bg-blue-500/20 text-blue-300 border-blue-500/40';
 
             rowsHtml += `
-            <tr class="border-b border-white/5 hover:bg-white/[0.03] transition-colors">
-                <td class="p-3 font-semibold text-slate-100 flex items-center gap-2">
-                    <span class="w-6 h-6 rounded-full bg-slate-800 border border-slate-700 flex items-center justify-center text-xs text-amber-400 font-bold">${idx + 1}</span>
+            <tr class="border-b border-white/10 hover:bg-white/[0.04] transition-colors">
+                <td class="p-4 font-semibold text-slate-100 flex items-center gap-3">
+                    <span class="w-8 h-8 rounded-xl bg-slate-800 border border-amber-500/30 flex items-center justify-center text-sm text-amber-300 font-black shadow-sm">${idx + 1}</span>
                     <div>
-                        <div class="font-bold text-white">${r.name}</div>
-                        <div class="text-[11px] text-slate-400 font-normal">${r.count > 1 ? 'العدد: ' + r.count + ' أشخاص' : 'مستحق منفرد'}</div>
+                        <div class="text-base sm:text-lg font-black text-white">${r.name}</div>
+                        <div class="text-xs text-amber-300/80 font-bold">${r.count > 1 ? 'العدد: ' + r.count + ' ورثة' : 'مستحق منفرد'}</div>
                     </div>
                 </td>
-                <td class="p-3 text-center">
-                    <span class="inline-block px-2 py-0.5 rounded-full text-xs font-bold border ${badgeClass}">${r.finalFraction || r.shareFraction}</span>
-                    <div class="text-[10px] text-slate-400 mt-0.5">${r.type}</div>
+                <td class="p-4 text-center">
+                    <span class="inline-block px-3.5 py-1 rounded-xl text-sm font-black border ${badgeClass}">${r.finalFraction || r.shareFraction}</span>
+                    <div class="text-xs text-slate-300 font-bold mt-1">${r.type}</div>
                 </td>
-                <td class="p-3 text-center font-bold text-emerald-400 font-mono text-sm">${r.percentage}%</td>
-                <td class="p-3 text-center font-extrabold text-amber-300 font-mono text-base">${formatMoney(r.totalAmount)}</td>
-                <td class="p-3 text-center font-bold text-cyan-300 font-mono text-sm">
+                <td class="p-4 text-center font-black text-emerald-400 font-mono text-base sm:text-lg">${r.percentage}%</td>
+                <td class="p-4 text-center font-black text-amber-300 font-mono text-lg sm:text-2xl">${formatMoney(r.totalAmount)}</td>
+                <td class="p-4 text-center font-black text-cyan-300 font-mono text-base sm:text-lg">
                     ${r.count > 1 ? formatMoney(r.unitAmount) : '—'}
                 </td>
-                <td class="p-3 text-right text-xs text-slate-300">
-                    <div class="font-medium text-slate-200">${r.reason}</div>
-                    <div class="text-[11px] text-amber-400/90 mt-1 flex items-center gap-1 font-serif"><i class="fa-solid fa-book-quran text-[10px]"></i> ${r.dalil}</div>
+                <td class="p-4 text-right">
+                    <div class="text-xs sm:text-sm font-bold text-slate-200">${r.reason}</div>
+                    <div class="text-xs text-amber-300/90 mt-1.5 flex items-center gap-1.5 font-serif font-bold"><i class="fa-solid fa-book-quran text-amber-400"></i> ${r.dalil}</div>
                 </td>
             </tr>`;
         });

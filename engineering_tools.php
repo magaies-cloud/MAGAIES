@@ -19844,547 +19844,621 @@ $pdo = getDBConnection();
         <!-- ════════════════════════════════════════════════════════════════ -->
         <!-- 7.5. SUITE: ISLAMIC INHERITANCE & ESTATE DISTRIBUTION CALCULATOR  -->
         <!-- ════════════════════════════════════════════════════════════════ -->
-        <div id="suite-sec-inheritance" class="suite-section anim-suite hidden space-y-6">
+        <div id="suite-sec-inheritance" class="suite-section anim-suite hidden space-y-8">
             <style>
                 .active-heir-card {
-                    border-color: rgba(245, 158, 11, 0.7) !important;
-                    background: rgba(245, 158, 11, 0.08) !important;
-                    box-shadow: 0 0 18px rgba(245, 158, 11, 0.2) !important;
+                    border-color: rgba(245, 158, 11, 0.9) !important;
+                    background: linear-gradient(135deg, rgba(245, 158, 11, 0.12), rgba(180, 83, 9, 0.22)) !important;
+                    box-shadow: 0 0 25px rgba(245, 158, 11, 0.35), inset 0 0 15px rgba(245, 158, 11, 0.15) !important;
+                    transform: translateY(-2px);
                 }
-                .inh-counter-btn {
-                    transition: all 0.15s ease-in-out;
+                .inh-input-box:focus {
+                    border-color: #fbbf24 !important;
+                    box-shadow: 0 0 15px rgba(251, 191, 36, 0.4) !important;
+                    background: rgba(15, 23, 42, 0.95) !important;
                 }
-                .inh-counter-btn:active {
-                    transform: scale(0.9);
+                .gender-toggle-card {
+                    cursor: pointer;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                .gender-toggle-card:hover {
+                    transform: translateY(-3px);
+                }
+                .gender-active-male {
+                    border-color: #10b981 !important;
+                    background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(6, 78, 59, 0.4)) !important;
+                    box-shadow: 0 0 30px rgba(16, 185, 129, 0.4), inset 0 0 15px rgba(16, 185, 129, 0.2) !important;
+                }
+                .gender-active-female {
+                    border-color: #f43f5e !important;
+                    background: linear-gradient(135deg, rgba(244, 63, 94, 0.2), rgba(136, 19, 55, 0.4)) !important;
+                    box-shadow: 0 0 30px rgba(244, 63, 94, 0.4), inset 0 0 15px rgba(244, 63, 94, 0.2) !important;
+                }
+                .inh-calc-btn-luxury {
+                    background: linear-gradient(135deg, #fbbf24, #d97706, #b45309);
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                }
+                .inh-calc-btn-luxury:hover {
+                    background: linear-gradient(135deg, #fde68a, #f59e0b, #d97706);
+                    transform: translateY(-2px) scale(1.02);
+                    box-shadow: 0 15px 35px rgba(245, 158, 11, 0.4);
                 }
             </style>
 
             <!-- Main Inheritance Panel -->
-            <div class="glass-panel-v3" style="--border-color: rgba(217, 119, 6, 0.5);">
-                <!-- Header -->
-                <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 mb-6 border-b border-white/10 pb-5">
-                    <div>
-                        <div class="flex items-center gap-3">
-                            <div class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-2xl text-amber-400 shadow-lg shadow-amber-500/10">
-                                <i class="fa-solid fa-scale-balanced"></i>
-                            </div>
-                            <div>
-                                <h3 class="text-xl font-black text-amber-400 flex items-center gap-2">
-                                    نظام قسمة الميراث والفرائض الشرعية المتطور
+            <div class="glass-panel-v3 p-6 sm:p-8" style="--border-color: rgba(217, 119, 6, 0.55); border-radius: 28px;">
+                
+                <!-- 1. Header with Quranic & Fiqh Identity -->
+                <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-6 mb-8 border-b border-white/10 pb-6">
+                    <div class="flex items-center gap-4">
+                        <div class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/20 to-amber-600/30 border-2 border-amber-500/50 flex items-center justify-center text-3xl text-amber-400 shadow-xl shadow-amber-500/20">
+                            <i class="fa-solid fa-scale-balanced"></i>
+                        </div>
+                        <div>
+                            <div class="flex items-center gap-3">
+                                <h3 class="text-2xl sm:text-3xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-500">
+                                    نظام المواريث والفرائض الشرعية المتطور
                                 </h3>
-                                <p class="text-xs text-slate-300 mt-1">
-                                    توزيع التركات إلكترونياً بدقة تامة وفق الفقه الإسلامي المعتمد وقوانين الأحوال الشخصية (الفروض، العصبات، الحجب، العول، الرد، العمريتان)
-                                </p>
+                                <span class="px-3 py-1 rounded-full text-xs font-black bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">
+                                    فقه إسلامي معتمد ⚖️
+                                </span>
                             </div>
+                            <p class="text-sm sm:text-base text-slate-300 font-medium mt-1.5">
+                                حساب وقسمة التركات النقدية والعقارية وفق المذاهب الأربعة (الفروض، العصبات، الحجب، العول، الرد، والعمريتان)
+                            </p>
                         </div>
                     </div>
-                    <!-- Quick Badges -->
-                    <div class="flex flex-wrap items-center gap-2">
-                        <span class="text-[11px] font-bold text-amber-300 bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/30 flex items-center gap-1">
-                            <i class="fa-solid fa-check"></i> أصحاب الفروض المقدرة
-                        </span>
-                        <span class="text-[11px] font-bold text-emerald-300 bg-emerald-500/10 px-3 py-1 rounded-lg border border-emerald-500/30 flex items-center gap-1">
-                            <i class="fa-solid fa-check"></i> العصبات بالنفس والغير
-                        </span>
-                        <span class="text-[11px] font-bold text-rose-300 bg-rose-500/10 px-3 py-1 rounded-lg border border-rose-500/30 flex items-center gap-1">
-                            <i class="fa-solid fa-check"></i> قواعد الحجب الشرعي
-                        </span>
-                        <span class="text-[11px] font-bold text-cyan-300 bg-cyan-500/10 px-3 py-1 rounded-lg border border-cyan-500/30 flex items-center gap-1">
-                            <i class="fa-solid fa-check"></i> العول والرد التلقائي
-                        </span>
+
+                    <!-- Fiqh Pillar Badges (Significantly Enlarged & Styled) -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-2.5 w-full lg:w-auto">
+                        <div class="px-4 py-2.5 rounded-xl bg-amber-500/15 border border-amber-500/40 text-center shadow-sm">
+                            <div class="text-xs text-amber-400 font-bold">القرآن الكريم</div>
+                            <div class="text-sm font-black text-amber-200">أصحاب الفروض</div>
+                        </div>
+                        <div class="px-4 py-2.5 rounded-xl bg-emerald-500/15 border border-emerald-500/40 text-center shadow-sm">
+                            <div class="text-xs text-emerald-400 font-bold">السنة النبوية</div>
+                            <div class="text-sm font-black text-emerald-200">أهل العصبات</div>
+                        </div>
+                        <div class="px-4 py-2.5 rounded-xl bg-rose-500/15 border border-rose-500/40 text-center shadow-sm">
+                            <div class="text-xs text-rose-400 font-bold">قواعد الأئمة</div>
+                            <div class="text-sm font-black text-rose-200">الحجب التام</div>
+                        </div>
+                        <div class="px-4 py-2.5 rounded-xl bg-cyan-500/15 border border-cyan-500/40 text-center shadow-sm">
+                            <div class="text-xs text-cyan-400 font-bold">الأحوال الشخصية</div>
+                            <div class="text-sm font-black text-cyan-200">العول والرد</div>
+                        </div>
                     </div>
                 </div>
 
-                <!-- Presets Bar -->
-                <div class="mb-6 p-3 rounded-2xl bg-slate-900/60 border border-white/10 flex flex-wrap items-center justify-between gap-3">
-                    <div class="text-xs font-bold text-slate-300 flex items-center gap-2">
-                        <i class="fa-solid fa-wand-magic-sparkles text-amber-400"></i>
-                        <span>نماذج سريعة لتجربة القسمة فوراً:</span>
+                <!-- 2. Quick Presets Bar (Large & Highly Legible) -->
+                <div class="mb-8 p-4 rounded-2xl bg-slate-900/80 border border-white/10 shadow-lg flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+                    <div class="text-sm sm:text-base font-black text-amber-300 flex items-center gap-2.5">
+                        <i class="fa-solid fa-wand-magic-sparkles text-amber-400 text-lg"></i>
+                        <span>نماذج عائلية جاهزة للاختبار السريع:</span>
                     </div>
-                    <div class="flex flex-wrap gap-2">
-                        <button type="button" onclick="applyInhPreset('standard_family')" class="px-3 py-1.5 rounded-xl bg-amber-500/20 hover:bg-amber-500/30 border border-amber-500/40 text-xs font-bold text-amber-200 transition flex items-center gap-1.5">
-                            👨‍👩‍👧‍👦 أسرة كاملة (زوجة + والدان + أولاد)
+                    <div class="flex flex-wrap gap-2.5 w-full md:w-auto">
+                        <button type="button" onclick="applyInhPreset('standard_family')" class="px-4 py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500/35 border border-amber-500/50 text-xs sm:text-sm font-bold text-amber-100 transition shadow-sm flex items-center gap-2">
+                            👨‍👩‍👧‍👦 أسرة كاملة (زوجة + والدان + أبناء وبنات)
                         </button>
-                        <button type="button" onclick="applyInhPreset('husband_children')" class="px-3 py-1.5 rounded-xl bg-blue-500/20 hover:bg-blue-500/30 border border-blue-500/40 text-xs font-bold text-blue-200 transition flex items-center gap-1.5">
-                            👩‍🦰 متوفاة متزوجة (زوج + أبناء وبنات)
+                        <button type="button" onclick="applyInhPreset('husband_children')" class="px-4 py-2 rounded-xl bg-blue-500/20 hover:bg-blue-500/35 border border-blue-500/50 text-xs sm:text-sm font-bold text-blue-100 transition shadow-sm flex items-center gap-2">
+                            👩‍🦰 متوفاة متزوجة (زوج + أولاد)
                         </button>
-                        <button type="button" onclick="applyInhPreset('umariyyatan')" class="px-3 py-1.5 rounded-xl bg-purple-500/20 hover:bg-purple-500/30 border border-purple-500/40 text-xs font-bold text-purple-200 transition flex items-center gap-1.5">
-                            📜 المسألة العمرية (زوج وأم وأب)
+                        <button type="button" onclick="applyInhPreset('umariyyatan')" class="px-4 py-2 rounded-xl bg-purple-500/20 hover:bg-purple-500/35 border border-purple-500/50 text-xs sm:text-sm font-bold text-purple-100 transition shadow-sm flex items-center gap-2">
+                            📜 المسألة العمرية (الغراء)
                         </button>
-                        <button type="button" onclick="applyInhPreset('kalalah_siblings')" class="px-3 py-1.5 rounded-xl bg-teal-500/20 hover:bg-teal-500/30 border border-teal-500/40 text-xs font-bold text-teal-200 transition flex items-center gap-1.5">
+                        <button type="button" onclick="applyInhPreset('kalalah_siblings')" class="px-4 py-2 rounded-xl bg-teal-500/20 hover:bg-teal-500/35 border border-teal-500/50 text-xs sm:text-sm font-bold text-teal-100 transition shadow-sm flex items-center gap-2">
                             🤝 كلالة (إخوة وأخوات أشقاء)
                         </button>
-                        <button type="button" onclick="applyInhPreset('daughters_only')" class="px-3 py-1.5 rounded-xl bg-pink-500/20 hover:bg-pink-500/30 border border-pink-500/40 text-xs font-bold text-pink-200 transition flex items-center gap-1.5">
-                            👧 بنات فقط مع أعمام/أخ
+                        <button type="button" onclick="applyInhPreset('daughters_only')" class="px-4 py-2 rounded-xl bg-pink-500/20 hover:bg-pink-500/35 border border-pink-500/50 text-xs sm:text-sm font-bold text-pink-100 transition shadow-sm flex items-center gap-2">
+                            👧 بنات فقط مع أعمام
                         </button>
                     </div>
                 </div>
 
-                <!-- Form Section -->
-                <div class="space-y-6">
-                    <!-- Step 1: Estate & Deceased Info -->
-                    <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/10">
-                        <h4 class="text-sm font-black text-amber-300 mb-4 flex items-center gap-2">
-                            <span class="w-6 h-6 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xs text-amber-400">1</span>
-                            بيانات التركة المالية وحالة المتوفى
-                        </h4>
-
-                        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-6 gap-4">
-                            <!-- Deceased Gender -->
-                            <div class="lg:col-span-2">
-                                <label class="block text-xs font-bold text-slate-300 mb-2">جنس المتوفى (صاحب التركة)</label>
-                                <div class="flex gap-2">
-                                    <button type="button" id="inh-btn-gender-male" onclick="setDeceasedGender('male')" class="flex-1 py-2 px-4 rounded-xl border-2 border-emerald-500 bg-emerald-500/20 text-emerald-300 font-bold transition flex items-center justify-center gap-2 shadow-sm">
-                                        <i class="fa-solid fa-mars"></i> المتوفى رَجُل
-                                    </button>
-                                    <button type="button" id="inh-btn-gender-female" onclick="setDeceasedGender('female')" class="flex-1 py-2 px-4 rounded-xl border border-white/10 bg-white/5 text-slate-400 hover:text-white transition flex items-center justify-center gap-2">
-                                        <i class="fa-solid fa-venus"></i> المتوفاة امرأة
-                                    </button>
+                <!-- 3. Deceased Gender Selector (Grand Luxury Cards) -->
+                <div class="mb-8">
+                    <label class="block text-sm sm:text-base font-black text-slate-200 mb-3 flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xs text-amber-300 font-bold">1</span>
+                        حدد جنس المتوفى (صاحب التركة):
+                    </label>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                        <!-- Male Toggle Card -->
+                        <div id="inh-btn-gender-male" onclick="setDeceasedGender('male')" class="gender-toggle-card gender-active-male p-5 rounded-2xl border-2 border-emerald-500 bg-emerald-500/10 flex items-center justify-between shadow-lg">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 rounded-2xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-3xl text-emerald-400">
+                                    👨
+                                </div>
+                                <div>
+                                    <div class="text-lg sm:text-xl font-black text-emerald-200">المتوفى رَجُل (ذكر)</div>
+                                    <div class="text-xs sm:text-sm text-emerald-400/90 font-medium mt-0.5">يترك زوجة أو زوجات (أرامل) وأولاداً وأقارب</div>
                                 </div>
                             </div>
+                            <div class="w-7 h-7 rounded-full border-2 border-emerald-400 flex items-center justify-center text-emerald-300 font-black text-sm">
+                                <i class="fa-solid fa-check"></i>
+                            </div>
+                        </div>
 
-                            <!-- Gross Estate -->
-                            <div class="lg:col-span-2">
-                                <label class="block text-xs font-bold text-slate-300 mb-2">إجمالي قيمة التركة (الأموال والعقارات) *</label>
-                                <div class="relative">
-                                    <input type="number" id="inh-inp-grossEstate" placeholder="مثال: 500000" class="w-full bg-slate-900/90 border border-amber-500/40 rounded-xl px-4 py-2.5 text-base font-bold text-amber-300 font-mono focus:outline-none focus:border-amber-400 transition" />
-                                    <span class="absolute left-3 top-2.5 text-xs text-amber-400/80 font-bold"><i class="fa-solid fa-coins"></i></span>
+                        <!-- Female Toggle Card -->
+                        <div id="inh-btn-gender-female" onclick="setDeceasedGender('female')" class="gender-toggle-card p-5 rounded-2xl border-2 border-white/10 bg-slate-900/60 flex items-center justify-between shadow-lg">
+                            <div class="flex items-center gap-4">
+                                <div class="w-14 h-14 rounded-2xl bg-pink-500/20 border border-pink-500/40 flex items-center justify-center text-3xl text-pink-400">
+                                    👩
+                                </div>
+                                <div>
+                                    <div class="text-lg sm:text-xl font-black text-slate-200">المتوفاة امرأة (أنثى)</div>
+                                    <div class="text-xs sm:text-sm text-slate-400 font-medium mt-0.5">تترك زوجاً وأولاداً وأقارب</div>
                                 </div>
                             </div>
+                            <div class="w-7 h-7 rounded-full border-2 border-slate-600 flex items-center justify-center text-slate-500 font-black text-sm">
+                                <i class="fa-solid fa-check hidden"></i>
+                            </div>
+                        </div>
+                    </div>
+                </div>
 
-                            <!-- Currency -->
-                            <div>
-                                <label class="block text-xs font-bold text-slate-300 mb-2">العملة</label>
-                                <select id="inh-inp-currency" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3 py-2.5 text-xs font-bold text-slate-200 focus:outline-none focus:border-amber-400 transition">
-                                    <option value="SAR">ريال سعودي (SAR)</option>
-                                    <option value="SDG">جنيه سوداني (SDG)</option>
-                                    <option value="USD">دولار أمريكي (USD)</option>
-                                    <option value="AED">درهم إماراتي (AED)</option>
-                                    <option value="KWD">دينار كويتي (KWD)</option>
-                                    <option value="QAR">ريال قطري (QAR)</option>
-                                    <option value="EGP">جنيه مصري (EGP)</option>
+                <!-- 4. Estate Financials (Harmonious 4-Card Cockpit) -->
+                <div class="mb-8 p-6 rounded-2xl bg-slate-900/70 border border-white/10 shadow-xl space-y-4">
+                    <label class="block text-sm sm:text-base font-black text-slate-200 flex items-center gap-2">
+                        <span class="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xs text-amber-300 font-bold">2</span>
+                        بيانات التركة المالية والحقوق الواجبة شرعاً:
+                    </label>
+
+                    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                        <!-- Card 1: Gross Estate & Currency -->
+                        <div class="p-4 rounded-2xl bg-slate-950/80 border border-amber-500/40 shadow-md space-y-2">
+                            <div class="flex items-center justify-between">
+                                <label class="text-xs sm:text-sm font-black text-amber-300 flex items-center gap-1.5">
+                                    <i class="fa-solid fa-coins text-amber-400"></i> إجمالي التركة الأساسية *
+                                </label>
+                                <select id="inh-inp-currency" class="bg-slate-800 border border-amber-500/40 rounded-lg px-2 py-1 text-xs font-bold text-amber-300 focus:outline-none">
+                                    <option value="SAR">ريال سعودي</option>
+                                    <option value="SDG">جنيه سوداني</option>
+                                    <option value="USD">دولار أمريكي</option>
+                                    <option value="AED">درهم إماراتي</option>
+                                    <option value="KWD">دينار كويتي</option>
+                                    <option value="QAR">ريال قطري</option>
+                                    <option value="EGP">جنيه مصري</option>
                                 </select>
                             </div>
-
-                            <!-- Funeral Expenses -->
-                            <div>
-                                <label class="block text-xs font-bold text-slate-300 mb-2">مؤن التجهيز والجنازة</label>
-                                <input type="number" id="inh-inp-funeral" placeholder="0" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3 py-2.5 text-xs font-mono text-slate-200 focus:outline-none focus:border-amber-400 transition" />
-                            </div>
-
-                            <!-- Debts -->
-                            <div class="lg:col-span-3">
-                                <label class="block text-xs font-bold text-slate-300 mb-2">الديون المستحقة على المتوفى (تُسدد قبل التوزيع)</label>
-                                <input type="number" id="inh-inp-debts" placeholder="0" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3 py-2.5 text-xs font-mono text-slate-200 focus:outline-none focus:border-amber-400 transition" />
-                            </div>
-
-                            <!-- Bequest -->
-                            <div class="lg:col-span-3">
-                                <label class="block text-xs font-bold text-slate-300 mb-2">الوصية الشرعية (في حدود الثلث لغير وارث)</label>
-                                <input type="number" id="inh-inp-bequest" placeholder="0" class="w-full bg-slate-900/90 border border-white/10 rounded-xl px-3 py-2.5 text-xs font-mono text-slate-200 focus:outline-none focus:border-amber-400 transition" />
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Step 2: Heirs Selection with Elegant Counters -->
-                    <div class="p-4 rounded-2xl bg-white/[0.02] border border-white/10">
-                        <div class="flex items-center justify-between mb-4">
-                            <h4 class="text-sm font-black text-amber-300 flex items-center gap-2">
-                                <span class="w-6 h-6 rounded-full bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xs text-amber-400">2</span>
-                                تحديد الورثة المستحقين والأحياء عند الوفاة
-                            </h4>
-                            <span class="text-xs text-slate-400">اضغط على (+) أو (-) لتحديد عدد كل وارث</span>
+                            <input type="number" id="inh-inp-grossEstate" placeholder="مثال: 1000000" class="inh-input-box w-full bg-slate-900 border border-amber-500/50 rounded-xl px-4 py-3 text-xl sm:text-2xl font-black text-amber-300 font-mono text-center focus:outline-none transition" />
+                            <div class="text-[11px] text-slate-400 text-center font-bold">الأموال النقدية والعقارات والأسهم</div>
                         </div>
 
-                        <!-- 1. الزوجية (Spouse) -->
-                        <div class="mb-5">
-                            <div class="text-xs font-extrabold text-slate-300 mb-2.5 flex items-center gap-1.5 border-r-2 border-pink-500 pr-2">
-                                <i class="fa-solid fa-ring text-pink-400"></i>
-                                <span>فئة الزوجية</span>
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                                <!-- Wives (if deceased male) -->
-                                <div id="inh-card-wives" class="p-3 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
-                                    <div>
-                                        <div class="text-xs font-bold text-slate-200">الزوجات (الأرامل)</div>
-                                        <div class="text-[11px] text-slate-400">الحد الأقصى 4 زوجات</div>
-                                    </div>
-                                    <div class="flex items-center gap-1.5 bg-black/40 p-1 rounded-xl border border-white/10">
-                                        <button type="button" onclick="adjustInhCounter('wives', -1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold flex items-center justify-center text-sm">-</button>
-                                        <input type="number" id="inh-inp-wives" value="0" min="0" max="4" class="w-9 text-center bg-transparent text-amber-400 font-bold font-mono text-sm focus:outline-none" onchange="highlightCounterCard('wives')" />
-                                        <button type="button" onclick="adjustInhCounter('wives', 1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-amber-600/50 hover:bg-amber-600 text-white font-bold flex items-center justify-center text-sm">+</button>
-                                    </div>
-                                </div>
-
-                                <!-- Husband (if deceased female) -->
-                                <div id="inh-card-husband" class="hidden p-3 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
-                                    <div>
-                                        <div class="text-xs font-bold text-slate-200">الزوج</div>
-                                        <div class="text-[11px] text-slate-400">زوج المتوفاة</div>
-                                    </div>
-                                    <div class="flex items-center gap-1.5 bg-black/40 p-1 rounded-xl border border-white/10">
-                                        <button type="button" onclick="adjustInhCounter('husband', -1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 text-slate-300 font-bold flex items-center justify-center text-sm">-</button>
-                                        <input type="number" id="inh-inp-husband" value="0" min="0" max="1" class="w-9 text-center bg-transparent text-amber-400 font-bold font-mono text-sm focus:outline-none" onchange="highlightCounterCard('husband')" />
-                                        <button type="button" onclick="adjustInhCounter('husband', 1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-amber-600/50 hover:bg-amber-600 text-white font-bold flex items-center justify-center text-sm">+</button>
-                                    </div>
-                                </div>
-                            </div>
+                        <!-- Card 2: Debts -->
+                        <div class="p-4 rounded-2xl bg-slate-950/80 border border-rose-500/30 shadow-md space-y-2">
+                            <label class="text-xs sm:text-sm font-black text-rose-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-handshake-slash text-rose-400"></i> ديون المتوفى (تُسدد وجوباً)
+                            </label>
+                            <input type="number" id="inh-inp-debts" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-rose-500/40 rounded-xl px-4 py-3 text-xl sm:text-2xl font-black text-rose-300 font-mono text-center focus:outline-none transition" />
+                            <div class="text-[11px] text-rose-300/70 text-center font-bold">الديون العينية والمطلقة للعباد ولله</div>
                         </div>
 
-                        <!-- 2. الأصول (Parents & Grandparents) -->
-                        <div class="mb-5">
-                            <div class="text-xs font-extrabold text-slate-300 mb-2.5 flex items-center gap-1.5 border-r-2 border-amber-500 pr-2">
-                                <i class="fa-solid fa-tree text-amber-400"></i>
-                                <span>فئة الأصول (الآباء والأمهات والأجداد)</span>
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-                                <!-- Father -->
-                                <div id="inh-card-father" class="p-3 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
-                                    <div class="text-xs font-bold text-slate-200">الأب</div>
-                                    <div class="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
-                                        <button type="button" onclick="adjustInhCounter('father', -1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-sm">-</button>
-                                        <input type="number" id="inh-inp-father" value="0" min="0" max="1" class="w-8 text-center bg-transparent text-amber-400 font-bold font-mono text-sm focus:outline-none" onchange="highlightCounterCard('father')" />
-                                        <button type="button" onclick="adjustInhCounter('father', 1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-amber-600/50 hover:bg-amber-600 text-white font-bold flex items-center justify-center text-sm">+</button>
-                                    </div>
-                                </div>
-
-                                <!-- Mother -->
-                                <div id="inh-card-mother" class="p-3 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
-                                    <div class="text-xs font-bold text-slate-200">الأم</div>
-                                    <div class="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
-                                        <button type="button" onclick="adjustInhCounter('mother', -1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-sm">-</button>
-                                        <input type="number" id="inh-inp-mother" value="0" min="0" max="1" class="w-8 text-center bg-transparent text-amber-400 font-bold font-mono text-sm focus:outline-none" onchange="highlightCounterCard('mother')" />
-                                        <button type="button" onclick="adjustInhCounter('mother', 1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-amber-600/50 hover:bg-amber-600 text-white font-bold flex items-center justify-center text-sm">+</button>
-                                    </div>
-                                </div>
-
-                                <!-- Grandfather -->
-                                <div id="inh-card-paternalGrandfather" class="p-3 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
-                                    <div class="text-xs font-bold text-slate-200">الجد لأب</div>
-                                    <div class="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
-                                        <button type="button" onclick="adjustInhCounter('paternalGrandfather', -1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-sm">-</button>
-                                        <input type="number" id="inh-inp-paternalGrandfather" value="0" min="0" max="1" class="w-8 text-center bg-transparent text-amber-400 font-bold font-mono text-sm focus:outline-none" onchange="highlightCounterCard('paternalGrandfather')" />
-                                        <button type="button" onclick="adjustInhCounter('paternalGrandfather', 1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-amber-600/50 hover:bg-amber-600 text-white font-bold flex items-center justify-center text-sm">+</button>
-                                    </div>
-                                </div>
-
-                                <!-- Paternal Grandmother -->
-                                <div id="inh-card-paternalGrandmother" class="p-3 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
-                                    <div class="text-xs font-bold text-slate-200">الجدة لأب</div>
-                                    <div class="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
-                                        <button type="button" onclick="adjustInhCounter('paternalGrandmother', -1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-sm">-</button>
-                                        <input type="number" id="inh-inp-paternalGrandmother" value="0" min="0" max="1" class="w-8 text-center bg-transparent text-amber-400 font-bold font-mono text-sm focus:outline-none" onchange="highlightCounterCard('paternalGrandmother')" />
-                                        <button type="button" onclick="adjustInhCounter('paternalGrandmother', 1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-amber-600/50 hover:bg-amber-600 text-white font-bold flex items-center justify-center text-sm">+</button>
-                                    </div>
-                                </div>
-
-                                <!-- Maternal Grandmother -->
-                                <div id="inh-card-maternalGrandmother" class="p-3 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
-                                    <div class="text-xs font-bold text-slate-200">الجدة لأم</div>
-                                    <div class="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
-                                        <button type="button" onclick="adjustInhCounter('maternalGrandmother', -1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-sm">-</button>
-                                        <input type="number" id="inh-inp-maternalGrandmother" value="0" min="0" max="1" class="w-8 text-center bg-transparent text-amber-400 font-bold font-mono text-sm focus:outline-none" onchange="highlightCounterCard('maternalGrandmother')" />
-                                        <button type="button" onclick="adjustInhCounter('maternalGrandmother', 1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-amber-600/50 hover:bg-amber-600 text-white font-bold flex items-center justify-center text-sm">+</button>
-                                    </div>
-                                </div>
-                            </div>
+                        <!-- Card 3: Funeral -->
+                        <div class="p-4 rounded-2xl bg-slate-950/80 border border-white/10 shadow-md space-y-2">
+                            <label class="text-xs sm:text-sm font-black text-slate-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-box-archive text-slate-400"></i> مؤن التجهيز والجنازة
+                            </label>
+                            <input type="number" id="inh-inp-funeral" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-xl sm:text-2xl font-black text-slate-200 font-mono text-center focus:outline-none transition" />
+                            <div class="text-[11px] text-slate-400 text-center font-bold">تكاليف الكفن والدفن الشرعي بالمعروف</div>
                         </div>
 
-                        <!-- 3. الفروع (Children & Grandchildren) -->
-                        <div class="mb-5">
-                            <div class="text-xs font-extrabold text-slate-300 mb-2.5 flex items-center gap-1.5 border-r-2 border-emerald-500 pr-2">
-                                <i class="fa-solid fa-people-roof text-emerald-400"></i>
-                                <span>فئة الفروع (الأبناء والبنات وأولاد الابن)</span>
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3">
-                                <!-- Sons -->
-                                <div id="inh-card-sons" class="p-3 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
-                                    <div>
-                                        <div class="text-xs font-bold text-slate-200">الأبناء (الذكور)</div>
-                                        <div class="text-[10px] text-emerald-400">عصبة بالنفس</div>
-                                    </div>
-                                    <div class="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
-                                        <button type="button" onclick="adjustInhCounter('sons', -1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-sm">-</button>
-                                        <input type="number" id="inh-inp-sons" value="0" min="0" class="w-10 text-center bg-transparent text-amber-400 font-bold font-mono text-sm focus:outline-none" onchange="highlightCounterCard('sons')" />
-                                        <button type="button" onclick="adjustInhCounter('sons', 1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-amber-600/50 hover:bg-amber-600 text-white font-bold flex items-center justify-center text-sm">+</button>
-                                    </div>
-                                </div>
-
-                                <!-- Daughters -->
-                                <div id="inh-card-daughters" class="p-3 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
-                                    <div>
-                                        <div class="text-xs font-bold text-slate-200">البنات (الإناث)</div>
-                                        <div class="text-[10px] text-amber-400">فرض أو عصبة بالغير</div>
-                                    </div>
-                                    <div class="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
-                                        <button type="button" onclick="adjustInhCounter('daughters', -1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-sm">-</button>
-                                        <input type="number" id="inh-inp-daughters" value="0" min="0" class="w-10 text-center bg-transparent text-amber-400 font-bold font-mono text-sm focus:outline-none" onchange="highlightCounterCard('daughters')" />
-                                        <button type="button" onclick="adjustInhCounter('daughters', 1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-amber-600/50 hover:bg-amber-600 text-white font-bold flex items-center justify-center text-sm">+</button>
-                                    </div>
-                                </div>
-
-                                <!-- Son's Sons -->
-                                <div id="inh-card-sonsSons" class="p-3 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
-                                    <div>
-                                        <div class="text-xs font-bold text-slate-200">أبناء الابن (ذكور)</div>
-                                        <div class="text-[10px] text-slate-400">يحجبهم الابن المباشر</div>
-                                    </div>
-                                    <div class="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
-                                        <button type="button" onclick="adjustInhCounter('sonsSons', -1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-sm">-</button>
-                                        <input type="number" id="inh-inp-sonsSons" value="0" min="0" class="w-10 text-center bg-transparent text-amber-400 font-bold font-mono text-sm focus:outline-none" onchange="highlightCounterCard('sonsSons')" />
-                                        <button type="button" onclick="adjustInhCounter('sonsSons', 1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-amber-600/50 hover:bg-amber-600 text-white font-bold flex items-center justify-center text-sm">+</button>
-                                    </div>
-                                </div>
-
-                                <!-- Son's Daughters -->
-                                <div id="inh-card-sonsDaughters" class="p-3 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
-                                    <div>
-                                        <div class="text-xs font-bold text-slate-200">بنات الابن (إناث)</div>
-                                        <div class="text-[10px] text-slate-400">تكملة الثلثين أو حجب</div>
-                                    </div>
-                                    <div class="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
-                                        <button type="button" onclick="adjustInhCounter('sonsDaughters', -1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-sm">-</button>
-                                        <input type="number" id="inh-inp-sonsDaughters" value="0" min="0" class="w-10 text-center bg-transparent text-amber-400 font-bold font-mono text-sm focus:outline-none" onchange="highlightCounterCard('sonsDaughters')" />
-                                        <button type="button" onclick="adjustInhCounter('sonsDaughters', 1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-amber-600/50 hover:bg-amber-600 text-white font-bold flex items-center justify-center text-sm">+</button>
-                                    </div>
-                                </div>
-                            </div>
+                        <!-- Card 4: Bequest -->
+                        <div class="p-4 rounded-2xl bg-slate-950/80 border border-white/10 shadow-md space-y-2">
+                            <label class="text-xs sm:text-sm font-black text-slate-300 flex items-center gap-1.5">
+                                <i class="fa-solid fa-scroll text-slate-400"></i> الوصية الشرعية
+                            </label>
+                            <input type="number" id="inh-inp-bequest" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-white/10 rounded-xl px-4 py-3 text-xl sm:text-2xl font-black text-slate-200 font-mono text-center focus:outline-none transition" />
+                            <div class="text-[11px] text-slate-400 text-center font-bold">في حدود الثلث الشرعي لغير وارث</div>
                         </div>
-
-                        <!-- 4. الحواشي (Siblings) -->
-                        <div class="mb-5">
-                            <div class="text-xs font-extrabold text-slate-300 mb-2.5 flex items-center gap-1.5 border-r-2 border-cyan-500 pr-2">
-                                <i class="fa-solid fa-users text-cyan-400"></i>
-                                <span>فئة الحواشي (الإخوة والأخوات)</span>
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-3">
-                                <!-- Full Brother -->
-                                <div id="inh-card-fullBrothers" class="p-3 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
-                                    <div class="text-xs font-bold text-slate-200">الأخ الشقيق</div>
-                                    <div class="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
-                                        <button type="button" onclick="adjustInhCounter('fullBrothers', -1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-sm">-</button>
-                                        <input type="number" id="inh-inp-fullBrothers" value="0" min="0" class="w-9 text-center bg-transparent text-amber-400 font-bold font-mono text-sm focus:outline-none" onchange="highlightCounterCard('fullBrothers')" />
-                                        <button type="button" onclick="adjustInhCounter('fullBrothers', 1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-amber-600/50 hover:bg-amber-600 text-white font-bold flex items-center justify-center text-sm">+</button>
-                                    </div>
-                                </div>
-
-                                <!-- Full Sister -->
-                                <div id="inh-card-fullSisters" class="p-3 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
-                                    <div class="text-xs font-bold text-slate-200">الأخت الشقيقة</div>
-                                    <div class="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
-                                        <button type="button" onclick="adjustInhCounter('fullSisters', -1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-sm">-</button>
-                                        <input type="number" id="inh-inp-fullSisters" value="0" min="0" class="w-9 text-center bg-transparent text-amber-400 font-bold font-mono text-sm focus:outline-none" onchange="highlightCounterCard('fullSisters')" />
-                                        <button type="button" onclick="adjustInhCounter('fullSisters', 1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-amber-600/50 hover:bg-amber-600 text-white font-bold flex items-center justify-center text-sm">+</button>
-                                    </div>
-                                </div>
-
-                                <!-- Paternal Brother -->
-                                <div id="inh-card-paternalBrothers" class="p-3 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
-                                    <div class="text-xs font-bold text-slate-200">الأخ لأب</div>
-                                    <div class="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
-                                        <button type="button" onclick="adjustInhCounter('paternalBrothers', -1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-sm">-</button>
-                                        <input type="number" id="inh-inp-paternalBrothers" value="0" min="0" class="w-9 text-center bg-transparent text-amber-400 font-bold font-mono text-sm focus:outline-none" onchange="highlightCounterCard('paternalBrothers')" />
-                                        <button type="button" onclick="adjustInhCounter('paternalBrothers', 1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-amber-600/50 hover:bg-amber-600 text-white font-bold flex items-center justify-center text-sm">+</button>
-                                    </div>
-                                </div>
-
-                                <!-- Paternal Sister -->
-                                <div id="inh-card-paternalSisters" class="p-3 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
-                                    <div class="text-xs font-bold text-slate-200">الأخت لأب</div>
-                                    <div class="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
-                                        <button type="button" onclick="adjustInhCounter('paternalSisters', -1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-sm">-</button>
-                                        <input type="number" id="inh-inp-paternalSisters" value="0" min="0" class="w-9 text-center bg-transparent text-amber-400 font-bold font-mono text-sm focus:outline-none" onchange="highlightCounterCard('paternalSisters')" />
-                                        <button type="button" onclick="adjustInhCounter('paternalSisters', 1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-amber-600/50 hover:bg-amber-600 text-white font-bold flex items-center justify-center text-sm">+</button>
-                                    </div>
-                                </div>
-
-                                <!-- Maternal Siblings -->
-                                <div id="inh-card-maternalSiblings" class="p-3 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
-                                    <div>
-                                        <div class="text-xs font-bold text-slate-200">الإخوة لأم</div>
-                                        <div class="text-[10px] text-slate-400">ذكور وإناث بالسوية</div>
-                                    </div>
-                                    <div class="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
-                                        <button type="button" onclick="adjustInhCounter('maternalSiblings', -1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-sm">-</button>
-                                        <input type="number" id="inh-inp-maternalSiblings" value="0" min="0" class="w-9 text-center bg-transparent text-amber-400 font-bold font-mono text-sm focus:outline-none" onchange="highlightCounterCard('maternalSiblings')" />
-                                        <button type="button" onclick="adjustInhCounter('maternalSiblings', 1)" class="inh-counter-btn w-7 h-7 rounded-lg bg-amber-600/50 hover:bg-amber-600 text-white font-bold flex items-center justify-center text-sm">+</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <!-- 5. باقي العصبات (Collateral Agnates) -->
-                        <div class="mb-2">
-                            <div class="text-xs font-extrabold text-slate-300 mb-2.5 flex items-center gap-1.5 border-r-2 border-purple-500 pr-2">
-                                <i class="fa-solid fa-sitemap text-purple-400"></i>
-                                <span>فئة باقي العصبات (أبناء الأخوة والأعمام وبنوهم)</span>
-                            </div>
-                            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-6 gap-3">
-                                <!-- Full Nephew -->
-                                <div id="inh-card-fullNephews" class="p-2.5 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
-                                    <div class="text-[11px] font-bold text-slate-200">ابن أخ شقيق</div>
-                                    <div class="flex items-center gap-1 bg-black/40 p-0.5 rounded-lg border border-white/10">
-                                        <button type="button" onclick="adjustInhCounter('fullNephews', -1)" class="w-6 h-6 rounded bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-xs">-</button>
-                                        <input type="number" id="inh-inp-fullNephews" value="0" min="0" class="w-8 text-center bg-transparent text-amber-400 font-bold font-mono text-xs focus:outline-none" onchange="highlightCounterCard('fullNephews')" />
-                                        <button type="button" onclick="adjustInhCounter('fullNephews', 1)" class="w-6 h-6 rounded bg-amber-600/50 hover:bg-amber-600 text-white font-bold flex items-center justify-center text-xs">+</button>
-                                    </div>
-                                </div>
-
-                                <!-- Paternal Nephew -->
-                                <div id="inh-card-paternalNephews" class="p-2.5 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
-                                    <div class="text-[11px] font-bold text-slate-200">ابن أخ لأب</div>
-                                    <div class="flex items-center gap-1 bg-black/40 p-0.5 rounded-lg border border-white/10">
-                                        <button type="button" onclick="adjustInhCounter('paternalNephews', -1)" class="w-6 h-6 rounded bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-xs">-</button>
-                                        <input type="number" id="inh-inp-paternalNephews" value="0" min="0" class="w-8 text-center bg-transparent text-amber-400 font-bold font-mono text-xs focus:outline-none" onchange="highlightCounterCard('paternalNephews')" />
-                                        <button type="button" onclick="adjustInhCounter('paternalNephews', 1)" class="w-6 h-6 rounded bg-amber-600/50 hover:bg-amber-600 text-white font-bold flex items-center justify-center text-xs">+</button>
-                                    </div>
-                                </div>
-
-                                <!-- Full Uncle -->
-                                <div id="inh-card-fullUncles" class="p-2.5 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
-                                    <div class="text-[11px] font-bold text-slate-200">العم الشقيق</div>
-                                    <div class="flex items-center gap-1 bg-black/40 p-0.5 rounded-lg border border-white/10">
-                                        <button type="button" onclick="adjustInhCounter('fullUncles', -1)" class="w-6 h-6 rounded bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-xs">-</button>
-                                        <input type="number" id="inh-inp-fullUncles" value="0" min="0" class="w-8 text-center bg-transparent text-amber-400 font-bold font-mono text-xs focus:outline-none" onchange="highlightCounterCard('fullUncles')" />
-                                        <button type="button" onclick="adjustInhCounter('fullUncles', 1)" class="w-6 h-6 rounded bg-amber-600/50 hover:bg-amber-600 text-white font-bold flex items-center justify-center text-xs">+</button>
-                                    </div>
-                                </div>
-
-                                <!-- Paternal Uncle -->
-                                <div id="inh-card-paternalUncles" class="p-2.5 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
-                                    <div class="text-[11px] font-bold text-slate-200">العم لأب</div>
-                                    <div class="flex items-center gap-1 bg-black/40 p-0.5 rounded-lg border border-white/10">
-                                        <button type="button" onclick="adjustInhCounter('paternalUncles', -1)" class="w-6 h-6 rounded bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-xs">-</button>
-                                        <input type="number" id="inh-inp-paternalUncles" value="0" min="0" class="w-8 text-center bg-transparent text-amber-400 font-bold font-mono text-xs focus:outline-none" onchange="highlightCounterCard('paternalUncles')" />
-                                        <button type="button" onclick="adjustInhCounter('paternalUncles', 1)" class="w-6 h-6 rounded bg-amber-600/50 hover:bg-amber-600 text-white font-bold flex items-center justify-center text-xs">+</button>
-                                    </div>
-                                </div>
-
-                                <!-- Full Cousin -->
-                                <div id="inh-card-fullCousins" class="p-2.5 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
-                                    <div class="text-[11px] font-bold text-slate-200">ابن عم شقيق</div>
-                                    <div class="flex items-center gap-1 bg-black/40 p-0.5 rounded-lg border border-white/10">
-                                        <button type="button" onclick="adjustInhCounter('fullCousins', -1)" class="w-6 h-6 rounded bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-xs">-</button>
-                                        <input type="number" id="inh-inp-fullCousins" value="0" min="0" class="w-8 text-center bg-transparent text-amber-400 font-bold font-mono text-xs focus:outline-none" onchange="highlightCounterCard('fullCousins')" />
-                                        <button type="button" onclick="adjustInhCounter('fullCousins', 1)" class="w-6 h-6 rounded bg-amber-600/50 hover:bg-amber-600 text-white font-bold flex items-center justify-center text-xs">+</button>
-                                    </div>
-                                </div>
-
-                                <!-- Paternal Cousin -->
-                                <div id="inh-card-paternalCousins" class="p-2.5 rounded-xl bg-slate-900/70 border border-white/10 flex items-center justify-between transition-all">
-                                    <div class="text-[11px] font-bold text-slate-200">ابن عم لأب</div>
-                                    <div class="flex items-center gap-1 bg-black/40 p-0.5 rounded-lg border border-white/10">
-                                        <button type="button" onclick="adjustInhCounter('paternalCousins', -1)" class="w-6 h-6 rounded bg-slate-800 text-slate-300 font-bold flex items-center justify-center text-xs">-</button>
-                                        <input type="number" id="inh-inp-paternalCousins" value="0" min="0" class="w-8 text-center bg-transparent text-amber-400 font-bold font-mono text-xs focus:outline-none" onchange="highlightCounterCard('paternalCousins')" />
-                                        <button type="button" onclick="adjustInhCounter('paternalCousins', 1)" class="w-6 h-6 rounded bg-amber-600/50 hover:bg-amber-600 text-white font-bold flex items-center justify-center text-xs">+</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-
-                    <!-- Action Buttons -->
-                    <div class="flex flex-col sm:flex-row items-center gap-3 pt-2">
-                        <button type="button" onclick="runIslamicInheritanceCalculation()" class="w-full sm:flex-1 py-3.5 px-6 rounded-2xl bg-gradient-to-r from-amber-600 via-amber-500 to-yellow-500 hover:from-amber-500 hover:to-yellow-400 text-slate-950 font-black text-base shadow-lg shadow-amber-500/25 transition-all flex items-center justify-center gap-3">
-                            <i class="fa-solid fa-scale-balanced text-lg"></i>
-                            <span>احسب الميراث الشرعي الآن ووزع التركة ⚖️</span>
-                        </button>
-                        <button type="button" onclick="resetInheritanceForm()" class="w-full sm:w-auto py-3.5 px-5 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-white/10 text-slate-300 font-bold text-xs transition flex items-center justify-center gap-2">
-                            <i class="fa-solid fa-rotate-right"></i>
-                            <span>إعادة تعيين</span>
-                        </button>
                     </div>
                 </div>
 
-                <!-- Step 3: Calculation Results Section (Hidden initially) -->
-                <div id="inh-results-container" class="hidden mt-8 pt-6 border-t border-amber-500/30 space-y-6">
-                    <!-- Results Header -->
-                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-amber-950/20 border border-amber-500/30 p-4 rounded-2xl">
-                        <div class="flex items-center gap-3">
-                            <div class="w-10 h-10 rounded-xl bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-amber-400 text-xl font-bold">
-                                ⚖️
+                <!-- 5. Heirs Selection (Eliminated +/- for Direct, Clean, High-End Numeric Inputs) -->
+                <div class="mb-8 p-6 rounded-2xl bg-slate-900/70 border border-white/10 shadow-xl space-y-6">
+                    <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-2 border-b border-white/10 pb-4">
+                        <label class="text-sm sm:text-base font-black text-slate-200 flex items-center gap-2">
+                            <span class="w-7 h-7 rounded-lg bg-amber-500/20 border border-amber-500/40 flex items-center justify-center text-xs text-amber-300 font-bold">3</span>
+                            أدخل عدد الأحياء من الورثة المستحقين (اكتب العدد مباشرة):
+                        </label>
+                        <span class="text-xs sm:text-sm text-amber-300/90 font-bold bg-amber-500/10 px-3 py-1 rounded-lg border border-amber-500/20">
+                            💡 ضع الرقم في الخانة مباشرة وسيضيء كرت الوارث فوراً
+                        </span>
+                    </div>
+
+                    <!-- Category A: الزوجية -->
+                    <div class="space-y-3">
+                        <div class="text-sm font-black text-pink-300 flex items-center gap-2 border-r-4 border-pink-500 pr-2.5">
+                            <i class="fa-solid fa-ring text-pink-400"></i>
+                            <span>فئة الزوجية (الزوج أو الزوجات)</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                            <!-- Wives (Deceased Male) -->
+                            <div id="inh-card-wives" class="p-4 rounded-2xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-4 transition-all duration-300">
+                                <div>
+                                    <div class="text-base sm:text-lg font-black text-white">الزوجات (الأرامل)</div>
+                                    <div class="text-xs text-slate-400 mt-0.5">فرض الثمن أو الربع (بحد أقصى 4)</div>
+                                </div>
+                                <div class="w-24">
+                                    <input type="number" id="inh-inp-wives" value="0" min="0" max="4" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-white/20 rounded-xl py-2.5 text-center text-2xl font-black text-amber-300 font-mono focus:outline-none transition" oninput="highlightCounterCard('wives')" />
+                                </div>
+                            </div>
+
+                            <!-- Husband (Deceased Female) -->
+                            <div id="inh-card-husband" class="hidden p-4 rounded-2xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-4 transition-all duration-300">
+                                <div>
+                                    <div class="text-base sm:text-lg font-black text-white">الزوج</div>
+                                    <div class="text-xs text-slate-400 mt-0.5">فرض النصف أو الربع (الحد الأقصى 1)</div>
+                                </div>
+                                <div class="w-24">
+                                    <input type="number" id="inh-inp-husband" value="0" min="0" max="1" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-white/20 rounded-xl py-2.5 text-center text-2xl font-black text-amber-300 font-mono focus:outline-none transition" oninput="highlightCounterCard('husband')" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category B: الأصول (الآباء والأمهات والأجداد) -->
+                    <div class="space-y-3 pt-2">
+                        <div class="text-sm font-black text-amber-300 flex items-center gap-2 border-r-4 border-amber-500 pr-2.5">
+                            <i class="fa-solid fa-tree text-amber-400"></i>
+                            <span>فئة الأصول (الآباء والأمهات والأجداد)</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5">
+                            <!-- Father -->
+                            <div id="inh-card-father" class="p-3.5 rounded-2xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-3 transition-all duration-300">
+                                <div>
+                                    <div class="text-base sm:text-lg font-black text-white">الأب</div>
+                                    <div class="text-xs text-amber-400/80 font-bold">فرض أو عصبة</div>
+                                </div>
+                                <div class="w-20">
+                                    <input type="number" id="inh-inp-father" value="0" min="0" max="1" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-white/20 rounded-xl py-2 text-center text-xl font-black text-amber-300 font-mono focus:outline-none transition" oninput="highlightCounterCard('father')" />
+                                </div>
+                            </div>
+
+                            <!-- Mother -->
+                            <div id="inh-card-mother" class="p-3.5 rounded-2xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-3 transition-all duration-300">
+                                <div>
+                                    <div class="text-base sm:text-lg font-black text-white">الأم</div>
+                                    <div class="text-xs text-amber-400/80 font-bold">الثلث أو السدس</div>
+                                </div>
+                                <div class="w-20">
+                                    <input type="number" id="inh-inp-mother" value="0" min="0" max="1" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-white/20 rounded-xl py-2 text-center text-xl font-black text-amber-300 font-mono focus:outline-none transition" oninput="highlightCounterCard('mother')" />
+                                </div>
+                            </div>
+
+                            <!-- Paternal Grandfather -->
+                            <div id="inh-card-paternalGrandfather" class="p-3.5 rounded-2xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-3 transition-all duration-300">
+                                <div>
+                                    <div class="text-sm sm:text-base font-black text-white">الجد لأب</div>
+                                    <div class="text-xs text-slate-400">أبو الأب (عند فقده)</div>
+                                </div>
+                                <div class="w-20">
+                                    <input type="number" id="inh-inp-paternalGrandfather" value="0" min="0" max="1" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-white/20 rounded-xl py-2 text-center text-xl font-black text-amber-300 font-mono focus:outline-none transition" oninput="highlightCounterCard('paternalGrandfather')" />
+                                </div>
+                            </div>
+
+                            <!-- Paternal Grandmother -->
+                            <div id="inh-card-paternalGrandmother" class="p-3.5 rounded-2xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-3 transition-all duration-300">
+                                <div>
+                                    <div class="text-sm sm:text-base font-black text-white">الجدة لأب</div>
+                                    <div class="text-xs text-slate-400">أم الأب (السدس)</div>
+                                </div>
+                                <div class="w-20">
+                                    <input type="number" id="inh-inp-paternalGrandmother" value="0" min="0" max="1" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-white/20 rounded-xl py-2 text-center text-xl font-black text-amber-300 font-mono focus:outline-none transition" oninput="highlightCounterCard('paternalGrandmother')" />
+                                </div>
+                            </div>
+
+                            <!-- Maternal Grandmother -->
+                            <div id="inh-card-maternalGrandmother" class="p-3.5 rounded-2xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-3 transition-all duration-300">
+                                <div>
+                                    <div class="text-sm sm:text-base font-black text-white">الجدة لأم</div>
+                                    <div class="text-xs text-slate-400">أم الأم (السدس)</div>
+                                </div>
+                                <div class="w-20">
+                                    <input type="number" id="inh-inp-maternalGrandmother" value="0" min="0" max="1" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-white/20 rounded-xl py-2 text-center text-xl font-black text-amber-300 font-mono focus:outline-none transition" oninput="highlightCounterCard('maternalGrandmother')" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category C: الفروع (الأبناء والبنات وأولاد الابن) -->
+                    <div class="space-y-3 pt-2">
+                        <div class="text-sm font-black text-emerald-300 flex items-center gap-2 border-r-4 border-emerald-500 pr-2.5">
+                            <i class="fa-solid fa-people-roof text-emerald-400"></i>
+                            <span>فئة الفروع (الأبناء والبنات وأولاد الابن)</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+                            <!-- Sons -->
+                            <div id="inh-card-sons" class="p-4 rounded-2xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-4 transition-all duration-300">
+                                <div>
+                                    <div class="text-base sm:text-lg font-black text-emerald-300">الأبناء (الذكور)</div>
+                                    <div class="text-xs text-slate-300 mt-0.5">عصبة بالنفس (أقوى الورثة)</div>
+                                </div>
+                                <div class="w-24">
+                                    <input type="number" id="inh-inp-sons" value="0" min="0" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-emerald-500/40 rounded-xl py-2.5 text-center text-2xl font-black text-emerald-300 font-mono focus:outline-none transition" oninput="highlightCounterCard('sons')" />
+                                </div>
+                            </div>
+
+                            <!-- Daughters -->
+                            <div id="inh-card-daughters" class="p-4 rounded-2xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-4 transition-all duration-300">
+                                <div>
+                                    <div class="text-base sm:text-lg font-black text-amber-300">البنات (الإناث)</div>
+                                    <div class="text-xs text-slate-300 mt-0.5">فرض (1/2 أو 2/3) أو عصبة بالغير</div>
+                                </div>
+                                <div class="w-24">
+                                    <input type="number" id="inh-inp-daughters" value="0" min="0" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-amber-500/40 rounded-xl py-2.5 text-center text-2xl font-black text-amber-300 font-mono focus:outline-none transition" oninput="highlightCounterCard('daughters')" />
+                                </div>
+                            </div>
+
+                            <!-- Son's Sons -->
+                            <div id="inh-card-sonsSons" class="p-4 rounded-2xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-4 transition-all duration-300">
+                                <div>
+                                    <div class="text-base sm:text-lg font-black text-white">أبناء الابن (ذكور)</div>
+                                    <div class="text-xs text-slate-400 mt-0.5">يحجبهم الابن المباشر</div>
+                                </div>
+                                <div class="w-24">
+                                    <input type="number" id="inh-inp-sonsSons" value="0" min="0" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-white/20 rounded-xl py-2.5 text-center text-2xl font-black text-amber-300 font-mono focus:outline-none transition" oninput="highlightCounterCard('sonsSons')" />
+                                </div>
+                            </div>
+
+                            <!-- Son's Daughters -->
+                            <div id="inh-card-sonsDaughters" class="p-4 rounded-2xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-4 transition-all duration-300">
+                                <div>
+                                    <div class="text-base sm:text-lg font-black text-white">بنات الابن (إناث)</div>
+                                    <div class="text-xs text-slate-400 mt-0.5">تكملة الثلثين أو عصبة أو حجب</div>
+                                </div>
+                                <div class="w-24">
+                                    <input type="number" id="inh-inp-sonsDaughters" value="0" min="0" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-white/20 rounded-xl py-2.5 text-center text-2xl font-black text-amber-300 font-mono focus:outline-none transition" oninput="highlightCounterCard('sonsDaughters')" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category D: الحواشي (الإخوة والأخوات) -->
+                    <div class="space-y-3 pt-2">
+                        <div class="text-sm font-black text-cyan-300 flex items-center gap-2 border-r-4 border-cyan-500 pr-2.5">
+                            <i class="fa-solid fa-users text-cyan-400"></i>
+                            <span>فئة الحواشي (الإخوة والأخوات الأشقاء ولأب ولأم)</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-5 gap-3.5">
+                            <!-- Full Brother -->
+                            <div id="inh-card-fullBrothers" class="p-3.5 rounded-2xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-3 transition-all duration-300">
+                                <div>
+                                    <div class="text-base sm:text-lg font-black text-white">الأخ الشقيق</div>
+                                    <div class="text-xs text-cyan-300/80 font-bold">عصبة بالنفس</div>
+                                </div>
+                                <div class="w-20">
+                                    <input type="number" id="inh-inp-fullBrothers" value="0" min="0" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-white/20 rounded-xl py-2 text-center text-xl font-black text-amber-300 font-mono focus:outline-none transition" oninput="highlightCounterCard('fullBrothers')" />
+                                </div>
+                            </div>
+
+                            <!-- Full Sister -->
+                            <div id="inh-card-fullSisters" class="p-3.5 rounded-2xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-3 transition-all duration-300">
+                                <div>
+                                    <div class="text-base sm:text-lg font-black text-white">الأخت الشقيقة</div>
+                                    <div class="text-xs text-cyan-300/80 font-bold">فرض أو عصبة</div>
+                                </div>
+                                <div class="w-20">
+                                    <input type="number" id="inh-inp-fullSisters" value="0" min="0" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-white/20 rounded-xl py-2 text-center text-xl font-black text-amber-300 font-mono focus:outline-none transition" oninput="highlightCounterCard('fullSisters')" />
+                                </div>
+                            </div>
+
+                            <!-- Paternal Brother -->
+                            <div id="inh-card-paternalBrothers" class="p-3.5 rounded-2xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-3 transition-all duration-300">
+                                <div>
+                                    <div class="text-base sm:text-lg font-black text-white">الأخ لأب</div>
+                                    <div class="text-xs text-slate-400">عصبة عند عدم الشقيق</div>
+                                </div>
+                                <div class="w-20">
+                                    <input type="number" id="inh-inp-paternalBrothers" value="0" min="0" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-white/20 rounded-xl py-2 text-center text-xl font-black text-amber-300 font-mono focus:outline-none transition" oninput="highlightCounterCard('paternalBrothers')" />
+                                </div>
+                            </div>
+
+                            <!-- Paternal Sister -->
+                            <div id="inh-card-paternalSisters" class="p-3.5 rounded-2xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-3 transition-all duration-300">
+                                <div>
+                                    <div class="text-base sm:text-lg font-black text-white">الأخت لأب</div>
+                                    <div class="text-xs text-slate-400">فرض أو تكملة ثلثين</div>
+                                </div>
+                                <div class="w-20">
+                                    <input type="number" id="inh-inp-paternalSisters" value="0" min="0" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-white/20 rounded-xl py-2 text-center text-xl font-black text-amber-300 font-mono focus:outline-none transition" oninput="highlightCounterCard('paternalSisters')" />
+                                </div>
+                            </div>
+
+                            <!-- Maternal Siblings -->
+                            <div id="inh-card-maternalSiblings" class="p-3.5 rounded-2xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-3 transition-all duration-300">
+                                <div>
+                                    <div class="text-base sm:text-lg font-black text-white">الإخوة لأم</div>
+                                    <div class="text-xs text-slate-400">ذكور وإناث بالسوية</div>
+                                </div>
+                                <div class="w-20">
+                                    <input type="number" id="inh-inp-maternalSiblings" value="0" min="0" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-white/20 rounded-xl py-2 text-center text-xl font-black text-amber-300 font-mono focus:outline-none transition" oninput="highlightCounterCard('maternalSiblings')" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Category E: باقي العصبات (أبناء الإخوة والأعمام) -->
+                    <div class="space-y-3 pt-2">
+                        <div class="text-sm font-black text-purple-300 flex items-center gap-2 border-r-4 border-purple-500 pr-2.5">
+                            <i class="fa-solid fa-sitemap text-purple-400"></i>
+                            <span>فئة باقي العصبات (أبناء الإخوة والأعمام وبنوهم)</span>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-6 gap-3">
+                            <!-- Full Nephew -->
+                            <div id="inh-card-fullNephews" class="p-3 rounded-2xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-2 transition-all duration-300">
+                                <div>
+                                    <div class="text-sm font-black text-white">ابن أخ شقيق</div>
+                                    <div class="text-[11px] text-slate-400">عصبة بالنفس</div>
+                                </div>
+                                <div class="w-16">
+                                    <input type="number" id="inh-inp-fullNephews" value="0" min="0" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-white/20 rounded-xl py-1.5 text-center text-lg font-black text-amber-300 font-mono focus:outline-none transition" oninput="highlightCounterCard('fullNephews')" />
+                                </div>
+                            </div>
+
+                            <!-- Paternal Nephew -->
+                            <div id="inh-card-paternalNephews" class="p-3 rounded-2xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-2 transition-all duration-300">
+                                <div>
+                                    <div class="text-sm font-black text-white">ابن أخ لأب</div>
+                                    <div class="text-[11px] text-slate-400">عصبة بالنفس</div>
+                                </div>
+                                <div class="w-16">
+                                    <input type="number" id="inh-inp-paternalNephews" value="0" min="0" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-white/20 rounded-xl py-1.5 text-center text-lg font-black text-amber-300 font-mono focus:outline-none transition" oninput="highlightCounterCard('paternalNephews')" />
+                                </div>
+                            </div>
+
+                            <!-- Full Uncle -->
+                            <div id="inh-card-fullUncles" class="p-3 rounded-2xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-2 transition-all duration-300">
+                                <div>
+                                    <div class="text-sm font-black text-white">العم الشقيق</div>
+                                    <div class="text-[11px] text-slate-400">عصبة بالنفس</div>
+                                </div>
+                                <div class="w-16">
+                                    <input type="number" id="inh-inp-fullUncles" value="0" min="0" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-white/20 rounded-xl py-1.5 text-center text-lg font-black text-amber-300 font-mono focus:outline-none transition" oninput="highlightCounterCard('fullUncles')" />
+                                </div>
+                            </div>
+
+                            <!-- Paternal Uncle -->
+                            <div id="inh-card-paternalUncles" class="p-3 rounded-2xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-2 transition-all duration-300">
+                                <div>
+                                    <div class="text-sm font-black text-white">العم لأب</div>
+                                    <div class="text-[11px] text-slate-400">عصبة بالنفس</div>
+                                </div>
+                                <div class="w-16">
+                                    <input type="number" id="inh-inp-paternalUncles" value="0" min="0" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-white/20 rounded-xl py-1.5 text-center text-lg font-black text-amber-300 font-mono focus:outline-none transition" oninput="highlightCounterCard('paternalUncles')" />
+                                </div>
+                            </div>
+
+                            <!-- Full Cousin -->
+                            <div id="inh-card-fullCousins" class="p-3 rounded-2xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-2 transition-all duration-300">
+                                <div>
+                                    <div class="text-sm font-black text-white">ابن عم شقيق</div>
+                                    <div class="text-[11px] text-slate-400">عصبة بالنفس</div>
+                                </div>
+                                <div class="w-16">
+                                    <input type="number" id="inh-inp-fullCousins" value="0" min="0" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-white/20 rounded-xl py-1.5 text-center text-lg font-black text-amber-300 font-mono focus:outline-none transition" oninput="highlightCounterCard('fullCousins')" />
+                                </div>
+                            </div>
+
+                            <!-- Paternal Cousin -->
+                            <div id="inh-card-paternalCousins" class="p-3 rounded-2xl bg-slate-950/80 border border-white/10 flex items-center justify-between gap-2 transition-all duration-300">
+                                <div>
+                                    <div class="text-sm font-black text-white">ابن عم لأب</div>
+                                    <div class="text-[11px] text-slate-400">عصبة بالنفس</div>
+                                </div>
+                                <div class="w-16">
+                                    <input type="number" id="inh-inp-paternalCousins" value="0" min="0" placeholder="0" class="inh-input-box w-full bg-slate-900 border border-white/20 rounded-xl py-1.5 text-center text-lg font-black text-amber-300 font-mono focus:outline-none transition" oninput="highlightCounterCard('paternalCousins')" />
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 6. Grand Action Command Center (Balanced, Majestic, Centered) -->
+                <div class="flex flex-col sm:flex-row items-center justify-center gap-4 py-4">
+                    <button type="button" onclick="runIslamicInheritanceCalculation()" class="inh-calc-btn-luxury w-full sm:w-auto px-12 py-4 rounded-2xl text-slate-950 font-black text-lg sm:text-xl shadow-2xl flex items-center justify-center gap-3.5 border border-yellow-200/50 cursor-pointer">
+                        <i class="fa-solid fa-scale-balanced text-2xl"></i>
+                        <span>احسب الميراث الشرعي واعرض التوزيع المعتمد ⚖️</span>
+                    </button>
+                    <button type="button" onclick="resetInheritanceForm()" class="w-full sm:w-auto px-8 py-4 rounded-2xl bg-slate-800 hover:bg-slate-700 border border-white/15 text-slate-200 font-black text-base transition flex items-center justify-center gap-2.5 shadow-md cursor-pointer">
+                        <i class="fa-solid fa-rotate-right text-lg text-amber-400"></i>
+                        <span>تفريغ وإعادة التعيين</span>
+                    </button>
+                </div>
+
+                <!-- 7. Results Section (Grand Royal Certificate) -->
+                <div id="inh-results-container" class="hidden mt-10 pt-8 border-t-2 border-amber-500/40 space-y-8">
+                    <!-- Certificate Header -->
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 bg-gradient-to-r from-amber-950/40 via-slate-900/80 to-amber-950/30 border border-amber-500/40 p-5 rounded-2xl shadow-xl">
+                        <div class="flex items-center gap-4">
+                            <div class="w-14 h-14 rounded-2xl bg-amber-500/20 border-2 border-amber-500/50 flex items-center justify-center text-amber-300 text-3xl font-black shadow-lg">
+                                📜
                             </div>
                             <div>
-                                <h4 class="text-base font-black text-white">وثيقة توزيع الأنصبة والمواريث الشرعية</h4>
-                                <p class="text-xs text-amber-300/80">تطبيق دقيق لأحكام سورتي النساء والبقرة وإجماع فقهاء الأمة</p>
+                                <h4 class="text-xl sm:text-2xl font-black text-white">وثيقة حصر وتوزيع التركة الشرعية الرسمية</h4>
+                                <p class="text-sm text-amber-300/90 font-medium mt-0.5">تطبيق دقيق ومحكم لأحكام سورتي النساء والبقرة وإجماع فقهاء الأمة</p>
                             </div>
                         </div>
 
                         <!-- Action Toolbar -->
-                        <div class="flex flex-wrap items-center gap-2 w-full sm:w-auto">
-                            <button type="button" onclick="printIslamicInheritanceReport()" class="px-3 py-2 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/50 text-xs font-bold text-emerald-200 transition flex items-center gap-1.5 shadow-sm">
-                                <i class="fa-solid fa-print"></i> طباعة وثيقة رسمية A4
+                        <div class="flex flex-wrap items-center gap-3 w-full md:w-auto">
+                            <button type="button" onclick="printIslamicInheritanceReport()" class="px-5 py-2.5 rounded-xl bg-emerald-600/30 hover:bg-emerald-600/50 border border-emerald-500/50 text-sm font-bold text-emerald-200 transition flex items-center gap-2 shadow-sm cursor-pointer">
+                                <i class="fa-solid fa-print"></i> طباعة الوثيقة الرسمية A4
                             </button>
-                            <button type="button" onclick="shareIslamicInheritanceWhatsApp()" class="px-3 py-2 rounded-xl bg-green-600/30 hover:bg-green-600/50 border border-green-500/50 text-xs font-bold text-green-200 transition flex items-center gap-1.5 shadow-sm">
-                                <i class="fa-brands fa-whatsapp"></i> مشاركة عبر واتساب
+                            <button type="button" onclick="shareIslamicInheritanceWhatsApp()" class="px-5 py-2.5 rounded-xl bg-green-600/30 hover:bg-green-600/50 border border-green-500/50 text-sm font-bold text-green-200 transition flex items-center gap-2 shadow-sm cursor-pointer">
+                                <i class="fa-brands fa-whatsapp text-lg"></i> مشاركة عبر واتساب
                             </button>
-                            <button type="button" onclick="copyIslamicInheritanceSummary()" class="px-3 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 border border-white/10 text-xs font-bold text-slate-200 transition flex items-center gap-1.5">
+                            <button type="button" onclick="copyIslamicInheritanceSummary()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 border border-white/15 text-sm font-bold text-slate-200 transition flex items-center gap-2 cursor-pointer">
                                 <i class="fa-solid fa-copy"></i> نسخ الملخص
                             </button>
                         </div>
                     </div>
 
-                    <!-- Financial Summary 5 KPI Cards -->
-                    <div class="grid grid-cols-2 md:grid-cols-5 gap-3">
-                        <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-white/10">
-                            <div class="text-[11px] text-slate-400 font-bold mb-1">إجمالي التركة الأساسية</div>
-                            <div id="inh-res-gross" class="text-base font-extrabold text-white font-mono">—</div>
+                    <!-- 5 Major Financial KPIs -->
+                    <div class="grid grid-cols-2 lg:grid-cols-5 gap-4">
+                        <div class="p-4 rounded-2xl bg-slate-950/80 border border-white/10 shadow-md">
+                            <div class="text-xs sm:text-sm text-slate-400 font-bold mb-1.5">إجمالي التركة الكلية</div>
+                            <div id="inh-res-gross" class="text-lg sm:text-2xl font-black text-white font-mono">—</div>
                         </div>
-                        <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-white/10">
-                            <div class="text-[11px] text-rose-400 font-bold mb-1">الديون والمؤن والوصية</div>
-                            <div id="inh-res-deductions" class="text-base font-extrabold text-rose-300 font-mono">—</div>
+                        <div class="p-4 rounded-2xl bg-slate-950/80 border border-rose-500/30 shadow-md">
+                            <div class="text-xs sm:text-sm text-rose-300 font-bold mb-1.5">الديون والمؤن والوصية</div>
+                            <div id="inh-res-deductions" class="text-lg sm:text-2xl font-black text-rose-300 font-mono">—</div>
                         </div>
-                        <div class="p-3.5 rounded-2xl bg-emerald-950/30 border border-emerald-500/30 col-span-2 md:col-span-1">
-                            <div class="text-[11px] text-emerald-400 font-bold mb-1">صافي التركة الموزعة 💎</div>
-                            <div id="inh-res-distributable" class="text-base font-black text-emerald-300 font-mono">—</div>
+                        <div class="p-4 rounded-2xl bg-emerald-950/30 border-2 border-emerald-500/50 col-span-2 lg:col-span-1 shadow-lg">
+                            <div class="text-xs sm:text-sm text-emerald-400 font-bold mb-1.5">صافي التركة للتوزيع 💎</div>
+                            <div id="inh-res-distributable" class="text-xl sm:text-2xl font-black text-emerald-300 font-mono">—</div>
                         </div>
-                        <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-white/10">
-                            <div class="text-[11px] text-amber-400 font-bold mb-1">تكييف المسألة</div>
-                            <div id="inh-res-casetype" class="text-xs font-bold text-amber-200 truncate">—</div>
+                        <div class="p-4 rounded-2xl bg-slate-950/80 border border-amber-500/30 shadow-md">
+                            <div class="text-xs sm:text-sm text-amber-300 font-bold mb-1.5">تكييف المسألة الشرعية</div>
+                            <div id="inh-res-casetype" class="text-xs sm:text-sm font-black text-amber-200 truncate">—</div>
                         </div>
-                        <div class="p-3.5 rounded-2xl bg-slate-900/80 border border-white/10">
-                            <div class="text-[11px] text-cyan-400 font-bold mb-1">أصل المسألة (السهام)</div>
-                            <div id="inh-res-base" class="text-base font-extrabold text-cyan-300 font-mono">—</div>
+                        <div class="p-4 rounded-2xl bg-slate-950/80 border border-cyan-500/30 shadow-md">
+                            <div class="text-xs sm:text-sm text-cyan-300 font-bold mb-1.5">أصل المسألة (السهام)</div>
+                            <div id="inh-res-base" class="text-lg sm:text-2xl font-black text-cyan-300 font-mono">—</div>
                         </div>
                     </div>
 
-                    <!-- Visual Distribution Multi-Colored Progress Bar -->
-                    <div class="p-4 rounded-2xl bg-slate-900/70 border border-white/10 space-y-2">
-                        <div class="flex items-center justify-between text-xs text-slate-300 font-bold">
-                            <span class="flex items-center gap-1.5"><i class="fa-solid fa-chart-pie text-amber-400"></i> التوزيع النسبي للأنصبة الشرعية</span>
-                            <span class="text-slate-400 text-[11px]">مجموع الأنصبة: 100%</span>
+                    <!-- Visual Proportional Progress Bar -->
+                    <div class="p-5 rounded-2xl bg-slate-950/80 border border-white/10 space-y-3 shadow-md">
+                        <div class="flex items-center justify-between text-sm sm:text-base text-slate-200 font-bold">
+                            <span class="flex items-center gap-2"><i class="fa-solid fa-chart-pie text-amber-400"></i> التوزيع النسبي للأنصبة الشرعية:</span>
+                            <span class="text-amber-300 font-mono">100% كامل التركة</span>
                         </div>
-                        <div id="inh-distribution-bar" class="w-full h-7 rounded-xl overflow-hidden flex bg-slate-800 border border-white/10">
+                        <div id="inh-distribution-bar" class="w-full h-8 rounded-xl overflow-hidden flex bg-slate-900 border border-white/15 shadow-inner">
                             <!-- Injected dynamically -->
                         </div>
                     </div>
 
                     <!-- Detailed Heirs Distribution Table -->
-                    <div class="overflow-x-auto rounded-2xl border border-white/10 bg-slate-900/60 shadow-xl">
+                    <div class="overflow-x-auto rounded-2xl border border-white/10 bg-slate-950/80 shadow-2xl">
                         <table class="w-full text-right border-collapse">
                             <thead>
-                                <tr class="bg-white/[0.04] border-b border-white/10 text-xs font-bold text-slate-300">
-                                    <th class="p-3.5">الوارث المستحق وعددهم</th>
-                                    <th class="p-3.5 text-center">الفرض المقدر</th>
-                                    <th class="p-3.5 text-center">النسبة المئوية %</th>
-                                    <th class="p-3.5 text-center">المبلغ الإجمالي للفئة</th>
-                                    <th class="p-3.5 text-center">نصيب الفرد الواحد</th>
-                                    <th class="p-3.5 text-right">السبب والسند والدليل الشرعي</th>
+                                <tr class="bg-white/[0.06] border-b border-white/10 text-xs sm:text-sm font-black text-slate-200">
+                                    <th class="p-4">الوارث المستحق وعددهم</th>
+                                    <th class="p-4 text-center">الفرض الشرعي</th>
+                                    <th class="p-4 text-center">النسبة المئوية %</th>
+                                    <th class="p-4 text-center">المبلغ الإجمالي للفئة</th>
+                                    <th class="p-4 text-center">نصيب الفرد الواحد</th>
+                                    <th class="p-4 text-right">السند والعلة الشرعية والدليل</th>
                                 </tr>
                             </thead>
-                            <tbody id="inh-table-body" class="divide-y divide-white/5 text-sm">
+                            <tbody id="inh-table-body" class="divide-y divide-white/5 text-sm sm:text-base">
                                 <!-- Dynamic Rows -->
                             </tbody>
                         </table>
                     </div>
 
-                    <!-- Blocked Heirs Alert Box (If any) -->
-                    <div id="inh-blocked-container" class="hidden p-4 rounded-2xl bg-rose-950/20 border border-rose-800/40 space-y-2.5">
-                        <h5 class="text-xs font-black text-rose-300 flex items-center gap-2">
-                            <i class="fa-solid fa-circle-exclamation text-rose-400"></i>
-                            الورثة المحجوبون شرعاً من الميراث (حجب حرمان تام) مع بيان العلة الشرعية:
+                    <!-- Blocked Heirs Alert Box -->
+                    <div id="inh-blocked-container" class="hidden p-5 rounded-2xl bg-rose-950/30 border-2 border-rose-800/60 space-y-3 shadow-xl">
+                        <h5 class="text-sm sm:text-base font-black text-rose-200 flex items-center gap-2.5">
+                            <i class="fa-solid fa-circle-exclamation text-rose-400 text-lg"></i>
+                            الورثة المحجوبون شرعاً من الميراث (حجب حرمان تام) مع بيان العلة الفقهية:
                         </h5>
-                        <div id="inh-blocked-list" class="grid grid-cols-1 md:grid-cols-2 gap-2">
+                        <div id="inh-blocked-list" class="grid grid-cols-1 md:grid-cols-2 gap-3">
                             <!-- Dynamic Blocked items -->
                         </div>
                     </div>
