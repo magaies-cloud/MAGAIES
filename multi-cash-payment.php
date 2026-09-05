@@ -362,7 +362,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
 
         /* ═══ Base Crystal Button (Master Data Inspired) ═══ */
-        .crystal-btn, .voucher-type-btn, .pay-toggle-btn {
+        .crystal-btn, .pay-toggle-btn {
             position: relative;
             background: rgba(0, 0, 0, 0.2); /* Darker background, no inner light */
             backdrop-filter: blur(18px);
@@ -390,16 +390,16 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
 
         /* Highly Visible Internal Glitter Sparkles Overlay (DISABLED PER USER) */
-        .crystal-btn::after, .voucher-type-btn::after, .pay-toggle-btn::after {
+        .crystal-btn::after, .pay-toggle-btn::after {
             display: none !important;
         }
 
-        .crystal-btn:hover::after, .voucher-type-btn:hover::after, .pay-toggle-btn:hover::after {
+        .crystal-btn:hover::after, .pay-toggle-btn:hover::after {
             display: none !important;
         }
 
         /* Rear Bottom Light Ray Beam Projection (Faint per user) */
-        .crystal-btn::before, .voucher-type-btn::before, .pay-toggle-btn::before {
+        .crystal-btn::before, .pay-toggle-btn::before {
             content: '';
             position: absolute;
             bottom: -16px;
@@ -416,7 +416,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             animation: rearRayPulse 3s infinite ease-in-out;
         }
 
-        .crystal-btn:hover::before, .voucher-type-btn:hover::before, .pay-toggle-btn:hover::before {
+        .crystal-btn:hover::before, .pay-toggle-btn:hover::before {
             opacity: 0.25 !important; /* Very faint on hover */
             transform: scaleX(1.4) translateY(5px) !important;
             filter: blur(18px) brightness(1.2) !important;
@@ -440,7 +440,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
 
         /* Hover Scale + Light Glow + Text Contrast Protection */
-        .crystal-btn:hover, .voucher-type-btn:hover, .pay-toggle-btn:hover {
+        .crystal-btn:hover, .pay-toggle-btn:hover {
             transform: translateY(-5px) scale(1.08) !important;
             color: #ffffff !important;
             text-shadow: 0 0 8px rgba(0,0,0,0.8) !important;
@@ -450,40 +450,13 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             z-index: 10;
         }
 
-        .crystal-btn:hover .btn-icon, .voucher-type-btn:hover .btn-icon, .pay-toggle-btn:hover .btn-icon {
+        .crystal-btn:hover .btn-icon, .pay-toggle-btn:hover .btn-icon {
             transform: scale(1.38) rotate(8deg);
             filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
         }
 
-        .crystal-btn:hover .btn-icon::after, .voucher-type-btn:hover .btn-icon::after, .pay-toggle-btn:hover .btn-icon::after {
+        .crystal-btn:hover .btn-icon::after, .pay-toggle-btn:hover .btn-icon::after {
             display: none !important;
-        }
-
-        /* ═══ Voucher Type Buttons (صرف مجمع 📤 vs استلام مجمع 📥) ═══ */
-        .voucher-type-btn.active-payment, #btn-payment.active-payment {
-            --tab-border-color: #f43f5e;
-            --tab-glow-color: rgba(244, 63, 94, 0.7);
-            --tab-hover-bg: linear-gradient(135deg, #f43f5e, #be123c);
-            background: linear-gradient(135deg, #e11d48, #9f1239) !important;
-            border-color: #f43f5e !important;
-            color: #ffffff !important;
-            font-weight: 900 !important;
-            text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 30px rgba(225, 29, 72, 0.65), 0 0 25px rgba(225, 29, 72, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
-            transform: translateY(-3px) scale(1.05) !important;
-        }
-
-        .voucher-type-btn.active-receipt, #btn-receipt.active-receipt {
-            --tab-border-color: #10b981;
-            --tab-glow-color: rgba(16, 185, 129, 0.7);
-            --tab-hover-bg: linear-gradient(135deg, #10b981, #047857);
-            background: linear-gradient(135deg, #059669, #064e3b) !important;
-            border-color: #10b981 !important;
-            color: #ffffff !important;
-            font-weight: 900 !important;
-            text-shadow: 0 0 12px rgba(255, 255, 255, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 30px rgba(16, 185, 129, 0.65), 0 0 25px rgba(16, 185, 129, 0.4), inset 0 2px 4px rgba(255,255,255,0.5) !important;
-            transform: translateY(-3px) scale(1.05) !important;
         }
 
         /* ═══ Payment Method Toggle Buttons (نقدي 💵 / تحويل 🏦 / شيك ✍️) ═══ */
@@ -780,77 +753,132 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             border-bottom: none;
         }
 
-        /* Voucher Type Toggle Buttons (صرف/استلام من مجموعة) - PREMIUM DESIGN */
+        /* ══════════════════════════════════════════════════════════════════════
+           VOUCHER TYPE TOGGLE BUTTONS (صرف إلى مجموعة 📤 / استلام من مجموعة 📥)
+           ستايل فاخر، متناسق ومتقن، بألوان مخففة وأحمر غامق مريح للعين فائق الرقي
+           ══════════════════════════════════════════════════════════════════════ */
         .voucher-type-btn {
-            position: relative;
-            min-width: 185px !important;
-            height: 50px !important;
+            position: relative !important;
+            min-width: 180px !important;
+            height: 48px !important;
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
-            gap: 12px !important;
+            gap: 10px !important;
             border-radius: 12px !important;
             cursor: pointer !important;
-            font-size: 1.05rem !important;
-            font-weight: 700 !important;
-            color: rgba(255, 255, 255, 0.8) !important;
-            background: rgba(15, 23, 42, 0.4) !important;
-            border: 2px solid transparent !important;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3) !important;
-            transform: translateY(0) scale(0.97) !important;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
-            backdrop-filter: blur(8px);
+            font-family: 'Tajawal', sans-serif !important;
+            font-size: 1.02rem !important;
+            font-weight: 800 !important;
+            letter-spacing: 0.2px !important;
+            white-space: nowrap !important;
+            user-select: none !important;
+            -webkit-user-select: none !important;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            backdrop-filter: blur(14px) !important;
+            -webkit-backdrop-filter: blur(14px) !important;
+            box-sizing: border-box !important;
+            padding: 0 20px !important;
+            text-decoration: none !important;
+            overflow: hidden !important;
         }
 
-        .voucher-type-btn.active-payment, .voucher-type-btn[id="btn-payment"] {
-            --btn-color: #f43f5e;
-            --btn-glow: rgba(244, 63, 94, 0.6);
-            --btn-bg-glow: rgba(244, 63, 94, 0.15);
+        /* ─── 1. زر صرف إلى مجموعة (حالة الراحة / غير مفعل) ─── */
+        #btn-payment:not(.active-payment) {
+            background: linear-gradient(135deg, rgba(50, 16, 24, 0.55), rgba(20, 8, 14, 0.75)) !important;
+            border: 1.5px solid rgba(159, 18, 57, 0.35) !important;
+            color: rgba(255, 235, 240, 0.75) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+            transform: scale(0.98) !important;
         }
-        .voucher-type-btn.active-receipt, .voucher-type-btn[id="btn-receipt"] {
-            --btn-color: #3b82f6;
-            --btn-glow: rgba(59, 130, 246, 0.6);
-            --btn-bg-glow: rgba(59, 130, 246, 0.15);
-        }
-
-        /* Default state: colored border, slight underlying glow */
-        .voucher-type-btn {
-            border-color: var(--btn-color) !important;
-            box-shadow: 0 4px 15px var(--btn-bg-glow) !important;
-        }
-
-        /* Hover state: intense border glow */
-        .voucher-type-btn:hover {
+        #btn-payment:not(.active-payment):hover {
+            background: linear-gradient(135deg, rgba(80, 22, 34, 0.75), rgba(35, 12, 20, 0.85)) !important;
+            border-color: rgba(190, 24, 93, 0.6) !important;
             color: #ffffff !important;
-            transform: translateY(-2px) scale(1) !important;
-            background: var(--btn-bg-glow) !important;
-            box-shadow: 0 0 20px var(--btn-glow), 0 5px 25px var(--btn-bg-glow) !important;
-            text-shadow: 0 0 8px var(--btn-color);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), 0 0 14px rgba(159, 18, 57, 0.35) !important;
+            transform: translateY(-2px) scale(1.01) !important;
         }
 
-        /* Active State */
-        .voucher-type-btn.active-payment, .voucher-type-btn.active-receipt {
+        /* ─── زر صرف إلى مجموعة (مفعل: أحمر غامق فاخر، مخفف ومريح وراقٍ) ─── */
+        .voucher-type-btn.active-payment,
+        #btn-payment.active-payment {
+            background: linear-gradient(135deg, #781827 0%, #4a0e19 100%) !important;
+            border: 1.8px solid rgba(225, 29, 72, 0.65) !important;
             color: #ffffff !important;
-            background: var(--btn-bg-glow) !important;
-            border: 2px solid var(--btn-color) !important;
-            box-shadow: 0 0 25px var(--btn-glow), inset 0 0 15px var(--btn-bg-glow), 0 8px 30px var(--btn-bg-glow) !important;
-            transform: translateY(-3px) scale(1.05) !important;
-            text-shadow: 0 0 8px var(--btn-color);
-            animation: borderPulse 2s infinite alternate ease-in-out;
+            font-weight: 800 !important;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), 0 0 18px rgba(159, 18, 57, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
+            transform: translateY(-2px) scale(1.03) !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+            animation: voucherPulsePayment 3.5s infinite alternate ease-in-out;
+        }
+        .voucher-type-btn.active-payment:hover,
+        #btn-payment.active-payment:hover {
+            background: linear-gradient(135deg, #881c2d 0%, #55111d 100%) !important;
+            border-color: rgba(244, 63, 94, 0.8) !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 24px rgba(159, 18, 57, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.35) !important;
         }
 
-        @keyframes borderPulse {
-            0% { box-shadow: 0 0 15px var(--btn-glow), inset 0 0 10px var(--btn-bg-glow), 0 4px 20px var(--btn-bg-glow); }
-            100% { box-shadow: 0 0 35px var(--btn-glow), inset 0 0 25px var(--btn-bg-glow), 0 8px 40px var(--btn-bg-glow); }
+        /* ─── 2. زر استلام من مجموعة (حالة الراحة / غير مفعل) ─── */
+        #btn-receipt:not(.active-receipt) {
+            background: linear-gradient(135deg, rgba(14, 42, 34, 0.55), rgba(8, 24, 18, 0.75)) !important;
+            border: 1.5px solid rgba(16, 185, 129, 0.35) !important;
+            color: rgba(230, 255, 245, 0.75) !important;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
+            transform: scale(0.98) !important;
+        }
+        #btn-receipt:not(.active-receipt):hover {
+            background: linear-gradient(135deg, rgba(20, 65, 52, 0.75), rgba(10, 36, 28, 0.85)) !important;
+            border-color: rgba(16, 185, 129, 0.6) !important;
+            color: #ffffff !important;
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.4), 0 0 14px rgba(16, 185, 129, 0.35) !important;
+            transform: translateY(-2px) scale(1.01) !important;
         }
 
-        .voucher-type-btn span.btn-icon i {
-            font-size: 1.25rem;
-            transition: all 0.3s ease;
+        /* ─── زر استلام من مجموعة (مفعل: زمردي غامق فاخر، متناسق بنفس العمق) ─── */
+        .voucher-type-btn.active-receipt,
+        #btn-receipt.active-receipt {
+            background: linear-gradient(135deg, #0d5440 0%, #063326 100%) !important;
+            border: 1.8px solid rgba(16, 185, 129, 0.65) !important;
+            color: #ffffff !important;
+            font-weight: 800 !important;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45), 0 0 18px rgba(16, 185, 129, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.25) !important;
+            transform: translateY(-2px) scale(1.03) !important;
+            text-shadow: 0 1px 3px rgba(0, 0, 0, 0.6) !important;
+            animation: voucherPulseReceipt 3.5s infinite alternate ease-in-out;
         }
-        .voucher-type-btn.active-payment span.btn-icon i, .voucher-type-btn.active-receipt span.btn-icon i {
-            filter: drop-shadow(0 0 12px var(--btn-color));
-            transform: scale(1.15);
+        .voucher-type-btn.active-receipt:hover,
+        #btn-receipt.active-receipt:hover {
+            background: linear-gradient(135deg, #10634c 0%, #083d2e 100%) !important;
+            border-color: rgba(52, 211, 153, 0.8) !important;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 24px rgba(16, 185, 129, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.35) !important;
+        }
+
+        /* ─── نبض ضوئي هادئ وفاخر للزرين ─── */
+        @keyframes voucherPulsePayment {
+            0% { box-shadow: 0 6px 20px rgba(0,0,0,0.45), 0 0 16px rgba(159, 18, 57, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.25); }
+            100% { box-shadow: 0 7px 24px rgba(0,0,0,0.5), 0 0 22px rgba(159, 18, 57, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.35); }
+        }
+        @keyframes voucherPulseReceipt {
+            0% { box-shadow: 0 6px 20px rgba(0,0,0,0.45), 0 0 16px rgba(16, 185, 129, 0.4), inset 0 1px 1px rgba(255, 255, 255, 0.25); }
+            100% { box-shadow: 0 7px 24px rgba(0,0,0,0.5), 0 0 22px rgba(16, 185, 129, 0.6), inset 0 1px 2px rgba(255, 255, 255, 0.35); }
+        }
+
+        /* ─── الأيقونة الداخلية في كلا الزرين ─── */
+        .voucher-type-btn .btn-icon {
+            font-size: 1.15rem !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            transition: transform 0.3s ease, filter 0.3s ease !important;
+        }
+        .voucher-type-btn.active-payment .btn-icon i {
+            filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.6));
+        }
+        .voucher-type-btn.active-receipt .btn-icon i {
+            filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.6));
+        }
+        .voucher-type-btn:hover .btn-icon {
+            transform: scale(1.15) !important;
         }
 
         /* Color Wave Animation */
@@ -1282,10 +1310,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             <span>👤</span> بيان الطرف الرئيسي
                         </div>
                         <div style="display: flex; gap: 10px;">
-                            <button id="btn-payment" class="btn crystal-btn voucher-type-btn active-payment" onclick="setVoucherType('payment')" title="الصرف من حساب واحد إلى مجموعة حسابات">
+                            <button id="btn-payment" class="voucher-type-btn active-payment" onclick="setVoucherType('payment')" title="الصرف من حساب واحد إلى مجموعة حسابات">
                                 <span class="btn-icon"><i class="fa-solid fa-wallet"></i></span> <span class="btn-text">صرف إلى مجموعة</span>
                             </button>
-                            <button id="btn-receipt" class="btn crystal-btn voucher-type-btn" onclick="setVoucherType('receipt')" title="استلام في حساب واحد من مجموعة حسابات">
+                            <button id="btn-receipt" class="voucher-type-btn" onclick="setVoucherType('receipt')" title="استلام في حساب واحد من مجموعة حسابات">
                                 <span class="btn-icon"><i class="fa-solid fa-sack-dollar"></i></span> <span class="btn-text">استلام من مجموعة</span>
                             </button>
                         </div>
