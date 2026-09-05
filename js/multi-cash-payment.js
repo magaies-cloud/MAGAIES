@@ -3298,19 +3298,11 @@ document.addEventListener('keydown', function(e) {
     }
 });
 
-// ─── Unsaved Changes Warning ───
+// ─── Unsaved Changes Tracking (silent, no beforeunload dialog) ───
 let formDirty = false;
 document.addEventListener('input', function(e) {
     if (e.target.closest('#accounts-blocks-container') || e.target.id === 'main-account-search' || e.target.id === 'voucher-desc') {
         formDirty = true;
-    }
-});
-window.addEventListener('beforeunload', function(e) {
-    if (window.isNavigatingBack) return;
-    if (formDirty) {
-        e.preventDefault();
-        e.returnValue = 'لديك تغييرات غير محفوظة. هل تريد المغادرة؟';
-        return e.returnValue;
     }
 });
 // Clear dirty flag after save

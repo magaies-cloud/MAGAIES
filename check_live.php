@@ -33,6 +33,7 @@ $files = [
     'includes/header.php' => getNormalizedHash(__DIR__ . '/includes/header.php'),
     'js/magaiees_back.js' => getNormalizedHash(__DIR__ . '/js/magaiees_back.js'),
     'js/multi-cash-payment.js' => getNormalizedHash(__DIR__ . '/js/multi-cash-payment.js'),
+    'settings.php' => getNormalizedHash(__DIR__ . '/settings.php'),
 ];
 
 // Check specific keywords inside single-cash-payment.php

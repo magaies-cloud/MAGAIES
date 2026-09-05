@@ -48,7 +48,29 @@
 
         const isDashboard = pageFile.includes('magaiees_unified_dashboard.php') || pageFile === 'dashboard-pro.php';
 
-        // Check referrer
+        // 1. Primary: True session history step back
+        if (window.history.length > 1) {
+            window.history.back();
+            // Fallback timeout in case history.back doesn't navigate (e.g., initial tab opened directly)
+            setTimeout(function () {
+                if (!isDashboard) {
+                    const ref = document.referrer;
+                    if (ref && ref !== window.location.href) {
+                        try {
+                            const refUrl = new URL(ref);
+                            if (refUrl.origin === window.location.origin && !refUrl.pathname.toLowerCase().includes('login.php')) {
+                                window.location.href = ref;
+                                return;
+                            }
+                        } catch (e) {}
+                    }
+                    window.location.href = 'magaiees_unified_dashboard.php';
+                }
+            }, 500);
+            return;
+        }
+
+        // 2. Secondary: Check referrer if no history stack
         const ref = document.referrer;
         if (ref && ref !== window.location.href) {
             try {
@@ -60,19 +82,7 @@
             } catch (e) {}
         }
 
-        // Use history.back if history exists
-        if (window.history.length > 1) {
-            window.history.back();
-            // Fallback timeout in case history.back doesn't navigate
-            setTimeout(function () {
-                if (!isDashboard) {
-                    window.location.href = 'magaiees_unified_dashboard.php';
-                }
-            }, 600);
-            return;
-        }
-
-        // Fallback to unified dashboard
+        // 3. Fallback to unified dashboard
         if (!isDashboard) {
             window.location.href = 'magaiees_unified_dashboard.php';
         } else {
