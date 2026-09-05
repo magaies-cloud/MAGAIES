@@ -1518,14 +1518,19 @@ const HEIR_EVIDENCES = {
  * دالة استدعاء وعرض نافذة الدليل الشرعي المستقلة لكل وارث
  */
 function showHeirEvidenceModal(heirKey) {
-    var data = HEIR_EVIDENCES[heirKey];
-    if (!data) return;
+    console.log('showHeirEvidenceModal called for:', heirKey);
+    var data = (typeof HEIR_EVIDENCES !== 'undefined' && HEIR_EVIDENCES[heirKey]) ? HEIR_EVIDENCES[heirKey] : null;
+    if (!data) {
+        console.warn('Evidence data not found for key:', heirKey);
+        return;
+    }
 
     var modal = document.getElementById('inh-evidence-modal');
     if (!modal) {
         modal = document.createElement('div');
         modal.id = 'inh-evidence-modal';
-        modal.className = 'fixed inset-0 z-[99999] flex items-center justify-center p-4 sm:p-6 bg-slate-950/90 backdrop-blur-md transition-all duration-300';
+        modal.style.display = 'none';
+        modal.className = 'fixed inset-0 z-[99999999] items-center justify-center p-4 sm:p-6 bg-slate-950/90 backdrop-blur-md transition-all duration-300';
         document.body.appendChild(modal);
     }
 
@@ -1534,7 +1539,7 @@ function showHeirEvidenceModal(heirKey) {
     }).join('');
 
     var htmlParts = [];
-    htmlParts.push('<div class="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-2 border-amber-500/70 shadow-2xl p-7 sm:p-10 space-y-7 animate-scaleIn text-right" dir="rtl" style="box-shadow: 0 0 60px rgba(245, 158, 11, 0.35); border-radius: 32px;">');
+    htmlParts.push('<div class="relative w-full max-w-3xl max-h-[90vh] overflow-y-auto rounded-3xl bg-gradient-to-b from-slate-900 via-slate-950 to-slate-900 border-2 border-amber-500/70 shadow-2xl p-7 sm:p-10 space-y-7 animate-scaleIn text-right" dir="rtl" style="box-shadow: 0 0 60px rgba(245, 158, 11, 0.4); border-radius: 32px;">');
     htmlParts.push('  <!-- Modal Header -->');
     htmlParts.push('  <div class="flex items-center justify-between pb-5 border-b border-amber-500/40">');
     htmlParts.push('    <div class="flex items-center gap-4">');
@@ -1583,14 +1588,18 @@ function showHeirEvidenceModal(heirKey) {
     htmlParts.push('</div>');
 
     modal.innerHTML = htmlParts.join('\n');
-    modal.classList.remove('hidden');
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden';
 }
-
 
 function closeHeirEvidenceModal() {
-    const modal = document.getElementById('inh-evidence-modal');
-    if (modal) modal.classList.add('hidden');
+    var modal = document.getElementById('inh-evidence-modal');
+    if (modal) {
+        modal.style.display = 'none';
+    }
+    document.body.style.overflow = '';
 }
+
 
 function copyHeirEvidenceText(heirKey) {
     const data = HEIR_EVIDENCES[heirKey];

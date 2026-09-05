@@ -37,7 +37,7 @@ $pdo = getDBConnection();
     <link rel="stylesheet" href="css/tailwind.min.css">
     <!-- Fiqh Encyclopedia is Lazy-Loaded on demand for ultra-fast page rendering -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="js/inheritance_engine.js?v=2026_v2"></script>
+    <script src="js/inheritance_engine.js?v=2026_v4_evidence_1788627672641"></script>
 
     <style>
         :root {
@@ -19884,7 +19884,7 @@ $pdo = getDBConnection();
 
                 /* Giant Number Input Box */
                 .inh-num-input-luxury {
-                    width: 6.5rem !important;
+                    width: 7rem !important;
                     height: 3.5rem !important;
                     font-size: 1.75rem !important;
                     font-weight: 900 !important;
@@ -19917,7 +19917,7 @@ $pdo = getDBConnection();
                     transition: all 0.25s ease !important;
                 }
                 .inh-evidence-btn-luxury:hover {
-                    transform: translateY(-2px) scale(1.05) !important;
+                    transform: translateY(-2px) scale(1.03) !important;
                     background: linear-gradient(135deg, #fbbf24, #d97706) !important;
                     color: #451a03 !important;
                     border-color: #fef08a !important;
@@ -19972,7 +19972,7 @@ $pdo = getDBConnection();
                     <div class="mt-6 h-[3px] w-full bg-gradient-to-r from-amber-500 via-yellow-300 to-transparent rounded-full"></div>
                 </div>
 
-                <!-- 2. The 4 Grand Fiqh Pillars (Enlarged, Well-Spaced, Luxurious Cards) -->
+                <!-- 2. The 4 Grand Fiqh Pillars (Enlarged, Well-Spaced, Horizontal Grid) -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6 mb-10">
                     
                     <!-- Pillar 1: Quran -->
@@ -20089,7 +20089,7 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- 5. Estate Financial Cockpit (4 Symmetrical Large Glass Cards with Margin) -->
+                <!-- 5. Estate Financial Cockpit (4 Symmetrical Large Glass Cards) -->
                 <div class="mb-10 space-y-6">
                     <div class="flex items-center gap-4 pb-4 border-b border-amber-500/30">
                         <span class="w-14 h-14 rounded-2xl bg-amber-500/20 border-2 border-amber-400/60 flex items-center justify-center text-amber-300 text-2xl shadow-md">
@@ -20193,7 +20193,7 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- 6. Heirs Selection: 5 Categories (Large Cards + Big Free Inputs + Large Evidence Buttons) -->
+                <!-- 6. Heirs Selection: Horizontal Symmetrical Grid across all Categories -->
                 <div class="space-y-10 mb-10">
                     
                     <!-- Category A: الزوجية -->
@@ -20207,104 +20207,102 @@ $pdo = getDBConnection();
                                 </p>
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 gap-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                             
     <!-- Heir Card: wives -->
-    <div id="inh-card-wives" class="inh-luxury-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-7 rounded-3xl ">
+    <div id="inh-card-wives" class="inh-luxury-card flex flex-col justify-between p-6 sm:p-7 rounded-3xl space-y-6 ">
         
-        <!-- Right Section: Icon + Heir Title + Fiqh Rule Badge -->
-        <div class="flex items-center gap-5 flex-1 min-w-[280px]">
+        <!-- 1. Header: Icon + Heir Title -->
+        <div class="flex items-center gap-4">
             <span class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/30 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl flex-shrink-0">
                 🧕
             </span>
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <div class="text-2xl sm:text-3xl font-black text-amber-200 font-sans tracking-wide">
                     الزوجة / الزوجات
-                </div>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-sm sm:text-base shadow-sm">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span>ترث الربع (عدم الفرع الوارث) أو الثمن (وجوده) بالسوية بينهن</span>
                 </div>
             </div>
         </div>
 
-        <!-- Left Section: Large Number Box + Big Luxury Evidence Button -->
-        <div class="flex flex-wrap items-center gap-4 sm:gap-5 justify-start lg:justify-end flex-shrink-0">
-            
-            <!-- Direct Free Number Input -->
-            <div class="flex items-center gap-3 bg-slate-950/90 px-4 py-2.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                <label for="inh-inp-wives" class="text-base font-black text-amber-300">العدد:</label>
-                <input type="number" 
-                       id="inh-inp-wives" 
-                       min="0" 
-                       max="4" 
-                       value="0" 
-                       placeholder="0"
-                       onfocus="if(this.value==='0')this.value=''" 
-                       onblur="if(this.value.trim()==='')this.value='0'"
-                       oninput="onHeirCountChanged('wives', this.value)" 
-                       class="inh-num-input-luxury">
-            </div>
+        <!-- 2. Fiqh Rule Badge (Clear, Bold, High Contrast) -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 font-bold text-sm sm:text-base flex items-center gap-2.5 shadow-sm min-h-[52px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <span class="leading-snug">ترث الربع (عدم الفرع الوارث) أو الثمن (وجوده) بالسوية</span>
+        </div>
 
-            <!-- Big Luxury Evidence Button -->
+        <!-- 3. Direct Free Numeric Input (Center) -->
+        <div class="flex items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border-2 border-amber-500/50 shadow-inner">
+            <label for="inh-inp-wives" class="text-base sm:text-lg font-black text-amber-300">عدد الورثة:</label>
+            <input type="number" 
+                   id="inh-inp-wives" 
+                   min="0" 
+                   max="4" 
+                   value="0" 
+                   placeholder="0"
+                   onfocus="if(this.value==='0')this.value=''" 
+                   onblur="if(this.value.trim()==='')this.value='0'"
+                   oninput="onHeirCountChanged('wives', this.value)" 
+                   class="inh-num-input-luxury">
+        </div>
+
+        <!-- 4. Big Full-Width Luxury Evidence Button -->
+        <div>
             <button type="button" 
                     onclick="showHeirEvidenceModal('wives')" 
-                    class="inh-evidence-btn-luxury flex items-center gap-3" 
+                    class="inh-evidence-btn-luxury w-full flex items-center justify-center gap-3 cursor-pointer" 
                     title="عرض السند والدليل الشرعي من القرآن الكريم وصحيح السنة النبوية">
                 <i class="fa-solid fa-book-quran text-xl text-amber-300"></i>
-                <span>📖 الدليل الشرعي</span>
+                <span class="text-base font-black">📖 الدليل الشرعي (القرآن والسنة)</span>
             </button>
-
         </div>
 
     </div>
                             
     <!-- Heir Card: husband -->
-    <div id="inh-card-husband" class="inh-luxury-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-7 rounded-3xl hidden">
+    <div id="inh-card-husband" class="inh-luxury-card flex flex-col justify-between p-6 sm:p-7 rounded-3xl space-y-6 hidden">
         
-        <!-- Right Section: Icon + Heir Title + Fiqh Rule Badge -->
-        <div class="flex items-center gap-5 flex-1 min-w-[280px]">
+        <!-- 1. Header: Icon + Heir Title -->
+        <div class="flex items-center gap-4">
             <span class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/30 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl flex-shrink-0">
                 👨‍💼
             </span>
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <div class="text-2xl sm:text-3xl font-black text-amber-200 font-sans tracking-wide">
                     الزوج
-                </div>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-sm sm:text-base shadow-sm">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span>يرث النصف (عدم الفرع الوارث) أو الربع (وجوده) كاملاً</span>
                 </div>
             </div>
         </div>
 
-        <!-- Left Section: Large Number Box + Big Luxury Evidence Button -->
-        <div class="flex flex-wrap items-center gap-4 sm:gap-5 justify-start lg:justify-end flex-shrink-0">
-            
-            <!-- Direct Free Number Input -->
-            <div class="flex items-center gap-3 bg-slate-950/90 px-4 py-2.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                <label for="inh-inp-husband" class="text-base font-black text-amber-300">العدد:</label>
-                <input type="number" 
-                       id="inh-inp-husband" 
-                       min="0" 
-                       max="1" 
-                       value="0" 
-                       placeholder="0"
-                       onfocus="if(this.value==='0')this.value=''" 
-                       onblur="if(this.value.trim()==='')this.value='0'"
-                       oninput="onHeirCountChanged('husband', this.value)" 
-                       class="inh-num-input-luxury">
-            </div>
+        <!-- 2. Fiqh Rule Badge (Clear, Bold, High Contrast) -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 font-bold text-sm sm:text-base flex items-center gap-2.5 shadow-sm min-h-[52px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <span class="leading-snug">يرث النصف (عدم الفرع الوارث) أو الربع (وجوده) كاملاً</span>
+        </div>
 
-            <!-- Big Luxury Evidence Button -->
+        <!-- 3. Direct Free Numeric Input (Center) -->
+        <div class="flex items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border-2 border-amber-500/50 shadow-inner">
+            <label for="inh-inp-husband" class="text-base sm:text-lg font-black text-amber-300">عدد الورثة:</label>
+            <input type="number" 
+                   id="inh-inp-husband" 
+                   min="0" 
+                   max="1" 
+                   value="0" 
+                   placeholder="0"
+                   onfocus="if(this.value==='0')this.value=''" 
+                   onblur="if(this.value.trim()==='')this.value='0'"
+                   oninput="onHeirCountChanged('husband', this.value)" 
+                   class="inh-num-input-luxury">
+        </div>
+
+        <!-- 4. Big Full-Width Luxury Evidence Button -->
+        <div>
             <button type="button" 
                     onclick="showHeirEvidenceModal('husband')" 
-                    class="inh-evidence-btn-luxury flex items-center gap-3" 
+                    class="inh-evidence-btn-luxury w-full flex items-center justify-center gap-3 cursor-pointer" 
                     title="عرض السند والدليل الشرعي من القرآن الكريم وصحيح السنة النبوية">
                 <i class="fa-solid fa-book-quran text-xl text-amber-300"></i>
-                <span>📖 الدليل الشرعي</span>
+                <span class="text-base font-black">📖 الدليل الشرعي (القرآن والسنة)</span>
             </button>
-
         </div>
 
     </div>
@@ -20322,254 +20320,249 @@ $pdo = getDBConnection();
                                 </p>
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 gap-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                             
     <!-- Heir Card: father -->
-    <div id="inh-card-father" class="inh-luxury-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-7 rounded-3xl ">
+    <div id="inh-card-father" class="inh-luxury-card flex flex-col justify-between p-6 sm:p-7 rounded-3xl space-y-6 ">
         
-        <!-- Right Section: Icon + Heir Title + Fiqh Rule Badge -->
-        <div class="flex items-center gap-5 flex-1 min-w-[280px]">
+        <!-- 1. Header: Icon + Heir Title -->
+        <div class="flex items-center gap-4">
             <span class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/30 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl flex-shrink-0">
                 👴
             </span>
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <div class="text-2xl sm:text-3xl font-black text-amber-200 font-sans tracking-wide">
                     الأب
-                </div>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-sm sm:text-base shadow-sm">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span>السدس فرضاً، أو السدس مع التعصيب، أو التعصيب المحض</span>
                 </div>
             </div>
         </div>
 
-        <!-- Left Section: Large Number Box + Big Luxury Evidence Button -->
-        <div class="flex flex-wrap items-center gap-4 sm:gap-5 justify-start lg:justify-end flex-shrink-0">
-            
-            <!-- Direct Free Number Input -->
-            <div class="flex items-center gap-3 bg-slate-950/90 px-4 py-2.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                <label for="inh-inp-father" class="text-base font-black text-amber-300">العدد:</label>
-                <input type="number" 
-                       id="inh-inp-father" 
-                       min="0" 
-                       max="1" 
-                       value="0" 
-                       placeholder="0"
-                       onfocus="if(this.value==='0')this.value=''" 
-                       onblur="if(this.value.trim()==='')this.value='0'"
-                       oninput="onHeirCountChanged('father', this.value)" 
-                       class="inh-num-input-luxury">
-            </div>
+        <!-- 2. Fiqh Rule Badge (Clear, Bold, High Contrast) -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 font-bold text-sm sm:text-base flex items-center gap-2.5 shadow-sm min-h-[52px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <span class="leading-snug">السدس فرضاً، أو السدس مع التعصيب، أو التعصيب المحض</span>
+        </div>
 
-            <!-- Big Luxury Evidence Button -->
+        <!-- 3. Direct Free Numeric Input (Center) -->
+        <div class="flex items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border-2 border-amber-500/50 shadow-inner">
+            <label for="inh-inp-father" class="text-base sm:text-lg font-black text-amber-300">عدد الورثة:</label>
+            <input type="number" 
+                   id="inh-inp-father" 
+                   min="0" 
+                   max="1" 
+                   value="0" 
+                   placeholder="0"
+                   onfocus="if(this.value==='0')this.value=''" 
+                   onblur="if(this.value.trim()==='')this.value='0'"
+                   oninput="onHeirCountChanged('father', this.value)" 
+                   class="inh-num-input-luxury">
+        </div>
+
+        <!-- 4. Big Full-Width Luxury Evidence Button -->
+        <div>
             <button type="button" 
                     onclick="showHeirEvidenceModal('father')" 
-                    class="inh-evidence-btn-luxury flex items-center gap-3" 
+                    class="inh-evidence-btn-luxury w-full flex items-center justify-center gap-3 cursor-pointer" 
                     title="عرض السند والدليل الشرعي من القرآن الكريم وصحيح السنة النبوية">
                 <i class="fa-solid fa-book-quran text-xl text-amber-300"></i>
-                <span>📖 الدليل الشرعي</span>
+                <span class="text-base font-black">📖 الدليل الشرعي (القرآن والسنة)</span>
             </button>
-
         </div>
 
     </div>
                             
     <!-- Heir Card: mother -->
-    <div id="inh-card-mother" class="inh-luxury-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-7 rounded-3xl ">
+    <div id="inh-card-mother" class="inh-luxury-card flex flex-col justify-between p-6 sm:p-7 rounded-3xl space-y-6 ">
         
-        <!-- Right Section: Icon + Heir Title + Fiqh Rule Badge -->
-        <div class="flex items-center gap-5 flex-1 min-w-[280px]">
+        <!-- 1. Header: Icon + Heir Title -->
+        <div class="flex items-center gap-4">
             <span class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/30 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl flex-shrink-0">
                 👵
             </span>
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <div class="text-2xl sm:text-3xl font-black text-amber-200 font-sans tracking-wide">
                     الأم
-                </div>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-sm sm:text-base shadow-sm">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span>الثلث كاملاً، أو السدس، أو ثلث الباقي (المسألتان العمريتان)</span>
                 </div>
             </div>
         </div>
 
-        <!-- Left Section: Large Number Box + Big Luxury Evidence Button -->
-        <div class="flex flex-wrap items-center gap-4 sm:gap-5 justify-start lg:justify-end flex-shrink-0">
-            
-            <!-- Direct Free Number Input -->
-            <div class="flex items-center gap-3 bg-slate-950/90 px-4 py-2.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                <label for="inh-inp-mother" class="text-base font-black text-amber-300">العدد:</label>
-                <input type="number" 
-                       id="inh-inp-mother" 
-                       min="0" 
-                       max="1" 
-                       value="0" 
-                       placeholder="0"
-                       onfocus="if(this.value==='0')this.value=''" 
-                       onblur="if(this.value.trim()==='')this.value='0'"
-                       oninput="onHeirCountChanged('mother', this.value)" 
-                       class="inh-num-input-luxury">
-            </div>
+        <!-- 2. Fiqh Rule Badge (Clear, Bold, High Contrast) -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 font-bold text-sm sm:text-base flex items-center gap-2.5 shadow-sm min-h-[52px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <span class="leading-snug">الثلث كاملاً، أو السدس، أو ثلث الباقي (العمريتان)</span>
+        </div>
 
-            <!-- Big Luxury Evidence Button -->
+        <!-- 3. Direct Free Numeric Input (Center) -->
+        <div class="flex items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border-2 border-amber-500/50 shadow-inner">
+            <label for="inh-inp-mother" class="text-base sm:text-lg font-black text-amber-300">عدد الورثة:</label>
+            <input type="number" 
+                   id="inh-inp-mother" 
+                   min="0" 
+                   max="1" 
+                   value="0" 
+                   placeholder="0"
+                   onfocus="if(this.value==='0')this.value=''" 
+                   onblur="if(this.value.trim()==='')this.value='0'"
+                   oninput="onHeirCountChanged('mother', this.value)" 
+                   class="inh-num-input-luxury">
+        </div>
+
+        <!-- 4. Big Full-Width Luxury Evidence Button -->
+        <div>
             <button type="button" 
                     onclick="showHeirEvidenceModal('mother')" 
-                    class="inh-evidence-btn-luxury flex items-center gap-3" 
+                    class="inh-evidence-btn-luxury w-full flex items-center justify-center gap-3 cursor-pointer" 
                     title="عرض السند والدليل الشرعي من القرآن الكريم وصحيح السنة النبوية">
                 <i class="fa-solid fa-book-quran text-xl text-amber-300"></i>
-                <span>📖 الدليل الشرعي</span>
+                <span class="text-base font-black">📖 الدليل الشرعي (القرآن والسنة)</span>
             </button>
-
         </div>
 
     </div>
                             
     <!-- Heir Card: paternalGrandfather -->
-    <div id="inh-card-paternalGrandfather" class="inh-luxury-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-7 rounded-3xl ">
+    <div id="inh-card-paternalGrandfather" class="inh-luxury-card flex flex-col justify-between p-6 sm:p-7 rounded-3xl space-y-6 ">
         
-        <!-- Right Section: Icon + Heir Title + Fiqh Rule Badge -->
-        <div class="flex items-center gap-5 flex-1 min-w-[280px]">
+        <!-- 1. Header: Icon + Heir Title -->
+        <div class="flex items-center gap-4">
             <span class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/30 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl flex-shrink-0">
                 🧓
             </span>
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <div class="text-2xl sm:text-3xl font-black text-amber-200 font-sans tracking-wide">
                     الجد لأب (أبو الأب)
-                </div>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-sm sm:text-base shadow-sm">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span>السدس أو التعصيب (يحل محل الأب عند عدم وجود الأب المباشر)</span>
                 </div>
             </div>
         </div>
 
-        <!-- Left Section: Large Number Box + Big Luxury Evidence Button -->
-        <div class="flex flex-wrap items-center gap-4 sm:gap-5 justify-start lg:justify-end flex-shrink-0">
-            
-            <!-- Direct Free Number Input -->
-            <div class="flex items-center gap-3 bg-slate-950/90 px-4 py-2.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                <label for="inh-inp-paternalGrandfather" class="text-base font-black text-amber-300">العدد:</label>
-                <input type="number" 
-                       id="inh-inp-paternalGrandfather" 
-                       min="0" 
-                       max="1" 
-                       value="0" 
-                       placeholder="0"
-                       onfocus="if(this.value==='0')this.value=''" 
-                       onblur="if(this.value.trim()==='')this.value='0'"
-                       oninput="onHeirCountChanged('paternalGrandfather', this.value)" 
-                       class="inh-num-input-luxury">
-            </div>
+        <!-- 2. Fiqh Rule Badge (Clear, Bold, High Contrast) -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 font-bold text-sm sm:text-base flex items-center gap-2.5 shadow-sm min-h-[52px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <span class="leading-snug">السدس أو التعصيب (يحل محل الأب عند عدم الأب)</span>
+        </div>
 
-            <!-- Big Luxury Evidence Button -->
+        <!-- 3. Direct Free Numeric Input (Center) -->
+        <div class="flex items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border-2 border-amber-500/50 shadow-inner">
+            <label for="inh-inp-paternalGrandfather" class="text-base sm:text-lg font-black text-amber-300">عدد الورثة:</label>
+            <input type="number" 
+                   id="inh-inp-paternalGrandfather" 
+                   min="0" 
+                   max="1" 
+                   value="0" 
+                   placeholder="0"
+                   onfocus="if(this.value==='0')this.value=''" 
+                   onblur="if(this.value.trim()==='')this.value='0'"
+                   oninput="onHeirCountChanged('paternalGrandfather', this.value)" 
+                   class="inh-num-input-luxury">
+        </div>
+
+        <!-- 4. Big Full-Width Luxury Evidence Button -->
+        <div>
             <button type="button" 
                     onclick="showHeirEvidenceModal('paternalGrandfather')" 
-                    class="inh-evidence-btn-luxury flex items-center gap-3" 
+                    class="inh-evidence-btn-luxury w-full flex items-center justify-center gap-3 cursor-pointer" 
                     title="عرض السند والدليل الشرعي من القرآن الكريم وصحيح السنة النبوية">
                 <i class="fa-solid fa-book-quran text-xl text-amber-300"></i>
-                <span>📖 الدليل الشرعي</span>
+                <span class="text-base font-black">📖 الدليل الشرعي (القرآن والسنة)</span>
             </button>
-
         </div>
 
     </div>
                             
     <!-- Heir Card: paternalGrandmother -->
-    <div id="inh-card-paternalGrandmother" class="inh-luxury-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-7 rounded-3xl ">
+    <div id="inh-card-paternalGrandmother" class="inh-luxury-card flex flex-col justify-between p-6 sm:p-7 rounded-3xl space-y-6 ">
         
-        <!-- Right Section: Icon + Heir Title + Fiqh Rule Badge -->
-        <div class="flex items-center gap-5 flex-1 min-w-[280px]">
+        <!-- 1. Header: Icon + Heir Title -->
+        <div class="flex items-center gap-4">
             <span class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/30 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl flex-shrink-0">
                 👵
             </span>
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <div class="text-2xl sm:text-3xl font-black text-amber-200 font-sans tracking-wide">
                     الجدة لأب (أم الأب)
-                </div>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-sm sm:text-base shadow-sm">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span>السدس فرضاً (تُحجب بالأم وبالأب وبالجد الأدنى)</span>
                 </div>
             </div>
         </div>
 
-        <!-- Left Section: Large Number Box + Big Luxury Evidence Button -->
-        <div class="flex flex-wrap items-center gap-4 sm:gap-5 justify-start lg:justify-end flex-shrink-0">
-            
-            <!-- Direct Free Number Input -->
-            <div class="flex items-center gap-3 bg-slate-950/90 px-4 py-2.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                <label for="inh-inp-paternalGrandmother" class="text-base font-black text-amber-300">العدد:</label>
-                <input type="number" 
-                       id="inh-inp-paternalGrandmother" 
-                       min="0" 
-                       max="1" 
-                       value="0" 
-                       placeholder="0"
-                       onfocus="if(this.value==='0')this.value=''" 
-                       onblur="if(this.value.trim()==='')this.value='0'"
-                       oninput="onHeirCountChanged('paternalGrandmother', this.value)" 
-                       class="inh-num-input-luxury">
-            </div>
+        <!-- 2. Fiqh Rule Badge (Clear, Bold, High Contrast) -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 font-bold text-sm sm:text-base flex items-center gap-2.5 shadow-sm min-h-[52px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <span class="leading-snug">السدس فرضاً (تُحجب بالأم وبالأب وبالجد الأدنى)</span>
+        </div>
 
-            <!-- Big Luxury Evidence Button -->
+        <!-- 3. Direct Free Numeric Input (Center) -->
+        <div class="flex items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border-2 border-amber-500/50 shadow-inner">
+            <label for="inh-inp-paternalGrandmother" class="text-base sm:text-lg font-black text-amber-300">عدد الورثة:</label>
+            <input type="number" 
+                   id="inh-inp-paternalGrandmother" 
+                   min="0" 
+                   max="1" 
+                   value="0" 
+                   placeholder="0"
+                   onfocus="if(this.value==='0')this.value=''" 
+                   onblur="if(this.value.trim()==='')this.value='0'"
+                   oninput="onHeirCountChanged('paternalGrandmother', this.value)" 
+                   class="inh-num-input-luxury">
+        </div>
+
+        <!-- 4. Big Full-Width Luxury Evidence Button -->
+        <div>
             <button type="button" 
                     onclick="showHeirEvidenceModal('paternalGrandmother')" 
-                    class="inh-evidence-btn-luxury flex items-center gap-3" 
+                    class="inh-evidence-btn-luxury w-full flex items-center justify-center gap-3 cursor-pointer" 
                     title="عرض السند والدليل الشرعي من القرآن الكريم وصحيح السنة النبوية">
                 <i class="fa-solid fa-book-quran text-xl text-amber-300"></i>
-                <span>📖 الدليل الشرعي</span>
+                <span class="text-base font-black">📖 الدليل الشرعي (القرآن والسنة)</span>
             </button>
-
         </div>
 
     </div>
                             
     <!-- Heir Card: maternalGrandmother -->
-    <div id="inh-card-maternalGrandmother" class="inh-luxury-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-7 rounded-3xl ">
+    <div id="inh-card-maternalGrandmother" class="inh-luxury-card flex flex-col justify-between p-6 sm:p-7 rounded-3xl space-y-6 ">
         
-        <!-- Right Section: Icon + Heir Title + Fiqh Rule Badge -->
-        <div class="flex items-center gap-5 flex-1 min-w-[280px]">
+        <!-- 1. Header: Icon + Heir Title -->
+        <div class="flex items-center gap-4">
             <span class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/30 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl flex-shrink-0">
                 👵
             </span>
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <div class="text-2xl sm:text-3xl font-black text-amber-200 font-sans tracking-wide">
                     الجدة لأم (أم الأم)
-                </div>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-sm sm:text-base shadow-sm">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span>السدس فرضاً (تُحجب بالأم فقط)</span>
                 </div>
             </div>
         </div>
 
-        <!-- Left Section: Large Number Box + Big Luxury Evidence Button -->
-        <div class="flex flex-wrap items-center gap-4 sm:gap-5 justify-start lg:justify-end flex-shrink-0">
-            
-            <!-- Direct Free Number Input -->
-            <div class="flex items-center gap-3 bg-slate-950/90 px-4 py-2.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                <label for="inh-inp-maternalGrandmother" class="text-base font-black text-amber-300">العدد:</label>
-                <input type="number" 
-                       id="inh-inp-maternalGrandmother" 
-                       min="0" 
-                       max="1" 
-                       value="0" 
-                       placeholder="0"
-                       onfocus="if(this.value==='0')this.value=''" 
-                       onblur="if(this.value.trim()==='')this.value='0'"
-                       oninput="onHeirCountChanged('maternalGrandmother', this.value)" 
-                       class="inh-num-input-luxury">
-            </div>
+        <!-- 2. Fiqh Rule Badge (Clear, Bold, High Contrast) -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 font-bold text-sm sm:text-base flex items-center gap-2.5 shadow-sm min-h-[52px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <span class="leading-snug">السدس فرضاً (تُحجب بالأم فقط)</span>
+        </div>
 
-            <!-- Big Luxury Evidence Button -->
+        <!-- 3. Direct Free Numeric Input (Center) -->
+        <div class="flex items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border-2 border-amber-500/50 shadow-inner">
+            <label for="inh-inp-maternalGrandmother" class="text-base sm:text-lg font-black text-amber-300">عدد الورثة:</label>
+            <input type="number" 
+                   id="inh-inp-maternalGrandmother" 
+                   min="0" 
+                   max="1" 
+                   value="0" 
+                   placeholder="0"
+                   onfocus="if(this.value==='0')this.value=''" 
+                   onblur="if(this.value.trim()==='')this.value='0'"
+                   oninput="onHeirCountChanged('maternalGrandmother', this.value)" 
+                   class="inh-num-input-luxury">
+        </div>
+
+        <!-- 4. Big Full-Width Luxury Evidence Button -->
+        <div>
             <button type="button" 
                     onclick="showHeirEvidenceModal('maternalGrandmother')" 
-                    class="inh-evidence-btn-luxury flex items-center gap-3" 
+                    class="inh-evidence-btn-luxury w-full flex items-center justify-center gap-3 cursor-pointer" 
                     title="عرض السند والدليل الشرعي من القرآن الكريم وصحيح السنة النبوية">
                 <i class="fa-solid fa-book-quran text-xl text-amber-300"></i>
-                <span>📖 الدليل الشرعي</span>
+                <span class="text-base font-black">📖 الدليل الشرعي (القرآن والسنة)</span>
             </button>
-
         </div>
 
     </div>
@@ -20587,204 +20580,200 @@ $pdo = getDBConnection();
                                 </p>
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 gap-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                             
     <!-- Heir Card: sons -->
-    <div id="inh-card-sons" class="inh-luxury-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-7 rounded-3xl ">
+    <div id="inh-card-sons" class="inh-luxury-card flex flex-col justify-between p-6 sm:p-7 rounded-3xl space-y-6 ">
         
-        <!-- Right Section: Icon + Heir Title + Fiqh Rule Badge -->
-        <div class="flex items-center gap-5 flex-1 min-w-[280px]">
+        <!-- 1. Header: Icon + Heir Title -->
+        <div class="flex items-center gap-4">
             <span class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/30 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl flex-shrink-0">
                 👦
             </span>
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <div class="text-2xl sm:text-3xl font-black text-amber-200 font-sans tracking-wide">
                     الأبناء (الذكور)
-                </div>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-sm sm:text-base shadow-sm">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span>عصبة بالنفس (أقوى عصبات الميراث على الإطلاق)</span>
                 </div>
             </div>
         </div>
 
-        <!-- Left Section: Large Number Box + Big Luxury Evidence Button -->
-        <div class="flex flex-wrap items-center gap-4 sm:gap-5 justify-start lg:justify-end flex-shrink-0">
-            
-            <!-- Direct Free Number Input -->
-            <div class="flex items-center gap-3 bg-slate-950/90 px-4 py-2.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                <label for="inh-inp-sons" class="text-base font-black text-amber-300">العدد:</label>
-                <input type="number" 
-                       id="inh-inp-sons" 
-                       min="0" 
-                        
-                       value="0" 
-                       placeholder="0"
-                       onfocus="if(this.value==='0')this.value=''" 
-                       onblur="if(this.value.trim()==='')this.value='0'"
-                       oninput="onHeirCountChanged('sons', this.value)" 
-                       class="inh-num-input-luxury">
-            </div>
+        <!-- 2. Fiqh Rule Badge (Clear, Bold, High Contrast) -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 font-bold text-sm sm:text-base flex items-center gap-2.5 shadow-sm min-h-[52px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <span class="leading-snug">عصبة بالنفس (أقوى عصبات الميراث على الإطلاق)</span>
+        </div>
 
-            <!-- Big Luxury Evidence Button -->
+        <!-- 3. Direct Free Numeric Input (Center) -->
+        <div class="flex items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border-2 border-amber-500/50 shadow-inner">
+            <label for="inh-inp-sons" class="text-base sm:text-lg font-black text-amber-300">عدد الورثة:</label>
+            <input type="number" 
+                   id="inh-inp-sons" 
+                   min="0" 
+                    
+                   value="0" 
+                   placeholder="0"
+                   onfocus="if(this.value==='0')this.value=''" 
+                   onblur="if(this.value.trim()==='')this.value='0'"
+                   oninput="onHeirCountChanged('sons', this.value)" 
+                   class="inh-num-input-luxury">
+        </div>
+
+        <!-- 4. Big Full-Width Luxury Evidence Button -->
+        <div>
             <button type="button" 
                     onclick="showHeirEvidenceModal('sons')" 
-                    class="inh-evidence-btn-luxury flex items-center gap-3" 
+                    class="inh-evidence-btn-luxury w-full flex items-center justify-center gap-3 cursor-pointer" 
                     title="عرض السند والدليل الشرعي من القرآن الكريم وصحيح السنة النبوية">
                 <i class="fa-solid fa-book-quran text-xl text-amber-300"></i>
-                <span>📖 الدليل الشرعي</span>
+                <span class="text-base font-black">📖 الدليل الشرعي (القرآن والسنة)</span>
             </button>
-
         </div>
 
     </div>
                             
     <!-- Heir Card: daughters -->
-    <div id="inh-card-daughters" class="inh-luxury-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-7 rounded-3xl ">
+    <div id="inh-card-daughters" class="inh-luxury-card flex flex-col justify-between p-6 sm:p-7 rounded-3xl space-y-6 ">
         
-        <!-- Right Section: Icon + Heir Title + Fiqh Rule Badge -->
-        <div class="flex items-center gap-5 flex-1 min-w-[280px]">
+        <!-- 1. Header: Icon + Heir Title -->
+        <div class="flex items-center gap-4">
             <span class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/30 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl flex-shrink-0">
                 👧
             </span>
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <div class="text-2xl sm:text-3xl font-black text-amber-200 font-sans tracking-wide">
                     البنات (الإناث الصلبيات)
-                </div>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-sm sm:text-base shadow-sm">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span>النصف للواحدة، الثلثان للجمع، أو عصبة بالغير مع الابن</span>
                 </div>
             </div>
         </div>
 
-        <!-- Left Section: Large Number Box + Big Luxury Evidence Button -->
-        <div class="flex flex-wrap items-center gap-4 sm:gap-5 justify-start lg:justify-end flex-shrink-0">
-            
-            <!-- Direct Free Number Input -->
-            <div class="flex items-center gap-3 bg-slate-950/90 px-4 py-2.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                <label for="inh-inp-daughters" class="text-base font-black text-amber-300">العدد:</label>
-                <input type="number" 
-                       id="inh-inp-daughters" 
-                       min="0" 
-                        
-                       value="0" 
-                       placeholder="0"
-                       onfocus="if(this.value==='0')this.value=''" 
-                       onblur="if(this.value.trim()==='')this.value='0'"
-                       oninput="onHeirCountChanged('daughters', this.value)" 
-                       class="inh-num-input-luxury">
-            </div>
+        <!-- 2. Fiqh Rule Badge (Clear, Bold, High Contrast) -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 font-bold text-sm sm:text-base flex items-center gap-2.5 shadow-sm min-h-[52px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <span class="leading-snug">النصف للواحدة، الثلثان للجمع، أو عصبة بالغير مع الابن</span>
+        </div>
 
-            <!-- Big Luxury Evidence Button -->
+        <!-- 3. Direct Free Numeric Input (Center) -->
+        <div class="flex items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border-2 border-amber-500/50 shadow-inner">
+            <label for="inh-inp-daughters" class="text-base sm:text-lg font-black text-amber-300">عدد الورثة:</label>
+            <input type="number" 
+                   id="inh-inp-daughters" 
+                   min="0" 
+                    
+                   value="0" 
+                   placeholder="0"
+                   onfocus="if(this.value==='0')this.value=''" 
+                   onblur="if(this.value.trim()==='')this.value='0'"
+                   oninput="onHeirCountChanged('daughters', this.value)" 
+                   class="inh-num-input-luxury">
+        </div>
+
+        <!-- 4. Big Full-Width Luxury Evidence Button -->
+        <div>
             <button type="button" 
                     onclick="showHeirEvidenceModal('daughters')" 
-                    class="inh-evidence-btn-luxury flex items-center gap-3" 
+                    class="inh-evidence-btn-luxury w-full flex items-center justify-center gap-3 cursor-pointer" 
                     title="عرض السند والدليل الشرعي من القرآن الكريم وصحيح السنة النبوية">
                 <i class="fa-solid fa-book-quran text-xl text-amber-300"></i>
-                <span>📖 الدليل الشرعي</span>
+                <span class="text-base font-black">📖 الدليل الشرعي (القرآن والسنة)</span>
             </button>
-
         </div>
 
     </div>
                             
     <!-- Heir Card: sonsSons -->
-    <div id="inh-card-sonsSons" class="inh-luxury-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-7 rounded-3xl ">
+    <div id="inh-card-sonsSons" class="inh-luxury-card flex flex-col justify-between p-6 sm:p-7 rounded-3xl space-y-6 ">
         
-        <!-- Right Section: Icon + Heir Title + Fiqh Rule Badge -->
-        <div class="flex items-center gap-5 flex-1 min-w-[280px]">
+        <!-- 1. Header: Icon + Heir Title -->
+        <div class="flex items-center gap-4">
             <span class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/30 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl flex-shrink-0">
                 👦
             </span>
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <div class="text-2xl sm:text-3xl font-black text-amber-200 font-sans tracking-wide">
                     أبناء الابن (ذكور)
-                </div>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-sm sm:text-base shadow-sm">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span>عصبة بالنفس (ينزلون منزلة الابن عند عدم وجوده)</span>
                 </div>
             </div>
         </div>
 
-        <!-- Left Section: Large Number Box + Big Luxury Evidence Button -->
-        <div class="flex flex-wrap items-center gap-4 sm:gap-5 justify-start lg:justify-end flex-shrink-0">
-            
-            <!-- Direct Free Number Input -->
-            <div class="flex items-center gap-3 bg-slate-950/90 px-4 py-2.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                <label for="inh-inp-sonsSons" class="text-base font-black text-amber-300">العدد:</label>
-                <input type="number" 
-                       id="inh-inp-sonsSons" 
-                       min="0" 
-                        
-                       value="0" 
-                       placeholder="0"
-                       onfocus="if(this.value==='0')this.value=''" 
-                       onblur="if(this.value.trim()==='')this.value='0'"
-                       oninput="onHeirCountChanged('sonsSons', this.value)" 
-                       class="inh-num-input-luxury">
-            </div>
+        <!-- 2. Fiqh Rule Badge (Clear, Bold, High Contrast) -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 font-bold text-sm sm:text-base flex items-center gap-2.5 shadow-sm min-h-[52px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <span class="leading-snug">عصبة بالنفس (ينزلون منزلة الابن عند عدم وجوده)</span>
+        </div>
 
-            <!-- Big Luxury Evidence Button -->
+        <!-- 3. Direct Free Numeric Input (Center) -->
+        <div class="flex items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border-2 border-amber-500/50 shadow-inner">
+            <label for="inh-inp-sonsSons" class="text-base sm:text-lg font-black text-amber-300">عدد الورثة:</label>
+            <input type="number" 
+                   id="inh-inp-sonsSons" 
+                   min="0" 
+                    
+                   value="0" 
+                   placeholder="0"
+                   onfocus="if(this.value==='0')this.value=''" 
+                   onblur="if(this.value.trim()==='')this.value='0'"
+                   oninput="onHeirCountChanged('sonsSons', this.value)" 
+                   class="inh-num-input-luxury">
+        </div>
+
+        <!-- 4. Big Full-Width Luxury Evidence Button -->
+        <div>
             <button type="button" 
                     onclick="showHeirEvidenceModal('sonsSons')" 
-                    class="inh-evidence-btn-luxury flex items-center gap-3" 
+                    class="inh-evidence-btn-luxury w-full flex items-center justify-center gap-3 cursor-pointer" 
                     title="عرض السند والدليل الشرعي من القرآن الكريم وصحيح السنة النبوية">
                 <i class="fa-solid fa-book-quran text-xl text-amber-300"></i>
-                <span>📖 الدليل الشرعي</span>
+                <span class="text-base font-black">📖 الدليل الشرعي (القرآن والسنة)</span>
             </button>
-
         </div>
 
     </div>
                             
     <!-- Heir Card: sonsDaughters -->
-    <div id="inh-card-sonsDaughters" class="inh-luxury-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-7 rounded-3xl ">
+    <div id="inh-card-sonsDaughters" class="inh-luxury-card flex flex-col justify-between p-6 sm:p-7 rounded-3xl space-y-6 ">
         
-        <!-- Right Section: Icon + Heir Title + Fiqh Rule Badge -->
-        <div class="flex items-center gap-5 flex-1 min-w-[280px]">
+        <!-- 1. Header: Icon + Heir Title -->
+        <div class="flex items-center gap-4">
             <span class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/30 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl flex-shrink-0">
                 👧
             </span>
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <div class="text-2xl sm:text-3xl font-black text-amber-200 font-sans tracking-wide">
                     بنات الابن (إناث)
-                </div>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-sm sm:text-base shadow-sm">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span>النصف، الثلثان، أو السدس تكملة الثلثين مع البنت الصلبية</span>
                 </div>
             </div>
         </div>
 
-        <!-- Left Section: Large Number Box + Big Luxury Evidence Button -->
-        <div class="flex flex-wrap items-center gap-4 sm:gap-5 justify-start lg:justify-end flex-shrink-0">
-            
-            <!-- Direct Free Number Input -->
-            <div class="flex items-center gap-3 bg-slate-950/90 px-4 py-2.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                <label for="inh-inp-sonsDaughters" class="text-base font-black text-amber-300">العدد:</label>
-                <input type="number" 
-                       id="inh-inp-sonsDaughters" 
-                       min="0" 
-                        
-                       value="0" 
-                       placeholder="0"
-                       onfocus="if(this.value==='0')this.value=''" 
-                       onblur="if(this.value.trim()==='')this.value='0'"
-                       oninput="onHeirCountChanged('sonsDaughters', this.value)" 
-                       class="inh-num-input-luxury">
-            </div>
+        <!-- 2. Fiqh Rule Badge (Clear, Bold, High Contrast) -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 font-bold text-sm sm:text-base flex items-center gap-2.5 shadow-sm min-h-[52px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <span class="leading-snug">النصف، الثلثان، أو السدس تكملة الثلثين مع البنت الصلبية</span>
+        </div>
 
-            <!-- Big Luxury Evidence Button -->
+        <!-- 3. Direct Free Numeric Input (Center) -->
+        <div class="flex items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border-2 border-amber-500/50 shadow-inner">
+            <label for="inh-inp-sonsDaughters" class="text-base sm:text-lg font-black text-amber-300">عدد الورثة:</label>
+            <input type="number" 
+                   id="inh-inp-sonsDaughters" 
+                   min="0" 
+                    
+                   value="0" 
+                   placeholder="0"
+                   onfocus="if(this.value==='0')this.value=''" 
+                   onblur="if(this.value.trim()==='')this.value='0'"
+                   oninput="onHeirCountChanged('sonsDaughters', this.value)" 
+                   class="inh-num-input-luxury">
+        </div>
+
+        <!-- 4. Big Full-Width Luxury Evidence Button -->
+        <div>
             <button type="button" 
                     onclick="showHeirEvidenceModal('sonsDaughters')" 
-                    class="inh-evidence-btn-luxury flex items-center gap-3" 
+                    class="inh-evidence-btn-luxury w-full flex items-center justify-center gap-3 cursor-pointer" 
                     title="عرض السند والدليل الشرعي من القرآن الكريم وصحيح السنة النبوية">
                 <i class="fa-solid fa-book-quran text-xl text-amber-300"></i>
-                <span>📖 الدليل الشرعي</span>
+                <span class="text-base font-black">📖 الدليل الشرعي (القرآن والسنة)</span>
             </button>
-
         </div>
 
     </div>
@@ -20798,258 +20787,253 @@ $pdo = getDBConnection();
                             <div>
                                 <h4 class="text-2xl sm:text-3xl font-black text-amber-300">الحواشي (الإخوة والأخوات من كل الجهات)</h4>
                                 <p class="text-sm sm:text-base text-slate-200 font-bold mt-0.5">
-                                    الإخوة الأشقاء، ولأب، ولأم (يرثون عند انعدام الفرع الوارث المذكر والأب)',
+                                    الإخوة الأشقاء، ولأب، ولأم (يرثون عند انعدام الفرع الوارث المذكر والأب)
                                 </p>
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 gap-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                             
     <!-- Heir Card: fullBrothers -->
-    <div id="inh-card-fullBrothers" class="inh-luxury-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-7 rounded-3xl ">
+    <div id="inh-card-fullBrothers" class="inh-luxury-card flex flex-col justify-between p-6 sm:p-7 rounded-3xl space-y-6 ">
         
-        <!-- Right Section: Icon + Heir Title + Fiqh Rule Badge -->
-        <div class="flex items-center gap-5 flex-1 min-w-[280px]">
+        <!-- 1. Header: Icon + Heir Title -->
+        <div class="flex items-center gap-4">
             <span class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/30 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl flex-shrink-0">
                 🧔
             </span>
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <div class="text-2xl sm:text-3xl font-black text-amber-200 font-sans tracking-wide">
                     الإخوة الأشقاء (ذكور)
-                </div>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-sm sm:text-base shadow-sm">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span>عصبة بالنفس (أقوى عصبات الحواشي)</span>
                 </div>
             </div>
         </div>
 
-        <!-- Left Section: Large Number Box + Big Luxury Evidence Button -->
-        <div class="flex flex-wrap items-center gap-4 sm:gap-5 justify-start lg:justify-end flex-shrink-0">
-            
-            <!-- Direct Free Number Input -->
-            <div class="flex items-center gap-3 bg-slate-950/90 px-4 py-2.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                <label for="inh-inp-fullBrothers" class="text-base font-black text-amber-300">العدد:</label>
-                <input type="number" 
-                       id="inh-inp-fullBrothers" 
-                       min="0" 
-                        
-                       value="0" 
-                       placeholder="0"
-                       onfocus="if(this.value==='0')this.value=''" 
-                       onblur="if(this.value.trim()==='')this.value='0'"
-                       oninput="onHeirCountChanged('fullBrothers', this.value)" 
-                       class="inh-num-input-luxury">
-            </div>
+        <!-- 2. Fiqh Rule Badge (Clear, Bold, High Contrast) -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 font-bold text-sm sm:text-base flex items-center gap-2.5 shadow-sm min-h-[52px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <span class="leading-snug">عصبة بالنفس (أقوى عصبات الحواشي)</span>
+        </div>
 
-            <!-- Big Luxury Evidence Button -->
+        <!-- 3. Direct Free Numeric Input (Center) -->
+        <div class="flex items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border-2 border-amber-500/50 shadow-inner">
+            <label for="inh-inp-fullBrothers" class="text-base sm:text-lg font-black text-amber-300">عدد الورثة:</label>
+            <input type="number" 
+                   id="inh-inp-fullBrothers" 
+                   min="0" 
+                    
+                   value="0" 
+                   placeholder="0"
+                   onfocus="if(this.value==='0')this.value=''" 
+                   onblur="if(this.value.trim()==='')this.value='0'"
+                   oninput="onHeirCountChanged('fullBrothers', this.value)" 
+                   class="inh-num-input-luxury">
+        </div>
+
+        <!-- 4. Big Full-Width Luxury Evidence Button -->
+        <div>
             <button type="button" 
                     onclick="showHeirEvidenceModal('fullBrothers')" 
-                    class="inh-evidence-btn-luxury flex items-center gap-3" 
+                    class="inh-evidence-btn-luxury w-full flex items-center justify-center gap-3 cursor-pointer" 
                     title="عرض السند والدليل الشرعي من القرآن الكريم وصحيح السنة النبوية">
                 <i class="fa-solid fa-book-quran text-xl text-amber-300"></i>
-                <span>📖 الدليل الشرعي</span>
+                <span class="text-base font-black">📖 الدليل الشرعي (القرآن والسنة)</span>
             </button>
-
         </div>
 
     </div>
                             
     <!-- Heir Card: fullSisters -->
-    <div id="inh-card-fullSisters" class="inh-luxury-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-7 rounded-3xl ">
+    <div id="inh-card-fullSisters" class="inh-luxury-card flex flex-col justify-between p-6 sm:p-7 rounded-3xl space-y-6 ">
         
-        <!-- Right Section: Icon + Heir Title + Fiqh Rule Badge -->
-        <div class="flex items-center gap-5 flex-1 min-w-[280px]">
+        <!-- 1. Header: Icon + Heir Title -->
+        <div class="flex items-center gap-4">
             <span class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/30 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl flex-shrink-0">
                 🧕
             </span>
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <div class="text-2xl sm:text-3xl font-black text-amber-200 font-sans tracking-wide">
                     الأخوات الشقيقات (إناث)
-                </div>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-sm sm:text-base shadow-sm">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span>النصف، الثلثان، أو عصبة بالغير مع الأخ أو عصبة مع البنات</span>
                 </div>
             </div>
         </div>
 
-        <!-- Left Section: Large Number Box + Big Luxury Evidence Button -->
-        <div class="flex flex-wrap items-center gap-4 sm:gap-5 justify-start lg:justify-end flex-shrink-0">
-            
-            <!-- Direct Free Number Input -->
-            <div class="flex items-center gap-3 bg-slate-950/90 px-4 py-2.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                <label for="inh-inp-fullSisters" class="text-base font-black text-amber-300">العدد:</label>
-                <input type="number" 
-                       id="inh-inp-fullSisters" 
-                       min="0" 
-                        
-                       value="0" 
-                       placeholder="0"
-                       onfocus="if(this.value==='0')this.value=''" 
-                       onblur="if(this.value.trim()==='')this.value='0'"
-                       oninput="onHeirCountChanged('fullSisters', this.value)" 
-                       class="inh-num-input-luxury">
-            </div>
+        <!-- 2. Fiqh Rule Badge (Clear, Bold, High Contrast) -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 font-bold text-sm sm:text-base flex items-center gap-2.5 shadow-sm min-h-[52px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <span class="leading-snug">النصف، الثلثان، أو عصبة بالغير مع الأخ أو مع البنات</span>
+        </div>
 
-            <!-- Big Luxury Evidence Button -->
+        <!-- 3. Direct Free Numeric Input (Center) -->
+        <div class="flex items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border-2 border-amber-500/50 shadow-inner">
+            <label for="inh-inp-fullSisters" class="text-base sm:text-lg font-black text-amber-300">عدد الورثة:</label>
+            <input type="number" 
+                   id="inh-inp-fullSisters" 
+                   min="0" 
+                    
+                   value="0" 
+                   placeholder="0"
+                   onfocus="if(this.value==='0')this.value=''" 
+                   onblur="if(this.value.trim()==='')this.value='0'"
+                   oninput="onHeirCountChanged('fullSisters', this.value)" 
+                   class="inh-num-input-luxury">
+        </div>
+
+        <!-- 4. Big Full-Width Luxury Evidence Button -->
+        <div>
             <button type="button" 
                     onclick="showHeirEvidenceModal('fullSisters')" 
-                    class="inh-evidence-btn-luxury flex items-center gap-3" 
+                    class="inh-evidence-btn-luxury w-full flex items-center justify-center gap-3 cursor-pointer" 
                     title="عرض السند والدليل الشرعي من القرآن الكريم وصحيح السنة النبوية">
                 <i class="fa-solid fa-book-quran text-xl text-amber-300"></i>
-                <span>📖 الدليل الشرعي</span>
+                <span class="text-base font-black">📖 الدليل الشرعي (القرآن والسنة)</span>
             </button>
-
         </div>
 
     </div>
                             
     <!-- Heir Card: paternalBrothers -->
-    <div id="inh-card-paternalBrothers" class="inh-luxury-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-7 rounded-3xl ">
+    <div id="inh-card-paternalBrothers" class="inh-luxury-card flex flex-col justify-between p-6 sm:p-7 rounded-3xl space-y-6 ">
         
-        <!-- Right Section: Icon + Heir Title + Fiqh Rule Badge -->
-        <div class="flex items-center gap-5 flex-1 min-w-[280px]">
+        <!-- 1. Header: Icon + Heir Title -->
+        <div class="flex items-center gap-4">
             <span class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/30 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl flex-shrink-0">
                 🧔
             </span>
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <div class="text-2xl sm:text-3xl font-black text-amber-200 font-sans tracking-wide">
                     الإخوة لأب (ذكور)
-                </div>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-sm sm:text-base shadow-sm">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span>عصبة بالنفس عند عدم وجود الأخ الشقيق</span>
                 </div>
             </div>
         </div>
 
-        <!-- Left Section: Large Number Box + Big Luxury Evidence Button -->
-        <div class="flex flex-wrap items-center gap-4 sm:gap-5 justify-start lg:justify-end flex-shrink-0">
-            
-            <!-- Direct Free Number Input -->
-            <div class="flex items-center gap-3 bg-slate-950/90 px-4 py-2.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                <label for="inh-inp-paternalBrothers" class="text-base font-black text-amber-300">العدد:</label>
-                <input type="number" 
-                       id="inh-inp-paternalBrothers" 
-                       min="0" 
-                        
-                       value="0" 
-                       placeholder="0"
-                       onfocus="if(this.value==='0')this.value=''" 
-                       onblur="if(this.value.trim()==='')this.value='0'"
-                       oninput="onHeirCountChanged('paternalBrothers', this.value)" 
-                       class="inh-num-input-luxury">
-            </div>
+        <!-- 2. Fiqh Rule Badge (Clear, Bold, High Contrast) -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 font-bold text-sm sm:text-base flex items-center gap-2.5 shadow-sm min-h-[52px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <span class="leading-snug">عصبة بالنفس عند عدم وجود الأخ الشقيق</span>
+        </div>
 
-            <!-- Big Luxury Evidence Button -->
+        <!-- 3. Direct Free Numeric Input (Center) -->
+        <div class="flex items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border-2 border-amber-500/50 shadow-inner">
+            <label for="inh-inp-paternalBrothers" class="text-base sm:text-lg font-black text-amber-300">عدد الورثة:</label>
+            <input type="number" 
+                   id="inh-inp-paternalBrothers" 
+                   min="0" 
+                    
+                   value="0" 
+                   placeholder="0"
+                   onfocus="if(this.value==='0')this.value=''" 
+                   onblur="if(this.value.trim()==='')this.value='0'"
+                   oninput="onHeirCountChanged('paternalBrothers', this.value)" 
+                   class="inh-num-input-luxury">
+        </div>
+
+        <!-- 4. Big Full-Width Luxury Evidence Button -->
+        <div>
             <button type="button" 
                     onclick="showHeirEvidenceModal('paternalBrothers')" 
-                    class="inh-evidence-btn-luxury flex items-center gap-3" 
+                    class="inh-evidence-btn-luxury w-full flex items-center justify-center gap-3 cursor-pointer" 
                     title="عرض السند والدليل الشرعي من القرآن الكريم وصحيح السنة النبوية">
                 <i class="fa-solid fa-book-quran text-xl text-amber-300"></i>
-                <span>📖 الدليل الشرعي</span>
+                <span class="text-base font-black">📖 الدليل الشرعي (القرآن والسنة)</span>
             </button>
-
         </div>
 
     </div>
                             
     <!-- Heir Card: paternalSisters -->
-    <div id="inh-card-paternalSisters" class="inh-luxury-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-7 rounded-3xl ">
+    <div id="inh-card-paternalSisters" class="inh-luxury-card flex flex-col justify-between p-6 sm:p-7 rounded-3xl space-y-6 ">
         
-        <!-- Right Section: Icon + Heir Title + Fiqh Rule Badge -->
-        <div class="flex items-center gap-5 flex-1 min-w-[280px]">
+        <!-- 1. Header: Icon + Heir Title -->
+        <div class="flex items-center gap-4">
             <span class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/30 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl flex-shrink-0">
                 🧕
             </span>
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <div class="text-2xl sm:text-3xl font-black text-amber-200 font-sans tracking-wide">
                     الأخوات لأب (إناث)
-                </div>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-sm sm:text-base shadow-sm">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span>النصف، الثلثان، أو السدس تكملة الثلثين مع الشقيقة</span>
                 </div>
             </div>
         </div>
 
-        <!-- Left Section: Large Number Box + Big Luxury Evidence Button -->
-        <div class="flex flex-wrap items-center gap-4 sm:gap-5 justify-start lg:justify-end flex-shrink-0">
-            
-            <!-- Direct Free Number Input -->
-            <div class="flex items-center gap-3 bg-slate-950/90 px-4 py-2.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                <label for="inh-inp-paternalSisters" class="text-base font-black text-amber-300">العدد:</label>
-                <input type="number" 
-                       id="inh-inp-paternalSisters" 
-                       min="0" 
-                        
-                       value="0" 
-                       placeholder="0"
-                       onfocus="if(this.value==='0')this.value=''" 
-                       onblur="if(this.value.trim()==='')this.value='0'"
-                       oninput="onHeirCountChanged('paternalSisters', this.value)" 
-                       class="inh-num-input-luxury">
-            </div>
+        <!-- 2. Fiqh Rule Badge (Clear, Bold, High Contrast) -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 font-bold text-sm sm:text-base flex items-center gap-2.5 shadow-sm min-h-[52px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <span class="leading-snug">النصف، الثلثان، أو السدس تكملة الثلثين مع الشقيقة</span>
+        </div>
 
-            <!-- Big Luxury Evidence Button -->
+        <!-- 3. Direct Free Numeric Input (Center) -->
+        <div class="flex items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border-2 border-amber-500/50 shadow-inner">
+            <label for="inh-inp-paternalSisters" class="text-base sm:text-lg font-black text-amber-300">عدد الورثة:</label>
+            <input type="number" 
+                   id="inh-inp-paternalSisters" 
+                   min="0" 
+                    
+                   value="0" 
+                   placeholder="0"
+                   onfocus="if(this.value==='0')this.value=''" 
+                   onblur="if(this.value.trim()==='')this.value='0'"
+                   oninput="onHeirCountChanged('paternalSisters', this.value)" 
+                   class="inh-num-input-luxury">
+        </div>
+
+        <!-- 4. Big Full-Width Luxury Evidence Button -->
+        <div>
             <button type="button" 
                     onclick="showHeirEvidenceModal('paternalSisters')" 
-                    class="inh-evidence-btn-luxury flex items-center gap-3" 
+                    class="inh-evidence-btn-luxury w-full flex items-center justify-center gap-3 cursor-pointer" 
                     title="عرض السند والدليل الشرعي من القرآن الكريم وصحيح السنة النبوية">
                 <i class="fa-solid fa-book-quran text-xl text-amber-300"></i>
-                <span>📖 الدليل الشرعي</span>
+                <span class="text-base font-black">📖 الدليل الشرعي (القرآن والسنة)</span>
             </button>
-
         </div>
 
     </div>
                             
     <!-- Heir Card: maternalSiblings -->
-    <div id="inh-card-maternalSiblings" class="inh-luxury-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-7 rounded-3xl ">
+    <div id="inh-card-maternalSiblings" class="inh-luxury-card flex flex-col justify-between p-6 sm:p-7 rounded-3xl space-y-6 ">
         
-        <!-- Right Section: Icon + Heir Title + Fiqh Rule Badge -->
-        <div class="flex items-center gap-5 flex-1 min-w-[280px]">
+        <!-- 1. Header: Icon + Heir Title -->
+        <div class="flex items-center gap-4">
             <span class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/30 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl flex-shrink-0">
                 👥
             </span>
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <div class="text-2xl sm:text-3xl font-black text-amber-200 font-sans tracking-wide">
                     الإخوة والأخوات لأم
-                </div>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-sm sm:text-base shadow-sm">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span>السدس للواحد، الثلث للجمع بالسوية التامة بين الذكر والأنثى</span>
                 </div>
             </div>
         </div>
 
-        <!-- Left Section: Large Number Box + Big Luxury Evidence Button -->
-        <div class="flex flex-wrap items-center gap-4 sm:gap-5 justify-start lg:justify-end flex-shrink-0">
-            
-            <!-- Direct Free Number Input -->
-            <div class="flex items-center gap-3 bg-slate-950/90 px-4 py-2.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                <label for="inh-inp-maternalSiblings" class="text-base font-black text-amber-300">العدد:</label>
-                <input type="number" 
-                       id="inh-inp-maternalSiblings" 
-                       min="0" 
-                        
-                       value="0" 
-                       placeholder="0"
-                       onfocus="if(this.value==='0')this.value=''" 
-                       onblur="if(this.value.trim()==='')this.value='0'"
-                       oninput="onHeirCountChanged('maternalSiblings', this.value)" 
-                       class="inh-num-input-luxury">
-            </div>
+        <!-- 2. Fiqh Rule Badge (Clear, Bold, High Contrast) -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 font-bold text-sm sm:text-base flex items-center gap-2.5 shadow-sm min-h-[52px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <span class="leading-snug">السدس للواحد، الثلث للجمع بالسوية بين الذكر والأنثى</span>
+        </div>
 
-            <!-- Big Luxury Evidence Button -->
+        <!-- 3. Direct Free Numeric Input (Center) -->
+        <div class="flex items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border-2 border-amber-500/50 shadow-inner">
+            <label for="inh-inp-maternalSiblings" class="text-base sm:text-lg font-black text-amber-300">عدد الورثة:</label>
+            <input type="number" 
+                   id="inh-inp-maternalSiblings" 
+                   min="0" 
+                    
+                   value="0" 
+                   placeholder="0"
+                   onfocus="if(this.value==='0')this.value=''" 
+                   onblur="if(this.value.trim()==='')this.value='0'"
+                   oninput="onHeirCountChanged('maternalSiblings', this.value)" 
+                   class="inh-num-input-luxury">
+        </div>
+
+        <!-- 4. Big Full-Width Luxury Evidence Button -->
+        <div>
             <button type="button" 
                     onclick="showHeirEvidenceModal('maternalSiblings')" 
-                    class="inh-evidence-btn-luxury flex items-center gap-3" 
+                    class="inh-evidence-btn-luxury w-full flex items-center justify-center gap-3 cursor-pointer" 
                     title="عرض السند والدليل الشرعي من القرآن الكريم وصحيح السنة النبوية">
                 <i class="fa-solid fa-book-quran text-xl text-amber-300"></i>
-                <span>📖 الدليل الشرعي</span>
+                <span class="text-base font-black">📖 الدليل الشرعي (القرآن والسنة)</span>
             </button>
-
         </div>
 
     </div>
@@ -21067,304 +21051,298 @@ $pdo = getDBConnection();
                                 </p>
                             </div>
                         </div>
-                        <div class="grid grid-cols-1 gap-5">
+                        <div class="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
                             
     <!-- Heir Card: fullNephews -->
-    <div id="inh-card-fullNephews" class="inh-luxury-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-7 rounded-3xl ">
+    <div id="inh-card-fullNephews" class="inh-luxury-card flex flex-col justify-between p-6 sm:p-7 rounded-3xl space-y-6 ">
         
-        <!-- Right Section: Icon + Heir Title + Fiqh Rule Badge -->
-        <div class="flex items-center gap-5 flex-1 min-w-[280px]">
+        <!-- 1. Header: Icon + Heir Title -->
+        <div class="flex items-center gap-4">
             <span class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/30 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl flex-shrink-0">
                 👦
             </span>
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <div class="text-2xl sm:text-3xl font-black text-amber-200 font-sans tracking-wide">
                     أبناء الأخ الشقيق
-                </div>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-sm sm:text-base shadow-sm">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span>عصبة بالنفس (يأخذون ما بقي بعد أصحاب الفروض)</span>
                 </div>
             </div>
         </div>
 
-        <!-- Left Section: Large Number Box + Big Luxury Evidence Button -->
-        <div class="flex flex-wrap items-center gap-4 sm:gap-5 justify-start lg:justify-end flex-shrink-0">
-            
-            <!-- Direct Free Number Input -->
-            <div class="flex items-center gap-3 bg-slate-950/90 px-4 py-2.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                <label for="inh-inp-fullNephews" class="text-base font-black text-amber-300">العدد:</label>
-                <input type="number" 
-                       id="inh-inp-fullNephews" 
-                       min="0" 
-                        
-                       value="0" 
-                       placeholder="0"
-                       onfocus="if(this.value==='0')this.value=''" 
-                       onblur="if(this.value.trim()==='')this.value='0'"
-                       oninput="onHeirCountChanged('fullNephews', this.value)" 
-                       class="inh-num-input-luxury">
-            </div>
+        <!-- 2. Fiqh Rule Badge (Clear, Bold, High Contrast) -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 font-bold text-sm sm:text-base flex items-center gap-2.5 shadow-sm min-h-[52px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <span class="leading-snug">عصبة بالنفس (يأخذون ما بقي بعد أصحاب الفروض)</span>
+        </div>
 
-            <!-- Big Luxury Evidence Button -->
+        <!-- 3. Direct Free Numeric Input (Center) -->
+        <div class="flex items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border-2 border-amber-500/50 shadow-inner">
+            <label for="inh-inp-fullNephews" class="text-base sm:text-lg font-black text-amber-300">عدد الورثة:</label>
+            <input type="number" 
+                   id="inh-inp-fullNephews" 
+                   min="0" 
+                    
+                   value="0" 
+                   placeholder="0"
+                   onfocus="if(this.value==='0')this.value=''" 
+                   onblur="if(this.value.trim()==='')this.value='0'"
+                   oninput="onHeirCountChanged('fullNephews', this.value)" 
+                   class="inh-num-input-luxury">
+        </div>
+
+        <!-- 4. Big Full-Width Luxury Evidence Button -->
+        <div>
             <button type="button" 
                     onclick="showHeirEvidenceModal('fullNephews')" 
-                    class="inh-evidence-btn-luxury flex items-center gap-3" 
+                    class="inh-evidence-btn-luxury w-full flex items-center justify-center gap-3 cursor-pointer" 
                     title="عرض السند والدليل الشرعي من القرآن الكريم وصحيح السنة النبوية">
                 <i class="fa-solid fa-book-quran text-xl text-amber-300"></i>
-                <span>📖 الدليل الشرعي</span>
+                <span class="text-base font-black">📖 الدليل الشرعي (القرآن والسنة)</span>
             </button>
-
         </div>
 
     </div>
                             
     <!-- Heir Card: paternalNephews -->
-    <div id="inh-card-paternalNephews" class="inh-luxury-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-7 rounded-3xl ">
+    <div id="inh-card-paternalNephews" class="inh-luxury-card flex flex-col justify-between p-6 sm:p-7 rounded-3xl space-y-6 ">
         
-        <!-- Right Section: Icon + Heir Title + Fiqh Rule Badge -->
-        <div class="flex items-center gap-5 flex-1 min-w-[280px]">
+        <!-- 1. Header: Icon + Heir Title -->
+        <div class="flex items-center gap-4">
             <span class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/30 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl flex-shrink-0">
                 👦
             </span>
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <div class="text-2xl sm:text-3xl font-black text-amber-200 font-sans tracking-wide">
                     أبناء الأخ لأب
-                </div>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-sm sm:text-base shadow-sm">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span>عصبة بالنفس بعد أبناء الأخ الشقيق</span>
                 </div>
             </div>
         </div>
 
-        <!-- Left Section: Large Number Box + Big Luxury Evidence Button -->
-        <div class="flex flex-wrap items-center gap-4 sm:gap-5 justify-start lg:justify-end flex-shrink-0">
-            
-            <!-- Direct Free Number Input -->
-            <div class="flex items-center gap-3 bg-slate-950/90 px-4 py-2.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                <label for="inh-inp-paternalNephews" class="text-base font-black text-amber-300">العدد:</label>
-                <input type="number" 
-                       id="inh-inp-paternalNephews" 
-                       min="0" 
-                        
-                       value="0" 
-                       placeholder="0"
-                       onfocus="if(this.value==='0')this.value=''" 
-                       onblur="if(this.value.trim()==='')this.value='0'"
-                       oninput="onHeirCountChanged('paternalNephews', this.value)" 
-                       class="inh-num-input-luxury">
-            </div>
+        <!-- 2. Fiqh Rule Badge (Clear, Bold, High Contrast) -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 font-bold text-sm sm:text-base flex items-center gap-2.5 shadow-sm min-h-[52px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <span class="leading-snug">عصبة بالنفس بعد أبناء الأخ الشقيق</span>
+        </div>
 
-            <!-- Big Luxury Evidence Button -->
+        <!-- 3. Direct Free Numeric Input (Center) -->
+        <div class="flex items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border-2 border-amber-500/50 shadow-inner">
+            <label for="inh-inp-paternalNephews" class="text-base sm:text-lg font-black text-amber-300">عدد الورثة:</label>
+            <input type="number" 
+                   id="inh-inp-paternalNephews" 
+                   min="0" 
+                    
+                   value="0" 
+                   placeholder="0"
+                   onfocus="if(this.value==='0')this.value=''" 
+                   onblur="if(this.value.trim()==='')this.value='0'"
+                   oninput="onHeirCountChanged('paternalNephews', this.value)" 
+                   class="inh-num-input-luxury">
+        </div>
+
+        <!-- 4. Big Full-Width Luxury Evidence Button -->
+        <div>
             <button type="button" 
                     onclick="showHeirEvidenceModal('paternalNephews')" 
-                    class="inh-evidence-btn-luxury flex items-center gap-3" 
+                    class="inh-evidence-btn-luxury w-full flex items-center justify-center gap-3 cursor-pointer" 
                     title="عرض السند والدليل الشرعي من القرآن الكريم وصحيح السنة النبوية">
                 <i class="fa-solid fa-book-quran text-xl text-amber-300"></i>
-                <span>📖 الدليل الشرعي</span>
+                <span class="text-base font-black">📖 الدليل الشرعي (القرآن والسنة)</span>
             </button>
-
         </div>
 
     </div>
                             
     <!-- Heir Card: fullUncles -->
-    <div id="inh-card-fullUncles" class="inh-luxury-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-7 rounded-3xl ">
+    <div id="inh-card-fullUncles" class="inh-luxury-card flex flex-col justify-between p-6 sm:p-7 rounded-3xl space-y-6 ">
         
-        <!-- Right Section: Icon + Heir Title + Fiqh Rule Badge -->
-        <div class="flex items-center gap-5 flex-1 min-w-[280px]">
+        <!-- 1. Header: Icon + Heir Title -->
+        <div class="flex items-center gap-4">
             <span class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/30 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl flex-shrink-0">
                 🧔
             </span>
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <div class="text-2xl sm:text-3xl font-black text-amber-200 font-sans tracking-wide">
                     الأعمام الأشقاء
-                </div>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-sm sm:text-base shadow-sm">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span>عصبة بالنفس عند عدم وجود الإخوة وبنيهم</span>
                 </div>
             </div>
         </div>
 
-        <!-- Left Section: Large Number Box + Big Luxury Evidence Button -->
-        <div class="flex flex-wrap items-center gap-4 sm:gap-5 justify-start lg:justify-end flex-shrink-0">
-            
-            <!-- Direct Free Number Input -->
-            <div class="flex items-center gap-3 bg-slate-950/90 px-4 py-2.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                <label for="inh-inp-fullUncles" class="text-base font-black text-amber-300">العدد:</label>
-                <input type="number" 
-                       id="inh-inp-fullUncles" 
-                       min="0" 
-                        
-                       value="0" 
-                       placeholder="0"
-                       onfocus="if(this.value==='0')this.value=''" 
-                       onblur="if(this.value.trim()==='')this.value='0'"
-                       oninput="onHeirCountChanged('fullUncles', this.value)" 
-                       class="inh-num-input-luxury">
-            </div>
+        <!-- 2. Fiqh Rule Badge (Clear, Bold, High Contrast) -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 font-bold text-sm sm:text-base flex items-center gap-2.5 shadow-sm min-h-[52px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <span class="leading-snug">عصبة بالنفس عند عدم وجود الإخوة وبنيهم</span>
+        </div>
 
-            <!-- Big Luxury Evidence Button -->
+        <!-- 3. Direct Free Numeric Input (Center) -->
+        <div class="flex items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border-2 border-amber-500/50 shadow-inner">
+            <label for="inh-inp-fullUncles" class="text-base sm:text-lg font-black text-amber-300">عدد الورثة:</label>
+            <input type="number" 
+                   id="inh-inp-fullUncles" 
+                   min="0" 
+                    
+                   value="0" 
+                   placeholder="0"
+                   onfocus="if(this.value==='0')this.value=''" 
+                   onblur="if(this.value.trim()==='')this.value='0'"
+                   oninput="onHeirCountChanged('fullUncles', this.value)" 
+                   class="inh-num-input-luxury">
+        </div>
+
+        <!-- 4. Big Full-Width Luxury Evidence Button -->
+        <div>
             <button type="button" 
                     onclick="showHeirEvidenceModal('fullUncles')" 
-                    class="inh-evidence-btn-luxury flex items-center gap-3" 
+                    class="inh-evidence-btn-luxury w-full flex items-center justify-center gap-3 cursor-pointer" 
                     title="عرض السند والدليل الشرعي من القرآن الكريم وصحيح السنة النبوية">
                 <i class="fa-solid fa-book-quran text-xl text-amber-300"></i>
-                <span>📖 الدليل الشرعي</span>
+                <span class="text-base font-black">📖 الدليل الشرعي (القرآن والسنة)</span>
             </button>
-
         </div>
 
     </div>
                             
     <!-- Heir Card: paternalUncles -->
-    <div id="inh-card-paternalUncles" class="inh-luxury-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-7 rounded-3xl ">
+    <div id="inh-card-paternalUncles" class="inh-luxury-card flex flex-col justify-between p-6 sm:p-7 rounded-3xl space-y-6 ">
         
-        <!-- Right Section: Icon + Heir Title + Fiqh Rule Badge -->
-        <div class="flex items-center gap-5 flex-1 min-w-[280px]">
+        <!-- 1. Header: Icon + Heir Title -->
+        <div class="flex items-center gap-4">
             <span class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/30 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl flex-shrink-0">
                 🧔
             </span>
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <div class="text-2xl sm:text-3xl font-black text-amber-200 font-sans tracking-wide">
                     الأعمام لأب
-                </div>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-sm sm:text-base shadow-sm">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span>عصبة بالنفس عند عدم وجود العم الشقيق</span>
                 </div>
             </div>
         </div>
 
-        <!-- Left Section: Large Number Box + Big Luxury Evidence Button -->
-        <div class="flex flex-wrap items-center gap-4 sm:gap-5 justify-start lg:justify-end flex-shrink-0">
-            
-            <!-- Direct Free Number Input -->
-            <div class="flex items-center gap-3 bg-slate-950/90 px-4 py-2.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                <label for="inh-inp-paternalUncles" class="text-base font-black text-amber-300">العدد:</label>
-                <input type="number" 
-                       id="inh-inp-paternalUncles" 
-                       min="0" 
-                        
-                       value="0" 
-                       placeholder="0"
-                       onfocus="if(this.value==='0')this.value=''" 
-                       onblur="if(this.value.trim()==='')this.value='0'"
-                       oninput="onHeirCountChanged('paternalUncles', this.value)" 
-                       class="inh-num-input-luxury">
-            </div>
+        <!-- 2. Fiqh Rule Badge (Clear, Bold, High Contrast) -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 font-bold text-sm sm:text-base flex items-center gap-2.5 shadow-sm min-h-[52px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <span class="leading-snug">عصبة بالنفس عند عدم وجود العم الشقيق</span>
+        </div>
 
-            <!-- Big Luxury Evidence Button -->
+        <!-- 3. Direct Free Numeric Input (Center) -->
+        <div class="flex items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border-2 border-amber-500/50 shadow-inner">
+            <label for="inh-inp-paternalUncles" class="text-base sm:text-lg font-black text-amber-300">عدد الورثة:</label>
+            <input type="number" 
+                   id="inh-inp-paternalUncles" 
+                   min="0" 
+                    
+                   value="0" 
+                   placeholder="0"
+                   onfocus="if(this.value==='0')this.value=''" 
+                   onblur="if(this.value.trim()==='')this.value='0'"
+                   oninput="onHeirCountChanged('paternalUncles', this.value)" 
+                   class="inh-num-input-luxury">
+        </div>
+
+        <!-- 4. Big Full-Width Luxury Evidence Button -->
+        <div>
             <button type="button" 
                     onclick="showHeirEvidenceModal('paternalUncles')" 
-                    class="inh-evidence-btn-luxury flex items-center gap-3" 
+                    class="inh-evidence-btn-luxury w-full flex items-center justify-center gap-3 cursor-pointer" 
                     title="عرض السند والدليل الشرعي من القرآن الكريم وصحيح السنة النبوية">
                 <i class="fa-solid fa-book-quran text-xl text-amber-300"></i>
-                <span>📖 الدليل الشرعي</span>
+                <span class="text-base font-black">📖 الدليل الشرعي (القرآن والسنة)</span>
             </button>
-
         </div>
 
     </div>
                             
     <!-- Heir Card: fullCousins -->
-    <div id="inh-card-fullCousins" class="inh-luxury-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-7 rounded-3xl ">
+    <div id="inh-card-fullCousins" class="inh-luxury-card flex flex-col justify-between p-6 sm:p-7 rounded-3xl space-y-6 ">
         
-        <!-- Right Section: Icon + Heir Title + Fiqh Rule Badge -->
-        <div class="flex items-center gap-5 flex-1 min-w-[280px]">
+        <!-- 1. Header: Icon + Heir Title -->
+        <div class="flex items-center gap-4">
             <span class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/30 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl flex-shrink-0">
                 👦
             </span>
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <div class="text-2xl sm:text-3xl font-black text-amber-200 font-sans tracking-wide">
                     أبناء العم الشقيق
-                </div>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-sm sm:text-base shadow-sm">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span>عصبة بالنفس بعد الأعمام</span>
                 </div>
             </div>
         </div>
 
-        <!-- Left Section: Large Number Box + Big Luxury Evidence Button -->
-        <div class="flex flex-wrap items-center gap-4 sm:gap-5 justify-start lg:justify-end flex-shrink-0">
-            
-            <!-- Direct Free Number Input -->
-            <div class="flex items-center gap-3 bg-slate-950/90 px-4 py-2.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                <label for="inh-inp-fullCousins" class="text-base font-black text-amber-300">العدد:</label>
-                <input type="number" 
-                       id="inh-inp-fullCousins" 
-                       min="0" 
-                        
-                       value="0" 
-                       placeholder="0"
-                       onfocus="if(this.value==='0')this.value=''" 
-                       onblur="if(this.value.trim()==='')this.value='0'"
-                       oninput="onHeirCountChanged('fullCousins', this.value)" 
-                       class="inh-num-input-luxury">
-            </div>
+        <!-- 2. Fiqh Rule Badge (Clear, Bold, High Contrast) -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 font-bold text-sm sm:text-base flex items-center gap-2.5 shadow-sm min-h-[52px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <span class="leading-snug">عصبة بالنفس بعد الأعمام</span>
+        </div>
 
-            <!-- Big Luxury Evidence Button -->
+        <!-- 3. Direct Free Numeric Input (Center) -->
+        <div class="flex items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border-2 border-amber-500/50 shadow-inner">
+            <label for="inh-inp-fullCousins" class="text-base sm:text-lg font-black text-amber-300">عدد الورثة:</label>
+            <input type="number" 
+                   id="inh-inp-fullCousins" 
+                   min="0" 
+                    
+                   value="0" 
+                   placeholder="0"
+                   onfocus="if(this.value==='0')this.value=''" 
+                   onblur="if(this.value.trim()==='')this.value='0'"
+                   oninput="onHeirCountChanged('fullCousins', this.value)" 
+                   class="inh-num-input-luxury">
+        </div>
+
+        <!-- 4. Big Full-Width Luxury Evidence Button -->
+        <div>
             <button type="button" 
                     onclick="showHeirEvidenceModal('fullCousins')" 
-                    class="inh-evidence-btn-luxury flex items-center gap-3" 
+                    class="inh-evidence-btn-luxury w-full flex items-center justify-center gap-3 cursor-pointer" 
                     title="عرض السند والدليل الشرعي من القرآن الكريم وصحيح السنة النبوية">
                 <i class="fa-solid fa-book-quran text-xl text-amber-300"></i>
-                <span>📖 الدليل الشرعي</span>
+                <span class="text-base font-black">📖 الدليل الشرعي (القرآن والسنة)</span>
             </button>
-
         </div>
 
     </div>
                             
     <!-- Heir Card: paternalCousins -->
-    <div id="inh-card-paternalCousins" class="inh-luxury-card flex flex-col lg:flex-row lg:items-center justify-between gap-6 p-6 sm:p-7 rounded-3xl ">
+    <div id="inh-card-paternalCousins" class="inh-luxury-card flex flex-col justify-between p-6 sm:p-7 rounded-3xl space-y-6 ">
         
-        <!-- Right Section: Icon + Heir Title + Fiqh Rule Badge -->
-        <div class="flex items-center gap-5 flex-1 min-w-[280px]">
+        <!-- 1. Header: Icon + Heir Title -->
+        <div class="flex items-center gap-4">
             <span class="w-16 h-16 rounded-2xl bg-gradient-to-br from-amber-500/25 to-yellow-600/30 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl flex-shrink-0">
                 👦
             </span>
-            <div class="space-y-2">
+            <div class="space-y-1">
                 <div class="text-2xl sm:text-3xl font-black text-amber-200 font-sans tracking-wide">
                     أبناء العم لأب
-                </div>
-                <div class="inline-flex items-center gap-2 px-4 py-1.5 rounded-xl bg-amber-500/20 border border-amber-400/50 text-amber-200 font-bold text-sm sm:text-base shadow-sm">
-                    <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse"></span>
-                    <span>عصبة بالنفس (آخر درجات عصبات الحواشي)</span>
                 </div>
             </div>
         </div>
 
-        <!-- Left Section: Large Number Box + Big Luxury Evidence Button -->
-        <div class="flex flex-wrap items-center gap-4 sm:gap-5 justify-start lg:justify-end flex-shrink-0">
-            
-            <!-- Direct Free Number Input -->
-            <div class="flex items-center gap-3 bg-slate-950/90 px-4 py-2.5 rounded-2xl border-2 border-amber-500/50 shadow-inner">
-                <label for="inh-inp-paternalCousins" class="text-base font-black text-amber-300">العدد:</label>
-                <input type="number" 
-                       id="inh-inp-paternalCousins" 
-                       min="0" 
-                        
-                       value="0" 
-                       placeholder="0"
-                       onfocus="if(this.value==='0')this.value=''" 
-                       onblur="if(this.value.trim()==='')this.value='0'"
-                       oninput="onHeirCountChanged('paternalCousins', this.value)" 
-                       class="inh-num-input-luxury">
-            </div>
+        <!-- 2. Fiqh Rule Badge (Clear, Bold, High Contrast) -->
+        <div class="p-3.5 rounded-2xl bg-amber-500/15 border border-amber-400/40 text-amber-200 font-bold text-sm sm:text-base flex items-center gap-2.5 shadow-sm min-h-[52px]">
+            <span class="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse flex-shrink-0"></span>
+            <span class="leading-snug">عصبة بالنفس (آخر درجات عصبات الحواشي)</span>
+        </div>
 
-            <!-- Big Luxury Evidence Button -->
+        <!-- 3. Direct Free Numeric Input (Center) -->
+        <div class="flex items-center justify-between gap-3 bg-slate-950/90 p-4 rounded-2xl border-2 border-amber-500/50 shadow-inner">
+            <label for="inh-inp-paternalCousins" class="text-base sm:text-lg font-black text-amber-300">عدد الورثة:</label>
+            <input type="number" 
+                   id="inh-inp-paternalCousins" 
+                   min="0" 
+                    
+                   value="0" 
+                   placeholder="0"
+                   onfocus="if(this.value==='0')this.value=''" 
+                   onblur="if(this.value.trim()==='')this.value='0'"
+                   oninput="onHeirCountChanged('paternalCousins', this.value)" 
+                   class="inh-num-input-luxury">
+        </div>
+
+        <!-- 4. Big Full-Width Luxury Evidence Button -->
+        <div>
             <button type="button" 
                     onclick="showHeirEvidenceModal('paternalCousins')" 
-                    class="inh-evidence-btn-luxury flex items-center gap-3" 
+                    class="inh-evidence-btn-luxury w-full flex items-center justify-center gap-3 cursor-pointer" 
                     title="عرض السند والدليل الشرعي من القرآن الكريم وصحيح السنة النبوية">
                 <i class="fa-solid fa-book-quran text-xl text-amber-300"></i>
-                <span>📖 الدليل الشرعي</span>
+                <span class="text-base font-black">📖 الدليل الشرعي (القرآن والسنة)</span>
             </button>
-
         </div>
 
     </div>
@@ -21498,6 +21476,12 @@ $pdo = getDBConnection();
                 </div>
 
             </div>
+
+            <!-- Grand Sharia Evidence Modal Container (Always Present in DOM with z-[99999999]) -->
+            <div id="inh-evidence-modal" style="display: none;" class="fixed inset-0 z-[99999999] items-center justify-center p-4 sm:p-6 bg-slate-950/90 backdrop-blur-md">
+                <!-- Injected dynamically on click -->
+            </div>
+
         </div>
         
 
@@ -23163,7 +23147,7 @@ $pdo = getDBConnection();
 
 </script>
     <!-- 🤖 SMART AI ASSISTANT FOR DATA, FIQH & ENGINEERING TOOLS 🤖 -->
-    <script src="js/inheritance_engine.js?v=2026_v2"></script>
+    <script src="js/inheritance_engine.js?v=2026_v4_evidence_1788627672641"></script>
     <script src="js/chatbot.js?v=2026_fiqh" defer></script>
 </body>
 </html>
