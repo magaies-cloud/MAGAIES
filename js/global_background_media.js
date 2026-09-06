@@ -1,20 +1,24 @@
 /**
  * ════════════════════════════════════════════════════════════════════════════
- * 📡 GLOBAL CROSS-SCREEN BACKGROUND MEDIA & TV CHANNELS ENGINE (v2026.3)
+ * 📡 GLOBAL CROSS-SCREEN BACKGROUND MEDIA & TV CHANNELS ENGINE (v2026.4)
  * ════════════════════════════════════════════════════════════════════════════
  * Al-Sajana Smart ERP 2026 - Global Islamic Live Streaming & Quran Engine
  * Keeps live TV & Quran MP3 playing continuously across ALL ERP screens
  * (Sales, Purchases, Inventory, Vouchers, General Ledger, Reports, Tools, etc.)
  * 
- * KEY ARCHITECTURAL FEATURES:
- * 1. SEAMLESS NAVIGATION CONTINUITY: Quran recitations DO NOT restart from 0:00!
- *    The audio pre-seeks to exact second BEFORE playing to prevent verse 1 leak.
- * 2. TRANSIENT ZERO PROTECTION: Never overwrites valid playback time with 0s.
- * 3. MULTI-TENANT PROXY COMPATIBILITY: Handles globalKeys and tenant-prefixed storage.
- * 4. UNIVERSAL CROSS-SCREEN COVERAGE: Works on every single screen, including
- *    headerless sub-screens (via dynamic floating TV pill widget).
- * 5. DUAL-LAYER AUTO BOOTSTRAP: Self-contained styles & popovers injected on demand.
- * 6. LIGHTNING DEFENSIVE SYNCHRONIZATION: Cross-tab BroadcastChannel & LocalStorage.
+ * 🏆 ZERO-CUT CONTINUITY ARCHITECTURE (0.000s Audio Cut):
+ * 1. SEAMLESS CARRIER HOST: When audio is playing, window.top remains the Audio Master.
+ *    Subsequent screens load inside a full-viewport zero-margin seamless carrier container.
+ *    The audio element in window.top NEVER terminates, NEVER reloads, and NEVER cuts for 0.000s!
+ * 2. ADDRESS BAR SYNCHRONIZATION: Browser URL matches active screen via history.replaceState.
+ * 3. CHILD FRAME DELEGATION: Sub-screens running in carrier delegate directly to window.top.
+ *    Prevents duplicate audio players and eliminates audio conflict or echo completely.
+ * 4. AUTOPLAY RESILIENCE (STANDALONE): If a page is opened standalone / refreshed:
+ *    - Prominent glowing resume prompt bar shown immediately if blocked by browser policy.
+ *    - Universal interaction listeners on pointerdown, click, touch, scroll, mousemove, keydown.
+ *    - Pre-seeks to exact timestamp before playing to prevent verse 1 restart.
+ * 5. COMPANION WINDOW SUPPORT: Dedicated popout background player option (openBackgroundPopout).
+ * 6. MULTI-TENANT PROXY COMPATIBILITY: Handles globalKeys and tenant-prefixed storage.
  * ════════════════════════════════════════════════════════════════════════════
  */
 
@@ -23,6 +27,7 @@
 
     const STORAGE_KEY = 'elsajana_global_media_state';
     const BROADCAST_CHANNEL_NAME = 'elsajana_media_broadcast';
+    const isTopWindow = (window.self === window.top);
 
     const CHANNELS_INFO = {
         quran_mp3: {
@@ -72,54 +77,82 @@
         const style = document.createElement('style');
         style.id = 'pm-dock-styles';
         style.textContent = `
-            /* Background Audio Container (Hidden from view, never blocks screen) */
+            /* Background Audio Container (Hidden audio, elegant floating resume bar) */
             #persistent-media-dock {
-                display: none !important;
+                display: none;
                 position: fixed !important;
-                bottom: 18px !important;
-                left: 18px !important;
-                z-index: 9999999 !important;
-                width: 380px !important;
-                max-width: calc(100vw - 36px) !important;
-                padding: 14px 16px !important;
-                border-radius: 24px !important;
-                background: rgba(10, 15, 30, 0.98) !important;
-                border: 2px solid rgba(245, 158, 11, 0.75) !important;
-                box-shadow: 0 20px 60px rgba(0, 0, 0, 0.92), 0 0 35px rgba(245, 158, 11, 0.35) !important;
-                backdrop-filter: blur(20px) !important;
-                -webkit-backdrop-filter: blur(20px) !important;
-                color: #f8fafc !important;
-                font-family: 'Tajawal', system-ui, -apple-system, sans-serif !important;
+                bottom: 22px !important;
+                left: 50% !important;
+                transform: translateX(-50%) !important;
+                z-index: 999999999 !important;
+                width: auto !important;
+                max-width: calc(100vw - 32px) !important;
+                box-sizing: border-box !important;
                 direction: rtl !important;
                 text-align: right !important;
-                box-sizing: border-box !important;
+                font-family: 'Tajawal', system-ui, -apple-system, sans-serif !important;
             }
-            #persistent-media-dock.pm-hidden {
-                display: none !important;
+            #persistent-media-dock.pm-prompt-active {
+                display: block !important;
+                animation: pmPromptFadeIn 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            }
+            @keyframes pmPromptFadeIn {
+                from { opacity: 0; transform: translate(-50%, 15px) scale(0.95); }
+                to { opacity: 1; transform: translate(-50%, 0) scale(1); }
             }
             .pm-audio-player {
-                width: 100% !important;
-                height: 36px !important;
-                border-radius: 12px !important;
-                outline: none !important;
-                background: #020617 !important;
+                display: none !important;
             }
             .pm-prompt-resume {
-                display: none;
-                margin-top: 8px !important;
-                background: linear-gradient(90deg, #b45309, #d97706) !important;
-                border: 1px solid #fde047 !important;
+                display: flex !important;
+                align-items: center !important;
+                justify-content: space-between !important;
+                gap: 14px !important;
+                background: linear-gradient(135deg, rgba(20, 10, 35, 0.98), rgba(30, 20, 50, 0.98)) !important;
+                border: 2px solid #f59e0b !important;
                 color: #ffffff !important;
-                font-size: 11px !important;
+                font-size: 13px !important;
                 font-weight: 800 !important;
-                padding: 6px 10px !important;
-                border-radius: 10px !important;
-                text-align: center !important;
+                padding: 10px 18px !important;
+                border-radius: 50px !important;
                 cursor: pointer !important;
-                box-shadow: 0 4px 12px rgba(217, 119, 6, 0.4) !important;
+                box-shadow: 0 10px 35px rgba(0, 0, 0, 0.85), 0 0 25px rgba(245, 158, 11, 0.65), inset 0 0 12px rgba(245, 158, 11, 0.25) !important;
+                backdrop-filter: blur(16px) !important;
+                -webkit-backdrop-filter: blur(16px) !important;
+                user-select: none !important;
+                white-space: nowrap !important;
+                transition: transform 0.2s, box-shadow 0.2s !important;
+            }
+            .pm-prompt-resume:hover {
+                transform: scale(1.03) !important;
+                box-shadow: 0 12px 40px rgba(0, 0, 0, 0.95), 0 0 35px rgba(245, 158, 11, 0.85) !important;
+                border-color: #fde047 !important;
+            }
+            .pm-prompt-pulse-dot {
+                width: 10px !important;
+                height: 10px !important;
+                border-radius: 50% !important;
+                background: #f59e0b !important;
+                box-shadow: 0 0 10px #f59e0b !important;
+                animation: pmDotPulse 1.2s infinite ease-in-out !important;
+                flex-shrink: 0 !important;
+            }
+            @keyframes pmDotPulse {
+                0%, 100% { transform: scale(0.9); opacity: 1; }
+                50% { transform: scale(1.4); opacity: 0.5; }
+            }
+            .pm-prompt-btn {
+                background: linear-gradient(135deg, #f59e0b, #d97706) !important;
+                color: #000000 !important;
+                font-weight: 900 !important;
+                font-size: 12px !important;
+                padding: 5px 14px !important;
+                border-radius: 20px !important;
+                border: 1px solid #fef08a !important;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
             }
 
-            /* 🌟 Sleek Header & Sub-Screen Mini TV Button (1cm x 2.5cm) */
+            /* 🌟 Sleek Header & Sub-Screen Mini TV Button */
             .header-tv-mini-btn {
                 display: inline-flex !important;
                 align-items: center !important;
@@ -165,6 +198,14 @@
                 color: #ffffff !important;
                 font-weight: 900 !important;
             }
+            .header-tv-mini-btn.is-waiting-gesture {
+                border-color: #fbbf24 !important;
+                animation: headerTvGestureBlink 1s infinite alternate !important;
+            }
+            @keyframes headerTvGestureBlink {
+                from { box-shadow: 0 0 10px rgba(245, 158, 11, 0.4); }
+                to { box-shadow: 0 0 24px rgba(245, 158, 11, 0.95), inset 0 0 8px rgba(254, 240, 138, 0.6); }
+            }
             .header-tv-mini-btn.is-playing .header-tv-icon {
                 filter: drop-shadow(0 0 8px #fbbf24) !important;
             }
@@ -192,7 +233,7 @@
                 100% { transform: scale(0.85); opacity: 1; }
             }
 
-            /* 🌟 Floating Mini TV Button Bar for Headerless Sub-Screens (Alongside Go-Back Button) */
+            /* Floating Mini TV Button Bar for Headerless Sub-Screens */
             .subscreen-floating-tv-wrap {
                 position: fixed !important;
                 top: 15px !important;
@@ -200,52 +241,46 @@
                 z-index: 99999 !important;
                 display: flex !important;
                 align-items: center !important;
-                direction: rtl !important;
-                box-sizing: border-box !important;
+                gap: 8px !important;
+                animation: tvFloatIn 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275) !important;
             }
-            .subscreen-floating-tv-wrap .header-tv-mini-btn {
-                box-shadow: 0 8px 25px rgba(0,0,0,0.85), 0 0 15px rgba(245, 158, 11, 0.4) !important;
-                border: 1.5px solid #f59e0b !important;
-                backdrop-filter: blur(14px) !important;
-                -webkit-backdrop-filter: blur(14px) !important;
-            }
-            @media (max-width: 640px) {
-                .subscreen-floating-tv-wrap {
-                    left: 120px !important;
-                    top: 10px !important;
-                }
+            @keyframes tvFloatIn {
+                from { opacity: 0; transform: translateY(-10px) scale(0.9); }
+                to { opacity: 1; transform: translateY(0) scale(1); }
             }
 
-            /* 🌟 Universal Popover Modal (Always Rendered on Top of All Screens) */
+            /* 🌟 Interactive Floating TV Popover Modal */
             .header-tv-popover {
                 position: fixed !important;
-                width: 320px !important;
+                z-index: 999999999 !important;
+                width: 330px !important;
                 max-width: calc(100vw - 30px) !important;
-                background: linear-gradient(155deg, rgba(15, 23, 42, 0.99), rgba(5, 10, 24, 0.99)) !important;
-                border: 2px solid #f59e0b !important;
-                border-radius: 22px !important;
-                padding: 16px !important;
-                box-shadow: 0 25px 70px rgba(0,0,0,0.95), 0 0 45px rgba(245, 158, 11, 0.45) !important;
+                background: linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(30, 20, 50, 0.98)) !important;
+                border: 2px solid rgba(245, 158, 11, 0.7) !important;
+                border-radius: 20px !important;
+                padding: 14px 16px !important;
+                box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 35px rgba(245, 158, 11, 0.3) !important;
                 backdrop-filter: blur(25px) !important;
                 -webkit-backdrop-filter: blur(25px) !important;
-                z-index: 999999999 !important;
+                font-family: 'Tajawal', system-ui, -apple-system, sans-serif !important;
                 direction: rtl !important;
                 text-align: right !important;
+                color: #f8fafc !important;
                 box-sizing: border-box !important;
-                animation: popoverFadeIn 0.22s ease-out !important;
-                font-family: 'Tajawal', system-ui, -apple-system, sans-serif !important;
+                animation: popoverFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
             }
             @keyframes popoverFadeIn {
-                from { opacity: 0; transform: translateY(-6px); }
-                to { opacity: 1; transform: translateY(0); }
+                from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+                to { opacity: 1; transform: translateY(0) scale(1); }
             }
+
             .header-pop-ch-btn {
                 display: flex !important;
                 align-items: center !important;
                 justify-content: center !important;
-                gap: 6px !important;
+                gap: 7px !important;
                 padding: 8px 10px !important;
-                border-radius: 10px !important;
+                border-radius: 11px !important;
                 background: rgba(255,255,255,0.06) !important;
                 border: 1px solid rgba(255,255,255,0.14) !important;
                 color: #f8fafc !important;
@@ -273,85 +308,15 @@
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    // 🧱 Build or Ensure Persistent Audio Player in DOM
-    // ════════════════════════════════════════════════════════════════════════
-    let lastTimeSaveTimestamp = 0;
-
-    function ensureMediaDock() {
-        injectDockStyles();
-        let dock = document.getElementById('persistent-media-dock');
-        if (dock) {
-            attachAudioEventListeners();
-            return dock;
-        }
-
-        dock = document.createElement('div');
-        dock.id = 'persistent-media-dock';
-        dock.className = 'pm-hidden';
-
-        dock.innerHTML = `
-            <audio id="persistent-audio-player" class="pm-audio-player" preload="auto"></audio>
-            <div id="pm-resume-prompt" class="pm-prompt-resume" onclick="resumeBackgroundPlayback()">
-                🔊 انقر هنا لمواصلة استماع البث في الخلفية
-            </div>
-        `;
-
-        if (document.body) {
-            document.body.appendChild(dock);
-        } else {
-            document.addEventListener('DOMContentLoaded', () => {
-                if (!document.getElementById('persistent-media-dock')) {
-                    document.body.appendChild(dock);
-                }
-            });
-        }
-
-        attachAudioEventListeners();
-        return dock;
-    }
-
-    function attachAudioEventListeners() {
-        const audioPlayer = document.getElementById('persistent-audio-player');
-        if (!audioPlayer || audioPlayer.__listenersAttached) return;
-        audioPlayer.__listenersAttached = true;
-
-        // Continuous high-frequency playback position persistence (throttled ~600ms)
-        audioPlayer.addEventListener('timeupdate', function() {
-            const now = Date.now();
-            if (now - lastTimeSaveTimestamp > 600) {
-                lastTimeSaveTimestamp = now;
-                saveGlobalMediaPlaybackPosition(audioPlayer);
-            }
-        });
-
-        // Instant save on pause or seeking
-        audioPlayer.addEventListener('pause', function() {
-            saveGlobalMediaPlaybackPosition(audioPlayer);
-        });
-        audioPlayer.addEventListener('seeked', function() {
-            saveGlobalMediaPlaybackPosition(audioPlayer);
-        });
-
-        // Audio track ended: reset position and clean up
-        audioPlayer.addEventListener('ended', function() {
-            const st = getStoredMediaState();
-            if (st) {
-                st.currentTime = 0;
-                st.active = false;
-                saveMediaState(st);
-            }
-            syncHeaderPopoverUI();
-        });
-    }
-
-    // ════════════════════════════════════════════════════════════════════════
     // 💾 Storage State Synchronization (Multi-Tenant Compatible)
     // ════════════════════════════════════════════════════════════════════════
     function getStoredMediaState() {
         try {
+            if (!isTopWindow && window.top && window.top.getStoredMediaState) {
+                try { return window.top.getStoredMediaState(); } catch(e) {}
+            }
             let raw = localStorage.getItem(STORAGE_KEY);
             if (!raw) {
-                // Check if stored under tenant prefix (fallback)
                 for (let i = 0; i < localStorage.length; i++) {
                     const k = localStorage.key(i);
                     if (k && k.endsWith(STORAGE_KEY)) {
@@ -370,7 +335,6 @@
         try {
             const json = JSON.stringify(state);
             localStorage.setItem(STORAGE_KEY, json);
-            // Also sync to any existing tenant-prefixed keys for 100% backward safety
             try {
                 for (let i = 0; i < localStorage.length; i++) {
                     const k = localStorage.key(i);
@@ -405,15 +369,85 @@
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    // 💾 Continuous Position Persistence Engine (with Transient Zero Guard)
+    // 🧱 Build or Ensure Persistent Audio Player in DOM (Audio Master Window)
     // ════════════════════════════════════════════════════════════════════════
+    let lastTimeSaveTimestamp = 0;
+
+    function ensureMediaDock() {
+        if (!isTopWindow) return null; // Child frames never create audio element!
+
+        injectDockStyles();
+        let dock = document.getElementById('persistent-media-dock');
+        if (dock) {
+            attachAudioEventListeners();
+            return dock;
+        }
+
+        dock = document.createElement('div');
+        dock.id = 'persistent-media-dock';
+
+        dock.innerHTML = `
+            <audio id="persistent-audio-player" class="pm-audio-player" preload="auto"></audio>
+            <div id="pm-resume-prompt" class="pm-prompt-resume" onclick="resumeBackgroundPlayback()">
+                <div class="pm-prompt-pulse-dot"></div>
+                <span>🔊 اضغط هنا لمواصلة استماع البث بالخلفية (مكة / القرآن)</span>
+                <span class="pm-prompt-btn">متابعة ▶</span>
+            </div>
+        `;
+
+        if (document.body) {
+            document.body.appendChild(dock);
+        } else {
+            document.addEventListener('DOMContentLoaded', () => {
+                if (!document.getElementById('persistent-media-dock')) {
+                    document.body.appendChild(dock);
+                }
+            });
+        }
+
+        attachAudioEventListeners();
+        return dock;
+    }
+
+    function attachAudioEventListeners() {
+        if (!isTopWindow) return;
+        const audioPlayer = document.getElementById('persistent-audio-player');
+        if (!audioPlayer || audioPlayer.__listenersAttached) return;
+        audioPlayer.__listenersAttached = true;
+
+        audioPlayer.addEventListener('timeupdate', function() {
+            const now = Date.now();
+            if (now - lastTimeSaveTimestamp > 600) {
+                lastTimeSaveTimestamp = now;
+                saveGlobalMediaPlaybackPosition(audioPlayer);
+            }
+        });
+
+        audioPlayer.addEventListener('pause', function() {
+            saveGlobalMediaPlaybackPosition(audioPlayer);
+        });
+        audioPlayer.addEventListener('seeked', function() {
+            saveGlobalMediaPlaybackPosition(audioPlayer);
+        });
+
+        audioPlayer.addEventListener('ended', function() {
+            const st = getStoredMediaState();
+            if (st) {
+                st.currentTime = 0;
+                st.active = false;
+                saveMediaState(st);
+            }
+            syncHeaderPopoverUI();
+        });
+    }
+
     function saveGlobalMediaPlaybackPosition(explicitAudio) {
+        if (!isTopWindow) return;
         try {
             const audio = explicitAudio || document.getElementById('persistent-audio-player');
             if (!audio || !audio.src) return;
 
             const t = audio.currentTime;
-            // 🛡️ GUARD: Only save positive time > 0.5s so we NEVER overwrite a valid state with transient 0 on initial page load!
             if (isNaN(t) || t <= 0.5) return;
 
             const state = getStoredMediaState();
@@ -427,35 +461,28 @@
     }
     window.saveGlobalMediaPlaybackPosition = saveGlobalMediaPlaybackPosition;
 
-    // Instant save triggers on page transition events
     window.addEventListener('beforeunload', function() {
         saveGlobalMediaPlaybackPosition();
     }, true);
-
     window.addEventListener('pagehide', function() {
         saveGlobalMediaPlaybackPosition();
     }, true);
-
     document.addEventListener('visibilitychange', function() {
         if (document.visibilityState === 'hidden') {
             saveGlobalMediaPlaybackPosition();
         }
     });
 
-    // Save before user clicks any anchor navigation link
-    document.addEventListener('click', function(e) {
-        const a = e.target.closest('a');
-        if (a && a.href && !a.href.startsWith('javascript') && !a.href.startsWith('#')) {
-            saveGlobalMediaPlaybackPosition();
-        }
-    }, true);
-
     function handleBroadcastMessage(event) {
         const msg = event.data;
         if (!msg) return;
 
         if (msg.type === 'STATE_CHANGED' && msg.state) {
-            applyMediaState(msg.state, false);
+            if (isTopWindow) {
+                applyMediaState(msg.state, false);
+            } else {
+                syncHeaderPopoverUI();
+            }
         } else if (msg.type === 'STOP_ALL') {
             stopPersistentMedia(false);
         }
@@ -466,7 +493,8 @@
             try {
                 const newState = e.newValue ? JSON.parse(e.newValue) : null;
                 if (newState && newState.active) {
-                    applyMediaState(newState, false);
+                    if (isTopWindow) applyMediaState(newState, false);
+                    else syncHeaderPopoverUI();
                 } else {
                     stopPersistentMedia(false);
                 }
@@ -475,12 +503,111 @@
     });
 
     // ════════════════════════════════════════════════════════════════════════
-    // 🚀 Universal Floating TV Button & Popover Builder (for ALL Sub-Screens)
+    // 🌐 SEAMLESS CARRIER ENGINE (True 0.000s Zero-Cut Cross-Screen Playback)
+    // ════════════════════════════════════════════════════════════════════════
+    function isInternalNavigationUrl(url) {
+        if (!url || typeof url !== 'string') return false;
+        url = url.trim();
+        if (url.startsWith('#') || url.startsWith('javascript:') || url.startsWith('mailto:') || url.startsWith('tel:')) return false;
+        if (url.includes('login.php') || url.includes('logout.php') || url.includes('register.php')) return false;
+
+        try {
+            const u = new URL(url, window.location.href);
+            if (u.origin !== window.location.origin) return false;
+            // Only route PHP pages within the ERP
+            const path = u.pathname.toLowerCase();
+            if (!path.endsWith('.php') && !path.includes('.php?')) return false;
+            return true;
+        } catch (e) {
+            return false;
+        }
+    }
+
+    function activateSeamlessCarrier(destUrl) {
+        if (!isTopWindow) {
+            // If already in iframe, navigate within iframe naturally
+            window.location.href = destUrl;
+            return;
+        }
+
+        let carrier = document.getElementById('elsajana-seamless-carrier');
+        if (!carrier) {
+            carrier = document.createElement('iframe');
+            carrier.id = 'elsajana-seamless-carrier';
+            carrier.setAttribute('allow', 'autoplay');
+            carrier.style.cssText = 'position:fixed;top:0;left:0;width:100vw;height:100vh;border:none;margin:0;padding:0;z-index:999990;background:#0b1120;';
+
+            carrier.addEventListener('load', function() {
+                try {
+                    const doc = carrier.contentDocument;
+                    const win = carrier.contentWindow;
+                    if (doc && doc.title) {
+                        document.title = doc.title;
+                    }
+                    if (win && win.location && win.location.href) {
+                        const targetPath = win.location.pathname.split('/').pop() + win.location.search + win.location.hash;
+                        if (targetPath && !targetPath.includes('about:blank')) {
+                            window.history.replaceState({ carrier: true, path: targetPath }, '', targetPath);
+                        }
+                    }
+                } catch (err) {}
+            });
+
+            document.documentElement.appendChild(carrier);
+        }
+
+        carrier.src = destUrl;
+        try {
+            window.history.pushState({ carrier: true, path: destUrl }, '', destUrl);
+        } catch (e) {}
+    }
+    window.activateSeamlessCarrier = activateSeamlessCarrier;
+
+    // Listen to browser Back/Forward buttons in top window
+    if (isTopWindow) {
+        window.addEventListener('popstate', function(e) {
+            const carrier = document.getElementById('elsajana-seamless-carrier');
+            if (carrier && carrier.contentWindow) {
+                try {
+                    carrier.contentWindow.history.back();
+                } catch (err) {}
+            }
+        });
+
+        // Intercept top window navigation clicks when media is active
+        document.addEventListener('click', function(e) {
+            const state = getStoredMediaState();
+            if (!state || !state.active) return; // Only carrier-wrap when media is actively playing
+
+            // Find clicked navigation element
+            const el = e.target.closest('a, [data-href], .sidebar-item, .hub-btn, .bento-card');
+            if (!el) return;
+
+            let dest = el.getAttribute('data-href') || el.getAttribute('href') || el.dataset?.href;
+            if (!dest || dest === '#' || dest.startsWith('javascript:')) {
+                const onclickStr = el.getAttribute('onclick') || '';
+                const match = onclickStr.match(/window\.location(?:\.href)?\s*=\s*['"]([^'"]+)['"]/);
+                if (match && match[1]) {
+                    dest = match[1];
+                }
+            }
+
+            if (!dest || !isInternalNavigationUrl(dest)) return;
+
+            // Intercept and launch inside seamless carrier
+            e.preventDefault();
+            e.stopImmediatePropagation();
+            activateSeamlessCarrier(dest);
+        }, true);
+    }
+
+    // ════════════════════════════════════════════════════════════════════════
+    // 🚀 Universal Floating TV Button & Popover Builder (for ALL Screens)
     // ════════════════════════════════════════════════════════════════════════
     function ensureHeaderMediaElements() {
         injectDockStyles();
 
-        // 1. If button doesn't exist, inject floating pill on sub-screen
+        // 1. Floating pill for headerless sub-screens
         if (!document.getElementById('header-media-btn')) {
             let wrap = document.getElementById('header-media-control-wrap');
             if (!wrap) {
@@ -507,7 +634,7 @@
             }
         }
 
-        // 2. If popover doesn't exist, build and append universal popover modal
+        // 2. Universal popover modal
         if (!document.getElementById('header-media-popover')) {
             let pop = document.createElement('div');
             pop.id = 'header-media-popover';
@@ -523,7 +650,7 @@
                     <button type="button" onclick="closeHeaderMediaPopover(event)" style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #f8fafc; border-radius: 8px; width: 26px; height: 26px; font-size: 13px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;" title="إخفاء النافذة (مع استمرار البث بالخلفية)">✕</button>
                 </div>
 
-                <!-- Prominent Current Broadcast Status Card -->
+                <!-- Current Broadcast Status Card -->
                 <div id="popover-broadcast-status-card" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(15, 23, 42, 0.98)); border: 1.5px solid rgba(245, 158, 11, 0.55); border-radius: 14px; padding: 10px 12px; margin-bottom: 12px; box-shadow: inset 0 0 15px rgba(245, 158, 11, 0.15);">
                     <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
                         <span style="font-size: 11px; font-weight: 800; color: #94a3b8;">📡 حالة البث الحالية:</span>
@@ -565,9 +692,16 @@
                     <button type="button" onclick="quickHeaderStop(event)" style="background: rgba(225, 29, 72, 0.35); border: 1.5px solid rgba(244, 63, 94, 0.6); color: #ffffff; padding: 5px 12px; border-radius: 9px; font-size: 12px; font-weight: 900; cursor: pointer; transition: 0.2s;" title="إيقاف البث تماماً">⏹️ إيقاف</button>
                 </div>
 
-                <a href="engineering_tools.php?tab=quran_mp3" style="display: block; text-align: center; font-size: 11.5px; font-weight: 900; color: #38bdf8; text-decoration: none; padding-top: 4px;" class="hover:underline">
-                    📖 استوديو القرآن الكريم والشاشات الكاملة ↗
-                </a>
+                <!-- Companion Window & Full Studio Links -->
+                <div style="display: flex; flex-direction: column; gap: 6px;">
+                    <button type="button" onclick="openBackgroundPopout()" style="width: 100%; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; border-radius: 9px; padding: 6px 10px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: 0.2s;" title="تشغيل في نافذة منفصلة مستقلة تماماً بدون أي انقطاع">
+                        <span>🗗</span>
+                        <span>تشغيل بنافذة مستقلة (صفر انقطاع نهائياً)</span>
+                    </button>
+                    <a href="engineering_tools.php?tab=quran_mp3" style="display: block; text-align: center; font-size: 11.5px; font-weight: 900; color: #a78bfa; text-decoration: none; padding-top: 2px;" class="hover:underline">
+                        📖 استوديو القرآن الكريم وكبار القراء ↗
+                    </a>
+                </div>
             `;
 
             if (document.body) {
@@ -583,9 +717,13 @@
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    // 🚀 Media Playback Controllers
+    // 🚀 Media Playback Controllers (Master / Child Delegated)
     // ════════════════════════════════════════════════════════════════════════
     function playTvChannel(channelKey) {
+        if (!isTopWindow && window.top && window.top.playTvChannel) {
+            try { window.top.playTvChannel(channelKey); return; } catch(e) {}
+        }
+
         const ch = CHANNELS_INFO[channelKey];
         if (!ch) return;
 
@@ -598,6 +736,10 @@
     }
 
     function playQuranAudio(url, title, reciterName) {
+        if (!isTopWindow && window.top && window.top.playQuranAudio) {
+            try { window.top.playQuranAudio(url, title, reciterName); return; } catch(e) {}
+        }
+
         playPersistentMedia('audio', url, title, {
             channelKey: 'quran_mp3',
             sub: reciterName || 'تلاوة عطرة خاشعة من القرآن الكريم',
@@ -607,11 +749,15 @@
     }
 
     function playPersistentMedia(type, sourceUrl, title, extraMeta) {
+        if (!isTopWindow && window.top && window.top.playPersistentMedia) {
+            try { window.top.playPersistentMedia(type, sourceUrl, title, extraMeta); return; } catch(e) {}
+        }
+
         ensureMediaDock();
         ensureHeaderMediaElements();
 
         const audioPlayer = document.getElementById('persistent-audio-player');
-        const promptResume = document.getElementById('pm-resume-prompt');
+        const dock = document.getElementById('persistent-media-dock');
 
         if (audioPlayer) {
             audioPlayer.volume = 1.0;
@@ -621,22 +767,21 @@
             const playPromise = audioPlayer.play();
             if (playPromise !== undefined) {
                 playPromise.then(() => {
-                    if (promptResume) promptResume.style.display = 'none';
+                    if (dock) dock.classList.remove('pm-prompt-active');
+                    clearInteractionListeners();
                 }).catch(err => {
-                    console.log('Autoplay deferred until interaction:', err.message);
-                    if (promptResume) promptResume.style.display = 'block';
-                    attachOneTimeInteractionListener();
+                    console.log('Autoplay blocked pending user interaction:', err.message);
+                    if (dock) dock.classList.add('pm-prompt-active');
+                    attachUniversalInteractionListener();
                 });
             }
         }
 
-        // Also sync with page-specific quran player if in engineering tools
         const mainQuranPlayer = document.getElementById('main-quran-audio-player');
         if (mainQuranPlayer) {
             mainQuranPlayer.src = sourceUrl;
         }
 
-        // Save fresh active state (new playback starts at 0)
         saveMediaState({
             active: true,
             type: type,
@@ -650,18 +795,18 @@
         syncHeaderPopoverUI();
     }
 
-    /**
-     * 🎯 Seamless Audio Position Restoration on Page Navigation
-     * Ensures recitations DO NOT restart from verse 1 or second 0!
-     */
     function applyMediaState(state, allowAutoplayPrompt = true) {
         if (!state || !state.active || !state.sourceUrl) return;
+
+        if (!isTopWindow && window.top && window.top.applyMediaState) {
+            try { window.top.applyMediaState(state, allowAutoplayPrompt); return; } catch(e) {}
+        }
 
         ensureMediaDock();
         ensureHeaderMediaElements();
 
         const audioPlayer = document.getElementById('persistent-audio-player');
-        const promptResume = document.getElementById('pm-resume-prompt');
+        const dock = document.getElementById('persistent-media-dock');
 
         if (audioPlayer) {
             const isSameTrack = (audioPlayer.src === state.sourceUrl);
@@ -672,13 +817,14 @@
                 const playPromise = audioPlayer.play();
                 if (playPromise !== undefined) {
                     playPromise.then(() => {
-                        if (promptResume) promptResume.style.display = 'none';
+                        if (dock) dock.classList.remove('pm-prompt-active');
+                        clearInteractionListeners();
                     }).catch(err => {
-                        console.log('Autoplay deferred until interaction:', err.message);
-                        if (allowAutoplayPrompt && promptResume) {
-                            promptResume.style.display = 'block';
+                        console.log('Autoplay blocked on resume:', err.message);
+                        if (allowAutoplayPrompt && dock) {
+                            dock.classList.add('pm-prompt-active');
                         }
-                        attachOneTimeInteractionListener();
+                        attachUniversalInteractionListener();
                     });
                 }
             };
@@ -692,7 +838,6 @@
                     playbackStarted = true;
                     try {
                         audioPlayer.currentTime = targetTime;
-                        console.log('🎯 [Elsajana Engine] Pre-seeked to ' + targetTime.toFixed(1) + 's before play');
                     } catch (e) {}
                     triggerPlay();
                 };
@@ -700,7 +845,6 @@
                 audioPlayer.addEventListener('loadedmetadata', onReadyToResume, { once: true });
                 audioPlayer.addEventListener('canplay', onReadyToResume, { once: true });
 
-                // Safety fallback: if network metadata takes > 900ms, start anyway
                 setTimeout(() => {
                     if (!playbackStarted) {
                         onReadyToResume();
@@ -720,29 +864,63 @@
         syncHeaderPopoverUI();
     }
 
-    function attachOneTimeInteractionListener() {
-        const resumeOnFirstAction = function() {
-            resumeBackgroundPlayback();
-            window.removeEventListener('pointerdown', resumeOnFirstAction, true);
-            window.removeEventListener('click', resumeOnFirstAction, true);
-            window.removeEventListener('keydown', resumeOnFirstAction, true);
-            window.removeEventListener('touchstart', resumeOnFirstAction, true);
-        };
-        window.addEventListener('pointerdown', resumeOnFirstAction, true);
-        window.addEventListener('click', resumeOnFirstAction, true);
-        window.addEventListener('keydown', resumeOnFirstAction, true);
-        window.addEventListener('touchstart', resumeOnFirstAction, true);
+    // ════════════════════════════════════════════════════════════════════════
+    // 🛡️ Universal Autoplay Interaction Listeners
+    // ════════════════════════════════════════════════════════════════════════
+    let interactionListenerAttached = false;
+
+    function universalResumeAction() {
+        resumeBackgroundPlayback();
+        clearInteractionListeners();
+    }
+
+    function attachUniversalInteractionListener() {
+        if (interactionListenerAttached) return;
+        interactionListenerAttached = true;
+
+        const btn = document.getElementById('header-media-btn');
+        if (btn) btn.classList.add('is-waiting-gesture');
+
+        const opts = { capture: true, passive: true };
+        window.addEventListener('pointerdown', universalResumeAction, opts);
+        window.addEventListener('click', universalResumeAction, opts);
+        window.addEventListener('keydown', universalResumeAction, opts);
+        window.addEventListener('touchstart', universalResumeAction, opts);
+        window.addEventListener('scroll', universalResumeAction, opts);
+        window.addEventListener('wheel', universalResumeAction, opts);
+        window.addEventListener('mousemove', universalResumeAction, opts);
+    }
+
+    function clearInteractionListeners() {
+        interactionListenerAttached = false;
+        const btn = document.getElementById('header-media-btn');
+        if (btn) btn.classList.remove('is-waiting-gesture');
+
+        const opts = { capture: true, passive: true };
+        window.removeEventListener('pointerdown', universalResumeAction, opts);
+        window.removeEventListener('click', universalResumeAction, opts);
+        window.removeEventListener('keydown', universalResumeAction, opts);
+        window.removeEventListener('touchstart', universalResumeAction, opts);
+        window.removeEventListener('scroll', universalResumeAction, opts);
+        window.removeEventListener('wheel', universalResumeAction, opts);
+        window.removeEventListener('mousemove', universalResumeAction, opts);
     }
 
     function resumeBackgroundPlayback() {
+        if (!isTopWindow && window.top && window.top.resumeBackgroundPlayback) {
+            try { window.top.resumeBackgroundPlayback(); return; } catch(e) {}
+        }
+
         const audioPlayer = document.getElementById('persistent-audio-player');
-        const promptResume = document.getElementById('pm-resume-prompt');
+        const dock = document.getElementById('persistent-media-dock');
+
         if (audioPlayer) {
             const state = getStoredMediaState();
             const targetTime = (state && state.type === 'audio' && typeof state.currentTime === 'number') ? state.currentTime : 0;
 
             audioPlayer.play().then(() => {
-                if (promptResume) promptResume.style.display = 'none';
+                if (dock) dock.classList.remove('pm-prompt-active');
+                clearInteractionListeners();
                 if (targetTime > 0 && Math.abs(audioPlayer.currentTime - targetTime) > 2) {
                     try { audioPlayer.currentTime = targetTime; } catch(e) {}
                 }
@@ -751,8 +929,16 @@
     }
 
     function stopPersistentMedia(shouldBroadcast = true) {
+        if (!isTopWindow && window.top && window.top.stopPersistentMedia) {
+            try { window.top.stopPersistentMedia(shouldBroadcast); return; } catch(e) {}
+        }
+
         const audioPlayer = document.getElementById('persistent-audio-player');
         const mainQuranPlayer = document.getElementById('main-quran-audio-player');
+        const dock = document.getElementById('persistent-media-dock');
+
+        if (dock) dock.classList.remove('pm-prompt-active');
+        clearInteractionListeners();
 
         if (audioPlayer) {
             audioPlayer.pause();
@@ -789,8 +975,7 @@
 
         if (pop) {
             pop.focus();
-            const audioPlayer = document.getElementById('persistent-audio-player');
-            if (audioPlayer) audioPlayer.pause();
+            stopPersistentMedia(false);
         }
     }
 
@@ -810,7 +995,7 @@
             pop.style.position = 'fixed';
             pop.style.top = Math.max(10, rect.bottom + 8) + 'px';
 
-            const popWidth = 320;
+            const popWidth = 330;
             let leftPos = rect.left + (rect.width / 2) - (popWidth / 2);
             if (leftPos < 15) leftPos = 15;
             if (leftPos + popWidth > window.innerWidth - 15) {
@@ -832,6 +1017,9 @@
     }
 
     function setHeaderMediaVolume(val) {
+        if (!isTopWindow && window.top && window.top.setHeaderMediaVolume) {
+            try { window.top.setHeaderMediaVolume(val); return; } catch(e) {}
+        }
         const audioPlayer = document.getElementById('persistent-audio-player');
         if (audioPlayer) {
             audioPlayer.volume = parseFloat(val);
@@ -839,6 +1027,10 @@
     }
 
     function quickHeaderPlay(channelKey) {
+        if (!isTopWindow && window.top && window.top.quickHeaderPlay) {
+            try { window.top.quickHeaderPlay(channelKey); return; } catch(e) {}
+        }
+
         if (channelKey === 'quran_mp3') {
             const state = getStoredMediaState();
             if (state && state.type === 'audio' && state.sourceUrl) {
@@ -851,7 +1043,11 @@
                 closeHeaderMediaPopover();
                 return;
             } else {
-                window.location.href = 'engineering_tools.php?tab=quran_mp3';
+                if (isTopWindow) {
+                    activateSeamlessCarrier('engineering_tools.php?tab=quran_mp3');
+                } else {
+                    window.location.href = 'engineering_tools.php?tab=quran_mp3';
+                }
                 return;
             }
         }
@@ -861,6 +1057,9 @@
 
     function quickHeaderStop(e) {
         if (e) e.stopPropagation();
+        if (!isTopWindow && window.top && window.top.quickHeaderStop) {
+            try { window.top.quickHeaderStop(e); return; } catch(err) {}
+        }
         stopPersistentMedia(true);
         syncHeaderPopoverUI();
     }
@@ -916,7 +1115,6 @@
             popDot.style.display = isPlaying ? 'inline-block' : 'none';
         }
 
-        // Highlight active channel in popover
         ['makkah', 'madinah', 'majd', 'quran_mp3'].forEach(k => {
             const chBtn = document.getElementById('hdr-ch-' + k);
             if (chBtn) {
@@ -928,7 +1126,6 @@
             }
         });
 
-        // Also sync in-page cards if on engineering_tools.php
         if (typeof window.renderQuickChannelVisuals === 'function') {
             window.renderQuickChannelVisuals(isPlaying ? (chKey || (state.type === 'audio' ? 'quran_mp3' : null)) : null);
         }
@@ -951,11 +1148,15 @@
     // 🌐 Initial Auto-Resume on Page Load (Across All Screens)
     // ════════════════════════════════════════════════════════════════════════
     function initGlobalMedia() {
-        ensureMediaDock();
         ensureHeaderMediaElements();
-        const saved = getStoredMediaState();
-        if (saved && saved.active) {
-            applyMediaState(saved, true);
+        if (isTopWindow) {
+            ensureMediaDock();
+            const saved = getStoredMediaState();
+            if (saved && saved.active) {
+                applyMediaState(saved, true);
+            } else {
+                syncHeaderPopoverUI();
+            }
         } else {
             syncHeaderPopoverUI();
         }
@@ -976,6 +1177,7 @@
     window.quickHeaderPlay = quickHeaderPlay;
     window.quickHeaderStop = quickHeaderStop;
     window.syncHeaderPopoverUI = syncHeaderPopoverUI;
+    window.getStoredMediaState = getStoredMediaState;
 
     window.playTvChannel = playTvChannel;
     window.playQuranAudio = playQuranAudio;

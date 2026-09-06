@@ -90,6 +90,15 @@
 
         const isDashboard = pageFile.includes('magaiees_unified_dashboard.php') || pageFile === 'dashboard-pro.php';
 
+        // 0. Seamless Carrier check: if active in top window, navigate carrier back
+        const carrier = document.getElementById('elsajana-seamless-carrier');
+        if (carrier && carrier.contentWindow) {
+            try {
+                carrier.contentWindow.history.back();
+                return;
+            } catch(err) {}
+        }
+
         // 1. Primary: True session history step back
         if (window.history.length > 1) {
             let isExternal = false;

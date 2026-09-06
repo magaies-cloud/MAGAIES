@@ -492,9 +492,16 @@
                     <button type="button" onclick="quickHeaderStop(event)" style="background: rgba(225, 29, 72, 0.35); border: 1.5px solid rgba(244, 63, 94, 0.6); color: #ffffff; padding: 5px 12px; border-radius: 9px; font-size: 12px; font-weight: 900; cursor: pointer; transition: 0.2s;" title="إيقاف البث تماماً">⏹️ إيقاف</button>
                 </div>
 
-                <a href="engineering_tools.php?tab=quran_mp3" style="display: block; text-align: center; font-size: 11.5px; font-weight: 900; color: #38bdf8; text-decoration: none; padding-top: 4px;" class="hover:underline">
-                    📖 استوديو القرآن الكريم والشاشات الكاملة ↗
-                </a>
+                <!-- Companion Window & Full Studio Links -->
+                <div style="display: flex; flex-direction: column; gap: 6px; margin-top: 2px;">
+                    <button type="button" onclick="openBackgroundPopout()" style="width: 100%; background: rgba(56, 189, 248, 0.12); border: 1px solid rgba(56, 189, 248, 0.4); color: #38bdf8; border-radius: 9px; padding: 6px 10px; font-size: 11.5px; font-weight: 800; cursor: pointer; display: flex; align-items: center; justify-content: center; gap: 6px; transition: 0.2s;" title="تشغيل في نافذة منفصلة مستقلة تماماً بدون أي انقطاع">
+                        <span>🗗</span>
+                        <span>تشغيل بنافذة مستقلة (صفر انقطاع نهائياً)</span>
+                    </button>
+                    <a href="engineering_tools.php?tab=quran_mp3" style="display: block; text-align: center; font-size: 11.5px; font-weight: 900; color: #a78bfa; text-decoration: none; padding-top: 2px;" class="hover:underline">
+                        📖 استوديو القرآن الكريم والشاشات الكاملة ↗
+                    </a>
+                </div>
             </div>
         </div>
 
