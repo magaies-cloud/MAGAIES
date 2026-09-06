@@ -239,80 +239,112 @@ $pdo = getDBConnection();
             box-shadow: 0 0 25px #ffffff, 0 0 50px #06b6d4 !important;
         }
 
-        /* ── تصميم أيقونات الشيوخ (لون ذهبي ملكي، تفاصيل مربعة، اسم الشيخ في المنتصف) ── */
+        /* ── تصميم أيقونات الشيوخ (لون ذهبي ملكي ساطع، 4 في السطر إجبارياً، تفاصيل مربعة) ── */
+        #quran-reciters-container {
+            display: grid !important;
+            grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+            gap: 16px !important;
+        }
+        @media (max-width: 900px) {
+            #quran-reciters-container {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+        }
+        @media (max-width: 500px) {
+            #quran-reciters-container {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
         .quran-reciter-card {
-            border-radius: 18px !important; /* تفاصيل مربعة وأنيقة */
+            border-radius: 14px !important; /* تفاصيل مربعة وأنيقة */
             cursor: pointer;
-            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             user-select: none;
             min-height: 155px;
-            padding: 16px 18px !important;
+            padding: 16px 14px !important;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
             text-align: center;
-            background: linear-gradient(145deg, rgba(42, 28, 10, 0.95), rgba(24, 16, 6, 0.98)) !important;
-            border: 2px solid #f59e0b !important;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 22px rgba(245, 158, 11, 0.25), inset 0 1px 2px rgba(254, 240, 138, 0.2) !important;
+            background: linear-gradient(145deg, #78350f, #92400e 55%, #b45309 100%) !important; /* لون ذهبي كهرماني مشرق يكسر السواد تماماً */
+            border: 2.5px solid #fbbf24 !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 25px rgba(245, 158, 11, 0.4), inset 0 1px 3px rgba(254, 240, 138, 0.4) !important;
         }
         .quran-reciter-card:hover {
-            transform: translateY(-4px) scale(1.025);
-            border-color: #fde047 !important;
-            box-shadow: 0 14px 35px rgba(0, 0, 0, 0.7), 0 0 35px rgba(245, 158, 11, 0.5) !important;
-            background: linear-gradient(145deg, rgba(55, 36, 12, 0.97), rgba(30, 20, 8, 0.99)) !important;
+            transform: translateY(-4px) scale(1.02);
+            border-color: #fef08a !important;
+            background: linear-gradient(145deg, #92400e, #b45309 60%, #d97706 100%) !important;
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.6), 0 0 35px rgba(251, 191, 36, 0.7) !important;
         }
         .quran-reciter-card.is-selected {
             border-color: #ffffff !important;
-            background: linear-gradient(145deg, rgba(180, 83, 9, 0.95), rgba(45, 30, 10, 0.98)) !important;
-            box-shadow: 0 0 35px #f59e0b, 0 0 70px rgba(245, 158, 11, 0.8), inset 0 0 25px rgba(255, 255, 255, 0.4) !important;
+            border-width: 3px !important;
+            background: linear-gradient(145deg, #b45309, #d97706 50%, #f59e0b 100%) !important;
+            box-shadow: 0 0 35px #f59e0b, 0 0 70px rgba(251, 191, 36, 0.9), inset 0 0 20px #ffffff !important;
             transform: translateY(-3px) scale(1.02);
             animation: sheikh-card-glow-pulse 1.8s infinite ease-in-out !important;
         }
         @keyframes sheikh-card-glow-pulse {
             0%, 100% {
-                box-shadow: 0 0 30px #f59e0b, 0 0 60px rgba(245, 158, 11, 0.7), inset 0 0 20px rgba(255, 255, 255, 0.3);
+                box-shadow: 0 0 30px #f59e0b, 0 0 60px rgba(251, 191, 36, 0.8), inset 0 0 20px #ffffff;
                 border-color: #fde047;
             }
             50% {
-                box-shadow: 0 0 50px #ffffff, 0 0 90px #f59e0b, inset 0 0 30px #ffffff;
+                box-shadow: 0 0 50px #ffffff, 0 0 95px #f59e0b, inset 0 0 30px #ffffff;
                 border-color: #ffffff;
             }
         }
         .quran-sheikh-title-center {
-            font-size: 1.25rem !important;
+            font-size: 1.28rem !important;
             line-height: 1.35;
             font-weight: 900 !important;
             text-align: center;
-            color: #fef08a !important; /* لون ذهبي مشمس موحد لجميع الشيوخ */
-            text-shadow: 0 0 12px rgba(245, 158, 11, 0.55), 0 2px 6px rgba(0, 0, 0, 0.9) !important;
+            color: #ffffff !important; /* أبيض ناصع مع إضاءة ذهبية مشعة */
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.95), 0 0 14px rgba(254, 240, 138, 0.9) !important;
             letter-spacing: 0.3px;
         }
 
         /* ── تصميم أيقونات السور (لون زمردي قرآني أخضر ساطع - مختلف كلياً عن الشيوخ) ── */
+        #quran-surahs-grid {
+            display: grid !important;
+            grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+            gap: 14px !important;
+        }
+        @media (max-width: 900px) {
+            #quran-surahs-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+        }
+        @media (max-width: 500px) {
+            #quran-surahs-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
+
         .quran-surah-card {
-            border-radius: 18px !important;
+            border-radius: 14px !important; /* تفاصيل مربعة وحواف جميلة */
             cursor: pointer;
-            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             overflow: hidden;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            min-height: 120px;
-            padding: 14px 16px !important;
+            min-height: 125px;
+            padding: 14px 14px !important;
             user-select: none;
-            backdrop-filter: blur(12px);
-            background: linear-gradient(150deg, rgba(6, 78, 59, 0.9), rgba(4, 35, 28, 0.98)) !important;
-            border: 2px solid #10b981 !important;
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 22px rgba(16, 185, 129, 0.25), inset 0 1px 2px rgba(167, 243, 208, 0.2) !important;
+            background: linear-gradient(145deg, #065f46, #047857 55%, #059669 100%) !important; /* لون زمردي قرآني أخضر مضيء ومشرق */
+            border: 2.5px solid #34d399 !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.45), 0 0 25px rgba(16, 185, 129, 0.4), inset 0 1px 3px rgba(167, 243, 208, 0.4) !important;
         }
         .quran-surah-card:hover {
-            transform: translateY(-4px) scale(1.025);
-            border-color: #34d399 !important;
-            box-shadow: 0 14px 35px rgba(0, 0, 0, 0.7), 0 0 35px rgba(16, 185, 129, 0.5) !important;
-            background: linear-gradient(150deg, rgba(8, 95, 72, 0.95), rgba(6, 45, 36, 0.99)) !important;
+            transform: translateY(-4px) scale(1.02);
+            border-color: #a7f3d0 !important;
+            background: linear-gradient(145deg, #047857, #059669 60%, #10b981 100%) !important;
+            box-shadow: 0 14px 30px rgba(0, 0, 0, 0.6), 0 0 35px rgba(52, 211, 153, 0.7) !important;
             z-index: 5;
         }
         .quran-surah-title-center {
@@ -323,20 +355,21 @@ $pdo = getDBConnection();
             letter-spacing: 0.5px;
             margin: auto 0;
             color: #ffffff !important;
-            text-shadow: 0 0 16px #10b981, 0 2px 8px rgba(0, 0, 0, 0.9) !important;
+            text-shadow: 0 2px 5px rgba(0, 0, 0, 0.9), 0 0 16px rgba(167, 243, 208, 0.9) !important;
         }
         .quran-surah-card.is-playing-surah {
             border-color: #ffffff !important;
-            background: linear-gradient(145deg, rgba(16, 185, 129, 0.98), rgba(6, 78, 59, 0.99)) !important;
-            box-shadow: 0 0 40px #10b981, 0 0 85px rgba(16, 185, 129, 0.85), inset 0 0 25px #ffffff !important;
+            border-width: 3px !important;
+            background: linear-gradient(145deg, #059669, #10b981 50%, #34d399 100%) !important;
+            box-shadow: 0 0 40px #10b981, 0 0 85px rgba(52, 211, 153, 0.9), inset 0 0 20px #ffffff !important;
             animation: surah-card-green-glow 1.6s infinite ease-in-out !important;
             transform: translateY(-4px) scale(1.03) !important;
             z-index: 10;
         }
         @keyframes surah-card-green-glow {
             0%, 100% {
-                box-shadow: 0 0 30px #10b981, 0 0 65px rgba(16, 185, 129, 0.75), inset 0 0 20px #ffffff;
-                border-color: #6ee7b7;
+                box-shadow: 0 0 30px #10b981, 0 0 65px rgba(52, 211, 153, 0.8), inset 0 0 20px #ffffff;
+                border-color: #a7f3d0;
             }
             50% {
                 box-shadow: 0 0 50px #ffffff, 0 0 95px #10b981, inset 0 0 30px #ffffff;
@@ -22894,7 +22927,7 @@ $pdo = getDBConnection();
 
         const countBadge = document.getElementById('reciter-showing-count');
         if (countBadge) {
-            countBadge.innerText = 'يتم عرض ' + list.length + ' من إجمالي ' + allReciters.length + ' قارئ وشيخ';
+            countBadge.innerText = 'يتم عرض ' + list.length + ' من إجمالي ' + allReciters.length + ' قارئ وشيخ (4 في كل سطر)';
         }
 
         if (!list.length) {
@@ -22910,27 +22943,27 @@ $pdo = getDBConnection();
             html += `
                 <div onclick="selectQuranReciter('${r.id}')" class="quran-reciter-card ${selectClass} group">
                     <!-- Top Centered Icon Badge (Golden Luxury) -->
-                    <div class="w-13 h-13 rounded-2xl bg-amber-500/25 border-2 border-amber-400/60 flex items-center justify-center text-2xl text-amber-300 shadow-inner group-hover:scale-110 transition-transform">
-                        <i class="fa-solid fa-microphone-lines"></i>
+                    <div style="background: #f59e0b; color: #451a03;" class="w-10 h-10 rounded-xl flex items-center justify-center text-xl font-black shadow-md group-hover:scale-110 transition-transform">
+                        <span>🎙️</span>
                     </div>
 
                     <!-- 🌟 EXACT CENTER: LARGE PROMINENT GOLDEN SHEIKH NAME 🌟 -->
-                    <div class="my-auto py-2.5 text-center w-full">
-                        <div class="quran-sheikh-title-center group-hover:text-amber-200 transition-colors line-clamp-1">
+                    <div class="my-auto py-2 text-center w-full">
+                        <div class="quran-sheikh-title-center group-hover:text-amber-100 transition-colors line-clamp-1">
                             ${r.name}
                         </div>
-                        <div class="text-xs sm:text-sm font-bold text-amber-200/90 mt-1 flex items-center justify-center gap-1.5 truncate">
+                        <div class="text-xs font-black text-amber-200 mt-1 flex items-center justify-center gap-1.5 truncate drop-shadow">
                             <span>📜</span>
                             <span>${r.rewaya || 'حفص عن عاصم - مرتل'}</span>
                         </div>
                     </div>
 
                     <!-- Bottom Bar: Surahs Count & Selection Button -->
-                    <div class="flex items-center justify-between w-full pt-2.5 border-t border-amber-500/20">
-                        <span class="text-xs px-3 py-1 rounded-xl bg-amber-950/80 text-amber-300 font-bold border border-amber-500/30">
+                    <div class="flex items-center justify-between w-full pt-2 border-t border-amber-400/40">
+                        <span style="background: rgba(69, 26, 3, 0.9); color: #fde68a; border: 1px solid #d97706;" class="text-[11px] px-2.5 py-1 rounded-lg font-black shadow-sm">
                             ${r.surahsCount || 114} سورة
                         </span>
-                        <span class="text-xs px-4 py-1.5 rounded-xl font-black transition shadow-md ${isSelected ? 'bg-amber-400 text-slate-950 font-black' : 'bg-amber-500/20 text-amber-300 border border-amber-500/40 group-hover:bg-amber-500 group-hover:text-slate-950'}">
+                        <span style="${isSelected ? 'background: #ffffff !important; color: #78350f !important;' : 'background: #fbbf24 !important; color: #1e1005 !important;'}" class="text-xs px-3.5 py-1.5 rounded-lg font-black transition shadow-md">
                             ${isSelected ? '✓ محدد الآن' : 'اختيار القارئ ◀'}
                         </span>
                     </div>
@@ -23038,10 +23071,10 @@ $pdo = getDBConnection();
                 <div onclick="playSurahTrack(${s.num})" class="quran-surah-card ${activeClass} group shadow-lg">
                     <!-- Top Bar: Surah Number & Makki/Madani -->
                     <div class="flex items-center justify-between gap-1">
-                        <span class="w-8 h-8 rounded-xl bg-emerald-500/25 text-emerald-200 font-mono font-black text-xs flex items-center justify-center border border-emerald-400/50 shadow-sm">
+                        <span style="background: #34d399; color: #022c22;" class="w-8 h-8 rounded-lg font-mono font-black text-xs flex items-center justify-center shadow-md">
                             ${padNum}
                         </span>
-                        <span class="text-[11px] text-emerald-100 font-bold flex items-center gap-1 bg-emerald-950/80 px-2 py-0.5 rounded-lg border border-emerald-500/40">
+                        <span style="background: rgba(6, 78, 59, 0.9); color: #a7f3d0; border: 1px solid #34d399;" class="text-[11px] font-black flex items-center gap-1 px-2.5 py-0.5 rounded-lg shadow-sm">
                             <span>${typeIcon}</span>
                             <span>${s.type}</span>
                         </span>
@@ -23053,27 +23086,28 @@ $pdo = getDBConnection();
                             سورة ${s.name}
                         </div>
                         ${isPlaying ? `
-                            <div class="flex items-center justify-center gap-1 mt-1">
+                            <div class="flex items-center justify-center gap-1.5 mt-1">
                                 <span class="w-1.5 h-3 bg-white animate-bounce rounded-full"></span>
                                 <span class="w-1.5 h-4 bg-emerald-200 animate-bounce rounded-full" style="animation-delay: 0.15s"></span>
                                 <span class="w-1.5 h-2.5 bg-emerald-300 animate-bounce rounded-full" style="animation-delay: 0.3s"></span>
-                                <span class="text-xs font-black text-emerald-200 mr-1.5">شغال الآن</span>
+                                <span class="text-xs font-black text-white mr-1.5 drop-shadow">🟢 شغال الآن</span>
                             </div>
                         ` : ''}
                     </div>
 
                     <!-- Bottom Bar: Verses Count & Listen Button -->
-                    <div class="flex items-center justify-between gap-2 pt-1.5 border-t border-emerald-500/20">
-                        <span class="text-[11px] font-bold text-emerald-200">
+                    <div class="flex items-center justify-between gap-2 pt-1.5 border-t border-emerald-400/40">
+                        <span class="text-[11px] font-black text-emerald-100 drop-shadow">
                             ${s.verses} آية
                         </span>
                         ${isPlaying ? `
-                            <span class="px-3 py-1 rounded-lg bg-white text-emerald-950 font-black text-xs flex items-center gap-1 shadow-md">
-                                🟢 تشغيل
+                            <span style="background: #ffffff; color: #064e3b;" class="px-3.5 py-1 rounded-lg font-black text-xs flex items-center gap-1.5 shadow-md">
+                                <span>🟢</span>
+                                <span>مشتغل</span>
                             </span>
                         ` : `
-                            <button type="button" class="px-3.5 py-1 rounded-lg bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black text-xs transition flex items-center gap-1 shadow">
-                                <i class="fa-solid fa-circle-play text-xs"></i>
+                            <button type="button" style="background: #34d399; color: #022c22;" class="px-3.5 py-1 rounded-lg hover:bg-emerald-300 font-black text-xs transition flex items-center gap-1.5 shadow-md">
+                                <span>▶</span>
                                 <span>استماع</span>
                             </button>
                         `}
