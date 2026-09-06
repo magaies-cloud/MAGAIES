@@ -145,6 +145,126 @@ $pdo = getDBConnection();
             }
         }
 
+        /* 🕋 إضاءة مكة والمدينة والمجد والقرآن فائقة التوهج بالألوان الصافية عند الضغط ── */
+        @keyframes tv-neon-pulse-makkah {
+            0%, 100% {
+                box-shadow: 0 0 35px #f59e0b, 0 0 70px rgba(245, 158, 11, 0.8), 0 0 100px rgba(253, 224, 71, 0.5), inset 0 0 25px rgba(254, 240, 138, 0.6) !important;
+                border-color: #fde047 !important;
+            }
+            50% {
+                box-shadow: 0 0 50px #ffffff, 0 0 95px #f59e0b, 0 0 130px #fbbf24, inset 0 0 35px #ffffff !important;
+                border-color: #ffffff !important;
+            }
+        }
+        @keyframes tv-neon-pulse-madinah {
+            0%, 100% {
+                box-shadow: 0 0 35px #10b981, 0 0 70px rgba(16, 185, 129, 0.8), 0 0 100px rgba(110, 231, 183, 0.5), inset 0 0 25px rgba(167, 243, 208, 0.6) !important;
+                border-color: #6ee7b7 !important;
+            }
+            50% {
+                box-shadow: 0 0 50px #ffffff, 0 0 95px #10b981, 0 0 130px #34d399, inset 0 0 35px #ffffff !important;
+                border-color: #ffffff !important;
+            }
+        }
+        @keyframes tv-neon-pulse-majd {
+            0%, 100% {
+                box-shadow: 0 0 35px #fbbf24, 0 0 70px rgba(251, 191, 36, 0.8), inset 0 0 25px rgba(254, 240, 138, 0.6) !important;
+                border-color: #fde047 !important;
+            }
+            50% {
+                box-shadow: 0 0 50px #ffffff, 0 0 95px #fbbf24, 0 0 130px #f59e0b, inset 0 0 35px #ffffff !important;
+                border-color: #ffffff !important;
+            }
+        }
+        @keyframes tv-neon-pulse-quran {
+            0%, 100% {
+                box-shadow: 0 0 35px #06b6d4, 0 0 70px rgba(6, 182, 212, 0.8), inset 0 0 25px rgba(165, 243, 252, 0.6) !important;
+                border-color: #67e8f9 !important;
+            }
+            50% {
+                box-shadow: 0 0 50px #ffffff, 0 0 95px #06b6d4, 0 0 130px #22d3ee, inset 0 0 35px #ffffff !important;
+                border-color: #ffffff !important;
+            }
+        }
+
+        #quick-media-btn-makkah.is-active, .sacred-media-pill.is-active-makkah {
+            border-color: #fde047 !important;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.45), rgba(180, 83, 9, 0.98)) !important;
+            animation: tv-neon-pulse-makkah 1.6s infinite ease-in-out !important;
+            transform: translateY(-4px) scale(1.03) !important;
+        }
+        #quick-media-btn-makkah.is-active .sm-icon-box {
+            background: #f59e0b !important;
+            color: #020617 !important;
+            border-color: #ffffff !important;
+            box-shadow: 0 0 25px #ffffff, 0 0 50px #f59e0b !important;
+        }
+
+        #quick-media-btn-madinah.is-active, .sacred-media-pill.is-active-madinah {
+            border-color: #6ee7b7 !important;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(6, 78, 59, 0.98)) !important;
+            animation: tv-neon-pulse-madinah 1.6s infinite ease-in-out !important;
+            transform: translateY(-4px) scale(1.03) !important;
+        }
+        #quick-media-btn-madinah.is-active .sm-icon-box {
+            background: #10b981 !important;
+            color: #020617 !important;
+            border-color: #ffffff !important;
+            box-shadow: 0 0 25px #ffffff, 0 0 50px #10b981 !important;
+        }
+
+        #quick-media-btn-majd.is-active, .sacred-media-pill.is-active-majd {
+            border-color: #fde047 !important;
+            background: linear-gradient(135deg, rgba(251, 191, 36, 0.45), rgba(180, 83, 9, 0.98)) !important;
+            animation: tv-neon-pulse-majd 1.6s infinite ease-in-out !important;
+            transform: translateY(-4px) scale(1.03) !important;
+        }
+        #quick-media-btn-majd.is-active .sm-icon-box {
+            background: #fbbf24 !important;
+            color: #020617 !important;
+            border-color: #ffffff !important;
+            box-shadow: 0 0 25px #ffffff, 0 0 50px #fbbf24 !important;
+        }
+
+        #quick-media-btn-quran_mp3.is-active, .sacred-media-pill.is-active-quran_mp3 {
+            border-color: #67e8f9 !important;
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.45), rgba(8, 47, 73, 0.98)) !important;
+            animation: tv-neon-pulse-quran 1.6s infinite ease-in-out !important;
+            transform: translateY(-4px) scale(1.03) !important;
+        }
+        #quick-media-btn-quran_mp3.is-active .sm-icon-box {
+            background: #06b6d4 !important;
+            color: #020617 !important;
+            border-color: #ffffff !important;
+            box-shadow: 0 0 25px #ffffff, 0 0 50px #06b6d4 !important;
+        }
+
+        /* ── أيقونة الشيخ في الاستوديو (عريضة، اسم الشيخ في المنتصف كبير وواضح) ── */
+        .quran-reciter-card {
+            border-radius: 22px;
+            cursor: pointer;
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            user-select: none;
+            min-height: 145px;
+            padding: 16px 18px !important;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            align-items: center;
+            text-align: center;
+        }
+        .quran-reciter-card:hover {
+            transform: translateY(-4px) scale(1.02);
+            box-shadow: 0 12px 30px rgba(0,0,0,0.6), 0 0 25px rgba(6, 182, 212, 0.35);
+        }
+        .quran-reciter-card.is-selected {
+            border-color: #22d3ee !important;
+            background: linear-gradient(145deg, rgba(8, 47, 73, 0.95), rgba(15, 23, 42, 0.98)) !important;
+            box-shadow: 0 0 35px rgba(6, 182, 212, 0.6), inset 0 0 20px rgba(6, 182, 212, 0.3) !important;
+            transform: translateY(-3px) scale(1.02);
+        }
+        
         /* ── أزرار القنوات المقدسة المدمجة في سطر واحد (عالية الإضاءة) ── */
         .sacred-media-pill {
             padding: 12px 16px;
@@ -22296,7 +22416,7 @@ $pdo = getDBConnection();
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
                             <button type="button" onclick="setReciterFilterCategory('famous', this)" class="reciter-cat-btn px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 font-black text-xs border border-cyan-400 transition cursor-pointer shadow-md">
-                                ⭐ كبار القراء (40)
+                                ⭐ كبار القراء المشاهير (60 قارئاً)
                             </button>
                             <button type="button" onclick="setReciterFilterCategory('haram', this)" class="reciter-cat-btn px-4 py-2 rounded-xl bg-slate-900 hover:bg-cyan-950 text-cyan-300 font-bold text-xs border border-cyan-500/30 transition cursor-pointer">
                                 🕋 أئمة الحرمين
@@ -22314,7 +22434,7 @@ $pdo = getDBConnection();
                     </div>
 
                     <!-- Reciters Grid (241 Reciters, Scrollable & Highly Aesthetic) -->
-                    <div id="quran-reciters-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 max-h-[380px] overflow-y-auto p-2 rounded-2xl bg-slate-900/70 border border-white/10 custom-scrollbar">
+                    <div id="quran-reciters-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4.5 max-h-[440px] overflow-y-auto p-2 rounded-2xl bg-slate-900/70 border border-white/10 custom-scrollbar">
                         <!-- Rendered dynamically by JS -->
                     </div>
 
@@ -22732,11 +22852,11 @@ $pdo = getDBConnection();
             });
         } else {
             if (activeReciterCategory === 'famous') {
-                list = allReciters.slice(0, 40);
+                list = allReciters.slice(0, 65); // 65 Top Legendary & Beloved Reciters
             } else if (activeReciterCategory === 'haram') {
                 list = allReciters.filter(r => {
                     const n = r.name || '';
-                    return n.includes('المعيقلي') || n.includes('السديس') || n.includes('الشريم') || n.includes('الدوسري') || n.includes('الحذيفي') || n.includes('أيوب') || n.includes('الجهني') || n.includes('الغامدي');
+                    return n.includes('المعيقلي') || n.includes('السديس') || n.includes('الشريم') || n.includes('الدوسري') || n.includes('الحذيفي') || n.includes('أيوب') || n.includes('الجهني') || n.includes('جابر') || n.includes('بليله') || n.includes('الغامدي');
                 });
             } else if (activeReciterCategory === 'moalim') {
                 list = allReciters.filter(r => (r.rewaya || '').includes('المعلم') || (r.name || '').includes('المعلم'));
@@ -22744,7 +22864,7 @@ $pdo = getDBConnection();
                 list = allReciters.filter(r => (r.rewaya || '').includes('ورش'));
             } else {
                 if (!isAllRecitersExpanded) {
-                    list = allReciters.slice(0, 50);
+                    list = allReciters.slice(0, 75);
                 }
             }
         }
@@ -22755,7 +22875,7 @@ $pdo = getDBConnection();
         }
 
         if (!list.length) {
-            container.innerHTML = '<div class="col-span-full py-8 text-center text-sm font-bold text-slate-400">لا يوجد قارئ مطابق للبحث... يمكنك كتابة جزء من اسم الشيخ</div>';
+            container.innerHTML = '<div class="col-span-full py-10 text-center text-base font-bold text-slate-400">لا يوجد قارئ مطابق للبحث... يمكنك كتابة جزء من اسم الشيخ</div>';
             return;
         }
 
@@ -22763,32 +22883,35 @@ $pdo = getDBConnection();
         list.forEach(r => {
             const isSelected = String(r.id) === String(selectedReciterId);
             const cardBg = isSelected 
-                ? 'border-cyan-400 bg-gradient-to-br from-cyan-950/90 via-slate-900 to-cyan-900/60 shadow-lg shadow-cyan-500/25 ring-2 ring-cyan-400/60 is-selected' 
-                : 'border-cyan-500/30 bg-slate-900/80 hover:bg-cyan-950/40 hover:border-cyan-400';
+                ? 'border-cyan-400 bg-gradient-to-br from-cyan-950/95 via-slate-900 to-cyan-900/70 shadow-xl shadow-cyan-500/30 ring-2 ring-cyan-400 is-selected' 
+                : 'border-cyan-500/30 bg-slate-900/85 hover:bg-cyan-950/50 hover:border-cyan-400';
 
             html += `
-                <div onclick="selectQuranReciter('${r.id}')" class="quran-reciter-card p-3.5 rounded-2xl border-2 ${cardBg} text-right space-y-2.5 transition cursor-pointer group hover:scale-[1.02]">
-                    <div class="flex items-center justify-between gap-2">
-                        <div class="w-11 h-11 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-xl text-cyan-300 shadow-inner group-hover:scale-110 transition-transform flex-shrink-0">
-                            <i class="fa-solid fa-microphone-lines"></i>
-                        </div>
-                        <div class="flex items-center gap-1.5">
-                            <span class="text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-cyan-300 font-bold border border-cyan-500/20">
-                                ${r.surahsCount || 114} سورة
-                            </span>
-                            <span class="text-xs px-2.5 py-1 rounded-lg ${isSelected ? 'bg-cyan-400 text-slate-950 font-black shadow-md' : 'bg-slate-800/80 text-slate-400 font-bold'}">
-                                ${isSelected ? '✓ محدد' : 'اختيار'}
-                            </span>
-                        </div>
+                <div onclick="selectQuranReciter('${r.id}')" class="quran-reciter-card ${cardBg} group shadow-lg">
+                    <!-- Top Centered Icon Bubble -->
+                    <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 border-2 border-cyan-400/50 flex items-center justify-center text-2xl text-cyan-300 shadow-inner group-hover:scale-110 transition-transform">
+                        <i class="fa-solid fa-microphone-lines"></i>
                     </div>
-                    <div>
-                        <div class="text-base sm:text-lg font-black text-white group-hover:text-cyan-200 transition-colors line-clamp-1">
+
+                    <!-- 🌟 EXACT CENTER: LARGE PROMINENT SHEIKH NAME & REWAYA 🌟 -->
+                    <div class="my-auto py-2.5 text-center w-full">
+                        <div class="text-lg sm:text-xl font-black text-white group-hover:text-amber-200 transition-colors tracking-wide drop-shadow-md line-clamp-1">
                             ${r.name}
                         </div>
-                        <div class="text-xs text-cyan-400/80 font-bold truncate mt-1 flex items-center gap-1">
+                        <div class="text-xs sm:text-sm font-bold text-cyan-300/95 mt-1 flex items-center justify-center gap-1.5 truncate">
                             <span>📜</span>
                             <span>${r.rewaya || 'حفص عن عاصم - مرتل'}</span>
                         </div>
+                    </div>
+
+                    <!-- Bottom Bar: Surahs Count & Selection Status -->
+                    <div class="flex items-center justify-between w-full pt-2 border-t border-white/10">
+                        <span class="text-xs px-2.5 py-1 rounded-xl bg-slate-800 text-cyan-300 font-bold border border-cyan-500/25">
+                            ${r.surahsCount || 114} سورة
+                        </span>
+                        <span class="text-xs px-3.5 py-1 rounded-xl font-black transition shadow ${isSelected ? 'bg-cyan-400 text-slate-950 shadow-cyan-400/40' : 'bg-slate-800 text-slate-300 group-hover:bg-cyan-500 group-hover:text-slate-950'}">
+                            ${isSelected ? '✓ محدد الآن' : 'اختيار القارئ ◀'}
+                        </span>
                     </div>
                 </div>
             `;
@@ -23088,10 +23211,15 @@ $pdo = getDBConnection();
             const btn = document.getElementById('quick-media-btn-' + k);
             const sub = document.getElementById('sm-sub-' + k);
 
-            if (btn) btn.classList.remove('is-active');
+            if (btn) {
+                btn.classList.remove('is-active', 'is-active-makkah', 'is-active-madinah', 'is-active-majd', 'is-active-quran_mp3');
+            }
 
             if (k === activeKey) {
-                if (btn) btn.classList.add('is-active');
+                if (btn) {
+                    btn.classList.add('is-active');
+                    btn.classList.add('is-active-' + k);
+                }
                 if (sub) {
                     if (k === 'quran_mp3') {
                         sub.innerHTML = '<span class="text-emerald-300 font-black animate-pulse">🟢 شغال الآن</span> <span class="stop-quran-pill-action underline text-red-300 mr-1 hover:text-red-100 cursor-pointer" onclick="event.stopPropagation(); window.stopPersistentMedia(); renderQuickChannelVisuals(null);">(إيقاف ⏹️)</span>';

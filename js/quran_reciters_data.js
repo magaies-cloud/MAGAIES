@@ -1,5 +1,6 @@
 /**
  * 📖 ALL 241 ISLAMIC QURAN RECITERS (MP3Quran Complete Network)
+ * Prioritized with top 65 legendary and beloved Islamic reciters
  */
 const QURAN_ALL_RECITERS = [
     {
@@ -101,6 +102,13 @@ const QURAN_ALL_RECITERS = [
         "surahsCount": 114
     },
     {
+        "id": "205",
+        "name": "الشيخ أحمد الحذيفي",
+        "server": "https://server8.mp3quran.net/ahmad_huth/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 110
+    },
+    {
         "id": "109",
         "name": "الشيخ محمد أيوب",
         "server": "https://server16.mp3quran.net/ayyoub2/Rewayat-Hafs-A-n-Assem/",
@@ -108,16 +116,30 @@ const QURAN_ALL_RECITERS = [
         "surahsCount": 114
     },
     {
-        "id": "111",
-        "name": "الشيخ محمد جبريل",
-        "server": "https://server8.mp3quran.net/jbrl/",
+        "id": "20",
+        "name": "الشيخ خالد الجليل",
+        "server": "https://server10.mp3quran.net/jleel/",
         "rewaya": "حفص عن عاصم - مرتل",
         "surahsCount": 114
     },
     {
-        "id": "21",
-        "name": "الشيخ خالد القحطاني",
-        "server": "https://server10.mp3quran.net/qht/",
+        "id": "76",
+        "name": "الشيخ علي جابر",
+        "server": "https://server11.mp3quran.net/a_jbr/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "62",
+        "name": "الشيخ عبدالله عواد الجهني",
+        "server": "https://server13.mp3quran.net/jhn/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "217",
+        "name": "الشيخ بندر بليله",
+        "server": "https://server6.mp3quran.net/balilah/",
         "rewaya": "حفص عن عاصم - مرتل",
         "surahsCount": 114
     },
@@ -129,30 +151,9 @@ const QURAN_ALL_RECITERS = [
         "surahsCount": 114
     },
     {
-        "id": "89",
-        "name": "الشيخ هاني الرفاعي",
-        "server": "https://server8.mp3quran.net/hani/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
-    },
-    {
-        "id": "13",
-        "name": "الشيخ الزين محمد أحمد",
-        "server": "https://server9.mp3quran.net/alzain/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
-    },
-    {
         "id": "46",
         "name": "الشيخ صلاح بو خاطر",
         "server": "https://server8.mp3quran.net/bu_khtr/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
-    },
-    {
-        "id": "60",
-        "name": "الشيخ عبدالله بصفر",
-        "server": "https://server6.mp3quran.net/bsfr/",
         "rewaya": "حفص عن عاصم - مرتل",
         "surahsCount": 114
     },
@@ -171,6 +172,62 @@ const QURAN_ALL_RECITERS = [
         "surahsCount": 114
     },
     {
+        "id": "221",
+        "name": "الشيخ رعد محمد الكردي",
+        "server": "https://server6.mp3quran.net/kurdi/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "231",
+        "name": "الشيخ هزاع البلوشي",
+        "server": "https://server11.mp3quran.net/hazza/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 91
+    },
+    {
+        "id": "219",
+        "name": "الشيخ وديع اليمني",
+        "server": "https://server6.mp3quran.net/wdee3/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "253",
+        "name": "الشيخ إسلام صبحي",
+        "server": "https://server14.mp3quran.net/islam/Rewayat-Hafs-A-n-Assem/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 109
+    },
+    {
+        "id": "111",
+        "name": "الشيخ محمد جبريل",
+        "server": "https://server8.mp3quran.net/jbrl/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "13",
+        "name": "الشيخ الزين محمد أحمد",
+        "server": "https://server9.mp3quran.net/alzain/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "138",
+        "name": "الشيخ نورين محمد صديق",
+        "server": "https://server16.mp3quran.net/nourin_siddig/Rewayat-Aldori-A-n-Abi-Amr/",
+        "rewaya": "الدوري عن أبي عمرو - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "211",
+        "name": "الشيخ الفاتح محمد الزبير",
+        "server": "https://server6.mp3quran.net/fateh/",
+        "rewaya": "الدوري عن أبي عمرو - مرتل",
+        "surahsCount": 114
+    },
+    {
         "id": "106",
         "name": "الشيخ محمد الطبلاوي",
         "server": "https://server12.mp3quran.net/tblawi/Al-Mojawwad/",
@@ -185,17 +242,10 @@ const QURAN_ALL_RECITERS = [
         "surahsCount": 114
     },
     {
-        "id": "219",
-        "name": "الشيخ وديع اليمني",
-        "server": "https://server6.mp3quran.net/wdee3/",
+        "id": "64",
+        "name": "الشيخ عبدالرشيد صوفي",
+        "server": "https://server16.mp3quran.net/soufi/Rewayat-Hafs-A-n-Assem/",
         "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
-    },
-    {
-        "id": "138",
-        "name": "الشيخ نورين محمد صديق",
-        "server": "https://server16.mp3quran.net/nourin_siddig/Rewayat-Aldori-A-n-Abi-Amr/",
-        "rewaya": "الدوري عن أبي عمرو - مرتل",
         "surahsCount": 114
     },
     {
@@ -211,6 +261,160 @@ const QURAN_ALL_RECITERS = [
         "server": "https://server6.mp3quran.net/akdr/",
         "rewaya": "حفص عن عاصم - مرتل",
         "surahsCount": 114
+    },
+    {
+        "id": "89",
+        "name": "الشيخ هاني الرفاعي",
+        "server": "https://server8.mp3quran.net/hani/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "16",
+        "name": "الشيخ العيون الكوشي",
+        "server": "https://server11.mp3quran.net/koshi/",
+        "rewaya": "ورش عن نافع - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "21",
+        "name": "الشيخ خالد القحطاني",
+        "server": "https://server10.mp3quran.net/qht/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "60",
+        "name": "الشيخ عبدالله بصفر",
+        "server": "https://server6.mp3quran.net/bsfr/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "6",
+        "name": "الشيخ أحمد الحواشي",
+        "server": "https://server11.mp3quran.net/hawashi/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "259",
+        "name": "الشيخ أحمد النفيس",
+        "server": "https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "268",
+        "name": "الشيخ بيشه وا قادر الكردي",
+        "server": "https://server16.mp3quran.net/peshawa/Rewayat-Hafs-A-n-Assem/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "163",
+        "name": "الشيخ حاتم فريد الواعر",
+        "server": "https://server11.mp3quran.net/hatem/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "36",
+        "name": "الشيخ سيد رمضان",
+        "server": "https://server12.mp3quran.net/sayed/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "55",
+        "name": "الشيخ عبدالعزيز الأحمد",
+        "server": "https://server11.mp3quran.net/a_ahmed/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "229",
+        "name": "الشيخ محمد خليل القارئ",
+        "server": "https://server8.mp3quran.net/m_qari/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "48",
+        "name": "الشيخ عادل ريان",
+        "server": "https://server8.mp3quran.net/ryan/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "87",
+        "name": "الشيخ نبيل الرفاعي",
+        "server": "https://server9.mp3quran.net/nabil/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "129",
+        "name": "الشيخ مفتاح السلطني",
+        "server": "https://server14.mp3quran.net/muftah_sultany/Rewayat_Ibn-Thakwan-A-n-Ibn-Amer/",
+        "rewaya": "ابن ذكوان عن ابن عامر - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "32",
+        "name": "الشيخ سهل ياسين",
+        "server": "https://server6.mp3quran.net/shl/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "201",
+        "name": "الشيخ أحمد الطرابلسي",
+        "server": "https://server10.mp3quran.net/trabulsi/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "9",
+        "name": "الشيخ أحمد نعينع",
+        "server": "https://server11.mp3quran.net/ahmad_nu/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "278",
+        "name": "الشيخ أحمد عيسى المعصراوي",
+        "server": "https://server16.mp3quran.net/a_maasaraawi/Rewayat-Hafs-A-n-Assem/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "18",
+        "name": "الشيخ جمال شاكر عبدالله",
+        "server": "https://server6.mp3quran.net/jamal/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "254",
+        "name": "الشيخ بدر التركي",
+        "server": "https://server10.mp3quran.net/bader/Rewayat-Hafs-A-n-Assem/",
+        "rewaya": "حفص عن عاصم - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "208",
+        "name": "الشيخ الدوكالي محمد العالم",
+        "server": "https://server7.mp3quran.net/dokali/",
+        "rewaya": "قالون عن نافع - مرتل",
+        "surahsCount": 114
+    },
+    {
+        "id": "264",
+        "name": "الشيخ يونس اسويلص",
+        "server": "https://server16.mp3quran.net/souilass/Rewayat-Warsh-A-n-Nafi/",
+        "rewaya": "ورش عن نافع - مرتل",
+        "surahsCount": 65
     },
     {
         "id": "2",
@@ -262,37 +466,9 @@ const QURAN_ALL_RECITERS = [
         "surahsCount": 114
     },
     {
-        "id": "205",
-        "name": "الشيخ أحمد الحذيفي",
-        "server": "https://server8.mp3quran.net/ahmad_huth/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 110
-    },
-    {
-        "id": "6",
-        "name": "الشيخ أحمد الحواشي",
-        "server": "https://server11.mp3quran.net/hawashi/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
-    },
-    {
         "id": "252",
         "name": "الشيخ أحمد السويلم",
         "server": "https://server14.mp3quran.net/swlim/Rewayat-Hafs-A-n-Assem/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
-    },
-    {
-        "id": "201",
-        "name": "الشيخ أحمد الطرابلسي",
-        "server": "https://server10.mp3quran.net/trabulsi/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
-    },
-    {
-        "id": "259",
-        "name": "الشيخ أحمد النفيس",
-        "server": "https://server16.mp3quran.net/nufais/Rewayat-Hafs-A-n-Assem/",
         "rewaya": "حفص عن عاصم - مرتل",
         "surahsCount": 114
     },
@@ -339,20 +515,6 @@ const QURAN_ALL_RECITERS = [
         "surahsCount": 114
     },
     {
-        "id": "278",
-        "name": "الشيخ أحمد عيسى المعصراوي",
-        "server": "https://server16.mp3quran.net/a_maasaraawi/Rewayat-Hafs-A-n-Assem/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
-    },
-    {
-        "id": "9",
-        "name": "الشيخ أحمد نعينع",
-        "server": "https://server11.mp3quran.net/ahmad_nu/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
-    },
-    {
         "id": "153",
         "name": "الشيخ أخيل عبدالحي روا",
         "server": "https://server12.mp3quran.net/malaysia/akil/",
@@ -365,13 +527,6 @@ const QURAN_ALL_RECITERS = [
         "server": "https://server12.mp3quran.net/malaysia/zamri/",
         "rewaya": "حفص عن عاصم - مرتل",
         "surahsCount": 7
-    },
-    {
-        "id": "253",
-        "name": "الشيخ إسلام صبحي",
-        "server": "https://server14.mp3quran.net/islam/Rewayat-Hafs-A-n-Assem/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 109
     },
     {
         "id": "10",
@@ -388,32 +543,11 @@ const QURAN_ALL_RECITERS = [
         "surahsCount": 57
     },
     {
-        "id": "208",
-        "name": "الشيخ الدوكالي محمد العالم",
-        "server": "https://server7.mp3quran.net/dokali/",
-        "rewaya": "قالون عن نافع - مرتل",
-        "surahsCount": 114
-    },
-    {
         "id": "15",
         "name": "الشيخ العشري عمران",
         "server": "https://server9.mp3quran.net/omran/",
         "rewaya": "حفص عن عاصم - مرتل",
         "surahsCount": 113
-    },
-    {
-        "id": "16",
-        "name": "الشيخ العيون الكوشي",
-        "server": "https://server11.mp3quran.net/koshi/",
-        "rewaya": "ورش عن نافع - مرتل",
-        "surahsCount": 114
-    },
-    {
-        "id": "211",
-        "name": "الشيخ الفاتح محمد الزبير",
-        "server": "https://server6.mp3quran.net/fateh/",
-        "rewaya": "الدوري عن أبي عمرو - مرتل",
-        "surahsCount": 114
     },
     {
         "id": "14",
@@ -437,39 +571,11 @@ const QURAN_ALL_RECITERS = [
         "surahsCount": 114
     },
     {
-        "id": "254",
-        "name": "الشيخ بدر التركي",
-        "server": "https://server10.mp3quran.net/bader/Rewayat-Hafs-A-n-Assem/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
-    },
-    {
-        "id": "217",
-        "name": "الشيخ بندر بليله",
-        "server": "https://server6.mp3quran.net/balilah/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
-    },
-    {
-        "id": "268",
-        "name": "الشيخ بيشه وا قادر الكردي",
-        "server": "https://server16.mp3quran.net/peshawa/Rewayat-Hafs-A-n-Assem/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
-    },
-    {
         "id": "194",
         "name": "الشيخ جمال الدين الزيلعي",
         "server": "https://server11.mp3quran.net/zilaie/",
         "rewaya": "حفص عن عاصم - مرتل",
         "surahsCount": 8
-    },
-    {
-        "id": "18",
-        "name": "الشيخ جمال شاكر عبدالله",
-        "server": "https://server6.mp3quran.net/jamal/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
     },
     {
         "id": "181",
@@ -482,13 +588,6 @@ const QURAN_ALL_RECITERS = [
         "id": "21186",
         "name": "الشيخ جنيد آدم عبدالله",
         "server": "https://server16.mp3quran.net/J-Abdullah/Rewayat-Hafs-A-n-Assem/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
-    },
-    {
-        "id": "163",
-        "name": "الشيخ حاتم فريد الواعر",
-        "server": "https://server11.mp3quran.net/hatem/",
         "rewaya": "حفص عن عاصم - مرتل",
         "surahsCount": 114
     },
@@ -519,13 +618,6 @@ const QURAN_ALL_RECITERS = [
         "server": "https://server6.mp3quran.net/hamad/",
         "rewaya": "حفص عن عاصم - مرتل",
         "surahsCount": 88
-    },
-    {
-        "id": "20",
-        "name": "الشيخ خالد الجليل",
-        "server": "https://server10.mp3quran.net/jleel/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
     },
     {
         "id": "21187",
@@ -626,13 +718,6 @@ const QURAN_ALL_RECITERS = [
         "surahsCount": 4
     },
     {
-        "id": "221",
-        "name": "الشيخ رعد محمد الكردي",
-        "server": "https://server6.mp3quran.net/kurdi/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
-    },
-    {
         "id": "184",
         "name": "الشيخ رقية سولونق",
         "server": "https://server12.mp3quran.net/malaysia/rogiah/",
@@ -703,23 +788,9 @@ const QURAN_ALL_RECITERS = [
         "surahsCount": 76
     },
     {
-        "id": "32",
-        "name": "الشيخ سهل ياسين",
-        "server": "https://server6.mp3quran.net/shl/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
-    },
-    {
         "id": "282",
         "name": "الشيخ سيد أحمد هاشمي",
         "server": "https://server16.mp3quran.net/s_hashemi/Rewayat-Hafs-A-n-Assem/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
-    },
-    {
-        "id": "36",
-        "name": "الشيخ سيد رمضان",
-        "server": "https://server12.mp3quran.net/sayed/",
         "rewaya": "حفص عن عاصم - مرتل",
         "surahsCount": 114
     },
@@ -815,13 +886,6 @@ const QURAN_ALL_RECITERS = [
         "surahsCount": 114
     },
     {
-        "id": "48",
-        "name": "الشيخ عادل ريان",
-        "server": "https://server8.mp3quran.net/ryan/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
-    },
-    {
         "id": "21201",
         "name": "الشيخ عاصم اللحیدان",
         "server": "https://server7.mp3quran.net/asim/Rewayat-Hafs-A-n-Assem/",
@@ -895,20 +959,6 @@ const QURAN_ALL_RECITERS = [
         "id": "21193",
         "name": "الشيخ عبدالرحمن بن عبدالرزاق البدر",
         "server": "https://server16.mp3quran.net/A-AlBadr/Rewayat-Hafs-A-n-Assem/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
-    },
-    {
-        "id": "64",
-        "name": "الشيخ عبدالرشيد صوفي",
-        "server": "https://server16.mp3quran.net/soufi/Rewayat-Hafs-A-n-Assem/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
-    },
-    {
-        "id": "55",
-        "name": "الشيخ عبدالعزيز الأحمد",
-        "server": "https://server11.mp3quran.net/a_ahmed/",
         "rewaya": "حفص عن عاصم - مرتل",
         "surahsCount": 114
     },
@@ -1032,13 +1082,6 @@ const QURAN_ALL_RECITERS = [
         "surahsCount": 114
     },
     {
-        "id": "62",
-        "name": "الشيخ عبدالله عواد الجهني",
-        "server": "https://server13.mp3quran.net/jhn/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
-    },
-    {
         "id": "63",
         "name": "الشيخ عبدالله غيلان",
         "server": "https://server8.mp3quran.net/gulan/",
@@ -1142,13 +1185,6 @@ const QURAN_ALL_RECITERS = [
         "server": "https://server9.mp3quran.net/abo_hashim/",
         "rewaya": "حفص عن عاصم - مرتل",
         "surahsCount": 14
-    },
-    {
-        "id": "76",
-        "name": "الشيخ علي جابر",
-        "server": "https://server11.mp3quran.net/a_jbr/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
     },
     {
         "id": "77",
@@ -1347,13 +1383,6 @@ const QURAN_ALL_RECITERS = [
         "surahsCount": 5
     },
     {
-        "id": "229",
-        "name": "الشيخ محمد خليل القارئ",
-        "server": "https://server8.mp3quran.net/m_qari/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
-    },
-    {
         "id": "192",
         "name": "الشيخ محمد خير النور",
         "server": "https://server12.mp3quran.net/malaysia/nor/",
@@ -1487,13 +1516,6 @@ const QURAN_ALL_RECITERS = [
         "surahsCount": 114
     },
     {
-        "id": "129",
-        "name": "الشيخ مفتاح السلطني",
-        "server": "https://server14.mp3quran.net/muftah_sultany/Rewayat_Ibn-Thakwan-A-n-Ibn-Amer/",
-        "rewaya": "ابن ذكوان عن ابن عامر - مرتل",
-        "surahsCount": 114
-    },
-    {
         "id": "245",
         "name": "الشيخ منصور السالمي",
         "server": "https://server14.mp3quran.net/mansor/",
@@ -1529,13 +1551,6 @@ const QURAN_ALL_RECITERS = [
         "surahsCount": 114
     },
     {
-        "id": "87",
-        "name": "الشيخ نبيل الرفاعي",
-        "server": "https://server9.mp3quran.net/nabil/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 114
-    },
-    {
         "id": "271",
         "name": "الشيخ نذير المالكي",
         "server": "https://server16.mp3quran.net//nathier/Rewayat-Hafs-A-n-Assem/",
@@ -1562,13 +1577,6 @@ const QURAN_ALL_RECITERS = [
         "server": "https://server16.mp3quran.net/h_abudalal/Rewayat-Hafs-A-n-Assem/",
         "rewaya": "حفص عن عاصم - مرتل",
         "surahsCount": 114
-    },
-    {
-        "id": "231",
-        "name": "الشيخ هزاع البلوشي",
-        "server": "https://server11.mp3quran.net/hazza/",
-        "rewaya": "حفص عن عاصم - مرتل",
-        "surahsCount": 91
     },
     {
         "id": "305",
@@ -1681,16 +1689,12 @@ const QURAN_ALL_RECITERS = [
         "server": "https://server8.mp3quran.net/noah/",
         "rewaya": "حفص عن عاصم - مرتل",
         "surahsCount": 114
-    },
-    {
-        "id": "264",
-        "name": "الشيخ يونس اسويلص",
-        "server": "https://server16.mp3quran.net/souilass/Rewayat-Warsh-A-n-Nafi/",
-        "rewaya": "ورش عن نافع - مرتل",
-        "surahsCount": 65
     }
 ];
 
 if (typeof window !== "undefined") {
     window.QURAN_ALL_RECITERS = QURAN_ALL_RECITERS;
+}
+if (typeof module !== "undefined") {
+    module.exports = { QURAN_ALL_RECITERS };
 }

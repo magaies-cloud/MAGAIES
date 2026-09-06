@@ -169,7 +169,7 @@
     position: relative;
     z-index: 1000;
     transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-    overflow: hidden;
+    overflow: visible !important;
 }
 .magical-glass-header:hover {
     transform: translateY(-3px) scale(1.005);
@@ -300,21 +300,20 @@
     100% { transform: scale(0.85); opacity: 1; }
 }
 .header-tv-popover {
-    position: absolute;
-    top: calc(100% + 8px);
-    left: 0;
-    width: 270px;
-    background: rgba(10, 15, 30, 0.98);
-    border: 1.5px solid rgba(245, 158, 11, 0.6);
-    border-radius: 16px;
-    padding: 12px;
-    box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 25px rgba(245, 158, 11, 0.25);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    z-index: 100000;
-    direction: rtl;
-    text-align: right;
-    animation: popoverFadeIn 0.2s ease-out;
+    position: fixed !important;
+    width: 320px !important;
+    max-width: calc(100vw - 30px) !important;
+    background: linear-gradient(155deg, rgba(15, 23, 42, 0.99), rgba(5, 10, 24, 0.99)) !important;
+    border: 2px solid #f59e0b !important;
+    border-radius: 22px !important;
+    padding: 16px !important;
+    box-shadow: 0 25px 70px rgba(0,0,0,0.95), 0 0 45px rgba(245, 158, 11, 0.45) !important;
+    backdrop-filter: blur(25px) !important;
+    -webkit-backdrop-filter: blur(25px) !important;
+    z-index: 999999999 !important;
+    direction: rtl !important;
+    text-align: right !important;
+    animation: popoverFadeIn 0.22s ease-out;
 }
 @keyframes popoverFadeIn {
     from { opacity: 0; transform: translateY(-6px); }
@@ -443,38 +442,59 @@
             <!-- Mini Dropdown Popover (Collapsible, never blocks accounting screens) -->
             <div id="header-media-popover" class="header-tv-popover" style="display: none;">
                 <!-- Popover Header -->
-                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 7px; margin-bottom: 10px;">
-                    <div style="display: flex; align-items: center; gap: 7px; font-weight: 900; font-size: 12px; color: #fde047;">
+                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 8px; margin-bottom: 12px;">
+                    <div style="display: flex; align-items: center; gap: 8px; font-weight: 900; font-size: 13px; color: #fde047;">
                         <span id="popover-status-dot" class="header-tv-status-dot"></span>
-                        <span id="popover-media-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 190px;">البث المباشر في الخلفية</span>
+                        <span>📺 تحكم البث المباشر (فوق الشاشة)</span>
                     </div>
-                    <button type="button" onclick="closeHeaderMediaPopover(event)" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; border-radius: 6px; width: 22px; height: 22px; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="إخفاء النافذة (مع استمرار البث بالخلفية)">✕</button>
+                    <button type="button" onclick="closeHeaderMediaPopover(event)" style="background: rgba(255,255,255,0.12); border: 1px solid rgba(255,255,255,0.2); color: #f8fafc; border-radius: 8px; width: 26px; height: 26px; font-size: 13px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: 0.2s;" title="إخفاء النافذة (مع استمرار البث بالخلفية)">✕</button>
+                </div>
+
+                <!-- 🌟 PROMINENT CURRENT BROADCAST STATUS CARD (البث الحالي واضح وغير مختفي) 🌟 -->
+                <div id="popover-broadcast-status-card" style="background: linear-gradient(135deg, rgba(245, 158, 11, 0.2), rgba(15, 23, 42, 0.98)); border: 1.5px solid rgba(245, 158, 11, 0.55); border-radius: 14px; padding: 10px 12px; margin-bottom: 12px; box-shadow: inset 0 0 15px rgba(245, 158, 11, 0.15);">
+                    <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 4px;">
+                        <span style="font-size: 11px; font-weight: 800; color: #94a3b8;">📡 حالة البث الحالية:</span>
+                        <span id="popover-status-badge" style="font-size: 10.5px; font-weight: 900; padding: 2px 8px; border-radius: 6px; background: rgba(16, 185, 129, 0.25); color: #34d399; border: 1px solid rgba(16, 185, 129, 0.5);">
+                            🟢 شغال الآن
+                        </span>
+                    </div>
+                    <div id="popover-media-title" style="font-size: 13.5px; font-weight: 900; color: #ffffff; line-height: 1.35; text-shadow: 0 0 12px rgba(245, 158, 11, 0.6); word-break: break-word;">
+                        البث المباشر يعمل بالخلفية
+                    </div>
                 </div>
 
                 <!-- 4 Sacred Channel Quick Switch Buttons -->
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 10px;">
-                    <button type="button" id="hdr-ch-makkah" onclick="quickHeaderPlay('makkah')" class="header-pop-ch-btn" style="--ch-c: #f59e0b;" title="تشغيل تلفزيون مكة المكرمة">
-                        <span>🕋 مكة</span>
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; margin-bottom: 12px;">
+                    <button type="button" id="hdr-ch-makkah" onclick="quickHeaderPlay('makkah')" class="header-pop-ch-btn" style="--ch-c: #f59e0b; padding: 8px 10px;" title="تشغيل تلفزيون مكة المكرمة">
+                        <span style="font-size: 13px;">🕋</span>
+                        <span style="font-weight: 900;">مكة المكرمة</span>
                     </button>
-                    <button type="button" id="hdr-ch-madinah" onclick="quickHeaderPlay('madinah')" class="header-pop-ch-btn" style="--ch-c: #10b981;" title="تشغيل تلفزيون المدينة المنورة">
-                        <span>🕌 المدينة</span>
+                    <button type="button" id="hdr-ch-madinah" onclick="quickHeaderPlay('madinah')" class="header-pop-ch-btn" style="--ch-c: #10b981; padding: 8px 10px;" title="تشغيل تلفزيون المدينة المنورة">
+                        <span style="font-size: 13px;">🕌</span>
+                        <span style="font-weight: 900;">المدينة المنورة</span>
                     </button>
-                    <button type="button" id="hdr-ch-majd" onclick="quickHeaderPlay('majd')" class="header-pop-ch-btn" style="--ch-c: #fbbf24;" title="تشغيل تلفزيون المجد">
-                        <span>📺 المجد</span>
+                    <button type="button" id="hdr-ch-majd" onclick="quickHeaderPlay('majd')" class="header-pop-ch-btn" style="--ch-c: #fbbf24; padding: 8px 10px;" title="تشغيل تلفزيون المجد">
+                        <span style="font-size: 13px;">📺</span>
+                        <span style="font-weight: 900;">قناة المجد</span>
                     </button>
-                    <button type="button" id="hdr-ch-quran_mp3" onclick="quickHeaderPlay('quran_mp3')" class="header-pop-ch-btn" style="--ch-c: #06b6d4;" title="تشغيل القرآن الكريم">
-                        <span>🎧 القرآن</span>
+                    <button type="button" id="hdr-ch-quran_mp3" onclick="quickHeaderPlay('quran_mp3')" class="header-pop-ch-btn" style="--ch-c: #06b6d4; padding: 8px 10px;" title="تشغيل القرآن الكريم">
+                        <span style="font-size: 13px;">🎧</span>
+                        <span style="font-weight: 900;">القرآن MP3</span>
                     </button>
                 </div>
 
                 <!-- Volume & Stop Controls -->
-                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: rgba(0,0,0,0.45); padding: 7px 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
-                    <div style="display: flex; align-items: center; gap: 6px;">
-                        <span style="font-size: 13px; color: #94a3b8;">🔊</span>
-                        <input id="header-media-vol" type="range" min="0" max="1" step="0.05" value="1" oninput="setHeaderMediaVolume(this.value)" style="width: 75px; height: 4px; accent-color: #38bdf8; cursor: pointer;">
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: rgba(0,0,0,0.5); padding: 8px 12px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.1); margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 7px;">
+                        <span style="font-size: 14px; color: #94a3b8;">🔊</span>
+                        <input id="header-media-vol" type="range" min="0" max="1" step="0.05" value="1" oninput="setHeaderMediaVolume(this.value)" style="width: 85px; height: 5px; accent-color: #f59e0b; cursor: pointer;">
                     </div>
-                    <button type="button" onclick="quickHeaderStop(event)" style="background: rgba(225, 29, 72, 0.25); border: 1px solid rgba(244, 63, 94, 0.5); color: #fecdd3; padding: 4px 9px; border-radius: 8px; font-size: 11px; font-weight: 900; cursor: pointer; transition: 0.2s;" title="إيقاف البث تماماً">⏹️ إيقاف</button>
+                    <button type="button" onclick="quickHeaderStop(event)" style="background: rgba(225, 29, 72, 0.35); border: 1.5px solid rgba(244, 63, 94, 0.6); color: #ffffff; padding: 5px 12px; border-radius: 9px; font-size: 12px; font-weight: 900; cursor: pointer; transition: 0.2s;" title="إيقاف البث تماماً">⏹️ إيقاف</button>
                 </div>
+
+                <a href="engineering_tools.php?tab=quran_mp3" style="display: block; text-align: center; font-size: 11.5px; font-weight: 900; color: #38bdf8; text-decoration: none; padding-top: 4px;" class="hover:underline">
+                    📖 استوديو القرآن الكريم والشاشات الكاملة ↗
+                </a>
             </div>
         </div>
 

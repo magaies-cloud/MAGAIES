@@ -636,8 +636,23 @@
     function toggleHeaderMediaPopover(e) {
         if (e) e.stopPropagation();
         const pop = document.getElementById('header-media-popover');
-        if (!pop) return;
+        const btn = document.getElementById('header-media-btn');
+        if (!pop || !btn) return;
+
         if (pop.style.display === 'none' || !pop.style.display) {
+            // Position dynamically below button using fixed coordinates so it ALWAYS renders on top of the screen
+            const rect = btn.getBoundingClientRect();
+            pop.style.position = 'fixed';
+            pop.style.top = Math.max(10, rect.bottom + 8) + 'px';
+
+            const popWidth = 320;
+            let leftPos = rect.left + (rect.width / 2) - (popWidth / 2);
+            if (leftPos < 15) leftPos = 15;
+            if (leftPos + popWidth > window.innerWidth - 15) {
+                leftPos = window.innerWidth - popWidth - 15;
+            }
+            pop.style.left = leftPos + 'px';
+            pop.style.zIndex = '999999999';
             pop.style.display = 'block';
             syncHeaderPopoverUI();
         } else {
@@ -710,7 +725,21 @@
         }
 
         if (popTitle) {
-            popTitle.innerText = isPlaying ? (state.title || 'بث حي شغال بالخلفية') : 'البث متوقف حالياً';
+            popTitle.innerText = isPlaying ? (state.title || 'بث حي شغال بالخلفية') : 'البث متوقف حالياً (انقر على أي قناة للتشغيل)';
+        }
+        const popBadge = document.getElementById('popover-status-badge');
+        if (popBadge) {
+            if (isPlaying) {
+                popBadge.innerHTML = '🟢 شغال الآن بالخلفية';
+                popBadge.style.background = 'rgba(16, 185, 129, 0.25)';
+                popBadge.style.color = '#34d399';
+                popBadge.style.borderColor = 'rgba(16, 185, 129, 0.5)';
+            } else {
+                popBadge.innerHTML = '⏹️ متوقف حالياً';
+                popBadge.style.background = 'rgba(100, 116, 139, 0.25)';
+                popBadge.style.color = '#94a3b8';
+                popBadge.style.borderColor = 'rgba(100, 116, 139, 0.4)';
+            }
         }
         if (popDot) {
             popDot.style.display = isPlaying ? 'inline-block' : 'none';
