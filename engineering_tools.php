@@ -51,25 +51,25 @@ $pdo = getDBConnection();
     .quick-media-card:hover {
         transform: translateY(-3px) scale(1.02) !important;
     }
-    .quick-media-card.is-active-majd {
+    .quick-media-card.is-active-majd, .suite-pill-card.is-active-majd {
         border-color: #f59e0b !important;
         background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(15, 23, 42, 0.98)) !important;
         box-shadow: 0 0 30px rgba(245, 158, 11, 0.55), inset 0 0 15px rgba(245, 158, 11, 0.25), 0 10px 25px rgba(0,0,0,0.8) !important;
         transform: translateY(-2px) !important;
     }
-    .quick-media-card.is-active-quran_mp3 {
+    .quick-media-card.is-active-quran_mp3, .suite-pill-card.is-active-quran_mp3 {
         border-color: #06b6d4 !important;
         background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(15, 23, 42, 0.98)) !important;
         box-shadow: 0 0 30px rgba(6, 182, 212, 0.55), inset 0 0 15px rgba(6, 182, 212, 0.25), 0 10px 25px rgba(0,0,0,0.8) !important;
         transform: translateY(-2px) !important;
     }
-    .quick-media-card.is-active-madinah {
+    .quick-media-card.is-active-madinah, .suite-pill-card.is-active-madinah {
         border-color: #10b981 !important;
         background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(15, 23, 42, 0.98)) !important;
         box-shadow: 0 0 30px rgba(16, 185, 129, 0.55), inset 0 0 15px rgba(16, 185, 129, 0.25), 0 10px 25px rgba(0,0,0,0.8) !important;
         transform: translateY(-2px) !important;
     }
-    .quick-media-card.is-active-makkah {
+    .quick-media-card.is-active-makkah, .suite-pill-card.is-active-makkah {
         border-color: #eab308 !important;
         background: linear-gradient(135deg, rgba(234, 179, 8, 0.25), rgba(15, 23, 42, 0.98)) !important;
         box-shadow: 0 0 30px rgba(234, 179, 8, 0.55), inset 0 0 15px rgba(234, 179, 8, 0.25), 0 10px 25px rgba(0,0,0,0.8) !important;
@@ -1573,7 +1573,7 @@ $pdo = getDBConnection();
                         <span class="w-11 h-11 rounded-xl bg-amber-500/20 border-2 border-amber-400/60 flex items-center justify-center text-xl text-amber-300 shadow-md group-hover:scale-110 transition-transform">
                             <i class="fa-solid fa-tv"></i>
                         </span>
-                        <!-- Active Audio Waves (Shown when glowing/active) -->
+                        <!-- Active Audio Waves -->
                         <div id="quick-waves-majd" class="hidden flex items-center gap-1 h-5">
                             <span class="w-1 bg-amber-400 rounded-full animate-bounce" style="height: 12px; animation-delay: 0.1s;"></span>
                             <span class="w-1 bg-amber-300 rounded-full animate-bounce" style="height: 18px; animation-delay: 0.2s;"></span>
@@ -1591,31 +1591,7 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- 2. القرآن MP3 -->
-                <div id="quick-media-btn-quran_mp3" onclick="toggleQuickChannel('quran_mp3')" class="quick-media-card group p-3.5 rounded-2xl bg-slate-900/90 hover:bg-cyan-950/30 border-2 border-cyan-500/40 hover:border-cyan-400 transition-all duration-300 flex flex-col justify-between space-y-2 cursor-pointer select-none">
-                    <div class="flex items-center justify-between">
-                        <span class="w-11 h-11 rounded-xl bg-cyan-500/20 border-2 border-cyan-400/60 flex items-center justify-center text-xl text-cyan-300 shadow-md group-hover:scale-110 transition-transform">
-                            <i class="fa-solid fa-headphones"></i>
-                        </span>
-                        <!-- Active Audio Waves -->
-                        <div id="quick-waves-quran_mp3" class="hidden flex items-center gap-1 h-5">
-                            <span class="w-1 bg-cyan-400 rounded-full animate-bounce" style="height: 12px; animation-delay: 0.1s;"></span>
-                            <span class="w-1 bg-cyan-300 rounded-full animate-bounce" style="height: 18px; animation-delay: 0.2s;"></span>
-                            <span class="w-1 bg-sky-400 rounded-full animate-bounce" style="height: 10px; animation-delay: 0.3s;"></span>
-                            <span class="w-1 bg-cyan-500 rounded-full animate-bounce" style="height: 16px; animation-delay: 0.4s;"></span>
-                        </div>
-                    </div>
-                    <div class="text-right">
-                        <div class="text-base sm:text-lg font-black text-cyan-200 group-hover:text-cyan-100 transition-colors">القرآن MP3</div>
-                        <div class="text-[11px] text-cyan-400/80 font-bold mt-0.5 truncate">تلاوات كبار القراء</div>
-                    </div>
-                    <div id="quick-status-pill-quran_mp3" class="quick-status-pill text-[11px] font-bold px-2.5 py-1 rounded-lg bg-white/5 text-slate-300 border border-white/10 flex items-center justify-center gap-1.5 transition">
-                        <i class="fa-solid fa-play text-[10px]"></i>
-                        <span>تشغيل فوري</span>
-                    </div>
-                </div>
-
-                <!-- 3. المدينة -->
+                <!-- 2. المدينة -->
                 <div id="quick-media-btn-madinah" onclick="toggleQuickChannel('madinah')" class="quick-media-card group p-3.5 rounded-2xl bg-slate-900/90 hover:bg-emerald-950/30 border-2 border-emerald-500/40 hover:border-emerald-400 transition-all duration-300 flex flex-col justify-between space-y-2 cursor-pointer select-none">
                     <div class="flex items-center justify-between">
                         <span class="w-11 h-11 rounded-xl bg-emerald-500/20 border-2 border-emerald-400/60 flex items-center justify-center text-xl text-emerald-300 shadow-md group-hover:scale-110 transition-transform">
@@ -1639,7 +1615,7 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- 4. مكة -->
+                <!-- 3. مكة -->
                 <div id="quick-media-btn-makkah" onclick="toggleQuickChannel('makkah')" class="quick-media-card group p-3.5 rounded-2xl bg-slate-900/90 hover:bg-yellow-950/30 border-2 border-yellow-500/40 hover:border-yellow-400 transition-all duration-300 flex flex-col justify-between space-y-2 cursor-pointer select-none">
                     <div class="flex items-center justify-between">
                         <span class="w-11 h-11 rounded-xl bg-yellow-500/20 border-2 border-yellow-400/60 flex items-center justify-center text-xl text-yellow-300 shadow-md group-hover:scale-110 transition-transform">
@@ -1658,6 +1634,30 @@ $pdo = getDBConnection();
                         <div class="text-[11px] text-yellow-400/80 font-bold mt-0.5 truncate">قناة القرآن الكريم مباشر</div>
                     </div>
                     <div id="quick-status-pill-makkah" class="quick-status-pill text-[11px] font-bold px-2.5 py-1 rounded-lg bg-white/5 text-slate-300 border border-white/10 flex items-center justify-center gap-1.5 transition">
+                        <i class="fa-solid fa-play text-[10px]"></i>
+                        <span>تشغيل فوري</span>
+                    </div>
+                </div>
+
+                <!-- 4. القرآن إم بي 3 -->
+                <div id="quick-media-btn-quran_mp3" onclick="toggleQuickChannel('quran_mp3')" class="quick-media-card group p-3.5 rounded-2xl bg-slate-900/90 hover:bg-cyan-950/30 border-2 border-cyan-500/40 hover:border-cyan-400 transition-all duration-300 flex flex-col justify-between space-y-2 cursor-pointer select-none">
+                    <div class="flex items-center justify-between">
+                        <span class="w-11 h-11 rounded-xl bg-cyan-500/20 border-2 border-cyan-400/60 flex items-center justify-center text-xl text-cyan-300 shadow-md group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-headphones"></i>
+                        </span>
+                        <!-- Active Audio Waves -->
+                        <div id="quick-waves-quran_mp3" class="hidden flex items-center gap-1 h-5">
+                            <span class="w-1 bg-cyan-400 rounded-full animate-bounce" style="height: 12px; animation-delay: 0.1s;"></span>
+                            <span class="w-1 bg-cyan-300 rounded-full animate-bounce" style="height: 18px; animation-delay: 0.2s;"></span>
+                            <span class="w-1 bg-sky-400 rounded-full animate-bounce" style="height: 10px; animation-delay: 0.3s;"></span>
+                            <span class="w-1 bg-cyan-500 rounded-full animate-bounce" style="height: 16px; animation-delay: 0.4s;"></span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-base sm:text-lg font-black text-cyan-200 group-hover:text-cyan-100 transition-colors">القرآن إم بي 3</div>
+                        <div class="text-[11px] text-cyan-400/80 font-bold mt-0.5 truncate">تلاوات كبار القراء</div>
+                    </div>
+                    <div id="quick-status-pill-quran_mp3" class="quick-status-pill text-[11px] font-bold px-2.5 py-1 rounded-lg bg-white/5 text-slate-300 border border-white/10 flex items-center justify-center gap-1.5 transition">
                         <i class="fa-solid fa-play text-[10px]"></i>
                         <span>تشغيل فوري</span>
                     </div>
@@ -1747,35 +1747,33 @@ $pdo = getDBConnection();
                 <div class="suite-pill-sub">قوانين العمل والرواتب</div>
             </div>
 
-            <!-- 11. تلفزيون المجد (القرآن الكريم) -->
-            <div class="suite-pill-card" style="--p-color:#fbbf24; --p-border:rgba(251,191,36,0.5);" onclick="switchSuite('tv_majd', this)">
+            <!-- 11. المجد -->
+            <div id="suite-tab-btn-majd" class="suite-pill-card" style="--p-color:#fbbf24; --p-border:rgba(251,191,36,0.5);" onclick="toggleQuickChannel('majd')">
                 <div class="suite-pill-icon"><i class="fa-solid fa-tv text-amber-400"></i></div>
                 <div class="suite-pill-title text-amber-300">📺 المجد</div>
-                <div class="suite-pill-sub text-amber-400/80">القرآن الكريم مباشر</div>
+                <div class="suite-pill-sub text-amber-400/80">تشغيل / إيقاف فوري</div>
             </div>
 
-            <!-- 12. تلفزيون مكة المكرمة -->
-            <div class="suite-pill-card" style="--p-color:#f59e0b; --p-border:rgba(245,158,11,0.5);" onclick="switchSuite('tv_makkah', this)">
-                <div class="suite-pill-icon"><i class="fa-solid fa-kaaba text-yellow-400"></i></div>
-                <div class="suite-pill-title text-yellow-300">🕋 مكة</div>
-                <div class="suite-pill-sub text-yellow-400/80">الحرم المكي مباشر</div>
-            </div>
-
-            <!-- 13. تلفزيون المدينة المنورة (السنة النبوية) -->
-            <div class="suite-pill-card" style="--p-color:#10b981; --p-border:rgba(16,185,129,0.5);" onclick="switchSuite('tv_madinah', this)">
+            <!-- 12. المدينة -->
+            <div id="suite-tab-btn-madinah" class="suite-pill-card" style="--p-color:#10b981; --p-border:rgba(16,185,129,0.5);" onclick="toggleQuickChannel('madinah')">
                 <div class="suite-pill-icon"><i class="fa-solid fa-mosque text-emerald-400"></i></div>
                 <div class="suite-pill-title text-emerald-300">🕌 المدينة</div>
-                <div class="suite-pill-sub text-emerald-400/80">السنة النبوية مباشر</div>
+                <div class="suite-pill-sub text-emerald-400/80">تشغيل / إيقاف فوري</div>
             </div>
 
-            <!-- 14. القرآن الكريم MP3 -->
-            <div class="suite-pill-card" style="--p-color:#06b6d4; --p-border:rgba(6,182,212,0.5);" onclick="switchSuite('quran_mp3', this)">
+            <!-- 13. مكة -->
+            <div id="suite-tab-btn-makkah" class="suite-pill-card" style="--p-color:#f59e0b; --p-border:rgba(245,158,11,0.5);" onclick="toggleQuickChannel('makkah')">
+                <div class="suite-pill-icon"><i class="fa-solid fa-kaaba text-yellow-400"></i></div>
+                <div class="suite-pill-title text-yellow-300">🕋 مكة</div>
+                <div class="suite-pill-sub text-yellow-400/80">تشغيل / إيقاف فوري</div>
+            </div>
+
+            <!-- 14. القرآن إم بي 3 -->
+            <div id="suite-tab-btn-quran_mp3" class="suite-pill-card" style="--p-color:#06b6d4; --p-border:rgba(6,182,212,0.5);" onclick="toggleQuickChannel('quran_mp3')">
                 <div class="suite-pill-icon"><i class="fa-solid fa-headphones text-cyan-400"></i></div>
-                <div class="suite-pill-title text-cyan-300">🎧 القرآن MP3</div>
-                <div class="suite-pill-sub text-cyan-400/80">تلاوات كبار القراء</div>
+                <div class="suite-pill-title text-cyan-300">🎧 القرآن إم بي 3</div>
+                <div class="suite-pill-sub text-cyan-400/80">تشغيل / إيقاف فوري</div>
             </div>
-
-
 
         </div>
 
@@ -22751,17 +22749,19 @@ $pdo = getDBConnection();
     }
 
     function renderQuickChannelVisuals(activeKey) {
-        const keys = ['majd', 'quran_mp3', 'madinah', 'makkah'];
+        const keys = ['majd', 'madinah', 'makkah', 'quran_mp3'];
         keys.forEach(k => {
             const btn = document.getElementById('quick-media-btn-' + k);
             const pill = document.getElementById('quick-status-pill-' + k);
             const waves = document.getElementById('quick-waves-' + k);
-            if (!btn) return;
+            const suiteTab = document.getElementById('suite-tab-btn-' + k);
 
-            btn.classList.remove('is-active-majd', 'is-active-quran_mp3', 'is-active-madinah', 'is-active-makkah');
+            if (btn) btn.classList.remove('is-active-majd', 'is-active-madinah', 'is-active-makkah', 'is-active-quran_mp3');
+            if (suiteTab) suiteTab.classList.remove('is-active-majd', 'is-active-madinah', 'is-active-makkah', 'is-active-quran_mp3');
 
             if (k === activeKey) {
-                btn.classList.add('is-active-' + k);
+                if (btn) btn.classList.add('is-active-' + k);
+                if (suiteTab) suiteTab.classList.add('is-active-' + k);
                 if (pill) {
                     pill.innerHTML = '🟢 <span class="animate-pulse">شغال الآن (انقر للإيقاف)</span>';
                     pill.className = 'quick-status-pill text-[11px] font-black px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 flex items-center justify-center gap-1';
