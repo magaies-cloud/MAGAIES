@@ -583,6 +583,9 @@
             const el = e.target.closest('a, [data-href], .sidebar-item, .hub-btn, .bento-card');
             if (!el) return;
 
+            // Ignore links intended to open in a new tab or download files
+            if (el.getAttribute('target') === '_blank' || el.hasAttribute('download')) return;
+
             let dest = el.getAttribute('data-href') || el.getAttribute('href') || el.dataset?.href;
             if (!dest || dest === '#' || dest.startsWith('javascript:')) {
                 const onclickStr = el.getAttribute('onclick') || '';
