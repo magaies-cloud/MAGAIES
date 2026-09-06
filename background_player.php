@@ -242,12 +242,23 @@ $channelKey = isset($_GET['ch']) ? htmlspecialchars($_GET['ch']) : 'majd';
                         title: ch.title,
                         extraMeta: { channelKey: key, sub: ch.sub },
                         startedAt: Date.now(),
-                        usePopout: true
+                        usePopout: true,
+                        activeTabId: 'POPOUT_PLAYER'
                     }));
                     if (bc) bc.postMessage({ type: 'STATE_CHANGED', state: { active: true, sourceUrl: ch.url, title: ch.title, extraMeta: { channelKey: key, sub: ch.sub } } });
                 } catch(e) {}
             }
         }
+
+        window.addEventListener('beforeunload', function() {
+            try {
+                const st = JSON.parse(localStorage.getItem('elsajana_global_media_state') || '{}');
+                st.usePopout = false;
+                st.activeTabId = '';
+                localStorage.setItem('elsajana_global_media_state', JSON.stringify(st));
+                if (bc) bc.postMessage({ type: 'POPOUT_CLOSED' });
+            } catch(e) {}
+        });
 
         // Initialize with requested channel
         switchChannel(initialKey, true);

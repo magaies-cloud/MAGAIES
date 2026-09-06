@@ -1,24 +1,25 @@
 /**
  * ════════════════════════════════════════════════════════════════════════════
- * 📡 GLOBAL CROSS-SCREEN BACKGROUND MEDIA & TV CHANNELS ENGINE (v2026.4)
+ * 📡 GLOBAL CROSS-SCREEN BACKGROUND MEDIA & TV CHANNELS ENGINE (v2026.5)
  * ════════════════════════════════════════════════════════════════════════════
  * Al-Sajana Smart ERP 2026 - Global Islamic Live Streaming & Quran Engine
  * Keeps live TV & Quran MP3 playing continuously across ALL ERP screens
  * (Sales, Purchases, Inventory, Vouchers, General Ledger, Reports, Tools, etc.)
  * 
- * 🏆 ZERO-CUT CONTINUITY ARCHITECTURE (0.000s Audio Cut):
- * 1. SEAMLESS CARRIER HOST: When audio is playing, window.top remains the Audio Master.
- *    Subsequent screens load inside a full-viewport zero-margin seamless carrier container.
- *    The audio element in window.top NEVER terminates, NEVER reloads, and NEVER cuts for 0.000s!
- * 2. ADDRESS BAR SYNCHRONIZATION: Browser URL matches active screen via history.replaceState.
- * 3. CHILD FRAME DELEGATION: Sub-screens running in carrier delegate directly to window.top.
- *    Prevents duplicate audio players and eliminates audio conflict or echo completely.
- * 4. AUTOPLAY RESILIENCE (STANDALONE): If a page is opened standalone / refreshed:
- *    - Prominent glowing resume prompt bar shown immediately if blocked by browser policy.
- *    - Universal interaction listeners on pointerdown, click, touch, scroll, mousemove, keydown.
- *    - Pre-seeks to exact timestamp before playing to prevent verse 1 restart.
- * 5. COMPANION WINDOW SUPPORT: Dedicated popout background player option (openBackgroundPopout).
- * 6. MULTI-TENANT PROXY COMPATIBILITY: Handles globalKeys and tenant-prefixed storage.
+ * 🏆 ZERO-CUT & ZERO-ECHO ARCHITECTURE:
+ * 1. ZERO-CUT SEAMLESS CARRIER: window.top maintains the persistent audio stream
+ *    while sub-pages load inside a full-viewport zero-margin seamless carrier container.
+ *    Result: 0.000s audio cut during screen transitions!
+ * 2. SINGLE-MASTER AUDIO MUTEX (القضاء التام على الصدى والازدواجية):
+ *    - Every window/tab possesses a unique WINDOW_INSTANCE_ID.
+ *    - Only ONE window or tab is EVER permitted to output audio at any given millisecond.
+ *    - If another tab, window, or popout starts playing, all other tabs INSTANTLY PAUSE.
+ *    - Eliminates doubled audio ("صوت مدبل أو صدى") across all multi-tab or navigation scenarios.
+ * 3. TRANSIENT OVERLAP PREVENTION: Outgoing pages pause immediately on unload so they never
+ *    overlap with incoming pages.
+ * 4. IFRAME SANITIZATION: Child frames never instantiate or retain audio elements.
+ * 5. COMPANION POPOUT HARMONIZATION: background_player.php coordinates seamlessly without conflict.
+ * 6. AUTOPLAY RESILIENCE (STANDALONE): Glowing prompt bar & universal interaction listeners.
  * ════════════════════════════════════════════════════════════════════════════
  */
 
@@ -28,6 +29,9 @@
     const STORAGE_KEY = 'elsajana_global_media_state';
     const BROADCAST_CHANNEL_NAME = 'elsajana_media_broadcast';
     const isTopWindow = (window.self === window.top);
+
+    // 🛡️ Unique Window / Tab Instance Identifier for Audio Mutex
+    const WINDOW_INSTANCE_ID = 'win_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
 
     const CHANNELS_INFO = {
         quran_mp3: {
@@ -77,7 +81,6 @@
         const style = document.createElement('style');
         style.id = 'pm-dock-styles';
         style.textContent = `
-            /* Background Audio Container (Hidden audio, elegant floating resume bar) */
             #persistent-media-dock {
                 display: none;
                 position: fixed !important;
@@ -152,7 +155,6 @@
                 box-shadow: 0 2px 8px rgba(0,0,0,0.3) !important;
             }
 
-            /* 🌟 Sleek Header & Sub-Screen Mini TV Button */
             .header-tv-mini-btn {
                 display: inline-flex !important;
                 align-items: center !important;
@@ -233,7 +235,6 @@
                 100% { transform: scale(0.85); opacity: 1; }
             }
 
-            /* Floating Mini TV Button Bar for Headerless Sub-Screens */
             .subscreen-floating-tv-wrap {
                 position: fixed !important;
                 top: 15px !important;
@@ -249,7 +250,6 @@
                 to { opacity: 1; transform: translateY(0) scale(1); }
             }
 
-            /* 🌟 Interactive Floating TV Popover Modal */
             .header-tv-popover {
                 position: fixed !important;
                 z-index: 999999999 !important;
@@ -308,7 +308,7 @@
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    // 💾 Storage State Synchronization (Multi-Tenant Compatible)
+    // 💾 Storage State Synchronization (Multi-Tenant & Mutex-Aware)
     // ════════════════════════════════════════════════════════════════════════
     function getStoredMediaState() {
         try {
@@ -369,12 +369,21 @@
     }
 
     // ════════════════════════════════════════════════════════════════════════
-    // 🧱 Build or Ensure Persistent Audio Player in DOM (Audio Master Window)
+    // 🧱 Build or Ensure Persistent Audio Player in DOM (Audio Master Window Only)
     // ════════════════════════════════════════════════════════════════════════
     let lastTimeSaveTimestamp = 0;
 
     function ensureMediaDock() {
-        if (!isTopWindow) return null; // Child frames never create audio element!
+        if (!isTopWindow) {
+            // 🛡️ ZERO-ECHO GUARD: Purge any accidental audio player inside child iframes
+            const rogue = document.getElementById('persistent-audio-player');
+            if (rogue) {
+                rogue.pause();
+                rogue.removeAttribute('src');
+                rogue.remove();
+            }
+            return null;
+        }
 
         injectDockStyles();
         let dock = document.getElementById('persistent-media-dock');
@@ -461,28 +470,59 @@
     }
     window.saveGlobalMediaPlaybackPosition = saveGlobalMediaPlaybackPosition;
 
+    // 🛡️ ZERO-ECHO GUARD: Pause audio on page unload if standard navigation is occurring
     window.addEventListener('beforeunload', function() {
         saveGlobalMediaPlaybackPosition();
+        if (isTopWindow) {
+            const carrier = document.getElementById('elsajana-seamless-carrier');
+            // If top window itself is navigating away, pause audio immediately so it doesn't overlap
+            if (!carrier) {
+                const audioPlayer = document.getElementById('persistent-audio-player');
+                if (audioPlayer) {
+                    audioPlayer.pause();
+                }
+            }
+        }
     }, true);
+
     window.addEventListener('pagehide', function() {
         saveGlobalMediaPlaybackPosition();
+        if (isTopWindow && !document.getElementById('elsajana-seamless-carrier')) {
+            const audioPlayer = document.getElementById('persistent-audio-player');
+            if (audioPlayer) audioPlayer.pause();
+        }
     }, true);
+
     document.addEventListener('visibilitychange', function() {
         if (document.visibilityState === 'hidden') {
             saveGlobalMediaPlaybackPosition();
         }
     });
 
+    // ════════════════════════════════════════════════════════════════════════
+    // 🛡️ SINGLE-MASTER AUDIO MUTEX & BROADCAST COORDINATION
+    // ════════════════════════════════════════════════════════════════════════
     function handleBroadcastMessage(event) {
         const msg = event.data;
         if (!msg) return;
 
         if (msg.type === 'STATE_CHANGED' && msg.state) {
-            if (isTopWindow) {
-                applyMediaState(msg.state, false);
-            } else {
-                syncHeaderPopoverUI();
+            const st = msg.state;
+            const audioPlayer = document.getElementById('persistent-audio-player');
+
+            // 🛡️ MUTEX CHECK: If another window or popout is the active leader, PAUSE THIS TAB IMMEDIATELY!
+            if (st.usePopout || (st.activeTabId && st.activeTabId !== WINDOW_INSTANCE_ID)) {
+                if (audioPlayer && !audioPlayer.paused) {
+                    console.log('🔇 [Mutex] Another tab/window claimed audio leadership. Pausing this window.');
+                    audioPlayer.pause();
+                }
+            } else if (isTopWindow && (!st.activeTabId || st.activeTabId === WINDOW_INSTANCE_ID)) {
+                applyMediaState(st, false);
             }
+            syncHeaderPopoverUI();
+        } else if (msg.type === 'POPOUT_CLOSED') {
+            // Popout closed: top window can resume if media was active
+            syncHeaderPopoverUI();
         } else if (msg.type === 'STOP_ALL') {
             stopPersistentMedia(false);
         }
@@ -492,9 +532,17 @@
         if (e.key && e.key.endsWith(STORAGE_KEY)) {
             try {
                 const newState = e.newValue ? JSON.parse(e.newValue) : null;
+                const audioPlayer = document.getElementById('persistent-audio-player');
+
                 if (newState && newState.active) {
-                    if (isTopWindow) applyMediaState(newState, false);
-                    else syncHeaderPopoverUI();
+                    // 🛡️ MUTEX CHECK: If another tab or popout is actively playing, PAUSE THIS TAB!
+                    if (newState.usePopout || (newState.activeTabId && newState.activeTabId !== WINDOW_INSTANCE_ID)) {
+                        if (audioPlayer && !audioPlayer.paused) {
+                            console.log('🔇 [Mutex] Storage event: Another tab/popout is playing. Pausing this window to avoid echo.');
+                            audioPlayer.pause();
+                        }
+                    }
+                    syncHeaderPopoverUI();
                 } else {
                     stopPersistentMedia(false);
                 }
@@ -514,7 +562,6 @@
         try {
             const u = new URL(url, window.location.href);
             if (u.origin !== window.location.origin) return false;
-            // Only route PHP pages within the ERP
             const path = u.pathname.toLowerCase();
             if (!path.endsWith('.php') && !path.includes('.php?')) return false;
             return true;
@@ -525,7 +572,6 @@
 
     function activateSeamlessCarrier(destUrl) {
         if (!isTopWindow) {
-            // If already in iframe, navigate within iframe naturally
             window.location.href = destUrl;
             return;
         }
@@ -563,7 +609,6 @@
     }
     window.activateSeamlessCarrier = activateSeamlessCarrier;
 
-    // Listen to browser Back/Forward buttons in top window
     if (isTopWindow) {
         window.addEventListener('popstate', function(e) {
             const carrier = document.getElementById('elsajana-seamless-carrier');
@@ -577,13 +622,11 @@
         // Intercept top window navigation clicks when media is active
         document.addEventListener('click', function(e) {
             const state = getStoredMediaState();
-            if (!state || !state.active) return; // Only carrier-wrap when media is actively playing
+            if (!state || !state.active) return;
 
-            // Find clicked navigation element
             const el = e.target.closest('a, [data-href], .sidebar-item, .hub-btn, .bento-card');
             if (!el) return;
 
-            // Ignore links intended to open in a new tab or download files
             if (el.getAttribute('target') === '_blank' || el.hasAttribute('download')) return;
 
             let dest = el.getAttribute('data-href') || el.getAttribute('href') || el.dataset?.href;
@@ -597,7 +640,6 @@
 
             if (!dest || !isInternalNavigationUrl(dest)) return;
 
-            // Intercept and launch inside seamless carrier
             e.preventDefault();
             e.stopImmediatePropagation();
             activateSeamlessCarrier(dest);
@@ -610,7 +652,6 @@
     function ensureHeaderMediaElements() {
         injectDockStyles();
 
-        // 1. Floating pill for headerless sub-screens
         if (!document.getElementById('header-media-btn')) {
             let wrap = document.getElementById('header-media-control-wrap');
             if (!wrap) {
@@ -637,7 +678,6 @@
             }
         }
 
-        // 2. Universal popover modal
         if (!document.getElementById('header-media-popover')) {
             let pop = document.createElement('div');
             pop.id = 'header-media-popover';
@@ -785,8 +825,11 @@
             mainQuranPlayer.src = sourceUrl;
         }
 
+        // 🛡️ Claim Leadership under WINDOW_INSTANCE_ID
         saveMediaState({
             active: true,
+            activeTabId: WINDOW_INSTANCE_ID,
+            usePopout: false,
             type: type,
             sourceUrl: sourceUrl,
             title: title,
@@ -810,6 +853,15 @@
 
         const audioPlayer = document.getElementById('persistent-audio-player');
         const dock = document.getElementById('persistent-media-dock');
+
+        // 🛡️ MUTEX CHECK: If another tab or popout is the audio leader, DO NOT PLAY HERE!
+        if (state.usePopout || (state.activeTabId && state.activeTabId !== WINDOW_INSTANCE_ID)) {
+            if (audioPlayer && !audioPlayer.paused) {
+                audioPlayer.pause();
+            }
+            syncHeaderPopoverUI();
+            return;
+        }
 
         if (audioPlayer) {
             const isSameTrack = (audioPlayer.src === state.sourceUrl);
@@ -919,6 +971,12 @@
 
         if (audioPlayer) {
             const state = getStoredMediaState();
+            // Re-claim leadership
+            if (state) {
+                state.activeTabId = WINDOW_INSTANCE_ID;
+                state.usePopout = false;
+                saveMediaState(state);
+            }
             const targetTime = (state && state.type === 'audio' && typeof state.currentTime === 'number') ? state.currentTime : 0;
 
             audioPlayer.play().then(() => {
@@ -978,7 +1036,9 @@
 
         if (pop) {
             pop.focus();
-            stopPersistentMedia(false);
+            // Pause local tab audio; leadership transfers to popout
+            const audioPlayer = document.getElementById('persistent-audio-player');
+            if (audioPlayer) audioPlayer.pause();
         }
     }
 
@@ -1037,6 +1097,8 @@
         if (channelKey === 'quran_mp3') {
             const state = getStoredMediaState();
             if (state && state.type === 'audio' && state.sourceUrl) {
+                state.activeTabId = WINDOW_INSTANCE_ID;
+                saveMediaState(state);
                 applyMediaState(state, true);
                 syncHeaderPopoverUI();
                 return;
@@ -1156,11 +1218,22 @@
             ensureMediaDock();
             const saved = getStoredMediaState();
             if (saved && saved.active) {
-                applyMediaState(saved, true);
+                // If saved state belongs to another tab or popout, do NOT steal audio
+                if (saved.usePopout || (saved.activeTabId && saved.activeTabId !== WINDOW_INSTANCE_ID && saved.activeTabId === 'POPOUT_PLAYER')) {
+                    syncHeaderPopoverUI();
+                } else {
+                    // Claim leadership for this tab
+                    saved.activeTabId = WINDOW_INSTANCE_ID;
+                    saveMediaState(saved);
+                    applyMediaState(saved, true);
+                }
             } else {
                 syncHeaderPopoverUI();
             }
         } else {
+            // Child frame: ensure no rogue audio
+            const rogue = document.getElementById('persistent-audio-player');
+            if (rogue) rogue.remove();
             syncHeaderPopoverUI();
         }
     }
@@ -1181,6 +1254,7 @@
     window.quickHeaderStop = quickHeaderStop;
     window.syncHeaderPopoverUI = syncHeaderPopoverUI;
     window.getStoredMediaState = getStoredMediaState;
+    window.WINDOW_INSTANCE_ID = WINDOW_INSTANCE_ID;
 
     window.playTvChannel = playTvChannel;
     window.playQuranAudio = playQuranAudio;
