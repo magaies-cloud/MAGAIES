@@ -62,7 +62,9 @@
         const style = document.createElement('style');
         style.id = 'pm-dock-styles';
         style.textContent = `
+            /* HIDE BOTTOM DOCK COMPLETELY - Replaced by sleek Header Mini TV Button (1cm x 2.5cm) */
             #persistent-media-dock {
+                display: none !important;
                 position: fixed !important;
                 bottom: 18px !important;
                 left: 18px !important;
@@ -627,6 +629,127 @@
     }
 
     // Expose to window for global availability
+    
+    // ════════════════════════════════════════════════════════════════════════
+    // 📺 HEADER MINI TV BUTTON CONTROLLERS (1cm x 2.5cm - Non-Obtrusive)
+    // ════════════════════════════════════════════════════════════════════════
+    function toggleHeaderMediaPopover(e) {
+        if (e) e.stopPropagation();
+        const pop = document.getElementById('header-media-popover');
+        if (!pop) return;
+        if (pop.style.display === 'none' || !pop.style.display) {
+            pop.style.display = 'block';
+            syncHeaderPopoverUI();
+        } else {
+            pop.style.display = 'none';
+        }
+    }
+
+    function closeHeaderMediaPopover(e) {
+        if (e) e.stopPropagation();
+        const pop = document.getElementById('header-media-popover');
+        if (pop) pop.style.display = 'none';
+    }
+
+    function setHeaderMediaVolume(val) {
+        const audioPlayer = document.getElementById('persistent-audio-player');
+        if (audioPlayer) {
+            audioPlayer.volume = parseFloat(val);
+        }
+    }
+
+    function quickHeaderPlay(channelKey) {
+        if (channelKey === 'quran_mp3') {
+            // If already on engineering_tools.php, scroll to studio; otherwise navigate or play
+            if (typeof window.openQuranMp3Studio === 'function') {
+                window.openQuranMp3Studio();
+                closeHeaderMediaPopover();
+                return;
+            } else {
+                window.location.href = 'engineering_tools.php';
+                return;
+            }
+        }
+        playTvChannel(channelKey);
+        syncHeaderPopoverUI();
+    }
+
+    function quickHeaderStop(e) {
+        if (e) e.stopPropagation();
+        stopPersistentMedia(true);
+        syncHeaderPopoverUI();
+    }
+
+    function syncHeaderPopoverUI() {
+        const state = getStoredMediaState();
+        const isPlaying = state && state.active;
+        const btn = document.getElementById('header-media-btn');
+        const label = document.getElementById('header-media-label');
+        const dot = document.getElementById('header-media-dot');
+        const popTitle = document.getElementById('popover-media-title');
+        const popDot = document.getElementById('popover-status-dot');
+
+        const chKey = (state && state.extraMeta && state.extraMeta.channelKey) ? state.extraMeta.channelKey : null;
+
+        if (btn) {
+            if (isPlaying) {
+                btn.classList.add('is-playing');
+                if (dot) dot.style.display = 'inline-block';
+                if (label) {
+                    if (chKey === 'makkah') label.innerText = 'مكة 🔴';
+                    else if (chKey === 'madinah') label.innerText = 'المدينة 🔴';
+                    else if (chKey === 'majd') label.innerText = 'المجد 🔴';
+                    else if (chKey === 'quran_mp3') label.innerText = 'القرآن 🟢';
+                    else label.innerText = 'شغال 🔴';
+                }
+            } else {
+                btn.classList.remove('is-playing');
+                if (dot) dot.style.display = 'none';
+                if (label) label.innerText = 'التلفاز';
+            }
+        }
+
+        if (popTitle) {
+            popTitle.innerText = isPlaying ? (state.title || 'بث حي شغال بالخلفية') : 'البث متوقف حالياً';
+        }
+        if (popDot) {
+            popDot.style.display = isPlaying ? 'inline-block' : 'none';
+        }
+
+        // Highlight active channel in popover
+        ['makkah', 'madinah', 'majd', 'quran_mp3'].forEach(k => {
+            const chBtn = document.getElementById('hdr-ch-' + k);
+            if (chBtn) {
+                if (isPlaying && chKey === k) {
+                    chBtn.classList.add('active-ch');
+                } else {
+                    chBtn.classList.remove('active-ch');
+                }
+            }
+        });
+
+        // Also sync in-page cards if on engineering_tools.php
+        if (typeof window.renderQuickChannelVisuals === 'function') {
+            window.renderQuickChannelVisuals(isPlaying ? chKey : null);
+        }
+    }
+
+    // Close popover when clicking anywhere outside
+    document.addEventListener('click', function(e) {
+        const wrap = document.getElementById('header-media-control-wrap');
+        const pop = document.getElementById('header-media-popover');
+        if (pop && pop.style.display !== 'none' && wrap && !wrap.contains(e.target)) {
+            pop.style.display = 'none';
+        }
+    });
+
+    window.toggleHeaderMediaPopover = toggleHeaderMediaPopover;
+    window.closeHeaderMediaPopover = closeHeaderMediaPopover;
+    window.setHeaderMediaVolume = setHeaderMediaVolume;
+    window.quickHeaderPlay = quickHeaderPlay;
+    window.quickHeaderStop = quickHeaderStop;
+    window.syncHeaderPopoverUI = syncHeaderPopoverUI;
+
     window.playTvChannel = playTvChannel;
     window.playQuranAudio = playQuranAudio;
     window.playPersistentMedia = playPersistentMedia;

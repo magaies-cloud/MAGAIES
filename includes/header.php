@@ -238,6 +238,101 @@
         border-radius: 16px !important;
     }
 }
+
+.header-tv-mini-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 34px;
+    padding: 4px 12px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(30, 20, 50, 0.85), rgba(15, 23, 42, 0.95));
+    border: 1.5px solid rgba(192, 132, 252, 0.4);
+    color: #f8fafc;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    position: relative;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.35);
+    white-space: nowrap;
+    user-select: none;
+}
+.header-tv-mini-btn:hover {
+    transform: translateY(-2px);
+    border-color: #f59e0b;
+    box-shadow: 0 6px 18px rgba(245, 158, 11, 0.3);
+    color: #fef08a;
+}
+.header-tv-mini-btn.is-playing {
+    border-color: #10b981 !important;
+    background: linear-gradient(135deg, rgba(6, 78, 59, 0.7), rgba(15, 23, 42, 0.95)) !important;
+    box-shadow: 0 0 15px rgba(16, 185, 129, 0.5), inset 0 0 10px rgba(16, 185, 129, 0.2) !important;
+    color: #a7f3d0 !important;
+}
+.header-tv-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background-color: #ef4444;
+    box-shadow: 0 0 8px #ef4444;
+    animation: headerTvPulse 1.4s infinite;
+    display: inline-block;
+    flex-shrink: 0;
+}
+@keyframes headerTvPulse {
+    0% { transform: scale(0.85); opacity: 1; }
+    50% { transform: scale(1.3); opacity: 0.6; }
+    100% { transform: scale(0.85); opacity: 1; }
+}
+.header-tv-popover {
+    position: absolute;
+    top: calc(100% + 8px);
+    left: 0;
+    width: 270px;
+    background: rgba(10, 15, 30, 0.98);
+    border: 1.5px solid rgba(245, 158, 11, 0.6);
+    border-radius: 16px;
+    padding: 12px;
+    box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 25px rgba(245, 158, 11, 0.25);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    z-index: 100000;
+    direction: rtl;
+    text-align: right;
+    animation: popoverFadeIn 0.2s ease-out;
+}
+@keyframes popoverFadeIn {
+    from { opacity: 0; transform: translateY(-6px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+.header-pop-ch-btn {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+    padding: 6px 8px;
+    border-radius: 10px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.12);
+    color: #f8fafc;
+    font-size: 11px;
+    font-weight: 800;
+    cursor: pointer;
+    transition: all 0.2s ease;
+}
+.header-pop-ch-btn:hover {
+    background: rgba(255,255,255,0.12);
+    border-color: var(--ch-c);
+    color: var(--ch-c);
+    transform: translateY(-1px);
+}
+.header-pop-ch-btn.active-ch {
+    background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(15, 23, 42, 0.9));
+    border-color: var(--ch-c);
+    box-shadow: 0 0 10px var(--ch-c);
+    color: #fff;
+}
+
 </style>
 <header class="premium-header magical-glass-header <?php echo isset($header_theme_class) ? $header_theme_class : ''; ?>" style="display:flex; justify-content:space-between; align-items:center; gap:15px;">
     <!-- Left: Logo / Brand -->
@@ -319,6 +414,52 @@
             <div style="display:flex; flex-direction:column; align-items:center; gap:6px;">
                 <button class="fullscreen-toggle-btn" onclick="toggleFullScreen()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.15rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.fullscreen" title="توسيع الشاشة">⛶</button>
                 <button class="theme-toggle-btn" onclick="toggleTheme()" style="background:rgba(255,255,255,0.1); border:none; border-radius:50%; width:36px; height:36px; display:flex; align-items:center; justify-content:center; cursor:pointer; font-size:1.1rem; color:var(--text-primary); transition:0.2s;" data-i18n-title="header.toggleTheme" title="تبديل المظهر">🌓</button>
+            </div>
+        </div>
+
+        <!-- 📺 SACRED TV & QURAN MINI CONTROLLER (1cm x 2.5cm - Non-Obtrusive) -->
+        <div id="header-media-control-wrap" style="position:relative; display:flex; align-items:center;">
+            <button id="header-media-btn" type="button" onclick="toggleHeaderMediaPopover(event)" class="header-tv-mini-btn" title="قنوات التلفاز والقرآن الكريم (بث حي في الخلفية)">
+                <span id="header-media-icon" class="header-tv-icon">📺</span>
+                <span id="header-media-label" class="header-tv-label">التلفاز</span>
+                <span id="header-media-dot" class="header-tv-status-dot" style="display: none;"></span>
+            </button>
+
+            <!-- Mini Dropdown Popover (Collapsible, never blocks accounting screens) -->
+            <div id="header-media-popover" class="header-tv-popover" style="display: none;">
+                <!-- Popover Header -->
+                <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.1); padding-bottom: 7px; margin-bottom: 10px;">
+                    <div style="display: flex; align-items: center; gap: 7px; font-weight: 900; font-size: 12px; color: #fde047;">
+                        <span id="popover-status-dot" class="header-tv-status-dot"></span>
+                        <span id="popover-media-title" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 190px;">البث المباشر في الخلفية</span>
+                    </div>
+                    <button type="button" onclick="closeHeaderMediaPopover(event)" style="background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.15); color: #cbd5e1; border-radius: 6px; width: 22px; height: 22px; font-size: 11px; cursor: pointer; display: flex; align-items: center; justify-content: center;" title="إخفاء النافذة (مع استمرار البث بالخلفية)">✕</button>
+                </div>
+
+                <!-- 4 Sacred Channel Quick Switch Buttons -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 10px;">
+                    <button type="button" id="hdr-ch-makkah" onclick="quickHeaderPlay('makkah')" class="header-pop-ch-btn" style="--ch-c: #f59e0b;" title="تشغيل تلفزيون مكة المكرمة">
+                        <span>🕋 مكة</span>
+                    </button>
+                    <button type="button" id="hdr-ch-madinah" onclick="quickHeaderPlay('madinah')" class="header-pop-ch-btn" style="--ch-c: #10b981;" title="تشغيل تلفزيون المدينة المنورة">
+                        <span>🕌 المدينة</span>
+                    </button>
+                    <button type="button" id="hdr-ch-majd" onclick="quickHeaderPlay('majd')" class="header-pop-ch-btn" style="--ch-c: #fbbf24;" title="تشغيل تلفزيون المجد">
+                        <span>📺 المجد</span>
+                    </button>
+                    <button type="button" id="hdr-ch-quran_mp3" onclick="quickHeaderPlay('quran_mp3')" class="header-pop-ch-btn" style="--ch-c: #06b6d4;" title="تشغيل القرآن الكريم">
+                        <span>🎧 القرآن</span>
+                    </button>
+                </div>
+
+                <!-- Volume & Stop Controls -->
+                <div style="display: flex; align-items: center; justify-content: space-between; gap: 8px; background: rgba(0,0,0,0.45); padding: 7px 10px; border-radius: 12px; border: 1px solid rgba(255,255,255,0.08);">
+                    <div style="display: flex; align-items: center; gap: 6px;">
+                        <span style="font-size: 13px; color: #94a3b8;">🔊</span>
+                        <input id="header-media-vol" type="range" min="0" max="1" step="0.05" value="1" oninput="setHeaderMediaVolume(this.value)" style="width: 75px; height: 4px; accent-color: #38bdf8; cursor: pointer;">
+                    </div>
+                    <button type="button" onclick="quickHeaderStop(event)" style="background: rgba(225, 29, 72, 0.25); border: 1px solid rgba(244, 63, 94, 0.5); color: #fecdd3; padding: 4px 9px; border-radius: 8px; font-size: 11px; font-weight: 900; cursor: pointer; transition: 0.2s;" title="إيقاف البث تماماً">⏹️ إيقاف</button>
+                </div>
             </div>
         </div>
 
