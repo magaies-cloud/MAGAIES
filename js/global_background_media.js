@@ -15,6 +15,13 @@
     const BROADCAST_CHANNEL_NAME = 'elsajana_media_broadcast';
 
     const CHANNELS_INFO = {
+        quran_mp3: {
+            title: "القرآن الكريم MP3 - تلاوات خاشعة لكبار القراء",
+            sub: "تلاوات عطرة متواصلة في الخلفية",
+            audioUrl: "https://backup.qurango.net/radio/tarateel",
+            icon: "headphones",
+            color: "#06b6d4"
+        },
         majd: {
             title: "تلفزيون وإذاعة المجد للقرآن الكريم (بث مباشر)",
             sub: "تلاوات عطرة خاشعة متواصلة 24/7",
@@ -439,6 +446,7 @@
         }
 
         if (audioPlayer) {
+            audioPlayer.volume = 1.0;
             if (audioPlayer.src !== sourceUrl) {
                 audioPlayer.src = sourceUrl;
             }
@@ -518,10 +526,12 @@
     function attachOneTimeInteractionListener() {
         const resumeOnFirstAction = function() {
             resumeBackgroundPlayback();
+            window.removeEventListener('pointerdown', resumeOnFirstAction, true);
             window.removeEventListener('click', resumeOnFirstAction, true);
             window.removeEventListener('keydown', resumeOnFirstAction, true);
             window.removeEventListener('touchstart', resumeOnFirstAction, true);
         };
+        window.addEventListener('pointerdown', resumeOnFirstAction, true);
         window.addEventListener('click', resumeOnFirstAction, true);
         window.addEventListener('keydown', resumeOnFirstAction, true);
         window.addEventListener('touchstart', resumeOnFirstAction, true);
@@ -544,11 +554,13 @@
 
         if (audioPlayer) {
             audioPlayer.pause();
-            audioPlayer.src = '';
+            audioPlayer.removeAttribute('src');
+            audioPlayer.load();
         }
         if (mainQuranPlayer) {
             mainQuranPlayer.pause();
-            mainQuranPlayer.src = '';
+            mainQuranPlayer.removeAttribute('src');
+            mainQuranPlayer.load();
         }
         if (dock) dock.classList.add('pm-hidden');
 

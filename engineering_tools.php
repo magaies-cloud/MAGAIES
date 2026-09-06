@@ -113,6 +113,93 @@ $pdo = getDBConnection();
             gap: 20px;
         }
 
+        /* ── أزرار القنوات المقدسة المدمجة في سطر واحد ── */
+        .sacred-media-pill {
+            padding: 12px 14px;
+            border-radius: 20px;
+            min-height: 72px;
+            cursor: pointer;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 12px;
+            text-align: center;
+            border: 2px solid var(--sm-border);
+            background: linear-gradient(145deg, rgba(20, 27, 45, 0.95), rgba(10, 15, 28, 0.98));
+            color: #ffffff;
+            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.15);
+            position: relative;
+            overflow: hidden;
+        }
+        .sacred-media-pill:hover {
+            transform: translateY(-2px);
+            border-color: var(--sm-color);
+            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5), 0 0 20px var(--sm-bg);
+        }
+        .sacred-media-pill.is-active {
+            border-color: var(--sm-color) !important;
+            background: linear-gradient(135deg, var(--sm-bg), rgba(15, 23, 42, 0.98)) !important;
+            box-shadow: 0 0 25px var(--sm-color), inset 0 0 15px var(--sm-bg), 0 8px 20px rgba(0,0,0,0.7) !important;
+            transform: translateY(-2px) !important;
+        }
+        .sm-icon-box {
+            width: 44px;
+            height: 44px;
+            border-radius: 14px;
+            background: rgba(255, 255, 255, 0.06);
+            border: 1.5px solid var(--sm-border);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 20px;
+            flex-shrink: 0;
+            transition: transform 0.3s;
+        }
+        .sacred-media-pill:hover .sm-icon-box {
+            transform: scale(1.1);
+        }
+        .sacred-media-pill.is-active .sm-icon-box {
+            background: var(--sm-bg);
+            border-color: var(--sm-color);
+            box-shadow: 0 0 15px var(--sm-color);
+            animation: pulse 2s infinite;
+        }
+        .sm-text-box {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+        }
+        .sm-title {
+            font-size: 14px;
+            font-weight: 900;
+            line-height: 1.2;
+        }
+        .sm-sub {
+            font-size: 11px;
+            font-weight: 700;
+            margin-top: 2px;
+        }
+        .sm-status-dot {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            position: absolute;
+            top: 10px;
+            left: 10px;
+            transition: all 0.3s;
+        }
+        .sacred-media-pill.is-active .sm-status-dot {
+            background: #ef4444;
+            border-color: #f87171;
+            box-shadow: 0 0 10px #ef4444;
+            animation: ping 1.5s infinite;
+        }
+
         /* ── أزرار التبويبات العشرة البارزة ثلاثية الأبعاد ── */
         .suite-pill-card {
             padding: 14px 8px;
@@ -1536,156 +1623,50 @@ $pdo = getDBConnection();
 
         
         <!-- ════════════════════════════════════════════════════════════════ -->
-        <!-- 📡 ROYAL ISLAMIC SACRED MEDIA BAR (مكة · المدينة · المجد · القرآن الكريم إم بي 3) -->
+        <!-- 📡 SACRED MEDIA BAR (مكة · المدينة · المجد · القرآن الكريم إم بي 3) -->
         <!-- ════════════════════════════════════════════════════════════════ -->
-        <div class="mb-8 p-5 sm:p-7 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 border-2 border-amber-500/60 shadow-2xl relative overflow-hidden" style="box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 35px rgba(245,158,11,0.25);">
+        <div class="mb-6 grid grid-cols-2 lg:grid-cols-4 gap-3 select-none">
             
-            <!-- Top Bar Header -->
-            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pb-4 mb-5 border-b border-white/10">
-                <div class="flex items-center gap-3.5 text-right">
-                    <span class="w-12 h-12 rounded-2xl bg-amber-500/20 text-amber-300 flex items-center justify-center text-2xl border border-amber-400/50 shadow-lg">
-                        <i class="fa-solid fa-tower-broadcast animate-pulse"></i>
-                    </span>
-                    <div>
-                        <h4 class="text-xl sm:text-2xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-500">
-                            البث المباشر وقنوات التلفزة والقرآن الكريم في الخلفية
-                        </h4>
-                        <p class="text-xs sm:text-sm text-slate-300 font-bold mt-0.5">
-                            تشغيل متواصل في الخلفية عبر كافة شاشات وخلفيات البرنامج بلا استثناء
-                        </p>
-                    </div>
+            <!-- 1. تلفزيون مكة -->
+            <div id="quick-media-btn-makkah" onclick="toggleQuickChannel('makkah')" class="sacred-media-pill group" style="--sm-color: #f59e0b; --sm-bg: rgba(245, 158, 11, 0.2); --sm-border: rgba(245, 158, 11, 0.5);">
+                <div class="sm-icon-box text-yellow-400"><i class="fa-solid fa-kaaba"></i></div>
+                <div class="sm-text-box">
+                    <div class="sm-title text-yellow-300">🕋 تلفزيون مكة</div>
+                    <div id="sm-sub-makkah" class="sm-sub text-yellow-400/80">تشغيل فوري مباشر</div>
                 </div>
-                <div class="flex items-center gap-2.5">
-                    <button type="button" onclick="openBackgroundPopout()" class="px-4 py-2.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 hover:text-white border border-amber-500/40 text-xs font-black transition flex items-center gap-2 cursor-pointer shadow-md" title="نافذة مستقلة تعمل بدون أي انقطاع أثناء التنقل بين كل شاشات البرنامج">
-                        <span>🗗 نافذة خلفية مستقلة</span>
-                    </button>
-                    <div class="flex items-center gap-1.5 text-xs font-mono font-black text-red-400 bg-red-950/70 px-3.5 py-2 rounded-xl border border-red-500/50 shadow-inner">
-                        <span class="w-2.5 h-2.5 rounded-full bg-red-500 animate-ping"></span>
-                        <span>LIVE 🔴</span>
-                    </div>
-                </div>
+                <div id="sm-status-makkah" class="sm-status-dot"></div>
             </div>
 
-            <!-- 4 Centered Royal Vivid Cards Grid in Exact Order: مكة -> المدينة -> المجد -> القرآن الكريم إم بي 3 -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 sm:gap-5">
-                
-                <!-- 1. تلفزيون مكة -->
-                <div id="quick-media-btn-makkah" onclick="toggleQuickChannel('makkah')" class="quick-media-card group p-6 rounded-2xl bg-slate-900/95 hover:bg-yellow-950/40 border-2 border-yellow-500/40 hover:border-yellow-400 transition-all duration-300 flex flex-col items-center justify-center text-center space-y-3.5 cursor-pointer select-none" style="min-height: 200px;">
-                    <div class="relative">
-                        <span class="w-16 h-16 rounded-2xl bg-yellow-500/20 border-2 border-yellow-400/60 flex items-center justify-center text-3xl text-yellow-300 shadow-xl group-hover:scale-110 transition-transform">
-                            <i class="fa-solid fa-kaaba"></i>
-                        </span>
-                        <span id="quick-ping-makkah" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-red-500 animate-ping"></span>
-                    </div>
-                    
-                    <div class="space-y-1 text-center">
-                        <div class="text-xl sm:text-2xl font-black text-yellow-300 group-hover:text-yellow-100 transition-colors">تلفزيون مكة</div>
-                        <div class="text-xs font-bold text-yellow-400/80">قناة القرآن الكريم مباشر</div>
-                    </div>
-
-                    <!-- Active Audio Waves Visualizer -->
-                    <div id="quick-waves-makkah" class="hidden flex items-center justify-center gap-1 h-5">
-                        <span class="w-1 bg-yellow-400 rounded-full animate-bounce" style="height: 12px; animation-delay: 0.1s;"></span>
-                        <span class="w-1 bg-yellow-300 rounded-full animate-bounce" style="height: 18px; animation-delay: 0.2s;"></span>
-                        <span class="w-1 bg-amber-400 rounded-full animate-bounce" style="height: 10px; animation-delay: 0.3s;"></span>
-                        <span class="w-1 bg-yellow-500 rounded-full animate-bounce" style="height: 16px; animation-delay: 0.4s;"></span>
-                        <span class="w-1 bg-yellow-300 rounded-full animate-bounce" style="height: 14px; animation-delay: 0.5s;"></span>
-                    </div>
-
-                    <div id="quick-status-pill-makkah" class="quick-status-pill text-xs font-bold px-3.5 py-1.5 rounded-xl bg-white/5 text-slate-300 border border-white/10 flex items-center justify-center gap-1.5 transition">
-                        <i class="fa-solid fa-play text-[10px]"></i>
-                        <span>تشغيل فوري بالخلفية</span>
-                    </div>
+            <!-- 2. تلفزيون المدينة -->
+            <div id="quick-media-btn-madinah" onclick="toggleQuickChannel('madinah')" class="sacred-media-pill group" style="--sm-color: #10b981; --sm-bg: rgba(16, 185, 129, 0.2); --sm-border: rgba(16, 185, 129, 0.5);">
+                <div class="sm-icon-box text-emerald-400"><i class="fa-solid fa-mosque"></i></div>
+                <div class="sm-text-box">
+                    <div class="sm-title text-emerald-300">🕌 تلفزيون المدينة</div>
+                    <div id="sm-sub-madinah" class="sm-sub text-emerald-400/80">تشغيل فوري مباشر</div>
                 </div>
-
-                <!-- 2. تلفزيون المدينة -->
-                <div id="quick-media-btn-madinah" onclick="toggleQuickChannel('madinah')" class="quick-media-card group p-6 rounded-2xl bg-slate-900/95 hover:bg-emerald-950/40 border-2 border-emerald-500/40 hover:border-emerald-400 transition-all duration-300 flex flex-col items-center justify-center text-center space-y-3.5 cursor-pointer select-none" style="min-height: 200px;">
-                    <div class="relative">
-                        <span class="w-16 h-16 rounded-2xl bg-emerald-500/20 border-2 border-emerald-400/60 flex items-center justify-center text-3xl text-emerald-300 shadow-xl group-hover:scale-110 transition-transform">
-                            <i class="fa-solid fa-mosque"></i>
-                        </span>
-                        <span id="quick-ping-madinah" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-red-500 animate-ping"></span>
-                    </div>
-                    
-                    <div class="space-y-1 text-center">
-                        <div class="text-xl sm:text-2xl font-black text-emerald-300 group-hover:text-emerald-100 transition-colors">تلفزيون المدينة</div>
-                        <div class="text-xs font-bold text-emerald-400/80">قناة السنة النبوية مباشر</div>
-                    </div>
-
-                    <!-- Active Audio Waves Visualizer -->
-                    <div id="quick-waves-madinah" class="hidden flex items-center justify-center gap-1 h-5">
-                        <span class="w-1 bg-emerald-400 rounded-full animate-bounce" style="height: 12px; animation-delay: 0.1s;"></span>
-                        <span class="w-1 bg-emerald-300 rounded-full animate-bounce" style="height: 18px; animation-delay: 0.2s;"></span>
-                        <span class="w-1 bg-teal-400 rounded-full animate-bounce" style="height: 10px; animation-delay: 0.3s;"></span>
-                        <span class="w-1 bg-emerald-500 rounded-full animate-bounce" style="height: 16px; animation-delay: 0.4s;"></span>
-                        <span class="w-1 bg-emerald-300 rounded-full animate-bounce" style="height: 14px; animation-delay: 0.5s;"></span>
-                    </div>
-
-                    <div id="quick-status-pill-madinah" class="quick-status-pill text-xs font-bold px-3.5 py-1.5 rounded-xl bg-white/5 text-slate-300 border border-white/10 flex items-center justify-center gap-1.5 transition">
-                        <i class="fa-solid fa-play text-[10px]"></i>
-                        <span>تشغيل فوري بالخلفية</span>
-                    </div>
-                </div>
-
-                <!-- 3. تلفزيون المجد -->
-                <div id="quick-media-btn-majd" onclick="toggleQuickChannel('majd')" class="quick-media-card group p-6 rounded-2xl bg-slate-900/95 hover:bg-amber-950/40 border-2 border-amber-500/40 hover:border-amber-400 transition-all duration-300 flex flex-col items-center justify-center text-center space-y-3.5 cursor-pointer select-none" style="min-height: 200px;">
-                    <div class="relative">
-                        <span class="w-16 h-16 rounded-2xl bg-amber-500/20 border-2 border-amber-400/60 flex items-center justify-center text-3xl text-amber-300 shadow-xl group-hover:scale-110 transition-transform">
-                            <i class="fa-solid fa-tv"></i>
-                        </span>
-                        <span id="quick-ping-majd" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-red-500 animate-ping"></span>
-                    </div>
-                    
-                    <div class="space-y-1 text-center">
-                        <div class="text-xl sm:text-2xl font-black text-amber-300 group-hover:text-amber-100 transition-colors">تلفزيون المجد</div>
-                        <div class="text-xs font-bold text-amber-400/80">القرآن الكريم مباشر 24/7</div>
-                    </div>
-
-                    <!-- Active Audio Waves Visualizer -->
-                    <div id="quick-waves-majd" class="hidden flex items-center justify-center gap-1 h-5">
-                        <span class="w-1 bg-amber-400 rounded-full animate-bounce" style="height: 12px; animation-delay: 0.1s;"></span>
-                        <span class="w-1 bg-amber-300 rounded-full animate-bounce" style="height: 18px; animation-delay: 0.2s;"></span>
-                        <span class="w-1 bg-yellow-400 rounded-full animate-bounce" style="height: 10px; animation-delay: 0.3s;"></span>
-                        <span class="w-1 bg-amber-500 rounded-full animate-bounce" style="height: 16px; animation-delay: 0.4s;"></span>
-                        <span class="w-1 bg-amber-300 rounded-full animate-bounce" style="height: 14px; animation-delay: 0.5s;"></span>
-                    </div>
-
-                    <div id="quick-status-pill-majd" class="quick-status-pill text-xs font-bold px-3.5 py-1.5 rounded-xl bg-white/5 text-slate-300 border border-white/10 flex items-center justify-center gap-1.5 transition">
-                        <i class="fa-solid fa-play text-[10px]"></i>
-                        <span>تشغيل فوري بالخلفية</span>
-                    </div>
-                </div>
-
-                <!-- 4. القرآن الكريم إم بي 3 -->
-                <div id="quick-media-btn-quran_mp3" onclick="handleQuranCardClick(event)" class="quick-media-card group p-6 rounded-2xl bg-slate-900/95 hover:bg-cyan-950/40 border-2 border-cyan-500/40 hover:border-cyan-400 transition-all duration-300 flex flex-col items-center justify-center text-center space-y-3.5 cursor-pointer select-none" style="min-height: 200px;">
-                    <div class="relative">
-                        <span class="w-16 h-16 rounded-2xl bg-cyan-500/20 border-2 border-cyan-400/60 flex items-center justify-center text-3xl text-cyan-300 shadow-xl group-hover:scale-110 transition-transform">
-                            <i class="fa-solid fa-headphones"></i>
-                        </span>
-                        <span id="quick-ping-quran_mp3" class="hidden absolute -top-1 -right-1 w-3.5 h-3.5 rounded-full bg-cyan-400 animate-ping"></span>
-                    </div>
-                    
-                    <div class="space-y-1 text-center">
-                        <div class="text-xl sm:text-2xl font-black text-cyan-300 group-hover:text-cyan-100 transition-colors">القرآن الكريم إم بي 3</div>
-                        <div class="text-xs font-bold text-cyan-400/80">اختيار القارئ والسورة (114 سورة)</div>
-                    </div>
-
-                    <!-- Active Audio Waves Visualizer -->
-                    <div id="quick-waves-quran_mp3" class="hidden flex items-center justify-center gap-1 h-5">
-                        <span class="w-1 bg-cyan-400 rounded-full animate-bounce" style="height: 12px; animation-delay: 0.1s;"></span>
-                        <span class="w-1 bg-cyan-300 rounded-full animate-bounce" style="height: 18px; animation-delay: 0.2s;"></span>
-                        <span class="w-1 bg-sky-400 rounded-full animate-bounce" style="height: 10px; animation-delay: 0.3s;"></span>
-                        <span class="w-1 bg-cyan-500 rounded-full animate-bounce" style="height: 16px; animation-delay: 0.4s;"></span>
-                        <span class="w-1 bg-cyan-300 rounded-full animate-bounce" style="height: 14px; animation-delay: 0.5s;"></span>
-                    </div>
-
-                    <div id="quick-status-pill-quran_mp3" class="quick-status-pill text-xs font-black px-3.5 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-200 border border-cyan-400/50 flex items-center justify-center gap-1.5 transition">
-                        <i class="fa-solid fa-list-check text-[11px]"></i>
-                        <span>قائمة القراء والسور</span>
-                    </div>
-                </div>
-
+                <div id="sm-status-madinah" class="sm-status-dot"></div>
             </div>
+
+            <!-- 3. تلفزيون المجد -->
+            <div id="quick-media-btn-majd" onclick="toggleQuickChannel('majd')" class="sacred-media-pill group" style="--sm-color: #fbbf24; --sm-bg: rgba(251, 191, 36, 0.2); --sm-border: rgba(251, 191, 36, 0.5);">
+                <div class="sm-icon-box text-amber-400"><i class="fa-solid fa-tv"></i></div>
+                <div class="sm-text-box">
+                    <div class="sm-title text-amber-300">📺 تلفزيون المجد</div>
+                    <div id="sm-sub-majd" class="sm-sub text-amber-400/80">تشغيل فوري مباشر</div>
+                </div>
+                <div id="sm-status-majd" class="sm-status-dot"></div>
+            </div>
+
+            <!-- 4. القرآن الكريم إم بي 3 -->
+            <div id="quick-media-btn-quran_mp3" onclick="handleQuranCardClick(event)" class="sacred-media-pill group" style="--sm-color: #06b6d4; --sm-bg: rgba(6, 182, 212, 0.2); --sm-border: rgba(6, 182, 212, 0.5);">
+                <div class="sm-icon-box text-cyan-400"><i class="fa-solid fa-headphones"></i></div>
+                <div class="sm-text-box">
+                    <div class="sm-title text-cyan-300">🎧 القرآن الكريم إم بي 3</div>
+                    <div id="sm-sub-quran_mp3" class="sm-sub text-cyan-400/80">قائمة القراء والسور</div>
+                </div>
+                <div id="sm-status-quran_mp3" class="sm-status-dot"></div>
+            </div>
+
         </div>
 
 
@@ -1768,35 +1749,6 @@ $pdo = getDBConnection();
                 <div class="suite-pill-title">👥 نهاية الخدمة</div>
                 <div class="suite-pill-sub">قوانين العمل والرواتب</div>
             </div>
-
-            <!-- 11. تلفزيون مكة -->
-            <div id="suite-tab-btn-makkah" class="suite-pill-card" style="--p-color:#f59e0b; --p-border:rgba(245,158,11,0.5);" onclick="toggleQuickChannel('makkah')">
-                <div class="suite-pill-icon"><i class="fa-solid fa-kaaba text-yellow-400"></i></div>
-                <div class="suite-pill-title text-yellow-300">🕋 تلفزيون مكة</div>
-                <div class="suite-pill-sub text-yellow-400/80">تشغيل / إيقاف فوري</div>
-            </div>
-
-            <!-- 12. تلفزيون المدينة -->
-            <div id="suite-tab-btn-madinah" class="suite-pill-card" style="--p-color:#10b981; --p-border:rgba(16,185,129,0.5);" onclick="toggleQuickChannel('madinah')">
-                <div class="suite-pill-icon"><i class="fa-solid fa-mosque text-emerald-400"></i></div>
-                <div class="suite-pill-title text-emerald-300">🕌 تلفزيون المدينة</div>
-                <div class="suite-pill-sub text-emerald-400/80">تشغيل / إيقاف فوري</div>
-            </div>
-
-            <!-- 13. تلفزيون المجد -->
-            <div id="suite-tab-btn-majd" class="suite-pill-card" style="--p-color:#fbbf24; --p-border:rgba(251,191,36,0.5);" onclick="toggleQuickChannel('majd')">
-                <div class="suite-pill-icon"><i class="fa-solid fa-tv text-amber-400"></i></div>
-                <div class="suite-pill-title text-amber-300">📺 تلفزيون المجد</div>
-                <div class="suite-pill-sub text-amber-400/80">تشغيل / إيقاف فوري</div>
-            </div>
-
-            <!-- 14. القرآن الكريم إم بي 3 -->
-            <div id="suite-tab-btn-quran_mp3" class="suite-pill-card" style="--p-color:#06b6d4; --p-border:rgba(6,182,212,0.5);" onclick="openQuranMp3Studio()">
-                <div class="suite-pill-icon"><i class="fa-solid fa-headphones text-cyan-400"></i></div>
-                <div class="suite-pill-title text-cyan-300">🎧 القرآن الكريم إم بي 3</div>
-                <div class="suite-pill-sub text-cyan-400/80">قائمة القراء والسور</div>
-            </div>
-
         </div>
 
         <!-- ════════════════════════════════════════════════════════════════ -->
@@ -22735,8 +22687,6 @@ $pdo = getDBConnection();
     };
 
     let persistentMediaType = null;
-        activeQuickChannel = null;
-        if (typeof renderQuickChannelVisuals === 'function') renderQuickChannelVisuals(null);
     let isPersistentVideoExpanded = true;
 
     
@@ -22744,26 +22694,28 @@ $pdo = getDBConnection();
     // ════════════════════════════════════════════════════════════════════════════
     // 💡 ONE-CLICK TOGGLE & GLOWING MEDIA ENGINE (مكة، المدينة، المجد، القرآن الكريم إم بي 3)
     // ════════════════════════════════════════════════════════════════════════════
-    let activeQuickChannel = null;
+    var activeQuickChannel = null;
 
     function toggleQuickChannel(channelKey) {
         if (activeQuickChannel === channelKey) {
             // Currently playing this channel -> STOP IT!
-            stopPersistentMedia();
+            if (typeof window.stopPersistentMedia === 'function') {
+                window.stopPersistentMedia();
+            }
             activeQuickChannel = null;
             renderQuickChannelVisuals(null);
-            showFiqhToast('⏹️ تم إيقاف البث');
+            if (typeof showFiqhToast === 'function') showFiqhToast('⏹️ تم إيقاف البث');
         } else {
             // Start playing requested channel immediately!
             if (channelKey === 'makkah') {
                 playTvChannel('makkah');
-                showFiqhToast('▶️ تم تشغيل تلفزيون مكة المكرمة في الخلفية');
+                if (typeof showFiqhToast === 'function') showFiqhToast('▶️ تم تشغيل تلفزيون مكة المكرمة في الخلفية');
             } else if (channelKey === 'madinah') {
                 playTvChannel('madinah');
-                showFiqhToast('▶️ تم تشغيل تلفزيون المدينة المنورة في الخلفية');
+                if (typeof showFiqhToast === 'function') showFiqhToast('▶️ تم تشغيل تلفزيون المدينة المنورة في الخلفية');
             } else if (channelKey === 'majd') {
                 playTvChannel('majd');
-                showFiqhToast('▶️ تم تشغيل قناة المجد في الخلفية');
+                if (typeof showFiqhToast === 'function') showFiqhToast('▶️ تم تشغيل قناة المجد في الخلفية');
             } else if (channelKey === 'quran_mp3') {
                 openQuranMp3Studio();
                 return;
@@ -22776,72 +22728,61 @@ $pdo = getDBConnection();
     function handleQuranCardClick(event) {
         if (event && event.target && event.target.closest && event.target.closest('.stop-quran-pill-action')) {
             event.stopPropagation();
-            stopPersistentMedia();
+            if (typeof window.stopPersistentMedia === 'function') {
+                window.stopPersistentMedia();
+            }
             activeQuickChannel = null;
             renderQuickChannelVisuals(null);
-            showFiqhToast('⏹️ تم إيقاف تلاوة القرآن الكريم');
+            if (typeof showFiqhToast === 'function') showFiqhToast('⏹️ تم إيقاف تلاوة القرآن الكريم');
             return;
         }
         openQuranMp3Studio();
     }
 
     function openQuranMp3Studio() {
-        switchSuite('quran_mp3', document.getElementById('suite-tab-btn-quran_mp3'));
+        switchSuite('quran_mp3', null);
         const sec = document.getElementById('suite-sec-quran_mp3');
         if (sec) {
             sec.scrollIntoView({ behavior: 'smooth', block: 'start' });
         }
-        showFiqhToast('📖 اختر قارئك المفضل ثم اختر السورة لبدء الاستماع مباشرة في الخلفية');
+        if (typeof showFiqhToast === 'function') showFiqhToast('📖 اختر قارئك المفضل ثم اختر السورة لبدء الاستماع مباشرة في الخلفية');
     }
 
     function renderQuickChannelVisuals(activeKey) {
         const keys = ['makkah', 'madinah', 'majd', 'quran_mp3'];
         keys.forEach(k => {
             const btn = document.getElementById('quick-media-btn-' + k);
-            const pill = document.getElementById('quick-status-pill-' + k);
-            const waves = document.getElementById('quick-waves-' + k);
-            const ping = document.getElementById('quick-ping-' + k);
-            const suiteTab = document.getElementById('suite-tab-btn-' + k);
+            const sub = document.getElementById('sm-sub-' + k);
 
-            if (btn) btn.classList.remove('is-active-majd', 'is-active-madinah', 'is-active-makkah', 'is-active-quran_mp3');
-            if (suiteTab) suiteTab.classList.remove('is-active-majd', 'is-active-madinah', 'is-active-makkah', 'is-active-quran_mp3');
+            if (btn) btn.classList.remove('is-active');
 
             if (k === activeKey) {
-                if (btn) btn.classList.add('is-active-' + k);
-                if (suiteTab) suiteTab.classList.add('is-active-' + k);
-                if (pill) {
+                if (btn) btn.classList.add('is-active');
+                if (sub) {
                     if (k === 'quran_mp3') {
-                        pill.innerHTML = '🟢 <span class="animate-pulse">شغال الآن</span> <span class="stop-quran-pill-action underline font-black mr-1 text-red-300 hover:text-red-100 cursor-pointer" onclick="event.stopPropagation(); stopPersistentMedia();">(إيقاف ⏹️)</span>';
-                        pill.className = 'quick-status-pill text-xs font-black px-3 py-1 rounded-xl bg-cyan-500/20 text-cyan-300 border border-cyan-400/50 flex items-center justify-center gap-1';
+                        sub.innerHTML = '<span class="text-emerald-300 font-black animate-pulse">🟢 شغال الآن</span> <span class="stop-quran-pill-action underline text-red-300 mr-1 hover:text-red-100 cursor-pointer" onclick="event.stopPropagation(); window.stopPersistentMedia(); renderQuickChannelVisuals(null);">(إيقاف ⏹️)</span>';
                     } else {
-                        pill.innerHTML = '🟢 <span class="animate-pulse">شغال الآن (انقر للإيقاف)</span>';
-                        pill.className = 'quick-status-pill text-xs font-black px-3 py-1 rounded-xl bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 flex items-center justify-center gap-1';
+                        sub.innerHTML = '<span class="text-emerald-300 font-black animate-pulse">🟢 شغال الآن (انقر للإيقاف)</span>';
                     }
                 }
-                if (waves) waves.classList.remove('hidden');
-                if (ping) ping.classList.remove('hidden');
             } else {
-                if (pill) {
+                if (sub) {
                     if (k === 'quran_mp3') {
-                        pill.innerHTML = '<i class="fa-solid fa-list-check text-[11px]"></i> <span>قائمة القراء والسور</span>';
-                        pill.className = 'quick-status-pill text-xs font-black px-3 py-1 rounded-xl bg-cyan-500/20 text-cyan-200 border border-cyan-400/50 flex items-center justify-center gap-1.5 transition';
+                        sub.innerText = 'قائمة القراء والسور';
                     } else {
-                        pill.innerHTML = '<i class="fa-solid fa-play text-[10px]"></i> <span>تشغيل فوري بالخلفية</span>';
-                        pill.className = 'quick-status-pill text-xs font-bold px-3 py-1 rounded-xl bg-white/5 text-slate-300 border border-white/10 flex items-center justify-center gap-1.5 transition';
+                        sub.innerText = 'تشغيل فوري مباشر';
                     }
                 }
-                if (waves) waves.classList.add('hidden');
-                if (ping) ping.classList.add('hidden');
             }
         });
     }
 
-    // Sync on page load from global storage
+    // Sync from global storage on page load
     try {
         const savedState = localStorage.getItem('elsajana_global_media_state');
         if (savedState) {
             const parsed = JSON.parse(savedState);
-            if (parsed && parsed.isPlaying && parsed.extraMeta && parsed.extraMeta.channelKey) {
+            if (parsed && parsed.active && parsed.extraMeta && parsed.extraMeta.channelKey) {
                 activeQuickChannel = parsed.extraMeta.channelKey;
                 setTimeout(() => renderQuickChannelVisuals(activeQuickChannel), 300);
             }
@@ -22850,8 +22791,8 @@ $pdo = getDBConnection();
             const bcSync = new BroadcastChannel('elsajana_media_broadcast');
             bcSync.onmessage = function(ev) {
                 if (!ev.data) return;
-                if (ev.data.type === 'PLAY_MEDIA' && ev.data.extraMeta && ev.data.extraMeta.channelKey) {
-                    activeQuickChannel = ev.data.extraMeta.channelKey;
+                if (ev.data.type === 'STATE_CHANGED' && ev.data.state && ev.data.state.extraMeta && ev.data.state.extraMeta.channelKey) {
+                    activeQuickChannel = ev.data.state.extraMeta.channelKey;
                     renderQuickChannelVisuals(activeQuickChannel);
                 } else if (ev.data.type === 'STOP_ALL') {
                     activeQuickChannel = null;
@@ -22867,167 +22808,24 @@ $pdo = getDBConnection();
     window.renderQuickChannelVisuals = renderQuickChannelVisuals;
 
     function playTvChannel(channelKey) {
-        const ch = TV_CHANNELS_DATA[channelKey];
-        if (!ch) return;
-
-        playPersistentMedia('tv', ch.audioUrl, ch.title, ch);
-        showFiqhToast('✓ تم تشغيل ' + ch.title + ' في الخلفية - يمكنك الآن مواصلة العمل في البرنامج بحرية!');
+        if (typeof window.playTvChannel === 'function') {
+            window.playTvChannel(channelKey);
+        }
     }
 
     function playPersistentMedia(type, sourceUrl, title, extraMeta) {
-        const dock = document.getElementById('persistent-media-dock');
-        const titleEl = document.getElementById('persistent-media-title');
-        const videoBox = document.getElementById('persistent-video-box');
-        const audioBox = document.getElementById('persistent-audio-box');
-        const tvIcon = document.getElementById('persistent-tv-icon');
-        const tvSub = document.getElementById('persistent-tv-sub');
-        const audioPlayer = document.getElementById('persistent-audio-player');
-        const mainQuranPlayer = document.getElementById('main-quran-audio-player');
-        const activeQuranTitle = document.getElementById('active-quran-title');
-
-        if (!dock) return;
-        persistentMediaType = type;
-
-        if (titleEl) {
-            titleEl.innerText = title || 'بث حي متواصل في الخلفية';
+        if (typeof window.playPersistentMedia === 'function') {
+            window.playPersistentMedia(type, sourceUrl, title, extraMeta);
         }
-        if (activeQuranTitle && type === 'audio') {
-            activeQuranTitle.innerText = '🔊 جارِ الاستماع الآن: ' + (title || '');
-        }
-
-        if (type === 'tv') {
-            if (videoBox) videoBox.classList.remove('hidden');
-            if (extraMeta && tvIcon && extraMeta.icon) {
-                tvIcon.className = extraMeta.icon;
-            }
-            if (extraMeta && tvSub && extraMeta.sub) {
-                tvSub.innerText = extraMeta.sub;
-            }
-            if (audioPlayer) {
-                audioPlayer.src = sourceUrl;
-                audioPlayer.play().catch(e => console.log('Live stream play error:', e));
-            }
-            if (mainQuranPlayer) {
-                mainQuranPlayer.src = sourceUrl;
-            }
-        } else if (type === 'audio') {
-            if (videoBox) videoBox.classList.add('hidden');
-            if (audioPlayer) {
-                audioPlayer.src = sourceUrl;
-                audioPlayer.play().catch(e => console.log('Audio error:', e));
-            }
-            if (mainQuranPlayer) {
-                mainQuranPlayer.src = sourceUrl;
-            }
-        }
-
-        dock.classList.remove('hidden');
-        if (extraMeta && extraMeta.channelKey) { activeQuickChannel = extraMeta.channelKey; renderQuickChannelVisuals(activeQuickChannel); }
-
-        // 🌐 SAVE TO GLOBAL STATE FOR CROSS-SCREEN PERSISTENCE (Sales, Invoices, Accounting, etc.)
-        try {
-            localStorage.setItem('elsajana_global_media_state', JSON.stringify({
-                active: true,
-                type: type,
-                sourceUrl: sourceUrl,
-                title: title,
-                extraMeta: extraMeta || {},
-                startedAt: Date.now()
-            }));
-            if (typeof BroadcastChannel !== 'undefined') {
-                const bc = new BroadcastChannel('elsajana_media_broadcast');
-                bc.postMessage({ type: 'STATE_CHANGED', state: { active: true, sourceUrl, title, extraMeta } });
-            }
-        } catch(e) {}
     }
 
     function stopPersistentMedia() {
-        const dock = document.getElementById('persistent-media-dock');
-        const audioPlayer = document.getElementById('persistent-audio-player');
-        const mainQuranPlayer = document.getElementById('main-quran-audio-player');
-
-        if (audioPlayer) {
-            audioPlayer.pause();
-            audioPlayer.src = '';
+        if (typeof window.stopPersistentMedia === 'function') {
+            window.stopPersistentMedia();
         }
-        if (mainQuranPlayer) {
-            mainQuranPlayer.pause();
-            mainQuranPlayer.src = '';
-        }
-        if (dock) dock.classList.add('hidden');
-        persistentMediaType = null;
-
-        // 🌐 CLEAR GLOBAL STATE
-        try {
-            localStorage.removeItem('elsajana_global_media_state');
-            if (typeof BroadcastChannel !== 'undefined') {
-                const bc = new BroadcastChannel('elsajana_media_broadcast');
-                bc.postMessage({ type: 'STOP_ALL' });
-            }
-        } catch(e) {}
+        activeQuickChannel = null;
+        renderQuickChannelVisuals(null);
     }
-
-    function openBackgroundPopout(chKey) {
-        const key = chKey || (persistentMediaType === 'tv' ? 'majd' : 'majd');
-        const w = 420;
-        const h = 240;
-        const left = (screen.width - w) - 20;
-        const top = (screen.height - h) - 60;
-        const popoutUrl = 'background_player.php?ch=' + encodeURIComponent(key);
-
-        const pop = window.open(
-            popoutUrl,
-            'ElsajanaBackgroundMediaWindow',
-            `width=${w},height=${h},top=${top},left=${left},status=no,menubar=no,toolbar=no,location=no,resizable=yes`
-        );
-
-        if (pop) {
-            pop.focus();
-            stopPersistentMedia();
-        }
-    }
-    window.openBackgroundPopout = openBackgroundPopout;
-
-    function togglePersistentVideoSize() {
-        const videoBox = document.getElementById('persistent-video-box');
-        const btn = document.getElementById('persistent-toggle-btn');
-        if (!videoBox) return;
-
-        if (isPersistentVideoExpanded) {
-            videoBox.classList.add('hidden');
-            if (btn) btn.innerHTML = '<i class="fa-solid fa-tv text-xs"></i>';
-            isPersistentVideoExpanded = false;
-        } else {
-            videoBox.classList.remove('hidden');
-            if (btn) btn.innerHTML = '<i class="fa-solid fa-up-right-and-down-left-from-center text-xs"></i>';
-            isPersistentVideoExpanded = true;
-        }
-    }
-
-    function playQuranAudio(url, title) {
-        playPersistentMedia('audio', url, title);
-    }
-
-    function startBackgroundAudio(url, label) {
-        playPersistentMedia('audio', url, label);
-    }
-
-    function stopBackgroundAudio() {
-        stopPersistentMedia();
-    }
-
-    window.playTvChannel = playTvChannel;
-    window.playPersistentMedia = playPersistentMedia;
-    window.stopPersistentMedia = stopPersistentMedia;
-    window.togglePersistentVideoSize = togglePersistentVideoSize;
-    window.startBackgroundAudio = startBackgroundAudio;
-    window.stopBackgroundAudio = stopBackgroundAudio;
-    window.playQuranAudio = playQuranAudio;
-    window.selectQuranReciter = selectQuranReciter;
-    window.filterSurahsList = filterSurahsList;
-    window.quickPlaySurah = quickPlaySurah;
-    window.playSurahTrack = playSurahTrack;
-    window.initQuranStudio = initQuranStudio;
 
     function switchSuite(suiteId, el) {
         document.querySelectorAll('.suite-section').forEach(sec => sec.classList.add('hidden'));
@@ -24354,7 +24152,7 @@ $pdo = getDBConnection();
 
 </script>
     <!-- 🤖 SMART AI ASSISTANT FOR DATA, FIQH & ENGINEERING TOOLS 🤖 -->
-    <script src="js/inheritance_engine.js?v=2026_v8_evidence_1788629214503"></script>
+    
     <script src="js/chatbot.js?v=2026_fiqh" defer></script>
 
 <!-- ════════════════════════════════════════════════════════════════ -->
@@ -24365,55 +24163,6 @@ $pdo = getDBConnection();
 
 <!-- ════════════════════════════════════════════════════════════════ -->
 <!-- ════════════════════════════════════════════════════════════════ -->
-<!-- 📡 PERSISTENT GLOBAL FLOATING MEDIA DOCK (مشغل البث في الخلفية) -->
-<!-- ════════════════════════════════════════════════════════════════ -->
-<div id="persistent-media-dock" class="hidden fixed bottom-5 left-5 z-[9999999] max-w-sm sm:max-w-md w-full p-4 rounded-3xl bg-slate-900/98 border-2 border-amber-500/80 shadow-2xl backdrop-blur-2xl text-right animate-slideUp" dir="rtl" style="box-shadow: 0 15px 50px rgba(0,0,0,0.9), 0 0 35px rgba(245,158,11,0.35);">
-    
-    <!-- Dock Header -->
-    <div class="flex items-center justify-between pb-2.5 border-b border-white/10 mb-2.5">
-        <div class="flex items-center gap-2 text-xs sm:text-sm font-black text-amber-300">
-            <span class="w-3 h-3 rounded-full bg-red-500 animate-ping"></span>
-            <span id="persistent-media-title" class="truncate max-w-[220px]">بث مباشر شغال في الخلفية</span>
-        </div>
-        <div class="flex items-center gap-1.5">
-            <button type="button" onclick="openBackgroundPopout()" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 flex items-center justify-center text-xs transition cursor-pointer" title="فتح في نافذة خلفية مستقلة لعدم الانقطاع نهائياً أثناء التنقل">🗗</button>
-            <button type="button" id="persistent-toggle-btn" onclick="togglePersistentVideoSize()" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 flex items-center justify-center text-xs transition cursor-pointer" title="تصغير/تكبير شاشة الفيديو"><i class="fa-solid fa-tv text-xs"></i></button>
-            <button type="button" onclick="stopPersistentMedia()" class="w-7 h-7 rounded-lg bg-rose-950/80 hover:bg-rose-900 border border-rose-600/70 text-rose-200 flex items-center justify-center text-xs font-black transition cursor-pointer" title="إيقاف البث وإغلاق">✕</button>
-        </div>
-    </div>
 
-    <!-- Mini TV Screen / Visualizer Box (For TV Channels) -->
-    <div id="persistent-video-box" class="mb-3 relative w-full aspect-video rounded-2xl overflow-hidden border border-amber-500/40 bg-slate-950 shadow-inner flex flex-col items-center justify-center p-3 text-center">
-        <div id="persistent-tv-visualizer" class="w-full h-full flex flex-col items-center justify-center space-y-2">
-            <div class="w-12 h-12 rounded-2xl bg-amber-500/20 border border-amber-400/50 flex items-center justify-center text-amber-300 text-2xl shadow-inner">
-                <i id="persistent-tv-icon" class="fa-solid fa-tv"></i>
-            </div>
-            <div id="persistent-tv-sub" class="text-xs font-black text-amber-200">بث مباشر متواصل 24/7</div>
-            
-            <!-- Live Audio Visualizer Waves -->
-            <div class="flex items-center justify-center gap-1 h-5 pt-1">
-                <span class="w-1 bg-amber-400 rounded-full animate-bounce" style="height: 14px; animation-delay: 0.1s;"></span>
-                <span class="w-1 bg-amber-300 rounded-full animate-bounce" style="height: 20px; animation-delay: 0.2s;"></span>
-                <span class="w-1 bg-yellow-400 rounded-full animate-bounce" style="height: 12px; animation-delay: 0.3s;"></span>
-                <span class="w-1 bg-amber-500 rounded-full animate-bounce" style="height: 18px; animation-delay: 0.4s;"></span>
-                <span class="w-1 bg-yellow-300 rounded-full animate-bounce" style="height: 10px; animation-delay: 0.5s;"></span>
-            </div>
-        </div>
-
-        <iframe id="persistent-tv-iframe" class="hidden w-full h-full" src="" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen></iframe>
-    </div>
-
-    <!-- Audio Player (For Live Radio, TV Sound, and Quran MP3) -->
-    <div id="persistent-audio-box" class="w-full">
-        <audio id="persistent-audio-player" preload="none" controls class="w-full h-9 rounded-xl bg-slate-950" style="filter: drop-shadow(0 2px 6px rgba(0,0,0,0.5));"></audio>
-    </div>
-
-    <div class="mt-2 flex items-center justify-between text-[11px] font-bold text-slate-400">
-        <span class="flex items-center gap-1 text-emerald-400"><i class="fa-solid fa-check"></i><span>شغال في الخلفية أثناء العمل على الحسابات</span></span>
-        <span id="persistent-status-badge" class="text-amber-400/90 font-mono">LIVE 🔴</span>
-    </div>
-</div>
-
-<script src="js/global_background_media.js?v=<?php echo file_exists(__DIR__ . '/js/global_background_media.js') ? filemtime(__DIR__ . '/js/global_background_media.js') : time(); ?>"></script>
 </body>
 </html>
