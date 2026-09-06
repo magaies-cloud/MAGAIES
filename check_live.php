@@ -32,6 +32,10 @@ $files = [
     'js/chatbot.js' => getNormalizedHash(__DIR__ . '/js/chatbot.js'),
     'includes/header.php' => getNormalizedHash(__DIR__ . '/includes/header.php'),
     'js/magaiees_back.js' => getNormalizedHash(__DIR__ . '/js/magaiees_back.js'),
+    'js/global_background_media.js' => getNormalizedHash(__DIR__ . '/js/global_background_media.js'),
+    'background_player.php' => getNormalizedHash(__DIR__ . '/background_player.php'),
+    'direct-sales.php' => getNormalizedHash(__DIR__ . '/direct-sales.php'),
+    'inventory-report.php' => getNormalizedHash(__DIR__ . '/inventory-report.php'),
     'js/multi-cash-payment.js' => getNormalizedHash(__DIR__ . '/js/multi-cash-payment.js'),
     'multi-cash-payment.php' => getNormalizedHash(__DIR__ . '/multi-cash-payment.php'),
     'settings.php' => getNormalizedHash(__DIR__ . '/settings.php'),
@@ -64,6 +68,11 @@ $checks['chatbot_fiqh_integrated'] = strpos(file_get_contents(__DIR__ . '/js/cha
 $checks['tools_chatbot_bridge'] = strpos(file_get_contents(__DIR__ . '/engineering_tools.php'), 'window.openToolSuite') !== false;
 $checks['back_btn_in_header'] = strpos(file_get_contents(__DIR__ . '/includes/header.php'), 'magaiees-master-back-btn') !== false;
 $checks['magaiees_back_script_exists'] = file_exists(__DIR__ . '/js/magaiees_back.js');
+$checks['media_engine_mutex'] = strpos(file_get_contents(__DIR__ . '/js/global_background_media.js'), 'WINDOW_INSTANCE_ID') !== false;
+$checks['media_engine_v5'] = strpos(file_get_contents(__DIR__ . '/js/global_background_media.js'), 'v2026.5') !== false;
+$checks['popout_mutex_support'] = strpos(file_get_contents(__DIR__ . '/background_player.php'), 'POPOUT_PLAYER') !== false;
+$checks['direct_sales_header'] = strpos(file_get_contents(__DIR__ . '/direct-sales.php'), 'includes/header.php') !== false;
+$checks['inventory_report_header'] = strpos(file_get_contents(__DIR__ . '/inventory-report.php'), 'includes/header.php') !== false;
 
 echo json_encode([
     'server' => (php_sapi_name() === 'cli' || ($_SERVER['SERVER_NAME'] ?? '') === 'localhost' || ($_SERVER['SERVER_NAME'] ?? '') === '127.0.0.1') ? 'LOCAL' : 'LIVE_SERVER',
