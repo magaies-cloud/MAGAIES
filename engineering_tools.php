@@ -22468,23 +22468,29 @@ $pdo = getDBConnection();
                     <!-- Search and Reciter Filter Bar -->
                     <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
                         <div class="flex-1 relative">
-                            <input type="text" id="quran-reciter-search" oninput="filterRecitersList()" placeholder="🔍 ابحث بالاسم عن أي قارئ أو شيخ من بين (241 قارئ وشيخ)..." class="w-full px-5 py-3.5 rounded-2xl bg-slate-900 border-2 border-amber-500/50 text-amber-100 placeholder-slate-400 text-sm sm:text-base font-bold focus:border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition shadow-inner">
+                            <input type="text" id="quran-reciter-search" oninput="filterRecitersList()" placeholder="🔍 ابحث بالاسم أو الرواية (عبدالباسط مجود، مرتل، ورش، المنشاوي، الحصري، مصطفى إسماعيل)..." class="w-full px-5 py-3.5 rounded-2xl bg-slate-900 border-2 border-amber-500/50 text-amber-100 placeholder-slate-400 text-sm sm:text-base font-bold focus:border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition shadow-inner">
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
-                            <button type="button" onclick="setReciterFilterCategory('famous', this)" class="reciter-cat-btn px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 font-black text-xs border border-cyan-400 transition cursor-pointer shadow-md">
-                                ⭐ كبار القراء المشاهير (60 قارئاً)
+                            <button type="button" onclick="setReciterFilterCategory('famous', this)" class="reciter-cat-btn px-4 py-2 rounded-xl bg-amber-400 text-slate-950 font-black text-xs border-2 border-amber-300 shadow-md transition cursor-pointer">
+                                ⭐ كبار القراء الخالدين (عبدالباسط والعمالقة)
                             </button>
-                            <button type="button" onclick="setReciterFilterCategory('haram', this)" class="reciter-cat-btn px-4 py-2 rounded-xl bg-slate-900 hover:bg-cyan-950 text-cyan-300 font-bold text-xs border border-cyan-500/30 transition cursor-pointer">
+                            <button type="button" onclick="setReciterFilterCategory('mujawwad', this)" class="reciter-cat-btn px-4 py-2 rounded-xl bg-slate-900/90 hover:bg-amber-950 text-amber-200 font-bold text-xs border border-amber-500/30 transition cursor-pointer">
+                                🎙️ المصحف المجود
+                            </button>
+                            <button type="button" onclick="setReciterFilterCategory('murattal', this)" class="reciter-cat-btn px-4 py-2 rounded-xl bg-slate-900/90 hover:bg-amber-950 text-amber-200 font-bold text-xs border border-amber-500/30 transition cursor-pointer">
+                                📖 المصحف المرتل
+                            </button>
+                            <button type="button" onclick="setReciterFilterCategory('haram', this)" class="reciter-cat-btn px-4 py-2 rounded-xl bg-slate-900/90 hover:bg-amber-950 text-amber-200 font-bold text-xs border border-amber-500/30 transition cursor-pointer">
                                 🕋 أئمة الحرمين
                             </button>
-                            <button type="button" onclick="setReciterFilterCategory('moalim', this)" class="reciter-cat-btn px-4 py-2 rounded-xl bg-slate-900 hover:bg-cyan-950 text-cyan-300 font-bold text-xs border border-cyan-500/30 transition cursor-pointer">
-                                📖 المصحف المعلم
+                            <button type="button" onclick="setReciterFilterCategory('moalim', this)" class="reciter-cat-btn px-4 py-2 rounded-xl bg-slate-900/90 hover:bg-amber-950 text-amber-200 font-bold text-xs border border-amber-500/30 transition cursor-pointer">
+                                👨‍🏫 المصحف المعلم
                             </button>
-                            <button type="button" onclick="setReciterFilterCategory('warsh', this)" class="reciter-cat-btn px-4 py-2 rounded-xl bg-slate-900 hover:bg-cyan-950 text-cyan-300 font-bold text-xs border border-cyan-500/30 transition cursor-pointer">
-                                📜 رواية ورش
+                            <button type="button" onclick="setReciterFilterCategory('riwayat', this)" class="reciter-cat-btn px-4 py-2 rounded-xl bg-slate-900/90 hover:bg-amber-950 text-amber-200 font-bold text-xs border border-amber-500/30 transition cursor-pointer">
+                                📜 روايات وقراءات
                             </button>
-                            <button type="button" onclick="setReciterFilterCategory('all', this)" class="reciter-cat-btn px-4 py-2 rounded-xl bg-slate-900 hover:bg-cyan-950 text-cyan-300 font-bold text-xs border border-cyan-500/30 transition cursor-pointer">
-                                🌐 كل الـ 241 قارئاً
+                            <button type="button" onclick="setReciterFilterCategory('all', this)" class="reciter-cat-btn px-4 py-2 rounded-xl bg-slate-900/90 hover:bg-amber-950 text-amber-200 font-bold text-xs border border-amber-500/30 transition cursor-pointer">
+                                🌐 كافة المصاحف (287 مصحفاً)
                             </button>
                         </div>
                     </div>
@@ -22842,7 +22848,7 @@ $pdo = getDBConnection();
     ];
 
     // 📖 241 COMPLETE QURAN RECITERS CONTROLLER (MP3Quran Network)
-    let selectedReciterId = "51"; // Default: الشيخ عبدالباسط عبدالصمد
+    let selectedReciterId = "51_53"; // Default: الشيخ عبدالباسط عبدالصمد (المصحف المرتل) // Default: الشيخ عبدالباسط عبدالصمد
     let activeReciterCategory = 'famous';
     let isAllRecitersExpanded = false;
     let currentPlayingSurahNum = null;
@@ -22868,10 +22874,10 @@ $pdo = getDBConnection();
     function setReciterFilterCategory(cat, btn) {
         activeReciterCategory = cat;
         document.querySelectorAll('.reciter-cat-btn').forEach(b => {
-            b.className = 'reciter-cat-btn px-4 py-2 rounded-xl bg-slate-900 hover:bg-cyan-950 text-cyan-300 font-bold text-xs border border-cyan-500/30 transition cursor-pointer';
+            b.className = 'reciter-cat-btn px-4 py-2 rounded-xl bg-slate-900/90 hover:bg-amber-950 text-amber-200 font-bold text-xs border border-amber-500/30 transition cursor-pointer';
         });
         if (btn) {
-            btn.className = 'reciter-cat-btn px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 font-black text-xs border border-cyan-400 transition cursor-pointer shadow-md';
+            btn.className = 'reciter-cat-btn px-4 py-2 rounded-xl bg-amber-400 text-slate-950 font-black text-xs border-2 border-amber-300 shadow-md transition cursor-pointer';
         }
         const searchInput = document.getElementById('quran-reciter-search');
         if (searchInput) searchInput.value = '';
@@ -22879,10 +22885,14 @@ $pdo = getDBConnection();
     }
 
     function toggleAllRecitersExpand() {
-        isAllRecitersExpanded = !isAllRecitersExpanded;
+        if (activeReciterCategory === 'all') {
+            activeReciterCategory = 'famous';
+        } else {
+            activeReciterCategory = 'all';
+        }
         const btn = document.getElementById('btn-show-all-reciters');
         if (btn) {
-            btn.innerText = isAllRecitersExpanded ? 'عرض القراء المشاهير فقط ⬆' : 'عرض كافة القراء (241 قارئ) ⬇';
+            btn.innerText = (activeReciterCategory === 'all') ? 'عرض كبار القراء المشاهير فقط ⬆' : 'عرض كافة المصاحف والقراء (287 مصحف وقارئ) ⬇';
         }
         renderRecitersGrid();
     }
@@ -22908,36 +22918,38 @@ $pdo = getDBConnection();
             });
         } else {
             if (activeReciterCategory === 'famous') {
-                list = allReciters.slice(0, 65); // 65 Top Legendary & Beloved Reciters
+                list = allReciters.slice(0, 68); // Top legendary editions (Abdul Basit all moshafs, Minshawi all moshafs, Husary all moshafs, Mustafa Ismail, etc.)
+            } else if (activeReciterCategory === 'mujawwad') {
+                list = allReciters.filter(r => (r.name || '').includes('المجود') || (r.rewaya || '').includes('مجود') || r.isMujawwad);
+            } else if (activeReciterCategory === 'murattal') {
+                list = allReciters.filter(r => (r.name || '').includes('مرتل') || (r.rewaya || '').includes('مرتل') || (!r.isMujawwad && !r.isMoalim));
             } else if (activeReciterCategory === 'haram') {
                 list = allReciters.filter(r => {
                     const n = r.name || '';
                     return n.includes('المعيقلي') || n.includes('السديس') || n.includes('الشريم') || n.includes('الدوسري') || n.includes('الحذيفي') || n.includes('أيوب') || n.includes('الجهني') || n.includes('جابر') || n.includes('بليله') || n.includes('الغامدي');
                 });
             } else if (activeReciterCategory === 'moalim') {
-                list = allReciters.filter(r => (r.rewaya || '').includes('المعلم') || (r.name || '').includes('المعلم'));
-            } else if (activeReciterCategory === 'warsh') {
-                list = allReciters.filter(r => (r.rewaya || '').includes('ورش'));
+                list = allReciters.filter(r => (r.rewaya || '').includes('المعلم') || (r.name || '').includes('المعلم') || r.isMoalim);
+            } else if (activeReciterCategory === 'riwayat') {
+                list = allReciters.filter(r => (r.rewaya || '').includes('ورش') || (r.rewaya || '').includes('قالون') || (r.rewaya || '').includes('الدوري') || (r.rewaya || '').includes('شعبة') || (r.rewaya || '').includes('السوسي') || (r.rewaya || '').includes('خلف') || (r.name || '').includes('رواية'));
             } else {
-                if (!isAllRecitersExpanded) {
-                    list = allReciters.slice(0, 75);
-                }
+                list = allReciters; // all 287 editions
             }
         }
 
         const countBadge = document.getElementById('reciter-showing-count');
         if (countBadge) {
-            countBadge.innerText = 'يتم عرض ' + list.length + ' من إجمالي ' + allReciters.length + ' قارئ وشيخ (4 في كل سطر)';
+            countBadge.innerText = 'يتم عرض ' + list.length + ' من إجمالي ' + allReciters.length + ' مصحف وقارئ كامل (4 في كل سطر)';
         }
 
         if (!list.length) {
-            container.innerHTML = '<div class="col-span-full py-10 text-center text-base font-bold text-amber-300">لا يوجد قارئ مطابق للبحث... يمكنك كتابة جزء من اسم الشيخ</div>';
+            container.innerHTML = '<div class="col-span-full py-10 text-center text-base font-bold text-amber-300">لا يوجد مصحف أو قارئ مطابق للبحث... يمكنك كتابة اسم الشيخ أو الرواية</div>';
             return;
         }
 
         let html = '';
-        list.forEach(r => {
-            const isSelected = String(r.id) === String(selectedReciterId);
+        list.forEach((r, idx) => {
+            const isSelected = String(r.id) === String(selectedReciterId) || (selectedReciterId === "51" && String(r.id) === "51_53") || (!selectedReciterId && idx === 0);
             const selectClass = isSelected ? 'is-selected' : '';
 
             html += `
@@ -22964,7 +22976,7 @@ $pdo = getDBConnection();
                             ${r.surahsCount || 114} سورة
                         </span>
                         <span style="${isSelected ? 'background: #ffffff !important; color: #78350f !important;' : 'background: #fbbf24 !important; color: #1e1005 !important;'}" class="text-xs px-3.5 py-1.5 rounded-lg font-black transition shadow-md">
-                            ${isSelected ? '✓ محدد الآن' : 'اختيار القارئ ◀'}
+                            ${isSelected ? '✓ محدد الآن' : 'اختيار المصحف ◀'}
                         </span>
                     </div>
                 </div>
@@ -23141,7 +23153,7 @@ $pdo = getDBConnection();
 
     function playSurahTrack(surahNum) {
         const allReciters = getRecitersDataSource();
-        const reciter = allReciters.find(r => String(r.id) === String(selectedReciterId)) || allReciters[0];
+        const reciter = allReciters.find(r => String(r.id) === String(selectedReciterId) || (selectedReciterId === "51" && String(r.id) === "51_53")) || allReciters[0];
         const surah = QURAN_SURAHS.find(s => s.num === surahNum);
         if (!surah) return;
 
