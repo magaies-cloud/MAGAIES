@@ -263,11 +263,26 @@
     box-shadow: 0 6px 18px rgba(245, 158, 11, 0.3);
     color: #fef08a;
 }
+@keyframes header-tv-pulse-glow {
+    0%, 100% {
+        box-shadow: 0 0 18px #f59e0b, 0 0 35px rgba(245, 158, 11, 0.8), inset 0 0 12px rgba(245, 158, 11, 0.5) !important;
+        border-color: #f59e0b !important;
+    }
+    50% {
+        box-shadow: 0 0 28px #fbbf24, 0 0 55px rgba(251, 191, 36, 0.95), 0 0 70px #ffffff, inset 0 0 18px rgba(251, 191, 36, 0.7) !important;
+        border-color: #ffffff !important;
+    }
+}
 .header-tv-mini-btn.is-playing {
-    border-color: #10b981 !important;
-    background: linear-gradient(135deg, rgba(6, 78, 59, 0.7), rgba(15, 23, 42, 0.95)) !important;
-    box-shadow: 0 0 15px rgba(16, 185, 129, 0.5), inset 0 0 10px rgba(16, 185, 129, 0.2) !important;
-    color: #a7f3d0 !important;
+    border-color: #f59e0b !important;
+    background: linear-gradient(135deg, rgba(180, 83, 9, 0.85), rgba(15, 23, 42, 0.98)) !important;
+    animation: header-tv-pulse-glow 1.8s infinite ease-in-out !important;
+    color: #ffffff !important;
+    font-weight: 900 !important;
+}
+.header-tv-mini-btn.is-playing .header-tv-icon {
+    animation: bounce 1.5s infinite;
+    filter: drop-shadow(0 0 8px #fbbf24);
 }
 .header-tv-status-dot {
     width: 8px;
@@ -498,6 +513,6 @@
     </div>
 </header>
 <script src="js/auto-charts.js?v=<?php echo time(); ?>"></script>
+<script src="js/quran_reciters_data.js?v=<?php echo file_exists(__DIR__ . '/../js/quran_reciters_data.js') ? filemtime(__DIR__ . '/../js/quran_reciters_data.js') : time(); ?>"></script>
 <script src="js/global_background_media.js?v=<?php echo file_exists(__DIR__ . '/../js/global_background_media.js') ? filemtime(__DIR__ . '/../js/global_background_media.js') : time(); ?>" defer></script>
 <script src="js/magaiees_back.js?v=<?php echo file_exists(__DIR__ . '/../js/magaiees_back.js') ? filemtime(__DIR__ . '/../js/magaiees_back.js') : time(); ?>" defer></script>
-

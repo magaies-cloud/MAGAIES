@@ -113,57 +113,102 @@ $pdo = getDBConnection();
             gap: 20px;
         }
 
-        /* ── أزرار القنوات المقدسة المدمجة في سطر واحد ── */
+        /* ── إضاءة نيون فائقة ومشعّة لأزرار وقنوات التلفاز والقرآن الكريم ── */
+        @keyframes tv-neon-pulse-glow {
+            0%, 100% {
+                box-shadow: 0 0 25px var(--sm-color), 0 0 55px var(--sm-color), 0 0 85px var(--sm-bg), inset 0 0 20px var(--sm-bg) !important;
+                border-color: var(--sm-color) !important;
+            }
+            50% {
+                box-shadow: 0 0 45px #ffffff, 0 0 85px var(--sm-color), 0 0 120px var(--sm-color), inset 0 0 32px var(--sm-bg) !important;
+                border-color: #ffffff !important;
+            }
+        }
+        @keyframes tv-icon-radiance {
+            0%, 100% {
+                filter: drop-shadow(0 0 12px #ffffff) drop-shadow(0 0 24px var(--sm-color));
+                transform: scale(1.1);
+            }
+            50% {
+                filter: drop-shadow(0 0 20px #ffffff) drop-shadow(0 0 38px var(--sm-color));
+                transform: scale(1.22);
+            }
+        }
+        @keyframes surah-card-glow-pulse {
+            0%, 100% {
+                box-shadow: 0 0 25px var(--sc-glow), 0 0 55px var(--sc-glow), inset 0 0 20px var(--sc-glow);
+                border-color: var(--sc-border);
+            }
+            50% {
+                box-shadow: 0 0 45px #ffffff, 0 0 85px var(--sc-glow), inset 0 0 35px var(--sc-glow);
+                border-color: #ffffff;
+            }
+        }
+
+        /* ── أزرار القنوات المقدسة المدمجة في سطر واحد (عالية الإضاءة) ── */
         .sacred-media-pill {
-            padding: 12px 14px;
-            border-radius: 20px;
-            min-height: 72px;
+            padding: 12px 16px;
+            border-radius: 22px;
+            min-height: 74px;
             cursor: pointer;
             transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 12px;
+            gap: 14px;
             text-align: center;
             border: 2px solid var(--sm-border);
             background: linear-gradient(145deg, rgba(20, 27, 45, 0.95), rgba(10, 15, 28, 0.98));
             color: #ffffff;
-            box-shadow: 0 6px 16px rgba(0, 0, 0, 0.45), inset 0 1px 2px rgba(255, 255, 255, 0.15);
+            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.18), 0 0 15px var(--sm-bg);
             position: relative;
             overflow: hidden;
         }
         .sacred-media-pill:hover {
-            transform: translateY(-2px);
+            transform: translateY(-3px) scale(1.02);
             border-color: var(--sm-color);
-            box-shadow: 0 10px 24px rgba(0, 0, 0, 0.5), 0 0 20px var(--sm-bg);
+            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6), 0 0 30px var(--sm-color);
         }
         .sacred-media-pill.is-active {
             border-color: var(--sm-color) !important;
-            background: linear-gradient(135deg, var(--sm-bg), rgba(15, 23, 42, 0.98)) !important;
-            box-shadow: 0 0 25px var(--sm-color), inset 0 0 15px var(--sm-bg), 0 8px 20px rgba(0,0,0,0.7) !important;
-            transform: translateY(-2px) !important;
+            background: linear-gradient(135deg, var(--sm-bg), rgba(10, 15, 30, 0.99)) !important;
+            animation: tv-neon-pulse-glow 1.8s infinite ease-in-out !important;
+            transform: translateY(-3px) scale(1.02) !important;
+            z-index: 10;
         }
         .sm-icon-box {
-            width: 44px;
-            height: 44px;
-            border-radius: 14px;
-            background: rgba(255, 255, 255, 0.06);
-            border: 1.5px solid var(--sm-border);
+            width: 48px;
+            height: 48px;
+            border-radius: 16px;
+            background: rgba(255, 255, 255, 0.08);
+            border: 2px solid var(--sm-border);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 20px;
+            font-size: 22px;
             flex-shrink: 0;
-            transition: transform 0.3s;
+            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            filter: drop-shadow(0 0 8px var(--sm-color));
+            box-shadow: inset 0 0 10px var(--sm-bg);
         }
         .sacred-media-pill:hover .sm-icon-box {
-            transform: scale(1.1);
+            transform: scale(1.12);
+            filter: drop-shadow(0 0 14px var(--sm-color));
         }
         .sacred-media-pill.is-active .sm-icon-box {
-            background: var(--sm-bg);
-            border-color: var(--sm-color);
-            box-shadow: 0 0 15px var(--sm-color);
-            animation: pulse 2s infinite;
+            background: var(--sm-color) !important;
+            color: #020617 !important;
+            border-color: #ffffff !important;
+            box-shadow: 0 0 22px #ffffff, 0 0 45px var(--sm-color) !important;
+            animation: tv-icon-radiance 1.8s infinite ease-in-out !important;
+        }
+        .sacred-media-pill.is-active .sm-icon-box i {
+            color: #020617 !important;
+            filter: drop-shadow(0 0 4px rgba(0,0,0,0.8));
+        }
+        .sacred-media-pill.is-active .sm-title {
+            text-shadow: 0 0 15px var(--sm-color), 0 0 25px rgba(255,255,255,0.8);
+            letter-spacing: 0.5px;
         }
         .sm-text-box {
             display: flex;
@@ -173,21 +218,22 @@ $pdo = getDBConnection();
             text-align: center;
         }
         .sm-title {
-            font-size: 14px;
+            font-size: 15px;
             font-weight: 900;
-            line-height: 1.2;
+            line-height: 1.25;
+            letter-spacing: 0.3px;
         }
         .sm-sub {
             font-size: 11px;
-            font-weight: 700;
-            margin-top: 2px;
+            font-weight: 800;
+            margin-top: 3px;
         }
         .sm-status-dot {
-            width: 10px;
-            height: 10px;
+            width: 12px;
+            height: 12px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.2);
-            border: 1px solid rgba(255, 255, 255, 0.3);
+            background: rgba(255, 255, 255, 0.25);
+            border: 1.5px solid rgba(255, 255, 255, 0.4);
             position: absolute;
             top: 10px;
             left: 10px;
@@ -195,10 +241,67 @@ $pdo = getDBConnection();
         }
         .sacred-media-pill.is-active .sm-status-dot {
             background: #ef4444;
-            border-color: #f87171;
-            box-shadow: 0 0 10px #ef4444;
-            animation: ping 1.5s infinite;
+            border-color: #ffffff;
+            box-shadow: 0 0 15px #ef4444, 0 0 25px #ef4444;
+            animation: ping 1.4s infinite;
         }
+
+        /* ── استوديو القرآن الكريم الملكي المضيء ── */
+        .quran-surah-card {
+            border-radius: 22px;
+            cursor: pointer;
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 115px;
+            padding: 12px 14px;
+            user-select: none;
+            backdrop-filter: blur(12px);
+        }
+        .quran-surah-card:hover {
+            transform: translateY(-4px) scale(1.025);
+            z-index: 5;
+        }
+        .quran-surah-title-center {
+            font-size: 1.35rem;
+            line-height: 1.25;
+            font-weight: 900;
+            text-align: center;
+            letter-spacing: 0.5px;
+            margin: auto 0;
+            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
+        }
+        @media (min-width: 640px) {
+            .quran-surah-title-center {
+                font-size: 1.5rem;
+            }
+        }
+        .quran-surah-card.is-playing-surah {
+            border-color: #ffffff !important;
+            animation: surah-card-glow-pulse 1.8s infinite ease-in-out !important;
+            transform: translateY(-4px) scale(1.03) !important;
+            z-index: 10;
+        }
+        .quran-reciter-card {
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            user-select: none;
+        }
+        .quran-reciter-card:hover {
+            transform: translateY(-3px) scale(1.015);
+        }
+        .quran-reciter-card.is-selected {
+            border-color: #22d3ee !important;
+            background: linear-gradient(145deg, rgba(8, 47, 73, 0.92), rgba(15, 23, 42, 0.98)) !important;
+            box-shadow: 0 0 30px rgba(6, 182, 212, 0.5), inset 0 0 18px rgba(6, 182, 212, 0.25) !important;
+            transform: translateY(-2px);
+        }
+        
 
         /* ── أزرار التبويبات العشرة البارزة ثلاثية الأبعاد ── */
         .suite-pill-card {
@@ -22145,20 +22248,20 @@ $pdo = getDBConnection();
         <!-- 14. SUITE: QURAN MP3 NETWORK (موقع واستوديو القرآن الكريم MP3)   -->
         <!-- ════════════════════════════════════════════════════════════════ -->
         <div id="suite-sec-quran_mp3" class="suite-section anim-suite hidden space-y-8">
-            <div class="glass-panel-v3 p-6 sm:p-8" style="--border-color: rgba(6, 182, 212, 0.55); border-radius: 32px;">
+            <div class="glass-panel-v3 p-6 sm:p-8" style="--border-color: rgba(6, 182, 212, 0.65); border-radius: 32px; background: linear-gradient(160deg, rgba(8, 14, 30, 0.96), rgba(4, 7, 18, 0.99)); box-shadow: 0 20px 60px rgba(0,0,0,0.8), 0 0 35px rgba(6, 182, 212, 0.2);">
                 
                 <!-- Suite Header -->
                 <div class="flex flex-wrap items-center justify-between gap-6 pb-6 mb-8 border-b border-cyan-500/30">
                     <div class="flex items-center gap-4">
-                        <span class="w-16 h-16 rounded-2xl bg-cyan-500/20 border-2 border-cyan-400/60 flex items-center justify-center text-cyan-300 text-3xl shadow-xl">
+                        <span class="w-16 h-16 rounded-2xl bg-cyan-500/20 border-2 border-cyan-400/60 flex items-center justify-center text-cyan-300 text-3xl shadow-xl shadow-cyan-500/20">
                             <i class="fa-solid fa-headphones"></i>
                         </span>
                         <div>
                             <h2 class="text-3xl sm:text-4xl font-black text-transparent bg-clip-text bg-gradient-to-r from-cyan-300 via-sky-200 to-cyan-500">
-                                استوديو ومكتبة القرآن الكريم MP3 الشاملة
+                                استوديو القرآن الكريم MP3 الشامل (241 قارئ وشيخ)
                             </h2>
                             <p class="text-base text-slate-200 font-bold mt-1">
-                                اختر قارئك المفضل ثم اختر السورة واضغط للاستماع مباشرة ويستمر التشغيل في الخلفية وأنت تعمل على البرنامج
+                                جميع قراء العالم الإسلامي مع تلاوات خاشعة تعمل في الخلفية بكافة شاشات البرنامج
                             </p>
                         </div>
                     </div>
@@ -22170,68 +22273,105 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- STEP 1: SELECT RECITER -->
+                <!-- STEP 1: SELECT RECITER (241 ALL RECITERS) -->
                 <div class="p-6 sm:p-8 rounded-3xl bg-slate-950/90 border-2 border-cyan-500/40 shadow-2xl space-y-6">
-                    <div class="flex flex-wrap items-center justify-between gap-4 border-b border-white/10 pb-4">
+                    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/10 pb-4">
                         <div class="text-xl font-black text-cyan-300 flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-sm font-black">1</span>
-                            <span>الخطوة الأولى: اختر القارئ المفضل من القائمة:</span>
+                            <span class="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-base font-black">1</span>
+                            <div>
+                                <span class="text-lg sm:text-xl font-black text-cyan-200">الخطوة الأولى: اختر القارئ أو الشيخ المفضل:</span>
+                                <div id="reciters-count-badge" class="text-xs text-cyan-400/90 font-bold mt-0.5">متوفر جميع شيوخ وقراء القرآن الكريم (241 قارئ وشيخ)</div>
+                            </div>
                         </div>
-                        <span id="active-reciter-badge" class="text-xs px-4 py-1.5 rounded-xl bg-cyan-500/20 text-cyan-200 font-black border border-cyan-400/50">
-                            القارئ الحالي: الشيخ عبد الباسط عبد الصمد
-                        </span>
+                        <div id="active-reciter-badge" class="text-sm px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-950 to-slate-900 text-cyan-200 font-black border-2 border-cyan-400/60 shadow-lg flex items-center gap-2">
+                            <i class="fa-solid fa-check-circle text-cyan-400"></i>
+                            <span id="active-reciter-name-display">القارئ المحدد: الشيخ عبدالباسط عبدالصمد</span>
+                        </div>
                     </div>
 
-                    <!-- Reciters Grid -->
-                    <div id="quran-reciters-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-5 gap-3.5">
+                    <!-- Search and Reciter Filter Bar -->
+                    <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
+                        <div class="flex-1 relative">
+                            <input type="text" id="quran-reciter-search" oninput="filterRecitersList()" placeholder="🔍 ابحث بالاسم عن أي قارئ أو شيخ من بين (241 قارئ وشيخ)..." class="w-full px-5 py-3.5 rounded-2xl bg-slate-900 border-2 border-cyan-500/50 text-cyan-100 placeholder-slate-400 text-sm sm:text-base font-bold focus:border-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 transition shadow-inner">
+                        </div>
+                        <div class="flex flex-wrap items-center gap-2">
+                            <button type="button" onclick="setReciterFilterCategory('famous', this)" class="reciter-cat-btn px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 font-black text-xs border border-cyan-400 transition cursor-pointer shadow-md">
+                                ⭐ كبار القراء (40)
+                            </button>
+                            <button type="button" onclick="setReciterFilterCategory('haram', this)" class="reciter-cat-btn px-4 py-2 rounded-xl bg-slate-900 hover:bg-cyan-950 text-cyan-300 font-bold text-xs border border-cyan-500/30 transition cursor-pointer">
+                                🕋 أئمة الحرمين
+                            </button>
+                            <button type="button" onclick="setReciterFilterCategory('moalim', this)" class="reciter-cat-btn px-4 py-2 rounded-xl bg-slate-900 hover:bg-cyan-950 text-cyan-300 font-bold text-xs border border-cyan-500/30 transition cursor-pointer">
+                                📖 المصحف المعلم
+                            </button>
+                            <button type="button" onclick="setReciterFilterCategory('warsh', this)" class="reciter-cat-btn px-4 py-2 rounded-xl bg-slate-900 hover:bg-cyan-950 text-cyan-300 font-bold text-xs border border-cyan-500/30 transition cursor-pointer">
+                                📜 رواية ورش
+                            </button>
+                            <button type="button" onclick="setReciterFilterCategory('all', this)" class="reciter-cat-btn px-4 py-2 rounded-xl bg-slate-900 hover:bg-cyan-950 text-cyan-300 font-bold text-xs border border-cyan-500/30 transition cursor-pointer">
+                                🌐 كل الـ 241 قارئاً
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Reciters Grid (241 Reciters, Scrollable & Highly Aesthetic) -->
+                    <div id="quran-reciters-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-3.5 max-h-[380px] overflow-y-auto p-2 rounded-2xl bg-slate-900/70 border border-white/10 custom-scrollbar">
                         <!-- Rendered dynamically by JS -->
+                    </div>
+
+                    <div class="flex items-center justify-between text-xs text-slate-400 pt-1">
+                        <span id="reciter-showing-count">جاري تحميل القراء...</span>
+                        <button type="button" id="btn-show-all-reciters" onclick="toggleAllRecitersExpand()" class="text-cyan-400 hover:text-cyan-200 font-black underline cursor-pointer">
+                            عرض كافة القراء (241 قارئ) ⬇
+                        </button>
                     </div>
                 </div>
 
-                <!-- STEP 2: SELECT SURAH -->
+                <!-- STEP 2: SELECT SURAH (LARGE CENTERED SURAH TITLES & VIBRANT JEWEL ILLUMINATION) -->
                 <div id="quran-surahs-section" class="p-6 sm:p-8 rounded-3xl bg-slate-950/90 border-2 border-cyan-500/40 shadow-2xl space-y-6">
                     <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/10 pb-4">
                         <div class="text-xl font-black text-cyan-300 flex items-center gap-3">
-                            <span class="w-8 h-8 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-sm font-black">2</span>
+                            <span class="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-base font-black">2</span>
                             <div>
-                                <span id="surahs-heading-title">الخطوة الثانية: اختر السورة للتشغيل الفوري (114 سورة):</span>
-                                <p class="text-xs text-slate-400 font-medium mt-0.5">انقر على أي سورة لبدء الاستماع مباشرة واستمرارها في الخلفية</p>
+                                <span id="surahs-heading-title" class="text-lg sm:text-xl font-black text-cyan-200">الخطوة الثانية: اختر السورة للتشغيل الفوري (114 سورة):</span>
+                                <p class="text-xs sm:text-sm text-amber-300/90 font-bold mt-0.5">انقر على أي سورة للاستماع مباشرة ويستمر التشغيل في الخلفية عبر كافة شاشات البرنامج</p>
                             </div>
                         </div>
 
                         <!-- Search Surah Input -->
-                        <div class="w-full md:w-72 relative">
-                            <input type="text" id="quran-surah-search" oninput="filterSurahsList()" placeholder="🔍 ابحث عن اسم السورة أو رقمها..." class="w-full px-4 py-2.5 rounded-xl bg-slate-900 border-2 border-cyan-500/40 text-cyan-200 placeholder-slate-500 text-sm font-bold focus:border-cyan-400 focus:outline-none transition shadow-inner">
+                        <div class="w-full md:w-80 relative">
+                            <input type="text" id="quran-surah-search" oninput="filterSurahsList()" placeholder="🔍 ابحث عن اسم السورة أو رقمها..." class="w-full px-5 py-3 rounded-xl bg-slate-900 border-2 border-cyan-500/40 text-cyan-200 placeholder-slate-400 text-sm font-bold focus:border-cyan-300 focus:outline-none transition shadow-inner">
                         </div>
                     </div>
 
-                    <!-- Quick Chips Filter -->
-                    <div class="flex flex-wrap items-center gap-2 pt-1 pb-2">
-                        <span class="text-xs font-bold text-slate-400 ml-1">سور شهيرة سريعة:</span>
-                        <button type="button" onclick="quickPlaySurah(1)" class="px-3 py-1 rounded-lg bg-cyan-950/60 hover:bg-cyan-500 hover:text-slate-950 text-cyan-200 border border-cyan-500/40 text-xs font-black transition cursor-pointer">1. الفاتحة</button>
-                        <button type="button" onclick="quickPlaySurah(2)" class="px-3 py-1 rounded-lg bg-cyan-950/60 hover:bg-cyan-500 hover:text-slate-950 text-cyan-200 border border-cyan-500/40 text-xs font-black transition cursor-pointer">2. البقرة</button>
-                        <button type="button" onclick="quickPlaySurah(18)" class="px-3 py-1 rounded-lg bg-cyan-950/60 hover:bg-cyan-500 hover:text-slate-950 text-cyan-200 border border-cyan-500/40 text-xs font-black transition cursor-pointer">18. الكهف</button>
-                        <button type="button" onclick="quickPlaySurah(36)" class="px-3 py-1 rounded-lg bg-cyan-950/60 hover:bg-cyan-500 hover:text-slate-950 text-cyan-200 border border-cyan-500/40 text-xs font-black transition cursor-pointer">36. يس</button>
-                        <button type="button" onclick="quickPlaySurah(55)" class="px-3 py-1 rounded-lg bg-cyan-950/60 hover:bg-cyan-500 hover:text-slate-950 text-cyan-200 border border-cyan-500/40 text-xs font-black transition cursor-pointer">55. الرحمن</button>
-                        <button type="button" onclick="quickPlaySurah(56)" class="px-3 py-1 rounded-lg bg-cyan-950/60 hover:bg-cyan-500 hover:text-slate-950 text-cyan-200 border border-cyan-500/40 text-xs font-black transition cursor-pointer">56. الواقعة</button>
-                        <button type="button" onclick="quickPlaySurah(67)" class="px-3 py-1 rounded-lg bg-cyan-950/60 hover:bg-cyan-500 hover:text-slate-950 text-cyan-200 border border-cyan-500/40 text-xs font-black transition cursor-pointer">67. الملك</button>
-                        <button type="button" onclick="quickPlaySurah(112)" class="px-3 py-1 rounded-lg bg-cyan-950/60 hover:bg-cyan-500 hover:text-slate-950 text-cyan-200 border border-cyan-500/40 text-xs font-black transition cursor-pointer">112. الإخلاص</button>
+                    <!-- Quick Chips Filter for Famous Surahs -->
+                    <div class="flex flex-wrap items-center gap-2 pt-1 pb-1">
+                        <span class="text-xs font-black text-slate-300 ml-1">سور كريمة سريعة:</span>
+                        <button type="button" onclick="quickPlaySurah(1)" class="px-3.5 py-1.5 rounded-xl bg-cyan-950/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-200 border border-cyan-500/50 text-xs font-black transition cursor-pointer shadow">1. الفاتحة</button>
+                        <button type="button" onclick="quickPlaySurah(2)" class="px-3.5 py-1.5 rounded-xl bg-emerald-950/80 hover:bg-emerald-500 hover:text-slate-950 text-emerald-200 border border-emerald-500/50 text-xs font-black transition cursor-pointer shadow">2. البقرة</button>
+                        <button type="button" onclick="quickPlaySurah(18)" class="px-3.5 py-1.5 rounded-xl bg-amber-950/80 hover:bg-amber-500 hover:text-slate-950 text-amber-200 border border-amber-500/50 text-xs font-black transition cursor-pointer shadow">18. الكهف</button>
+                        <button type="button" onclick="quickPlaySurah(36)" class="px-3.5 py-1.5 rounded-xl bg-purple-950/80 hover:bg-purple-500 hover:text-slate-950 text-purple-200 border border-purple-500/50 text-xs font-black transition cursor-pointer shadow">36. يس</button>
+                        <button type="button" onclick="quickPlaySurah(55)" class="px-3.5 py-1.5 rounded-xl bg-rose-950/80 hover:bg-rose-500 hover:text-slate-950 text-rose-200 border border-rose-500/50 text-xs font-black transition cursor-pointer shadow">55. الرحمن</button>
+                        <button type="button" onclick="quickPlaySurah(56)" class="px-3.5 py-1.5 rounded-xl bg-sky-950/80 hover:bg-sky-500 hover:text-slate-950 text-sky-200 border border-sky-500/50 text-xs font-black transition cursor-pointer shadow">56. الواقعة</button>
+                        <button type="button" onclick="quickPlaySurah(67)" class="px-3.5 py-1.5 rounded-xl bg-yellow-950/80 hover:bg-yellow-500 hover:text-slate-950 text-yellow-200 border border-yellow-500/50 text-xs font-black transition cursor-pointer shadow">67. الملك</button>
+                        <button type="button" onclick="quickPlaySurah(112)" class="px-3.5 py-1.5 rounded-xl bg-emerald-950/80 hover:bg-emerald-500 hover:text-slate-950 text-emerald-200 border border-emerald-500/50 text-xs font-black transition cursor-pointer shadow">112. الإخلاص</button>
+                        <button type="button" onclick="quickPlaySurah(113)" class="px-3.5 py-1.5 rounded-xl bg-cyan-950/80 hover:bg-cyan-500 hover:text-slate-950 text-cyan-200 border border-cyan-500/50 text-xs font-black transition cursor-pointer shadow">113. الفلق</button>
+                        <button type="button" onclick="quickPlaySurah(114)" class="px-3.5 py-1.5 rounded-xl bg-purple-950/80 hover:bg-purple-500 hover:text-slate-950 text-purple-200 border border-purple-500/50 text-xs font-black transition cursor-pointer shadow">114. الناس</button>
                     </div>
 
-                    <!-- Surahs Grid (114 Surahs) -->
-                    <div id="quran-surahs-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3 max-h-[460px] overflow-y-auto p-2 rounded-2xl bg-slate-900/60 border border-white/10 custom-scrollbar">
+                    <!-- Surahs Grid (114 Surahs with LARGE Centered Titles & Radiant Jewel Glow) -->
+                    <div id="quran-surahs-grid" class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-3.5 max-h-[580px] overflow-y-auto p-3 rounded-2xl bg-slate-900/70 border border-white/10 custom-scrollbar">
                         <!-- Populated dynamically with all 114 Surahs -->
                     </div>
 
                     <!-- Active Playback Control Bar -->
-                    <div class="p-5 rounded-2xl bg-slate-900 border-2 border-cyan-500/50 shadow-2xl space-y-3">
-                        <div class="flex flex-wrap items-center justify-between gap-3">
-                            <div class="text-sm sm:text-base font-black text-cyan-300 flex items-center gap-2">
-                                <span class="w-3 h-3 rounded-full bg-cyan-400 animate-pulse"></span>
+                    <div class="p-6 rounded-2xl bg-slate-900 border-2 border-cyan-500/50 shadow-2xl space-y-4">
+                        <div class="flex flex-wrap items-center justify-between gap-4">
+                            <div class="text-base sm:text-lg font-black text-cyan-200 flex items-center gap-3">
+                                <span class="w-3.5 h-3.5 rounded-full bg-cyan-400 animate-ping"></span>
                                 <span id="active-quran-title">اختر سورة من القائمة أعلاه لبدء الاستماع مباشرة...</span>
                             </div>
                             <div class="flex items-center gap-2">
-                                <button type="button" onclick="stopPersistentMedia()" class="px-4 py-1.5 rounded-xl bg-slate-800 hover:bg-rose-950 text-slate-300 hover:text-rose-200 text-xs font-black border border-slate-700 transition cursor-pointer">
+                                <button type="button" onclick="stopPersistentMedia()" class="px-5 py-2 rounded-xl bg-rose-950/80 hover:bg-rose-900 text-rose-200 hover:text-white text-xs font-black border border-rose-500/50 transition cursor-pointer shadow">
                                     ✕ إيقاف الاستماع
                                 </button>
                             </div>
@@ -22250,6 +22390,8 @@ $pdo = getDBConnection();
         </div>
 
     <!-- Master Fiqh 4,500 Fatwas Data Library (Synchronous Instant Memory Preload) -->
+    <!-- Master All 241 Quran Reciters Data Library -->
+    <script src="js/quran_reciters_data.js?v=<?php echo time(); ?>"></script>
     <script src="js/fiqh_20000_data.js?v=4500_v2"></script>
 
 
@@ -22258,7 +22400,6 @@ $pdo = getDBConnection();
     let activeScholarFilter = 'all';
     let activeTopicFilter = 'all';
 
-    
     // 🚀 AUTO-ACTIVATE TAB FROM URL HASH OR PARAMETER 🚀
     document.addEventListener('DOMContentLoaded', function() {
         const urlParams = new URLSearchParams(window.location.search);
@@ -22268,9 +22409,7 @@ $pdo = getDBConnection();
         
         if (tabParam) {
             const targetPill = document.querySelector('[onclick*="switchSuite(\'' + tabParam + '\'"]');
-            if (targetPill) {
-                switchSuite(tabParam, targetPill);
-            }
+            switchSuite(tabParam, targetPill || null);
         }
         if (tabParam === 'fiqh' && subParam) {
             switchFiqhSubTab(subParam);
@@ -22284,7 +22423,13 @@ $pdo = getDBConnection();
                 }, 300);
             }
         }
+        setTimeout(() => {
+            if (typeof initQuranStudio === 'function') {
+                initQuranStudio();
+            }
+        }, 150);
     });
+
 
     // ════════════════════════════════════════════════════════════════════════════
     // 🏦 REAL-TIME AUTOMATED SUDANESE BBAN & IBAN GENERATOR 🏦
@@ -22520,53 +22665,130 @@ $pdo = getDBConnection();
         { num: 114, name: "الناس", verses: 6, type: "مكية" }
     ];
 
-    const QURAN_RECITERS = [
-        { id: 'basit', name: 'الشيخ عبد الباسط عبد الصمد', sub: 'المصحف المرتل (حفص)', server: 'https://server7.mp3quran.net/basit/' },
-        { id: 'maher', name: 'الشيخ ماهر المعيقلي', sub: 'إمام المسجد الحرام', server: 'https://server12.mp3quran.net/maher/' },
-        { id: 'afs', name: 'الشيخ مشاري راشد العفاسي', sub: 'تلاوات خاشعة ومتميزة', server: 'https://server8.mp3quran.net/afs/' },
-        { id: 'sds', name: 'الشيخ عبد الرحمن السديس', sub: 'إمام وخطيب المسجد الحرام', server: 'https://server11.mp3quran.net/sds/' },
-        { id: 's_gmd', name: 'الشيخ سعد الغامدي', sub: 'المصحف المرتل برواية حفص', server: 'https://server7.mp3quran.net/s_gmd/' },
-        { id: 'minsh', name: 'الشيخ محمد صديق المنشاوي', sub: 'الصوت الباكي الخاشع', server: 'https://server10.mp3quran.net/minsh/' },
-        { id: 'husr', name: 'الشيخ محمود خليل الحصري', sub: 'شيخ المقارئ المصرية', server: 'https://server13.mp3quran.net/husr/' },
-        { id: 'yasser', name: 'الشيخ ياسر الدوسري', sub: 'إمام المسجد الحرام', server: 'https://server11.mp3quran.net/yasser/' },
-        { id: 'hthfi', name: 'الشيخ علي بن عبد الرحمن الحذيفي', sub: 'إمام المسجد النبوي الشريف', server: 'https://server9.mp3quran.net/hthfi/' },
-        { id: 'shur', name: 'الشيخ سعود الشريم', sub: 'إمام المسجد الحرام السابق', server: 'https://server7.mp3quran.net/shur/' },
-        { id: 'ajm', name: 'الشيخ أحمد بن علي العجمي', sub: 'المصحف المرتل برواية حفص', server: 'https://server10.mp3quran.net/ajm/' },
-        { id: 'qtm', name: 'الشيخ ناصر القطامي', sub: 'تلاوات نجدية خاشعة', server: 'https://server6.mp3quran.net/qtm/' },
-        { id: 'abkr', name: 'الشيخ إدريس أبكر', sub: 'تلاوة ندية خاشعة ومؤثرة', server: 'https://server6.mp3quran.net/abkr/' },
-        { id: 'mhsny', name: 'الشيخ محمد المحيسني', sub: 'إمام جامع القطري بمكة', server: 'https://server11.mp3quran.net/mhsny/' },
-        { id: 'frs_a', name: 'الشيخ فارس عباد', sub: 'تلاوة يمنية شجية ومرتلة', server: 'https://server8.mp3quran.net/frs_a/' }
-    ];
+    // 📖 241 COMPLETE QURAN RECITERS CONTROLLER (MP3Quran Network)
+    let selectedReciterId = "51"; // Default: الشيخ عبدالباسط عبدالصمد
+    let activeReciterCategory = 'famous';
+    let isAllRecitersExpanded = false;
+    let currentPlayingSurahNum = null;
 
-    let selectedReciterId = 'basit';
+    function getRecitersDataSource() {
+        if (typeof window !== 'undefined' && Array.isArray(window.QURAN_ALL_RECITERS) && window.QURAN_ALL_RECITERS.length > 0) {
+            return window.QURAN_ALL_RECITERS;
+        }
+        return [
+            { id: "51", name: "الشيخ عبدالباسط عبدالصمد", rewaya: "حفص عن عاصم - مرتل", server: "https://server7.mp3quran.net/basit/", surahsCount: 114 },
+            { id: "112", name: "الشيخ محمد صديق المنشاوي", rewaya: "المصحف المعلم", server: "https://server10.mp3quran.net/minsh/Almusshaf-Al-Mo-lim/", surahsCount: 114 },
+            { id: "118", name: "الشيخ محمود خليل الحصري", rewaya: "قالون عن نافع - مرتل", server: "https://server13.mp3quran.net/husr/Rewayat-Qalon-A-n-Nafi/", surahsCount: 114 },
+            { id: "123", name: "الشيخ مشاري العفاسي", rewaya: "حفص عن عاصم - مرتل", server: "https://server8.mp3quran.net/afs/", surahsCount: 114 },
+            { id: "102", name: "الشيخ ماهر المعيقلي", rewaya: "حفص عن عاصم - مرتل", server: "https://server12.mp3quran.net/maher/", surahsCount: 114 }
+        ];
+    }
 
     function initQuranStudio() {
         renderRecitersGrid();
         renderSurahsGrid(QURAN_SURAHS);
     }
 
-    function renderRecitersGrid() {
+    function setReciterFilterCategory(cat, btn) {
+        activeReciterCategory = cat;
+        document.querySelectorAll('.reciter-cat-btn').forEach(b => {
+            b.className = 'reciter-cat-btn px-4 py-2 rounded-xl bg-slate-900 hover:bg-cyan-950 text-cyan-300 font-bold text-xs border border-cyan-500/30 transition cursor-pointer';
+        });
+        if (btn) {
+            btn.className = 'reciter-cat-btn px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 font-black text-xs border border-cyan-400 transition cursor-pointer shadow-md';
+        }
+        const searchInput = document.getElementById('quran-reciter-search');
+        if (searchInput) searchInput.value = '';
+        renderRecitersGrid();
+    }
+
+    function toggleAllRecitersExpand() {
+        isAllRecitersExpanded = !isAllRecitersExpanded;
+        const btn = document.getElementById('btn-show-all-reciters');
+        if (btn) {
+            btn.innerText = isAllRecitersExpanded ? 'عرض القراء المشاهير فقط ⬆' : 'عرض كافة القراء (241 قارئ) ⬇';
+        }
+        renderRecitersGrid();
+    }
+
+    function filterRecitersList() {
+        const input = document.getElementById('quran-reciter-search');
+        const q = (input ? input.value : '').trim().toLowerCase();
+        renderRecitersGrid(q);
+    }
+
+    function renderRecitersGrid(searchQuery = '') {
         const container = document.getElementById('quran-reciters-container');
         if (!container) return;
 
+        const allReciters = getRecitersDataSource();
+        let list = allReciters;
+
+        if (searchQuery) {
+            list = allReciters.filter(r => {
+                const name = (r.name || '').toLowerCase();
+                const rewaya = (r.rewaya || '').toLowerCase();
+                return name.includes(searchQuery) || rewaya.includes(searchQuery);
+            });
+        } else {
+            if (activeReciterCategory === 'famous') {
+                list = allReciters.slice(0, 40);
+            } else if (activeReciterCategory === 'haram') {
+                list = allReciters.filter(r => {
+                    const n = r.name || '';
+                    return n.includes('المعيقلي') || n.includes('السديس') || n.includes('الشريم') || n.includes('الدوسري') || n.includes('الحذيفي') || n.includes('أيوب') || n.includes('الجهني') || n.includes('الغامدي');
+                });
+            } else if (activeReciterCategory === 'moalim') {
+                list = allReciters.filter(r => (r.rewaya || '').includes('المعلم') || (r.name || '').includes('المعلم'));
+            } else if (activeReciterCategory === 'warsh') {
+                list = allReciters.filter(r => (r.rewaya || '').includes('ورش'));
+            } else {
+                if (!isAllRecitersExpanded) {
+                    list = allReciters.slice(0, 50);
+                }
+            }
+        }
+
+        const countBadge = document.getElementById('reciter-showing-count');
+        if (countBadge) {
+            countBadge.innerText = 'يتم عرض ' + list.length + ' من إجمالي ' + allReciters.length + ' قارئ وشيخ';
+        }
+
+        if (!list.length) {
+            container.innerHTML = '<div class="col-span-full py-8 text-center text-sm font-bold text-slate-400">لا يوجد قارئ مطابق للبحث... يمكنك كتابة جزء من اسم الشيخ</div>';
+            return;
+        }
+
         let html = '';
-        QURAN_RECITERS.forEach(r => {
-            const isSelected = r.id === selectedReciterId;
-            const borderClass = isSelected ? 'border-cyan-400 bg-cyan-950/60 shadow-lg shadow-cyan-500/20 ring-2 ring-cyan-400/50' : 'border-cyan-500/30 bg-slate-900/80 hover:bg-cyan-950/40 hover:border-cyan-400';
-            
+        list.forEach(r => {
+            const isSelected = String(r.id) === String(selectedReciterId);
+            const cardBg = isSelected 
+                ? 'border-cyan-400 bg-gradient-to-br from-cyan-950/90 via-slate-900 to-cyan-900/60 shadow-lg shadow-cyan-500/25 ring-2 ring-cyan-400/60 is-selected' 
+                : 'border-cyan-500/30 bg-slate-900/80 hover:bg-cyan-950/40 hover:border-cyan-400';
+
             html += `
-                <div onclick="selectQuranReciter('${r.id}')" class="p-3.5 rounded-2xl border-2 ${borderClass} text-right space-y-2 transition cursor-pointer group hover:scale-[1.02]">
-                    <div class="flex items-center justify-between">
-                        <div class="w-10 h-10 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-lg text-cyan-300 shadow-inner group-hover:scale-110 transition-transform">
-                            <i class="fa-solid fa-user-tie"></i>
+                <div onclick="selectQuranReciter('${r.id}')" class="quran-reciter-card p-3.5 rounded-2xl border-2 ${cardBg} text-right space-y-2.5 transition cursor-pointer group hover:scale-[1.02]">
+                    <div class="flex items-center justify-between gap-2">
+                        <div class="w-11 h-11 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-xl text-cyan-300 shadow-inner group-hover:scale-110 transition-transform flex-shrink-0">
+                            <i class="fa-solid fa-microphone-lines"></i>
                         </div>
-                        <span class="text-xs px-2 py-0.5 rounded-md ${isSelected ? 'bg-cyan-500 text-slate-950 font-black' : 'bg-slate-800 text-slate-400 font-bold'}">
-                            ${isSelected ? '✓ محدد' : 'اختيار'}
-                        </span>
+                        <div class="flex items-center gap-1.5">
+                            <span class="text-[10px] px-2 py-0.5 rounded-md bg-slate-800 text-cyan-300 font-bold border border-cyan-500/20">
+                                ${r.surahsCount || 114} سورة
+                            </span>
+                            <span class="text-xs px-2.5 py-1 rounded-lg ${isSelected ? 'bg-cyan-400 text-slate-950 font-black shadow-md' : 'bg-slate-800/80 text-slate-400 font-bold'}">
+                                ${isSelected ? '✓ محدد' : 'اختيار'}
+                            </span>
+                        </div>
                     </div>
                     <div>
-                        <div class="text-sm font-black text-cyan-200 group-hover:text-cyan-100 truncate">${r.name}</div>
-                        <div class="text-[11px] text-slate-400 truncate mt-0.5">${r.sub}</div>
+                        <div class="text-base sm:text-lg font-black text-white group-hover:text-cyan-200 transition-colors line-clamp-1">
+                            ${r.name}
+                        </div>
+                        <div class="text-xs text-cyan-400/80 font-bold truncate mt-1 flex items-center gap-1">
+                            <span>📜</span>
+                            <span>${r.rewaya || 'حفص عن عاصم - مرتل'}</span>
+                        </div>
                     </div>
                 </div>
             `;
@@ -22575,15 +22797,17 @@ $pdo = getDBConnection();
     }
 
     function selectQuranReciter(reciterId) {
-        selectedReciterId = reciterId;
+        selectedReciterId = String(reciterId);
         renderRecitersGrid();
 
-        const reciter = QURAN_RECITERS.find(r => r.id === reciterId);
+        const allReciters = getRecitersDataSource();
+        const reciter = allReciters.find(r => String(r.id) === String(reciterId));
         if (reciter) {
-            const badge = document.getElementById('active-reciter-badge');
+            const display = document.getElementById('active-reciter-name-display');
             const heading = document.getElementById('surahs-heading-title');
-            if (badge) badge.innerText = 'القارئ الحالي: ' + reciter.name;
+            if (display) display.innerText = 'القارئ المحدد: ' + reciter.name;
             if (heading) heading.innerText = 'الخطوة الثانية: اختر السورة للتشغيل بصوت (' + reciter.name + '):';
+            if (typeof showFiqhToast === 'function') showFiqhToast('🎙️ تم اختيار ' + reciter.name);
         }
 
         const surahSec = document.getElementById('quran-surahs-section');
@@ -22592,34 +22816,126 @@ $pdo = getDBConnection();
         }
     }
 
+    // 🎨 6 ROTATING RADIANT JEWEL PALETTES FOR 114 SURAH BUTTONS
+    const SURAH_PALETTES = [
+        {
+            // 0: Cyan Emerald Glow
+            border: 'border-cyan-500/40 hover:border-cyan-300',
+            bg: 'bg-gradient-to-b from-cyan-950/70 via-slate-950/90 to-cyan-950/80',
+            numBg: 'bg-cyan-500/20 text-cyan-300 border-cyan-400/50',
+            titleColor: 'text-cyan-100 group-hover:text-cyan-300',
+            btnBg: 'bg-cyan-500/20 hover:bg-cyan-500 text-cyan-300 hover:text-slate-950',
+            glowCss: '--sc-glow: rgba(6, 182, 212, 0.6); --sc-border: #22d3ee;'
+        },
+        {
+            // 1: Royal Emerald Green
+            border: 'border-emerald-500/40 hover:border-emerald-300',
+            bg: 'bg-gradient-to-b from-emerald-950/70 via-slate-950/90 to-emerald-950/80',
+            numBg: 'bg-emerald-500/20 text-emerald-300 border-emerald-400/50',
+            titleColor: 'text-emerald-100 group-hover:text-emerald-300',
+            btnBg: 'bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950',
+            glowCss: '--sc-glow: rgba(16, 185, 129, 0.6); --sc-border: #34d399;'
+        },
+        {
+            // 2: Imperial Gold / Amber
+            border: 'border-amber-500/40 hover:border-amber-300',
+            bg: 'bg-gradient-to-b from-amber-950/70 via-slate-950/90 to-amber-950/80',
+            numBg: 'bg-amber-500/20 text-amber-300 border-amber-400/50',
+            titleColor: 'text-amber-100 group-hover:text-amber-300',
+            btnBg: 'bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950',
+            glowCss: '--sc-glow: rgba(245, 158, 11, 0.6); --sc-border: #fbbf24;'
+        },
+        {
+            // 3: Royal Amethyst Purple
+            border: 'border-purple-500/40 hover:border-purple-300',
+            bg: 'bg-gradient-to-b from-purple-950/70 via-slate-950/90 to-purple-950/80',
+            numBg: 'bg-purple-500/20 text-purple-300 border-purple-400/50',
+            titleColor: 'text-purple-100 group-hover:text-purple-300',
+            btnBg: 'bg-purple-500/20 hover:bg-purple-500 text-purple-300 hover:text-slate-950',
+            glowCss: '--sc-glow: rgba(168, 85, 247, 0.6); --sc-border: #c084fc;'
+        },
+        {
+            // 4: Radiant Ruby Rose
+            border: 'border-rose-500/40 hover:border-rose-300',
+            bg: 'bg-gradient-to-b from-rose-950/70 via-slate-950/90 to-rose-950/80',
+            numBg: 'bg-rose-500/20 text-rose-300 border-rose-400/50',
+            titleColor: 'text-rose-100 group-hover:text-rose-300',
+            btnBg: 'bg-rose-500/20 hover:bg-rose-500 text-rose-300 hover:text-slate-950',
+            glowCss: '--sc-glow: rgba(244, 63, 94, 0.6); --sc-border: #fb7185;'
+        },
+        {
+            // 5: Sapphire Sky Blue
+            border: 'border-sky-500/40 hover:border-sky-300',
+            bg: 'bg-gradient-to-b from-sky-950/70 via-slate-950/90 to-sky-950/80',
+            numBg: 'bg-sky-500/20 text-sky-300 border-sky-400/50',
+            titleColor: 'text-sky-100 group-hover:text-sky-300',
+            btnBg: 'bg-sky-500/20 hover:bg-sky-500 text-sky-300 hover:text-slate-950',
+            glowCss: '--sc-glow: rgba(14, 165, 233, 0.6); --sc-border: #38bdf8;'
+        }
+    ];
+
     function renderSurahsGrid(surahsList) {
         const container = document.getElementById('quran-surahs-grid');
         if (!container) return;
 
         if (!surahsList || surahsList.length === 0) {
-            container.innerHTML = '<div class="col-span-full py-8 text-center text-sm font-bold text-slate-400">لا توجد سور مطابقة لبحثك</div>';
+            container.innerHTML = '<div class="col-span-full py-12 text-center text-base font-bold text-slate-400">لا توجد سور مطابقة لبحثك... جرب كتابة رقم السورة أو اسمها</div>';
             return;
         }
 
         let html = '';
-        surahsList.forEach(s => {
+        surahsList.forEach((s, idx) => {
             const padNum = String(s.num).padStart(3, '0');
+            const pal = SURAH_PALETTES[s.num % 6];
+            const isPlaying = (currentPlayingSurahNum === s.num);
+            const activeClass = isPlaying ? 'is-playing-surah' : '';
+
+            const typeIcon = (s.type === 'مكية') ? '🕋' : '🕌';
+
             html += `
-                <div onclick="playSurahTrack(${s.num})" class="p-3 rounded-xl bg-slate-950/80 hover:bg-cyan-950/50 border border-cyan-500/30 hover:border-cyan-400 transition cursor-pointer group shadow-sm flex flex-col justify-between hover:scale-[1.02]">
+                <div onclick="playSurahTrack(${s.num})" class="quran-surah-card ${pal.border} ${pal.bg} ${activeClass} group shadow-lg" style="${pal.glowCss}">
+                    <!-- Top Bar: Surah Number & Makki/Madani -->
                     <div class="flex items-center justify-between gap-1">
-                        <span class="w-7 h-7 rounded-lg bg-cyan-500/20 text-cyan-300 font-mono font-black text-xs flex items-center justify-center border border-cyan-400/40">${padNum}</span>
-                        <span class="text-[10px] text-slate-400 font-bold">${s.type}</span>
+                        <span class="w-8 h-8 rounded-xl ${pal.numBg} font-mono font-black text-xs flex items-center justify-center border shadow-sm">
+                            ${padNum}
+                        </span>
+                        <span class="text-[11px] text-slate-300 font-bold flex items-center gap-1 bg-slate-900/60 px-2 py-0.5 rounded-lg border border-white/10">
+                            <span>${typeIcon}</span>
+                            <span>${s.type}</span>
+                        </span>
                     </div>
-                    <div class="my-2">
-                        <div class="text-sm font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
-                            <span>سورة ${s.name}</span>
-                            <i class="fa-solid fa-circle-play text-cyan-400 text-sm group-hover:scale-125 transition-transform"></i>
+
+                    <!-- Center Area: LARGE PROMINENT CENTERED SURAH NAME -->
+                    <div class="my-auto py-2.5 text-center">
+                        <div class="quran-surah-title-center ${pal.titleColor}">
+                            سورة ${s.name}
                         </div>
-                        <div class="text-[11px] text-slate-400 font-medium">${s.verses} آية</div>
+                        ${isPlaying ? `
+                            <div class="flex items-center justify-center gap-1 mt-1">
+                                <span class="w-1.5 h-3 bg-amber-400 animate-bounce rounded-full"></span>
+                                <span class="w-1.5 h-4 bg-amber-300 animate-bounce rounded-full" style="animation-delay: 0.15s"></span>
+                                <span class="w-1.5 h-2.5 bg-amber-200 animate-bounce rounded-full" style="animation-delay: 0.3s"></span>
+                                <span class="text-xs font-black text-amber-300 mr-1.5">شغال الآن</span>
+                            </div>
+                        ` : ''}
                     </div>
-                    <button type="button" class="w-full py-1 rounded-lg bg-cyan-500/15 hover:bg-cyan-500 text-cyan-300 hover:text-slate-950 font-black text-[11px] transition">
-                        ▶️ استماع
-                    </button>
+
+                    <!-- Bottom Bar: Verses Count & Listen Button -->
+                    <div class="flex items-center justify-between gap-2 pt-1 border-t border-white/10">
+                        <span class="text-[11px] font-bold text-slate-300">
+                            ${s.verses} آية
+                        </span>
+                        ${isPlaying ? `
+                            <span class="px-3 py-1 rounded-lg bg-emerald-500 text-slate-950 font-black text-xs flex items-center gap-1 shadow">
+                                🟢 تشغيل
+                            </span>
+                        ` : `
+                            <button type="button" class="px-3 py-1 rounded-lg ${pal.btnBg} font-black text-xs transition flex items-center gap-1">
+                                <i class="fa-solid fa-circle-play text-xs"></i>
+                                <span>استماع</span>
+                            </button>
+                        `}
+                    </div>
                 </div>
             `;
         });
@@ -22648,7 +22964,8 @@ $pdo = getDBConnection();
     }
 
     function playSurahTrack(surahNum) {
-        const reciter = QURAN_RECITERS.find(r => r.id === selectedReciterId) || QURAN_RECITERS[0];
+        const allReciters = getRecitersDataSource();
+        const reciter = allReciters.find(r => String(r.id) === String(selectedReciterId)) || allReciters[0];
         const surah = QURAN_SURAHS.find(s => s.num === surahNum);
         if (!surah) return;
 
@@ -22656,12 +22973,29 @@ $pdo = getDBConnection();
         const audioUrl = reciter.server + padNum + '.mp3';
         const title = 'سورة ' + surah.name + ' - ' + reciter.name;
 
+        currentPlayingSurahNum = surahNum;
+        activeQuickChannel = 'quran_mp3';
+        renderQuickChannelVisuals('quran_mp3');
+
+        // Update active title badge in studio
+        const titleBadge = document.getElementById('active-quran-title');
+        if (titleBadge) {
+            titleBadge.innerHTML = '▶️ جاري الاستماع الآن: <strong class="text-cyan-300">سورة ' + surah.name + '</strong> بصوت <strong class="text-amber-300">' + reciter.name + '</strong> (' + (reciter.rewaya || 'مرتل') + ')';
+        }
+
+        // Re-render surahs to reflect active playing state
+        const searchInput = document.getElementById('quran-surah-search');
+        const q = (searchInput ? searchInput.value : '').trim().toLowerCase();
+        if (q) {
+            filterSurahsList();
+        } else {
+            renderSurahsGrid(QURAN_SURAHS);
+        }
+
         playPersistentMedia('audio', audioUrl, title, { channelKey: 'quran_mp3', surahNum: surahNum, reciterId: reciter.id });
+        if (typeof showFiqhToast === 'function') showFiqhToast('▶️ جاري تشغيل سورة ' + surah.name + ' بصوت ' + reciter.name + ' في الخلفية');
     }
 
-    // ════════════════════════════════════════════════════════════════════════════
-    // 📡 GLOBAL PERSISTENT BACKGROUND MEDIA & TV CHANNELS ENGINE 📡
-    // ════════════════════════════════════════════════════════════════════════════
     const TV_CHANNELS_DATA = {
         majd: {
             title: "تلفزيون المجد للقرآن الكريم (بث مباشر)",
