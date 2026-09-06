@@ -21849,6 +21849,9 @@ $pdo = getDBConnection();
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-3">
+                        <button type="button" onclick="openBackgroundPopout('majd')" class="px-5 py-3.5 rounded-2xl bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 border-2 border-amber-500/40 font-black text-sm flex items-center gap-2 transition shadow-lg hover:scale-105 cursor-pointer" title="نافذة مستقلة تعمل بدون أي انقطاع أثناء التنقل بين كل شاشات البرنامج">
+                            <span>🗗 نافذة خلفية مستقلة</span>
+                        </button>
                         <button type="button" onclick="playTvChannel('majd')" class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-amber-500 to-yellow-600 hover:from-amber-400 hover:to-yellow-500 text-slate-950 font-black text-sm flex items-center gap-2.5 transition shadow-xl hover:scale-105 cursor-pointer">
                             <i class="fa-solid fa-play text-base"></i>
                             <span>▶️ تشغيل تلفزيون المجد في الخلفية الآن</span>
@@ -21943,6 +21946,9 @@ $pdo = getDBConnection();
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-3">
+                        <button type="button" onclick="openBackgroundPopout('makkah')" class="px-5 py-3.5 rounded-2xl bg-yellow-500/20 hover:bg-yellow-500 text-yellow-300 hover:text-slate-950 border-2 border-yellow-500/40 font-black text-sm flex items-center gap-2 transition shadow-lg hover:scale-105 cursor-pointer" title="نافذة مستقلة تعمل بدون أي انقطاع أثناء التنقل بين كل شاشات البرنامج">
+                            <span>🗗 نافذة خلفية مستقلة</span>
+                        </button>
                         <button type="button" onclick="playTvChannel('makkah')" class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-yellow-500 to-amber-600 hover:from-yellow-400 hover:to-amber-500 text-slate-950 font-black text-sm flex items-center gap-2.5 transition shadow-xl hover:scale-105 cursor-pointer">
                             <i class="fa-solid fa-play text-base"></i>
                             <span>▶️ تشغيل تلفزيون مكة في الخلفية الآن</span>
@@ -22034,6 +22040,9 @@ $pdo = getDBConnection();
                         </div>
                     </div>
                     <div class="flex flex-wrap items-center gap-3">
+                        <button type="button" onclick="openBackgroundPopout('madinah')" class="px-5 py-3.5 rounded-2xl bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 border-2 border-emerald-500/40 font-black text-sm flex items-center gap-2 transition shadow-lg hover:scale-105 cursor-pointer" title="نافذة مستقلة تعمل بدون أي انقطاع أثناء التنقل بين كل شاشات البرنامج">
+                            <span>🗗 نافذة خلفية مستقلة</span>
+                        </button>
                         <button type="button" onclick="playTvChannel('madinah')" class="px-6 py-3.5 rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-600 hover:from-emerald-400 hover:to-teal-500 text-slate-950 font-black text-sm flex items-center gap-2.5 transition shadow-xl hover:scale-105 cursor-pointer">
                             <i class="fa-solid fa-play text-base"></i>
                             <span>▶️ تشغيل تلفزيون المدينة في الخلفية الآن</span>
@@ -22703,6 +22712,22 @@ $pdo = getDBConnection();
         }
 
         dock.classList.remove('hidden');
+
+        // 🌐 SAVE TO GLOBAL STATE FOR CROSS-SCREEN PERSISTENCE (Sales, Invoices, Accounting, etc.)
+        try {
+            localStorage.setItem('elsajana_global_media_state', JSON.stringify({
+                active: true,
+                type: type,
+                sourceUrl: sourceUrl,
+                title: title,
+                extraMeta: extraMeta || {},
+                startedAt: Date.now()
+            }));
+            if (typeof BroadcastChannel !== 'undefined') {
+                const bc = new BroadcastChannel('elsajana_media_broadcast');
+                bc.postMessage({ type: 'STATE_CHANGED', state: { active: true, sourceUrl, title, extraMeta } });
+            }
+        } catch(e) {}
     }
 
     function stopPersistentMedia() {
@@ -22720,7 +22745,37 @@ $pdo = getDBConnection();
         }
         if (dock) dock.classList.add('hidden');
         persistentMediaType = null;
+
+        // 🌐 CLEAR GLOBAL STATE
+        try {
+            localStorage.removeItem('elsajana_global_media_state');
+            if (typeof BroadcastChannel !== 'undefined') {
+                const bc = new BroadcastChannel('elsajana_media_broadcast');
+                bc.postMessage({ type: 'STOP_ALL' });
+            }
+        } catch(e) {}
     }
+
+    function openBackgroundPopout(chKey) {
+        const key = chKey || (persistentMediaType === 'tv' ? 'majd' : 'majd');
+        const w = 420;
+        const h = 240;
+        const left = (screen.width - w) - 20;
+        const top = (screen.height - h) - 60;
+        const popoutUrl = 'background_player.php?ch=' + encodeURIComponent(key);
+
+        const pop = window.open(
+            popoutUrl,
+            'ElsajanaBackgroundMediaWindow',
+            `width=${w},height=${h},top=${top},left=${left},status=no,menubar=no,toolbar=no,location=no,resizable=yes`
+        );
+
+        if (pop) {
+            pop.focus();
+            stopPersistentMedia();
+        }
+    }
+    window.openBackgroundPopout = openBackgroundPopout;
 
     function togglePersistentVideoSize() {
         const videoBox = document.getElementById('persistent-video-box');
@@ -24110,6 +24165,7 @@ $pdo = getDBConnection();
             <span id="persistent-media-title" class="truncate max-w-[220px]">بث مباشر شغال في الخلفية</span>
         </div>
         <div class="flex items-center gap-1.5">
+            <button type="button" onclick="openBackgroundPopout()" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 flex items-center justify-center text-xs transition cursor-pointer" title="فتح في نافذة خلفية مستقلة لعدم الانقطاع نهائياً أثناء التنقل">🗗</button>
             <button type="button" id="persistent-toggle-btn" onclick="togglePersistentVideoSize()" class="w-7 h-7 rounded-lg bg-slate-800 hover:bg-slate-700 border border-slate-600 text-slate-200 flex items-center justify-center text-xs transition cursor-pointer" title="تصغير/تكبير شاشة الفيديو"><i class="fa-solid fa-tv text-xs"></i></button>
             <button type="button" onclick="stopPersistentMedia()" class="w-7 h-7 rounded-lg bg-rose-950/80 hover:bg-rose-900 border border-rose-600/70 text-rose-200 flex items-center justify-center text-xs font-black transition cursor-pointer" title="إيقاف البث وإغلاق">✕</button>
         </div>
@@ -24147,5 +24203,6 @@ $pdo = getDBConnection();
     </div>
 </div>
 
+<script src="js/global_background_media.js?v=<?php echo file_exists(__DIR__ . '/js/global_background_media.js') ? filemtime(__DIR__ . '/js/global_background_media.js') : time(); ?>"></script>
 </body>
 </html>
