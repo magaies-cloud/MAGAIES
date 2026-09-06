@@ -40,6 +40,43 @@ $pdo = getDBConnection();
     <script src="js/inheritance_engine.js?v=2026_v8_evidence_1788629214503"></script>
 
     <style>
+
+    /* ════════════════════════════════════════════════════════════════════════════ */
+    /* 🌟 STYLES FOR GLOWING QUICK MEDIA BUTTONS                                 */
+    /* ════════════════════════════════════════════════════════════════════════════ */
+    .quick-media-card {
+        transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        position: relative !important;
+    }
+    .quick-media-card:hover {
+        transform: translateY(-3px) scale(1.02) !important;
+    }
+    .quick-media-card.is-active-majd {
+        border-color: #f59e0b !important;
+        background: linear-gradient(135deg, rgba(245, 158, 11, 0.25), rgba(15, 23, 42, 0.98)) !important;
+        box-shadow: 0 0 30px rgba(245, 158, 11, 0.55), inset 0 0 15px rgba(245, 158, 11, 0.25), 0 10px 25px rgba(0,0,0,0.8) !important;
+        transform: translateY(-2px) !important;
+    }
+    .quick-media-card.is-active-quran_mp3 {
+        border-color: #06b6d4 !important;
+        background: linear-gradient(135deg, rgba(6, 182, 212, 0.25), rgba(15, 23, 42, 0.98)) !important;
+        box-shadow: 0 0 30px rgba(6, 182, 212, 0.55), inset 0 0 15px rgba(6, 182, 212, 0.25), 0 10px 25px rgba(0,0,0,0.8) !important;
+        transform: translateY(-2px) !important;
+    }
+    .quick-media-card.is-active-madinah {
+        border-color: #10b981 !important;
+        background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(15, 23, 42, 0.98)) !important;
+        box-shadow: 0 0 30px rgba(16, 185, 129, 0.55), inset 0 0 15px rgba(16, 185, 129, 0.25), 0 10px 25px rgba(0,0,0,0.8) !important;
+        transform: translateY(-2px) !important;
+    }
+    .quick-media-card.is-active-makkah {
+        border-color: #eab308 !important;
+        background: linear-gradient(135deg, rgba(234, 179, 8, 0.25), rgba(15, 23, 42, 0.98)) !important;
+        box-shadow: 0 0 30px rgba(234, 179, 8, 0.55), inset 0 0 15px rgba(234, 179, 8, 0.25), 0 10px 25px rgba(0,0,0,0.8) !important;
+        transform: translateY(-2px) !important;
+    }
+
+
         :root {
             --bg-dark: #04020a;
             --panel-bg: rgba(14, 10, 26, 0.85);
@@ -1499,107 +1536,131 @@ $pdo = getDBConnection();
 
         
         <!-- ════════════════════════════════════════════════════════════════ -->
-        <!-- 📡 ISLAMIC SACRED MEDIA & LIVE BROADCAST HUB (إذاعات وقنوات البث المباشر) -->
-        <div class="mb-6 p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-slate-900 via-emerald-950/40 to-slate-900 border-2 border-amber-500/50 shadow-2xl">
-            <div class="flex flex-col md:flex-row items-center justify-between gap-4 pb-3 mb-3 border-b border-amber-500/30">
-                <div class="flex items-center gap-3">
-                    <span class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center text-xl border border-amber-400/50 shadow-md animate-pulse">
-                        <i class="fa-solid fa-tower-broadcast"></i>
+        <!-- 📡 UNIFIED QUICK BROADCAST HUB (مربع البث الموحد المباشر)          -->
+        <!-- ════════════════════════════════════════════════════════════════ -->
+        <div class="mb-6 p-4 sm:p-5 rounded-3xl bg-gradient-to-r from-slate-900 via-slate-950 to-slate-900 border-2 border-amber-500/50 shadow-2xl relative overflow-hidden" style="box-shadow: 0 15px 45px rgba(0,0,0,0.8), 0 0 25px rgba(245,158,11,0.2);">
+            
+            <!-- Header Row -->
+            <div class="flex flex-col sm:flex-row items-center justify-between gap-3 pb-3 mb-3.5 border-b border-white/10">
+                <div class="flex items-center gap-3 text-right">
+                    <span class="w-10 h-10 rounded-xl bg-amber-500/20 text-amber-300 flex items-center justify-center text-xl border border-amber-400/50 shadow-md">
+                        <i class="fa-solid fa-tower-broadcast animate-pulse"></i>
                     </span>
                     <div>
-                        <h4 class="text-lg sm:text-xl font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-500">
-                            البث المباشر وقنوات التلفزة والإذاعات الإسلامية
+                        <h4 class="text-base sm:text-lg font-black text-transparent bg-clip-text bg-gradient-to-r from-amber-300 via-yellow-200 to-amber-500">
+                            البث المباشر في الخلفية (تشغيل وإيقاف فوري بضغطة واحدة)
                         </h4>
-                        <p class="text-xs sm:text-sm text-slate-300 font-bold">استمع وشاهد البث الحي في الخلفية مع استمرار عملك على الحسابات الهندسية والتجارية</p>
+                        <p class="text-xs text-slate-300 font-bold mt-0.5">انقر على أي أيقونة لبدء البث فوراً وتضيء، واضغط عليها ثانية للإيقاف دون مغادرة مكانك</p>
                     </div>
                 </div>
-                <div class="flex items-center gap-2 text-xs font-mono font-black text-emerald-400 bg-emerald-950/60 px-3.5 py-1.5 rounded-xl border border-emerald-500/40 shadow-inner">
-                    <span class="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-ping"></span>
-                    <span>بث مباشر متواصل 24/7 في الخلفية</span>
+                <div class="flex items-center gap-2">
+                    <button type="button" onclick="openBackgroundPopout()" class="px-3 py-1.5 rounded-xl bg-slate-800 hover:bg-slate-700 text-amber-300 hover:text-white border border-amber-500/40 text-xs font-black transition flex items-center gap-1.5 cursor-pointer shadow-sm" title="فتح في نافذة مستقلة لا تنقطع نهائياً أثناء التنقل">
+                        <span>🗗 نافذة خلفية مستقلة</span>
+                    </button>
+                    <div class="flex items-center gap-1.5 text-xs font-mono font-black text-red-400 bg-red-950/60 px-2.5 py-1 rounded-xl border border-red-500/40 shadow-inner">
+                        <span class="w-2 h-2 rounded-full bg-red-500 animate-ping"></span>
+                        <span>LIVE 🔴</span>
+                    </div>
                 </div>
             </div>
 
-            <!-- 4 Royal Broadcast Cards Grid -->
-            <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3.5">
+            <!-- 4 Unified Media Buttons in One Box -->
+            <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
                 
-                <!-- 1. تلفزيون وإذاعة المجد للقرآن الكريم -->
-                <div class="group p-3.5 sm:p-4 rounded-2xl bg-slate-950/80 hover:bg-amber-950/40 border-2 border-amber-500/40 hover:border-amber-400 shadow-lg transition-all duration-300 space-y-2.5">
-                    <div onclick="switchSuite('tv_majd', document.querySelector('[onclick*=\'tv_majd\']'))" class="flex items-center gap-3.5 cursor-pointer">
-                        <span class="w-12 h-12 rounded-xl bg-amber-500/20 border-2 border-amber-400/60 flex items-center justify-center text-2xl text-amber-300 shadow-md group-hover:scale-110 transition-transform flex-shrink-0">
+                <!-- 1. المجد -->
+                <div id="quick-media-btn-majd" onclick="toggleQuickChannel('majd')" class="quick-media-card group p-3.5 rounded-2xl bg-slate-900/90 hover:bg-amber-950/30 border-2 border-amber-500/40 hover:border-amber-400 transition-all duration-300 flex flex-col justify-between space-y-2 cursor-pointer select-none">
+                    <div class="flex items-center justify-between">
+                        <span class="w-11 h-11 rounded-xl bg-amber-500/20 border-2 border-amber-400/60 flex items-center justify-center text-xl text-amber-300 shadow-md group-hover:scale-110 transition-transform">
                             <i class="fa-solid fa-tv"></i>
                         </span>
-                        <div class="flex-1 text-right">
-                            <div class="text-sm sm:text-base font-black text-amber-200 group-hover:text-amber-100 flex items-center justify-between">
-                                <span>تلفزيون المجد</span>
-                                <span class="text-[10px] px-2 py-0.5 rounded-md bg-amber-500/20 text-amber-300 border border-amber-500/40">فتح الشاشة</span>
-                            </div>
-                            <div class="text-xs text-amber-400/90 font-bold mt-0.5">القرآن الكريم (بث مباشر)</div>
+                        <!-- Active Audio Waves (Shown when glowing/active) -->
+                        <div id="quick-waves-majd" class="hidden flex items-center gap-1 h-5">
+                            <span class="w-1 bg-amber-400 rounded-full animate-bounce" style="height: 12px; animation-delay: 0.1s;"></span>
+                            <span class="w-1 bg-amber-300 rounded-full animate-bounce" style="height: 18px; animation-delay: 0.2s;"></span>
+                            <span class="w-1 bg-yellow-400 rounded-full animate-bounce" style="height: 10px; animation-delay: 0.3s;"></span>
+                            <span class="w-1 bg-amber-500 rounded-full animate-bounce" style="height: 16px; animation-delay: 0.4s;"></span>
                         </div>
                     </div>
-                    <button type="button" onclick="playTvChannel('majd')" class="w-full py-2 rounded-xl bg-amber-500/20 hover:bg-amber-500 text-amber-300 hover:text-slate-950 font-black text-xs border border-amber-500/40 transition flex items-center justify-center gap-2 cursor-pointer shadow-sm">
-                        <i class="fa-solid fa-headphones"></i>
-                        <span>▶️ تشغيل في الخلفية أثناء العمل</span>
-                    </button>
-                </div>
-
-                <!-- 2. تلفزيون المدينة المنورة للأحاديث النبوية -->
-                <div class="group p-3.5 sm:p-4 rounded-2xl bg-slate-950/80 hover:bg-emerald-950/40 border-2 border-emerald-500/40 hover:border-emerald-400 shadow-lg transition-all duration-300 space-y-2.5">
-                    <div onclick="switchSuite('tv_madinah', document.querySelector('[onclick*=\'tv_madinah\']'))" class="flex items-center gap-3.5 cursor-pointer">
-                        <span class="w-12 h-12 rounded-xl bg-emerald-500/20 border-2 border-emerald-400/60 flex items-center justify-center text-2xl text-emerald-300 shadow-md group-hover:scale-110 transition-transform flex-shrink-0">
-                            <i class="fa-solid fa-mosque"></i>
-                        </span>
-                        <div class="flex-1 text-right">
-                            <div class="text-sm sm:text-base font-black text-emerald-200 group-hover:text-emerald-100 flex items-center justify-between">
-                                <span>تلفزيون المدينة</span>
-                                <span class="text-[10px] px-2 py-0.5 rounded-md bg-emerald-500/20 text-emerald-300 border border-emerald-500/40">فتح الشاشة</span>
-                            </div>
-                            <div class="text-xs text-emerald-400/90 font-bold mt-0.5">قناة السنة النبوية (مباشر)</div>
-                        </div>
+                    <div class="text-right">
+                        <div class="text-base sm:text-lg font-black text-amber-200 group-hover:text-amber-100 transition-colors">المجد</div>
+                        <div class="text-[11px] text-amber-400/80 font-bold mt-0.5 truncate">القرآن الكريم مباشر 24/7</div>
                     </div>
-                    <button type="button" onclick="playTvChannel('madinah')" class="w-full py-2 rounded-xl bg-emerald-500/20 hover:bg-emerald-500 text-emerald-300 hover:text-slate-950 font-black text-xs border border-emerald-500/40 transition flex items-center justify-center gap-2 cursor-pointer shadow-sm">
-                        <i class="fa-solid fa-headphones"></i>
-                        <span>▶️ تشغيل في الخلفية أثناء العمل</span>
-                    </button>
-                </div>
-
-                <!-- 3. تلفزيون مكة المكرمة للقرآن الكريم -->
-                <div class="group p-3.5 sm:p-4 rounded-2xl bg-slate-950/80 hover:bg-yellow-950/40 border-2 border-yellow-500/40 hover:border-yellow-400 shadow-lg transition-all duration-300 space-y-2.5">
-                    <div onclick="switchSuite('tv_makkah', document.querySelector('[onclick*=\'tv_makkah\']'))" class="flex items-center gap-3.5 cursor-pointer">
-                        <span class="w-12 h-12 rounded-xl bg-yellow-500/20 border-2 border-yellow-400/60 flex items-center justify-center text-2xl text-yellow-300 shadow-md group-hover:scale-110 transition-transform flex-shrink-0">
-                            <i class="fa-solid fa-kaaba"></i>
-                        </span>
-                        <div class="flex-1 text-right">
-                            <div class="text-sm sm:text-base font-black text-yellow-200 group-hover:text-yellow-100 flex items-center justify-between">
-                                <span>تلفزيون مكة</span>
-                                <span class="text-[10px] px-2 py-0.5 rounded-md bg-yellow-500/20 text-yellow-300 border border-yellow-500/40">فتح الشاشة</span>
-                            </div>
-                            <div class="text-xs text-yellow-400/90 font-bold mt-0.5">قناة القرآن الكريم (مباشر)</div>
-                        </div>
+                    <div id="quick-status-pill-majd" class="quick-status-pill text-[11px] font-bold px-2.5 py-1 rounded-lg bg-white/5 text-slate-300 border border-white/10 flex items-center justify-center gap-1.5 transition">
+                        <i class="fa-solid fa-play text-[10px]"></i>
+                        <span>تشغيل فوري</span>
                     </div>
-                    <button type="button" onclick="playTvChannel('makkah')" class="w-full py-2 rounded-xl bg-yellow-500/20 hover:bg-yellow-500 text-yellow-300 hover:text-slate-950 font-black text-xs border border-yellow-500/40 transition flex items-center justify-center gap-2 cursor-pointer shadow-sm">
-                        <i class="fa-solid fa-headphones"></i>
-                        <span>▶️ تشغيل في الخلفية أثناء العمل</span>
-                    </button>
                 </div>
 
-                <!-- 4. موقع القرآن الكريم MP3 -->
-                <div class="group p-3.5 sm:p-4 rounded-2xl bg-slate-950/80 hover:bg-cyan-950/40 border-2 border-cyan-500/40 hover:border-cyan-400 shadow-lg transition-all duration-300 space-y-2.5">
-                    <div onclick="switchSuite('quran_mp3', document.querySelector('[onclick*=\'quran_mp3\']'))" class="flex items-center gap-3.5 cursor-pointer">
-                        <span class="w-12 h-12 rounded-xl bg-cyan-500/20 border-2 border-cyan-400/60 flex items-center justify-center text-2xl text-cyan-300 shadow-md group-hover:scale-110 transition-transform flex-shrink-0">
+                <!-- 2. القرآن MP3 -->
+                <div id="quick-media-btn-quran_mp3" onclick="toggleQuickChannel('quran_mp3')" class="quick-media-card group p-3.5 rounded-2xl bg-slate-900/90 hover:bg-cyan-950/30 border-2 border-cyan-500/40 hover:border-cyan-400 transition-all duration-300 flex flex-col justify-between space-y-2 cursor-pointer select-none">
+                    <div class="flex items-center justify-between">
+                        <span class="w-11 h-11 rounded-xl bg-cyan-500/20 border-2 border-cyan-400/60 flex items-center justify-center text-xl text-cyan-300 shadow-md group-hover:scale-110 transition-transform">
                             <i class="fa-solid fa-headphones"></i>
                         </span>
-                        <div class="flex-1 text-right">
-                            <div class="text-sm sm:text-base font-black text-cyan-200 group-hover:text-cyan-100 flex items-center justify-between">
-                                <span>القرآن الكريم MP3</span>
-                                <span class="text-[10px] px-2 py-0.5 rounded-md bg-cyan-500/20 text-cyan-300 border border-cyan-500/40">15 قارئاً</span>
-                            </div>
-                            <div class="text-xs text-cyan-400/90 font-bold mt-0.5">114 سورة كاملة</div>
+                        <!-- Active Audio Waves -->
+                        <div id="quick-waves-quran_mp3" class="hidden flex items-center gap-1 h-5">
+                            <span class="w-1 bg-cyan-400 rounded-full animate-bounce" style="height: 12px; animation-delay: 0.1s;"></span>
+                            <span class="w-1 bg-cyan-300 rounded-full animate-bounce" style="height: 18px; animation-delay: 0.2s;"></span>
+                            <span class="w-1 bg-sky-400 rounded-full animate-bounce" style="height: 10px; animation-delay: 0.3s;"></span>
+                            <span class="w-1 bg-cyan-500 rounded-full animate-bounce" style="height: 16px; animation-delay: 0.4s;"></span>
                         </div>
                     </div>
-                    <button type="button" onclick="switchSuite('quran_mp3', document.querySelector('[onclick*=\'quran_mp3\']'))" class="w-full py-2 rounded-xl bg-cyan-500/20 hover:bg-cyan-500 text-cyan-300 hover:text-slate-950 font-black text-xs border border-cyan-500/40 transition flex items-center justify-center gap-2 cursor-pointer shadow-sm">
-                        <i class="fa-solid fa-list-check"></i>
-                        <span>اختيار القارئ والسورة</span>
-                    </button>
+                    <div class="text-right">
+                        <div class="text-base sm:text-lg font-black text-cyan-200 group-hover:text-cyan-100 transition-colors">القرآن MP3</div>
+                        <div class="text-[11px] text-cyan-400/80 font-bold mt-0.5 truncate">تلاوات كبار القراء</div>
+                    </div>
+                    <div id="quick-status-pill-quran_mp3" class="quick-status-pill text-[11px] font-bold px-2.5 py-1 rounded-lg bg-white/5 text-slate-300 border border-white/10 flex items-center justify-center gap-1.5 transition">
+                        <i class="fa-solid fa-play text-[10px]"></i>
+                        <span>تشغيل فوري</span>
+                    </div>
+                </div>
+
+                <!-- 3. المدينة -->
+                <div id="quick-media-btn-madinah" onclick="toggleQuickChannel('madinah')" class="quick-media-card group p-3.5 rounded-2xl bg-slate-900/90 hover:bg-emerald-950/30 border-2 border-emerald-500/40 hover:border-emerald-400 transition-all duration-300 flex flex-col justify-between space-y-2 cursor-pointer select-none">
+                    <div class="flex items-center justify-between">
+                        <span class="w-11 h-11 rounded-xl bg-emerald-500/20 border-2 border-emerald-400/60 flex items-center justify-center text-xl text-emerald-300 shadow-md group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-mosque"></i>
+                        </span>
+                        <!-- Active Audio Waves -->
+                        <div id="quick-waves-madinah" class="hidden flex items-center gap-1 h-5">
+                            <span class="w-1 bg-emerald-400 rounded-full animate-bounce" style="height: 12px; animation-delay: 0.1s;"></span>
+                            <span class="w-1 bg-emerald-300 rounded-full animate-bounce" style="height: 18px; animation-delay: 0.2s;"></span>
+                            <span class="w-1 bg-teal-400 rounded-full animate-bounce" style="height: 10px; animation-delay: 0.3s;"></span>
+                            <span class="w-1 bg-emerald-500 rounded-full animate-bounce" style="height: 16px; animation-delay: 0.4s;"></span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-base sm:text-lg font-black text-emerald-200 group-hover:text-emerald-100 transition-colors">المدينة</div>
+                        <div class="text-[11px] text-emerald-400/80 font-bold mt-0.5 truncate">قناة السنة النبوية مباشر</div>
+                    </div>
+                    <div id="quick-status-pill-madinah" class="quick-status-pill text-[11px] font-bold px-2.5 py-1 rounded-lg bg-white/5 text-slate-300 border border-white/10 flex items-center justify-center gap-1.5 transition">
+                        <i class="fa-solid fa-play text-[10px]"></i>
+                        <span>تشغيل فوري</span>
+                    </div>
+                </div>
+
+                <!-- 4. مكة -->
+                <div id="quick-media-btn-makkah" onclick="toggleQuickChannel('makkah')" class="quick-media-card group p-3.5 rounded-2xl bg-slate-900/90 hover:bg-yellow-950/30 border-2 border-yellow-500/40 hover:border-yellow-400 transition-all duration-300 flex flex-col justify-between space-y-2 cursor-pointer select-none">
+                    <div class="flex items-center justify-between">
+                        <span class="w-11 h-11 rounded-xl bg-yellow-500/20 border-2 border-yellow-400/60 flex items-center justify-center text-xl text-yellow-300 shadow-md group-hover:scale-110 transition-transform">
+                            <i class="fa-solid fa-kaaba"></i>
+                        </span>
+                        <!-- Active Audio Waves -->
+                        <div id="quick-waves-makkah" class="hidden flex items-center gap-1 h-5">
+                            <span class="w-1 bg-yellow-400 rounded-full animate-bounce" style="height: 12px; animation-delay: 0.1s;"></span>
+                            <span class="w-1 bg-yellow-300 rounded-full animate-bounce" style="height: 18px; animation-delay: 0.2s;"></span>
+                            <span class="w-1 bg-amber-400 rounded-full animate-bounce" style="height: 10px; animation-delay: 0.3s;"></span>
+                            <span class="w-1 bg-yellow-500 rounded-full animate-bounce" style="height: 16px; animation-delay: 0.4s;"></span>
+                        </div>
+                    </div>
+                    <div class="text-right">
+                        <div class="text-base sm:text-lg font-black text-yellow-200 group-hover:text-yellow-100 transition-colors">مكة</div>
+                        <div class="text-[11px] text-yellow-400/80 font-bold mt-0.5 truncate">قناة القرآن الكريم مباشر</div>
+                    </div>
+                    <div id="quick-status-pill-makkah" class="quick-status-pill text-[11px] font-bold px-2.5 py-1 rounded-lg bg-white/5 text-slate-300 border border-white/10 flex items-center justify-center gap-1.5 transition">
+                        <i class="fa-solid fa-play text-[10px]"></i>
+                        <span>تشغيل فوري</span>
+                    </div>
                 </div>
 
             </div>
@@ -1689,21 +1750,21 @@ $pdo = getDBConnection();
             <!-- 11. تلفزيون المجد (القرآن الكريم) -->
             <div class="suite-pill-card" style="--p-color:#fbbf24; --p-border:rgba(251,191,36,0.5);" onclick="switchSuite('tv_majd', this)">
                 <div class="suite-pill-icon"><i class="fa-solid fa-tv text-amber-400"></i></div>
-                <div class="suite-pill-title text-amber-300">📺 تلفزيون المجد</div>
+                <div class="suite-pill-title text-amber-300">📺 المجد</div>
                 <div class="suite-pill-sub text-amber-400/80">القرآن الكريم مباشر</div>
             </div>
 
             <!-- 12. تلفزيون مكة المكرمة -->
             <div class="suite-pill-card" style="--p-color:#f59e0b; --p-border:rgba(245,158,11,0.5);" onclick="switchSuite('tv_makkah', this)">
                 <div class="suite-pill-icon"><i class="fa-solid fa-kaaba text-yellow-400"></i></div>
-                <div class="suite-pill-title text-yellow-300">🕋 تلفزيون مكة</div>
+                <div class="suite-pill-title text-yellow-300">🕋 مكة</div>
                 <div class="suite-pill-sub text-yellow-400/80">الحرم المكي مباشر</div>
             </div>
 
             <!-- 13. تلفزيون المدينة المنورة (السنة النبوية) -->
             <div class="suite-pill-card" style="--p-color:#10b981; --p-border:rgba(16,185,129,0.5);" onclick="switchSuite('tv_madinah', this)">
                 <div class="suite-pill-icon"><i class="fa-solid fa-mosque text-emerald-400"></i></div>
-                <div class="suite-pill-title text-emerald-300">🕌 تلفزيون المدينة</div>
+                <div class="suite-pill-title text-emerald-300">🕌 المدينة</div>
                 <div class="suite-pill-sub text-emerald-400/80">السنة النبوية مباشر</div>
             </div>
 
@@ -22656,6 +22717,69 @@ $pdo = getDBConnection();
     let persistentMediaType = null;
     let isPersistentVideoExpanded = true;
 
+    
+    // ════════════════════════════════════════════════════════════════════════════
+    // 💡 ONE-CLICK TOGGLE & GLOWING MEDIA ENGINE (المجد، مكة، المدينة، القرآن MP3)
+    // ════════════════════════════════════════════════════════════════════════════
+    let activeQuickChannel = null;
+
+    function toggleQuickChannel(channelKey) {
+        if (activeQuickChannel === channelKey) {
+            // Currently playing this channel -> STOP IT!
+            stopPersistentMedia();
+            activeQuickChannel = null;
+            renderQuickChannelVisuals(null);
+            showFiqhToast('⏹️ تم إيقاف البث');
+        } else {
+            // Start playing requested channel immediately!
+            if (channelKey === 'majd') {
+                playTvChannel('majd');
+                showFiqhToast('▶️ تم تشغيل قناة المجد في الخلفية');
+            } else if (channelKey === 'makkah') {
+                playTvChannel('makkah');
+                showFiqhToast('▶️ تم تشغيل تلفزيون مكة المكرمة في الخلفية');
+            } else if (channelKey === 'madinah') {
+                playTvChannel('madinah');
+                showFiqhToast('▶️ تم تشغيل تلفزيون المدينة المنورة في الخلفية');
+            } else if (channelKey === 'quran_mp3') {
+                playQuranAudio('https://backup.qurango.net/radio/tarateel', 'القرآن الكريم MP3 - تلاوات خاشعة', 'كبار قراء العالم الإسلامي');
+                showFiqhToast('▶️ تم تشغيل القرآن الكريم MP3 في الخلفية');
+            }
+            activeQuickChannel = channelKey;
+            renderQuickChannelVisuals(channelKey);
+        }
+    }
+
+    function renderQuickChannelVisuals(activeKey) {
+        const keys = ['majd', 'quran_mp3', 'madinah', 'makkah'];
+        keys.forEach(k => {
+            const btn = document.getElementById('quick-media-btn-' + k);
+            const pill = document.getElementById('quick-status-pill-' + k);
+            const waves = document.getElementById('quick-waves-' + k);
+            if (!btn) return;
+
+            btn.classList.remove('is-active-majd', 'is-active-quran_mp3', 'is-active-madinah', 'is-active-makkah');
+
+            if (k === activeKey) {
+                btn.classList.add('is-active-' + k);
+                if (pill) {
+                    pill.innerHTML = '🟢 <span class="animate-pulse">شغال الآن (انقر للإيقاف)</span>';
+                    pill.className = 'quick-status-pill text-[11px] font-black px-2 py-0.5 rounded-lg bg-emerald-500/20 text-emerald-300 border border-emerald-400/50 flex items-center justify-center gap-1';
+                }
+                if (waves) waves.classList.remove('hidden');
+            } else {
+                if (pill) {
+                    pill.innerHTML = '<i class="fa-solid fa-play text-[10px]"></i> <span>تشغيل فوري</span>';
+                    pill.className = 'quick-status-pill text-[11px] font-bold px-2 py-0.5 rounded-lg bg-white/5 text-slate-300 border border-white/10 flex items-center justify-center gap-1';
+                }
+                if (waves) waves.classList.add('hidden');
+            }
+        });
+    }
+
+    window.toggleQuickChannel = toggleQuickChannel;
+    window.renderQuickChannelVisuals = renderQuickChannelVisuals;
+
     function playTvChannel(channelKey) {
         const ch = TV_CHANNELS_DATA[channelKey];
         if (!ch) return;
@@ -22712,6 +22836,7 @@ $pdo = getDBConnection();
         }
 
         dock.classList.remove('hidden');
+        if (extraMeta && extraMeta.channelKey) { activeQuickChannel = extraMeta.channelKey; renderQuickChannelVisuals(activeQuickChannel); }
 
         // 🌐 SAVE TO GLOBAL STATE FOR CROSS-SCREEN PERSISTENCE (Sales, Invoices, Accounting, etc.)
         try {
