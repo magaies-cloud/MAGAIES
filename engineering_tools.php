@@ -239,30 +239,109 @@ $pdo = getDBConnection();
             box-shadow: 0 0 25px #ffffff, 0 0 50px #06b6d4 !important;
         }
 
-        /* ── أيقونة الشيخ في الاستوديو (عريضة، اسم الشيخ في المنتصف كبير وواضح) ── */
+        /* ── تصميم أيقونات الشيوخ (لون ذهبي ملكي، تفاصيل مربعة، اسم الشيخ في المنتصف) ── */
         .quran-reciter-card {
-            border-radius: 22px;
+            border-radius: 18px !important; /* تفاصيل مربعة وأنيقة */
             cursor: pointer;
             transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
             position: relative;
             user-select: none;
-            min-height: 145px;
+            min-height: 155px;
             padding: 16px 18px !important;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
             align-items: center;
             text-align: center;
+            background: linear-gradient(145deg, rgba(42, 28, 10, 0.95), rgba(24, 16, 6, 0.98)) !important;
+            border: 2px solid #f59e0b !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 22px rgba(245, 158, 11, 0.25), inset 0 1px 2px rgba(254, 240, 138, 0.2) !important;
         }
         .quran-reciter-card:hover {
-            transform: translateY(-4px) scale(1.02);
-            box-shadow: 0 12px 30px rgba(0,0,0,0.6), 0 0 25px rgba(6, 182, 212, 0.35);
+            transform: translateY(-4px) scale(1.025);
+            border-color: #fde047 !important;
+            box-shadow: 0 14px 35px rgba(0, 0, 0, 0.7), 0 0 35px rgba(245, 158, 11, 0.5) !important;
+            background: linear-gradient(145deg, rgba(55, 36, 12, 0.97), rgba(30, 20, 8, 0.99)) !important;
         }
         .quran-reciter-card.is-selected {
-            border-color: #22d3ee !important;
-            background: linear-gradient(145deg, rgba(8, 47, 73, 0.95), rgba(15, 23, 42, 0.98)) !important;
-            box-shadow: 0 0 35px rgba(6, 182, 212, 0.6), inset 0 0 20px rgba(6, 182, 212, 0.3) !important;
+            border-color: #ffffff !important;
+            background: linear-gradient(145deg, rgba(180, 83, 9, 0.95), rgba(45, 30, 10, 0.98)) !important;
+            box-shadow: 0 0 35px #f59e0b, 0 0 70px rgba(245, 158, 11, 0.8), inset 0 0 25px rgba(255, 255, 255, 0.4) !important;
             transform: translateY(-3px) scale(1.02);
+            animation: sheikh-card-glow-pulse 1.8s infinite ease-in-out !important;
+        }
+        @keyframes sheikh-card-glow-pulse {
+            0%, 100% {
+                box-shadow: 0 0 30px #f59e0b, 0 0 60px rgba(245, 158, 11, 0.7), inset 0 0 20px rgba(255, 255, 255, 0.3);
+                border-color: #fde047;
+            }
+            50% {
+                box-shadow: 0 0 50px #ffffff, 0 0 90px #f59e0b, inset 0 0 30px #ffffff;
+                border-color: #ffffff;
+            }
+        }
+        .quran-sheikh-title-center {
+            font-size: 1.25rem !important;
+            line-height: 1.35;
+            font-weight: 900 !important;
+            text-align: center;
+            color: #fef08a !important; /* لون ذهبي مشمس موحد لجميع الشيوخ */
+            text-shadow: 0 0 12px rgba(245, 158, 11, 0.55), 0 2px 6px rgba(0, 0, 0, 0.9) !important;
+            letter-spacing: 0.3px;
+        }
+
+        /* ── تصميم أيقونات السور (لون زمردي قرآني أخضر ساطع - مختلف كلياً عن الشيوخ) ── */
+        .quran-surah-card {
+            border-radius: 18px !important;
+            cursor: pointer;
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            overflow: hidden;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            min-height: 120px;
+            padding: 14px 16px !important;
+            user-select: none;
+            backdrop-filter: blur(12px);
+            background: linear-gradient(150deg, rgba(6, 78, 59, 0.9), rgba(4, 35, 28, 0.98)) !important;
+            border: 2px solid #10b981 !important;
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.6), 0 0 22px rgba(16, 185, 129, 0.25), inset 0 1px 2px rgba(167, 243, 208, 0.2) !important;
+        }
+        .quran-surah-card:hover {
+            transform: translateY(-4px) scale(1.025);
+            border-color: #34d399 !important;
+            box-shadow: 0 14px 35px rgba(0, 0, 0, 0.7), 0 0 35px rgba(16, 185, 129, 0.5) !important;
+            background: linear-gradient(150deg, rgba(8, 95, 72, 0.95), rgba(6, 45, 36, 0.99)) !important;
+            z-index: 5;
+        }
+        .quran-surah-title-center {
+            font-size: 1.45rem !important;
+            line-height: 1.25;
+            font-weight: 900 !important;
+            text-align: center;
+            letter-spacing: 0.5px;
+            margin: auto 0;
+            color: #ffffff !important;
+            text-shadow: 0 0 16px #10b981, 0 2px 8px rgba(0, 0, 0, 0.9) !important;
+        }
+        .quran-surah-card.is-playing-surah {
+            border-color: #ffffff !important;
+            background: linear-gradient(145deg, rgba(16, 185, 129, 0.98), rgba(6, 78, 59, 0.99)) !important;
+            box-shadow: 0 0 40px #10b981, 0 0 85px rgba(16, 185, 129, 0.85), inset 0 0 25px #ffffff !important;
+            animation: surah-card-green-glow 1.6s infinite ease-in-out !important;
+            transform: translateY(-4px) scale(1.03) !important;
+            z-index: 10;
+        }
+        @keyframes surah-card-green-glow {
+            0%, 100% {
+                box-shadow: 0 0 30px #10b981, 0 0 65px rgba(16, 185, 129, 0.75), inset 0 0 20px #ffffff;
+                border-color: #6ee7b7;
+            }
+            50% {
+                box-shadow: 0 0 50px #ffffff, 0 0 95px #10b981, inset 0 0 30px #ffffff;
+                border-color: #ffffff;
+            }
         }
         
         /* ── أزرار القنوات المقدسة المدمجة في سطر واحد (عالية الإضاءة) ── */
@@ -366,62 +445,6 @@ $pdo = getDBConnection();
             animation: ping 1.4s infinite;
         }
 
-        /* ── استوديو القرآن الكريم الملكي المضيء ── */
-        .quran-surah-card {
-            border-radius: 22px;
-            cursor: pointer;
-            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            overflow: hidden;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            min-height: 115px;
-            padding: 12px 14px;
-            user-select: none;
-            backdrop-filter: blur(12px);
-        }
-        .quran-surah-card:hover {
-            transform: translateY(-4px) scale(1.025);
-            z-index: 5;
-        }
-        .quran-surah-title-center {
-            font-size: 1.35rem;
-            line-height: 1.25;
-            font-weight: 900;
-            text-align: center;
-            letter-spacing: 0.5px;
-            margin: auto 0;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.85);
-        }
-        @media (min-width: 640px) {
-            .quran-surah-title-center {
-                font-size: 1.5rem;
-            }
-        }
-        .quran-surah-card.is-playing-surah {
-            border-color: #ffffff !important;
-            animation: surah-card-glow-pulse 1.8s infinite ease-in-out !important;
-            transform: translateY(-4px) scale(1.03) !important;
-            z-index: 10;
-        }
-        .quran-reciter-card {
-            border-radius: 20px;
-            cursor: pointer;
-            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            position: relative;
-            user-select: none;
-        }
-        .quran-reciter-card:hover {
-            transform: translateY(-3px) scale(1.015);
-        }
-        .quran-reciter-card.is-selected {
-            border-color: #22d3ee !important;
-            background: linear-gradient(145deg, rgba(8, 47, 73, 0.92), rgba(15, 23, 42, 0.98)) !important;
-            box-shadow: 0 0 30px rgba(6, 182, 212, 0.5), inset 0 0 18px rgba(6, 182, 212, 0.25) !important;
-            transform: translateY(-2px);
-        }
-        
 
         /* ── أزرار التبويبات العشرة البارزة ثلاثية الأبعاد ── */
         .suite-pill-card {
@@ -22394,17 +22417,17 @@ $pdo = getDBConnection();
                 </div>
 
                 <!-- STEP 1: SELECT RECITER (241 ALL RECITERS) -->
-                <div class="p-6 sm:p-8 rounded-3xl bg-slate-950/90 border-2 border-cyan-500/40 shadow-2xl space-y-6">
+                <div class="p-6 sm:p-8 rounded-3xl bg-gradient-to-b from-amber-950/40 via-slate-950/95 to-slate-950/98 border-2 border-amber-500/60 shadow-2xl shadow-amber-950/30 space-y-6">
                     <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/10 pb-4">
                         <div class="text-xl font-black text-cyan-300 flex items-center gap-3">
-                            <span class="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-base font-black">1</span>
+                            <span class="w-9 h-9 rounded-xl bg-amber-500/25 border-2 border-amber-400/70 flex items-center justify-center text-amber-300 text-base font-black">1</span>
                             <div>
-                                <span class="text-lg sm:text-xl font-black text-cyan-200">الخطوة الأولى: اختر القارئ أو الشيخ المفضل:</span>
-                                <div id="reciters-count-badge" class="text-xs text-cyan-400/90 font-bold mt-0.5">متوفر جميع شيوخ وقراء القرآن الكريم (241 قارئ وشيخ)</div>
+                                <span class="text-lg sm:text-xl font-black text-amber-200">الخطوة الأولى: اختر القارئ أو الشيخ المفضل (أيقونات ذهبية - 4 في السطر):</span>
+                                <div id="reciters-count-badge" class="text-xs text-amber-400/90 font-bold mt-0.5">متوفر جميع شيوخ وقراء القرآن الكريم (241 قارئ وشيخ مع كبار القراء بالصدارة)</div>
                             </div>
                         </div>
-                        <div id="active-reciter-badge" class="text-sm px-5 py-2 rounded-xl bg-gradient-to-r from-cyan-950 to-slate-900 text-cyan-200 font-black border-2 border-cyan-400/60 shadow-lg flex items-center gap-2">
-                            <i class="fa-solid fa-check-circle text-cyan-400"></i>
+                        <div id="active-reciter-badge" class="text-sm px-5 py-2 rounded-xl bg-gradient-to-r from-amber-950 to-slate-900 text-amber-200 font-black border-2 border-amber-400/70 shadow-lg flex items-center gap-2">
+                            <i class="fa-solid fa-check-circle text-amber-400"></i>
                             <span id="active-reciter-name-display">القارئ المحدد: الشيخ عبدالباسط عبدالصمد</span>
                         </div>
                     </div>
@@ -22412,7 +22435,7 @@ $pdo = getDBConnection();
                     <!-- Search and Reciter Filter Bar -->
                     <div class="flex flex-col lg:flex-row items-stretch lg:items-center justify-between gap-3">
                         <div class="flex-1 relative">
-                            <input type="text" id="quran-reciter-search" oninput="filterRecitersList()" placeholder="🔍 ابحث بالاسم عن أي قارئ أو شيخ من بين (241 قارئ وشيخ)..." class="w-full px-5 py-3.5 rounded-2xl bg-slate-900 border-2 border-cyan-500/50 text-cyan-100 placeholder-slate-400 text-sm sm:text-base font-bold focus:border-cyan-300 focus:outline-none focus:ring-2 focus:ring-cyan-500/30 transition shadow-inner">
+                            <input type="text" id="quran-reciter-search" oninput="filterRecitersList()" placeholder="🔍 ابحث بالاسم عن أي قارئ أو شيخ من بين (241 قارئ وشيخ)..." class="w-full px-5 py-3.5 rounded-2xl bg-slate-900 border-2 border-amber-500/50 text-amber-100 placeholder-slate-400 text-sm sm:text-base font-bold focus:border-amber-300 focus:outline-none focus:ring-2 focus:ring-amber-500/30 transition shadow-inner">
                         </div>
                         <div class="flex flex-wrap items-center gap-2">
                             <button type="button" onclick="setReciterFilterCategory('famous', this)" class="reciter-cat-btn px-4 py-2 rounded-xl bg-cyan-500 text-slate-950 font-black text-xs border border-cyan-400 transition cursor-pointer shadow-md">
@@ -22434,7 +22457,7 @@ $pdo = getDBConnection();
                     </div>
 
                     <!-- Reciters Grid (241 Reciters, Scrollable & Highly Aesthetic) -->
-                    <div id="quran-reciters-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-4.5 max-h-[440px] overflow-y-auto p-2 rounded-2xl bg-slate-900/70 border border-white/10 custom-scrollbar">
+                    <div id="quran-reciters-container" class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-4 gap-4 max-h-[460px] overflow-y-auto p-3 rounded-2xl bg-slate-900/80 border border-amber-500/30 custom-scrollbar">
                         <!-- Rendered dynamically by JS -->
                     </div>
 
@@ -22447,19 +22470,19 @@ $pdo = getDBConnection();
                 </div>
 
                 <!-- STEP 2: SELECT SURAH (LARGE CENTERED SURAH TITLES & VIBRANT JEWEL ILLUMINATION) -->
-                <div id="quran-surahs-section" class="p-6 sm:p-8 rounded-3xl bg-slate-950/90 border-2 border-cyan-500/40 shadow-2xl space-y-6">
+                <div id="quran-surahs-section" class="p-6 sm:p-8 rounded-3xl bg-gradient-to-b from-emerald-950/40 via-slate-950/95 to-slate-950/98 border-2 border-emerald-500/60 shadow-2xl shadow-emerald-950/30 space-y-6">
                     <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4 border-b border-white/10 pb-4">
                         <div class="text-xl font-black text-cyan-300 flex items-center gap-3">
-                            <span class="w-9 h-9 rounded-xl bg-cyan-500/20 border border-cyan-400/50 flex items-center justify-center text-cyan-300 text-base font-black">2</span>
+                            <span class="w-9 h-9 rounded-xl bg-emerald-500/25 border-2 border-emerald-400/70 flex items-center justify-center text-emerald-300 text-base font-black">2</span>
                             <div>
-                                <span id="surahs-heading-title" class="text-lg sm:text-xl font-black text-cyan-200">الخطوة الثانية: اختر السورة للتشغيل الفوري (114 سورة):</span>
+                                <span id="surahs-heading-title" class="text-lg sm:text-xl font-black text-emerald-200">الخطوة الثانية: اختر السورة للتشغيل الفوري (114 سورة):</span>
                                 <p class="text-xs sm:text-sm text-amber-300/90 font-bold mt-0.5">انقر على أي سورة للاستماع مباشرة ويستمر التشغيل في الخلفية عبر كافة شاشات البرنامج</p>
                             </div>
                         </div>
 
                         <!-- Search Surah Input -->
                         <div class="w-full md:w-80 relative">
-                            <input type="text" id="quran-surah-search" oninput="filterSurahsList()" placeholder="🔍 ابحث عن اسم السورة أو رقمها..." class="w-full px-5 py-3 rounded-xl bg-slate-900 border-2 border-cyan-500/40 text-cyan-200 placeholder-slate-400 text-sm font-bold focus:border-cyan-300 focus:outline-none transition shadow-inner">
+                            <input type="text" id="quran-surah-search" oninput="filterSurahsList()" placeholder="🔍 ابحث عن اسم السورة أو رقمها..." class="w-full px-5 py-3 rounded-xl bg-slate-900 border-2 border-emerald-500/50 text-emerald-100 placeholder-slate-400 text-sm font-bold focus:border-emerald-300 focus:outline-none transition shadow-inner">
                         </div>
                     </div>
 
@@ -22875,41 +22898,39 @@ $pdo = getDBConnection();
         }
 
         if (!list.length) {
-            container.innerHTML = '<div class="col-span-full py-10 text-center text-base font-bold text-slate-400">لا يوجد قارئ مطابق للبحث... يمكنك كتابة جزء من اسم الشيخ</div>';
+            container.innerHTML = '<div class="col-span-full py-10 text-center text-base font-bold text-amber-300">لا يوجد قارئ مطابق للبحث... يمكنك كتابة جزء من اسم الشيخ</div>';
             return;
         }
 
         let html = '';
         list.forEach(r => {
             const isSelected = String(r.id) === String(selectedReciterId);
-            const cardBg = isSelected 
-                ? 'border-cyan-400 bg-gradient-to-br from-cyan-950/95 via-slate-900 to-cyan-900/70 shadow-xl shadow-cyan-500/30 ring-2 ring-cyan-400 is-selected' 
-                : 'border-cyan-500/30 bg-slate-900/85 hover:bg-cyan-950/50 hover:border-cyan-400';
+            const selectClass = isSelected ? 'is-selected' : '';
 
             html += `
-                <div onclick="selectQuranReciter('${r.id}')" class="quran-reciter-card ${cardBg} group shadow-lg">
-                    <!-- Top Centered Icon Bubble -->
-                    <div class="w-12 h-12 rounded-2xl bg-cyan-500/20 border-2 border-cyan-400/50 flex items-center justify-center text-2xl text-cyan-300 shadow-inner group-hover:scale-110 transition-transform">
+                <div onclick="selectQuranReciter('${r.id}')" class="quran-reciter-card ${selectClass} group">
+                    <!-- Top Centered Icon Badge (Golden Luxury) -->
+                    <div class="w-13 h-13 rounded-2xl bg-amber-500/25 border-2 border-amber-400/60 flex items-center justify-center text-2xl text-amber-300 shadow-inner group-hover:scale-110 transition-transform">
                         <i class="fa-solid fa-microphone-lines"></i>
                     </div>
 
-                    <!-- 🌟 EXACT CENTER: LARGE PROMINENT SHEIKH NAME & REWAYA 🌟 -->
+                    <!-- 🌟 EXACT CENTER: LARGE PROMINENT GOLDEN SHEIKH NAME 🌟 -->
                     <div class="my-auto py-2.5 text-center w-full">
-                        <div class="text-lg sm:text-xl font-black text-white group-hover:text-amber-200 transition-colors tracking-wide drop-shadow-md line-clamp-1">
+                        <div class="quran-sheikh-title-center group-hover:text-amber-200 transition-colors line-clamp-1">
                             ${r.name}
                         </div>
-                        <div class="text-xs sm:text-sm font-bold text-cyan-300/95 mt-1 flex items-center justify-center gap-1.5 truncate">
+                        <div class="text-xs sm:text-sm font-bold text-amber-200/90 mt-1 flex items-center justify-center gap-1.5 truncate">
                             <span>📜</span>
                             <span>${r.rewaya || 'حفص عن عاصم - مرتل'}</span>
                         </div>
                     </div>
 
-                    <!-- Bottom Bar: Surahs Count & Selection Status -->
-                    <div class="flex items-center justify-between w-full pt-2 border-t border-white/10">
-                        <span class="text-xs px-2.5 py-1 rounded-xl bg-slate-800 text-cyan-300 font-bold border border-cyan-500/25">
+                    <!-- Bottom Bar: Surahs Count & Selection Button -->
+                    <div class="flex items-center justify-between w-full pt-2.5 border-t border-amber-500/20">
+                        <span class="text-xs px-3 py-1 rounded-xl bg-amber-950/80 text-amber-300 font-bold border border-amber-500/30">
                             ${r.surahsCount || 114} سورة
                         </span>
-                        <span class="text-xs px-3.5 py-1 rounded-xl font-black transition shadow ${isSelected ? 'bg-cyan-400 text-slate-950 shadow-cyan-400/40' : 'bg-slate-800 text-slate-300 group-hover:bg-cyan-500 group-hover:text-slate-950'}">
+                        <span class="text-xs px-4 py-1.5 rounded-xl font-black transition shadow-md ${isSelected ? 'bg-amber-400 text-slate-950 font-black' : 'bg-amber-500/20 text-amber-300 border border-amber-500/40 group-hover:bg-amber-500 group-hover:text-slate-950'}">
                             ${isSelected ? '✓ محدد الآن' : 'اختيار القارئ ◀'}
                         </span>
                     </div>
@@ -23002,58 +23023,56 @@ $pdo = getDBConnection();
         if (!container) return;
 
         if (!surahsList || surahsList.length === 0) {
-            container.innerHTML = '<div class="col-span-full py-12 text-center text-base font-bold text-slate-400">لا توجد سور مطابقة لبحثك... جرب كتابة رقم السورة أو اسمها</div>';
+            container.innerHTML = '<div class="col-span-full py-12 text-center text-base font-bold text-emerald-300">لا توجد سور مطابقة لبحثك... جرب كتابة رقم السورة أو اسمها</div>';
             return;
         }
 
         let html = '';
         surahsList.forEach((s, idx) => {
             const padNum = String(s.num).padStart(3, '0');
-            const pal = SURAH_PALETTES[s.num % 6];
             const isPlaying = (currentPlayingSurahNum === s.num);
             const activeClass = isPlaying ? 'is-playing-surah' : '';
-
             const typeIcon = (s.type === 'مكية') ? '🕋' : '🕌';
 
             html += `
-                <div onclick="playSurahTrack(${s.num})" class="quran-surah-card ${pal.border} ${pal.bg} ${activeClass} group shadow-lg" style="${pal.glowCss}">
+                <div onclick="playSurahTrack(${s.num})" class="quran-surah-card ${activeClass} group shadow-lg">
                     <!-- Top Bar: Surah Number & Makki/Madani -->
                     <div class="flex items-center justify-between gap-1">
-                        <span class="w-8 h-8 rounded-xl ${pal.numBg} font-mono font-black text-xs flex items-center justify-center border shadow-sm">
+                        <span class="w-8 h-8 rounded-xl bg-emerald-500/25 text-emerald-200 font-mono font-black text-xs flex items-center justify-center border border-emerald-400/50 shadow-sm">
                             ${padNum}
                         </span>
-                        <span class="text-[11px] text-slate-300 font-bold flex items-center gap-1 bg-slate-900/60 px-2 py-0.5 rounded-lg border border-white/10">
+                        <span class="text-[11px] text-emerald-100 font-bold flex items-center gap-1 bg-emerald-950/80 px-2 py-0.5 rounded-lg border border-emerald-500/40">
                             <span>${typeIcon}</span>
                             <span>${s.type}</span>
                         </span>
                     </div>
 
-                    <!-- Center Area: LARGE PROMINENT CENTERED SURAH NAME -->
+                    <!-- Center Area: LARGE PROMINENT CENTERED SURAH NAME (WHITE ON EMERALD) -->
                     <div class="my-auto py-2.5 text-center">
-                        <div class="quran-surah-title-center ${pal.titleColor}">
+                        <div class="quran-surah-title-center">
                             سورة ${s.name}
                         </div>
                         ${isPlaying ? `
                             <div class="flex items-center justify-center gap-1 mt-1">
-                                <span class="w-1.5 h-3 bg-amber-400 animate-bounce rounded-full"></span>
-                                <span class="w-1.5 h-4 bg-amber-300 animate-bounce rounded-full" style="animation-delay: 0.15s"></span>
-                                <span class="w-1.5 h-2.5 bg-amber-200 animate-bounce rounded-full" style="animation-delay: 0.3s"></span>
-                                <span class="text-xs font-black text-amber-300 mr-1.5">شغال الآن</span>
+                                <span class="w-1.5 h-3 bg-white animate-bounce rounded-full"></span>
+                                <span class="w-1.5 h-4 bg-emerald-200 animate-bounce rounded-full" style="animation-delay: 0.15s"></span>
+                                <span class="w-1.5 h-2.5 bg-emerald-300 animate-bounce rounded-full" style="animation-delay: 0.3s"></span>
+                                <span class="text-xs font-black text-emerald-200 mr-1.5">شغال الآن</span>
                             </div>
                         ` : ''}
                     </div>
 
                     <!-- Bottom Bar: Verses Count & Listen Button -->
-                    <div class="flex items-center justify-between gap-2 pt-1 border-t border-white/10">
-                        <span class="text-[11px] font-bold text-slate-300">
+                    <div class="flex items-center justify-between gap-2 pt-1.5 border-t border-emerald-500/20">
+                        <span class="text-[11px] font-bold text-emerald-200">
                             ${s.verses} آية
                         </span>
                         ${isPlaying ? `
-                            <span class="px-3 py-1 rounded-lg bg-emerald-500 text-slate-950 font-black text-xs flex items-center gap-1 shadow">
+                            <span class="px-3 py-1 rounded-lg bg-white text-emerald-950 font-black text-xs flex items-center gap-1 shadow-md">
                                 🟢 تشغيل
                             </span>
                         ` : `
-                            <button type="button" class="px-3 py-1 rounded-lg ${pal.btnBg} font-black text-xs transition flex items-center gap-1">
+                            <button type="button" class="px-3.5 py-1 rounded-lg bg-emerald-400 hover:bg-emerald-300 text-slate-950 font-black text-xs transition flex items-center gap-1 shadow">
                                 <i class="fa-solid fa-circle-play text-xs"></i>
                                 <span>استماع</span>
                             </button>
