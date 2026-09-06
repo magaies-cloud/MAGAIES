@@ -220,7 +220,7 @@ function doReset() {
 renderList();
 </script>
 
-<script src="js/global_background_media.js?v=2026_seamless_v3" defer></script>
+<script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
 <script src="js/magaiees_back.js?v=2026_back_v2" defer></script>
 </body>
 </html>

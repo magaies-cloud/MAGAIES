@@ -68,7 +68,7 @@
         const existing = document.querySelector('script[src*="global_background_media"]');
         if (!existing) {
             const ms = document.createElement('script');
-            ms.src = 'js/global_background_media.js?v=2026_seamless_v3';
+            ms.src = 'js/global_background_media.js?v=2026_seamless_v5';
             ms.defer = true;
             if (document.head) {
                 document.head.appendChild(ms);

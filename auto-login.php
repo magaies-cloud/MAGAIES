@@ -51,6 +51,6 @@ header("Pragma: no-cache");
             }, 800);
         })();
     </script>
-<script src="js/global_background_media.js?v=2026_seamless_v3" defer></script>
+<script src="js/global_background_media.js?v=2026_seamless_v5" defer></script>
 </body>
 </html>
