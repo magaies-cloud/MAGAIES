@@ -69,6 +69,9 @@
     } catch(e) {}
 
     window.addEventListener('beforeunload', function (e) {
+        if (typeof window.saveGlobalMediaPlaybackPosition === 'function') {
+            try { window.saveGlobalMediaPlaybackPosition(); } catch(err) {}
+        }
         e.stopImmediatePropagation();
         cleanBeforeUnload(e);
     }, true);
@@ -77,6 +80,9 @@
 
     // 3. Global Go Back Navigation Function
     window.magaieesGoBack = function () {
+        if (typeof window.saveGlobalMediaPlaybackPosition === 'function') {
+            try { window.saveGlobalMediaPlaybackPosition(); } catch(err) {}
+        }
         window.isNavigatingBack = true;
         window.formDirty = false;
         window.isSettingsDirty = false;

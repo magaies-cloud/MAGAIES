@@ -1619,6 +1619,7 @@
         setupModal('vision-modal', ['open-vision'], 'close-vision');
         setupModal('brand-modal', ['open-brand-assets', 'open-logo-guide', 'open-colors'], 'close-brand');
     </script>
+<script src="js/global_background_media.js?v=2026_seamless_v3" defer></script>
 </body>
 </html>
 

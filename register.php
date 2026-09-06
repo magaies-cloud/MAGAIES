@@ -1071,6 +1071,7 @@
             }
         }
     </script>
+<script src="js/global_background_media.js?v=2026_seamless_v3" defer></script>
 </body>
 </html>
 

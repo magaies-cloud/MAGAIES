@@ -62,6 +62,23 @@
     };
 })();
 
+// 📡 AUTO-BOOTSTRAP GLOBAL BACKGROUND MEDIA & LIVE TV ACROSS ALL SCREENS
+(function() {
+    if (typeof window.playPersistentMedia !== 'function') {
+        const existing = document.querySelector('script[src*="global_background_media"]');
+        if (!existing) {
+            const ms = document.createElement('script');
+            ms.src = 'js/global_background_media.js?v=2026_seamless_v3';
+            ms.defer = true;
+            if (document.head) {
+                document.head.appendChild(ms);
+            } else {
+                document.addEventListener('DOMContentLoaded', () => document.head.appendChild(ms));
+            }
+        }
+    }
+})();
+
 (function() {
     // Intercept DOMContentLoaded listeners for already-loaded document states (iOS WebKit compatibility)
     const interceptDOMContentLoaded = (target) => {
@@ -130,7 +147,7 @@ JSON.parse = function(val) {
     // Convert a base key like "erp_customers_v1" to a tenant-specific key
     window.getTenantKey = function(baseKey) {
         // Keys that are NOT tenant-specific (global settings)
-        const globalKeys = ['authToken', 'companyName', 'user', 'erp_theme', 'currentTenantId', 'session_active', 'deviceUuid'];
+        const globalKeys = ['authToken', 'companyName', 'user', 'erp_theme', 'currentTenantId', 'session_active', 'deviceUuid', 'elsajana_global_media_state'];
         if (globalKeys.includes(baseKey)) return baseKey;
         // If already prefixed, return as-is
         if (baseKey.startsWith('tenant_')) return baseKey;
