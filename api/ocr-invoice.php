@@ -40,7 +40,8 @@ if (strpos($imageBase64, 'data:') === 0) {
     $imageBase64 = $partsArr[1] ?? $imageBase64;
 }
 
-$apiKey = $_ENV['GEMINI_API_KEY'] ?? getenv('GEMINI_API_KEY') ?: '';
+$clientKey = trim($inputData['api_key'] ?? '');
+$apiKey = !empty($clientKey) ? $clientKey : ($_ENV['GEMINI_API_KEY'] ?? getenv('GEMINI_API_KEY') ?: '');
 
 if (empty($apiKey)) {
     // If no Gemini key is provided, return an informative response

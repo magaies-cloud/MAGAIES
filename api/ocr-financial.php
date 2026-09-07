@@ -43,7 +43,8 @@ if (strpos($imageBase64, 'data:') === 0) {
     $imageBase64 = $partsArr[1] ?? $imageBase64;
 }
 
-$apiKey = $_ENV['GEMINI_API_KEY'] ?? getenv('GEMINI_API_KEY') ?: '';
+$clientKey = trim($inputData['api_key'] ?? '');
+$apiKey = !empty($clientKey) ? $clientKey : ($_ENV['GEMINI_API_KEY'] ?? getenv('GEMINI_API_KEY') ?: '');
 
 // Simulation / Mock fallback for offline or unconfigured API key
 if (empty($apiKey)) {

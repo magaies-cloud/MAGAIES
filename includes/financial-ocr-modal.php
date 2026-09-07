@@ -34,6 +34,9 @@
                 </div>
             </div>
             <div style="display:flex; align-items:center; gap:8px;">
+                <button type="button" onclick="FinancialOCR.openKeyModal()" style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#7dd3fc; padding:6px 12px; border-radius:10px; font-size:0.85rem; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:6px; transition:0.2s;" title="تهيئة مفتاح Gemini API Key">
+                    <span>🔑</span> إعداد المفتاح
+                </button>
                 <button type="button" onclick="FinancialOCR.openTrainer()" style="background:rgba(168,85,247,0.15); border:1px solid #c084fc; color:#d8b4fe; padding:6px 12px; border-radius:10px; font-size:0.85rem; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:6px; transition:0.2s;" title="شرح وتدريب النماذج للذكاء الاصطناعي">
                     <span>🧠</span> تدريب النماذج
                 </button>
@@ -218,6 +221,53 @@
             <button type="button" onclick="FinancialOCR.closeTrainer()" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; padding:8px 22px; border-radius:8px; font-weight:800; cursor:pointer;">إغلاق</button>
         </div>
 
+    </div>
+</div>
+
+<!-- Gemini API Key Setup Modal -->
+<div id="financial-ocr-key-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); backdrop-filter:blur(12px); -webkit-backdrop-filter:blur(12px); z-index:999999; align-items:center; justify-content:center; padding:15px; font-family:'Tajawal',sans-serif; direction:rtl; opacity:0; transition:opacity 0.25s ease;">
+    <div style="background:#0f172a; border:2px solid #38bdf8; border-radius:20px; width:100%; max-width:620px; box-shadow:0 25px 60px rgba(0,0,0,0.9), 0 0 40px rgba(56,189,248,0.3); overflow:hidden;">
+        <!-- Header -->
+        <div style="padding:18px 24px; background:linear-gradient(135deg, rgba(14,165,233,0.25), rgba(15,23,42,0.9)); border-bottom:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:1.8rem;">🔑</span>
+                <div>
+                    <h3 style="margin:0; color:#fff; font-size:1.25rem; font-weight:900;">تهيئة مفتاح الذكاء الاصطناعي (Gemini AI Key)</h3>
+                    <p style="margin:2px 0 0 0; color:#7dd3fc; font-size:0.85rem;">مطلوب لتفعيل الفحص المباشر لإشعارات بنكك والشيكات والفواتير</p>
+                </div>
+            </div>
+            <button type="button" onclick="FinancialOCR.closeKeyModal()" style="background:transparent; border:none; color:#94a3b8; font-size:1.6rem; cursor:pointer;">✕</button>
+        </div>
+        <!-- Body -->
+        <div style="padding:22px 24px; display:flex; flex-direction:column; gap:16px;">
+            <div style="background:rgba(56,189,248,0.08); border:1px solid rgba(56,189,248,0.25); border-radius:12px; padding:14px; font-size:0.9rem; color:#cbd5e1; line-height:1.6;">
+                للاستفادة من ميزة الرؤية الحاسوبية بدقة كاملة، الصق مفتاحك من Google AI Studio أدناه. المفتاح <strong>مجاني 100%</strong> ويتم استخراجه بنقرة زر واحدة:
+                <div style="margin-top:8px;">
+                    <a href="https://aistudio.google.com/app/apikey" target="_blank" rel="noopener" style="display:inline-flex; align-items:center; gap:6px; color:#38bdf8; font-weight:800; text-decoration:underline;">
+                        <span>🔗</span> اضغط هنا لفتح صفحة الحصول على المفتاح المجاني (Google AI Studio) ↗
+                    </a>
+                </div>
+            </div>
+
+            <div>
+                <label style="display:block; color:#f8fafc; font-size:0.9rem; font-weight:800; margin-bottom:6px;">
+                    أدخل مفتاح Gemini API Key (يبدأ عادة بـ AIzaSy...):
+                </label>
+                <div style="display:flex; gap:8px;">
+                    <input type="text" id="gemini-api-key-input" placeholder="AIzaSy..." style="flex:1; height:46px; background:#1e293b; border:1.5px solid #38bdf8; border-radius:10px; color:#fff; font-size:1rem; font-family:'Consolas',monospace; padding:0 12px; outline:none; text-align:left; direction:ltr;">
+                </div>
+                <span id="gemini-key-save-status" style="color:#10b981; font-size:0.85rem; font-weight:700; display:none; margin-top:6px;">✓ تم حفظ وتفعيل المفتاح بنجاح!</span>
+            </div>
+
+            <div style="display:flex; flex-direction:column; gap:10px; margin-top:5px;">
+                <button type="button" onclick="FinancialOCR.saveAndActivateKey()" style="background:linear-gradient(135deg, #10b981, #059669); border:none; color:#fff; padding:12px 20px; border-radius:10px; font-size:1.05rem; font-weight:900; cursor:pointer; box-shadow:0 4px 15px rgba(16,185,129,0.35); display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <span>💾</span> حفظ وتفعيل المسح المباشر الآن
+                </button>
+                <button type="button" onclick="FinancialOCR.useSimulationMode()" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.18); color:#fbbf24; padding:10px 20px; border-radius:10px; font-size:0.95rem; font-weight:800; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:8px;">
+                    <span>🧪</span> تجربة المسح بالوضع الافتراضي (Simulation Demo)
+                </button>
+            </div>
+        </div>
     </div>
 </div>
 

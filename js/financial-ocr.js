@@ -92,11 +92,103 @@
             reader.readAsDataURL(file);
         },
 
+        pendingMockData: null,
+
+        // Open API Key Setup Modal
+        openKeyModal(mockData = null) {
+            this.pendingMockData = mockData;
+            const modal = document.getElementById('financial-ocr-key-modal');
+            const keyInput = document.getElementById('gemini-api-key-input');
+            if (keyInput) {
+                keyInput.value = localStorage.getItem('gemini_api_key') || '';
+            }
+            if (modal) {
+                modal.style.display = 'flex';
+                requestAnimationFrame(() => {
+                    modal.style.opacity = '1';
+                });
+            }
+        },
+
+        closeKeyModal() {
+            const modal = document.getElementById('financial-ocr-key-modal');
+            if (modal) {
+                modal.style.opacity = '0';
+                setTimeout(() => {
+                    modal.style.display = 'none';
+                }, 250);
+            }
+        },
+
+        async saveAndActivateKey() {
+            const keyInput = document.getElementById('gemini-api-key-input');
+            const key = keyInput ? keyInput.value.trim() : '';
+            const statusSpan = document.getElementById('gemini-key-save-status');
+
+            if (!key) {
+                this.showToast('يرجى إدخال مفتاح Gemini API Key صالح', 'warning');
+                return;
+            }
+
+            try {
+                const res = await fetch('api/save-gemini-key.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ api_key: key })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    localStorage.setItem('gemini_api_key', key);
+                    if (statusSpan) statusSpan.style.display = 'block';
+                    this.showToast('✅ تم حفظ وتفعيل مفتاح الذكاء الاصطناعي بنجاح!', 'success');
+                    setTimeout(() => {
+                        this.closeKeyModal();
+                        if (this.currentImageBase64) {
+                            this.sendToOCR(this.currentImageBase64);
+                        }
+                    }, 800);
+                } else {
+                    this.showToast(data.error || 'فشل حفظ المفتاح', 'error');
+                }
+            } catch (e) {
+                localStorage.setItem('gemini_api_key', key);
+                this.showToast('✅ تم حفظ المفتاح في المتصفح بنجاح!', 'success');
+                this.closeKeyModal();
+                if (this.currentImageBase64) {
+                    this.sendToOCR(this.currentImageBase64);
+                }
+            }
+        },
+
+        useSimulationMode() {
+            this.closeKeyModal();
+            const dataToUse = this.pendingMockData || {
+                doc_type: 'bank_transfer',
+                bank_name: 'بنك الخرطوم (تجريبي)',
+                app_name: 'بنكك (Bankak)',
+                transaction_ref: 'TRX-58492014',
+                amount: 150000.0,
+                currency: 'SDG',
+                date: new Date().toISOString().split('T')[0],
+                due_date: new Date().toISOString().split('T')[0],
+                sender_name: 'محمد أحمد عبد الله',
+                sender_account: '284****',
+                receiver_name: 'مؤسسة السجانة التجارية',
+                receiver_account: '195****',
+                notes: 'سداد دفعة نقدية بالتحويل (تجريبي)',
+                confidence_score: 90,
+                summary: 'تحويل بنكي تجريبي بمبلغ 150,000 جنيه عبر بنكك'
+            };
+            this.lastExtractedData = dataToUse;
+            this.showReviewModal(dataToUse);
+        },
+
         // 3. Send to Server API
         async sendToOCR(base64Data) {
             this.showLoading(true, 'جاري تحليل المستند واستخراج البيانات عبر Gemini AI... 🔍');
 
             const customGuidelines = localStorage.getItem('erp_financial_ocr_guidelines') || '';
+            const clientApiKey = localStorage.getItem('gemini_api_key') || '';
 
             try {
                 const response = await fetch('api/ocr-financial.php', {
@@ -104,6 +196,7 @@
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
                         image: base64Data,
+                        api_key: clientApiKey,
                         custom_guidelines: customGuidelines,
                         doc_hint: this.activeContext.docHint || 'auto'
                     })
@@ -116,10 +209,9 @@
                     this.lastExtractedData = result.data;
                     this.showReviewModal(result.data);
                 } else if (result.is_mock_fallback && result.mock_data) {
-                    // Inform the user and allow review using simulated data
+                    // Open key configuration modal so user can enter key or try simulation
                     this.lastExtractedData = result.mock_data;
-                    this.showToast(result.error || 'تم تفعيل وضع المحاكاة التجريبي', 'warning', 6000);
-                    this.showReviewModal(result.mock_data);
+                    this.openKeyModal(result.mock_data);
                 } else {
                     this.showToast(result.error || 'فشل استخراج بيانات المستند', 'error');
                 }
