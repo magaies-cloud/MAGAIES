@@ -398,61 +398,80 @@ $pdo = getDBConnection();
             }
         }
         
-        /* ── أزرار القنوات المقدسة المدمجة في سطر واحد (عالية الإضاءة) ── */
+        /* ── أزرار القنوات والإذاعات المقدسة (صفين متناسقين × 5 أزرار عصرية وأنيقة) ── */
+        .sacred-media-container {
+            width: 100%;
+        }
+        .sacred-media-grid {
+            display: grid !important;
+            grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
+            gap: 10px !important;
+        }
+        @media (max-width: 640px) {
+            .sacred-media-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+            }
+        }
+        @media (max-width: 380px) {
+            .sacred-media-grid {
+                grid-template-columns: 1fr !important;
+            }
+        }
         .sacred-media-pill {
-            padding: 8px 10px;
+            padding: 8px 12px;
             border-radius: 14px;
-            min-height: 52px;
+            min-height: 56px;
             cursor: pointer;
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             align-items: center;
-            justify-content: center;
+            justify-content: space-between;
             gap: 8px;
-            text-align: center;
             border: 1.5px solid var(--sm-border);
-            background: linear-gradient(145deg, rgba(20, 27, 45, 0.95), rgba(10, 15, 28, 0.98));
+            background: linear-gradient(145deg, rgba(15, 23, 42, 0.9), rgba(24, 33, 56, 0.85));
             color: #ffffff;
-            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.15), 0 0 10px var(--sm-bg);
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.35), inset 0 1px 1px rgba(255, 255, 255, 0.1);
             position: relative;
             overflow: hidden;
+            backdrop-filter: blur(10px);
+            -webkit-backdrop-filter: blur(10px);
         }
         .sacred-media-pill:hover {
-            transform: translateY(-2px) scale(1.02);
+            transform: translateY(-2px) scale(1.015);
             border-color: var(--sm-color);
-            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5), 0 0 20px var(--sm-color);
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.5), 0 0 20px var(--sm-bg), inset 0 1px 2px rgba(255, 255, 255, 0.15);
         }
         .sacred-media-pill.is-active {
             border-color: var(--sm-color) !important;
-            background: linear-gradient(135deg, var(--sm-bg), rgba(10, 15, 30, 0.99)) !important;
+            background: linear-gradient(135deg, var(--sm-bg), rgba(15, 23, 42, 0.98)) !important;
             animation: tv-neon-pulse-glow 1.8s infinite ease-in-out !important;
             transform: translateY(-2px) scale(1.02) !important;
             z-index: 10;
         }
         .sm-icon-box {
-            width: 30px;
-            height: 30px;
-            border-radius: 9px;
-            background: rgba(255, 255, 255, 0.08);
+            width: 36px;
+            height: 36px;
+            border-radius: 10px;
+            background: rgba(255, 255, 255, 0.07);
             border: 1.5px solid var(--sm-border);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 14px;
+            font-size: 15px;
             flex-shrink: 0;
             transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-            filter: drop-shadow(0 0 5px var(--sm-color));
-            box-shadow: inset 0 0 6px var(--sm-bg);
+            filter: drop-shadow(0 0 6px var(--sm-color));
+            box-shadow: inset 0 0 8px var(--sm-bg);
         }
         .sacred-media-pill:hover .sm-icon-box {
             transform: scale(1.08);
-            filter: drop-shadow(0 0 10px var(--sm-color));
+            filter: drop-shadow(0 0 12px var(--sm-color));
         }
         .sacred-media-pill.is-active .sm-icon-box {
             background: var(--sm-color) !important;
             color: #020617 !important;
             border-color: #ffffff !important;
-            box-shadow: 0 0 15px #ffffff, 0 0 25px var(--sm-color) !important;
+            box-shadow: 0 0 18px #ffffff, 0 0 30px var(--sm-color) !important;
             animation: tv-icon-radiance 1.8s infinite ease-in-out !important;
         }
         .sacred-media-pill.is-active .sm-icon-box i {
@@ -466,43 +485,70 @@ $pdo = getDBConnection();
         .sm-text-box {
             display: flex;
             flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            text-align: center;
+            align-items: flex-start;
+            text-align: right;
             overflow: hidden;
             min-width: 0;
         }
         .sm-title {
-            font-size: 11.5px;
+            font-size: 12.5px;
             font-weight: 900;
-            line-height: 1.2;
+            line-height: 1.25;
             white-space: nowrap;
         }
         .sm-sub {
-            font-size: 9px;
-            font-weight: 800;
-            margin-top: 1px;
+            font-size: 10px;
+            font-weight: 700;
+            margin-top: 2px;
             white-space: nowrap;
             overflow: hidden;
             text-overflow: ellipsis;
             max-width: 100%;
         }
+        .sm-indicator-wrapper {
+            display: flex;
+            align-items: center;
+            margin-right: auto;
+            flex-shrink: 0;
+            padding-left: 2px;
+        }
         .sm-status-dot {
-            width: 6px;
-            height: 6px;
+            width: 7px;
+            height: 7px;
             border-radius: 50%;
-            background: rgba(255, 255, 255, 0.25);
-            border: 1px solid rgba(255, 255, 255, 0.4);
-            position: absolute;
-            top: 5px;
-            left: 5px;
+            background: rgba(255, 255, 255, 0.2);
+            border: 1px solid rgba(255, 255, 255, 0.35);
             transition: all 0.3s;
         }
         .sacred-media-pill.is-active .sm-status-dot {
-            background: #ef4444;
-            border-color: #ffffff;
-            box-shadow: 0 0 10px #ef4444;
-            animation: ping 1.4s infinite;
+            display: none;
+        }
+        .sm-eq-bars {
+            display: none;
+            align-items: flex-end;
+            gap: 2px;
+            height: 14px;
+        }
+        .sacred-media-pill.is-active .sm-eq-bars {
+            display: flex;
+        }
+        .sm-eq-bars span {
+            width: 2.5px;
+            background: #34d399;
+            border-radius: 2px;
+            animation: sm-eq-dance 0.8s infinite ease-in-out;
+        }
+        .sm-eq-bars span:nth-child(2) {
+            animation-delay: 0.2s;
+            height: 12px;
+        }
+        .sm-eq-bars span:nth-child(3) {
+            animation-delay: 0.4s;
+            height: 8px;
+        }
+        @keyframes sm-eq-dance {
+            0%, 100% { height: 4px; }
+            50% { height: 14px; }
         }
 
 
@@ -1929,110 +1975,166 @@ $pdo = getDBConnection();
 
         
         <!-- ════════════════════════════════════════════════════════════════ -->
-        <!-- 📡 SACRED MEDIA BAR (10 أيقونات صغيرة مدمجة: مكة · المدينة · المجد · القرآن MP3 · البخاري · مسلم · رياض الصالحين · الشمائل · السيرة · الصحابة) -->
+        <!-- 📡 SACRED MEDIA BAR (10 إذاعات وقنوات في صفين متناسقين - 5 أزرار عصرية في كل صف) -->
         <!-- ════════════════════════════════════════════════════════════════ -->
-        <div class="mb-6 grid grid-cols-2 sm:grid-cols-5 xl:grid-cols-10 gap-2 select-none">
-            
-            <!-- 1. مكة -->
-            <div id="quick-media-btn-makkah" onclick="toggleQuickChannel('makkah')" class="sacred-media-pill group" style="--sm-color: #f59e0b; --sm-bg: rgba(245, 158, 11, 0.2); --sm-border: rgba(245, 158, 11, 0.5);" title="تشغيل مكة المكرمة">
-                <div class="sm-icon-box text-yellow-400"><i class="fa-solid fa-kaaba"></i></div>
-                <div class="sm-text-box">
-                    <div class="sm-title text-yellow-300">🕋 مكة</div>
-                    <div id="sm-sub-makkah" class="sm-sub text-yellow-400/80">تشغيل فوري</div>
-                </div>
-                <div id="sm-status-makkah" class="sm-status-dot"></div>
-            </div>
+        <div class="mb-6 sacred-media-container select-none">
+            <div class="sacred-media-grid">
+                
+                <!-- ── السطر الأول (المحطات الكبرى والقرآن والبخاري) ── -->
 
-            <!-- 2. المدينة -->
-            <div id="quick-media-btn-madinah" onclick="toggleQuickChannel('madinah')" class="sacred-media-pill group" style="--sm-color: #10b981; --sm-bg: rgba(16, 185, 129, 0.2); --sm-border: rgba(16, 185, 129, 0.5);" title="تشغيل المدينة المنورة">
-                <div class="sm-icon-box text-emerald-400"><i class="fa-solid fa-mosque"></i></div>
-                <div class="sm-text-box">
-                    <div class="sm-title text-emerald-300">🕌 المدينة</div>
-                    <div id="sm-sub-madinah" class="sm-sub text-emerald-400/80">تشغيل فوري</div>
+                <!-- 1. مكة المكرمة -->
+                <div id="quick-media-btn-makkah" onclick="toggleQuickChannel('makkah')" class="sacred-media-pill group" style="--sm-color: #f59e0b; --sm-bg: rgba(245, 158, 11, 0.22); --sm-border: rgba(245, 158, 11, 0.45);" title="تشغيل مكة المكرمة">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="sm-icon-box text-amber-400"><i class="fa-solid fa-kaaba"></i></div>
+                        <div class="sm-text-box">
+                            <div class="sm-title text-amber-200">🕋 مكة المكرمة</div>
+                            <div id="sm-sub-makkah" class="sm-sub text-amber-400/90">الحرم المكي</div>
+                        </div>
+                    </div>
+                    <div class="sm-indicator-wrapper">
+                        <div class="sm-eq-bars"><span></span><span></span><span></span></div>
+                        <div id="sm-status-makkah" class="sm-status-dot"></div>
+                    </div>
                 </div>
-                <div id="sm-status-madinah" class="sm-status-dot"></div>
-            </div>
 
-            <!-- 3. المجد -->
-            <div id="quick-media-btn-majd" onclick="toggleQuickChannel('majd')" class="sacred-media-pill group" style="--sm-color: #fbbf24; --sm-bg: rgba(251, 191, 36, 0.2); --sm-border: rgba(251, 191, 36, 0.5);" title="تشغيل إذاعة وقناة المجد">
-                <div class="sm-icon-box text-amber-400"><i class="fa-solid fa-tv"></i></div>
-                <div class="sm-text-box">
-                    <div class="sm-title text-amber-300">📺 المجد</div>
-                    <div id="sm-sub-majd" class="sm-sub text-amber-400/80">تشغيل فوري</div>
+                <!-- 2. المدينة المنورة -->
+                <div id="quick-media-btn-madinah" onclick="toggleQuickChannel('madinah')" class="sacred-media-pill group" style="--sm-color: #10b981; --sm-bg: rgba(16, 185, 129, 0.22); --sm-border: rgba(16, 185, 129, 0.45);" title="تشغيل المدينة المنورة">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="sm-icon-box text-emerald-400"><i class="fa-solid fa-mosque"></i></div>
+                        <div class="sm-text-box">
+                            <div class="sm-title text-emerald-200">🕌 المدينة المنورة</div>
+                            <div id="sm-sub-madinah" class="sm-sub text-emerald-400/90">المسجد النبوي</div>
+                        </div>
+                    </div>
+                    <div class="sm-indicator-wrapper">
+                        <div class="sm-eq-bars"><span></span><span></span><span></span></div>
+                        <div id="sm-status-madinah" class="sm-status-dot"></div>
+                    </div>
                 </div>
-                <div id="sm-status-majd" class="sm-status-dot"></div>
-            </div>
 
-            <!-- 4. القرآن MP3 -->
-            <div id="quick-media-btn-quran_mp3" onclick="handleQuranCardClick(event)" class="sacred-media-pill group" style="--sm-color: #06b6d4; --sm-bg: rgba(6, 182, 212, 0.2); --sm-border: rgba(6, 182, 212, 0.5);" title="استوديو القرآن الكريم MP3">
-                <div class="sm-icon-box text-cyan-400"><i class="fa-solid fa-headphones"></i></div>
-                <div class="sm-text-box">
-                    <div class="sm-title text-cyan-300">🎧 القرآن MP3</div>
-                    <div id="sm-sub-quran_mp3" class="sm-sub text-cyan-400/80">القراء والسور</div>
+                <!-- 3. تلفزيون المجد -->
+                <div id="quick-media-btn-majd" onclick="toggleQuickChannel('majd')" class="sacred-media-pill group" style="--sm-color: #fbbf24; --sm-bg: rgba(251, 191, 36, 0.22); --sm-border: rgba(251, 191, 36, 0.45);" title="تشغيل إذاعة وقناة المجد">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="sm-icon-box text-yellow-400"><i class="fa-solid fa-tv"></i></div>
+                        <div class="sm-text-box">
+                            <div class="sm-title text-yellow-200">📺 تلفزيون المجد</div>
+                            <div id="sm-sub-majd" class="sm-sub text-yellow-400/90">تلاوات خاشعة</div>
+                        </div>
+                    </div>
+                    <div class="sm-indicator-wrapper">
+                        <div class="sm-eq-bars"><span></span><span></span><span></span></div>
+                        <div id="sm-status-majd" class="sm-status-dot"></div>
+                    </div>
                 </div>
-                <div id="sm-status-quran_mp3" class="sm-status-dot"></div>
-            </div>
 
-            <!-- 5. البخاري -->
-            <div id="quick-media-btn-hadith_bukhari" onclick="toggleQuickChannel('hadith_bukhari')" class="sacred-media-pill group" style="--sm-color: #a855f7; --sm-bg: rgba(168, 85, 247, 0.2); --sm-border: rgba(168, 85, 247, 0.5);" title="صحيح البخاري كامل">
-                <div class="sm-icon-box text-purple-400"><i class="fa-solid fa-book-open"></i></div>
-                <div class="sm-text-box">
-                    <div class="sm-title text-purple-300">📜 البخاري</div>
-                    <div id="sm-sub-hadith_bukhari" class="sm-sub text-purple-400/80">صحيح البخاري</div>
+                <!-- 4. القرآن MP3 -->
+                <div id="quick-media-btn-quran_mp3" onclick="handleQuranCardClick(event)" class="sacred-media-pill group" style="--sm-color: #06b6d4; --sm-bg: rgba(6, 182, 212, 0.22); --sm-border: rgba(6, 182, 212, 0.45);" title="استوديو القرآن الكريم MP3">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="sm-icon-box text-cyan-400"><i class="fa-solid fa-headphones"></i></div>
+                        <div class="sm-text-box">
+                            <div class="sm-title text-cyan-200">🎧 القرآن MP3</div>
+                            <div id="sm-sub-quran_mp3" class="sm-sub text-cyan-400/90">287 قارئ ومصحف</div>
+                        </div>
+                    </div>
+                    <div class="sm-indicator-wrapper">
+                        <div class="sm-eq-bars"><span></span><span></span><span></span></div>
+                        <div id="sm-status-quran_mp3" class="sm-status-dot"></div>
+                    </div>
                 </div>
-                <div id="sm-status-hadith_bukhari" class="sm-status-dot"></div>
-            </div>
 
-            <!-- 6. مسلم -->
-            <div id="quick-media-btn-hadith_muslim" onclick="toggleQuickChannel('hadith_muslim')" class="sacred-media-pill group" style="--sm-color: #10b981; --sm-bg: rgba(16, 185, 129, 0.2); --sm-border: rgba(16, 185, 129, 0.5);" title="صحيح مسلم">
-                <div class="sm-icon-box text-emerald-400"><i class="fa-solid fa-book-bookmark"></i></div>
-                <div class="sm-text-box">
-                    <div class="sm-title text-emerald-300">📗 مسلم</div>
-                    <div id="sm-sub-hadith_muslim" class="sm-sub text-emerald-400/80">صحيح مسلم</div>
+                <!-- 5. صحيح البخاري -->
+                <div id="quick-media-btn-hadith_bukhari" onclick="toggleQuickChannel('hadith_bukhari')" class="sacred-media-pill group" style="--sm-color: #a855f7; --sm-bg: rgba(168, 85, 247, 0.22); --sm-border: rgba(168, 85, 247, 0.45);" title="صحيح البخاري كامل">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="sm-icon-box text-purple-400"><i class="fa-solid fa-book-open"></i></div>
+                        <div class="sm-text-box">
+                            <div class="sm-title text-purple-200">📜 صحيح البخاري</div>
+                            <div id="sm-sub-hadith_bukhari" class="sm-sub text-purple-400/90">إذاعة السنة 24/7</div>
+                        </div>
+                    </div>
+                    <div class="sm-indicator-wrapper">
+                        <div class="sm-eq-bars"><span></span><span></span><span></span></div>
+                        <div id="sm-status-hadith_bukhari" class="sm-status-dot"></div>
+                    </div>
                 </div>
-                <div id="sm-status-hadith_muslim" class="sm-status-dot"></div>
-            </div>
 
-            <!-- 7. رياض الصالحين -->
-            <div id="quick-media-btn-hadith_riyad" onclick="toggleQuickChannel('hadith_riyad')" class="sacred-media-pill group" style="--sm-color: #059669; --sm-bg: rgba(5, 150, 105, 0.2); --sm-border: rgba(5, 150, 105, 0.5);" title="رياض الصالحين للنووي">
-                <div class="sm-icon-box text-emerald-400"><i class="fa-solid fa-leaf"></i></div>
-                <div class="sm-text-box">
-                    <div class="sm-title text-emerald-300">🌿 رياض الصالحين</div>
-                    <div id="sm-sub-hadith_riyad" class="sm-sub text-emerald-400/80">رياض الصالحين</div>
+                <!-- ── السطر الثاني (إذاعات الحديث والسنة النبوية) ── -->
+
+                <!-- 6. صحيح مسلم -->
+                <div id="quick-media-btn-hadith_muslim" onclick="toggleQuickChannel('hadith_muslim')" class="sacred-media-pill group" style="--sm-color: #10b981; --sm-bg: rgba(16, 185, 129, 0.22); --sm-border: rgba(16, 185, 129, 0.45);" title="صحيح مسلم">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="sm-icon-box text-emerald-400"><i class="fa-solid fa-book-bookmark"></i></div>
+                        <div class="sm-text-box">
+                            <div class="sm-title text-emerald-200">📗 صحيح مسلم</div>
+                            <div id="sm-sub-hadith_muslim" class="sm-sub text-emerald-400/90">الجامع الصحيح</div>
+                        </div>
+                    </div>
+                    <div class="sm-indicator-wrapper">
+                        <div class="sm-eq-bars"><span></span><span></span><span></span></div>
+                        <div id="sm-status-hadith_muslim" class="sm-status-dot"></div>
+                    </div>
                 </div>
-                <div id="sm-status-hadith_riyad" class="sm-status-dot"></div>
-            </div>
 
-            <!-- 8. الشمائل -->
-            <div id="quick-media-btn-hadith_shmaeel" onclick="toggleQuickChannel('hadith_shmaeel')" class="sacred-media-pill group" style="--sm-color: #c084fc; --sm-bg: rgba(192, 132, 252, 0.2); --sm-border: rgba(192, 132, 252, 0.5);" title="الشمائل المحمدية للترمذي">
-                <div class="sm-icon-box text-purple-300"><i class="fa-solid fa-star-and-crescent"></i></div>
-                <div class="sm-text-box">
-                    <div class="sm-title text-purple-200">✨ الشمائل</div>
-                    <div id="sm-sub-hadith_shmaeel" class="sm-sub text-purple-400/80">الشمائل</div>
+                <!-- 7. رياض الصالحين -->
+                <div id="quick-media-btn-hadith_riyad" onclick="toggleQuickChannel('hadith_riyad')" class="sacred-media-pill group" style="--sm-color: #059669; --sm-bg: rgba(5, 150, 105, 0.22); --sm-border: rgba(5, 150, 105, 0.45);" title="رياض الصالحين للنووي">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="sm-icon-box text-emerald-300"><i class="fa-solid fa-leaf"></i></div>
+                        <div class="sm-text-box">
+                            <div class="sm-title text-emerald-200">🌿 رياض الصالحين</div>
+                            <div id="sm-sub-hadith_riyad" class="sm-sub text-emerald-400/90">للإمام النووي</div>
+                        </div>
+                    </div>
+                    <div class="sm-indicator-wrapper">
+                        <div class="sm-eq-bars"><span></span><span></span><span></span></div>
+                        <div id="sm-status-hadith_riyad" class="sm-status-dot"></div>
+                    </div>
                 </div>
-                <div id="sm-status-hadith_shmaeel" class="sm-status-dot"></div>
-            </div>
 
-            <!-- 9. السيرة -->
-            <div id="quick-media-btn-hadith_siyra" onclick="toggleQuickChannel('hadith_siyra')" class="sacred-media-pill group" style="--sm-color: #f59e0b; --sm-bg: rgba(245, 158, 11, 0.2); --sm-border: rgba(245, 158, 11, 0.5);" title="في ظلال السيرة النبوية">
-                <div class="sm-icon-box text-amber-400"><i class="fa-solid fa-mosque"></i></div>
-                <div class="sm-text-box">
-                    <div class="sm-title text-amber-300">🕌 السيرة</div>
-                    <div id="sm-sub-hadith_siyra" class="sm-sub text-amber-400/80">السيرة النبوية</div>
+                <!-- 8. الشمائل المحمدية -->
+                <div id="quick-media-btn-hadith_shmaeel" onclick="toggleQuickChannel('hadith_shmaeel')" class="sacred-media-pill group" style="--sm-color: #c084fc; --sm-bg: rgba(192, 132, 252, 0.22); --sm-border: rgba(192, 132, 252, 0.45);" title="الشمائل المحمدية للترمذي">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="sm-icon-box text-purple-300"><i class="fa-solid fa-star-and-crescent"></i></div>
+                        <div class="sm-text-box">
+                            <div class="sm-title text-purple-200">✨ الشمائل المحمدية</div>
+                            <div id="sm-sub-hadith_shmaeel" class="sm-sub text-purple-400/90">للإمام الترمذي</div>
+                        </div>
+                    </div>
+                    <div class="sm-indicator-wrapper">
+                        <div class="sm-eq-bars"><span></span><span></span><span></span></div>
+                        <div id="sm-status-hadith_shmaeel" class="sm-status-dot"></div>
+                    </div>
                 </div>
-                <div id="sm-status-hadith_siyra" class="sm-status-dot"></div>
-            </div>
 
-            <!-- 10. الصحابة -->
-            <div id="quick-media-btn-hadith_sahabah" onclick="toggleQuickChannel('hadith_sahabah')" class="sacred-media-pill group" style="--sm-color: #38bdf8; --sm-bg: rgba(56, 189, 248, 0.2); --sm-border: rgba(56, 189, 248, 0.5);" title="صور من حياة الصحابة">
-                <div class="sm-icon-box text-sky-400"><i class="fa-solid fa-users"></i></div>
-                <div class="sm-text-box">
-                    <div class="sm-title text-sky-300">👥 الصحابة</div>
-                    <div id="sm-sub-hadith_sahabah" class="sm-sub text-sky-400/80">حياة الصحابة</div>
+                <!-- 9. السيرة النبوية -->
+                <div id="quick-media-btn-hadith_siyra" onclick="toggleQuickChannel('hadith_siyra')" class="sacred-media-pill group" style="--sm-color: #f59e0b; --sm-bg: rgba(245, 158, 11, 0.22); --sm-border: rgba(245, 158, 11, 0.45);" title="في ظلال السيرة النبوية">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="sm-icon-box text-amber-400"><i class="fa-solid fa-mosque"></i></div>
+                        <div class="sm-text-box">
+                            <div class="sm-title text-amber-200">🕌 السيرة النبوية</div>
+                            <div id="sm-sub-hadith_siyra" class="sm-sub text-amber-400/90">في ظلال السيرة</div>
+                        </div>
+                    </div>
+                    <div class="sm-indicator-wrapper">
+                        <div class="sm-eq-bars"><span></span><span></span><span></span></div>
+                        <div id="sm-status-hadith_siyra" class="sm-status-dot"></div>
+                    </div>
                 </div>
-                <div id="sm-status-hadith_sahabah" class="sm-status-dot"></div>
-            </div>
 
+                <!-- 10. حياة الصحابة -->
+                <div id="quick-media-btn-hadith_sahabah" onclick="toggleQuickChannel('hadith_sahabah')" class="sacred-media-pill group" style="--sm-color: #38bdf8; --sm-bg: rgba(56, 189, 248, 0.22); --sm-border: rgba(56, 189, 248, 0.45);" title="صور من حياة الصحابة">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="sm-icon-box text-sky-400"><i class="fa-solid fa-users"></i></div>
+                        <div class="sm-text-box">
+                            <div class="sm-title text-sky-200">👥 حياة الصحابة</div>
+                            <div id="sm-sub-hadith_sahabah" class="sm-sub text-sky-400/90">سير الصحابة الأبرار</div>
+                        </div>
+                    </div>
+                    <div class="sm-indicator-wrapper">
+                        <div class="sm-eq-bars"><span></span><span></span><span></span></div>
+                        <div id="sm-status-hadith_sahabah" class="sm-status-dot"></div>
+                    </div>
+                </div>
+
+            </div>
         </div>
 
         <!-- 📜 MODAL: HADITH & SUNNAH CHANNELS PICKER -->
@@ -23431,16 +23533,16 @@ $pdo = getDBConnection();
         ];
 
         const defaultLabels = {
-            makkah: 'تشغيل فوري',
-            madinah: 'تشغيل فوري',
-            majd: 'تشغيل فوري',
-            quran_mp3: 'القراء والسور',
-            hadith_bukhari: 'صحيح البخاري',
-            hadith_muslim: 'صحيح مسلم',
-            hadith_riyad: 'رياض الصالحين',
-            hadith_shmaeel: 'الشمائل',
-            hadith_siyra: 'السيرة النبوية',
-            hadith_sahabah: 'حياة الصحابة'
+            makkah: 'الحرم المكي',
+            madinah: 'المسجد النبوي',
+            majd: 'تلاوات خاشعة',
+            quran_mp3: '287 قارئ ومصحف',
+            hadith_bukhari: 'إذاعة السنة 24/7',
+            hadith_muslim: 'الجامع الصحيح',
+            hadith_riyad: 'للإمام النووي',
+            hadith_shmaeel: 'للإمام الترمذي',
+            hadith_siyra: 'في ظلال السيرة',
+            hadith_sahabah: 'سير الصحابة الأبرار'
         };
 
         keys.forEach(k => {
