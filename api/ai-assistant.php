@@ -28,10 +28,13 @@ if (empty($userMessage)) {
     exit;
 }
 
+require_once __DIR__ . '/ai-config.php';
+
 // 2. Setup API Key and Endpoint
-$clientKey = trim($data['api_key'] ?? '');
-$apiKey = !empty($clientKey) ? $clientKey : ($_ENV['GEMINI_API_KEY'] ?? getenv('GEMINI_API_KEY') ?: '');
-$url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . $apiKey;
+$clientKey = trim($inputData['api_key'] ?? '');
+$apiKey = getGeminiApiKey($clientKey);
+$model = getGeminiModel();
+$url = "https://generativelanguage.googleapis.com/v1beta/models/" . $model . ":generateContent?key=" . $apiKey;
 
 // 3. Construct System Prompt
 $systemPrompt = "أنت 'المستشار المالي التنفيذي (Virtual CFO)' ومساعد الذكاء الاصطناعي الاستراتيجي ضمن نظام MAGAIEES ERP المتطور.

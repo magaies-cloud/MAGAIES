@@ -40,7 +40,8 @@ $data_for_ai .= json_encode($stock_summary, JSON_UNESCAPED_UNICODE) . "\n";
 $ai_analysis_result = "";
 
 if (isset($_POST['consult_ai'])) {
-    $gemini_key = $_ENV['GEMINI_API_KEY'] ?? getenv('GEMINI_API_KEY') ?: '';
+    require_once __DIR__ . '/api/ai-config.php';
+    $gemini_key = getGeminiApiKey();
     $openai_key = $_ENV['OPENAI_API_KEY'] ?? getenv('OPENAI_API_KEY') ?: '';
     
     $prompt = "أنت خبير إداري ولوجستي في سوق السجانة لحديد التسليح ومواد البناء بالسودان. حلل بيانات المخزون وأعطني تقريراً استراتيجياً مركزاً ومختصراً جداً عن النواقص والبضاعة الراكدة ونصائح الشراء. اكتب التقرير باللغة العربية في نقاط واضحة ومباشرة بدون مقدمات لتسريع الاستجابة:\n" . $data_for_ai;

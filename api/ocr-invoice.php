@@ -40,8 +40,11 @@ if (strpos($imageBase64, 'data:') === 0) {
     $imageBase64 = $partsArr[1] ?? $imageBase64;
 }
 
+require_once __DIR__ . '/ai-config.php';
+
 $clientKey = trim($inputData['api_key'] ?? '');
-$apiKey = !empty($clientKey) ? $clientKey : ($_ENV['GEMINI_API_KEY'] ?? getenv('GEMINI_API_KEY') ?: '');
+$apiKey = getGeminiApiKey($clientKey);
+$model = getGeminiModel();
 
 if (empty($apiKey)) {
     // If no Gemini key is provided, return an informative response
@@ -53,7 +56,7 @@ if (empty($apiKey)) {
     exit;
 }
 
-$url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . $apiKey;
+$url = "https://generativelanguage.googleapis.com/v1beta/models/" . $model . ":generateContent?key=" . $apiKey;
 
 $knownItemsContext = "";
 if (!empty($knownItems) && is_array($knownItems)) {

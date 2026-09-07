@@ -50,7 +50,8 @@ $ai_analysis_result = "";
 
 // 2. عند الضغط على زر "استشارة الذكاء الاصطناعي"
 if (isset($_POST['consult_ai'])) {
-    $gemini_key = $_ENV['GEMINI_API_KEY'] ?? getenv('GEMINI_API_KEY') ?: '';
+    require_once __DIR__ . '/api/ai-config.php';
+    $gemini_key = getGeminiApiKey();
     $openai_key = $_ENV['OPENAI_API_KEY'] ?? getenv('OPENAI_API_KEY') ?: '';
     
     $prompt = "أنت خبير مالي وإداري في سوق السجانة لحديد التسليح ومواد البناء بالسودان. حلل هذه البيانات الحالية لبرنامج MAGAIEES ERP وأعطني تقريراً استراتيجياً قصيراً ومباشراً للباشمهندس مهدي يتوقع حركة الأسعار، مخاطر الائتمان، ونصيحة لشراء المخزون وتفادي الركود. اكتب التقرير باللغة العربية في نقاط واضحة ومنسقة باستخدام مارك داون وبدون أي كلام تمهيدي:\n" . $data_for_ai;

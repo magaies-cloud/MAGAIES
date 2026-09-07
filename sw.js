@@ -1,4 +1,4 @@
-// Version: 20260908010000 (AI Financial OCR Trainer Studio & Knowledge Base)
+// Version: 20260908010800 (Activated Built-in AI Keys and Direct Vision Support)
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });

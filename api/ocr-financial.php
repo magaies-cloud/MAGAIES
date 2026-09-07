@@ -42,9 +42,11 @@ if (strpos($imageBase64, 'data:') === 0) {
     $partsArr = explode('base64,', $imageBase64);
     $imageBase64 = $partsArr[1] ?? $imageBase64;
 }
+require_once __DIR__ . '/ai-config.php';
 
 $clientKey = trim($inputData['api_key'] ?? '');
-$apiKey = !empty($clientKey) ? $clientKey : ($_ENV['GEMINI_API_KEY'] ?? getenv('GEMINI_API_KEY') ?: '');
+$apiKey = getGeminiApiKey($clientKey);
+$model = getGeminiModel();
 
 // Simulation / Mock fallback for offline or unconfigured API key
 if (empty($apiKey)) {
@@ -76,7 +78,7 @@ if (empty($apiKey)) {
     exit;
 }
 
-$url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . $apiKey;
+$url = "https://generativelanguage.googleapis.com/v1beta/models/" . $model . ":generateContent?key=" . $apiKey;
 
 $serverGuidelinesFile = __DIR__ . '/financial_ocr_guidelines.txt';
 $serverTemplatesFile = __DIR__ . '/financial_templates.json';
