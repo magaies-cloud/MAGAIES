@@ -3044,40 +3044,18 @@ function recalcPaymentSummary(isRevertCall = false) {
         }
     });
 
-    // Check if entered payment amounts exceed the invoice grand total
+    // Save current values on inputs
+    if (cashInput) cashInput.dataset.lastValidValue = cashInput.value;
+    document.querySelectorAll('.bt-amount-input').forEach(input => {
+        input.dataset.lastValidValue = input.value;
+    });
+    document.querySelectorAll('.ch-amount-input').forEach(input => {
+        input.dataset.lastValidValue = input.value;
+    });
+
     const enteredPayments = cash + transfersSum + chequesSum;
-    if (enteredPayments > grand + 0.01) {
-        showToast('⚠️ المبلغ الذي تم إدخاله أكبر من قيمة الفاتورة!', 'warning');
-        if (typeof PlaySound !== 'undefined') PlaySound.error();
-        
-        // Revert active input to its last valid value
-        const activeInput = document.activeElement;
-        if (activeInput && (activeInput.id === 'pay-cash-amount' || activeInput.classList.contains('bt-amount-input') || activeInput.classList.contains('ch-amount-input'))) {
-            activeInput.value = activeInput.dataset.lastValidValue || '0';
-            
-            // Re-trigger shake animation
-            activeInput.classList.remove('input-error-shake');
-            void activeInput.offsetWidth; // trigger reflow
-            activeInput.classList.add('input-error-shake');
-        }
-        
-        // Recalculate to correct the indicators using reverted values
-        return recalcPaymentSummary(true);
-    } else {
-        // Save the valid values
-        if (cashInput) {
-            cashInput.dataset.lastValidValue = cashInput.value;
-            if (!isRevertCall) cashInput.classList.remove('input-error-shake');
-        }
-        document.querySelectorAll('.bt-amount-input').forEach(input => {
-            input.dataset.lastValidValue = input.value;
-            if (!isRevertCall) input.classList.remove('input-error-shake');
-        });
-        document.querySelectorAll('.ch-amount-input').forEach(input => {
-            input.dataset.lastValidValue = input.value;
-            if (!isRevertCall) input.classList.remove('input-error-shake');
-        });
-    }
+    const isOverpaid = (enteredPayments > grand + 0.01);
+    const surplusAmt = isOverpaid ? (enteredPayments - grand) : 0;
     
     // Update displays
     const totInd = document.getElementById('payment-total-indicator');
@@ -3085,36 +3063,55 @@ function recalcPaymentSummary(isRevertCall = false) {
     const remInd = document.getElementById('payment-remaining-indicator');
     
     if (totInd) totInd.textContent = fmtNum(grand) + ' ' + cur;
-    if (paidInd) paidInd.textContent = fmtNum(totalPaid) + ' ' + cur;
+    if (paidInd) paidInd.textContent = fmtNum(enteredPayments) + ' ' + cur;
     const remCard = document.getElementById('payment-remaining-card');
     if (remInd) {
-        remInd.textContent = fmtNum(remaining) + ' ' + cur;
-        if (Math.abs(remaining) < 0.01) {
+        if (isOverpaid) {
+            remInd.textContent = '+ ' + fmtNum(surplusAmt) + ' ' + cur;
+            remInd.style.color = '#34d399'; // Emerald green
+            remInd.style.textShadow = '0 0 12px rgba(52,211,153,0.5)';
+            if (remCard) {
+                remCard.style.background = 'rgba(16, 185, 129, 0.12)';
+                remCard.style.borderColor = 'rgba(16, 185, 129, 0.45)';
+                const remLabel = remCard.querySelector('.indicator-label, span');
+                if (remLabel && !remLabel.dataset.origText) remLabel.dataset.origText = remLabel.textContent;
+                if (remLabel) remLabel.textContent = '🌟 فائض سداد (رصيد دائن)';
+            }
+        } else if (Math.abs(remaining) < 0.01) {
+            remInd.textContent = fmtNum(remaining) + ' ' + cur;
             remInd.style.color = '#34d399'; // Green
             remInd.style.textShadow = '0 0 12px rgba(52,211,153,0.5)';
             if (remCard) {
                 remCard.style.background = 'rgba(16, 185, 129, 0.1)';
                 remCard.style.borderColor = 'rgba(16, 185, 129, 0.4)';
+                const remLabel = remCard.querySelector('.indicator-label, span');
+                if (remLabel && remLabel.dataset.origText) remLabel.textContent = remLabel.dataset.origText;
             }
         } else if (remaining > 0) {
+            remInd.textContent = fmtNum(remaining) + ' ' + cur;
             remInd.style.color = '#f87171'; // Red
             remInd.style.textShadow = '0 0 12px rgba(248,113,113,0.4)';
             if (remCard) {
                 remCard.style.background = 'rgba(239, 68, 68, 0.08)';
                 remCard.style.borderColor = 'rgba(239, 68, 68, 0.35)';
+                const remLabel = remCard.querySelector('.indicator-label, span');
+                if (remLabel && remLabel.dataset.origText) remLabel.textContent = remLabel.dataset.origText;
             }
         } else {
+            remInd.textContent = fmtNum(remaining) + ' ' + cur;
             remInd.style.color = '#fbbf24'; // Amber
             remInd.style.textShadow = '0 0 12px rgba(251,191,36,0.4)';
             if (remCard) {
                 remCard.style.background = 'rgba(245, 158, 11, 0.08)';
                 remCard.style.borderColor = 'rgba(245, 158, 11, 0.35)';
+                const remLabel = remCard.querySelector('.indicator-label, span');
+                if (remLabel && remLabel.dataset.origText) remLabel.textContent = remLabel.dataset.origText;
             }
         }
     }
 
     // Update progress bars & status badge dynamically
-    const totalPayments = cash + transfersSum + chequesSum + credit;
+    const totalPayments = Math.max(grand, enteredPayments + credit);
     if (totalPayments > 0) {
         const cashPct = (cash / totalPayments) * 100;
         const bankPct = (transfersSum / totalPayments) * 100;
@@ -3134,7 +3131,13 @@ function recalcPaymentSummary(isRevertCall = false) {
         // Update Status Badge
         const statusBadge = document.getElementById('payment-status-badge');
         if (statusBadge) {
-            if (credit <= 0.01) {
+            if (isOverpaid) {
+                statusBadge.dataset.status = 'overpaid';
+                statusBadge.textContent = '🌟 فائض سداد (رصيد دائن)';
+                statusBadge.style.background = 'rgba(16, 185, 129, 0.2)';
+                statusBadge.style.color = '#34d399';
+                statusBadge.style.boxShadow = '0 0 10px rgba(16, 185, 129, 0.3)';
+            } else if (credit <= 0.01) {
                 // Play sound if transitioned to fully paid
                 if (statusBadge.dataset.status !== 'fully-paid') {
                     if (typeof PlaySound !== 'undefined') PlaySound.success();
@@ -3544,7 +3547,10 @@ function submitInvoice(ignoreWarnings = false) {
         // DEFAULT RULE: If no payment method is toggled, default to Credit (Deferred) for full amount
         creditAmt = grandAmount;
         paymentMethod = 'credit';
-        cashAmt = cashActive ? parseNum(document.getElementById('pay-cash-amount')?.value || 0) : 0;
+    } else {
+        if (cashActive) {
+            cashAmt = parseNum(document.getElementById('pay-cash-amount')?.value || 0);
+        }
         
         if (bankActive) {
             document.querySelectorAll('#bank-transfers-list .payment-row-item').forEach(row => {
@@ -3631,6 +3637,28 @@ function submitInvoice(ignoreWarnings = false) {
     let warnings = [];
 
     if (!ignoreWarnings) {
+        // Overpayment check ("رسالة ظريفة")
+        const totalPaymentsPaid = cashAmt + transfersSum + chequesSum;
+        if (totalPaymentsPaid > grandAmount + 0.01) {
+            window.isSubmitting = false;
+            const overpaid = totalPaymentsPaid - grandAmount;
+            showOverpaymentConfirmModal({
+                type: 'sales',
+                grand: grandAmount,
+                paid: totalPaymentsPaid,
+                overpaid: overpaid,
+                cur: cur,
+                partnerName: cust ? cust.name : 'العميل',
+                onConfirm: () => submitInvoice(true),
+                onCancel: () => {
+                    window.isSubmitting = false;
+                    const cashInp = document.getElementById('pay-cash-amount');
+                    if (cashInp) cashInp.focus();
+                }
+            });
+            return;
+        }
+
         // Stock availability check
         const mainWh = document.getElementById('hdr-warehouse').value;
         for (const row of rows) {
@@ -3766,7 +3794,9 @@ function submitInvoice(ignoreWarnings = false) {
         
         localStorage.setItem('erp_banks_v1', JSON.stringify(banks));
         
-        // C. Customer Credit Debt Portion
+        // C. Customer Credit Debt / Surplus Portion
+        const totalPaymentsPaid = cashAmt + transfersSum + chequesSum;
+        const overpaidAmt = Math.max(0, totalPaymentsPaid - grandAmount);
         if (creditAmt > 0 && custId && custId !== 'walk-in') {
             let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
             const cIdx = customers.findIndex(c => c.id === custId);
@@ -3774,6 +3804,15 @@ function submitInvoice(ignoreWarnings = false) {
                 let currentBalance = parseFloat(customers[cIdx].currentBalance);
                 if (isNaN(currentBalance)) currentBalance = 0;
                 customers[cIdx].currentBalance = currentBalance + creditAmt;
+                localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
+            }
+        } else if (overpaidAmt > 0 && custId && custId !== 'walk-in') {
+            let customers = JSON.parse(localStorage.getItem('erp_customers_v1')) || [];
+            const cIdx = customers.findIndex(c => c.id === custId);
+            if (cIdx > -1) {
+                let currentBalance = parseFloat(customers[cIdx].currentBalance);
+                if (isNaN(currentBalance)) currentBalance = 0;
+                customers[cIdx].currentBalance = currentBalance - overpaidAmt;
                 localStorage.setItem('erp_customers_v1', JSON.stringify(customers));
             }
         }
@@ -3814,6 +3853,8 @@ function submitInvoice(ignoreWarnings = false) {
         }
         if (creditAmt > 0 && custId !== 'walk-in') {
             showToast(`تم ترحيل مبلغ ${fmtNum(creditAmt)} ${cur} إلى حساب العميل كمديونية آجل`, 'warning', 4000);
+        } else if (overpaidAmt > 0 && custId !== 'walk-in') {
+            showToast(`🌟 تم ترحيل فائض السداد بقيمة ${fmtNum(overpaidAmt)} ${cur} كرصيد دائن لحساب العميل`, 'success', 5000);
         }
     }
 
@@ -3847,6 +3888,100 @@ function submitInvoice(ignoreWarnings = false) {
     } finally {
         window.isSubmitting = false;
     }
+}
+
+// ════════════════════════════════════════
+//  OVERPAYMENT CONFIRMATION MODAL ("رسالة ظريفة")
+// ════════════════════════════════════════
+function showOverpaymentConfirmModal(options) {
+    const {
+        type = 'sales',
+        grand = 0,
+        paid = 0,
+        overpaid = 0,
+        cur = 'SDG',
+        partnerName = '',
+        onConfirm,
+        onCancel
+    } = options;
+
+    const existing = document.getElementById('overpayment-confirm-overlay');
+    if (existing) existing.remove();
+
+    const isSales = (type === 'sales');
+    const partnerLabel = isSales ? 'العميل' : 'المورد';
+    const effectText = isSales 
+        ? `سيتم حفظ الفاتورة واستلام كامل المبلغ المسدد (${fmtNum(paid)} ${cur}) في الخزينة/البنك، وترحيل الفائض (+${fmtNum(overpaid)} ${cur}) كرصيد دائن في كشف حساب [${partnerName || 'العميل'}].`
+        : `سيتم حفظ الفاتورة وإثبات كامل المبلغ المسدد (${fmtNum(paid)} ${cur})، وترحيل الفائض (+${fmtNum(overpaid)} ${cur}) كرصيد لصالحنا في كشف حساب [${partnerName || 'المورد'}].`;
+
+    const overlay = document.createElement('div');
+    overlay.id = 'overpayment-confirm-overlay';
+    overlay.className = 'modal-overlay';
+    overlay.style.cssText = 'position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; background: rgba(0,0,0,0.78); backdrop-filter: blur(6px); z-index: 999999; display: flex; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.25s ease; padding: 15px;';
+    
+    overlay.innerHTML = `
+        <div class="modal-card" style="max-width: 520px; width: 100%; background: #0f172a; border: 2px solid rgba(16, 185, 129, 0.6); border-radius: 16px; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.85); overflow: hidden; font-family: 'Tajawal', sans-serif; direction: rtl; text-align: right; transform: translateY(-20px); transition: transform 0.25s ease;">
+            <div style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.25), rgba(6, 182, 212, 0.15)); padding: 16px 20px; border-bottom: 1px solid rgba(16, 185, 129, 0.25); display: flex; align-items: center; justify-content: space-between;">
+                <h3 style="margin: 0; color: #34d399; font-size: 1.15rem; font-weight: 800; display: flex; align-items: center; gap: 8px;">
+                    <span style="font-size: 1.35rem;">💰</span> تنبيه: السداد أعلى من قيمة الفاتورة
+                </h3>
+                <button type="button" id="overpay-btn-close" style="background: transparent; border: none; color: #94a3b8; font-size: 1.3rem; cursor: pointer; padding: 4px 8px; line-height: 1;">✕</button>
+            </div>
+            <div style="padding: 20px; color: #f1f5f9; font-size: 0.95rem; line-height: 1.6;">
+                <p style="margin: 0 0 14px 0; color: #cbd5e1; font-size: 0.98rem;">
+                    المبلغ المسدد أكبر من إجمالي الفاتورة بمقدار <strong style="color: #34d399; font-size: 1.2rem; font-weight: 900;">+${fmtNum(overpaid)} ${cur}</strong>.
+                </p>
+                
+                <div style="background: rgba(15, 23, 42, 0.9); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 12px; padding: 12px; margin-bottom: 14px; display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px; text-align: center;">
+                    <div style="padding: 8px 4px; background: rgba(255,255,255,0.03); border-radius: 8px; border: 1px solid rgba(255,255,255,0.05);">
+                        <div style="font-size: 0.74rem; color: #94a3b8; margin-bottom: 4px;">إجمالي الفاتورة</div>
+                        <div style="font-size: 1rem; font-weight: 800; color: #f8fafc;">${fmtNum(grand)} <small style="font-size:0.68rem; color:#94a3b8;">${cur}</small></div>
+                    </div>
+                    <div style="padding: 8px 4px; background: rgba(59, 130, 246, 0.08); border-radius: 8px; border: 1px solid rgba(59, 130, 246, 0.25);">
+                        <div style="font-size: 0.74rem; color: #93c5fd; margin-bottom: 4px;">إجمالي المسدد</div>
+                        <div style="font-size: 1rem; font-weight: 800; color: #60a5fa;">${fmtNum(paid)} <small style="font-size:0.68rem; color:#93c5fd;">${cur}</small></div>
+                    </div>
+                    <div style="padding: 8px 4px; background: rgba(16, 185, 129, 0.12); border-radius: 8px; border: 1px solid rgba(16, 185, 129, 0.4);">
+                        <div style="font-size: 0.74rem; color: #6ee7b7; margin-bottom: 4px;">فائض السداد</div>
+                        <div style="font-size: 1.05rem; font-weight: 900; color: #34d399;">+${fmtNum(overpaid)} <small style="font-size:0.68rem; color:#6ee7b7;">${cur}</small></div>
+                    </div>
+                </div>
+
+                <div style="background: rgba(56, 189, 248, 0.08); border-right: 4px solid #38bdf8; border-radius: 8px; padding: 12px 14px; color: #bae6fd; font-size: 0.88rem; line-height: 1.5;">
+                    <span style="font-size: 1rem; margin-left: 4px;">ℹ️</span> <strong>الأثر في كشف الحساب:</strong> ${effectText}
+                </div>
+            </div>
+            <div style="padding: 14px 20px; background: rgba(15, 23, 42, 0.7); border-top: 1px solid rgba(255, 255, 255, 0.08); display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap;">
+                <button type="button" id="overpay-btn-cancel" style="padding: 8px 16px; border-radius: 8px; font-size: 0.88rem; font-weight: bold; cursor: pointer; background: rgba(255,255,255,0.06); color: #cbd5e1; border: 1px solid rgba(255,255,255,0.12); font-family: 'Tajawal', sans-serif;">✕ مراجعة وتعديل المبلغ</button>
+                <button type="button" id="overpay-btn-confirm" style="padding: 8px 22px; border-radius: 8px; font-size: 0.9rem; font-weight: 800; cursor: pointer; background: linear-gradient(135deg, #10b981, #059669); color: #ffffff; border: none; box-shadow: 0 4px 15px rgba(16, 185, 129, 0.4); font-family: 'Tajawal', sans-serif;">✓ تمرير واعتماد الفاتورة</button>
+            </div>
+        </div>
+    `;
+
+    document.body.appendChild(overlay);
+
+    const closeFn = () => {
+        overlay.style.opacity = '0';
+        const card = overlay.querySelector('.modal-card');
+        if (card) card.style.transform = 'translateY(-20px)';
+        setTimeout(() => overlay.remove(), 250);
+        if (typeof onCancel === 'function') onCancel();
+    };
+
+    overlay.querySelector('#overpay-btn-close').onclick = closeFn;
+    overlay.querySelector('#overpay-btn-cancel').onclick = closeFn;
+
+    overlay.querySelector('#overpay-btn-confirm').onclick = () => {
+        overlay.style.opacity = '0';
+        setTimeout(() => overlay.remove(), 250);
+        if (typeof onConfirm === 'function') onConfirm();
+    };
+
+    requestAnimationFrame(() => {
+        overlay.style.opacity = '1';
+        const card = overlay.querySelector('.modal-card');
+        if (card) card.style.transform = 'translateY(0)';
+    });
 }
 
 // ════════════════════════════════════════
@@ -5401,7 +5536,7 @@ function submitInvoiceSplit() {
     showSalesHub();
 }
 
-// Keydown delegation for payment inputs to block typing when value exceeds grand total
+// Keydown delegation for payment inputs to allow standard digit input without artificial limits
 document.addEventListener('keydown', function(event) {
     const input = event.target;
     if (!(input.id === 'pay-cash-amount' || input.classList.contains('bt-amount-input') || input.classList.contains('ch-amount-input'))) {
@@ -5414,7 +5549,7 @@ document.addEventListener('keydown', function(event) {
         return;
     }
     
-    // Only intercept digits and decimal points
+    // Only intercept non-digit and non-dot characters
     const isDigit = /^[0-9]$/.test(event.key);
     const isDot = event.key === '.';
     if (!isDigit && !isDot) {
@@ -5422,66 +5557,6 @@ document.addEventListener('keydown', function(event) {
             event.preventDefault();
         }
         return;
-    }
-    
-    // Construct potential new value
-    const start = input.selectionStart;
-    const end = input.selectionEnd;
-    const oldVal = input.value;
-    const newValStr = oldVal.slice(0, start) + event.key + oldVal.slice(end);
-    const newVal = parseFloat(newValStr) || 0;
-    
-    // Calculate potential total payment
-    const invTotal = typeof getInvoiceTotal === 'function' ? getInvoiceTotal() : 0;
-    const labor = parseNum(document.getElementById('t-labor')?.value || 0);
-    const transport = parseNum(document.getElementById('t-transport')?.value || 0);
-    const discountAmt = parseNum(document.getElementById('discount-amt')?.value || 0);
-    const taxAmt = parseNum(document.getElementById('tax-amt')?.value || 0);
-    const additionAmt = parseNum(document.getElementById('addition-amt')?.value || 0);
-    const grand = invTotal + labor + transport + additionAmt + taxAmt - discountAmt;
-    
-    const cashActive = document.getElementById('toggle-cash').classList.contains('active');
-    const bankActive = document.getElementById('toggle-bank').classList.contains('active');
-    const chequeActive = document.getElementById('toggle-cheque').classList.contains('active');
-    
-    let cash = 0;
-    if (cashActive) {
-        cash = (input.id === 'pay-cash-amount') ? newVal : parseNum(document.getElementById('pay-cash-amount')?.value || 0);
-    }
-    
-    let transfersSum = 0;
-    if (bankActive) {
-        document.querySelectorAll('.bt-amount-input').forEach(inp => {
-            if (inp === input) {
-                transfersSum += newVal;
-            } else {
-                transfersSum += parseNum(inp.value);
-            }
-        });
-    }
-    
-    let chequesSum = 0;
-    if (chequeActive) {
-        document.querySelectorAll('.ch-amount-input').forEach(inp => {
-            if (inp === input) {
-                chequesSum += newVal;
-            } else {
-                chequesSum += parseNum(inp.value);
-            }
-        });
-    }
-    
-    const potentialTotalPaid = cash + transfersSum + chequesSum;
-    if (potentialTotalPaid > grand + 0.01) {
-        event.preventDefault(); // Block the typing!
-        if (typeof PlaySound !== 'undefined') PlaySound.error();
-        
-        showToast('⚠️ المبلغ الذي تم إدخاله أكبر من قيمة الفاتورة!', 'warning');
-        
-        // Shake the input container and turn border red immediately
-        input.classList.remove('input-error-shake');
-        void input.offsetWidth; // trigger reflow
-        input.classList.add('input-error-shake');
     }
 });
 

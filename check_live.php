@@ -35,6 +35,9 @@ $files = [
     'js/global_background_media.js' => getNormalizedHash(__DIR__ . '/js/global_background_media.js'),
     'background_player.php' => getNormalizedHash(__DIR__ . '/background_player.php'),
     'direct-sales.php' => getNormalizedHash(__DIR__ . '/direct-sales.php'),
+    'js/direct-sales-v3.js' => getNormalizedHash(__DIR__ . '/js/direct-sales-v3.js'),
+    'purchase.php' => getNormalizedHash(__DIR__ . '/purchase.php'),
+    'js/purchase-pro-v5.js' => getNormalizedHash(__DIR__ . '/js/purchase-pro-v5.js'),
     'inventory-report.php' => getNormalizedHash(__DIR__ . '/inventory-report.php'),
     'js/multi-cash-payment.js' => getNormalizedHash(__DIR__ . '/js/multi-cash-payment.js'),
     'multi-cash-payment.php' => getNormalizedHash(__DIR__ . '/multi-cash-payment.php'),
@@ -73,6 +76,9 @@ $checks['media_engine_v5'] = strpos(file_get_contents(__DIR__ . '/js/global_back
 $checks['popout_mutex_support'] = strpos(file_get_contents(__DIR__ . '/background_player.php'), 'POPOUT_PLAYER') !== false;
 $checks['direct_sales_header'] = strpos(file_get_contents(__DIR__ . '/direct-sales.php'), 'includes/header.php') !== false;
 $checks['inventory_report_header'] = strpos(file_get_contents(__DIR__ . '/inventory-report.php'), 'includes/header.php') !== false;
+$checks['direct_sales_overpayment_modal'] = strpos(file_get_contents(__DIR__ . '/js/direct-sales-v3.js'), 'showOverpaymentConfirmModal') !== false;
+$checks['purchase_overpayment_modal'] = strpos(file_get_contents(__DIR__ . '/js/purchase-pro-v5.js'), 'showOverpaymentConfirmModal') !== false;
+$checks['purchase_exchange_rate_keep'] = strpos(file_get_contents(__DIR__ . '/purchase.php'), 'prevCurrency') !== false;
 
 echo json_encode([
     'server' => (php_sapi_name() === 'cli' || ($_SERVER['SERVER_NAME'] ?? '') === 'localhost' || ($_SERVER['SERVER_NAME'] ?? '') === '127.0.0.1') ? 'LOCAL' : 'LIVE_SERVER',

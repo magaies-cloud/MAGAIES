@@ -1829,7 +1829,7 @@ try {
                                 <option value="AED">🇦🇪 درهم</option>
                                 <option value="EGP">🇪🇬 مصري</option>
                             </select>
-                            <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="1" placeholder="الصرف" readonly style="flex: 1.2; text-align: center; cursor:pointer; background:rgba(16,185,129,0.1); color:#10b981; font-weight:bold;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=r; if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
+                            <input type="number" class="v-input ctrl-input" id="hdr-exchange-rate" value="3000" placeholder="الصرف" readonly style="flex: 1.2; text-align: center; cursor:pointer; background:rgba(16,185,129,0.1); color:#10b981; font-weight:bold;" onclick="if(typeof window.openGlobalExchangeRateModal === 'function') window.openGlobalExchangeRateModal((r)=>{this.value=r; if(typeof recalcAll === 'function') recalcAll(); else if(typeof recalcTotals==='function') recalcTotals(); else if(typeof calcTotals==='function') calcTotals(); else if(typeof window.updateCurrency==='function') window.updateCurrency();});">
                         </div>
                     </div>
 
@@ -2473,23 +2473,40 @@ try {
 
         function handleCurrencyChange(val) {
             const rateInput = document.getElementById('hdr-exchange-rate');
+            const curSelect = document.getElementById('hdr-currency');
+            const prevCurrency = curSelect ? (curSelect.dataset.prevVal || 'SDG') : 'SDG';
+            if (curSelect) curSelect.dataset.prevVal = val;
+            
             if (!rateInput) return;
             
-            if (val === 'SDG') {
-                rateInput.value = '1';
-                rateInput.disabled = true;
+            // Always enable editing for all currencies (including SDG)
+            rateInput.disabled = false;
+
+            // When switching to USD, delete / clear previous SDG prices from existing rows
+            if (val === 'USD' && prevCurrency !== 'USD') {
+                if (typeof rows !== 'undefined' && Array.isArray(rows)) {
+                    rows.forEach(r => {
+                        r.price = '';
+                        r.fcPrice = '';
+                    });
+                }
+            }
+            
+            // If current rate is already valid and > 1, and we are switching between SDG and USD, keep it!
+            const currentVal = parseFloat(rateInput.value) || 0;
+            if (currentVal > 1 && (val === 'SDG' || val === 'USD') && (prevCurrency === 'SDG' || prevCurrency === 'USD')) {
                 if (typeof renderGrid === 'function') renderGrid();
                 if (typeof recalcAll === 'function') recalcAll();
                 return;
             }
-            
-            // Always enable editing for foreign currencies
-            rateInput.disabled = false;
+
+            // For SDG, show USD exchange rate (e.g. 3000)
+            const targetCurr = (val === 'SDG' ? 'USD' : val);
             
             // Step 1: Try to get rate from local settings function
             let rate = 0;
             if (window.getExchangeRateForCurrency) {
-                rate = window.getExchangeRateForCurrency(val);
+                rate = window.getExchangeRateForCurrency(targetCurr);
             }
             
             if (rate > 0) {
@@ -2502,13 +2519,14 @@ try {
             // Step 2: Try to read directly from localStorage settings (any mode)
             try {
                 const cfg = JSON.parse(localStorage.getItem('erp_settings_v1') || '{}');
-                if (val === 'USD' && cfg.rateUSD) { rateInput.value = cfg.rateUSD; if (typeof renderGrid === 'function') renderGrid(); if (typeof recalcAll === 'function') recalcAll(); return; }
-                if (val === 'SAR' && cfg.rateSAR) { rateInput.value = cfg.rateSAR; if (typeof renderGrid === 'function') renderGrid(); if (typeof recalcAll === 'function') recalcAll(); return; }
-                if (val === 'AED' && cfg.rateAED) { rateInput.value = cfg.rateAED; if (typeof renderGrid === 'function') renderGrid(); if (typeof recalcAll === 'function') recalcAll(); return; }
+                if (targetCurr === 'USD' && cfg.rateUSD) { rateInput.value = cfg.rateUSD; if (typeof renderGrid === 'function') renderGrid(); if (typeof recalcAll === 'function') recalcAll(); return; }
+                if (targetCurr === 'SAR' && cfg.rateSAR) { rateInput.value = cfg.rateSAR; if (typeof renderGrid === 'function') renderGrid(); if (typeof recalcAll === 'function') recalcAll(); return; }
+                if (targetCurr === 'AED' && cfg.rateAED) { rateInput.value = cfg.rateAED; if (typeof renderGrid === 'function') renderGrid(); if (typeof recalcAll === 'function') recalcAll(); return; }
+                const dedicatedUsd = parseFloat(localStorage.getItem('erp_rate_usd'));
+                if (targetCurr === 'USD' && dedicatedUsd > 0) { rateInput.value = dedicatedUsd; if (typeof renderGrid === 'function') renderGrid(); if (typeof recalcAll === 'function') recalcAll(); return; }
             } catch(e) {}
             
             // Step 3: Try to fetch from API directly (central rate)
-            rateInput.value = '';
             rateInput.placeholder = '⏳ جاري التحميل...';
             
             fetch('api_index.php/exchange-rate')
@@ -2519,9 +2537,9 @@ try {
                         if (usdRate > 0) {
                             window._cachedGlobalRate = usdRate;
                             let finalRate = usdRate;
-                            if (val === 'SAR') finalRate = parseFloat((usdRate / 3.75).toFixed(4));
-                            if (val === 'AED') finalRate = parseFloat((usdRate / 3.67).toFixed(4));
-                            if (val === 'EGP') finalRate = parseFloat((usdRate / 50.0).toFixed(4));
+                            if (targetCurr === 'SAR') finalRate = parseFloat((usdRate / 3.75).toFixed(4));
+                            if (targetCurr === 'AED') finalRate = parseFloat((usdRate / 3.67).toFixed(4));
+                            if (targetCurr === 'EGP') finalRate = parseFloat((usdRate / 50.0).toFixed(4));
                             
                             rateInput.value = finalRate;
                             if (typeof renderGrid === 'function') renderGrid();
@@ -2529,18 +2547,27 @@ try {
                             return;
                         }
                     }
-                    // No rate found from API either
-                    rateInput.value = '';
-                    rateInput.placeholder = 'أدخل سعر الصرف';
+                    if (!rateInput.value || parseFloat(rateInput.value) <= 0) {
+                        rateInput.value = 3000;
+                    }
+                    if (typeof renderGrid === 'function') renderGrid();
+                    if (typeof recalcAll === 'function') recalcAll();
                 })
                 .catch(() => {
-                    rateInput.value = '';
-                    rateInput.placeholder = 'أدخل سعر الصرف';
+                    if (!rateInput.value || parseFloat(rateInput.value) <= 0) {
+                        rateInput.value = 3000;
+                    }
+                    if (typeof renderGrid === 'function') renderGrid();
+                    if (typeof recalcAll === 'function') recalcAll();
                 });
         }
 
         document.addEventListener('DOMContentLoaded', () => {
             loadHubTransactions();
+            const curEl = document.getElementById('hdr-currency');
+            if (curEl && typeof handleCurrencyChange === 'function') {
+                handleCurrencyChange(curEl.value || 'SDG');
+            }
         });
 
         if (window.APP_READY) {
@@ -4200,17 +4227,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 "thousandSep": "default"
             },
             {
-                "id": "fcprice",
-                "name": "سعر (جنيه)",
-                "visible": true,
-                "width": "120px",
-                "align": "center",
-                "color": "#ffffff",
-                "fontSize": 22,
-                "decimals": 0,
-                "thousandSep": ","
-            },
-            {
                 "id": "total",
                 "name": "الجملة",
                 "visible": true,
@@ -4221,18 +4237,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 "fontWeight": "800",
                 "decimals": 0,
                 "thousandSep": ","
-            },
-            {
-                "id": "fctotal",
-                "name": "جملة (جنيه)",
-                "visible": true,
-                "width": "120px",
-                "align": "center",
-                "color": "#fafffd",
-                "fontSize": 23,
-                "decimals": 0,
-                "thousandSep": ",",
-                "fontWeight": "800"
             },
             {
                 "id": "action",
