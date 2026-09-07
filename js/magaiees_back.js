@@ -78,7 +78,7 @@
 
     window.isNavigatingBack = false;
 
-    // 3. Global Go Back Navigation Function
+    // 3. Global Go Back Navigation Function (Zero-Stutter Seamless Audio Navigation)
     window.magaieesGoBack = function () {
         if (typeof window.saveGlobalMediaPlaybackPosition === 'function') {
             try { window.saveGlobalMediaPlaybackPosition(); } catch(err) {}
@@ -90,16 +90,81 @@
 
         const isDashboard = pageFile.includes('magaiees_unified_dashboard.php') || pageFile === 'dashboard-pro.php';
 
-        // 0. Seamless Carrier check: if active in top window, navigate carrier back
+        // Check if persistent background media is actively playing
+        let mediaState = null;
+        try {
+            if (typeof window.getStoredMediaState === 'function') {
+                mediaState = window.getStoredMediaState();
+            } else if (window.top && typeof window.top.getStoredMediaState === 'function') {
+                mediaState = window.top.getStoredMediaState();
+            } else {
+                const raw = localStorage.getItem('elsajana_global_media_state');
+                if (raw) mediaState = JSON.parse(raw);
+            }
+        } catch(e) {}
+
+        const isMediaActive = (mediaState && mediaState.active);
+
+        // ════════════════════════════════════════════════════════════════
+        // Case A: Currently running INSIDE the Seamless Carrier iframe
+        // ════════════════════════════════════════════════════════════════
+        if (window !== window.top) {
+            if (window.history.length > 1) {
+                window.history.back();
+                return;
+            } else {
+                let dest = document.referrer;
+                if (dest) {
+                    try {
+                        const r = new URL(dest);
+                        if (r.origin !== window.location.origin || r.pathname.toLowerCase().includes('login.php')) dest = '';
+                    } catch(e) { dest = ''; }
+                }
+                if (!dest && !isDashboard) dest = 'magaiees_unified_dashboard.php';
+                if (dest) window.location.href = dest;
+                return;
+            }
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // Case B: Currently in TOP WINDOW with existing Carrier active
+        // ════════════════════════════════════════════════════════════════
         const carrier = document.getElementById('elsajana-seamless-carrier');
         if (carrier && carrier.contentWindow) {
             try {
-                carrier.contentWindow.history.back();
-                return;
-            } catch(err) {}
+                if (carrier.contentWindow.history.length > 1) {
+                    carrier.contentWindow.history.back();
+                    return;
+                }
+            } catch(e) {}
         }
 
-        // 1. Primary: True session history step back
+        // ════════════════════════════════════════════════════════════════
+        // Case C: In TOP WINDOW with Audio ACTIVE -> Seamless Transition
+        // (Prevents destroying audio element, eliminates 100% of stutter)
+        // ════════════════════════════════════════════════════════════════
+        if (isMediaActive && typeof window.activateSeamlessCarrier === 'function') {
+            let dest = '';
+            if (document.referrer) {
+                try {
+                    const r = new URL(document.referrer);
+                    if (r.origin === window.location.origin && !r.pathname.toLowerCase().includes('login.php') && r.href !== window.location.href) {
+                        dest = document.referrer;
+                    }
+                } catch(e) {}
+            }
+            if (!dest && !isDashboard) {
+                dest = 'magaiees_unified_dashboard.php';
+            }
+            if (dest) {
+                window.activateSeamlessCarrier(dest);
+                return;
+            }
+        }
+
+        // ════════════════════════════════════════════════════════════════
+        // Case D: Standard clean navigation (media not active)
+        // ════════════════════════════════════════════════════════════════
         if (window.history.length > 1) {
             let isExternal = false;
             if (document.referrer) {
@@ -110,26 +175,11 @@
             }
             if (!isExternal) {
                 window.history.back();
-                setTimeout(function () {
-                    if (!isDashboard) {
-                        const ref = document.referrer;
-                        if (ref && ref !== window.location.href) {
-                            try {
-                                const refUrl = new URL(ref);
-                                if (refUrl.origin === window.location.origin && !refUrl.pathname.toLowerCase().includes('login.php')) {
-                                    window.location.href = ref;
-                                    return;
-                                }
-                            } catch (e) {}
-                        }
-                        window.location.href = 'magaiees_unified_dashboard.php';
-                    }
-                }, 350);
                 return;
             }
         }
 
-        // 2. Secondary: Check referrer if no history stack
+        // Fallback to referrer or dashboard
         const ref = document.referrer;
         if (ref && ref !== window.location.href) {
             try {
@@ -141,7 +191,6 @@
             } catch (e) {}
         }
 
-        // 3. Fallback to unified dashboard
         if (!isDashboard) {
             window.location.href = 'magaiees_unified_dashboard.php';
         } else {

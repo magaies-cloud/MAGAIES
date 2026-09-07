@@ -565,47 +565,52 @@
         });
     }
 
+    function isLiveStreamState(state) {
+        if (!state) return false;
+        if (state.type === 'tv') return true;
+        if (state.channelKey && state.channelKey !== 'quran_mp3') return true;
+        if (state.extraMeta && state.extraMeta.channelKey && state.extraMeta.channelKey !== 'quran_mp3') return true;
+        // Even for quran_mp3, if no specific surahNum is set, it's the live tarateel radio stream
+        if (!state.extraMeta || !state.extraMeta.surahNum) return true;
+        return false;
+    }
+    window.isLiveStreamState = isLiveStreamState;
+
     function saveGlobalMediaPlaybackPosition(explicitAudio) {
         if (!isTopWindow) return;
         try {
+            const state = getStoredMediaState();
+            if (!state || !state.active || state.type !== 'audio') return;
+
+            // 🛡️ Live radio/TV stations are continuous 24/7 streams — NEVER save currentTime!
+            if (isLiveStreamState(state)) {
+                state.currentTime = 0;
+                state.lastSavedAt = Date.now();
+                saveMediaState(state);
+                return;
+            }
+
             const audio = explicitAudio || document.getElementById('persistent-audio-player');
             if (!audio || !audio.src) return;
 
             const t = audio.currentTime;
             if (isNaN(t) || t <= 0.5) return;
 
-            const state = getStoredMediaState();
-            if (state && state.active && state.type === 'audio') {
-                state.currentTime = t;
-                state.duration = isNaN(audio.duration) ? 0 : audio.duration;
-                state.lastSavedAt = Date.now();
-                saveMediaState(state);
-            }
+            state.currentTime = t;
+            state.duration = isNaN(audio.duration) ? 0 : audio.duration;
+            state.lastSavedAt = Date.now();
+            saveMediaState(state);
         } catch (e) {}
     }
     window.saveGlobalMediaPlaybackPosition = saveGlobalMediaPlaybackPosition;
 
-    // 🛡️ ZERO-ECHO GUARD: Pause audio on page unload if standard navigation is occurring
+    // 🛡️ ZERO-STUTTER LIFECYCLE: Keep audio running until the exact moment of new document takeover
     window.addEventListener('beforeunload', function() {
         saveGlobalMediaPlaybackPosition();
-        if (isTopWindow) {
-            const carrier = document.getElementById('elsajana-seamless-carrier');
-            // If top window itself is navigating away, pause audio immediately so it doesn't overlap
-            if (!carrier) {
-                const audioPlayer = document.getElementById('persistent-audio-player');
-                if (audioPlayer) {
-                    audioPlayer.pause();
-                }
-            }
-        }
     }, true);
 
     window.addEventListener('pagehide', function() {
         saveGlobalMediaPlaybackPosition();
-        if (isTopWindow && !document.getElementById('elsajana-seamless-carrier')) {
-            const audioPlayer = document.getElementById('persistent-audio-player');
-            if (audioPlayer) audioPlayer.pause();
-        }
     }, true);
 
     document.addEventListener('visibilitychange', function() {
@@ -727,10 +732,14 @@
     if (isTopWindow) {
         window.addEventListener('popstate', function(e) {
             const carrier = document.getElementById('elsajana-seamless-carrier');
-            if (carrier && carrier.contentWindow) {
-                try {
-                    carrier.contentWindow.history.back();
-                } catch (err) {}
+            if (carrier) {
+                if (e.state && e.state.carrier && carrier.contentWindow) {
+                    try {
+                        carrier.contentWindow.history.back();
+                    } catch (err) {}
+                } else {
+                    try { carrier.remove(); } catch (err) {}
+                }
             }
         });
 
@@ -997,13 +1006,14 @@
                     destroyActiveHls();
                     activeHlsInstance = new Hls({
                         enableWorker: false,
-                        lowLatencyMode: true,
-                        maxBufferLength: 10,
-                        maxMaxBufferLength: 20,
-                        backBufferLength: 0,
-                        manifestLoadingTimeOut: 10000,
-                        levelLoadingTimeOut: 10000,
-                        fragLoadingTimeOut: 10000
+                        lowLatencyMode: false,
+                        maxBufferLength: 30,
+                        maxMaxBufferLength: 60,
+                        backBufferLength: 10,
+                        liveSyncDurationCount: 3,
+                        manifestLoadingTimeOut: 15000,
+                        levelLoadingTimeOut: 15000,
+                        fragLoadingTimeOut: 15000
                     });
                     activeHlsInstance.loadSource(sourceUrl);
                     activeHlsInstance.attachMedia(audioPlayer);
@@ -1097,7 +1107,9 @@
         if (audioPlayer) {
             const isHls = (typeof state.sourceUrl === 'string' && state.sourceUrl.indexOf('.m3u8') !== -1);
             const isSameTrack = (audioPlayer.src === state.sourceUrl);
-            const targetTime = (state.type === 'audio' && typeof state.currentTime === 'number' && state.currentTime > 0) ? state.currentTime : 0;
+            const isLive = isLiveStreamState(state);
+            // 🛡️ Live radio/TV stations must NEVER seek — only seek recorded Quran MP3 tracks!
+            const targetTime = (!isLive && state.type === 'audio' && typeof state.currentTime === 'number' && state.currentTime > 0) ? state.currentTime : 0;
             let playbackStarted = false;
 
             const triggerPlay = () => {
@@ -1125,13 +1137,14 @@
                     destroyActiveHls();
                     activeHlsInstance = new Hls({
                         enableWorker: false,
-                        lowLatencyMode: true,
-                        maxBufferLength: 10,
-                        maxMaxBufferLength: 20,
-                        backBufferLength: 0,
-                        manifestLoadingTimeOut: 10000,
-                        levelLoadingTimeOut: 10000,
-                        fragLoadingTimeOut: 10000
+                        lowLatencyMode: false,
+                        maxBufferLength: 30,
+                        maxMaxBufferLength: 60,
+                        backBufferLength: 10,
+                        liveSyncDurationCount: 3,
+                        manifestLoadingTimeOut: 15000,
+                        levelLoadingTimeOut: 15000,
+                        fragLoadingTimeOut: 15000
                     });
                     activeHlsInstance.loadSource(state.sourceUrl);
                     activeHlsInstance.attachMedia(audioPlayer);
