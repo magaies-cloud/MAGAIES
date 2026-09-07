@@ -33,6 +33,17 @@
     // 🛡️ Unique Window / Tab Instance Identifier for Audio Mutex
     const WINDOW_INSTANCE_ID = 'win_' + Date.now() + '_' + Math.random().toString(36).substring(2, 9);
 
+    let activeHlsInstance = null;
+
+    function destroyActiveHls() {
+        if (activeHlsInstance) {
+            try {
+                activeHlsInstance.destroy();
+            } catch (e) {}
+            activeHlsInstance = null;
+        }
+    }
+
     const CHANNELS_INFO = {
         quran_mp3: {
             title: "القرآن الكريم MP3 - تلاوات خاشعة لكبار القراء",
@@ -110,6 +121,20 @@
             audioUrl: "https://backup.qurango.net/radio/sahabah",
             icon: "users",
             color: "#0284c7"
+        },
+        aljazeera: {
+            title: "قناة الجزيرة الإخبارية (البث الصوتي المباشر)",
+            sub: "تغطية إخبارية حية ومتواصلة على مدار الساعة 24/7",
+            audioUrl: "https://live-hls-audio-web-aja.getaj.net/VOICE-AJA/index.m3u8",
+            icon: "tower-broadcast",
+            color: "#ef4444"
+        },
+        bbc_arabic: {
+            title: "إذاعة بي بي سي عربي - BBC Arabic (بث مباشر)",
+            sub: "الأخبار والبرامج الإذاعية المباشرة 24/7 من لندن",
+            audioUrl: "https://stream.live.vc.bbcmedia.co.uk/bbc_arabic_radio",
+            icon: "radio",
+            color: "#f43f5e"
         }
     };
 
@@ -305,7 +330,7 @@
                 left: 50% !important;
                 transform: translate(-50%, -50%) !important;
                 z-index: 2147483647 !important;
-                width: 440px !important;
+                width: 460px !important;
                 max-width: calc(100vw - 20px) !important;
                 max-height: calc(100vh - 30px) !important;
                 overflow-y: auto !important;
@@ -775,8 +800,9 @@
                     </div>
                 </div>
 
-                <!-- 10 Small Sacred Channel Quick Buttons in 2 Rows of 5 (صفين كل صف به 5 أزرار أنيقة وعصرية) -->
-                <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 12px;">
+                <!-- 12 Sacred & News Channel Quick Buttons in 2 Rows of 6 (صفين كل صف به 6 أزرار عصرية) -->
+                <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin-bottom: 12px;">
+                    <!-- Row 1: مكة · المدينة · المجد · القرآن · الجزيرة · BBC -->
                     <button type="button" id="hdr-ch-makkah" onclick="quickHeaderPlay('makkah')" class="header-pop-ch-btn" style="--ch-c: #f59e0b;" title="تشغيل مكة المكرمة">
                         <span style="font-size: 14px;">🕋</span>
                         <span>مكة</span>
@@ -793,11 +819,20 @@
                         <span style="font-size: 14px;">🎧</span>
                         <span>القرآن</span>
                     </button>
+                    <button type="button" id="hdr-ch-aljazeera" onclick="quickHeaderPlay('aljazeera')" class="header-pop-ch-btn" style="--ch-c: #ef4444;" title="قناة الجزيرة - البث الصوتي المباشر">
+                        <span style="font-size: 14px;">🔴</span>
+                        <span>الجزيرة</span>
+                    </button>
+                    <button type="button" id="hdr-ch-bbc_arabic" onclick="quickHeaderPlay('bbc_arabic')" class="header-pop-ch-btn" style="--ch-c: #f43f5e;" title="إذاعة بي بي سي عربي">
+                        <span style="font-size: 14px;">🌐</span>
+                        <span>BBC</span>
+                    </button>
+
+                    <!-- Row 2: البخاري · مسلم · رياض الصالحين · الشمائل · السيرة · الصحابة -->
                     <button type="button" id="hdr-ch-hadith_bukhari" onclick="quickHeaderPlay('hadith_bukhari')" class="header-pop-ch-btn" style="--ch-c: #a855f7;" title="صحيح البخاري">
                         <span style="font-size: 14px;">📜</span>
                         <span>البخاري</span>
                     </button>
-
                     <button type="button" id="hdr-ch-hadith_muslim" onclick="quickHeaderPlay('hadith_muslim')" class="header-pop-ch-btn" style="--ch-c: #10b981;" title="صحيح مسلم">
                         <span style="font-size: 14px;">📗</span>
                         <span>مسلم</span>
@@ -911,19 +946,69 @@
 
         if (audioPlayer) {
             audioPlayer.volume = 1.0;
-            if (audioPlayer.src !== sourceUrl) {
-                audioPlayer.src = sourceUrl;
-            }
-            const playPromise = audioPlayer.play();
-            if (playPromise !== undefined) {
-                playPromise.then(() => {
-                    if (dock) dock.classList.remove('pm-prompt-active');
-                    clearInteractionListeners();
-                }).catch(err => {
-                    console.log('Autoplay blocked pending user interaction:', err.message);
-                    if (dock) dock.classList.add('pm-prompt-active');
-                    attachUniversalInteractionListener();
-                });
+            const isHls = (typeof sourceUrl === 'string' && sourceUrl.indexOf('.m3u8') !== -1);
+
+            const triggerPlay = () => {
+                const playPromise = audioPlayer.play();
+                if (playPromise !== undefined) {
+                    playPromise.then(() => {
+                        if (dock) dock.classList.remove('pm-prompt-active');
+                        clearInteractionListeners();
+                    }).catch(err => {
+                        console.log('Autoplay blocked pending user interaction:', err.message);
+                        if (dock) dock.classList.add('pm-prompt-active');
+                        attachUniversalInteractionListener();
+                    });
+                }
+            };
+
+            if (isHls) {
+                if (audioPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                    destroyActiveHls();
+                    if (audioPlayer.src !== sourceUrl) {
+                        audioPlayer.src = sourceUrl;
+                    }
+                    triggerPlay();
+                } else if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+                    destroyActiveHls();
+                    activeHlsInstance = new Hls({
+                        enableWorker: false,
+                        lowLatencyMode: true,
+                        backBufferLength: 30
+                    });
+                    activeHlsInstance.loadSource(sourceUrl);
+                    activeHlsInstance.attachMedia(audioPlayer);
+                    activeHlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
+                        triggerPlay();
+                    });
+                    activeHlsInstance.on(Hls.Events.ERROR, function(event, data) {
+                        if (data && data.fatal) {
+                            switch (data.type) {
+                                case Hls.ErrorTypes.NETWORK_ERROR:
+                                    try { activeHlsInstance.startLoad(); } catch(e) {}
+                                    break;
+                                case Hls.ErrorTypes.MEDIA_ERROR:
+                                    try { activeHlsInstance.recoverMediaError(); } catch(e) {}
+                                    break;
+                                default:
+                                    destroyActiveHls();
+                                    break;
+                            }
+                        }
+                    });
+                } else {
+                    destroyActiveHls();
+                    if (audioPlayer.src !== sourceUrl) {
+                        audioPlayer.src = sourceUrl;
+                    }
+                    triggerPlay();
+                }
+            } else {
+                destroyActiveHls();
+                if (audioPlayer.src !== sourceUrl) {
+                    audioPlayer.src = sourceUrl;
+                }
+                triggerPlay();
             }
         }
 
@@ -971,6 +1056,7 @@
         }
 
         if (audioPlayer) {
+            const isHls = (typeof state.sourceUrl === 'string' && state.sourceUrl.indexOf('.m3u8') !== -1);
             const isSameTrack = (audioPlayer.src === state.sourceUrl);
             const targetTime = (state.type === 'audio' && typeof state.currentTime === 'number' && state.currentTime > 0) ? state.currentTime : 0;
             let playbackStarted = false;
@@ -991,35 +1077,75 @@
                 }
             };
 
-            if (targetTime > 0 && !isSameTrack) {
-                audioPlayer.src = state.sourceUrl;
-                audioPlayer.preload = 'auto';
-
-                const onReadyToResume = () => {
-                    if (playbackStarted) return;
-                    playbackStarted = true;
-                    try {
-                        audioPlayer.currentTime = targetTime;
-                    } catch (e) {}
+            if (isHls) {
+                if (audioPlayer.canPlayType('application/vnd.apple.mpegurl')) {
+                    destroyActiveHls();
+                    if (!isSameTrack) audioPlayer.src = state.sourceUrl;
                     triggerPlay();
-                };
-
-                audioPlayer.addEventListener('loadedmetadata', onReadyToResume, { once: true });
-                audioPlayer.addEventListener('canplay', onReadyToResume, { once: true });
-
-                setTimeout(() => {
-                    if (!playbackStarted) {
-                        onReadyToResume();
-                    }
-                }, 900);
+                } else if (typeof Hls !== 'undefined' && Hls.isSupported()) {
+                    destroyActiveHls();
+                    activeHlsInstance = new Hls({
+                        enableWorker: false,
+                        lowLatencyMode: true,
+                        backBufferLength: 30
+                    });
+                    activeHlsInstance.loadSource(state.sourceUrl);
+                    activeHlsInstance.attachMedia(audioPlayer);
+                    activeHlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
+                        triggerPlay();
+                    });
+                    activeHlsInstance.on(Hls.Events.ERROR, function(event, data) {
+                        if (data && data.fatal) {
+                            switch (data.type) {
+                                case Hls.ErrorTypes.NETWORK_ERROR:
+                                    try { activeHlsInstance.startLoad(); } catch(e) {}
+                                    break;
+                                case Hls.ErrorTypes.MEDIA_ERROR:
+                                    try { activeHlsInstance.recoverMediaError(); } catch(e) {}
+                                    break;
+                                default:
+                                    destroyActiveHls();
+                                    break;
+                            }
+                        }
+                    });
+                } else {
+                    destroyActiveHls();
+                    if (!isSameTrack) audioPlayer.src = state.sourceUrl;
+                    triggerPlay();
+                }
             } else {
-                if (!isSameTrack) {
+                destroyActiveHls();
+                if (targetTime > 0 && !isSameTrack) {
                     audioPlayer.src = state.sourceUrl;
+                    audioPlayer.preload = 'auto';
+
+                    const onReadyToResume = () => {
+                        if (playbackStarted) return;
+                        playbackStarted = true;
+                        try {
+                            audioPlayer.currentTime = targetTime;
+                        } catch (e) {}
+                        triggerPlay();
+                    };
+
+                    audioPlayer.addEventListener('loadedmetadata', onReadyToResume, { once: true });
+                    audioPlayer.addEventListener('canplay', onReadyToResume, { once: true });
+
+                    setTimeout(() => {
+                        if (!playbackStarted) {
+                            onReadyToResume();
+                        }
+                    }, 900);
+                } else {
+                    if (!isSameTrack) {
+                        audioPlayer.src = state.sourceUrl;
+                    }
+                    if (targetTime > 0) {
+                        try { audioPlayer.currentTime = targetTime; } catch(e) {}
+                    }
+                    triggerPlay();
                 }
-                if (targetTime > 0) {
-                    try { audioPlayer.currentTime = targetTime; } catch(e) {}
-                }
-                triggerPlay();
             }
         }
 
@@ -1108,6 +1234,7 @@
         if (dock) dock.classList.remove('pm-prompt-active');
         clearInteractionListeners();
 
+        destroyActiveHls();
         if (audioPlayer) {
             audioPlayer.pause();
             audioPlayer.removeAttribute('src');
@@ -1330,6 +1457,8 @@
                         else if (chKey === 'hadith_sahabah') label.innerText = 'الصحابة 👥';
                         else label.innerText = 'الحديث 📜';
                     }
+                    else if (chKey === 'aljazeera') label.innerText = 'الجزيرة 🔴';
+                    else if (chKey === 'bbc_arabic') label.innerText = 'BBC 🔴';
                     else if (chKey === 'quran_mp3' || state.type === 'audio') label.innerText = 'القرآن 🟢';
                     else label.innerText = 'شغال 🔴';
                 }
@@ -1362,7 +1491,7 @@
         }
 
         const allHdrKeys = [
-            'makkah', 'madinah', 'majd', 'quran_mp3',
+            'makkah', 'madinah', 'majd', 'quran_mp3', 'aljazeera', 'bbc_arabic',
             'hadith_bukhari', 'hadith_muslim', 'hadith_riyad',
             'hadith_shmaeel', 'hadith_siyra', 'hadith_sahabah'
         ];

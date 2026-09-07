@@ -37,6 +37,7 @@ $pdo = getDBConnection();
     <link rel="stylesheet" href="css/tailwind.min.css">
     <!-- Fiqh Encyclopedia is Lazy-Loaded on demand for ultra-fast page rendering -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="js/hls.light.min.js"></script>
     <script src="js/inheritance_engine.js?v=2026_v8_evidence_1788629214503"></script>
 
     <style>
@@ -260,6 +261,52 @@ $pdo = getDBConnection();
             }
         }
 
+        #quick-media-btn-aljazeera.is-active, .sacred-media-pill.is-active-aljazeera {
+            border-color: #f87171 !important;
+            background: linear-gradient(135deg, rgba(239, 68, 68, 0.45), rgba(153, 27, 27, 0.98)) !important;
+            animation: tv-neon-pulse-aljazeera 1.6s infinite ease-in-out !important;
+            transform: translateY(-4px) scale(1.03) !important;
+        }
+        #quick-media-btn-aljazeera.is-active .sm-icon-box {
+            background: #ef4444 !important;
+            color: #ffffff !important;
+            border-color: #ffffff !important;
+            box-shadow: 0 0 25px #ffffff, 0 0 50px #ef4444 !important;
+        }
+        @keyframes tv-neon-pulse-aljazeera {
+            0%, 100% {
+                box-shadow: 0 0 35px #ef4444, 0 0 70px rgba(239, 68, 68, 0.8), inset 0 0 25px rgba(254, 202, 202, 0.6) !important;
+                border-color: #f87171 !important;
+            }
+            50% {
+                box-shadow: 0 0 50px #ffffff, 0 0 95px #ef4444, 0 0 130px #dc2626, inset 0 0 35px #ffffff !important;
+                border-color: #ffffff !important;
+            }
+        }
+
+        #quick-media-btn-bbc_arabic.is-active, .sacred-media-pill.is-active-bbc_arabic {
+            border-color: #fb7185 !important;
+            background: linear-gradient(135deg, rgba(244, 63, 94, 0.45), rgba(159, 18, 57, 0.98)) !important;
+            animation: tv-neon-pulse-bbc 1.6s infinite ease-in-out !important;
+            transform: translateY(-4px) scale(1.03) !important;
+        }
+        #quick-media-btn-bbc_arabic.is-active .sm-icon-box {
+            background: #f43f5e !important;
+            color: #ffffff !important;
+            border-color: #ffffff !important;
+            box-shadow: 0 0 25px #ffffff, 0 0 50px #f43f5e !important;
+        }
+        @keyframes tv-neon-pulse-bbc {
+            0%, 100% {
+                box-shadow: 0 0 35px #f43f5e, 0 0 70px rgba(244, 63, 94, 0.8), inset 0 0 25px rgba(254, 205, 211, 0.6) !important;
+                border-color: #fb7185 !important;
+            }
+            50% {
+                box-shadow: 0 0 50px #ffffff, 0 0 95px #f43f5e, 0 0 130px #e11d48, inset 0 0 35px #ffffff !important;
+                border-color: #ffffff !important;
+            }
+        }
+
         /* ── تصميم أيقونات الشيوخ (لون ذهبي ملكي ساطع، 4 في السطر إجبارياً، تفاصيل مربعة) ── */
         #quran-reciters-container {
             display: grid !important;
@@ -398,14 +445,19 @@ $pdo = getDBConnection();
             }
         }
         
-        /* ── أزرار القنوات والإذاعات المقدسة (صفين متناسقين × 5 أزرار عصرية وأنيقة) ── */
+        /* ── أزرار القنوات والإذاعات المقدسة والإخبارية (صفين متناسقين × 6 أزرار عصرية وأنيقة) ── */
         .sacred-media-container {
             width: 100%;
         }
         .sacred-media-grid {
             display: grid !important;
-            grid-template-columns: repeat(5, minmax(0, 1fr)) !important;
-            gap: 10px !important;
+            grid-template-columns: repeat(6, minmax(0, 1fr)) !important;
+            gap: 8px !important;
+        }
+        @media (max-width: 1100px) {
+            .sacred-media-grid {
+                grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+            }
         }
         @media (max-width: 640px) {
             .sacred-media-grid {
@@ -1975,12 +2027,12 @@ $pdo = getDBConnection();
 
         
         <!-- ════════════════════════════════════════════════════════════════ -->
-        <!-- 📡 SACRED MEDIA BAR (10 إذاعات وقنوات في صفين متناسقين - 5 أزرار عصرية في كل صف) -->
+        <!-- 📡 SACRED MEDIA BAR (12 إذاعة وقناة في صفين متناسقين - 6 أزرار عصرية في كل صف) -->
         <!-- ════════════════════════════════════════════════════════════════ -->
         <div class="mb-6 sacred-media-container select-none">
             <div class="sacred-media-grid">
                 
-                <!-- ── السطر الأول (المحطات الكبرى والقرآن والبخاري) ── -->
+                <!-- ── السطر الأول: المحطات الكبرى، القرآن، والأخبار المباشرة (6 أزرار) ── -->
 
                 <!-- 1. مكة المكرمة -->
                 <div id="quick-media-btn-makkah" onclick="toggleQuickChannel('makkah')" class="sacred-media-pill group" style="--sm-color: #f59e0b; --sm-bg: rgba(245, 158, 11, 0.22); --sm-border: rgba(245, 158, 11, 0.45);" title="تشغيل مكة المكرمة">
@@ -2042,7 +2094,39 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- 5. صحيح البخاري -->
+                <!-- 5. قناة الجزيرة -->
+                <div id="quick-media-btn-aljazeera" onclick="toggleQuickChannel('aljazeera')" class="sacred-media-pill group" style="--sm-color: #ef4444; --sm-bg: rgba(239, 68, 68, 0.22); --sm-border: rgba(239, 68, 68, 0.45);" title="قناة الجزيرة الإخبارية - البث الصوتي الحي والمباشر 24/7">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="sm-icon-box text-red-500"><i class="fa-solid fa-tower-broadcast"></i></div>
+                        <div class="sm-text-box">
+                            <div class="sm-title text-red-200">🔴 قناة الجزيرة</div>
+                            <div id="sm-sub-aljazeera" class="sm-sub text-red-400/90">بث صوتي مباشر</div>
+                        </div>
+                    </div>
+                    <div class="sm-indicator-wrapper">
+                        <div class="sm-eq-bars"><span></span><span></span><span></span></div>
+                        <div id="sm-status-aljazeera" class="sm-status-dot"></div>
+                    </div>
+                </div>
+
+                <!-- 6. بي بي سي عربي -->
+                <div id="quick-media-btn-bbc_arabic" onclick="toggleQuickChannel('bbc_arabic')" class="sacred-media-pill group" style="--sm-color: #f43f5e; --sm-bg: rgba(244, 63, 94, 0.22); --sm-border: rgba(244, 63, 94, 0.45);" title="إذاعة بي بي سي عربي - راديو الأخبار 24/7">
+                    <div class="flex items-center gap-2.5 min-w-0">
+                        <div class="sm-icon-box text-rose-400"><i class="fa-solid fa-radio"></i></div>
+                        <div class="sm-text-box">
+                            <div class="sm-title text-rose-200">🌐 بي بي سي عربي</div>
+                            <div id="sm-sub-bbc_arabic" class="sm-sub text-rose-400/90">راديو الأخبار 24/7</div>
+                        </div>
+                    </div>
+                    <div class="sm-indicator-wrapper">
+                        <div class="sm-eq-bars"><span></span><span></span><span></span></div>
+                        <div id="sm-status-bbc_arabic" class="sm-status-dot"></div>
+                    </div>
+                </div>
+
+                <!-- ── السطر الثاني: إذاعات الحديث النبوي والسنة المطهرة (6 أزرار) ── -->
+
+                <!-- 7. صحيح البخاري -->
                 <div id="quick-media-btn-hadith_bukhari" onclick="toggleQuickChannel('hadith_bukhari')" class="sacred-media-pill group" style="--sm-color: #a855f7; --sm-bg: rgba(168, 85, 247, 0.22); --sm-border: rgba(168, 85, 247, 0.45);" title="صحيح البخاري كامل">
                     <div class="flex items-center gap-2.5 min-w-0">
                         <div class="sm-icon-box text-purple-400"><i class="fa-solid fa-book-open"></i></div>
@@ -2057,9 +2141,7 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- ── السطر الثاني (إذاعات الحديث والسنة النبوية) ── -->
-
-                <!-- 6. صحيح مسلم -->
+                <!-- 8. صحيح مسلم -->
                 <div id="quick-media-btn-hadith_muslim" onclick="toggleQuickChannel('hadith_muslim')" class="sacred-media-pill group" style="--sm-color: #10b981; --sm-bg: rgba(16, 185, 129, 0.22); --sm-border: rgba(16, 185, 129, 0.45);" title="صحيح مسلم">
                     <div class="flex items-center gap-2.5 min-w-0">
                         <div class="sm-icon-box text-emerald-400"><i class="fa-solid fa-book-bookmark"></i></div>
@@ -2074,7 +2156,7 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- 7. رياض الصالحين -->
+                <!-- 9. رياض الصالحين -->
                 <div id="quick-media-btn-hadith_riyad" onclick="toggleQuickChannel('hadith_riyad')" class="sacred-media-pill group" style="--sm-color: #059669; --sm-bg: rgba(5, 150, 105, 0.22); --sm-border: rgba(5, 150, 105, 0.45);" title="رياض الصالحين للنووي">
                     <div class="flex items-center gap-2.5 min-w-0">
                         <div class="sm-icon-box text-emerald-300"><i class="fa-solid fa-leaf"></i></div>
@@ -2089,7 +2171,7 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- 8. الشمائل المحمدية -->
+                <!-- 10. الشمائل المحمدية -->
                 <div id="quick-media-btn-hadith_shmaeel" onclick="toggleQuickChannel('hadith_shmaeel')" class="sacred-media-pill group" style="--sm-color: #c084fc; --sm-bg: rgba(192, 132, 252, 0.22); --sm-border: rgba(192, 132, 252, 0.45);" title="الشمائل المحمدية للترمذي">
                     <div class="flex items-center gap-2.5 min-w-0">
                         <div class="sm-icon-box text-purple-300"><i class="fa-solid fa-star-and-crescent"></i></div>
@@ -2104,7 +2186,7 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- 9. السيرة النبوية -->
+                <!-- 11. السيرة النبوية -->
                 <div id="quick-media-btn-hadith_siyra" onclick="toggleQuickChannel('hadith_siyra')" class="sacred-media-pill group" style="--sm-color: #f59e0b; --sm-bg: rgba(245, 158, 11, 0.22); --sm-border: rgba(245, 158, 11, 0.45);" title="في ظلال السيرة النبوية">
                     <div class="flex items-center gap-2.5 min-w-0">
                         <div class="sm-icon-box text-amber-400"><i class="fa-solid fa-mosque"></i></div>
@@ -2119,7 +2201,7 @@ $pdo = getDBConnection();
                     </div>
                 </div>
 
-                <!-- 10. حياة الصحابة -->
+                <!-- 12. حياة الصحابة -->
                 <div id="quick-media-btn-hadith_sahabah" onclick="toggleQuickChannel('hadith_sahabah')" class="sacred-media-pill group" style="--sm-color: #38bdf8; --sm-bg: rgba(56, 189, 248, 0.22); --sm-border: rgba(56, 189, 248, 0.45);" title="صور من حياة الصحابة">
                     <div class="flex items-center gap-2.5 min-w-0">
                         <div class="sm-icon-box text-sky-400"><i class="fa-solid fa-users"></i></div>
@@ -23462,6 +23544,20 @@ $pdo = getDBConnection();
             audioUrl: "https://backup.qurango.net/radio/sahabah",
             icon: "fa-solid fa-users",
             color: "sky"
+        },
+        aljazeera: {
+            title: "قناة الجزيرة الإخبارية (البث الصوتي المباشر)",
+            sub: "تغطية إخبارية حية ومتواصلة على مدار الساعة 24/7",
+            audioUrl: "https://live-hls-audio-web-aja.getaj.net/VOICE-AJA/index.m3u8",
+            icon: "fa-solid fa-tower-broadcast",
+            color: "red"
+        },
+        bbc_arabic: {
+            title: "إذاعة بي بي سي عربي - BBC Arabic (بث مباشر)",
+            sub: "الأخبار والبرامج الإذاعية المباشرة 24/7 من لندن",
+            audioUrl: "https://stream.live.vc.bbcmedia.co.uk/bbc_arabic_radio",
+            icon: "fa-solid fa-radio",
+            color: "rose"
         }
     };
 
@@ -23527,7 +23623,7 @@ $pdo = getDBConnection();
 
     function renderQuickChannelVisuals(activeKey) {
         const keys = [
-            'makkah', 'madinah', 'majd', 'quran_mp3',
+            'makkah', 'madinah', 'majd', 'quran_mp3', 'aljazeera', 'bbc_arabic',
             'hadith_bukhari', 'hadith_muslim', 'hadith_riyad',
             'hadith_shmaeel', 'hadith_siyra', 'hadith_sahabah'
         ];
@@ -23537,6 +23633,8 @@ $pdo = getDBConnection();
             madinah: 'المسجد النبوي',
             majd: 'تلاوات خاشعة',
             quran_mp3: '287 قارئ ومصحف',
+            aljazeera: 'بث صوتي مباشر',
+            bbc_arabic: 'راديو الأخبار 24/7',
             hadith_bukhari: 'إذاعة السنة 24/7',
             hadith_muslim: 'الجامع الصحيح',
             hadith_riyad: 'للإمام النووي',

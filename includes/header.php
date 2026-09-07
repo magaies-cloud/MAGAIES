@@ -1,3 +1,4 @@
+<script src="js/hls.light.min.js"></script>
 <script src="js/bban_auto_helper.js"></script>
 <script>
     // ═══════════════════════════════════════════════════════════════════
@@ -304,7 +305,7 @@
     top: 50% !important;
     left: 50% !important;
     transform: translate(-50%, -50%) !important;
-    width: 440px !important;
+    width: 460px !important;
     max-width: calc(100vw - 20px) !important;
     max-height: calc(100vh - 30px) !important;
     overflow-y: auto !important;
@@ -518,8 +519,9 @@
         </div>
     </div>
 
-    <!-- 10 Small Sacred Channel Quick Buttons in 2 Rows of 5 (صفين كل صف به 5 أزرار أنيقة وعصرية) -->
-    <div style="display: grid; grid-template-columns: repeat(5, 1fr); gap: 5px; margin-bottom: 12px;">
+    <!-- 12 Sacred & News Channel Quick Buttons in 2 Rows of 6 (صفين كل صف به 6 أزرار عصرية) -->
+    <div style="display: grid; grid-template-columns: repeat(6, 1fr); gap: 4px; margin-bottom: 12px;">
+        <!-- Row 1: مكة · المدينة · المجد · القرآن · الجزيرة · BBC -->
         <button type="button" id="hdr-ch-makkah" onclick="quickHeaderPlay('makkah')" class="header-pop-ch-btn" style="--ch-c: #f59e0b;" title="تشغيل مكة المكرمة">
             <span style="font-size: 14px;">🕋</span>
             <span>مكة</span>
@@ -536,11 +538,20 @@
             <span style="font-size: 14px;">🎧</span>
             <span>القرآن</span>
         </button>
+        <button type="button" id="hdr-ch-aljazeera" onclick="quickHeaderPlay('aljazeera')" class="header-pop-ch-btn" style="--ch-c: #ef4444;" title="قناة الجزيرة - البث الصوتي المباشر">
+            <span style="font-size: 14px;">🔴</span>
+            <span>الجزيرة</span>
+        </button>
+        <button type="button" id="hdr-ch-bbc_arabic" onclick="quickHeaderPlay('bbc_arabic')" class="header-pop-ch-btn" style="--ch-c: #f43f5e;" title="إذاعة بي بي سي عربي">
+            <span style="font-size: 14px;">🌐</span>
+            <span>BBC</span>
+        </button>
+
+        <!-- Row 2: البخاري · مسلم · رياض الصالحين · الشمائل · السيرة · الصحابة -->
         <button type="button" id="hdr-ch-hadith_bukhari" onclick="quickHeaderPlay('hadith_bukhari')" class="header-pop-ch-btn" style="--ch-c: #a855f7;" title="صحيح البخاري">
             <span style="font-size: 14px;">📜</span>
             <span>البخاري</span>
         </button>
-
         <button type="button" id="hdr-ch-hadith_muslim" onclick="quickHeaderPlay('hadith_muslim')" class="header-pop-ch-btn" style="--ch-c: #10b981;" title="صحيح مسلم">
             <span style="font-size: 14px;">📗</span>
             <span>مسلم</span>
