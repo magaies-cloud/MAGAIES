@@ -42,6 +42,8 @@ $files = [
     'js/multi-cash-payment.js' => getNormalizedHash(__DIR__ . '/js/multi-cash-payment.js'),
     'multi-cash-payment.php' => getNormalizedHash(__DIR__ . '/multi-cash-payment.php'),
     'settings.php' => getNormalizedHash(__DIR__ . '/settings.php'),
+    'sw.js' => getNormalizedHash(__DIR__ . '/sw.js'),
+    'live_sw.js' => getNormalizedHash(__DIR__ . '/live_sw.js'),
 ];
 
 // Check specific keywords inside single-cash-payment.php
