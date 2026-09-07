@@ -1625,6 +1625,15 @@ try {
                     <div class="subtitle">عرض سعر / طلب شراء (لا تؤثر محاسبياً ولا مخزنياً).</div>
                 </div>
             </button>
+
+            <!-- OCR Scanner Card -->
+            <button onclick="triggerInvoiceOCR()" class="hub-action-card" style="background: linear-gradient(135deg, rgba(16, 185, 129, 0.2), rgba(5, 150, 105, 0.35)); border: 1px solid rgba(52, 211, 153, 0.5); cursor: pointer;">
+                <div class="icon" style="filter: drop-shadow(0 0 8px rgba(52, 211, 153, 0.6));">📷</div>
+                <div class="text-content">
+                    <div class="title" style="color: #34d399; font-weight: 800;">مسح فاتورة ورقية (AI OCR)</div>
+                    <div class="subtitle">تصوير الفاتورة بالكاميرا وقراءتها وتفريغ الأصناف آلياً.</div>
+                </div>
+            </button>
         </div>
 
         <!-- Smart Filter Bar (شريط الفلترة الذكي) -->
@@ -2356,6 +2365,11 @@ try {
                 
                 <!-- New Button: Solid Green Gradient -->
                 <button type="button" class="btn-action btn-new" style="flex: 1; height: 45px; box-shadow: 0 2px 10px rgba(16, 185, 129, 0.4); background: linear-gradient(135deg, #10b981, #059669); color: #fff; border: none; font-size: 1.1rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s;" onmouseover="this.style.boxShadow='0 6px 20px rgba(16, 185, 129, 0.6)';" onmouseout="this.style.boxShadow='0 2px 10px rgba(16, 185, 129, 0.4)';" onclick="onSuccessNewInvoice(false);">✨ جديد</button>
+
+                <!-- OCR Scanner Button: Emerald Gradient -->
+                <button type="button" class="btn-action btn-ocr" style="flex: 1.2; height: 45px; box-shadow: 0 2px 10px rgba(5, 150, 105, 0.4); background: linear-gradient(135deg, #059669, #047857); color: #fff; border: 1px solid rgba(52, 211, 153, 0.4); font-size: 1.05rem; font-weight: bold; border-radius: 8px; cursor: pointer; transition: 0.3s; display: flex; align-items: center; justify-content: center; gap: 8px;" onmouseover="this.style.boxShadow='0 6px 20px rgba(16, 185, 129, 0.7)';" onmouseout="this.style.boxShadow='0 2px 10px rgba(5, 150, 105, 0.4)';" onclick="triggerInvoiceOCR()">
+                    <span style="font-size: 1.25rem;">📷</span> مسح فاتورة (OCR)
+                </button>
 
                 <!-- Submit Button: Solid Blue Gradient -->
                 <span style="display:none;" id="footer-grand"></span>
@@ -4720,6 +4734,48 @@ document.addEventListener('DOMContentLoaded', () => {
         loadGridConfigFromDB();
     });
     </script>
+
+    <!-- Hidden OCR File/Camera Input -->
+    <input type="file" id="ocr-camera-input" accept="image/*" capture="environment" style="display:none;" onchange="handleOCRFileSelect(event)">
+
+    <!-- OCR Scanning Loading Overlay -->
+    <div id="ocr-loading-overlay" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.88); backdrop-filter:blur(10px); z-index:999999; flex-direction:column; align-items:center; justify-content:center; color:#fff; font-family:'Tajawal',sans-serif; direction:rtl;">
+        <div style="width:70px; height:70px; border:4px solid rgba(56,189,248,0.2); border-top-color:#38bdf8; border-radius:50%; animation:ocrSpin 1s linear infinite; margin-bottom:20px;"></div>
+        <h2 style="margin:0 0 8px 0; font-size:1.4rem; color:#38bdf8; font-weight:800;">جاري فحص وقراءة الفاتورة بالرؤية الحاسوبية... 🔍</h2>
+        <p style="margin:0; color:#94a3b8; font-size:0.95rem;">يتم الآن استخراج المورد، الأصناف، الكميات، والأسعار عبر محرك الذكاء الاصطناعي</p>
+    </div>
+
+    <!-- OCR Review & Mapping Modal -->
+    <div id="ocr-review-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(8px); z-index:999998; align-items:center; justify-content:center; padding:15px; font-family:'Tajawal',sans-serif; direction:rtl;">
+        <div style="background:#1e293b; border:1px solid rgba(56,189,248,0.4); border-radius:16px; width:100%; max-width:880px; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 20px 50px rgba(0,0,0,0.7); overflow:hidden;">
+            <!-- Header -->
+            <div style="padding:16px 20px; background:linear-gradient(135deg, rgba(14,165,233,0.2), rgba(15,23,42,0.6)); border-bottom:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; align-items:center;">
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <span style="font-size:1.6rem;">📄</span>
+                    <div>
+                        <h3 style="margin:0; color:#fff; font-size:1.2rem; font-weight:800;">مراجعة بيانات الفاتورة الممسوحة (AI OCR)</h3>
+                        <p style="margin:0; color:#94a3b8; font-size:0.8rem;">تأكد من مطابقة الأصناف والأسعار قبل تفريغها في جدول المشتريات</p>
+                    </div>
+                </div>
+                <button type="button" onclick="closeOCRModal()" style="background:transparent; border:none; color:#94a3b8; font-size:1.5rem; cursor:pointer; padding:5px 10px;">✕</button>
+            </div>
+            <!-- Body -->
+            <div id="ocr-modal-body" style="padding:20px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:16px;">
+                <!-- Dynamically generated via JS -->
+            </div>
+            <!-- Footer -->
+            <div style="padding:14px 20px; background:rgba(15,23,42,0.8); border-top:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+                <button type="button" onclick="closeOCRModal()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; padding:8px 18px; border-radius:8px; font-weight:bold; cursor:pointer;">إلغاء</button>
+                <button type="button" id="btn-apply-ocr" onclick="applyScannedInvoiceToGrid()" style="background:linear-gradient(135deg, #10b981, #059669); border:none; color:#fff; padding:10px 24px; border-radius:8px; font-size:1.05rem; font-weight:bold; cursor:pointer; box-shadow:0 4px 15px rgba(16,185,129,0.4); display:flex; align-items:center; gap:8px;">
+                    <span>✓ اعتماد وتفريغ في جدول المشتريات</span>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <style>
+        @keyframes ocrSpin { to { transform: rotate(360deg); } }
+    </style>
     
 </body>
 </html>

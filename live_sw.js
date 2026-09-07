@@ -1,4 +1,4 @@
-// Version: 20260907235000 (Forced cache clear for JS & UI updates)
+// Version: 20260908001000 (Stage 3: Virtual CFO & AI OCR Invoice Scanner)
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });

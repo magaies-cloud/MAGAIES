@@ -44,6 +44,8 @@ $files = [
     'settings.php' => getNormalizedHash(__DIR__ . '/settings.php'),
     'sw.js' => getNormalizedHash(__DIR__ . '/sw.js'),
     'live_sw.js' => getNormalizedHash(__DIR__ . '/live_sw.js'),
+    'api/ocr-invoice.php' => getNormalizedHash(__DIR__ . '/api/ocr-invoice.php'),
+    'api/ai-assistant.php' => getNormalizedHash(__DIR__ . '/api/ai-assistant.php'),
 ];
 
 // Check specific keywords inside single-cash-payment.php
@@ -81,6 +83,9 @@ $checks['inventory_report_header'] = strpos(file_get_contents(__DIR__ . '/invent
 $checks['direct_sales_overpayment_modal'] = strpos(file_get_contents(__DIR__ . '/js/direct-sales-v3.js'), 'showOverpaymentConfirmModal') !== false;
 $checks['purchase_overpayment_modal'] = strpos(file_get_contents(__DIR__ . '/js/purchase-pro-v5.js'), 'showOverpaymentConfirmModal') !== false;
 $checks['purchase_exchange_rate_keep'] = strpos(file_get_contents(__DIR__ . '/purchase.php'), 'prevCurrency') !== false;
+$checks['virtual_cfo_engine'] = strpos(file_get_contents(__DIR__ . '/js/chatbot.js'), 'analyzeCashFlowRunway') !== false;
+$checks['ocr_invoice_scanner'] = (file_exists(__DIR__ . '/api/ocr-invoice.php') && strpos(file_get_contents(__DIR__ . '/purchase.php'), 'triggerInvoiceOCR') !== false);
+
 
 echo json_encode([
     'server' => (php_sapi_name() === 'cli' || ($_SERVER['SERVER_NAME'] ?? '') === 'localhost' || ($_SERVER['SERVER_NAME'] ?? '') === '127.0.0.1') ? 'LOCAL' : 'LIVE_SERVER',

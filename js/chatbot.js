@@ -63,13 +63,14 @@
             <span class="chat-pill" onclick="sendPill('حساب وزن سيخ 12 مم')">أوزان الحديد 🏗️</span>
         </div>
     ` : `
-        أهلاً بك! 🌟<br>أنا مرتبط بقاعدة بيانات النظام مباشرة الآن. جرب أن تسألني:
+        أهلاً بك في <b>المستشار المالي الذكي (Virtual CFO)</b>! 💼🌟<br>
+        أنا مساعدك التنفيذي، أحلل التدفقات النقدية والمخزون والتسعير لحظياً من واقع بياناتك. جرب الاستفسار عن:
         <div class="chat-options">
+            <span class="chat-pill" onclick="sendPill('تحليل التدفق النقدي والسيولة')" style="border-color:#10b981; color:#34d399; font-weight:bold;">📊 تحليل السيولة والتدفق النقدي</span>
+            <span class="chat-pill" onclick="sendPill('التنبؤ بنفاد المخزون')" style="border-color:#f59e0b; color:#fbbf24; font-weight:bold;">⚠️ التنبؤ بنفاد المخزون</span>
+            <span class="chat-pill" onclick="sendPill('اقتراحات تسعير الأصناف')" style="border-color:#38bdf8; color:#38bdf8; font-weight:bold;">🏷️ اقتراحات التسعير والربح</span>
+            <span class="chat-pill" onclick="sendPill('تقرير المدير المالي الشامل')" style="border-color:#a855f7; color:#c084fc; font-weight:bold;">💼 تقرير CFO التنفيذي</span>
             <span class="chat-pill" onclick="sendPill('كم السيولة؟')">كم السيولة؟ 💰</span>
-            <span class="chat-pill" onclick="sendPill('كم مديونية عميل محمد؟')">مديونية عميل...</span>
-            <span class="chat-pill" onclick="sendPill('كم عدد فواتير اليوم؟')">فواتير اليوم 📊</span>
-            <span class="chat-pill" onclick="sendPill('أريد شاشة الكاشير')">شاشة الكاشير 🛒</span>
-            <span class="chat-pill" onclick="sendPill('حكم البيع بالتقسيط؟')">فتاوى البيوع ⚖️</span>
             <span class="chat-pill" onclick="sendPill('من هم أكبر المدينين؟')">أكبر المديونيات ⚠️</span>
         </div>
     `;
@@ -377,8 +378,326 @@
         return { count: todayData.length, total };
     }
 
+    // ═════════════════════════════════════════════════════════════════════
+    //  VIRTUAL CFO & FINANCIAL INTELLIGENCE ENGINES (المستشار المالي الذكي)
+    // ═════════════════════════════════════════════════════════════════════
+
+    function getTotalReceivables() {
+        let custs = JSON.parse(localStorage.getItem('erp_customers_v1') || '[]').filter(x => !x.deleted);
+        let total = 0;
+        let count = 0;
+        let list = [];
+        custs.forEach(c => {
+            let res = calculatePartnerBalance(c.name);
+            if (res && res.balance > 0) {
+                total += res.balance;
+                count++;
+                list.push({ name: c.name, balance: res.balance });
+            }
+        });
+        list.sort((a,b) => b.balance - a.balance);
+        return { total, count, top: list.slice(0, 5) };
+    }
+
+    function getTotalPayables() {
+        let sups = JSON.parse(localStorage.getItem('erp_suppliers_v1') || '[]').filter(x => !x.deleted);
+        let total = 0;
+        let count = 0;
+        let list = [];
+        sups.forEach(s => {
+            let res = calculatePartnerBalance(s.name);
+            if (res && res.balance < 0) {
+                let due = Math.abs(res.balance);
+                total += due;
+                count++;
+                list.push({ name: s.name, balance: due });
+            }
+        });
+        list.sort((a,b) => b.balance - a.balance);
+        return { total, count, top: list.slice(0, 5) };
+    }
+
+    function analyzeCashFlowRunway() {
+        const liquidity = getTotalLiquidity();
+        const receivables = getTotalReceivables();
+        const payables = getTotalPayables();
+        const netWorkingCapital = liquidity + receivables.total - payables.total;
+
+        const payments = JSON.parse(localStorage.getItem('erp_single_payments_v1') || '[]');
+        const now = new Date();
+        const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
+        let recentPaymentsTotal = 0;
+        payments.forEach(p => {
+            if (p.date && new Date(p.date) >= thirtyDaysAgo) {
+                recentPaymentsTotal += parseNum(p.amountLocal);
+            }
+        });
+        const avgDailyExpense = (recentPaymentsTotal / 30) || (liquidity * 0.02) || 1;
+        const runwayDays = Math.round(liquidity / avgDailyExpense);
+
+        let statusColor = '#10b981';
+        let statusBadge = '🟢 أمان نقدي ممتاز';
+        let recommendation = 'السيولة الحالية كافية لتغطية الالتزامات التشغيلية. يُنصح بالاستفادة من خصومات الشراء النقدي لدى الموردين.';
+
+        if (runwayDays < 15 || liquidity < (payables.total * 0.3)) {
+            statusColor = '#ef4444';
+            statusBadge = '🔴 ضغط سيولة - إجراء عاجل';
+            recommendation = 'تنبيه إداري: السيولة الحالية أقل من التزامات الموردين القريبة. يجب فوراً حث كبار المدينين على السداد وتأجيل أي مدفوعات استثمارية غير ملحة.';
+        } else if (runwayDays < 35) {
+            statusColor = '#f59e0b';
+            statusBadge = '🟡 متوسط - حذر تشغيلي';
+            recommendation = 'السيولة متوازنة ولكنها تتطلب الحفاظ على وتيرة التحصيل اليومي لمواكبة استحقاقات الموردين في مواعيدها.';
+        }
+
+        return `
+        <div style="background:rgba(15,23,42,0.92); border:1px solid ${statusColor}; border-radius:12px; padding:14px; font-family:'Tajawal',sans-serif; direction:rtl; box-shadow:0 4px 15px rgba(0,0,0,0.3);">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px; margin-bottom:10px;">
+                <span style="font-weight:bold; font-size:1.05rem; color:#fff;">💼 تحليل التدفق النقدي ومؤشر الأمان (Runway)</span>
+                <span style="background:${statusColor}22; color:${statusColor}; border:1px solid ${statusColor}; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold;">${statusBadge}</span>
+            </div>
+            <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:12px;">
+                <div style="background:rgba(255,255,255,0.04); padding:8px 10px; border-radius:8px;">
+                    <div style="font-size:0.75rem; color:#94a3b8;">💵 السيولة النقدية الكلية</div>
+                    <div style="font-size:1.1rem; font-weight:bold; color:#34d399;">${liquidity.toLocaleString('en-US', {minimumFractionDigits:2})} SDG</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.04); padding:8px 10px; border-radius:8px;">
+                    <div style="font-size:0.75rem; color:#94a3b8;">⏳ كفاية السيولة التشغيلية</div>
+                    <div style="font-size:1.1rem; font-weight:bold; color:#38bdf8;">${runwayDays > 365 ? '+365' : runwayDays} يوم تغطية</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.04); padding:8px 10px; border-radius:8px;">
+                    <div style="font-size:0.75rem; color:#94a3b8;">📈 تحصيلات متوقعة (مدينين)</div>
+                    <div style="font-size:0.95rem; font-weight:bold; color:#fbbf24;">${receivables.total.toLocaleString()} SDG (${receivables.count})</div>
+                </div>
+                <div style="background:rgba(255,255,255,0.04); padding:8px 10px; border-radius:8px;">
+                    <div style="font-size:0.75rem; color:#94a3b8;">📉 ديون مستحقة للموردين</div>
+                    <div style="font-size:0.95rem; font-weight:bold; color:#f87171;">${payables.total.toLocaleString()} SDG (${payables.count})</div>
+                </div>
+            </div>
+            <div style="background:rgba(56,189,248,0.08); border-right:3px solid ${statusColor}; padding:8px 10px; border-radius:4px; font-size:0.82rem; line-height:1.5; color:#e2e8f0;">
+                <b>💡 توصية المدير المالي التنفيذي:</b><br>${recommendation}
+            </div>
+        </div>`;
+    }
+
+    function predictStockouts() {
+        const items = JSON.parse(localStorage.getItem('erp_items_v1') || '[]').filter(x => !x.deleted);
+        const sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
+        
+        const now = new Date();
+        const thirtyDaysAgo = new Date(now.getTime() - (30 * 24 * 60 * 60 * 1000));
+        const itemVelocity = {};
+
+        sales.forEach(inv => {
+            let invDate = inv.date ? new Date(inv.date) : now;
+            if (invDate >= thirtyDaysAgo && inv.items && Array.isArray(inv.items)) {
+                inv.items.forEach(it => {
+                    let id = it.itemId || it.id || it.name;
+                    let q = parseNum(it.quantity || it.qty || 1);
+                    itemVelocity[id] = (itemVelocity[id] || 0) + q;
+                });
+            }
+        });
+
+        const predictions = [];
+        items.forEach(item => {
+            const stockData = getItemStock(item.name);
+            const currentStock = stockData ? stockData.stock : 0;
+            const soldIn30Days = itemVelocity[item.id] || itemVelocity[item.name] || 0;
+            const dailyBurnRate = soldIn30Days > 0 ? (soldIn30Days / 30) : 0;
+            
+            let daysLeft = dailyBurnRate > 0 ? Math.round(currentStock / dailyBurnRate) : 999;
+            const minLimit = parseNum(item.minLimit) || 0;
+
+            if (currentStock <= minLimit || (dailyBurnRate > 0 && daysLeft <= 14)) {
+                let suggestedQty = Math.max(minLimit * 2, Math.round((dailyBurnRate * 30) - currentStock + minLimit));
+                if (suggestedQty <= 0) suggestedQty = minLimit || 10;
+                
+                predictions.push({
+                    name: item.name,
+                    stock: currentStock,
+                    unit: stockData ? stockData.unit : 'وحدة',
+                    dailyRate: dailyBurnRate.toFixed(1),
+                    daysLeft: daysLeft,
+                    suggestedQty: suggestedQty,
+                    urgency: daysLeft <= 3 ? 'خطر فوري 🚨' : (daysLeft <= 7 ? 'عاجل ⚠️' : 'طلب قريب ⏳')
+                });
+            }
+        });
+
+        predictions.sort((a,b) => a.daysLeft - b.daysLeft);
+
+        if (predictions.length === 0) {
+            return `
+            <div style="background:rgba(16,185,129,0.1); border:1px solid #10b981; border-radius:10px; padding:12px; direction:rtl;">
+                <b style="color:#34d399; font-size:1rem;">✅ فحص المخزون الذكي (Stockout Forecast):</b><br>
+                كافة الأصناف المسجلة في وضع آمن ومعدل دورانها متوازن مع كمياتها الحالية. لا توجد مخاطر نفاد قريبة خلال الأسبوعين القادمين.
+            </div>`;
+        }
+
+        let rowsHtml = '';
+        const itemsForDraft = [];
+        predictions.slice(0, 5).forEach(p => {
+            itemsForDraft.push({ name: p.name, qty: p.suggestedQty, price: 0 });
+            rowsHtml += `
+            <tr style="border-bottom:1px solid rgba(255,255,255,0.05);">
+                <td style="padding:6px 4px; font-weight:bold; color:#fff;">${p.name}</td>
+                <td style="padding:6px 4px; text-align:center; color:#f87171;">${p.stock} ${p.unit}</td>
+                <td style="padding:6px 4px; text-align:center; color:#fbbf24;">${p.daysLeft > 100 ? '-' : p.daysLeft + ' يوم'}</td>
+                <td style="padding:6px 4px; text-align:center; color:#34d399; font-weight:bold;">${p.suggestedQty}</td>
+                <td style="padding:6px 4px; text-align:center; font-size:0.75rem;">${p.urgency}</td>
+            </tr>`;
+        });
+
+        const draftParams = encodeURIComponent(JSON.stringify(itemsForDraft));
+
+        return `
+        <div style="background:rgba(15,23,42,0.92); border:1px solid #f59e0b; border-radius:12px; padding:14px; font-family:'Tajawal',sans-serif; direction:rtl; box-shadow:0 4px 15px rgba(0,0,0,0.3);">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px; margin-bottom:10px;">
+                <span style="font-weight:bold; font-size:1.05rem; color:#fff;">⚠️ التنبؤ بنفاد المخزون وإعادة الطلب</span>
+                <span style="background:rgba(245,158,11,0.2); color:#fbbf24; border:1px solid #f59e0b; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold;">${predictions.length} أصناف حرجة</span>
+            </div>
+            <table style="width:100%; font-size:0.8rem; margin-bottom:12px; border-collapse:collapse;">
+                <thead>
+                    <tr style="color:#94a3b8; border-bottom:1px solid rgba(255,255,255,0.1); font-size:0.72rem;">
+                        <th style="padding:4px; text-align:right;">الصنف</th>
+                        <th style="padding:4px; text-align:center;">المتبقي</th>
+                        <th style="padding:4px; text-align:center;">أيام النفاد</th>
+                        <th style="padding:4px; text-align:center;">الطلب المقترح</th>
+                        <th style="padding:4px; text-align:center;">الحالة</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    ${rowsHtml}
+                </tbody>
+            </table>
+            <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                <a href="purchase.php?cfo_order_draft=true&items=${draftParams}" class="chat-action-btn" style="background:#0ea5e9; color:#fff; border:none; padding:8px 14px; border-radius:8px; font-weight:bold; text-decoration:none; display:inline-flex; align-items:center; gap:6px;">
+                    🛒 تجهيز مسودة أمر شراء في شاشة المشتريات
+                </a>
+            </div>
+        </div>`;
+    }
+
+    function recommendDynamicPricing() {
+        const items = JSON.parse(localStorage.getItem('erp_items_v1') || '[]').filter(x => !x.deleted);
+        const sales = JSON.parse(localStorage.getItem('erp_sales_invoices_v1') || '[]');
+        
+        const itemSalesCount = {};
+        sales.forEach(inv => {
+            if (inv.items && Array.isArray(inv.items)) {
+                inv.items.forEach(it => {
+                    let id = it.itemId || it.id || it.name;
+                    itemSalesCount[id] = (itemSalesCount[id] || 0) + 1;
+                });
+            }
+        });
+
+        const recommendations = [];
+        items.forEach(item => {
+            let name = item.name;
+            let unit = item.units && item.units[0] ? item.units[0] : null;
+            let sellPrice = unit ? parseNum(unit.cashPrice) : parseNum(item.price || item.cashPrice || 0);
+            let costPrice = parseNum(item.openingValue) / (parseNum(item.openingQty) || 1);
+            if (costPrice === 0 && sellPrice > 0) costPrice = sellPrice * 0.85;
+
+            let margin = sellPrice > 0 ? ((sellPrice - costPrice) / sellPrice) * 100 : 0;
+            let salesFreq = itemSalesCount[item.id] || itemSalesCount[item.name] || 0;
+            const stockData = getItemStock(item.name);
+            const stock = stockData ? stockData.stock : 0;
+
+            if (salesFreq >= 3 && margin < 12 && sellPrice > 0) {
+                let suggestedPrice = Math.round(sellPrice * 1.05);
+                recommendations.push({
+                    name: name,
+                    tag: 'طلب مرتفع / هامش ضيق 🔥',
+                    color: '#34d399',
+                    currentPrice: sellPrice,
+                    suggestedPrice: suggestedPrice,
+                    note: `هامش الربح الحالي ${margin.toFixed(1)}%. رفع السعر إلى ${suggestedPrice.toLocaleString()} SDG يعزز الربح بنسبة +5% دون المساس بالإقبال.`
+                });
+            } else if (salesFreq === 0 && stock > 20 && sellPrice > 0) {
+                let suggestedPromo = Math.round(sellPrice * 0.93);
+                recommendations.push({
+                    name: name,
+                    tag: 'بضاعة راكدة / رأس مال مجمد ❄️',
+                    color: '#f59e0b',
+                    currentPrice: sellPrice,
+                    suggestedPrice: suggestedPromo,
+                    note: `مخزون راكد (${stock} قطعة) دون مبيعات. يوصى بعرض خصم ترويجي إلى ${suggestedPromo.toLocaleString()} SDG لتسييل البضاعة وتخفيض كلفة التخزين.`
+                });
+            }
+        });
+
+        if (recommendations.length === 0) {
+            return `
+            <div style="background:rgba(56,189,248,0.1); border:1px solid #38bdf8; border-radius:10px; padding:12px; direction:rtl;">
+                <b style="color:#38bdf8; font-size:1rem;">🏷️ فحص التسعير الذكي (Dynamic Pricing):</b><br>
+                هوامش الأسعار لجميع الأصناف متناسقة ومطابقة لحجم الإقبال الحالي في السوق.
+            </div>`;
+        }
+
+        let cardsHtml = '';
+        recommendations.slice(0, 4).forEach(r => {
+            cardsHtml += `
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.08); border-radius:8px; padding:10px; margin-bottom:8px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                    <span style="font-weight:bold; color:#fff; font-size:0.9rem;">${r.name}</span>
+                    <span style="font-size:0.75rem; color:${r.color}; font-weight:bold;">${r.tag}</span>
+                </div>
+                <div style="font-size:0.8rem; color:#94a3b8; margin-bottom:4px;">
+                    السعر الحالي: <b>${r.currentPrice.toLocaleString()} SDG</b> ➔ المقترح: <b style="color:${r.color}; font-size:0.92rem;">${r.suggestedPrice.toLocaleString()} SDG</b>
+                </div>
+                <div style="font-size:0.75rem; color:#cbd5e1; line-height:1.4;">
+                    ${r.note}
+                </div>
+            </div>`;
+        });
+
+        return `
+        <div style="background:rgba(15,23,42,0.92); border:1px solid #38bdf8; border-radius:12px; padding:14px; font-family:'Tajawal',sans-serif; direction:rtl; box-shadow:0 4px 15px rgba(0,0,0,0.3);">
+            <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1px solid rgba(255,255,255,0.1); padding-bottom:8px; margin-bottom:10px;">
+                <span style="font-weight:bold; font-size:1.05rem; color:#fff;">🏷️ توصيات التسعير الذكي وهامش الربح</span>
+                <span style="background:rgba(56,189,248,0.2); color:#38bdf8; border:1px solid #38bdf8; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:bold;">تعديلات مقترحة</span>
+            </div>
+            ${cardsHtml}
+        </div>`;
+    }
+
+    function generateCFOExecutiveReport() {
+        const cashFlowHtml = analyzeCashFlowRunway();
+        const stockoutsHtml = predictStockouts();
+        const pricingHtml = recommendDynamicPricing();
+
+        return `
+        <div style="direction:rtl; font-family:'Tajawal',sans-serif; display:flex; flex-direction:column; gap:12px;">
+            <div style="background:linear-gradient(135deg, rgba(14,165,233,0.2), rgba(59,130,246,0.3)); border:1px solid rgba(56,189,248,0.4); border-radius:12px; padding:14px; color:#fff;">
+                <h3 style="margin:0 0 6px 0; font-size:1.15rem; color:#38bdf8;">💼 تقرير المدير المالي التنفيذي الشامل (Virtual CFO Brief)</h3>
+                <p style="margin:0; font-size:0.8rem; color:#cbd5e1;">موجز لحظي متكامل لسلامة السيولة النقدية، كفاءة المخزون، والفرص السعرية المتاحة.</p>
+            </div>
+            ${cashFlowHtml}
+            ${stockoutsHtml}
+            ${pricingHtml}
+        </div>`;
+    }
+
     // --- NLP RULES ---
     const dynamicKb = [
+        {
+            regex: /(?:تحليل|تقرير|وضع|مؤشر) (?:التدفق النقدي|السيولة والتدفق|التدفقات النقدية|كفاية السيولة|الران واي|cash flow)/i,
+            handler: () => analyzeCashFlowRunway()
+        },
+        {
+            regex: /(?:التنبؤ بنفاد المخزون|توقع النفاد|نفاد المخزون|أوشك على النفاد|إعادة الطلب|طلبيات الشراء|نواقص المخزون المتوقعة)/i,
+            handler: () => predictStockouts()
+        },
+        {
+            regex: /(?:اقتراحات تسعير|التسعير الذكي|تسعير الأصناف|هوامش الربح|هامش الربح|تحسين الأسعار|dynamic pricing)/i,
+            handler: () => recommendDynamicPricing()
+        },
+        {
+            regex: /(?:تقرير المدير المالي|مستشار مالي|المدير المالي التنفيذي|virtual cfo|التقرير التنفيذي الشامل|تقرير cfo)/i,
+            handler: () => generateCFOExecutiveReport()
+        },
         {
             regex: /(?:ما|ماهي|ما هي) (?:النواقص|البضاعة المنتهية|الاصناف المنتهية|نواقص المخزون|أوشكت على النفاذ)/i,
             handler: () => {

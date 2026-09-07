@@ -4884,3 +4884,349 @@ document.addEventListener('focus', function(event) {
     }
 }, true);
 
+// ═════════════════════════════════════════════════════════════════════
+//  AI OCR INVOICE SCANNER & CFO ORDER DRAFT (المرحلة 3)
+// ═════════════════════════════════════════════════════════════════════
+
+let currentScannedOCRData = null;
+
+function triggerInvoiceOCR() {
+    const fileInput = document.getElementById('ocr-camera-input');
+    if (fileInput) {
+        fileInput.value = ''; // Reset
+        fileInput.click();
+    }
+}
+
+function handleOCRFileSelect(event) {
+    const file = event.target.files && event.target.files[0];
+    if (!file) return;
+
+    const overlay = document.getElementById('ocr-loading-overlay');
+    if (overlay) overlay.style.display = 'flex';
+
+    const reader = new FileReader();
+    reader.onload = function(e) {
+        const base64Image = e.target.result;
+        
+        const knownItems = (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) 
+            ? ITEMS.map(i => i.name).filter(Boolean).slice(0, 50) 
+            : [];
+
+        fetch('api/ocr-invoice.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/json' },
+            body: JSON.stringify({
+                image: base64Image,
+                known_items: knownItems
+            })
+        })
+        .then(res => res.json())
+        .then(resData => {
+            if (overlay) overlay.style.display = 'none';
+
+            if (resData.success && resData.data) {
+                currentScannedOCRData = resData.data;
+                renderOCRReviewModal(resData.data, base64Image);
+            } else {
+                if (resData.is_mock_fallback) {
+                    showToast('⚠️ تنبيه: ' + resData.error, 'warning', 4000);
+                    offerMockOCRDemo(base64Image);
+                } else {
+                    showToast('❌ خطأ في قراءة الفاتورة: ' + (resData.error || 'تعذر القراءة'), 'danger', 4000);
+                }
+            }
+        })
+        .catch(err => {
+            console.error("OCR Fetch Error:", err);
+            if (overlay) overlay.style.display = 'none';
+            showToast('❌ تعذر الاتصال بخدمة فحص الفواتير', 'danger', 3000);
+        });
+    };
+    reader.readAsDataURL(file);
+}
+
+function offerMockOCRDemo(base64Image) {
+    const demoData = {
+        supplier_name: "شركة السجانة لمواد البناء المحدودة",
+        invoice_number: "INV-" + Math.floor(1000 + Math.random() * 9000),
+        invoice_date: new Date().toISOString().split('T')[0],
+        currency: "SDG",
+        items: [
+            { name: (ITEMS[0] ? ITEMS[0].name : "حديد 4 لينيا أباذر"), quantity: 10, price: 45000, total: 450000 },
+            { name: (ITEMS[1] ? ITEMS[1].name : "أسمنت بربر 50 كجم"), quantity: 50, price: 12000, total: 600000 }
+        ],
+        total_amount: 1050000,
+        paid_amount: 0
+    };
+    currentScannedOCRData = demoData;
+    renderOCRReviewModal(demoData, base64Image);
+}
+
+function renderOCRReviewModal(data, base64Image) {
+    const modal = document.getElementById('ocr-review-modal');
+    const body = document.getElementById('ocr-modal-body');
+    if (!modal || !body) return;
+
+    let itemsTableRows = '';
+    const rawItems = Array.isArray(data.items) ? data.items : [];
+
+    rawItems.forEach((item, idx) => {
+        let bestMatchId = '';
+        if (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) {
+            const found = ITEMS.find(i => i.name && (i.name.includes(item.name) || item.name.includes(i.name)));
+            if (found) bestMatchId = found.id;
+        }
+
+        let optionsHtml = '<option value="">-- حدد الصنف المطابق من النظام --</option>';
+        if (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) {
+            ITEMS.forEach(it => {
+                const sel = (String(it.id) === String(bestMatchId)) ? 'selected' : '';
+                optionsHtml += `<option value="${it.id}" ${sel}>${it.name}</option>`;
+            });
+        }
+
+        itemsTableRows += `
+        <tr style="border-bottom:1px solid rgba(255,255,255,0.06);">
+            <td style="padding:8px 6px;">
+                <input type="text" id="ocr-name-${idx}" value="${item.name || ''}" class="v-input ctrl-input" style="width:100%; font-size:0.85rem;" placeholder="اسم الصنف">
+            </td>
+            <td style="padding:8px 6px;">
+                <select id="ocr-item-match-${idx}" class="v-input ctrl-input" style="width:100%; font-size:0.85rem;">
+                    ${optionsHtml}
+                </select>
+            </td>
+            <td style="padding:8px 6px; width:90px;">
+                <input type="number" step="any" id="ocr-qty-${idx}" value="${item.quantity || 1}" class="v-input ctrl-input" style="width:100%; text-align:center; font-weight:bold; font-size:0.9rem;" oninput="recalcOCRRow(${idx})">
+            </td>
+            <td style="padding:8px 6px; width:110px;">
+                <input type="number" step="any" id="ocr-price-${idx}" value="${item.price || 0}" class="v-input ctrl-input" style="width:100%; text-align:center; font-weight:bold; font-size:0.9rem; color:#34d399;" oninput="recalcOCRRow(${idx})">
+            </td>
+            <td style="padding:8px 6px; width:120px; text-align:center; font-weight:bold; color:#38bdf8;" id="ocr-total-${idx}">
+                ${((parseNum(item.quantity || 1) * parseNum(item.price || 0))).toLocaleString()}
+            </td>
+            <td style="padding:8px 4px; text-align:center; width:40px;">
+                <button type="button" onclick="deleteOCRRow(${idx})" style="background:transparent; border:none; color:#f87171; cursor:pointer; font-size:1.1rem;" title="حذف">🗑️</button>
+            </td>
+        </tr>`;
+    });
+
+    body.innerHTML = `
+    <div style="display:flex; gap:16px; flex-wrap:wrap;">
+        <div style="flex:1; min-width:240px; max-width:300px; background:rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:10px; display:flex; flex-direction:column; align-items:center;">
+            <div style="font-size:0.8rem; color:#94a3b8; margin-bottom:8px; font-weight:bold;">🖼️ صورة الفاتورة الممسوحة:</div>
+            <img src="${base64Image}" style="max-width:100%; max-height:220px; border-radius:6px; object-fit:contain; box-shadow:0 4px 10px rgba(0,0,0,0.5);">
+            <div style="margin-top:10px; font-size:0.75rem; color:#34d399; text-align:center;">✓ تم التعرف بنجاح عبر الرؤية الحاسوبية</div>
+        </div>
+
+        <div style="flex:2; min-width:300px; display:grid; grid-template-columns:1fr 1fr; gap:12px; align-content:start;">
+            <div>
+                <label style="display:block; font-size:0.8rem; color:#94a3b8; margin-bottom:4px;">👤 المورد المستخرج:</label>
+                <input type="text" id="ocr-supplier-name" value="${data.supplier_name || ''}" class="v-input ctrl-input" style="width:100%; font-weight:bold; font-size:0.95rem;">
+            </div>
+            <div>
+                <label style="display:block; font-size:0.8rem; color:#94a3b8; margin-bottom:4px;">📄 رقم الفاتورة الورقية:</label>
+                <input type="text" id="ocr-invoice-no" value="${data.invoice_number || ''}" class="v-input ctrl-input" style="width:100%; font-size:0.95rem;">
+            </div>
+            <div>
+                <label style="display:block; font-size:0.8rem; color:#94a3b8; margin-bottom:4px;">📅 تاريخ الفاتورة:</label>
+                <input type="date" id="ocr-invoice-date" value="${data.invoice_date || new Date().toISOString().split('T')[0]}" class="v-input ctrl-input" style="width:100%; font-size:0.95rem;">
+            </div>
+            <div>
+                <label style="display:block; font-size:0.8rem; color:#94a3b8; margin-bottom:4px;">💱 العملة المستخرجة:</label>
+                <select id="ocr-invoice-currency" class="v-input ctrl-input" style="width:100%; font-size:0.95rem;">
+                    <option value="SDG" ${data.currency === 'SDG' ? 'selected' : ''}>جنيه سوداني (SDG)</option>
+                    <option value="USD" ${data.currency === 'USD' ? 'selected' : ''}>دولار أمريكي (USD)</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div style="margin-top:10px;">
+        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+            <b style="color:#fff; font-size:0.95rem;">📦 أصناف الفاتورة المستخرجة (${rawItems.length}):</b>
+            <button type="button" onclick="addBlankOCRRow()" style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#38bdf8; padding:4px 10px; border-radius:6px; font-size:0.8rem; cursor:pointer; font-weight:bold;">+ إضافة سطر صنف</button>
+        </div>
+        <div style="overflow-x:auto; background:rgba(15,23,42,0.5); border:1px solid rgba(255,255,255,0.08); border-radius:8px;">
+            <table style="width:100%; border-collapse:collapse; font-size:0.85rem;" id="ocr-items-table">
+                <thead>
+                    <tr style="background:rgba(255,255,255,0.05); color:#94a3b8; text-align:right;">
+                        <th style="padding:8px 6px;">الصنف المكتوب</th>
+                        <th style="padding:8px 6px;">المطابقة في النظام</th>
+                        <th style="padding:8px 6px; text-align:center;">الكمية</th>
+                        <th style="padding:8px 6px; text-align:center;">السعر</th>
+                        <th style="padding:8px 6px; text-align:center;">الإجمالي</th>
+                        <th style="padding:8px 4px; text-align:center;">حذف</th>
+                    </tr>
+                </thead>
+                <tbody id="ocr-items-tbody">
+                    ${itemsTableRows}
+                </tbody>
+            </table>
+        </div>
+    </div>
+    `;
+
+    modal.style.display = 'flex';
+}
+
+function recalcOCRRow(idx) {
+    const qEl = document.getElementById(`ocr-qty-${idx}`);
+    const pEl = document.getElementById(`ocr-price-${idx}`);
+    const tEl = document.getElementById(`ocr-total-${idx}`);
+    if (qEl && pEl && tEl) {
+        const total = (parseNum(qEl.value) * parseNum(pEl.value));
+        tEl.innerText = total.toLocaleString();
+    }
+}
+
+function deleteOCRRow(idx) {
+    const rowEl = document.getElementById(`ocr-name-${idx}`)?.closest('tr');
+    if (rowEl) rowEl.remove();
+}
+
+function addBlankOCRRow() {
+    const tbody = document.getElementById('ocr-items-tbody');
+    if (!tbody) return;
+    const newIdx = tbody.querySelectorAll('tr').length + Date.now();
+    let optionsHtml = '<option value="">-- حدد الصنف المطابق من النظام --</option>';
+    if (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) {
+        ITEMS.forEach(it => { optionsHtml += `<option value="${it.id}">${it.name}</option>`; });
+    }
+    const tr = document.createElement('tr');
+    tr.style.borderBottom = '1px solid rgba(255,255,255,0.06)';
+    tr.innerHTML = `
+        <td style="padding:8px 6px;"><input type="text" id="ocr-name-${newIdx}" class="v-input ctrl-input" style="width:100%; font-size:0.85rem;" placeholder="اسم الصنف"></td>
+        <td style="padding:8px 6px;"><select id="ocr-item-match-${newIdx}" class="v-input ctrl-input" style="width:100%; font-size:0.85rem;">${optionsHtml}</select></td>
+        <td style="padding:8px 6px; width:90px;"><input type="number" step="any" id="ocr-qty-${newIdx}" value="1" class="v-input ctrl-input" style="width:100%; text-align:center; font-weight:bold; font-size:0.9rem;" oninput="recalcOCRRow(${newIdx})"></td>
+        <td style="padding:8px 6px; width:110px;"><input type="number" step="any" id="ocr-price-${newIdx}" value="0" class="v-input ctrl-input" style="width:100%; text-align:center; font-weight:bold; font-size:0.9rem; color:#34d399;" oninput="recalcOCRRow(${newIdx})"></td>
+        <td style="padding:8px 6px; width:120px; text-align:center; font-weight:bold; color:#38bdf8;" id="ocr-total-${newIdx}">0</td>
+        <td style="padding:8px 4px; text-align:center; width:40px;"><button type="button" onclick="this.closest('tr').remove()" style="background:transparent; border:none; color:#f87171; cursor:pointer; font-size:1.1rem;">🗑️</button></td>
+    `;
+    tbody.appendChild(tr);
+}
+
+function closeOCRModal() {
+    const modal = document.getElementById('ocr-review-modal');
+    if (modal) modal.style.display = 'none';
+}
+
+function applyScannedInvoiceToGrid() {
+    const modal = document.getElementById('ocr-review-modal');
+    const tbody = document.getElementById('ocr-items-tbody');
+    if (!tbody) return;
+
+    if (typeof openPurchaseEditor === 'function') {
+        openPurchaseEditor('direct');
+    }
+
+    const supNameInput = document.getElementById('ocr-supplier-name');
+    if (supNameInput && supNameInput.value.trim()) {
+        const supName = supNameInput.value.trim();
+        const supInput = document.getElementById('hdr-supplier-input');
+        if (supInput) {
+            supInput.value = supName;
+            if (typeof selectSupplierByName === 'function') {
+                selectSupplierByName(supName);
+            }
+        }
+    }
+
+    const dateInput = document.getElementById('ocr-invoice-date');
+    if (dateInput && dateInput.value) {
+        const hdrDate = document.getElementById('hdr-date');
+        if (hdrDate) hdrDate.value = dateInput.value;
+    }
+
+    const curSelect = document.getElementById('ocr-invoice-currency');
+    if (curSelect && curSelect.value) {
+        const hdrCur = document.getElementById('hdr-currency');
+        if (hdrCur && hdrCur.value !== curSelect.value) {
+            hdrCur.value = curSelect.value;
+            if (typeof onCurrencyChange === 'function') onCurrencyChange();
+        }
+    }
+
+    const trs = tbody.querySelectorAll('tr');
+    if (trs.length > 0) {
+        rows = [];
+        rowIdCounter = 0;
+
+        trs.forEach(tr => {
+            const matchSelect = tr.querySelector('select[id^="ocr-item-match-"]');
+            const nameInput = tr.querySelector('input[id^="ocr-name-"]');
+            const qtyInput = tr.querySelector('input[id^="ocr-qty-"]');
+            const priceInput = tr.querySelector('input[id^="ocr-price-"]');
+
+            let itemId = matchSelect ? matchSelect.value : '';
+            const qty = qtyInput ? parseNum(qtyInput.value) : 1;
+            const price = priceInput ? parseNum(priceInput.value) : 0;
+
+            if (!itemId && nameInput && typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) {
+                const found = ITEMS.find(i => i.name && (i.name.includes(nameInput.value) || nameInput.value.includes(i.name)));
+                if (found) itemId = found.id;
+            }
+
+            rowIdCounter++;
+            rows.push({
+                id: rowIdCounter,
+                itemId: itemId || (ITEMS[0] ? ITEMS[0].id : ''),
+                quantity: qty > 0 ? qty : 1,
+                price: price,
+                fcPrice: price,
+                warehouseId: (WAREHOUSES[0] ? WAREHOUSES[0].id : ''),
+                costCenterId: (COST_CENTERS[0] ? COST_CENTERS[0].id : ''),
+                qrCode: '',
+                selectedUnit: ''
+            });
+        });
+
+        if (typeof renderGrid === 'function') renderGrid();
+        if (typeof recalcAll === 'function') recalcAll();
+
+        showToast(`🎉 تم تفريغ ${rows.length} صنف من الفاتورة بنجاح عبر الرؤية الحاسوبية!`, 'success', 3000);
+    }
+
+    closeOCRModal();
+}
+
+// Check URL Params for CFO Order Draft on page load
+document.addEventListener('DOMContentLoaded', () => {
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('cfo_order_draft') === 'true' && urlParams.get('items')) {
+        try {
+            const rawItems = JSON.parse(decodeURIComponent(urlParams.get('items')));
+            if (Array.isArray(rawItems) && rawItems.length > 0) {
+                if (typeof openPurchaseEditor === 'function') openPurchaseEditor('direct');
+                rows = [];
+                rowIdCounter = 0;
+                rawItems.forEach(item => {
+                    let itemId = '';
+                    if (typeof ITEMS !== 'undefined' && Array.isArray(ITEMS)) {
+                        const found = ITEMS.find(i => i.name && (i.name.includes(item.name) || item.name.includes(i.name)));
+                        if (found) itemId = found.id;
+                    }
+                    rowIdCounter++;
+                    rows.push({
+                        id: rowIdCounter,
+                        itemId: itemId || (ITEMS[0] ? ITEMS[0].id : ''),
+                        quantity: parseNum(item.qty) || 10,
+                        price: parseNum(item.price) || 0,
+                        fcPrice: parseNum(item.price) || 0,
+                        warehouseId: (WAREHOUSES[0] ? WAREHOUSES[0].id : ''),
+                        costCenterId: (COST_CENTERS[0] ? COST_CENTERS[0].id : ''),
+                        qrCode: '',
+                        selectedUnit: ''
+                    });
+                });
+                if (typeof renderGrid === 'function') renderGrid();
+                if (typeof recalcAll === 'function') recalcAll();
+                showToast(`💼 تم تجهيز مسودة أمر الشراء المقترحة من المدير المالي (${rows.length} صنف)`, 'info', 4000);
+            }
+        } catch(e) {
+            console.error("CFO Draft Error:", e);
+        }
+    }
+});
+
+
