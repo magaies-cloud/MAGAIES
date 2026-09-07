@@ -514,43 +514,48 @@
         </div>
     </div>
 
-    <!-- 5 Sacred Channel Quick Switch Buttons -->
-    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; margin-bottom: 9px;">
-        <button type="button" id="hdr-ch-makkah" onclick="quickHeaderPlay('makkah')" class="header-pop-ch-btn" style="--ch-c: #f59e0b; padding: 8px 10px;" title="تشغيل مكة">
+    <!-- 10 Small Sacred Channel Quick Buttons (مكة، المدينة، المجد، القرآن MP3، البخاري، مسلم، رياض الصالحين، الشمائل، السيرة، الصحابة) -->
+    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 6px; margin-bottom: 10px;">
+        <button type="button" id="hdr-ch-makkah" onclick="quickHeaderPlay('makkah')" class="header-pop-ch-btn" style="--ch-c: #f59e0b;" title="تشغيل مكة">
             <span style="font-size: 13px;">🕋</span>
-            <span style="font-weight: 900;">مكة</span>
+            <span>مكة</span>
         </button>
-        <button type="button" id="hdr-ch-madinah" onclick="quickHeaderPlay('madinah')" class="header-pop-ch-btn" style="--ch-c: #10b981; padding: 8px 10px;" title="تشغيل المدينة">
+        <button type="button" id="hdr-ch-madinah" onclick="quickHeaderPlay('madinah')" class="header-pop-ch-btn" style="--ch-c: #10b981;" title="تشغيل المدينة">
             <span style="font-size: 13px;">🕌</span>
-            <span style="font-weight: 900;">المدينة</span>
+            <span>المدينة</span>
         </button>
-        <button type="button" id="hdr-ch-majd" onclick="quickHeaderPlay('majd')" class="header-pop-ch-btn" style="--ch-c: #fbbf24; padding: 8px 10px;" title="تشغيل المجد">
+        <button type="button" id="hdr-ch-majd" onclick="quickHeaderPlay('majd')" class="header-pop-ch-btn" style="--ch-c: #fbbf24;" title="تشغيل المجد">
             <span style="font-size: 13px;">📺</span>
-            <span style="font-weight: 900;">المجد</span>
+            <span>المجد</span>
         </button>
-        <button type="button" id="hdr-ch-quran_mp3" onclick="quickHeaderPlay('quran_mp3')" class="header-pop-ch-btn" style="--ch-c: #06b6d4; padding: 8px 10px;" title="تشغيل القرآن MP3">
+        <button type="button" id="hdr-ch-quran_mp3" onclick="quickHeaderPlay('quran_mp3')" class="header-pop-ch-btn" style="--ch-c: #06b6d4;" title="تشغيل القرآن MP3">
             <span style="font-size: 13px;">🎧</span>
-            <span style="font-weight: 900;">القرآن MP3</span>
+            <span>القرآن MP3</span>
         </button>
-        <button type="button" id="hdr-ch-hadith" onclick="quickHeaderPlay('hadith')" class="header-pop-ch-btn" style="--ch-c: #a855f7; padding: 8px 10px; grid-column: span 2;" title="تشغيل إذاعة الحديث الشريف والسنة">
+        <button type="button" id="hdr-ch-hadith_bukhari" onclick="quickHeaderPlay('hadith_bukhari')" class="header-pop-ch-btn" style="--ch-c: #a855f7;" title="صحيح البخاري">
             <span style="font-size: 13px;">📜</span>
-            <span style="font-weight: 900;">الحديث الشريف</span>
+            <span>البخاري</span>
         </button>
-    </div>
-
-    <!-- Quick Hadith Stations Row -->
-    <div style="background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 10px; padding: 6px 8px; margin-bottom: 10px;">
-        <div style="font-size: 10.5px; font-weight: 800; color: #d8b4fe; margin-bottom: 4px;">
-            <span>📜 إذاعات الحديث والسنة (24/7):</span>
-        </div>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
-            <button type="button" onclick="quickHeaderPlay('hadith_bukhari')" class="header-pop-ch-btn" style="--ch-c: #a855f7; padding: 4px 2px; font-size: 10px; font-weight: 800;" title="صحيح البخاري">البخاري</button>
-            <button type="button" onclick="quickHeaderPlay('hadith_muslim')" class="header-pop-ch-btn" style="--ch-c: #10b981; padding: 4px 2px; font-size: 10px; font-weight: 800;" title="صحيح مسلم">مسلم</button>
-            <button type="button" onclick="quickHeaderPlay('hadith_riyad')" class="header-pop-ch-btn" style="--ch-c: #059669; padding: 4px 2px; font-size: 10px; font-weight: 800;" title="رياض الصالحين">رياض الصالحين</button>
-            <button type="button" onclick="quickHeaderPlay('hadith_shmaeel')" class="header-pop-ch-btn" style="--ch-c: #c084fc; padding: 4px 2px; font-size: 10px; font-weight: 800;" title="الشمائل المحمدية">الشمائل</button>
-            <button type="button" onclick="quickHeaderPlay('hadith_siyra')" class="header-pop-ch-btn" style="--ch-c: #f59e0b; padding: 4px 2px; font-size: 10px; font-weight: 800;" title="السيرة النبوية">السيرة</button>
-            <button type="button" onclick="quickHeaderPlay('hadith_sahabah')" class="header-pop-ch-btn" style="--ch-c: #38bdf8; padding: 4px 2px; font-size: 10px; font-weight: 800;" title="حياة الصحابة">الصحابة</button>
-        </div>
+        <button type="button" id="hdr-ch-hadith_muslim" onclick="quickHeaderPlay('hadith_muslim')" class="header-pop-ch-btn" style="--ch-c: #10b981;" title="صحيح مسلم">
+            <span style="font-size: 13px;">📗</span>
+            <span>مسلم</span>
+        </button>
+        <button type="button" id="hdr-ch-hadith_riyad" onclick="quickHeaderPlay('hadith_riyad')" class="header-pop-ch-btn" style="--ch-c: #059669;" title="رياض الصالحين">
+            <span style="font-size: 13px;">🌿</span>
+            <span>رياض الصالحين</span>
+        </button>
+        <button type="button" id="hdr-ch-hadith_shmaeel" onclick="quickHeaderPlay('hadith_shmaeel')" class="header-pop-ch-btn" style="--ch-c: #c084fc;" title="الشمائل المحمدية">
+            <span style="font-size: 13px;">✨</span>
+            <span>الشمائل</span>
+        </button>
+        <button type="button" id="hdr-ch-hadith_siyra" onclick="quickHeaderPlay('hadith_siyra')" class="header-pop-ch-btn" style="--ch-c: #f59e0b;" title="في ظلال السيرة النبوية">
+            <span style="font-size: 13px;">🕌</span>
+            <span>السيرة</span>
+        </button>
+        <button type="button" id="hdr-ch-hadith_sahabah" onclick="quickHeaderPlay('hadith_sahabah')" class="header-pop-ch-btn" style="--ch-c: #38bdf8;" title="صور من حياة الصحابة">
+            <span style="font-size: 13px;">👥</span>
+            <span>الصحابة</span>
+        </button>
     </div>
 
     <!-- Volume & Stop Controls -->

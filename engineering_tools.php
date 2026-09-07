@@ -400,59 +400,59 @@ $pdo = getDBConnection();
         
         /* ── أزرار القنوات المقدسة المدمجة في سطر واحد (عالية الإضاءة) ── */
         .sacred-media-pill {
-            padding: 12px 16px;
-            border-radius: 22px;
-            min-height: 74px;
+            padding: 8px 10px;
+            border-radius: 14px;
+            min-height: 52px;
             cursor: pointer;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
             display: flex;
             align-items: center;
             justify-content: center;
-            gap: 14px;
+            gap: 8px;
             text-align: center;
-            border: 2px solid var(--sm-border);
+            border: 1.5px solid var(--sm-border);
             background: linear-gradient(145deg, rgba(20, 27, 45, 0.95), rgba(10, 15, 28, 0.98));
             color: #ffffff;
-            box-shadow: 0 8px 20px rgba(0, 0, 0, 0.5), inset 0 1px 2px rgba(255, 255, 255, 0.18), 0 0 15px var(--sm-bg);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4), inset 0 1px 2px rgba(255, 255, 255, 0.15), 0 0 10px var(--sm-bg);
             position: relative;
             overflow: hidden;
         }
         .sacred-media-pill:hover {
-            transform: translateY(-3px) scale(1.02);
+            transform: translateY(-2px) scale(1.02);
             border-color: var(--sm-color);
-            box-shadow: 0 12px 28px rgba(0, 0, 0, 0.6), 0 0 30px var(--sm-color);
+            box-shadow: 0 6px 18px rgba(0, 0, 0, 0.5), 0 0 20px var(--sm-color);
         }
         .sacred-media-pill.is-active {
             border-color: var(--sm-color) !important;
             background: linear-gradient(135deg, var(--sm-bg), rgba(10, 15, 30, 0.99)) !important;
             animation: tv-neon-pulse-glow 1.8s infinite ease-in-out !important;
-            transform: translateY(-3px) scale(1.02) !important;
+            transform: translateY(-2px) scale(1.02) !important;
             z-index: 10;
         }
         .sm-icon-box {
-            width: 48px;
-            height: 48px;
-            border-radius: 16px;
+            width: 30px;
+            height: 30px;
+            border-radius: 9px;
             background: rgba(255, 255, 255, 0.08);
-            border: 2px solid var(--sm-border);
+            border: 1.5px solid var(--sm-border);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 22px;
+            font-size: 14px;
             flex-shrink: 0;
-            transition: all 0.3s cubic-bezier(0.16, 1, 0.3, 1);
-            filter: drop-shadow(0 0 8px var(--sm-color));
-            box-shadow: inset 0 0 10px var(--sm-bg);
+            transition: all 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+            filter: drop-shadow(0 0 5px var(--sm-color));
+            box-shadow: inset 0 0 6px var(--sm-bg);
         }
         .sacred-media-pill:hover .sm-icon-box {
-            transform: scale(1.12);
-            filter: drop-shadow(0 0 14px var(--sm-color));
+            transform: scale(1.08);
+            filter: drop-shadow(0 0 10px var(--sm-color));
         }
         .sacred-media-pill.is-active .sm-icon-box {
             background: var(--sm-color) !important;
             color: #020617 !important;
             border-color: #ffffff !important;
-            box-shadow: 0 0 22px #ffffff, 0 0 45px var(--sm-color) !important;
+            box-shadow: 0 0 15px #ffffff, 0 0 25px var(--sm-color) !important;
             animation: tv-icon-radiance 1.8s infinite ease-in-out !important;
         }
         .sacred-media-pill.is-active .sm-icon-box i {
@@ -460,8 +460,8 @@ $pdo = getDBConnection();
             filter: drop-shadow(0 0 4px rgba(0,0,0,0.8));
         }
         .sacred-media-pill.is-active .sm-title {
-            text-shadow: 0 0 15px var(--sm-color), 0 0 25px rgba(255,255,255,0.8);
-            letter-spacing: 0.5px;
+            text-shadow: 0 0 12px var(--sm-color), 0 0 20px rgba(255,255,255,0.8);
+            letter-spacing: 0.3px;
         }
         .sm-text-box {
             display: flex;
@@ -469,33 +469,39 @@ $pdo = getDBConnection();
             align-items: center;
             justify-content: center;
             text-align: center;
+            overflow: hidden;
+            min-width: 0;
         }
         .sm-title {
-            font-size: 15px;
+            font-size: 11.5px;
             font-weight: 900;
-            line-height: 1.25;
-            letter-spacing: 0.3px;
+            line-height: 1.2;
+            white-space: nowrap;
         }
         .sm-sub {
-            font-size: 11px;
+            font-size: 9px;
             font-weight: 800;
-            margin-top: 3px;
+            margin-top: 1px;
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            max-width: 100%;
         }
         .sm-status-dot {
-            width: 12px;
-            height: 12px;
+            width: 6px;
+            height: 6px;
             border-radius: 50%;
             background: rgba(255, 255, 255, 0.25);
-            border: 1.5px solid rgba(255, 255, 255, 0.4);
+            border: 1px solid rgba(255, 255, 255, 0.4);
             position: absolute;
-            top: 10px;
-            left: 10px;
+            top: 5px;
+            left: 5px;
             transition: all 0.3s;
         }
         .sacred-media-pill.is-active .sm-status-dot {
             background: #ef4444;
             border-color: #ffffff;
-            box-shadow: 0 0 15px #ef4444, 0 0 25px #ef4444;
+            box-shadow: 0 0 10px #ef4444;
             animation: ping 1.4s infinite;
         }
 
@@ -1923,61 +1929,108 @@ $pdo = getDBConnection();
 
         
         <!-- ════════════════════════════════════════════════════════════════ -->
-        <!-- 📡 SACRED MEDIA BAR (مكة · المدينة · المجد · القرآن MP3 · الحديث الشريف) -->
+        <!-- 📡 SACRED MEDIA BAR (10 أيقونات صغيرة مدمجة: مكة · المدينة · المجد · القرآن MP3 · البخاري · مسلم · رياض الصالحين · الشمائل · السيرة · الصحابة) -->
         <!-- ════════════════════════════════════════════════════════════════ -->
-        <div class="mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 select-none">
+        <div class="mb-6 grid grid-cols-2 sm:grid-cols-5 xl:grid-cols-10 gap-2 select-none">
             
             <!-- 1. مكة -->
-            <div id="quick-media-btn-makkah" onclick="toggleQuickChannel('makkah')" class="sacred-media-pill group" style="--sm-color: #f59e0b; --sm-bg: rgba(245, 158, 11, 0.2); --sm-border: rgba(245, 158, 11, 0.5);">
+            <div id="quick-media-btn-makkah" onclick="toggleQuickChannel('makkah')" class="sacred-media-pill group" style="--sm-color: #f59e0b; --sm-bg: rgba(245, 158, 11, 0.2); --sm-border: rgba(245, 158, 11, 0.5);" title="تشغيل مكة المكرمة">
                 <div class="sm-icon-box text-yellow-400"><i class="fa-solid fa-kaaba"></i></div>
                 <div class="sm-text-box">
                     <div class="sm-title text-yellow-300">🕋 مكة</div>
-                    <div id="sm-sub-makkah" class="sm-sub text-yellow-400/80">تشغيل فوري مباشر</div>
+                    <div id="sm-sub-makkah" class="sm-sub text-yellow-400/80">تشغيل فوري</div>
                 </div>
                 <div id="sm-status-makkah" class="sm-status-dot"></div>
             </div>
 
             <!-- 2. المدينة -->
-            <div id="quick-media-btn-madinah" onclick="toggleQuickChannel('madinah')" class="sacred-media-pill group" style="--sm-color: #10b981; --sm-bg: rgba(16, 185, 129, 0.2); --sm-border: rgba(16, 185, 129, 0.5);">
+            <div id="quick-media-btn-madinah" onclick="toggleQuickChannel('madinah')" class="sacred-media-pill group" style="--sm-color: #10b981; --sm-bg: rgba(16, 185, 129, 0.2); --sm-border: rgba(16, 185, 129, 0.5);" title="تشغيل المدينة المنورة">
                 <div class="sm-icon-box text-emerald-400"><i class="fa-solid fa-mosque"></i></div>
                 <div class="sm-text-box">
                     <div class="sm-title text-emerald-300">🕌 المدينة</div>
-                    <div id="sm-sub-madinah" class="sm-sub text-emerald-400/80">تشغيل فوري مباشر</div>
+                    <div id="sm-sub-madinah" class="sm-sub text-emerald-400/80">تشغيل فوري</div>
                 </div>
                 <div id="sm-status-madinah" class="sm-status-dot"></div>
             </div>
 
             <!-- 3. المجد -->
-            <div id="quick-media-btn-majd" onclick="toggleQuickChannel('majd')" class="sacred-media-pill group" style="--sm-color: #fbbf24; --sm-bg: rgba(251, 191, 36, 0.2); --sm-border: rgba(251, 191, 36, 0.5);">
+            <div id="quick-media-btn-majd" onclick="toggleQuickChannel('majd')" class="sacred-media-pill group" style="--sm-color: #fbbf24; --sm-bg: rgba(251, 191, 36, 0.2); --sm-border: rgba(251, 191, 36, 0.5);" title="تشغيل إذاعة وقناة المجد">
                 <div class="sm-icon-box text-amber-400"><i class="fa-solid fa-tv"></i></div>
                 <div class="sm-text-box">
                     <div class="sm-title text-amber-300">📺 المجد</div>
-                    <div id="sm-sub-majd" class="sm-sub text-amber-400/80">تشغيل فوري مباشر</div>
+                    <div id="sm-sub-majd" class="sm-sub text-amber-400/80">تشغيل فوري</div>
                 </div>
                 <div id="sm-status-majd" class="sm-status-dot"></div>
             </div>
 
             <!-- 4. القرآن MP3 -->
-            <div id="quick-media-btn-quran_mp3" onclick="handleQuranCardClick(event)" class="sacred-media-pill group" style="--sm-color: #06b6d4; --sm-bg: rgba(6, 182, 212, 0.2); --sm-border: rgba(6, 182, 212, 0.5);">
+            <div id="quick-media-btn-quran_mp3" onclick="handleQuranCardClick(event)" class="sacred-media-pill group" style="--sm-color: #06b6d4; --sm-bg: rgba(6, 182, 212, 0.2); --sm-border: rgba(6, 182, 212, 0.5);" title="استوديو القرآن الكريم MP3">
                 <div class="sm-icon-box text-cyan-400"><i class="fa-solid fa-headphones"></i></div>
                 <div class="sm-text-box">
                     <div class="sm-title text-cyan-300">🎧 القرآن MP3</div>
-                    <div id="sm-sub-quran_mp3" class="sm-sub text-cyan-400/80">قائمة القراء والسور</div>
+                    <div id="sm-sub-quran_mp3" class="sm-sub text-cyan-400/80">القراء والسور</div>
                 </div>
                 <div id="sm-status-quran_mp3" class="sm-status-dot"></div>
             </div>
 
-            <!-- 5. الحديث الشريف -->
-            <div id="quick-media-btn-hadith" onclick="toggleQuickChannel('hadith')" class="sacred-media-pill group" style="--sm-color: #a855f7; --sm-bg: rgba(168, 85, 247, 0.2); --sm-border: rgba(168, 85, 247, 0.5);">
+            <!-- 5. البخاري -->
+            <div id="quick-media-btn-hadith_bukhari" onclick="toggleQuickChannel('hadith_bukhari')" class="sacred-media-pill group" style="--sm-color: #a855f7; --sm-bg: rgba(168, 85, 247, 0.2); --sm-border: rgba(168, 85, 247, 0.5);" title="صحيح البخاري كامل">
                 <div class="sm-icon-box text-purple-400"><i class="fa-solid fa-book-open"></i></div>
                 <div class="sm-text-box">
-                    <div class="sm-title text-purple-300">📜 الحديث الشريف</div>
-                    <div id="sm-sub-hadith" class="sm-sub text-purple-400/80">
-                        <span>صحيح البخاري</span>
-                        <span class="mr-1 text-purple-300 hover:text-white font-black cursor-pointer underline" onclick="event.stopPropagation(); openHadithChannelModal(event);" title="اختيار إذاعة أخرى">(قنوات ▾)</span>
-                    </div>
+                    <div class="sm-title text-purple-300">📜 البخاري</div>
+                    <div id="sm-sub-hadith_bukhari" class="sm-sub text-purple-400/80">صحيح البخاري</div>
                 </div>
-                <div id="sm-status-hadith" class="sm-status-dot"></div>
+                <div id="sm-status-hadith_bukhari" class="sm-status-dot"></div>
+            </div>
+
+            <!-- 6. مسلم -->
+            <div id="quick-media-btn-hadith_muslim" onclick="toggleQuickChannel('hadith_muslim')" class="sacred-media-pill group" style="--sm-color: #10b981; --sm-bg: rgba(16, 185, 129, 0.2); --sm-border: rgba(16, 185, 129, 0.5);" title="صحيح مسلم">
+                <div class="sm-icon-box text-emerald-400"><i class="fa-solid fa-book-bookmark"></i></div>
+                <div class="sm-text-box">
+                    <div class="sm-title text-emerald-300">📗 مسلم</div>
+                    <div id="sm-sub-hadith_muslim" class="sm-sub text-emerald-400/80">صحيح مسلم</div>
+                </div>
+                <div id="sm-status-hadith_muslim" class="sm-status-dot"></div>
+            </div>
+
+            <!-- 7. رياض الصالحين -->
+            <div id="quick-media-btn-hadith_riyad" onclick="toggleQuickChannel('hadith_riyad')" class="sacred-media-pill group" style="--sm-color: #059669; --sm-bg: rgba(5, 150, 105, 0.2); --sm-border: rgba(5, 150, 105, 0.5);" title="رياض الصالحين للنووي">
+                <div class="sm-icon-box text-emerald-400"><i class="fa-solid fa-leaf"></i></div>
+                <div class="sm-text-box">
+                    <div class="sm-title text-emerald-300">🌿 رياض الصالحين</div>
+                    <div id="sm-sub-hadith_riyad" class="sm-sub text-emerald-400/80">رياض الصالحين</div>
+                </div>
+                <div id="sm-status-hadith_riyad" class="sm-status-dot"></div>
+            </div>
+
+            <!-- 8. الشمائل -->
+            <div id="quick-media-btn-hadith_shmaeel" onclick="toggleQuickChannel('hadith_shmaeel')" class="sacred-media-pill group" style="--sm-color: #c084fc; --sm-bg: rgba(192, 132, 252, 0.2); --sm-border: rgba(192, 132, 252, 0.5);" title="الشمائل المحمدية للترمذي">
+                <div class="sm-icon-box text-purple-300"><i class="fa-solid fa-star-and-crescent"></i></div>
+                <div class="sm-text-box">
+                    <div class="sm-title text-purple-200">✨ الشمائل</div>
+                    <div id="sm-sub-hadith_shmaeel" class="sm-sub text-purple-400/80">الشمائل</div>
+                </div>
+                <div id="sm-status-hadith_shmaeel" class="sm-status-dot"></div>
+            </div>
+
+            <!-- 9. السيرة -->
+            <div id="quick-media-btn-hadith_siyra" onclick="toggleQuickChannel('hadith_siyra')" class="sacred-media-pill group" style="--sm-color: #f59e0b; --sm-bg: rgba(245, 158, 11, 0.2); --sm-border: rgba(245, 158, 11, 0.5);" title="في ظلال السيرة النبوية">
+                <div class="sm-icon-box text-amber-400"><i class="fa-solid fa-mosque"></i></div>
+                <div class="sm-text-box">
+                    <div class="sm-title text-amber-300">🕌 السيرة</div>
+                    <div id="sm-sub-hadith_siyra" class="sm-sub text-amber-400/80">السيرة النبوية</div>
+                </div>
+                <div id="sm-status-hadith_siyra" class="sm-status-dot"></div>
+            </div>
+
+            <!-- 10. الصحابة -->
+            <div id="quick-media-btn-hadith_sahabah" onclick="toggleQuickChannel('hadith_sahabah')" class="sacred-media-pill group" style="--sm-color: #38bdf8; --sm-bg: rgba(56, 189, 248, 0.2); --sm-border: rgba(56, 189, 248, 0.5);" title="صور من حياة الصحابة">
+                <div class="sm-icon-box text-sky-400"><i class="fa-solid fa-users"></i></div>
+                <div class="sm-text-box">
+                    <div class="sm-title text-sky-300">👥 الصحابة</div>
+                    <div id="sm-sub-hadith_sahabah" class="sm-sub text-sky-400/80">حياة الصحابة</div>
+                </div>
+                <div id="sm-status-hadith_sahabah" class="sm-status-dot"></div>
             </div>
 
         </div>
@@ -23322,46 +23375,28 @@ $pdo = getDBConnection();
     var currentHadithChannel = 'hadith_bukhari';
 
     function toggleQuickChannel(channelKey) {
-        const isHadithActive = (activeQuickChannel === 'hadith' || (activeQuickChannel && activeQuickChannel.startsWith('hadith_')));
-        const isHadithReq = (channelKey === 'hadith' || (channelKey && channelKey.startsWith('hadith_')));
-
-        if (activeQuickChannel === channelKey || (isHadithActive && channelKey === 'hadith')) {
+        if (activeQuickChannel === channelKey) {
             // Currently playing this channel -> STOP IT!
             if (typeof window.stopPersistentMedia === 'function') {
                 window.stopPersistentMedia();
             }
             activeQuickChannel = null;
             renderQuickChannelVisuals(null);
-            renderHadithModalList();
             if (typeof showFiqhToast === 'function') showFiqhToast('⏹️ تم إيقاف البث');
         } else {
             // Start playing requested channel immediately!
-            if (channelKey === 'makkah') {
-                playTvChannel('makkah');
-                if (typeof showFiqhToast === 'function') showFiqhToast('▶️ تم تشغيل مكة في الخلفية');
-            } else if (channelKey === 'madinah') {
-                playTvChannel('madinah');
-                if (typeof showFiqhToast === 'function') showFiqhToast('▶️ تم تشغيل المدينة في الخلفية');
-            } else if (channelKey === 'majd') {
-                playTvChannel('majd');
-                if (typeof showFiqhToast === 'function') showFiqhToast('▶️ تم تشغيل المجد في الخلفية');
-            } else if (channelKey === 'quran_mp3') {
+            if (channelKey === 'quran_mp3') {
                 openQuranMp3Studio();
                 return;
-            } else if (isHadithReq) {
-                const targetCh = (channelKey === 'hadith') ? (currentHadithChannel || 'hadith_bukhari') : channelKey;
-                currentHadithChannel = targetCh;
-                playTvChannel(targetCh);
-                activeQuickChannel = targetCh;
-                renderQuickChannelVisuals(targetCh);
-                renderHadithModalList();
-                const chData = TV_CHANNELS_DATA[targetCh];
-                if (typeof showFiqhToast === 'function') showFiqhToast('▶️ تم تشغيل ' + (chData ? chData.title.split('(')[0] : 'الحديث الشريف') + ' في الخلفية');
-                return;
             }
+            playTvChannel(channelKey);
             activeQuickChannel = channelKey;
             renderQuickChannelVisuals(channelKey);
-            renderHadithModalList();
+            const chData = TV_CHANNELS_DATA[channelKey];
+            const channelName = chData ? chData.title.split('(')[0].replace('إذاعة ', '').replace('تلفزيون ', '').trim() : channelKey;
+            if (typeof showFiqhToast === 'function') {
+                showFiqhToast('▶️ تم تشغيل ' + channelName + ' في الخلفية');
+            }
         }
     }
 
@@ -23389,18 +23424,34 @@ $pdo = getDBConnection();
     }
 
     function renderQuickChannelVisuals(activeKey) {
-        const keys = ['makkah', 'madinah', 'majd', 'quran_mp3', 'hadith'];
-        const isHadithActive = (activeKey === 'hadith' || (activeKey && activeKey.startsWith('hadith_')));
+        const keys = [
+            'makkah', 'madinah', 'majd', 'quran_mp3',
+            'hadith_bukhari', 'hadith_muslim', 'hadith_riyad',
+            'hadith_shmaeel', 'hadith_siyra', 'hadith_sahabah'
+        ];
+
+        const defaultLabels = {
+            makkah: 'تشغيل فوري',
+            madinah: 'تشغيل فوري',
+            majd: 'تشغيل فوري',
+            quran_mp3: 'القراء والسور',
+            hadith_bukhari: 'صحيح البخاري',
+            hadith_muslim: 'صحيح مسلم',
+            hadith_riyad: 'رياض الصالحين',
+            hadith_shmaeel: 'الشمائل',
+            hadith_siyra: 'السيرة النبوية',
+            hadith_sahabah: 'حياة الصحابة'
+        };
 
         keys.forEach(k => {
             const btn = document.getElementById('quick-media-btn-' + k);
             const sub = document.getElementById('sm-sub-' + k);
 
             if (btn) {
-                btn.classList.remove('is-active', 'is-active-makkah', 'is-active-madinah', 'is-active-majd', 'is-active-quran_mp3', 'is-active-hadith');
+                btn.classList.remove('is-active', 'is-active-' + k);
             }
 
-            const isMatch = (k === activeKey) || (k === 'hadith' && isHadithActive);
+            const isMatch = (k === activeKey);
 
             if (isMatch) {
                 if (btn) {
@@ -23409,26 +23460,14 @@ $pdo = getDBConnection();
                 }
                 if (sub) {
                     if (k === 'quran_mp3') {
-                        sub.innerHTML = '<span class="text-emerald-300 font-black animate-pulse">🟢 شغال الآن</span> <span class="stop-quran-pill-action underline text-red-300 mr-1 hover:text-red-100 cursor-pointer" onclick="event.stopPropagation(); window.stopPersistentMedia(); renderQuickChannelVisuals(null);">(إيقاف ⏹️)</span>';
-                    } else if (k === 'hadith') {
-                        const curData = TV_CHANNELS_DATA[activeKey] || TV_CHANNELS_DATA[currentHadithChannel] || TV_CHANNELS_DATA['hadith_bukhari'];
-                        const shortName = curData.title.split('(')[0].replace('إذاعة ', '').trim();
-                        sub.innerHTML = `<span class="text-emerald-300 font-black animate-pulse">🟢 ${shortName} (انقر للإيقاف)</span> <span class="mr-1 text-purple-300 hover:text-white font-black cursor-pointer underline" onclick="event.stopPropagation(); openHadithChannelModal(event);" title="اختيار إذاعة أخرى">(تغيير ▾)</span>`;
+                        sub.innerHTML = '<span class="text-emerald-300 font-black animate-pulse">🟢 شغال</span> <span class="stop-quran-pill-action underline text-red-300 mr-0.5 hover:text-red-100 cursor-pointer" onclick="event.stopPropagation(); window.stopPersistentMedia(); renderQuickChannelVisuals(null);">(⏹️)</span>';
                     } else {
-                        sub.innerHTML = '<span class="text-emerald-300 font-black animate-pulse">🟢 شغال الآن (انقر للإيقاف)</span>';
+                        sub.innerHTML = '<span class="text-emerald-300 font-black animate-pulse">🟢 شغال</span>';
                     }
                 }
             } else {
                 if (sub) {
-                    if (k === 'quran_mp3') {
-                        sub.innerText = 'قائمة القراء والسور';
-                    } else if (k === 'hadith') {
-                        const curData = TV_CHANNELS_DATA[currentHadithChannel] || TV_CHANNELS_DATA['hadith_bukhari'];
-                        const shortName = curData.title.split('(')[0].replace('إذاعة ', '').trim();
-                        sub.innerHTML = `<span>${shortName}</span> <span class="mr-1 text-purple-300 hover:text-white font-black cursor-pointer underline" onclick="event.stopPropagation(); openHadithChannelModal(event);" title="اختيار إذاعة أخرى">(قنوات ▾)</span>`;
-                    } else {
-                        sub.innerText = 'تشغيل فوري مباشر';
-                    }
+                    sub.innerText = defaultLabels[k] || 'تشغيل فوري';
                 }
             }
         });
