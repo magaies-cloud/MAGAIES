@@ -61,6 +61,55 @@
             audioUrl: "https://backup.qurango.net/radio/ali_alhuthaifi",
             icon: "mosque",
             color: "#10b981"
+        },
+        hadith: {
+            title: "إذاعة صحيح البخاري والحديث الشريف (24/7)",
+            sub: "أحاديث النبي ﷺ والسنة النبوية المطهرة",
+            audioUrl: "https://backup.qurango.net/radio/saheh-bokharee",
+            icon: "book-open",
+            color: "#a855f7"
+        },
+        hadith_bukhari: {
+            title: "إذاعة صحيح البخاري (بث مباشر 24/7)",
+            sub: "قراءة أحاديث الجامع الصحيح للإمام البخاري",
+            audioUrl: "https://backup.qurango.net/radio/saheh-bokharee",
+            icon: "book-open",
+            color: "#a855f7"
+        },
+        hadith_muslim: {
+            title: "إذاعة صحيح مسلم (بث مباشر 24/7)",
+            sub: "قراءة أحاديث صحيح مسلم رحمه الله",
+            audioUrl: "https://backup.qurango.net/radio/saheh-muslim",
+            icon: "book-bookmark",
+            color: "#10b981"
+        },
+        hadith_riyad: {
+            title: "إذاعة رياض الصالحين (بث مباشر 24/7)",
+            sub: "كتاب رياض الصالحين للإمام النووي",
+            audioUrl: "https://backup.qurango.net/radio/riyad",
+            icon: "leaf",
+            color: "#059669"
+        },
+        hadith_shmaeel: {
+            title: "إذاعة الشمائل المحمدية (بث مباشر 24/7)",
+            sub: "أحاديث صفات وأخلاق النبي ﷺ للترمذي",
+            audioUrl: "https://backup.qurango.net/radio/shmaeel",
+            icon: "star-and-crescent",
+            color: "#8b5cf6"
+        },
+        hadith_siyra: {
+            title: "إذاعة في ظلال السيرة النبوية (بث مباشر 24/7)",
+            sub: "400 حلقة متواصلة في سيرة الحبيب ﷺ",
+            audioUrl: "https://backup.qurango.net/radio/fi_zilal_alsiyra",
+            icon: "mosque",
+            color: "#d97706"
+        },
+        hadith_sahabah: {
+            title: "إذاعة صور من حياة الصحابة (24/7)",
+            sub: "مواقف وأحاديث جيل الصحابة رضوان الله عليهم",
+            audioUrl: "https://backup.qurango.net/radio/sahabah",
+            icon: "users",
+            color: "#0284c7"
         }
     };
 
@@ -706,8 +755,8 @@
                     </div>
                 </div>
 
-                <!-- 4 Sacred Channel Quick Switch Buttons -->
-                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; margin-bottom: 12px;">
+                <!-- 5 Sacred Channel Quick Switch Buttons -->
+                <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; margin-bottom: 9px;">
                     <button type="button" id="hdr-ch-makkah" onclick="quickHeaderPlay('makkah')" class="header-pop-ch-btn" style="--ch-c: #f59e0b;" title="تشغيل مكة">
                         <span style="font-size: 13px;">🕋</span>
                         <span>مكة</span>
@@ -724,6 +773,25 @@
                         <span style="font-size: 13px;">🎧</span>
                         <span>القرآن MP3</span>
                     </button>
+                    <button type="button" id="hdr-ch-hadith" onclick="quickHeaderPlay('hadith')" class="header-pop-ch-btn" style="--ch-c: #a855f7; grid-column: span 2;" title="تشغيل إذاعة الحديث الشريف والسنة">
+                        <span style="font-size: 13px;">📜</span>
+                        <span style="font-weight: 900;">الحديث الشريف</span>
+                    </button>
+                </div>
+
+                <!-- Quick Hadith Stations Row -->
+                <div style="background: rgba(168, 85, 247, 0.08); border: 1px solid rgba(168, 85, 247, 0.3); border-radius: 10px; padding: 6px 8px; margin-bottom: 10px;">
+                    <div style="font-size: 10.5px; font-weight: 800; color: #d8b4fe; margin-bottom: 4px;">
+                        <span>📜 إذاعات الحديث والسنة (24/7):</span>
+                    </div>
+                    <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 4px;">
+                        <button type="button" onclick="quickHeaderPlay('hadith_bukhari')" class="header-pop-ch-btn" style="--ch-c: #a855f7; padding: 4px 2px; font-size: 10px; font-weight: 800;" title="صحيح البخاري">البخاري</button>
+                        <button type="button" onclick="quickHeaderPlay('hadith_muslim')" class="header-pop-ch-btn" style="--ch-c: #10b981; padding: 4px 2px; font-size: 10px; font-weight: 800;" title="صحيح مسلم">مسلم</button>
+                        <button type="button" onclick="quickHeaderPlay('hadith_riyad')" class="header-pop-ch-btn" style="--ch-c: #059669; padding: 4px 2px; font-size: 10px; font-weight: 800;" title="رياض الصالحين">رياض الصالحين</button>
+                        <button type="button" onclick="quickHeaderPlay('hadith_shmaeel')" class="header-pop-ch-btn" style="--ch-c: #c084fc; padding: 4px 2px; font-size: 10px; font-weight: 800;" title="الشمائل المحمدية">الشمائل</button>
+                        <button type="button" onclick="quickHeaderPlay('hadith_siyra')" class="header-pop-ch-btn" style="--ch-c: #f59e0b; padding: 4px 2px; font-size: 10px; font-weight: 800;" title="السيرة النبوية">السيرة</button>
+                        <button type="button" onclick="quickHeaderPlay('hadith_sahabah')" class="header-pop-ch-btn" style="--ch-c: #38bdf8; padding: 4px 2px; font-size: 10px; font-weight: 800;" title="حياة الصحابة">الصحابة</button>
+                    </div>
                 </div>
 
                 <!-- Volume & Stop Controls -->
@@ -1094,6 +1162,24 @@
             try { window.top.quickHeaderPlay(channelKey); return; } catch(e) {}
         }
 
+        const state = getStoredMediaState();
+        const chKey = (state && state.extraMeta && state.extraMeta.channelKey) ? state.extraMeta.channelKey : null;
+
+        // Toggle OFF if already playing this channel or Hadith category
+        if (state && state.active) {
+            const isHadithActive = (chKey === 'hadith' || (chKey && chKey.startsWith('hadith_')));
+            const isHadithReq = (channelKey === 'hadith' || (channelKey && channelKey.startsWith('hadith_')));
+            if (chKey === channelKey || (isHadithActive && channelKey === 'hadith')) {
+                stopPersistentMedia(true);
+                syncHeaderPopoverUI();
+                return;
+            }
+        }
+
+        if (channelKey === 'hadith') {
+            channelKey = 'hadith_bukhari';
+        }
+
         if (channelKey === 'quran_mp3') {
             const state = getStoredMediaState();
             if (state && state.type === 'audio' && state.sourceUrl) {
@@ -1149,6 +1235,15 @@
                     if (chKey === 'makkah') label.innerText = 'مكة 🔴';
                     else if (chKey === 'madinah') label.innerText = 'المدينة 🔴';
                     else if (chKey === 'majd') label.innerText = 'المجد 🔴';
+                    else if (chKey === 'hadith' || (chKey && chKey.startsWith('hadith_'))) {
+                        if (chKey === 'hadith_bukhari') label.innerText = 'البخاري 📜';
+                        else if (chKey === 'hadith_muslim') label.innerText = 'مسلم 📗';
+                        else if (chKey === 'hadith_riyad') label.innerText = 'رياض الصالحين 🌿';
+                        else if (chKey === 'hadith_shmaeel') label.innerText = 'الشمائل ✨';
+                        else if (chKey === 'hadith_siyra') label.innerText = 'السيرة 🕌';
+                        else if (chKey === 'hadith_sahabah') label.innerText = 'الصحابة 👥';
+                        else label.innerText = 'الحديث 📜';
+                    }
                     else if (chKey === 'quran_mp3' || state.type === 'audio') label.innerText = 'القرآن 🟢';
                     else label.innerText = 'شغال 🔴';
                 }

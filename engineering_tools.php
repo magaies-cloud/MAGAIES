@@ -239,6 +239,27 @@ $pdo = getDBConnection();
             box-shadow: 0 0 25px #ffffff, 0 0 50px #06b6d4 !important;
         }
 
+        #quick-media-btn-hadith.is-active, .sacred-media-pill.is-active-hadith {
+            border-color: #c084fc !important;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.45), rgba(59, 7, 100, 0.98)) !important;
+            animation: tv-neon-pulse-hadith 1.6s infinite ease-in-out !important;
+            transform: translateY(-4px) scale(1.03) !important;
+        }
+        #quick-media-btn-hadith.is-active .sm-icon-box {
+            background: #a855f7 !important;
+            color: #ffffff !important;
+            border-color: #ffffff !important;
+            box-shadow: 0 0 25px #ffffff, 0 0 50px #a855f7 !important;
+        }
+        @keyframes tv-neon-pulse-hadith {
+            0%, 100% {
+                box-shadow: 0 0 25px rgba(168, 85, 247, 0.4), 0 0 55px rgba(192, 132, 252, 0.3), inset 0 0 20px rgba(168, 85, 247, 0.3);
+            }
+            50% {
+                box-shadow: 0 0 45px rgba(168, 85, 247, 0.7), 0 0 85px rgba(192, 132, 252, 0.5), inset 0 0 35px rgba(168, 85, 247, 0.5);
+            }
+        }
+
         /* ── تصميم أيقونات الشيوخ (لون ذهبي ملكي ساطع، 4 في السطر إجبارياً، تفاصيل مربعة) ── */
         #quran-reciters-container {
             display: grid !important;
@@ -1902,9 +1923,9 @@ $pdo = getDBConnection();
 
         
         <!-- ════════════════════════════════════════════════════════════════ -->
-        <!-- 📡 SACRED MEDIA BAR (مكة · المدينة · المجد · القرآن الكريم إم بي 3) -->
+        <!-- 📡 SACRED MEDIA BAR (مكة · المدينة · المجد · القرآن MP3 · الحديث الشريف) -->
         <!-- ════════════════════════════════════════════════════════════════ -->
-        <div class="mb-6 grid grid-cols-2 lg:grid-cols-4 gap-3 select-none">
+        <div class="mb-6 grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-5 gap-3 select-none">
             
             <!-- 1. مكة -->
             <div id="quick-media-btn-makkah" onclick="toggleQuickChannel('makkah')" class="sacred-media-pill group" style="--sm-color: #f59e0b; --sm-bg: rgba(245, 158, 11, 0.2); --sm-border: rgba(245, 158, 11, 0.5);">
@@ -1946,6 +1967,38 @@ $pdo = getDBConnection();
                 <div id="sm-status-quran_mp3" class="sm-status-dot"></div>
             </div>
 
+            <!-- 5. الحديث الشريف -->
+            <div id="quick-media-btn-hadith" onclick="toggleQuickChannel('hadith')" class="sacred-media-pill group" style="--sm-color: #a855f7; --sm-bg: rgba(168, 85, 247, 0.2); --sm-border: rgba(168, 85, 247, 0.5);">
+                <div class="sm-icon-box text-purple-400"><i class="fa-solid fa-book-open"></i></div>
+                <div class="sm-text-box">
+                    <div class="sm-title text-purple-300">📜 الحديث الشريف</div>
+                    <div id="sm-sub-hadith" class="sm-sub text-purple-400/80">
+                        <span>صحيح البخاري</span>
+                        <span class="mr-1 text-purple-300 hover:text-white font-black cursor-pointer underline" onclick="event.stopPropagation(); openHadithChannelModal(event);" title="اختيار إذاعة أخرى">(قنوات ▾)</span>
+                    </div>
+                </div>
+                <div id="sm-status-hadith" class="sm-status-dot"></div>
+            </div>
+
+        </div>
+
+        <!-- 📜 MODAL: HADITH & SUNNAH CHANNELS PICKER -->
+        <div id="hadith-channels-modal" class="fixed inset-0 z-[999999] bg-slate-950/85 backdrop-blur-md flex items-center justify-center p-4" style="display: none;">
+            <div class="relative w-full max-w-lg bg-slate-900 border-2 border-purple-500/60 rounded-3xl p-6 shadow-2xl text-slate-100 space-y-4">
+                <div class="flex items-center justify-between border-b border-purple-500/30 pb-3">
+                    <div class="flex items-center gap-2.5">
+                        <span class="text-2xl">📜</span>
+                        <div>
+                            <h3 class="font-black text-lg text-purple-200">إذاعات الحديث النبوي والسنة المطهرة</h3>
+                            <p class="text-xs text-slate-400 font-bold">بث مباشر متواصل 24/7 بدون انقطاع</p>
+                        </div>
+                    </div>
+                    <button type="button" onclick="closeHadithChannelModal()" class="w-8 h-8 rounded-full bg-white/10 hover:bg-white/20 flex items-center justify-center text-slate-300 font-bold text-sm cursor-pointer">✕</button>
+                </div>
+                <div class="space-y-2 max-h-[60vh] overflow-y-auto pr-1" id="hadith-modal-channels-list">
+                    <!-- Populated dynamically or by helper -->
+                </div>
+            </div>
         </div>
 
 
@@ -23205,6 +23258,55 @@ $pdo = getDBConnection();
             audioUrl: "https://backup.qurango.net/radio/ali_alhuthaifi",
             icon: "fa-solid fa-mosque",
             color: "emerald"
+        },
+        hadith: {
+            title: "إذاعة صحيح البخاري والحديث الشريف (24/7)",
+            sub: "أحاديث النبي ﷺ والسنة النبوية المطهرة",
+            audioUrl: "https://backup.qurango.net/radio/saheh-bokharee",
+            icon: "fa-solid fa-book-open",
+            color: "purple"
+        },
+        hadith_bukhari: {
+            title: "إذاعة صحيح البخاري (بث مباشر 24/7)",
+            sub: "قراءة أحاديث الجامع الصحيح للإمام البخاري",
+            audioUrl: "https://backup.qurango.net/radio/saheh-bokharee",
+            icon: "fa-solid fa-book-open",
+            color: "purple"
+        },
+        hadith_muslim: {
+            title: "إذاعة صحيح مسلم (بث مباشر 24/7)",
+            sub: "قراءة أحاديث صحيح مسلم رحمه الله",
+            audioUrl: "https://backup.qurango.net/radio/saheh-muslim",
+            icon: "fa-solid fa-book-bookmark",
+            color: "emerald"
+        },
+        hadith_riyad: {
+            title: "إذاعة رياض الصالحين (بث مباشر 24/7)",
+            sub: "كتاب رياض الصالحين للإمام النووي",
+            audioUrl: "https://backup.qurango.net/radio/riyad",
+            icon: "fa-solid fa-leaf",
+            color: "emerald"
+        },
+        hadith_shmaeel: {
+            title: "إذاعة الشمائل المحمدية (بث مباشر 24/7)",
+            sub: "أحاديث صفات وأخلاق النبي ﷺ للترمذي",
+            audioUrl: "https://backup.qurango.net/radio/shmaeel",
+            icon: "fa-solid fa-star-and-crescent",
+            color: "purple"
+        },
+        hadith_siyra: {
+            title: "إذاعة في ظلال السيرة النبوية (بث مباشر 24/7)",
+            sub: "400 حلقة متواصلة في سيرة الحبيب ﷺ",
+            audioUrl: "https://backup.qurango.net/radio/fi_zilal_alsiyra",
+            icon: "fa-solid fa-mosque",
+            color: "amber"
+        },
+        hadith_sahabah: {
+            title: "إذاعة صور من حياة الصحابة (24/7)",
+            sub: "مواقف وأحاديث جيل الصحابة رضوان الله عليهم",
+            audioUrl: "https://backup.qurango.net/radio/sahabah",
+            icon: "fa-solid fa-users",
+            color: "sky"
         }
     };
 
@@ -23214,18 +23316,23 @@ $pdo = getDBConnection();
     
     // ════════════════════════════════════════════════════════════════════════════
     // ════════════════════════════════════════════════════════════════════════════
-    // 💡 ONE-CLICK TOGGLE & GLOWING MEDIA ENGINE (مكة، المدينة، المجد، القرآن الكريم إم بي 3)
+    // 💡 ONE-CLICK TOGGLE & GLOWING MEDIA ENGINE (مكة، المدينة، المجد، القرآن MP3، الحديث الشريف)
     // ════════════════════════════════════════════════════════════════════════════
     var activeQuickChannel = null;
+    var currentHadithChannel = 'hadith_bukhari';
 
     function toggleQuickChannel(channelKey) {
-        if (activeQuickChannel === channelKey) {
+        const isHadithActive = (activeQuickChannel === 'hadith' || (activeQuickChannel && activeQuickChannel.startsWith('hadith_')));
+        const isHadithReq = (channelKey === 'hadith' || (channelKey && channelKey.startsWith('hadith_')));
+
+        if (activeQuickChannel === channelKey || (isHadithActive && channelKey === 'hadith')) {
             // Currently playing this channel -> STOP IT!
             if (typeof window.stopPersistentMedia === 'function') {
                 window.stopPersistentMedia();
             }
             activeQuickChannel = null;
             renderQuickChannelVisuals(null);
+            renderHadithModalList();
             if (typeof showFiqhToast === 'function') showFiqhToast('⏹️ تم إيقاف البث');
         } else {
             // Start playing requested channel immediately!
@@ -23241,9 +23348,20 @@ $pdo = getDBConnection();
             } else if (channelKey === 'quran_mp3') {
                 openQuranMp3Studio();
                 return;
+            } else if (isHadithReq) {
+                const targetCh = (channelKey === 'hadith') ? (currentHadithChannel || 'hadith_bukhari') : channelKey;
+                currentHadithChannel = targetCh;
+                playTvChannel(targetCh);
+                activeQuickChannel = targetCh;
+                renderQuickChannelVisuals(targetCh);
+                renderHadithModalList();
+                const chData = TV_CHANNELS_DATA[targetCh];
+                if (typeof showFiqhToast === 'function') showFiqhToast('▶️ تم تشغيل ' + (chData ? chData.title.split('(')[0] : 'الحديث الشريف') + ' في الخلفية');
+                return;
             }
             activeQuickChannel = channelKey;
             renderQuickChannelVisuals(channelKey);
+            renderHadithModalList();
         }
     }
 
@@ -23271,16 +23389,20 @@ $pdo = getDBConnection();
     }
 
     function renderQuickChannelVisuals(activeKey) {
-        const keys = ['makkah', 'madinah', 'majd', 'quran_mp3'];
+        const keys = ['makkah', 'madinah', 'majd', 'quran_mp3', 'hadith'];
+        const isHadithActive = (activeKey === 'hadith' || (activeKey && activeKey.startsWith('hadith_')));
+
         keys.forEach(k => {
             const btn = document.getElementById('quick-media-btn-' + k);
             const sub = document.getElementById('sm-sub-' + k);
 
             if (btn) {
-                btn.classList.remove('is-active', 'is-active-makkah', 'is-active-madinah', 'is-active-majd', 'is-active-quran_mp3');
+                btn.classList.remove('is-active', 'is-active-makkah', 'is-active-madinah', 'is-active-majd', 'is-active-quran_mp3', 'is-active-hadith');
             }
 
-            if (k === activeKey) {
+            const isMatch = (k === activeKey) || (k === 'hadith' && isHadithActive);
+
+            if (isMatch) {
                 if (btn) {
                     btn.classList.add('is-active');
                     btn.classList.add('is-active-' + k);
@@ -23288,6 +23410,10 @@ $pdo = getDBConnection();
                 if (sub) {
                     if (k === 'quran_mp3') {
                         sub.innerHTML = '<span class="text-emerald-300 font-black animate-pulse">🟢 شغال الآن</span> <span class="stop-quran-pill-action underline text-red-300 mr-1 hover:text-red-100 cursor-pointer" onclick="event.stopPropagation(); window.stopPersistentMedia(); renderQuickChannelVisuals(null);">(إيقاف ⏹️)</span>';
+                    } else if (k === 'hadith') {
+                        const curData = TV_CHANNELS_DATA[activeKey] || TV_CHANNELS_DATA[currentHadithChannel] || TV_CHANNELS_DATA['hadith_bukhari'];
+                        const shortName = curData.title.split('(')[0].replace('إذاعة ', '').trim();
+                        sub.innerHTML = `<span class="text-emerald-300 font-black animate-pulse">🟢 ${shortName} (انقر للإيقاف)</span> <span class="mr-1 text-purple-300 hover:text-white font-black cursor-pointer underline" onclick="event.stopPropagation(); openHadithChannelModal(event);" title="اختيار إذاعة أخرى">(تغيير ▾)</span>`;
                     } else {
                         sub.innerHTML = '<span class="text-emerald-300 font-black animate-pulse">🟢 شغال الآن (انقر للإيقاف)</span>';
                     }
@@ -23296,6 +23422,10 @@ $pdo = getDBConnection();
                 if (sub) {
                     if (k === 'quran_mp3') {
                         sub.innerText = 'قائمة القراء والسور';
+                    } else if (k === 'hadith') {
+                        const curData = TV_CHANNELS_DATA[currentHadithChannel] || TV_CHANNELS_DATA['hadith_bukhari'];
+                        const shortName = curData.title.split('(')[0].replace('إذاعة ', '').trim();
+                        sub.innerHTML = `<span>${shortName}</span> <span class="mr-1 text-purple-300 hover:text-white font-black cursor-pointer underline" onclick="event.stopPropagation(); openHadithChannelModal(event);" title="اختيار إذاعة أخرى">(قنوات ▾)</span>`;
                     } else {
                         sub.innerText = 'تشغيل فوري مباشر';
                     }
@@ -23303,6 +23433,73 @@ $pdo = getDBConnection();
             }
         });
     }
+
+    const HADITH_STATIONS = [
+        { key: 'hadith_bukhari', title: 'صحيح البخاري', desc: 'أحاديث الجامع الصحيح للإمام البخاري كاملة', icon: '📜', badge: 'متفق عليه' },
+        { key: 'hadith_muslim', title: 'صحيح مسلم', desc: 'أحاديث صحيح الإمام مسلم رحمه الله', icon: '📗', badge: 'أعلى الصحة' },
+        { key: 'hadith_riyad', title: 'رياض الصالحين', desc: 'كتاب رياض الصالحين للإمام النووي', icon: '🌿', badge: 'أحاديث الأخلاق' },
+        { key: 'hadith_shmaeel', title: 'الشمائل المحمدية', desc: 'صفات وأخلاق وشمائل المصطفى ﷺ للترمذي', icon: '✨', badge: 'الشمائل' },
+        { key: 'hadith_siyra', title: 'في ظلال السيرة', desc: '400 حلقة متواصلة في سيرة الحبيب ﷺ', icon: '🕌', badge: 'السيرة النبوية' },
+        { key: 'hadith_sahabah', title: 'حياة الصحابة', desc: 'مواقف وأحاديث جيل الصحابة والتابعين', icon: '👥', badge: 'الصحابة' }
+    ];
+
+    function openHadithChannelModal(e) {
+        if (e) e.stopPropagation();
+        renderHadithModalList();
+        const modal = document.getElementById('hadith-channels-modal');
+        if (modal) modal.style.display = 'flex';
+    }
+
+    function closeHadithChannelModal() {
+        const modal = document.getElementById('hadith-channels-modal');
+        if (modal) modal.style.display = 'none';
+    }
+
+    function selectHadithChannel(stationKey) {
+        currentHadithChannel = stationKey;
+        playTvChannel(stationKey);
+        activeQuickChannel = stationKey;
+        renderQuickChannelVisuals(stationKey);
+        renderHadithModalList();
+        closeHadithChannelModal();
+        const curData = TV_CHANNELS_DATA[stationKey];
+        if (typeof showFiqhToast === 'function') {
+            showFiqhToast('▶️ تم تشغيل ' + (curData ? curData.title : 'الحديث الشريف') + ' في الخلفية');
+        }
+    }
+
+    function renderHadithModalList() {
+        const container = document.getElementById('hadith-modal-channels-list');
+        if (!container) return;
+        const activeKey = activeQuickChannel;
+
+        container.innerHTML = HADITH_STATIONS.map(st => {
+            const isPlaying = (activeKey === st.key);
+            const isCurrent = (currentHadithChannel === st.key);
+            return `
+                <div onclick="selectHadithChannel('${st.key}')" class="p-3 rounded-2xl border transition flex items-center justify-between cursor-pointer ${isPlaying ? 'bg-purple-900/60 border-purple-400 shadow-lg shadow-purple-500/20' : 'bg-slate-800/80 hover:bg-slate-800 border-white/10 hover:border-purple-500/40'}">
+                    <div class="flex items-center gap-3">
+                        <span class="text-2xl">${st.icon}</span>
+                        <div>
+                            <div class="font-black text-sm ${isPlaying ? 'text-purple-200' : 'text-slate-100'} flex items-center gap-2">
+                                <span>${st.title}</span>
+                                ${isPlaying ? '<span class="text-[10px] bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 px-2 py-0.5 rounded-md animate-pulse">🟢 شغال الآن</span>' : ''}
+                            </div>
+                            <div class="text-xs text-slate-400 font-bold mt-0.5">${st.desc}</div>
+                        </div>
+                    </div>
+                    <span class="text-xs font-black px-2.5 py-1 rounded-lg ${isPlaying ? 'bg-purple-500 text-white' : (isCurrent ? 'bg-white/10 text-purple-300' : 'bg-white/5 text-slate-300')}">
+                        ${isPlaying ? 'مشغل ▶' : (isCurrent ? 'محدد ✓' : 'استماع')}
+                    </span>
+                </div>
+            `;
+        }).join('');
+    }
+
+    window.openHadithChannelModal = openHadithChannelModal;
+    window.closeHadithChannelModal = closeHadithChannelModal;
+    window.selectHadithChannel = selectHadithChannel;
+    window.renderHadithModalList = renderHadithModalList;
 
     // Sync from global storage on page load
     try {

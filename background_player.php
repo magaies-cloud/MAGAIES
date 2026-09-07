@@ -148,6 +148,7 @@ $channelKey = isset($_GET['ch']) ? htmlspecialchars($_GET['ch']) : 'majd';
         <button type="button" onclick="switchChannel('makkah')" id="btn-makkah" class="tab-btn">مكة</button>
         <button type="button" onclick="switchChannel('madinah')" id="btn-madinah" class="tab-btn">المدينة</button>
         <button type="button" onclick="switchChannel('majd')" id="btn-majd" class="tab-btn">المجد</button>
+        <button type="button" onclick="switchChannel('hadith')" id="btn-hadith" class="tab-btn">الحديث الشريف</button>
     </div>
 
     <div class="center-card">
@@ -192,6 +193,12 @@ $channelKey = isset($_GET['ch']) ? htmlspecialchars($_GET['ch']) : 'majd';
                 sub: "بث حي ومباشر من الروضة الشريفة 24/7",
                 url: "https://backup.qurango.net/radio/ali_alhuthaifi",
                 emoji: "🕌"
+            },
+            hadith: {
+                title: "إذاعة صحيح البخاري والحديث الشريف",
+                sub: "أحاديث النبي ﷺ والسنة النبوية المطهرة 24/7",
+                url: "https://backup.qurango.net/radio/saheh-bokharee",
+                emoji: "📜"
             }
         };
 
