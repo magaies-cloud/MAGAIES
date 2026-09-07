@@ -1906,41 +1906,41 @@ $pdo = getDBConnection();
         <!-- ════════════════════════════════════════════════════════════════ -->
         <div class="mb-6 grid grid-cols-2 lg:grid-cols-4 gap-3 select-none">
             
-            <!-- 1. تلفزيون مكة -->
+            <!-- 1. مكة -->
             <div id="quick-media-btn-makkah" onclick="toggleQuickChannel('makkah')" class="sacred-media-pill group" style="--sm-color: #f59e0b; --sm-bg: rgba(245, 158, 11, 0.2); --sm-border: rgba(245, 158, 11, 0.5);">
                 <div class="sm-icon-box text-yellow-400"><i class="fa-solid fa-kaaba"></i></div>
                 <div class="sm-text-box">
-                    <div class="sm-title text-yellow-300">🕋 تلفزيون مكة</div>
+                    <div class="sm-title text-yellow-300">🕋 مكة</div>
                     <div id="sm-sub-makkah" class="sm-sub text-yellow-400/80">تشغيل فوري مباشر</div>
                 </div>
                 <div id="sm-status-makkah" class="sm-status-dot"></div>
             </div>
 
-            <!-- 2. تلفزيون المدينة -->
+            <!-- 2. المدينة -->
             <div id="quick-media-btn-madinah" onclick="toggleQuickChannel('madinah')" class="sacred-media-pill group" style="--sm-color: #10b981; --sm-bg: rgba(16, 185, 129, 0.2); --sm-border: rgba(16, 185, 129, 0.5);">
                 <div class="sm-icon-box text-emerald-400"><i class="fa-solid fa-mosque"></i></div>
                 <div class="sm-text-box">
-                    <div class="sm-title text-emerald-300">🕌 تلفزيون المدينة</div>
+                    <div class="sm-title text-emerald-300">🕌 المدينة</div>
                     <div id="sm-sub-madinah" class="sm-sub text-emerald-400/80">تشغيل فوري مباشر</div>
                 </div>
                 <div id="sm-status-madinah" class="sm-status-dot"></div>
             </div>
 
-            <!-- 3. تلفزيون المجد -->
+            <!-- 3. المجد -->
             <div id="quick-media-btn-majd" onclick="toggleQuickChannel('majd')" class="sacred-media-pill group" style="--sm-color: #fbbf24; --sm-bg: rgba(251, 191, 36, 0.2); --sm-border: rgba(251, 191, 36, 0.5);">
                 <div class="sm-icon-box text-amber-400"><i class="fa-solid fa-tv"></i></div>
                 <div class="sm-text-box">
-                    <div class="sm-title text-amber-300">📺 تلفزيون المجد</div>
+                    <div class="sm-title text-amber-300">📺 المجد</div>
                     <div id="sm-sub-majd" class="sm-sub text-amber-400/80">تشغيل فوري مباشر</div>
                 </div>
                 <div id="sm-status-majd" class="sm-status-dot"></div>
             </div>
 
-            <!-- 4. القرآن الكريم إم بي 3 -->
+            <!-- 4. القرآن MP3 -->
             <div id="quick-media-btn-quran_mp3" onclick="handleQuranCardClick(event)" class="sacred-media-pill group" style="--sm-color: #06b6d4; --sm-bg: rgba(6, 182, 212, 0.2); --sm-border: rgba(6, 182, 212, 0.5);">
                 <div class="sm-icon-box text-cyan-400"><i class="fa-solid fa-headphones"></i></div>
                 <div class="sm-text-box">
-                    <div class="sm-title text-cyan-300">🎧 القرآن الكريم إم بي 3</div>
+                    <div class="sm-title text-cyan-300">🎧 القرآن MP3</div>
                     <div id="sm-sub-quran_mp3" class="sm-sub text-cyan-400/80">قائمة القراء والسور</div>
                 </div>
                 <div id="sm-status-quran_mp3" class="sm-status-dot"></div>
@@ -23231,13 +23231,13 @@ $pdo = getDBConnection();
             // Start playing requested channel immediately!
             if (channelKey === 'makkah') {
                 playTvChannel('makkah');
-                if (typeof showFiqhToast === 'function') showFiqhToast('▶️ تم تشغيل تلفزيون مكة المكرمة في الخلفية');
+                if (typeof showFiqhToast === 'function') showFiqhToast('▶️ تم تشغيل مكة في الخلفية');
             } else if (channelKey === 'madinah') {
                 playTvChannel('madinah');
-                if (typeof showFiqhToast === 'function') showFiqhToast('▶️ تم تشغيل تلفزيون المدينة المنورة في الخلفية');
+                if (typeof showFiqhToast === 'function') showFiqhToast('▶️ تم تشغيل المدينة في الخلفية');
             } else if (channelKey === 'majd') {
                 playTvChannel('majd');
-                if (typeof showFiqhToast === 'function') showFiqhToast('▶️ تم تشغيل قناة المجد في الخلفية');
+                if (typeof showFiqhToast === 'function') showFiqhToast('▶️ تم تشغيل المجد في الخلفية');
             } else if (channelKey === 'quran_mp3') {
                 openQuranMp3Studio();
                 return;

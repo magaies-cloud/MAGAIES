@@ -465,19 +465,19 @@
 
                 <!-- 4 Sacred Channel Quick Switch Buttons -->
                 <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 7px; margin-bottom: 12px;">
-                    <button type="button" id="hdr-ch-makkah" onclick="quickHeaderPlay('makkah')" class="header-pop-ch-btn" style="--ch-c: #f59e0b; padding: 8px 10px;" title="تشغيل تلفزيون مكة المكرمة">
+                    <button type="button" id="hdr-ch-makkah" onclick="quickHeaderPlay('makkah')" class="header-pop-ch-btn" style="--ch-c: #f59e0b; padding: 8px 10px;" title="تشغيل مكة">
                         <span style="font-size: 13px;">🕋</span>
-                        <span style="font-weight: 900;">مكة المكرمة</span>
+                        <span style="font-weight: 900;">مكة</span>
                     </button>
-                    <button type="button" id="hdr-ch-madinah" onclick="quickHeaderPlay('madinah')" class="header-pop-ch-btn" style="--ch-c: #10b981; padding: 8px 10px;" title="تشغيل تلفزيون المدينة المنورة">
+                    <button type="button" id="hdr-ch-madinah" onclick="quickHeaderPlay('madinah')" class="header-pop-ch-btn" style="--ch-c: #10b981; padding: 8px 10px;" title="تشغيل المدينة">
                         <span style="font-size: 13px;">🕌</span>
-                        <span style="font-weight: 900;">المدينة المنورة</span>
+                        <span style="font-weight: 900;">المدينة</span>
                     </button>
-                    <button type="button" id="hdr-ch-majd" onclick="quickHeaderPlay('majd')" class="header-pop-ch-btn" style="--ch-c: #fbbf24; padding: 8px 10px;" title="تشغيل تلفزيون المجد">
+                    <button type="button" id="hdr-ch-majd" onclick="quickHeaderPlay('majd')" class="header-pop-ch-btn" style="--ch-c: #fbbf24; padding: 8px 10px;" title="تشغيل المجد">
                         <span style="font-size: 13px;">📺</span>
-                        <span style="font-weight: 900;">قناة المجد</span>
+                        <span style="font-weight: 900;">المجد</span>
                     </button>
-                    <button type="button" id="hdr-ch-quran_mp3" onclick="quickHeaderPlay('quran_mp3')" class="header-pop-ch-btn" style="--ch-c: #06b6d4; padding: 8px 10px;" title="تشغيل القرآن الكريم">
+                    <button type="button" id="hdr-ch-quran_mp3" onclick="quickHeaderPlay('quran_mp3')" class="header-pop-ch-btn" style="--ch-c: #06b6d4; padding: 8px 10px;" title="تشغيل القرآن MP3">
                         <span style="font-size: 13px;">🎧</span>
                         <span style="font-weight: 900;">القرآن MP3</span>
                     </button>

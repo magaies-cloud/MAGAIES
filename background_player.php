@@ -145,9 +145,9 @@ $channelKey = isset($_GET['ch']) ? htmlspecialchars($_GET['ch']) : 'majd';
     </div>
 
     <div class="tabs-switch">
-        <button type="button" onclick="switchChannel('majd')" id="btn-majd" class="tab-btn">المجد</button>
-        <button type="button" onclick="switchChannel('makkah')" id="btn-makkah" class="tab-btn">مكة المكرمة</button>
+        <button type="button" onclick="switchChannel('makkah')" id="btn-makkah" class="tab-btn">مكة</button>
         <button type="button" onclick="switchChannel('madinah')" id="btn-madinah" class="tab-btn">المدينة</button>
+        <button type="button" onclick="switchChannel('majd')" id="btn-majd" class="tab-btn">المجد</button>
     </div>
 
     <div class="center-card">
