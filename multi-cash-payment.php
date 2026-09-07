@@ -1751,10 +1751,16 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                     <!-- Blocks will be dynamically inserted here -->
                 </div>
 
-                <!-- ═══ زر إضافة حساب جديد ═══ -->
-                <div style="display: flex; justify-content: center; margin-top: 20px; margin-bottom: 30px;">
+                <!-- ═══ زر إضافة حساب جديد وأزرار الذكاء الاصطناعي ═══ -->
+                <div style="display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 20px; margin-bottom: 30px; flex-wrap: wrap;">
                     <button type="button" onclick="addAccountBlock()" style="padding: 12px 30px; border-radius: 30px; background: rgba(16,185,129,0.15); color: #34d399; border: 1px dashed #34d399; font-weight: 900; font-size: 1.1rem; cursor: pointer; font-family: 'Tajawal', sans-serif; transition: all 0.3s; display: flex; align-items: center; gap: 10px;" onmouseover="this.style.background='rgba(16,185,129,0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='rgba(16,185,129,0.15)'; this.style.transform='translateY(0)';">
                         ➕ إضافة حساب مستلم / دافع آخر
+                    </button>
+                    <button type="button" onclick="FinancialOCR.openScanner({ target: 'multi' })" style="padding: 12px 25px; border-radius: 30px; background: linear-gradient(135deg, rgba(6,182,212,0.25), rgba(16,185,129,0.25)); color: #22d3ee; border: 1.5px solid #22d3ee; font-weight: 900; font-size: 1.1rem; cursor: pointer; font-family: 'Tajawal', sans-serif; transition: all 0.3s; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(6,182,212,0.3);" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';" title="تصوير وقراءة إشعار بنكك أو شيك بالذكاء الاصطناعي">
+                        📷 مسح إشعار / شيك ذكي (AI OCR)
+                    </button>
+                    <button type="button" onclick="FinancialOCR.openTrainer()" style="padding: 12px 18px; border-radius: 30px; background: rgba(168,85,247,0.15); color: #d8b4fe; border: 1px solid rgba(168,85,247,0.4); font-weight: 800; font-size: 1rem; cursor: pointer; font-family: 'Tajawal', sans-serif; transition: all 0.3s; display: flex; align-items: center; gap: 6px;" title="شرح وتدريب النماذج للذكاء الاصطناعي">
+                        🧠 تدريب النماذج
                     </button>
                 </div>
 
@@ -1792,9 +1798,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             </div>
                             
                             <!-- Payment Toggles (No Cash) -->
-                            <div style="display: flex; gap: 8px; flex: 1.5; min-width: 180px; align-items: stretch;">
+                            <div style="display: flex; gap: 8px; flex: 1.8; min-width: 240px; align-items: stretch;">
                                 <button type="button" id="pm-bank-{ID}" class="btn crystal-btn pay-toggle-btn block-btn-bank" data-action="toggle-pm" data-block="{ID}" data-method="bank" style="flex: 1;"><span class="btn-icon">🏦</span> <span class="btn-text">تحويل</span></button>
                                 <button type="button" id="pm-cheque-{ID}" class="btn crystal-btn pay-toggle-btn block-btn-cheque" data-action="toggle-pm" data-block="{ID}" data-method="cheque" style="flex: 1;"><span class="btn-icon">✍️</span> <span class="btn-text">شيك</span></button>
+                                <button type="button" class="btn crystal-btn pay-toggle-btn" onclick="FinancialOCR.openScanner({ target: 'multi', blockId: '{ID}' })" style="flex: 1.2; background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(16,185,129,0.2)); border: 1.5px solid #22d3ee; color: #22d3ee;" title="مسح إشعار تحويل أو شيك لهذا الحساب بالذكاء الاصطناعي"><span class="btn-icon">📷</span> <span class="btn-text">مسح إشعار/شيك</span></button>
                             </div>
                         </div>
 
@@ -2755,6 +2762,9 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
     // Periodically apply styles to newly added rows dynamically
     setInterval(applyNumPropsToAll, 1000);
     </script>
+    <!-- Financial OCR Modal & Script -->
+    <?php include 'includes/financial-ocr-modal.php'; ?>
+    <script src="js/financial-ocr.js?v=<?php echo file_exists('js/financial-ocr.js') ? filemtime('js/financial-ocr.js') : 1; ?>"></script>
 </body>
 </html>
 

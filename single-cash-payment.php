@@ -1733,10 +1733,16 @@ try {
                                     <span id="payment-status-badge" style="font-size: 0.78rem; font-weight: 800; padding: 3px 10px; border-radius: 20px; transition: all 0.3s ease; white-space: nowrap; background: rgba(16, 185, 129, 0.15); color: #34d399; box-shadow: 0 0 10px rgba(16, 185, 129, 0.2);" data-status="fully-paid">💳 مدفوعة بالكامل</span>
                                 </div>
 
-                                <div class="payment-toggles" style="display: flex; gap: 8px; flex: none;">
+                                <div class="payment-toggles" style="display: flex; gap: 8px; flex: none; flex-wrap: wrap;">
                                     <button type="button" class="pay-toggle-btn" id="toggle-cash" onclick="togglePaymentSection('cash')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 1.2rem; font-weight: 900; padding: 8px 18px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;">💵 نقدي</button>
                                     <button type="button" class="pay-toggle-btn active" id="toggle-bank" onclick="togglePaymentSection('bank')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 1.2rem; font-weight: 900; padding: 8px 18px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;">🏦 تحويل بنكي</button>
                                     <button type="button" class="pay-toggle-btn" id="toggle-cheque" onclick="togglePaymentSection('cheque')" style="background: rgba(255, 255, 255, 0.05); border: 1px solid rgba(255, 255, 255, 0.1); color: #94a3b8; padding: 6px 14px; border-radius: 20px; font-size: 1.2rem; font-weight: 900; padding: 8px 18px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px;">✍️ شيك</button>
+                                    <button type="button" class="pay-toggle-btn" id="btn-financial-ocr" onclick="FinancialOCR.openScanner({ target: 'single' })" style="background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(16,185,129,0.2)); border: 1.5px solid #22d3ee; color: #22d3ee; border-radius: 20px; font-size: 1.15rem; font-weight: 900; padding: 8px 18px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(6,182,212,0.25);" title="تصوير وقراءة إشعار بنكك أو الشيك بالذكاء الاصطناعي">
+                                        <span style="font-size: 1.3rem;">📷</span> مسح إشعار / شيك (AI OCR)
+                                    </button>
+                                    <button type="button" class="pay-toggle-btn" onclick="FinancialOCR.openTrainer()" style="background: rgba(168,85,247,0.15); border: 1px solid rgba(168,85,247,0.4); color: #d8b4fe; padding: 8px 14px; border-radius: 20px; font-size: 1.05rem; font-weight: 800; cursor: pointer; display: flex; align-items: center; gap: 6px;" title="شرح وتدريب النماذج للذكاء الاصطناعي">
+                                        <span>🧠</span> تدريب النماذج
+                                    </button>
                                 </div>
                             </div>
                             
@@ -2463,6 +2469,9 @@ try {
             <button id="save-props-btn" onclick="saveNumberProperties(); event.stopPropagation();" style="background: #10b981; color: #fff; border: none; padding: 6px 20px; border-radius: 6px; font-weight: bold; cursor: pointer; width: 100%; transition: background 0.2s;">💾 حفظ الخصائص</button>
         </div>
     </div>
+    <!-- Financial OCR Modal & Script -->
+    <?php include 'includes/financial-ocr-modal.php'; ?>
+    <script src="js/financial-ocr.js?v=<?php echo file_exists('js/financial-ocr.js') ? filemtime('js/financial-ocr.js') : 1; ?>"></script>
 </body>
 </html>
 

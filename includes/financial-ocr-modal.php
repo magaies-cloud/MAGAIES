@@ -1,0 +1,231 @@
+<?php
+// =============================================================
+// MAGAIEES ERP - Unified Financial OCR Scanner Modal & Overlay
+// واجهة مسح إشعارات التحويل والشيكات بالذكاء الاصطناعي
+// =============================================================
+?>
+<!-- Hidden File Input for Camera / Image Upload -->
+<input type="file" id="financial-ocr-file-input" accept="image/*" capture="environment" style="display:none;" onchange="FinancialOCR.handleFileSelected(this)">
+
+<!-- OCR Scanning Loading Overlay -->
+<div id="financial-ocr-loading" style="display:none; position:fixed; inset:0; background:rgba(15,23,42,0.92); backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); z-index:999999; flex-direction:column; align-items:center; justify-content:center; color:#fff; font-family:'Tajawal',sans-serif; direction:rtl; transition:opacity 0.3s ease;">
+    <div style="position:relative; width:90px; height:90px; margin-bottom:24px;">
+        <div style="position:absolute; inset:0; border:4px solid rgba(56,189,248,0.15); border-top-color:#38bdf8; border-radius:50%; animation:ocrSpinRing 1s linear infinite;"></div>
+        <div style="position:absolute; inset:10px; border:4px solid rgba(16,185,129,0.15); border-bottom-color:#10b981; border-radius:50%; animation:ocrSpinRingReverse 1.5s linear infinite;"></div>
+        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:2rem; animation:pulseScale 1.5s ease-in-out infinite;">📷</div>
+    </div>
+    <h2 style="margin:0 0 10px 0; font-size:1.5rem; font-weight:900; background:linear-gradient(135deg, #38bdf8, #34d399); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-shadow:0 0 20px rgba(56,189,248,0.4);">جاري فحص الإشعار / الشيك بالرؤية الحاسوبية... 🔍</h2>
+    <p id="financial-ocr-loading-msg" style="margin:0; color:#94a3b8; font-size:1rem; font-weight:600;">يتم الآن قراءة رقم العملية، المبلغ، اسم البنك، والتفاصيل المحاسبية عبر Gemini AI</p>
+</div>
+
+<!-- OCR Review & Confirmation Modal -->
+<div id="financial-ocr-review-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.85); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); z-index:999998; align-items:center; justify-content:center; padding:15px; font-family:'Tajawal',sans-serif; direction:rtl; opacity:0; transition:opacity 0.25s ease;">
+    <div style="background:#0f172a; border:2px solid rgba(56,189,248,0.5); border-radius:20px; width:100%; max-width:920px; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 25px 60px rgba(0,0,0,0.8), 0 0 40px rgba(56,189,248,0.25); overflow:hidden;">
+        
+        <!-- Header -->
+        <div style="padding:16px 24px; background:linear-gradient(135deg, rgba(15,23,42,0.95), rgba(30,41,59,0.95)); border-bottom:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div id="ocr-doc-badge" style="background:rgba(16,185,129,0.2); border:1px solid #10b981; color:#34d399; padding:6px 14px; border-radius:20px; font-size:0.95rem; font-weight:900; display:flex; align-items:center; gap:6px;">
+                    <span>🏦</span> <span id="ocr-doc-badge-text">إشعار تحويل بنكي</span>
+                </div>
+                <div>
+                    <h3 style="margin:0; color:#fff; font-size:1.25rem; font-weight:900;">مراجعة وتأكيد بيانات المستند المالي</h3>
+                    <p id="ocr-doc-summary" style="margin:2px 0 0 0; color:#94a3b8; font-size:0.85rem;">تأكد من صحة البيانات المستخرجة أو عدلها قبل التفريغ المباشر</p>
+                </div>
+            </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <button type="button" onclick="FinancialOCR.openTrainer()" style="background:rgba(168,85,247,0.15); border:1px solid #c084fc; color:#d8b4fe; padding:6px 12px; border-radius:10px; font-size:0.85rem; font-weight:800; cursor:pointer; display:flex; align-items:center; gap:6px; transition:0.2s;" title="شرح وتدريب النماذج للذكاء الاصطناعي">
+                    <span>🧠</span> تدريب النماذج
+                </button>
+                <button type="button" onclick="FinancialOCR.closeReviewModal()" style="background:transparent; border:none; color:#94a3b8; font-size:1.6rem; cursor:pointer; padding:2px 8px; line-height:1;">✕</button>
+            </div>
+        </div>
+
+        <!-- Body -->
+        <div style="padding:20px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:16px;">
+            
+            <div style="display:grid; grid-template-columns: 280px 1fr; gap:18px; align-items:start;" class="ocr-responsive-grid">
+                
+                <!-- Scanned Image Preview -->
+                <div style="background:rgba(0,0,0,0.4); border:1px dashed rgba(255,255,255,0.2); border-radius:14px; padding:10px; display:flex; flex-direction:column; align-items:center; gap:8px; position:relative;">
+                    <span style="font-size:0.8rem; color:#94a3b8; font-weight:700;">صورة الإشعار / الشيك الممسوح</span>
+                    <div style="width:100%; height:260px; border-radius:10px; overflow:hidden; background:#000; display:flex; align-items:center; justify-content:center;">
+                        <img id="ocr-preview-img" src="" alt="المستند المالي" style="max-width:100%; max-height:100%; object-fit:contain; cursor:pointer;" onclick="FinancialOCR.zoomImage(this.src)" title="انقر لتكبير الصورة">
+                    </div>
+                    <button type="button" onclick="FinancialOCR.triggerUploadAgain()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; font-size:0.8rem; padding:6px 12px; border-radius:8px; cursor:pointer; width:100%; font-weight:700;">🔄 إعادة التقاط الصورة</button>
+                </div>
+
+                <!-- Form Fields Extracted -->
+                <div style="display:flex; flex-direction:column; gap:12px;">
+                    
+                    <!-- Top Row: Document Type & Amount -->
+                    <div style="display:grid; grid-template-columns: 1fr 1.2fr; gap:12px;">
+                        <div>
+                            <label style="display:block; color:#94a3b8; font-size:0.85rem; font-weight:800; margin-bottom:4px;">نوع المستند المستخرج</label>
+                            <select id="ocr-field-doc-type" onchange="FinancialOCR.handleTypeChange(this.value)" style="width:100%; height:50px; background:#1e293b; border:1.5px solid #38bdf8; border-radius:10px; color:#fff; font-size:1rem; font-weight:800; padding:0 12px; outline:none;">
+                                <option value="bank_transfer">🏦 إشعار تحويل بنكي (بنكك / فوري / أوكاش)</option>
+                                <option value="cheque">✍️ شيك مصرفي ورقي / إلكتروني</option>
+                                <option value="deposit_slip">📄 قسيمة إيداع نقدي بنكي</option>
+                            </select>
+                        </div>
+                        <div>
+                            <label style="display:block; color:#fbbf24; font-size:0.85rem; font-weight:800; margin-bottom:4px;">المبلغ المستخرج (جنيه سوداني / عملة) *</label>
+                            <div style="position:relative;">
+                                <input type="number" id="ocr-field-amount" step="any" placeholder="0.00" style="width:100%; height:50px; background:rgba(251,191,36,0.1); border:2px solid #fbbf24; border-radius:10px; color:#fef08a; font-size:1.6rem; font-weight:900; padding:0 12px; font-family:'Consolas',monospace; text-align:center; outline:none;">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Row 2: Bank Name & Reference/Cheque Number -->
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                        <div>
+                            <label style="display:block; color:#94a3b8; font-size:0.85rem; font-weight:800; margin-bottom:4px;">اسم البنك المسحوب عليه / المستلم</label>
+                            <input type="text" id="ocr-field-bank-name" placeholder="مثال: بنك الخرطوم، بنك فيصل، بنك أمدرمان" style="width:100%; height:46px; background:#1e293b; border:1px solid rgba(255,255,255,0.15); border-radius:10px; color:#fff; font-size:1rem; font-weight:700; padding:0 12px; outline:none;">
+                        </div>
+                        <div>
+                            <label id="ocr-label-ref-no" style="display:block; color:#38bdf8; font-size:0.85rem; font-weight:800; margin-bottom:4px;">رقم العملية / رقم التحويلة *</label>
+                            <input type="text" id="ocr-field-ref-no" placeholder="رقم المعاملة أو رقم الشيك" style="width:100%; height:46px; background:#1e293b; border:1.5px solid #38bdf8; border-radius:10px; color:#38bdf8; font-size:1.2rem; font-weight:900; padding:0 12px; font-family:'Consolas',monospace; text-align:center; outline:none;">
+                        </div>
+                    </div>
+
+                    <!-- Row 3: Dates (Transfer Date & Due Date for Cheques) -->
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                        <div>
+                            <label style="display:block; color:#94a3b8; font-size:0.85rem; font-weight:800; margin-bottom:4px;">تاريخ المعاملة / التحرير</label>
+                            <input type="date" id="ocr-field-date" style="width:100%; height:46px; background:#1e293b; border:1px solid rgba(255,255,255,0.15); border-radius:10px; color:#fff; font-size:1rem; font-weight:700; padding:0 12px; outline:none;">
+                        </div>
+                        <div id="ocr-box-due-date">
+                            <label style="display:block; color:#c084fc; font-size:0.85rem; font-weight:800; margin-bottom:4px;">تاريخ الاستحقاق (للشيكات فقط)</label>
+                            <input type="date" id="ocr-field-due-date" style="width:100%; height:46px; background:#1e293b; border:1px solid rgba(168,85,247,0.4); border-radius:10px; color:#e9d5ff; font-size:1rem; font-weight:700; padding:0 12px; outline:none;">
+                        </div>
+                    </div>
+
+                    <!-- Row 4: Sender / Receiver -->
+                    <div style="display:grid; grid-template-columns: 1fr 1fr; gap:12px;">
+                        <div>
+                            <label style="display:block; color:#94a3b8; font-size:0.85rem; font-weight:800; margin-bottom:4px;">الساحب / المحول (من)</label>
+                            <input type="text" id="ocr-field-sender" placeholder="اسم المحول أو صاحب الشيك" style="width:100%; height:42px; background:#1e293b; border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#cbd5e1; font-size:0.95rem; font-weight:600; padding:0 10px; outline:none;">
+                        </div>
+                        <div>
+                            <label style="display:block; color:#94a3b8; font-size:0.85rem; font-weight:800; margin-bottom:4px;">المستفيد / المستلم (إلى)</label>
+                            <input type="text" id="ocr-field-receiver" placeholder="اسم المستلم أو المستفيد" style="width:100%; height:42px; background:#1e293b; border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#cbd5e1; font-size:0.95rem; font-weight:600; padding:0 10px; outline:none;">
+                        </div>
+                    </div>
+
+                    <!-- Row 5: Notes & Statement -->
+                    <div>
+                        <label style="display:block; color:#94a3b8; font-size:0.85rem; font-weight:800; margin-bottom:4px;">بيان المعاملة / الملاحظة (سيتم إدراجه في السند)</label>
+                        <input type="text" id="ocr-field-notes" placeholder="البيان التوضيحي للعملية" style="width:100%; height:42px; background:#1e293b; border:1px solid rgba(255,255,255,0.1); border-radius:8px; color:#fff; font-size:0.95rem; font-weight:600; padding:0 10px; outline:none;">
+                    </div>
+
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer Actions -->
+        <div style="padding:14px 24px; background:rgba(15,23,42,0.95); border-top:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; align-items:center; flex-wrap:wrap; gap:10px;">
+            <button type="button" onclick="FinancialOCR.closeReviewModal()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; padding:10px 20px; border-radius:10px; font-weight:800; font-size:0.95rem; cursor:pointer;">إلغاء</button>
+            <div style="display:flex; gap:10px;">
+                <button type="button" id="btn-apply-financial-ocr" onclick="FinancialOCR.applyToActiveScreen()" style="background:linear-gradient(135deg, #10b981, #059669); border:none; color:#fff; padding:10px 26px; border-radius:10px; font-size:1.1rem; font-weight:900; cursor:pointer; box-shadow:0 4px 20px rgba(16,185,129,0.4); display:flex; align-items:center; gap:8px; transition:all 0.2s;" onmouseover="this.style.transform='translateY(-2px)'" onmouseout="this.style.transform='translateY(0)'">
+                    <span>✅ اعتماد وتفريغ في شاشة الدفع</span>
+                </button>
+            </div>
+        </div>
+
+    </div>
+</div>
+
+<!-- AI Trainer & Knowledge Base Modal -->
+<div id="financial-ocr-trainer-modal" style="display:none; position:fixed; inset:0; background:rgba(0,0,0,0.88); backdrop-filter:blur(10px); -webkit-backdrop-filter:blur(10px); z-index:999999; align-items:center; justify-content:center; padding:15px; font-family:'Tajawal',sans-serif; direction:rtl; opacity:0; transition:opacity 0.25s ease;">
+    <div style="background:#0f172a; border:2px solid rgba(168,85,247,0.5); border-radius:20px; width:100%; max-width:840px; max-height:90vh; display:flex; flex-direction:column; box-shadow:0 25px 60px rgba(0,0,0,0.8), 0 0 35px rgba(168,85,247,0.3); overflow:hidden;">
+        
+        <!-- Header -->
+        <div style="padding:16px 24px; background:linear-gradient(135deg, rgba(88,28,135,0.3), rgba(15,23,42,0.8)); border-bottom:1px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:10px;">
+                <span style="font-size:1.6rem;">🧠</span>
+                <div>
+                    <h3 style="margin:0; color:#fff; font-size:1.25rem; font-weight:900;">مدرب الذكاء الاصطناعي المالي ونماذج الإشعارات والشيكات</h3>
+                    <p style="margin:2px 0 0 0; color:#c084fc; font-size:0.85rem;">كيف يتعرف النظام على إشعارات بنكك، فوري، أوكاش، والشيكات مع إمكانية إضافة قواعدك المخصصة</p>
+                </div>
+            </div>
+            <button type="button" onclick="FinancialOCR.closeTrainer()" style="background:transparent; border:none; color:#94a3b8; font-size:1.6rem; cursor:pointer;">✕</button>
+        </div>
+
+        <!-- Body -->
+        <div style="padding:20px; overflow-y:auto; flex:1; display:flex; flex-direction:column; gap:16px;">
+            
+            <div style="display:grid; grid-template-columns:repeat(auto-fit, minmax(240px, 1fr)); gap:12px;">
+                <!-- Card 1: Bankak -->
+                <div style="background:rgba(16,185,129,0.08); border:1px solid rgba(16,185,129,0.3); border-radius:12px; padding:14px;">
+                    <div style="display:flex; align-items:center; gap:8px; font-weight:900; color:#34d399; font-size:1.05rem; margin-bottom:6px;">
+                        <span>🟢</span> بنكك (Bankak - بنك الخرطوم)
+                    </div>
+                    <p style="margin:0; color:#cbd5e1; font-size:0.85rem; line-height:1.5;">
+                        يتعرف النموذج على بطاقة التحويل الخضراء، ويستخرج <strong>رقم العملية</strong> (Transaction ID المكون عادة من 8 إلى 10 أرقام)، والمبلغ بدقة، وأسماء المحول والمستفيد.
+                    </p>
+                </div>
+
+                <!-- Card 2: Fawry -->
+                <div style="background:rgba(6,182,212,0.08); border:1px solid rgba(6,182,212,0.3); border-radius:12px; padding:14px;">
+                    <div style="display:flex; align-items:center; gap:8px; font-weight:900; color:#22d3ee; font-size:1.05rem; margin-bottom:6px;">
+                        <span>🔵</span> فوري (Fawry - بنك فيصل)
+                    </div>
+                    <p style="margin:0; color:#cbd5e1; font-size:0.85rem; line-height:1.5;">
+                        يتعرف على إشعار تحويل بنك فيصل وتطبيق فوري، ويستخرج كود العملية المرجعي، المبلغ، اسم المستفيد والتاريخ.
+                    </p>
+                </div>
+
+                <!-- Card 3: Ocash & Sudanese Banks -->
+                <div style="background:rgba(245,158,11,0.08); border:1px solid rgba(245,158,11,0.3); border-radius:12px; padding:14px;">
+                    <div style="display:flex; align-items:center; gap:8px; font-weight:900; color:#fbbf24; font-size:1.05rem; margin-bottom:6px;">
+                        <span>🟡</span> أوكاش وبقية البنوك
+                    </div>
+                    <p style="margin:0; color:#cbd5e1; font-size:0.85rem; line-height:1.5;">
+                        يدعم إشعارات بنك أمدرمان (أوكاش)، بنك النيل، مصرف السلام، وقسائم الإيداع النقدية ذات الأختام المصرفية.
+                    </p>
+                </div>
+
+                <!-- Card 4: Cheques -->
+                <div style="background:rgba(168,85,247,0.08); border:1px solid rgba(168,85,247,0.3); border-radius:12px; padding:14px;">
+                    <div style="display:flex; align-items:center; gap:8px; font-weight:900; color:#c084fc; font-size:1.05rem; margin-bottom:6px;">
+                        <span>✍️</span> الشيكات المصرفية الورقية
+                    </div>
+                    <p style="margin:0; color:#cbd5e1; font-size:0.85rem; line-height:1.5;">
+                        يقرأ رقم الشيك من شريط الـ MICR السفلي، المبلغ رقماً وكتابة (تفقيط)، البنك والفرع، والمستفيد وتاريخ الاستحقاق.
+                    </p>
+                </div>
+            </div>
+
+            <!-- Custom User Guidelines & Business Rules -->
+            <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:16px; margin-top:5px;">
+                <label style="display:block; color:#f8fafc; font-size:0.95rem; font-weight:800; margin-bottom:6px;">
+                    💡 تعليمات وقواعد مخصصة لنشاطك التجاري (يتم إرسالها مع كل فحص لتوجيه الذكاء الاصطناعي):
+                </label>
+                <textarea id="financial-ocr-custom-guidelines" rows="4" placeholder="اكتب هنا أي تعليمات إضافية، مثال:&#10;- رقم حساب شركتنا في بنكك هو 1234567 باسم مؤسسة السجانة.&#10;- إذا لم يظهر اسم البنك بوضوح وكان رقم المعاملة يبدأ بـ 28 فهو بنك الخرطوم.&#10;- شيكات بنك العمال الوطني يتم صرفها في فرع بحري." style="width:100%; background:#1e293b; border:1px solid rgba(255,255,255,0.15); border-radius:10px; color:#fff; font-size:0.95rem; font-family:'Tajawal',sans-serif; padding:12px; resize:vertical; outline:none;"></textarea>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-top:10px;">
+                    <span id="financial-ocr-save-status" style="color:#10b981; font-size:0.85rem; font-weight:700; display:none;">✓ تم حفظ القواعد في الذاكرة بنجاح</span>
+                    <button type="button" onclick="FinancialOCR.saveCustomGuidelines()" style="background:linear-gradient(135deg, #8b5cf6, #6d28d9); border:none; color:#fff; padding:8px 20px; border-radius:8px; font-weight:800; cursor:pointer; font-size:0.9rem; margin-right:auto;">
+                        💾 حفظ القواعد التدريبية
+                    </button>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer -->
+        <div style="padding:14px 24px; background:rgba(15,23,42,0.95); border-top:1px solid rgba(255,255,255,0.1); display:flex; justify-content:flex-end;">
+            <button type="button" onclick="FinancialOCR.closeTrainer()" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; padding:8px 22px; border-radius:8px; font-weight:800; cursor:pointer;">إغلاق</button>
+        </div>
+
+    </div>
+</div>
+
+<style>
+@keyframes ocrSpinRing { to { transform: rotate(360deg); } }
+@keyframes ocrSpinRingReverse { to { transform: rotate(-360deg); } }
+@keyframes pulseScale { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.15); } }
+@media (max-width: 768px) {
+    .ocr-responsive-grid { grid-template-columns: 1fr !important; }
+}
+</style>
