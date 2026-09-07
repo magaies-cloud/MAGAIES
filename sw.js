@@ -1,4 +1,4 @@
-// Version: 20260908001000 (Stage 3: Virtual CFO & AI OCR Invoice Scanner)
+// Version: 20260908010000 (AI Financial OCR Trainer Studio & Knowledge Base)
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });

@@ -78,10 +78,36 @@ if (empty($apiKey)) {
 
 $url = "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=" . $apiKey;
 
-$customGuidelineText = "";
+$serverGuidelinesFile = __DIR__ . '/financial_ocr_guidelines.txt';
+$serverTemplatesFile = __DIR__ . '/financial_templates.json';
+
+$allGuidelines = [];
 if (!empty($customGuidelines)) {
-    $customGuidelineText = "\nإرشادات وقواعد تدريبية إضافية مقدمة من المستخدم (يرجى مراعاتها بأولوية عالية):\n" . trim($customGuidelines) . "\n";
+    $allGuidelines[] = trim($customGuidelines);
 }
+if (file_exists($serverGuidelinesFile)) {
+    $sg = trim(file_get_contents($serverGuidelinesFile));
+    if (!empty($sg) && !in_array($sg, $allGuidelines)) {
+        $allGuidelines[] = $sg;
+    }
+}
+
+$templatesText = "";
+if (file_exists($serverTemplatesFile)) {
+    $savedTemplates = json_decode(file_get_contents($serverTemplatesFile), true);
+    if (is_array($savedTemplates) && count($savedTemplates) > 0) {
+        $templatesText .= "\nقواعد النماذج المدربة في النظام (يرجى تطبيقها لمطابقة نوع المستند والبنك بدقة):\n";
+        foreach ($savedTemplates as $t) {
+            $templatesText .= "- [نموذج: " . ($t['name'] ?? '') . " | بنك: " . ($t['bank'] ?? '') . " | نوع: " . ($t['type'] ?? '') . "]: " . ($t['rules'] ?? '') . "\n";
+        }
+    }
+}
+
+$customGuidelineText = "";
+if (!empty($allGuidelines)) {
+    $customGuidelineText = "\nإرشادات وقواعد تدريبية إضافية مقدمة من المستخدم:\n" . implode("\n", $allGuidelines) . "\n";
+}
+$customGuidelineText .= $templatesText;
 
 $systemPrompt = "أنت خبير فحص المستندات المالية المصرفية بالرؤية الحاسوبية (AI Financial Document OCR) متخصص في إشعارات التحويلات البنكية والشيكات المصرفية (خاصة البنوك السودانية والعربية مثل بنكك، فوري، أوكاش، بنك أمدرمان، بنك الخرطوم، بنك فيصل، والشيكات المصرفية الورقية).
 

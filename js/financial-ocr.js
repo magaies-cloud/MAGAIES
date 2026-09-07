@@ -104,19 +104,14 @@
             }
             if (modal) {
                 modal.style.display = 'flex';
-                requestAnimationFrame(() => {
-                    modal.style.opacity = '1';
-                });
+                modal.style.opacity = '1';
             }
         },
 
         closeKeyModal() {
             const modal = document.getElementById('financial-ocr-key-modal');
             if (modal) {
-                modal.style.opacity = '0';
-                setTimeout(() => {
-                    modal.style.display = 'none';
-                }, 250);
+                modal.style.display = 'none';
             }
         },
 
@@ -324,10 +319,7 @@
         closeReviewModal() {
             const modal = document.getElementById('financial-ocr-review-modal');
             if (modal) {
-                modal.style.opacity = '0';
-                setTimeout(() => {
-                    modal.style.display = 'none';
-                }, 250);
+                modal.style.display = 'none';
             }
         },
 
@@ -548,41 +540,280 @@
         },
 
         // 6. AI Trainer Modal Methods
-        openTrainer() {
+        trainerTemplates: [],
+
+        async openTrainer() {
             const modal = document.getElementById('financial-ocr-trainer-modal');
-            const textarea = document.getElementById('financial-ocr-custom-guidelines');
-            if (textarea) {
-                textarea.value = localStorage.getItem('erp_financial_ocr_guidelines') || '';
-            }
             if (modal) {
                 modal.style.display = 'flex';
-                requestAnimationFrame(() => {
-                    modal.style.opacity = '1';
-                });
+                modal.style.opacity = '1';
             }
+            this.switchTrainerTab('templates');
+            await this.loadTrainerData();
         },
 
         closeTrainer() {
             const modal = document.getElementById('financial-ocr-trainer-modal');
             if (modal) {
-                modal.style.opacity = '0';
-                setTimeout(() => {
-                    modal.style.display = 'none';
-                }, 250);
+                modal.style.display = 'none';
             }
         },
 
-        saveCustomGuidelines() {
+        switchTrainerTab(tabName) {
+            const tabTemplates = document.getElementById('trainer-tab-templates');
+            const tabAdd = document.getElementById('trainer-tab-add');
+            const tabGuidelines = document.getElementById('trainer-tab-guidelines');
+
+            const btnTemplates = document.getElementById('tab-btn-templates');
+            const btnAdd = document.getElementById('tab-btn-add-template');
+            const btnGuidelines = document.getElementById('tab-btn-guidelines');
+
+            if (tabTemplates) tabTemplates.style.display = (tabName === 'templates') ? 'flex' : 'none';
+            if (tabAdd) tabAdd.style.display = (tabName === 'add') ? 'flex' : 'none';
+            if (tabGuidelines) tabGuidelines.style.display = (tabName === 'guidelines') ? 'flex' : 'none';
+
+            // Active / Inactive Tab Button Styles
+            const activeStyle = 'background:rgba(168,85,247,0.25); border:1px solid #c084fc; color:#fff; padding:8px 18px; border-radius:12px; font-weight:900; font-size:0.95rem; cursor:pointer; display:flex; align-items:center; gap:8px;';
+            const inactiveStyle = 'background:rgba(255,255,255,0.05); border:1px solid rgba(255,255,255,0.15); color:#94a3b8; padding:8px 18px; border-radius:12px; font-weight:800; font-size:0.95rem; cursor:pointer; display:flex; align-items:center; gap:8px;';
+
+            if (btnTemplates) btnTemplates.style.cssText = (tabName === 'templates') ? activeStyle : inactiveStyle;
+            if (btnAdd) btnAdd.style.cssText = (tabName === 'add') ? activeStyle : inactiveStyle;
+            if (btnGuidelines) btnGuidelines.style.cssText = (tabName === 'guidelines') ? activeStyle : inactiveStyle;
+        },
+
+        async loadTrainerData() {
+            try {
+                const res = await fetch('api/manage-ocr-templates.php?action=get_all');
+                const data = await res.json();
+                if (data && data.success) {
+                    this.trainerTemplates = data.templates || [];
+                    this.renderTrainerTemplates();
+
+                    const textarea = document.getElementById('financial-ocr-custom-guidelines');
+                    if (textarea) {
+                        textarea.value = data.guidelines || localStorage.getItem('erp_financial_ocr_guidelines') || '';
+                    }
+                }
+            } catch (err) {
+                console.error('Failed to load OCR templates:', err);
+            }
+        },
+
+        renderTrainerTemplates() {
+            const grid = document.getElementById('trainer-templates-grid');
+            const countBadge = document.getElementById('trainer-templates-count');
+            if (countBadge) {
+                countBadge.textContent = this.trainerTemplates.length;
+            }
+            if (!grid) return;
+
+            if (this.trainerTemplates.length === 0) {
+                grid.innerHTML = '<div style="grid-column:1/-1; text-align:center; color:#94a3b8; padding:30px; background:rgba(255,255,255,0.02); border-radius:12px;">لا توجد نماذج مضافة بعد. اضغط على "شرح وإضافة نموذج بنك جديد" للبدء.</div>';
+                return;
+            }
+
+            const escapeHtml = (str) => {
+                if (!str) return '';
+                return String(str)
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;')
+                    .replace(/'/g, '&#039;');
+            };
+
+            let html = '';
+            this.trainerTemplates.forEach(tmpl => {
+                const isBankTransfer = tmpl.type === 'bank_transfer';
+                const isCheque = tmpl.type === 'cheque';
+                const typeLabel = isCheque ? '✍️ شيك مصرفي' : (isBankTransfer ? '🏦 تحويل بنكي' : '📄 إيداع نقدي');
+                const badgeColor = isCheque ? '#c084fc' : (isBankTransfer ? '#38bdf8' : '#34d399');
+                const badgeBg = isCheque ? 'rgba(168,85,247,0.15)' : (isBankTransfer ? 'rgba(56,189,248,0.15)' : 'rgba(52,211,153,0.15)');
+
+                html += `
+                <div style="background:rgba(30,41,59,0.7); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:14px; display:flex; flex-direction:column; gap:10px; transition:border-color 0.2s;" onmouseenter="this.style.borderColor='#a855f7'" onmouseleave="this.style.borderColor='rgba(255,255,255,0.1)'">
+                    <div style="display:flex; justify-content:space-between; align-items:flex-start; gap:8px;">
+                        <div style="font-weight:900; color:#fff; font-size:1rem;">
+                            ${escapeHtml(tmpl.name)}
+                        </div>
+                        <div style="display:flex; gap:6px;">
+                            <button type="button" onclick="FinancialOCR.editTemplate('${tmpl.id}')" style="background:rgba(56,189,248,0.1); border:1px solid rgba(56,189,248,0.3); color:#7dd3fc; border-radius:6px; padding:2px 8px; font-size:0.75rem; cursor:pointer; font-weight:700;" title="تعديل وشرح إضافي لهذا النموذج">✏️ تعديل</button>
+                            <button type="button" onclick="FinancialOCR.deleteTemplate('${tmpl.id}')" style="background:rgba(239,68,68,0.1); border:1px solid rgba(239,68,68,0.3); color:#f87171; border-radius:6px; padding:2px 8px; font-size:0.75rem; cursor:pointer; font-weight:700;" title="حذف هذا النموذج">🗑️ حذف</button>
+                        </div>
+                    </div>
+                    <div style="display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                        <span style="background:${badgeBg}; color:${badgeColor}; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:800;">
+                            ${typeLabel}
+                        </span>
+                        <span style="background:rgba(255,255,255,0.05); color:#cbd5e1; padding:3px 10px; border-radius:20px; font-size:0.75rem; font-weight:700;">
+                            🏛️ ${escapeHtml(tmpl.bank)}
+                        </span>
+                    </div>
+                    <div style="background:rgba(15,23,42,0.6); border-radius:8px; padding:10px; font-size:0.85rem; color:#cbd5e1; line-height:1.5; white-space:pre-wrap; max-height:110px; overflow-y:auto; border:1px solid rgba(255,255,255,0.05);">${escapeHtml(tmpl.rules)}</div>
+                    <div style="display:flex; justify-content:flex-end; margin-top:2px;">
+                        <button type="button" onclick="FinancialOCR.closeTrainer(); FinancialOCR.openScanner({ docHint: '${tmpl.type || 'auto'}' });" style="background:rgba(16,185,129,0.15); border:1px solid rgba(16,185,129,0.35); color:#34d399; font-size:0.8rem; font-weight:800; padding:4px 10px; border-radius:6px; cursor:pointer; display:flex; align-items:center; gap:4px;">
+                            <span>📷</span> تجربة فحص إشعار بهذا النموذج
+                        </button>
+                    </div>
+                </div>
+                `;
+            });
+
+            grid.innerHTML = html;
+        },
+
+        applyBankSuggestion(bankName, docType, hintRules) {
+            const nameInput = document.getElementById('new-template-name');
+            const bankInput = document.getElementById('new-template-bank');
+            const typeSelect = document.getElementById('new-template-type');
+            const rulesTextarea = document.getElementById('new-template-rules');
+
+            if (nameInput) nameInput.value = (docType === 'cheque' ? 'شيك ' : 'إشعار ') + bankName;
+            if (bankInput) bankInput.value = bankName;
+            if (typeSelect) typeSelect.value = docType;
+            if (rulesTextarea) rulesTextarea.value = hintRules;
+        },
+
+        editTemplate(id) {
+            const tmpl = this.trainerTemplates.find(t => t.id === id);
+            if (!tmpl) return;
+
+            const nameInput = document.getElementById('new-template-name');
+            const bankInput = document.getElementById('new-template-bank');
+            const typeSelect = document.getElementById('new-template-type');
+            const rulesTextarea = document.getElementById('new-template-rules');
+            const idInput = document.getElementById('edit-template-id');
+
+            if (nameInput) nameInput.value = tmpl.name || '';
+            if (bankInput) bankInput.value = tmpl.bank || '';
+            if (typeSelect) typeSelect.value = tmpl.type || 'bank_transfer';
+            if (rulesTextarea) rulesTextarea.value = tmpl.rules || '';
+            if (idInput) idInput.value = tmpl.id;
+
+            this.switchTrainerTab('add');
+        },
+
+        async submitNewTemplate() {
+            const nameInput = document.getElementById('new-template-name');
+            const bankInput = document.getElementById('new-template-bank');
+            const typeSelect = document.getElementById('new-template-type');
+            const rulesTextarea = document.getElementById('new-template-rules');
+            const idInput = document.getElementById('edit-template-id');
+
+            const name = nameInput ? nameInput.value.trim() : '';
+            const bank = bankInput ? bankInput.value.trim() : '';
+            const type = typeSelect ? typeSelect.value : 'bank_transfer';
+            const rules = rulesTextarea ? rulesTextarea.value.trim() : '';
+            const editId = idInput ? idInput.value.trim() : '';
+
+            if (!name || !bank || !rules) {
+                this.showToast('يرجى ملء جميع الحقول المطلوبة (اسم النموذج، اسم البنك، وقواعد الفحص)', 'warning');
+                return;
+            }
+
+            try {
+                this.showLoading(true, 'جاري تدريب وتثبيت النموذج في عقل الذكاء الاصطناعي...');
+                const res = await fetch('api/manage-ocr-templates.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'save_template',
+                        template: {
+                            id: editId || ('tmpl_' + Date.now()),
+                            name: name,
+                            bank: bank,
+                            type: type,
+                            rules: rules
+                        }
+                    })
+                });
+                const data = await res.json();
+                this.showLoading(false);
+
+                if (data && data.success) {
+                    this.trainerTemplates = data.templates || [];
+                    this.renderTrainerTemplates();
+                    this.playSuccessSound();
+                    this.showToast('✅ تم تدريب وحفظ النموذج بنجاح في عقل الذكاء الاصطناعي!', 'success');
+
+                    // Reset form
+                    if (nameInput) nameInput.value = '';
+                    if (bankInput) bankInput.value = '';
+                    if (rulesTextarea) rulesTextarea.value = '';
+                    if (idInput) idInput.value = '';
+
+                    // Return to templates tab
+                    this.switchTrainerTab('templates');
+                } else {
+                    this.showToast((data && data.error) || 'فشل حفظ النموذج', 'error');
+                }
+            } catch (err) {
+                this.showLoading(false);
+                this.showToast('حدث خطأ أثناء حفظ النموذج في السيرفر', 'error');
+                console.error(err);
+            }
+        },
+
+        async deleteTemplate(id) {
+            if (!confirm('هل أنت متأكد من حذف هذا النموذج التدريبي؟ لن يتمكن الذكاء الاصطناعي من الاعتماد على معالمه بعد الآن.')) {
+                return;
+            }
+
+            try {
+                this.showLoading(true, 'جاري حذف النموذج...');
+                const res = await fetch('api/manage-ocr-templates.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'delete_template',
+                        id: id
+                    })
+                });
+                const data = await res.json();
+                this.showLoading(false);
+
+                if (data && data.success) {
+                    this.trainerTemplates = data.templates || [];
+                    this.renderTrainerTemplates();
+                    this.showToast('تم حذف النموذج التدريبي بنجاح', 'info');
+                } else {
+                    this.showToast((data && data.error) || 'تعذر حذف النموذج', 'error');
+                }
+            } catch (err) {
+                this.showLoading(false);
+                this.showToast('حدث خطأ أثناء حذف النموذج', 'error');
+                console.error(err);
+            }
+        },
+
+        async saveCustomGuidelines() {
             const textarea = document.getElementById('financial-ocr-custom-guidelines');
             const statusSpan = document.getElementById('financial-ocr-save-status');
-            if (textarea) {
-                localStorage.setItem('erp_financial_ocr_guidelines', textarea.value.trim());
-                if (statusSpan) {
-                    statusSpan.style.display = 'inline';
-                    setTimeout(() => {
-                        statusSpan.style.display = 'none';
-                    }, 3500);
+            const guidelines = textarea ? textarea.value.trim() : '';
+
+            localStorage.setItem('erp_financial_ocr_guidelines', guidelines);
+
+            try {
+                const res = await fetch('api/manage-ocr-templates.php', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        action: 'save_guidelines',
+                        guidelines: guidelines
+                    })
+                });
+                const data = await res.json();
+                if (data && data.success) {
+                    if (statusSpan) {
+                        statusSpan.style.display = 'inline';
+                        setTimeout(() => {
+                            statusSpan.style.display = 'none';
+                        }, 3500);
+                    }
+                    this.showToast('✅ تم حفظ القواعد العامة للذكاء الاصطناعي بنجاح!', 'success');
                 }
+            } catch (e) {
+                this.showToast('تم الحفظ محلياً بنجاح', 'warning');
             }
         },
 
