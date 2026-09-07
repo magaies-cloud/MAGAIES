@@ -301,14 +301,19 @@
 
             .header-tv-popover {
                 position: fixed !important;
-                z-index: 999999999 !important;
-                width: 330px !important;
-                max-width: calc(100vw - 30px) !important;
-                background: linear-gradient(145deg, rgba(15, 23, 42, 0.98), rgba(30, 20, 50, 0.98)) !important;
-                border: 2px solid rgba(245, 158, 11, 0.7) !important;
-                border-radius: 20px !important;
-                padding: 14px 16px !important;
-                box-shadow: 0 20px 50px rgba(0,0,0,0.9), 0 0 35px rgba(245, 158, 11, 0.3) !important;
+                top: 50% !important;
+                left: 50% !important;
+                transform: translate(-50%, -50%) !important;
+                z-index: 2147483647 !important;
+                width: 380px !important;
+                max-width: calc(100vw - 24px) !important;
+                max-height: calc(100vh - 30px) !important;
+                overflow-y: auto !important;
+                background: linear-gradient(155deg, rgba(15, 23, 42, 0.99), rgba(5, 10, 24, 0.99)) !important;
+                border: 2px solid #f59e0b !important;
+                border-radius: 24px !important;
+                padding: 18px 20px !important;
+                box-shadow: 0 25px 80px rgba(0,0,0,0.95), 0 0 50px rgba(245, 158, 11, 0.45) !important;
                 backdrop-filter: blur(25px) !important;
                 -webkit-backdrop-filter: blur(25px) !important;
                 font-family: 'Tajawal', system-ui, -apple-system, sans-serif !important;
@@ -316,11 +321,20 @@
                 text-align: right !important;
                 color: #f8fafc !important;
                 box-sizing: border-box !important;
-                animation: popoverFadeIn 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
+                animation: popoverCenterZoom 0.22s cubic-bezier(0.16, 1, 0.3, 1) !important;
             }
-            @keyframes popoverFadeIn {
-                from { opacity: 0; transform: translateY(-8px) scale(0.96); }
-                to { opacity: 1; transform: translateY(0) scale(1); }
+            @keyframes popoverCenterZoom {
+                from { opacity: 0; transform: translate(-50%, -46%) scale(0.95); }
+                to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
+            }
+            #header-media-backdrop {
+                position: fixed !important;
+                inset: 0 !important;
+                background: rgba(0, 0, 0, 0.72) !important;
+                backdrop-filter: blur(8px) !important;
+                -webkit-backdrop-filter: blur(8px) !important;
+                z-index: 2147483640 !important;
+                transition: opacity 0.2s ease !important;
             }
 
             .header-pop-ch-btn {
@@ -727,11 +741,13 @@
             }
         }
 
-        if (!document.getElementById('header-media-popover')) {
-            let pop = document.createElement('div');
+        let pop = document.getElementById('header-media-popover');
+        if (!pop) {
+            pop = document.createElement('div');
             pop.id = 'header-media-popover';
             pop.className = 'header-tv-popover';
             pop.style.display = 'none';
+            pop.setAttribute('onclick', 'event.stopPropagation()');
             pop.innerHTML = `
                 <!-- Popover Header -->
                 <div style="display: flex; align-items: center; justify-content: space-between; border-bottom: 1px solid rgba(255,255,255,0.12); padding-bottom: 8px; margin-bottom: 12px;">
@@ -824,6 +840,19 @@
                     }
                 });
             }
+        } else if (pop.parentNode !== document.body && document.body) {
+            document.body.appendChild(pop);
+        }
+
+        let backdrop = document.getElementById('header-media-backdrop');
+        if (!backdrop && document.body) {
+            backdrop = document.createElement('div');
+            backdrop.id = 'header-media-backdrop';
+            backdrop.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:2147483640;display:none;';
+            backdrop.onclick = function(ev) { closeHeaderMediaPopover(ev); };
+            document.body.appendChild(backdrop);
+        } else if (backdrop && backdrop.parentNode !== document.body && document.body) {
+            document.body.appendChild(backdrop);
         }
     }
 
@@ -1114,38 +1143,85 @@
     // 📺 Header & Sub-Screen Mini TV Popover Interactions
     // ════════════════════════════════════════════════════════════════════════
     function toggleHeaderMediaPopover(e) {
-        if (e) e.stopPropagation();
+        if (e) {
+            if (typeof e.stopPropagation === 'function') e.stopPropagation();
+            if (typeof e.preventDefault === 'function') e.preventDefault();
+        }
+
+        // If inside carrier/iframe, route through window.top
+        if (!isTopWindow && window.top && typeof window.top.toggleHeaderMediaPopover === 'function') {
+            try {
+                window.top.toggleHeaderMediaPopover(e);
+                return;
+            } catch (err) {}
+        }
+
         ensureHeaderMediaElements();
 
         const pop = document.getElementById('header-media-popover');
-        const btn = document.getElementById('header-media-btn');
-        if (!pop || !btn) return;
+        let backdrop = document.getElementById('header-media-backdrop');
+        if (!pop) return;
 
-        if (pop.style.display === 'none' || !pop.style.display) {
-            const rect = btn.getBoundingClientRect();
-            pop.style.position = 'fixed';
-            pop.style.top = Math.max(10, rect.bottom + 8) + 'px';
+        // Ensure backdrop element exists
+        if (!backdrop && document.body) {
+            backdrop = document.createElement('div');
+            backdrop.id = 'header-media-backdrop';
+            backdrop.style.cssText = 'position:fixed;inset:0;background:rgba(0,0,0,0.72);backdrop-filter:blur(8px);-webkit-backdrop-filter:blur(8px);z-index:2147483640;display:none;';
+            backdrop.onclick = function(ev) { closeHeaderMediaPopover(ev); };
+            document.body.appendChild(backdrop);
+        }
 
-            const popWidth = 330;
-            let leftPos = rect.left + (rect.width / 2) - (popWidth / 2);
-            if (leftPos < 15) leftPos = 15;
-            if (leftPos + popWidth > window.innerWidth - 15) {
-                leftPos = window.innerWidth - popWidth - 15;
-            }
-            pop.style.left = leftPos + 'px';
-            pop.style.zIndex = '999999999';
-            pop.style.display = 'block';
-            syncHeaderPopoverUI();
-        } else {
+        // Physically attach both to body if not already
+        if (pop.parentNode !== document.body && document.body) {
+            document.body.appendChild(pop);
+        }
+        if (backdrop && backdrop.parentNode !== document.body && document.body) {
+            document.body.appendChild(backdrop);
+        }
+
+        const isCurrentlyOpen = (pop.style.display === 'block');
+
+        if (isCurrentlyOpen) {
             pop.style.display = 'none';
+            if (backdrop) backdrop.style.display = 'none';
+        } else {
+            // Position Dead-Center on Screen Face (على وجه الشاشة تماماً بدون أي حجب)
+            pop.style.position = 'fixed';
+            pop.style.top = '50%';
+            pop.style.left = '50%';
+            pop.style.transform = 'translate(-50%, -50%)';
+            pop.style.zIndex = '2147483647';
+            pop.style.display = 'block';
+            if (backdrop) {
+                backdrop.style.display = 'block';
+            }
+            syncHeaderPopoverUI();
         }
     }
 
     function closeHeaderMediaPopover(e) {
-        if (e) e.stopPropagation();
+        if (e) {
+            if (typeof e.stopPropagation === 'function') e.stopPropagation();
+            if (typeof e.preventDefault === 'function') e.preventDefault();
+        }
+        if (!isTopWindow && window.top && typeof window.top.closeHeaderMediaPopover === 'function') {
+            try { window.top.closeHeaderMediaPopover(e); return; } catch(err) {}
+        }
         const pop = document.getElementById('header-media-popover');
+        const backdrop = document.getElementById('header-media-backdrop');
         if (pop) pop.style.display = 'none';
+        if (backdrop) backdrop.style.display = 'none';
     }
+
+    // Close on Escape key
+    window.addEventListener('keydown', function(ev) {
+        if (ev.key === 'Escape' || ev.keyCode === 27) {
+            const pop = document.getElementById('header-media-popover');
+            if (pop && pop.style.display === 'block') {
+                closeHeaderMediaPopover(ev);
+            }
+        }
+    });
 
     function setHeaderMediaVolume(val) {
         if (!isTopWindow && window.top && window.top.setHeaderMediaVolume) {
