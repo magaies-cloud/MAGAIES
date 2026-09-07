@@ -542,7 +542,7 @@
             <span style="font-size: 14px;">🔴</span>
             <span>الجزيرة</span>
         </button>
-        <button type="button" id="hdr-ch-bbc_arabic" onclick="quickHeaderPlay('bbc_arabic')" class="header-pop-ch-btn" style="--ch-c: #f43f5e;" title="إذاعة بي بي سي عربي">
+        <button type="button" id="hdr-ch-bbc_arabic" onclick="quickHeaderPlay('bbc_arabic')" class="header-pop-ch-btn" style="--ch-c: #f43f5e;" title="قناة وإذاعة بي بي سي عربي - بث مباشر باللغة العربية 24/7">
             <span style="font-size: 14px;">🌐</span>
             <span>BBC</span>
         </button>

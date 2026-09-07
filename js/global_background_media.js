@@ -49,6 +49,7 @@
             title: "القرآن الكريم MP3 - تلاوات خاشعة لكبار القراء",
             sub: "تلاوات عطرة متواصلة في الخلفية",
             audioUrl: "https://backup.qurango.net/radio/tarateel",
+            backupAudioUrl: "https://qurango.net/radio/tarateel",
             icon: "headphones",
             color: "#06b6d4"
         },
@@ -56,6 +57,7 @@
             title: "تلفزيون وإذاعة المجد للقرآن الكريم (بث مباشر)",
             sub: "تلاوات عطرة خاشعة متواصلة 24/7",
             audioUrl: "https://backup.qurango.net/radio/tarateel",
+            backupAudioUrl: "https://qurango.net/radio/tarateel",
             icon: "tv",
             color: "#f59e0b"
         },
@@ -63,6 +65,7 @@
             title: "تلفزيون مكة المكرمة - الحرم المكي الشريف",
             sub: "بث حي ومباشر من بيت الله الحرام 24/7",
             audioUrl: "https://backup.qurango.net/radio/maher",
+            backupAudioUrl: "https://qurango.net/radio/maher",
             icon: "kaaba",
             color: "#eab308"
         },
@@ -70,6 +73,7 @@
             title: "تلفزيون المدينة المنورة - المسجد النبوي",
             sub: "بث حي ومباشر من الروضة الشريفة 24/7",
             audioUrl: "https://backup.qurango.net/radio/ali_alhuthaifi",
+            backupAudioUrl: "https://qurango.net/radio/ali_alhuthaifi",
             icon: "mosque",
             color: "#10b981"
         },
@@ -77,6 +81,7 @@
             title: "إذاعة صحيح البخاري والحديث الشريف (24/7)",
             sub: "أحاديث النبي ﷺ والسنة النبوية المطهرة",
             audioUrl: "https://backup.qurango.net/radio/saheh-bokharee",
+            backupAudioUrl: "https://qurango.net/radio/saheh-bokharee",
             icon: "book-open",
             color: "#a855f7"
         },
@@ -84,6 +89,7 @@
             title: "إذاعة صحيح البخاري (بث مباشر 24/7)",
             sub: "قراءة أحاديث الجامع الصحيح للإمام البخاري",
             audioUrl: "https://backup.qurango.net/radio/saheh-bokharee",
+            backupAudioUrl: "https://qurango.net/radio/saheh-bokharee",
             icon: "book-open",
             color: "#a855f7"
         },
@@ -91,6 +97,7 @@
             title: "إذاعة صحيح مسلم (بث مباشر 24/7)",
             sub: "قراءة أحاديث صحيح مسلم رحمه الله",
             audioUrl: "https://backup.qurango.net/radio/saheh-muslim",
+            backupAudioUrl: "https://qurango.net/radio/saheh-muslim",
             icon: "book-bookmark",
             color: "#10b981"
         },
@@ -98,6 +105,7 @@
             title: "إذاعة رياض الصالحين (بث مباشر 24/7)",
             sub: "كتاب رياض الصالحين للإمام النووي",
             audioUrl: "https://backup.qurango.net/radio/riyad",
+            backupAudioUrl: "https://qurango.net/radio/riyad_assaliheen",
             icon: "leaf",
             color: "#059669"
         },
@@ -105,6 +113,7 @@
             title: "إذاعة الشمائل المحمدية (بث مباشر 24/7)",
             sub: "أحاديث صفات وأخلاق النبي ﷺ للترمذي",
             audioUrl: "https://backup.qurango.net/radio/shmaeel",
+            backupAudioUrl: "https://qurango.net/radio/shmaeel",
             icon: "star-and-crescent",
             color: "#8b5cf6"
         },
@@ -112,6 +121,7 @@
             title: "إذاعة في ظلال السيرة النبوية (بث مباشر 24/7)",
             sub: "400 حلقة متواصلة في سيرة الحبيب ﷺ",
             audioUrl: "https://backup.qurango.net/radio/fi_zilal_alsiyra",
+            backupAudioUrl: "https://backup.qurango.net/radio/almukhtasar_fi_alsiyra",
             icon: "mosque",
             color: "#d97706"
         },
@@ -119,6 +129,7 @@
             title: "إذاعة صور من حياة الصحابة (24/7)",
             sub: "مواقف وأحاديث جيل الصحابة رضوان الله عليهم",
             audioUrl: "https://backup.qurango.net/radio/sahabah",
+            backupAudioUrl: "https://qurango.net/radio/sahabah",
             icon: "users",
             color: "#0284c7"
         },
@@ -126,13 +137,15 @@
             title: "قناة الجزيرة الإخبارية (البث الصوتي المباشر)",
             sub: "تغطية إخبارية حية ومتواصلة على مدار الساعة 24/7",
             audioUrl: "https://live-hls-audio-web-aja.getaj.net/VOICE-AJA/index.m3u8",
+            backupAudioUrl: "https://live-hls-web-aja.getaj.net/AJA/index.m3u8",
             icon: "tower-broadcast",
             color: "#ef4444"
         },
         bbc_arabic: {
-            title: "إذاعة بي بي سي عربي - BBC Arabic (بث مباشر)",
-            sub: "الأخبار والبرامج الإذاعية المباشرة 24/7 من لندن",
-            audioUrl: "https://stream.live.vc.bbcmedia.co.uk/bbc_arabic_radio",
+            title: "قناة بي بي سي عربي الإخبارية - BBC News Arabic (بث مباشر باللغة العربية)",
+            sub: "الأخبار والبرامج الإخبارية المباشرة 24/7 باللغة العربية من لندن",
+            audioUrl: "https://vs-hls-pushb-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_arabic_tv/mobile_wifi_main_hd_abr_v2.m3u8",
+            backupAudioUrl: "https://vs-hls-pushb-ww.live.cf.md.bbci.co.uk/x=4/i=urn:bbc:pips:service:bbc_arabic_tv/pc_hd_abr_v2.m3u8",
             icon: "radio",
             color: "#f43f5e"
         }
@@ -540,6 +553,16 @@
             }
             syncHeaderPopoverUI();
         });
+
+        audioPlayer.addEventListener('error', function(e) {
+            console.warn('Audio player encountered error on:', audioPlayer.src);
+            const st = getStoredMediaState();
+            if (st && st.extraMeta && st.extraMeta.backupAudioUrl && audioPlayer.src !== st.extraMeta.backupAudioUrl) {
+                console.warn('Auto-switching audio to backup URL:', st.extraMeta.backupAudioUrl);
+                audioPlayer.src = st.extraMeta.backupAudioUrl;
+                audioPlayer.play().catch(function(err){ console.warn('Backup audio play failed:', err.message); });
+            }
+        });
     }
 
     function saveGlobalMediaPlaybackPosition(explicitAudio) {
@@ -823,7 +846,7 @@
                         <span style="font-size: 14px;">🔴</span>
                         <span>الجزيرة</span>
                     </button>
-                    <button type="button" id="hdr-ch-bbc_arabic" onclick="quickHeaderPlay('bbc_arabic')" class="header-pop-ch-btn" style="--ch-c: #f43f5e;" title="إذاعة بي بي سي عربي">
+                    <button type="button" id="hdr-ch-bbc_arabic" onclick="quickHeaderPlay('bbc_arabic')" class="header-pop-ch-btn" style="--ch-c: #f43f5e;" title="قناة وإذاعة بي بي سي عربي - بث مباشر باللغة العربية 24/7">
                         <span style="font-size: 14px;">🌐</span>
                         <span>BBC</span>
                     </button>
@@ -916,7 +939,8 @@
             channelKey: channelKey,
             sub: ch.sub,
             icon: ch.icon,
-            color: ch.color
+            color: ch.color,
+            backupAudioUrl: ch.backupAudioUrl || null
         });
     }
 
@@ -974,15 +998,30 @@
                     activeHlsInstance = new Hls({
                         enableWorker: false,
                         lowLatencyMode: true,
-                        backBufferLength: 30
+                        maxBufferLength: 10,
+                        maxMaxBufferLength: 20,
+                        backBufferLength: 0,
+                        manifestLoadingTimeOut: 10000,
+                        levelLoadingTimeOut: 10000,
+                        fragLoadingTimeOut: 10000
                     });
                     activeHlsInstance.loadSource(sourceUrl);
                     activeHlsInstance.attachMedia(audioPlayer);
                     activeHlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
                         triggerPlay();
                     });
+                    let triedFallback = false;
                     activeHlsInstance.on(Hls.Events.ERROR, function(event, data) {
                         if (data && data.fatal) {
+                            if (!triedFallback && extraMeta && extraMeta.backupAudioUrl) {
+                                triedFallback = true;
+                                console.warn('HLS stream fallback activated:', extraMeta.backupAudioUrl);
+                                try {
+                                    activeHlsInstance.loadSource(extraMeta.backupAudioUrl);
+                                    activeHlsInstance.startLoad();
+                                    return;
+                                } catch(e) {}
+                            }
                             switch (data.type) {
                                 case Hls.ErrorTypes.NETWORK_ERROR:
                                     try { activeHlsInstance.startLoad(); } catch(e) {}
@@ -1087,15 +1126,30 @@
                     activeHlsInstance = new Hls({
                         enableWorker: false,
                         lowLatencyMode: true,
-                        backBufferLength: 30
+                        maxBufferLength: 10,
+                        maxMaxBufferLength: 20,
+                        backBufferLength: 0,
+                        manifestLoadingTimeOut: 10000,
+                        levelLoadingTimeOut: 10000,
+                        fragLoadingTimeOut: 10000
                     });
                     activeHlsInstance.loadSource(state.sourceUrl);
                     activeHlsInstance.attachMedia(audioPlayer);
                     activeHlsInstance.on(Hls.Events.MANIFEST_PARSED, function() {
                         triggerPlay();
                     });
+                    let triedResumeFallback = false;
                     activeHlsInstance.on(Hls.Events.ERROR, function(event, data) {
                         if (data && data.fatal) {
+                            if (!triedResumeFallback && state.extraMeta && state.extraMeta.backupAudioUrl) {
+                                triedResumeFallback = true;
+                                console.warn('HLS resume fallback activated:', state.extraMeta.backupAudioUrl);
+                                try {
+                                    activeHlsInstance.loadSource(state.extraMeta.backupAudioUrl);
+                                    activeHlsInstance.startLoad();
+                                    return;
+                                } catch(e) {}
+                            }
                             switch (data.type) {
                                 case Hls.ErrorTypes.NETWORK_ERROR:
                                     try { activeHlsInstance.startLoad(); } catch(e) {}

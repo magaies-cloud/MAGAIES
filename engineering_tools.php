@@ -2110,12 +2110,12 @@ $pdo = getDBConnection();
                 </div>
 
                 <!-- 6. بي بي سي عربي -->
-                <div id="quick-media-btn-bbc_arabic" onclick="toggleQuickChannel('bbc_arabic')" class="sacred-media-pill group" style="--sm-color: #f43f5e; --sm-bg: rgba(244, 63, 94, 0.22); --sm-border: rgba(244, 63, 94, 0.45);" title="إذاعة بي بي سي عربي - راديو الأخبار 24/7">
+                <div id="quick-media-btn-bbc_arabic" onclick="toggleQuickChannel('bbc_arabic')" class="sacred-media-pill group" style="--sm-color: #f43f5e; --sm-bg: rgba(244, 63, 94, 0.22); --sm-border: rgba(244, 63, 94, 0.45);" title="إذاعة وقناة بي بي سي عربي - بث مباشر للأخبار باللغة العربية 24/7">
                     <div class="flex items-center gap-2.5 min-w-0">
                         <div class="sm-icon-box text-rose-400"><i class="fa-solid fa-radio"></i></div>
                         <div class="sm-text-box">
                             <div class="sm-title text-rose-200">🌐 بي بي سي عربي</div>
-                            <div id="sm-sub-bbc_arabic" class="sm-sub text-rose-400/90">راديو الأخبار 24/7</div>
+                            <div id="sm-sub-bbc_arabic" class="sm-sub text-rose-400/90">أخبار حية بالعربية</div>
                         </div>
                     </div>
                     <div class="sm-indicator-wrapper">
@@ -23479,6 +23479,7 @@ $pdo = getDBConnection();
             title: "تلفزيون المجد للقرآن الكريم (بث مباشر)",
             sub: "تلاوات عطرة خاشعة متواصلة 24/7",
             audioUrl: "https://backup.qurango.net/radio/tarateel",
+            backupAudioUrl: "https://qurango.net/radio/tarateel",
             icon: "fa-solid fa-tv",
             color: "amber"
         },
@@ -23486,6 +23487,7 @@ $pdo = getDBConnection();
             title: "تلفزيون مكة المكرمة - الحرم المكي الشريف",
             sub: "بث حي ومباشر من بيت الله الحرام 24/7",
             audioUrl: "https://backup.qurango.net/radio/maher",
+            backupAudioUrl: "https://qurango.net/radio/maher",
             icon: "fa-solid fa-kaaba",
             color: "yellow"
         },
@@ -23493,6 +23495,7 @@ $pdo = getDBConnection();
             title: "تلفزيون المدينة المنورة - المسجد النبوي",
             sub: "بث حي ومباشر من الروضة الشريفة 24/7",
             audioUrl: "https://backup.qurango.net/radio/ali_alhuthaifi",
+            backupAudioUrl: "https://qurango.net/radio/ali_alhuthaifi",
             icon: "fa-solid fa-mosque",
             color: "emerald"
         },
@@ -23500,6 +23503,7 @@ $pdo = getDBConnection();
             title: "إذاعة صحيح البخاري والحديث الشريف (24/7)",
             sub: "أحاديث النبي ﷺ والسنة النبوية المطهرة",
             audioUrl: "https://backup.qurango.net/radio/saheh-bokharee",
+            backupAudioUrl: "https://qurango.net/radio/saheh-bokharee",
             icon: "fa-solid fa-book-open",
             color: "purple"
         },
@@ -23507,6 +23511,7 @@ $pdo = getDBConnection();
             title: "إذاعة صحيح البخاري (بث مباشر 24/7)",
             sub: "قراءة أحاديث الجامع الصحيح للإمام البخاري",
             audioUrl: "https://backup.qurango.net/radio/saheh-bokharee",
+            backupAudioUrl: "https://qurango.net/radio/saheh-bokharee",
             icon: "fa-solid fa-book-open",
             color: "purple"
         },
@@ -23514,6 +23519,7 @@ $pdo = getDBConnection();
             title: "إذاعة صحيح مسلم (بث مباشر 24/7)",
             sub: "قراءة أحاديث صحيح مسلم رحمه الله",
             audioUrl: "https://backup.qurango.net/radio/saheh-muslim",
+            backupAudioUrl: "https://qurango.net/radio/saheh-muslim",
             icon: "fa-solid fa-book-bookmark",
             color: "emerald"
         },
@@ -23521,6 +23527,7 @@ $pdo = getDBConnection();
             title: "إذاعة رياض الصالحين (بث مباشر 24/7)",
             sub: "كتاب رياض الصالحين للإمام النووي",
             audioUrl: "https://backup.qurango.net/radio/riyad",
+            backupAudioUrl: "https://qurango.net/radio/riyad_assaliheen",
             icon: "fa-solid fa-leaf",
             color: "emerald"
         },
@@ -23528,6 +23535,7 @@ $pdo = getDBConnection();
             title: "إذاعة الشمائل المحمدية (بث مباشر 24/7)",
             sub: "أحاديث صفات وأخلاق النبي ﷺ للترمذي",
             audioUrl: "https://backup.qurango.net/radio/shmaeel",
+            backupAudioUrl: "https://qurango.net/radio/shmaeel",
             icon: "fa-solid fa-star-and-crescent",
             color: "purple"
         },
@@ -23535,6 +23543,7 @@ $pdo = getDBConnection();
             title: "إذاعة في ظلال السيرة النبوية (بث مباشر 24/7)",
             sub: "400 حلقة متواصلة في سيرة الحبيب ﷺ",
             audioUrl: "https://backup.qurango.net/radio/fi_zilal_alsiyra",
+            backupAudioUrl: "https://backup.qurango.net/radio/almukhtasar_fi_alsiyra",
             icon: "fa-solid fa-mosque",
             color: "amber"
         },
@@ -23542,6 +23551,7 @@ $pdo = getDBConnection();
             title: "إذاعة صور من حياة الصحابة (24/7)",
             sub: "مواقف وأحاديث جيل الصحابة رضوان الله عليهم",
             audioUrl: "https://backup.qurango.net/radio/sahabah",
+            backupAudioUrl: "https://qurango.net/radio/sahabah",
             icon: "fa-solid fa-users",
             color: "sky"
         },
@@ -23549,13 +23559,15 @@ $pdo = getDBConnection();
             title: "قناة الجزيرة الإخبارية (البث الصوتي المباشر)",
             sub: "تغطية إخبارية حية ومتواصلة على مدار الساعة 24/7",
             audioUrl: "https://live-hls-audio-web-aja.getaj.net/VOICE-AJA/index.m3u8",
+            backupAudioUrl: "https://live-hls-web-aja.getaj.net/AJA/index.m3u8",
             icon: "fa-solid fa-tower-broadcast",
             color: "red"
         },
         bbc_arabic: {
-            title: "إذاعة بي بي سي عربي - BBC Arabic (بث مباشر)",
-            sub: "الأخبار والبرامج الإذاعية المباشرة 24/7 من لندن",
-            audioUrl: "https://stream.live.vc.bbcmedia.co.uk/bbc_arabic_radio",
+            title: "قناة بي بي سي عربي الإخبارية - BBC News Arabic (بث حي مباشر باللغة العربية)",
+            sub: "الأخبار والبرامج الإخبارية المباشرة 24/7 باللغة العربية",
+            audioUrl: "https://vs-hls-pushb-ww-live.akamaized.net/x=4/i=urn:bbc:pips:service:bbc_arabic_tv/mobile_wifi_main_hd_abr_v2.m3u8",
+            backupAudioUrl: "https://vs-hls-pushb-ww.live.cf.md.bbci.co.uk/x=4/i=urn:bbc:pips:service:bbc_arabic_tv/pc_hd_abr_v2.m3u8",
             icon: "fa-solid fa-radio",
             color: "rose"
         }
@@ -23634,7 +23646,7 @@ $pdo = getDBConnection();
             majd: 'تلاوات خاشعة',
             quran_mp3: '287 قارئ ومصحف',
             aljazeera: 'بث صوتي مباشر',
-            bbc_arabic: 'راديو الأخبار 24/7',
+            bbc_arabic: 'أخبار حية بالعربية',
             hadith_bukhari: 'إذاعة السنة 24/7',
             hadith_muslim: 'الجامع الصحيح',
             hadith_riyad: 'للإمام النووي',
