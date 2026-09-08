@@ -22,7 +22,7 @@ $host = $_ENV['DB_HOST'] ?? 'localhost';
 $port = $_ENV['DB_PORT'] ?? '3306';
 $user = $_ENV['DB_USER'] ?? 'root';
 $pass = $_ENV['DB_PASS'] ?? '';
-$db   = $_ENV['DB_NAME'] ?? 'defaultdb';
+$db   = $_ENV['DB_NAME'] ?? 'magaees';
 $ssl_ca = $_ENV['DB_SSL_CA'] ?? '';
 
 $dsn = "mysql:host=$host;port=$port;dbname=$db;charset=utf8mb4";

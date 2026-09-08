@@ -21,9 +21,9 @@ if (strlen($apiKey) < 20) {
 
 $envPath = __DIR__ . '/../.env';
 
-// If .env doesn't exist, create it
+// If .env doesn't exist, create it with local defaults and Gemini key
 if (!file_exists($envPath)) {
-    $content = "GEMINI_API_KEY=" . $apiKey . "\n";
+    $content = "DB_HOST=localhost\nDB_PORT=3306\nDB_USER=root\nDB_PASS=\nDB_NAME=magaees\nGEMINI_API_KEY=" . $apiKey . "\n";
     if (file_put_contents($envPath, $content) === false) {
         echo json_encode(['success' => false, 'error' => 'تعذر إنشاء ملف .env']);
         exit;
