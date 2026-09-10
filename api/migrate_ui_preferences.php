@@ -16,10 +16,8 @@ if (!$isCli && $secret !== $validSecret) {
 header('Content-Type: application/json; charset=utf-8');
 
 try {
-    require_once __DIR__ . '/../db_bridge.php';
-    $pdo = getDBConnection();
-    
-    if (!$pdo) {
+    require_once __DIR__ . '/db.php';
+    if (!isset($pdo) || !$pdo) {
         throw new Exception("Database connection failed");
     }
 
