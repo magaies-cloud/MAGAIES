@@ -59,6 +59,7 @@
 
         // ═══ WhatsApp AI Hybrid Ingest System ═══
         whatsAppSelectedFiles: [],
+        _globalPasteBound: false,
 
         openWhatsAppIngest(options = {}) {
             this.activeContext = Object.assign({
@@ -73,7 +74,7 @@
             const modal = document.getElementById('financial-ocr-whatsapp-modal');
             if (modal) {
                 modal.style.display = 'flex';
-                this.bindWhatsAppPasteListener(true);
+                this.initGlobalPasteListener();
             } else {
                 this.openScanner(options);
             }
@@ -84,7 +85,6 @@
             if (modal) {
                 modal.style.display = 'none';
             }
-            this.bindWhatsAppPasteListener(false);
             this.whatsAppSelectedFiles = [];
         },
 
@@ -96,61 +96,123 @@
 
             const popup = window.open('https://web.whatsapp.com', 'WhatsAppWebPopup', `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=no`);
             if (popup) {
-                popup.focus();
-                this.showToast('💡 تم فتح واتساب ويب في نافذة جانبية! يمكنك نسخ الإشعارات ولصقها بـ Ctrl+V أو سحبها مباشرة إلى هنا.', 'info');
+                try { popup.focus(); } catch (e) {}
+                this.showToast('💡 تم فتح واتساب ويب! يمكنك نسخ صورة الإشعار ولصقها هنا بـ Ctrl+V أو سحبها مباشرة إلى هذا المربع.', 'info');
             } else {
                 window.open('https://web.whatsapp.com', '_blank');
+                this.showToast('💡 تم فتح واتساب ويب في تبويب جديد! انسخ الإشعار ثم اضغط Ctrl+V هنا.', 'info');
             }
         },
 
-        bindWhatsAppPasteListener(enable) {
-            if (!this._whatsappPasteHandler) {
-                this._whatsappPasteHandler = (e) => {
-                    const modal = document.getElementById('financial-ocr-whatsapp-modal');
-                    if (!modal || modal.style.display !== 'flex') return;
+        initGlobalPasteListener() {
+            if (this._globalPasteBound) return;
+            this._globalPasteBound = true;
 
-                    const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
-                    if (!items) return;
+            window.addEventListener('paste', (e) => {
+                const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
+                if (!items) return;
 
-                    const newFiles = [];
-                    for (let i = 0; i < items.length; i++) {
-                        if (items[i].type && items[i].type.indexOf('image') !== -1) {
-                            const blob = items[i].getAsFile();
-                            if (blob) {
-                                const ext = blob.type.split('/')[1] || 'png';
-                                const file = new File([blob], `whatsapp_pasted_${Date.now()}_${i + 1}.${ext}`, { type: blob.type });
-                                newFiles.push(file);
-                            }
+                let hasImage = false;
+                const newFiles = [];
+                for (let i = 0; i < items.length; i++) {
+                    if (items[i].type && items[i].type.indexOf('image') !== -1) {
+                        hasImage = true;
+                        const blob = items[i].getAsFile();
+                        if (blob) {
+                            const ext = blob.type.split('/')[1] || 'png';
+                            const file = new File([blob], `whatsapp_pasted_${Date.now()}_${i + 1}.${ext}`, { type: blob.type });
+                            newFiles.push(file);
                         }
                     }
+                }
 
-                    if (newFiles.length > 0) {
-                        e.preventDefault();
-                        this.handleWhatsAppFiles(newFiles);
-                        this.showToast(`✅ تم التقاط ${newFiles.length} ${newFiles.length === 1 ? 'إشعار' : 'إشعارات'} من الواتساب عبر الحافظة!`, 'success');
+                if (hasImage && newFiles.length > 0) {
+                    e.preventDefault();
+                    
+                    const reviewModal = document.getElementById('financial-ocr-review-modal');
+                    const whatsappModal = document.getElementById('financial-ocr-whatsapp-modal');
+                    
+                    if (reviewModal && reviewModal.style.display === 'flex') {
+                        this.handleFileSelected({ files: newFiles });
+                        return;
                     }
-                };
-            }
 
-            if (enable) {
-                window.removeEventListener('paste', this._whatsappPasteHandler);
-                window.addEventListener('paste', this._whatsappPasteHandler);
-            } else {
-                window.removeEventListener('paste', this._whatsappPasteHandler);
-            }
+                    if (whatsappModal && whatsappModal.style.display !== 'flex') {
+                        this.openWhatsAppIngest({ target: 'multi' });
+                    }
+                    this.handleWhatsAppFiles(newFiles);
+                    this.showToast(`✅ تم التقاط ${newFiles.length} إشعار من الواتساب عبر الحافظة (Paste) بنجاح!`, 'success');
+                }
+            });
         },
 
-        handleWhatsAppDrop(event) {
+        async handleWhatsAppDrop(event) {
             event.preventDefault();
+            event.stopPropagation();
             const dropzone = document.getElementById('whatsapp-dropzone');
             if (dropzone) {
                 dropzone.style.background = 'rgba(37,211,102,0.06)';
                 dropzone.style.borderColor = '#25D366';
             }
 
+            // 1. Direct files from Windows Explorer / Desktop / Downloads
             if (event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files.length > 0) {
                 this.handleWhatsAppFiles(event.dataTransfer.files);
+                return;
             }
+
+            // 2. Items with file/blob kind
+            if (event.dataTransfer && event.dataTransfer.items && event.dataTransfer.items.length > 0) {
+                const itemFiles = [];
+                for (let i = 0; i < event.dataTransfer.items.length; i++) {
+                    const item = event.dataTransfer.items[i];
+                    if (item.kind === 'file') {
+                        const f = item.getAsFile();
+                        if (f) itemFiles.push(f);
+                    }
+                }
+                if (itemFiles.length > 0) {
+                    this.handleWhatsAppFiles(itemFiles);
+                    return;
+                }
+            }
+
+            // 3. HTML with <img> tags dragged directly from WhatsApp Web tabs
+            const html = event.dataTransfer ? event.dataTransfer.getData('text/html') : '';
+            if (html) {
+                try {
+                    const parser = new DOMParser();
+                    const doc = parser.parseFromString(html, 'text/html');
+                    const img = doc.querySelector('img');
+                    if (img && img.src) {
+                        const res = await fetch(img.src);
+                        const blob = await res.blob();
+                        const ext = blob.type.split('/')[1] || 'png';
+                        const file = new File([blob], `whatsapp_dragged_${Date.now()}.${ext}`, { type: blob.type });
+                        this.handleWhatsAppFiles([file]);
+                        return;
+                    }
+                } catch (err) {
+                    console.warn('Failed to parse dragged img src:', err);
+                }
+            }
+
+            // 4. URL string
+            const url = event.dataTransfer ? (event.dataTransfer.getData('URL') || event.dataTransfer.getData('text/uri-list')) : '';
+            if (url && (url.startsWith('http') || url.startsWith('blob:') || url.startsWith('data:image'))) {
+                try {
+                    const res = await fetch(url);
+                    const blob = await res.blob();
+                    const ext = blob.type.split('/')[1] || 'png';
+                    const file = new File([blob], `whatsapp_dragged_${Date.now()}.${ext}`, { type: blob.type });
+                    this.handleWhatsAppFiles([file]);
+                    return;
+                } catch (err) {
+                    console.warn('Failed to fetch dragged URL:', err);
+                }
+            }
+
+            this.showToast('⚠️ يرجى سحب ملف صورة أو الضغط على [اختيار صور من الجهاز]', 'warning');
         },
 
         handleWhatsAppFiles(filesList) {
@@ -164,7 +226,7 @@
             this.whatsAppSelectedFiles.push(...incoming);
             this.renderWhatsAppTray();
             this.playSuccessSound();
-            this.showToast(`📥 تم تجميع ${incoming.length} إشعار جديد (الإجمالي الآن: ${this.whatsAppSelectedFiles.length} إشعار جاهز للمسح)`, 'info');
+            this.showToast(`📥 تم تجميع ${incoming.length} إشعار جديد (الإجمالي: ${this.whatsAppSelectedFiles.length} إشعار جاهز للمسح)`, 'info');
         },
 
         removeWhatsAppFile(idx) {
