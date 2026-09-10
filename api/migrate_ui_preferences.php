@@ -84,9 +84,14 @@ try {
         $stmt->execute([$tId, $json, $json]);
     }
 
+    $gitCommit = trim((string)shell_exec('git rev-parse HEAD 2>&1'));
+    $gitStatus = trim((string)shell_exec('git status --porcelain 2>&1'));
+
     $out = [
         'success' => true,
         'message' => 'ui_preferences table verified and seeded successfully',
+        'live_server_git_commit' => $gitCommit,
+        'live_server_git_status' => empty($gitStatus) ? 'clean' : $gitStatus,
         'calibrated_props' => $calibratedProps
     ];
     echo json_encode($out, JSON_PRETTY_PRINT | JSON_UNESCAPED_UNICODE) . "\n";
