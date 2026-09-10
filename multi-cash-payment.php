@@ -607,6 +607,27 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             transform: translateY(-3px) scale(1.06) !important;
         }
 
+        /* 1.5. واتساب AI (WhatsApp Emerald Green Neon) */
+        .btn-dock-btn.block-btn-ai-whatsapp {
+            --tab-border-color: #25D366;
+            --tab-glow-color: rgba(37, 211, 102, 0.85);
+            border: 3.5px solid #25D366 !important;
+            border-radius: 14px !important;
+            background: linear-gradient(135deg, rgba(37, 211, 102, 0.38), rgba(18, 140, 126, 0.72)) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), 0 0 10px rgba(37, 211, 102, 0.35) !important;
+            text-shadow: none !important;
+        }
+        .btn-dock-btn.block-btn-ai-whatsapp:hover {
+            background: #000000 !important;
+            background-image: none !important;
+            color: #ffffff !important;
+            border: 3.5px solid #4ade80 !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(37, 211, 102, 0.85), 0 0 24px rgba(37, 211, 102, 0.45) !important;
+            text-shadow: none !important;
+            transform: translateY(-3px) scale(1.06) !important;
+        }
+
         /* 2. نماذج (Purple / Violet Neon) */
         .btn-dock-btn.block-btn-ai-trainer {
             --tab-border-color: #a855f7;
@@ -2121,11 +2142,14 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                                 <input type="text" autocomplete="off" id="statement-{ID}" class="form-input" placeholder="بيان التحويل (اختياري)" style="font-size: 1rem; flex: 1; margin-bottom: 0; background: rgba(255,255,255,0.05); color: #fff;">
                             </div>
                             
-                            <!-- ═══ Unified 4-Icon Base (قاعدة الأيقونات الأربعة كوحدة واحدة) ═══ -->
-                            <div class="crystal-unified-dock" style="flex: 1.8; min-width: 260px;">
+                            <!-- ═══ Unified 5-Icon Base (قاعدة الأيقونات الموحدة) ═══ -->
+                            <div class="crystal-unified-dock" style="flex: 2.2; min-width: 320px;">
                                 <div style="display: flex; gap: 6px; align-items: center; width: 100%;">
                                     <button type="button" class="btn crystal-btn btn-dock-btn block-btn-ai-scan" onclick="FinancialOCR.openScanner({ target: 'multi', blockId: '{ID}' })" title="مسح وقراءة إشعار التحويل البنكي بالذكاء الاصطناعي">
                                         <span class="btn-icon">📷</span> <span class="btn-text">إشعار AI</span>
+                                    </button>
+                                    <button type="button" class="btn crystal-btn btn-dock-btn block-btn-ai-whatsapp" onclick="FinancialOCR.openWhatsAppIngest({ target: 'multi', blockId: '{ID}' })" title="استيراد ومسح إشعارات الواتساب (إشعار أو دفعة إشعارات) بالذكاء الاصطناعي">
+                                        <span class="btn-icon">💬</span> <span class="btn-text">واتساب AI</span>
                                     </button>
                                     <button type="button" class="btn crystal-btn btn-dock-btn block-btn-ai-trainer" onclick="FinancialOCR.openTrainer()" title="نماذج الذكاء الاصطناعي">
                                         <span class="btn-icon">🧠</span> <span class="btn-text">نماذج</span>

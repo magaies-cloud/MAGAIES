@@ -57,6 +57,213 @@
             }
         },
 
+        // ═══ WhatsApp AI Hybrid Ingest System ═══
+        whatsAppSelectedFiles: [],
+
+        openWhatsAppIngest(options = {}) {
+            this.activeContext = Object.assign({
+                target: 'multi',
+                blockId: null,
+                docHint: 'auto'
+            }, options);
+
+            this.whatsAppSelectedFiles = [];
+            this.renderWhatsAppTray();
+
+            const modal = document.getElementById('financial-ocr-whatsapp-modal');
+            if (modal) {
+                modal.style.display = 'flex';
+                this.bindWhatsAppPasteListener(true);
+            } else {
+                this.openScanner(options);
+            }
+        },
+
+        closeWhatsAppIngest() {
+            const modal = document.getElementById('financial-ocr-whatsapp-modal');
+            if (modal) {
+                modal.style.display = 'none';
+            }
+            this.bindWhatsAppPasteListener(false);
+            this.whatsAppSelectedFiles = [];
+        },
+
+        openWhatsAppWebPopup() {
+            const width = Math.min(1000, window.screen.availWidth - 100);
+            const height = Math.min(800, window.screen.availHeight - 100);
+            const left = Math.max(20, (window.screen.availWidth - width) / 2);
+            const top = Math.max(20, (window.screen.availHeight - height) / 2);
+
+            const popup = window.open('https://web.whatsapp.com', 'WhatsAppWebPopup', `width=${width},height=${height},left=${left},top=${top},resizable=yes,scrollbars=yes,status=no`);
+            if (popup) {
+                popup.focus();
+                this.showToast('💡 تم فتح واتساب ويب في نافذة جانبية! يمكنك نسخ الإشعارات ولصقها بـ Ctrl+V أو سحبها مباشرة إلى هنا.', 'info');
+            } else {
+                window.open('https://web.whatsapp.com', '_blank');
+            }
+        },
+
+        bindWhatsAppPasteListener(enable) {
+            if (!this._whatsappPasteHandler) {
+                this._whatsappPasteHandler = (e) => {
+                    const modal = document.getElementById('financial-ocr-whatsapp-modal');
+                    if (!modal || modal.style.display !== 'flex') return;
+
+                    const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
+                    if (!items) return;
+
+                    const newFiles = [];
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].type && items[i].type.indexOf('image') !== -1) {
+                            const blob = items[i].getAsFile();
+                            if (blob) {
+                                const ext = blob.type.split('/')[1] || 'png';
+                                const file = new File([blob], `whatsapp_pasted_${Date.now()}_${i + 1}.${ext}`, { type: blob.type });
+                                newFiles.push(file);
+                            }
+                        }
+                    }
+
+                    if (newFiles.length > 0) {
+                        e.preventDefault();
+                        this.handleWhatsAppFiles(newFiles);
+                        this.showToast(`✅ تم التقاط ${newFiles.length} ${newFiles.length === 1 ? 'إشعار' : 'إشعارات'} من الواتساب عبر الحافظة!`, 'success');
+                    }
+                };
+            }
+
+            if (enable) {
+                window.removeEventListener('paste', this._whatsappPasteHandler);
+                window.addEventListener('paste', this._whatsappPasteHandler);
+            } else {
+                window.removeEventListener('paste', this._whatsappPasteHandler);
+            }
+        },
+
+        handleWhatsAppDrop(event) {
+            event.preventDefault();
+            const dropzone = document.getElementById('whatsapp-dropzone');
+            if (dropzone) {
+                dropzone.style.background = 'rgba(37,211,102,0.06)';
+                dropzone.style.borderColor = '#25D366';
+            }
+
+            if (event.dataTransfer && event.dataTransfer.files && event.dataTransfer.files.length > 0) {
+                this.handleWhatsAppFiles(event.dataTransfer.files);
+            }
+        },
+
+        handleWhatsAppFiles(filesList) {
+            if (!filesList || filesList.length === 0) return;
+            const incoming = Array.from(filesList).filter(f => f.type.startsWith('image/') || f.name.match(/\.(png|jpe?g|webp|gif|bmp|pdf)$/i));
+            if (incoming.length === 0) {
+                this.showToast('⚠️ يرجى اختيار ملفات صور لإشعارات التحويل (PNG, JPG, JPEG)', 'warning');
+                return;
+            }
+
+            this.whatsAppSelectedFiles.push(...incoming);
+            this.renderWhatsAppTray();
+            this.playSuccessSound();
+            this.showToast(`📥 تم تجميع ${incoming.length} إشعار جديد (الإجمالي الآن: ${this.whatsAppSelectedFiles.length} إشعار جاهز للمسح)`, 'info');
+        },
+
+        removeWhatsAppFile(idx) {
+            if (idx >= 0 && idx < this.whatsAppSelectedFiles.length) {
+                this.whatsAppSelectedFiles.splice(idx, 1);
+                this.renderWhatsAppTray();
+            }
+        },
+
+        clearWhatsAppTray() {
+            this.whatsAppSelectedFiles = [];
+            this.renderWhatsAppTray();
+        },
+
+        renderWhatsAppTray() {
+            const wrapper = document.getElementById('whatsapp-tray-wrapper');
+            const gallery = document.getElementById('whatsapp-tray-gallery');
+            const countBadge = document.getElementById('whatsapp-tray-count-badge');
+            const startBtn = document.getElementById('btn-start-whatsapp-scan');
+            const startBtnText = document.getElementById('btn-start-whatsapp-scan-text');
+            const clearBtn = document.getElementById('btn-clear-whatsapp-tray');
+
+            const count = this.whatsAppSelectedFiles.length;
+
+            if (count > 0) {
+                if (wrapper) wrapper.style.display = 'block';
+                if (clearBtn) clearBtn.style.display = 'inline-flex';
+                if (countBadge) countBadge.textContent = `🖼️ الإشعارات الجاهزة للمسح: ( ${count} ${count === 1 ? 'إشعار' : 'إشعارات'} )`;
+                if (startBtn) {
+                    startBtn.disabled = false;
+                    startBtn.style.opacity = '1';
+                    startBtn.style.cursor = 'pointer';
+                }
+                if (startBtnText) startBtnText.textContent = `🚀 ابدأ المسح وتفريغ البيانات في السند (${count} ${count === 1 ? 'إشعار' : 'إشعارات'})`;
+
+                if (gallery) {
+                    gallery.innerHTML = '';
+                    this.whatsAppSelectedFiles.forEach((file, idx) => {
+                        const card = document.createElement('div');
+                        card.style.cssText = 'position:relative; flex:0 0 105px; width:105px; height:125px; background:#1e293b; border:1.5px solid #25D366; border-radius:10px; overflow:hidden; display:flex; flex-direction:column; box-shadow:0 4px 12px rgba(0,0,0,0.5);';
+
+                        const delBtn = document.createElement('button');
+                        delBtn.type = 'button';
+                        delBtn.innerHTML = '✕';
+                        delBtn.style.cssText = 'position:absolute; top:4px; right:4px; z-index:5; width:22px; height:22px; border-radius:50%; background:rgba(239,68,68,0.9); color:#fff; border:none; font-size:0.75rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 2px 6px rgba(0,0,0,0.5);';
+                        delBtn.onclick = (e) => {
+                            e.stopPropagation();
+                            FinancialOCR.removeWhatsAppFile(idx);
+                        };
+
+                        const badge = document.createElement('div');
+                        badge.style.cssText = 'position:absolute; top:4px; left:4px; z-index:5; background:rgba(15,23,42,0.85); color:#86efac; border:1px solid #25D366; font-size:0.65rem; font-weight:900; padding:1px 5px; border-radius:6px;';
+                        badge.textContent = `#${idx + 1}`;
+
+                        const imgWrap = document.createElement('div');
+                        imgWrap.style.cssText = 'flex:1; width:100%; background:#0f172a; display:flex; align-items:center; justify-content:center; overflow:hidden;';
+
+                        const img = document.createElement('img');
+                        img.style.cssText = 'width:100%; height:100%; object-fit:cover;';
+                        const objectUrl = URL.createObjectURL(file);
+                        img.src = objectUrl;
+
+                        const nameLbl = document.createElement('div');
+                        nameLbl.style.cssText = 'padding:3px 6px; background:rgba(15,23,42,0.95); color:#e2e8f0; font-size:0.65rem; font-weight:700; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; text-align:center; direction:ltr;';
+                        nameLbl.textContent = file.name || `إشعار #${idx + 1}`;
+
+                        card.appendChild(delBtn);
+                        card.appendChild(badge);
+                        imgWrap.appendChild(img);
+                        card.appendChild(imgWrap);
+                        card.appendChild(nameLbl);
+                        gallery.appendChild(card);
+                    });
+                }
+            } else {
+                if (wrapper) wrapper.style.display = 'none';
+                if (clearBtn) clearBtn.style.display = 'none';
+                if (countBadge) countBadge.textContent = '🖼️ الإشعارات الجاهزة للمسح: ( 0 إشعار )';
+                if (startBtn) {
+                    startBtn.disabled = true;
+                    startBtn.style.opacity = '0.5';
+                    startBtn.style.cursor = 'not-allowed';
+                }
+                if (startBtnText) startBtnText.textContent = 'ابدأ المسح وتفريغ البيانات في السند (0 إشعار)';
+                if (gallery) gallery.innerHTML = '';
+            }
+        },
+
+        async startWhatsAppScan() {
+            if (!this.whatsAppSelectedFiles || this.whatsAppSelectedFiles.length === 0) {
+                this.showToast('⚠️ يرجى إضافة إشعار واحد على الأقل قبل بدء المسح', 'warning');
+                return;
+            }
+
+            const filesToProcess = [...this.whatsAppSelectedFiles];
+            this.closeWhatsAppIngest();
+            await this.handleFileSelected({ files: filesToProcess });
+        },
+
         // Navigation between batch items (Arrows and Tabs)
         prevItem() {
             if (!this.batchItems || this.batchItems.length <= 1) return;

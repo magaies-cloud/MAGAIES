@@ -567,6 +567,84 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
             </div>
         </div>
     </div>
+<!-- WhatsApp AI Ingest Modal (النظام الهجين المتكامل لاستيراد إشعارات الواتساب) -->
+<div id="financial-ocr-whatsapp-modal" style="display:none; position:fixed !important; inset:0 !important; background:rgba(0,0,0,0.92) !important; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); z-index:2147483647 !important; align-items:center; justify-content:center; padding:15px; font-family:'Tajawal',sans-serif; direction:rtl;">
+    <div style="background:#0f172a; border:2px solid #25D366; border-radius:20px; width:100%; max-width:680px; max-height:92vh; display:flex; flex-direction:column; box-shadow:0 25px 60px rgba(0,0,0,0.9), 0 0 45px rgba(37,211,102,0.3); overflow:hidden;">
+        
+        <!-- Header -->
+        <div style="padding:16px 22px; background:linear-gradient(135deg, rgba(37,211,102,0.25), rgba(15,23,42,0.95)); border-bottom:1.5px solid rgba(37,211,102,0.3); display:flex; justify-content:space-between; align-items:center;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <div style="width:42px; height:42px; border-radius:12px; background:linear-gradient(135deg,#25D366,#128C7E); display:flex; align-items:center; justify-content:center; font-size:1.5rem; color:#fff; box-shadow:0 0 15px rgba(37,211,102,0.5);">
+                    💬
+                </div>
+                <div>
+                    <h3 style="margin:0; color:#fff; font-size:1.25rem; font-weight:900; letter-spacing:0.3px;">استيراد إشعارات الواتساب بالذكاء الاصطناعي (WhatsApp AI)</h3>
+                    <p style="margin:2px 0 0 0; color:#86efac; font-size:0.82rem; font-weight:700;">اسحب وأفلت صور الإشعارات دفعة واحدة أو الصقها بـ Ctrl+V</p>
+                </div>
+            </div>
+            <button type="button" onclick="FinancialOCR.closeWhatsAppIngest()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.15); color:#94a3b8; width:34px; height:34px; border-radius:8px; font-size:1.3rem; cursor:pointer; display:flex; align-items:center; justify-content:center; transition:all 0.2s;" onmouseover="this.style.color='#ef4444'; this.style.borderColor='#ef4444';" onmouseout="this.style.color='#94a3b8'; this.style.borderColor='rgba(255,255,255,0.15)';" title="إغلاق النافذة">✕</button>
+        </div>
+
+        <!-- Body -->
+        <div style="padding:18px 22px; overflow-y:auto; display:flex; flex-direction:column; gap:14px; flex:1;">
+            
+            <!-- Drag & Drop Zone -->
+            <div id="whatsapp-dropzone" onclick="document.getElementById('whatsapp-file-input').click()" style="border:2.5px dashed #25D366; background:rgba(37,211,102,0.06); border-radius:16px; padding:22px 16px; text-align:center; cursor:pointer; transition:all 0.25s ease; position:relative; overflow:hidden;" ondragover="event.preventDefault(); this.style.background='rgba(37,211,102,0.18)'; this.style.borderColor='#4ade80';" ondragleave="this.style.background='rgba(37,211,102,0.06)'; this.style.borderColor='#25D366';" ondrop="FinancialOCR.handleWhatsAppDrop(event)">
+                <input type="file" id="whatsapp-file-input" multiple accept="image/*" style="display:none;" onchange="FinancialOCR.handleWhatsAppFiles(this.files)">
+                
+                <div style="font-size:2.4rem; margin-bottom:6px; filter:drop-shadow(0 0 12px rgba(37,211,102,0.6));">📥</div>
+                <div style="color:#ffffff; font-weight:900; font-size:1.15rem; margin-bottom:4px;">
+                    اسحب وأفلت إشعارات الواتساب هنا (إشعار واحد أو حتى 30 إشعاراً)
+                </div>
+                <div style="color:#86efac; font-size:0.85rem; font-weight:800;">
+                    أو اضغط <kbd style="background:#1e293b; color:#fbbf24; padding:2px 8px; border-radius:6px; border:1px solid rgba(255,255,255,0.2); font-family:monospace; font-size:0.9rem;">Ctrl + V</kbd> للصق السريع المتتابع من الواتساب
+                </div>
+                <div style="margin-top:8px; color:#94a3b8; font-size:0.75rem;">
+                    (يدعم إشعارات بنكك، فوري، أوكاش، إشعارات بنك فيصل، والشيكات)
+                </div>
+            </div>
+
+            <!-- Quick Action Toolbar -->
+            <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:space-between;">
+                <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                    <button type="button" onclick="document.getElementById('whatsapp-file-input').click()" style="background:rgba(56,189,248,0.15); border:1.5px solid #38bdf8; color:#7dd3fc; padding:8px 14px; border-radius:10px; font-weight:800; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.28)'" onmouseout="this.style.background='rgba(56,189,248,0.15)'">
+                        <span>📂</span> اختيار صور من الجهاز / التنزيلات
+                    </button>
+                    <button type="button" onclick="FinancialOCR.openWhatsAppWebPopup()" style="background:linear-gradient(135deg, rgba(37,211,102,0.22), rgba(18,140,126,0.22)); border:1.5px solid #25D366; color:#86efac; padding:8px 14px; border-radius:10px; font-weight:800; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s;" onmouseover="this.style.background='rgba(37,211,102,0.35)'" onmouseout="this.style.background='rgba(37,211,102,0.22)'" title="فتح واتساب ويب في نافذة جانبية فورية لسحب الإشعارات منها">
+                        <span>🌐</span> فتح واتساب ويب في نافذة جانبية ↗
+                    </button>
+                </div>
+                <button type="button" id="btn-clear-whatsapp-tray" onclick="FinancialOCR.clearWhatsAppTray()" style="display:none; background:rgba(239,68,68,0.12); border:1.5px solid #ef4444; color:#fca5a5; padding:8px 12px; border-radius:10px; font-weight:800; font-size:0.82rem; cursor:pointer;">
+                    <span>🧹</span> مسح القائمة
+                </button>
+            </div>
+
+            <!-- Collected Receipts Container -->
+            <div id="whatsapp-tray-wrapper" style="display:none; background:rgba(0,0,0,0.35); border:1px solid rgba(255,255,255,0.1); border-radius:14px; padding:12px;">
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:8px;">
+                    <span id="whatsapp-tray-count-badge" style="color:#86efac; font-size:0.85rem; font-weight:900;">
+                        🖼️ الإشعارات الجاهزة للمسح: ( 0 إشعار )
+                    </span>
+                    <span style="color:#94a3b8; font-size:0.75rem;">انقر على ✕ لحذف أي صورة</span>
+                </div>
+                <div id="whatsapp-tray-gallery" style="display:flex; gap:10px; overflow-x:auto; padding:6px 2px; scrollbar-width:thin;">
+                    <!-- Dynamically populated thumbnails -->
+                </div>
+            </div>
+
+        </div>
+
+        <!-- Footer / Action CTA -->
+        <div style="padding:14px 22px; background:rgba(15,23,42,0.98); border-top:1.5px solid rgba(255,255,255,0.1); display:flex; justify-content:space-between; align-items:center; gap:12px;">
+            <button type="button" onclick="FinancialOCR.closeWhatsAppIngest()" style="background:rgba(255,255,255,0.08); border:1px solid rgba(255,255,255,0.18); color:#cbd5e1; padding:10px 18px; border-radius:10px; font-weight:800; font-size:0.9rem; cursor:pointer;">
+                إلغاء
+            </button>
+            <button type="button" id="btn-start-whatsapp-scan" onclick="FinancialOCR.startWhatsAppScan()" disabled style="flex:1; background:linear-gradient(135deg, #10b981, #059669); opacity:0.5; cursor:not-allowed; border:none; color:#ffffff; padding:12px 22px; border-radius:10px; font-weight:900; font-size:1.05rem; display:flex; align-items:center; justify-content:center; gap:8px; box-shadow:0 4px 18px rgba(16,185,129,0.35); transition:all 0.2s;">
+                <span>🚀</span> <span id="btn-start-whatsapp-scan-text">ابدأ المسح وتفريغ البيانات في السند (0 إشعار)</span>
+            </button>
+        </div>
+
+    </div>
 </div>
 
 <!-- Interactive High-Resolution Image Zoom & Pan Lightbox Modal -->
@@ -913,7 +991,7 @@ html.ocr-modal-active, body.ocr-modal-active {
     background: #020617 !important;
 }
 
-body.ocr-modal-active > *:not(#financial-ocr-review-modal):not(#financial-ocr-loading):not(#financial-ocr-zoom-modal):not(#financial-ocr-key-modal):not(#financial-ocr-trainer-modal):not(#financial-ocr-batch-alert-modal):not(#financial-ocr-file-input):not(.ocr-toast) {
+body.ocr-modal-active > *:not(#financial-ocr-review-modal):not(#financial-ocr-loading):not(#financial-ocr-zoom-modal):not(#financial-ocr-key-modal):not(#financial-ocr-trainer-modal):not(#financial-ocr-whatsapp-modal):not(#financial-ocr-batch-alert-modal):not(#financial-ocr-file-input):not(.ocr-toast) {
     display: none !important;
     visibility: hidden !important;
     opacity: 0 !important;
@@ -923,6 +1001,7 @@ body.ocr-modal-active > *:not(#financial-ocr-review-modal):not(#financial-ocr-lo
 #financial-ocr-zoom-modal,
 #financial-ocr-batch-alert-modal,
 #financial-ocr-trainer-modal,
+#financial-ocr-whatsapp-modal,
 #financial-ocr-key-modal {
     z-index: 2147483647 !important;
 }
