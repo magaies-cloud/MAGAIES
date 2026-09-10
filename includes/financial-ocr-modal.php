@@ -607,6 +607,9 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
             <!-- Quick Action Toolbar -->
             <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap; justify-content:space-between;">
                 <div style="display:flex; gap:8px; align-items:center; flex-wrap:wrap;">
+                    <button type="button" onclick="FinancialOCR.pasteFromClipboard()" style="background:linear-gradient(135deg, #25D366, #128C7E); border:1.5px solid #4ade80; color:#ffffff; padding:8px 16px; border-radius:10px; font-weight:900; font-size:0.9rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; box-shadow:0 0 15px rgba(37,211,102,0.45); transition:all 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'" title="لصق صورة الإشعار المنسوخة من الحافظة مباشرة">
+                        <span>📋</span> لصق الإشعار المنسوخ فوراً (Paste)
+                    </button>
                     <button type="button" onclick="document.getElementById('whatsapp-file-input').click()" style="background:rgba(56,189,248,0.15); border:1.5px solid #38bdf8; color:#7dd3fc; padding:8px 14px; border-radius:10px; font-weight:800; font-size:0.85rem; cursor:pointer; display:inline-flex; align-items:center; gap:6px; transition:all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.28)'" onmouseout="this.style.background='rgba(56,189,248,0.15)'">
                         <span>📂</span> اختيار صور من الجهاز / التنزيلات
                     </button>

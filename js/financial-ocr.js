@@ -104,24 +104,67 @@
             }
         },
 
+        async pasteFromClipboard() {
+            try {
+                if (navigator.clipboard && navigator.clipboard.read) {
+                    const items = await navigator.clipboard.read();
+                    const newFiles = [];
+                    for (const item of items) {
+                        for (const type of item.types) {
+                            if (type.startsWith('image/')) {
+                                const blob = await item.getType(type);
+                                const ext = type.split('/')[1] || 'png';
+                                const file = new File([blob], `whatsapp_pasted_${Date.now()}_${newFiles.length + 1}.${ext}`, { type: blob.type });
+                                newFiles.push(file);
+                            }
+                        }
+                    }
+                    if (newFiles.length > 0) {
+                        this.handleWhatsAppFiles(newFiles);
+                        this.showToast(`✅ تم لصق ${newFiles.length} ${newFiles.length === 1 ? 'إشعار' : 'إشعارات'} بنجاح من الحافظة!`, 'success');
+                        return;
+                    }
+                }
+            } catch (err) {
+                console.warn('Clipboard read error:', err);
+            }
+
+            // Fallback instruction
+            this.showToast('💡 قم بنسخ صورة الإشعار من الواتساب (Copy Image) ثم اضغط [Ctrl + V] في الكيبورد للصقها فوراً!', 'info', 6000);
+        },
+
         initGlobalPasteListener() {
             if (this._globalPasteBound) return;
             this._globalPasteBound = true;
 
             window.addEventListener('paste', (e) => {
                 const items = (e.clipboardData || e.originalEvent?.clipboardData)?.items;
-                if (!items) return;
-
+                const files = (e.clipboardData || e.originalEvent?.clipboardData)?.files;
+                
                 let hasImage = false;
                 const newFiles = [];
-                for (let i = 0; i < items.length; i++) {
-                    if (items[i].type && items[i].type.indexOf('image') !== -1) {
-                        hasImage = true;
-                        const blob = items[i].getAsFile();
-                        if (blob) {
-                            const ext = blob.type.split('/')[1] || 'png';
-                            const file = new File([blob], `whatsapp_pasted_${Date.now()}_${i + 1}.${ext}`, { type: blob.type });
-                            newFiles.push(file);
+
+                // Check clipboard items
+                if (items && items.length > 0) {
+                    for (let i = 0; i < items.length; i++) {
+                        if (items[i].type && items[i].type.indexOf('image') !== -1) {
+                            hasImage = true;
+                            const blob = items[i].getAsFile();
+                            if (blob) {
+                                const ext = blob.type.split('/')[1] || 'png';
+                                const file = new File([blob], `whatsapp_pasted_${Date.now()}_${i + 1}.${ext}`, { type: blob.type });
+                                newFiles.push(file);
+                            }
+                        }
+                    }
+                }
+
+                // Check clipboard files fallback
+                if (newFiles.length === 0 && files && files.length > 0) {
+                    for (let i = 0; i < files.length; i++) {
+                        if (files[i].type && files[i].type.startsWith('image/')) {
+                            hasImage = true;
+                            newFiles.push(files[i]);
                         }
                     }
                 }
@@ -141,7 +184,7 @@
                         this.openWhatsAppIngest({ target: 'multi' });
                     }
                     this.handleWhatsAppFiles(newFiles);
-                    this.showToast(`✅ تم التقاط ${newFiles.length} إشعار من الواتساب عبر الحافظة (Paste) بنجاح!`, 'success');
+                    this.showToast(`✅ تم التقاط ${newFiles.length} ${newFiles.length === 1 ? 'إشعار' : 'إشعارات'} من الواتساب عبر الحافظة (Paste) بنجاح!`, 'success');
                 }
             });
         },
@@ -184,7 +227,7 @@
                     const parser = new DOMParser();
                     const doc = parser.parseFromString(html, 'text/html');
                     const img = doc.querySelector('img');
-                    if (img && img.src) {
+                    if (img && img.src && (img.src.startsWith('http') || img.src.startsWith('data:image'))) {
                         const res = await fetch(img.src);
                         const blob = await res.blob();
                         const ext = blob.type.split('/')[1] || 'png';
@@ -199,7 +242,7 @@
 
             // 4. URL string
             const url = event.dataTransfer ? (event.dataTransfer.getData('URL') || event.dataTransfer.getData('text/uri-list')) : '';
-            if (url && (url.startsWith('http') || url.startsWith('blob:') || url.startsWith('data:image'))) {
+            if (url && (url.startsWith('http') || url.startsWith('data:image'))) {
                 try {
                     const res = await fetch(url);
                     const blob = await res.blob();
@@ -212,7 +255,7 @@
                 }
             }
 
-            this.showToast('⚠️ يرجى سحب ملف صورة أو الضغط على [اختيار صور من الجهاز]', 'warning');
+            this.showToast('💡 لنسخ صورة من واتساب ويب: اضغط كليك يمين على الصورة في الواتساب واختر Copy Image ثم اضغط [📋 لصق من الحافظة] أو Ctrl+V هنا!', 'info', 6000);
         },
 
         handleWhatsAppFiles(filesList) {
@@ -4518,15 +4561,21 @@
 
     window.FinancialOCR = FinancialOCR;
 
-    // Initialize custom field properties and contextmenu bindings on load
+    // Initialize custom field properties, contextmenu bindings, and global paste listener on load
     document.addEventListener('DOMContentLoaded', function() {
         if (typeof FinancialOCR.initFieldProps === 'function') {
             FinancialOCR.initFieldProps();
+        }
+        if (typeof FinancialOCR.initGlobalPasteListener === 'function') {
+            FinancialOCR.initGlobalPasteListener();
         }
     });
     if (document.readyState === 'complete' || document.readyState === 'interactive') {
         if (typeof FinancialOCR.initFieldProps === 'function') {
             FinancialOCR.initFieldProps();
+        }
+        if (typeof FinancialOCR.initGlobalPasteListener === 'function') {
+            FinancialOCR.initGlobalPasteListener();
         }
     }
 

@@ -1,4 +1,4 @@
-// Version: 20260911000100 (WhatsApp AI Hybrid Multi-Scan Ingest Engine)
+// Version: 20260911003000 (WhatsApp AI Paste and Ingest Engine v2)
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
