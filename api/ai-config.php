@@ -1,4 +1,4 @@
-﻿<?php
+<?php
 // =============================================================
 // MAGAIEES ERP - Centralized AI Engine Configuration & Keys
 // إدارة وتهيئة مفاتيح ونماذج الذكاء الاصطناعي المركزية
@@ -22,6 +22,6 @@ if (!function_exists('getGeminiApiKey')) {
 
 if (!function_exists('getGeminiModel')) {
     function getGeminiModel() {
-        return 'gemini-2.5-flash';
+        return 'gemini-3.1-flash-lite';
     }
 }

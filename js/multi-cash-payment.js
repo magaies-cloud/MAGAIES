@@ -513,18 +513,22 @@ function updateLabels() {
         }
         if (label) {
             label.innerHTML = 'من حساب (صرف) <span class="animated-arrow-left">←</span>';
-            label.style.setProperty('color', '#ef4444', 'important');
-            label.style.fontSize = '1.2rem';
+            label.style.setProperty('color', '#f43f5e', 'important');
+            label.style.setProperty('font-size', '1.25rem', 'important');
+            label.style.setProperty('font-weight', '800', 'important');
+            label.style.display = 'flex';
+            label.style.alignItems = 'center';
+            label.style.gap = '8px';
         }
         if (subHeader) {
             subHeader.innerHTML = 'إلى حساب (استلام) <span class="animated-arrow-right">→</span>';
             subHeader.style.setProperty('color', '#34d399', 'important');
-            subHeader.style.fontSize = '1.2rem';
+            subHeader.style.fontSize = '1.25rem';
         }
         if (subTitle) {
             subTitle.innerHTML = '<span>👥</span> إلى حساب (استلام) <span class="animated-arrow-right">→</span>';
             subTitle.style.setProperty('color', '#34d399', 'important');
-            subTitle.style.fontSize = '1.2rem';
+            subTitle.style.fontSize = '1.25rem';
         }
         if (entryCardLabel) {
             entryCardLabel.innerHTML = 'إلى حساب (مستفيد) <span class="animated-arrow-right">→</span>';
@@ -533,7 +537,11 @@ function updateLabels() {
         document.querySelectorAll('.block-label').forEach(lbl => {
             lbl.textContent = 'إلى حساب (مستلم)';
             lbl.style.color = '#34d399';
-            if (lbl.parentElement) lbl.parentElement.style.color = '#34d399';
+            if (lbl.parentElement) {
+                lbl.parentElement.style.color = '#34d399';
+                lbl.parentElement.style.fontSize = '1.25rem';
+                lbl.parentElement.style.fontWeight = '800';
+            }
         });
         if (currencyLabel) {
             currencyLabel.innerText = 'عملة الصرف';
@@ -564,17 +572,21 @@ function updateLabels() {
         if (label) {
             label.innerHTML = 'إلى حساب (استلام) <span class="animated-arrow-right">→</span>';
             label.style.setProperty('color', '#34d399', 'important');
-            label.style.fontSize = '1.2rem';
+            label.style.setProperty('font-size', '1.25rem', 'important');
+            label.style.setProperty('font-weight', '800', 'important');
+            label.style.display = 'flex';
+            label.style.alignItems = 'center';
+            label.style.gap = '8px';
         }
         if (subHeader) {
             subHeader.innerHTML = 'من حساب (دفع) <span class="animated-arrow-left">←</span>';
             subHeader.style.setProperty('color', '#ef4444', 'important');
-            subHeader.style.fontSize = '1.2rem';
+            subHeader.style.fontSize = '1.25rem';
         }
         if (subTitle) {
             subTitle.innerHTML = '<span>👥</span> من حساب (دفع) <span class="animated-arrow-left">←</span>';
             subTitle.style.setProperty('color', '#ef4444', 'important');
-            subTitle.style.fontSize = '1.2rem';
+            subTitle.style.fontSize = '1.25rem';
         }
         if (entryCardLabel) {
             entryCardLabel.innerHTML = 'من حساب (دافع) <span class="animated-arrow-left">←</span>';
@@ -583,7 +595,11 @@ function updateLabels() {
         document.querySelectorAll('.block-label').forEach(lbl => {
             lbl.textContent = 'من حساب (دافع)';
             lbl.style.color = '#ef4444';
-            if (lbl.parentElement) lbl.parentElement.style.color = '#ef4444';
+            if (lbl.parentElement) {
+                lbl.parentElement.style.color = '#ef4444';
+                lbl.parentElement.style.fontSize = '1.25rem';
+                lbl.parentElement.style.fontWeight = '800';
+            }
         });
         document.querySelectorAll('.account-block').forEach(block => {
             block.classList.remove('glass-green');
@@ -1071,12 +1087,18 @@ function calcTotal() {
     if (localHdrEl) {
         const dec = localHdrEl.getAttribute('data-decimals') !== null ? parseInt(localHdrEl.getAttribute('data-decimals')) : null;
         localHdrEl.value = fmtNum(localAmt, dec);
+        localHdrEl.style.setProperty('color', '#ef4444', 'important');
+        localHdrEl.style.setProperty('-webkit-text-fill-color', '#ef4444', 'important');
+        localHdrEl.style.setProperty('background', '#ffffff', 'important');
     }
 
     const eqEl = document.getElementById('amount-foreign');
     if (eqEl) {
         const dec = eqEl.getAttribute('data-decimals') !== null ? parseInt(eqEl.getAttribute('data-decimals')) : null;
         eqEl.value = fmtNum(foreignAmt, dec);
+        eqEl.style.setProperty('color', '#ef4444', 'important');
+        eqEl.style.setProperty('-webkit-text-fill-color', '#ef4444', 'important');
+        eqEl.style.setProperty('background', '#ffffff', 'important');
     }
 
     if (typeof window.updateCurrencyUI === 'function') {

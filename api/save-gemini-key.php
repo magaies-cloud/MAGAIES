@@ -13,9 +13,9 @@ if (empty($apiKey)) {
     exit;
 }
 
-// Basic format validation
-if (strlen($apiKey) < 20) {
-    echo json_encode(['success' => false, 'error' => 'مفتاح API المدخل قصير جداً أو غير صالح']);
+// Strict alphanumeric and dash/underscore validation to prevent .env injection attacks
+if (!preg_match('/^[a-zA-Z0-9_\-]{20,120}$/', $apiKey)) {
+    echo json_encode(['success' => false, 'error' => 'تنسيق مفتاح API غير صالح (يجب أن يتكون من 20-120 حرفاً ورقماً بدون مسافات أو أسطر جديدة)']);
     exit;
 }
 

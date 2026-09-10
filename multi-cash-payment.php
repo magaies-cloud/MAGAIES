@@ -12,26 +12,68 @@ if (isset($_POST['action']) && $_POST['action'] === 'save_num_props') {
         $pdo->exec("CREATE TABLE IF NOT EXISTS ui_preferences (
             tenant_id VARCHAR(50) NOT NULL,
             pref_key VARCHAR(100) NOT NULL,
-            pref_value TEXT,
+            pref_value LONGTEXT,
             PRIMARY KEY (tenant_id, pref_key)
         ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
         $val = $_POST['num_props'] ?? '{}';
+        $tId = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '1';
+        
+        // Save for current tenant
         $stmt = $pdo->prepare("INSERT INTO ui_preferences (tenant_id, pref_key, pref_value) VALUES (?, 'multi_cash_num_props', ?) ON DUPLICATE KEY UPDATE pref_value = ?");
-        $stmt->execute([$GLOBAL_TENANT_ID, $val, $val]);
+        $stmt->execute([$tId, $val, $val]);
+        
+        // Also save to 'default' and '1' as a permanent system-wide baseline
+        $stmt->execute(['default', $val, $val]);
+        if ($tId !== '1') {
+            $stmt->execute(['1', $val, $val]);
+        }
+        
         echo "success";
     } catch (Exception $e) {
-        echo "error";
+        echo "error: " . $e->getMessage();
+    }
+    exit;
+}
+
+// --- AJAX save logic for OCR left column properties ---
+if (isset($_POST['action']) && $_POST['action'] === 'save_ocr_props') {
+    try {
+        $pdo->exec("CREATE TABLE IF NOT EXISTS ui_preferences (
+            tenant_id VARCHAR(50) NOT NULL,
+            pref_key VARCHAR(100) NOT NULL,
+            pref_value LONGTEXT,
+            PRIMARY KEY (tenant_id, pref_key)
+        ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;");
+        $val = $_POST['ocr_props'] ?? '{}';
+        $tId = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '1';
+        
+        $stmt = $pdo->prepare("INSERT INTO ui_preferences (tenant_id, pref_key, pref_value) VALUES (?, 'ocr_left_col_props', ?) ON DUPLICATE KEY UPDATE pref_value = ?");
+        $stmt->execute([$tId, $val, $val]);
+        $stmt->execute(['default', $val, $val]);
+        if ($tId !== '1') {
+            $stmt->execute(['1', $val, $val]);
+        }
+        echo "success";
+    } catch (Exception $e) {
+        echo "error: " . $e->getMessage();
     }
     exit;
 }
 
 // --- Fetch num properties for initial load ---
 $db_num_props_json = '{}';
+$db_ocr_props_json = '{}';
 try {
-    $stmt = $pdo->prepare("SELECT pref_value FROM ui_preferences WHERE tenant_id = ? AND pref_key = 'multi_cash_num_props'");
-    $stmt->execute([$GLOBAL_TENANT_ID]);
+    $tId = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '1';
+    $stmt = $pdo->prepare("SELECT pref_value FROM ui_preferences WHERE tenant_id IN (?, 'default', '1') AND pref_key = 'multi_cash_num_props' ORDER BY CASE WHEN tenant_id = ? THEN 1 WHEN tenant_id = '1' THEN 2 ELSE 3 END LIMIT 1");
+    $stmt->execute([$tId, $tId]);
     $res = $stmt->fetchColumn();
-    if($res) $db_num_props_json = $res;
+    if ($res) $db_num_props_json = $res;
+
+    $stmt2 = $pdo->prepare("SELECT pref_value FROM ui_preferences WHERE tenant_id IN (?, 'default', '1') AND pref_key = 'ocr_left_col_props' ORDER BY CASE WHEN tenant_id = ? THEN 1 WHEN tenant_id = '1' THEN 2 ELSE 3 END LIMIT 1");
+    $stmt2->execute([$tId, $tId]);
+    $res2 = $stmt2->fetchColumn();
+    if ($res2) $db_ocr_props_json = $res2;
 } catch(Exception $e) {}
 // ------------------------------------------
 
@@ -376,19 +418,19 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             background: rgba(0, 0, 0, 0.2); /* Darker background, no inner light */
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
-            border: 4.8px solid var(--tab-border-color, rgba(255, 255, 255, 0.25)) !important;
-            border-radius: 14px;
+            border: 3.5px solid var(--tab-border-color, rgba(255, 255, 255, 0.25)) !important;
+            border-radius: 14px !important;
             padding: 10px 18px;
             font-size: 1rem;
             font-weight: 800;
-            color: #f8fafc !important;
+            color: #ffffff !important;
             cursor: pointer;
             display: inline-flex;
             align-items: center;
             justify-content: center;
             gap: 8px;
             white-space: nowrap;
-            overflow: visible; /* Allows rear bottom glow projection */
+            overflow: visible;
             transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.45);
             z-index: 1;
@@ -396,6 +438,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             user-select: none;
             height: 44px; /* Uniform height & width alignment */
             box-sizing: border-box;
+        }
+
+        .btn-text, .crystal-btn .btn-text, .btn-dock-btn .btn-text {
+            color: #ffffff !important; /* الكتابة باللون الأبيض الناصع دائماً */
+            font-weight: 800 !important;
+            text-shadow: none !important;
         }
 
         /* Highly Visible Internal Glitter Sparkles Overlay (DISABLED PER USER) */
@@ -407,38 +455,19 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             display: none !important;
         }
 
-        /* Rear Bottom Light Ray Beam Projection (Faint per user) */
-        .crystal-btn::before, .pay-toggle-btn::before {
-            content: '';
-            position: absolute;
-            bottom: -16px;
-            left: 10%;
-            width: 80%;
-            height: 18px;
-            background: var(--tab-glow-color, rgba(56, 189, 248, 0.75));
-            border-radius: 50%;
-            filter: blur(14px);
-            opacity: 0.15; /* Very faint */
-            transition: all 0.4s cubic-bezier(0.34, 1.56, 0.64, 1);
-            pointer-events: none;
-            z-index: -1;
-            animation: rearRayPulse 3s infinite ease-in-out;
+        /* Rear Bottom Light Ray Beam Projection: DISABLED to guarantee zero inside glow */
+        .crystal-btn::before, .pay-toggle-btn::before, .btn-dock-btn::before {
+            display: none !important;
         }
 
-        .crystal-btn:hover::before, .pay-toggle-btn:hover::before {
-            opacity: 0.25 !important; /* Very faint on hover */
-            transform: scaleX(1.4) translateY(5px) !important;
-            filter: blur(18px) brightness(1.2) !important;
-        }
-
-        /* Icon Styling & Detailed Icon Glow Halo (إضاءة مفصلة خلفية من الأيقونة) */
+        /* Icon Styling (صورة الكاميرا وصورة اليد لا تعمل أي شعاع نهائياً) */
         .btn-icon, .md-tab-icon {
             font-size: 1.35rem;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease;
-            filter: drop-shadow(0 2px 6px rgba(0,0,0,0.6));
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+            filter: none !important; /* صورة الكاميرا وصورة اليد لا تعمل أي شعاع نهائياً */
             position: relative;
             z-index: 4;
         }
@@ -448,20 +477,22 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             display: none !important;
         }
 
-        /* Hover Scale + Light Glow + Text Contrast Protection */
+        /* Hover Scale + Crisp Text + Pure External Glow (الشعاع من الخارج فقط وبدون أي شعاع داخلي) */
         .crystal-btn:hover, .pay-toggle-btn:hover {
-            transform: translateY(-5px) scale(1.08) !important;
+            transform: translateY(-3px) scale(1.05) !important;
             color: #ffffff !important;
-            text-shadow: 0 0 8px rgba(0,0,0,0.8) !important;
+            text-shadow: none !important; /* كتابة بيضاء ناصعة حادة بدون أي توهج أو ضباب داخلي */
             border-color: var(--tab-border-color) !important;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.6), 0 0 12px var(--tab-glow-color, rgba(56,189,248,0.2)) !important;
-            background: rgba(0,0,0,0.3) !important; /* No inner light */
+            box-shadow: 0 4px 14px rgba(0,0,0,0.75), 0 0 12px var(--tab-glow-color, rgba(56,189,248,0.7)), 0 0 24px var(--tab-glow-color, rgba(56,189,248,0.4)) !important; /* شعاع خارجي فقط بدون inset */
+            background: #000000 !important;
+            background-color: #000000 !important;
+            background-image: none !important;
             z-index: 10;
         }
 
         .crystal-btn:hover .btn-icon, .pay-toggle-btn:hover .btn-icon {
-            transform: scale(1.38) rotate(8deg);
-            filter: drop-shadow(0 0 5px rgba(255,255,255,0.3));
+            transform: scale(1.2) rotate(4deg);
+            filter: none !important; /* لا شعاع نهائياً من صورة الأيقونة */
         }
 
         .crystal-btn:hover .btn-icon::after, .pay-toggle-btn:hover .btn-icon::after {
@@ -484,88 +515,351 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             transform: translateY(-3px) scale(1.05) !important;
         }
 
-        .pay-toggle-btn.block-btn-bank {
-            --tab-border-color: #fbbf24;
-            --tab-glow-color: rgba(251, 191, 36, 0.55);
-            --tab-hover-bg: linear-gradient(135deg, rgba(217, 119, 6, 0.4), rgba(251, 191, 36, 0.6));
-            --tab-active-bg: linear-gradient(135deg, #d97706, #fbbf24);
-        }
-        .pay-toggle-btn.block-btn-cheque {
-            --tab-border-color: #c084fc;
-            --tab-glow-color: rgba(192, 132, 252, 0.55);
-            --tab-hover-bg: linear-gradient(135deg, rgba(124, 58, 237, 0.4), rgba(192, 132, 252, 0.6));
-            --tab-active-bg: linear-gradient(135deg, #7c3aed, #c084fc);
+        /* ═══ Unified 4-Icon Dock & Crystal Buttons (قاعدة الأيقونات الأربعة كوحدة واحدة) ═══ */
+        .crystal-unified-dock {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            background: linear-gradient(135deg, rgba(15, 23, 42, 0.75), rgba(30, 41, 59, 0.85));
+            border: 2px solid rgba(255, 255, 255, 0.15);
+            border-radius: 16px;
+            padding: 6px 8px;
+            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.45), inset 0 1px 1px rgba(255, 255, 255, 0.15);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            flex-shrink: 0;
+            user-select: none;
+            box-sizing: border-box;
+            overflow: visible;
         }
 
-        .pay-toggle-btn.block-btn-cheque {
-            --tab-border-color: rgba(155, 89, 182, 0.45);
-            --tab-glow-color: rgba(155, 89, 182, 0.65);
-            --tab-hover-bg: linear-gradient(135deg, rgba(155, 89, 182, 0.35), rgba(142, 68, 173, 0.5));
+        .btn-dock-btn {
+            position: relative;
+            height: 38px !important;
+            padding: 0 12px !important;
+            font-size: 0.95rem !important;
+            font-weight: 800 !important;
+            font-family: 'Tajawal', sans-serif !important;
+            border-radius: 14px !important;
+            border-width: 3.5px !important;
+            border-style: solid !important;
+            display: inline-flex !important;
+            align-items: center !important;
+            justify-content: center !important;
+            gap: 6px !important;
+            white-space: nowrap !important;
+            cursor: pointer !important;
+            transition: all 0.3s cubic-bezier(0.34, 1.56, 0.64, 1) !important;
+            box-sizing: border-box !important;
+            flex: 1;
+            min-width: 105px;
+            color: #ffffff !important; /* الكتابة باللون الأبيض الناصع لجميع الأيقونات */
+            overflow: visible;
         }
-        .pay-toggle-btn.active.block-btn-cheque {
-            --tab-border-color: #9b59b6;
-            background: linear-gradient(135deg, rgba(155, 89, 182, 0.45), rgba(142, 68, 173, 0.7)) !important;
-            border-color: #9b59b6 !important;
+
+        .btn-dock-btn .btn-icon {
+            font-size: 1.25rem !important;
+            filter: none !important; /* لا شعاع من صورة الكاميرا أو الأيقونات نهائياً */
+            transition: transform 0.3s cubic-bezier(0.34, 1.56, 0.64, 1);
+        }
+
+        /* عندما نأتي إليها: الحجم يزيد شوية + إنارة معتدلة من الخارج فقط + خلفية سوداء والخط أبيض ناصع بدون أي شعاع داخلي */
+        .btn-dock-btn:hover {
+            transform: translateY(-3px) scale(1.06) !important;
+            background: #000000 !important; /* خلفية سوداء عند الوقوف بالمؤشر */
+            background-image: none !important;
+            color: #ffffff !important; /* الخط باللون الأبيض الناصع دائماً */
+            border-width: 3.5px !important;
+            border-color: var(--tab-border-color) !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px var(--tab-glow-color), 0 0 24px var(--tab-glow-color) !important; /* شعاع خارجي معتدل فقط وبدون أي inset داخلي */
+            text-shadow: none !important; /* كتابة بيضاء ناصعة حادة بدون أي توهج أو ضباب داخلي */
+            z-index: 15 !important;
+        }
+
+        .btn-dock-btn:hover .btn-icon {
+            transform: scale(1.25) rotate(4deg) !important;
+            filter: none !important; /* لا شعاع من صورة الكاميرا نهائياً */
+        }
+
+        .btn-dock-btn::before,
+        .btn-dock-btn:hover::before {
+            display: none !important;
+        }
+
+        /* 1. إشعار AI (Cyan / Blue Neon) */
+        .btn-dock-btn.block-btn-ai-scan {
+            --tab-border-color: #06b6d4;
+            --tab-glow-color: rgba(6, 182, 212, 0.85);
+            border: 3.5px solid #06b6d4 !important;
+            border-radius: 14px !important;
+            background: linear-gradient(135deg, rgba(6, 182, 212, 0.38), rgba(14, 116, 144, 0.72)) !important;
             color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(155, 89, 182, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
-            box-shadow: 0 10px 25px rgba(155, 89, 182, 0.5), 0 0 20px rgba(155, 89, 182, 0.3), inset 0 1px 2px rgba(255,255,255,0.6) !important;
-            transform: translateY(-3px) scale(1.05) !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), 0 0 10px rgba(6, 182, 212, 0.35) !important;
+            text-shadow: none !important;
+        }
+        .btn-dock-btn.block-btn-ai-scan:hover {
+            background: #000000 !important;
+            background-image: none !important;
+            color: #ffffff !important;
+            border: 3.5px solid #22d3ee !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(6, 182, 212, 0.85), 0 0 24px rgba(6, 182, 212, 0.45) !important;
+            text-shadow: none !important;
+            transform: translateY(-3px) scale(1.06) !important;
         }
 
-        /* ═══ Footer Action Buttons ═══ */
+        /* 2. نماذج (Purple / Violet Neon) */
+        .btn-dock-btn.block-btn-ai-trainer {
+            --tab-border-color: #a855f7;
+            --tab-glow-color: rgba(168, 85, 247, 0.85);
+            border: 3.5px solid #a855f7 !important;
+            border-radius: 14px !important;
+            background: linear-gradient(135deg, rgba(168, 85, 247, 0.38), rgba(126, 34, 206, 0.72)) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), 0 0 10px rgba(168, 85, 247, 0.35) !important;
+            text-shadow: none !important;
+        }
+        .btn-dock-btn.block-btn-ai-trainer:hover {
+            background: #000000 !important;
+            background-image: none !important;
+            color: #ffffff !important;
+            border: 3.5px solid #c084fc !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(168, 85, 247, 0.85), 0 0 24px rgba(168, 85, 247, 0.45) !important;
+            text-shadow: none !important;
+            transform: translateY(-3px) scale(1.06) !important;
+        }
+
+        /* 3. تحويل (Amber Gold / Warm Sun) */
+        .btn-dock-btn.block-btn-bank {
+            --tab-border-color: #f59e0b;
+            --tab-glow-color: rgba(245, 158, 11, 0.85);
+            border: 3.5px solid #f59e0b !important;
+            border-radius: 14px !important;
+            background: linear-gradient(135deg, rgba(245, 158, 11, 0.38), rgba(180, 83, 9, 0.72)) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), 0 0 10px rgba(245, 158, 11, 0.35) !important;
+            text-shadow: none !important;
+        }
+        .btn-dock-btn.block-btn-bank:hover,
+        .btn-dock-btn.active.block-btn-bank:hover {
+            background: #000000 !important;
+            background-image: none !important;
+            color: #ffffff !important;
+            border: 3.5px solid #fbbf24 !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(245, 158, 11, 0.85), 0 0 24px rgba(245, 158, 11, 0.45) !important;
+            text-shadow: none !important;
+            transform: translateY(-3px) scale(1.06) !important;
+        }
+        .btn-dock-btn.active.block-btn-bank {
+            border: 3.5px solid #fbbf24 !important;
+            border-radius: 14px !important;
+            background: linear-gradient(135deg, #d97706, #fbbf24) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 18px rgba(251, 191, 36, 0.65), 0 0 16px rgba(245, 158, 11, 0.4) !important;
+            transform: translateY(-1px) scale(1.03) !important;
+        }
+
+        /* 4. شيك (Emerald Mint / Neon Green) */
+        .btn-dock-btn.block-btn-cheque {
+            --tab-border-color: #10b981;
+            --tab-glow-color: rgba(16, 185, 129, 0.85);
+            border: 3.5px solid #10b981 !important;
+            border-radius: 14px !important;
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.38), rgba(4, 120, 87, 0.72)) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), 0 0 10px rgba(16, 185, 129, 0.35) !important;
+            text-shadow: none !important;
+        }
+        .btn-dock-btn.block-btn-cheque:hover,
+        .btn-dock-btn.active.block-btn-cheque:hover {
+            background: #000000 !important;
+            background-image: none !important;
+            color: #ffffff !important;
+            border: 3.5px solid #34d399 !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(16, 185, 129, 0.85), 0 0 24px rgba(16, 185, 129, 0.45) !important;
+            text-shadow: none !important;
+            transform: translateY(-3px) scale(1.06) !important;
+        }
+        .btn-dock-btn.active.block-btn-cheque {
+            border: 3.5px solid #34d399 !important;
+            border-radius: 14px !important;
+            background: linear-gradient(135deg, #059669, #34d399) !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 18px rgba(52, 211, 153, 0.65), 0 0 16px rgba(16, 185, 129, 0.4) !important;
+            transform: translateY(-1px) scale(1.03) !important;
+        }
+
+        /* ═══ Footer Action Buttons (أزرار التحكم السفلية بالخلفية السوداء والإنارة الخارجية المعتدلة) ═══ */
         .btn-save-master {
             --tab-border-color: #34d399;
-            --tab-glow-color: rgba(16, 185, 129, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #10b981, #059669);
+            --tab-glow-color: rgba(16, 185, 129, 0.85);
             background: linear-gradient(135deg, rgba(16, 185, 129, 0.45), rgba(4, 120, 87, 0.75)) !important;
-            border-color: #34d399 !important;
+            border: 3.5px solid #34d399 !important;
+            border-radius: 14px !important;
             color: #ffffff !important;
-            text-shadow: 0 0 12px rgba(52, 211, 153, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            text-shadow: none !important;
         }
+        .btn-save-master:hover,
+        .crystal-btn.btn-save-master:hover {
+            background: #000000 !important;
+            background-image: none !important;
+            color: #ffffff !important;
+            border: 3.5px solid #34d399 !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(16, 185, 129, 0.85), 0 0 24px rgba(16, 185, 129, 0.45) !important;
+            text-shadow: none !important;
+            transform: translateY(-4px) scale(1.06) !important;
+        }
+
         .btn-new {
             --tab-border-color: #38bdf8;
-            --tab-glow-color: rgba(56, 189, 248, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #0284c7, #0369a1);
+            --tab-glow-color: rgba(56, 189, 248, 0.85);
             background: linear-gradient(135deg, rgba(56, 189, 248, 0.3), rgba(3, 105, 161, 0.6)) !important;
-            border-color: #38bdf8 !important;
+            border: 3.5px solid #38bdf8 !important;
+            border-radius: 14px !important;
             color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(56, 189, 248, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            text-shadow: none !important;
         }
+        .btn-new:hover,
+        .crystal-btn.btn-new:hover {
+            background: #000000 !important;
+            background-image: none !important;
+            color: #ffffff !important;
+            border: 3.5px solid #38bdf8 !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(56, 189, 248, 0.85), 0 0 24px rgba(56, 189, 248, 0.45) !important;
+            text-shadow: none !important;
+            transform: translateY(-4px) scale(1.06) !important;
+        }
+
         .btn-print {
             --tab-border-color: #c084fc;
-            --tab-glow-color: rgba(168, 85, 247, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #9333ea, #7e22ce);
+            --tab-glow-color: rgba(168, 85, 247, 0.85);
             background: linear-gradient(135deg, rgba(168, 85, 247, 0.3), rgba(126, 34, 206, 0.6)) !important;
-            border-color: #c084fc !important;
+            border: 3.5px solid #c084fc !important;
+            border-radius: 14px !important;
             color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(192, 132, 252, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            text-shadow: none !important;
         }
+        .btn-print:hover,
+        .crystal-btn.btn-print:hover {
+            background: #000000 !important;
+            background-image: none !important;
+            color: #ffffff !important;
+            border: 3.5px solid #c084fc !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(168, 85, 247, 0.85), 0 0 24px rgba(168, 85, 247, 0.45) !important;
+            text-shadow: none !important;
+            transform: translateY(-4px) scale(1.06) !important;
+        }
+
         .btn-print-preview {
             --tab-border-color: #22d3ee;
-            --tab-glow-color: rgba(6, 182, 212, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #0891b2, #0e7490);
+            --tab-glow-color: rgba(6, 182, 212, 0.85);
             background: linear-gradient(135deg, rgba(6, 182, 212, 0.3), rgba(14, 116, 144, 0.6)) !important;
-            border-color: #22d3ee !important;
+            border: 3.5px solid #22d3ee !important;
+            border-radius: 14px !important;
             color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(34, 211, 238, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            text-shadow: none !important;
         }
+        .btn-print-preview:hover,
+        .crystal-btn.btn-print-preview:hover {
+            background: #000000 !important;
+            background-image: none !important;
+            color: #ffffff !important;
+            border: 3.5px solid #22d3ee !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(6, 182, 212, 0.85), 0 0 24px rgba(6, 182, 212, 0.45) !important;
+            text-shadow: none !important;
+            transform: translateY(-4px) scale(1.06) !important;
+        }
+
         .btn-delete {
             --tab-border-color: #fb7185;
-            --tab-glow-color: rgba(244, 63, 94, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #e11d48, #be123c);
+            --tab-glow-color: rgba(244, 63, 94, 0.85);
             background: linear-gradient(135deg, rgba(244, 63, 94, 0.3), rgba(190, 18, 60, 0.6)) !important;
-            border-color: #fb7185 !important;
+            border: 3.5px solid #fb7185 !important;
+            border-radius: 14px !important;
             color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(251, 113, 133, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            text-shadow: none !important;
         }
+        .btn-delete:hover,
+        .crystal-btn.btn-delete:hover {
+            background: #000000 !important;
+            background-image: none !important;
+            color: #ffffff !important;
+            border: 3.5px solid #fb7185 !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(244, 63, 94, 0.85), 0 0 24px rgba(244, 63, 94, 0.45) !important;
+            text-shadow: none !important;
+            transform: translateY(-4px) scale(1.06) !important;
+        }
+
         .btn-exit {
             --tab-border-color: #94a3b8;
-            --tab-glow-color: rgba(148, 163, 184, 0.75);
-            --tab-hover-bg: linear-gradient(135deg, #475569, #334155);
+            --tab-glow-color: rgba(148, 163, 184, 0.85);
             background: linear-gradient(135deg, rgba(100, 116, 139, 0.3), rgba(51, 65, 85, 0.6)) !important;
-            border-/* color removed */
+            border: 3.5px solid #94a3b8 !important;
+            border-radius: 14px !important;
             color: #ffffff !important;
-            text-shadow: 0 0 10px rgba(148, 163, 184, 0.95), 0 2px 4px rgba(0,0,0,0.8) !important;
+            text-shadow: none !important;
+        }
+        .btn-exit:hover,
+        .crystal-btn.btn-exit:hover {
+            background: #000000 !important;
+            background-image: none !important;
+            color: #ffffff !important;
+            border: 3.5px solid #cbd5e1 !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(148, 163, 184, 0.85), 0 0 24px rgba(148, 163, 184, 0.45) !important;
+            text-shadow: none !important;
+            transform: translateY(-4px) scale(1.06) !important;
+        }
+
+        /* ═══ Additional Controls (حواف موحدة 3.5px وخلفية سوداء ناصعة عند الوقوف) ═══ */
+        .btn-add-account-block {
+            border: 3.5px solid #34d399 !important;
+            border-radius: 14px !important;
+            color: #ffffff !important;
+        }
+        .btn-add-account-block:hover {
+            background: #000000 !important;
+            background-image: none !important;
+            border: 3.5px solid #34d399 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(16, 185, 129, 0.85), 0 0 24px rgba(16, 185, 129, 0.45) !important;
+            transform: translateY(-3px) scale(1.03) !important;
+            text-shadow: none !important;
+        }
+        .btn-remove-block {
+            border: 3.5px solid #ef4444 !important;
+        }
+        .btn-remove-block:hover {
+            background: #000000 !important;
+            background-image: none !important;
+            border: 3.5px solid #ef4444 !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(239, 68, 68, 0.85), 0 0 24px rgba(239, 68, 68, 0.45) !important;
+            transform: scale(1.15) !important;
+        }
+        button[data-action="add-bank-row"] {
+            border: 3.5px solid #22d3ee !important;
+            border-radius: 14px !important;
+            color: #ffffff !important;
+        }
+        button[data-action="add-bank-row"]:hover {
+            background: #000000 !important;
+            background-image: none !important;
+            border: 3.5px solid #22d3ee !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(6, 182, 212, 0.85), 0 0 24px rgba(34, 211, 238, 0.45) !important;
+            transform: scale(1.15) !important;
+        }
+        button[data-action="add-cheque-row"] {
+            border: 3.5px solid #c084fc !important;
+            border-radius: 14px !important;
+            color: #ffffff !important;
+        }
+        button[data-action="add-cheque-row"]:hover {
+            background: #000000 !important;
+            background-image: none !important;
+            border: 3.5px solid #c084fc !important;
+            color: #ffffff !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(168, 85, 247, 0.85), 0 0 24px rgba(192, 132, 252, 0.45) !important;
+            transform: scale(1.15) !important;
         }
 
         /* Luminous Glowing Borders on Hover for Account Blocks & Details Panels */
@@ -831,16 +1125,19 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         /* ─── 1. زر صرف إلى مجموعة (حالة الراحة / غير مفعل) ─── */
         #btn-payment:not(.active-payment) {
             background: linear-gradient(135deg, rgba(50, 16, 24, 0.55), rgba(20, 8, 14, 0.75)) !important;
-            border: 1.6px solid rgba(159, 18, 57, 0.4) !important;
-            color: rgba(255, 225, 230, 0.85) !important;
+            border: 3.5px solid rgba(244, 63, 94, 0.7) !important;
+            border-radius: 14px !important;
+            color: #ffffff !important;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
             transform: scale(0.98) !important;
         }
         #btn-payment:not(.active-payment):hover {
-            background: linear-gradient(135deg, rgba(80, 22, 34, 0.8), rgba(35, 12, 20, 0.9)) !important;
-            border-color: #fb7185 !important;
+            background: #000000 !important;
+            background-image: none !important;
+            border: 3.5px solid #fb7185 !important;
             color: #ffffff !important;
-            box-shadow: 0 0 24px rgba(244, 63, 94, 0.85), 0 0 45px rgba(190, 24, 93, 0.5), inset 0 0 10px rgba(251, 113, 133, 0.3) !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(244, 63, 94, 0.85), 0 0 24px rgba(244, 63, 94, 0.45) !important;
+            text-shadow: none !important;
             transform: translateY(-3px) scale(1.03) !important;
         }
 
@@ -848,36 +1145,43 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         .voucher-type-btn.active-payment,
         #btn-payment.active-payment {
             background: linear-gradient(135deg, #781827 0%, #4a0e19 100%) !important;
-            border: 2px solid rgba(244, 63, 94, 0.75) !important;
+            border: 3.5px solid #fb7185 !important;
+            border-radius: 14px !important;
             color: #ffffff !important;
             font-weight: 800 !important;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 20px rgba(159, 18, 57, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), 0 0 12px rgba(159, 18, 57, 0.45) !important;
             transform: translateY(-2px) scale(1.03) !important;
             text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8) !important;
             animation: voucherEdgePulsePayment 3.5s infinite alternate ease-in-out;
         }
         .voucher-type-btn.active-payment:hover,
-        #btn-payment.active-payment:hover {
-            background: linear-gradient(135deg, #881c2d 0%, #55111d 100%) !important;
-            border-color: #fb7185 !important;
+        #btn-payment.active-payment:hover,
+        #btn-payment:not(.active-payment):hover {
+            background: #000000 !important;
+            background-image: none !important;
+            border: 3.5px solid #fb7185 !important;
             color: #ffffff !important;
-            box-shadow: 0 0 28px rgba(244, 63, 94, 0.95), 0 0 50px rgba(190, 24, 93, 0.65), inset 0 0 14px rgba(251, 113, 133, 0.35) !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(244, 63, 94, 0.85), 0 0 24px rgba(244, 63, 94, 0.45) !important;
+            text-shadow: none !important;
             transform: translateY(-3px) scale(1.05) !important;
         }
 
         /* ─── 2. زر استلام من مجموعة (حالة الراحة / غير مفعل) ─── */
         #btn-receipt:not(.active-receipt) {
             background: linear-gradient(135deg, rgba(14, 42, 34, 0.55), rgba(8, 24, 18, 0.75)) !important;
-            border: 1.6px solid rgba(16, 185, 129, 0.4) !important;
-            color: rgba(220, 252, 235, 0.85) !important;
+            border: 3.5px solid rgba(16, 185, 129, 0.7) !important;
+            border-radius: 14px !important;
+            color: #ffffff !important;
             box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3) !important;
             transform: scale(0.98) !important;
         }
         #btn-receipt:not(.active-receipt):hover {
-            background: linear-gradient(135deg, rgba(20, 65, 52, 0.8), rgba(10, 36, 28, 0.9)) !important;
-            border-color: #34d399 !important;
+            background: #000000 !important;
+            background-image: none !important;
+            border: 3.5px solid #34d399 !important;
             color: #ffffff !important;
-            box-shadow: 0 0 24px rgba(16, 185, 129, 0.85), 0 0 45px rgba(5, 150, 105, 0.5), inset 0 0 10px rgba(52, 211, 153, 0.3) !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(16, 185, 129, 0.85), 0 0 24px rgba(16, 185, 129, 0.45) !important;
+            text-shadow: none !important;
             transform: translateY(-3px) scale(1.03) !important;
         }
 
@@ -885,20 +1189,23 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         .voucher-type-btn.active-receipt,
         #btn-receipt.active-receipt {
             background: linear-gradient(135deg, #0d5440 0%, #063326 100%) !important;
-            border: 2px solid rgba(16, 185, 129, 0.75) !important;
+            border: 3.5px solid #34d399 !important;
+            border-radius: 14px !important;
             color: #ffffff !important;
             font-weight: 800 !important;
-            box-shadow: 0 8px 25px rgba(0, 0, 0, 0.5), 0 0 20px rgba(16, 185, 129, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.3) !important;
+            box-shadow: 0 4px 15px rgba(0, 0, 0, 0.5), 0 0 12px rgba(16, 185, 129, 0.45) !important;
             transform: translateY(-2px) scale(1.03) !important;
             text-shadow: 0 1px 4px rgba(0, 0, 0, 0.8) !important;
             animation: voucherEdgePulseReceipt 3.5s infinite alternate ease-in-out;
         }
         .voucher-type-btn.active-receipt:hover,
         #btn-receipt.active-receipt:hover {
-            background: linear-gradient(135deg, #10634c 0%, #083d2e 100%) !important;
-            border-color: #34d399 !important;
+            background: #000000 !important;
+            background-image: none !important;
+            border: 3.5px solid #34d399 !important;
             color: #ffffff !important;
-            box-shadow: 0 0 28px rgba(16, 185, 129, 0.95), 0 0 50px rgba(5, 150, 105, 0.65), inset 0 0 14px rgba(52, 211, 153, 0.35) !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(16, 185, 129, 0.85), 0 0 24px rgba(16, 185, 129, 0.45) !important;
+            text-shadow: none !important;
             transform: translateY(-3px) scale(1.05) !important;
         }
 
@@ -933,10 +1240,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1), filter 0.35s ease !important;
         }
         .voucher-type-btn.active-payment .btn-icon i {
-            filter: drop-shadow(0 0 8px rgba(244, 63, 94, 0.75));
+            filter: none !important;
         }
         .voucher-type-btn.active-receipt .btn-icon i {
-            filter: drop-shadow(0 0 8px rgba(16, 185, 129, 0.75));
+            filter: none !important;
         }
         .voucher-type-btn:hover .btn-icon {
             transform: scale(1.22) rotate(-8deg) !important;
@@ -1152,8 +1459,19 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         .transfer-amount, .cheque-amount, .block-sub-amount, .block-cash-amount, .block-bank-amount, .block-cheque-amount, .block-total-amount, .total-val, .val, .value-field, .multi-input[placeholder*="المبلغ"], .multi-input[placeholder*="القيمة"] {
             background: rgba(15, 23, 42, 0.45) !important;
             color: #ffffff !important;
-            border: 1.8px solid rgba(255, 255, 255, 0.22) !important;
+            border: 3.5px solid rgba(255, 255, 255, 0.35) !important;
+            border-radius: 12px !important;
             transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+
+        .block-total-amount,
+        input[id^="amount-"],
+        .transfer-amount,
+        .cheque-amount,
+        .block-sub-amount,
+        .multi-input[placeholder*="المبلغ"] {
+            border: 3.5px solid #fbbf24 !important;
+            border-radius: 12px !important;
         }
 
         /* عند وقوف المؤشر على أي حقل مبلغ (Hover) */
@@ -1163,7 +1481,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         .cheque-amount:hover,
         .block-sub-amount:hover,
         .multi-input[placeholder*="المبلغ"]:hover {
-            border: 2px solid #fbbf24 !important;
+            border: 3.5px solid #fbbf24 !important;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 12px rgba(251, 191, 36, 0.35) !important;
             background: rgba(251, 191, 36, 0.12) !important;
             transform: translateY(-2px) scale(1.02) !important;
@@ -1171,14 +1489,18 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
         /* عند الضغط على المبلغ والتركيز (Focus) */
         .transfer-amount:focus, .cheque-amount:focus, .block-sub-amount:focus, .block-total-amount:focus, .multi-input[placeholder*="المبلغ"]:focus {
-            border: 2.5px solid #fbbf24 !important;
+            border: 3.5px solid #fbbf24 !important;
             box-shadow: 0 15px 40px rgba(0,0,0,0.95), 0 0 15px rgba(251, 191, 36, 0.4) !important;
             outline: none !important;
         }
 
         /* حقول مبالغ التحويلات البنكية عند الوقوف */
-        .block-bank-amount:hover {
-            border: 2px solid #22d3ee !important;
+        .block-bank-amount {
+            border: 3.5px solid #06b6d4 !important;
+            border-radius: 12px !important;
+        }
+        .block-bank-amount:hover, .block-bank-amount:focus {
+            border: 3.5px solid #22d3ee !important;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 12px rgba(34, 211, 238, 0.35) !important;
             background: rgba(6, 182, 212, 0.18) !important;
             color: #ffffff !important;
@@ -1186,8 +1508,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
 
         /* حقول مبالغ الشيكات عند الوقوف */
-        .block-cheque-amount:hover {
-            border: 2px solid #c084fc !important;
+        .block-cheque-amount {
+            border: 3.5px solid #a855f7 !important;
+            border-radius: 12px !important;
+        }
+        .block-cheque-amount:hover, .block-cheque-amount:focus {
+            border: 3.5px solid #c084fc !important;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 12px rgba(192, 132, 252, 0.35) !important;
             background: rgba(147, 51, 234, 0.18) !important;
             color: #ffffff !important;
@@ -1205,12 +1531,14 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             -moz-osx-font-smoothing: grayscale !important;
             text-rendering: geometricPrecision !important;
             font-family: 'Consolas', 'Courier New', monospace !important;
+            border: 3.5px solid #10b981 !important;
+            border-radius: 12px !important;
             transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
         }
         #exchange-rate:hover,
         #exchange-rate:focus,
         #exchange-rate:active {
-            border: 2px solid #10b981 !important;
+            border: 3.5px solid #10b981 !important;
             box-shadow: 0 4px 15px rgba(0,0,0,0.5), 0 0 12px rgba(16, 185, 129, 0.4) !important;
             background: rgba(16, 185, 129, 0.2) !important;
             color: #ffffff !important;
@@ -1231,7 +1559,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             filter: drop-shadow(0 0 4px rgba(251,191,36,0.6));
         }
 
-        /* ─── 3. منطقة إجمالي المحلي والمعادل بالأجنبي (حواف أرقام حادة بدون أي ظل أو هالة وخلفية بيضاء ومساحة متساوية) ─── */
+        /* ─── 3. منطقة إجمالي المحلي والمعادل بالأجنبي (حواف حمراء موحدة بقوة 3.5px وخلفية بيضاء) ─── */
         #amount-local-hdr, #amount-foreign {
             font-size: 2.6rem !important;
             font-weight: 900 !important;
@@ -1240,8 +1568,8 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             background: #ffffff !important;
             background-color: #ffffff !important;
             text-align: center !important;
-            border: 2px solid #ef4444 !important;
-            border-radius: 10px !important;
+            border: 3.5px solid #ef4444 !important;
+            border-radius: 12px !important;
             box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important;
             text-shadow: none !important;
             -webkit-text-stroke: 0px !important;
@@ -1256,7 +1584,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
         #amount-local-hdr:hover, #amount-local-hdr:focus,
         #amount-foreign:hover, #amount-foreign:focus {
-            border: 2.5px solid #dc2626 !important;
+            border: 3.5px solid #dc2626 !important;
             box-shadow: 0 4px 12px rgba(239, 68, 68, 0.2) !important;
             color: #ef4444 !important;
             -webkit-text-fill-color: #ef4444 !important;
@@ -1362,13 +1690,15 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
         .btn-statement-glow:hover, 
         .btn-statement-glow:focus {
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.5), rgba(5, 150, 105, 0.8)) !important;
+            background: #000000 !important;
+            background-image: none !important;
             color: #ffffff !important;
             border: 1.5px solid #10b981 !important;
             border-right: none !important;
-            box-shadow: 0 0 22px rgba(16, 185, 129, 0.95), 0 0 42px rgba(5, 150, 105, 0.75), inset 0 0 12px rgba(52, 211, 153, 0.7) !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(16, 185, 129, 0.85), 0 0 24px rgba(16, 185, 129, 0.45) !important;
             transform: scale(1.03) !important;
-            filter: drop-shadow(0 0 6px rgba(16, 185, 129, 0.85)) !important;
+            filter: none !important;
+            text-shadow: none !important;
             z-index: 5 !important;
         }
 
@@ -1435,9 +1765,9 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             text-rendering: geometricPrecision !important;
             font-family: 'Consolas', 'Courier New', monospace !important;
             background: rgba(15, 23, 42, 0.98) !important;
-            border: 2.5px solid #fbbf24 !important;
-            border-radius: 10px !important;
-            box-shadow: 0 15px 40px rgba(0,0,0,0.9), 0 0 15px rgba(251, 191, 36, 0.35) !important;
+            border: 3.5px solid #fbbf24 !important;
+            border-radius: 12px !important;
+            box-shadow: 0 15px 40px rgba(0,0,0,0.9), 0 0 15px rgba(251, 191, 36, 0.4) !important;
         }
         
         input.block-transfer-no-input:focus,
@@ -1462,8 +1792,8 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             text-rendering: geometricPrecision !important;
             font-family: 'Consolas', 'Courier New', monospace !important;
             background: rgba(15, 23, 42, 0.98) !important;
-            border: 2.5px solid #38bdf8 !important;
-            border-radius: 10px !important;
+            border: 3.5px solid #38bdf8 !important;
+            border-radius: 12px !important;
             box-shadow: 0 15px 40px rgba(0,0,0,0.9), 0 0 15px rgba(56, 189, 248, 0.35) !important;
         }
 
@@ -1699,7 +2029,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                     <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; overflow: visible; padding-bottom: 10px; margin-bottom: 15px;">
 
                         <div style="flex: 0 0 35%; max-width: 35%; min-width: 250px;">
-                            <label id="main-account-label" style="color: #f43f5e !important; font-size: 1.2rem; margin-bottom: 5px; display: block; font-weight: bold; transition: color 0.3s; white-space: nowrap;">من حساب (صرف) <span class="animated-arrow-left" style="color: #f43f5e;">←</span></label>
+                            <label id="main-account-label" style="color: #f43f5e !important; font-size: 1.25rem !important; font-weight: 800 !important; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; transition: color 0.3s; white-space: nowrap;">من حساب (صرف) <span class="animated-arrow-left" style="color: #f43f5e;">←</span></label>
                             <div class="custom-dropdown-input-wrap" style="flex-grow: 1; width: 100%; min-width: 0; position: relative; display: flex;">
                                 <input type="hidden" id="main-account">
                                 <input type="text" autocomplete="off" class="form-control form-select" id="main-account-search" placeholder="ابحث عن حساب الصرف (خزينة/بنك)..." onfocus="showAccountDropdown('main-account')" onblur="hideAccountDropdownDelayed('main-account')" oninput="filterAccountDropdown('main-account')" style="background-color: var(--input-bg); color: #fbbf24 !important; font-size: 1.4rem !important; font-weight: 900 !important; border: 1px solid rgba(244, 63, 94, 0.5); flex: 1; border-top-left-radius: 0; border-bottom-left-radius: 0;">
@@ -1729,12 +2059,12 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         <div id="totals-equal-container" style="display: flex; gap: 15px; flex: 2.8; min-width: 380px; align-items: flex-end;">
                             <div style="flex: 1 1 50%; min-width: 0; width: 50%;">
                                 <label id="label-amount-local" style="color: #10b981; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 الإجمالي بالمحلي (SDG)</label>
-                                <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: 'Consolas', 'Courier New', monospace; color: #ef4444 !important; -webkit-text-fill-color: #ef4444 !important; background: #ffffff !important; text-align: center; border: 2px solid #ef4444 !important; border-radius: 10px !important; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important; text-shadow: none !important; -webkit-text-stroke: 0px !important; filter: none !important; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; width: 100%;">
+                                <input type="text" id="amount-local-hdr" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: 'Consolas', 'Courier New', monospace; color: #ef4444 !important; -webkit-text-fill-color: #ef4444 !important; background: #ffffff !important; text-align: center; border: 3.5px solid #ef4444 !important; border-radius: 12px !important; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important; text-shadow: none !important; -webkit-text-stroke: 0px !important; filter: none !important; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; width: 100%;">
                             </div>
                             
                             <div style="flex: 1 1 50%; min-width: 0; width: 50%;">
                                 <label id="label-amount-foreign" style="color: #ef4444; font-size: 1.3rem; margin-bottom: 5px; display: block; font-weight: bold; white-space: nowrap;">💵 المعادل بالأجنبي (USD)</label>
-                                <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: 'Consolas', 'Courier New', monospace; color: #ef4444 !important; -webkit-text-fill-color: #ef4444 !important; background: #ffffff !important; text-align: center; border: 2px solid #ef4444 !important; border-radius: 10px !important; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important; text-shadow: none !important; -webkit-text-stroke: 0px !important; filter: none !important; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; width: 100%;">
+                                <input type="text" id="amount-foreign" class="form-input" value="0.00" readonly style="font-size: 2.6rem; font-weight: 900; font-family: 'Consolas', 'Courier New', monospace; color: #ef4444 !important; -webkit-text-fill-color: #ef4444 !important; background: #ffffff !important; text-align: center; border: 3.5px solid #ef4444 !important; border-radius: 12px !important; box-shadow: 0 2px 6px rgba(0, 0, 0, 0.06) !important; text-shadow: none !important; -webkit-text-stroke: 0px !important; filter: none !important; -webkit-font-smoothing: antialiased; text-rendering: geometricPrecision; width: 100%;">
                             </div>
                         </div>
                     </div>
@@ -1751,31 +2081,25 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                     <!-- Blocks will be dynamically inserted here -->
                 </div>
 
-                <!-- ═══ زر إضافة حساب جديد وأزرار الذكاء الاصطناعي ═══ -->
+                <!-- ═══ زر إضافة حساب جديد ═══ -->
                 <div style="display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 20px; margin-bottom: 30px; flex-wrap: wrap;">
-                    <button type="button" onclick="addAccountBlock()" style="padding: 12px 30px; border-radius: 30px; background: rgba(16,185,129,0.15); color: #34d399; border: 1px dashed #34d399; font-weight: 900; font-size: 1.1rem; cursor: pointer; font-family: 'Tajawal', sans-serif; transition: all 0.3s; display: flex; align-items: center; gap: 10px;" onmouseover="this.style.background='rgba(16,185,129,0.3)'; this.style.transform='translateY(-2px)';" onmouseout="this.style.background='rgba(16,185,129,0.15)'; this.style.transform='translateY(0)';">
+                    <button type="button" class="btn-add-account-block" onclick="addAccountBlock()" style="padding: 12px 30px; border-radius: 14px; background: rgba(16,185,129,0.15); color: #ffffff; border: 3.5px solid #34d399 !important; font-weight: 900; font-size: 1.1rem; cursor: pointer; font-family: 'Tajawal', sans-serif; transition: all 0.3s; display: flex; align-items: center; gap: 10px;">
                         ➕ إضافة حساب مستلم / دافع آخر
-                    </button>
-                    <button type="button" onclick="FinancialOCR.openScanner({ target: 'multi' })" style="padding: 12px 25px; border-radius: 30px; background: linear-gradient(135deg, rgba(6,182,212,0.25), rgba(16,185,129,0.25)); color: #22d3ee; border: 1.5px solid #22d3ee; font-weight: 900; font-size: 1.1rem; cursor: pointer; font-family: 'Tajawal', sans-serif; transition: all 0.3s; display: flex; align-items: center; gap: 8px; box-shadow: 0 4px 15px rgba(6,182,212,0.3);" onmouseover="this.style.transform='translateY(-2px)';" onmouseout="this.style.transform='translateY(0)';" title="تصوير وقراءة إشعار بنكك أو شيك بالذكاء الاصطناعي">
-                        📷 مسح إشعار / شيك ذكي (AI OCR)
-                    </button>
-                    <button type="button" onclick="FinancialOCR.openTrainer()" style="padding: 12px 18px; border-radius: 30px; background: rgba(168,85,247,0.15); color: #d8b4fe; border: 1px solid rgba(168,85,247,0.4); font-weight: 800; font-size: 1rem; cursor: pointer; font-family: 'Tajawal', sans-serif; transition: all 0.3s; display: flex; align-items: center; gap: 6px;" title="شرح وتدريب النماذج للذكاء الاصطناعي">
-                        🧠 تدريب النماذج
                     </button>
                 </div>
 
                 <!-- ═══ قالب الكتلة المخفي (Hidden Template) ═══ -->
                 <template id="account-block-template">
                     <div class="account-block glass-container glass-green" data-block-id="{ID}" style="position: relative; padding: 15px; border-radius: 12px; transition: all 0.3s ease;">
-                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 5px; padding-bottom: 0px;">
-                            <div style="display: flex; align-items: center; gap: 8px; font-size: 1.2rem; font-weight: 800; color: #34d399;">
+                        <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding-bottom: 0px;">
+                            <div style="display: flex; align-items: center; gap: 8px; font-size: 1.25rem; font-weight: 800; color: #34d399;">
                                 <span>📋</span> <span class="block-label">إلى حساب (مستلم)</span> <span class="animated-arrow-right" style="color: #34d399;">→</span>
                             </div>
-                            <button type="button" class="btn-remove-block" data-action="remove-block" data-block="{ID}" style="background: rgba(239,68,68,0.15); border: none; color: #ef4444; border-radius: 50%; width: 30px; height: 30px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1rem; transition: all 0.2s;" title="حذف هذا الحساب">✖</button>
+                            <button type="button" class="btn-remove-block" data-action="remove-block" data-block="{ID}" style="background: rgba(239,68,68,0.15); border: 3.5px solid #ef4444; color: #ef4444; border-radius: 50%; width: 34px; height: 34px; display: flex; align-items: center; justify-content: center; cursor: pointer; font-size: 1.1rem; transition: all 0.2s;" title="حذف هذا الحساب">✖</button>
                         </div>
 
-                        <!-- Row 1: Account, Amount, and Method Toggles -->
-                        <div style="display: flex; gap: 10px; align-items: stretch; flex-wrap: wrap; margin-bottom: 12px;">
+                        <!-- Row 1: Account, Amount, Statement, and Unified 4-Button Base -->
+                        <div style="display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-bottom: 12px;">
                             <!-- Account -->
                             <div style="flex: 0 0 35%; max-width: 35%; min-width: 250px; position: relative; display: flex; flex-direction: column;">
                                 <div class="custom-dropdown-input-wrap" style="position: relative; flex: 1; display: flex;">
@@ -1788,20 +2112,33 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                             </div>
                             
                             <!-- Total Amount (auto-calculated or direct) -->
-                            <div style="flex: 1.2; min-width: 150px; display: flex; flex-direction: column; position: relative;">
+                            <div style="flex: 1.1; min-width: 140px; display: flex; flex-direction: column; position: relative;">
                                 <input type="text" id="amount-{ID}" oninput="formatInput(this)" class="form-input block-total-amount" placeholder="المبلغ (جنيه)" style="font-weight: 900; font-family: 'Consolas', monospace; text-align: center; flex: 1; margin-bottom: 0; border: 1.8px solid #fbbf24; background: rgba(251,191,36,0.08); transition: all 0.25s ease; text-shadow: none !important; -webkit-text-stroke: 0px !important; letter-spacing: 0.5px;">
                             </div>
                             
                             <!-- Statement (بيان التحويل) -->
-                            <div style="flex: 1.5; min-width: 150px; display: flex; flex-direction: column; position: relative;">
+                            <div style="flex: 1.3; min-width: 140px; display: flex; flex-direction: column; position: relative;">
                                 <input type="text" autocomplete="off" id="statement-{ID}" class="form-input" placeholder="بيان التحويل (اختياري)" style="font-size: 1rem; flex: 1; margin-bottom: 0; background: rgba(255,255,255,0.05); color: #fff;">
                             </div>
                             
-                            <!-- Payment Toggles (No Cash) -->
-                            <div style="display: flex; gap: 8px; flex: 1.8; min-width: 240px; align-items: stretch;">
-                                <button type="button" id="pm-bank-{ID}" class="btn crystal-btn pay-toggle-btn block-btn-bank" data-action="toggle-pm" data-block="{ID}" data-method="bank" style="flex: 1;"><span class="btn-icon">🏦</span> <span class="btn-text">تحويل</span></button>
-                                <button type="button" id="pm-cheque-{ID}" class="btn crystal-btn pay-toggle-btn block-btn-cheque" data-action="toggle-pm" data-block="{ID}" data-method="cheque" style="flex: 1;"><span class="btn-icon">✍️</span> <span class="btn-text">شيك</span></button>
-                                <button type="button" class="btn crystal-btn pay-toggle-btn" onclick="FinancialOCR.openScanner({ target: 'multi', blockId: '{ID}' })" style="flex: 1.2; background: linear-gradient(135deg, rgba(6,182,212,0.2), rgba(16,185,129,0.2)); border: 1.5px solid #22d3ee; color: #22d3ee;" title="مسح إشعار تحويل أو شيك لهذا الحساب بالذكاء الاصطناعي"><span class="btn-icon">📷</span> <span class="btn-text">مسح إشعار/شيك</span></button>
+                            <!-- ═══ Unified 4-Icon Base (قاعدة الأيقونات الأربعة كوحدة واحدة) ═══ -->
+                            <div class="crystal-unified-dock" style="flex: 1.8; min-width: 260px;">
+                                <div style="display: flex; gap: 6px; align-items: center; width: 100%;">
+                                    <button type="button" class="btn crystal-btn btn-dock-btn block-btn-ai-scan" onclick="FinancialOCR.openScanner({ target: 'multi', blockId: '{ID}' })" title="مسح وقراءة إشعار التحويل البنكي بالذكاء الاصطناعي">
+                                        <span class="btn-icon">📷</span> <span class="btn-text">إشعار AI</span>
+                                    </button>
+                                    <button type="button" class="btn crystal-btn btn-dock-btn block-btn-ai-trainer" onclick="FinancialOCR.openTrainer()" title="نماذج الذكاء الاصطناعي">
+                                        <span class="btn-icon">🧠</span> <span class="btn-text">نماذج</span>
+                                    </button>
+                                </div>
+                                <div style="display: flex; gap: 6px; align-items: center; width: 100%;">
+                                    <button type="button" id="pm-bank-{ID}" class="btn crystal-btn pay-toggle-btn btn-dock-btn block-btn-bank" data-action="toggle-pm" data-block="{ID}" data-method="bank" title="تحويل بنكي">
+                                        <span class="btn-icon">🏦</span> <span class="btn-text">تحويل</span>
+                                    </button>
+                                    <button type="button" id="pm-cheque-{ID}" class="btn crystal-btn pay-toggle-btn btn-dock-btn block-btn-cheque" data-action="toggle-pm" data-block="{ID}" data-method="cheque" title="شيك">
+                                        <span class="btn-icon">✍️</span> <span class="btn-text">شيك</span>
+                                    </button>
+                                </div>
                             </div>
                         </div>
 
@@ -1823,7 +2160,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                                     <div style="flex: 1.5; min-width: 150px;">
                                         <input type="text" autocomplete="off" class="form-input block-bank-desc-input" placeholder="بيان التحويل" style="margin-bottom: 0;">
                                     </div>
-                                    <button type="button" data-action="add-bank-row" data-block="{ID}" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(6, 182, 212, 0.2); border: 1px solid #22d3ee; color: #22d3ee; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;" title="إضافة تحويلة أخرى">➕</button>
+                                    <button type="button" data-action="add-bank-row" data-block="{ID}" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(6, 182, 212, 0.2); border: 3.5px solid #22d3ee; color: #22d3ee; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;" title="إضافة تحويلة أخرى">➕</button>
                                 </div>
                             </div>
                         </div>
@@ -1848,7 +2185,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                                     <div style="flex: 1.5; min-width: 150px;">
                                         <input type="text" autocomplete="off" class="form-input block-cheque-desc-input" placeholder="بيان الشيك" style="margin-bottom: 0;">
                                     </div>
-                                    <button type="button" data-action="add-cheque-row" data-block="{ID}" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(139,92,246,0.2); border: 1px solid #c084fc; color: #c084fc; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;" title="إضافة شيك آخر">➕</button>
+                                    <button type="button" data-action="add-cheque-row" data-block="{ID}" style="width: 32px; height: 32px; border-radius: 50%; background: rgba(139,92,246,0.2); border: 3.5px solid #c084fc; color: #c084fc; font-size: 1.1rem; cursor: pointer; display: flex; align-items: center; justify-content: center; flex-shrink: 0; transition: all 0.2s;" title="إضافة شيك آخر">➕</button>
                                 </div>
                             </div>
                         </div>
@@ -1964,6 +2301,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 </div>
             </div>
         </div>
+    </div>
     </div>
 
     <!-- Context Menu -->
@@ -2192,7 +2530,18 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
     <script>
     let dbNumProps = <?php echo $db_num_props_json ?: '{}'; ?>;
-    let allNumProps = Object.keys(dbNumProps).length > 0 ? dbNumProps : (JSON.parse(localStorage.getItem('all-num-props')) || {});
+    window.DB_OCR_PROPS = <?php echo $db_ocr_props_json ?: '{}'; ?>;
+    let allNumProps = (dbNumProps && Object.keys(dbNumProps).length > 0) ? dbNumProps : (JSON.parse(localStorage.getItem('all-num-props')) || {});
+    // Sanitize any white color on amount-local-hdr or amount-foreign (never allow white on white)
+    if (!allNumProps['amount-local-hdr'] || !allNumProps['amount-local-hdr'].color || allNumProps['amount-local-hdr'].color.toLowerCase() === '#ffffff') {
+        if (!allNumProps['amount-local-hdr']) allNumProps['amount-local-hdr'] = { fontSizeMod: 0, thousandsSep: true, decimals: 2, fontFamily: 'monospace', fontWeight: '900' };
+        allNumProps['amount-local-hdr'].color = '#ef4444';
+    }
+    if (!allNumProps['amount-foreign'] || !allNumProps['amount-foreign'].color || allNumProps['amount-foreign'].color.toLowerCase() === '#ffffff') {
+        if (!allNumProps['amount-foreign']) allNumProps['amount-foreign'] = { fontSizeMod: 0, thousandsSep: true, decimals: 2, fontFamily: 'monospace', fontWeight: '900' };
+        allNumProps['amount-foreign'].color = '#ef4444';
+    }
+    try { localStorage.setItem('all-num-props', JSON.stringify(allNumProps)); } catch(e) {}
     let currentPropId = 'exchange-rate';
 
     const targetNames = {
@@ -2206,7 +2555,34 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         'default': 'الرقم المالي'
     };
 
+    function getCanonicalPropId(elOrId) {
+        if (!elOrId) return 'default';
+        let el = (typeof elOrId === 'object' && elOrId !== null) ? elOrId : document.getElementById(elOrId);
+        let strId = (typeof elOrId === 'string') ? elOrId : (el ? (el.id || '') : '');
+
+        if (strId === 'exchange-rate') return 'exchange-rate';
+        if (strId === 'amount-local-hdr') return 'amount-local-hdr';
+        if (strId === 'amount-foreign') return 'amount-foreign';
+
+        if (el && el.classList) {
+            if (el.classList.contains('block-bank-amount') || el.classList.contains('transfer-amount')) return 'block-bank-amount';
+            if (el.classList.contains('block-cheque-amount') || el.classList.contains('cheque-amount')) return 'block-cheque-amount';
+            if (el.classList.contains('block-sub-amount')) return 'block-sub-amount';
+            if (el.classList.contains('block-total-amount')) return 'block-total-amount';
+        }
+
+        if (strId) {
+            if (strId.startsWith('amount-') || strId.startsWith('total-')) return 'block-total-amount';
+            if (strId.includes('bank')) return 'block-bank-amount';
+            if (strId.includes('cheque')) return 'block-cheque-amount';
+            if (strId.includes('sub')) return 'block-sub-amount';
+        }
+
+        return strId || 'default';
+    }
+
     function getActiveProp() {
+        currentPropId = getCanonicalPropId(currentPropId);
         if(!allNumProps[currentPropId]) {
             if (currentPropId === 'exchange-rate') {
                 allNumProps[currentPropId] = {
@@ -2239,7 +2615,11 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
         const p = allNumProps[currentPropId];
         if (p.fontWeight === undefined) p.fontWeight = '900';
-        if (p.color === undefined) p.color = (currentPropId === 'exchange-rate') ? '#10b981' : ((currentPropId === 'amount-local-hdr' || currentPropId === 'amount-foreign') ? '#ef4444' : '#fbbf24');
+        if (currentPropId === 'amount-local-hdr' || currentPropId === 'amount-foreign') {
+            if (!p.color || p.color.toLowerCase() === '#ffffff') p.color = '#ef4444';
+        } else if (p.color === undefined) {
+            p.color = (currentPropId === 'exchange-rate') ? '#10b981' : '#fbbf24';
+        }
         if (p.fontSizeMod === undefined) p.fontSizeMod = 0;
         if (p.thousandsSep === undefined) p.thousandsSep = true;
         if (p.decimals === undefined) p.decimals = (currentPropId === 'exchange-rate') ? 0 : 2;
@@ -2248,14 +2628,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
     }
 
     function getPropFor(el) {
-        let id = el.id;
-        if (!id) {
-            if (el.classList.contains('block-bank-amount')) id = 'block-bank-amount';
-            else if (el.classList.contains('block-cheque-amount')) id = 'block-cheque-amount';
-            else if (el.classList.contains('block-total-amount')) id = 'block-total-amount';
-            else if (el.classList.contains('block-sub-amount')) id = 'block-sub-amount';
-            else id = 'default';
-        }
+        let id = getCanonicalPropId(el);
         if(!allNumProps[id]) {
             if (id === 'exchange-rate') {
                 allNumProps[id] = {
@@ -2288,7 +2661,11 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         }
         const p = allNumProps[id];
         if (p.fontWeight === undefined) p.fontWeight = '900';
-        if (p.color === undefined) p.color = (id === 'exchange-rate') ? '#10b981' : ((id === 'amount-local-hdr' || id === 'amount-foreign') ? '#ef4444' : '#fbbf24');
+        if (id === 'amount-local-hdr' || id === 'amount-foreign') {
+            if (!p.color || p.color.toLowerCase() === '#ffffff') p.color = '#ef4444';
+        } else if (p.color === undefined) {
+            p.color = (id === 'exchange-rate') ? '#10b981' : '#fbbf24';
+        }
         if (p.fontSizeMod === undefined) p.fontSizeMod = 0;
         if (p.thousandsSep === undefined) p.thousandsSep = true;
         if (p.decimals === undefined) p.decimals = (id === 'exchange-rate') ? 0 : 2;
@@ -2398,6 +2775,13 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
     }
 
     function saveNumProps() {
+        const cleanedProps = {};
+        for (let k in allNumProps) {
+            if (!k.startsWith('amount-1') && !k.startsWith('amount-2')) {
+                cleanedProps[k] = allNumProps[k];
+            }
+        }
+        allNumProps = cleanedProps;
         localStorage.setItem('all-num-props', JSON.stringify(allNumProps));
         
         let formData = new FormData();
@@ -2406,7 +2790,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
         
         const saveBtn = document.getElementById('save-num-props-btn');
         if (saveBtn) {
-            saveBtn.textContent = 'جاري الحفظ... ⏳';
+            saveBtn.textContent = 'جاري الحفظ في قاعدة البيانات... ⏳';
             saveBtn.style.opacity = '0.7';
         }
 
@@ -2415,14 +2799,14 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             body: formData
         }).then(r => r.text()).then(txt => {
             if (saveBtn) {
-                saveBtn.textContent = 'تم الحفظ بنجاح ✅';
+                saveBtn.textContent = 'تم الحفظ في قاعدة البيانات بنجاح ✅';
                 saveBtn.style.background = 'linear-gradient(135deg, #10b981, #047857)';
                 saveBtn.style.opacity = '1';
                 setTimeout(() => {
                     saveBtn.textContent = 'حفظ وتطبيق الخصائص 💾';
                     const menu = document.getElementById('custom-num-menu');
                     if (menu) menu.style.display = 'none';
-                }, 700);
+                }, 800);
             }
         }).catch(err => {
             if (saveBtn) {
@@ -2480,7 +2864,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 el.style.setProperty('font-weight', conf.fontWeight, 'important');
             }
             
-            // 3. Apply color (اللون - المبالغ في الحجم الكبير باللون الذهبي بدون ظل)
+            // 3. Apply color (اللون)
             if (el === document.activeElement && (
                 el.classList.contains('block-total-amount') ||
                 el.classList.contains('block-bank-amount') ||
@@ -2495,14 +2879,22 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 el.style.setProperty('text-shadow', 'none', 'important');
                 el.style.setProperty('-webkit-text-stroke', '0px', 'important');
             } else if (el.id === 'amount-local-hdr' || el.id === 'amount-foreign') {
-                el.style.setProperty('color', '#ef4444', 'important');
-                el.style.setProperty('-webkit-text-fill-color', '#ef4444', 'important');
+                let chosenColor = '#ef4444';
+                if (conf.color && conf.color.toLowerCase() !== '#ffffff') {
+                    chosenColor = conf.color;
+                }
+                el.style.setProperty('color', chosenColor, 'important');
+                el.style.setProperty('-webkit-text-fill-color', chosenColor, 'important');
                 el.style.setProperty('background', '#ffffff', 'important');
                 el.style.setProperty('background-color', '#ffffff', 'important');
+                el.style.setProperty('border', '3.5px solid #ef4444', 'important');
                 el.style.setProperty('text-shadow', 'none', 'important');
                 el.style.setProperty('-webkit-text-stroke', '0px', 'important');
+                el.style.setProperty('opacity', '1', 'important');
+                el.style.setProperty('visibility', 'visible', 'important');
             } else if (conf.color) {
                 el.style.setProperty('color', conf.color, 'important');
+                el.style.setProperty('-webkit-text-fill-color', conf.color, 'important');
             }
             
             // 4. Apply font size (الحجم)
@@ -2539,21 +2931,8 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             e.stopPropagation();
         }
         
-        let el = null;
-        if (typeof targetIdOrEl === 'string') {
-            currentPropId = targetIdOrEl;
-            el = document.getElementById(targetIdOrEl);
-        } else if (targetIdOrEl && targetIdOrEl.id) {
-            currentPropId = targetIdOrEl.id;
-            el = targetIdOrEl;
-        } else if (targetIdOrEl && targetIdOrEl.classList) {
-            if (targetIdOrEl.classList.contains('block-bank-amount')) currentPropId = 'block-bank-amount';
-            else if (targetIdOrEl.classList.contains('block-cheque-amount')) currentPropId = 'block-cheque-amount';
-            else if (targetIdOrEl.classList.contains('block-total-amount')) currentPropId = 'block-total-amount';
-            else if (targetIdOrEl.classList.contains('block-sub-amount')) currentPropId = 'block-sub-amount';
-            else currentPropId = 'default';
-            el = targetIdOrEl;
-        }
+        let el = (typeof targetIdOrEl === 'object' && targetIdOrEl !== null) ? targetIdOrEl : document.getElementById(targetIdOrEl);
+        currentPropId = getCanonicalPropId(el || targetIdOrEl);
         
         updateMenuUI();
         
@@ -2740,7 +3119,7 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             el.style.removeProperty('letter-spacing');
             
             if (isAmount) {
-                el.style.setProperty('font-size', '3.1rem', 'important');
+                el.style.removeProperty('font-size');
             } else {
                 el.style.setProperty('font-size', '2.8rem', 'important');
             }
@@ -2751,10 +3130,14 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             }
         }
         
-        if (e.target.id === 'amount-local-hdr' || 
+        if (isAmount || 
+            e.target.id === 'amount-local-hdr' || 
             e.target.id === 'amount-foreign' || 
+            e.target.id === 'exchange-rate' ||
             e.target.classList.contains('block-bank-amount') || 
-            e.target.classList.contains('block-cheque-amount')) {
+            e.target.classList.contains('block-cheque-amount') ||
+            e.target.classList.contains('block-total-amount') ||
+            e.target.classList.contains('block-sub-amount')) {
             applyNumPropsToAll();
         }
     }, true);
