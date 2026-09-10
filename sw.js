@@ -1,4 +1,4 @@
-// Version: 20260910194500 (Financial OCR Left-Column & Zero Decimals Calibration)
+// Version: 20260910202500 (Financial OCR Left-Column Top Toolbar Icons Only)
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });

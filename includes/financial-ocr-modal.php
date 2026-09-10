@@ -250,29 +250,29 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
                 
                 <div style="display:flex; flex-direction:column; gap:7px; width:100%;">
                     
-                    <!-- Top Toolbar: أزرار واضحة بأيقونات صريحة (حذف كلمة تبديل وكلمة فحص والاكتفاء بالشعارات فقط) -->
+                    <!-- Top Toolbar: أزرار واضحة بأيقونات صريحة بدون أسامي (رموز فقط) -->
                     <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid rgba(255,255,255,0.12); padding-bottom:5px; margin-bottom:2px; gap:4px; overflow-x:auto; scrollbar-width:none; flex-shrink:0;">
                         <div style="display:flex; align-items:center; gap:4px; flex-wrap:nowrap;">
-                            <!-- زر التبديل: شعار فقط (سهمين متداخلات ⇄) -->
+                            <!-- 1. رمز التبديل (⇄) -->
                             <button type="button" onclick="FinancialOCR.toggleLayoutSide()" style="height:28px; width:34px; min-width:34px; padding:0; border-radius:6px; background:linear-gradient(135deg, rgba(6,182,212,0.25), rgba(14,165,233,0.2)); border:1.8px solid #22d3ee; color:#67e8f9; font-weight:900; font-size:1.15rem; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 0 10px rgba(6,182,212,0.3); transition:all 0.15s ease;" title="تبديل موضع صورة الشيك والبيانات (⇄)">
                                 <span>⇄</span>
                             </button>
-                            <!-- زر ملء الشاشة -->
-                            <button type="button" onclick="FinancialOCR.toggleFullscreen()" style="height:28px; padding:0 8px; border-radius:6px; background:linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.2)); border:1.8px solid #10b981; color:#6ee7b7; font-weight:900; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:3px; white-space:nowrap; box-shadow:0 0 10px rgba(16,185,129,0.25);" title="السيطرة على شاشة الكمبيوتر بالكامل (ملء الشاشة)">
-                                <span>⛶</span> ملء
+                            <!-- 2. رمز الملء (⛶) -->
+                            <button type="button" onclick="FinancialOCR.toggleFullscreen()" style="height:28px; width:34px; min-width:34px; padding:0; border-radius:6px; background:linear-gradient(135deg, rgba(16,185,129,0.25), rgba(5,150,105,0.2)); border:1.8px solid #10b981; color:#6ee7b7; font-weight:900; font-size:1.15rem; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 0 10px rgba(16,185,129,0.25); transition:all 0.15s ease;" title="السيطرة على شاشة الكمبيوتر بالكامل (ملء الشاشة ⛶)">
+                                <span>⛶</span>
                             </button>
-                            <!-- زر الفحص: شعار الريفرش فقط (سهمين متداورات 🔄) لكي تكون الأيقونات واضحة -->
-                            <button type="button" id="btn-rescan-current-ocr" onclick="FinancialOCR.rescanCurrentItem()" style="height:28px; width:34px; min-width:34px; padding:0; border-radius:6px; background:linear-gradient(135deg, rgba(56,189,248,0.25), rgba(14,165,233,0.2)); border:1.8px solid #38bdf8; color:#7dd3fc; font-weight:900; font-size:1.05rem; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 0 10px rgba(56,189,248,0.3); transition:all 0.15s ease;" title="🔄 إعادة فحص وقراءة هذا المستند بالذكاء الاصطناعي">
+                            <!-- 3. رمز ريفريش (🔄) -->
+                            <button type="button" id="btn-rescan-current-ocr" onclick="FinancialOCR.rescanCurrentItem()" style="height:28px; width:34px; min-width:34px; padding:0; border-radius:6px; background:linear-gradient(135deg, rgba(56,189,248,0.25), rgba(14,165,233,0.2)); border:1.8px solid #38bdf8; color:#7dd3fc; font-weight:900; font-size:1.05rem; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 0 10px rgba(56,189,248,0.3); transition:all 0.15s ease;" title="إعادة فحص وقراءة هذا المستند بالذكاء الاصطناعي (🔄)">
                                 <span id="rescan-icon">🔄</span>
                                 <span id="rescan-text" style="display:none;"></span>
                             </button>
-                            <!-- زر مفتاح API -->
-                            <button type="button" onclick="FinancialOCR.openKeyModal()" style="height:28px; padding:0 8px; border-radius:6px; background:linear-gradient(135deg, rgba(245,158,11,0.25), rgba(217,119,6,0.2)); border:1.8px solid #fbbf24; color:#fde68a; font-weight:900; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:3px; white-space:nowrap; box-shadow:0 0 10px rgba(245,158,11,0.25);" title="تهيئة مفتاح Gemini API Key">
-                                <span>🔑</span> مفتاح
+                            <!-- 4. رمز المفتاح (🔑) -->
+                            <button type="button" onclick="FinancialOCR.openKeyModal()" style="height:28px; width:34px; min-width:34px; padding:0; border-radius:6px; background:linear-gradient(135deg, rgba(245,158,11,0.25), rgba(217,119,6,0.2)); border:1.8px solid #fbbf24; color:#fde68a; font-weight:900; font-size:1.05rem; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 0 10px rgba(245,158,11,0.25); transition:all 0.15s ease;" title="تهيئة مفتاح Gemini API Key (🔑)">
+                                <span>🔑</span>
                             </button>
-                            <!-- زر استوديو التدريب -->
-                            <button type="button" onclick="FinancialOCR.openTrainer()" style="height:28px; padding:0 8px; border-radius:6px; background:linear-gradient(135deg, rgba(168,85,247,0.25), rgba(147,51,234,0.2)); border:1.8px solid #c084fc; color:#e9d5ff; font-weight:900; font-size:0.75rem; cursor:pointer; display:flex; align-items:center; gap:3px; white-space:nowrap; box-shadow:0 0 10px rgba(168,85,247,0.25);" title="شرح وتدريب النماذج للذكاء الاصطناعي">
-                                <span>🧠</span> تدريب
+                            <!-- 5. رمز العقل المدبر للتدريب (🧠) -->
+                            <button type="button" onclick="FinancialOCR.openTrainer()" style="height:28px; width:34px; min-width:34px; padding:0; border-radius:6px; background:linear-gradient(135deg, rgba(168,85,247,0.25), rgba(147,51,234,0.2)); border:1.8px solid #c084fc; color:#e9d5ff; font-weight:900; font-size:1.05rem; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 0 10px rgba(168,85,247,0.25); transition:all 0.15s ease;" title="شرح وتدريب النماذج للذكاء الاصطناعي - استوديو التدريب (🧠)">
+                                <span>🧠</span>
                             </button>
                         </div>
                         <button type="button" onclick="FinancialOCR.closeReviewModal()" style="height:28px; width:28px; min-width:28px; border-radius:6px; background:rgba(239,68,68,0.25); border:1.8px solid #ef4444; color:#fca5a5; font-size:1.0rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 0 10px rgba(239,68,68,0.3);" title="إغلاق">✕</button>
