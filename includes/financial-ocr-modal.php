@@ -5,6 +5,11 @@
 // =============================================================
 $db_ocr_props_json = '{}';
 try {
+    if (!isset($pdo) || !$pdo) {
+        if (function_exists('getDBConnection')) {
+            $pdo = getDBConnection();
+        }
+    }
     if (isset($pdo) && $pdo) {
         $tId = !empty($GLOBAL_TENANT_ID) ? (string)$GLOBAL_TENANT_ID : '1';
         $stmt = $pdo->prepare("SELECT pref_value FROM ui_preferences WHERE tenant_id IN (?, 'default', '1') AND pref_key = 'ocr_left_col_props' ORDER BY CASE WHEN tenant_id = ? THEN 1 WHEN tenant_id = '1' THEN 2 ELSE 3 END LIMIT 1");
