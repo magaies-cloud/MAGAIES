@@ -1959,6 +1959,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             color: #fff;
             transform: scale(1.08);
         }
+        /* Remove theme toggle switch button from header */
+        .theme-toggle-btn {
+            display: none !important;
+        }
     </style>
 </head>
 <body>
