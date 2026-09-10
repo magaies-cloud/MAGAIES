@@ -1,4 +1,4 @@
-// Version: 20260911003000 (WhatsApp AI Paste and Ingest Engine v2)
+// Version: 20260911004300 (WhatsApp AI On-Page Direct Hub Engine)
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });

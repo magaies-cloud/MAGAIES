@@ -133,6 +133,57 @@
             this.showToast('💡 قم بنسخ صورة الإشعار من الواتساب (Copy Image) ثم اضغط [Ctrl + V] في الكيبورد للصقها فوراً!', 'info', 6000);
         },
 
+        async pasteFromClipboardDirect() {
+            try {
+                const newFiles = [];
+                if (navigator.clipboard && navigator.clipboard.read) {
+                    const items = await navigator.clipboard.read();
+                    for (const item of items) {
+                        for (const type of item.types) {
+                            if (type.startsWith('image/')) {
+                                const blob = await item.getType(type);
+                                const ext = type.split('/')[1] || 'png';
+                                const file = new File([blob], `whatsapp_pasted_${Date.now()}_${newFiles.length + 1}.${ext}`, { type: blob.type });
+                                newFiles.push(file);
+                            }
+                        }
+                    }
+                }
+                if (newFiles.length > 0) {
+                    this.activeContext = Object.assign({ target: 'multi', blockId: null, docHint: 'auto' }, this.activeContext || {});
+                    await this.handleFileSelected({ files: newFiles });
+                    return;
+                }
+            } catch (err) {
+                console.warn('Clipboard direct read error:', err);
+            }
+
+            this.showToast('💡 قم بنسخ صورة الإشعار من الواتساب (Copy Image) ثم اضغط [Ctrl + V] في الكيبورد للصقها وتفريغها فوراً!', 'info', 6000);
+        },
+
+        handleWhatsAppDirectFiles(filesList) {
+            if (!filesList || filesList.length === 0) return;
+            this.activeContext = Object.assign({ target: 'multi', blockId: null, docHint: 'auto' }, this.activeContext || {});
+            this.handleFileSelected({ files: Array.from(filesList) });
+        },
+
+        handleWhatsAppDirectDrop(event) {
+            event.preventDefault();
+            event.stopPropagation();
+            const dock = document.getElementById('mcp-whatsapp-ingest-dock');
+            if (dock) {
+                dock.style.borderColor = '#25D366';
+                dock.style.background = 'linear-gradient(135deg, rgba(37,211,102,0.12), rgba(15,23,42,0.75))';
+            }
+            const files = event.dataTransfer ? event.dataTransfer.files : [];
+            if (files && files.length > 0) {
+                this.activeContext = Object.assign({ target: 'multi', blockId: null, docHint: 'auto' }, this.activeContext || {});
+                this.handleFileSelected({ files: Array.from(files) });
+            } else {
+                this.handleWhatsAppDrop(event);
+            }
+        },
+
         initGlobalPasteListener() {
             if (this._globalPasteBound) return;
             this._globalPasteBound = true;
@@ -172,19 +223,17 @@
                 if (hasImage && newFiles.length > 0) {
                     e.preventDefault();
                     
-                    const reviewModal = document.getElementById('financial-ocr-review-modal');
                     const whatsappModal = document.getElementById('financial-ocr-whatsapp-modal');
-                    
-                    if (reviewModal && reviewModal.style.display === 'flex') {
-                        this.handleFileSelected({ files: newFiles });
+                    if (whatsappModal && whatsappModal.style.display === 'flex') {
+                        this.handleWhatsAppFiles(newFiles);
+                        this.showToast(`✅ تم التقاط ${newFiles.length} ${newFiles.length === 1 ? 'إشعار' : 'إشعارات'} من الواتساب عبر الحافظة (Paste) بنجاح!`, 'success');
                         return;
                     }
 
-                    if (whatsappModal && whatsappModal.style.display !== 'flex') {
-                        this.openWhatsAppIngest({ target: 'multi' });
-                    }
-                    this.handleWhatsAppFiles(newFiles);
-                    this.showToast(`✅ تم التقاط ${newFiles.length} ${newFiles.length === 1 ? 'إشعار' : 'إشعارات'} من الواتساب عبر الحافظة (Paste) بنجاح!`, 'success');
+                    // Direct scan & auto-fill
+                    this.activeContext = Object.assign({ target: 'multi', blockId: null, docHint: 'auto' }, this.activeContext || {});
+                    this.handleFileSelected({ files: newFiles });
+                    this.showToast(`✅ تم التقاط ${newFiles.length} ${newFiles.length === 1 ? 'إشعار' : 'إشعارات'} من الواتساب وبدء التفريغ الفوري!`, 'success');
                 }
             });
         },
