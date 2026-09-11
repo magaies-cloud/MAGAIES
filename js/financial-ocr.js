@@ -1270,6 +1270,62 @@
             return this.showGoldenAlert(idx);
         },
 
+        // Detailed interactive explanation when user clicks on [🕵️‍♂️] for suspicious / tampered receipts or cheques
+        showSuspicionAlert(idx) {
+            const items = this.batchItems || (this.lastExtractedData ? [{ data: this.lastExtractedData }] : []);
+            if (!items[idx]) return;
+            const item = items[idx];
+            const tamperingScore = parseInt(item.data.tampering_score) || 0;
+            const reasons = item.data.tampering_reasons || 'تم رصد مؤشرات تلاعب رقمي أو عدم تطابق في خطوط ومبالغ المستند.';
+            const refVal = (item.data.transaction_ref || item.data.cheque_number || '').trim();
+            const amtFormatted = (parseFloat(item.data.amount) || 0).toLocaleString('en-US');
+
+            this.syncCurrentItemFromForm();
+            this.selectBatchItem(idx);
+            this.playWarningBeep();
+
+            // Focus and glow reference or amount field in vibrant purple
+            const refInput = document.getElementById('ocr-field-ref-no');
+            if (refInput) {
+                refInput.focus();
+                refInput.style.borderColor = '#a855f7';
+                refInput.style.backgroundColor = 'rgba(168, 85, 247, 0.2)';
+                refInput.style.boxShadow = '0 0 25px rgba(168, 85, 247, 0.9)';
+            }
+
+            let alertMsg = `🕵️‍♂️ تقرير الفحص الجنائي والأمني (اشتباه تزوير وتلاعب):\n\n`;
+            alertMsg += `📄 المستند رقم: #${idx + 1} (${item.data.bank_name || 'البنك'})\n`;
+            alertMsg += `💰 المبلغ المسجل: ${amtFormatted} SDG\n`;
+            alertMsg += `🔖 رقم المرجع / الشيك: ${refVal || 'غير محدد'}\n`;
+            alertMsg += `📊 مؤشر اشتباه التزوير: ${tamperingScore}%\n\n`;
+            alertMsg += `🔍 نتائج التحليل الجنائي للذكاء الاصطناعي:\n${reasons}\n\n`;
+            alertMsg += `🛡️ الإجراءات والخيارات المحاسبية المتاحة:\n`;
+            alertMsg += `1. إيقاف السند مؤقتاً ومطابقة الحركة مع كشف الحساب البنكي المباشر.\n`;
+            alertMsg += `2. مراسلة العميل لطلب صورة أصلية واضحة من داخل التطبيق البنكي.\n`;
+            alertMsg += `3. فحص التفقيط والخطوط عبر زر المعاينة 🔍.\n`;
+            alertMsg += `4. إذا تأكدت من صحة الإيداع بالبنك، يمكنك اعتماده يدوياً.`;
+
+            alert(alertMsg);
+        },
+
+        openSuspicionDetailsModal() {
+            this.showSuspicionAlert(this.currentBatchIndex);
+        },
+
+        openWhatsAppCustomerCheck() {
+            const items = this.batchItems || (this.lastExtractedData ? [{ data: this.lastExtractedData }] : []);
+            const item = items[this.currentBatchIndex];
+            const amt = item ? (parseFloat(item.data.amount) || 0).toLocaleString('en-US') : '0';
+            const ref = item ? (item.data.transaction_ref || item.data.cheque_number || '---') : '---';
+            const bank = item ? (item.data.bank_name || 'البنك') : 'البنك';
+            
+            const msg = `السلام عليكم ورحمة الله،\nبخصوص الإشعار المالي / الشيك المحول بمبلغ (${amt} SDG) من (${bank}) برقم عملية (${ref})، يُرجى التكرم بتزويدنا بصورة أصلية واضحة من داخل التطبيق البنكي أو كشف الحساب لإتمام المطابقة والاعتماد في النظام.\nشكراً لتعاونكم.`;
+            
+            const encodedMsg = encodeURIComponent(msg);
+            const waUrl = `https://web.whatsapp.com/send?text=${encodedMsg}`;
+            window.open(waUrl, '_blank');
+        },
+
         // Rescan All Items in the Batch (Refresh All)
         async rescanAllBatchItems() {
             const items = this.batchItems;
@@ -1460,6 +1516,9 @@
             const refNoInput = document.getElementById('ocr-field-ref-no');
             const warningBox = document.getElementById('ocr-ref-warning-box');
             const warningText = document.getElementById('ocr-ref-warning-text');
+            const suspicionBox = document.getElementById('ocr-suspicion-warning-box');
+            const suspicionBadge = document.getElementById('ocr-suspicion-badge-percent');
+            const suspicionText = document.getElementById('ocr-suspicion-warning-text');
             const applyBtn = document.getElementById('btn-apply-financial-ocr');
             const applyText = document.getElementById('btn-apply-text');
             const applySingleBtn = document.getElementById('btn-apply-single-financial-ocr');
@@ -1490,8 +1549,10 @@
             const isAmtZero = (amt <= 0);
             const isNonFin = !!(data.is_non_financial || data.doc_type === 'non_financial');
             const isDuplicate = !isNonFin && (!res.valid && res.isDuplicate);
+            const tamperingScore = parseInt(data.tampering_score) || 0;
+            const isSuspicious = !isDuplicate && !isNonFin && (Boolean(data.is_suspicious) || tamperingScore >= 35);
             const hasApiError = Boolean(data.scan_error || data.is_quota_exceeded);
-            const isGolden = !isDuplicate && (isNonFin || isAmtZero || hasApiError);
+            const isGolden = !isDuplicate && !isSuspicious && (isNonFin || isAmtZero || hasApiError);
 
             // Compute total clean documents in current batch
             let cleanCount = 0;
@@ -1502,11 +1563,13 @@
                     const a = parseFloat(d.amount) || 0;
                     const r = (d.transaction_ref || d.cheque_number || '').trim();
                     const v = this.validateReference(r, i);
-                    if (!isNF && a > 0 && !v.isDuplicate) {
+                    const ts = parseInt(d.tampering_score) || 0;
+                    const isSusp = (Boolean(d.is_suspicious) || ts >= 35);
+                    if (!isNF && a > 0 && !v.isDuplicate && !isSusp) {
                         cleanCount++;
                     }
                 });
-            } else if (!isGolden && !isDuplicate) {
+            } else if (!isGolden && !isDuplicate && !isSuspicious) {
                 cleanCount = 1;
             }
 
@@ -1534,6 +1597,7 @@
             // "يكون الإشعار باللون الذهبي، ويكتب تنبيه: المستند غير واضح، المبلغ غير ظاهر، أو المبلغ السيارة كذا كذا كذا، وزر اعتماد لا يعتمد، أي لا يعتمد في هذه الحالة نهائيا."
             if (isGolden) {
                 if (warningBox) warningBox.style.display = 'none';
+                if (suspicionBox) suspicionBox.style.display = 'none';
                 refNoInput.style.borderColor = '#f59e0b';
                 refNoInput.style.backgroundColor = '#1e293b';
                 refNoInput.style.boxShadow = '0 0 14px rgba(245,158,11,0.35)';
@@ -1637,6 +1701,7 @@
                 if (warningText) {
                     warningText.textContent = res.message;
                 }
+                if (suspicionBox) suspicionBox.style.display = 'none';
                 refNoInput.style.borderColor = '#ef4444';
                 refNoInput.style.backgroundColor = 'rgba(239, 68, 68, 0.15)';
                 refNoInput.style.boxShadow = '0 0 20px rgba(239, 68, 68, 0.7)';
@@ -1711,8 +1776,92 @@
                 return;
             }
 
-            // 3. Clean Document (سليم 100% مار طوالي)
+            // 3. Suspicious / Tampered Document (اشتباه تزوير وتلاعب رقمي - بنفسجي ملكي مشع)
+            if (isSuspicious) {
+                if (warningBox) warningBox.style.display = 'none';
+                if (suspicionBox) {
+                    suspicionBox.style.display = 'flex';
+                    if (suspicionBadge) suspicionBadge.textContent = `نسبة الاشتباه: ${tamperingScore}%`;
+                    if (suspicionText) suspicionText.textContent = data.tampering_reasons || 'تم رصد مؤشرات تلاعب رقمي أو عدم تطابق في خطوط ومبالغ المستند.';
+                }
+
+                refNoInput.style.borderColor = '#a855f7';
+                refNoInput.style.backgroundColor = 'rgba(88, 28, 135, 0.2)';
+                refNoInput.style.boxShadow = '0 0 16px rgba(168, 85, 247, 0.6)';
+
+                if (previewBanner) {
+                    previewBanner.style.display = 'flex';
+                    previewBanner.style.background = 'linear-gradient(135deg, rgba(88,28,135,0.95), rgba(59,7,100,0.98))';
+                    previewBanner.style.border = '1.5px solid #c084fc';
+                    previewBanner.style.color = '#fdf4ff';
+                    if (previewIcon) previewIcon.textContent = '🕵️‍♂️';
+                    if (previewTitle) previewTitle.textContent = `اشتباه تزوير وتلاعب رقمي (مؤشر الشك: ${tamperingScore}%)`;
+                    if (previewDesc) previewDesc.textContent = `${data.tampering_reasons || 'يوجد اشتباه في تعديل مبالغ المستند أو عدم تطابق التفقيط'}`;
+                    if (previewBadge) {
+                        previewBadge.textContent = `اشتباه ${tamperingScore}% 🕵️‍♂️`;
+                        previewBadge.style.background = '#7e22ce';
+                        previewBadge.style.color = '#fff';
+                    }
+                }
+
+                if (formReasonBox) {
+                    formReasonBox.style.display = 'block';
+                    formReasonBox.style.background = 'rgba(88,28,135,0.25)';
+                    formReasonBox.style.border = '1.5px solid #a855f7';
+                    formReasonBox.style.color = '#f3e8ff';
+                    if (formReasonIcon) formReasonIcon.textContent = '🕵️‍♂️';
+                    if (formReasonTitle) formReasonTitle.textContent = `فحص الأمان ومكافحة التزوير (شك ${tamperingScore}%)`;
+                    if (formReasonBadge) {
+                        formReasonBadge.textContent = `شك ${tamperingScore}%`;
+                        formReasonBadge.style.background = '#7e22ce';
+                        formReasonBadge.style.color = '#fff';
+                    }
+                    if (formReasonDesc) formReasonDesc.textContent = `تشخيص الذكاء الاصطناعي الجنائي: ${data.tampering_reasons || 'تم رصد مؤشرات تلاعب رقمي'}. تم تعليق الاعتماد الآلي لحماية الحسابات. يرجى مراجعة وتأكيد التحويل مع كشف الحساب البنكي.`;
+                }
+
+                // Single button: allow manual override if verified, but colored purple
+                if (applySingleBtn) {
+                    applySingleBtn.disabled = false;
+                    applySingleBtn.style.cursor = 'pointer';
+                    applySingleBtn.style.background = 'linear-gradient(135deg, #7e22ce, #581c87)';
+                    applySingleBtn.style.border = '1.5px solid #c084fc';
+                    applySingleBtn.style.color = '#ffffff';
+                    applySingleBtn.style.boxShadow = '0 2px 12px rgba(168,85,247,0.4)';
+                    applySingleBtn.style.opacity = '1';
+                }
+                if (applySingleText) {
+                    applySingleText.textContent = `⚠️ اعتماد يدوي بعد مراجعة البنك (${tamperingScore}%)`;
+                }
+
+                this.playWarningBeep();
+                if (cleanCount === 0) {
+                    if (applyBtn) {
+                        applyBtn.disabled = true;
+                        applyBtn.style.cursor = 'not-allowed';
+                        applyBtn.style.background = 'linear-gradient(135deg, #581c87, #3b0764)';
+                        applyBtn.style.border = '1.5px solid #a855f7';
+                        applyBtn.style.color = '#fdf4ff';
+                        applyBtn.style.boxShadow = 'none';
+                        applyBtn.style.opacity = '0.85';
+                    }
+                    if (applyText) applyText.textContent = `⚠️ معلق للاختبار الجنائي (${tamperingScore}% تزوير)`;
+                } else {
+                    if (applyBtn) {
+                        applyBtn.disabled = false;
+                        applyBtn.style.cursor = 'pointer';
+                        applyBtn.style.background = 'linear-gradient(135deg, #059669 0%, #10b981 50%, #047857 100%)';
+                        applyBtn.style.border = 'none';
+                        applyBtn.style.boxShadow = '0 4px 18px rgba(16,185,129,0.45)';
+                        applyBtn.style.opacity = '1';
+                    }
+                    if (applyText) applyText.textContent = `حفظ الاعتمادات (${cleanCount} سند)`;
+                }
+                return;
+            }
+
+            // 4. Clean Document (سليم 100% مار طوالي)
             if (warningBox) warningBox.style.display = 'none';
+            if (suspicionBox) suspicionBox.style.display = 'none';
             refNoInput.style.borderColor = '#38bdf8';
             refNoInput.style.backgroundColor = '#1e293b';
             refNoInput.style.boxShadow = 'none';
@@ -2015,7 +2164,9 @@
                     const a = parseFloat(d.amount) || 0;
                     const r = (d.transaction_ref || d.cheque_number || '').trim();
                     const v = this.validateReference(r, i);
-                    if (!isNF && a > 0 && !v.isDuplicate) {
+                    const ts = parseInt(d.tampering_score) || 0;
+                    const isSusp = (Boolean(d.is_suspicious) || ts >= 35);
+                    if (!isNF && a > 0 && !v.isDuplicate && !isSusp) {
                         cleanCount++;
                     }
                 });
@@ -2025,7 +2176,9 @@
                 const a = parseFloat(d.amount) || 0;
                 const r = (d.transaction_ref || d.cheque_number || '').trim();
                 const v = this.validateReference(r, 0);
-                if (!isNF && a > 0 && !v.isDuplicate) cleanCount = 1;
+                const ts = parseInt(d.tampering_score) || 0;
+                const isSusp = (Boolean(d.is_suspicious) || ts >= 35);
+                if (!isNF && a > 0 && !v.isDuplicate && !isSusp) cleanCount = 1;
             }
 
             // -------------------------------------------------------------
@@ -2104,13 +2257,16 @@
 
                     // 1. Classification into distinct functional tiers:
                     // - Tier 1: Duplicate (خطر الازدواجية) -> Deep Crimson Red + Hazard Lamp 🚨
-                    // - Tier 2: Golden Warning -> Non-Financial / Zero Amount (غير واضح أو المبلغ غير ظاهر) / Scan Error -> Amber Golden + Warning Lamp ⚠️
-                    // - Tier 3: Clean/Valid (سليم 100% مار طوالي) -> Emerald Green + Checkmark ✓
+                    // - Tier 2: Suspicious / Forgery (اشتباه تزوير وتلاعب) -> Electric Violet / Royal Purple + Suspicion % Badge 🕵️‍♂️
+                    // - Tier 3: Golden Warning -> Non-Financial / Zero Amount (غير واضح أو المبلغ غير ظاهر) / Scan Error -> Amber Golden + Warning Lamp ⚠️
+                    // - Tier 4: Clean/Valid (سليم 100% مار طوالي) -> Emerald Green + Checkmark ✓
                     const isDuplicate = !isNonFinancial && (!valRes.valid && valRes.isDuplicate);
-                    const isGolden = !isDuplicate && (isNonFinancial || isAmtZero || Boolean(item.data.scan_error));
-                    const isClean = !isDuplicate && !isGolden;
+                    const tamperingScore = parseInt(item.data.tampering_score) || 0;
+                    const isSuspicious = !isDuplicate && !isNonFinancial && (Boolean(item.data.is_suspicious) || tamperingScore >= 35);
+                    const isGolden = !isDuplicate && !isSuspicious && (isNonFinancial || isAmtZero || Boolean(item.data.scan_error));
+                    const isClean = !isDuplicate && !isSuspicious && !isGolden;
 
-                    // Status Indicator: Square hazard lamp / golden warning button / clean checkmark badge
+                    // Status Indicator: Square hazard lamp / purple suspicion badge / golden warning button / clean checkmark badge
                     // وضع علامة صح على العلامة الملونة وإنزالها إلى تحت قليلاً
                     let statusSquareBtnHtml = '';
                     if (isDuplicate) {
@@ -2126,6 +2282,21 @@
                                            box-shadow:0 0 10px rgba(239,68,68,0.95); animation:ocrEmergencyGlow 0.8s infinite alternate;" 
                                     title="⚠️ تنبيه خطر: رقم المعاملة موجود مسبقاً! انقر لعرض التفاصيل">
                                 🚨
+                            </button>
+                        `;
+                    } else if (isSuspicious) {
+                        // Square Suspicion / Forgery Button (مربع اشتباه التزوير البنفسجي الفاقع مع نسبة الاشتباه)
+                        statusSquareBtnHtml = `
+                            <button type="button" 
+                                    onclick="event.stopPropagation(); FinancialOCR.showSuspicionAlert(${idx})" 
+                                    style="width:26px; height:22px; min-width:26px; border-radius:5px; 
+                                           background:linear-gradient(135deg, #a855f7, #6b21a8); 
+                                           border:1.2px solid #d8b4fe; 
+                                           color:#ffffff; cursor:pointer; display:inline-flex; align-items:center; justify-content:center; 
+                                           font-size:0.68rem; font-weight:900; font-family:'Bahnschrift','Segoe UI','Tajawal',sans-serif; padding:0; line-height:1; margin-top:2px; 
+                                           box-shadow:0 0 10px rgba(168,85,247,0.95); animation:ocrWarningPulse 1.2s infinite alternate;" 
+                                    title="🕵️‍♂️ اشتباه تزوير بنسبة (${tamperingScore}%): انقر لدراسة الفحص الجنائي">
+                                ${tamperingScore}%
                             </button>
                         `;
                     } else if (isGolden) {
@@ -2189,8 +2360,9 @@
 
                     // Distinct Functional Color Themes for Cards:
                     // 1. Duplicate: Deep Crimson Red
-                    // 2. Golden Warning: Amber Golden Theme (غير معتمد في النماذج / صورة سيارة / غير واضح / صفر)
-                    // 3. Clean: Emerald Green (سليم مار طوالي)
+                    // 2. Suspicious: Electric Violet / Royal Purple
+                    // 3. Golden Warning: Amber Golden Theme (غير معتمد في النماذج / صورة سيارة / غير واضح / صفر)
+                    // 4. Clean: Emerald Green (سليم مار طوالي)
                     let cardBg = '';
                     let cardBorderColor = '';
                     let baseShadow = '';
@@ -2199,6 +2371,11 @@
                         cardBg = 'linear-gradient(135deg, rgba(185,28,28,0.58), rgba(127,29,29,0.75))';
                         cardBorderColor = '#ef4444';
                         baseShadow = '0 0 14px rgba(239,68,68,0.55)';
+                    } else if (isSuspicious) {
+                        // اللون البنفسجي الملكي المميز للشيكات والإشعارات المشتبه في تزويرها
+                        cardBg = 'linear-gradient(135deg, rgba(88,28,135,0.75), rgba(59,7,100,0.88))';
+                        cardBorderColor = '#a855f7';
+                        baseShadow = '0 0 16px rgba(168,85,247,0.65)';
                     } else if (isGolden) {
                         // اللون الذهبي الأنيق للمستندات غير المعتمدة في النماذج أو غير الواضحة أو صور السيارات
                         cardBg = 'linear-gradient(135deg, rgba(180,83,9,0.58), rgba(120,53,15,0.78))';
@@ -2243,7 +2420,7 @@
                     card.onmouseenter = () => {
                         card.style.transform = 'translateY(-1px) scale(1.01)';
                         if (!isSelected) {
-                            card.style.borderColor = isDuplicate ? '#fca5a5' : (isGolden ? '#fde68a' : '#6ee7b7');
+                            card.style.borderColor = isDuplicate ? '#fca5a5' : (isSuspicious ? '#d8b4fe' : (isGolden ? '#fde68a' : '#6ee7b7'));
                         }
                     };
                     card.onmouseleave = () => {
@@ -2264,6 +2441,7 @@
                                 #${idx + 1}
                             </span>
                             ${isCheque ? '<span style="font-size:0.80rem;" title="شيك مصرفي">✍️</span>' : ''}
+                            ${isSuspicious ? '<span style="font-size:0.80rem;" title="اشتباه تزوير وتلاعب">🕵️‍♂️</span>' : ''}
                             
                             <!-- شارة الحالة الملونة وأسفلها تماماً كتابة SDG بلون فاقع ومشع واضح جداً -->
                             <div style="display:flex; flex-direction:column; align-items:center; justify-content:center; gap:1px; line-height:1; flex-shrink:0;">
@@ -2296,7 +2474,11 @@
 
                             <!-- رقم التحويلة: يبدأ مباشرة من عند أيقونة ريفريش على اليسار، ومكبر درجة إضافية ويتسع لـ 12 رقماً كاملاً بدون أي بتر -->
                             <div style="display:flex; align-items:center; justify-content:flex-start; flex-shrink:0; min-width:0; overflow:hidden; direction:ltr; margin-left:2px;">
-                                ${isGolden ? `
+                                ${isSuspicious ? `
+                                    <span style="background:rgba(88,28,135,0.65); border:1.2px solid rgba(192,132,252,0.6); border-radius:5px; padding:2px 5px; color:#f5d0fe; font-size:0.75rem; font-weight:800; font-family:'Tajawal',sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; direction:rtl;" title="${item.data.tampering_reasons || 'اشتباه تزوير وتلاعب'}">
+                                        🕵️ شك: ${tamperingScore}%
+                                    </span>
+                                ` : (isGolden ? `
                                     <span style="background:rgba(120,53,15,0.45); border:1.2px solid rgba(245,158,11,0.5); border-radius:5px; padding:2px 6px; color:#fef3c7; font-size:0.75rem; font-weight:800; font-family:'Tajawal',sans-serif; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; direction:rtl;" title="${item.data.rejection_reason || (isAmtZero ? 'المستند غير واضح، المبلغ غير ظاهر' : 'المستند غير معتمد في النماذج')}">
                                         تنبيه: ${item.data.rejection_reason || (isAmtZero ? 'المستند غير واضح، المبلغ غير ظاهر' : 'المستند غير معتمد في النماذج')}
                                     </span>
@@ -2304,7 +2486,7 @@
                                     <span style="background:rgba(15,23,42,0.70); border:1.2px solid ${isSelected ? '#38bdf8' : 'rgba(56,189,248,0.35)'}; border-radius:5px; padding:2px 5px; color:${isSelected ? '#7dd3fc' : '#38bdf8'}; font-size:${(refVal && refVal.length > 13) ? '1.04rem' : (refVal && refVal.length > 11) ? '1.15rem' : '1.22rem'}; font-weight:800; font-family:'Bahnschrift','Segoe UI','Tajawal',sans-serif; font-variant-numeric:tabular-nums; line-height:1.15; letter-spacing:-0.25px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; max-width:100%; direction:ltr; text-align:left; box-shadow:${isSelected ? '0 0 8px rgba(56,189,248,0.5)' : 'none'};" title="رقم العملية / الشيك: ${refVal || '---'}">
                                         ${refVal || '---'}
                                     </span>
-                                `}
+                                `)}
                             </div>
 
                         </div>

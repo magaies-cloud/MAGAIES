@@ -128,6 +128,10 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
                                 <span style="width:8px; height:8px; border-radius:50%; background:#f59e0b; box-shadow:0 0 6px #f59e0b; display:inline-block;"></span>
                                 <span>ذهبي: ناقص / غير واضح</span>
                             </div>
+                            <div style="display:flex; align-items:center; gap:4px; color:#c084fc;" title="اشتباه تزوير أو تعديل رقمي أو عدم تطابق في تفقيط ومبالغ الشيك/الإشعار">
+                                <span style="width:8px; height:8px; border-radius:50%; background:#a855f7; box-shadow:0 0 6px #a855f7; display:inline-block;"></span>
+                                <span>🟣 بنفسجي: اشتباه تزوير (%)</span>
+                            </div>
                         </div>
 
                         <!-- Row 4: Emergency Duplicate Warning Banner (تحت التحويلات مباشرة) -->
@@ -141,6 +145,28 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
                             </div>
                             <div id="ocr-ref-warning-text" style="font-size:0.76rem; font-weight:800; color:#fee2e2; line-height:1.2; background:rgba(0,0,0,0.35); padding:3px 8px; border-radius:4px; border-right:3px solid #ef4444;">
                                 رقم التحويلة مكرر في النظام!
+                            </div>
+                        </div>
+
+                        <!-- Row 4-B: Forensic Tampering Warning Banner (تحذير اشتباه تزوير وتلاعب) -->
+                        <div id="ocr-suspicion-warning-box" style="display:none; flex-direction:column; gap:4px; background:linear-gradient(135deg, rgba(88,28,135,0.85), rgba(59,7,100,0.92)); border:1.5px solid #a855f7; color:#fff; padding:6px 10px; border-radius:8px; box-shadow:0 0 20px rgba(168,85,247,0.7); animation:ocrWarningPulse 1.2s infinite alternate; margin-bottom:6px; flex-shrink:0;">
+                            <div style="display:flex; align-items:center; justify-content:space-between;">
+                                <div style="display:flex; align-items:center; gap:6px; font-size:0.82rem; font-weight:900; color:#f3e8ff;">
+                                    <span>🕵️‍♂️</span>
+                                    <span>فحص الأمان: اشتباه تزوير وتلاعب رقمي!</span>
+                                </div>
+                                <span id="ocr-suspicion-badge-percent" style="background:#7e22ce; color:#fdf4ff; border:1px solid #c084fc; padding:2px 8px; border-radius:4px; font-size:0.75rem; font-weight:900;">نسبة الاشتباه: 0%</span>
+                            </div>
+                            <div id="ocr-suspicion-warning-text" style="font-size:0.76rem; font-weight:700; color:#e9d5ff; line-height:1.3; background:rgba(0,0,0,0.4); padding:4px 8px; border-radius:4px; border-right:3px solid #a855f7;">
+                                تم رصد مؤشرات تلاعب رقمي أو عدم تطابق في بيانات المستند.
+                            </div>
+                            <div style="display:flex; gap:6px; margin-top:3px;">
+                                <button type="button" onclick="FinancialOCR.openSuspicionDetailsModal()" style="flex:1; background:linear-gradient(135deg, #9333ea, #7e22ce); border:1px solid #c084fc; color:#fff; font-size:0.75rem; font-weight:800; padding:4px 8px; border-radius:5px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;">
+                                    <span>🔍</span> <span>تفاصيل الفحص الجنائي</span>
+                                </button>
+                                <button type="button" onclick="FinancialOCR.openWhatsAppCustomerCheck()" style="background:#25d366; border:1px solid #4ade80; color:#fff; font-size:0.75rem; font-weight:800; padding:4px 10px; border-radius:5px; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;">
+                                    <span>💬</span> <span>مراسلة العميل</span>
+                                </button>
                             </div>
                         </div>
 
