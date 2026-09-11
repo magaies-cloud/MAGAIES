@@ -1090,26 +1090,26 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
            ══════════════════════════════════════════════════════════════════════ */
         .voucher-type-btn {
             position: relative !important;
-            min-width: 215px !important;
-            height: 52px !important;
+            min-width: 90px !important;
+            height: 36px !important;
             display: inline-flex !important;
             align-items: center !important;
             justify-content: center !important;
-            gap: 12px !important;
-            border-radius: 14px !important;
+            gap: 8px !important;
+            border-radius: 10px !important;
             cursor: pointer !important;
             font-family: 'Tajawal', sans-serif !important;
-            font-size: 1.12rem !important;
+            font-size: 0.95rem !important;
             font-weight: 800 !important;
-            letter-spacing: 0.3px !important;
+            letter-spacing: 0.2px !important;
             white-space: nowrap !important;
             user-select: none !important;
             -webkit-user-select: none !important;
-            transition: all 0.32s cubic-bezier(0.16, 1, 0.3, 1) !important;
+            transition: all 0.28s cubic-bezier(0.16, 1, 0.3, 1) !important;
             backdrop-filter: blur(14px) !important;
             -webkit-backdrop-filter: blur(14px) !important;
             box-sizing: border-box !important;
-            padding: 0 24px !important;
+            padding: 0 14px !important;
             text-decoration: none !important;
             overflow: hidden !important;
             z-index: 2 !important;
@@ -2003,44 +2003,43 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             <!-- Main Content area (Full width) -->
             <div class="main-panel glass-panel" id="main-form-panel" style="padding: 25px; position: relative; width: 100%;">
                 
-                <!-- Unified Top Row (Payment Methods Row) -->
-                <div id="payment-methods-row" style="display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 25px; background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.98)); padding: 14px 20px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.18); flex-wrap: wrap; transition: all 0.4s ease; box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.25); position: relative; overflow: hidden;">
+                <!-- Unified Top Row (Payment Methods Row - Slim Single Level) -->
+                <div id="payment-methods-row" style="display: flex; align-items: center; justify-content: flex-start; gap: 10px; margin-bottom: 12px; background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.98)); padding: 6px 14px; border-radius: 12px; border: 1px solid rgba(255, 255, 255, 0.18); flex-wrap: nowrap; transition: all 0.4s ease; box-shadow: 0 4px 16px rgba(0, 0, 0, 0.45); position: relative; overflow-x: auto; min-height: 44px; box-sizing: border-box; width: 100%;">
                     
-                    <!-- Title & Toggles -->
-                    <div style="display: flex; align-items: center; gap: 15px; flex: none; flex-wrap: wrap;">
-                        <div id="main-party-title" style="display: flex; align-items: center; gap: 8px; font-size: 1.1rem; font-weight: 700; color: #ffffff; text-shadow: 0 2px 4px rgba(0,0,0,0.3);">
-                            <span>👤</span> بيان الطرف الرئيسي
-                        </div>
-                        <div style="display: flex; gap: 10px;">
-                            <button id="btn-payment" class="voucher-type-btn active-payment" onclick="setVoucherType('payment')" title="الصرف من حساب واحد إلى مجموعة حسابات">
-                                <span class="btn-icon"><i class="fa-solid fa-wallet"></i></span> <span class="btn-text">صرف إلى مجموعة</span>
-                            </button>
-                            <button id="btn-receipt" class="voucher-type-btn" onclick="setVoucherType('receipt')" title="استلام في حساب واحد من مجموعة حسابات">
-                                <span class="btn-icon"><i class="fa-solid fa-sack-dollar"></i></span> <span class="btn-text">استلام من مجموعة</span>
-                            </button>
-                        </div>
+                    <!-- User Icon Only (حذف كلمة بيان الطرف الرئيسي والإبقاء على الأيقونة فقط) -->
+                    <div id="main-party-title" style="display: flex; align-items: center; justify-content: center; font-size: 1.35rem; color: #ffffff; flex-shrink: 0; padding: 0 4px;" title="الطرف الرئيسي">
+                        <span>👤</span>
                     </div>
 
-                    <!-- Voucher Details (Ref, Date, No) -->
-                    <div style="display: flex; align-items: center; gap: 15px; flex: 1; justify-content: flex-end; flex-wrap: wrap;">
-                        
-                        <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; height: 40px; padding: 0 8px;">
-                            <button type="button" onclick="navigateVoucher(-1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 1.1rem; padding: 0 5px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند السابق">◀</button>
-                            <div style="display: flex; align-items: center; gap: 4px;">
-                                <span style="color: #94a3b8; font-size: 1.4rem; font-weight: bold; white-space: nowrap;">📄 السند:</span>
-                                <input type="text" id="voucher-no-display" readonly style="background: transparent !important; border: none !important; color: #fff; font-weight: bold; width: 160px; text-align: center; outline: none !important; font-size: 2.4rem; box-shadow: none !important; padding: 0;" value="">
-                            </div>
-                            <button type="button" onclick="navigateVoucher(1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 1.1rem; padding: 0 5px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند التالي">▶</button>
-                        </div>
+                    <!-- Toggles: صرف / استلام -->
+                    <div style="display: flex; gap: 6px; flex-shrink: 0;">
+                        <button id="btn-payment" class="voucher-type-btn active-payment" onclick="setVoucherType('payment')" title="الصرف من حساب واحد إلى مجموعة حسابات">
+                            <span class="btn-icon"><i class="fa-solid fa-wallet"></i></span> <span class="btn-text">صرف</span>
+                        </button>
+                        <button id="btn-receipt" class="voucher-type-btn" onclick="setVoucherType('receipt')" title="استلام في حساب واحد من مجموعة حسابات">
+                            <span class="btn-icon"><i class="fa-solid fa-sack-dollar"></i></span> <span class="btn-text">استلام</span>
+                        </button>
+                    </div>
 
-                        <div style="display: flex; align-items: center; gap: 8px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 10px; height: 50px; padding: 0 12px;">
-                            <span style="color: #94a3b8; font-size: 1.4rem; font-weight: bold; white-space: nowrap;">📅 التاريخ:</span>
-                            <input type="date" id="voucher-date" style="background: transparent !important; border: none !important; color: #fff; font-weight: bold; padding: 0; margin: 0; height: 100%; width: 200px; outline: none !important; box-shadow: none !important; font-size: 2.2rem; -webkit-appearance: none; appearance: none;">
-                        </div>
+                    <!-- التاريخ -->
+                    <div style="display: flex; align-items: center; gap: 6px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; height: 36px; padding: 0 10px; flex-shrink: 0;">
+                        <span style="color: #94a3b8; font-size: 0.92rem; font-weight: bold; white-space: nowrap;">📅 التاريخ:</span>
+                        <input type="date" id="voucher-date" style="background: transparent !important; border: none !important; color: #fff; font-weight: bold; padding: 0; margin: 0; height: 100%; width: 130px; outline: none !important; box-shadow: none !important; font-size: 1.05rem; -webkit-appearance: none; appearance: none; cursor: pointer;">
+                    </div>
 
-                        <div style="display: flex; align-items: center;">
-                            <input type="text" autocomplete="off" id="voucher-ref" class="form-input" placeholder="رقم المرجع (اختياري)" style="height: 40px; width: 160px; background: rgba(0,0,0,0.3); font-size: 0.9rem;">
+                    <!-- السند مع أزرار التنقل -->
+                    <div style="display: flex; align-items: center; gap: 4px; background: rgba(0,0,0,0.3); border: 1px solid rgba(255,255,255,0.1); border-radius: 8px; height: 36px; padding: 0 8px; flex-shrink: 0;">
+                        <button type="button" onclick="navigateVoucher(-1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 0.95rem; padding: 0 4px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند السابق">◀</button>
+                        <div style="display: flex; align-items: center; gap: 4px;">
+                            <span style="color: #94a3b8; font-size: 0.92rem; font-weight: bold; white-space: nowrap;">📄 السند:</span>
+                            <input type="text" id="voucher-no-display" readonly style="background: transparent !important; border: none !important; color: #fff; font-weight: bold; width: 90px; text-align: center; outline: none !important; font-size: 1.15rem; box-shadow: none !important; padding: 0;" value="">
                         </div>
+                        <button type="button" onclick="navigateVoucher(1)" style="background: transparent; border: none; color: #38bdf8; cursor: pointer; font-size: 0.95rem; padding: 0 4px; outline: none; transition: transform 0.2s;" onmouseover="this.style.transform='scale(1.2)'" onmouseout="this.style.transform='scale(1)'" title="السند التالي">▶</button>
+                    </div>
+
+                    <!-- رقم المرجع -->
+                    <div style="display: flex; align-items: center; flex-shrink: 0;">
+                        <input type="text" autocomplete="off" id="voucher-ref" class="form-input" placeholder="رقم المرجع (اختياري)" style="height: 36px; width: 140px; background: rgba(0,0,0,0.3); font-size: 0.88rem; padding: 0 10px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); color: #fff; margin: 0;">
                     </div>
                 </div>
 
