@@ -1,4 +1,4 @@
-// Version: 20260911004300 (WhatsApp AI On-Page Direct Hub Engine)
+// Version: 20260911070000 (WhatsApp AI On-Page Direct Hub Engine v3)
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
