@@ -1,4 +1,4 @@
-// Version: 20260911204000 (Unified Psychological Button Design System v9)
+// Version: 20260911213000 (Sleek Single Line Header Row v11)
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
