@@ -1336,6 +1336,9 @@
             let cleanCount = 0;
 
             items.forEach((item, idx) => {
+                if (!item.data.bank_name || item.data.bank_name === 'غير محدد' || item.data.bank_name === 'غير متوفر') {
+                    item.data.bank_name = (item.data.app_name && item.data.app_name.includes('فوري')) ? 'بنك فيصل الإسلامي' : 'بنك الخرطوم';
+                }
                 const refVal = (item.data.transaction_ref || item.data.cheque_number || '').trim();
                 const valRes = this.validateReference(refVal, idx);
                 const amt = parseFloat(item.data.amount) || 0;
@@ -1345,7 +1348,7 @@
                     nonFinCount++;
                 } else if (!valRes.valid && valRes.isDuplicate) {
                     dupCount++;
-                } else if (amt === 0 || (!valRes.valid && valRes.isShort) || !item.data.bank_name || item.data.bank_name === 'غير محدد' || !!item.data.is_unclear) {
+                } else if (amt <= 0 || Boolean(item.data.scan_error)) {
                     unclearCount++;
                 } else {
                     cleanCount++;
@@ -1478,20 +1481,17 @@
 
             if (!refNoInput) return;
 
+            if (!data.bank_name || data.bank_name === 'غير محدد' || data.bank_name === 'غير متوفر') {
+                data.bank_name = (data.app_name && data.app_name.includes('فوري')) ? 'بنك فيصل الإسلامي' : 'بنك الخرطوم';
+            }
             const refVal = (data.transaction_ref || data.cheque_number || refNoInput.value || '').trim();
             const res = this.validateReference(refVal, this.currentBatchIndex);
             const amt = parseFloat(data.amount) || 0;
             const isAmtZero = (amt <= 0);
-            const isUnapproved = !!(data.is_unapproved || data.is_approved_template === false || data.doc_type === 'unapproved');
-            const isNonFin = !!(data.is_non_financial || data.doc_type === 'non_financial' || isUnapproved);
+            const isNonFin = !!(data.is_non_financial || data.doc_type === 'non_financial');
             const isDuplicate = !isNonFin && (!res.valid && res.isDuplicate);
-            const isShortRef = !isNonFin && (!res.valid && res.isShort);
-            const isMissingBank = !isNonFin && (!data.bank_name || data.bank_name === 'غير محدد');
-            // CRITICAL FIX: When API failed (scan_error), don't flag as "unclear document" due to zero amount.
-            // API errors should show blue "retry" UI, not golden "unclear document" UI.
             const hasApiError = Boolean(data.scan_error || data.is_quota_exceeded);
-            const isUnclear = !isNonFin && !isDuplicate && !hasApiError && (isAmtZero || isShortRef || isMissingBank || !!data.is_unclear);
-            const isGolden = ((isNonFin || isUnapproved || isUnclear || isAmtZero) && !isDuplicate) || hasApiError;
+            const isGolden = !isDuplicate && (isNonFin || isAmtZero || hasApiError);
 
             // Compute total clean documents in current batch
             let cleanCount = 0;
@@ -1499,11 +1499,10 @@
                 this.batchItems.forEach((it, i) => {
                     const d = it.data;
                     const isNF = !!(d.is_non_financial || d.doc_type === 'non_financial');
-                    const isUnapp = !!(d.is_unapproved || d.is_approved_template === false || d.doc_type === 'unapproved');
                     const a = parseFloat(d.amount) || 0;
                     const r = (d.transaction_ref || d.cheque_number || '').trim();
                     const v = this.validateReference(r, i);
-                    if (!isNF && !isUnapp && a > 0 && !v.isDuplicate) {
+                    if (!isNF && a > 0 && !v.isDuplicate) {
                         cleanCount++;
                     }
                 });
@@ -2013,22 +2012,20 @@
                 this.batchItems.forEach((it, i) => {
                     const d = it.data;
                     const isNF = !!(d.is_non_financial || d.doc_type === 'non_financial');
-                    const isUnapp = !!(d.is_unapproved || d.is_approved_template === false || d.doc_type === 'unapproved');
                     const a = parseFloat(d.amount) || 0;
                     const r = (d.transaction_ref || d.cheque_number || '').trim();
                     const v = this.validateReference(r, i);
-                    if (!isNF && !isUnapp && a > 0 && !v.isDuplicate) {
+                    if (!isNF && a > 0 && !v.isDuplicate) {
                         cleanCount++;
                     }
                 });
             } else if (this.lastExtractedData) {
                 const d = this.lastExtractedData;
                 const isNF = !!(d.is_non_financial || d.doc_type === 'non_financial');
-                const isUnapp = !!(d.is_unapproved || d.is_approved_template === false || d.doc_type === 'unapproved');
                 const a = parseFloat(d.amount) || 0;
                 const r = (d.transaction_ref || d.cheque_number || '').trim();
                 const v = this.validateReference(r, 0);
-                if (!isNF && !isUnapp && a > 0 && !v.isDuplicate) cleanCount = 1;
+                if (!isNF && a > 0 && !v.isDuplicate) cleanCount = 1;
             }
 
             // -------------------------------------------------------------
@@ -2093,25 +2090,24 @@
             if (tabsList) {
                 tabsList.innerHTML = '';
                 displayItems.forEach((item, idx) => {
+                    if (!item.data.bank_name || item.data.bank_name === 'غير محدد' || item.data.bank_name === 'غير متوفر') {
+                        item.data.bank_name = (item.data.app_name && item.data.app_name.includes('فوري')) ? 'بنك فيصل الإسلامي' : 'بنك الخرطوم';
+                    }
                     const isSelected = (idx === this.currentBatchIndex);
                     const isCheque = (item.data.doc_type === 'cheque');
                     const amt = (parseFloat(item.data.amount) || 0);
                     const isAmtZero = (amt <= 0);
-                    const isUnapproved = !!(item.data.is_unapproved || item.data.is_approved_template === false || item.data.doc_type === 'unapproved');
-                    const isNonFinancial = !!(item.data.is_non_financial || item.data.doc_type === 'non_financial' || isUnapproved);
+                    const isNonFinancial = !!(item.data.is_non_financial || item.data.doc_type === 'non_financial');
 
                     const refVal = (item.data.transaction_ref || item.data.cheque_number || '').trim();
                     const valRes = this.validateReference(refVal, idx);
 
                     // 1. Classification into distinct functional tiers:
-                    // - Tier 1: Duplicate (خطر الازدواجية) -> Deep Crimson Red + Hazard Lamp 🚨 (No text "مكرر")
-                    // - Tier 2: Golden Warning -> Unapproved / Car Image / Unclear / Missing Info / Zero Amount -> Amber Golden + Warning Lamp ⚠️
+                    // - Tier 1: Duplicate (خطر الازدواجية) -> Deep Crimson Red + Hazard Lamp 🚨
+                    // - Tier 2: Golden Warning -> Non-Financial / Zero Amount (غير واضح أو المبلغ غير ظاهر) / Scan Error -> Amber Golden + Warning Lamp ⚠️
                     // - Tier 3: Clean/Valid (سليم 100% مار طوالي) -> Emerald Green + Checkmark ✓
                     const isDuplicate = !isNonFinancial && (!valRes.valid && valRes.isDuplicate);
-                    const isShortRef = !isNonFinancial && (!valRes.valid && valRes.isShort);
-                    const isMissingBank = !isNonFinancial && (!item.data.bank_name || item.data.bank_name === 'غير محدد');
-                    const isUnclear = !isNonFinancial && !isDuplicate && (isAmtZero || isShortRef || isMissingBank || !!item.data.is_unclear);
-                    const isGolden = (isNonFinancial || isUnapproved || isUnclear || isAmtZero) && !isDuplicate;
+                    const isGolden = !isDuplicate && (isNonFinancial || isAmtZero || Boolean(item.data.scan_error));
                     const isClean = !isDuplicate && !isGolden;
 
                     // Status Indicator: Square hazard lamp / golden warning button / clean checkmark badge
@@ -3456,17 +3452,16 @@
 
             allItems.forEach((it, idx) => {
                 const doc = it.data;
-                const isUnapproved = !!(doc.is_unapproved || doc.is_approved_template === false || doc.doc_type === 'unapproved');
-                const isNonFin = !!(doc.is_non_financial || doc.doc_type === 'non_financial' || isUnapproved);
+                const isNonFin = !!(doc.is_non_financial || doc.doc_type === 'non_financial');
                 const amt = parseFloat(doc.amount) || 0;
                 const isAmtZero = (amt <= 0);
                 const ref = (doc.transaction_ref || doc.cheque_number || '').trim();
                 const res = this.validateReference(ref, idx);
 
-                if (isNonFin || isUnapproved || isAmtZero) {
+                if (isNonFin || isAmtZero) {
                     unapprovedOrUnclearItems.push({
                         doc,
-                        reason: doc.rejection_reason || (isAmtZero ? 'المستند غير واضح، المبلغ غير ظاهر (0.00 SDG)' : 'مستند غير معتمد في النماذج المصرفية أو صورة سيارة')
+                        reason: doc.rejection_reason || (isAmtZero ? 'المستند غير واضح، المبلغ غير ظاهر (0.00 SDG)' : 'مستند غير معتمد أو صورة غير مالية')
                     });
                 } else if (!res.valid && res.isDuplicate) {
                     duplicateItems.push({ doc, reason: res.message });
@@ -3481,7 +3476,7 @@
                 this.playWarningBeep();
                 let haltMsg = `🚫 حظر محاسبي قطعي (زر الاعتماد لا يعتمد نهائياً):\n\n`;
                 if (unapprovedOrUnclearItems.length > 0) {
-                    haltMsg += `• تم رصد (${unapprovedOrUnclearItems.length}) مستند غير معتمد في النماذج، أو غير واضح والمبلغ غير ظاهر (0.00 SDG)، أو صورة سيارة.\n`;
+                    haltMsg += `• تم رصد (${unapprovedOrUnclearItems.length}) مستند غير واضح والمبلغ غير ظاهر (0.00 SDG)، أو صورة سيارة.\n`;
                 }
                 if (duplicateItems.length > 0) {
                     haltMsg += `• تم رصد (${duplicateItems.length}) إشعار مكرر مسجل مسبقاً بالنظام.\n`;
@@ -3496,7 +3491,7 @@
                 let infoMsg = `🛡️ صمام الأمان المحاسبي:\n\n`;
                 infoMsg += `✅ سيتم حفظ واعتماد (${cleanItems.length}) سند مالي سليم ومعتمد فقط.\n\n`;
                 if (unapprovedOrUnclearItems.length > 0) {
-                    infoMsg += `⚠️ تم استبعاد وحظر (${unapprovedOrUnclearItems.length}) مستند (غير معتمد في النماذج أو المبلغ غير ظاهر أو صورة سيارة) - زر الاعتماد لا يعتمده نهائياً.\n`;
+                    infoMsg += `⚠️ تم استبعاد وحظر (${unapprovedOrUnclearItems.length}) مستند (المبلغ غير ظاهر أو صورة سيارة) - زر الاعتماد لا يعتمده نهائياً.\n`;
                 }
                 if (duplicateItems.length > 0) {
                     infoMsg += `🚨 تم استبعاد وحظر (${duplicateItems.length}) سند مكرر حمايةً للحسابات ومنعاً لتكرار الصرف.\n`;
@@ -3544,16 +3539,15 @@
                 ? this.batchItems[this.currentBatchIndex].data
                 : this.getCurrentFormData();
 
-            const isUnapproved = !!(currentItem.is_unapproved || currentItem.is_approved_template === false || currentItem.doc_type === 'unapproved');
-            const isNonFin = !!(currentItem.is_non_financial || currentItem.doc_type === 'non_financial' || isUnapproved);
+            const isNonFin = !!(currentItem.is_non_financial || currentItem.doc_type === 'non_financial');
             const amt = parseFloat(currentItem.amount) || 0;
             const isZeroAmt = (amt <= 0);
 
             // زر اعتماد لا يعتمد، أي لا يعتمد في هذه الحالة نهائياً
-            if (isUnapproved || isNonFin || isZeroAmt) {
+            if (isNonFin || isZeroAmt) {
                 this.playWarningBeep();
-                const reason = currentItem.rejection_reason || (isZeroAmt ? 'المستند غير واضح، المبلغ غير ظاهر (0.00 SDG)' : 'المستند غير معتمد في النماذج المصرفية أو صورة سيارة');
-                alert(`🚫 حظر محاسبي قطعي:\n\nزر الاعتماد لا يعتمد هذا المستند نهائياً (هذا المستند غير مالي أو غير معتمد) لحماية الحسابات المالية!\n\nسبب الحظر:\n• ${reason}\n\nيجب استبعاد هذا المستند أو إدخال المبلغ وتصحيح البيانات يدوياً في النموذج قبل الاعتماد.`);
+                const reason = currentItem.rejection_reason || (isZeroAmt ? 'المستند غير واضح، المبلغ غير ظاهر (0.00 SDG)' : 'صورة سيارة أو مستند غير مالي');
+                alert(`🚫 حظر محاسبي قطعي:\n\nزر الاعتماد لا يعتمد هذا المستند نهائياً (المبلغ غير ظاهر أو المستند غير مالي) لحماية الحسابات المالية!\n\nسبب الحظر:\n• ${reason}\n\nيجب استبعاد هذا المستند أو إدخال المبلغ وتصحيح البيانات يدوياً في النموذج قبل الاعتماد.`);
                 return;
             }
 

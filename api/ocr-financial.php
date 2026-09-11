@@ -122,7 +122,7 @@ if (!empty($allGuidelines)) {
 }
 $customGuidelineText .= $templatesText;
 
-// Function to robustly clean and extract financial amount (handles Arabic numbers, currencies, commas, and regex fallback)
+// Function to robustly clean and extract financial amount (handles Arabic numbers, currencies, commas, multiple dots, and regex fallback)
 if (!function_exists('cleanFinancialAmount')) {
     function cleanFinancialAmount($val, $rawText = '') {
         $str = '';
@@ -130,42 +130,53 @@ if (!function_exists('cleanFinancialAmount')) {
             $str = (string)$val;
         }
 
-        // Convert Eastern Arabic-Indic numerals (٠-٩) and Persian (۰-۹) to standard Western digits (0-9)
+        // Standardize Eastern Arabic (٠-٩) and Persian (۰-۹) digits to Latin (0-9)
         $arabic = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
         $persian = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
         $latin = ['0','1','2','3','4','5','6','7','8','9'];
         $str = str_replace($arabic, $latin, $str);
         $str = str_replace($persian, $latin, $str);
 
-        if (preg_match('/[0-9]/', $str)) {
-            // Find numeric substring
-            if (preg_match('/([0-9][0-9,.\s]*[0-9]|[0-9]+)/', $str, $m)) {
-                $rawNum = trim($m[1]);
-                if (strpos($rawNum, '.') !== false && strpos($rawNum, ',') !== false) {
-                    if (strrpos($rawNum, ',') > strrpos($rawNum, '.')) {
-                        // European/Sudanese style: 150.000,00 -> comma is decimal
-                        $rawNum = str_replace('.', '', $rawNum);
-                        $rawNum = str_replace(',', '.', $rawNum);
-                    } else {
-                        // Standard style: 150,000.00 -> dot is decimal
-                        $rawNum = str_replace(',', '', $rawNum);
-                    }
+        $parseNumeric = function($raw) {
+            $raw = trim($raw);
+            // If string contains both dots and commas, determine decimal vs thousands
+            if (strpos($raw, '.') !== false && strpos($raw, ',') !== false) {
+                if (strrpos($raw, ',') > strrpos($raw, '.')) {
+                    // European: 1.500.000,50 -> dot is thousands, comma is decimal
+                    $raw = str_replace('.', '', $raw);
+                    $raw = str_replace(',', '.', $raw);
                 } else {
-                    $cleaned = str_replace([' ', ','], '', $rawNum);
-                    if (substr_count($cleaned, '.') > 1) {
-                        $parts = explode('.', $cleaned);
-                        $last = array_pop($parts);
-                        $cleaned = implode('', $parts) . '.' . $last;
-                    } elseif (preg_match('/^(\d+)\.(\d{3})$/', $cleaned, $mp)) {
-                        // 150.000 -> 150000 (thousands separator mistaken as dot)
-                        $cleaned = $mp[1] . $mp[2];
-                    }
-                    $rawNum = $cleaned;
+                    // Anglo-American: 1,500,000.50 -> comma is thousands, dot is decimal
+                    $raw = str_replace(',', '', $raw);
                 }
-                $num = floatval($rawNum);
-                if ($num > 0) {
-                    return $num;
+            } elseif (substr_count($raw, '.') > 1) {
+                // Multiple dots: 1.500.000 or 1.500.000.00 -> thousands separator is dot
+                $parts = explode('.', $raw);
+                if (strlen(end($parts)) == 2) {
+                    $cents = array_pop($parts);
+                    $raw = implode('', $parts) . '.' . $cents;
+                } else {
+                    $raw = implode('', $parts);
                 }
+            } elseif (substr_count($raw, ',') > 1) {
+                // Multiple commas: 1,500,000 -> all commas are thousands separators
+                $raw = str_replace(',', '', $raw);
+            } elseif (preg_match('/^(\d+)[.,](\d{3})$/', $raw, $m)) {
+                // Single dot or comma with 3 digits at the end: 150.000 or 150,000 -> 150000
+                $raw = $m[1] . $m[2];
+            } elseif (preg_match('/^(\d+),(\d{2})$/', $raw, $m)) {
+                // e.g. 1500,50 -> comma is decimal
+                $raw = $m[1] . '.' . $m[2];
+            } else {
+                $raw = str_replace([',', ' '], '', $raw);
+            }
+            return floatval($raw);
+        };
+
+        if (preg_match('/[0-9]/', $str)) {
+            if (preg_match('/([0-9][0-9,.\s]*[0-9]|[0-9]+)/', $str, $m)) {
+                $num = $parseNumeric($m[1]);
+                if ($num > 0) return $num;
             }
         }
 
@@ -176,22 +187,25 @@ if (!function_exists('cleanFinancialAmount')) {
 
             // Pattern 1: JSON field "amount": "150,000" or "amount": 150000
             if (preg_match('/"amount"\s*:\s*"?([0-9][0-9,.\s]*)/i', $cleanRaw, $m)) {
-                $cleaned = str_replace([' ', ','], '', $m[1]);
-                $num = floatval($cleaned);
+                $num = $parseNumeric($m[1]);
                 if ($num > 0) return $num;
             }
 
-            // Pattern 2: Arabic text mentioning المبلغ / مبلغ / قيمة followed by numbers
-            if (preg_match('/(?:المبلغ|مبلغ|بمبلغ|قيمة|ادفعوا)\s*(?:قدره|:)?\s*([0-9][0-9,.\s]*)/u', $cleanRaw, $m)) {
-                $cleaned = str_replace([' ', ','], '', $m[1]);
-                $num = floatval($cleaned);
+            // Pattern 2: Arabic text with various financial labels
+            if (preg_match('/(?:المبلغ(?:\s+(?:الإجمالي|الكلي|المرسل|المحول|المدفوع|المطلوب))?|قيمة(?:\s+(?:المعاملة|التحويل|الحوالة|السند|الفاتورة))?|بمبلغ|مبلغ|ادفعوا)\s*[:\-]?\s*(?:قدره)?\s*[:\-]?\s*([0-9][0-9,.\s]*[0-9]|[0-9]+)/ui', $cleanRaw, $m)) {
+                $num = $parseNumeric($m[1]);
                 if ($num > 0) return $num;
             }
 
-            // Pattern 3: Number followed by currency (SDG, ج.س, جنيه, دولار)
-            if (preg_match('/([0-9][0-9,.]+)\s*(?:SDG|ج\.س|جنيه|ريال|دولار)/ui', $cleanRaw, $m)) {
-                $cleaned = str_replace([' ', ','], '', $m[1]);
-                $num = floatval($cleaned);
+            // Pattern 3: English labels
+            if (preg_match('/(?:Total(?:\s+Amount)?|Amount|Sum|Transfer(?:\s+Amount)?)\s*[:\-]?\s*([0-9][0-9,.\s]*[0-9]|[0-9]+)/ui', $cleanRaw, $m)) {
+                $num = $parseNumeric($m[1]);
+                if ($num > 0) return $num;
+            }
+
+            // Pattern 4: Number followed by currency (SDG, ج.س, جنيه, ريال, دولار)
+            if (preg_match('/([0-9][0-9,.\s]*[0-9]|[0-9]+)\s*(?:SDG|ج\.س|جنيه|ريال|SAR|USD|دولار)/ui', $cleanRaw, $m)) {
+                $num = $parseNumeric($m[1]);
                 if ($num > 0) return $num;
             }
         }
@@ -203,27 +217,30 @@ if (!function_exists('cleanFinancialAmount')) {
 $systemPrompt = "أنت خبير فحص المستندات المالية المصرفية بالرؤية الحاسوبية (AI Financial Document OCR) متخصص في إشعارات التحويلات البنكية والشيكات المصرفية (خاصة البنوك السودانية والعربية مثل بنكك، فوري، أوكاش، بنك أمدرمان، بنك الخرطوم، بنك فيصل، والشيكات المصرفية الورقية).
 
 المطلوب:
-افحص صورة المستند المرفقة بدقة بالغة، وحدد ما إذا كانت:
-1. إشعار تحويل بنكي معتمد في النماذج (Approved Bank Transfer Receipt): من تطبيق هاتف معتمد (بنكك، فوري، أوكاش، بنك النيل، إلخ) أو قسيمة إيداع بنكي مطابقة.
-2. شيك مصرفي معتمد في النماذج (Approved Bank Check): شيك ورقي أو صورة شيك معبأ بالبيانات ومطابق.
-3. صورة أو مستند غير مالي (Non-Financial) أو غير معتمد في النماذج (Unapproved): في حال كانت الصورة لسيارة، مركبة، منظر طبيعي، صورة شخصية، بضاعة، أو أي شيء غير معتمد في النماذج المصرفية المعتمدة.
+افحص صورة المستند المرفقة بدقة بالغة:
+1. إشعار تحويل بنكي معتمد (Approved Bank Transfer Receipt): أي إشعار تحويل مصرفي من أي تطبيق بنكي (بنكك - بنك الخرطوم، فوري - بنك فيصل، أوكاش - بنك أمدرمان، بنك النيل، إلخ) أو إشعار إيداع نقدي أو قسيمة بنكية يعتبر مستنداً مالياً معتمداً وسليماً تماماً (is_financial_doc: true, is_approved_template: true, doc_type: 'bank_transfer').
+2. شيك مصرفي معتمد (Approved Bank Check): أي شيك مصرفي ورقي معبأ أو مطبوع يعتبر مستنداً مالياً معتمداً وسليماً (is_financial_doc: true, is_approved_template: true, doc_type: 'cheque').
+3. فقط وحصراً إذا كانت الصورة لسيارة، مركبة، بضاعة، صورة شخصية، أو منظر طبيعي لا علاقة له بالمعاملات المالية إطلاقاً، اجعل (is_financial_doc: false, is_approved_template: false, doc_type: 'non_financial').
 
-معالم ونماذج الإشعارات والشيكات:
-- بنكك (Bankak - بنك الخرطوم): بطاقة خضراء أو بيضاء بعبارة 'إشعار تحويل بنكي' أو 'بنك الخرطوم'، يظهر فيها رقم العملية / Transaction ID (أرقام متسلسلة عادة 7 إلى 10 أرقام)، المبلغ بالجنيه أو الدولار، اسم ورقم حساب المحول (من)، اسم ورقم حساب المستفيد (إلى)، والتاريخ والوقت.
-- فوري (Fawry - بنك فيصل الإسلامي): يظهر اسم بنك فيصل الإسلامي أو تطبيق فوري، كود المعاملة أو المرجع، اسم المستفيد، المبلغ والتاريخ.
-- أوكاش (Ocash - بنك أمدرمان الوطني): إشعار تحويل أو دفع من بنك أمدرمان الوطني، يتضمن الرقم المرجعي، المبلغ، وبيانات الأطراف.
-- قسائم الإيداع البنكية الورقية: ختم البنك، رقم القسيمة، الحساب المودع له، المبلغ.
-- الشيكات المصرفية: اسم البنك أعلى الشيك، رقم الشيك (أعلى اليمين أو في شريط الـ MICR السفلي بين علامتي '⑈' أو أرقام مطبوعة)، المبلغ بالأرقام (مكتوب بين علامتي # أو = أو *) والمبلغ بالحروف العربية (تفقيط: ادفعوا لأمر ... مبلغ وقدره ...)، اسم المستفيد، تاريخ تحرير الشيك، وتاريخ الاستحقاق إن وجد.
+معالم وتطبيقات الإشعارات المصرفية:
+- بنكك (Bankak - بنك الخرطوم): بطاقة خضراء أو بيضاء أو إشعار تحويل أو دفع. اسم البنك تلقائياً هو 'بنك الخرطوم'. رقم العملية / Transaction ID يظهر كأرقام متسلسلة (مثلاً 7 إلى 12 رقماً)، المبلغ بالجنيه أو العملة الأخرى، حساب المحول (من حساب)، حساب المستفيد (إلى حساب)، واسم المستفيد والتاريخ.
+- فوري (Fawry - بنك فيصل الإسلامي): إشعار من تطبيق فوري أو بنك فيصل الإسلامي. اسم البنك تلقائياً هو 'بنك فيصل الإسلامي'.
+- أوكاش (Ocash - بنك أمدرمان الوطني): إشعار تحويل بنك أمدرمان. اسم البنك تلقائياً هو 'بنك أمدرمان الوطني'.
+- بنك النيل، بنك البركة، بنك التضامن، والشارقة وغيرها من البنوك: استخرج اسم البنك والمبلغ ورقم المعاملة.
+- الشيكات المصرفية: اسم البنك أعلى الشيك، رقم الشيك، المبلغ بالأرقام والتفقيط بالحروف، اسم المستفيد والتاريخ.
+
+قواعد تصنيف حاسمة:
+- أي إشعار تحويل بنكي يظهر فيه مبلغ مالي ورقم عملية أو اسم مستفيد أو حساب بنكي هو مستند مالي معتمد وسليم 100%، ولا يجوز إطلاقاً تصنيفه على أنه 'غير معتمد' أو 'غير واضح' إذا كانت تفاصيل التحويل ظاهرة ومقروءة!
 
 قم باستخراج البيانات بدقة وتفريغها حصراً بصيغة JSON التالية وبدون أي نصوص تمهيدية:
 {
   \"is_financial_doc\": true,
   \"is_approved_template\": true,
-  \"doc_type\": \"bank_transfer\" | \"cheque\" | \"deposit_slip\" | \"non_financial\" | \"unapproved\",
-  \"rejection_reason\": \"سبب عدم الاعتماد إذا كانت الصورة لسيارة، بضاعة، مستند شخصي، مستند غير معتمد في النماذج، أو إذا كان المستند غير واضح والمبلغ غير ظاهر (مثال: صورة سيارة، مستند غير معتمد في النماذج، المستند غير واضح والمبلغ غير ظاهر) أو فارغ\",
+  \"doc_type\": \"bank_transfer\" | \"cheque\" | \"deposit_slip\" | \"non_financial\",
+  \"rejection_reason\": \"\",
   \"bank_name\": \"اسم البنك (مثلاً: بنك الخرطوم، بنك فيصل الإسلامي، بنك أمدرمان الوطني، أو كما يظهر في الصورة)\",
   \"app_name\": \"اسم التطبيق إن كان إشعار موبايل (مثلاً: بنكك، فوري، أوكاش، تطبيق بنكي) أو فارغ للشيكات\",
-  \"transaction_ref\": \"رقم العملية المرجعي / كود التحويل / رقم الإشعار\",
+  \"transaction_ref\": \"رقم العملية المرجعي / كود التحويل / رقم الإشعار / Transaction ID\",
   \"cheque_number\": \"رقم الشيك فقط إن كان المستند شيكاً أو فارغ\",
   \"amount\": 0.0,
   \"amount_in_words\": \"المبلغ بالحروف العربية تفقيطاً إن وجد في الشيك (مثال: فقط خمسون ألف جنيه سوداني لا غير) أو فارغ\",
@@ -245,7 +262,7 @@ $systemPrompt = "أنت خبير فحص المستندات المالية الم
 1. المبلغ الإجمالي للمعاملة يجب أن يكون رقماً حقيقياً خالصاً (number) في حقل \"amount\" (مثلاً 150000 أو 75500.50 بدون فواصل وبدون نصوص عملة). في الشيكات استخرج الرقم من خانة المبلغ بالأرقام ومن التفقيط، وفي الإشعارات من خانة المبلغ. لا تترك المبلغ 0 أبداً إذا كان هناك أي مبلغ مكتوب في المستند!
 2. استخرج رقم التحويلة أو رقم الشيك بالكامل دون نقصان.
 3. التواريخ يجب أن تكون بصيغة YYYY-MM-DD إن أمكن قراءتها.
-4. بالنسبة لبيانات الأطراف والحسابات (تنبيه صارم لمنع عكس الحسابات نهائياً):
+4. بالنسبة لبيانات الأطراف والحسابات:
 - رقم الحساب المكتوب في خانة 'من حساب' أو 'المحول منه' أو 'From Account' ضعه حصراً في \"sender_account\" بنفس ترتيب أرقامه الأصلي من اليسار لليمين دون عكس.
 - رقم الحساب المكتوب في خانة 'إلى حساب' أو 'المستفيد' أو 'المستلم' أو 'To Account' أو 'Account Number' ضعه حصراً في \"receiver_account\" بنفس ترتيب أرقامه الأصلي من اليسار لليمين دون عكس.
 - إياك نهائياً أن تعكس رقمي الحسابين بين من وإلى، أو تضع حساب المستلم مكان حساب المرسل والعكس!
@@ -279,7 +296,7 @@ $payload = [
     "generationConfig" => [
         "responseMimeType" => "application/json",
         "temperature" => 0.1,
-        "maxOutputTokens" => 600
+        "maxOutputTokens" => 2048
     ]
 ];
 
@@ -387,9 +404,37 @@ if (isset($responseData['candidates'][0]['content']['parts'][0]['text'])) {
             || !empty($parsedData['cheque_number']) 
             || (!empty($parsedData['bank_name']) && $parsedData['bank_name'] !== 'غير محدد')
             || !empty($parsedData['sender_account'])
-            || !empty($parsedData['receiver_account']);
+            || !empty($parsedData['receiver_account'])
+            || !empty($parsedData['receiver_name']);
 
         $docType = $parsedData['doc_type'] ?? '';
+
+        // Auto-deduce and standardize bank name and app name
+        $bankName = trim((string)($parsedData['bank_name'] ?? ''));
+        $appName = trim((string)($parsedData['app_name'] ?? ''));
+        $searchPoolLower = mb_strtolower($rawText . ' ' . ($parsedData['notes'] ?? '') . ' ' . ($parsedData['summary'] ?? '') . ' ' . $bankName . ' ' . $appName);
+
+        if (empty($bankName) || in_array($bankName, ['غير محدد', 'غير متوفر', 'N/A', 'null', 'None', '-'])) {
+            if (strpos($searchPoolLower, 'بنكك') !== false || strpos($searchPoolLower, 'bankak') !== false || strpos($searchPoolLower, 'الخرطوم') !== false || strpos($searchPoolLower, 'bok') !== false) {
+                $parsedData['bank_name'] = 'بنك الخرطوم';
+                if (empty($parsedData['app_name'])) $parsedData['app_name'] = 'بنكك';
+            } elseif (strpos($searchPoolLower, 'فوري') !== false || strpos($searchPoolLower, 'fawry') !== false || strpos($searchPoolLower, 'فيصل') !== false || strpos($searchPoolLower, 'fib') !== false) {
+                $parsedData['bank_name'] = 'بنك فيصل الإسلامي';
+                if (empty($parsedData['app_name'])) $parsedData['app_name'] = 'فوري';
+            } elseif (strpos($searchPoolLower, 'أوكاش') !== false || strpos($searchPoolLower, 'ocash') !== false || strpos($searchPoolLower, 'أمدرمان') !== false || strpos($searchPoolLower, 'onb') !== false) {
+                $parsedData['bank_name'] = 'بنك أمدرمان الوطني';
+                if (empty($parsedData['app_name'])) $parsedData['app_name'] = 'أوكاش';
+            } elseif (strpos($searchPoolLower, 'النيل') !== false) {
+                $parsedData['bank_name'] = 'بنك النيل';
+            } elseif (strpos($searchPoolLower, 'البركة') !== false) {
+                $parsedData['bank_name'] = 'بنك البركة';
+            } elseif (strpos($searchPoolLower, 'تضامن') !== false) {
+                $parsedData['bank_name'] = 'بنك التضامن الإسلامي';
+            } elseif ($docType !== 'non_financial') {
+                $parsedData['bank_name'] = 'بنك الخرطوم';
+                if (empty($parsedData['app_name'])) $parsedData['app_name'] = 'بنكك';
+            }
+        }
 
         if ($hasValidFinancialSignals || ($docType !== 'non_financial' && $docType !== 'unapproved')) {
             $parsedData['is_financial_doc'] = true;
@@ -399,7 +444,9 @@ if (isset($responseData['candidates'][0]['content']['parts'][0]['text'])) {
             $parsedData['allow_save'] = true;
             $parsedData['is_unclear'] = false;
             $parsedData['is_unclear_amount'] = ($amount <= 0.0);
-            if ($docType === 'non_financial' || $docType === 'unapproved' || empty($docType)) {
+            if ($docType === 'cheque') {
+                $parsedData['doc_type'] = 'cheque';
+            } else {
                 $parsedData['doc_type'] = 'bank_transfer';
             }
             if ($parsedData['amount'] > 0.0) {
@@ -426,12 +473,15 @@ if (isset($responseData['candidates'][0]['content']['parts'][0]['text'])) {
             }
         }
 
-        // Also ensure transaction_ref and cheque_number are cleanly formatted
+        // Clean and validate transaction_ref
         if (!empty($parsedData['transaction_ref'])) {
             $parsedData['transaction_ref'] = trim((string)$parsedData['transaction_ref']);
+            if (in_array(strtolower($parsedData['transaction_ref']), ['null', 'n/a', 'none', 'غير متوفر', 'لا يوجد', '-'])) {
+                $parsedData['transaction_ref'] = '';
+            }
         }
 
-        // Smart Regex Fallback for transaction_ref if empty
+        // Smart Multi-Pattern Regex Fallback for transaction_ref if empty
         if (empty($parsedData['transaction_ref'])) {
             $arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
             $persianDigits = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
@@ -440,18 +490,27 @@ if (isset($responseData['candidates'][0]['content']['parts'][0]['text'])) {
             $searchPoolClean = str_replace($arabicDigits, $latinDigits, $searchPool);
             $searchPoolClean = str_replace($persianDigits, $latinDigits, $searchPoolClean);
 
-            if (preg_match('/(?:رقم\s*(?:العملية|المعاملة|المرجع|الإشعار|التحويل|الحوالة)|Transaction\s*(?:ID|No|Ref|Number)|Txn\s*ID|Ref\s*(?:No|Number)?)[^\d:]*[:\s#]*([0-9A-Za-z-]{5,30})/ui', $searchPoolClean, $mRef)) {
+            // 1. Explicit Arabic/English labels
+            $labelPattern = '/(?:رقم\s*(?:العملية|المعاملة|المرجع|الإشعار|التحويل|الحوالة|السند|الحركة|القيد|الإيصال)|كود\s*(?:العملية|المعاملة|التحويل)|رمز\s*(?:العملية|المعاملة|التحويل)|معرف\s*(?:العملية|المعاملة|التحويل)|الرقم\s*المرجعي|Transaction\s*(?:ID|No|Ref|Number)|Txn\s*(?:ID|No)?|Ref\s*(?:No|Number|#)?|Reference\s*(?:No|Number)?)\s*[:\-#]?\s*([A-Za-z0-9\-_]{4,35})/ui';
+            if (preg_match($labelPattern, $searchPoolClean, $mRef)) {
                 $parsedData['transaction_ref'] = trim($mRef[1]);
-            } elseif (preg_match('/\b(202[0-9]{8,14}|[0-9]{9,16})\b/', $searchPoolClean, $mStandalone)) {
-                $cand = trim($mStandalone[1]);
-                if ($cand !== ($parsedData['sender_account'] ?? '') && $cand !== ($parsedData['receiver_account'] ?? '') && (floatval($cand) != ($parsedData['amount'] ?? 0))) {
-                    $parsedData['transaction_ref'] = $cand;
+            } elseif (preg_match_all('/\b([0-9]{6,16})\b/', $searchPoolClean, $mDigits)) {
+                // 2. Standalone 6-16 digit numbers (not amount, not accounts)
+                foreach ($mDigits[1] as $cand) {
+                    $candTrim = trim($cand);
+                    if ($candTrim === ($parsedData['sender_account'] ?? '') || $candTrim === ($parsedData['receiver_account'] ?? '')) continue;
+                    if (floatval($candTrim) == ($parsedData['amount'] ?? 0)) continue;
+                    $parsedData['transaction_ref'] = $candTrim;
+                    break;
                 }
             }
         }
 
         if (!empty($parsedData['cheque_number'])) {
             $parsedData['cheque_number'] = trim((string)$parsedData['cheque_number']);
+            if (in_array(strtolower($parsedData['cheque_number']), ['null', 'n/a', 'none', '-'])) {
+                $parsedData['cheque_number'] = '';
+            }
         }
         if (!empty($parsedData['sender_account'])) {
             $parsedData['sender_account'] = trim((string)$parsedData['sender_account']);
@@ -497,13 +556,56 @@ if (isset($responseData['candidates'][0]['content']['parts'][0]['text'])) {
         ], JSON_UNESCAPED_UNICODE);
         exit;
     } else {
-        // Try fallback regex extraction even if json_decode failed
-        $amount = cleanFinancialAmount(null, $rawText);
+        // Resilient fallback: Try regex extraction even if json_decode failed
+        $fallbackAmount = cleanFinancialAmount(null, $rawText);
+        if ($fallbackAmount > 0) {
+            $fallbackRef = '';
+            $arabicDigits = ['٠','١','٢','٣','٤','٥','٦','٧','٨','٩'];
+            $persianDigits = ['۰','۱','۲','۳','۴','۵','۶','۷','۸','۹'];
+            $latinDigits = ['0','1','2','3','4','5','6','7','8','9'];
+            $cleanRaw = str_replace($arabicDigits, $latinDigits, $rawText);
+            $cleanRaw = str_replace($persianDigits, $latinDigits, $cleanRaw);
+            if (preg_match('/(?:رقم\s*(?:العملية|المعاملة|المرجع|الإشعار|التحويل|الحوالة)|Transaction\s*(?:ID|No|Ref)|Txn\s*ID|Ref\s*No)[^\d:]*[:\s#]*([0-9A-Za-z-]{5,30})/ui', $cleanRaw, $mRef)) {
+                $fallbackRef = trim($mRef[1]);
+            }
+
+            $fallbackData = [
+                'is_financial_doc' => true,
+                'is_approved_template' => true,
+                'is_non_financial' => false,
+                'is_unapproved' => false,
+                'allow_save' => true,
+                'is_unclear' => false,
+                'is_unclear_amount' => false,
+                'doc_type' => 'bank_transfer',
+                'bank_name' => 'بنك الخرطوم',
+                'app_name' => 'بنكك',
+                'transaction_ref' => $fallbackRef,
+                'cheque_number' => '',
+                'amount' => $fallbackAmount,
+                'currency' => 'SDG',
+                'date' => date('Y-m-d'),
+                'due_date' => date('Y-m-d'),
+                'sender_name' => '',
+                'receiver_name' => '',
+                'rejection_reason' => '',
+                'summary' => 'تحويل بنكي بمبلغ ' . number_format($fallbackAmount, 2) . ' SDG'
+            ];
+
+            echo json_encode([
+                'success' => true,
+                'data' => $fallbackData,
+                'model_used' => $usedModel,
+                'is_fallback_regex' => true
+            ], JSON_UNESCAPED_UNICODE);
+            exit;
+        }
+
         echo json_encode([
             'success' => false,
             'error' => 'فشل تحليل الاستجابة البرمجية للمستند المالي',
             'raw' => $rawText,
-            'fallback_amount' => $amount
+            'fallback_amount' => $fallbackAmount
         ], JSON_UNESCAPED_UNICODE);
         exit;
     }
