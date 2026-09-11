@@ -2097,40 +2097,6 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 </div>
 
 
-                <!-- ═══ منطقة سحب ولصق إشعارات الواتساب المباشرة (WhatsApp AI Direct Hub) ═══ -->
-                <div id="mcp-whatsapp-ingest-dock" style="background: linear-gradient(135deg, rgba(37,211,102,0.12), rgba(15,23,42,0.75)); border: 2.5px dashed #25D366; border-radius: 16px; padding: 16px 20px; margin-top: 15px; margin-bottom: 20px; backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(0,0,0,0.35), 0 0 30px rgba(37,211,102,0.18); transition: all 0.25s ease;" ondragover="event.preventDefault(); this.style.borderColor='#4ade80'; this.style.background='rgba(37,211,102,0.22)';" ondragleave="this.style.borderColor='#25D366'; this.style.background='linear-gradient(135deg, rgba(37,211,102,0.12), rgba(15,23,42,0.75))';" ondrop="FinancialOCR.handleWhatsAppDirectDrop(event)">
-                    <input type="file" id="mcp-whatsapp-direct-file-input" multiple accept="image/*" style="display:none;" onchange="FinancialOCR.handleWhatsAppDirectFiles(this.files)">
-                    
-                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="width: 46px; height: 46px; border-radius: 12px; background: linear-gradient(135deg, #25D366, #128C7E); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; color: #fff; box-shadow: 0 0 16px rgba(37,211,102,0.6); flex-shrink: 0;">
-                                💬
-                            </div>
-                            <div>
-                                <div style="color: #ffffff; font-weight: 900; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
-                                    <span>منطقة استقبال ولصق إشعارات الواتساب الذكية</span>
-                                    <span style="background: rgba(37,211,102,0.2); border: 1px solid #25D366; color: #86efac; font-size: 0.75rem; font-weight: 800; padding: 2px 8px; border-radius: 12px;">AI Hub</span>
-                                </div>
-                                <div style="color: #86efac; font-size: 0.85rem; font-weight: 700; margin-top: 2px;">
-                                    انسخ الإشعار من الواتساب ثم اضغط زر اللصق بالماوس أو <kbd style="background: #1e293b; color: #fbbf24; padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); font-family: monospace;">Ctrl + V</kbd>، أو اسحب الصور هنا لتفريغها فوراً في السند!
-                                </div>
-                            </div>
-                        </div>
-
-                        <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                            <button type="button" onclick="FinancialOCR.pasteFromClipboardDirect()" style="background: linear-gradient(135deg, #25D366, #128C7E); border: 1.5px solid #4ade80; color: #ffffff; padding: 10px 18px; border-radius: 10px; font-weight: 900; font-size: 0.95rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 0 18px rgba(37,211,102,0.5); transition: all 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'" title="لصق صورة الإشعار المنسوخة من الحافظة وتفريغها في السند فوراً">
-                                <span>📋</span> لصق الإشعار المنسوخ فوراً (Paste)
-                            </button>
-                            <button type="button" onclick="document.getElementById('mcp-whatsapp-direct-file-input').click()" style="background: rgba(56,189,248,0.18); border: 1.5px solid #38bdf8; color: #7dd3fc; padding: 9px 14px; border-radius: 10px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.3)'" onmouseout="this.style.background='rgba(56,189,248,0.18)'">
-                                <span>📂</span> اختيار صور من الجهاز / التنزيلات
-                            </button>
-                            <button type="button" onclick="FinancialOCR.openWhatsAppWebPopup()" style="background: linear-gradient(135deg, rgba(37,211,102,0.2), rgba(18,140,126,0.2)); border: 1.5px solid #25D366; color: #86efac; padding: 9px 14px; border-radius: 10px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.background='rgba(37,211,102,0.35)'" onmouseout="this.style.background='rgba(37,211,102,0.2)'" title="فتح واتساب ويب في نافذة جانبية فورية لسحب الإشعارات منها">
-                                <span>🌐</span> فتح واتساب ويب ↗
-                            </button>
-                        </div>
-                    </div>
-                </div>
-
                 <!-- ═══ حاوية الحسابات (Accounts Blocks Container) ═══ -->
                 <div id="accounts-blocks-container" style="display: flex; flex-direction: column; gap: 20px; position: relative; z-index: 10;">
                     <!-- Blocks will be dynamically inserted here -->
