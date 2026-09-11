@@ -2279,9 +2279,9 @@
                             
                             <!-- المبلغ: يكبر ويشغل كل المساحة ما بين رقم التحويلة وبين مربع الصح بحجم كبير وواضح وبارز -->
                             <div style="display:flex; align-items:center; justify-content:center; flex:1; min-width:0; line-height:1; margin:0 2px; padding:0; overflow:hidden;">
-                                ${ (isNonFinancial || isUnapproved) ? `
+                                ${ isNonFinancial ? `
                                     <span style="color:#fef08a; background:rgba(217,119,6,0.35); border:1px solid #f59e0b; padding:2px 6px; border-radius:4px; font-size:0.75rem; font-weight:800; white-space:nowrap;">
-                                        ${(item.data.rejection_reason && item.data.rejection_reason.includes('سيارة')) ? 'صورة سيارة ⚠️' : (isNonFinancial ? 'غير مالي 🚫' : 'غير معتمد ⚠️')}
+                                        ${(item.data.rejection_reason && item.data.rejection_reason.includes('سيارة')) ? 'صورة سيارة ⚠️' : 'غير مالي 🚫'}
                                     </span>
                                 ` : (isAmtZero ? `
                                     <span style="color:#fca5a5; font-size:1.58rem; font-weight:900; font-family:'Bahnschrift','Segoe UI','Tajawal',sans-serif; font-variant-numeric:tabular-nums; line-height:1; letter-spacing:-0.4px; white-space:nowrap;" title="0.00 SDG ⚠️ المبلغ غير ظاهر - صفر">
