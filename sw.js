@@ -1,4 +1,4 @@
-// Version: 20260911201500 (Financial OCR Review Layout & Buttons Fix v6)
+// Version: 20260911202500 (Multi Cash Payment & OCR Layout Fix v7)
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });

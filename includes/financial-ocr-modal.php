@@ -246,12 +246,12 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
             </div>
 
             <!-- PART 3 (الجهة الأخيرة على اليسار): تفاصيل التحويلة مرتبة بدقة: التاريخ أولاً، رقم التحويلة، المبلغ، من حساب وإلى حساب بألوان مريحة للعين -->
-            <div id="ocr-col-form" class="ocr-dashboard-col" style="height:100%; min-height:0; display:flex; flex-direction:column; justify-content:flex-start; background:rgba(15,23,42,0.98); border:2px solid rgba(56,189,248,0.4); border-radius:10px; padding:8px 10px; overflow-y:auto; overflow-x:hidden; scrollbar-width:thin; direction:rtl; box-sizing:border-box;">
+            <div id="ocr-col-form" class="ocr-dashboard-col" style="height:100%; min-height:0; max-height:100%; display:flex; flex-direction:column; justify-content:space-between; background:rgba(15,23,42,0.98); border:2px solid rgba(56,189,248,0.4); border-radius:10px; padding:8px 10px; overflow:hidden; direction:rtl; box-sizing:border-box;">
                 
-                <div style="display:flex; flex-direction:column; gap:7px; width:100%;">
+                <div style="display:flex; flex-direction:column; height:100%; min-height:0; max-height:100%; overflow:hidden; justify-content:space-between; width:100%;">
                     
                     <!-- Top Toolbar: أزرار واضحة بأيقونات صريحة بدون أسامي (رموز فقط) -->
-                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid rgba(255,255,255,0.12); padding-bottom:5px; margin-bottom:2px; gap:4px; overflow-x:auto; scrollbar-width:none; flex-shrink:0;">
+                    <div style="display:flex; justify-content:space-between; align-items:center; border-bottom:1.5px solid rgba(255,255,255,0.12); padding-bottom:5px; margin-bottom:4px; gap:4px; overflow-x:auto; scrollbar-width:none; flex-shrink:0;">
                         <div style="display:flex; align-items:center; gap:4px; flex-wrap:nowrap;">
                             <!-- 1. رمز التبديل (⇄) -->
                             <button type="button" onclick="FinancialOCR.toggleLayoutSide()" style="height:28px; width:34px; min-width:34px; padding:0; border-radius:6px; background:linear-gradient(135deg, rgba(6,182,212,0.25), rgba(14,165,233,0.2)); border:1.8px solid #22d3ee; color:#67e8f9; font-weight:900; font-size:1.15rem; cursor:pointer; display:flex; align-items:center; justify-content:center; box-shadow:0 0 10px rgba(6,182,212,0.3); transition:all 0.15s ease;" title="تبديل موضع صورة الشيك والبيانات (⇄)">
@@ -299,71 +299,71 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
                         <div id="ocr-ai-reason-desc" style="opacity:0.95; font-size:0.72rem; line-height:1.2;"></div>
                     </div>
 
-                    <!-- Vertical Stacked Fields (تصميم محاسبي عالي التباين، موسط بدقة، وخلفية داكنة للمبلغ بدون هالات) -->
-                    <div style="display:flex; flex-direction:column; gap:7px;">
+                    <!-- Vertical Stacked Fields Container (يتمدد ديناميكياً ويحتوي شريط تمرير ناعم ومريح) -->
+                    <div style="display:flex; flex-direction:column; gap:5px; flex:1 1 auto; min-height:80px; overflow-y:auto; overflow-x:hidden; scrollbar-width:thin; padding:2px 2px;">
                         
-                        <!-- 1. التاريخ: إنقاص 3 درجات (1.25rem) بارتفاع 40px وموسط في المنتصف تماماً -->
-                        <div class="ocr-field-box" style="display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(135deg, rgba(14,165,233,0.15), rgba(15,23,42,0.9)); padding:6px 10px; border-radius:8px; border:2px solid #38bdf8; box-shadow:0 0 14px rgba(56,189,248,0.3), inset 0 0 8px rgba(56,189,248,0.12); flex-shrink:0;">
-                            <label style="color:#7dd3fc; font-size:0.95rem; font-weight:900; white-space:nowrap; margin:0; text-shadow:0 0 8px rgba(56,189,248,0.5);">التاريخ:</label>
+                        <!-- 1. التاريخ: إنقاص 3 درجات (1.25rem) بارتفاع 38px وموسط في المنتصف تماماً -->
+                        <div class="ocr-field-box" style="display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(135deg, rgba(14,165,233,0.15), rgba(15,23,42,0.9)); padding:4px 8px; border-radius:8px; border:2px solid #38bdf8; box-shadow:0 0 14px rgba(56,189,248,0.3), inset 0 0 8px rgba(56,189,248,0.12); flex-shrink:0;">
+                            <label style="color:#7dd3fc; font-size:0.92rem; font-weight:900; white-space:nowrap; margin:0; text-shadow:0 0 8px rgba(56,189,248,0.5);">التاريخ:</label>
                             <div style="display:flex; align-items:center; justify-content:center; flex:1; width:100%;">
-                                <input type="date" id="ocr-field-date" oninput="FinancialOCR.syncCurrentItemFromForm()" style="width:100%; height:40px; background:#0f172a; border:1.8px solid #38bdf8; border-radius:6px; color:#ffffff; font-size:1.25rem; font-weight:900; font-family:'Consolas',monospace; padding:0 8px; outline:none; text-align:center; direction:ltr !important; box-shadow:0 0 10px rgba(56,189,248,0.3); box-sizing:border-box; margin:0 auto;" title="التاريخ موسط في المنتصف">
+                                <input type="date" id="ocr-field-date" oninput="FinancialOCR.syncCurrentItemFromForm()" style="width:100%; height:36px; background:#0f172a; border:1.8px solid #38bdf8; border-radius:6px; color:#ffffff; font-size:1.20rem; font-weight:900; font-family:'Consolas',monospace; padding:0 8px; outline:none; text-align:center; direction:ltr !important; box-shadow:0 0 10px rgba(56,189,248,0.3); box-sizing:border-box; margin:0 auto;" title="التاريخ موسط في المنتصف">
                                 <div id="ocr-box-due-date" style="display:none; align-items:center; gap:4px;">
                                     <label style="color:#c084fc; font-size:0.82rem; font-weight:900; white-space:nowrap; margin:0;">الاستحقاق:</label>
-                                    <input type="date" id="ocr-field-due-date" oninput="FinancialOCR.syncCurrentItemFromForm()" style="width:135px; height:40px; background:#0f172a; border:2px solid rgba(168,85,247,0.6); border-radius:6px; color:#e9d5ff; font-size:1.15rem; font-weight:900; font-family:'Consolas',monospace; padding:0 6px; outline:none; text-align:center; direction:ltr !important; box-sizing:border-box;">
+                                    <input type="date" id="ocr-field-due-date" oninput="FinancialOCR.syncCurrentItemFromForm()" style="width:135px; height:36px; background:#0f172a; border:2px solid rgba(168,85,247,0.6); border-radius:6px; color:#e9d5ff; font-size:1.10rem; font-weight:900; font-family:'Consolas',monospace; padding:0 6px; outline:none; text-align:center; direction:ltr !important; box-sizing:border-box;">
                                 </div>
                             </div>
                         </div>
 
                         <!-- 2. السند والبنك: يكتب السند وأمامها طوالي اسم البنك موسط في النص -->
-                        <div class="ocr-field-box" style="display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(135deg, rgba(6,182,212,0.14), rgba(15,23,42,0.85)); padding:6px 10px; border-radius:8px; border:2px solid #06b6d4; box-shadow:0 0 14px rgba(6,182,212,0.3); flex-shrink:0;">
+                        <div class="ocr-field-box" style="display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(135deg, rgba(6,182,212,0.14), rgba(15,23,42,0.85)); padding:4px 8px; border-radius:8px; border:2px solid #06b6d4; box-shadow:0 0 14px rgba(6,182,212,0.3); flex-shrink:0;">
                             <input type="hidden" id="ocr-field-doc-type" value="bank_transfer">
-                            <label id="ocr-badge-doc-type" style="color:#d8b4fe; font-size:0.95rem; font-weight:900; white-space:nowrap; margin:0; text-shadow:0 0 6px rgba(168,85,247,0.5);">السند:</label>
-                            <input type="text" id="ocr-field-bank-name" oninput="FinancialOCR.syncCurrentItemFromForm()" placeholder="اسم البنك (مثال: بنك الخرطوم)" style="flex:1; height:38px; background:#0f172a; border:1.8px solid #06b6d4; border-radius:6px; color:#ffffff; font-size:1.05rem; font-weight:800; padding:0 10px; outline:none; text-align:center; box-sizing:border-box; box-shadow:0 0 10px rgba(6,182,212,0.25);">
+                            <label id="ocr-badge-doc-type" style="color:#d8b4fe; font-size:0.92rem; font-weight:900; white-space:nowrap; margin:0; text-shadow:0 0 6px rgba(168,85,247,0.5);">السند:</label>
+                            <input type="text" id="ocr-field-bank-name" oninput="FinancialOCR.syncCurrentItemFromForm()" placeholder="اسم البنك (مثال: بنك الخرطوم)" style="flex:1; height:36px; background:#0f172a; border:1.8px solid #06b6d4; border-radius:6px; color:#ffffff; font-size:1.0rem; font-weight:800; padding:0 8px; outline:none; text-align:center; box-sizing:border-box; box-shadow:0 0 10px rgba(6,182,212,0.25);">
                         </div>
 
-                        <!-- 3. الرقم: كتابة "الرقم:" وإنقاص خط الرقم درجتين (1.55rem) بارتفاع 40px وموسط في النص -->
-                        <div class="ocr-field-box" style="display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(135deg, rgba(2,132,199,0.18), rgba(15,23,42,0.9)); padding:6px 10px; border-radius:8px; border:2px solid #0284c7; box-shadow:0 0 14px rgba(2,132,199,0.4); flex-shrink:0;">
-                            <label id="ocr-label-ref-no" style="color:#38bdf8; font-size:0.95rem; font-weight:900; white-space:nowrap; margin:0; text-shadow:0 0 8px rgba(56,189,248,0.6);">الرقم:</label>
-                            <input type="text" id="ocr-field-ref-no" oninput="FinancialOCR.syncCurrentItemFromForm()" placeholder="الرقم" style="flex:1; height:40px; background:#0f172a; border:2px solid #38bdf8; border-radius:6px; color:#38bdf8; font-size:1.55rem; font-weight:900; padding:0 10px; font-family:'Consolas',monospace; text-align:center; direction:ltr !important; unicode-bidi:plaintext; outline:none; box-sizing:border-box; box-shadow:0 0 12px rgba(56,189,248,0.4); letter-spacing:0.5px; margin:0 auto;" title="الرقم موسط في النص">
+                        <!-- 3. الرقم: كتابة "الرقم:" وإنقاص خط الرقم درجتين (1.55rem) بارتفاع 38px وموسط في النص -->
+                        <div class="ocr-field-box" style="display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(135deg, rgba(2,132,199,0.18), rgba(15,23,42,0.9)); padding:4px 8px; border-radius:8px; border:2px solid #0284c7; box-shadow:0 0 14px rgba(2,132,199,0.4); flex-shrink:0;">
+                            <label id="ocr-label-ref-no" style="color:#38bdf8; font-size:0.92rem; font-weight:900; white-space:nowrap; margin:0; text-shadow:0 0 8px rgba(56,189,248,0.6);">الرقم:</label>
+                            <input type="text" id="ocr-field-ref-no" oninput="FinancialOCR.syncCurrentItemFromForm()" placeholder="الرقم" style="flex:1; height:38px; background:#0f172a; border:2px solid #38bdf8; border-radius:6px; color:#38bdf8; font-size:1.45rem; font-weight:900; padding:0 8px; font-family:'Consolas',monospace; text-align:center; direction:ltr !important; unicode-bidi:plaintext; outline:none; box-sizing:border-box; box-shadow:0 0 12px rgba(56,189,248,0.4); letter-spacing:0.5px; margin:0 auto;" title="الرقم موسط في النص">
                         </div>
 
-                        <!-- 4. المبلغ: موسط في النص وإنقاص درجتين (2.30rem) بارتفاع 44px باللون الذهبي وبدون خانات عشرية -->
-                        <div class="ocr-field-box" style="display:flex; align-items:center; justify-content:space-between; gap:6px; background:#000000; padding:6px 8px; border-radius:8px; border:2.5px solid #fbbf24; box-shadow:0 0 20px rgba(251,191,36,0.45); flex-shrink:0;">
+                        <!-- 4. المبلغ: موسط في النص وإنقاص درجتين (2.30rem) بارتفاع 42px باللون الذهبي وبدون خانات عشرية -->
+                        <div class="ocr-field-box" style="display:flex; align-items:center; justify-content:space-between; gap:6px; background:#000000; padding:4px 6px; border-radius:8px; border:2.5px solid #fbbf24; box-shadow:0 0 20px rgba(251,191,36,0.45); flex-shrink:0;">
                             <div style="display:flex; align-items:center; gap:4px; white-space:nowrap;">
-                                <label style="color:#fbbf24; font-size:1.02rem; font-weight:900; margin:0; text-shadow:0 0 8px rgba(251,191,36,0.4);">المبلغ:</label>
+                                <label style="color:#fbbf24; font-size:0.98rem; font-weight:900; margin:0; text-shadow:0 0 8px rgba(251,191,36,0.4);">المبلغ:</label>
                                 <span id="ocr-amount-unclear-badge" style="display:none; background:#262626; border:1px solid #ef4444; color:#fca5a5; font-size:0.70rem; padding:1px 5px; border-radius:4px; font-weight:900;">غير واضح</span>
                             </div>
-                            <input type="text" id="ocr-field-amount" oninput="FinancialOCR.handleAmountInput(this)" onblur="FinancialOCR.formatAmountField(this)" placeholder="0" style="flex:1; height:44px; min-width:0; width:100%; background:#000000; border:2.5px solid #fbbf24; border-radius:8px; color:#fef08a; font-size:2.30rem; font-weight:900; padding:0 4px; font-family:'Bahnschrift Condensed','Bahnschrift','Segoe UI','Tajawal',sans-serif; font-variant-numeric:tabular-nums; text-align:center; direction:ltr !important; unicode-bidi:plaintext; outline:none; box-shadow:0 0 20px rgba(251,191,36,0.45); text-shadow:0 0 14px rgba(251,191,36,0.5); box-sizing:border-box; letter-spacing:-0.5px;" title="المبلغ المالي بدون خانات عشرية">
+                            <input type="text" id="ocr-field-amount" oninput="FinancialOCR.handleAmountInput(this)" onblur="FinancialOCR.formatAmountField(this)" placeholder="0" style="flex:1; height:42px; min-width:0; width:100%; background:#000000; border:2.5px solid #fbbf24; border-radius:8px; color:#fef08a; font-size:2.15rem; font-weight:900; padding:0 4px; font-family:'Bahnschrift Condensed','Bahnschrift','Segoe UI','Tajawal',sans-serif; font-variant-numeric:tabular-nums; text-align:center; direction:ltr !important; unicode-bidi:plaintext; outline:none; box-shadow:0 0 20px rgba(251,191,36,0.45); text-shadow:0 0 14px rgba(251,191,36,0.5); box-sizing:border-box; letter-spacing:-0.5px;" title="المبلغ المالي بدون خانات عشرية">
                         </div>
 
-                        <!-- 5. من: إنقاص درجة واحدة (1.06rem) بارتفاع 36px وموسط في المنتصف -->
-                        <div class="ocr-field-box" style="display:flex; align-items:center; justify-content:space-between; gap:6px; background:linear-gradient(135deg, rgba(2,132,199,0.18), rgba(15,23,42,0.85)); padding:6px 10px; border-radius:8px; border:2px solid #0284c7; box-shadow:0 0 14px rgba(2,132,199,0.4); flex-shrink:0;">
-                            <label style="color:#7dd3fc; font-size:0.98rem; font-weight:900; white-space:nowrap; margin:0; text-shadow:0 0 6px rgba(2,132,199,0.6);">من:</label>
-                            <input type="text" id="ocr-field-sender-acc" oninput="FinancialOCR.syncCurrentItemFromForm()" placeholder="رقم الحساب" style="flex:1; height:36px; background:#0f172a; border:2px solid #0284c7; border-radius:6px; color:#bae6fd; font-family:'Consolas',monospace; font-size:1.06rem; font-weight:900; padding:0 10px; outline:none; text-align:center; direction:ltr !important; unicode-bidi:plaintext; box-sizing:border-box; box-shadow:0 0 10px rgba(2,132,199,0.3); margin:0 auto;" title="رقم الحساب موسط في المنتصف">
+                        <!-- 5. من: إنقاص درجة واحدة (1.06rem) بارتفاع 34px وموسط في المنتصف -->
+                        <div class="ocr-field-box" style="display:flex; align-items:center; justify-content:space-between; gap:6px; background:linear-gradient(135deg, rgba(2,132,199,0.18), rgba(15,23,42,0.85)); padding:4px 8px; border-radius:8px; border:2px solid #0284c7; box-shadow:0 0 14px rgba(2,132,199,0.4); flex-shrink:0;">
+                            <label style="color:#7dd3fc; font-size:0.92rem; font-weight:900; white-space:nowrap; margin:0; text-shadow:0 0 6px rgba(2,132,199,0.6);">من:</label>
+                            <input type="text" id="ocr-field-sender-acc" oninput="FinancialOCR.syncCurrentItemFromForm()" placeholder="رقم الحساب" style="flex:1; height:34px; background:#0f172a; border:2px solid #0284c7; border-radius:6px; color:#bae6fd; font-family:'Consolas',monospace; font-size:1.0rem; font-weight:900; padding:0 8px; outline:none; text-align:center; direction:ltr !important; unicode-bidi:plaintext; box-sizing:border-box; box-shadow:0 0 10px rgba(2,132,199,0.3); margin:0 auto;" title="رقم الحساب موسط في المنتصف">
                         </div>
 
-                        <!-- 6. إلى: رقم حساب المستلم إنقاص درجة واحدة (1.06rem) بارتفاع 36px وموسط في المنتصف -->
-                        <div class="ocr-field-box" style="display:flex; align-items:center; justify-content:space-between; gap:6px; background:linear-gradient(135deg, rgba(16,185,129,0.18), rgba(15,23,42,0.85)); padding:6px 10px; border-radius:8px; border:2px solid #10b981; box-shadow:0 0 14px rgba(16,185,129,0.4); flex-shrink:0;">
-                            <label style="color:#6ee7b7; font-size:0.98rem; font-weight:900; white-space:nowrap; margin:0; text-shadow:0 0 6px rgba(168,85,247,0.6);">إلى:</label>
-                            <input type="text" id="ocr-field-receiver-acc" oninput="FinancialOCR.syncCurrentItemFromForm()" placeholder="رقم الحساب" style="flex:1; height:36px; background:#0f172a; border:2px solid #059669; border-radius:6px; color:#a7f3d0; font-family:'Consolas',monospace; font-size:1.06rem; font-weight:900; padding:0 10px; outline:none; text-align:center; direction:ltr !important; unicode-bidi:plaintext; box-sizing:border-box; box-shadow:0 0 10px rgba(16,185,129,0.3); margin:0 auto;" title="رقم الحساب موسط في المنتصف">
+                        <!-- 6. إلى: رقم حساب المستلم إنقاص درجة واحدة (1.06rem) بارتفاع 34px وموسط في المنتصف -->
+                        <div class="ocr-field-box" style="display:flex; align-items:center; justify-content:space-between; gap:6px; background:linear-gradient(135deg, rgba(16,185,129,0.18), rgba(15,23,42,0.85)); padding:4px 8px; border-radius:8px; border:2px solid #10b981; box-shadow:0 0 14px rgba(16,185,129,0.4); flex-shrink:0;">
+                            <label style="color:#6ee7b7; font-size:0.92rem; font-weight:900; white-space:nowrap; margin:0; text-shadow:0 0 6px rgba(168,85,247,0.6);">إلى:</label>
+                            <input type="text" id="ocr-field-receiver-acc" oninput="FinancialOCR.syncCurrentItemFromForm()" placeholder="رقم الحساب" style="flex:1; height:34px; background:#0f172a; border:2px solid #059669; border-radius:6px; color:#a7f3d0; font-family:'Consolas',monospace; font-size:1.0rem; font-weight:900; padding:0 8px; outline:none; text-align:center; direction:ltr !important; unicode-bidi:plaintext; box-sizing:border-box; box-shadow:0 0 10px rgba(16,185,129,0.3); margin:0 auto;" title="رقم الحساب موسط في المنتصف">
                         </div>
 
-                        <!-- 7. إلى: اسم المستلم إنقاص درجة واحدة (0.94rem) بارتفاع 36px وموسط في المنتصف -->
-                        <div class="ocr-field-box" style="display:flex; align-items:center; justify-content:space-between; gap:6px; background:linear-gradient(135deg, rgba(99,102,241,0.15), rgba(15,23,42,0.85)); padding:6px 10px; border-radius:8px; border:2px solid #6366f1; box-shadow:0 0 14px rgba(99,102,241,0.4); flex-shrink:0;">
-                            <label style="color:#c7d2fe; font-size:0.98rem; font-weight:900; white-space:nowrap; margin:0; text-shadow:0 0 6px rgba(99,102,241,0.5);">إلى:</label>
-                            <input type="text" id="ocr-field-receiver" oninput="FinancialOCR.syncCurrentItemFromForm()" placeholder="اسم المرسل إليه كاملاً" style="flex:1; height:36px; background:#0f172a; border:2px solid #818cf8; border-radius:6px; color:#ffffff; font-size:0.94rem; font-weight:800; padding:0 10px; outline:none; text-align:center; box-sizing:border-box; margin:0 auto;" title="اسم المستلم موسط في المنتصف">
+                        <!-- 7. إلى: اسم المستلم إنقاص درجة واحدة (0.94rem) بارتفاع 34px وموسط في المنتصف -->
+                        <div class="ocr-field-box" style="display:flex; align-items:center; justify-content:space-between; gap:6px; background:linear-gradient(135deg, rgba(99,102,241,0.15), rgba(15,23,42,0.85)); padding:4px 8px; border-radius:8px; border:2px solid #6366f1; box-shadow:0 0 14px rgba(99,102,241,0.4); flex-shrink:0;">
+                            <label style="color:#c7d2fe; font-size:0.92rem; font-weight:900; white-space:nowrap; margin:0; text-shadow:0 0 6px rgba(99,102,241,0.5);">إلى:</label>
+                            <input type="text" id="ocr-field-receiver" oninput="FinancialOCR.syncCurrentItemFromForm()" placeholder="اسم المرسل إليه كاملاً" style="flex:1; height:34px; background:#0f172a; border:2px solid #818cf8; border-radius:6px; color:#ffffff; font-size:0.92rem; font-weight:800; padding:0 8px; outline:none; text-align:center; box-sizing:border-box; margin:0 auto;" title="اسم المستلم موسط في المنتصف">
                         </div>
 
                         <!-- 8. الجوال: الاستغناء عن عبارة "رقم الموبايل" وكتابة "الجوال" فقط -->
-                        <div class="ocr-field-box" style="display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(135deg, rgba(236,72,153,0.15), rgba(15,23,42,0.85)); padding:7px 10px; border-radius:8px; border:2.5px solid #ec4899; box-shadow:0 0 16px rgba(236,72,153,0.4); flex-shrink:0;">
-                            <label style="color:#f472b6; font-size:1.0rem; font-weight:900; white-space:nowrap; margin:0; text-shadow:0 0 6px rgba(236,72,153,0.5);">الجوال:</label>
-                            <input type="text" id="ocr-field-phone" oninput="FinancialOCR.syncCurrentItemFromForm()" placeholder="" style="flex:1; height:38px; background:#0f172a; border:2px solid #f472b6; border-radius:6px; color:#fbcfe8; font-family:'Consolas',monospace; font-size:1.12rem; font-weight:800; padding:0 10px; outline:none; text-align:center; direction:ltr !important; unicode-bidi:plaintext; box-sizing:border-box;">
+                        <div class="ocr-field-box" style="display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(135deg, rgba(236,72,153,0.15), rgba(15,23,42,0.85)); padding:4px 8px; border-radius:8px; border:2px solid #ec4899; box-shadow:0 0 16px rgba(236,72,153,0.4); flex-shrink:0;">
+                            <label style="color:#f472b6; font-size:0.92rem; font-weight:900; white-space:nowrap; margin:0; text-shadow:0 0 6px rgba(236,72,153,0.5);">الجوال:</label>
+                            <input type="text" id="ocr-field-phone" oninput="FinancialOCR.syncCurrentItemFromForm()" placeholder="" style="flex:1; height:34px; background:#0f172a; border:2px solid #f472b6; border-radius:6px; color:#fbcfe8; font-family:'Consolas',monospace; font-size:1.05rem; font-weight:800; padding:0 8px; outline:none; text-align:center; direction:ltr !important; unicode-bidi:plaintext; box-sizing:border-box;">
                         </div>
 
                         <!-- 9. التعليق: استبدال السرد والبيان والتحويلة بكتابة "التعليق" فقط في سطر أفقي موحد -->
-                        <div class="ocr-field-box" style="display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(135deg, rgba(20,184,166,0.15), rgba(15,23,42,0.85)); padding:7px 10px; border-radius:8px; border:2.5px solid #14b8a6; box-shadow:0 0 16px rgba(20,184,166,0.4); flex-shrink:0;">
-                            <label style="color:#5eead4; font-size:0.95rem; font-weight:900; white-space:nowrap; margin:0; text-shadow:0 0 6px rgba(20,184,166,0.5);">التعليق:</label>
-                            <input type="text" id="ocr-field-notes" oninput="FinancialOCR.syncCurrentItemFromForm()" placeholder="" style="flex:1; height:38px; background:#0f172a; border:2px solid #2dd4bf; border-radius:6px; color:#f0fdfa; font-size:0.95rem; font-weight:700; padding:0 10px; outline:none; box-sizing:border-box; direction:rtl; text-align:right;">
+                        <div class="ocr-field-box" style="display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(135deg, rgba(20,184,166,0.15), rgba(15,23,42,0.85)); padding:4px 8px; border-radius:8px; border:2px solid #14b8a6; box-shadow:0 0 16px rgba(20,184,166,0.4); flex-shrink:0;">
+                            <label style="color:#5eead4; font-size:0.92rem; font-weight:900; white-space:nowrap; margin:0; text-shadow:0 0 6px rgba(20,184,166,0.5);">التعليق:</label>
+                            <input type="text" id="ocr-field-notes" oninput="FinancialOCR.syncCurrentItemFromForm()" placeholder="" style="flex:1; height:34px; background:#0f172a; border:2px solid #2dd4bf; border-radius:6px; color:#f0fdfa; font-size:0.92rem; font-weight:700; padding:0 8px; outline:none; box-sizing:border-box; direction:rtl; text-align:right;">
                         </div>
 
                         <!-- Hidden helper input to keep full backward compatibility -->
@@ -371,15 +371,15 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
 
                     </div>
 
-                    <!-- الشريط السفلي: زر الرجوع للأصل، متاح التعديل المباشر، واستبدال الصورة -->
-                    <div style="display:flex; justify-content:space-between; align-items:center; margin-top:auto; padding-top:8px; border-top:1px solid rgba(255,255,255,0.1); gap:6px; width:100%; box-sizing:border-box;">
-                        <button type="button" id="btn-restore-original-ocr" onclick="FinancialOCR.restoreOriginalItemData()" style="height:34px; background:linear-gradient(135deg, rgba(245,158,11,0.3), rgba(217,119,6,0.45)); border:1.5px solid #fbbf24; color:#fef08a; padding:0 10px; border-radius:7px; font-weight:900; font-size:0.80rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px; box-shadow:0 0 12px rgba(245,158,11,0.35); transition:all 0.15s ease; white-space:nowrap; flex-shrink:0;" title="استعادة القيم الأصلية المستخرجة بالذكاء الاصطناعي (في حال قمت بتعديل الاسم أو رقم التحويلة أو المبلغ أو الحسابات)">
+                    <!-- الشريط السفلي: زر الرجوع للأصل، متاح التعديل المباشر، واستبدال الصورة - مثبت ومحمي من الاختفاء -->
+                    <div style="display:flex; justify-content:space-between; align-items:center; flex-shrink:0; margin-top:auto; padding-top:6px; border-top:1.5px solid rgba(255,255,255,0.15); background:rgba(15,23,42,0.98); z-index:20; gap:6px; width:100%; box-sizing:border-box;">
+                        <button type="button" id="btn-restore-original-ocr" onclick="FinancialOCR.restoreOriginalItemData()" style="height:32px; background:linear-gradient(135deg, rgba(245,158,11,0.3), rgba(217,119,6,0.45)); border:1.5px solid #fbbf24; color:#fef08a; padding:0 10px; border-radius:7px; font-weight:900; font-size:0.80rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px; box-shadow:0 0 12px rgba(245,158,11,0.35); transition:all 0.15s ease; white-space:nowrap; flex-shrink:0;" title="استعادة القيم الأصلية المستخرجة بالذكاء الاصطناعي (في حال قمت بتعديل الاسم أو رقم التحويلة أو المبلغ أو الحسابات)">
                             <span style="font-size:0.95rem;">↺</span> <span>الرجوع للأصل</span>
                         </button>
-                        <div style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; padding:4px 8px; border-radius:6px; font-size:0.74rem; font-weight:900; white-space:nowrap; display:flex; align-items:center; gap:4px; flex-shrink:0;">
+                        <div style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; padding:3px 8px; border-radius:6px; font-size:0.72rem; font-weight:900; white-space:nowrap; display:flex; align-items:center; gap:4px; flex-shrink:0;">
                             <span>✏️</span> <span>متاح التعديل المباشر</span>
                         </div>
-                        <button type="button" onclick="FinancialOCR.triggerUploadAgain()" style="height:34px; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#7dd3fc; border-radius:6px; padding:0 8px; font-size:0.76rem; font-weight:800; cursor:pointer; white-space:nowrap; flex-shrink:0; display:flex; align-items:center; gap:3px;">
+                        <button type="button" onclick="FinancialOCR.triggerUploadAgain()" style="height:32px; background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#7dd3fc; border-radius:6px; padding:0 8px; font-size:0.76rem; font-weight:800; cursor:pointer; white-space:nowrap; flex-shrink:0; display:flex; align-items:center; gap:3px;">
                             <span>🔄</span> <span>استبدال</span>
                         </button>
                     </div>
@@ -975,11 +975,11 @@ if (!window.FinancialOCR) {
     margin: 0 auto !important;
 }
 .ocr-responsive-grid {
-    grid-template-columns: minmax(0, 1.98fr) minmax(0, 1.255fr) minmax(0, 0.765fr) !important;
+    grid-template-columns: minmax(310px, 1.15fr) minmax(350px, 1.4fr) minmax(320px, 1.15fr) !important;
     height: 100% !important;
     max-height: 100% !important;
     box-sizing: border-box !important;
-    overflow-x: auto !important;
+    overflow: hidden !important;
 }
 
 /* Total Viewport Domination: When OCR Modal is active, HIDE EVERYTHING else in the page */

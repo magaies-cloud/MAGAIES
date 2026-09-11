@@ -2001,10 +2001,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
 
         <div class="split-layout-wrapper" id="main-layout-wrapper" style="display: block; width: 100%;">
             <!-- Main Content area (Full width) -->
-            <div class="main-panel glass-panel" id="main-form-panel" style="padding: 25px; position: relative; width: 100%;">
+            <div class="main-panel glass-panel" id="main-form-panel" style="padding: 16px 20px; position: relative; width: 100%;">
                 
                 <!-- Unified Top Row (Payment Methods Row) -->
-                <div id="payment-methods-row" style="display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 25px; background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.98)); padding: 14px 20px; border-radius: 16px; border: 1px solid rgba(255, 255, 255, 0.18); flex-wrap: wrap; transition: all 0.4s ease; box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.25); position: relative; overflow: hidden;">
+                <div id="payment-methods-row" style="display: flex; align-items: center; justify-content: space-between; gap: 15px; margin-bottom: 14px; background: linear-gradient(135deg, rgba(30, 41, 59, 0.9), rgba(15, 23, 42, 0.98)); padding: 10px 18px; border-radius: 14px; border: 1px solid rgba(255, 255, 255, 0.18); flex-wrap: wrap; transition: all 0.4s ease; box-shadow: 0 12px 35px rgba(0, 0, 0, 0.55), inset 0 1px 1px rgba(255, 255, 255, 0.25); position: relative; overflow: hidden;">
                     
                     <!-- Title & Toggles -->
                     <div style="display: flex; align-items: center; gap: 15px; flex: none; flex-wrap: wrap;">
@@ -2045,9 +2045,9 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 </div>
 
                 <!-- Primary Inputs Glass Container -->
-                <div id="primary-inputs-container" class="glass-container glass-red" style="position: relative; z-index: 15;">
+                <div id="primary-inputs-container" class="glass-container glass-red" style="position: relative; z-index: 15; padding: 14px 20px !important; margin-bottom: 14px !important;">
                     <!-- Form Inputs Row -->
-                    <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; overflow: visible; padding-bottom: 10px; margin-bottom: 15px;">
+                    <div style="display: flex; gap: 15px; align-items: flex-end; flex-wrap: wrap; overflow: visible; padding-bottom: 8px; margin-bottom: 10px;">
 
                         <div style="flex: 0 0 35%; max-width: 35%; min-width: 250px;">
                             <label id="main-account-label" style="color: #f43f5e !important; font-size: 1.25rem !important; font-weight: 800 !important; margin-bottom: 5px; display: flex; align-items: center; gap: 8px; transition: color 0.3s; white-space: nowrap;">من حساب (صرف) <span class="animated-arrow-left" style="color: #f43f5e;">←</span></label>
@@ -2090,41 +2090,41 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                         </div>
                     </div>
 
-                    <div style="display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.25); padding: 12px 15px; min-height: 48px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); margin-top: 12px;">
+                    <div style="display: flex; align-items: center; gap: 15px; background: rgba(0,0,0,0.25); padding: 8px 12px; min-height: 40px; border-radius: 10px; border: 1px solid rgba(255,255,255,0.08); margin-top: 8px;">
                         <label style="color: #fbbf24; font-size: 0.95rem; font-weight: bold; margin: 0; white-space: nowrap; display: flex; align-items: center; gap: 5px;">✍️ بيان حساب الصرف:</label>
-                        <input type="text" autocomplete="off" id="voucher-desc" class="form-input" placeholder="اكتب البيان التفصيلي لحساب الصرف هنا (الذي يظهر في كشف الأستاذ العام)..." style="flex: 1; margin: 0; background: rgba(15,23,42,0.4) !important; border: 1px solid rgba(255,255,255,0.1) !important; padding: 8px 12px; height: 38px !important; font-size: 0.95rem; color: #fff !important; border-radius: 6px;">
+                        <input type="text" autocomplete="off" id="voucher-desc" class="form-input" placeholder="اكتب البيان التفصيلي لحساب الصرف هنا (الذي يظهر في كشف الأستاذ العام)..." style="flex: 1; margin: 0; background: rgba(15,23,42,0.4) !important; border: 1px solid rgba(255,255,255,0.1) !important; padding: 6px 12px; height: 34px !important; font-size: 0.95rem; color: #fff !important; border-radius: 6px;">
                     </div>
                 </div>
 
 
                 <!-- ═══ منطقة سحب ولصق إشعارات الواتساب المباشرة (WhatsApp AI Direct Hub) ═══ -->
-                <div id="mcp-whatsapp-ingest-dock" style="background: linear-gradient(135deg, rgba(37,211,102,0.12), rgba(15,23,42,0.75)); border: 2.5px dashed #25D366; border-radius: 16px; padding: 16px 20px; margin-top: 15px; margin-bottom: 20px; backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(0,0,0,0.35), 0 0 30px rgba(37,211,102,0.18); transition: all 0.25s ease;" ondragover="event.preventDefault(); this.style.borderColor='#4ade80'; this.style.background='rgba(37,211,102,0.22)';" ondragleave="this.style.borderColor='#25D366'; this.style.background='linear-gradient(135deg, rgba(37,211,102,0.12), rgba(15,23,42,0.75))';" ondrop="FinancialOCR.handleWhatsAppDirectDrop(event)">
+                <div id="mcp-whatsapp-ingest-dock" style="background: linear-gradient(135deg, rgba(37,211,102,0.12), rgba(15,23,42,0.75)); border: 2.5px dashed #25D366; border-radius: 14px; padding: 10px 16px; margin-top: 10px; margin-bottom: 12px; backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(0,0,0,0.35), 0 0 30px rgba(37,211,102,0.18); transition: all 0.25s ease;" ondragover="event.preventDefault(); this.style.borderColor='#4ade80'; this.style.background='rgba(37,211,102,0.22)';" ondragleave="this.style.borderColor='#25D366'; this.style.background='linear-gradient(135deg, rgba(37,211,102,0.12), rgba(15,23,42,0.75))';" ondrop="FinancialOCR.handleWhatsAppDirectDrop(event)">
                     <input type="file" id="mcp-whatsapp-direct-file-input" multiple accept="image/*" style="display:none;" onchange="FinancialOCR.handleWhatsAppDirectFiles(this.files)">
                     
-                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 12px;">
-                        <div style="display: flex; align-items: center; gap: 12px;">
-                            <div style="width: 46px; height: 46px; border-radius: 12px; background: linear-gradient(135deg, #25D366, #128C7E); display: flex; align-items: center; justify-content: center; font-size: 1.6rem; color: #fff; box-shadow: 0 0 16px rgba(37,211,102,0.6); flex-shrink: 0;">
+                    <div style="display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px;">
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <div style="width: 38px; height: 38px; border-radius: 10px; background: linear-gradient(135deg, #25D366, #128C7E); display: flex; align-items: center; justify-content: center; font-size: 1.4rem; color: #fff; box-shadow: 0 0 14px rgba(37,211,102,0.6); flex-shrink: 0;">
                                 💬
                             </div>
                             <div>
-                                <div style="color: #ffffff; font-weight: 900; font-size: 1.15rem; display: flex; align-items: center; gap: 8px;">
+                                <div style="color: #ffffff; font-weight: 900; font-size: 1.05rem; display: flex; align-items: center; gap: 8px;">
                                     <span>منطقة استقبال ولصق إشعارات الواتساب الذكية</span>
-                                    <span style="background: rgba(37,211,102,0.2); border: 1px solid #25D366; color: #86efac; font-size: 0.75rem; font-weight: 800; padding: 2px 8px; border-radius: 12px;">AI Hub</span>
+                                    <span style="background: rgba(37,211,102,0.2); border: 1px solid #25D366; color: #86efac; font-size: 0.72rem; font-weight: 800; padding: 2px 8px; border-radius: 12px;">AI Hub</span>
                                 </div>
-                                <div style="color: #86efac; font-size: 0.85rem; font-weight: 700; margin-top: 2px;">
+                                <div style="color: #86efac; font-size: 0.82rem; font-weight: 700; margin-top: 1px;">
                                     انسخ الإشعار من الواتساب ثم اضغط زر اللصق بالماوس أو <kbd style="background: #1e293b; color: #fbbf24; padding: 1px 6px; border-radius: 4px; border: 1px solid rgba(255,255,255,0.2); font-family: monospace;">Ctrl + V</kbd>، أو اسحب الصور هنا لتفريغها فوراً في السند!
                                 </div>
                             </div>
                         </div>
 
                         <div style="display: flex; gap: 8px; align-items: center; flex-wrap: wrap;">
-                            <button type="button" onclick="FinancialOCR.pasteFromClipboardDirect()" style="background: linear-gradient(135deg, #25D366, #128C7E); border: 1.5px solid #4ade80; color: #ffffff; padding: 10px 18px; border-radius: 10px; font-weight: 900; font-size: 0.95rem; cursor: pointer; display: inline-flex; align-items: center; gap: 8px; box-shadow: 0 0 18px rgba(37,211,102,0.5); transition: all 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'" title="لصق صورة الإشعار المنسوخة من الحافظة وتفريغها في السند فوراً">
+                            <button type="button" onclick="FinancialOCR.pasteFromClipboardDirect()" style="background: linear-gradient(135deg, #25D366, #128C7E); border: 1.5px solid #4ade80; color: #ffffff; padding: 8px 15px; border-radius: 9px; font-weight: 900; font-size: 0.9rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; box-shadow: 0 0 16px rgba(37,211,102,0.5); transition: all 0.2s;" onmouseover="this.style.transform='scale(1.03)'" onmouseout="this.style.transform='scale(1)'" title="لصق صورة الإشعار المنسوخة من الحافظة وتفريغها في السند فوراً">
                                 <span>📋</span> لصق الإشعار المنسوخ فوراً (Paste)
                             </button>
-                            <button type="button" onclick="document.getElementById('mcp-whatsapp-direct-file-input').click()" style="background: rgba(56,189,248,0.18); border: 1.5px solid #38bdf8; color: #7dd3fc; padding: 9px 14px; border-radius: 10px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.3)'" onmouseout="this.style.background='rgba(56,189,248,0.18)'">
-                                <span>📂</span> اختيار صور من الجهاز / التنزيلات
+                            <button type="button" onclick="document.getElementById('mcp-whatsapp-direct-file-input').click()" style="background: rgba(56,189,248,0.18); border: 1.5px solid #38bdf8; color: #7dd3fc; padding: 8px 12px; border-radius: 9px; font-weight: 800; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.background='rgba(56,189,248,0.3)'" onmouseout="this.style.background='rgba(56,189,248,0.18)'">
+                                <span>📂</span> اختيار صور من الجهاز
                             </button>
-                            <button type="button" onclick="FinancialOCR.openWhatsAppWebPopup()" style="background: linear-gradient(135deg, rgba(37,211,102,0.2), rgba(18,140,126,0.2)); border: 1.5px solid #25D366; color: #86efac; padding: 9px 14px; border-radius: 10px; font-weight: 800; font-size: 0.88rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.background='rgba(37,211,102,0.35)'" onmouseout="this.style.background='rgba(37,211,102,0.2)'" title="فتح واتساب ويب في نافذة جانبية فورية لسحب الإشعارات منها">
+                            <button type="button" onclick="FinancialOCR.openWhatsAppWebPopup()" style="background: linear-gradient(135deg, rgba(37,211,102,0.2), rgba(18,140,126,0.2)); border: 1.5px solid #25D366; color: #86efac; padding: 8px 12px; border-radius: 9px; font-weight: 800; font-size: 0.85rem; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; transition: all 0.2s;" onmouseover="this.style.background='rgba(37,211,102,0.35)'" onmouseout="this.style.background='rgba(37,211,102,0.2)'" title="فتح واتساب ويب في نافذة جانبية فورية لسحب الإشعارات منها">
                                 <span>🌐</span> فتح واتساب ويب ↗
                             </button>
                         </div>
@@ -2132,20 +2132,20 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 </div>
 
                 <!-- ═══ حاوية الحسابات (Accounts Blocks Container) ═══ -->
-                <div id="accounts-blocks-container" style="display: flex; flex-direction: column; gap: 20px; position: relative; z-index: 10;">
+                <div id="accounts-blocks-container" style="display: flex; flex-direction: column; gap: 12px; position: relative; z-index: 10;">
                     <!-- Blocks will be dynamically inserted here -->
                 </div>
 
                 <!-- ═══ زر إضافة حساب جديد ═══ -->
-                <div style="display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 20px; margin-bottom: 30px; flex-wrap: wrap;">
-                    <button type="button" class="btn-add-account-block" onclick="addAccountBlock()" style="padding: 12px 30px; border-radius: 14px; background: rgba(16,185,129,0.15); color: #ffffff; border: 3.5px solid #34d399 !important; font-weight: 900; font-size: 1.1rem; cursor: pointer; font-family: 'Tajawal', sans-serif; transition: all 0.3s; display: flex; align-items: center; gap: 10px;">
+                <div style="display: flex; justify-content: center; align-items: center; gap: 12px; margin-top: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                    <button type="button" class="btn-add-account-block" onclick="addAccountBlock()" style="padding: 10px 24px; border-radius: 12px; background: rgba(16,185,129,0.15); color: #ffffff; border: 3.5px solid #34d399 !important; font-weight: 900; font-size: 1.05rem; cursor: pointer; font-family: 'Tajawal', sans-serif; transition: all 0.3s; display: flex; align-items: center; gap: 8px;">
                         ➕ إضافة حساب مستلم / دافع آخر
                     </button>
                 </div>
 
                 <!-- ═══ قالب الكتلة المخفي (Hidden Template) ═══ -->
                 <template id="account-block-template">
-                    <div class="account-block glass-container glass-green" data-block-id="{ID}" style="position: relative; padding: 15px; border-radius: 12px; transition: all 0.3s ease;">
+                    <div class="account-block glass-container glass-green" data-block-id="{ID}" style="position: relative; padding: 12px 14px; border-radius: 12px; transition: all 0.3s ease;">
                         <div style="display: flex; align-items: center; justify-content: space-between; margin-bottom: 8px; padding-bottom: 0px;">
                             <div style="display: flex; align-items: center; gap: 8px; font-size: 1.25rem; font-weight: 800; color: #34d399;">
                                 <span>📋</span> <span class="block-label">إلى حساب (مستلم)</span> <span class="animated-arrow-right" style="color: #34d399;">→</span>
@@ -2346,10 +2346,10 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 :root.light-theme .text-amber-400, :root.light-theme span[style*="color: #fbbf24"], :root.light-theme span[style*="color:#fbbf24"] { color: #b45309 !important; }
             </style>
 
-            <!-- Action Buttons Section Integrated Into Main Card -->
-            <div style="padding: 20px 0 10px 0; border-top: 1px solid rgba(255,255,255,0.05); display: flex; justify-content: center; align-items: center; gap: 10px; margin-top: 30px; width: 100%;">
+            <!-- Action Buttons Section Integrated Into Main Card (Sticky Bottom Command Dock) -->
+            <div class="footer-actions-dock-wrapper" style="position: sticky; bottom: 12px; z-index: 999; width: 100%; display: flex; justify-content: center; align-items: center; pointer-events: none; margin-top: 25px; padding-bottom: 5px;">
                 <!-- Action Buttons Section -->
-                <div class="footer-actions" style="display: flex; gap: 14px; flex-wrap: wrap; justify-content: center; width: 100%;">
+                <div class="footer-actions" style="pointer-events: auto; display: flex; gap: 12px; flex-wrap: wrap; justify-content: center; align-items: center; padding: 10px 22px; background: linear-gradient(135deg, rgba(15, 23, 42, 0.96), rgba(30, 41, 59, 0.98)); backdrop-filter: blur(18px); -webkit-backdrop-filter: blur(18px); border: 2px solid rgba(56, 189, 248, 0.45); border-radius: 18px; box-shadow: 0 12px 35px rgba(0, 0, 0, 0.85), 0 0 25px rgba(56, 189, 248, 0.25); max-width: 96%;">
                     <button type="button" class="btn crystal-btn btn-exit" onclick="if(document.referrer) { window.history.back(); } else { window.location.href='dashboard-pro.php'; }" title="الرجوع للشاشة السابقة">🚪 خروج</button>
                     <button type="button" class="btn crystal-btn btn-new" onclick="resetVoucher()">✨ مستند جديد</button>
                     <button type="button" class="btn crystal-btn btn-print" onclick="directPrint()">🖨️ طباعة</button>
