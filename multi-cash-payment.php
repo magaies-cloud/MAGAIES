@@ -679,15 +679,15 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             transform: translateY(-1px) scale(1.03) !important;
         }
 
-        /* 4. شيك (Emerald Mint / Neon Green) */
+        /* 4. شيك (Teal / Turquoise Green - رسمية ومصرفية ورقية متباينة عن الكاش) */
         .btn-dock-btn.block-btn-cheque {
-            --tab-border-color: #10b981;
-            --tab-glow-color: rgba(16, 185, 129, 0.85);
-            border: 3.5px solid #10b981 !important;
+            --tab-border-color: #0d9488;
+            --tab-glow-color: rgba(20, 184, 166, 0.7);
+            border: 3.5px solid #0d9488 !important;
             border-radius: 14px !important;
-            background: linear-gradient(135deg, rgba(16, 185, 129, 0.38), rgba(4, 120, 87, 0.72)) !important;
+            background: linear-gradient(135deg, rgba(13, 148, 136, 0.28), rgba(15, 118, 110, 0.58)) !important;
             color: #ffffff !important;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), 0 0 10px rgba(16, 185, 129, 0.35) !important;
+            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.5), 0 0 10px rgba(20, 184, 166, 0.35) !important;
             text-shadow: none !important;
         }
         .btn-dock-btn.block-btn-cheque:hover,
@@ -695,17 +695,17 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             background: #000000 !important;
             background-image: none !important;
             color: #ffffff !important;
-            border: 3.5px solid #34d399 !important;
-            box-shadow: 0 4px 14px rgba(0, 0, 0, 0.75), 0 0 12px rgba(16, 185, 129, 0.85), 0 0 24px rgba(16, 185, 129, 0.45) !important;
+            border: 3.5px solid #14b8a6 !important;
+            box-shadow: 0 8px 22px rgba(0, 0, 0, 0.85), 0 0 14px rgba(20, 184, 166, 0.7), 0 5px 14px rgba(20, 184, 166, 0.45) !important;
             text-shadow: none !important;
-            transform: translateY(-3px) scale(1.06) !important;
+            transform: translateY(-2px) scale(1.04) !important;
         }
         .btn-dock-btn.active.block-btn-cheque {
-            border: 3.5px solid #34d399 !important;
+            border: 3.5px solid #2dd4bf !important;
             border-radius: 14px !important;
-            background: linear-gradient(135deg, #059669, #34d399) !important;
+            background: linear-gradient(135deg, #0d9488, #14b8a6) !important;
             color: #ffffff !important;
-            box-shadow: 0 4px 18px rgba(52, 211, 153, 0.65), 0 0 16px rgba(16, 185, 129, 0.4) !important;
+            box-shadow: 0 4px 18px rgba(20, 184, 166, 0.65), 0 0 16px rgba(13, 148, 136, 0.4) !important;
             transform: translateY(-1px) scale(1.03) !important;
         }
 

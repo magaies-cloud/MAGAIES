@@ -1,4 +1,4 @@
-// Version: 20260911203000 (Remove WhatsApp dock and update button v8)
+// Version: 20260911204000 (Unified Psychological Button Design System v9)
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
