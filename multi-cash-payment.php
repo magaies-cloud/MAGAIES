@@ -249,6 +249,24 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
             transform: translateY(-3px) scale(1.005) !important;
         }
 
+        /* Crystal Gold Container (بطاقة ذهبية - ناقص / غير واضح) */
+        .glass-gold {
+            position: relative; overflow: hidden;
+            background: linear-gradient(135deg, rgba(80, 60, 15, 0.85), rgba(15, 23, 42, 0.95)) !important;
+            border: 1px solid rgba(245, 158, 11, 0.45) !important;
+            border-right: 5px solid #f59e0b !important;
+            box-shadow: 0 14px 40px rgba(0, 0, 0, 0.55), inset 0 1px 2px rgba(245, 158, 11, 0.35), 0 0 25px rgba(245, 158, 11, 0.2) !important;
+            transition: all 0.35s cubic-bezier(0.16, 1, 0.3, 1) !important;
+        }
+        .glass-gold:hover,
+        .glass-gold:focus-within {
+            background: linear-gradient(135deg, rgba(100, 75, 20, 0.9), rgba(15, 23, 42, 0.98)) !important;
+            border-color: #fbbf24 !important;
+            border-right-color: #f59e0b !important;
+            box-shadow: 0 20px 55px rgba(0, 0, 0, 0.8), 0 0 35px rgba(245, 158, 11, 0.85), 0 0 70px rgba(217, 119, 6, 0.45), inset 0 0 20px rgba(251, 191, 36, 0.25) !important;
+            transform: translateY(-3px) scale(1.005) !important;
+        }
+
         /* High Contrast Inputs, Placeholders, and Labels */
         input::placeholder,
         select::placeholder,
@@ -2097,6 +2115,47 @@ window.SERVER_RECEIPTS = <?php echo $SERVER_RECEIPTS_json; ?>;
                 </div>
 
 
+                <!-- ═══ شريط حالة البطاقات وأزرار الإجراءات ═══ -->
+                <div id="cards-status-panel" style="background: linear-gradient(135deg, rgba(15,23,42,0.85), rgba(30,41,59,0.9)); border: 1.5px solid rgba(255,255,255,0.12); border-radius: 14px; padding: 16px 20px; margin-top: 15px; margin-bottom: 18px; backdrop-filter: blur(12px); box-shadow: 0 4px 20px rgba(0,0,0,0.3);">
+                    
+                    <!-- سطر دليل الألوان (Legend) -->
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 24px; flex-wrap: wrap; margin-bottom: 14px; padding-bottom: 12px; border-bottom: 1px solid rgba(255,255,255,0.08);">
+                        <div style="display: flex; align-items: center; gap: 7px;">
+                            <span style="width: 14px; height: 14px; border-radius: 50%; background: #10b981; box-shadow: 0 0 8px rgba(16,185,129,0.6); display: inline-block;"></span>
+                            <span style="color: #34d399; font-weight: 800; font-size: 0.92rem;">أخضر = سليم ✓</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 7px;">
+                            <span style="width: 14px; height: 14px; border-radius: 50%; background: #ef4444; box-shadow: 0 0 8px rgba(239,68,68,0.6); display: inline-block;"></span>
+                            <span style="color: #f87171; font-weight: 800; font-size: 0.92rem;">أحمر = مكرر ✗</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 7px;">
+                            <span style="width: 14px; height: 14px; border-radius: 50%; background: #f59e0b; box-shadow: 0 0 8px rgba(245,158,11,0.6); display: inline-block;"></span>
+                            <span style="color: #fbbf24; font-weight: 800; font-size: 0.92rem;">ذهبي = ناقص / غير واضح ⚠</span>
+                        </div>
+                    </div>
+
+                    <!-- أزرار الإجراءات -->
+                    <div style="display: flex; align-items: center; justify-content: center; gap: 10px; flex-wrap: wrap;">
+                        <button type="button" class="btn crystal-btn btn-save" onclick="validateAndHighlightAll()" title="فحص جميع البطاقات وتلوينها حسب الحالة" style="font-size: 0.85rem; padding: 8px 16px; min-height: 38px;">
+                            <span class="btn-icon">🔍</span> <span class="btn-text">فحص الكل</span>
+                        </button>
+                        <button type="button" class="btn crystal-btn btn-delete" onclick="deleteDuplicateBlocks()" title="حذف جميع البطاقات المكررة (الحمراء)" style="font-size: 0.85rem; padding: 8px 16px; min-height: 38px;">
+                            <span class="btn-icon">🗑️</span> <span class="btn-text">حذف المكرر</span>
+                        </button>
+                        <button type="button" class="btn crystal-btn btn-new" onclick="approveAllBlocks()" title="اعتماد جميع البطاقات السليمة (الخضراء)" style="font-size: 0.85rem; padding: 8px 16px; min-height: 38px;">
+                            <span class="btn-icon">✅</span> <span class="btn-text">اعتماد الكل</span>
+                        </button>
+                        <button type="button" class="btn crystal-btn btn-save-master" id="btn-save-all" onclick="saveVoucher()" title="حفظ السند بالكامل" style="font-size: 0.85rem; padding: 8px 16px; min-height: 38px;">
+                            <span class="btn-icon">💾</span> <span class="btn-text">حفظ السند</span>
+                        </button>
+                        <button type="button" class="btn crystal-btn btn-print" onclick="directPrint()" title="طباعة السند مباشرة" style="font-size: 0.85rem; padding: 8px 16px; min-height: 38px;">
+                            <span class="btn-icon">🖨️</span> <span class="btn-text">طباعة</span>
+                        </button>
+                        <button type="button" class="btn crystal-btn btn-excel" onclick="exportToExcel()" title="تصدير البطاقات إلى ملف Excel" style="font-size: 0.85rem; padding: 8px 16px; min-height: 38px;">
+                            <span class="btn-icon">📊</span> <span class="btn-text">تصدير Excel</span>
+                        </button>
+                    </div>
+                </div>
 
                 <!-- ═══ حاوية الحسابات (Accounts Blocks Container) ═══ -->
                 <div id="accounts-blocks-container" style="display: flex; flex-direction: column; gap: 20px; position: relative; z-index: 10;">

@@ -3956,3 +3956,204 @@ document.addEventListener('DOMContentLoaded', () => {
     }, 300);
 });
 
+
+// ═══════════════════════════════════════════════════════════════════
+// VALIDATION & STATUS PANEL FUNCTIONS (أزرار شريط حالة البطاقات)
+// ═══════════════════════════════════════════════════════════════════
+
+/**
+ * فحص جميع البطاقات وتلوينها:
+ * أخضر = سليم ✓  |  أحمر = مكرر ✗  |  ذهبي = ناقص ⚠
+ */
+window.validateAndHighlightAll = function() {
+    const blocks = document.querySelectorAll('.account-block');
+    if (blocks.length === 0) {
+        if (typeof showToast === 'function') showToast('لا توجد بطاقات حسابات للفحص', 'info');
+        return;
+    }
+
+    let greenCount = 0, redCount = 0, goldCount = 0;
+    const seenTransfers = new Map(); // suffix -> blockId
+
+    // First pass: collect all transfer numbers
+    blocks.forEach(block => {
+        const bankRows = block.querySelectorAll('.bank-transfer-row');
+        bankRows.forEach(row => {
+            const tnoInput = row.querySelector('.block-transfer-no-input');
+            if (tnoInput && tnoInput.value.trim().length >= 6) {
+                const suffix = String(tnoInput.value.trim()).slice(-6);
+                const blockId = block.dataset.blockId;
+                if (!seenTransfers.has(suffix)) {
+                    seenTransfers.set(suffix, [blockId]);
+                } else {
+                    seenTransfers.get(suffix).push(blockId);
+                }
+            }
+        });
+    });
+
+    // Find duplicate block IDs
+    const duplicateBlockIds = new Set();
+    seenTransfers.forEach((blockIds) => {
+        if (blockIds.length > 1) {
+            blockIds.forEach(id => duplicateBlockIds.add(id));
+        }
+    });
+
+    // Second pass: classify and color each block
+    blocks.forEach(block => {
+        const blockId = block.dataset.blockId;
+        const accInput = block.querySelector('.block-account-search');
+        const amountInput = block.querySelector('.block-amount-input');
+        const accName = accInput ? accInput.value.trim() : '';
+        const amount = amountInput ? parseFloat(amountInput.value.replace(/,/g, '')) || 0 : 0;
+
+        // Remove old status classes
+        block.classList.remove('glass-green', 'glass-red', 'glass-gold');
+        block.style.removeProperty('border-color');
+        block.style.removeProperty('box-shadow');
+
+        if (duplicateBlockIds.has(blockId)) {
+            // أحمر = مكرر
+            block.classList.add('glass-red');
+            block.style.borderColor = 'rgba(239,68,68,0.6)';
+            block.style.boxShadow = '0 0 15px rgba(239,68,68,0.3)';
+            block.dataset.validationStatus = 'duplicate';
+            redCount++;
+        } else if (!accName || amount <= 0) {
+            // ذهبي = ناقص
+            block.classList.add('glass-gold');
+            block.style.borderColor = 'rgba(245,158,11,0.6)';
+            block.style.boxShadow = '0 0 15px rgba(245,158,11,0.3)';
+            block.dataset.validationStatus = 'missing';
+            goldCount++;
+        } else {
+            // أخضر = سليم
+            block.classList.add('glass-green');
+            block.style.borderColor = 'rgba(16,185,129,0.5)';
+            block.style.boxShadow = '0 0 15px rgba(16,185,129,0.2)';
+            block.dataset.validationStatus = 'valid';
+            greenCount++;
+        }
+    });
+
+    // Update counter badge
+    const panel = document.getElementById('cards-status-panel');
+    let badge = document.getElementById('validation-result-badge');
+    if (!badge) {
+        badge = document.createElement('div');
+        badge.id = 'validation-result-badge';
+        badge.style.cssText = 'text-align: center; margin-top: 12px; padding-top: 10px; border-top: 1px solid rgba(255,255,255,0.08); font-weight: 800; font-size: 0.88rem; display: flex; justify-content: center; gap: 20px; flex-wrap: wrap;';
+        panel.appendChild(badge);
+    }
+    badge.innerHTML = `
+        <span style="color: #34d399;">✓ سليم: ${greenCount}</span>
+        <span style="color: #f87171;">✗ مكرر: ${redCount}</span>
+        <span style="color: #fbbf24;">⚠ ناقص: ${goldCount}</span>
+        <span style="color: #94a3b8;">| الإجمالي: ${blocks.length}</span>
+    `;
+
+    if (typeof showToast === 'function') {
+        showToast(`تم فحص ${blocks.length} بطاقة — ✓${greenCount} سليم | ✗${redCount} مكرر | ⚠${goldCount} ناقص`, 
+            redCount > 0 ? 'error' : goldCount > 0 ? 'warning' : 'success', 4000);
+    }
+};
+
+/**
+ * حذف جميع البطاقات المكررة (الحمراء)
+ */
+window.deleteDuplicateBlocks = function() {
+    const duplicates = document.querySelectorAll('.account-block[data-validation-status="duplicate"]');
+    if (duplicates.length === 0) {
+        // Run validation first
+        validateAndHighlightAll();
+        const dup2 = document.querySelectorAll('.account-block[data-validation-status="duplicate"]');
+        if (dup2.length === 0) {
+            if (typeof showToast === 'function') showToast('لا توجد بطاقات مكررة للحذف', 'info');
+            return;
+        }
+    }
+
+    const count = document.querySelectorAll('.account-block[data-validation-status="duplicate"]').length;
+    if (!confirm(`هل أنت متأكد من حذف ${count} بطاقة مكررة (حمراء)؟\n\nهذا الإجراء لا يمكن التراجع عنه.`)) return;
+
+    document.querySelectorAll('.account-block[data-validation-status="duplicate"]').forEach(block => {
+        block.style.transition = 'all 0.4s ease';
+        block.style.transform = 'scale(0.8)';
+        block.style.opacity = '0';
+        setTimeout(() => block.remove(), 400);
+    });
+
+    setTimeout(() => {
+        if (typeof recalcGrandTotal === 'function') recalcGrandTotal();
+        validateAndHighlightAll();
+        if (typeof showToast === 'function') showToast(`تم حذف ${count} بطاقة مكررة بنجاح`, 'success');
+    }, 500);
+};
+
+/**
+ * اعتماد جميع البطاقات السليمة (الخضراء)
+ */
+window.approveAllBlocks = function() {
+    validateAndHighlightAll();
+    
+    const validBlocks = document.querySelectorAll('.account-block[data-validation-status="valid"]');
+    if (validBlocks.length === 0) {
+        if (typeof showToast === 'function') showToast('لا توجد بطاقات سليمة للاعتماد — تأكد من تعبئة جميع البيانات', 'warning');
+        return;
+    }
+
+    validBlocks.forEach(block => {
+        block.dataset.approved = 'true';
+        // Add subtle approved indicator
+        let approvedBadge = block.querySelector('.approved-badge');
+        if (!approvedBadge) {
+            approvedBadge = document.createElement('div');
+            approvedBadge.className = 'approved-badge';
+            approvedBadge.style.cssText = 'position: absolute; top: 8px; left: 8px; background: rgba(16,185,129,0.25); border: 1px solid #34d399; color: #34d399; font-size: 0.72rem; font-weight: 900; padding: 2px 8px; border-radius: 8px; z-index: 5;';
+            approvedBadge.textContent = '✓ معتمد';
+            block.style.position = 'relative';
+            block.appendChild(approvedBadge);
+        }
+    });
+
+    if (typeof showToast === 'function') showToast(`تم اعتماد ${validBlocks.length} بطاقة سليمة ✓`, 'success');
+};
+
+/**
+ * تصدير بيانات البطاقات إلى ملف Excel (CSV)
+ */
+window.exportToExcel = function() {
+    const blocks = document.querySelectorAll('.account-block');
+    if (blocks.length === 0) {
+        if (typeof showToast === 'function') showToast('لا توجد بطاقات للتصدير', 'info');
+        return;
+    }
+
+    const voucherNo = document.getElementById('voucher-no-display')?.value || 'بدون رقم';
+    const voucherDate = document.getElementById('voucher-date')?.value || '';
+    
+    let csv = '\uFEFF'; // BOM for Arabic
+    csv += 'رقم السند,التاريخ,اسم الحساب,المبلغ,الحالة\n';
+
+    blocks.forEach(block => {
+        const accInput = block.querySelector('.block-account-search');
+        const amountInput = block.querySelector('.block-amount-input');
+        const accName = (accInput ? accInput.value.trim() : '').replace(/,/g, ' ');
+        const amount = amountInput ? amountInput.value.trim() : '0';
+        const status = block.dataset.validationStatus === 'valid' ? 'سليم' 
+                     : block.dataset.validationStatus === 'duplicate' ? 'مكرر' 
+                     : 'ناقص';
+        csv += `${voucherNo},${voucherDate},${accName},${amount},${status}\n`;
+    });
+
+    const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = url;
+    link.download = `سند_${voucherNo}_${voucherDate || 'export'}.csv`;
+    link.click();
+    URL.revokeObjectURL(url);
+
+    if (typeof showToast === 'function') showToast(`تم تصدير ${blocks.length} بطاقة إلى Excel`, 'success');
+};
