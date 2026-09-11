@@ -71,7 +71,32 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         
         /* AutoComplete Styles */
         .search-wrap { display:flex; width: 100%; align-items: center; position: relative; }
-        .search-clear-btn { position:absolute; left:8px; top:50%; transform:translateY(-50%); background:none; border:none; color:#f87171; cursor:pointer; display:none; padding:4px; z-index:10; font-size:1.2rem; }
+        .search-transfer-btn {
+            position: absolute;
+            left: 8px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: linear-gradient(135deg, #a855f7, #6366f1);
+            border: 1px solid rgba(255,255,255,0.25);
+            color: #fff;
+            border-radius: 8px;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            font-size: 0.95rem;
+            z-index: 12;
+            transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(168,85,247,0.35);
+        }
+        .search-transfer-btn:hover {
+            transform: translateY(-50%) scale(1.08);
+            background: linear-gradient(135deg, #c084fc, #818cf8);
+            box-shadow: 0 4px 14px rgba(168,85,247,0.6);
+        }
+        .search-clear-btn { position:absolute; left:46px; top:50%; transform:translateY(-50%); background:none; border:none; color:#f87171; cursor:pointer; display:none; padding:4px; z-index:10; font-size:1.2rem; }
         .autocomplete-list { position:absolute; top:calc(100% + 4px); right:0; left:0; background:#1e293b; border:1.5px solid #475569; border-radius:10px; list-style:none; margin:0; padding:6px; display:none; max-height:280px; overflow-y:auto; z-index:1000; box-shadow:0 10px 30px rgba(0,0,0,0.6); }
         .autocomplete-list li { padding:10px 14px; cursor:pointer; color:#f8fafc; font-size:1.25rem; border-radius:8px; margin-bottom:3px; font-weight:800; display:flex; justify-content:space-between; align-items:center; transition: background 0.15s ease; }
         .autocomplete-list li:hover, .autocomplete-list li.active { background:rgba(56, 189, 248, 0.2); }
@@ -102,11 +127,68 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         .selected-account-chip #chip-name { color: #ffd700 !important; font-size: 1.38rem !important; font-weight: 900 !important; text-shadow: 0 0 10px rgba(250, 204, 21, 0.4); font-family: 'Cairo', 'Tajawal', sans-serif; }
         :root.light-theme .selected-account-chip { background:#f8fafc !important; border-color:rgba(217,119,6,0.5) !important; }
         :root.light-theme .selected-account-chip #chip-name { color: #b45309 !important; text-shadow: none; }
-        #account-search-input { font-size: 1.28rem !important; font-weight: 800 !important; color: #ffd700 !important; height: 44px; background: #0f172a !important; border: 1.5px solid rgba(250, 204, 21, 0.4) !important; border-radius: 8px; }
-        #account-search-input::placeholder { color: rgba(250, 204, 21, 0.7) !important; font-size: 1.15rem; }
+        #account-search-input { font-size: 1.28rem !important; font-weight: 800 !important; color: #ffd700 !important; height: 44px; background: #0f172a !important; border: 1.5px solid rgba(250, 204, 21, 0.4) !important; border-radius: 8px; padding-left: 80px !important; }
+        #account-search-input::placeholder { color: rgba(250, 204, 21, 0.7) !important; font-size: 1.05rem; }
         #account-search-input:focus { background: #0b1120 !important; border-color: #ffd700 !important; box-shadow: 0 0 0 3px rgba(250, 204, 21, 0.25) !important; }
         :root.light-theme #account-search-input { background: #f8fafc !important; color: #b45309 !important; border-color: rgba(217, 119, 6, 0.4) !important; }
         :root.light-theme #account-search-input::placeholder { color: rgba(180, 83, 9, 0.6) !important; }
+
+        /* ── Transfer Inquiry & Verification Card ── */
+        .transfer-inquiry-card {
+            background: linear-gradient(135deg, rgba(30, 41, 59, 0.96), rgba(15, 23, 42, 0.98));
+            border: 2px solid #a855f7;
+            border-radius: 16px;
+            padding: 18px 22px;
+            box-shadow: 0 15px 35px rgba(0, 0, 0, 0.5), 0 0 25px rgba(168, 85, 247, 0.25);
+            color: #f8fafc;
+            animation: ctxFadeIn 0.3s cubic-bezier(0.16, 1, 0.3, 1);
+            position: relative;
+            z-index: 50;
+            font-family: 'Tajawal', sans-serif;
+        }
+        :root.light-theme .transfer-inquiry-card {
+            background: linear-gradient(135deg, #ffffff, #f8fafc) !important;
+            border-color: #a855f7 !important;
+            color: #0f172a !important;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1), 0 0 15px rgba(168, 85, 247, 0.15) !important;
+        }
+        .transfer-info-box {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 255, 255, 0.08);
+            border-radius: 10px;
+            padding: 10px 14px;
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        :root.light-theme .transfer-info-box {
+            background: rgba(0, 0, 0, 0.03) !important;
+            border-color: rgba(0, 0, 0, 0.08) !important;
+        }
+        .transfer-info-box .info-label {
+            font-size: 0.78rem;
+            color: #94a3b8;
+            font-weight: 700;
+        }
+        .transfer-info-box .info-val {
+            font-size: 1.05rem;
+            font-weight: 900;
+            color: #f8fafc;
+            font-family: 'Tajawal', sans-serif;
+        }
+        :root.light-theme .transfer-info-box .info-val {
+            color: #0f172a !important;
+        }
+        .transfer-matched-row td {
+            background: rgba(234, 179, 8, 0.25) !important;
+            border-top: 2.5px solid #eab308 !important;
+            border-bottom: 2.5px solid #eab308 !important;
+            animation: transferPulse 2.2s infinite ease-in-out;
+        }
+        @keyframes transferPulse {
+            0%, 100% { background: rgba(234, 179, 8, 0.2); box-shadow: inset 0 0 10px rgba(234, 179, 8, 0.3); }
+            50% { background: rgba(234, 179, 8, 0.42); box-shadow: inset 0 0 20px rgba(234, 179, 8, 0.6); }
+        }
         
         .btn-run { background: linear-gradient(135deg, #a855f7, #7e22ce); color: #ffffff; border: none; padding: 8px 20px; border-radius: 8px; font-weight: 900; cursor: pointer; display: flex; align-items: center; justify-content:center; gap: 8px; transition: all 0.3s; font-family: inherit; font-size: 0.95rem; height: 40px; box-shadow: 0 4px 15px rgba(126, 34, 206, 0.4); }
         .btn-run:hover { background: linear-gradient(135deg, #c084fc, #9333ea); transform: translateY(-2px); box-shadow: 0 8px 25px rgba(126, 34, 206, 0.6); }
@@ -511,9 +593,13 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
         <div class="filter-row" style="display: flex; flex-wrap: wrap; gap: 14px; align-items: flex-end; margin-bottom: 14px;">
             <!-- Main Account -->
             <div class="filter-group" style="flex: 3.5; min-width: 300px;">
-                <label style="font-size: 0.95rem; font-weight: 800; color: #ffd700;">🏦 الحساب الرئيسي (بحث بالاسم)</label>
+                <label style="font-size: 0.95rem; font-weight: 800; color: #ffd700; display:flex; justify-content:space-between; align-items:center;">
+                    <span>🏦 الحساب الرئيسي (بحث بالاسم أو رقم التحويلة البنكية)</span>
+                    <span style="font-size:0.75rem; color:#38bdf8; font-weight:normal;">💡 اكتب رقم التحويلة واضغط Enter</span>
+                </label>
                 <div class="search-wrap" id="account-search-wrap">
-                    <input type="text" class="filter-input" id="account-search-input" placeholder="ابحث باسم الحساب..." autocomplete="off" onfocus="if(typeof onAccountSearch==='function')onAccountSearch()" oninput="if(typeof onAccountSearch==='function')onAccountSearch()" onclick="if(typeof onAccountSearch==='function')onAccountSearch()">
+                    <input type="text" class="filter-input" id="account-search-input" placeholder="ابحث باسم الحساب أو اكتب رقم التحويلة واضغط Enter..." autocomplete="off" onfocus="if(typeof onAccountSearch==='function')onAccountSearch()" oninput="if(typeof onAccountSearch==='function')onAccountSearch()" onclick="if(typeof onAccountSearch==='function')onAccountSearch()">
+                    <button type="button" class="search-transfer-btn" id="search-transfer-btn" onclick="triggerTransferOrAccountSearch()" title="بحث برقم التحويلة البنكية أو الحساب (Enter)">🔍</button>
                     <button class="search-clear-btn" id="search-clear-btn" onclick="clearAccountSearch()">✕</button>
                     <ul class="autocomplete-list" id="autocomplete-list"></ul>
                 </div>
@@ -588,6 +674,9 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
             </div>
         </div>
     </div>
+
+    <!-- ── Bank Transfer Inspection & Inquiry Result Container ── -->
+    <div id="transfer-search-result-container" style="display:none; margin-bottom: 20px;"></div>
 
     <!-- Presets & Action Buttons -->
     <div class="filter-row" style="margin-bottom: 20px; display: flex; gap: 14px; flex-wrap: wrap; align-items: center; justify-content: space-between; background: rgba(15, 23, 42, 0.55); padding: 10px 16px; border-radius: 14px; border: 1px solid rgba(255,255,255,0.08); backdrop-filter: blur(12px); box-shadow: inset 0 1px 1px rgba(255,255,255,0.1), 0 8px 24px rgba(0,0,0,0.25);">
@@ -874,8 +963,8 @@ $page_title = 'دفتر الأستاذ (SGL) - Launcher';
 
 <!-- Core JS -->
 <script src="js/localforage.min.js"></script>
-<script src="js/app.js?v=1788471401449"></script>
-<script src="js/general-ledger.js?v=1788471401448"></script>
+<script src="js/app.js?v=<?php echo time(); ?>"></script>
+<script src="js/general-ledger.js?v=<?php echo time(); ?>"></script>
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     if (typeof window.renderLedgerPresets === 'function') {

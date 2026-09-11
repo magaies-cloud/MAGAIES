@@ -238,8 +238,50 @@ function onAccountSearch() {
         return qTokens.every(tok => nameNorm.includes(tok) || idNorm.includes(tok));
     });
     
-    if (results.length === 0) {
-        list.innerHTML = '<li class="no-results" style="padding: 14px; color: #f87171; text-align: center; font-size: 1.2rem; font-weight: bold;">لا يوجد حساب مطابق</li>';
+    // Live Bank Transfer Lookup in Autocomplete
+    if (q.length >= 3 || /\d/.test(q)) {
+        const qDig = q.replace(/\D/g, '');
+        const matchingTransfers = [];
+        const seenTrs = new Set();
+        (ALL_TXNS || []).forEach(t => {
+            if (!t || !t.transferNo) return;
+            const trStr = String(t.transferNo).trim();
+            if (seenTrs.has(trStr)) return;
+            let m = trStr.toLowerCase().includes(normQ);
+            if (!m && qDig.length >= 4) {
+                m = trStr.replace(/\D/g, '').includes(qDig);
+            }
+            if (m) {
+                seenTrs.add(trStr);
+                matchingTransfers.push(t);
+            }
+        });
+
+        matchingTransfers.slice(0, 3).forEach(t => {
+            const trLi = document.createElement('li');
+            trLi.className = 'transfer-autocomplete-item';
+            trLi.style.cssText = 'background: rgba(168,85,247,0.25); border: 1.5px solid #a855f7; border-radius: 8px; margin-bottom: 6px; padding: 10px 14px; cursor: pointer;';
+            const benefName = getAccountName(t.counterAccount) || getAccountName(t.account);
+            trLi.innerHTML = `
+                <div style="display:flex; justify-content:space-between; align-items:center; width:100%; gap:8px;">
+                    <span style="font-weight:900; font-size:1.15rem; color:#ffd700; display:flex; align-items:center; gap:8px;">
+                        <span style="font-size:1.3rem;">💳</span>
+                        <span>تحويلة رقم: <strong style="color:#38bdf8; text-decoration:underline;">${t.transferNo}</strong></span>
+                        <span style="color:#f8fafc; font-size:0.95rem; font-weight:normal;">(مضافة لـ: <strong style="color:#ffd700;">${benefName}</strong>)</span>
+                    </span>
+                    <span style="background:linear-gradient(135deg, #10b981, #059669); color:#fff; padding:4px 10px; border-radius:6px; font-size:0.82rem; font-weight:bold;">فحص ومطابقة ⏎</span>
+                </div>
+            `;
+            trLi.onmousedown = (ev) => {
+                ev.preventDefault();
+                inspectBankTransfer(t.transferNo);
+            };
+            list.appendChild(trLi);
+        });
+    }
+
+    if (results.length === 0 && list.children.length === 0) {
+        list.innerHTML = '<li class="no-results" style="padding: 14px; color: #f87171; text-align: center; font-size: 1.2rem; font-weight: bold;">لا يوجد حساب مطابق (اضغط Enter للبحث كرقم تحويلة)</li>';
         list.style.display = 'block';
         return;
     }
@@ -276,6 +318,10 @@ function onAccountSearchKey(e) {
     if (e.key === 'Escape') {
         const list = document.getElementById('autocomplete-list');
         if (list) list.style.display = 'none';
+    } else if (e.key === 'Enter') {
+        e.preventDefault();
+        e.stopPropagation();
+        triggerTransferOrAccountSearch();
     }
 }
 
@@ -314,6 +360,9 @@ function clearAccountSearch() {
         input.focus();
     }
     
+    // Close any transfer inquiry card
+    if (typeof closeTransferInquiryCard === 'function') closeTransferInquiryCard();
+
     // Reset Report View
     const tbody = document.getElementById('recent-tbody');
     if (tbody) {
@@ -357,6 +406,531 @@ document.addEventListener('mousedown', function(e) {
     }
 });
 
+/* ══════════════════════════════════════════════════════════
+   BANK TRANSFER INSPECTOR & VERIFICATION ENGINE (كشف الحساب)
+   ══════════════════════════════════════════════════════════ */
+let currentSearchedTransferNo = '';
+
+window.closeTransferInquiryCard = function() {
+    const container = document.getElementById('transfer-search-result-container');
+    if (container) {
+        container.style.display = 'none';
+        container.innerHTML = '';
+    }
+    currentSearchedTransferNo = '';
+    document.querySelectorAll('.transfer-matched-row').forEach(tr => tr.classList.remove('transfer-matched-row'));
+};
+
+window.openBeneficiaryStatement = function(accId, accName, transferNo) {
+    if (!accId) return;
+    currentSearchedTransferNo = transferNo || '';
+    
+    // Select the account in the ledger
+    selectAccount(accId, accName, '👤');
+    
+    // Smoothly scroll down to the table and highlight
+    setTimeout(() => {
+        highlightTransferRows(transferNo);
+        const table = document.getElementById('recent-table');
+        if (table) {
+            table.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }
+    }, 400);
+};
+
+window.filterLedgerByTransfer = function(transferNo) {
+    if (!transferNo) return;
+    currentSearchedTransferNo = transferNo;
+    const smartEl = document.getElementById('filter-smart');
+    if (smartEl) {
+        smartEl.value = transferNo;
+    }
+    document.getElementById('filter-account').value = 'ALL';
+    const wrap = document.getElementById('account-search-wrap');
+    const chip = document.getElementById('selected-chip');
+    if (wrap) wrap.style.display = 'flex';
+    if (chip) chip.style.display = 'none';
+    
+    runReport();
+    
+    setTimeout(() => {
+        highlightTransferRows(transferNo);
+        const table = document.getElementById('recent-table');
+        if (table) table.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 350);
+};
+
+window.triggerTransferOrAccountSearch = function(customQuery) {
+    const input = document.getElementById('account-search-input');
+    const smartInput = document.getElementById('filter-smart');
+    const q = (typeof customQuery === 'string' ? customQuery : ((input && input.value) ? input.value : (smartInput ? smartInput.value : ''))).trim();
+    if (!q) {
+        if (typeof showToast === 'function') showToast('يرجى كتابة رقم التحويلة أو اسم الحساب للبحث', 'info');
+        return;
+    }
+    
+    const list = document.getElementById('autocomplete-list');
+    if (list) list.style.display = 'none';
+    
+    inspectBankTransfer(q);
+};
+
+window.inspectBankTransfer = function(query) {
+    const container = document.getElementById('transfer-search-result-container');
+    if (!container) return;
+    
+    const cleanQ = String(query || '').trim();
+    if (!cleanQ) return;
+    
+    currentSearchedTransferNo = cleanQ;
+    const qLower = cleanQ.toLowerCase();
+    const qDigits = cleanQ.replace(/\D/g, '');
+    
+    ALL_TXNS = collectAllTransactions();
+    
+    function isTransferMatch(val) {
+        if (!val) return false;
+        const s = String(val).trim().toLowerCase();
+        if (s === qLower) return true;
+        if (cleanQ.length >= 3 && s.includes(qLower)) return true;
+        if (qDigits.length >= 4) {
+            const valDigits = s.replace(/\D/g, '');
+            if (valDigits && (valDigits === qDigits || valDigits.endsWith(qDigits) || valDigits.includes(qDigits))) return true;
+        }
+        return false;
+    }
+
+    const matchedTxns = [];
+    (ALL_TXNS || []).forEach(t => {
+        if (!t) return;
+        const trNo = t.transferNo || '';
+        const chkNo = t.checkNo || '';
+        const stmt = t.statement || '';
+        const note = t.additionalNote || '';
+        
+        let matched = false;
+        let matchedNo = '';
+        
+        if (isTransferMatch(trNo)) {
+            matched = true;
+            matchedNo = trNo;
+        } else if (isTransferMatch(chkNo)) {
+            matched = true;
+            matchedNo = chkNo;
+        } else if (cleanQ.length >= 4 && (isTransferMatch(stmt) || isTransferMatch(note))) {
+            matched = true;
+            matchedNo = cleanQ;
+        }
+        
+        if (matched) {
+            matchedTxns.push({ txn: t, matchedTransferNo: matchedNo || cleanQ });
+        }
+    });
+
+    // Also scan raw source tables directly to ensure zero omission
+    const rawMatches = [];
+    const getTK = window.getTenantKey || ((k) => k);
+
+    function scanSource(key, typeLabel, typeKey) {
+        let list = [];
+        try { list = JSON.parse(localStorage.getItem(getTK(key)) || localStorage.getItem(key) || '[]'); } catch(e) {}
+        if (!Array.isArray(list)) list = Object.values(list || {});
+        list.forEach(v => {
+            if (!v || v.deleted) return;
+            const refNo = v.voucherNo || v.id || v.invoiceNo || '';
+            
+            if (Array.isArray(v.bankTransfers)) {
+                v.bankTransfers.forEach(bt => {
+                    if (isTransferMatch(bt.transferNo || bt.reference)) {
+                        rawMatches.push({
+                            source: key,
+                            voucherRef: refNo,
+                            voucherType: typeKey,
+                            voucherTypeLabel: typeLabel,
+                            transferNo: bt.transferNo || bt.reference,
+                            amount: parseNum(bt.amount || v.amount || v.totalAmount),
+                            currency: v.currency || 'SDG',
+                            date: v.date,
+                            time: v.time,
+                            bankName: bt.bankName || bt.note || v.bankName || 'البنك',
+                            statement: bt.statement || v.description || v.statement || '',
+                            raw: v
+                        });
+                    }
+                });
+            } else if (isTransferMatch(v.transferNo || v.mobileTransferNo)) {
+                rawMatches.push({
+                    source: key,
+                    voucherRef: refNo,
+                    voucherType: typeKey,
+                    voucherTypeLabel: typeLabel,
+                    transferNo: v.transferNo || v.mobileTransferNo,
+                    amount: parseNum(v.amount || v.totalAmount || v.amountLocal),
+                    currency: v.currency || 'SDG',
+                    date: v.date,
+                    time: v.time,
+                    bankName: v.bankName || v.mobileNote || 'البنك',
+                    statement: v.statement || v.description || '',
+                    raw: v
+                });
+            }
+            
+            if (Array.isArray(v.items)) {
+                v.items.forEach(item => {
+                    if (!item) return;
+                    if (Array.isArray(item.bankTransfers)) {
+                        item.bankTransfers.forEach(bt => {
+                            if (isTransferMatch(bt.transferNo || bt.reference)) {
+                                rawMatches.push({
+                                    source: key,
+                                    voucherRef: refNo,
+                                    voucherType: typeKey,
+                                    voucherTypeLabel: typeLabel,
+                                    transferNo: bt.transferNo || bt.reference,
+                                    amount: parseNum(bt.amount || item.amount),
+                                    currency: v.currency || 'SDG',
+                                    date: v.date,
+                                    time: v.time,
+                                    bankName: bt.bankName || item.bankName || 'البنك',
+                                    statement: bt.statement || item.statement || v.description || '',
+                                    item: item,
+                                    raw: v
+                                });
+                            }
+                        });
+                    } else if (isTransferMatch(item.transferNo)) {
+                        rawMatches.push({
+                            source: key,
+                            voucherRef: refNo,
+                            voucherType: typeKey,
+                            voucherTypeLabel: typeLabel,
+                            transferNo: item.transferNo,
+                            amount: parseNum(item.amount),
+                            currency: v.currency || 'SDG',
+                            date: v.date,
+                            time: v.time,
+                            bankName: item.bankName || 'البنك',
+                            statement: item.statement || v.description || '',
+                            item: item,
+                            raw: v
+                        });
+                    }
+                });
+            }
+        });
+    }
+
+    scanSource('erp_payments_v1', 'سند صرف مجمع', 'multi-payment');
+    scanSource('erp_receipts_v1', 'سند قبض مجمع', 'multi-receipt');
+    scanSource('erp_single_payments_v1', 'سند صرف نقدية', 'payment');
+    scanSource('erp_single_receipts_v1', 'سند قبض نقدية', 'receipt');
+    scanSource('erp_sales_invoices_v1', 'فاتورة مبيعات', 'invoice');
+    scanSource('erp_purchase_invoices_v1', 'فاتورة مشتريات', 'purchase');
+
+    const operations = [];
+    const opKeys = new Set();
+
+    matchedTxns.forEach(({ txn, matchedTransferNo }) => {
+        const ref = txn.ref || '';
+        const opKey = `${txn.type}_${ref}_${matchedTransferNo}`;
+        if (opKeys.has(opKey)) return;
+        opKeys.add(opKey);
+        
+        const legs = (ALL_TXNS || []).filter(x => x && x.ref === ref && (x.transferNo === txn.transferNo || x.type === txn.type));
+        
+        let beneficiaryId = '';
+        let beneficiaryName = '';
+        let bankAccountId = '';
+        let bankAccountName = txn.bankName || '';
+        let directionLabel = '';
+        let addedToText = '';
+        
+        const isPayment = (txn.type === 'payment' || txn.type === 'multi-payment' || txn.type === 'comprehensive-payment');
+        const isReceipt = (txn.type === 'receipt' || txn.type === 'multi-receipt' || txn.type === 'comprehensive-receipt');
+        const isSales = (txn.type === 'invoice' || txn.type === 'sales');
+        const isPurchase = (txn.type === 'purchase');
+
+        if (isPayment) {
+            directionLabel = 'سند صرف (تحويل بنكي صادر)';
+            const debLeg = legs.find(l => parseNum(l.debit) > 0) || txn;
+            const credLeg = legs.find(l => parseNum(l.credit) > 0) || txn;
+            beneficiaryId = debLeg.account;
+            beneficiaryName = getAccountName(beneficiaryId);
+            bankAccountId = credLeg.account;
+            if (!bankAccountName) bankAccountName = getAccountName(bankAccountId);
+            
+            addedToText = `مضافة ومسددة لحساب المستفيد: <strong style="color:#ffd700; font-size:1.4rem;">${beneficiaryName}</strong> <span style="font-size:0.95rem; color:#94a3b8; font-weight:normal;">(مدفوعة من حساب: ${bankAccountName})</span>`;
+        } else if (isReceipt) {
+            directionLabel = 'سند قبض (تحويل بنكي وارد)';
+            const credLeg = legs.find(l => parseNum(l.credit) > 0) || txn;
+            const debLeg = legs.find(l => parseNum(l.debit) > 0) || txn;
+            beneficiaryId = credLeg.account;
+            beneficiaryName = getAccountName(beneficiaryId);
+            bankAccountId = debLeg.account;
+            if (!bankAccountName) bankAccountName = getAccountName(bankAccountId);
+            
+            addedToText = `مقيدة لحساب العميل/الدافع: <strong style="color:#ffd700; font-size:1.4rem;">${beneficiaryName}</strong> <span style="font-size:0.95rem; color:#34d399; font-weight:normal;">(تم إيداعها في: ${bankAccountName})</span>`;
+        } else if (isSales) {
+            directionLabel = 'فاتورة مبيعات';
+            beneficiaryId = txn.counterAccount && !txn.counterAccount.startsWith('revenue') ? txn.counterAccount : txn.account;
+            beneficiaryName = getAccountName(beneficiaryId);
+            if (!bankAccountName) bankAccountName = 'البنك';
+            
+            addedToText = `مقيدة لحساب العميل: <strong style="color:#ffd700; font-size:1.4rem;">${beneficiaryName}</strong> <span style="font-size:0.95rem; color:#94a3b8; font-weight:normal;">(سداد فاتورة مبيعات #${ref} وأودعت في: ${bankAccountName})</span>`;
+        } else if (isPurchase) {
+            directionLabel = 'فاتورة مشتريات';
+            beneficiaryId = txn.account && !txn.account.startsWith('exp') ? txn.account : txn.counterAccount;
+            beneficiaryName = getAccountName(beneficiaryId);
+            if (!bankAccountName) bankAccountName = 'البنك';
+            
+            addedToText = `مضافة ومسددة لحساب المورد: <strong style="color:#ffd700; font-size:1.4rem;">${beneficiaryName}</strong> <span style="font-size:0.95rem; color:#94a3b8; font-weight:normal;">(سداد فاتورة مشتريات #${ref} من: ${bankAccountName})</span>`;
+        } else {
+            beneficiaryId = txn.account;
+            beneficiaryName = getAccountName(beneficiaryId);
+            addedToText = `مقيدة في الحساب: <strong style="color:#ffd700; font-size:1.4rem;">${beneficiaryName}</strong> <span style="font-size:0.95rem; color:#94a3b8; font-weight:normal;">(الحساب المقابل: ${getAccountName(txn.counterAccount)})</span>`;
+        }
+
+        operations.push({
+            transferNo: matchedTransferNo || txn.transferNo || cleanQ,
+            voucherRef: ref,
+            voucherType: txn.type,
+            voucherTypeLabel: txn.typeLabel || directionLabel,
+            date: txn.date,
+            time: txn.time || '',
+            amount: parseNum(txn.debit || txn.credit || 0),
+            currency: txn.currency || 'SDG',
+            bankName: bankAccountName || 'البنك',
+            counterAccountName: getAccountName(txn.counterAccount),
+            beneficiaryId: beneficiaryId,
+            beneficiaryName: beneficiaryName,
+            addedToText: addedToText,
+            statement: txn.statement || txn.additionalNote || '',
+            txn: txn
+        });
+    });
+
+    rawMatches.forEach(rm => {
+        const opKey = `${rm.voucherType}_${rm.voucherRef}_${rm.transferNo}`;
+        if (opKeys.has(opKey)) return;
+        opKeys.add(opKey);
+        
+        let beneficiaryId = '';
+        let beneficiaryName = '';
+        let addedToText = '';
+        
+        if (rm.item) {
+            beneficiaryId = rm.item.accountId || rm.item.account || rm.item.accountName;
+            beneficiaryName = getAccountName(beneficiaryId) || rm.item.accountName || beneficiaryId;
+        } else if (rm.raw) {
+            if (rm.voucherType === 'multi-payment' || rm.voucherType === 'payment') {
+                beneficiaryId = rm.raw.toAccount || rm.raw.accountId || rm.raw.supplierId || rm.raw.customerId;
+            } else {
+                beneficiaryId = rm.raw.fromAccount || rm.raw.accountId || rm.raw.customerId || rm.raw.supplierId;
+            }
+            beneficiaryName = getAccountName(beneficiaryId);
+        }
+        
+        if (rm.voucherType === 'multi-payment' || rm.voucherType === 'payment') {
+            addedToText = `مضافة ومسددة لحساب المستفيد: <strong style="color:#ffd700; font-size:1.4rem;">${beneficiaryName}</strong> <span style="font-size:0.95rem; color:#94a3b8; font-weight:normal;">(مدفوعة من حساب: ${rm.bankName})</span>`;
+        } else {
+            addedToText = `مقيدة لحساب العميل/الدافع: <strong style="color:#ffd700; font-size:1.4rem;">${beneficiaryName}</strong> <span style="font-size:0.95rem; color:#34d399; font-weight:normal;">(تم إيداعها في: ${rm.bankName})</span>`;
+        }
+        
+        operations.push({
+            transferNo: rm.transferNo,
+            voucherRef: rm.voucherRef,
+            voucherType: rm.voucherType,
+            voucherTypeLabel: rm.voucherTypeLabel,
+            date: rm.date,
+            time: rm.time || '',
+            amount: rm.amount,
+            currency: rm.currency,
+            bankName: rm.bankName,
+            counterAccountName: beneficiaryName,
+            beneficiaryId: beneficiaryId,
+            beneficiaryName: beneficiaryName,
+            addedToText: addedToText,
+            statement: rm.statement,
+            raw: rm.raw
+        });
+    });
+
+    if (operations.length === 0) {
+        let foundAccount = ALL_ACCOUNTS.find(a => {
+            if (!a || a.id === 'ALL') return false;
+            const cleanName = String(a.name || '').replace(/^\[\d+\]\s*/, '').replace(/^\d+\s*[-–]\s*/, '').trim().toLowerCase();
+            return cleanName === qLower || a.id.toLowerCase() === qLower;
+        });
+
+        if (foundAccount) {
+            container.style.display = 'none';
+            selectAccount(foundAccount.id, foundAccount.name, foundAccount.icon);
+            return;
+        }
+
+        renderTransferNotFoundCard(cleanQ);
+        return;
+    }
+
+    renderTransferSuccessCard(cleanQ, operations);
+};
+
+function renderTransferSuccessCard(query, operations) {
+    const container = document.getElementById('transfer-search-result-container');
+    if (!container) return;
+
+    const isMultiple = operations.length > 1;
+    
+    let html = `
+    <div class="transfer-inquiry-card">
+        <!-- Top Status Bar -->
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:14px; border-bottom:1px solid rgba(255,255,255,0.12); padding-bottom:10px; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span style="font-size:2.2rem; filter:drop-shadow(0 0 8px rgba(52,211,153,0.6));">✅</span>
+                <div>
+                    <div style="font-size:1.25rem; font-weight:900; color:#34d399; display:flex; align-items:center; gap:8px; flex-wrap:wrap;">
+                        <span>تم العثور على التحويلة بنجاح ومطابقتها في النظام</span>
+                        ${isMultiple ? `<span style="background:#f59e0b; color:#000; font-size:0.75rem; padding:2px 8px; border-radius:10px; font-weight:900;">⚠️ ${operations.length} عمليات مطابقة بنفس الرقم</span>` : ''}
+                    </div>
+                    <div style="font-size:0.85rem; color:#94a3b8; margin-top:2px;">
+                        بيانات التحويلة البنكية المؤكدة ومطابقة الطرف المستفيد في كشف الحساب
+                    </div>
+                </div>
+            </div>
+            <button type="button" onclick="closeTransferInquiryCard()" style="background:rgba(239,68,68,0.15); border:1px solid rgba(239,68,68,0.35); color:#f87171; border-radius:8px; padding:6px 14px; cursor:pointer; font-weight:bold; font-size:0.9rem; transition:all 0.2s;" onmouseover="this.style.background='rgba(239,68,68,0.3)'" onmouseout="this.style.background='rgba(239,68,68,0.15)'">
+                ✕ إغلاق النتيجة
+            </button>
+        </div>
+    `;
+
+    operations.forEach((op, idx) => {
+        html += `
+        <div style="background: rgba(15, 23, 42, 0.65); border: 1.5px solid ${idx === 0 ? '#eab308' : 'rgba(255,255,255,0.15)'}; border-radius: 14px; padding: 16px 20px; margin-bottom: 14px; box-shadow: 0 6px 20px rgba(0,0,0,0.35);">
+            ${isMultiple ? `<div style="font-size:0.88rem; font-weight:bold; color:#38bdf8; margin-bottom:8px;">📌 العملية رقم (${idx + 1}):</div>` : ''}
+            
+            <!-- Crucial Section: أضيفت لمن؟ -->
+            <div style="background: linear-gradient(135deg, rgba(234, 179, 8, 0.15), rgba(0, 0, 0, 0.4)); border: 2px solid #eab308; border-radius: 12px; padding: 14px 18px; margin-bottom: 14px; box-shadow: 0 4px 15px rgba(234,179,8,0.2);">
+                <div style="font-size: 0.88rem; font-weight: 800; color: #cbd5e1; margin-bottom: 6px;">👤 أضيفت لمن؟ (الحساب المستفيد / المسجل لصالحه):</div>
+                <div style="font-size: 1.35rem; font-weight: 900; color: #ffd700; text-shadow: 0 0 10px rgba(250,204,21,0.4);">
+                    ${op.addedToText}
+                </div>
+            </div>
+
+            <!-- Details Grid -->
+            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 10px; margin-bottom: 12px;">
+                <div class="transfer-info-box">
+                    <span class="info-label">🔢 رقم التحويلة:</span>
+                    <span class="info-val" style="color:#ffd700; font-family:monospace; letter-spacing:1px;">${op.transferNo}</span>
+                </div>
+                <div class="transfer-info-box">
+                    <span class="info-label">💰 المبلغ:</span>
+                    <span class="info-val" style="color:#34d399; font-family:monospace;">${fmtNum(op.amount)} ${op.currency}</span>
+                </div>
+                <div class="transfer-info-box">
+                    <span class="info-label">📅 تاريخ ووقت الحركة:</span>
+                    <span class="info-val">${op.date} ${op.time ? '<small style="color:#94a3b8;">(' + op.time + ')</small>' : ''}</span>
+                </div>
+                <div class="transfer-info-box">
+                    <span class="info-label">📑 نوع ورقم السند:</span>
+                    <span class="info-val" style="color:#38bdf8;">${op.voucherTypeLabel} #${op.voucherRef}</span>
+                </div>
+                <div class="transfer-info-box">
+                    <span class="info-label">🏦 البنك المستخدم:</span>
+                    <span class="info-val" style="color:#e879f9;">${op.bankName || 'البنك'}</span>
+                </div>
+            </div>
+
+            <!-- Notes -->
+            <div style="background: rgba(255, 255, 255, 0.03); border: 1px solid rgba(255, 255, 255, 0.08); border-radius: 8px; padding: 8px 14px; margin-bottom: 14px;">
+                <span style="font-size: 0.82rem; font-weight: bold; color: #94a3b8;">📝 البيان المسجل بالسند: </span>
+                <span style="font-size: 0.92rem; font-weight: 700; color: #f8fafc;">${op.statement || 'لا يوجد بيان إضافي'}</span>
+            </div>
+
+            <!-- Action Buttons -->
+            <div style="display: flex; gap: 10px; flex-wrap: wrap; align-items: center;">
+                ${op.beneficiaryId ? `
+                <button type="button" class="btn-run" onclick="openBeneficiaryStatement('${op.beneficiaryId}', '${op.beneficiaryName}', '${op.transferNo}')" style="background: linear-gradient(135deg, #10b981, #059669); font-size:0.9rem; height:38px; box-shadow: 0 4px 14px rgba(16,185,129,0.4);">
+                    📋 فتح كشف حساب الطرف (${op.beneficiaryName})
+                </button>
+                ` : ''}
+                <button type="button" class="btn-run" onclick="navigateToOriginalVoucher('${op.voucherType}', '${op.voucherRef}')" style="background: linear-gradient(135deg, #3b82f6, #1d4ed8); font-size:0.9rem; height:38px; box-shadow: 0 4px 14px rgba(59,130,246,0.4);">
+                    🔗 الذهاب إلى أصل السند #${op.voucherRef}
+                </button>
+                <button type="button" class="btn-action-secondary" onclick="filterLedgerByTransfer('${op.transferNo}')" style="font-size:0.88rem; height:38px;">
+                    🔍 إظهار قيود هذه التحويلة في الجدول
+                </button>
+            </div>
+        </div>
+        `;
+    });
+
+    html += `</div>`;
+    container.innerHTML = html;
+    container.style.display = 'block';
+
+    highlightTransferRows(query);
+}
+
+function renderTransferNotFoundCard(query) {
+    const container = document.getElementById('transfer-search-result-container');
+    if (!container) return;
+
+    container.innerHTML = `
+    <div class="transfer-inquiry-card" style="background: linear-gradient(135deg, rgba(239, 68, 68, 0.12), rgba(15, 23, 42, 0.96)); border-color: #ef4444; box-shadow: 0 10px 30px rgba(239,68,68,0.2);">
+        <div style="display:flex; justify-content:space-between; align-items:flex-start; margin-bottom:12px; flex-wrap:wrap; gap:10px;">
+            <div style="display:flex; align-items:center; gap:12px;">
+                <span style="font-size:2.4rem;">❌</span>
+                <div>
+                    <div style="font-size:1.22rem; font-weight:900; color:#f87171;">
+                        لم يتم العثور على أي تحويلة بنكية برقم: <span style="color:#ffd700; font-family:monospace; background:rgba(0,0,0,0.4); padding:2px 10px; border-radius:6px; border:1px solid rgba(250,204,21,0.3);">${query}</span>
+                    </div>
+                    <div style="font-size:0.88rem; color:#cbd5e1; margin-top:4px;">
+                        تم فحص جميع سندات القبض والصرف، فواتير المبيعات، فواتير المشتريات، والقيود اليومية.
+                    </div>
+                </div>
+            </div>
+            <button type="button" onclick="closeTransferInquiryCard()" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; border-radius:8px; padding:6px 14px; cursor:pointer; font-weight:bold;">
+                ✕ إغلاق
+            </button>
+        </div>
+        <div style="background:rgba(0,0,0,0.35); border-radius:10px; padding:12px 18px; border-right:4px solid #ef4444; color:#fca5a5; font-size:0.95rem; font-weight:700;">
+            ⚠️ <strong>النتيجة المؤكدة:</strong> هذه التحويلة <strong>غير مضافة وغير مسجلة بالنظام نهائياً</strong>، ولم يتم تقييدها في حساب أي عميل أو مورد أو حساب بنكي.
+        </div>
+    </div>
+    `;
+    container.style.display = 'block';
+}
+
+function highlightTransferRows(transferNo) {
+    if (!transferNo) return;
+    const cleanNo = String(transferNo).trim().toLowerCase();
+    const cleanDigits = cleanNo.replace(/\D/g, '');
+    
+    const table = document.getElementById('recent-table');
+    if (!table) return;
+    
+    let firstMatchedRow = null;
+    const rows = table.querySelectorAll('tbody tr');
+    rows.forEach(tr => {
+        const tdTr = tr.querySelector('td[data-col-id="transferNo"]');
+        const text = (tdTr ? tdTr.textContent : tr.textContent).trim().toLowerCase();
+        let isMatch = text.includes(cleanNo);
+        if (!isMatch && cleanDigits.length >= 4) {
+            isMatch = text.replace(/\D/g, '').includes(cleanDigits);
+        }
+        if (isMatch) {
+            tr.classList.add('transfer-matched-row');
+            if (!firstMatchedRow) firstMatchedRow = tr;
+        } else {
+            tr.classList.remove('transfer-matched-row');
+        }
+    });
+    
+    if (firstMatchedRow) {
+        firstMatchedRow.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+}
+
 document.addEventListener('DOMContentLoaded', () => {
     if (typeof window.renderLedgerPresets === 'function') window.renderLedgerPresets();
     const input = document.getElementById('account-search-input');
@@ -365,6 +939,15 @@ document.addEventListener('DOMContentLoaded', () => {
         input.addEventListener('click', onAccountSearch);
         input.addEventListener('input', onAccountSearch);
         input.addEventListener('keydown', onAccountSearchKey);
+    }
+    const smartInput = document.getElementById('filter-smart');
+    if (smartInput) {
+        smartInput.addEventListener('keydown', (e) => {
+            if (e.key === 'Enter') {
+                e.preventDefault();
+                triggerTransferOrAccountSearch(smartInput.value);
+            }
+        });
     }
 });
 
@@ -1386,7 +1969,20 @@ function renderRecentTable(txns, startIndex = 0) {
 
         let trStyle = t.isOpening ? 'background:rgba(59,130,246,0.08); border-right:3px solid #3b82f6;' : '';
 
-        html += `<tr style="${trStyle}" data-txn-type="${t.type || ''}" data-txn-ref="${t.ref || ''}" data-row-idx="${i}" title="انقر كليك يمين للذهاب إلى أصل السند أو تكبير الأرقام">`;
+        let isMatchedTransfer = false;
+        if (currentSearchedTransferNo) {
+            const qStr = String(currentSearchedTransferNo).trim().toLowerCase();
+            const qDig = qStr.replace(/\D/g, '');
+            const trStr = String(t.transferNo || '').trim().toLowerCase();
+            const chkStr = String(t.checkNo || '').trim().toLowerCase();
+            if (trStr && (trStr === qStr || trStr.includes(qStr))) isMatchedTransfer = true;
+            else if (qDig.length >= 4 && trStr.replace(/\D/g, '').includes(qDig)) isMatchedTransfer = true;
+            else if (chkStr && (chkStr === qStr || chkStr.includes(qStr))) isMatchedTransfer = true;
+            else if (qDig.length >= 4 && chkStr.replace(/\D/g, '').includes(qDig)) isMatchedTransfer = true;
+        }
+        let trClass = isMatchedTransfer ? 'transfer-matched-row' : '';
+
+        html += `<tr class="${trClass}" style="${trStyle}" data-txn-type="${t.type || ''}" data-txn-ref="${t.ref || ''}" data-row-idx="${i}" title="انقر كليك يمين للذهاب إلى أصل السند أو تكبير الأرقام">`;
         
         visibleCols.forEach(col => {
             const dec = col.decimals !== undefined ? col.decimals : 2;
