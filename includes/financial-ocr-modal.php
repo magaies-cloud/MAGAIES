@@ -60,15 +60,15 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
     <div class="ocr-responsive-grid" style="width:100%; height:100%; min-height:0; display:grid; grid-template-columns: minmax(0, 1.98fr) minmax(0, 1.255fr) minmax(0, 0.765fr); gap:8px; overflow:hidden; overflow-x:auto; direction:rtl; box-sizing:border-box;">
             
             <!-- PART 1 (القسم الأول الأيمن الأوسع): السندات، الإجمالي، معرض الكروت الحمراء الموسع، وأزرار الحفظ والاعتماد -->
-            <div id="ocr-col-middle" class="ocr-dashboard-col" style="height:100%; min-height:0; display:flex; flex-direction:column; justify-content:space-between; background:rgba(15,23,42,0.98); border:1.5px solid rgba(56,189,248,0.25); border-radius:10px; padding:8px 10px; overflow-y:auto; overflow-x:hidden; scrollbar-width:thin; direction:rtl; box-sizing:border-box; min-width:300px;">
+            <div id="ocr-col-middle" class="ocr-dashboard-col" style="height:100%; min-height:0; max-height:100%; display:flex; flex-direction:column; justify-content:space-between; background:rgba(15,23,42,0.98); border:1.5px solid rgba(56,189,248,0.25); border-radius:10px; padding:8px 10px; overflow:hidden; direction:rtl; box-sizing:border-box; min-width:300px;">
                 
-                <div style="display:flex; flex-direction:column; height:100%; justify-content:space-between;">
+                <div style="display:flex; flex-direction:column; height:100%; min-height:0; max-height:100%; overflow:hidden; justify-content:space-between;">
                     
                     <!-- Section Top Elements -->
-                    <div style="display:flex; flex-direction:column;">
+                    <div style="display:flex; flex-direction:column; flex:1 1 0; min-height:0; overflow:hidden;">
                         
                         <!-- Row 1: إجمالي السندات (X سند) والمبلغ بخط عريض وواضح -->
-                        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(135deg, rgba(6,78,59,0.8), rgba(15,23,42,0.95)); border:1.5px solid #10b981; border-radius:10px; padding:6px 12px; box-shadow:0 0 20px rgba(16,185,129,0.35); min-height:48px; box-sizing:border-box;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(135deg, rgba(6,78,59,0.8), rgba(15,23,42,0.95)); border:1.5px solid #10b981; border-radius:10px; padding:6px 12px; box-shadow:0 0 20px rgba(16,185,129,0.35); min-height:46px; flex-shrink:0; box-sizing:border-box;">
                             <div style="display:flex; align-items:center; gap:8px; overflow:hidden;">
                                 <span style="font-size:0.95rem; font-weight:900; color:#a7f3d0; white-space:nowrap; display:flex; align-items:center; gap:4px;">
                                     <span>💰</span> <span id="ocr-batch-counter-badge">إجمالي السندات (1 سند):</span>
@@ -80,7 +80,7 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
                         </div>
 
                         <!-- Row 2: الأزرار أعرض وأكبر بتنسيق متناسق -->
-                        <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin:7px 0;">
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:6px; margin:6px 0; flex-shrink:0;">
                             <div style="display:flex; align-items:center; gap:6px; flex:1;">
                                 <button type="button" onclick="FinancialOCR.nextItem()" style="flex:1; height:34px; background:linear-gradient(135deg, rgba(56,189,248,0.3), rgba(14,165,233,0.2)); border:1.5px solid #38bdf8; color:#7dd3fc; border-radius:8px; padding:0 10px; font-size:0.86rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;" title="المستند التالي">
                                     <span>▲</span> التالي
@@ -99,7 +99,7 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
                         </div>
 
                         <!-- Live Background Streaming Progress Indicator (Option B) -->
-                        <div id="ocr-streaming-indicator" style="display:none; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(135deg, rgba(14,165,233,0.2), rgba(2,132,199,0.3)); border:1.5px solid #38bdf8; border-radius:8px; padding:5px 10px; margin-bottom:6px; box-shadow:0 0 15px rgba(56,189,248,0.35);">
+                        <div id="ocr-streaming-indicator" style="display:none; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(135deg, rgba(14,165,233,0.2), rgba(2,132,199,0.3)); border:1.5px solid #38bdf8; border-radius:8px; padding:5px 10px; margin-bottom:6px; flex-shrink:0; box-shadow:0 0 15px rgba(56,189,248,0.35);">
                             <div style="display:flex; align-items:center; gap:6px;">
                                 <span style="display:inline-block; font-size:1.05rem; animation:pulseScale 1s ease-in-out infinite;">⚡</span>
                                 <span id="ocr-streaming-text" style="font-size:0.83rem; font-weight:900; color:#e0f2fe;">جاري استكمال مسح بقية المستندات في الخلفية...</span>
@@ -107,15 +107,15 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
                             <span id="ocr-streaming-badge" style="background:#0284c7; color:#fff; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:900; font-family:'Consolas',monospace; box-shadow:0 0 8px rgba(56,189,248,0.5);">4 / 7</span>
                         </div>
 
-                        <!-- Row 3: Gallery of Cards (معرض الشيكات والإشعارات الموسع - مسافة زائدة 50% بين البطاقات: 9px) -->
-                        <div id="ocr-batch-container" style="display:flex; flex-direction:column; flex:1; min-height:380px; height:415px; max-height:470px; background:rgba(10,15,30,0.6); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:6px; margin-bottom:6px; box-sizing:border-box;">
+                        <!-- Row 3: Gallery of Cards (معرض الشيكات والإشعارات الموسع - يتمدد ديناميكياً ويحتوي شريط تمرير داخلي) -->
+                        <div id="ocr-batch-container" style="display:flex; flex-direction:column; flex:1 1 0; min-height:80px; overflow:hidden; background:rgba(10,15,30,0.6); border:1px solid rgba(255,255,255,0.1); border-radius:10px; padding:6px; margin-bottom:6px; box-sizing:border-box;">
                             <div id="ocr-batch-tabs" style="display:grid; grid-template-columns:repeat(2, minmax(0, 1fr)); gap:9px; width:100%; height:100%; overflow-y:auto; padding:4px; scrollbar-width:thin; box-sizing:border-box;">
                                 <!-- Injected dynamically via JS: 7 right, 7 left = 14 notices visible with large clear layout -->
                             </div>
                         </div>
 
-                        <!-- دليل دلالات ألوان البطاقات المعتمد -->
-                        <div style="display:flex; align-items:center; justify-content:space-between; gap:4px; background:rgba(15,23,42,0.92); border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:5px 10px; margin-bottom:6px; font-size:0.73rem; font-weight:800; direction:rtl; box-sizing:border-box;">
+                        <!-- دليل دلالات ألوان البطاقات المعتمد (مثبت دائماً أسفل البطاقات مباشرة) -->
+                        <div style="display:flex; align-items:center; justify-content:space-between; gap:4px; background:rgba(15,23,42,0.92); border:1px solid rgba(255,255,255,0.12); border-radius:8px; padding:5px 10px; margin-bottom:6px; font-size:0.73rem; font-weight:800; direction:rtl; flex-shrink:0; box-sizing:border-box;">
                             <div style="display:flex; align-items:center; gap:4px; color:#34d399;" title="المستند سليم ومكتمل بنسبة 100% وجاهز للاعتماد الفوري">
                                 <span style="width:8px; height:8px; border-radius:50%; background:#10b981; box-shadow:0 0 6px #10b981; display:inline-block;"></span>
                                 <span>أخضر: سليم (مار طوالي)</span>
@@ -131,7 +131,7 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
                         </div>
 
                         <!-- Row 4: Emergency Duplicate Warning Banner (تحت التحويلات مباشرة) -->
-                        <div id="ocr-ref-warning-box" style="display:none; flex-direction:column; gap:3px; background:linear-gradient(135deg, rgba(220,38,38,0.45), rgba(153,27,27,0.55)); border:1.5px solid #ef4444; color:#fff; padding:6px 10px; border-radius:8px; box-shadow:0 0 20px rgba(239,68,68,0.7); animation:ocrEmergencyGlow 0.9s infinite alternate; margin-bottom:6px;">
+                        <div id="ocr-ref-warning-box" style="display:none; flex-direction:column; gap:3px; background:linear-gradient(135deg, rgba(220,38,38,0.45), rgba(153,27,27,0.55)); border:1.5px solid #ef4444; color:#fff; padding:6px 10px; border-radius:8px; box-shadow:0 0 20px rgba(239,68,68,0.7); animation:ocrEmergencyGlow 0.9s infinite alternate; margin-bottom:6px; flex-shrink:0;">
                             <div style="display:flex; align-items:center; justify-content:space-between;">
                                 <div style="display:flex; align-items:center; gap:6px; font-size:0.82rem; font-weight:900; color:#fef2f2;">
                                     <span>🚨</span>
@@ -146,8 +146,8 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
 
                     </div>
 
-                    <!-- Row 5: Action Buttons (أزرار التحكم المحاسبية: حفظ الاعتمادات، استبعاد المكرر، استبعاد الكل) -->
-                    <div style="display:flex; flex-direction:column; gap:6px; margin-top:auto; padding-top:6px; border-top:1px solid rgba(255,255,255,0.1);">
+                    <!-- Row 5: Action Buttons (أزرار التحكم المحاسبية: حفظ الاعتمادات، استبعاد المكرر، استبعاد الكل) - مثبتة ومحمية من الاختفاء -->
+                    <div style="display:flex; flex-direction:column; gap:6px; flex-shrink:0; margin-top:auto; padding-top:6px; border-top:1.5px solid rgba(255,255,255,0.15); background:rgba(15,23,42,0.98); z-index:20;">
                         <!-- Primary Action Bar (حفظ الاعتمادات، استبعاد المكرر، استبعاد الكل، إلغاء) -->
                         <div style="display:flex; align-items:center; gap:6px; width:100%;">
                             <button type="button" id="btn-apply-financial-ocr" onclick="FinancialOCR.applyToActiveScreen()" style="flex:1.55; height:42px; background:linear-gradient(135deg, #059669 0%, #10b981 50%, #047857 100%); border:1.5px solid rgba(52,211,153,0.5); color:#fff; padding:0 10px; border-radius:8px; font-size:0.95rem; font-weight:900; cursor:pointer; box-shadow:0 4px 18px rgba(16,185,129,0.45); display:flex; align-items:center; justify-content:center; gap:6px; transition:all 0.2s ease; white-space:nowrap;" title="حفظ واعتماد السندات السليمة واستبعاد المكرر تلقائياً">
@@ -165,7 +165,7 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
                         </div>
 
                         <!-- Secondary Contextual Action (حفظ هذا السند فقط / استبعاد هذا المستند الفردي) -->
-                        <div id="ocr-single-actions-bar" style="display:none; justify-content:space-between; align-items:center; gap:6px;">
+                        <div id="ocr-single-actions-bar" style="display:none; justify-content:space-between; align-items:center; gap:6px; flex-shrink:0;">
                             <button type="button" id="btn-apply-single-financial-ocr" onclick="FinancialOCR.applyCurrentItemOnly()" style="flex:1.4; height:32px; background:linear-gradient(135deg, rgba(14,165,233,0.35), rgba(2,132,199,0.5)); border:1.5px solid #38bdf8; color:#ffffff; padding:0 10px; border-radius:6px; font-size:0.82rem; font-weight:900; cursor:pointer; text-align:center; box-shadow:0 2px 10px rgba(56,189,248,0.25); display:flex; align-items:center; justify-content:center; gap:5px;">
                                 <span>⚡</span> <span id="btn-apply-single-text">حفظ هذا السند فقط</span>
                             </button>
@@ -175,13 +175,13 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
                         </div>
 
                         <!-- Summary & Arabic Words -->
-                        <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:6px; padding:4px 8px; display:flex; align-items:center; gap:6px;">
+                        <div style="background:rgba(255,255,255,0.04); border:1px solid rgba(255,255,255,0.1); border-radius:6px; padding:4px 8px; display:flex; align-items:center; gap:6px; flex-shrink:0;">
                             <span style="font-size:0.8rem;">🤖</span>
                             <span id="ocr-doc-summary" style="color:#94a3b8; font-size:0.72rem; line-height:1.2; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">تأكد من مطابقة البيانات المستخرجة</span>
                         </div>
                     </div>
 
-                </div>
+            </div>
 
             </div>
 

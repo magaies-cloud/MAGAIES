@@ -1,4 +1,4 @@
-// Version: 20260911070000 (WhatsApp AI On-Page Direct Hub Engine v3)
+// Version: 20260911201500 (Financial OCR Review Layout & Buttons Fix v6)
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
@@ -31,7 +31,7 @@ self.addEventListener('fetch', (event) => {
             fetch(event.request).then((response) => {
                 if (response && response.status === 200 && response.type === 'basic') {
                     const clone = response.clone();
-                    caches.open('magaies-static-v5').then(c => c.put(event.request, clone));
+                    caches.open('magaies-static-v6').then(c => c.put(event.request, clone));
                 }
                 return response;
             }).catch(() => caches.match(event.request).then(cached => cached || new Response('', { status: 404, statusText: 'Not Found' })))
