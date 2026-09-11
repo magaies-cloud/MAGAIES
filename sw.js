@@ -1,4 +1,4 @@
-// Version: 20260911201500 (Financial OCR Review Layout & Buttons Fix v6)
+// Version: 20260911203000 (Remove WhatsApp dock and update button v8)
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
