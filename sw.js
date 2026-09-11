@@ -1,4 +1,4 @@
-// Version: 20260911204500 (Slim Single Level Top Row v10)
+// Version: 20260911204000 (Unified Psychological Button Design System v9)
 self.addEventListener('install', (event) => {
     self.skipWaiting();
 });
