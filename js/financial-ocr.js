@@ -851,7 +851,7 @@
         },
 
         // 4. Request OCR Data for a single base64 string (with auto-retry on 429 and auto-retry if amount is 0)
-        async requestOCRData(base64Data, retryCount = 0, amountRetryCount = 0, isManualRefresh = false) {
+        async requestOCRData(base64Data, retryCount = 0, amountRetryCount = 0, isManualRefresh = false, fraudCheck = false) {
             const customGuidelines = localStorage.getItem('erp_financial_ocr_guidelines') || '';
             const clientApiKey = localStorage.getItem('gemini_api_key') || '';
 
@@ -864,8 +864,9 @@
                         api_key: clientApiKey,
                         custom_guidelines: customGuidelines,
                         doc_hint: this.activeContext.docHint || 'auto',
-                        retry_amount: (amountRetryCount > 0),
-                        is_refresh: isManualRefresh
+                        retry_amount: amountRetryCount > 0,
+                        is_refresh: isManualRefresh,
+                        fraud_check: fraudCheck
                     })
                 });
 
@@ -878,7 +879,7 @@
                     console.warn(`[OCR Rate Limit] Quota exceeded. Retrying in ${delayMs}ms (attempt ${retryCount + 1}/3)...`);
                     this.showToast(`⏳ ضغط على الخادم... إعادة المحاولة تلقائياً بعد ${Math.round(delayMs/1000)} ثانية (${retryCount + 1}/3)`, 'warning');
                     await new Promise(r => setTimeout(r, delayMs));
-                    return await this.requestOCRData(base64Data, retryCount + 1, amountRetryCount, isManualRefresh);
+                    return await this.requestOCRData(base64Data, retryCount + 1, amountRetryCount, isManualRefresh, fraudCheck);
                 }
 
                 if (result.success && result.data) {
@@ -891,7 +892,7 @@
                     if (parsedAmt <= 0 && amountRetryCount < 2) {
                         console.warn(`[OCR Zero Amount] Amount was 0. Auto-retrying OCR scan (pass ${amountRetryCount + 1}/2)...`);
                         await new Promise(r => setTimeout(r, 1500 * (amountRetryCount + 1)));
-                        return await this.requestOCRData(base64Data, retryCount, amountRetryCount + 1, isManualRefresh);
+                        return await this.requestOCRData(base64Data, retryCount, amountRetryCount + 1, isManualRefresh, fraudCheck);
                     }
 
                     // If after auto-retrying amount is still zero:
@@ -938,7 +939,7 @@
                     const backoff = (retryCount + 1) * 2500;
                     console.warn(`[OCR Network Error] Retrying in ${backoff}ms (attempt ${retryCount + 1}/3):`, e.message);
                     await new Promise(r => setTimeout(r, backoff));
-                    return await this.requestOCRData(base64Data, retryCount + 1, amountRetryCount, isManualRefresh);
+                    return await this.requestOCRData(base64Data, retryCount + 1, amountRetryCount, isManualRefresh, fraudCheck);
                 }
                 console.warn('OCR fetch failed after all retries, using clean empty template:', e);
                 return {
@@ -1326,18 +1327,19 @@
             window.open(waUrl, '_blank');
         },
 
-        // Rescan All Items in the Batch (Refresh All)
-        async rescanAllBatchItems() {
+        // Re-scan ALL Items in Batch
+        async rescanAllBatchItems(fraudCheck = false) {
             const items = this.batchItems;
             if (!items || items.length === 0) {
-                return this.rescanCurrentItem();
+                return this.rescanCurrentItem(fraudCheck);
             }
 
-            if (!confirm(`هل ترغب في إعادة فحص وقراءة جميع مستندات الدفعة (${items.length} مستند) بالذكاء الاصطناعي؟`)) {
+            const actionText = fraudCheck ? 'فحص التزوير الجنائي لجميع مستندات الدفعة' : 'إعادة قراءة جميع مستندات الدفعة';
+            if (!confirm(`هل ترغب في ${actionText} (${items.length} مستند) بالذكاء الاصطناعي؟`)) {
                 return;
             }
 
-            this.showLoading(true, 'جاري إعادة فحص وتدقيق كافة المستندات بالذكاء الاصطناعي...', 1, items.length);
+            this.showLoading(true, `جاري ${actionText}...`, 1, items.length);
 
             for (let i = 0; i < items.length; i++) {
                 this.updateLoadingProgress(Math.round(((i + 1) / items.length) * 100), i + 1, items.length);
@@ -1345,21 +1347,10 @@
                 if (!item.base64) continue;
 
                 try {
-                    const clientKey = localStorage.getItem('gemini_api_key') || '';
-                    const res = await fetch('api/ocr-financial.php', {
-                        method: 'POST',
-                        headers: { 'Content-Type': 'application/json' },
-                        body: JSON.stringify({
-                            image: item.base64,
-                            api_key: clientKey,
-                            custom_guidelines: localStorage.getItem('erp_financial_ocr_guidelines') || '',
-                            is_refresh: true
-                        })
-                    });
-                    const json = await res.json();
-                    if (json && json.success && json.data) {
-                        item.data = json.data;
-                        item.originalData = JSON.parse(JSON.stringify(json.data));
+                    const extracted = await this.requestOCRData(item.base64, 0, 0, true, fraudCheck);
+                    if (extracted) {
+                        item.data = extracted;
+                        item.originalData = JSON.parse(JSON.stringify(extracted));
                     }
                 } catch (err) {
                     console.error('Error rescanning item ' + (i + 1), err);
@@ -2046,7 +2037,7 @@
         },
 
         // Re-scan a specific item by its batch index (Instant Refresh for any notice/cheque card)
-        async rescanItemByIndex(idx) {
+        async rescanItemByIndex(idx, fraudCheck = false) {
             if (!this.batchItems || !this.batchItems[idx]) return;
 
             // If user clicked refresh on a different card, switch preview and form to that card first
@@ -2076,10 +2067,14 @@
             if (inlineAmtBtn) inlineAmtBtn.innerHTML = '<span>⏳</span> جاري...';
             if (inlineRefBtn) inlineRefBtn.innerHTML = '<span>⏳</span> جاري...';
 
-            this.showToast(`🔄 جاري إعادة قراءة بيانات المستند #${idx + 1} بالذكاء الاصطناعي...`, 'info');
+            if (fraudCheck) {
+                this.showToast(`🔍 جاري الفحص الجنائي لتدقيق التزوير للمستند #${idx + 1}...`, 'info');
+            } else {
+                this.showToast(`🔄 جاري إعادة قراءة بيانات المستند #${idx + 1} بالذكاء الاصطناعي...`, 'info');
+            }
 
             try {
-                const extracted = await this.requestOCRData(item.base64, 0, 0, true);
+                const extracted = await this.requestOCRData(item.base64, 0, 0, true, fraudCheck);
                 item.data = extracted;
                 item.originalData = JSON.parse(JSON.stringify(extracted));
                 this.lastExtractedData = extracted;
@@ -2109,8 +2104,8 @@
         },
 
         // Re-scan Current Document with AI
-        rescanCurrentItem() {
-            return this.rescanItemByIndex(this.currentBatchIndex);
+        rescanCurrentItem(fraudCheck = false) {
+            return this.rescanItemByIndex(this.currentBatchIndex, fraudCheck);
         },
 
         // Render Batch Navigation Tabs / Pills

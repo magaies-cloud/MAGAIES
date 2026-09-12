@@ -24,6 +24,7 @@ loadEnvFinancialOCR(__DIR__ . '/../.env');
 loadEnvFinancialOCR(__DIR__ . '/../../.env');
 
 $inputData = json_decode(file_get_contents('php://input'), true);
+$fraudCheck = !empty($inputData['fraud_check']);
 
 // Save OCR properties endpoint
 if ((isset($inputData['action']) && $inputData['action'] === 'save_ocr_props') || (isset($_POST['action']) && $_POST['action'] === 'save_ocr_props')) {
@@ -231,7 +232,7 @@ $systemPrompt = "أنت خبير فحص المستندات المالية الم
 
 قواعد تصنيف حاسمة وفحص التزوير الرقمي:
 - أي إشعار تحويل بنكي يظهر فيه مبلغ مالي ورقم عملية أو اسم مستفيد أو حساب بنكي هو مستند مالي معتمد وسليم 100%، ولا يجوز إطلاقاً تصنيفه على أنه 'غير معتمد' أو 'غير واضح' إذا كانت تفاصيل التحويل ظاهرة ومقروءة!
-- فحص التزوير والتعديل الجنائي الرقمي (Forensic Image & Document Tampering Inspection):
+" . ($fraudCheck ? "- فحص التزوير والتعديل الجنائي الرقمي (Forensic Image & Document Tampering Inspection):
   دقق في الصورة بعين الخبير الجنائي للبحث عن أي مؤشرات للتزوير أو التعديل ببرامج تحرير الصور (Photoshop / Mobile Editing) أو توليد الإشعارات الوهمية:
   1. اختلاف نوع الخط، سمكه، حدته، أو لونه في خانة المبلغ أو التاريخ أو رقم الحساب أو رقم العملية مقارنة ببقية نصوص الإشعار.
   2. وجود هالة تشوش بيكسلات (Pixel Artifacts / Blurring / Compression Mismatch) حول الأرقام المعدلة.
@@ -241,7 +242,8 @@ $systemPrompt = "أنت خبير فحص المستندات المالية الم
      - 0 إلى 25%: سليم وأصلي طبيعي جداً (Original Authentic).
      - 26 إلى 45%: اشتباه طفيف قد يكون ناتجاً عن ضغط الكاميرا أو الواتساب.
      - 46 إلى 75%: اشتباه ملحوظ (تعديل محتمل في خط المبلغ أو أرقام العملية).
-     - 76 إلى 100%: اشتباه تزوير عالي ومؤكد (تعديل فوتوشوب واضح وتلاعب بالبيكسلات والأرقام).
+     - 76 إلى 100%: اشتباه تزوير عالي ومؤكد (تعديل فوتوشوب واضح وتلاعب بالبيكسلات والأرقام)." : "
+- تنبيه للسرعة القصوى (Ultra-Fast Mode): تجاهل أي عمليات تحقق جنائي أو فحص تزوير. ركز 100% على قراءة الأرقام والنصوص فقط وتفريغها بأسرع وقت ممكن.") . "
 
 قم باستخراج البيانات بدقة وتفريغها حصراً بصيغة JSON التالية وبدون أي نصوص تمهيدية:
 {
@@ -276,7 +278,7 @@ $systemPrompt = "أنت خبير فحص المستندات المالية الم
 1. المبلغ الإجمالي للمعاملة يجب أن يكون رقماً حقيقياً خالصاً (number) في حقل \"amount\" (مثلاً 150000 أو 75500.50 بدون فواصل وبدون نصوص عملة). في الشيكات استخرج الرقم من خانة المبلغ بالأرقام ومن التفقيط، وفي الإشعارات من خانة المبلغ. لا تترك المبلغ 0 أبداً إذا كان هناك أي مبلغ مكتوب في المستند!
 2. استخرج رقم التحويلة أو رقم الشيك بالكامل دون نقصان.
 3. التواريخ يجب أن تكون بصيغة YYYY-MM-DD إن أمكن قراءتها.
-4. دقق في نسبة التزوير والاشتباه (tampering_score) واذكر السبب بكل وضوح في tampering_reasons عند وجود أي شك.
+" . ($fraudCheck ? "4. دقق في نسبة التزوير والاشتباه (tampering_score) واذكر السبب بكل وضوح في tampering_reasons عند وجود أي شك." : "") . "
 5. بالنسبة لبيانات الأطراف والحسابات:
 - رقم الحساب المكتوب في خانة 'من حساب' أو 'المحول منه' أو 'From Account' ضعه حصراً في \"sender_account\" بنفس ترتيب أرقامه الأصلي من اليسار لليمين دون عكس.
 - رقم الحساب المكتوب في خانة 'إلى حساب' أو 'المستفيد' أو 'المستلم' أو 'To Account' أو 'Account Number' ضعه حصراً في \"receiver_account\" بنفس ترتيب أرقامه الأصلي من اليسار لليمين دون عكس.
@@ -584,9 +586,9 @@ if (isset($responseData['candidates'][0]['content']['parts'][0]['text'])) {
             }
         }
 
-        $parsedData['tampering_score'] = $tamperingScore;
-        $parsedData['is_suspicious'] = ($tamperingScore >= 35) || !empty($parsedData['is_suspicious']);
-        $parsedData['tampering_reasons'] = $tamperingReasons;
+        $parsedData['tampering_score'] = $fraudCheck ? $tamperingScore : 0;
+        $parsedData['is_suspicious'] = $fraudCheck ? ($tamperingScore >= 35 || !empty($parsedData['is_suspicious'])) : false;
+        $parsedData['tampering_reasons'] = $fraudCheck ? $tamperingReasons : '';
 
         echo json_encode([
             'success' => true,
