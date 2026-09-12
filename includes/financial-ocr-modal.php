@@ -32,15 +32,22 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
     <div style="position:relative; width:100px; height:100px; margin-bottom:20px;">
         <div style="position:absolute; inset:0; border:4px solid rgba(56,189,248,0.2); border-top-color:#38bdf8; border-radius:50%; animation:ocrSpinRing 0.8s linear infinite;"></div>
         <div style="position:absolute; inset:12px; border:4px solid rgba(16,185,129,0.2); border-bottom-color:#10b981; border-radius:50%; animation:ocrSpinRingReverse 1.2s linear infinite;"></div>
-        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; font-size:2.4rem; animation:pulseScale 1.2s ease-in-out infinite;">⚡</div>
+        <div style="position:absolute; inset:0; display:flex; align-items:center; justify-content:center; animation:pulseScale 1.2s ease-in-out infinite;">
+            <img src="assets/logo.png" style="width:50px; height:50px; object-fit:contain; border-radius:50%;">
+        </div>
     </div>
     
     <div style="display:flex; align-items:center; gap:10px; margin-bottom:8px;">
-        <span style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#7dd3fc; padding:4px 12px; border-radius:20px; font-size:0.85rem; font-weight:900;">⚡ فحص فائق السرعة (Ultra-Fast)</span>
+        <span style="background:rgba(56,189,248,0.15); border:1px solid #38bdf8; color:#7dd3fc; padding:4px 12px; border-radius:20px; font-size:0.85rem; font-weight:900;"><img src="assets/logo.png" style="width:14px; height:14px; vertical-align:middle; margin-left:4px; display:inline-block; border-radius:50%;">فحص فائق السرعة (Ultra-Fast)</span>
         <span id="financial-ocr-loading-timer" style="background:rgba(16,185,129,0.15); border:1px solid #10b981; color:#34d399; padding:4px 12px; border-radius:20px; font-size:0.85rem; font-weight:800; font-family:'Consolas',monospace;">0.0s</span>
     </div>
 
     <h2 id="financial-ocr-loading-title" style="margin:0 0 10px 0; font-size:1.6rem; font-weight:900; background:linear-gradient(135deg, #38bdf8, #34d399); -webkit-background-clip:text; -webkit-text-fill-color:transparent; text-shadow:0 0 25px rgba(56,189,248,0.5); text-align:center;">جاري فحص الإشعار / الشيك بالرؤية الحاسوبية... 🔍</h2>
+
+    <!-- Disclaimer Text -->
+    <div style="margin-bottom:15px; text-align:center; max-width:80%; padding:10px 15px; background:rgba(220, 38, 38, 0.1); border:1px solid rgba(220, 38, 38, 0.3); border-radius:8px;">
+        <p style="color:#ef4444; font-size:1.1rem; font-weight:bold; margin:0; line-height:1.5;">مقاييس غير مسؤولة عن كشف التزوير، ولكن هو اجتهاد بالذكاء الاصطناعي.</p>
+    </div>
     
     <!-- Batch Progress Bar -->
     <div style="width:100%; max-width:420px; background:rgba(255,255,255,0.08); border-radius:10px; height:10px; overflow:hidden; margin-bottom:12px; box-shadow:inset 0 2px 4px rgba(0,0,0,0.5); border:1px solid rgba(255,255,255,0.1);">
@@ -101,7 +108,9 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
                         <!-- Live Background Streaming Progress Indicator (Option B) -->
                         <div id="ocr-streaming-indicator" style="display:none; align-items:center; justify-content:space-between; gap:8px; background:linear-gradient(135deg, rgba(14,165,233,0.2), rgba(2,132,199,0.3)); border:1.5px solid #38bdf8; border-radius:8px; padding:5px 10px; margin-bottom:6px; flex-shrink:0; box-shadow:0 0 15px rgba(56,189,248,0.35);">
                             <div style="display:flex; align-items:center; gap:6px;">
-                                <span style="display:inline-block; font-size:1.05rem; animation:pulseScale 1s ease-in-out infinite;">⚡</span>
+                                <span style="display:inline-block; animation:pulseScale 1s ease-in-out infinite;">
+                                    <img src="assets/logo.png" style="width:16px; height:16px; object-fit:contain; border-radius:50%; vertical-align:middle;">
+                                </span>
                                 <span id="ocr-streaming-text" style="font-size:0.83rem; font-weight:900; color:#e0f2fe;">جاري استكمال مسح بقية المستندات في الخلفية...</span>
                             </div>
                             <span id="ocr-streaming-badge" style="background:#0284c7; color:#fff; padding:2px 8px; border-radius:12px; font-size:0.75rem; font-weight:900; font-family:'Consolas',monospace; box-shadow:0 0 8px rgba(56,189,248,0.5);">4 / 7</span>
@@ -193,7 +202,7 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
                         <!-- Secondary Contextual Action (حفظ هذا السند فقط / استبعاد هذا المستند الفردي) -->
                         <div id="ocr-single-actions-bar" style="display:none; justify-content:space-between; align-items:center; gap:6px; flex-shrink:0;">
                             <button type="button" id="btn-apply-single-financial-ocr" onclick="FinancialOCR.applyCurrentItemOnly()" style="flex:1.4; height:32px; background:linear-gradient(135deg, rgba(14,165,233,0.35), rgba(2,132,199,0.5)); border:1.5px solid #38bdf8; color:#ffffff; padding:0 10px; border-radius:6px; font-size:0.82rem; font-weight:900; cursor:pointer; text-align:center; box-shadow:0 2px 10px rgba(56,189,248,0.25); display:flex; align-items:center; justify-content:center; gap:5px;">
-                                <span>⚡</span> <span id="btn-apply-single-text">حفظ هذا السند فقط</span>
+                                <span><img src="assets/logo.png" style="width:14px; height:14px; object-fit:contain; border-radius:50%; vertical-align:middle; display:inline-block;"></span> <span id="btn-apply-single-text">حفظ هذا السند فقط</span>
                             </button>
                             <button type="button" id="btn-delete-current-ocr-item" onclick="FinancialOCR.deleteCurrentItem()" style="flex:0.9; height:32px; background:rgba(239,68,68,0.2); border:1.2px solid rgba(239,68,68,0.4); color:#fca5a5; padding:0 8px; border-radius:6px; font-weight:800; font-size:0.78rem; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:4px;" title="استبعاد هذا المستند المعروض حالياً">
                                 <span>🗑️</span> <span>استبعاد هذا السند</span>
@@ -219,7 +228,7 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
                         <span>🔄</span> تدوير
                     </button>
                     <button type="button" onclick="FinancialOCR.rescanCurrentItem()" style="background:linear-gradient(135deg, rgba(56,189,248,0.35), rgba(14,165,233,0.45)); border:1.5px solid #38bdf8; color:#e0f2fe; font-size:0.78rem; padding:4px 9px; border-radius:6px; cursor:pointer; font-weight:900; backdrop-filter:blur(10px); display:flex; align-items:center; gap:3px; box-shadow:0 0 12px rgba(56,189,248,0.4);" title="إعادة فحص هذا المستند بالذكاء الاصطناعي">
-                        <span>⚡</span> إعادة فحص
+                        <span><img src="assets/logo.png" style="width:14px; height:14px; object-fit:contain; border-radius:50%; vertical-align:middle; display:inline-block;"></span> إعادة فحص
                     </button>
                     <!-- زر الحجم الكامل / تركيز البيانات -->
                     <button type="button" id="btn-full-size-preview" onclick="FinancialOCR.toggleFullSizeView()" style="background:rgba(15,23,42,0.88); border:1.2px solid #10b981; color:#a7f3d0; font-size:0.78rem; padding:4px 9px; border-radius:6px; cursor:pointer; font-weight:800; backdrop-filter:blur(10px); display:flex; align-items:center; gap:3px; box-shadow:0 4px 15px rgba(0,0,0,0.6);" title="عرض الإشعار بالحجم الكامل أو تركيز البيانات">
@@ -476,7 +485,7 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
 
                     <!-- Quick Bank Presets -->
                     <div style="display:flex; flex-wrap:wrap; gap:6px; align-items:center; background:rgba(0,0,0,0.25); padding:8px 12px; border-radius:10px;">
-                        <span style="font-size:0.8rem; color:#d8b4fe; font-weight:800;">⚡ اقتراحات بنكية جاهزة:</span>
+                        <span style="font-size:0.8rem; color:#d8b4fe; font-weight:800;"><img src="assets/logo.png" style="width:14px; height:14px; object-fit:contain; border-radius:50%; vertical-align:middle; display:inline-block;"> اقتراحات بنكية جاهزة:</span>
                         <button type="button" onclick="FinancialOCR.applyBankSuggestion('مصرف السلام', 'bank_transfer', 'إشعار تحويل مصرف السلام، شعار البنك أعلى الإشعار، كود المعاملة المرجعي يتكون من 10 أرقام، المبلغ بالجنيه السوداني SDG، اسم المستفيد ورقم حسابه.')" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; border-radius:15px; padding:3px 10px; font-size:0.8rem; cursor:pointer;">مصرف السلام</button>
                         <button type="button" onclick="FinancialOCR.applyBankSuggestion('بنك النيل للتجارة والتنمية', 'bank_transfer', 'إشعار تطبيق بنك النيل، كود المعاملة المرجعي، المبلغ، اسم المحول، وتاريخ التحويل.')" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; border-radius:15px; padding:3px 10px; font-size:0.8rem; cursor:pointer;">بنك النيل</button>
                         <button type="button" onclick="FinancialOCR.applyBankSuggestion('بنك العمال الوطني', 'cheque', 'شيك مصرفي بنك العمال الوطني، رقم الشيك في شريط MICR السفلي بين علامتي ⑈، اسم المستفيد بعد (ادفعوا لأمر)، المبلغ بالأرقام والحروف، تاريخ الاستحقاق.')" style="background:rgba(255,255,255,0.06); border:1px solid rgba(255,255,255,0.15); color:#cbd5e1; border-radius:15px; padding:3px 10px; font-size:0.8rem; cursor:pointer;">شيك بنك العمال</button>

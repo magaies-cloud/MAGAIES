@@ -729,7 +729,7 @@
             this.totalFilesCount = total;
             const initialBatchSize = Math.min(4, total);
 
-            this.showLoading(true, `جاري مسح أول ${initialBatchSize} ${initialBatchSize === 1 ? 'مستند' : 'مستندات'} بالرؤية الحاسوبية فائقة السرعة... ⚡`, 0, initialBatchSize);
+            this.showLoading(true, `جاري مسح أول ${initialBatchSize} ${initialBatchSize === 1 ? 'مستند' : 'مستندات'} بالرؤية الحاسوبية فائقة السرعة...`, 0, initialBatchSize);
 
             try {
                 // Step 1: Immediately compress ONLY the initial batch (up to 4) for super-fast screen opening!
@@ -1056,7 +1056,7 @@
 
         // Backward-compatible single send
         async sendToOCR(base64Data) {
-            this.showLoading(true, 'جاري تحليل المستند عبر الرؤية الحاسوبية فائقة السرعة... ⚡', 50, 100);
+            this.showLoading(true, 'جاري تحليل المستند عبر الرؤية الحاسوبية فائقة السرعة...', 50, 100);
             const extracted = await this.requestOCRData(base64Data);
             this.showLoading(false);
             this.batchItems = [{
