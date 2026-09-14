@@ -1304,7 +1304,8 @@
             alertMsg += `1. إيقاف السند مؤقتاً ومطابقة الحركة مع كشف الحساب البنكي المباشر.\n`;
             alertMsg += `2. مراسلة العميل لطلب صورة أصلية واضحة من داخل التطبيق البنكي.\n`;
             alertMsg += `3. فحص التفقيط والخطوط عبر زر المعاينة 🔍.\n`;
-            alertMsg += `4. إذا تأكدت من صحة الإيداع بالبنك، يمكنك اعتماده يدوياً.`;
+            alertMsg += `4. إذا تأكدت من صحة الإيداع بالبنك، يمكنك اعتماده يدوياً.\n\n`;
+            alertMsg += `⚠️ تنبيه:\nمقاييس غير مسؤولة عن النتيجة، إنما هو اجتهاد بالذكاء الاصطناعي.`;
 
             alert(alertMsg);
         },
@@ -1339,28 +1340,41 @@
                 return;
             }
 
+            const fraudAllBtn = document.getElementById('btn-batch-fraud-all');
+            const fraudCurBtn = document.getElementById('btn-batch-fraud-current');
+            const refreshAllBtn = document.getElementById('btn-batch-refresh-all');
+
+            if (fraudAllBtn) { fraudAllBtn.disabled = true; fraudAllBtn.style.opacity = '0.6'; }
+            if (fraudCurBtn) { fraudCurBtn.disabled = true; fraudCurBtn.style.opacity = '0.6'; }
+            if (refreshAllBtn) { refreshAllBtn.disabled = true; refreshAllBtn.style.opacity = '0.6'; }
+
             this.showLoading(true, `جاري ${actionText}...`, 1, items.length);
 
-            for (let i = 0; i < items.length; i++) {
-                this.updateLoadingProgress(Math.round(((i + 1) / items.length) * 100), i + 1, items.length);
-                const item = items[i];
-                if (!item.base64) continue;
+            try {
+                for (let i = 0; i < items.length; i++) {
+                    this.updateLoadingProgress(Math.round(((i + 1) / items.length) * 100), i + 1, items.length);
+                    const item = items[i];
+                    if (!item.base64) continue;
 
-                try {
-                    const extracted = await this.requestOCRData(item.base64, 0, 0, true, fraudCheck);
-                    if (extracted) {
-                        item.data = extracted;
-                        item.originalData = JSON.parse(JSON.stringify(extracted));
+                    try {
+                        const extracted = await this.requestOCRData(item.base64, 0, 0, true, fraudCheck);
+                        if (extracted) {
+                            item.data = extracted;
+                            item.originalData = JSON.parse(JSON.stringify(extracted));
+                        }
+                    } catch (err) {
+                        console.error('Error rescanning item ' + (i + 1), err);
                     }
-                } catch (err) {
-                    console.error('Error rescanning item ' + (i + 1), err);
+
+                    // Small delay to prevent burst
+                    await new Promise(r => setTimeout(r, 650));
                 }
-
-                // Small delay to prevent burst
-                await new Promise(r => setTimeout(r, 650));
+            } finally {
+                if (fraudAllBtn) { fraudAllBtn.disabled = false; fraudAllBtn.style.opacity = '1'; }
+                if (fraudCurBtn) { fraudCurBtn.disabled = false; fraudCurBtn.style.opacity = '1'; }
+                if (refreshAllBtn) { refreshAllBtn.disabled = false; refreshAllBtn.style.opacity = '1'; }
+                this.showLoading(false);
             }
-
-            this.showLoading(false);
             this.renderBatchTabs();
             if (this.batchItems[this.currentBatchIndex]) {
                 this.populateForm(this.batchItems[this.currentBatchIndex].data);
@@ -2038,7 +2052,32 @@
 
         // Re-scan a specific item by its batch index (Instant Refresh for any notice/cheque card)
         async rescanItemByIndex(idx, fraudCheck = false) {
-            if (!this.batchItems || !this.batchItems[idx]) return;
+            if (typeof idx !== 'number' || idx < 0) {
+                idx = (typeof this.currentBatchIndex === 'number' && this.currentBatchIndex >= 0) ? this.currentBatchIndex : 0;
+            }
+
+            if (!this.batchItems || !this.batchItems[idx]) {
+                const base64 = this.currentImageBase64 || (this.batchItems && this.batchItems[0]?.base64) || '';
+                if (base64) {
+                    this.batchItems = [{
+                        id: 'doc_' + Date.now(),
+                        fileName: 'مستند مالي',
+                        base64: base64,
+                        data: this.lastExtractedData || {},
+                        originalData: this.lastExtractedData ? JSON.parse(JSON.stringify(this.lastExtractedData)) : {},
+                        applied: false
+                    }];
+                    this.currentBatchIndex = 0;
+                    idx = 0;
+                } else if (this.batchItems && this.batchItems.length > 0) {
+                    this.currentBatchIndex = 0;
+                    idx = 0;
+                } else {
+                    console.warn('[FinancialOCR] No active document to rescan');
+                    this.showToast('⚠️ لا يوجد مستند حالي لإجراء كشف التزوير عليه', 'warning');
+                    return;
+                }
+            }
 
             // If user clicked refresh on a different card, switch preview and form to that card first
             if (this.currentBatchIndex !== idx) {
@@ -2048,6 +2087,7 @@
 
             const item = this.batchItems[idx];
             const cardRefreshBtn = document.getElementById(`card-refresh-btn-${idx}`);
+            const batchFraudCurrentBtn = document.getElementById('btn-batch-fraud-current');
             const toolbarBtn = document.getElementById('btn-rescan-current-ocr');
             const toolbarIcon = document.getElementById('rescan-icon');
             const toolbarText = document.getElementById('rescan-text');
@@ -2057,6 +2097,10 @@
             if (cardRefreshBtn) {
                 cardRefreshBtn.innerHTML = '<span>⏳</span> <span style="font-size:0.62rem; font-weight:900;">جاري القراءة...</span>';
                 cardRefreshBtn.style.pointerEvents = 'none';
+            }
+            if (batchFraudCurrentBtn) {
+                batchFraudCurrentBtn.disabled = true;
+                batchFraudCurrentBtn.style.opacity = '0.7';
             }
             if (toolbarBtn) {
                 toolbarBtn.disabled = true;
@@ -2068,6 +2112,7 @@
             if (inlineRefBtn) inlineRefBtn.innerHTML = '<span>⏳</span> جاري...';
 
             if (fraudCheck) {
+                this.showLoading(true, 'جاري الفحص الجنائي وكشف التزوير بالذكاء الاصطناعي... 🔍', 50, 100);
                 this.showToast(`🔍 جاري الفحص الجنائي لتدقيق التزوير للمستند #${idx + 1}...`, 'info');
             } else {
                 this.showToast(`🔄 جاري إعادة قراءة بيانات المستند #${idx + 1} بالذكاء الاصطناعي...`, 'info');
@@ -2086,11 +2131,27 @@
 
                 const newAmt = (parseFloat(extracted.amount) || 0).toLocaleString('en-US');
                 const newRef = extracted.transaction_ref || extracted.cheque_number || '---';
-                this.showToast(`✅ تمت إعادة قراءة المستند #${idx + 1} بنجاح! المبلغ: ${newAmt} SDG | الرقم: ${newRef}`, 'success');
+                if (fraudCheck) {
+                    const tamperingScore = parseInt(extracted.tampering_score) || 0;
+                    if (tamperingScore >= 35 || extracted.is_suspicious) {
+                        this.showToast(`⚠️ تم الانتهاء من الفحص: اشتباه تزوير بنسبة ${tamperingScore}%!`, 'warning');
+                    } else {
+                        this.showToast(`✅ تم الانتهاء من الفحص: المستند أصلي وسليم (نسبة الشك ${tamperingScore}%)`, 'success');
+                    }
+                } else {
+                    this.showToast(`✅ تمت إعادة قراءة المستند #${idx + 1} بنجاح! المبلغ: ${newAmt} SDG | الرقم: ${newRef}`, 'success');
+                }
             } catch (err) {
                 console.error('Item Rescan Error:', err);
                 this.showToast(`تعذر إعادة قراءة المستند #${idx + 1}: ` + err.message, 'error');
             } finally {
+                if (fraudCheck) {
+                    this.showLoading(false);
+                }
+                if (batchFraudCurrentBtn) {
+                    batchFraudCurrentBtn.disabled = false;
+                    batchFraudCurrentBtn.style.opacity = '1';
+                }
                 if (toolbarBtn) {
                     toolbarBtn.disabled = false;
                     toolbarBtn.style.opacity = '1';
@@ -2104,8 +2165,9 @@
         },
 
         // Re-scan Current Document with AI
-        rescanCurrentItem(fraudCheck = false) {
-            return this.rescanItemByIndex(this.currentBatchIndex, fraudCheck);
+        async rescanCurrentItem(fraudCheck = false) {
+            let idx = (typeof this.currentBatchIndex === 'number' && this.currentBatchIndex >= 0) ? this.currentBatchIndex : 0;
+            return await this.rescanItemByIndex(idx, fraudCheck);
         },
 
         // Render Batch Navigation Tabs / Pills
@@ -2326,7 +2388,7 @@
                     // Individual Square Refresh Button - ملموم ومصغر وبداخله أيقونة صغيرة
                     const refreshBtnHtml = `
                         <button type="button" 
-                                onclick="event.stopPropagation(); FinancialOCR.rescanItemByIndex(${idx})" 
+                                onclick="event.stopPropagation(); FinancialOCR.rescanItemByIndex(${idx}, false)" 
                                 id="card-refresh-btn-${idx}" 
                                 style="width:24px; height:24px; min-width:24px; border-radius:5px; 
                                        background:${isAmtZero ? 'linear-gradient(135deg, rgba(245,158,11,0.5), rgba(217,119,6,0.7))' : 'rgba(56,189,248,0.22)'}; 

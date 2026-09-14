@@ -96,8 +96,16 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
                                     <span>▼</span> السابق
                                 </button>
                             </div>
+                            <!-- زر كشف التزوير للإشعار الحالي (بنفسجي ملكي مشع) -->
+                            <button type="button" onclick="FinancialOCR.rescanCurrentItem(true)" id="btn-batch-fraud-current" style="height:34px; background:linear-gradient(135deg, rgba(168,85,247,0.35), rgba(126,34,206,0.45)); border:1.5px solid #c084fc; color:#f5d0fe; border-radius:8px; padding:0 12px; font-size:0.84rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px; box-shadow:0 0 12px rgba(168,85,247,0.35); white-space:nowrap; transition:all 0.15s ease;" title="🕵️‍♂️ كشف تزوير الإشعار الحالي المعروض بالذكاء الاصطناعي">
+                                <span>🕵️‍♂️</span> كشف التزوير
+                            </button>
+                            <!-- زر كشف التزوير لكامل الدفعة (بنفسجي مربع) -->
+                            <button type="button" onclick="FinancialOCR.rescanAllBatchItems(true)" id="btn-batch-fraud-all" style="width:36px; height:34px; min-width:36px; border-radius:8px; background:linear-gradient(135deg, rgba(168,85,247,0.35), rgba(126,34,206,0.45)); border:1.5px solid #c084fc; color:#f5d0fe; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.05rem; padding:0; transition:all 0.15s ease; box-shadow:0 0 10px rgba(168,85,247,0.35);" title="🕵️‍♂️ كشف تزوير الكل: فحص جنائي لكافة مستندات الدفعة بالكامل بالذكاء الاصطناعي">
+                                🕵️‍♂️
+                            </button>
                             <!-- زر ريفريش شامل لكل الدفعة (مربع كبير بدون كتابة) -->
-                            <button type="button" onclick="FinancialOCR.rescanAllBatchItems()" id="btn-batch-refresh-all" style="width:36px; height:34px; min-width:36px; border-radius:8px; background:linear-gradient(135deg, rgba(56,189,248,0.25), rgba(14,165,233,0.35)); border:1.5px solid #38bdf8; color:#7dd3fc; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.15rem; padding:0; transition:all 0.15s ease; box-shadow:0 0 10px rgba(56,189,248,0.25);" title="🔄 إعادة فحص وقراءة جميع المستندات بالدفعة بالذكاء الاصطناعي (Refresh All)">
+                            <button type="button" onclick="FinancialOCR.rescanAllBatchItems(false)" id="btn-batch-refresh-all" style="width:36px; height:34px; min-width:36px; border-radius:8px; background:linear-gradient(135deg, rgba(56,189,248,0.25), rgba(14,165,233,0.35)); border:1.5px solid #38bdf8; color:#7dd3fc; cursor:pointer; display:flex; align-items:center; justify-content:center; font-size:1.15rem; padding:0; transition:all 0.15s ease; box-shadow:0 0 10px rgba(56,189,248,0.25);" title="🔄 إعادة فحص وقراءة جميع المستندات بالدفعة بالذكاء الاصطناعي (Refresh All)">
                                 🔄
                             </button>
                             <button type="button" onclick="FinancialOCR.triggerUploadAgain()" style="flex:1.2; height:34px; background:linear-gradient(135deg, rgba(16,185,129,0.3), rgba(5,150,105,0.2)); border:1.5px solid #10b981; color:#34d399; border-radius:8px; padding:0 10px; font-size:0.86rem; font-weight:900; cursor:pointer; display:flex; align-items:center; justify-content:center; gap:5px; white-space:nowrap;" title="إضافة شيكات أو إشعارات أخرى للدفعة">
@@ -229,10 +237,6 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
                     </button>
                     <button type="button" onclick="FinancialOCR.rescanCurrentItem(false)" style="background:linear-gradient(135deg, rgba(56,189,248,0.35), rgba(14,165,233,0.45)); border:1.5px solid #38bdf8; color:#e0f2fe; font-size:0.78rem; padding:4px 9px; border-radius:6px; cursor:pointer; font-weight:900; backdrop-filter:blur(10px); display:flex; align-items:center; gap:3px; box-shadow:0 0 12px rgba(56,189,248,0.4);" title="إعادة قراءة المستند بدون فحص جنائي">
                         <span><img src="assets/logo.png" style="width:14px; height:14px; object-fit:contain; border-radius:50%; vertical-align:middle; display:inline-block;"></span> إعادة قراءة
-                    </button>
-                    <!-- Fraud Check Button (overlay) -->
-                    <button type="button" onclick="FinancialOCR.rescanCurrentItem(true)" style="background:linear-gradient(135deg, rgba(217,70,239,0.35), rgba(192,38,211,0.45)); border:1.5px solid #d946ef; color:#f5d0fe; font-size:0.78rem; padding:4px 9px; border-radius:6px; cursor:pointer; font-weight:900; backdrop-filter:blur(10px); display:flex; align-items:center; gap:3px; box-shadow:0 0 12px rgba(217,70,239,0.4);" title="فحص التزوير والتلاعب في المستند (تدقيق جنائي)">
-                        <span>🔍</span> كشف التزوير
                     </button>
                     <!-- زر الحجم الكامل / تركيز البيانات -->
                     <button type="button" id="btn-full-size-preview" onclick="FinancialOCR.toggleFullSizeView()" style="background:rgba(15,23,42,0.88); border:1.2px solid #10b981; color:#a7f3d0; font-size:0.78rem; padding:4px 9px; border-radius:6px; cursor:pointer; font-weight:800; backdrop-filter:blur(10px); display:flex; align-items:center; gap:3px; box-shadow:0 4px 15px rgba(0,0,0,0.6);" title="عرض الإشعار بالحجم الكامل أو تركيز البيانات">
@@ -772,6 +776,9 @@ if (!window.DB_OCR_PROPS || Object.keys(window.DB_OCR_PROPS).length === 0) {
                 <span>🔄</span> إعادة فحص الجميع
             </button>
         </div>
+    </div>
+</div>
+
 
 <!-- OCR Left Column Custom Properties Context Menu (قائمة خصائص الخط والمظهر للحقول المفرغة كليك يمين) -->
 <div id="ocr-custom-props-menu" style="display:none; position:fixed; z-index:2147483647; width:330px; background:linear-gradient(135deg, rgba(15,23,42,0.98), rgba(30,41,59,0.98)); border:2px solid #38bdf8; border-radius:14px; box-shadow:0 15px 40px rgba(0,0,0,0.85), 0 0 25px rgba(56,189,248,0.35); padding:14px 16px; font-family:'Tajawal',sans-serif; direction:rtl; box-sizing:border-box; color:#fff; backdrop-filter:blur(14px); -webkit-backdrop-filter:blur(14px); user-select:none;">
@@ -928,6 +935,7 @@ if (!window.FinancialOCR) {
     0% { transform: scale(1); box-shadow: 0 0 5px rgba(245, 158, 11, 0.6); }
     100% { transform: scale(1.06); box-shadow: 0 0 14px rgba(245, 158, 11, 0.95); }
 }
+
 .ocr-dashboard-col {
     transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1), box-shadow 0.25s ease, border-color 0.25s ease !important;
 }
